@@ -18,6 +18,7 @@ DEPENDENCIES = $(OBJECTS:.o=.dep)
 # the directories you have installed the include files and the libraries to
 WIN_INCLUDE_DIR = c:\usr\include
 WIN_LIB_DIR = c:\usr\lib
+RM_HOME=/c/MinGW-foo7/msys/1.0/bin
 
 YACC_SOURCES = $(wildcard $(SOURCE_DIR)/*.ypp)
 EXCLUDE_FILE = src/qscript_data.ypp
@@ -53,7 +54,7 @@ QSCRIPT_MINOR_VERSION_NUMBER=12
 #	echo "YACC OBJECTS $(YACC_OBJECTS)"
 #	echo "LEX OBJECTS $(LEX_OBJECTS)"
 
-$(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
+$(BUILD_DIR)/qscript.exe: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
 #echo "cpp sources: $(CPP_SOURCES)" 
 #	echo "yacc sources: $(YACC_SOURCES)" 
 #	echo "lex sources: $(LEX_SOURCES)" 
@@ -234,7 +235,16 @@ release: clean
 
 #	-del /q /f $(BUILD_DIR)\*.* $(BUILD_DIR)\runtime_lib\*.* lib\*.* bin\qscript include\*.* $(BUILD_DIR)\compiletime_lib\*.* $(BUILD_DIR)\runtime_static_lib\*.* $(BUILD_DIR)\compiletime_static_lib\*.*
 clean:
-	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript.exe include/* $(BUILD_DIR)/compiletime_lib/* $(BUILD_DIR)/runtime_static_lib/* $(BUILD_DIR)/compiletime_static_lib/*
+	-$(RM_HOME)/rm.exe -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript.exe include/* $(BUILD_DIR)/compiletime_lib/* $(BUILD_DIR)/runtime_static_lib/* $(BUILD_DIR)/compiletime_static_lib/*
+#	-cmd /c "del /f $(BUILD_DIR)\\*.o $(BUILD_DIR)\\*.exe $(bin)\\qscript.exe include\\* $(BUILD_DIR)\\compiletime_lib\\*.* $(BUILD_DIR)\\runtime_static_lib\\*.* $(BUILD_DIR)\\compiletime_static_lib\\*.*"
+	echo $(PATH)
+#cd make-build-dir && del /y *.*
+#	cd make-build-dir/compiletime_static_lib && del /y *.*
+#	cd make-build-dir/runtime_static_lib && del /y *.*
+#	cd bin && del /y qscript.exe
+#	cd lib && del /y *.*
+#	cd include && del /y *.*
+
 
 #local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
 #	cp $(BUILD_DIR)/qscript bin
@@ -251,11 +261,11 @@ clean:
 #	copy $(BUILD_DIR)\runtime_static_lib\libqscript_runtime.a lib
 #	copy $(BUILD_DIR)\compiletime_static_lib\libqscript_compiletime.a lib
 #	copy ${SOURCE_DIR}\*.h include
-local_install: $(BUILD_DIR)/qscript runtime_static_lib compiletime_static_lib 
-	xcopy /y $(BUILD_DIR)\qscript.exe bin
-	xcopy /y $(BUILD_DIR)\runtime_static_lib\libqscript_runtime.a lib
-	xcopy /y $(BUILD_DIR)\compiletime_static_lib\libqscript_compiletime.a lib
-	xcopy /y ${SOURCE_DIR}\\*.h include
+local_install: $(BUILD_DIR)/qscript.exe runtime_static_lib compiletime_static_lib 
+	xcopy   $(BUILD_DIR)\\qscript.exe bin
+	xcopy   $(BUILD_DIR)\\runtime_static_lib\\libqscript_runtime.a lib
+	xcopy   $(BUILD_DIR)\\compiletime_static_lib\\libqscript_compiletime.a lib
+	xcopy   ${SOURCE_DIR}\\*.h include
 
 nsiqcppstyle:
 	cd src; make -f Makefile.nsiqcppstyle; cd ..

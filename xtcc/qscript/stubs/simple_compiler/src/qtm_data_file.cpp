@@ -561,23 +561,65 @@ void QtmDataDiskMap::print_run(string jno)
 	stringstream run_file_name;
 	run_file_name << "setup-" << jno << "/" << jno << ".run" ;
 	fstream run_file(run_file_name.str().c_str(), std::ios_base::out | std::ios_base::ate);
-	run_file << "struct ser=c(" << qtm_datafile_conf_parser_ns::ser_start
+	run_file << "struct;ser=c(" << qtm_datafile_conf_parser_ns::ser_start
 		<< "," << qtm_datafile_conf_parser_ns::ser_end
 		<< ");crd=c(" << qtm_datafile_conf_parser_ns::crd_start
 		<< "," <<  qtm_datafile_conf_parser_ns::crd_end
 		<< ");read=" << qtm_datafile_conf_parser_ns::qtm_file_mode 
+		<< ";max=" << qtmDataFile_.fileXcha_.currentCard_ + 1
 		<< endl << endl;
 
 	run_file << "ed" << endl;
-	run_file << "end" << endl;
+	run_file << "end" << endl << endl;
+	run_file << "a;" << endl << endl;
 
-	run_file << "*include tabs.qax;ban=tot" << endl;
+	run_file << "*include " << jno << ".tab;ban=tot" << endl;
 	run_file << "*include " << jno << ".qax" << endl;
 
 	run_file << endl 
 		<< "l tot" << endl << "n10Total" 
 		<< endl
 		<< endl;
+
+	// print other support files
+	stringstream mn1c_fname;
+	mn1c_fname << "setup-" << jno << "/" << "mn1c.qin";
+	fstream mn1c_qin (mn1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	mn1c_qin << "n00;c=c(a0).in.(&range);" << endl
+		<< "n25;inc=c(a0);c=c(a0).in.(&range)" << endl
+		<< "n12&qatt;dec=2" << endl;
+
+	stringstream mn2c_fname;
+	mn2c_fname << "setup-" << jno << "/" << "mn2c.qin";
+	fstream mn2c_qin (mn2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	mn2c_qin << "n00;c=c(a0,a1).in.(&range);" << endl
+		<< "n25;inc=c(a0,a1);c=c(a0,a1).in.(&range)" << endl
+		<< "n12&qatt;dec=2" << endl;
+
+	stringstream rat1c_fname;
+	rat1c_fname << "setup-" << jno << "/" << "rat1c.qin";
+	fstream rat1c_qin (rat1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	rat1c_qin << "n01 &qatt; inc=c(a0);c=c(a0).in.(&range);" << endl;
+
+
+	stringstream rat2c_fname;
+	rat2c_fname << "setup-" << jno << "/" << "rat2c.qin";
+	fstream rat2c_qin (rat2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	rat2c_qin << "n01 &qatt; inc=c(a0,a01);c=c(a0,a01).in.(&range);" << endl;
+
+	stringstream qtit_fname;
+	qtit_fname << "setup-" << jno << "/" << "qttl.qin";
+	fstream qtit_qin (qtit_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	qtit_qin << "ttl&qno &qt1it" << endl;
+	qtit_qin << "&act2tttl&qt2it" << endl;
+	qtit_qin << "&act3tttl&qt3it" << endl;
+	qtit_qin << "&act4tttl&qt4it" << endl;
+
+	stringstream base_fname;
+	base_fname << "setup-" << jno << "/" << "base.qin";
+	fstream base_qin (base_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	base_qin << "ttlBase: &btxt" << endl
+		<< "n10Total" << endl;
 
 }
 
@@ -596,7 +638,30 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 	for (int i=0; i< q->loop_index_values.size(); ++i) {
 		qax_file << "." << q->loop_index_values[i];
 	}
-	qax_file << ";qtit=" << q->questionText_ << ";" << endl;
+	if (q->questionText_.size() > 150) {
+		int n_pieces = (q->questionText_.size()/150) + 1;
+		int i=0;
+		for (i=0; i < n_pieces ; ++i) {
+			if (i==0) {
+				qax_file << ";qt1it=" << q->questionText_.substr(i * 150, (i+1) * 150 > q->questionText_.size() 
+					? q->questionText_.size() : (i+1) * 150) << endl;
+			} else {
+				qax_file << "+qt" << i+1 << "it=" << q->questionText_.substr(i * 150, (i+1) * 150 > q->questionText_.size() 
+					? q->questionText_.size() : (i+1) * 150) 
+					<< ";act" << i+1 << "t=;"
+					<< endl;
+			}
+		}
+		for (; i<4; ++i) {
+			qax_file << "+qt" << i+1 << "it=;" << "act" << i+1 << "t=/*;" << endl;
+		}
+	} else {
+		qax_file << ";qt1it=" << q->questionText_ << ";" << endl;
+		qax_file << "+qt2it=;" << "act2t=/*" << endl;
+		qax_file << "+qt3it=;" << "act3t=/*" << endl;
+		qax_file << "+qt4it=;" << "act4t=/*" << endl;
+	}
+
 	if (baseText_.isDynamicBaseText_ == false) {
 		qax_file << "*include base.qin;btxt=" << baseText_.baseText_ << endl;
 	} else {
@@ -685,6 +750,18 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 			<< "col(a)=" << startPosition_ + 1
 			<< ";"
 			<< endl;
+		stringstream fname;
+		fname << setup_dir << "/" << q->questionName_ << ".qin";
+		fstream qtm_include_file (fname.str().c_str(), 
+				std::ios_base::out | std::ios_base::trunc);
+		if (width_ == 1) {
+			qtm_include_file << "val c(a0);i;1" 
+				<< endl;
+		} else {
+			qtm_include_file << "val c(a0,"
+				<< "a" << width_ - 1 << ");i;1" 
+				<< endl;
+		}
 	}
 	qax_file << endl;
 }

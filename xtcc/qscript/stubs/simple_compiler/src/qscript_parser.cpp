@@ -2460,10 +2460,10 @@ void print_summary_axis(FILE * script)
 
 	fprintf (script, "		} else {\n");
 	fprintf (script, "			qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
-	fprintf (script, "			qtm_qax_file << \"l \" << q->questionName_ << \"_sum\" << endl;\n");
-	fprintf (script, "			qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "			qtm_qax_file << \"/*l \" << q->questionName_ << \"_sum\" << endl;\n");
+	fprintf (script, "			qtm_qax_file << \"/*ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
 	fprintf (script, "			for (int i=0; i<v.size(); ++i) {\n");
-	fprintf (script, "				qtm_qax_file << \"*include summ.qin;qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"/**include summ.qin;qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 << endl;\n");
 	fprintf (script, "			}\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "	}\n");

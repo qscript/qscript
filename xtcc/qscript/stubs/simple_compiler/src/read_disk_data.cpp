@@ -1,6 +1,6 @@
-#line 2 "src/read_disk_data.cpp"
+#line 2 "read_disk_data.cpp"
 
-#line 4 "src/read_disk_data.cpp"
+#line 4 "read_disk_data.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -488,8 +488,8 @@ int read_disk_data_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *read_disk_datatext;
-#line 1 "src/read_disk_data.l"
-#line 2 "src/read_disk_data.l"
+#line 1 "read_disk_data.l"
+#line 2 "read_disk_data.l"
 
 #include "const_defs.h"
 #include "qscript_data.hpp"
@@ -501,7 +501,7 @@ char *read_disk_datatext;
 	int line_no;
 	extern int no_errors;
 
-#line 505 "src/read_disk_data.cpp"
+#line 505 "read_disk_data.cpp"
 
 #define INITIAL 0
 
@@ -688,10 +688,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 18 "src/read_disk_data.l"
+#line 18 "read_disk_data.l"
 
 
-#line 695 "src/read_disk_data.cpp"
+#line 695 "read_disk_data.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -776,7 +776,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 20 "src/read_disk_data.l"
+#line 20 "read_disk_data.l"
 {
 	read_disk_datalval.ival = atoi(read_disk_datatext);
 	//cout << "got INUMBER" << endl; 
@@ -786,7 +786,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 26 "src/read_disk_data.l"
+#line 26 "read_disk_data.l"
 {
 	//cout << "got NEWL" << endl;
 	return NEWL;
@@ -794,7 +794,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 31 "src/read_disk_data.l"
+#line 31 "read_disk_data.l"
 {
 	//cout << "got COLON" << endl;
 	return COLON;
@@ -802,26 +802,26 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 36 "src/read_disk_data.l"
+#line 36 "read_disk_data.l"
 {
 	return DOLLAR;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 40 "src/read_disk_data.l"
+#line 40 "read_disk_data.l"
 ; /* ignore */
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 42 "src/read_disk_data.l"
+#line 42 "read_disk_data.l"
 {
 	return BOUNDS;
 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 46 "src/read_disk_data.l"
+#line 46 "read_disk_data.l"
 {
 	if(read_disk_dataleng < MY_STR_MAX) {
 		strcpy(read_disk_datalval.name,read_disk_datatext);
@@ -835,10 +835,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 57 "src/read_disk_data.l"
+#line 57 "read_disk_data.l"
 ECHO;
 	YY_BREAK
-#line 842 "src/read_disk_data.cpp"
+#line 842 "read_disk_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1836,7 +1836,7 @@ void read_disk_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 57 "src/read_disk_data.l"
+#line 57 "read_disk_data.l"
 
 
 
