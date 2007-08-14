@@ -1,0 +1,5 @@
+1) Add print statement to grammar
+	=> add function call
+	=> put print function into symbol table
+2) interface edit with main loop. start testing of main_loop	
+3) add file creation and logging to language

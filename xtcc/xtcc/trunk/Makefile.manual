@@ -1,0 +1,18 @@
+CC=g++ -c
+
+DEPS= y.tab.c  lex.yy.c tree.C expr.C scope.C Tab.h
+HEADER_DEPS= tree.h scope.h 
+
+dp:	$(DEPS) Makefile.manual  $(HEADER_DEPS)
+	echo $*
+	g++  -Wall -o $@ $(DEPS)  -lfl
+
+lex.yy.c:	 lex.l y.tab.h tree.h 
+	echo $*
+	lex $<
+
+y.tab.h y.tab.c: type.y tree.h symtab.h 
+	bison -v -y -d $<
+
+#expr.o: expr.C	expr.h
+#	$(CC) $<

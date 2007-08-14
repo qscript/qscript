@@ -1,0 +1,40 @@
+I have added scopes to the new grammar - I have changed it for integer definition: same changes have to be made for
+all other data types
+
+Type_checker4:
+Trying to add printf as a function call - just like the C printf. But for now I am not doing any type checking on the arguments - very dangerous.
+
+Type_checker5:
+Changing top level program to a chain of decls or functions definitions
+
+28-JUN-2007
+$$ has to be assigned in all of the statement blocks: 
+29-JUN-2007
+Done even if haphazardly
+
+15-Jul-2007:
+===================================================================
+Here is a feature I would like to have
+int data;
+{
+use data here;
+}
+data=invalid;
+{
+use it here; compiler-> flags an error that data was invalid here
+}
+===================================================================
+I need to add the function parameter list to the symbol table -> once I do this the error in inp10 will go away
+Also - I am using scope* tmp_storage to store the parameter names, after this -> I need to add a mid-action rule which sets a flag -> compount_statement_is_a_func_body
+when the compound statement sees this flag it will pull the scope from the function info. 
+
+alternatively I could modify the symbol table lookup function -> to check the current functions decl parameter list for a variable name apart from the scope - and on second thoughts this seems easier
+
+16-Jul-2007
+: tO be done: print out all the values of the list counts
+8-Aug-2007 
+I have started modifying tree.h -> creating classes for stmt - using abstract base class
+
+9-Aug-2007.
+
+I have detected a bug in ref parameter passing. This is because the ref types have a higher type number

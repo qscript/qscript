@@ -1,0 +1,543 @@
+\input texinfo
+@c %**start of header
+@setfilename xtcc_doc.html
+@settitle XTCC_Documentation
+@c %**end of header
+
+@copying
+This manual is for a suite of programs called xtcc 
+which is a tool to help in Market Research Analysis.
+
+This manual is a work in progress, but a sample annotated input program is present in the Chapter - Short tour of xtcc
+
+Copyright @copyright{} 2003,2004,2005,2006,2007 Neil Xavier D'Souza, 502, Premier Park, Orlem, Bombay, India 400064.
+
+@quotation
+@include COPYING
+@end quotation
+@end copying
+
+
+@titlepage
+@page
+@vskip 0pt plus lfilll
+@insertcopying
+
+@title XTCC - Cross Tabulations Compiler, User and Developer manual and guide
+@subtitle Edition @value{e} for Release @value{cde}
+@author Neil Xavier D'Souza
+
+@end titlepage	
+@contents
+
+@ifnottex
+@node Top
+@top Top level menu for XtCC - documentation
+@insertcopying
+@end ifnottex
+
+@menu
+* Overview of XtCC:: XtCC purpose, objectives in brief
+* Overview of MR:: Brief MR DP orientation
+* Scope for Computer assistance in DP:: Outline of what is really possible
+* Design goals:: Design ideas, future design ideas, objectives and Possible Ideas how it is aimed to achieve these through this program
+* Requirements::
+* Installing and building the compiler and associated tools::
+* Testing suite::
+* Short tour of xtcc:: sample program, invocation, output
+* Other planned tools:: 
+* The xtcc edit section::
+* The xtcc axes section::
+* Tutorial and Reference documentation of a person who wants to get in and work in developing this software::
+@end menu
+
+
+@node Overview of XtCC
+@chapter Overview of XtCC
+@cindex Overview of XtCC
+	
+	XTCC - Cross Tabulation compiler, is a set of tools for Market Research MR, companies to assist in Data Processing part of their day to day work. DP -> Data Processing and a people working and this department tend to be called DP(s). For an very brief overview of MR, mainly from a DP point of view, read the chapter "Overview of MR". 
+	
+	The main program is a compiler that takes user a user input program and applies the "edit" to repeatedly to every line of data, after which it tabulates the data based on the given tabulation spec.
+
+	The input program consists of 3 parts - an Edit section - containing transformations you would like to apply to the data, the Tabulation section marking the tables which need to be tabulated and the Axes section listing each individual table in the program.
+
+
+@node Overview of MR
+@chapter Overview of MR
+@cindex Overview of MR
+	
+	Basic workflow:
+@enumerate
+@item
+	A client approaches an MR Company to research a particular topic
+@item
+	A researcher in MR company interacts with the client - together they work out a questionnaire which will help answer clients needs
+@item 
+	The client commissions the study after which the questionnaire goes into field. The MR company looks at the target group, checks sample quotas that would make the information representable for the target group and does interviews - with (mostly) common people like you and me
+@item
+	The questionnaires are collected and deposited in the data entry department of the company
+@item
+	The Data processing department then gets the data punched by data entry programmers. There may be - pre or post cleaning of the data based on the choice of the MR company
+@item
+	While data entry is on a DP person starts preparing the analysis specs for the program. If necessary she may write a cleaning edit to ensure that the data meets valid logical and quota checks that were in the initial field plan
+@item
+	If there are open ended questions the DP or researcher - depending on whose responsibilty it is for that particular company will brief a Coder - person who looks at verbatim responses and classifies them for a statistical point of view
+@item
+	Once all the data is entered, the DP will generate tables on the data, run her edits on the data, resolve and logical errors with the researcher, generate tables, check them against raw data using hole counts and finally send the output of the tables to the researcher.
+@item 
+	The researcher then studies the tables - looking for a specific pattern, and presents the findings to the client.
+@end enumerate
+
+	Although this might not be the way things happen in a particular company, it captures the essence of what goes on.
+
+	The main role of a DP is converting raw data into information for a researcher.
+
+For a DP the main work revolves around
+@enumerate
+@item
+	The questionnaire
+@item
+	The questionnaires from field
+@item
+	Giving a final set of 100% checked correct tables to the researcher
+@end enumerate
+
+	Checking of tables against data generally implies checking tables against hole counts. In most MR companies, data is punched in an ASCII file. Every respondent has a unique identifier the "Serial number". Depending the format in which the file is written, a respodent may have one or more "cards" per serial number. Each question asked by the Field is given a unique column number in the data file - the card number helps indentify a column number over a span of multiple lines for a particular respondent. A holecount is a frequency distribution, showing the data punched at each column number accumulated over all the respondents. Given this information it is possible to check tables against raw data.
+
+	For Example:
+		if we know that Q1 is punched at column 59 in the data file - by looking at the absolute counts at column 59 and seeing the counts in the output of tabulated question Q1 - we can assert if Q1 is tabulated correctly by a DP.
+
+	So suppose Q1 happens to be Respondents Gender where code 1 = Male and Code 2=Female
+
+@example
+	The table output looks like:
+	Q1 Gender
+	Male 103
+	Female 110
+
+	The hole counts looks like
+	       |code 1      code 2 ...
+	----------------------------
+	Col 58 | ...        ...
+	Col 59 | 103        110    ....
+@end example
+
+	By looking at the questionnaire - we can see that Male - is represented by code 1 and Female by code 2, and looking at the table and raw data - we can say that the information tabulated is correct.
+
+@node Scope for Computer assistance in DP
+@chapter Scope for Computer assistance in DP
+@cindex Scope for Computer assistance in DP
+	
+@enumerate
+@item
+	Computer assistance in Managing data files and formats, including data files created on different machine architectures
+@item
+	Powerful editing language for data manipulation
+@item
+	Conversion of ouput tables into various different formats
+@item
+	Assistance in table checking
+@item
+	Assistance in creation of initial edits
+@item
+	Assistance in creation of axes, and tabulation setup
+@end enumerate	
+
+	Each one of the points above will become a feature or a standard I would like to achieve in the future.
+
+@node Design goals
+@chapter Design goals
+@cindex Design goals
+
+	First a little background. Before I joined the MR industry as DP I was a C /C++ programmer. The main package used in all three organizations I worked in was quantum, now an SPSS-MR product. I have used quantum for 99% of my work. I am keeping a similar overall structure, although not compatible.
+
+	While quantum is very good for DP, I felt there are some macro and micro level issues I would like to tackle. These below are present in v5.7
+
+@enumerate
+
+@item
+	Restrictive syntax in the edit section - i.e. data manipulation language
+	Forced syntax for programmer -> For example: all axes statements have to be anchored at the start of a line.
+
+@item
+	Usage of labels in loops and conditional branching -> in fact the edit language encourages use of goto
+
+@item
+	The edit language does not seem to be a formal grammar parser. The if else if else does not seem to work like in a normal computer language. Continuation lines have the start with a "+" sign at the beginning of line.
+
+@item
+	Restriction to 199 characters per line of edit/ axis
+
+@item
+	Weak support for subroutines - you cannot call one subroutine from another, nor from a loop - at least till v5.7. No type checking done for subroutine arguments
+
+@item
+	Lack of precedence for normal operators in expressions
+
+@item
+	Restrictions on number of lines an edit section can have
+
+@item
+	Inconsistent error reporting - sometimes it does not catch the correct place an error has occurred.
+
+@item
+	In consistent usage of small case and large case tokens. For example the standard data array is called "c" in the edit but a "C" at start of a line is a comment
+
+@item
+	Lack of block comments - there are tricks to get this but basically the core language does not support it, also comments have to start at the beginning of a line
+
+@item
+	Non-optimal usage of native data type - most computers that run quantum are 8 bit =1 byte architecture - yet by design quantum has 12 punches - so that multicoded data may have to be stored in 2 bytes. Not only that - this requires a level of indirection while reading data slowing down a potentially fast program and introduces a level of complexity. No doubt this was done so that a data file could be visually viewed in a editor for most of the data, but this does not work for multi-punch data. 
+
+@item
+	Cryptic keywords - for example n01 -> represents count , n10 represents total for a basing computation n12 stands for mean etc. Steep learning curve for a beginner
+@end enumerate
+
+	When I decided to design my own package I had to decide about compatibility. Some of the flaws above are unacceptable, so I have decided to not maintain compatibility - at least not for now.
+	Here are the design goals laid down.
+@enumerate
+	@item
+	Speed, Performance, Powerful edit language, Logically named keywords, strong error reporting:
+
+
+	Fast, desgined for performance compiler, with native data types as close to the underlying architecture as possible, C like language with no restrictions on program size, syntax, good error reporting and normal language looping and branching statements, with functions and functions prototypes and strong type checking. Also automatic conversion of raw data to the correct type by looking at data type on LHS of assignment operator.
+
+	I have a ready compiler which does meet most of the above requirements, and generates a file for tables which can be parsed further for different types of output formats
+
+
+	@item
+	Data file portability:
+
+	Advisory, self contained binary data file, again as close to underlying machine architecture. If the file is sent to another computer for processing, the file itself contains enough information to be able to determine if conversion is required or data is compatible. The system should be extensible so that people can easily add converters to the suite of programs to convert from one architecture to another. 
+
+	To achieve this, I am going to spec out a data format which will have all the above capabilities
+
+	@item
+	Automatic Creation of Basic axes:
+
+	The data file should also contain an embedded logical map. The logical map should contain logical question names for the data in the questionnaire, along with stub-level information if any. This will allow for another program to create initial data edits and axes setup for data present in the map. This data is not compulsory, but if present will allow for other tools to work on it, we should not have errors being thrown as a result of lack of this information. In particular the data file has information embedded in it so that the program can determine where the actual data starts so that it can process the data independent of the metadata information.
+
+	@item
+	Layout independence:
+
+	The program should hide from the DP programmer data column nos as far as possible, yet if the DP so desires can have raw access to the raw data, overriding system generated defaults. The program should have assistive tools which automatically create logical variables for each question. These variables are autmatically assigned the correct column nos from the data file. The DP programmer uses the logical variables in the axis setup, but can modify variables as and when she wants, because there are normal native variables. In explaining this, what Im trying to do is introduce a logical layer between the raw data and the edit a DP writes. This allows for data independence, in a way that even if a layout changes, only the column number assignments would have to change to maintain the program. 
+
+	@item
+	Different output formats for tabulated data:
+
+	This can be achieved through a program which reads the intermediate ouput tables and then applies converters which the right parameters as necessary.
+
+	@item
+	Another important design goal is for a person to be easy to join in the development effort. This means allowing for example - people who dont know yacc/grammars to be able to contribute easily.  This can be achieved by long term vision, design decisions, anticipating well in advance, where slightly advanced programming is required, and if possible laying out framework / algorithms to serve as guide. Not only this, but the entire package should comprise of a series of co-operating programs, aware of each others capabilites. This way someone else can develop a black-box application, just knowing what her inputs, outputs should be; programs remain relatively smaller, and therefore easier to manage ( and hopefully more bug free). It will also allow programming happen in parallel.
+
+@end enumerate
+
+@node Requirements
+@chapter Requirements
+@cindex Requirements
+
+Build requirements
+@enumerate
+
+	@item 
+		yacc/GNU bison
+	@item
+		lex/flex
+	@item
+		ISO std C++ compiler (g++ ver 4 works fine for me, and I have compiled with Borland C++ on Windows)
+	@item
+		GNU make. Note to build the final C++ output program the compiler uses the shell "cat" command. On WINDOWS systems this would have to be changed to "cat".
+
+@end enumerate		
+Runtime	requirements
+@enumerate
+	@item
+	ISO std C++ compiler. 
+	@item
+	Depending on your ouput requirements, You may also need LaTeX. LaTeX is based on TeX a powerful typesetting package that is freely available.
+
+@end enumerate	
+
+@node Installing and building the compiler and associated tools
+@chapter Installing and building the compiler and associated tools
+@cindex Installing and building the compiler and associated tools
+	On most UNIX systems a build should be quite easy. You need to type:
+	
+@example
+	
+	$ ./configure
+	$ ./make
+
+@end example
+	
+	It defaults to the GNU g++ compiler if avaibale and the only compiler on LINUX/UNIX I have access to. This will create a program "xtcc" . Copy it to your bin directory. The program needs all the files in the @file{stubs} directory. This means if the source directory for xtcc is @file{xtcc}, the files in @file{xtcc/stubs} also need to be copied to a sub directory where xtcc binary is stored.
+
+@example
+
+	mkdir ~/bin/stubs
+	cp xtcc/stubs ~/bin/stubs
+
+@end example
+	
+	When the program runs, it needs a temporary directory to create intermediate files this directory should be named @file{xtcc_work}. 
+	
+
+	I have also successfully compiled the program on WINDOWS - I installed the windows binary of bison, flex, gnu make and used Borland's  C++ compiler - which is available in their free command line tools. Since WINDOWS is case sensitive there is no distinction between the "C" files and "c" files, so you need to force the compilation to C++ by passing the -P option to bcc32. Please read the license for bcc32 before using.
+
+	Here is what I do. Put this at the top of the make file:
+
+@example
+
+	CC=\borland\bcc55\bin\bcc32 -P -I\borland\bcc55\Include -L\borland\bcc55\Lib.
+
+@end example	
+	
+	You need to modify Makefile.manual accordingly. Note that bcc32 uses the -e<Filename> option to produce an executable, and there should be no space between -e and the filename 
+
+@example
+	bcc32 -extcc.exe $(OBJS)
+@end example
+
+@node Testing suite
+@chapter Testing suite
+@cindex Testing suite
+	sample_inp present in the test-suite directory is a program I use to test various commands that I add. A data file sample.dat is present in the root directory of the sources.
+
+@node Short tour of xtcc
+@chapter Short tour of xtcc
+@cindex Short tour of xtcc
+
+	First the data file. 
+@enumerate 
+@item
+	The data file comprises of records of data. One record represents the data for a particular interview, each having exactly the same length
+@item
+	The first 4 bytes of the record, hold the serial number
+@item
+	The next 4 bytes hold the card number - I have not added this into the current sources but intend to very soon. This information is not used now, but in the future if support is added for diary studies then we will need this to distinguish between diaries. The program does not impose a hardlimit on the the length of the data file, the record length itself is stored internally as a "long long", which means that we really dont need cards for normal ad-hoc studies.
+@end enumerate
+
+	A Sample input program could be as below. I have annotated it with comments. It is always available in the directory @file{test-suite} named as @file{sample_inp}
+@example
+
+@verbatiminclude ../test-suite/sample_inp
+
+@end example
+
+	As you can see, block comments and line comments are supported.
+	
+	The overall structure of a program is as follows:
+
+	A program has 4 main sections:
+@enumerate
+	@item
+	The structure of the data - 
+	
+@example
+
+	data_struct;reclen=120;
+	
+@end example
+
+	@item
+	The edit section. This is the program text between @code{ed_start} and @code{ed_end}
+	@item
+	The tabulation section. This is a list of all tables that are to be tabulated. It is written in this block
+	@code{tabstart} followed by @{ and @} and finally
+	@item 
+	The axes section which is marked by @code{axstart} and the text that occurs between @{ and @} 
+@end enumerate	
+
+@node Other planned tools
+@chapter Other planned tools
+@cindex Other planned tools
+	Here is the initial roadmap for the suite of tools
+@enumerate
+	@item
+		xtcc as you have already seen, is the main engine for tabulation and editing of data.
+	@item
+		Apart from xtcc, I am also planning a questionnaire scripting tool "qscript". This is a questionnaire scripting language, which will be a single point program for data entry through pen-and-paper, telephonic, or web interviews. It should also be possible, using TeX/LaTeX to generate a postscript, printable harcopy questionnaire - using the filter information available
+	@item
+		Also planned is a DP-assistant tool. This tool will serve as a glue between dp-assistant and xtcc. It will have the user input questionnaire with stubs and their code values. With this information, the program will able to generate 2 types of outputs
+@enumerate
+	@item
+		A preliminary data entry script, which can be modified by the user and run using qscript.
+	@item
+		The second ouput is, given a qscript map file and its own initial input - which was used to generate the qscript earlier - it will generate an edit - mapping the question names to their data positions and generating axes for xtcc. Note that since the dp-assistant input has the stub information, this is now possible.
+@end enumerate
+
+@end enumerate
+
+
+
+@node The xtcc edit section
+@chapter The xtcc edit section
+@cindex The xtcc edit section
+
+	The edit section language is very much like C. The text between ed_start and ed_end is the edit.
+	
+@example
+
+	ed_start
+	.
+	.
+	.
+	ed_end
+@end example	
+
+@section Scoping rules
+	A variable can be declared anywhere in a program - this is thanks to the fact that we are using C++ as the compiler ffor the output language, and it was very easy to program as a result since C++ supports this natively.
+
+	All global variables are available in the tabulation section.
+
+
+@section Data types
+	Current data types are: 
+	char, int, float, double.
+	NxD_NOTE: I should add long and unsigned short when I have added these to the grammar.
+	An identifier (variable) must begin with alpha characters or '_' and may continue with an '_' or digits or alpha characters after the first character
+	An example of a declaration is:
+@example
+	int i; // valid
+	int var_102; // valid
+	int 102_h; // error - starts with a digit
+@end example	
+	
+	The only other data type that is allowed right now is a array of the above types
+@example
+	int arr[10];
+	float farr[20];
+@end example	
+
+@section Expressions
+	
+	The following arithmetic operators are supported and have their usual meaning as in 'C'.
+@code{+, -, *, /, %}
+	This means that the following expressions are valid:
+@example
+	int a;
+	int b;
+	int c;
+
+	a+5;
+	a+b;
+	a+b*c;
+	a/b+b/c;
+	int d;
+	d=a/b+b*c;
+@end example
+	The precedence rules for the above operators is the same as that is 'C' i.e. @code{*,/,%} are given higher precendence than @code{+,-}.
+
+	The arithmetic relational operators are @code{==,<=,>=,<,>,!=} and have their usual meaning. Note that "!=" means NOT EQUAL to. They have lower priority than the arithmetic operators. Hence the following is valid code:
+@verbatim
+	int a=10; int b=20;
+	a<=b;
+	if(a>b) {
+		// do something 
+	}
+	if (a==b) {
+		// do something
+	}
+@end verbatim
+
+	The logical operators are @code{&&,||,!}, which are the LOGICAL AND, LOGICAL OR and LOGICAL NOT respectively. The LOGICAL AND and LOGICAL OR have lower priority than the arithmetic operators, but LOGICAL NOT has higher priority.
+	Among the LOGICAL AND and LOGICAL OR operators, LOGICAL AND has higher priority, so normal boolean algebra is possible. Example code is:
+@verbatim	
+	if(a>5 && b <20) {
+		// do something
+	}
+	if(a||b){
+		// do something
+	}
+@end verbatim			
+	Since the output code is C++, the short circuit rule applies. This means that for an || condition the first true condition will determine the execution of the body of an action to follow. The other expressions are not evaluated.
+
+	A function call is also an expression, this gets the highest priority along with the '(' ')' -> parenthesis operator.
+	A funcion's return type determines the type of the expression. So a function returning void cannot be used as part of logic tests etc.
+	
+
+@section Statements
+
+@subsection	if statement
+	The if statement has two forms
+@example
+	if ( expr ) statement
+	if ( expr ) statement else statement
+@end example	
+
+	The else matches with the nearest if. And else if can be used to add in more conditions. Only one path is taken during execution.
+
+	Example:
+@verbatim
+	int a=100;
+	if (a <100 ) {
+		printf("a < 100");
+	} else if (a==100){
+		printf("a==100");
+	} else {
+		printf("a>100");
+	}
+	// Also valid is: this is because an if can take a normal statement or a compound statement as the body
+	if(a<100) 
+		printf("a<100");
+	else if (a==100) 
+		printf("a==100");
+	else 	
+		printf("a>100");
+		
+@end verbatim
+	Neither the @code{else if}, or @code{else} clause is compulsory.
+
+@subsection Loop statement
+
+@subsection Compound statements
+
+@section Functions
+	
+	
+@node The xtcc axes section
+@chapter The xtcc axes section
+@cindex The xtcc axes section
+	
+	There are only 2 types of axes in xtcc. 
+@enumerate	
+@item
+	single coded axes - an axis that has exactly one value associated with it
+@item	
+	multiple code axes - an axis that has multiple values  associated with it
+@end enumerate	
+	
+	This data is stored in the system in only one format for each type. Single coded data is stored with the width of the underlying data type in qscript. For example if Q5 was a char data in the script, it will be stored on disk in sizeof(char) bytes - which should be 1 for systems on which this program is designed to run.
+
+	A multicoded question will have the number of responses as part of the data in the mapfile. The multi punch data will be stored accross those positions in the data. For example
+	Suppose Q6 is multi-punched, has 10 responses of type int, and sizeof(int)==4 . Also suppose that the first column Q6 is coded is col 101 then
+	Q6 [1] -> Q6 first response will be at 101-104, Q6[2] will be at 105-108 and so on.
+
+	Numeric data should be treated as single punch data, you can use "long long" for very large numeric ranges. If you need floating point data set the underlying data for the single punch question to float or double - depending on the amount of precision required.
+
+	There is only one counting statement in xtcc -@code{cnt}. If you want to count multi-coded questions, you should first fix the multicoded data first, and then use the @code{cnt} statement. This is because if you had to use a particular code in the multicoded question - you would have to extract it which would require you to fix the data anyway. Fixing the data means - suppose we have a multicoded Q6 which has upto five possible mentions.  They could be coded as 10, 20,5, 4, 3. When we fix this data, we need to provide an array to xtcc and ask it to fix the data in this array
+
+	So I could say something like
+	int q6_ans[60];
+	fix (q6_ans,Q6);
+
+	The compiler will generate code so that q6_ans will be like this. 
+@enumerate
+	@item 
+	the value of q6_ans will be zeroed out for all variables initially
+	@item
+	q6_ans[3] will be 1, q6_ans[4] will be 1, q6_ans[5] will be 1, q6_ans[10] will be 1 and q6_ans[20] will be 1. 
+	@item
+	if there is a vaule which is outside 1-60 - because 60 is the size of the q6_ans array, q6_ans[0] will be incremented. The compiler will generate code to issue a runtime - error that an out of range value was present in the system.
+	
+@end enumerate
+
+	The DP-assistant will generate code looking at the map - so that the DP-programmer is relieved of the work of defining an array to fix the data and creating the multicoded axis with the right @code{cnt} statements.
+
+@node Tutorial and Reference documentation of a person who wants to get in and work in developing this software
+@chapter Tutorial and Reference documentation of a person who wants to get in and work in developing this software
+@cindex Tutorial and Reference documentation of a person who wants to get in and work in developing this software
+
+@bye
+

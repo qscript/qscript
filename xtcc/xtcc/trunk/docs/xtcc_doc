@@ -1,0 +1,152 @@
+This is xtcc_doc, produced by makeinfo version 4.8 from manual.texi.
+
+   This manual is for a suite of programs called xtcc which is a tool
+to help in Market Research Analysis
+
+   Copyright (C) 2003,2004,2005,2006,2007 Neil Xavier D'Souza, 502,
+Premier Park, Orlem, Bombay, India 400064.
+
+     Permission is granted to ...
+
+   This manual is for a suite of programs called xtcc which is a tool
+to help in Market Research Analysis
+
+   Copyright (C) 2003,2004,2005,2006,2007 Neil Xavier D'Souza, 502,
+Premier Park, Orlem, Bombay, India 400064.
+
+     Permission is granted to ...
+
+
+File: xtcc_doc,  Node: Top,  Next: Overview_of_XtCC,  Up: (dir)
+
+Top level menu for XtCC - documentation
+***************************************
+
+This manual is for a suite of programs called xtcc which is a tool to
+help in Market Research Analysis
+
+   Copyright (C) 2003,2004,2005,2006,2007 Neil Xavier D'Souza, 502,
+Premier Park, Orlem, Bombay, India 400064.
+
+     Permission is granted to ...
+
+* Menu:
+
+* Overview_of_XtCC:: XtCC purpose, objectives in brief
+* Overview_of_MR:: Brief MR DP orientation
+
+
+File: xtcc_doc,  Node: Overview_of_XtCC,  Next: Overview_of_MR,  Prev: Top,  Up: Top
+
+1 Overview_of_XtCC
+******************
+
+	XTCC - Cross Tabulation compiler, is a set of tools for Market Research
+MR, companies to assist in Data Processing part of their day to day
+work. DP -> Data Processing and a people working and this department
+tend to be called DP(s). For an very brief overview of MR read mainly
+from a DP point read the chapter "Overview_of_MR". The main program is
+a compiler that takes user a user input program and applies the "edit"
+to repeatedly to every line of data, after which it tabulates the data
+based on the given tabulation spec.
+
+   	The input program consists of 3 parts - an Edit section - containing
+transformations you would like to apply to the data, the Tabulation
+section marking the tables which need to be tabulated and the Axes
+section listing each individual table in the program.
+
+
+File: xtcc_doc,  Node: Overview_of_MR,  Prev: Overview_of_XtCC,  Up: Top
+
+2 Overview_of_MR
+****************
+
+	Basic workflow:
+  1. 	A client approaches an MR Company to research a particular topic
+
+  2. 	A researcher in MR company interacts with the client - together
+     they work out a questionnaire which will help answer clients needs
+
+  3. 	The client commissions the study after which the questionnaire
+     goes into field. The MR company looks at the target group, checks
+     sample quotas that would make the information representable for
+     the target group and does interviews - with (mostly) common people
+     like you and me
+
+  4. 	The questionnaires are collected and deposited in the data entry
+     department of the company
+
+  5. 	The Data processing department then gets the data punched by data
+     entry programmers. There may be - pre or post cleaning of the data
+     based on the choice of the MR company
+
+  6. 	While data entry is on a DP person starts preparing the analysis
+     specs for the program. If necessary she may write a cleaning edit
+     to ensure that the data meets valid logical and quota checks that
+     were in the initial field plan
+
+  7. 	If there are open ended questions the DP or researcher - depending
+     on whose responsibilty it is for that particular company will
+     brief a Coder - person who looks at verbatim responses and
+     classifies them for a statistical point of view
+
+  8. 	Once all the data is entered, the DP will generate tables on the
+     data, run her edits on the data, resolve and logical errors with
+     the researcher, generate tables, check them against raw data using
+     hole counts and finally send the output of the tables to the
+     researcher.
+
+  9. 	The researcher then studies the tables - looking for a specific
+     pattern, and presents the findings to the client.
+
+   	Although this might not be the way things happen in a particular
+company, it captures the essence of what goes on.
+
+   	The main role of a DP is converting raw data into information for a
+researcher.
+
+   For a DP the main work revolves around
+  1. 	The questionnaire
+
+  2. 	The questionnaires from field
+
+  3. 	Giving a final set of 100% checked correct tables to the researcher
+
+   	By Checking of tables against data most companies imply checking of
+tables against hole counts. In most MR companies, data is punched in an
+ASCII file. Every respodent has a unique identified the "Serial
+number". Depending the format in which the file is written, a respodent
+may have one or more "cards" per serial number. Each question asked by
+the Field is given a unique column number in the data file - the card
+number helps indentify a column number over a span of multiple lines
+for a particular respondent. A holecount is a frequency distribution,
+showing the data punched at each column number accumulated over all the
+respondents. Given this information it is possible to check tables
+against raw data.
+
+   	For Example: 		if we know that Q1 is punched at column 59 in the data
+file - by looking at the absolute counts at column 59 and seeing the
+counts tabulated in Q1 - we can assert if Q1 is tabulated correctly by
+a DP.
+
+   	So suppose Q1 happens to be Respondents Gender where code 1 = Male
+and Code 2=Female
+
+   	The table output looks like: 	Q1 Gender 	Male 103
+Female 110
+
+   	The hole counts looks like 		code 1      code 2 	Col 59
+| 103        110
+
+   	By looking at the questionnaire - we can see that Male - is
+represented by code 1 and Female by code 2, and looking at the table
+and raw data - we can say that the information tabulated is correct.
+
+
+
+Tag Table:
+Node: Top578
+Node: Overview_of_XtCC1085
+Node: Overview_of_MR2005
+
+End Tag Table

@@ -1,0 +1,188 @@
+This is pdfeTeXk, Version 3.141592-1.21a-2.2 (Web2C 7.5.4) (format=etex 2006.7.6)  4 AUG 2007 23:32
+entering extended mode
+ file:line:error style messages enabled.
+**/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs/manual
+.texi
+
+(/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs/manual.
+texi (/usr/share/texmf/tex/texinfo/texinfo.tex
+Loading texinfo [version 2005-01-30.17]: Basics,
+\bindingoffset=\dimen16
+\normaloffset=\dimen17
+\pagewidth=\dimen18
+\pageheight=\dimen19
+\outerhsize=\dimen20
+\outervsize=\dimen21
+\cornerlong=\dimen22
+\cornerthick=\dimen23
+\topandbottommargin=\dimen24
+\headlinebox=\box16
+\footlinebox=\box17
+\margin=\insert252
+\EMsimple=\toks13
+\groupbox=\box18
+\groupinvalidhelp=\toks14
+\mil=\dimen25
+\exdentamount=\skip18
+\inmarginspacing=\skip19
+ pdf,
+\tempnum=\count27
+\lnkcount=\count28
+\filename=\toks15
+\filenamelength=\count29
+\pgn=\count30
+\toksA=\toks16
+\toksB=\toks17
+\toksC=\toks18
+\toksD=\toks19
+\boxA=\box19
+\countA=\count31
+ fonts,
+\sffam=\fam8
+\textleading=\dimen26
+\fontdepth=\count32
+ page headings,
+\titlepagetopglue=\skip20
+\titlepagebottomglue=\skip21
+\evenheadline=\toks20
+\oddheadline=\toks21
+\evenfootline=\toks22
+\oddfootline=\toks23
+
+tables,
+\tableindent=\dimen27
+\itemindent=\dimen28
+\itemmargin=\dimen29
+\itemmax=\dimen30
+\itemno=\count33
+\multitableparskip=\skip22
+\multitableparindent=\skip23
+\multitablecolspace=\dimen31
+\multitablelinespace=\skip24
+\colcount=\count34
+\everytab=\toks24
+ conditionals,
+\doignorecount=\count35
+ indexing,
+\secondaryindent=\skip25
+\partialpage=\box20
+\doublecolumnhsize=\dimen32
+ sectioning,
+\unnumberedno=\count36
+\chapno=\count37
+\secno=\count38
+\subsecno=\count39
+\subsubsecno=\count40
+\appendixno=\count41
+\absseclevel=\count42
+\secbase=\count43
+\chapheadingskip=\skip26
+\secheadingskip=\skip27
+\subsecheadingskip=\skip28
+ toc,
+\tocfile=\write0
+\contentsrightmargin=\skip29
+\savepageno=\count44
+\lastnegativepageno=\count45
+\tocindent=\dimen33
+ environments,
+\errorbox=\box21
+\lispnarrowing=\skip30
+\envskipamount=\skip31
+\circthick=\dimen34
+\cartouter=\dimen35
+\cartinner=\dimen36
+\normbskip=\skip32
+\normpskip=\skip33
+\normlskip=\skip34
+\lskip=\skip35
+\rskip=\skip36
+\tabw=\dimen37
+ defuns,
+\defbodyindent=\skip37
+\defargsindent=\skip38
+\deflastargmargin=\skip39
+\parencount=\count46
+\brackcount=\count47
+ macros,
+\paramno=\count48
+\macname=\toks25
+
+cross references,
+\auxfile=\write1
+\savesfregister=\count49
+ insertions,
+\footnoteno=\count50
+\SAVEfootins=\box22
+\SAVEmargin=\box23
+ (/usr/share/texmf/tex/plain/dvips/epsf.tex
+\epsffilein=\read1
+\epsfframemargin=\dimen38
+\epsfframethickness=\dimen39
+\epsfrsize=\dimen40
+\epsftmp=\dimen41
+\epsftsize=\dimen42
+\epsfxsize=\dimen43
+\epsfysize=\dimen44
+\pspoints=\dimen45
+\epsfnoopenhelp=\toks26
+)
+\noepsfhelp=\toks27
+
+localization,
+\nolanghelp=\toks28
+\defaultparindent=\dimen46
+ and turning on texinfo input format.) (./manual.aux)
+\openout1 = `manual.aux'.
+
+@cpindfile=@write2
+@fnindfile=@write3
+@vrindfile=@write4
+@tpindfile=@write5
+@kyindfile=@write6
+@pgindfile=@write7
+
+(/usr/share/lilypond/2.6.3/tex/texinfo.cnf)
+Variable `e', used in @value, is not set.
+Variable `cde', used in @value, is not set. [1
+\openout2 = `manual.cp'.
+
+\openout3 = `manual.fn'.
+
+\openout4 = `manual.vr'.
+
+\openout5 = `manual.tp'.
+
+\openout6 = `manual.ky'.
+
+\openout7 = `manual.pg'.
+
+] (./manual.toc) [-1] Chapter 1
+\openout0 = `manual.toc'.
+
+
+Chapter 2 [1] [2] Chapter 3 [3] Chapter 4 [4] [5] [6] Chapter 5 [7] Chapter 6
+[8] Chapter 7 [9] Chapter 8 [10] Chapter 9 [11] Chapter 10 [12]
+Overfull \hbox (135.44604pt too wide) has occurred while \output is active
+@textrm Chapter 10: Tutorial and Reference documentation of a person who wants 
+to get in and work in developing this software 13|
+
+@hbox(7.60416+2.12917)x433.62, glue set - 1.0
+.@textrm C
+.@textrm h
+.@textrm a
+.@textrm p
+.@textrm t
+.etc.
+
+[13] ) 
+Here is how much of TeX's memory you used:
+ 1455 strings out of 97341
+ 16754 string characters out of 1211917
+ 38945 words of memory out of 3500000
+ 2549 multiletter control sequences out of 10000+50000
+ 32127 words of font info for 112 fonts, out of 500000 for 2000
+ 51 hyphenation exceptions out of 1000
+ 12i,6n,16p,934b,402s stack positions out of 1500i,500n,5000p,200000b,5000s
+
+Output written on manual.dvi (15 pages, 21968 bytes).

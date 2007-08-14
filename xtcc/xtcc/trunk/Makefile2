@@ -1,0 +1,13 @@
+
+
+DEPS= y.tab.c  lex.yy.c tree.C
+
+dp:	$(DEPS) Makefile
+	g++ -Wall -o $@ $(DEPS) -lfl
+
+lex.yy.c:	 lex.l y.tab.h tree.h 
+	lex $<
+
+y.tab.c: type2.y tree.h symtab.h 
+	bison -y -d $<
+

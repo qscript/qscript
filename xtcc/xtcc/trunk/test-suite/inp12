@@ -1,0 +1,104 @@
+data_struct;rec_len=120; // This defines the length of each record in the data file
+
+ed_start // this marks the start of the edit program
+
+int8_t a;int8_t b;int8_t d; // these variables here are declared in global scope and will be available in the tabulation
+int32_t global_val;	// section
+
+int32_t edit_data();
+void func3(float fundc3_a, int32_t func3_b);
+void pass_by_ref(int16_t & ref_param);
+
+int32_t edit_data()
+{/*
+	   This is  a block comment
+	   */
+	int32_t ser_no;
+	ser_no=c[0,3];
+	printf("ser_no:%d\n", ser_no);
+	int8_t mychar;
+	mychar=c[4];
+	a=c[4]; // this data will automatically converted to type int8_t
+	global_val=c[4];
+	printf("mychar: %c", mychar);
+	mychar=c[5];
+	b=c[5];
+	printf("mychar: %c", mychar);
+	mychar=c[6];
+	d=c[7];
+	printf("mychar: %c", mychar);
+	mychar=c[7];
+	printf("mychar: %c", mychar);
+	float myfloat;
+	myfloat=c[80,83]; // this data will automatically be converted to type float
+	lista myfloat "myfloat";
+	
+	printf(":float: %f", myfloat);
+	
+	func3(1.1,2);
+	int32_t i;
+	for(i=80; i<120; i=i+4){
+		float f; // Note that you can define variables anywhere
+		f=c[i, i+3];
+		printf("f=%f", f);
+	}
+	if( !i ){
+		printf("%s", "Hello,World\n");
+	}
+	printf("\n");
+	int16_t test_param_ref;
+	test_param_ref=25;
+	printf("before ref_param: i=%d\n", test_param_ref);
+	pass_by_ref(test_param_ref);
+	printf("after ref_param:i=%d\n", test_param_ref);
+}
+
+void func3(float fundc3_a, int32_t func3_b){
+	int32_t d1;
+	d1=d1+10;
+	printf("called: func3\n");
+	if(fundc3_a==1.1){
+		printf("fundc3_a==1.1\n");
+	} else {
+		printf("fundc3_a=%f\n", fundc3_a);
+	}
+}
+void pass_by_ref(int16_t & ref_param){
+	printf("pass_by_ref\n");
+	ref_param=ref_param+1;
+}
+
+ed_end  // This marks the end if the edit program
+
+// this is the tabulation section
+tabstart 	{
+	tab q1 q2;
+	tab q1 q3;
+}
+
+// These are the individual axes that can be tabbed
+axstart {
+
+ax q1;
+ttl; "Q1. Title";
+cnt; "less= 20"; c= global_val <= 20; // Note that these global variables were defined in the edit section
+cnt; "greater 20"; c= global_val > 20;
+cnt; "A "; c= a==65;
+cnt; "B"; c= b==66;
+cnt; "C"; c= d==68;
+
+ax q2;
+ttl; "Q2";
+cnt; "row"; c= global_val > 30;
+cnt; "A "; c= a==65;
+cnt; "B"; c= b==66;
+cnt; "C"; c= d==68;
+
+ax q3;
+ttl; "Q3";
+cnt; "row"; c= global_val > 40;
+cnt; "A "; c= a==65;
+cnt; "B"; c= b==66;
+cnt; "C"; c= d==68;
+	
+}

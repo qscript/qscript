@@ -1,0 +1,16 @@
+
+
+main_loop(){
+
+	
+	while(!datafile::eof){
+		read_data(c, datafile);
+		edit(c);
+		tabulate();
+	}
+	summaries();
+}
+
+main(){
+	main_loop();
+}

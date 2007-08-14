@@ -1,0 +1,92 @@
+data_struct;rec_len=120; // This defines the length of each record in the data file
+
+ed_start // this marks the start of the edit program
+
+char a;char b;char d; // these variables here are declared in global scope and will be available in the tabulation
+int global_val;	// section
+
+int edit_data(char  c[120]);
+void func3(float fundc3_a, int func3_b);
+
+int edit_data(char  c[120])
+{/*
+	   This is  a block comment
+	   */
+	int ser_no;
+	ser_no=c[0,3];
+	printf("ser_no:%d\n", ser_no);
+	char mychar;
+	mychar=c[4];
+	a=c[4]; // this data will automatically converted to type char
+	global_val=c[4];
+	printf("mychar: %c", mychar);
+	mychar=c[5];
+	b=c[5];
+	printf("mychar: %c", mychar);
+	mychar=c[6];
+	d=c[7];
+	printf("mychar: %c", mychar);
+	mychar=c[7];
+	printf("mychar: %c", mychar);
+	float myfloat;
+	myfloat=c[80,83]; // this data will automatically be converted to type float
+	lista myfloat "myfloat";
+	
+	printf(":float: %f", myfloat);
+	
+	func3(1.1,2);
+	int i;
+	for(i=80; i<120; i=i+4){
+		float f; // Note that you can define variables anywhere
+		f=c[i, i+3];
+		printf("f=%f", f);
+	}
+	if( !i ){
+		printf("%s", "Hello,World\n");
+	}
+	printf("\n");
+}
+
+void func3(float fundc3_a, int func3_b){
+	printf("called: func3\n");
+	if(fundc3_a==1.1){
+		printf("fundc3_a==1.1\n");
+	} else {
+		printf("fundc3_a=%f\n", fundc3_a);
+	}
+}
+
+ed_end  // This marks the end if the edit program
+
+// this is the tabulation section
+tabstart 	{
+	tab q1 q2;
+	tab q1 q3;
+}
+
+// These are the individual axes that can be tabbed
+axstart {
+
+ax q1;
+ttl; "Q1. Title";
+cnt; "less= 20"; c= global_val <= 20; // Note that these global variables were defined in the edit section
+cnt; "greater 20"; c= global_val > 20;
+cnt; "A "; c= a==65;
+cnt; "B"; c= b==66;
+cnt; "C"; c= d==68;
+
+ax q2;
+ttl; "Q2";
+cnt; "row"; c= global_val > 30;
+cnt; "A "; c= a==65;
+cnt; "B"; c= b==66;
+cnt; "C"; c= d==68;
+
+ax q3;
+ttl; "Q3";
+cnt; "row"; c= global_val > 40;
+cnt; "A "; c= a==65;
+cnt; "B"; c= b==66;
+cnt; "C"; c= d==68;
+	
+}

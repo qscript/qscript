@@ -1,0 +1,22 @@
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:242: `Tutorial and Reference documentation of a person who wants to get in and work in developing this software::' has no Up field (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:238: `Detailed user manual for each individual program::' has no Up field (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:234: Next reference to nonexistent node `invocation' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:234: Prev reference to nonexistent node `output' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:234: `Overview of XtCC Compiler:: sample program' has no Up field (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:230: `Testing suite::' has no Up field (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:226: `Installing and building the compiler and associated tools::' has no Up field (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:222: `Requirements::' has no Up field (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:136: Next reference to nonexistent node `Requirements' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:46: Menu reference to nonexistent node `Tutorial and Reference documentation of a person who wants to get in and work in developing this software' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:45: Menu reference to nonexistent node `Detailed user manual for each individual program' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:44: Menu reference to nonexistent node `Overview of XtCC Compiler' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:43: Menu reference to nonexistent node `Testing suite' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:42: Menu reference to nonexistent node `Installing and building the compiler and associated tools' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:41: Menu reference to nonexistent node `Requirements' (perhaps incorrect sectioning?).
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:242: warning: unreferenced node `Tutorial and Reference documentation of a person who wants to get in and work in developing this software::'.
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:238: warning: unreferenced node `Detailed user manual for each individual program::'.
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:234: warning: unreferenced node `Overview of XtCC Compiler:: sample program'.
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:230: warning: unreferenced node `Testing suite::'.
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:226: warning: unreferenced node `Installing and building the compiler and associated tools::'.
+/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs//manual.texi:222: warning: unreferenced node `Requirements::'.
+makeinfo: Removing output file `/home/nxd/programs-from-india/Compilers/LexAndYacc/Type_checker12/docs/xtcc_doc.html/index.html' due to errors; use --force to preserve.
