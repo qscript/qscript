@@ -30,6 +30,7 @@ extern int line_no, no_errors;
 using namespace std;
 
 
+/*
 struct expr * new_expr(){	
 	struct expr * e = ((struct expr * ) malloc (sizeof(struct expr)));
 	e->l_op = NULL;
@@ -39,6 +40,7 @@ struct expr * new_expr(){
 	e->text=NULL;
 	return e;
 }
+*/
 
 
 
@@ -57,7 +59,7 @@ datatype lcm_type(datatype d1, datatype d2){
 	} else {
 		cerr << "lcm_type: error" << endl;
 		++ no_errors;
-		return error_type;
+		return ERROR_TYPE;
 	}
 
 
@@ -74,6 +76,6 @@ datatype arr_deref_type(datatype d1){
 	}
 	cerr << "Type Error: lineno: trying to access array with non-integer index" << line_no << "\n";
 	++no_errors;
-	return error_type;
+	return ERROR_TYPE;
 }
 

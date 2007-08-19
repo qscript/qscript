@@ -394,19 +394,19 @@ Runtime	requirements
 
 @section Data types
 	Current data types are: 
-	char, int, float, double.
+	int8_t, int16_t, int32_t, float and double.
 	NxD_NOTE: I should add long and unsigned short when I have added these to the grammar.
 	An identifier (variable) must begin with alpha characters or '_' and may continue with an '_' or digits or alpha characters after the first character
 	An example of a declaration is:
 @example
-	int i; // valid
-	int var_102; // valid
-	int 102_h; // error - starts with a digit
+	int32_t i; // valid
+	int32_t var_102; // valid
+	int32_t 102_h; // error - starts with a digit
 @end example	
 	
 	The only other data type that is allowed right now is a array of the above types
 @example
-	int arr[10];
+	int32_t arr[10];
 	float farr[20];
 @end example	
 
@@ -429,7 +429,7 @@ Runtime	requirements
 @end example
 	The precedence rules for the above operators is the same as that is 'C' i.e. @code{*,/,%} are given higher precendence than @code{+,-}.
 
-	The arithmetic relational operators are @code{==,<=,>=,<,>,!=} and have their usual meaning. Note that "!=" means NOT EQUAL to. They have lower priority than the arithmetic operators. Hence the following is valid code:
+	The arithmetic relational operators are @code{==,<=,>=,<,>,!=} and have their usual meaning. Note that "!=" means NOT EQUAL to. They have lower priority than the arithmetic operators. The following is valid code:
 @verbatim
 	int a=10; int b=20;
 	a<=b;
@@ -466,7 +466,7 @@ Runtime	requirements
 	if ( expr ) statement else statement
 @end example	
 
-	The else matches with the nearest if. And else if can be used to add in more conditions. Only one path is taken during execution.
+	The else matches with the nearest if. And @code{else if} can be used to add in more conditions. Only one path is taken during execution.
 
 	Example:
 @verbatim
@@ -504,14 +504,16 @@ Runtime	requirements
 @enumerate	
 @item
 	single coded axes - an axis that has exactly one value associated with it
-@item	
-	multiple code axes - an axis that has multiple values  associated with it
+@item
+	multiple code axes - an axis that has multiple values associated with it
+	Right now multi-coded data is not handled by the compiler. But will be added soon.
 @end enumerate	
 	
 	This data is stored in the system in only one format for each type. Single coded data is stored with the width of the underlying data type in qscript. For example if Q5 was a char data in the script, it will be stored on disk in sizeof(char) bytes - which should be 1 for systems on which this program is designed to run.
 
-	A multicoded question will have the number of responses as part of the data in the mapfile. The multi punch data will be stored accross those positions in the data. For example
-	Suppose Q6 is multi-punched, has 10 responses of type int, and sizeof(int)==4 . Also suppose that the first column Q6 is coded is col 101 then
+	Here is how I visualize multi-coded axes and data will be handled It is not yet implemented though.
+	A multicoded question will have the number of responses as part of the data in the mapfile. The multi coded data will be stored accross those positions in the data. For example
+	Suppose Q6 is multi-coded, has 10 responses of type int, and sizeof(int)==4 . Also suppose that the first column Q6 is coded is col 101 then
 	Q6 [1] -> Q6 first response will be at 101-104, Q6[2] will be at 105-108 and so on.
 
 	Numeric data should be treated as single punch data, you can use "long long" for very large numeric ranges. If you need floating point data set the underlying data for the single punch question to float or double - depending on the amount of precision required.

@@ -1,12 +1,14 @@
 CC=$(CXX)
-AM_CXXFLAGS= -Wall -Weffc++ -frepo
-AM_YFLAGS= -d -y -v
+AM_CXXFLAGS= -Wall -frepo
+AM_YFLAGS= -d -v
 bin_PROGRAMS=xtcc
 xtcc_SOURCES= tree.h expr.C tree.C Tab.h type.y lex.l scope.C
 xtcc_LDADD=@LEXLIB@
 lex.l: type.h
 tree.C: tree.h
-type.y: const_defs.h symtab.h tree.h stmt.h Tab.h
+expr.C: expr.h tree.h
+type.y: const_defs.h symtab.h tree.h stmt.h Tab.h expr.h scope.h
+scope.C: scope.h symtab.h tree.h stmt.h
 EXTRA_DIST=sample.dat
 .phony: clean
 clean:

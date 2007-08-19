@@ -31,13 +31,18 @@
 
 enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
 		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
-		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod
+		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
+		oper_blk_arr_assgn,
+		oper_err
 	};
 
 #include "symtab.h"
 
 extern noun_list_type noun_list[];
 datatype lcm_type(datatype d1, datatype d2);
+//struct expr;
+/*
+
 struct expr{
 	datatype type;
 	struct expr * l_op;
@@ -67,6 +72,8 @@ struct expr{
 	expr(const expr&);	
 };
 
+*/
+
 struct param {
 	struct expr* e;
 	char * text;
@@ -76,7 +83,7 @@ struct param {
 
 datatype arr_deref_type(datatype d1);
 
-struct expr * new_expr();
+//struct expr * new_expr();
 
 #include <string>
 using namespace std;
@@ -154,8 +161,7 @@ struct func_info{
 				func_scope=new scope();
 				struct var_list* decl_list=elist;
 				while(decl_list){
-					cout << " constructing func_info decl list names are: " << decl_list->var_name
-						<< endl;
+					//cout << " constructing func_info decl list names are: " << decl_list->var_name << endl;
 					struct symtab_ent* se=new struct symtab_ent;
 					se->name = strdup(decl_list->var_name.c_str());
 					se->type=decl_list->var_type;
@@ -167,7 +173,7 @@ struct func_info{
 			if(return_type >=VOID_TYPE && return_type <=DOUBLE_TYPE){
 				fprintf(fptr, "%s ", noun_list[return_type].sym );
 			} else {
-				fprintf(fptr, "Unxpected return type for function\n");
+				fprintf(fptr, "Unexpected return type for function\n");
 			}
 			fprintf(fptr, "%s(", fname.c_str());
 			if (param_list) param_list->print(fptr);
@@ -183,7 +189,7 @@ struct func_info{
 //extern void print_expr(struct expr * e);
 //extern void print_stmt_lst(struct stmt * st);
 //extern void print_inp_prog(struct stmt * st);
-void print_expr(FILE* edit_out, struct expr * e);
+//void print_expr(FILE* edit_out, struct expr * e);
 
 extern struct stmt * tree_root;
 

@@ -28,6 +28,7 @@
 #ifndef _xtcc_stmt_h
 #define _xtcc_stmt_h
 #include "scope.h"
+#include "expr.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -46,7 +47,7 @@ struct stmt{
 	datatype type;
 	int line_number;
 	virtual void print_stmt_lst(FILE * & fptr)=0;
-	stmt(datatype dtype=error_type, int lline_number=0):next(0), prev(0), type(dtype), line_number(lline_number){}
+	stmt(datatype dtype=ERROR_TYPE, int lline_number=0):next(0), prev(0), type(dtype), line_number(lline_number){}
 	virtual ~stmt(){}
 	private:
 		stmt(const stmt&);
@@ -62,12 +63,13 @@ struct for_stmt: public stmt{
 
 		if(fptr){
 			fprintf(fptr,  "for (");
-			print_expr(fptr, init);
+			init->print_expr(fptr);
 			fprintf(fptr,  ";");
-			print_expr(fptr, test);
+			test->print_expr(fptr);
 			fprintf(fptr,  ";");
-			print_expr(fptr, incr);
+			incr->print_expr(fptr);
 			fprintf(fptr, ")");
+			fflush(fptr);
 			for_body->print_stmt_lst(fptr);
 			if(prev) prev->print_stmt_lst(fptr);
 		}
@@ -91,7 +93,7 @@ struct if_stmt : public stmt{
 
 		if(fptr){
 			fprintf(fptr,  "if (");
-			print_expr(fptr, condition);
+			condition->print_expr(fptr);
 			fprintf(fptr,  ")");
 			fflush(fptr);
 			if_body->print_stmt_lst(fptr);
@@ -115,7 +117,8 @@ struct expr_stmt: public stmt{
 		fflush(fptr);
 
 		if(fptr){
-			print_expr(fptr, expr);
+			//print_expr(fptr, expr);
+			expr->print_expr(fptr);
 			fprintf(fptr,";\n");
 			if(prev) prev->print_stmt_lst(fptr);
 		}
@@ -126,7 +129,7 @@ struct expr_stmt: public stmt{
 };
 
 struct err_stmt: public stmt{
-	err_stmt( int lline_number): stmt(error_type, lline_number){}
+	err_stmt( int lline_number): stmt(ERROR_TYPE, lline_number){}
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
 
@@ -149,7 +152,7 @@ struct cmpd_stmt: public stmt{
 
 		if(fptr){
 			fprintf(fptr,"{\n");
-			cmpd_bdy->print_stmt_lst(fptr);
+			if (cmpd_bdy) cmpd_bdy->print_stmt_lst(fptr);
 			fprintf(fptr,"}\n");
 			if(prev) prev->print_stmt_lst(fptr);
 		}
@@ -172,9 +175,9 @@ struct blk_arr_assgn_stmt: public stmt{
 		if(fptr){
 				fprintf(fptr,"/* DATA CONVERSION */\n");
 				fprintf(fptr,"{int tmp1=");
-				print_expr(fptr, low_indx);
+				low_indx->print_expr(fptr);
 				fprintf(fptr,";\nint tmp2=");
-				print_expr(fptr, high_indx);
+				high_indx->print_expr(fptr);
 				fprintf(fptr,";\n");
 				if(lsymp->get_type()==FLOAT_TYPE) {
 					fprintf(fptr,"if(tmp2-tmp1==sizeof(float)-1){\n");
@@ -210,7 +213,6 @@ struct break_stmt: public stmt{
 	break_stmt(datatype dtype, int lline_number): stmt(dtype, lline_number){}
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
-
 		if(fptr){
 			fprintf(fptr, "break;");
 			if(prev) prev->print_stmt_lst(fptr);
@@ -241,13 +243,13 @@ struct func_decl_stmt: public stmt{
 	func_decl_stmt( datatype dtype, int lline_number, char * & name,  struct var_list* & v_list, datatype return_type):
 		stmt(dtype, lline_number), f_ptr(0)
 	{
-		cout << "load_func_into_symbol_table : " << "name: " << name << endl;
+		//cout << "load_func_into_symbol_table : " << "name: " << name << endl;
 		if ( active_scope->sym_tab.find(name) == active_scope->sym_tab.end() ){
-			cout << "got func_decl" << endl;
+			//cout << "got func_decl" << endl;
 			datatype myreturn_type=return_type;
 			struct func_info* fi=new func_info(name, v_list, myreturn_type);
 			func_info_table.push_back(fi);
-			type=func_type;
+			type=FUNC_TYPE;
 			struct symtab_ent* se=new struct symtab_ent;
 			if(! se) {
 				cerr << "memory allocation error: I will eventually crash :-(" << endl;
@@ -255,13 +257,13 @@ struct func_decl_stmt: public stmt{
 			se->name = name;
 			string s(name);
 			active_scope->sym_tab[s] = se;
-			se->type=func_type;
+			se->type=FUNC_TYPE;
 			f_ptr=fi;
 		} else {
 			cerr << "Symbol : " << name << " already present in symbol table" << endl;
 			cout << "line_no: " << lline_number;
 			++no_errors;
-			type=error_type;
+			type=ERROR_TYPE;
 		}
 	}
 	void print_stmt_lst(FILE * & fptr){
@@ -289,10 +291,10 @@ struct decl_stmt: public stmt{
 				fprintf(fptr,"%s %s;\n", noun_list[type].sym, symp->name);
 			} else if (type >=U_INT8_ARR_TYPE && type <=DOUBLE_ARR_TYPE){
 				datatype tdt=datatype(U_INT8_TYPE + type-U_INT8_ARR_TYPE);
-				fprintf(fptr,"%s %s [ %d ];\n", noun_list[type].sym, symp->name, symp->n_elms);
+				fprintf(fptr,"%s %s [ %d ];\n", noun_list[tdt].sym, symp->name, symp->n_elms);
 			} else if (type >=U_INT8_REF_TYPE&& type <=DOUBLE_REF_TYPE){
 				datatype tdt=datatype(U_INT8_TYPE + type-U_INT8_REF_TYPE);
-				fprintf(fptr,"%s & %s;\n", noun_list[type].sym, symp->name);
+				fprintf(fptr,"%s & %s;\n", noun_list[tdt].sym, symp->name);
 			}
 			if(prev) prev->print_stmt_lst(fptr);
 		}
@@ -315,29 +317,28 @@ struct func_stmt: public stmt{
 		string func_name,
 		datatype lreturn_type
 		) : stmt(dtype, lline_number), f_ptr(0), func_body(lfunc_body), return_type(lreturn_type){
-		cout << "make_func_defn_stmt: " << endl;
 		int index=search_for_func(func_name);
 		if(index==-1){
 			cerr << "function defn without decl: " << func_name << " lline_number: " << lline_number << endl;
-			type=error_type;
+			type=ERROR_TYPE;
 			++no_errors;
 		} else if(check_func_decl_with_func_defn(v_list, index, func_name)){
 			if(return_type==func_info_table[index]->return_type){
-				type=func_defn;
+				type=FUNC_DEFN;
 				f_ptr=func_info_table[index];
 			} else {
 				cerr << "func defn, decl parameter return_types did not match: lline_number: " 
 				<< lline_number
 				<< endl;
 				++no_errors;
-				type=error_type;
+				type=ERROR_TYPE;
 			}
 		} else {
 			cerr << "func defn, decl parameter lists did not match: lline_number" 
 				<< lline_number
 				<< endl;
 			++no_errors;
-			type=error_type;
+			type=ERROR_TYPE;
 		}
 	}
 	void print_stmt_lst(FILE * & fptr){
@@ -355,7 +356,7 @@ struct func_stmt: public stmt{
 			fprintf(fptr, "(");
 			v_ptr->print(fptr);
 			fprintf(fptr, ")");
-			func_body->print_stmt_lst(fptr);
+			if(func_body) func_body->print_stmt_lst(fptr);
 			if(prev) prev->print_stmt_lst(fptr);
 		}
 	}
@@ -382,7 +383,7 @@ struct list_stmt: public stmt{
 
 		if(fptr){
 			switch(type){
-			case lista_basic_type_stmt:{
+			case LISTA_BASIC_TYPE_STMT:{
 				static int counter_number=0;			   
 				FILE * global_vars=fopen("xtcc_work/global.C", "a+b");
 				FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+b");
@@ -405,7 +406,7 @@ struct list_stmt: public stmt{
 				fclose(print_list_counts);
 			}
 			break;
-			case lista_basic_arrtype_stmt_1index:{
+			case LISTA_BASIC_ARRTYPE_STMT_1INDEX:{
 				static int counter_number=0;			   
 				FILE * global_vars=fopen("xtcc_work/global.C", "a+b");
 				FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+b");
@@ -427,7 +428,7 @@ struct list_stmt: public stmt{
 				fclose(print_list_counts);
 			}
 			break;
-			case lista_basic_arrtype_stmt_2index:{
+			case LISTA_BASIC_ARRTYPE_STMT_2INDEX:{
 				static int counter_number=0;			   
 				FILE * global_vars=fopen("xtcc_work/global.C", "a+b");
 				FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+b");

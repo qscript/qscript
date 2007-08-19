@@ -27,6 +27,7 @@
 #include "const_defs.h"
 #include "symtab.h"
 #include "tree.h"
+#include "expr.h"
 #include "stmt.h"
 #include "Tab.h"
 #include <cstring>
@@ -64,17 +65,13 @@
 		string search_for,
 		datatype return_type
 		);
-	struct stmt * tree_root=NULL;
+	struct stmt * tree_root=0;
 	bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
 
 	int flag_cmpd_stmt_is_a_func_body=-1;
-//	scope * tmp_storage=NULL;
-//int	load_func_param_into_scope(tmp_storage, v_list);
 	int lookup_func(string func_name_index);
-	//extern vector<table*>	table_list;
-	//extern map <string, ax*> ax_map;
 	vector<table*>	table_list;
 	map <string, ax*> ax_map;
 
@@ -83,7 +80,9 @@
 	int in_a_loop=0;
 	int nest_lev=0;
 	int rec_len;
-
+	bool flag_next_stmt_start_of_block=false;
+	//struct stmt* start_of_blk=0;
+	vector <stmt*> blk_heads;
 
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
@@ -117,6 +116,7 @@
 	class basic_ax_stmt * basic_ax_stmt;
 };
 
+%token CONVERT
 %token	TOT AX ';' CNT '{' '}' TTL
 %type <dt> xtcc_type
 %type <tbl> tab_list
@@ -156,6 +156,7 @@
 %token '('
 %token ')'
 %token '!'
+%token '='
  /*%token <dt> INT*/
  /*%token <dt> CHAR*/
 %token <dt> VOID_T
@@ -198,24 +199,21 @@
 
 %%
 
-prog: DATA_STRUCT ';' REC_LEN '=' INUMBER ';' {	char * c_arr="c";  rec_len=$5; active_scope->insert(c_arr, INT8_ARR_TYPE, rec_len, 0);} ED_START top_level_item_list ED_END {
-
-
-	//while ( st_ptr->next) st_ptr=st_ptr->next;
-	//while ( $1->next) $1=$1->next;
-	tree_root = trav_chain($9);
-	return 0;
-}
+prog: DATA_STRUCT ';' REC_LEN '=' INUMBER ';' 
+	{	char * c_arr="c";  
+		rec_len=$5; active_scope->insert(c_arr, INT8_ARR_TYPE, rec_len, 0);
+	} 
+	ED_START top_level_item_list ED_END {
+		tree_root = trav_chain($9);
+		if(tree_root==0){
+			cerr << "tree_root =0 : core dump expected" << endl;
+		}
+		return 0;
+	}
 	| AXSTART '{' ax_list 	'}'	{
-#if DEBUG_GRAM
-		cout << "got axes\n";
-#endif /* DEBUG_GRAM */
 		return 0;
 	}
 	| TABSTART '{' tab_list '}' {
-#if DEBUG_GRAM
-		printf("got TABSTART\n");
-#endif /* DEBUG_GRAM */
 		return 0;
 	}
 	;
@@ -244,25 +242,29 @@ xtcc_type: VOID_T
 	;
 
 
-func_defn:	xtcc_type NAME '(' decl_comma_list ')' {
-			string func_name_index($2);
-			flag_cmpd_stmt_is_a_func_body=lookup_func(func_name_index);
-			if(flag_cmpd_stmt_is_a_func_body==-1){
-				++ no_errors;
-				cerr << "Function name not found in list of declared functions: "
-					<< "You will see another error on this same function name: " << func_name_index
-					<< "line_no: " << line_no ;
-			}
-		} compound_stmt {
-		cout << "parsed to INT function defn" << endl;
-		//struct cmpd_stmt* c_stmt=dynamic_cast <struct cmpd_stmt*> ($7);
+func_defn:	
+	xtcc_type NAME '(' decl_comma_list ')' {
+		string func_name_index($2);
+		flag_cmpd_stmt_is_a_func_body=lookup_func(func_name_index);
+		if(flag_cmpd_stmt_is_a_func_body==-1){
+			++ no_errors;
+			cerr << "Function name not found in list of declared functions: "
+				<< "You will see another error on this same function name: " << func_name_index
+				<< "line_no: " << line_no ;
+		}
+	} compound_stmt {
 		struct cmpd_stmt* c_stmt= $7;
+		if(c_stmt==0){
+			cout << "c_stmt==0" << endl;
+		} else {
+			cout << "func_body: is valid " << endl;
+		}
 		struct scope *sc=c_stmt->sc;
 		struct var_list * v_list=trav_chain($4);
 		struct stmt* func_body=$7;
 		string search_for=$2;
 		datatype return_type=$1;
-		$$=new func_stmt(func_defn, line_no, sc, v_list, func_body, search_for, return_type);
+		$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, func_body, search_for, return_type);
 	}
 	;
 
@@ -294,25 +296,17 @@ decl:	xtcc_type NAME ';'{
 func_decl:	xtcc_type NAME '(' decl_comma_list ')' ';'{
 		char *name=strdup($2);
 		struct var_list* tmp=$4;
-		while(tmp ) {
-			//cout << "func_decl: traversing param list: " << tmp->var_name << endl;
-			tmp=tmp->next;
-		}
 		struct var_list* v_list=trav_chain($4);
 		tmp=v_list;
-		while(tmp ) {
-			//cout << "func_decl after reversing chain: traversing param list: " << tmp->var_name << endl;
-			tmp=tmp->prev;
-		}
 		datatype return_type=$1;
-		$$=new func_decl_stmt( func_type, line_no, name,  v_list, return_type);
+		$$=new func_decl_stmt( FUNC_TYPE, line_no, name,  v_list, return_type);
 	}
 	;
 
 
 decl_comma_list: var_decl	{
 		 $$=$1;
-		 cout << "got decl_comma_list : " << endl;
+		 //cout << "got decl_comma_list : " << endl;
 	}
 	| decl_comma_list ',' var_decl {
 		$$=link_chain($1,$3);
@@ -343,88 +337,38 @@ var_decl:	xtcc_type NAME 	{
 		}
 	;
 
-statement_list: statement {$$=$1; }
+statement_list: statement {
+		$$=$1; 
+		if(flag_next_stmt_start_of_block){
+			blk_heads.push_back($1);
+			//start_of_blk=$1;
+			flag_next_stmt_start_of_block=false;
+		}
+	}
 	|	statement_list statement {
 		$$=link_chain($1,$2);
 	}
 	;
 
 statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} statement {
-		   $$ = new struct for_stmt(for_stmt, line_no, $3, $5, $7, $10);
-		   cout << "finished parsing FOR" << endl;
+		   if($3->type==VOID_TYPE||$5->type==VOID_TYPE||$7->type==VOID_TYPE 
+			){
+			   cerr << "For condition has VOID_TYPE or ERROR_TYPE" << endl;
+			   ++ no_errors;
+			   $$=new struct err_stmt(line_no);
+		   } else{
+			   $$ = new struct for_stmt(FOR_STMT, line_no, $3, $5, $7, $10);
+		   }
 		   --in_a_loop;
-	   }
+	}
 	| if_stmt
-	| expression ';'{ 
+	| expression ';' { 
 		if($1->isvalid()){
-			$$ = new expr_stmt(texpr_stmt, line_no, $1);
+			$$ = new expr_stmt(TEXPR_STMT, line_no, $1);
 		} else {
-			$$ = new expr_stmt(error_type, line_no, $1);
+			$$ = new expr_stmt(ERROR_TYPE, line_no, $1);
 		}
 		//printf("= %g\n", $1); 
-	}
-	| NAME '=' NAME '[' expression ',' expression ']' ';' {
-		struct symtab_ent* lse=NULL;
-		struct symtab_ent* se=NULL;
-		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab($1);
-		map<string,symtab_ent*>::iterator sym_it2 = find_in_symtab($3);
-		if( sym_it1==active_scope->sym_tab.end()) {
-			cerr << "Not able to find :" << $1 << " in symbol table: line_no" 
-				<< line_no
-				<< endl;
-			++no_errors;
-		} else {
-			lse=sym_it1->second;
-		}
-		if( sym_it2==active_scope->sym_tab.end()) {
-			cerr << "Not able to find :" << $3 << " in symbol table: line_no:" 
-				<< line_no
-				<< endl;
-			++no_errors;
-		} else {
-			se=sym_it2->second;
-		}
-		if( !(se&&lse)){
-			cerr << "Error: could not find " <<endl;
-			if(!se){
-				cerr << "RHS: " << $3 ;
-				++no_errors;
-			}
-			if(!lse ){
-				cerr << "LHS: " << $1;
-				++no_errors;
-			}
-			if (!(se&&lse)) 
-				cerr << "  in symbol table: lineno: " << line_no << endl;
-			$$=new struct err_stmt(line_no);
-		} else if(!(lse->get_type()==INT32_TYPE || lse->get_type()==FLOAT_TYPE)){
-			cerr << "ERROR: LHS:  " << $1 << ":line_no:" << line_no 
-				<< " should be of type float or int"
-				<< endl;
-			cerr << "lse type: " << lse->get_type() << endl;
-			++no_errors;
-			$$=new struct err_stmt(line_no);
-		} else {
-			
-			datatype e_type1=$5->get_type();
-			datatype e_type2=$7->get_type();
-			if( (e_type1>=U_INT8_TYPE && e_type1 <=INT32_TYPE) && 
-					(e_type2>=U_INT8_TYPE && e_type2<=INT32_TYPE)){
-				datatype d1=arr_deref_type(se->get_type());
-				if(d1==INT8_TYPE){
-					$$ = new blk_arr_assgn_stmt(assgn_stmt, line_no, lse, se,$5,$7);
-				} else {
-					$$=new struct err_stmt(line_no);
-					cerr << "Type Error:  x: lineno: " << line_no << "\n";
-					++no_errors;
-				}
-			} else {
-				$$=new struct err_stmt(line_no);
-				cerr << "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
-					<< line_no << "\n";
-				++no_errors;
-			}
-		}
 	}
 	|	compound_stmt {
 		$$=$1;
@@ -434,14 +378,14 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	}
 	|	list_stmt
 	|	BREAK ';'{
-		$$=new struct break_stmt(break_stmt, line_no);
+		$$=new struct break_stmt(BREAK_STMT, line_no);
 		if (!in_a_loop){
 			cerr << "break statement outside a loop: line_no: " << line_no<< endl;
 			++no_errors;
 		}
 	}
 	| 	CONTINUE ';' {
-		$$=new struct continue_stmt(continue_stmt, line_no);
+		$$=new struct continue_stmt(CONTINUE_STMT, line_no);
 		if (!in_a_loop){
 			cerr << "continue statement outside a loop: line_no: " << line_no<< endl;
 			++no_errors;
@@ -463,14 +407,14 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			$$=new err_stmt(line_no);
 		} else {
 			struct symtab_ent* se=sym_it->second;
-			datatype name_type=se->get_type();
+			datatype name_type=se->type;
 			if( !(name_type>=INT8_TYPE&&name_type<=DOUBLE_TYPE)){
 				cerr << "NAME: "<< $2 
 					<< " should be of basic type: " << line_no << endl;
 				++no_errors;
 				$$=new struct err_stmt(line_no);
 			} else {
-				$$=new list_stmt(lista_basic_type_stmt, line_no, se);
+				$$=new list_stmt(LISTA_BASIC_TYPE_STMT, line_no, se);
 			}
 		}
 	}
@@ -483,14 +427,14 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			$$=new err_stmt(line_no);
 		} else {
 			struct symtab_ent* se=sym_it->second;
-			datatype name_type=se->get_type();
+			datatype name_type=se->type;
 			if( !(name_type>=INT8_ARR_TYPE&&name_type<=DOUBLE_ARR_TYPE)){
 				cerr << "NAME: "<< $2 
 					<< " is not of array type: line_no:" << line_no << endl;
 				++no_errors;
 				$$=new err_stmt(line_no);
 			} else {
-				$$=new list_stmt( lista_basic_arrtype_stmt_1index, line_no, se, $4, -1, string($6));
+				$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, line_no, se, $4, -1, string($6));
 			}
 		}
 	}
@@ -503,47 +447,68 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			$$=new err_stmt(line_no);
 		} else {
 			struct symtab_ent* se=sym_it->second;
-			datatype name_type=se->get_type();
+			datatype name_type=se->type;
 			if( !(name_type==INT8_ARR_TYPE||name_type==U_INT8_TYPE)){
 				cerr << "NAME: "<< $2 
 					<< " is not of char array type: line_no:" << line_no << endl;
 				++no_errors;
 			} else {
-				$$=new list_stmt( lista_basic_arrtype_stmt_2index, line_no, se, $4, $6, string($8));
+				$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_2INDEX, line_no, se, $4, $6, string($8));
 			}
 		}
 	}
 	;
 
 if_stmt: IF '(' expression ')' statement{
-		$$=new if_stmt(ife_stmt,line_no,$3,$5,0);
+		if($3->type==VOID_TYPE || $3->type==ERROR_TYPE){
+			++no_errors;
+			$$=new err_stmt(line_no);
+			cerr << "Error: If condition has void or Error type:" << line_no << endl;
+		} else {
+			$$=new if_stmt(IFE_STMT,line_no,$3,$5,0);
+		}
 	}
 	| IF '(' expression ')' statement ELSE statement{
-		$$=new if_stmt(ife_stmt, line_no,$3,$5,$7);
+		if($3->type==VOID_TYPE || $3->type==ERROR_TYPE){
+			++no_errors;
+			$$=new err_stmt(line_no);
+			cerr << "Error: If condition has void or Error type:" << line_no << endl;
+		} else {
+			$$=new if_stmt(IFE_STMT, line_no,$3,$5,$7);
+		}
 	}
 	;
 
 
 compound_stmt: open_curly statement_list '}'	{
-		cout << "popping scope: " <<
-			active_scope_list[active_scope_list.size()-1] << endl;
+		//cout << "popping scope: " <<
+		//	active_scope_list[active_scope_list.size()-1] << endl;
 		active_scope_list.pop_back();
 		int tmp=active_scope_list.size()-1;
 		if(tmp==-1) { 
-			active_scope = NULL;
+			active_scope = 0;
 			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
 				<< endl;
 			++no_errors;
-			$$=new struct cmpd_stmt(error_type, line_no);
+			$$=new struct cmpd_stmt(ERROR_TYPE, line_no);
 		} else { active_scope = active_scope_list[tmp]; }
-		$1->cmpd_bdy = trav_chain($2);
+		//$1->cmpd_bdy = trav_chain($2);
+		struct stmt* head_of_this_chain=blk_heads.back();
+		if(  head_of_this_chain==0){
+			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
+			++no_errors;
+		} else {
+			$1->cmpd_bdy = head_of_this_chain;
+			blk_heads.pop_back();
+		}
+		
 		$$=$1;
 	}
 	;
 
 open_curly:	'{' {
 		++nest_lev;
-		$$ = new struct cmpd_stmt(cmpd_stmt, line_no);
+		$$ = new struct cmpd_stmt(CMPD_STMT, line_no);
 		if(flag_cmpd_stmt_is_a_func_body>=0){
 			$$->sc=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
 			// reset the flag
@@ -551,6 +516,7 @@ open_curly:	'{' {
 		} else {
 			$$->sc= new scope();
 		}
+		flag_next_stmt_start_of_block=true;
 		//cout << "open_curly: cmpd_stmt: " << $$ << endl;
 		//cout << "pushed active_scope: " << active_scope << endl;
 		//active_scope_list.push_back(active_scope);
@@ -568,108 +534,99 @@ expr_list: expression { $$=$1; }
 	;
 
 expression: expression '+' expression {
-		$$=new expr($1, $3, oper_plus);
+		$$=new bin_expr($1, $3, oper_plus);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '-' expression {
-		$$=new expr($1, $3, oper_minus);
+		$$=new bin_expr($1, $3, oper_minus);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '*' expression { 
-		$$=new expr($1, $3, oper_mult);
+		$$=new bin_expr($1, $3, oper_mult);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '/' expression {
-		$$=new expr($1, $3, oper_div);
+		$$=new bin_expr($1, $3, oper_div);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '%' expression {
-		if(!(($1->get_type() >= INT8_TYPE && $1->get_type()<=U_INT32_TYPE)
+		$$=new bin_expr($1, $3, oper_mod);
+		if(!(($1->type >= INT8_TYPE && $1->type<=U_INT32_TYPE)
 				&&
-			($3->get_type()>=INT8_TYPE && $3->get_type()<=U_INT32_TYPE))){
+			($3->type>=INT8_TYPE && $3->type<=U_INT32_TYPE))){
 				cerr << " operands of % should be of type int or char only" << endl;
 				++no_errors;
+				$$->type=ERROR_TYPE;
 		}
-		$$=new expr($1, $3, oper_mod);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	'-' expression %prec UMINUS {
-		$$ = new_expr();
-		$$->l_op = $2;
-		$$->type = $2->get_type();
-		$$->e_operator = oper_umin;
+		$$ = new un_expr($2, oper_umin);
 		if($2->type==VOID_TYPE){
 			cerr << "line_no: " << line_no << " expression of void type: check if you are calling a void function on either side" << endl;
-			$$->type=error_type;
+			$$->type=ERROR_TYPE;
 			++no_errors;
 		}
 	}
 	|	expression '<' expression {
-		$$=new expr($1, $3, oper_lt);
+		$$=new bin_expr($1, $3, oper_lt);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '>' expression {
-		$$=new expr($1, $3, oper_gt);
+		$$=new bin_expr($1, $3, oper_gt);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression LEQ expression {
-		$$=new expr($1, $3, oper_le);
+		$$=new bin_expr($1, $3, oper_le);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression GEQ expression {
-		$$=new expr($1, $3, oper_ge);
+		$$=new bin_expr($1, $3, oper_ge);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression ISEQ expression {
-		$$=new expr($1, $3, oper_iseq);
+		$$=new bin_expr($1, $3, oper_iseq);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression NOEQ expression {
-		$$=new expr($1, $3, oper_isneq);
+		$$=new bin_expr($1, $3, oper_isneq);
 		void_check($1->type, $3->type, $$->type);
 	}	
 	| expression LOGOR expression {
-		$$=new expr($1, $3, oper_or);
+		$$=new bin_expr($1, $3, oper_or);
 		void_check($1->type, $3->type, $$->type);
 	}	
 	| expression LOGAND expression {
-		$$=new expr($1, $3, oper_and);
+		$$=new bin_expr($1, $3, oper_and);
 		void_check($1->type, $3->type, $$->type);
 	}
+	| expression '=' expression {
+		datatype typ1=$1->type;
+		datatype typ2=$3->type;
+		cout << " oper_assgn: LHS type" << typ1 << " RHS type: " << typ2 << endl;
+		bool b1=check_type_compat(typ1, typ2)&& $1->is_lvalue();
+		if($1->is_lvalue()){
+			$$ = new bin_expr($1, $3, oper_assgn);
+		} else {
+			$$ = new un2_expr(ERROR_TYPE);
+			++no_errors;
+			cerr << "oper_assgn error on line: " << line_no<< endl;
+		}
+	}
 	|	NOT expression {
-		$$ = new_expr();
-		$$->l_op = $2;
-		$$->type = $2->get_type();
-		$$->e_operator = oper_not;
+		$$ = new un_expr($2, oper_not);
 		if($2->type==VOID_TYPE){
 			cerr << "line_no: " << line_no << " expression of void type: applying operator ! to void expr" << endl;
-			$$->type=error_type;
+			$$->type=ERROR_TYPE;
 			++no_errors;
 		}
 	}
 	|	INUMBER	{
-		$$ = new_expr();
-		$$->l_op = NULL;
-		$$->isem_value = $1;
-		if( $1 > SCHAR_MIN && $1<SCHAR_MAX){
-			$$->type=INT8_TYPE;
-		} else if ($1> SHRT_MIN && $1 < SHRT_MAX){
-			$$->type=INT16_TYPE;
-		} else if ($1> INT_MIN && $1 < INT_MAX){
-			$$->type=INT32_TYPE;
-		} else {
-			++no_errors;
-			cerr << "very  integer unhandleable type most probably";
-			$$->type = error_type;
-		}
-		$$->e_operator = oper_num;
+		$$ = new un2_expr($1);
+		//cerr << "type.y: parsed integer: type" << $$->type << endl;
 	}
 	|	FNUMBER {
-		$$ = new_expr();
-		$$->l_op = NULL;
-		$$->dsem_value = $1;
-		$$->type = FLOAT_TYPE;
-		$$->e_operator = oper_float;
+		$$ = new un2_expr($1);
 	}
 	|	NAME	{
 		map<string,symtab_ent*>::iterator sym_it = 
@@ -677,56 +634,84 @@ expression: expression '+' expression {
 		if(sym_it==active_scope->sym_tab.end() ){
 			cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
 			++no_errors;
-			$$ = new_expr();
-			$$->type=error_type;
-			$$->e_operator = oper_name;
+			$$ = new un2_expr(ERROR_TYPE);
 		} else {
-			$$ = new_expr();
-			$$->symp=sym_it->second;
-			$$->type = sym_it->second->get_type();
-			$$->e_operator = oper_name;
+			$$ = new un2_expr(sym_it->second );
 		}
 	}
 	| 	NAME '[' expression ']' %prec FUNC_CALL {
 		map<string,symtab_ent*>::iterator sym_it = 
 				find_in_symtab($1);
 		if(sym_it==active_scope->sym_tab.end() ){
-			cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
+			cerr << "Error: Array indexing expr could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
 			++no_errors;
-			$$ = new_expr();
-			$$->type=error_type;
-			//$$->type='R';
-			$$->e_operator = oper_arrderef;
+			$$ = new un2_expr(ERROR_TYPE);
 		} else {
 			struct symtab_ent* se=sym_it->second;
-			$$ = new_expr();
-			$$->symp=se;
-			$$->l_op=$3;
-			cout << "$1: name : " << $1 << " $1:type " << se->get_type() << endl;
-			datatype name_type=se->get_type();
-			if( !(name_type>=INT8_ARR_TYPE&&name_type<=DOUBLE_ARR_TYPE)){
-				cerr << "NAME: "<< $1 
-					<< " is not of array type: line_no:" << line_no << endl;
-				++no_errors;
-			}
-			datatype e_type=$3->get_type();
-			cout << "NAME [expression ]:e_type:" << e_type << endl;
+
+			datatype e_type=$3->type;
 			if(e_type>=U_INT8_TYPE && e_type <=INT32_TYPE){
-				$$->type =arr_deref_type(se->get_type());
-				if($$->type==error_type) {
+				datatype nametype =arr_deref_type(se->type);
+				if(nametype==ERROR_TYPE) {
 					cerr << "ERROR: Variable being indexed not of Array Type : Error: lineno: " << line_no << "\n";
 					++no_errors;
+					$$ = new un2_expr(ERROR_TYPE);
+				} else {
+					$$ = new un2_expr(oper_arrderef, nametype,  se, $3);
 				}
 			} else {
-				$$->type=error_type;
 				cerr << "ERROR: Array index not of Type Int : Error: lineno: " << line_no << "\n";
 				++no_errors;
+				$$ = new un2_expr(ERROR_TYPE);
 			}
-			$$->e_operator = oper_arrderef;
+		}
+	}
+	| NAME '[' expression ',' expression ']'  %prec FUNC_CALL {
+		struct symtab_ent* se=0;
+		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab($1);
+		if( sym_it1==active_scope->sym_tab.end()) {
+			cerr << "Not able to find :" << $1 << " in symbol table: line_no" 
+				<< line_no
+				<< endl;
+			++no_errors;
+		} else {
+			se=sym_it1->second;
+		}
+		if( !(se)){
+			cerr << "Error: could not find name " << $1 << "  in expr " 
+				<< "oper_blk_arr_assgn: " << " line_no: " << line_no;
+				++no_errors;
+			$$ = new un2_expr(ERROR_TYPE);
+		} /*else if(!(lse->type==INT32_TYPE || lse->type==FLOAT_TYPE)){
+			cerr << "ERROR: LHS:  " << $1 << ":line_no:" << line_no 
+				<< " should be of type float or int"
+				<< endl;
+			cerr << "lse type: " << lse->type << endl;
+			++no_errors;
+			$$=new struct err_stmt(line_no);
+		}*/ else {
+			datatype e_type1=$3->type;
+			datatype e_type2=$5->type;
+			if( (e_type1>=U_INT8_TYPE && e_type1 <=INT32_TYPE) && 
+					(e_type2>=U_INT8_TYPE && e_type2<=INT32_TYPE)){
+				datatype d1=arr_deref_type(se->type);
+				if(d1==ERROR_TYPE){
+					$$ = new un2_expr(ERROR_TYPE);
+					cerr << "Type Error:  x: lineno: " << line_no << "\n";
+					++no_errors;
+				} else {
+					$$ = new un2_expr(oper_blk_arr_assgn, d1, se,$3,$5);
+				}
+			} else {
+				$$ = new un2_expr(ERROR_TYPE);
+				cerr << "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
+					<< line_no << "\n";
+				++no_errors;
+			}
 		}
 	}
 	| NAME '(' expr_list ')' %prec FUNC_CALL{
-		cout << "parsing Function call: name: " << $1 << endl;
+		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=$1;
 		bool found=false;
 		int index=search_for_func(search_for);
@@ -736,8 +721,7 @@ expression: expression '+' expression {
 			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
 			cerr << "function : " << search_for << " used without decl" << endl;
 			++ no_errors;
-			$$=new_expr();
-			$$->type=error_type;
+			$$=new un2_expr(ERROR_TYPE);
 		} else {
 			datatype my_type=func_info_table[index]->return_type;
 			struct expr* e_ptr=trav_chain($3);
@@ -747,64 +731,17 @@ expression: expression '+' expression {
 				match=check_parameters(e_ptr, fparam);
 			}
 			if(match || skip_type_check){
-				$$=new_expr();
-				$$->type=my_type;
-				$$->e_operator=oper_func_call;
-				$$->func_index_in_table=index;
-				$$->l_op = $3;
+				$$=new un2_expr(oper_func_call, my_type, $3, index);
 			} else {
-				$$=new_expr();
-				$$->type=error_type;
-				$$->e_operator=oper_func_call;
-				$$->func_index_in_table=index;
+				$$=new un2_expr(ERROR_TYPE);
 			}
 		}
 	}
 	|	TEXT {
-		$$=new_expr();
-		$$->type=INT8_ARR_TYPE;
-		$$->text=strdup($1);
-		$$->e_operator=oper_text_expr;
-	}
-	| NAME '=' expression  {
-		cout << "BEGIN parse oper_assgn: line_no: "<<  line_no << endl;
-		map<string,symtab_ent*>::iterator sym_it = find_in_symtab($1);
-		$$ = new_expr();
-		struct symtab_ent* se= NULL;
-		cout << "CAME HERE1 parse oper_assgn: line_no: "<<  line_no << endl;
-		if( sym_it==active_scope->sym_tab.end()) {
-			cerr << "Error: could not find name in symbol table NAME:" << $1 << endl;
-			++no_errors;
-			$$->type=error_type;
-		} else if( $3->isvalid()){
-			cout << "CAME HERE2 parse oper_assgn: line_no: "<<  line_no << endl;
-			se= sym_it->second;
-			$$->symp=se;
-			$$->type = uninit;
-			$$->e_operator=oper_assgn;
-			$$->r_op= $3;
-			datatype typ1=se->get_type();
-			datatype typ2=$3->type;
-			bool b1=check_type_compat(typ1, typ2);
-			if(!b1) {
-				cerr << "Error : assigning incompatible types line_no" << line_no << endl;
-				++no_errors;
-			}
-			cout << "parsed oper_assgn: line_no: "<<  line_no << endl;
-			//Finish the test HERE
-		} else {
-			$$->symp=se;
-			$$->type=error_type;
-			$$->r_op=$3;
-			++no_errors;
-			cerr << "Propagating type error to oper_assgn: line_no: " << line_no << endl;
-		}
+		$$ = new un2_expr(strdup($1));
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
-		$$ = new_expr();
-		$$->l_op = $2;
-		$$->type = $2->type;
-		$$->e_operator = oper_parexp;
+		$$ = new un_expr($2, oper_parexp );
 	}
 	;
 
@@ -841,21 +778,15 @@ tab_defn:
 	;
 
 ax_list:	ax_defn	{
-		//$$ = $1;
 	}	
 	|	ax_list ax_defn	{
-		//$2->next_ax = $1;
-		//$1->prev_ax = $2;
-		//$$ = $2;
 	}
 	;
 
 ax_defn:	AX NAME ';' ax_stmt_list {
 		basic_ax_stmt* bptr= trav_chain($4);
-		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, NULL);
+		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, 0);
 		
-		//$$->ax_stmt_start = $4;
-		//$$->ax_name = $2;
 		ax_map[$2]=$$;
 #ifdef DEBUG_GRAM
 		printf("NAME: $2: %s\n", $2);
@@ -866,9 +797,6 @@ ax_defn:	AX NAME ';' ax_stmt_list {
 	|	AX NAME ';'COND_START expression ';' ax_stmt_list {
 		basic_ax_stmt* bptr= trav_chain($7);
 		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, $5);
-		//$$->filter = $5;
-		//$$->ax_stmt_start = $7;
-		//$$->ax_name = $2;
 		ax_map[$2]=$$;
 #ifdef DEBUG_GRAM
 		printf("NAME: $2: %s\n", $2);
@@ -891,9 +819,6 @@ ax_stmt_list:
 		$$ = $1;
 	}
 	|	ax_stmt_list ax_stmt	{
-		//$2->next = $1;
-		//$1->prev = $2;
-		//$$ = $2;
 		$$=link_chain($1, $2);
 	}
 	;
@@ -901,29 +826,17 @@ ax_stmt_list:
 ax_stmt:	TOT ';' TEXT ';' {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
-		$$ = new tot_ax_stmt (tot_axstmt,$3, NULL);
-		if ($$ == NULL){
-			cout << "Failed to allocate memory\n";
-			exit(1);
-		}
+		$$ = new tot_ax_stmt (tot_axstmt,$3, 0);
 	}
 	| TOT ';' TEXT ';' COND_START expression ';'	{
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		$$ = new tot_ax_stmt (tot_axstmt,$3, $6);
-		if ($$ == NULL){
-			cout << "Failed to allocate memory\n";
-			exit(1);
-		}
 	}
 	|	CNT ';'	TEXT ';' COND_START expression ';' 	{
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		$$ = new count_ax_stmt (cnt_axstmt,$3, $6);
-		if ($$ == NULL){
-			cout << "Failed to allocate memory\n";
-			exit(1);
-		}
 	}
 	| 	TTL ';' TEXT ';'	{
 		$$ = new ttl_ax_stmt (txt_axstmt,$3);
@@ -959,7 +872,7 @@ extern void yyrestart ( FILE *input_file );
 		cout << "tree_root: " << tree_root << endl;
 		
 		char * printf_name="printf";
-		struct var_list* v_list=NULL;
+		struct var_list* v_list=0;
 		datatype myreturn_type=INT8_TYPE;
 		struct func_info* fi=new func_info(printf_name, v_list, myreturn_type);
 		func_info_table.push_back(fi);
@@ -995,10 +908,11 @@ extern void yyrestart ( FILE *input_file );
 			fprintf(edit_out, "#include <sys/types.h>\n" );
 			fprintf(edit_out, "int8_t c[%d];\n", rec_len );
 			fprintf(edit_out, "#include \"global.C\"\n" );
-			if(edit_out==NULL){
+			if(edit_out==0){
 				printf("could not open edit_out.c for writing\n");
 				exit(1);
 			}
+			cout << "printing edit:" << endl;
 			tree_root->print_stmt_lst(edit_out);
 			fclose(edit_out);
 			global_vars=fopen("xtcc_work/global.C", "a+");
@@ -1013,6 +927,7 @@ extern void yyrestart ( FILE *input_file );
 			fclose(print_list_counts);
 		} else {
 			cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
+			exit(1);
 		}
 		FILE * table_op=fopen("xtcc_work/my_table.C", "w");	
 		FILE * tab_drv_func=fopen("xtcc_work/my_tab_drv_func.C", "w");	
@@ -1043,7 +958,7 @@ extern void yyrestart ( FILE *input_file );
 		fclose(axes_op); fclose(axes_drv_func);
 		bool my_compile_flag=true;
 		if(my_compile_flag&&!compile()){
-			char * endptr=NULL;
+			char * endptr=0;
 			int convert_to_base=10;
 			//int rec_len=strtol(argv[3],&endptr, convert_to_base);
 			return run(argv[2], rec_len);
@@ -1055,195 +970,10 @@ extern void yyrestart ( FILE *input_file );
 #include <cstdio>
 
 
-void print_expr(FILE* edit_out, struct expr * e){
-	if(e) {
-		switch(e->e_operator){
-			char oper_buf[3];
-
-			case oper_plus:{
-				fprintf(edit_out, "/* oper_plus */");	       
-				sprintf(oper_buf, "%s" , "+");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_minus:{
-				sprintf(oper_buf, "%s" , "-");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_mult:{
-				sprintf(oper_buf, "%s" , "*");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_div:{
-				sprintf(oper_buf, "%s" , "/");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_mod:{
-				sprintf(oper_buf, "%s" , "%");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	      
-			case oper_lt:{
-				sprintf(oper_buf, "%s" , "<");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_gt:{
-				sprintf(oper_buf, "%s" , ">");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_le:{
-				sprintf(oper_buf, "%s" , "<=");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_ge:{
-				sprintf(oper_buf, "%s" , ">=");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_iseq:{
-				sprintf(oper_buf, "%s" , "==");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			case oper_isneq: {
-				sprintf(oper_buf, "%s" , "!=");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, " %s ", oper_buf);
-				print_expr(edit_out, e->r_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;	       
-			
-
-			case oper_parexp:{
-				fprintf(edit_out, "(");
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, ")");
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				}
-			break;
-
-			case oper_num:{
-				fprintf(edit_out, "%d ", e->isem_value);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				      }
-			break;
-			case oper_float:{
-				fprintf(edit_out, "%f ", e->dsem_value);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				      }
-			break;
-
-			case oper_name:{
-				fprintf(edit_out, "%s ", e->symp->name);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				       }
-			break;
-
-			case oper_umin:{
-				fprintf(edit_out, "- ");
-				print_expr(edit_out, e->l_op);
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				       }
-			break;
-
-			case oper_arrderef:{
-				fprintf(edit_out, "%s[", e->symp->name);
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, "]");
-				//fprintf(edit_out, "/* %d */\n", e->type);
-					   }
-			break;
-			case oper_arr2deref:{
-				fprintf(edit_out, "%s[", e->symp->name);
-				print_expr(edit_out, e->l_op);
-				fprintf(edit_out, ",");
-				print_expr(edit_out, e->r_op);
-				fprintf(edit_out, "]");
-				//fprintf(edit_out, "/* %d */\n", e->type);
-				// Note : flag runtime error if r_op-l_op>=3
-					    }
-			break;
-			case oper_func_call:{
-				//cout << "func_index_in_table: " << e->func_index_in_table << endl;
-				cout << "func_index_in_table: " << func_info_table[e->func_index_in_table]->fname << endl;
-				fprintf(edit_out, "%s(", func_info_table[e->func_index_in_table]->fname.c_str());
-				struct expr* e_ptr=e->l_op;
-				fprintf(edit_out,  "/*print_expr: oper_func_call:  %s*/", func_info_table[e->func_index_in_table]->fname.c_str() );
-				while(e_ptr){
-					print_expr(edit_out, e_ptr);
-					if(e_ptr->prev){
-						fprintf(edit_out, ", ");
-					} 
-					e_ptr=e_ptr->prev;
-				}
-				fprintf(edit_out, ")");
-			}
-			break;
-			case oper_text_expr:{
-				fprintf(edit_out, "%s", e->text);
-			}
-			break;
-			case oper_assgn:{
-				fprintf(edit_out, "/*oper_assgn*/ %s =", e->symp->name);
-				print_expr(edit_out, e->r_op);
-			}
-			break;
-			case oper_not:{
-				fprintf(edit_out, "! ");
-				print_expr(edit_out, e->l_op);
-			}
-			break;
-					
-
-
-			default:
-				fprintf(edit_out, "Unhandled expression type: %c\n", 
-					e->type);
-		}
-	}
-}
-
 
 
 bool check_type_compat(datatype typ1, datatype typ2){
-	cout << "check_type_compat: line_no: I have to convert the below code into a function"  << line_no << endl;
+	cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
 	datatype td1=typ1;
 	datatype td2=typ2;
 	if(td1>=U_INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(U_INT8_TYPE + typ1-U_INT8_REF_TYPE);
@@ -1253,13 +983,14 @@ bool check_type_compat(datatype typ1, datatype typ2){
 		if(td1>=td2){
 			return true;
 		}
+	} else {
+		cerr << "ERROR: Assigning unhandle_able Type to var:  line_no:" << line_no 
+			<< " LHS type: " << typ1 << " after converting LHS: " << td1
+			<< " RHS type: " << typ2 << " after converting RHS: " << td2
+			<< endl;
+		++no_errors;
+		return false;
 	}
-	cerr << "ERROR: Assigning unhandle_able Type to var:  line_no" << line_no 
-		<< " LHS type: " << typ1 
-		<< " RHS type: " << typ2 
-		<< endl;
-	++no_errors;
-	return false;
 }
 
 
@@ -1269,33 +1000,6 @@ int check_parameters(struct expr* e, struct var_list* v){
 	struct expr* e_ptr=e;
 	struct var_list* fparam=v;
 	bool match=true;
-	int count=0;
-	struct expr* tmp_e=e;
-	// No need to reverse chain any more: start here NxD: 22-jun-2007
-	while (tmp_e) { 
-		//e_ptr->print();
-		count=count+1; 
-		//cout << "count: " << count << endl;
-		if(tmp_e->prev) tmp_e=tmp_e->prev; 
-		else break;
-	}
-	int pcount=0;
-	struct var_list* tmp_v=fparam ;
-	while (tmp_v) { 
-		//cout << "fparam->var_name: " << fparam->var_name << " ";
-		pcount=pcount+1; 
-		//cout << "pcount: " << pcount << endl;
-		if(tmp_v->prev) tmp_v=tmp_v->prev; 
-		else break;
-	}
-	if(count!=pcount) {
-		cerr << "Number of parameters used in func call: " << count 
-			<< " does not match number of parameters in function: = " << pcount 
-			<< " line_no: " << line_no
-			<< endl;
-		++no_errors;
-		match=false;
-	}
 	/* Important point to note: I am not allowing references in ordinary variable decl
 	   Only in function parameter list - the object is to allow modifying of variables
 	   in a function as in C++
@@ -1314,7 +1018,7 @@ int check_parameters(struct expr* e, struct var_list* v){
 				 thats because we dont care much about references -> C++
 				 does all the hard work. For checking types they are equivalent to us
 				*/			
-			if(tdt>U_INT8_REF_TYPE) tdt=datatype(U_INT8_TYPE+tdt-U_INT8_REF_TYPE);
+			if(tdt>=U_INT8_REF_TYPE) tdt=datatype(U_INT8_TYPE+tdt-U_INT8_REF_TYPE);
 			if(etype <= tdt) {
 				cout << "varname: "<< fparam->var_name << " chk_param_counter: " 
 				<< chk_param_counter << " passed " << endl;
@@ -1329,7 +1033,8 @@ int check_parameters(struct expr* e, struct var_list* v){
 			cerr << "Parameter type mismatch name: " << endl;
 			cerr << fparam->var_name << " expected type is " << fparam->var_type
 				<< " passed type is " << e_ptr->type 
-				<< " line_no: " << line_no << " or currently allowed promotion to: " << e_ptr->type+U_INT8_REF_TYPE
+				<< " line_no: " << line_no << " or currently allowed promotion to: " 
+				<< e_ptr->type+U_INT8_REF_TYPE
 				<< endl;
 			++no_errors;
 		}
@@ -1338,16 +1043,17 @@ int check_parameters(struct expr* e, struct var_list* v){
 		chk_param_counter=chk_param_counter+1;
 	}
 	if(match==true){
-		if(e_ptr==NULL&& fparam==NULL){
+		if(e_ptr==0&& fparam==0){
+			cout << "MATCHED" << endl;
 			match=true;
-			//cout << "e_ptr && fparam are both NULL" << endl;
-		}
-		else 
+		} else {
 			match=false;
+			++no_errors;
+			cerr << "NOTMATCHED: No of parameters in function call not matching with no of paramters in expr: line_no"
+				<< line_no << endl;
+		}
 	}
-	if(match) {
-		cout << "function passed parameter type check: n_params:" << chk_param_counter << endl;
-	} else {
+	if(!match) {
 		cerr << "function parameter type check FAILURE: line_no " << line_no << endl;
 	}
 	return match;
@@ -1356,7 +1062,7 @@ int check_parameters(struct expr* e, struct var_list* v){
 map<string, symtab_ent*>::iterator find_in_symtab(string id){
 	bool found=false;
 	int i=active_scope_list.size()-1;
-	cout << "START: find_in_symtab: i=" << i <<endl;
+	//cout << "START: find_in_symtab: i=" << i <<endl;
 
 	map<string,symtab_ent*>::iterator sym_it ; 
 	for(;i>-1;--i){
@@ -1364,30 +1070,13 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
 		if (sym_it == active_scope_list[i]->sym_tab.end() ){
 		} else {
 			found = true;
-			cout << "found" << endl;
+			//cout << "found" << endl;
 			break;
 		}
 	}
 	if(found==false){
-		cout << "ID:" << id <<
-			": not found in any scope\n";
-		int j=active_scope_list.size()-1;
-		map<string,symtab_ent*>::iterator it;
-		for(; j>-1; --j){
-			cout <<"searching in: " << 
-				active_scope_list[j];
-			cout << "j=" << j << endl;
-			for(it=active_scope_list[j]->sym_tab.begin();
-				it!=active_scope_list[j]->sym_tab.end();
-				++it){
-				cout << it->first << ",";
-			}
-		}
 		return active_scope->sym_tab.end();
 	} else {
-		cout << "ID:" << id <<
-			": found at scope level:" <<
-			i << endl;
 		return sym_it;
 	}
 }
@@ -1397,15 +1086,15 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
    
 
 	bool skip_func_type_check(const char * fname){
-		cout << "skip_func_type_check: BEGIN" << endl;
+		//cout << "skip_func_type_check: BEGIN" << endl;
 		char * skip_func_type_check_list[] = {"printf" };
 		for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
 			if(!strcmp(fname, skip_func_type_check_list[i])){
-				cout << "skip_func_type_check: returned true: fname: " << fname << endl;
+				//cout << "skip_func_type_check: returned true: fname: " << fname << endl;
 				return true;
 			}
 		}
-		cout << "skip_func_type_check: returned false: fname: " << fname << endl;
+		//cout << "skip_func_type_check: returned false: fname: " << fname << endl;
 		return false;
 	}
 
@@ -1435,14 +1124,12 @@ void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list,
 
 
 int search_for_func(string& search_for){
-	cout << "Entered search_for_func: " << endl;
+	//cout << "Entered search_for_func: " << endl;
 	unsigned int i=0;
 	
 	for (i=0;i<func_info_table.size();++i){
 		if(search_for==func_info_table[i]->fname){
-			cout << "search_for_func(): found: " << search_for 
-				<< " index: " << i
-				<< endl;
+			//cout << "search_for_func(): found: " << search_for << " index: " << i << endl;
 			return i;
 		}
 	}
@@ -1456,7 +1143,8 @@ int check_func_decl_with_func_defn(struct var_list* & v_list, int & index, strin
 	struct var_list* defn_ptr=v_list;
 	struct var_list* decl_ptr=func_info_table[index]->param_list;
 	cout << "check_func_decl_with_func_defn: after func_info_table[index]->param_list" << endl;
-		
+
+	
 	while(defn_ptr&&decl_ptr){
 		// I may put a check on the length of the array - but it is not necessary for now I think
 		if((defn_ptr->var_type==decl_ptr->var_type)&&
@@ -1470,7 +1158,7 @@ int check_func_decl_with_func_defn(struct var_list* & v_list, int & index, strin
 		defn_ptr=defn_ptr->prev;
 		decl_ptr=decl_ptr->prev;
 	}
-	if(defn_ptr==decl_ptr && decl_ptr==NULL){
+	if(defn_ptr==decl_ptr && decl_ptr==0){
 		cout << "check_func_decl_with_func_defn: return success" << endl;
 		return 1;
 	}else{
@@ -1482,10 +1170,11 @@ int check_func_decl_with_func_defn(struct var_list* & v_list, int & index, strin
 bool 	void_check( datatype & type1, datatype & type2, datatype& result_type){
 	if(type1==VOID_TYPE|| type2==VOID_TYPE){
 		cerr << "line_no: " << line_no << " either left or rhs of operator - is of void type: check if you are calling a void function on either side" << endl;
-		result_type=error_type;
+		result_type=ERROR_TYPE;
 		++no_errors;
 		return false;
 	} else {
+		result_type=type1 > type2? type1: type2;
 		return true;
 	}
 }
@@ -1554,8 +1243,6 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 				<< endl;
 			++ no_errors;
 		} else {
-			//construct_internal_table(ax_map, table_list);
-			//cout << "constructing table: " <<
 			expr* f= table_list[i]->filter;
 			cout << "table: " <<
 				map_iter_b->first << " by " <<
@@ -1563,11 +1250,6 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			if ( f ){
 				cout << " Filter: " ;
 			}
-				/*
-			internal_table * itbl_ptr = 
-				new internal_table(map_iter_s, map_iter_b, f, i);
-			itbl_vec.push_back(itbl_ptr);
-			*/
 			fprintf(op, "struct table_%s_%s {\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str ());
 			fprintf(op, "const int rows, cols;\n");
@@ -1675,7 +1357,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 					
 				if(bc->condn){
 					fprintf(op, "\tif (");
-					print_expr(op, bc->condn);
+					bc->condn->print_expr(op);
 					fprintf(op, " ){\n");
 					fprintf(op, "\t\tflag[%d]=true;\n", counter);
 					fprintf(op, "\t}\n");

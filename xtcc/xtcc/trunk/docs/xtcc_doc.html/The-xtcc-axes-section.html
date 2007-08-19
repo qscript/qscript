@@ -383,13 +383,15 @@ Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 	There are only 2 types of axes in xtcc.
      <ol type=1 start=1>
 <li>	single coded axes - an axis that has exactly one value associated with it
-<li>	multiple code axes - an axis that has multiple values  associated with it
+<li>	multiple code axes - an axis that has multiple values associated with it
+	Right now multi-coded data is not handled by the compiler. But will be added soon.
         </ol>
 
    <p>	This data is stored in the system in only one format for each type. Single coded data is stored with the width of the underlying data type in qscript. For example if Q5 was a char data in the script, it will be stored on disk in sizeof(char) bytes - which should be 1 for systems on which this program is designed to run.
 
-   <p>	A multicoded question will have the number of responses as part of the data in the mapfile. The multi punch data will be stored accross those positions in the data. For example
-	Suppose Q6 is multi-punched, has 10 responses of type int, and sizeof(int)==4 . Also suppose that the first column Q6 is coded is col 101 then
+   <p>	Here is how I visualize multi-coded axes and data will be handled It is not yet implemented though. 
+	A multicoded question will have the number of responses as part of the data in the mapfile. The multi coded data will be stored accross those positions in the data. For example
+	Suppose Q6 is multi-coded, has 10 responses of type int, and sizeof(int)==4 . Also suppose that the first column Q6 is coded is col 101 then
 	Q6 [1] -&gt; Q6 first response will be at 101-104, Q6[2] will be at 105-108 and so on.
 
    <p>	Numeric data should be treated as single punch data, you can use "long long" for very large numeric ranges. If you need floating point data set the underlying data for the single punch question to float or double - depending on the amount of precision required.

@@ -47,14 +47,12 @@ stmt* scope::insert(string name, datatype dt, int line_no){
 		struct symtab_ent* se=new struct symtab_ent;
 		se->name = strdup(name.c_str());
 		se->type=dt;
-		//string s(name);
-		//sym_tab[s] = se;
 		sym_tab[name] = se;
 		st_ptr->type=dt;
 		st_ptr->symp=se;
 	} else {
 		cerr << "ERROR: " << name << " already present in symbol table" << endl;
-		st_ptr->type=error_type;
+		st_ptr->type=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
@@ -70,7 +68,6 @@ stmt* scope::insert(string name, datatype dt, int arr_size, int line_no){
 		exit(1);
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
-		cout << "char decl:start\n";
 		struct symtab_ent* se=new struct symtab_ent;
 		se->name = strdup(name.c_str());
 		se->type=dt;
@@ -82,7 +79,7 @@ stmt* scope::insert(string name, datatype dt, int arr_size, int line_no){
 	} else {
 		cerr << " array NAME failed:" << line_no << endl;
 		cerr << name << " already present in symbol table" << endl;
-		st_ptr->type=error_type;
+		st_ptr->type=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
@@ -116,7 +113,7 @@ stmt* scope::insert(string name, datatype dt, int arr_size, int line_no, char *t
 	} else {
 		cerr << " array NAME failed:" << line_no << endl;
 		cerr << name << " already present in symbol table" << endl;
-		st_ptr->type=error_type;
+		st_ptr->type=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;

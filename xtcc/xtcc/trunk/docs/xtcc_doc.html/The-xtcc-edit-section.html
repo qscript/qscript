@@ -398,16 +398,16 @@ Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 <h3 class="section">10.2 Data types</h3>
 
 <p>	Current data types are:
-	char, int, float, double. 
+	int8_t, int16_t, int32_t, float and double. 
 	NxD_NOTE: I should add long and unsigned short when I have added these to the grammar. 
 	An identifier (variable) must begin with alpha characters or '_' and may continue with an '_' or digits or alpha characters after the first character
 	An example of a declaration is:
-<pre class="example">     	int i; // valid
-     	int var_102; // valid
-     	int 102_h; // error - starts with a digit
+<pre class="example">     	int32_t i; // valid
+     	int32_t var_102; // valid
+     	int32_t 102_h; // error - starts with a digit
 </pre>
    <p>	The only other data type that is allowed right now is a array of the above types
-<pre class="example">     	int arr[10];
+<pre class="example">     	int32_t arr[10];
      	float farr[20];
 </pre>
    <h3 class="section">10.3 Expressions</h3>
@@ -428,7 +428,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 </pre>
    <p>	The precedence rules for the above operators is the same as that is 'C' i.e. <code>*,/,%</code> are given higher precendence than <code>+,-</code>.
 
-   <p>	The arithmetic relational operators are <code>==,&lt;=,&gt;=,&lt;,&gt;,!=</code> and have their usual meaning. Note that "!=" means NOT EQUAL to. They have lower priority than the arithmetic operators. Hence the following is valid code:
+   <p>	The arithmetic relational operators are <code>==,&lt;=,&gt;=,&lt;,&gt;,!=</code> and have their usual meaning. Note that "!=" means NOT EQUAL to. They have lower priority than the arithmetic operators. The following is valid code:
 <pre class="verbatim">
 	int a=10; int b=20;
 	a&lt;=b;
@@ -463,7 +463,7 @@ Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 <pre class="example">     	if ( expr ) statement
      	if ( expr ) statement else statement
 </pre>
-   <p>	The else matches with the nearest if. And else if can be used to add in more conditions. Only one path is taken during execution.
+   <p>	The else matches with the nearest if. And <code>else if</code> can be used to add in more conditions. Only one path is taken during execution.
 
    <p>	Example:
 <pre class="verbatim">

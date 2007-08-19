@@ -7,10 +7,10 @@
 		U_INT8_TYPE, INT8_TYPE, U_INT16_TYPE, INT16_TYPE, U_INT32_TYPE, INT32_TYPE, FLOAT_TYPE, DOUBLE_TYPE,
 		U_INT8_ARR_TYPE, INT8_ARR_TYPE, U_INT16_ARR_TYPE, INT16_ARR_TYPE, U_INT32_ARR_TYPE, INT32_ARR_TYPE, FLOAT_ARR_TYPE, DOUBLE_ARR_TYPE,
 		U_INT8_REF_TYPE, INT8_REF_TYPE, U_INT16_REF_TYPE, INT16_REF_TYPE, U_INT32_REF_TYPE, INT32_REF_TYPE, FLOAT_REF_TYPE, DOUBLE_REF_TYPE,
-		error_type,
-		texpr_stmt, assgn_stmt, cmpd_stmt, ife_stmt, decl_stmt, func_type, func_defn, for_stmt,
-		lista_basic_type_stmt, lista_basic_arrtype_stmt_1index, lista_basic_arrtype_stmt_2index,
-		break_stmt, continue_stmt,
+		ERROR_TYPE,
+		TEXPR_STMT, CMPD_STMT, IFE_STMT, decl_stmt, FUNC_TYPE, FUNC_DEFN, FOR_STMT,
+		LISTA_BASIC_TYPE_STMT, LISTA_BASIC_ARRTYPE_STMT_1INDEX, LISTA_BASIC_ARRTYPE_STMT_2INDEX,
+		BREAK_STMT, CONTINUE_STMT,
 		uninit 
 	};
 	/*enum decltype { array_decl, pointer_decl };*/

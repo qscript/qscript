@@ -216,6 +216,7 @@ else 	{
 		return ELSE;
 	}
 
+conv	{ return CONVERT ; }
 
 	/*
 	c[0-9]+	{
@@ -248,7 +249,7 @@ else 	{
 
 
 	void yyerror(char * s){
+		++no_errors;
 	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext  );
 		printf("no_errors: %d\n", no_errors);
-		++no_errors;
 	}
