@@ -36,6 +36,7 @@
 #include <iostream>
 #include <vector>
 
+struct stmt;
 using namespace std;
 
 	struct scope;
@@ -48,9 +49,9 @@ using namespace std;
 		scope()	{
 			//cout << " constructing scope(): this: " << this << endl;
 		}
-		struct stmt* insert(string name, datatype dt, int line_no);
-		struct stmt* insert(string name, datatype dt, int arr_size, int line_no);
-		struct stmt* insert(string name, datatype dt, int arr_size, int line_no, char *text);
+		stmt* insert(string name, datatype dt, int line_no);
+		stmt* insert(string name, datatype dt, int arr_size, int line_no);
+		stmt* insert(string name, datatype dt, int arr_size, int line_no, char *text);
 	};
 
 #endif /* __SCOPE_H */

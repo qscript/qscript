@@ -1,0 +1,24 @@
+Quickstart
+
+Requirements
+	1) g++ or Borland C++ for WINDOWS
+	2) Gnu Make
+	3) If compiling on WINDOWS you need The UnixUtils -> in particular sed and gnu Make
+	4) bison/yacc
+	5) lex/flex
+
+
+Building:
+	Type the following at the prompt
+	$ ./configure
+	$ make
+
+Output:
+	You will get the file "xtcc" binary which is the compiler. For now it will only run in the directory where it was built, but I intend to change that soon.
+
+Best of Luck!!!
+Neil Xavier D'Souza (NxD_in@yahoo.com)
+PS: If you do a build - please send me an email with the following info
+	1) Compiler and version
+	2) OS and version 
+

@@ -52,8 +52,8 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_xtcc_OBJECTS = expr.$(OBJEXT) tree.$(OBJEXT) type.$(OBJEXT) \
-	lex.$(OBJEXT) scope.$(OBJEXT)
+am_xtcc_OBJECTS = type.$(OBJEXT) lex.$(OBJEXT) expr.$(OBJEXT) \
+	tree.$(OBJEXT) scope.$(OBJEXT)
 xtcc_OBJECTS = $(am_xtcc_OBJECTS)
 xtcc_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I.
@@ -168,10 +168,11 @@ sysconfdir = ${prefix}/etc
 target_alias = 
 AM_CXXFLAGS = -Wall -frepo
 AM_YFLAGS = -d -v
-xtcc_SOURCES = tree.h expr.C tree.C Tab.h type.y lex.l scope.C
+xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C 
+BUILT_SOURCES = type.h type.c lex.c
 xtcc_LDADD = -lfl
 EXTRA_DIST = sample.dat
-all: config.h
+all: $(BUILT_SOURCES) config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
@@ -500,13 +501,15 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(PROGRAMS) config.h
 installdirs:
 	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -533,6 +536,7 @@ maintainer-clean-generic:
 	-rm -f lex.c
 	-rm -f type.c
 	-rm -f type.h
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
@@ -597,14 +601,14 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 	tags uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-info-am
 
-lex.l: type.h
-tree.C: tree.h
-expr.C: expr.h tree.h
 type.y: const_defs.h symtab.h tree.h stmt.h Tab.h expr.h scope.h
-scope.C: scope.h symtab.h tree.h stmt.h
+lex.l: type.h
+expr.C: expr.h tree.h
+tree.C: tree.h symtab.h stmt.h
+scope.C: scope.h tree.h stmt.h
 .phony: clean
 clean:
-	rm *.o y.output y.tab.[hc] lex.yy.c dp a.out op op1 op.ind op.ind2 cscope.out ch3-04.output y.output y.tab.[hc] lex.yy.c err edit_out.c edit_out.ndg ofile hand_compile loop my_edit.exe my_loop temp.C.exe mk_data first Type_checker7.kdev* massif.* gmon.out myedit.exe rd_data Type_checker8.zip temp.C temp1.C op2 op.C op-mmap Type_checker7.tag read_op read_times dp-static tags mmap_op mmap_time Doxyfile global.C print_list_counts.C temp2.C my_axes.C my_axes_drv_func.C my_tab_drv_func.C my_table.C xtcc *.rpo stubs/a.out xtcc_work/global.C xtcc_work/my_tab_drv_func.C xtcc_work/temp.C xtcc_work/my_axes.C xtcc_work/myedit.exe xtcc_work/my_axes_drv_func.C xtcc_work/.temp.C.swp xtcc_work/my_tab_summ.C xtcc_work/my_table.C xtcc_work/edit_out.c stubs/a.out
+	rm *.o y.output y.tab.[hc] lex.yy.c dp a.out op op1 op.ind op.ind2 cscope.out ch3-04.output y.output y.tab.[hc] lex.yy.c err edit_out.c edit_out.ndg ofile hand_compile loop my_edit.exe my_loop temp.C.exe mk_data first Type_checker7.kdev* massif.* gmon.out myedit.exe rd_data Type_checker8.zip temp.C temp1.C op2 op.C op-mmap Type_checker7.tag read_op read_times dp-static tags mmap_op mmap_time Doxyfile global.C print_list_counts.C temp2.C my_axes.C my_axes_drv_func.C my_tab_drv_func.C my_table.C xtcc xtcc.exe *.rpo stubs/a.out xtcc_work/global.C xtcc_work/my_tab_drv_func.C xtcc_work/temp.C xtcc_work/my_axes.C xtcc_work/myedit.exe xtcc_work/my_axes_drv_func.C xtcc_work/.temp.C.swp xtcc_work/my_tab_summ.C xtcc_work/my_table.C xtcc_work/edit_out.c stubs/a.out
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

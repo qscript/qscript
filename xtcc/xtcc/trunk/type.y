@@ -155,7 +155,6 @@
 %token '}'
 %token '('
 %token ')'
-%token '!'
 %token '='
  /*%token <dt> INT*/
  /*%token <dt> CHAR*/
@@ -904,6 +903,9 @@ extern void yyrestart ( FILE *input_file );
 			fprintf(print_list_counts, "void print_list_counts(){\n");
 			fclose(print_list_counts);
 			FILE * edit_out= fopen("xtcc_work/edit_out.c", "w+b");
+#if __WIN32__
+			fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
+#endif /* __WIN32__ */
 			fprintf(edit_out, "#include <cstdio>\n#include <iostream>\nusing namespace std;\n" );
 			fprintf(edit_out, "#include <sys/types.h>\n" );
 			fprintf(edit_out, "int8_t c[%d];\n", rec_len );
@@ -1195,14 +1197,27 @@ template<class T> T* trav_chain(T* & elem1){
 #include <cstdlib>
 int compile(){
 	int rval;
+#if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	system("rm xtcc_work/temp.C");
 	string cmd1="cat xtcc_work/edit_out.c xtcc_work/my_axes_drv_func.C xtcc_work/my_tab_drv_func.C stubs/main_loop.C > xtcc_work/temp.C";
+#endif /* GNU/UNIX */
+#if __WIN32__
+	system("del xtcc_work\\temp.C");
+	string cmd1="type xtcc_work\\edit_out.c xtcc_work\\my_axes_drv_func.C xtcc_work\\my_tab_drv_func.C stubs\\main_loop.C > xtcc_work\\temp.C";
+#endif /* __WIN32__ */
+
 	rval=system(cmd1.c_str());
 	if(rval){
 		cerr << "unable to cat files" << endl;
 		return rval;
 	}
+#if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	string cmd2="g++ xtcc_work/temp.C -o xtcc_work/myedit.exe";
+#endif /* GNU/UNIX */	
+#if __WIN32__
+	string cmd2="\\Borland\\BCC55\\Bin\\bcc32 -P -I\\Borland\\BCC55\\Include -L\\Borland\\BCC55\\LIB -extcc_work\\myedit.exe xtcc_work\\temp.C ";
+#endif /* __WIN32__ */	
+
 	rval=system(cmd2.c_str());
 
 	return rval;
@@ -1212,8 +1227,12 @@ int compile(){
 int run(char * data_file_name, int rec_len){
 	int rval;
 	ostringstream cmd1;
-	
+#if	__WIN32__
+	cmd1 << "xtcc_work\\myedit.exe " << data_file_name  << " " << rec_len;
+#endif /* __WIN32__ */
+#if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	cmd1 << "xtcc_work/myedit.exe " << data_file_name  << " " << rec_len;
+#endif /* UNIX */
 	rval=system(cmd1.str().c_str());
 	return rval;
 }

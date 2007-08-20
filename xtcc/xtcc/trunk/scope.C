@@ -25,9 +25,8 @@
  */
 
 #include "scope.h"
-#include "symtab.h"
-#include "tree.h"
 #include "stmt.h"
+#include "tree.h"
 #include <string>
 #include <cstring>
 using namespace std;
@@ -37,7 +36,7 @@ extern int no_errors;
 
 stmt* scope::insert(string name, datatype dt, int line_no){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	struct decl_stmt * st_ptr=new struct decl_stmt(dt, line_no);
+	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;

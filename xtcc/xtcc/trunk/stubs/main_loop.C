@@ -1,20 +1,32 @@
-#include <iostream>
+
 #include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <cstdlib>
-#include <sys/mman.h>
+//#include <sys/mman.h>
 
 using namespace std;
+int fread_data(FILE * & inp_data_file , int file_size, int rec_len);
+
 int read_data(int fd, struct stat &file_info_stat, int rec_len);
 int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len);
 int main(int argc, char * argv[]){
 	
-	int fd=open(argv[1], O_RDONLY);
+	//int fd=open(argv[1], O_RDONLY);
 	if(argc !=3) {
 		cout << "Usage: " << argv[0] << " <datafile_name> <reclen>"  << endl; 
 		exit(1);
+	}
+	FILE * inp_data_file=fopen(argv[1], "rb");
+	if(!inp_data_file){
+		cerr << "Unable to open data file : " << argv[1] << endl;
+		exit(1);
+	}
+	int rval=fseek(inp_data_file, 0, SEEK_END);
+	long file_size=-1;
+	if(!rval){
+		file_size=ftell(inp_data_file);
 	}
 
 	char * endptr=0;
@@ -28,6 +40,7 @@ int main(int argc, char * argv[]){
 		exit(1);
 	}
 	// assert the the file size is perfectly divisible by the given reclen
+	/*
 	struct stat file_info_stat;
 	if(fstat(fd, &file_info_stat)<0){
 		cerr << "fstat error: unable to stat data file: " << argv[1] << endl;
@@ -39,11 +52,13 @@ int main(int argc, char * argv[]){
 	}
 	long int file_size=file_info_stat.st_size;
 	cout << argv[1] << " filesize is: " << file_info_stat.st_size << endl;
+	*/
 	if (file_size%rec_len!=0){
 		cerr << "Filesize should be exactly divisible by reclen" << endl;
 		exit(1);
 	}
-	read_data(fd, file_info_stat, rec_len);
+	//fread_data(inp_data_file, file_info_stat, rec_len);
+	fread_data(inp_data_file, file_size, rec_len);
 	//mmap_read_data (fd, file_info_stat, rec_len);
 	print_list_counts();
 	tab_summ();
@@ -51,7 +66,7 @@ int main(int argc, char * argv[]){
 }
 
 #include <sys/types.h>
-
+/*
 int read_data(int fd, struct stat &file_info_stat, int rec_len){
 	cout << "read_data" << endl;
 	//int8_t* buffer=new int8_t[sizeof(int8_t)* rec_len];
@@ -85,6 +100,7 @@ int read_data(int fd, struct stat &file_info_stat, int rec_len){
 	return r_val;
 }
 
+//#if UNIX_H
 int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len){
 	cout << "mmap_read_data" << endl;
 	//int8_t* buffer=new int8_t[sizeof(int8_t)* rec_len];
@@ -111,5 +127,40 @@ int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len){
 	cout << "END mmap_read_data" << endl;
 	return r_val;
 }
+//#endif  UNIX_H 
+*/
+
 #include "print_list_counts.C"
 #include "../stubs/list_summ_template.C"
+int fread_data(FILE * & inp_data_file , int file_size, int rec_len){
+	cout << "read_data" << endl;
+	//char* buffer=new char[sizeof(char)* rec_len];
+	int seek_res=fseek(inp_data_file, 0, SEEK_SET);
+	int r_val=0;
+		
+	while(1){
+		//memset(buffer,0, rec_len);
+		int n_read= fread(c ,  sizeof(char), rec_len,  inp_data_file);
+		if(n_read==0){
+			r_val=0;
+			break;
+		} else if(n_read<0 || n_read!=rec_len){
+			cerr	<< "Error reading file: check record size" 
+				<< "n_read: " << n_read
+				<< "rec_len: " << rec_len
+				<< endl;
+			r_val=1;
+			break;
+		} else{
+			//cout << "rec_no: " << ++rec_no << endl;
+			edit_data();
+			ax_compute();
+			tab_compute();
+			cout << ".";
+		}
+	}
+	cout << endl;
+	//delete [] buffer;
+	cout << "END read_data" << endl;
+	return r_val;
+}

@@ -1,0 +1,44 @@
+#CC=g++ -c
+CC=\Borland\BCC55\bin\bcc32 -P -I\Borland\BCC55\Include -L\Borland\BCC55\Lib
+
+DEPS= Tab.h
+#OBJS= type.obj scope.obj expr.obj lex.obj tree.obj
+OBJS= type.c scope.c expr.c lex.c tree.c
+
+HEADER_DEPS= tree.h scope.h 
+
+dp.exe:	$(DEPS) Makefile.borland  $(HEADER_DEPS) $(OBJS)
+	echo $*
+	$(CC)  -e$@  $(OBJS) 
+
+lex.c:	 lex.l tree.h type.h
+	echo $*
+	flex -B $<
+	sed "s/#include <unistd.h>//" lex.yy.c > _tmp1
+	mv _tmp1 lex.c
+	mv lex.yy.c _tmp2
+	rm _tmp2
+
+lex.obj: lex.c
+	$(CC) -c $<
+
+type.h type.c: type.y tree.h symtab.h 
+	bison -v -y -d $<
+	mv y.tab.c type.c
+	mv y.tab.h type.h
+
+type.obj: type.c
+	$(CC) -c $<
+
+#expr.o: expr.C	expr.h
+#	$(CC) $<
+scope.obj: scope.h symtab.h tree.h stmt.h const_defs.h Tab.h expr.h 
+	$(CC) -c $<
+
+
+tree.obj: tree.C tree.h 
+	$(CC) -c $<
+
+expr.obj: expr.C expr.h tree.h
+	$(CC) -c $<
+

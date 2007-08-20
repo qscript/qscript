@@ -25,6 +25,7 @@
  */
 
 %{
+#define YY_NEVER_INTERACTIVE 1
 #include "symtab.h"
 #include "const_defs.h"
 //#include "y.tab.h"
@@ -38,8 +39,10 @@
 %}
 
 %x comment
+%option never-interactive
 
 %%
+
 
 	/* NxD: I shamelessly copied this out of flex's man page */	
 "/*"         BEGIN(comment);
@@ -252,4 +255,8 @@ conv	{ return CONVERT ; }
 		++no_errors;
 	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext  );
 		printf("no_errors: %d\n", no_errors);
+	}
+
+	int yywrap(){
+		return 1;
 	}
