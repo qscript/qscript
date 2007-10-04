@@ -56,7 +56,7 @@
 	map<string, symtab_ent*>::iterator find_in_symtab(string id);
 	//struct stmt * load_func_into_symbol_table( char * & name,  struct var_list* & v_list, datatype int_type);
 	bool skip_func_type_check(const char * fname);
-	void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list, string & fname);
+	//void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list, string & fname);
 	int search_for_func(string& search_for);
 	int check_func_decl_with_func_defn(struct var_list*& v_list, int & index, string func_name);
 	struct stmt* make_func_defn_stmt( struct scope *& sc,
@@ -95,6 +95,9 @@
 			{	"float", FLOAT_TYPE},
 			{	"double", DOUBLE_TYPE}
 		};
+	vector<mem_addr_tab>  mem_addr;
+
+	void flex_finish();
 
 %}
 
@@ -145,14 +148,11 @@
 %token <ival> INUMBER
 //%token <column_no> SCOLUMN
 %token <code_list> CODELIST
-%token ';'
 %token LISTA
 %token IF
 %token ELSE
 %token '['
 %token ']'
-%token '{' 
-%token '}'
 %token '('
 %token ')'
 %token '='
@@ -200,7 +200,8 @@
 
 prog: DATA_STRUCT ';' REC_LEN '=' INUMBER ';' 
 	{	char * c_arr="c";  
-		rec_len=$5; active_scope->insert(c_arr, INT8_ARR_TYPE, rec_len, 0);
+		rec_len=$5; 
+		active_scope->insert(c_arr, INT8_ARR_TYPE, rec_len, 0);
 	} 
 	ED_START top_level_item_list ED_END {
 		tree_root = trav_chain($9);
@@ -225,8 +226,12 @@ top_level_item_list: top_level_item {
 	}
 	;
 
-top_level_item: decl
-	| func_defn
+top_level_item: decl{
+			$$=$1;
+	}
+	| func_defn	{
+		$$=$1;
+	}
 	;
 
 xtcc_type: VOID_T
@@ -249,7 +254,7 @@ func_defn:
 			++ no_errors;
 			cerr << "Function name not found in list of declared functions: "
 				<< "You will see another error on this same function name: " << func_name_index
-				<< "line_no: " << line_no ;
+				<< "line_no: " << line_no  << endl;
 		}
 	} compound_stmt {
 		struct cmpd_stmt* c_stmt= $7;
@@ -263,20 +268,33 @@ func_defn:
 		struct stmt* func_body=$7;
 		string search_for=$2;
 		datatype return_type=$1;
+		/*$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, cmpd_stmt, search_for, return_type);
+			// This gives an error - we have to fool the compiler*/
 		$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, func_body, search_for, return_type);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		// Note that the declaration already has a parameter list
+		// the constructor uses the parameter list - name and type to verify everything
+		// but doesnt need the parameter list any more - so we should delete it 
+		// - took me a while to figure out this memory leak
+		delete v_list;
+		free($2);
 	}
 	;
 
 
-decl:	xtcc_type NAME ';'{
+decl:	xtcc_type NAME ';' {
 		//cout << "creating simple var of type: " << $1 << endl;
 		$$ = active_scope->insert($2, $1, line_no);
+		free($2);
 	} 
 	|	xtcc_type NAME '[' INUMBER ']' ';' {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
 		//cout << "creating arr var of type: " << $1 << endl;
 		datatype dt=datatype(U_INT8_ARR_TYPE+($1-U_INT8_TYPE));
 		$$ = active_scope->insert($2, dt, $4, line_no);
+		free($2);
 	}
 	/*
 	NxD I only want to allow references in function parameter lists 
@@ -293,12 +311,15 @@ decl:	xtcc_type NAME ';'{
 
 
 func_decl:	xtcc_type NAME '(' decl_comma_list ')' ';'{
-		char *name=strdup($2);
-		struct var_list* tmp=$4;
+		char *name=$2;
+		//char *name=strdup($2);
 		struct var_list* v_list=trav_chain($4);
-		tmp=v_list;
 		datatype return_type=$1;
 		$$=new func_decl_stmt( FUNC_TYPE, line_no, name,  v_list, return_type);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		//free(name);
 	}
 	;
 
@@ -317,17 +338,29 @@ decl_comma_list: var_decl	{
 var_decl:	xtcc_type NAME 	{
 		//cout << "creating simple var of type: " << $1 << endl;
 		$$=new var_list($1, $2);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		free($2);
 	}
 	| xtcc_type NAME '[' INUMBER ']'  {
 		/* Neil - I need to fix this */
 		//cout << "creating arr var of type: " << $1 << endl;
 		datatype dt=datatype(U_INT8_ARR_TYPE+($1-U_INT8_TYPE));
 		$$=new var_list(dt, $2, $4);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		free($2);
 	}
 	|	xtcc_type '&' NAME {
 		//cout << "creating ref var of type: " << $1 << endl;
 		datatype dt=datatype(U_INT8_REF_TYPE+($1-U_INT8_TYPE));
 		$$=new var_list(dt, $3);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		free($3);
 	}
 	|	/* empty */
 		{
@@ -355,8 +388,14 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 			   cerr << "For condition has VOID_TYPE or ERROR_TYPE" << endl;
 			   ++ no_errors;
 			   $$=new struct err_stmt(line_no);
+			   void *ptr=$$;
+			   mem_addr_tab m1(ptr, line_no);
+			   mem_addr.push_back(m1);
 		   } else{
 			   $$ = new struct for_stmt(FOR_STMT, line_no, $3, $5, $7, $10);
+			   void *ptr=$$;
+			   mem_addr_tab m1(ptr, line_no);
+			   mem_addr.push_back(m1);
 		   }
 		   --in_a_loop;
 	}
@@ -364,8 +403,14 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	| expression ';' { 
 		if($1->isvalid()){
 			$$ = new expr_stmt(TEXPR_STMT, line_no, $1);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			$$ = new expr_stmt(ERROR_TYPE, line_no, $1);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
 		//printf("= %g\n", $1); 
 	}
@@ -378,6 +423,9 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	|	list_stmt
 	|	BREAK ';'{
 		$$=new struct break_stmt(BREAK_STMT, line_no);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if (!in_a_loop){
 			cerr << "break statement outside a loop: line_no: " << line_no<< endl;
 			++no_errors;
@@ -385,6 +433,9 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	}
 	| 	CONTINUE ';' {
 		$$=new struct continue_stmt(CONTINUE_STMT, line_no);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if (!in_a_loop){
 			cerr << "continue statement outside a loop: line_no: " << line_no<< endl;
 			++no_errors;
@@ -394,6 +445,9 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 		cerr << "statement missing ';' around line_no: " << line_no << endl;
 		++no_errors;
 		$$ = new struct err_stmt(line_no);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		yyerrok;
 	}
 	;
@@ -404,6 +458,9 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			cerr << "symbol: " << $2 << " not found in symbol table" << endl;
 			++no_errors;
 			$$=new err_stmt(line_no);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
 			datatype name_type=se->type;
@@ -412,10 +469,17 @@ list_stmt:	 LISTA NAME TEXT ';'{
 					<< " should be of basic type: " << line_no << endl;
 				++no_errors;
 				$$=new struct err_stmt(line_no);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			} else {
 				$$=new list_stmt(LISTA_BASIC_TYPE_STMT, line_no, se);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free($2);
 	}
 	| LISTA NAME '[' INUMBER ']' TEXT ';'{
 		map<string,symtab_ent*>::iterator sym_it = 
@@ -424,6 +488,9 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			cerr << "symbol: " << $2 << " not found in symbol table" << endl;
 			++no_errors;
 			$$=new err_stmt(line_no);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
 			datatype name_type=se->type;
@@ -432,10 +499,17 @@ list_stmt:	 LISTA NAME TEXT ';'{
 					<< " is not of array type: line_no:" << line_no << endl;
 				++no_errors;
 				$$=new err_stmt(line_no);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			} else {
 				$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, line_no, se, $4, -1, string($6));
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free($2);
 	}
 	| LISTA NAME '[' INUMBER ',' INUMBER ']' TEXT ';'{
 		map<string,symtab_ent*>::iterator sym_it = 
@@ -444,6 +518,9 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			cerr << "symbol: " << $2 << " not found in symbol table" << endl;
 			++no_errors;
 			$$=new err_stmt(line_no);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
 			datatype name_type=se->type;
@@ -453,8 +530,12 @@ list_stmt:	 LISTA NAME TEXT ';'{
 				++no_errors;
 			} else {
 				$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_2INDEX, line_no, se, $4, $6, string($8));
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free($2);	
 	}
 	;
 
@@ -462,26 +543,36 @@ if_stmt: IF '(' expression ')' statement{
 		if($3->type==VOID_TYPE || $3->type==ERROR_TYPE){
 			++no_errors;
 			$$=new err_stmt(line_no);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 			cerr << "Error: If condition has void or Error type:" << line_no << endl;
 		} else {
 			$$=new if_stmt(IFE_STMT,line_no,$3,$5,0);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
 	}
 	| IF '(' expression ')' statement ELSE statement{
 		if($3->type==VOID_TYPE || $3->type==ERROR_TYPE){
 			++no_errors;
 			$$=new err_stmt(line_no);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 			cerr << "Error: If condition has void or Error type:" << line_no << endl;
 		} else {
 			$$=new if_stmt(IFE_STMT, line_no,$3,$5,$7);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
 	}
 	;
 
 
 compound_stmt: open_curly statement_list '}'	{
-		//cout << "popping scope: " <<
-		//	active_scope_list[active_scope_list.size()-1] << endl;
 		active_scope_list.pop_back();
 		int tmp=active_scope_list.size()-1;
 		if(tmp==-1) { 
@@ -489,9 +580,11 @@ compound_stmt: open_curly statement_list '}'	{
 			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
 				<< endl;
 			++no_errors;
-			$$=new struct cmpd_stmt(ERROR_TYPE, line_no);
+			$$=new struct cmpd_stmt(ERROR_TYPE, line_no, 0);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else { active_scope = active_scope_list[tmp]; }
-		//$1->cmpd_bdy = trav_chain($2);
 		struct stmt* head_of_this_chain=blk_heads.back();
 		if(  head_of_this_chain==0){
 			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
@@ -504,16 +597,28 @@ compound_stmt: open_curly statement_list '}'	{
 		$$=$1;
 	}
 	;
+	/* Very important point to note
+	 * The scope for a function is created at the time of declaration
+	 * and all the variables are dumped into it. This is loaded here if we are a function scope
+	 * - otherwise if we are the scope of a for / while / if/else stmt - we create a new one
+	 */
 
 open_curly:	'{' {
+			cout << "In open_curly: " << endl;
 		++nest_lev;
-		$$ = new struct cmpd_stmt(CMPD_STMT, line_no);
+		$$ = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if(flag_cmpd_stmt_is_a_func_body>=0){
 			$$->sc=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
 			// reset the flag
 			flag_cmpd_stmt_is_a_func_body=-1;
 		} else {
 			$$->sc= new scope();
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
 		flag_next_stmt_start_of_block=true;
 		//cout << "open_curly: cmpd_stmt: " << $$ << endl;
@@ -534,22 +639,37 @@ expr_list: expression { $$=$1; }
 
 expression: expression '+' expression {
 		$$=new bin_expr($1, $3, oper_plus);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '-' expression {
 		$$=new bin_expr($1, $3, oper_minus);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '*' expression { 
 		$$=new bin_expr($1, $3, oper_mult);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '/' expression {
 		$$=new bin_expr($1, $3, oper_div);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '%' expression {
 		$$=new bin_expr($1, $3, oper_mod);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if(!(($1->type >= INT8_TYPE && $1->type<=U_INT32_TYPE)
 				&&
 			($3->type>=INT8_TYPE && $3->type<=U_INT32_TYPE))){
@@ -561,6 +681,9 @@ expression: expression '+' expression {
 	}
 	|	'-' expression %prec UMINUS {
 		$$ = new un_expr($2, oper_umin);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if($2->type==VOID_TYPE){
 			cerr << "line_no: " << line_no << " expression of void type: check if you are calling a void function on either side" << endl;
 			$$->type=ERROR_TYPE;
@@ -569,34 +692,58 @@ expression: expression '+' expression {
 	}
 	|	expression '<' expression {
 		$$=new bin_expr($1, $3, oper_lt);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '>' expression {
 		$$=new bin_expr($1, $3, oper_gt);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression LEQ expression {
 		$$=new bin_expr($1, $3, oper_le);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression GEQ expression {
 		$$=new bin_expr($1, $3, oper_ge);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression ISEQ expression {
 		$$=new bin_expr($1, $3, oper_iseq);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression NOEQ expression {
 		$$=new bin_expr($1, $3, oper_isneq);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}	
 	| expression LOGOR expression {
 		$$=new bin_expr($1, $3, oper_or);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}	
 	| expression LOGAND expression {
 		$$=new bin_expr($1, $3, oper_and);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	| expression '=' expression {
@@ -606,14 +753,23 @@ expression: expression '+' expression {
 		bool b1=check_type_compat(typ1, typ2)&& $1->is_lvalue();
 		if($1->is_lvalue()){
 			$$ = new bin_expr($1, $3, oper_assgn);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			$$ = new un2_expr(ERROR_TYPE);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 			++no_errors;
 			cerr << "oper_assgn error on line: " << line_no<< endl;
 		}
 	}
 	|	NOT expression {
 		$$ = new un_expr($2, oper_not);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if($2->type==VOID_TYPE){
 			cerr << "line_no: " << line_no << " expression of void type: applying operator ! to void expr" << endl;
 			$$->type=ERROR_TYPE;
@@ -622,21 +778,33 @@ expression: expression '+' expression {
 	}
 	|	INUMBER	{
 		$$ = new un2_expr($1);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		//cerr << "type.y: parsed integer: type" << $$->type << endl;
 	}
 	|	FNUMBER {
 		$$ = new un2_expr($1);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 	}
 	|	NAME	{
-		map<string,symtab_ent*>::iterator sym_it = 
-				find_in_symtab($1);
+		map<string,symtab_ent*>::iterator sym_it = find_in_symtab($1);
 		if(sym_it==active_scope->sym_tab.end() ){
 			cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
 			++no_errors;
 			$$ = new un2_expr(ERROR_TYPE);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			$$ = new un2_expr(sym_it->second );
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
+		free($1);
 	}
 	| 	NAME '[' expression ']' %prec FUNC_CALL {
 		map<string,symtab_ent*>::iterator sym_it = 
@@ -645,8 +813,11 @@ expression: expression '+' expression {
 			cerr << "Error: Array indexing expr could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
 			++no_errors;
 			$$ = new un2_expr(ERROR_TYPE);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
-			struct symtab_ent* se=sym_it->second;
+			symtab_ent* se=sym_it->second;
 
 			datatype e_type=$3->type;
 			if(e_type>=U_INT8_TYPE && e_type <=INT32_TYPE){
@@ -655,18 +826,28 @@ expression: expression '+' expression {
 					cerr << "ERROR: Variable being indexed not of Array Type : Error: lineno: " << line_no << "\n";
 					++no_errors;
 					$$ = new un2_expr(ERROR_TYPE);
+					void *ptr=$$;
+					mem_addr_tab m1(ptr, line_no);
+					mem_addr.push_back(m1);
 				} else {
 					$$ = new un2_expr(oper_arrderef, nametype,  se, $3);
+					void *ptr=$$;
+					mem_addr_tab m1(ptr, line_no);
+					mem_addr.push_back(m1);
 				}
 			} else {
 				cerr << "ERROR: Array index not of Type Int : Error: lineno: " << line_no << "\n";
 				++no_errors;
 				$$ = new un2_expr(ERROR_TYPE);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free($1);
 	}
 	| NAME '[' expression ',' expression ']'  %prec FUNC_CALL {
-		struct symtab_ent* se=0;
+		symtab_ent* se=0;
 		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab($1);
 		if( sym_it1==active_scope->sym_tab.end()) {
 			cerr << "Not able to find :" << $1 << " in symbol table: line_no" 
@@ -681,6 +862,9 @@ expression: expression '+' expression {
 				<< "oper_blk_arr_assgn: " << " line_no: " << line_no;
 				++no_errors;
 			$$ = new un2_expr(ERROR_TYPE);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} /*else if(!(lse->type==INT32_TYPE || lse->type==FLOAT_TYPE)){
 			cerr << "ERROR: LHS:  " << $1 << ":line_no:" << line_no 
 				<< " should be of type float or int"
@@ -696,18 +880,28 @@ expression: expression '+' expression {
 				datatype d1=arr_deref_type(se->type);
 				if(d1==ERROR_TYPE){
 					$$ = new un2_expr(ERROR_TYPE);
+					void *ptr=$$;
+					mem_addr_tab m1(ptr, line_no);
+					mem_addr.push_back(m1);
 					cerr << "Type Error:  x: lineno: " << line_no << "\n";
 					++no_errors;
 				} else {
 					$$ = new un2_expr(oper_blk_arr_assgn, d1, se,$3,$5);
+					void *ptr=$$;
+					mem_addr_tab m1(ptr, line_no);
+					mem_addr.push_back(m1);
 				}
 			} else {
 				$$ = new un2_expr(ERROR_TYPE);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 				cerr << "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
 					<< line_no << "\n";
 				++no_errors;
 			}
 		}
+		//free($1);
 	}
 	| NAME '(' expr_list ')' %prec FUNC_CALL{
 		//cout << "parsing Function call: name: " << $1 << endl;
@@ -721,26 +915,44 @@ expression: expression '+' expression {
 			cerr << "function : " << search_for << " used without decl" << endl;
 			++ no_errors;
 			$$=new un2_expr(ERROR_TYPE);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			datatype my_type=func_info_table[index]->return_type;
-			struct expr* e_ptr=trav_chain($3);
-			struct var_list* fparam=func_info_table[index]->param_list;
+			expr* e_ptr=trav_chain($3);
+			var_list* fparam=func_info_table[index]->param_list;
 			bool match=false;
 			if(skip_type_check==false){
 				match=check_parameters(e_ptr, fparam);
 			}
 			if(match || skip_type_check){
-				$$=new un2_expr(oper_func_call, my_type, $3, index);
+				//$$=new un2_expr(oper_func_call, my_type, $3, index, line_no);
+				$$=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
+
 			} else {
 				$$=new un2_expr(ERROR_TYPE);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free($1);
 	}
 	|	TEXT {
 		$$ = new un2_expr(strdup($1));
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
 		$$ = new un_expr($2, oper_parexp );
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 	}
 	;
 
@@ -760,13 +972,21 @@ tab_defn:
 	TAB NAME NAME';'	{
 		//printf("got table defn: no filter\n");
 		$$=new table($2,$3, line_no);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		// default value for constructor tbl_ptr->filter=NULL;
 		table_list.push_back($$);
+		//free($2); free($3);
 	}
 	| TAB NAME NAME';'COND_START expression';'{
 		//printf("got table defn: with filter\n");
 		$$=new table($2,$3, line_no, $6);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		table_list.push_back($$);
+		//free($2); free($3);
 	}
 	| error ';' {
 		cerr << "Error in tab section line: " <<
@@ -785,6 +1005,9 @@ ax_list:	ax_defn	{
 ax_defn:	AX NAME ';' ax_stmt_list {
 		basic_ax_stmt* bptr= trav_chain($4);
 		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, 0);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		
 		ax_map[$2]=$$;
 #ifdef DEBUG_GRAM
@@ -792,16 +1015,21 @@ ax_defn:	AX NAME ';' ax_stmt_list {
 #endif
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
+		free($2);
 	}
 	|	AX NAME ';'COND_START expression ';' ax_stmt_list {
 		basic_ax_stmt* bptr= trav_chain($7);
 		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, $5);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		ax_map[$2]=$$;
 #ifdef DEBUG_GRAM
 		printf("NAME: $2: %s\n", $2);
 #endif
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
+		free($2);
 	}
 	| error ';'	{
 		cerr << "Error in axis section line: " <<
@@ -845,133 +1073,204 @@ ax_stmt:	TOT ';' TEXT ';' {
 
 %%
 
-//void print_stmt_lst( struct stmt * &st);
-void print_expr(FILE* edit_out, struct expr * e);
-//void print_if_stmt(FILE* edit_out, struct if_stmt * if_stmt);
+void print_expr(FILE* edit_out, expr * e);
 
 int	compile();
 int	run(char * data_file_name, int rec_len);
 void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
 void print_axis_code(FILE * op, FILE * axes_drv_func);
+void clean_up();
 
 extern void yyrestart ( FILE *input_file );
-	int main(int argc, char* argv[], char* envp[]){
-		if(argc!=3) {
-			cout << "Usage: " << argv[0] << " <prog-name> <data-file> " << endl;
-			exit(0);
-		}
-		cout << "SOME DEBUGGING INFO: U_INT8_TYPE:" << U_INT8_TYPE 
-			<< " U_INT8_ARR_TYPE:" << U_INT8_ARR_TYPE
-			<< " U_INT8_REF_TYPE:" << U_INT8_REF_TYPE 
-			<< endl;
-			
-			
-		active_scope=new scope();
-		active_scope_list.push_back(active_scope);
-		cout << "tree_root: " << tree_root << endl;
-		
-		char * printf_name="printf";
-		struct var_list* v_list=0;
-		datatype myreturn_type=INT8_TYPE;
-		struct func_info* fi=new func_info(printf_name, v_list, myreturn_type);
-		func_info_table.push_back(fi);
-		
-		char *c_arr="c";
-		
-
-		FILE * yyin=fopen(argv[1],"r");
-		yyrestart(yyin);
-		if(yyparse()){
-			cout << "Errors in parsing edit: " << no_errors << endl;
-			exit(1);
-		} else 
-			cout << "yyparse finished : now going to print tree: no_errors: "    
-			<< " should be 0 or we have a bug in the compiler"<< endl;
-		//print_stmt_lst(tree_root);
-		if(!no_errors){
-			FILE * global_vars=fopen("xtcc_work/global.C", "wb");
-			fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
-			fprintf(global_vars, "#include <sys/types.h>\n");
-			fprintf(global_vars, "#include <map>\n using namespace std;\n");
-			fprintf(global_vars, "void print_list_counts();\n");
-			fprintf(global_vars, "void tab_compute();\n");
-			fprintf(global_vars, "void tab_summ();\n");
-			fprintf(global_vars, "void ax_compute();\n");
-			fclose(global_vars);
-			FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "wb");
-			fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m);\n");
-			fprintf(print_list_counts, "void print_list_counts(){\n");
-			fclose(print_list_counts);
-			FILE * edit_out= fopen("xtcc_work/edit_out.c", "w+b");
-#if __WIN32__
-			fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
-#endif /* __WIN32__ */
-			fprintf(edit_out, "#include <cstdio>\n#include <iostream>\nusing namespace std;\n" );
-			fprintf(edit_out, "#include <sys/types.h>\n" );
-			fprintf(edit_out, "int8_t c[%d];\n", rec_len );
-			fprintf(edit_out, "#include \"global.C\"\n" );
-			if(edit_out==0){
-				printf("could not open edit_out.c for writing\n");
-				exit(1);
-			}
-			cout << "printing edit:" << endl;
-			tree_root->print_stmt_lst(edit_out);
-			fclose(edit_out);
-			global_vars=fopen("xtcc_work/global.C", "a+");
-			fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
-			fclose(global_vars);
-			if(!global_vars){
-				cerr << "cannot open global.C for writing" << endl;
-				exit(1);
-			}
-			print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+");
-			fprintf(print_list_counts, "}\n");
-			fclose(print_list_counts);
-		} else {
-			cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
-			exit(1);
-		}
-		FILE * table_op=fopen("xtcc_work/my_table.C", "w");	
-		FILE * tab_drv_func=fopen("xtcc_work/my_tab_drv_func.C", "w");	
-		FILE * tab_summ_func=fopen("xtcc_work/my_tab_summ.C", "w");	
-		if(!(table_op&&tab_drv_func&&tab_summ_func)){
-			cerr << "Unable to open file for output of table classes" << endl;
-			exit(1);
-		}
-		if(yyparse()){
-			cerr << "parsing tables section failed:" << endl;
-			exit(1);
-		}
-		FILE * axes_op=fopen("xtcc_work/my_axes.C", "w");	
-		FILE * axes_drv_func=fopen("xtcc_work/my_axes_drv_func.C", "w");	
-		if(!(axes_op&&axes_drv_func)){
-			cerr << "Unable to open file for output of axes classes" << endl;
-			exit(1);
-		}
-		if(yyparse()){
-			cerr << "parsing axes section failed:" << endl;
-			exit(1);
-		} else {
-			cout <<  "successfully parsed axes section: " << endl;
-		}
-		print_table_code(table_op, tab_drv_func, tab_summ_func);
-		print_axis_code(axes_op, axes_drv_func);
-		fclose(table_op);fclose(tab_drv_func);
-		fclose(axes_op); fclose(axes_drv_func);
-		bool my_compile_flag=true;
-		if(my_compile_flag&&!compile()){
-			char * endptr=0;
-			int convert_to_base=10;
-			//int rec_len=strtol(argv[3],&endptr, convert_to_base);
-			return run(argv[2], rec_len);
-		}
-		return no_errors;
+int main(int argc, char* argv[], char* envp[]){
+	if(argc!=3) {
+		cout << "Usage: " << argv[0] << " <prog-name> <data-file> " << endl;
+		exit(0);
 	}
+	cout << "SOME DEBUGGING INFO: U_INT8_TYPE:" << U_INT8_TYPE 
+		<< " U_INT8_ARR_TYPE:" << U_INT8_ARR_TYPE
+		<< " U_INT8_REF_TYPE:" << U_INT8_REF_TYPE 
+		<< endl;
+		
+		
+	active_scope=new scope();
+	active_scope_list.push_back(active_scope);
+	cout << "tree_root: " << tree_root << endl;
+	
+	char * printf_name="printf";
+	var_list* v_list=0;
+	datatype myreturn_type=INT8_TYPE;
+	func_info* fi=new func_info(printf_name, v_list, myreturn_type);
+	func_info_table.push_back(fi);
+	
+	char *c_arr="c";
+
+	FILE * yyin=fopen(argv[1],"r");
+	yyrestart(yyin);
+	if(yyparse()){
+		cout << "Errors in parsing edit: " << no_errors << endl;
+		exit(1);
+	} else 
+		cout << "yyparse finished : now going to print tree: no_errors: "    
+		<< " should be 0 or we have a bug in the compiler"<< endl;
+
+	//yyterminate();
+	//print_stmt_lst(tree_root);
+	if(!no_errors){
+		FILE * global_vars=fopen("xtcc_work/global.C", "wb");
+		fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
+		fprintf(global_vars, "#include <sys/types.h>\n");
+		fprintf(global_vars, "#include <map>\n using namespace std;\n");
+		fprintf(global_vars, "void print_list_counts();\n");
+		fprintf(global_vars, "void tab_compute();\n");
+		fprintf(global_vars, "void tab_summ();\n");
+		fprintf(global_vars, "void ax_compute();\n");
+		fclose(global_vars);
+		FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "wb");
+		fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m);\n");
+		fprintf(print_list_counts, "void print_list_counts(){\n");
+		fclose(print_list_counts);
+		FILE * edit_out= fopen("xtcc_work/edit_out.c", "w+b");
+		if(edit_out==0){
+			printf("could not open edit_out.c for writing\n");
+			exit(1);
+		}
+#if __WIN32__
+		fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
+#endif /* __WIN32__ */
+		fprintf(edit_out, "#include <cstdio>\n#include <iostream>\nusing namespace std;\n" );
+		fprintf(edit_out, "#include <sys/types.h>\n" );
+		fprintf(edit_out, "int8_t c[%d];\n", rec_len );
+		fprintf(edit_out, "#include \"global.C\"\n" );
+		cout << "printing edit:" << endl;
+		tree_root->print_stmt_lst(edit_out);
+		fclose(edit_out);
+		global_vars=fopen("xtcc_work/global.C", "a+");
+		if(!global_vars){
+			cerr << "cannot open global.C for writing" << endl;
+			exit(1);
+		}
+		fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
+		fclose(global_vars);
+		print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+");
+		fprintf(print_list_counts, "}\n");
+		fclose(print_list_counts);
+	} else {
+		cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
+		exit(1);
+	}
+	FILE * table_op=fopen("xtcc_work/my_table.C", "w");
+	FILE * tab_drv_func=fopen("xtcc_work/my_tab_drv_func.C", "w");	
+	FILE * tab_summ_func=fopen("xtcc_work/my_tab_summ.C", "w");	
+	if(!(table_op&&tab_drv_func&&tab_summ_func)){
+		cerr << "Unable to open file for output of table classes" << endl;
+		exit(1);
+	}
+	if(yyparse()){
+		cerr << "parsing tables section failed:" << endl;
+		exit(1);
+	}
+
+	FILE * axes_op=fopen("xtcc_work/my_axes.C", "w");	
+	FILE * axes_drv_func=fopen("xtcc_work/my_axes_drv_func.C", "w");	
+	if(!(axes_op&&axes_drv_func)){
+		cerr << "Unable to open file for output of axes classes" << endl;
+		exit(1);
+	}
+	if(yyparse()){
+		cerr << "parsing axes section failed:" << endl;
+		exit(1);
+	} else {
+		cout <<  "successfully parsed axes section: " << endl;
+	}
+	flex_finish();
+	print_table_code(table_op, tab_drv_func, tab_summ_func);
+	print_axis_code(axes_op, axes_drv_func);
+	fclose(yyin); yyin=0;
+	fclose(table_op);
+	fclose(tab_drv_func);
+	fclose(axes_op); 
+	fclose(axes_drv_func);
+	fclose(tab_summ_func);
+	bool my_compile_flag=true;
+	if(my_compile_flag&&!compile()){
+		char * endptr=0;
+		int convert_to_base=10;
+		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
+		int rval= run(argv[2], rec_len);
+		if(tree_root) {
+			delete tree_root;
+			tree_root=0;
+		}
+		clean_up();
+		delete fi;
+		for(int i=0; i< mem_addr.size(); ++i ){
+			cout << "addr: " << mem_addr[i].mem_ptr << " line: " << mem_addr[i].line_number << endl;
+		}
+		cout << "returning from main"<< endl;
+		return rval;
+	}
+	cout << "returning from main with errors"<< endl;
+	/*
+	fclose(table_op);
+	fclose(tab_drv_func);
+	fclose(tab_summ_func);
+	fclose(axes_op);
+	fclose(axes_drv_func);
+	*/
+
+	return no_errors;
+}
 
 #include <cstdlib>
 #include <cstdio>
 
 
+void clean_up(){
+	cout << "Entered function clean_up()" << endl;
+	/*
+	if(func_info_table.size()>0){
+		// this should be enough as the rest are chained
+		delete func_info_table[0];
+	}
+	for(int i=0; i<func_info_table.size(); ++i){
+		func_info * f=func_info_table[i];
+			if(f->param_list) {
+				delete f->param_list;
+			}
+			if (f->func_body){
+				delete f->func_body;
+			}
+			if (f->func_scope){
+				delete f->func_scope;
+			}
+		delete f;
+	}
+			*/
+	typedef map<string, ax*>::iterator ax_map_iter;
+	for(ax_map_iter it=ax_map.begin(); it!=ax_map.end(); ++it){
+		delete it->second; it->second=0;
+	}
+	// we should only delete the 0 index scope as this was manually created by us
+	/*
+	for( int  i=0; i<active_scope_list.size(); ++i){
+		scope* sc=active_scope_list[i];
+		if(sc ) {
+			delete sc;
+			active_scope_list[i]=0;
+		}
+	}
+	*/
+	if (active_scope_list[0]) {
+		delete active_scope_list[0]; active_scope_list[0]=0;
+	}
+
+	for(int i=0; i<table_list.size(); ++i){
+		delete table_list[i];
+	}
+	cout << "Exited function clean_up()" << endl;
+			
+}
 
 
 bool check_type_compat(datatype typ1, datatype typ2){
@@ -997,10 +1296,10 @@ bool check_type_compat(datatype typ1, datatype typ2){
 
 
 
-int check_parameters(struct expr* e, struct var_list* v){
+int check_parameters(expr* e, var_list* v){
 	cout << "check_parameters: called" << endl;
-	struct expr* e_ptr=e;
-	struct var_list* fparam=v;
+	expr* e_ptr=e;
+	var_list* fparam=v;
 	bool match=true;
 	/* Important point to note: I am not allowing references in ordinary variable decl
 	   Only in function parameter list - the object is to allow modifying of variables
@@ -1083,7 +1382,7 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
 	}
 }
 
-/* NxD: I need to write a detailed note about this function's responisibilities
+/* NxD: I need to write a detailed note about this function's responsibilities
    */
    
 
@@ -1102,14 +1401,15 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
 
 		
 
-void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list, string & fname){
+/*
+void	add_func_params_to_cmpd_sc(scope * & sc, var_list * & v_list, string & fname){
 	cout << "add_func_params_to_cmpd_sc: ENTER: sc=" << sc << " v_list:" << v_list << endl;
-	struct var_list * v_ptr = v_list;
+	var_list * v_ptr = v_list;
 	while (v_ptr){
 		cout << "v_ptr->var_name: " << v_ptr->var_name << endl;
 		if(sc->sym_tab.find(v_ptr->var_name)==sc->sym_tab.end()){
 			cout << "about to insert : " << v_ptr->var_name << " into cmpd_stmt symbol table" << endl;
-			struct symtab_ent* se=new struct symtab_ent;
+			symtab_ent* se=new symtab_ent;
 			se->name=strdup( v_ptr->var_name.c_str());
 			se->type=v_ptr->var_type;
 			sc->sym_tab[fname] = se;
@@ -1123,6 +1423,7 @@ void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list,
 		v_ptr=v_ptr->prev;
 	}
 }
+*/
 
 
 int search_for_func(string& search_for){
@@ -1139,11 +1440,11 @@ int search_for_func(string& search_for){
 	return -1;
 }
 
-int check_func_decl_with_func_defn(struct var_list* & v_list, int & index, string func_name){
+int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_name){
 	//cout << "Entered check_func_decl_with_func_defn: " << func_name << endl;
 		
-	struct var_list* defn_ptr=v_list;
-	struct var_list* decl_ptr=func_info_table[index]->param_list;
+	var_list* defn_ptr=v_list;
+	var_list* decl_ptr=func_info_table[index]->param_list;
 	cout << "check_func_decl_with_func_defn: after func_info_table[index]->param_list" << endl;
 
 	
@@ -1191,6 +1492,11 @@ template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
 		while (elem1->next) elem1=elem1->next;
 		return elem1;
+		/*
+		while (elem1->exists_next()){
+			
+		}
+		*/
 	} else return 0;
 }
 

@@ -42,13 +42,31 @@
 	int check_func_decl_with_func_defn(struct var_list*& v_list, int & index, string func_name);
 // Note : I may have to add file name we are compiling very soon
 struct stmt{
+	public:
 	struct stmt * next;
 	struct stmt * prev;
 	datatype type;
 	int line_number;
 	virtual void print_stmt_lst(FILE * & fptr)=0;
+	bool exists_next(){
+		return next;
+	}
+	bool exists_prev(){
+		return prev;
+	}
+	stmt* move_next(){
+		return next;
+	}
 	stmt(datatype dtype=ERROR_TYPE, int lline_number=0):next(0), prev(0), type(dtype), line_number(lline_number){}
-	virtual ~stmt(){}
+	virtual ~stmt(){ 
+		
+		if (prev /*
+			    && !((type==FUNC_DEFN)||(type==FUNC_TYPE))*/ ) {
+			delete prev; prev=0;
+		} 
+		
+		cout << "stmt::~stmt() base destructor" << endl;
+	}
 	private:
 		stmt(const stmt&);
 		stmt& operator=(const stmt&);
@@ -57,7 +75,8 @@ struct stmt{
 struct for_stmt: public stmt{
 	struct expr * init, * test, *incr;
 	struct stmt * for_body;
-	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, expr* l_incr, stmt * lfor_body):stmt(dtype, lline_number), init(l_init), test(l_test), incr(l_incr),  for_body(lfor_body){}
+	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, expr* l_incr, stmt * lfor_body):
+		stmt(dtype, lline_number), init(l_init), test(l_test), incr(l_incr),  for_body(lfor_body){}
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
 
@@ -74,6 +93,7 @@ struct for_stmt: public stmt{
 			if(prev) prev->print_stmt_lst(fptr);
 		}
 	}
+	virtual ~for_stmt();
 	private:
 	for_stmt& operator=(const for_stmt&);	
 	for_stmt(const for_stmt&);	
@@ -81,9 +101,11 @@ struct for_stmt: public stmt{
 
 // Refinement3
 struct if_stmt : public stmt{
+	protected:
 	struct expr * condition;
 	struct stmt * if_body;
 	struct stmt * else_body;
+	public:
 	if_stmt( datatype dtype, int lline_number, struct  expr * lcondition, struct  stmt * lif_body, struct stmt * lelse_body=NULL): stmt(dtype, lline_number),
 		condition(lcondition), if_body(lif_body), else_body(lelse_body)
 	{
@@ -105,6 +127,7 @@ struct if_stmt : public stmt{
 			if(prev) prev->print_stmt_lst(fptr);
 		}
 	}
+	virtual ~if_stmt();
 	private:
 	if_stmt& operator=(const if_stmt&);	
 	if_stmt(const if_stmt&);	
@@ -123,6 +146,7 @@ struct expr_stmt: public stmt{
 			if(prev) prev->print_stmt_lst(fptr);
 		}
 	}
+	virtual ~expr_stmt();
 	private:
 	expr_stmt& operator=(const expr_stmt&);	
 	expr_stmt(const expr_stmt&);	
@@ -135,7 +159,7 @@ struct err_stmt: public stmt{
 
 		if(fptr){
 			fprintf(fptr, "error");
-			if(prev) prev->print_stmt_lst(fptr);
+			//if(prev) prev->print_stmt_lst(fptr);
 		}
 	}
 	private:
@@ -146,15 +170,29 @@ struct err_stmt: public stmt{
 struct cmpd_stmt: public stmt{
 	struct stmt* cmpd_bdy;
 	struct scope * sc;
-	cmpd_stmt(datatype dtype, int lline_number, struct stmt* s=0): stmt(dtype, lline_number), cmpd_bdy(s), sc(0){}
+	int flag_cmpd_stmt_is_a_func_body;
+	public:
+	cmpd_stmt(datatype dtype, int lline_number, int l_flag_cmpd_stmt_is_a_func_body): 
+		stmt(dtype, lline_number), cmpd_bdy(0), sc(0), flag_cmpd_stmt_is_a_func_body(l_flag_cmpd_stmt_is_a_func_body) {}
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
-
 		if(fptr){
 			fprintf(fptr,"{\n");
 			if (cmpd_bdy) cmpd_bdy->print_stmt_lst(fptr);
 			fprintf(fptr,"}\n");
 			if(prev) prev->print_stmt_lst(fptr);
+		}
+	}
+	virtual ~cmpd_stmt(){
+		cout << "deleting cmpd_stmt" << endl;
+		//if(prev) delete prev;
+		if(sc&&flag_cmpd_stmt_is_a_func_body<0) {
+			delete sc;
+			sc=0;
+		}
+		if(cmpd_bdy /*&& flag_cmpd_stmt_is_a_func_body<0*/){
+			delete cmpd_bdy;
+			cmpd_bdy=0;
 		}
 	}
 	private:
@@ -204,6 +242,15 @@ struct blk_arr_assgn_stmt: public stmt{
 			}
 			if(prev) prev->print_stmt_lst(fptr);
 		}
+	~blk_arr_assgn_stmt(){
+		cout << "deleting blk_arr_assgn_stmt" << endl;
+		//if(prev) delete prev;
+		delete lsymp; 
+		delete rsymp;
+		delete low_indx;
+		delete	high_indx;
+	}
+	
 	private:
 	blk_arr_assgn_stmt& operator=(const blk_arr_assgn_stmt&);	
 	blk_arr_assgn_stmt(const blk_arr_assgn_stmt&);	
@@ -217,6 +264,10 @@ struct break_stmt: public stmt{
 			fprintf(fptr, "break;");
 			if(prev) prev->print_stmt_lst(fptr);
 		}
+	}
+	~break_stmt(){
+		cout << "deleting break_stmt" << endl;
+		//if (prev) delete prev;
 	}
 	private:
 	break_stmt& operator=(const break_stmt&);	
@@ -232,6 +283,10 @@ struct continue_stmt: public stmt{
 			if(prev) prev->print_stmt_lst(fptr);
 		}
 	}
+	~continue_stmt(){
+		cout << "deleting continue_stmt" << endl;
+		//if (prev) delete prev;
+	}
 	private:
 	continue_stmt& operator=(const continue_stmt&);	
 	continue_stmt(const continue_stmt&);	
@@ -240,40 +295,9 @@ struct continue_stmt: public stmt{
 struct func_decl_stmt: public stmt{
 	struct func_info * f_ptr;
 
-	func_decl_stmt( datatype dtype, int lline_number, char * & name,  struct var_list* & v_list, datatype return_type):
-		stmt(dtype, lline_number), f_ptr(0)
-	{
-		//cout << "load_func_into_symbol_table : " << "name: " << name << endl;
-		if ( active_scope->sym_tab.find(name) == active_scope->sym_tab.end() ){
-			//cout << "got func_decl" << endl;
-			datatype myreturn_type=return_type;
-			struct func_info* fi=new func_info(name, v_list, myreturn_type);
-			func_info_table.push_back(fi);
-			type=FUNC_TYPE;
-			struct symtab_ent* se=new struct symtab_ent;
-			if(! se) {
-				cerr << "memory allocation error: I will eventually crash :-(" << endl;
-			}
-			se->name = name;
-			string s(name);
-			active_scope->sym_tab[s] = se;
-			se->type=FUNC_TYPE;
-			f_ptr=fi;
-		} else {
-			cerr << "Symbol : " << name << " already present in symbol table" << endl;
-			cout << "line_no: " << lline_number;
-			++no_errors;
-			type=ERROR_TYPE;
-		}
-	}
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-
-		if(fptr){
-			f_ptr->print(fptr);
-			if(prev) prev->print_stmt_lst(fptr);
-		}
-	}
+	func_decl_stmt( datatype dtype, int lline_number, char * & name,  struct var_list* & v_list, datatype return_type);
+	void print_stmt_lst(FILE * & fptr);
+	~func_decl_stmt();
 	private:
 	func_decl_stmt& operator=(const func_decl_stmt&);	
 	func_decl_stmt(const func_decl_stmt&);	
@@ -300,6 +324,10 @@ struct decl_stmt: public stmt{
 		}
 
 	}
+	~decl_stmt(){ 
+		cout << "deleting decl_stmt" << endl;
+		//if(symp) { delete symp; symp=0; }
+	}
 	private:
 	decl_stmt& operator=(const decl_stmt&);	
 	decl_stmt(const decl_stmt&);	
@@ -316,50 +344,9 @@ struct func_stmt: public stmt{
 		struct stmt* & lfunc_body,
 		string func_name,
 		datatype lreturn_type
-		) : stmt(dtype, lline_number), f_ptr(0), func_body(lfunc_body), return_type(lreturn_type){
-		int index=search_for_func(func_name);
-		if(index==-1){
-			cerr << "function defn without decl: " << func_name << " lline_number: " << lline_number << endl;
-			type=ERROR_TYPE;
-			++no_errors;
-		} else if(check_func_decl_with_func_defn(v_list, index, func_name)){
-			if(return_type==func_info_table[index]->return_type){
-				type=FUNC_DEFN;
-				f_ptr=func_info_table[index];
-			} else {
-				cerr << "func defn, decl parameter return_types did not match: lline_number: " 
-				<< lline_number
-				<< endl;
-				++no_errors;
-				type=ERROR_TYPE;
-			}
-		} else {
-			cerr << "func defn, decl parameter lists did not match: lline_number" 
-				<< lline_number
-				<< endl;
-			++no_errors;
-			type=ERROR_TYPE;
-		}
-	}
-	void print_stmt_lst(FILE * & fptr){
-
-		if(fptr){
-			if(f_ptr->return_type >= VOID_TYPE && f_ptr->return_type<=DOUBLE_TYPE){
-				fprintf(fptr,"%s ", noun_list[f_ptr->return_type].sym);
-			} else {
-				fprintf(fptr, "Unxpected return type for function: file: %s, line:%d\n",
-						__FILE__, __LINE__ );
-			}
-			
-			fprintf(fptr, "%s\n", f_ptr->fname.c_str());
-			struct var_list* v_ptr=f_ptr->param_list;
-			fprintf(fptr, "(");
-			v_ptr->print(fptr);
-			fprintf(fptr, ")");
-			if(func_body) func_body->print_stmt_lst(fptr);
-			if(prev) prev->print_stmt_lst(fptr);
-		}
-	}
+		) ;
+	void print_stmt_lst(FILE * & fptr);
+	~func_stmt();
 	private:
 	func_stmt& operator=(const func_stmt&);	
 	func_stmt(const func_stmt&);	
@@ -463,6 +450,9 @@ struct list_stmt: public stmt{
 
 		}
 	}
+
+	~list_stmt();
+
 	private:
 	list_stmt& operator=(const list_stmt&);	
 	list_stmt(const list_stmt&);	

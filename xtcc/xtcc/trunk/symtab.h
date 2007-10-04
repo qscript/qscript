@@ -30,10 +30,20 @@
 		datatype type;
 		/*decltype dcl_type;*/
 		int n_elms;
-		symtab_ent():name(NULL), text(NULL), dval(0), type(uninit), n_elms(0){
+		bool created_by_me;
+		symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false){
 		}
+		symtab_ent(char * lname, datatype ldt):
+			name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true)
+		{ }
 		inline datatype get_type(){
 			return type;
+		}
+		~symtab_ent(){
+			std::cout << "deleting symtab_ent: name: " << name << std::endl;
+			if(name&& created_by_me) { free( name); name=0; }
+			if(text) { delete text; text=0; }
+			std::cout << "FINISHED deleting symtab_ent" << std::endl;
 		}
 		private:
 			symtab_ent& operator=(const symtab_ent&);

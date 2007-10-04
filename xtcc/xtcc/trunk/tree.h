@@ -92,11 +92,6 @@ struct var_list {
 	string var_name;
 	int arr_len;
 	struct var_list * next, *prev;
-	/*
-	var_list(): var_name(""), next(NULL), prev(NULL) { 
-		cout << "constructing var_list: " << var_name << endl;
-	};
-	*/
 	var_list(datatype type, char * name): var_type(type), var_name(name), arr_len(-1), next(NULL), prev(NULL){
 		if (!( (type>=U_INT8_TYPE&& type<=DOUBLE_TYPE) ||
 			(type>=U_INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
@@ -132,6 +127,11 @@ struct var_list {
 			}
 		}
 	}
+	~var_list(){
+		cout << "deleting ~var_list: var_name:" << var_name << endl;
+		if (prev) { delete prev; prev=0; }
+		cout << "end deleting ~var_list " << endl;
+	}
 	private:
 		var_list& operator=(const var_list&);
 		var_list(const var_list&);
@@ -150,35 +150,19 @@ struct var_list {
  * if the flag is not set -> we need to allocate a new scope - else we will crash
  */
 #include "scope.h"
+struct func_info;
+#include "stmt.h"
 struct func_info{
 		string fname;
 		struct var_list * param_list;
 		datatype return_type;
 		struct stmt * func_body;
 		struct scope * func_scope;
-		func_info(string name, struct var_list* elist, datatype myreturn_type): 
-			fname(name), param_list(elist), return_type(myreturn_type), func_body(0), func_scope(0){
-				func_scope=new scope();
-				struct var_list* decl_list=elist;
-				while(decl_list){
-					//cout << " constructing func_info decl list names are: " << decl_list->var_name << endl;
-					struct symtab_ent* se=new struct symtab_ent;
-					se->name = strdup(decl_list->var_name.c_str());
-					se->type=decl_list->var_type;
-					func_scope->sym_tab[decl_list->var_name] = se;
-					decl_list=decl_list->prev;
-				}
-			}
-		void print(FILE * fptr){
-			if(return_type >=VOID_TYPE && return_type <=DOUBLE_TYPE){
-				fprintf(fptr, "%s ", noun_list[return_type].sym );
-			} else {
-				fprintf(fptr, "Unexpected return type for function\n");
-			}
-			fprintf(fptr, "%s(", fname.c_str());
-			if (param_list) param_list->print(fptr);
-			fprintf(fptr, ");\n" );
-		}
+		func_info(string name, struct var_list* elist, datatype myreturn_type); 
+
+		void print(FILE * fptr);
+		~func_info();
+		
 	private:
 		func_info& operator=(const func_info&);
 		func_info(const func_info&);
@@ -186,10 +170,17 @@ struct func_info{
 
 
 
+
 //extern void print_expr(struct expr * e);
 //extern void print_stmt_lst(struct stmt * st);
 //extern void print_inp_prog(struct stmt * st);
 //void print_expr(FILE* edit_out, struct expr * e);
+
+struct mem_addr_tab{
+	void * mem_ptr;
+	int line_number;
+	mem_addr_tab(void * ptr, int line): mem_ptr(ptr), line_number(line){}
+};
 
 extern struct stmt * tree_root;
 

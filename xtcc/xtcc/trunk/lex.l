@@ -26,6 +26,7 @@
 
 %{
 #define YY_NEVER_INTERACTIVE 1
+#include <iostream>
 #include "symtab.h"
 #include "const_defs.h"
 //#include "y.tab.h"
@@ -36,6 +37,7 @@
 //	char * yytext;
 	int line_no=1;
 	extern int no_errors;
+	using namespace std;
 %}
 
 %x comment
@@ -80,6 +82,7 @@ lista 	{
 }
 
 axstart {
+	cout << "got token AXSTART" << endl;
 	return AXSTART;
 }
 tab {
@@ -259,4 +262,8 @@ conv	{ return CONVERT ; }
 
 	int yywrap(){
 		return 1;
+	}
+
+	void flex_finish(){
+		yy_delete_buffer(YY_CURRENT_BUFFER);
 	}

@@ -42,7 +42,13 @@ struct table{
 	string banner;
 	int line_no;
 	expr* filter;
-	table(string s, string t, int lline_no, expr* f=NULL) : side(s), banner(t),line_no(lline_no),filter(f){
+	table(string s, string t, int lline_no, expr* f=0) : side(s), banner(t),line_no(lline_no),filter(f){
+	}
+	~table(){
+		if(filter) {
+			delete filter;
+			filter=0;
+		}
 	}
 };
 
@@ -55,17 +61,16 @@ class basic_ax_stmt	{
 	axstmt_type axtype;
 	basic_ax_stmt * next;
 	basic_ax_stmt * prev;
-	basic_ax_stmt(axstmt_type ltype=ax_uninit): axtype(ltype),next(NULL), prev(NULL) {}
+	basic_ax_stmt(axstmt_type ltype=ax_uninit): axtype(ltype),next(0), prev(0) {}
 
 	virtual void print(fstream& f)=0;
 	virtual string ax_text()=0;
-
-
-	//void print(){  
-	//void eval(vector <string>& data_arr, fstream& f){
-	//	f << "basic_ax_stmt::eval() should never be called\n";
-	//}
-	//int count;
+	virtual ~basic_ax_stmt(){
+		if(prev) {
+			delete prev;
+			prev=0;
+		}
+	};
 };
 #include <cstdio>
 using namespace std;
@@ -79,19 +84,19 @@ class basic_print_ax_stmt: public basic_ax_stmt{
 	virtual string ax_text(){
 		return text;
 	}
+	virtual ~basic_print_ax_stmt(){}
 };
 
 class ttl_ax_stmt: public basic_print_ax_stmt{
 	public:
 	ttl_ax_stmt(axstmt_type ltype,string s): basic_print_ax_stmt(ltype,s) {}
 	void print(fstream& f){
-		//f << "invoked ttl_ax_stmt::print()\n";
 		basic_print_ax_stmt::print(f);
-		//f << "Hello,World2\n";
 	}
 	string ax_text(){
 		return text;
 	}
+	~ttl_ax_stmt(){}
 };
 
 
@@ -109,6 +114,12 @@ class basic_count_ax_stmt: public basic_ax_stmt{
 	virtual string ax_text(){
 		return text;
 	}
+	virtual ~basic_count_ax_stmt() {
+		if (condn) {
+			delete condn; condn=0;
+		}
+		cout << "deleting ~basic_count_ax_stmt()" << endl;
+	}
 };
 
 class count_ax_stmt: public basic_count_ax_stmt{
@@ -116,12 +127,11 @@ class count_ax_stmt: public basic_count_ax_stmt{
 	count_ax_stmt(axstmt_type ltype,string txt, struct expr* c): basic_count_ax_stmt(ltype,txt,c) {}
 	virtual void print(fstream& f){
 		f << "CNT: " << text ;
-		/*
-		if (condn)
-			condn->print(f) ;
-			*/
 		f << "\n";
 		
+	}
+	~count_ax_stmt(){
+		cout << "deleting ~count_ax_stmt()" << endl;
 	}
 };
 
@@ -130,41 +140,46 @@ class tot_ax_stmt: public basic_count_ax_stmt{
 	tot_ax_stmt(axstmt_type ltype, string txt, struct expr* c): basic_count_ax_stmt(ltype,txt,c) {}
 	virtual void print(fstream& f){
 		f << "TOT: " << text;
-		/*
-		if(condn)
-			condn->print(f);
-			*/
 		f << "\n";
 	}
+	~tot_ax_stmt(){}
 	
 };
 
-//struct ax_stmt * new_ax_stmt();
 
 class ax	{
 	public:
-	//struct ax_stmt * ax_stmt_start;
 	vector <bool> condn_flags;
 	basic_ax_stmt * ax_stmt_start;
-	vector <basic_count_ax_stmt*> bas_cnt_ax_stmt_list;
+	//vector <basic_count_ax_stmt*> bas_cnt_ax_stmt_list;
 	int no_count_ax_elems;	
 	int no_tot_ax_elems;	
 	expr* filter;
 	ax(basic_ax_stmt* ax_s, int l_no_count_ax_elems, int l_no_tot_ax_elems,
-			expr* f=NULL): ax_stmt_start(ax_s), 
+			expr* f=0): ax_stmt_start(ax_s), 
 		no_count_ax_elems(l_no_count_ax_elems), no_tot_ax_elems(l_no_tot_ax_elems),
 			condn_flags(l_no_count_ax_elems),
 		filter(f) {}
+	~ax(){
+		basic_ax_stmt* bax_ptr=ax_stmt_start;
+		/*
+		if(bax_ptr->prev){
+			delete bax_ptr->prev;
+		}
+		*/
+		if(ax_stmt_start){
+			delete ax_stmt_start; ax_stmt_start=0;
+		}
+		if(filter) {
+			delete filter; filter=0;
+		}
+		cout << "deleting ax" << endl; 
+	}
 };
 
-//struct ax * new_ax();
 
-//extern struct ax * ax_root;
 
-//void print_report( struct ax * axis);
-// void print_report( map<string, ax*>& ax_map);
 
-//void print_cond(struct ax_stmt * ax_stmt_ptr);
 int yylex ( void );
 
 void construct_tables(map<string, ax*>& ax_map, vector<table*> & table_list);

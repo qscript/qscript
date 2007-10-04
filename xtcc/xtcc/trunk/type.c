@@ -81,7 +81,7 @@
 	map<string, symtab_ent*>::iterator find_in_symtab(string id);
 	//struct stmt * load_func_into_symbol_table( char * & name,  struct var_list* & v_list, datatype int_type);
 	bool skip_func_type_check(const char * fname);
-	void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list, string & fname);
+	//void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list, string & fname);
 	int search_for_func(string& search_for);
 	int check_func_decl_with_func_defn(struct var_list*& v_list, int & index, string func_name);
 	struct stmt* make_func_defn_stmt( struct scope *& sc,
@@ -120,9 +120,12 @@
 			{	"float", FLOAT_TYPE},
 			{	"double", DOUBLE_TYPE}
 		};
+	vector<mem_addr_tab>  mem_addr;
+
+	void flex_finish();
 
 
-#line 101 "type.y"
+#line 104 "type.y"
 typedef union {
 	double dval;
 	int ival ;
@@ -244,15 +247,15 @@ static const short yyrhs[] = {    -1,
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-   201,   205,   212,   215,   220,   223,   228,   229,   232,   233,
-   234,   235,   236,   237,   238,   239,   240,   244,   254,   271,
-   275,   289,   295,   306,   310,   317,   321,   327,   332,   339,
-   347,   352,   352,   363,   364,   372,   375,   378,   379,   386,
-   393,   401,   420,   440,   461,   470,   482,   508,   529,   530,
-   535,   539,   543,   547,   551,   562,   570,   574,   578,   582,
-   586,   590,   594,   598,   602,   615,   623,   627,   630,   641,
-   668,   712,   739,   742,   747,   752,   759,   766,   771,   779,
-   781,   785,   796,   806,   816,   820,   825,   830,   835,   840
+   201,   206,   213,   216,   221,   224,   229,   232,   237,   238,
+   239,   240,   241,   242,   243,   244,   245,   249,   259,   287,
+   292,   307,   313,   327,   331,   338,   346,   356,   365,   372,
+   380,   385,   385,   402,   403,   417,   420,   423,   424,   434,
+   444,   455,   484,   514,   542,   557,   575,   606,   634,   635,
+   640,   647,   654,   661,   668,   682,   693,   700,   707,   714,
+   721,   728,   735,   742,   749,   768,   779,   786,   792,   809,
+   849,   906,   945,   951,   959,   964,   971,   982,   991,   999,
+  1001,  1005,  1020,  1034,  1044,  1048,  1053,  1058,  1063,  1068
 };
 #endif
 
@@ -1014,11 +1017,12 @@ yyreduce:
 case 1:
 #line 202 "type.y"
 {	char * c_arr="c";  
-		rec_len=yyvsp[-1].ival; active_scope->insert(c_arr, INT8_ARR_TYPE, rec_len, 0);
+		rec_len=yyvsp[-1].ival; 
+		active_scope->insert(c_arr, INT8_ARR_TYPE, rec_len, 0);
 	;
     break;}
 case 2:
-#line 205 "type.y"
+#line 206 "type.y"
 {
 		tree_root = trav_chain(yyvsp[-1].stmt);
 		if(tree_root==0){
@@ -1028,31 +1032,43 @@ case 2:
 	;
     break;}
 case 3:
-#line 212 "type.y"
+#line 213 "type.y"
 {
 		return 0;
 	;
     break;}
 case 4:
-#line 215 "type.y"
+#line 216 "type.y"
 {
 		return 0;
 	;
     break;}
 case 5:
-#line 220 "type.y"
+#line 221 "type.y"
 {
 		yyval.stmt=yyvsp[0].stmt;
 	;
     break;}
 case 6:
-#line 223 "type.y"
+#line 224 "type.y"
 {
 		yyval.stmt=link_chain(yyvsp[-1].stmt,yyvsp[0].stmt);
 	;
     break;}
+case 7:
+#line 229 "type.y"
+{
+			yyval.stmt=yyvsp[0].stmt;
+	;
+    break;}
+case 8:
+#line 232 "type.y"
+{
+		yyval.stmt=yyvsp[0].stmt;
+	;
+    break;}
 case 18:
-#line 245 "type.y"
+#line 250 "type.y"
 {
 		string func_name_index(yyvsp[-3].name);
 		flag_cmpd_stmt_is_a_func_body=lookup_func(func_name_index);
@@ -1060,12 +1076,12 @@ case 18:
 			++ no_errors;
 			cerr << "Function name not found in list of declared functions: "
 				<< "You will see another error on this same function name: " << func_name_index
-				<< "line_no: " << line_no ;
+				<< "line_no: " << line_no  << endl;
 		}
 	;
     break;}
 case 19:
-#line 254 "type.y"
+#line 259 "type.y"
 {
 		struct cmpd_stmt* c_stmt= yyvsp[0].c_stmt;
 		if(c_stmt==0){
@@ -1078,89 +1094,117 @@ case 19:
 		struct stmt* func_body=yyvsp[0].c_stmt;
 		string search_for=yyvsp[-5].name;
 		datatype return_type=yyvsp[-6].dt;
+		/*$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, cmpd_stmt, search_for, return_type);
+			// This gives an error - we have to fool the compiler*/
 		yyval.stmt=new func_stmt(FUNC_DEFN, line_no, sc, v_list, func_body, search_for, return_type);
+		void *ptr=yyval.stmt;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		// Note that the declaration already has a parameter list
+		// the constructor uses the parameter list - name and type to verify everything
+		// but doesnt need the parameter list any more - so we should delete it 
+		// - took me a while to figure out this memory leak
+		delete v_list;
+		free(yyvsp[-5].name);
 	;
     break;}
 case 20:
-#line 271 "type.y"
+#line 287 "type.y"
 {
 		//cout << "creating simple var of type: " << $1 << endl;
 		yyval.stmt = active_scope->insert(yyvsp[-1].name, yyvsp[-2].dt, line_no);
+		free(yyvsp[-1].name);
 	;
     break;}
 case 21:
-#line 275 "type.y"
+#line 292 "type.y"
 {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
 		//cout << "creating arr var of type: " << $1 << endl;
 		datatype dt=datatype(U_INT8_ARR_TYPE+(yyvsp[-5].dt-U_INT8_TYPE));
 		yyval.stmt = active_scope->insert(yyvsp[-4].name, dt, yyvsp[-2].ival, line_no);
+		free(yyvsp[-4].name);
 	;
     break;}
 case 22:
-#line 289 "type.y"
+#line 307 "type.y"
 {
 		yyval.stmt=yyvsp[0].stmt;
 	;
     break;}
 case 23:
-#line 295 "type.y"
+#line 313 "type.y"
 {
-		char *name=strdup(yyvsp[-4].name);
-		struct var_list* tmp=yyvsp[-2].v_list;
+		char *name=yyvsp[-4].name;
+		//char *name=strdup($2);
 		struct var_list* v_list=trav_chain(yyvsp[-2].v_list);
-		tmp=v_list;
 		datatype return_type=yyvsp[-5].dt;
 		yyval.stmt=new func_decl_stmt( FUNC_TYPE, line_no, name,  v_list, return_type);
+		void *ptr=yyval.stmt;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		//free(name);
 	;
     break;}
 case 24:
-#line 306 "type.y"
+#line 327 "type.y"
 {
 		 yyval.v_list=yyvsp[0].v_list;
 		 //cout << "got decl_comma_list : " << endl;
 	;
     break;}
 case 25:
-#line 310 "type.y"
+#line 331 "type.y"
 {
 		yyval.v_list=link_chain(yyvsp[-2].v_list,yyvsp[0].v_list);
 		//cout << "chaining var_decl : " << endl;
 	;
     break;}
 case 26:
-#line 317 "type.y"
+#line 338 "type.y"
 {
 		//cout << "creating simple var of type: " << $1 << endl;
 		yyval.v_list=new var_list(yyvsp[-1].dt, yyvsp[0].name);
+		void *ptr=yyval.v_list;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		free(yyvsp[0].name);
 	;
     break;}
 case 27:
-#line 321 "type.y"
+#line 346 "type.y"
 {
 		/* Neil - I need to fix this */
 		//cout << "creating arr var of type: " << $1 << endl;
 		datatype dt=datatype(U_INT8_ARR_TYPE+(yyvsp[-4].dt-U_INT8_TYPE));
 		yyval.v_list=new var_list(dt, yyvsp[-3].name, yyvsp[-1].ival);
+		void *ptr=yyval.v_list;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		free(yyvsp[-3].name);
 	;
     break;}
 case 28:
-#line 327 "type.y"
+#line 356 "type.y"
 {
 		//cout << "creating ref var of type: " << $1 << endl;
 		datatype dt=datatype(U_INT8_REF_TYPE+(yyvsp[-2].dt-U_INT8_TYPE));
 		yyval.v_list=new var_list(dt, yyvsp[0].name);
+		void *ptr=yyval.v_list;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
+		free(yyvsp[0].name);
 	;
     break;}
 case 29:
-#line 333 "type.y"
+#line 366 "type.y"
 {
 		//$$=new var_list(uninit, "empty");
 		yyval.v_list=0;
 		;
     break;}
 case 30:
-#line 339 "type.y"
+#line 372 "type.y"
 {
 		yyval.stmt=yyvsp[0].stmt; 
 		if(flag_next_stmt_start_of_block){
@@ -1171,56 +1215,71 @@ case 30:
 	;
     break;}
 case 31:
-#line 347 "type.y"
+#line 380 "type.y"
 {
 		yyval.stmt=link_chain(yyvsp[-1].stmt,yyvsp[0].stmt);
 	;
     break;}
 case 32:
-#line 352 "type.y"
+#line 385 "type.y"
 { ++in_a_loop;;
     break;}
 case 33:
-#line 352 "type.y"
+#line 385 "type.y"
 {
 		   if(yyvsp[-7].expr->type==VOID_TYPE||yyvsp[-5].expr->type==VOID_TYPE||yyvsp[-3].expr->type==VOID_TYPE 
 			){
 			   cerr << "For condition has VOID_TYPE or ERROR_TYPE" << endl;
 			   ++ no_errors;
 			   yyval.stmt=new struct err_stmt(line_no);
+			   void *ptr=yyval.stmt;
+			   mem_addr_tab m1(ptr, line_no);
+			   mem_addr.push_back(m1);
 		   } else{
 			   yyval.stmt = new struct for_stmt(FOR_STMT, line_no, yyvsp[-7].expr, yyvsp[-5].expr, yyvsp[-3].expr, yyvsp[0].stmt);
+			   void *ptr=yyval.stmt;
+			   mem_addr_tab m1(ptr, line_no);
+			   mem_addr.push_back(m1);
 		   }
 		   --in_a_loop;
 	;
     break;}
 case 35:
-#line 364 "type.y"
+#line 403 "type.y"
 { 
 		if(yyvsp[-1].expr->isvalid()){
 			yyval.stmt = new expr_stmt(TEXPR_STMT, line_no, yyvsp[-1].expr);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			yyval.stmt = new expr_stmt(ERROR_TYPE, line_no, yyvsp[-1].expr);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
 		//printf("= %g\n", $1); 
 	;
     break;}
 case 36:
-#line 372 "type.y"
+#line 417 "type.y"
 {
 		yyval.stmt=yyvsp[0].c_stmt;
 	;
     break;}
 case 37:
-#line 375 "type.y"
+#line 420 "type.y"
 {
 		yyval.stmt=yyvsp[0].stmt;
 	;
     break;}
 case 39:
-#line 379 "type.y"
+#line 424 "type.y"
 {
 		yyval.stmt=new struct break_stmt(BREAK_STMT, line_no);
+		void *ptr=yyval.stmt;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if (!in_a_loop){
 			cerr << "break statement outside a loop: line_no: " << line_no<< endl;
 			++no_errors;
@@ -1228,9 +1287,12 @@ case 39:
 	;
     break;}
 case 40:
-#line 386 "type.y"
+#line 434 "type.y"
 {
 		yyval.stmt=new struct continue_stmt(CONTINUE_STMT, line_no);
+		void *ptr=yyval.stmt;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if (!in_a_loop){
 			cerr << "continue statement outside a loop: line_no: " << line_no<< endl;
 			++no_errors;
@@ -1238,22 +1300,28 @@ case 40:
 	;
     break;}
 case 41:
-#line 393 "type.y"
+#line 444 "type.y"
 {
 		cerr << "statement missing ';' around line_no: " << line_no << endl;
 		++no_errors;
 		yyval.stmt = new struct err_stmt(line_no);
+		void *ptr=yyval.stmt;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		yyerrok;
 	;
     break;}
 case 42:
-#line 401 "type.y"
+#line 455 "type.y"
 {
 		map<string,symtab_ent*>::iterator sym_it = find_in_symtab(yyvsp[-2].name);
 		if(sym_it==active_scope->sym_tab.end() ){
 			cerr << "symbol: " << yyvsp[-2].name << " not found in symbol table" << endl;
 			++no_errors;
 			yyval.stmt=new err_stmt(line_no);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
 			datatype name_type=se->type;
@@ -1262,14 +1330,21 @@ case 42:
 					<< " should be of basic type: " << line_no << endl;
 				++no_errors;
 				yyval.stmt=new struct err_stmt(line_no);
+				void *ptr=yyval.stmt;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			} else {
 				yyval.stmt=new list_stmt(LISTA_BASIC_TYPE_STMT, line_no, se);
+				void *ptr=yyval.stmt;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free(yyvsp[-2].name);
 	;
     break;}
 case 43:
-#line 420 "type.y"
+#line 484 "type.y"
 {
 		map<string,symtab_ent*>::iterator sym_it = 
 				find_in_symtab(yyvsp[-5].name);
@@ -1277,6 +1352,9 @@ case 43:
 			cerr << "symbol: " << yyvsp[-5].name << " not found in symbol table" << endl;
 			++no_errors;
 			yyval.stmt=new err_stmt(line_no);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
 			datatype name_type=se->type;
@@ -1285,14 +1363,21 @@ case 43:
 					<< " is not of array type: line_no:" << line_no << endl;
 				++no_errors;
 				yyval.stmt=new err_stmt(line_no);
+				void *ptr=yyval.stmt;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			} else {
 				yyval.stmt=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, line_no, se, yyvsp[-3].ival, -1, string(yyvsp[-1].text_buf));
+				void *ptr=yyval.stmt;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free(yyvsp[-5].name);
 	;
     break;}
 case 44:
-#line 440 "type.y"
+#line 514 "type.y"
 {
 		map<string,symtab_ent*>::iterator sym_it = 
 				find_in_symtab(yyvsp[-7].name);
@@ -1300,6 +1385,9 @@ case 44:
 			cerr << "symbol: " << yyvsp[-7].name << " not found in symbol table" << endl;
 			++no_errors;
 			yyval.stmt=new err_stmt(line_no);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
 			datatype name_type=se->type;
@@ -1309,39 +1397,53 @@ case 44:
 				++no_errors;
 			} else {
 				yyval.stmt=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_2INDEX, line_no, se, yyvsp[-5].ival, yyvsp[-3].ival, string(yyvsp[-1].text_buf));
+				void *ptr=yyval.stmt;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free(yyvsp[-7].name);	
 	;
     break;}
 case 45:
-#line 461 "type.y"
+#line 542 "type.y"
 {
 		if(yyvsp[-2].expr->type==VOID_TYPE || yyvsp[-2].expr->type==ERROR_TYPE){
 			++no_errors;
 			yyval.stmt=new err_stmt(line_no);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 			cerr << "Error: If condition has void or Error type:" << line_no << endl;
 		} else {
 			yyval.stmt=new if_stmt(IFE_STMT,line_no,yyvsp[-2].expr,yyvsp[0].stmt,0);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
 	;
     break;}
 case 46:
-#line 470 "type.y"
+#line 557 "type.y"
 {
 		if(yyvsp[-4].expr->type==VOID_TYPE || yyvsp[-4].expr->type==ERROR_TYPE){
 			++no_errors;
 			yyval.stmt=new err_stmt(line_no);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 			cerr << "Error: If condition has void or Error type:" << line_no << endl;
 		} else {
 			yyval.stmt=new if_stmt(IFE_STMT, line_no,yyvsp[-4].expr,yyvsp[-2].stmt,yyvsp[0].stmt);
+			void *ptr=yyval.stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
 	;
     break;}
 case 47:
-#line 482 "type.y"
+#line 575 "type.y"
 {
-		//cout << "popping scope: " <<
-		//	active_scope_list[active_scope_list.size()-1] << endl;
 		active_scope_list.pop_back();
 		int tmp=active_scope_list.size()-1;
 		if(tmp==-1) { 
@@ -1349,9 +1451,11 @@ case 47:
 			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
 				<< endl;
 			++no_errors;
-			yyval.c_stmt=new struct cmpd_stmt(ERROR_TYPE, line_no);
+			yyval.c_stmt=new struct cmpd_stmt(ERROR_TYPE, line_no, 0);
+			void *ptr=yyval.c_stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else { active_scope = active_scope_list[tmp]; }
-		//$1->cmpd_bdy = trav_chain($2);
 		struct stmt* head_of_this_chain=blk_heads.back();
 		if(  head_of_this_chain==0){
 			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
@@ -1365,16 +1469,23 @@ case 47:
 	;
     break;}
 case 48:
-#line 508 "type.y"
+#line 606 "type.y"
 {
+			cout << "In open_curly: " << endl;
 		++nest_lev;
-		yyval.c_stmt = new struct cmpd_stmt(CMPD_STMT, line_no);
+		yyval.c_stmt = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
+		void *ptr=yyval.c_stmt;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if(flag_cmpd_stmt_is_a_func_body>=0){
 			yyval.c_stmt->sc=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
 			// reset the flag
 			flag_cmpd_stmt_is_a_func_body=-1;
 		} else {
 			yyval.c_stmt->sc= new scope();
+			void *ptr=yyval.c_stmt;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
 		flag_next_stmt_start_of_block=true;
 		//cout << "open_curly: cmpd_stmt: " << $$ << endl;
@@ -1386,47 +1497,62 @@ case 48:
 	;
     break;}
 case 49:
-#line 529 "type.y"
+#line 634 "type.y"
 { yyval.expr=yyvsp[0].expr; ;
     break;}
 case 50:
-#line 530 "type.y"
+#line 635 "type.y"
 {
 		yyval.expr=link_chain(yyvsp[-2].expr,yyvsp[0].expr);
 	;
     break;}
 case 51:
-#line 535 "type.y"
+#line 640 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_plus);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 52:
-#line 539 "type.y"
+#line 647 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_minus);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 53:
-#line 543 "type.y"
+#line 654 "type.y"
 { 
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_mult);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 54:
-#line 547 "type.y"
+#line 661 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_div);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 55:
-#line 551 "type.y"
+#line 668 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_mod);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if(!((yyvsp[-2].expr->type >= INT8_TYPE && yyvsp[-2].expr->type<=U_INT32_TYPE)
 				&&
 			(yyvsp[0].expr->type>=INT8_TYPE && yyvsp[0].expr->type<=U_INT32_TYPE))){
@@ -1438,9 +1564,12 @@ case 55:
 	;
     break;}
 case 56:
-#line 562 "type.y"
+#line 682 "type.y"
 {
 		yyval.expr = new un_expr(yyvsp[0].expr, oper_umin);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if(yyvsp[0].expr->type==VOID_TYPE){
 			cerr << "line_no: " << line_no << " expression of void type: check if you are calling a void function on either side" << endl;
 			yyval.expr->type=ERROR_TYPE;
@@ -1449,63 +1578,87 @@ case 56:
 	;
     break;}
 case 57:
-#line 570 "type.y"
+#line 693 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_lt);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 58:
-#line 574 "type.y"
+#line 700 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_gt);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 59:
-#line 578 "type.y"
+#line 707 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_le);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 60:
-#line 582 "type.y"
+#line 714 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_ge);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 61:
-#line 586 "type.y"
+#line 721 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_iseq);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 62:
-#line 590 "type.y"
+#line 728 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_isneq);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 63:
-#line 594 "type.y"
+#line 735 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_or);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 64:
-#line 598 "type.y"
+#line 742 "type.y"
 {
 		yyval.expr=new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_and);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		void_check(yyvsp[-2].expr->type, yyvsp[0].expr->type, yyval.expr->type);
 	;
     break;}
 case 65:
-#line 602 "type.y"
+#line 749 "type.y"
 {
 		datatype typ1=yyvsp[-2].expr->type;
 		datatype typ2=yyvsp[0].expr->type;
@@ -1513,17 +1666,26 @@ case 65:
 		bool b1=check_type_compat(typ1, typ2)&& yyvsp[-2].expr->is_lvalue();
 		if(yyvsp[-2].expr->is_lvalue()){
 			yyval.expr = new bin_expr(yyvsp[-2].expr, yyvsp[0].expr, oper_assgn);
+			void *ptr=yyval.expr;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			yyval.expr = new un2_expr(ERROR_TYPE);
+			void *ptr=yyval.expr;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 			++no_errors;
 			cerr << "oper_assgn error on line: " << line_no<< endl;
 		}
 	;
     break;}
 case 66:
-#line 615 "type.y"
+#line 768 "type.y"
 {
 		yyval.expr = new un_expr(yyvsp[0].expr, oper_not);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		if(yyvsp[0].expr->type==VOID_TYPE){
 			cerr << "line_no: " << line_no << " expression of void type: applying operator ! to void expr" << endl;
 			yyval.expr->type=ERROR_TYPE;
@@ -1532,34 +1694,46 @@ case 66:
 	;
     break;}
 case 67:
-#line 623 "type.y"
+#line 779 "type.y"
 {
 		yyval.expr = new un2_expr(yyvsp[0].ival);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		//cerr << "type.y: parsed integer: type" << $$->type << endl;
 	;
     break;}
 case 68:
-#line 627 "type.y"
+#line 786 "type.y"
 {
 		yyval.expr = new un2_expr(yyvsp[0].dval);
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 	;
     break;}
 case 69:
-#line 630 "type.y"
+#line 792 "type.y"
 {
-		map<string,symtab_ent*>::iterator sym_it = 
-				find_in_symtab(yyvsp[0].name);
+		map<string,symtab_ent*>::iterator sym_it = find_in_symtab(yyvsp[0].name);
 		if(sym_it==active_scope->sym_tab.end() ){
 			cerr << "Error: could not find:" << yyvsp[0].name<<"  in symbol table: lineno: " << line_no << "\n";
 			++no_errors;
 			yyval.expr = new un2_expr(ERROR_TYPE);
+			void *ptr=yyval.expr;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			yyval.expr = new un2_expr(sym_it->second );
+			void *ptr=yyval.expr;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		}
+		free(yyvsp[0].name);
 	;
     break;}
 case 70:
-#line 641 "type.y"
+#line 809 "type.y"
 {
 		map<string,symtab_ent*>::iterator sym_it = 
 				find_in_symtab(yyvsp[-3].name);
@@ -1567,8 +1741,11 @@ case 70:
 			cerr << "Error: Array indexing expr could not find:" << yyvsp[-3].name<<"  in symbol table: lineno: " << line_no << "\n";
 			++no_errors;
 			yyval.expr = new un2_expr(ERROR_TYPE);
+			void *ptr=yyval.expr;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
-			struct symtab_ent* se=sym_it->second;
+			symtab_ent* se=sym_it->second;
 
 			datatype e_type=yyvsp[-1].expr->type;
 			if(e_type>=U_INT8_TYPE && e_type <=INT32_TYPE){
@@ -1577,21 +1754,31 @@ case 70:
 					cerr << "ERROR: Variable being indexed not of Array Type : Error: lineno: " << line_no << "\n";
 					++no_errors;
 					yyval.expr = new un2_expr(ERROR_TYPE);
+					void *ptr=yyval.expr;
+					mem_addr_tab m1(ptr, line_no);
+					mem_addr.push_back(m1);
 				} else {
 					yyval.expr = new un2_expr(oper_arrderef, nametype,  se, yyvsp[-1].expr);
+					void *ptr=yyval.expr;
+					mem_addr_tab m1(ptr, line_no);
+					mem_addr.push_back(m1);
 				}
 			} else {
 				cerr << "ERROR: Array index not of Type Int : Error: lineno: " << line_no << "\n";
 				++no_errors;
 				yyval.expr = new un2_expr(ERROR_TYPE);
+				void *ptr=yyval.expr;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free(yyvsp[-3].name);
 	;
     break;}
 case 71:
-#line 668 "type.y"
+#line 849 "type.y"
 {
-		struct symtab_ent* se=0;
+		symtab_ent* se=0;
 		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab(yyvsp[-5].name);
 		if( sym_it1==active_scope->sym_tab.end()) {
 			cerr << "Not able to find :" << yyvsp[-5].name << " in symbol table: line_no" 
@@ -1606,6 +1793,9 @@ case 71:
 				<< "oper_blk_arr_assgn: " << " line_no: " << line_no;
 				++no_errors;
 			yyval.expr = new un2_expr(ERROR_TYPE);
+			void *ptr=yyval.expr;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} /*else if(!(lse->type==INT32_TYPE || lse->type==FLOAT_TYPE)){
 			cerr << "ERROR: LHS:  " << $1 << ":line_no:" << line_no 
 				<< " should be of type float or int"
@@ -1621,22 +1811,32 @@ case 71:
 				datatype d1=arr_deref_type(se->type);
 				if(d1==ERROR_TYPE){
 					yyval.expr = new un2_expr(ERROR_TYPE);
+					void *ptr=yyval.expr;
+					mem_addr_tab m1(ptr, line_no);
+					mem_addr.push_back(m1);
 					cerr << "Type Error:  x: lineno: " << line_no << "\n";
 					++no_errors;
 				} else {
 					yyval.expr = new un2_expr(oper_blk_arr_assgn, d1, se,yyvsp[-3].expr,yyvsp[-1].expr);
+					void *ptr=yyval.expr;
+					mem_addr_tab m1(ptr, line_no);
+					mem_addr.push_back(m1);
 				}
 			} else {
 				yyval.expr = new un2_expr(ERROR_TYPE);
+				void *ptr=yyval.expr;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 				cerr << "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
 					<< line_no << "\n";
 				++no_errors;
 			}
 		}
+		//free($1);
 	;
     break;}
 case 72:
-#line 712 "type.y"
+#line 906 "type.y"
 {
 		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=yyvsp[-3].name;
@@ -1649,36 +1849,54 @@ case 72:
 			cerr << "function : " << search_for << " used without decl" << endl;
 			++ no_errors;
 			yyval.expr=new un2_expr(ERROR_TYPE);
+			void *ptr=yyval.expr;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
 		} else {
 			datatype my_type=func_info_table[index]->return_type;
-			struct expr* e_ptr=trav_chain(yyvsp[-1].expr);
-			struct var_list* fparam=func_info_table[index]->param_list;
+			expr* e_ptr=trav_chain(yyvsp[-1].expr);
+			var_list* fparam=func_info_table[index]->param_list;
 			bool match=false;
 			if(skip_type_check==false){
 				match=check_parameters(e_ptr, fparam);
 			}
 			if(match || skip_type_check){
-				yyval.expr=new un2_expr(oper_func_call, my_type, yyvsp[-1].expr, index);
+				//$$=new un2_expr(oper_func_call, my_type, $3, index, line_no);
+				yyval.expr=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
+				void *ptr=yyval.expr;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
+
 			} else {
 				yyval.expr=new un2_expr(ERROR_TYPE);
+				void *ptr=yyval.expr;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
 			}
 		}
+		free(yyvsp[-3].name);
 	;
     break;}
 case 73:
-#line 739 "type.y"
+#line 945 "type.y"
 {
 		yyval.expr = new un2_expr(strdup(yyvsp[0].text_buf));
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 	;
     break;}
 case 74:
-#line 742 "type.y"
+#line 951 "type.y"
 { 
 		yyval.expr = new un_expr(yyvsp[-1].expr, oper_parexp );
+		void *ptr=yyval.expr;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 	;
     break;}
 case 75:
-#line 747 "type.y"
+#line 959 "type.y"
 { 
 #ifdef DEBUG_GRAM
 	printf("got table defn\n"); 
@@ -1686,7 +1904,7 @@ case 75:
 	;
     break;}
 case 76:
-#line 752 "type.y"
+#line 964 "type.y"
 { 
 #ifdef DEBUG_GRAM
 		printf("recursive tab_defn\n"); 
@@ -1694,24 +1912,32 @@ case 76:
 	;
     break;}
 case 77:
-#line 760 "type.y"
+#line 972 "type.y"
 {
 		//printf("got table defn: no filter\n");
 		yyval.tbl=new table(yyvsp[-2].name,yyvsp[-1].name, line_no);
+		void *ptr=yyval.tbl;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		// default value for constructor tbl_ptr->filter=NULL;
 		table_list.push_back(yyval.tbl);
+		//free($2); free($3);
 	;
     break;}
 case 78:
-#line 766 "type.y"
+#line 982 "type.y"
 {
 		//printf("got table defn: with filter\n");
 		yyval.tbl=new table(yyvsp[-5].name,yyvsp[-4].name, line_no, yyvsp[-1].expr);
+		void *ptr=yyval.tbl;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		table_list.push_back(yyval.tbl);
+		//free($2); free($3);
 	;
     break;}
 case 79:
-#line 771 "type.y"
+#line 991 "type.y"
 {
 		cerr << "Error in tab section line: " <<
 			line_no << endl;
@@ -1720,20 +1946,23 @@ case 79:
 	;
     break;}
 case 80:
-#line 779 "type.y"
+#line 999 "type.y"
 {
 	;
     break;}
 case 81:
-#line 781 "type.y"
+#line 1001 "type.y"
 {
 	;
     break;}
 case 82:
-#line 785 "type.y"
+#line 1005 "type.y"
 {
 		basic_ax_stmt* bptr= trav_chain(yyvsp[0].basic_ax_stmt);
 		yyval.ax = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, 0);
+		void *ptr=yyval.ax;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		
 		ax_map[yyvsp[-2].name]=yyval.ax;
 #ifdef DEBUG_GRAM
@@ -1741,23 +1970,28 @@ case 82:
 #endif
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
+		free(yyvsp[-2].name);
 	;
     break;}
 case 83:
-#line 796 "type.y"
+#line 1020 "type.y"
 {
 		basic_ax_stmt* bptr= trav_chain(yyvsp[0].basic_ax_stmt);
 		yyval.ax = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, yyvsp[-2].expr);
+		void *ptr=yyval.ax;
+		mem_addr_tab m1(ptr, line_no);
+		mem_addr.push_back(m1);
 		ax_map[yyvsp[-5].name]=yyval.ax;
 #ifdef DEBUG_GRAM
 		printf("NAME: $2: %s\n", yyvsp[-5].name);
 #endif
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
+		free(yyvsp[-5].name);
 	;
     break;}
 case 84:
-#line 806 "type.y"
+#line 1034 "type.y"
 {
 		cerr << "Error in axis section line: " <<
 			line_no << endl;
@@ -1767,19 +2001,19 @@ case 84:
 	;
     break;}
 case 85:
-#line 817 "type.y"
+#line 1045 "type.y"
 {
 		yyval.basic_ax_stmt = yyvsp[0].basic_ax_stmt;
 	;
     break;}
 case 86:
-#line 820 "type.y"
+#line 1048 "type.y"
 {
 		yyval.basic_ax_stmt=link_chain(yyvsp[-1].basic_ax_stmt, yyvsp[0].basic_ax_stmt);
 	;
     break;}
 case 87:
-#line 825 "type.y"
+#line 1053 "type.y"
 {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
@@ -1787,7 +2021,7 @@ case 87:
 	;
     break;}
 case 88:
-#line 830 "type.y"
+#line 1058 "type.y"
 {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
@@ -1795,7 +2029,7 @@ case 88:
 	;
     break;}
 case 89:
-#line 835 "type.y"
+#line 1063 "type.y"
 {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
@@ -1803,7 +2037,7 @@ case 89:
 	;
     break;}
 case 90:
-#line 840 "type.y"
+#line 1068 "type.y"
 {
 		yyval.basic_ax_stmt = new ttl_ax_stmt (txt_axstmt,yyvsp[-1].text_buf);
 		++no_tot_ax_elems;
@@ -2031,134 +2265,207 @@ yyerrhandle:
     }
   return 1;
 }
-#line 846 "type.y"
+#line 1074 "type.y"
 
 
-//void print_stmt_lst( struct stmt * &st);
-void print_expr(FILE* edit_out, struct expr * e);
-//void print_if_stmt(FILE* edit_out, struct if_stmt * if_stmt);
+void print_expr(FILE* edit_out, expr * e);
 
 int	compile();
 int	run(char * data_file_name, int rec_len);
 void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
 void print_axis_code(FILE * op, FILE * axes_drv_func);
+void clean_up();
 
 extern void yyrestart ( FILE *input_file );
-	int main(int argc, char* argv[], char* envp[]){
-		if(argc!=3) {
-			cout << "Usage: " << argv[0] << " <prog-name> <data-file> " << endl;
-			exit(0);
-		}
-		cout << "SOME DEBUGGING INFO: U_INT8_TYPE:" << U_INT8_TYPE 
-			<< " U_INT8_ARR_TYPE:" << U_INT8_ARR_TYPE
-			<< " U_INT8_REF_TYPE:" << U_INT8_REF_TYPE 
-			<< endl;
-			
-			
-		active_scope=new scope();
-		active_scope_list.push_back(active_scope);
-		cout << "tree_root: " << tree_root << endl;
-		
-		char * printf_name="printf";
-		struct var_list* v_list=0;
-		datatype myreturn_type=INT8_TYPE;
-		struct func_info* fi=new func_info(printf_name, v_list, myreturn_type);
-		func_info_table.push_back(fi);
-		
-		char *c_arr="c";
-		
-
-		FILE * yyin=fopen(argv[1],"r");
-		yyrestart(yyin);
-		if(yyparse()){
-			cout << "Errors in parsing edit: " << no_errors << endl;
-			exit(1);
-		} else 
-			cout << "yyparse finished : now going to print tree: no_errors: "    
-			<< " should be 0 or we have a bug in the compiler"<< endl;
-		//print_stmt_lst(tree_root);
-		if(!no_errors){
-			FILE * global_vars=fopen("xtcc_work/global.C", "wb");
-			fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
-			fprintf(global_vars, "#include <sys/types.h>\n");
-			fprintf(global_vars, "#include <map>\n using namespace std;\n");
-			fprintf(global_vars, "void print_list_counts();\n");
-			fprintf(global_vars, "void tab_compute();\n");
-			fprintf(global_vars, "void tab_summ();\n");
-			fprintf(global_vars, "void ax_compute();\n");
-			fclose(global_vars);
-			FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "wb");
-			fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m);\n");
-			fprintf(print_list_counts, "void print_list_counts(){\n");
-			fclose(print_list_counts);
-			FILE * edit_out= fopen("xtcc_work/edit_out.c", "w+b");
-			fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
-			fprintf(edit_out, "#include <cstdio>\n#include <iostream>\nusing namespace std;\n" );
-			fprintf(edit_out, "#include <sys/types.h>\n" );
-			fprintf(edit_out, "int8_t c[%d];\n", rec_len );
-			fprintf(edit_out, "#include \"global.C\"\n" );
-			if(edit_out==0){
-				printf("could not open edit_out.c for writing\n");
-				exit(1);
-			}
-			cout << "printing edit:" << endl;
-			tree_root->print_stmt_lst(edit_out);
-			fclose(edit_out);
-			global_vars=fopen("xtcc_work/global.C", "a+");
-			fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
-			fclose(global_vars);
-			if(!global_vars){
-				cerr << "cannot open global.C for writing" << endl;
-				exit(1);
-			}
-			print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+");
-			fprintf(print_list_counts, "}\n");
-			fclose(print_list_counts);
-		} else {
-			cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
-			exit(1);
-		}
-		FILE * table_op=fopen("xtcc_work/my_table.C", "w");	
-		FILE * tab_drv_func=fopen("xtcc_work/my_tab_drv_func.C", "w");	
-		FILE * tab_summ_func=fopen("xtcc_work/my_tab_summ.C", "w");	
-		if(!(table_op&&tab_drv_func&&tab_summ_func)){
-			cerr << "Unable to open file for output of table classes" << endl;
-			exit(1);
-		}
-		if(yyparse()){
-			cerr << "parsing tables section failed:" << endl;
-			exit(1);
-		}
-		FILE * axes_op=fopen("xtcc_work/my_axes.C", "w");	
-		FILE * axes_drv_func=fopen("xtcc_work/my_axes_drv_func.C", "w");	
-		if(!(axes_op&&axes_drv_func)){
-			cerr << "Unable to open file for output of axes classes" << endl;
-			exit(1);
-		}
-		if(yyparse()){
-			cerr << "parsing axes section failed:" << endl;
-			exit(1);
-		} else {
-			cout <<  "successfully parsed axes section: " << endl;
-		}
-		print_table_code(table_op, tab_drv_func, tab_summ_func);
-		print_axis_code(axes_op, axes_drv_func);
-		fclose(table_op);fclose(tab_drv_func);
-		fclose(axes_op); fclose(axes_drv_func);
-		bool my_compile_flag=true;
-		if(my_compile_flag&&!compile()){
-			char * endptr=0;
-			int convert_to_base=10;
-			//int rec_len=strtol(argv[3],&endptr, convert_to_base);
-			return run(argv[2], rec_len);
-		}
-		return no_errors;
+int main(int argc, char* argv[], char* envp[]){
+	if(argc!=3) {
+		cout << "Usage: " << argv[0] << " <prog-name> <data-file> " << endl;
+		exit(0);
 	}
+	cout << "SOME DEBUGGING INFO: U_INT8_TYPE:" << U_INT8_TYPE 
+		<< " U_INT8_ARR_TYPE:" << U_INT8_ARR_TYPE
+		<< " U_INT8_REF_TYPE:" << U_INT8_REF_TYPE 
+		<< endl;
+		
+		
+	active_scope=new scope();
+	active_scope_list.push_back(active_scope);
+	cout << "tree_root: " << tree_root << endl;
+	
+	char * printf_name="printf";
+	var_list* v_list=0;
+	datatype myreturn_type=INT8_TYPE;
+	func_info* fi=new func_info(printf_name, v_list, myreturn_type);
+	func_info_table.push_back(fi);
+	
+	char *c_arr="c";
+
+	FILE * yyin=fopen(argv[1],"r");
+	yyrestart(yyin);
+	if(yyparse()){
+		cout << "Errors in parsing edit: " << no_errors << endl;
+		exit(1);
+	} else 
+		cout << "yyparse finished : now going to print tree: no_errors: "    
+		<< " should be 0 or we have a bug in the compiler"<< endl;
+
+	//yyterminate();
+	//print_stmt_lst(tree_root);
+	if(!no_errors){
+		FILE * global_vars=fopen("xtcc_work/global.C", "wb");
+		fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
+		fprintf(global_vars, "#include <sys/types.h>\n");
+		fprintf(global_vars, "#include <map>\n using namespace std;\n");
+		fprintf(global_vars, "void print_list_counts();\n");
+		fprintf(global_vars, "void tab_compute();\n");
+		fprintf(global_vars, "void tab_summ();\n");
+		fprintf(global_vars, "void ax_compute();\n");
+		fclose(global_vars);
+		FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "wb");
+		fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m);\n");
+		fprintf(print_list_counts, "void print_list_counts(){\n");
+		fclose(print_list_counts);
+		FILE * edit_out= fopen("xtcc_work/edit_out.c", "w+b");
+		if(edit_out==0){
+			printf("could not open edit_out.c for writing\n");
+			exit(1);
+		}
+#if __WIN32__
+		fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
+#endif /* __WIN32__ */
+		fprintf(edit_out, "#include <cstdio>\n#include <iostream>\nusing namespace std;\n" );
+		fprintf(edit_out, "#include <sys/types.h>\n" );
+		fprintf(edit_out, "int8_t c[%d];\n", rec_len );
+		fprintf(edit_out, "#include \"global.C\"\n" );
+		cout << "printing edit:" << endl;
+		tree_root->print_stmt_lst(edit_out);
+		fclose(edit_out);
+		global_vars=fopen("xtcc_work/global.C", "a+");
+		if(!global_vars){
+			cerr << "cannot open global.C for writing" << endl;
+			exit(1);
+		}
+		fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
+		fclose(global_vars);
+		print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+");
+		fprintf(print_list_counts, "}\n");
+		fclose(print_list_counts);
+	} else {
+		cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
+		exit(1);
+	}
+	FILE * table_op=fopen("xtcc_work/my_table.C", "w");
+	FILE * tab_drv_func=fopen("xtcc_work/my_tab_drv_func.C", "w");	
+	FILE * tab_summ_func=fopen("xtcc_work/my_tab_summ.C", "w");	
+	if(!(table_op&&tab_drv_func&&tab_summ_func)){
+		cerr << "Unable to open file for output of table classes" << endl;
+		exit(1);
+	}
+	if(yyparse()){
+		cerr << "parsing tables section failed:" << endl;
+		exit(1);
+	}
+
+	FILE * axes_op=fopen("xtcc_work/my_axes.C", "w");	
+	FILE * axes_drv_func=fopen("xtcc_work/my_axes_drv_func.C", "w");	
+	if(!(axes_op&&axes_drv_func)){
+		cerr << "Unable to open file for output of axes classes" << endl;
+		exit(1);
+	}
+	if(yyparse()){
+		cerr << "parsing axes section failed:" << endl;
+		exit(1);
+	} else {
+		cout <<  "successfully parsed axes section: " << endl;
+	}
+	flex_finish();
+	print_table_code(table_op, tab_drv_func, tab_summ_func);
+	print_axis_code(axes_op, axes_drv_func);
+	fclose(yyin); yyin=0;
+	fclose(table_op);
+	fclose(tab_drv_func);
+	fclose(axes_op); 
+	fclose(axes_drv_func);
+	fclose(tab_summ_func);
+	bool my_compile_flag=true;
+	if(my_compile_flag&&!compile()){
+		char * endptr=0;
+		int convert_to_base=10;
+		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
+		int rval= run(argv[2], rec_len);
+		if(tree_root) {
+			delete tree_root;
+			tree_root=0;
+		}
+		clean_up();
+		delete fi;
+		for(int i=0; i< mem_addr.size(); ++i ){
+			cout << "addr: " << mem_addr[i].mem_ptr << " line: " << mem_addr[i].line_number << endl;
+		}
+		cout << "returning from main"<< endl;
+		return rval;
+	}
+	cout << "returning from main with errors"<< endl;
+	/*
+	fclose(table_op);
+	fclose(tab_drv_func);
+	fclose(tab_summ_func);
+	fclose(axes_op);
+	fclose(axes_drv_func);
+	*/
+
+	return no_errors;
+}
 
 #include <cstdlib>
 #include <cstdio>
 
 
+void clean_up(){
+	cout << "Entered function clean_up()" << endl;
+	/*
+	if(func_info_table.size()>0){
+		// this should be enough as the rest are chained
+		delete func_info_table[0];
+	}
+	for(int i=0; i<func_info_table.size(); ++i){
+		func_info * f=func_info_table[i];
+			if(f->param_list) {
+				delete f->param_list;
+			}
+			if (f->func_body){
+				delete f->func_body;
+			}
+			if (f->func_scope){
+				delete f->func_scope;
+			}
+		delete f;
+	}
+			*/
+	typedef map<string, ax*>::iterator ax_map_iter;
+	for(ax_map_iter it=ax_map.begin(); it!=ax_map.end(); ++it){
+		delete it->second; it->second=0;
+	}
+	// we should only delete the 0 index scope as this was manually created by us
+	/*
+	for( int  i=0; i<active_scope_list.size(); ++i){
+		scope* sc=active_scope_list[i];
+		if(sc ) {
+			delete sc;
+			active_scope_list[i]=0;
+		}
+	}
+	*/
+	if (active_scope_list[0]) {
+		delete active_scope_list[0]; active_scope_list[0]=0;
+	}
+
+	for(int i=0; i<table_list.size(); ++i){
+		delete table_list[i];
+	}
+	cout << "Exited function clean_up()" << endl;
+			
+}
 
 
 bool check_type_compat(datatype typ1, datatype typ2){
@@ -2184,10 +2491,10 @@ bool check_type_compat(datatype typ1, datatype typ2){
 
 
 
-int check_parameters(struct expr* e, struct var_list* v){
+int check_parameters(expr* e, var_list* v){
 	cout << "check_parameters: called" << endl;
-	struct expr* e_ptr=e;
-	struct var_list* fparam=v;
+	expr* e_ptr=e;
+	var_list* fparam=v;
 	bool match=true;
 	/* Important point to note: I am not allowing references in ordinary variable decl
 	   Only in function parameter list - the object is to allow modifying of variables
@@ -2270,7 +2577,7 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
 	}
 }
 
-/* NxD: I need to write a detailed note about this function's responisibilities
+/* NxD: I need to write a detailed note about this function's responsibilities
    */
    
 
@@ -2289,14 +2596,15 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
 
 		
 
-void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list, string & fname){
+/*
+void	add_func_params_to_cmpd_sc(scope * & sc, var_list * & v_list, string & fname){
 	cout << "add_func_params_to_cmpd_sc: ENTER: sc=" << sc << " v_list:" << v_list << endl;
-	struct var_list * v_ptr = v_list;
+	var_list * v_ptr = v_list;
 	while (v_ptr){
 		cout << "v_ptr->var_name: " << v_ptr->var_name << endl;
 		if(sc->sym_tab.find(v_ptr->var_name)==sc->sym_tab.end()){
 			cout << "about to insert : " << v_ptr->var_name << " into cmpd_stmt symbol table" << endl;
-			struct symtab_ent* se=new struct symtab_ent;
+			symtab_ent* se=new symtab_ent;
 			se->name=strdup( v_ptr->var_name.c_str());
 			se->type=v_ptr->var_type;
 			sc->sym_tab[fname] = se;
@@ -2310,6 +2618,7 @@ void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list,
 		v_ptr=v_ptr->prev;
 	}
 }
+*/
 
 
 int search_for_func(string& search_for){
@@ -2326,11 +2635,11 @@ int search_for_func(string& search_for){
 	return -1;
 }
 
-int check_func_decl_with_func_defn(struct var_list* & v_list, int & index, string func_name){
+int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_name){
 	//cout << "Entered check_func_decl_with_func_defn: " << func_name << endl;
 		
-	struct var_list* defn_ptr=v_list;
-	struct var_list* decl_ptr=func_info_table[index]->param_list;
+	var_list* defn_ptr=v_list;
+	var_list* decl_ptr=func_info_table[index]->param_list;
 	cout << "check_func_decl_with_func_defn: after func_info_table[index]->param_list" << endl;
 
 	
@@ -2378,6 +2687,11 @@ template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
 		while (elem1->next) elem1=elem1->next;
 		return elem1;
+		/*
+		while (elem1->exists_next()){
+			
+		}
+		*/
 	} else return 0;
 }
 

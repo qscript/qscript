@@ -3,7 +3,7 @@ CC=\Borland\BCC55\bin\bcc32 -P -I\Borland\BCC55\Include -L\Borland\BCC55\Lib
 
 DEPS= Tab.h
 #OBJS= type.obj scope.obj expr.obj lex.obj tree.obj
-OBJS= type.c scope.c expr.c lex.c tree.c
+OBJS= type.c scope.c expr.c lex.c tree.c stmt.C
 
 HEADER_DEPS= tree.h scope.h 
 
@@ -42,3 +42,4 @@ tree.obj: tree.C tree.h
 expr.obj: expr.C expr.h tree.h
 	$(CC) -c $<
 
+stmt.C: stmt.h scope.h expr.h

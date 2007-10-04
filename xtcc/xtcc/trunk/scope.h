@@ -49,9 +49,10 @@ using namespace std;
 		scope()	{
 			//cout << " constructing scope(): this: " << this << endl;
 		}
-		stmt* insert(string name, datatype dt, int line_no);
-		stmt* insert(string name, datatype dt, int arr_size, int line_no);
-		stmt* insert(string name, datatype dt, int arr_size, int line_no, char *text);
+		stmt* insert(char * name, datatype dt, int line_no);
+		stmt* insert(char * name, datatype dt, int arr_size, int line_no);
+		stmt* insert(char * name, datatype dt, int arr_size, int line_no, char *text);
+		~scope();
 	};
 
 #endif /* __SCOPE_H */

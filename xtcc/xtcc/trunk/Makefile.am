@@ -1,8 +1,8 @@
 CC=$(CXX)
-AM_CXXFLAGS= -Wall -frepo
+AM_CXXFLAGS= -Wall -frepo 
 AM_YFLAGS= -d -v
 bin_PROGRAMS=xtcc
-xtcc_SOURCES= tree.h Tab.h type.y lex.l expr.C tree.C scope.C 
+xtcc_SOURCES= tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C
 BUILT_SOURCES=type.h type.c lex.c
 xtcc_LDADD=@LEXLIB@
 type.y: const_defs.h symtab.h tree.h stmt.h Tab.h expr.h scope.h
@@ -10,6 +10,7 @@ lex.l: type.h
 expr.C: expr.h tree.h
 tree.C: tree.h symtab.h stmt.h
 scope.C: scope.h tree.h stmt.h
+stmt.C: stmt.h
 EXTRA_DIST=sample.dat
 .phony: clean
 clean:
