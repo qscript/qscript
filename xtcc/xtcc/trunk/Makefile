@@ -22,7 +22,7 @@ pkglibdir = $(libdir)/xtcc
 pkgincludedir = $(includedir)/xtcc
 top_builddir = .
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
-INSTALL = /usr/bin/ginstall -c
+INSTALL = /usr/bin/install -c
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
 install_sh_SCRIPT = $(install_sh) -c
@@ -37,9 +37,9 @@ POST_UNINSTALL = :
 bin_PROGRAMS = xtcc$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	depcomp install-sh lex.c missing type.c type.h
+	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
+	ChangeLog INSTALL NEWS depcomp install-sh lex.c missing type.c \
+	type.h
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -47,16 +47,15 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno configure.status.lineno
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = config.h
 CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_xtcc_OBJECTS = type.$(OBJEXT) lex.$(OBJEXT) expr.$(OBJEXT) \
-	tree.$(OBJEXT) scope.$(OBJEXT)
+	tree.$(OBJEXT) scope.$(OBJEXT) stmt.$(OBJEXT)
 xtcc_OBJECTS = $(am_xtcc_OBJECTS)
 xtcc_DEPENDENCIES =
-DEFAULT_INCLUDES = -I. -I$(srcdir) -I.
+DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -85,13 +84,13 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = aclocal-1.9
+ACLOCAL = ${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run aclocal-1.9
 AMDEP_FALSE = #
 AMDEP_TRUE = 
-AMTAR = tar
-AUTOCONF = autoconf
-AUTOHEADER = autoheader
-AUTOMAKE = automake-1.9
+AMTAR = ${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run tar
+AUTOCONF = ${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run autoconf
+AUTOHEADER = ${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run automake-1.9
 AWK = gawk
 CC = $(CXX)
 CCDEPMODE = depmode=gcc3
@@ -102,7 +101,7 @@ CXX = g++
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DHAVE_CONFIG_H
+DEFS = -DPACKAGE_NAME=\"xtcc\" -DPACKAGE_TARNAME=\"xtcc\" -DPACKAGE_VERSION=\"0.0\" -DPACKAGE_STRING=\"xtcc\ 0.0\" -DPACKAGE_BUGREPORT=\"NxD_in@yahoo.com\" -DPACKAGE=\"xtcc\" -DVERSION=\"0.0\" -DYYTEXT_POINTER=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_FCNTL_H=1 -DHAVE_FLOAT_H=1 -DHAVE_LIBINTL_H=1 -DHAVE_LIMITS_H=1 -DHAVE_MALLOC_H=1 -DHAVE_STDDEF_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_STRUCT_STAT_ST_BLKSIZE=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1 -DHAVE_STDLIB_H=1 -DHAVE_UNISTD_H=1 -DHAVE_GETPAGESIZE=1 -DHAVE_MMAP=1 -DHAVE_VPRINTF=1 -DHAVE_MEMSET=1 -DHAVE_STRDUP=1 -DHAVE_STRTOL=1 
 DEPDIR = .deps
 ECHO_C = 
 ECHO_N = -n
@@ -118,9 +117,9 @@ LEX = flex
 LEXLIB = -lfl
 LEX_OUTPUT_ROOT = lex.yy
 LIBOBJS = 
-LIBS = -lfl 
+LIBS = 
 LTLIBOBJS = 
-MAKEINFO = makeinfo
+MAKEINFO = ${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run makeinfo
 OBJEXT = o
 PACKAGE = xtcc
 PACKAGE_BUGREPORT = NxD_in@yahoo.com
@@ -153,7 +152,7 @@ exec_prefix = ${prefix}
 host_alias = 
 includedir = ${prefix}/include
 infodir = ${prefix}/info
-install_sh = /home/nxd/install-sh
+install_sh = /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localstatedir = ${prefix}/var
@@ -166,13 +165,13 @@ sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 sysconfdir = ${prefix}/etc
 target_alias = 
-AM_CXXFLAGS = -Wall -frepo
+AM_CXXFLAGS = -Wall -frepo 
 AM_YFLAGS = -d -v
-xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C 
+xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C
 BUILT_SOURCES = type.h type.c lex.c
 xtcc_LDADD = -lfl
 EXTRA_DIST = sample.dat
-all: $(BUILT_SOURCES) config.h
+all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
@@ -210,23 +209,6 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(srcdir) && $(AUTOCONF)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
-
-config.h: stamp-h1
-	@if test ! -f $@; then \
-	  rm -f stamp-h1; \
-	  $(MAKE) stamp-h1; \
-	else :; fi
-
-stamp-h1: $(srcdir)/config.h.in $(top_builddir)/config.status
-	@rm -f stamp-h1
-	cd $(top_builddir) && $(SHELL) ./config.status config.h
-$(srcdir)/config.h.in:  $(am__configure_deps) 
-	cd $(top_srcdir) && $(AUTOHEADER)
-	rm -f stamp-h1
-	touch $@
-
-distclean-hdr:
-	-rm -f config.h stamp-h1
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
@@ -268,6 +250,7 @@ distclean-compile:
 include ./$(DEPDIR)/expr.Po
 include ./$(DEPDIR)/lex.Po
 include ./$(DEPDIR)/scope.Po
+include ./$(DEPDIR)/stmt.Po
 include ./$(DEPDIR)/tree.Po
 include ./$(DEPDIR)/type.Po
 
@@ -336,11 +319,11 @@ ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	mkid -fID $$unique
 tags: TAGS
 
-TAGS:  $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS) config.h.in $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -352,11 +335,11 @@ TAGS:  $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
 	    $$tags $$unique; \
 	fi
 ctags: CTAGS
-CTAGS:  $(HEADERS) $(SOURCES) config.h.in $(TAGS_DEPENDENCIES) \
+CTAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
 		$(TAGS_FILES) $(LISP)
 	tags=; \
 	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS) config.h.in $(LISP) $(TAGS_FILES)'; \
+	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
 	unique=`for i in $$list; do \
 	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
 	  done | \
@@ -503,7 +486,7 @@ distcleancheck: distclean
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(PROGRAMS) config.h
+all-am: Makefile $(PROGRAMS)
 installdirs:
 	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
@@ -544,7 +527,7 @@ distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-hdr distclean-tags
+	distclean-tags
 
 dvi: dvi-am
 
@@ -590,22 +573,22 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 .PHONY: CTAGS GTAGS all all-am am--refresh check check-am clean \
 	clean-binPROGRAMS clean-generic ctags dist dist-all dist-bzip2 \
 	dist-gzip dist-shar dist-tarZ dist-zip distcheck distclean \
-	distclean-compile distclean-generic distclean-hdr \
-	distclean-tags distcleancheck distdir distuninstallcheck dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-info-am
+	distclean-compile distclean-generic distclean-tags \
+	distcleancheck distdir distuninstallcheck dvi dvi-am html \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-exec install-exec-am \
+	install-info install-info-am install-man install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-info-am
 
 type.y: const_defs.h symtab.h tree.h stmt.h Tab.h expr.h scope.h
 lex.l: type.h
 expr.C: expr.h tree.h
 tree.C: tree.h symtab.h stmt.h
 scope.C: scope.h tree.h stmt.h
+stmt.C: stmt.h
 .phony: clean
 clean:
 	rm *.o y.output y.tab.[hc] lex.yy.c dp a.out op op1 op.ind op.ind2 cscope.out ch3-04.output y.output y.tab.[hc] lex.yy.c err edit_out.c edit_out.ndg ofile hand_compile loop my_edit.exe my_loop temp.C.exe mk_data first Type_checker7.kdev* massif.* gmon.out myedit.exe rd_data Type_checker8.zip temp.C temp1.C op2 op.C op-mmap Type_checker7.tag read_op read_times dp-static tags mmap_op mmap_time Doxyfile global.C print_list_counts.C temp2.C my_axes.C my_axes_drv_func.C my_tab_drv_func.C my_table.C xtcc xtcc.exe *.rpo stubs/a.out xtcc_work/global.C xtcc_work/my_tab_drv_func.C xtcc_work/temp.C xtcc_work/my_axes.C xtcc_work/myedit.exe xtcc_work/my_axes_drv_func.C xtcc_work/.temp.C.swp xtcc_work/my_tab_summ.C xtcc_work/my_table.C xtcc_work/edit_out.c stubs/a.out

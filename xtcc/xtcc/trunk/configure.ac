@@ -3,6 +3,7 @@
 
 AC_PREREQ(2.59)
 AC_INIT(xtcc, 0.0, NxD_in@yahoo.com)
+AM_INIT_AUTOMAKE	
 AC_CONFIG_SRCDIR([const_defs.h])
 
 # Checks for programs.
@@ -11,7 +12,7 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_LEX
 
-AM_INIT_AUTOMAKE(xtcc, 0.0, NxD_in@yahoo.com)
+#AM_INIT_AUTOMAKE(xtcc,0.0,NxD_in@yahoo.com)
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lfl':
 #AC_CHECK_LIB([fl], [main])

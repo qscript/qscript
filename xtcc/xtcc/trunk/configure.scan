@@ -3,22 +3,19 @@
 
 AC_PREREQ(2.59)
 AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)
-AC_CONFIG_SRCDIR([const_defs.h])
+AC_CONFIG_SRCDIR([tree.C])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
-AC_PROG_YACC
 AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_LEX
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lfl':
-AC_CHECK_LIB([fl], [main])
 
 # Checks for header files.
+AC_FUNC_ALLOCA
 AC_HEADER_STDC
-AC_CHECK_HEADERS([fcntl.h stdlib.h string.h])
+AC_CHECK_HEADERS([fcntl.h float.h limits.h malloc.h stdlib.h string.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -29,8 +26,10 @@ AC_CHECK_MEMBERS([struct stat.st_blksize])
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_MMAP
+AC_FUNC_REALLOC
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([memset strdup strtol])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile
+                 stubs/Makefile])
 AC_OUTPUT

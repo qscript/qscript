@@ -272,7 +272,6 @@ _CSEOF
 echo "on `(hostname || uname -n) 2>/dev/null | sed 1q`" >&5
 echo >&5
 config_files=" Makefile"
-config_headers=" config.h"
 config_commands=" depfiles"
 
 ac_cs_usage="\
@@ -288,14 +287,9 @@ Usage: $0 [OPTIONS] [FILE]...
       --recheck    update $as_me by reconfiguring in the same conditions
   --file=FILE[:TEMPLATE]
 		   instantiate the configuration file FILE
-  --header=FILE[:TEMPLATE]
-		   instantiate the configuration header FILE
 
 Configuration files:
 $config_files
-
-Configuration headers:
-$config_headers
 
 Configuration commands:
 $config_commands
@@ -310,7 +304,7 @@ Copyright (C) 2003 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 srcdir=.
-INSTALL="/usr/bin/ginstall -c"
+INSTALL="/usr/bin/install -c"
 # If no file are specified by the user, then we need to provide default
 # value.  By we need to know if files were specified by the user.
 ac_need_defaults=:
@@ -399,7 +393,6 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
-  "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
@@ -412,7 +405,6 @@ done
 # bizarre bug on SunOS 4.1.3.
 if $ac_need_defaults; then
   test "${CONFIG_FILES+set}" = set || CONFIG_FILES=$config_files
-  test "${CONFIG_HEADERS+set}" = set || CONFIG_HEADERS=$config_headers
   test "${CONFIG_COMMANDS+set}" = set || CONFIG_COMMANDS=$config_commands
 fi
 
@@ -477,11 +469,33 @@ s,@mandir@,${prefix}/man,;t t
 s,@build_alias@,,;t t
 s,@host_alias@,,;t t
 s,@target_alias@,,;t t
-s,@DEFS@,-DHAVE_CONFIG_H,;t t
+s,@DEFS@,-DPACKAGE_NAME=\"xtcc\" -DPACKAGE_TARNAME=\"xtcc\" -DPACKAGE_VERSION=\"0.0\" -DPACKAGE_STRING=\"xtcc\ 0.0\" -DPACKAGE_BUGREPORT=\"NxD_in@yahoo.com\" -DPACKAGE=\"xtcc\" -DVERSION=\"0.0\" -DYYTEXT_POINTER=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_FCNTL_H=1 -DHAVE_FLOAT_H=1 -DHAVE_LIBINTL_H=1 -DHAVE_LIMITS_H=1 -DHAVE_MALLOC_H=1 -DHAVE_STDDEF_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_STRUCT_STAT_ST_BLKSIZE=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1 -DHAVE_STDLIB_H=1 -DHAVE_UNISTD_H=1 -DHAVE_GETPAGESIZE=1 -DHAVE_MMAP=1 -DHAVE_VPRINTF=1 -DHAVE_MEMSET=1 -DHAVE_STRDUP=1 -DHAVE_STRTOL=1 ,;t t
 s,@ECHO_C@,,;t t
 s,@ECHO_N@,-n,;t t
 s,@ECHO_T@,,;t t
-s,@LIBS@,-lfl ,;t t
+s,@LIBS@,,;t t
+s,@INSTALL_PROGRAM@,${INSTALL},;t t
+s,@INSTALL_SCRIPT@,${INSTALL},;t t
+s,@INSTALL_DATA@,${INSTALL} -m 644,;t t
+s,@CYGPATH_W@,echo,;t t
+s,@PACKAGE@,xtcc,;t t
+s,@VERSION@,0.0,;t t
+s,@ACLOCAL@,${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run aclocal-1.9,;t t
+s,@AUTOCONF@,${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run autoconf,;t t
+s,@AUTOMAKE@,${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run automake-1.9,;t t
+s,@AUTOHEADER@,${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run autoheader,;t t
+s,@MAKEINFO@,${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run makeinfo,;t t
+s,@install_sh@,/home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/install-sh,;t t
+s,@STRIP@,,;t t
+s,@ac_ct_STRIP@,,;t t
+s,@INSTALL_STRIP_PROGRAM@,${SHELL} $(install_sh) -c -s,;t t
+s,@mkdir_p@,mkdir -p --,;t t
+s,@AWK@,gawk,;t t
+s,@SET_MAKE@,,;t t
+s,@am__leading_dot@,.,;t t
+s,@AMTAR@,${SHELL} /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk/missing --run tar,;t t
+s,@am__tar@,${AMTAR} chof - "$$tardir",;t t
+s,@am__untar@,${AMTAR} xf -,;t t
 s,@YACC@,bison -y,;t t
 s,@CXX@,g++,;t t
 s,@CXXFLAGS@,-g -O2,;t t
@@ -490,46 +504,24 @@ s,@CPPFLAGS@,,;t t
 s,@ac_ct_CXX@,g++,;t t
 s,@EXEEXT@,,;t t
 s,@OBJEXT@,o,;t t
-s,@CC@,gcc,;t t
-s,@CFLAGS@,-g -O2,;t t
-s,@ac_ct_CC@,gcc,;t t
-s,@LEX@,flex,;t t
-s,@LEXLIB@,-lfl,;t t
-s,@LEX_OUTPUT_ROOT@,lex.yy,;t t
-s,@INSTALL_PROGRAM@,${INSTALL},;t t
-s,@INSTALL_SCRIPT@,${INSTALL},;t t
-s,@INSTALL_DATA@,${INSTALL} -m 644,;t t
-s,@CYGPATH_W@,echo,;t t
-s,@PACKAGE@,xtcc,;t t
-s,@VERSION@,0.0,;t t
-s,@ACLOCAL@,aclocal-1.9,;t t
-s,@AUTOCONF@,autoconf,;t t
-s,@AUTOMAKE@,automake-1.9,;t t
-s,@AUTOHEADER@,autoheader,;t t
-s,@MAKEINFO@,makeinfo,;t t
-s,@install_sh@,/home/nxd/install-sh,;t t
-s,@STRIP@,,;t t
-s,@ac_ct_STRIP@,,;t t
-s,@INSTALL_STRIP_PROGRAM@,${SHELL} $(install_sh) -c -s,;t t
-s,@mkdir_p@,mkdir -p --,;t t
-s,@AWK@,gawk,;t t
-s,@SET_MAKE@,,;t t
-s,@am__leading_dot@,.,;t t
-s,@AMTAR@,tar,;t t
-s,@am__tar@,${AMTAR} chof - "$$tardir",;t t
-s,@am__untar@,${AMTAR} xf -,;t t
 s,@DEPDIR@,.deps,;t t
 s,@am__include@,include,;t t
 s,@am__quote@,,;t t
 s,@AMDEP_TRUE@,,;t t
 s,@AMDEP_FALSE@,#,;t t
 s,@AMDEPBACKSLASH@,\,;t t
-s,@CCDEPMODE@,depmode=gcc3,;t t
-s,@am__fastdepCC_TRUE@,,;t t
-s,@am__fastdepCC_FALSE@,#,;t t
 s,@CXXDEPMODE@,depmode=gcc3,;t t
 s,@am__fastdepCXX_TRUE@,,;t t
 s,@am__fastdepCXX_FALSE@,#,;t t
+s,@CC@,gcc,;t t
+s,@CFLAGS@,-g -O2,;t t
+s,@ac_ct_CC@,gcc,;t t
+s,@CCDEPMODE@,depmode=gcc3,;t t
+s,@am__fastdepCC_TRUE@,,;t t
+s,@am__fastdepCC_FALSE@,#,;t t
+s,@LEX@,flex,;t t
+s,@LEXLIB@,-lfl,;t t
+s,@LEX_OUTPUT_ROOT@,lex.yy,;t t
 s,@CPP@,gcc -E,;t t
 s,@EGREP@,grep -E,;t t
 s,@LIBOBJS@,,;t t
@@ -768,249 +760,6 @@ s,@INSTALL@,$ac_INSTALL,;t t
     rm -f $tmp/out
   fi
 
-done
-
-#
-# CONFIG_HEADER section.
-#
-
-# These sed commands are passed to sed as "A NAME B NAME C VALUE D", where
-# NAME is the cpp macro being defined and VALUE is the value it is being given.
-#
-# ac_d sets the value in "#define NAME VALUE" lines.
-ac_dA='s,^\([	 ]*\)#\([	 ]*define[	 ][	 ]*\)'
-ac_dB='[	 ].*$,\1#\2'
-ac_dC=' '
-ac_dD=',;t'
-# ac_u turns "#undef NAME" without trailing blanks into "#define NAME VALUE".
-ac_uA='s,^\([	 ]*\)#\([	 ]*\)undef\([	 ][	 ]*\)'
-ac_uB='$,\1#\2define\3'
-ac_uC=' '
-ac_uD=',;t'
-
-for ac_file in : $CONFIG_HEADERS; do test "x$ac_file" = x: && continue
-  # Support "outfile[:infile[:infile...]]", defaulting infile="outfile.in".
-  case $ac_file in
-  - | *:- | *:-:* ) # input from stdin
-	cat >$tmp/stdin
-	ac_file_in=`echo "$ac_file" | sed 's,[^:]*:,,'`
-	ac_file=`echo "$ac_file" | sed 's,:.*,,'` ;;
-  *:* ) ac_file_in=`echo "$ac_file" | sed 's,[^:]*:,,'`
-	ac_file=`echo "$ac_file" | sed 's,:.*,,'` ;;
-  * )   ac_file_in=$ac_file.in ;;
-  esac
-
-  test x"$ac_file" != x- && { echo "$as_me:$LINENO: creating $ac_file" >&5
-echo "$as_me: creating $ac_file" >&6;}
-
-  # First look for the input files in the build tree, otherwise in the
-  # src tree.
-  ac_file_inputs=`IFS=:
-    for f in $ac_file_in; do
-      case $f in
-      -) echo $tmp/stdin ;;
-      [\\/$]*)
-	 # Absolute (can't be DOS-style, as IFS=:)
-	 test -f "$f" || { { echo "$as_me:$LINENO: error: cannot find input file: $f" >&5
-echo "$as_me: error: cannot find input file: $f" >&2;}
-   { (exit 1); exit 1; }; }
-	 # Do quote $f, to prevent DOS paths from being IFS'd.
-	 echo "$f";;
-      *) # Relative
-	 if test -f "$f"; then
-	   # Build tree
-	   echo "$f"
-	 elif test -f "$srcdir/$f"; then
-	   # Source tree
-	   echo "$srcdir/$f"
-	 else
-	   # /dev/null tree
-	   { { echo "$as_me:$LINENO: error: cannot find input file: $f" >&5
-echo "$as_me: error: cannot find input file: $f" >&2;}
-   { (exit 1); exit 1; }; }
-	 fi;;
-      esac
-    done` || { (exit 1); exit 1; }
-  # Remove the trailing spaces.
-  sed 's/[	 ]*$//' $ac_file_inputs >$tmp/in
-
-  # Handle all the #define templates only if necessary.
-  if grep "^[	 ]*#[	 ]*define" $tmp/in >/dev/null; then
-  # If there are no defines, we may have an empty if/fi
-  :
-  cat >$tmp/defines.sed <<CEOF
-/^[	 ]*#[	 ]*define/!b
-t clr
-: clr
-${ac_dA}PACKAGE_NAME${ac_dB}PACKAGE_NAME${ac_dC}"xtcc"${ac_dD}
-${ac_dA}PACKAGE_TARNAME${ac_dB}PACKAGE_TARNAME${ac_dC}"xtcc"${ac_dD}
-${ac_dA}PACKAGE_VERSION${ac_dB}PACKAGE_VERSION${ac_dC}"0.0"${ac_dD}
-${ac_dA}PACKAGE_STRING${ac_dB}PACKAGE_STRING${ac_dC}"xtcc 0.0"${ac_dD}
-${ac_dA}PACKAGE_BUGREPORT${ac_dB}PACKAGE_BUGREPORT${ac_dC}"NxD_in@yahoo.com"${ac_dD}
-${ac_dA}YYTEXT_POINTER${ac_dB}YYTEXT_POINTER${ac_dC}1${ac_dD}
-${ac_dA}PACKAGE${ac_dB}PACKAGE${ac_dC}"xtcc"${ac_dD}
-${ac_dA}VERSION${ac_dB}VERSION${ac_dC}"0.0"${ac_dD}
-${ac_dA}HAVE_LIBFL${ac_dB}HAVE_LIBFL${ac_dC}1${ac_dD}
-${ac_dA}STDC_HEADERS${ac_dB}STDC_HEADERS${ac_dC}1${ac_dD}
-${ac_dA}HAVE_SYS_TYPES_H${ac_dB}HAVE_SYS_TYPES_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_SYS_STAT_H${ac_dB}HAVE_SYS_STAT_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STDLIB_H${ac_dB}HAVE_STDLIB_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STRING_H${ac_dB}HAVE_STRING_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_MEMORY_H${ac_dB}HAVE_MEMORY_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STRINGS_H${ac_dB}HAVE_STRINGS_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_INTTYPES_H${ac_dB}HAVE_INTTYPES_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STDINT_H${ac_dB}HAVE_STDINT_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_UNISTD_H${ac_dB}HAVE_UNISTD_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_FCNTL_H${ac_dB}HAVE_FCNTL_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STDLIB_H${ac_dB}HAVE_STDLIB_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STRING_H${ac_dB}HAVE_STRING_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE__BOOL${ac_dB}HAVE__BOOL${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STDBOOL_H${ac_dB}HAVE_STDBOOL_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STRUCT_STAT_ST_BLKSIZE${ac_dB}HAVE_STRUCT_STAT_ST_BLKSIZE${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STDLIB_H${ac_dB}HAVE_STDLIB_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_MALLOC${ac_dB}HAVE_MALLOC${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STDLIB_H${ac_dB}HAVE_STDLIB_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_UNISTD_H${ac_dB}HAVE_UNISTD_H${ac_dC}1${ac_dD}
-${ac_dA}HAVE_GETPAGESIZE${ac_dB}HAVE_GETPAGESIZE${ac_dC}1${ac_dD}
-${ac_dA}HAVE_MMAP${ac_dB}HAVE_MMAP${ac_dC}1${ac_dD}
-${ac_dA}HAVE_VPRINTF${ac_dB}HAVE_VPRINTF${ac_dC}1${ac_dD}
-${ac_dA}HAVE_MEMSET${ac_dB}HAVE_MEMSET${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STRDUP${ac_dB}HAVE_STRDUP${ac_dC}1${ac_dD}
-${ac_dA}HAVE_STRTOL${ac_dB}HAVE_STRTOL${ac_dC}1${ac_dD}
-CEOF
-  sed -f $tmp/defines.sed $tmp/in >$tmp/out
-  rm -f $tmp/in
-  mv $tmp/out $tmp/in
-
-  fi # grep
-
-  # Handle all the #undef templates
-  cat >$tmp/undefs.sed <<CEOF
-/^[	 ]*#[	 ]*undef/!b
-t clr
-: clr
-${ac_uA}PACKAGE_NAME${ac_uB}PACKAGE_NAME${ac_uC}"xtcc"${ac_uD}
-${ac_uA}PACKAGE_TARNAME${ac_uB}PACKAGE_TARNAME${ac_uC}"xtcc"${ac_uD}
-${ac_uA}PACKAGE_VERSION${ac_uB}PACKAGE_VERSION${ac_uC}"0.0"${ac_uD}
-${ac_uA}PACKAGE_STRING${ac_uB}PACKAGE_STRING${ac_uC}"xtcc 0.0"${ac_uD}
-${ac_uA}PACKAGE_BUGREPORT${ac_uB}PACKAGE_BUGREPORT${ac_uC}"NxD_in@yahoo.com"${ac_uD}
-${ac_uA}YYTEXT_POINTER${ac_uB}YYTEXT_POINTER${ac_uC}1${ac_uD}
-${ac_uA}PACKAGE${ac_uB}PACKAGE${ac_uC}"xtcc"${ac_uD}
-${ac_uA}VERSION${ac_uB}VERSION${ac_uC}"0.0"${ac_uD}
-${ac_uA}HAVE_LIBFL${ac_uB}HAVE_LIBFL${ac_uC}1${ac_uD}
-${ac_uA}STDC_HEADERS${ac_uB}STDC_HEADERS${ac_uC}1${ac_uD}
-${ac_uA}HAVE_SYS_TYPES_H${ac_uB}HAVE_SYS_TYPES_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_SYS_STAT_H${ac_uB}HAVE_SYS_STAT_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STDLIB_H${ac_uB}HAVE_STDLIB_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STRING_H${ac_uB}HAVE_STRING_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_MEMORY_H${ac_uB}HAVE_MEMORY_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STRINGS_H${ac_uB}HAVE_STRINGS_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_INTTYPES_H${ac_uB}HAVE_INTTYPES_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STDINT_H${ac_uB}HAVE_STDINT_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_UNISTD_H${ac_uB}HAVE_UNISTD_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_FCNTL_H${ac_uB}HAVE_FCNTL_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STDLIB_H${ac_uB}HAVE_STDLIB_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STRING_H${ac_uB}HAVE_STRING_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE__BOOL${ac_uB}HAVE__BOOL${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STDBOOL_H${ac_uB}HAVE_STDBOOL_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STRUCT_STAT_ST_BLKSIZE${ac_uB}HAVE_STRUCT_STAT_ST_BLKSIZE${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STDLIB_H${ac_uB}HAVE_STDLIB_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_MALLOC${ac_uB}HAVE_MALLOC${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STDLIB_H${ac_uB}HAVE_STDLIB_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_UNISTD_H${ac_uB}HAVE_UNISTD_H${ac_uC}1${ac_uD}
-${ac_uA}HAVE_GETPAGESIZE${ac_uB}HAVE_GETPAGESIZE${ac_uC}1${ac_uD}
-${ac_uA}HAVE_MMAP${ac_uB}HAVE_MMAP${ac_uC}1${ac_uD}
-${ac_uA}HAVE_VPRINTF${ac_uB}HAVE_VPRINTF${ac_uC}1${ac_uD}
-${ac_uA}HAVE_MEMSET${ac_uB}HAVE_MEMSET${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STRDUP${ac_uB}HAVE_STRDUP${ac_uC}1${ac_uD}
-${ac_uA}HAVE_STRTOL${ac_uB}HAVE_STRTOL${ac_uC}1${ac_uD}
-s,^[	 ]*#[	 ]*undef[	 ][	 ]*[a-zA-Z_][a-zA-Z_0-9]*,/* & */,
-CEOF
-  sed -f $tmp/undefs.sed $tmp/in >$tmp/out
-  rm -f $tmp/in
-  mv $tmp/out $tmp/in
-
-  # Let's still pretend it is `configure' which instantiates (i.e., don't
-  # use $as_me), people would be surprised to read:
-  #    /* config.h.  Generated by config.status.  */
-  if test x"$ac_file" = x-; then
-    echo "/* Generated by configure.  */" >$tmp/config.h
-  else
-    echo "/* $ac_file.  Generated by configure.  */" >$tmp/config.h
-  fi
-  cat $tmp/in >>$tmp/config.h
-  rm -f $tmp/in
-  if test x"$ac_file" != x-; then
-    if diff $ac_file $tmp/config.h >/dev/null 2>&1; then
-      { echo "$as_me:$LINENO: $ac_file is unchanged" >&5
-echo "$as_me: $ac_file is unchanged" >&6;}
-    else
-      ac_dir=`(dirname "$ac_file") 2>/dev/null ||
-$as_expr X"$ac_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$ac_file" : 'X\(//\)[^/]' \| \
-	 X"$ac_file" : 'X\(//\)$' \| \
-	 X"$ac_file" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$ac_file" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-      { if $as_mkdir_p; then
-    mkdir -p "$ac_dir"
-  else
-    as_dir="$ac_dir"
-    as_dirs=
-    while test ! -d "$as_dir"; do
-      as_dirs="$as_dir $as_dirs"
-      as_dir=`(dirname "$as_dir") 2>/dev/null ||
-$as_expr X"$as_dir" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X"$as_dir" : 'X\(//\)[^/]' \| \
-	 X"$as_dir" : 'X\(//\)$' \| \
-	 X"$as_dir" : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X"$as_dir" |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`
-    done
-    test ! -n "$as_dirs" || mkdir $as_dirs
-  fi || { { echo "$as_me:$LINENO: error: cannot create directory \"$ac_dir\"" >&5
-echo "$as_me: error: cannot create directory \"$ac_dir\"" >&2;}
-   { (exit 1); exit 1; }; }; }
-
-      rm -f $ac_file
-      mv $tmp/config.h $ac_file
-    fi
-  else
-    cat $tmp/config.h
-    rm -f $tmp/config.h
-  fi
-# Compute $ac_file's index in $config_headers.
-_am_stamp_count=1
-for _am_header in $config_headers :; do
-  case $_am_header in
-    $ac_file | $ac_file:* )
-      break ;;
-    * )
-      _am_stamp_count=`expr $_am_stamp_count + 1` ;;
-  esac
-done
-echo "timestamp for $ac_file" >`(dirname $ac_file) 2>/dev/null ||
-$as_expr X$ac_file : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X$ac_file : 'X\(//\)[^/]' \| \
-	 X$ac_file : 'X\(//\)$' \| \
-	 X$ac_file : 'X\(/\)' \| \
-	 .     : '\(.\)' 2>/dev/null ||
-echo X$ac_file |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`/stamp-h$_am_stamp_count
 done
 
 #

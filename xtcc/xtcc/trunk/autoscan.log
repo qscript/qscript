@@ -1,0 +1,4 @@
+autoscan: warning: missing AC_FUNC_ALLOCA wanted by: 
+	type.c:516
+autoscan: warning: missing AC_FUNC_REALLOC wanted by: 
+	lex.c:2003
