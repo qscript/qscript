@@ -1081,7 +1081,11 @@ void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
 void print_axis_code(FILE * op, FILE * axes_drv_func);
 void clean_up();
 
+void	generate_edit_section_code();
+
 extern void yyrestart ( FILE *input_file );
+
+void	print_memory_leaks();
 int main(int argc, char* argv[], char* envp[]){
 	if(argc!=3) {
 		cout << "Usage: " << argv[0] << " <prog-name> <data-file> " << endl;
@@ -1097,6 +1101,10 @@ int main(int argc, char* argv[], char* envp[]){
 	active_scope_list.push_back(active_scope);
 	cout << "tree_root: " << tree_root << endl;
 	
+	/*
+	 * Hand install printf -> something like a library functions
+	 */
+
 	char * printf_name="printf";
 	var_list* v_list=0;
 	datatype myreturn_type=INT8_TYPE;
@@ -1111,50 +1119,12 @@ int main(int argc, char* argv[], char* envp[]){
 		cout << "Errors in parsing edit: " << no_errors << endl;
 		exit(1);
 	} else 
-		cout << "yyparse finished : now going to print tree: no_errors: "    
-		<< " should be 0 or we have a bug in the compiler"<< endl;
+		cout << "edit section parse finished." << endl;
 
 	//yyterminate();
 	//print_stmt_lst(tree_root);
 	if(!no_errors){
-		FILE * global_vars=fopen("xtcc_work/global.C", "wb");
-		fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
-		fprintf(global_vars, "#include <sys/types.h>\n");
-		fprintf(global_vars, "#include <map>\n using namespace std;\n");
-		fprintf(global_vars, "void print_list_counts();\n");
-		fprintf(global_vars, "void tab_compute();\n");
-		fprintf(global_vars, "void tab_summ();\n");
-		fprintf(global_vars, "void ax_compute();\n");
-		fclose(global_vars);
-		FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "wb");
-		fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m);\n");
-		fprintf(print_list_counts, "void print_list_counts(){\n");
-		fclose(print_list_counts);
-		FILE * edit_out= fopen("xtcc_work/edit_out.c", "w+b");
-		if(edit_out==0){
-			printf("could not open edit_out.c for writing\n");
-			exit(1);
-		}
-#if __WIN32__
-		fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
-#endif /* __WIN32__ */
-		fprintf(edit_out, "#include <cstdio>\n#include <iostream>\nusing namespace std;\n" );
-		fprintf(edit_out, "#include <sys/types.h>\n" );
-		fprintf(edit_out, "int8_t c[%d];\n", rec_len );
-		fprintf(edit_out, "#include \"global.C\"\n" );
-		cout << "printing edit:" << endl;
-		tree_root->print_stmt_lst(edit_out);
-		fclose(edit_out);
-		global_vars=fopen("xtcc_work/global.C", "a+");
-		if(!global_vars){
-			cerr << "cannot open global.C for writing" << endl;
-			exit(1);
-		}
-		fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
-		fclose(global_vars);
-		print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+");
-		fprintf(print_list_counts, "}\n");
-		fclose(print_list_counts);
+		generate_edit_section_code();
 	} else {
 		cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
 		exit(1);
@@ -1166,9 +1136,9 @@ int main(int argc, char* argv[], char* envp[]){
 		cerr << "Unable to open file for output of table classes" << endl;
 		exit(1);
 	}
-	if(yyparse()){
+	if(int rval=yyparse()){
 		cerr << "parsing tables section failed:" << endl;
-		exit(1);
+		exit(rval);
 	}
 
 	FILE * axes_op=fopen("xtcc_work/my_axes.C", "w");	
@@ -1203,23 +1173,20 @@ int main(int argc, char* argv[], char* envp[]){
 			tree_root=0;
 		}
 		clean_up();
+		// fi was allocated by us - the "hand installed printf function"
 		delete fi;
-		for(int i=0; i< mem_addr.size(); ++i ){
-			cout << "addr: " << mem_addr[i].mem_ptr << " line: " << mem_addr[i].line_number << endl;
-		}
-		cout << "returning from main"<< endl;
+		print_memory_leaks();
 		return rval;
 	}
 	cout << "returning from main with errors"<< endl;
-	/*
-	fclose(table_op);
-	fclose(tab_drv_func);
-	fclose(tab_summ_func);
-	fclose(axes_op);
-	fclose(axes_drv_func);
-	*/
-
 	return no_errors;
+}
+
+
+void	print_memory_leaks(){
+	for(int i=0; i< mem_addr.size(); ++i ){
+		cout << "addr: " << mem_addr[i].mem_ptr << " line: " << mem_addr[i].line_number << endl;
+	}
 }
 
 #include <cstdlib>
@@ -1228,39 +1195,11 @@ int main(int argc, char* argv[], char* envp[]){
 
 void clean_up(){
 	cout << "Entered function clean_up()" << endl;
-	/*
-	if(func_info_table.size()>0){
-		// this should be enough as the rest are chained
-		delete func_info_table[0];
-	}
-	for(int i=0; i<func_info_table.size(); ++i){
-		func_info * f=func_info_table[i];
-			if(f->param_list) {
-				delete f->param_list;
-			}
-			if (f->func_body){
-				delete f->func_body;
-			}
-			if (f->func_scope){
-				delete f->func_scope;
-			}
-		delete f;
-	}
-			*/
 	typedef map<string, ax*>::iterator ax_map_iter;
 	for(ax_map_iter it=ax_map.begin(); it!=ax_map.end(); ++it){
 		delete it->second; it->second=0;
 	}
 	// we should only delete the 0 index scope as this was manually created by us
-	/*
-	for( int  i=0; i<active_scope_list.size(); ++i){
-		scope* sc=active_scope_list[i];
-		if(sc ) {
-			delete sc;
-			active_scope_list[i]=0;
-		}
-	}
-	*/
 	if (active_scope_list[0]) {
 		delete active_scope_list[0]; active_scope_list[0]=0;
 	}
@@ -1700,3 +1639,44 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 	fprintf(axes_drv_func, "}\n");
 }
 
+void	generate_edit_section_code(){
+	FILE * global_vars=fopen("xtcc_work/global.C", "wb");
+	fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
+	fprintf(global_vars, "#include <sys/types.h>\n");
+	fprintf(global_vars, "#include <map>\n using namespace std;\n");
+	fprintf(global_vars, "void print_list_counts();\n");
+	fprintf(global_vars, "void tab_compute();\n");
+	fprintf(global_vars, "void tab_summ();\n");
+	fprintf(global_vars, "void ax_compute();\n");
+	fclose(global_vars);
+	FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "wb");
+	fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m);\n");
+	fprintf(print_list_counts, "void print_list_counts(){\n");
+	fclose(print_list_counts);
+	FILE * edit_out= fopen("xtcc_work/edit_out.c", "w+b");
+	if(edit_out==0){
+		printf("could not open edit_out.c for writing\n");
+		exit(1);
+	}
+#if __WIN32__
+	fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
+#endif /* __WIN32__ */
+	fprintf(edit_out, "#include <cstdio>\n#include <iostream>\nusing namespace std;\n" );
+	fprintf(edit_out, "#include <sys/types.h>\n" );
+	fprintf(edit_out, "int8_t c[%d];\n", rec_len );
+	fprintf(edit_out, "#include \"global.C\"\n" );
+	cout << "printing edit:" << endl;
+	tree_root->print_stmt_lst(edit_out);
+	fclose(edit_out);
+	global_vars=fopen("xtcc_work/global.C", "a+");
+	if(!global_vars){
+		cerr << "cannot open global.C for writing" << endl;
+		exit(1);
+	}
+	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
+	fclose(global_vars);
+	print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+");
+	fprintf(print_list_counts, "}\n");
+	fclose(print_list_counts);
+
+}
