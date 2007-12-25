@@ -200,6 +200,72 @@ struct cmpd_stmt: public stmt{
 	cmpd_stmt(const cmpd_stmt&);	
 };
 
+struct fld_stmt: public stmt{
+	struct symtab_ent * lsymp, *rsymp;
+	expr* start_col, *end_col;
+	// I may need to change width also to expression -> in case of passing
+	// argument width to a subroutine within the language syntax
+	int width;
+	fld_stmt(symtab_ent * l, symtab_ent *r, expr* l_s, expr* l_e, int l_w):
+		lsymp(l), rsymp(r), start_col(l_s), end_col(l_e), width(l_w)
+	{ }
+	void print_stmt_lst(FILE * & fptr){
+		// runtime checks need to be put
+		// 1 startcol < endcol
+		// endcol-startcol+1 % width == 0
+		fprintf(fptr, "/* fld stmt code will be generated here */\n");
+
+		fprintf(fptr, "{\n");
+		fprintf(fptr, "\tfor (int i=0; i<%d; ++i) %s[i]=0;\n", lsymp->n_elms, lsymp->name);
+		fprintf(fptr, "int start_col=");
+		start_col->print_expr(fptr);
+		fprintf(fptr, ",end_col=");
+		end_col->print_expr(fptr);
+		fprintf(fptr, ",width=%d;\n", width);
+		fprintf(fptr, "if( start_col > end_col){\n");
+		fprintf(fptr, "\tprintf(\"start_col evaluated > end_col -> runtime error\");\n");
+		fprintf(fptr, "}\n");
+		
+		fprintf(fptr, "for (int i=start_col; i<= end_col+1-width; i+=width){\n");
+		int lhs_arr_sz;
+		if(lsymp->type==INT8_ARR_TYPE){
+			lhs_arr_sz=sizeof(INT8_TYPE);
+		} else if (lsymp->type==INT16_ARR_TYPE){
+			lhs_arr_sz=sizeof(INT16_TYPE);
+		} else if (lsymp->type==INT32_ARR_TYPE){
+			lhs_arr_sz=sizeof(INT32_TYPE);
+		} else {
+			fprintf(fptr, "prevent compilation: compiler bug filename:%s, line_number: %d\n", __FILE__, __LINE__);
+		}
+		fprintf(fptr, "\t\tchar buff[%d];\n", lhs_arr_sz);
+		fprintf(fptr,"\t\tfor(int s=i,j=0;s<i+width;++s,++j){\n");
+		fprintf(fptr,"\t\t\t\tbuff[j]=%s[s];\n", rsymp->name);
+		fprintf(fptr,"\t\t}\n");
+		fprintf(fptr,"\tvoid * v_ptr = buff;\n");
+		if(lhs_arr_sz==sizeof(char)){
+			fprintf(fptr,"\tchar *c_ptr = static_cast<char *>(v_ptr);\n");
+			fprintf(fptr,"\tint tmp=*c_ptr;\n");
+		} else if (lhs_arr_sz==sizeof(short int)){
+			fprintf(fptr,"\tshort int  *si_ptr = static_cast<short int *>(v_ptr);\n");
+			fprintf(fptr,"\tint tmp=*si_ptr;\n");
+		} else if (lhs_arr_sz==sizeof( int)){
+			fprintf(fptr,"\t\tint  *i_ptr = static_cast<int *>(v_ptr);\n");
+			fprintf(fptr,"\t\tint tmp=*i_ptr;\n");
+		}
+		fprintf(fptr,"\t\tif(tmp>=1 && tmp <=%d){\n", lsymp->n_elms);
+		fprintf(fptr,"\t\t\t++%s[tmp];\n", lsymp->name);
+		fprintf(fptr,"\t\t} else {\n");
+		fprintf(fptr,"\t\t\tprintf(\" runtime warning: code too big to fit in array\");\n");
+		fprintf(fptr,"\t\t}\n;");
+		
+		fprintf(fptr, "}} \n");
+		if(prev) prev->print_stmt_lst(fptr);
+	}
+	~fld_stmt(){
+	}
+};
+		 
+
 struct blk_arr_assgn_stmt: public stmt{
 	struct symtab_ent * lsymp;
 	struct symtab_ent * rsymp;
@@ -227,8 +293,7 @@ struct blk_arr_assgn_stmt: public stmt{
 					fprintf(fptr,"\tfloat *f_ptr = static_cast<float *>(v_ptr);\n");
 					fprintf(fptr,"\t %s=*f_ptr;\n", lsymp->name);
 					fprintf(fptr,"}else { cerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_number );
-				} else if (lsymp->get_type()==INT32_TYPE
-						|| lsymp->get_type()==U_INT32_TYPE){
+				} else if (lsymp->get_type()==INT32_TYPE){
 					fprintf(fptr,"if(tmp2-tmp1==sizeof(int)-1){\n");
 					fprintf(fptr,"\tchar buff[sizeof(int)];int i,j;\n");
 					fprintf(fptr,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
@@ -311,13 +376,13 @@ struct decl_stmt: public stmt{
 		fflush(fptr);
 
 		if(fptr){
-			if(type >= U_INT8_TYPE && type <=DOUBLE_TYPE){
+			if(type >= INT8_TYPE && type <=DOUBLE_TYPE){
 				fprintf(fptr,"%s %s;\n", noun_list[type].sym, symp->name);
-			} else if (type >=U_INT8_ARR_TYPE && type <=DOUBLE_ARR_TYPE){
-				datatype tdt=datatype(U_INT8_TYPE + type-U_INT8_ARR_TYPE);
+			} else if (type >=INT8_ARR_TYPE && type <=DOUBLE_ARR_TYPE){
+				datatype tdt=datatype(INT8_TYPE + type-INT8_ARR_TYPE);
 				fprintf(fptr,"%s %s [ %d ];\n", noun_list[tdt].sym, symp->name, symp->n_elms);
-			} else if (type >=U_INT8_REF_TYPE&& type <=DOUBLE_REF_TYPE){
-				datatype tdt=datatype(U_INT8_TYPE + type-U_INT8_REF_TYPE);
+			} else if (type >=INT8_REF_TYPE&& type <=DOUBLE_REF_TYPE){
+				datatype tdt=datatype(INT8_TYPE + type-INT8_REF_TYPE);
 				fprintf(fptr,"%s & %s;\n", noun_list[tdt].sym, symp->name);
 			}
 			if(prev) prev->print_stmt_lst(fptr);
@@ -380,7 +445,7 @@ struct list_stmt: public stmt{
 				}
 				if(se){
 					datatype dt=se->get_type();
-					if(dt>=U_INT8_TYPE && dt<=DOUBLE_TYPE){
+					if(dt>=INT8_TYPE && dt<=DOUBLE_TYPE){
 						fprintf(global_vars, "map<%s,int> list%d;\n", 
 								noun_list[dt].sym, counter_number);
 						fprintf(fptr, "list%d [%s]++;\n", counter_number, se->name);
@@ -402,7 +467,7 @@ struct list_stmt: public stmt{
 				}
 				if(se){
 					datatype dt=se->get_type();
-					if(dt>=U_INT8_ARR_TYPE&& dt<=DOUBLE_ARR_TYPE){
+					if(dt>=INT8_ARR_TYPE&& dt<=DOUBLE_ARR_TYPE){
 						fprintf(global_vars, "map<%s,int> list%d;\n", 
 								noun_list[dt].sym, counter_number);
 						fprintf(fptr, "list1_%d [%s[%d]]++;\n", counter_number, se->name,
@@ -425,7 +490,6 @@ struct list_stmt: public stmt{
 				if(se){
 					datatype dt=se->get_type();
 					switch(dt){
-					case U_INT8_ARR_TYPE:
 					case INT8_ARR_TYPE:	
 						{
 						fprintf(global_vars, "map<%s,int> list2_%d;\n", 

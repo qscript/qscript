@@ -47,11 +47,11 @@ struct expr * new_expr(){
 datatype lcm_type(datatype d1, datatype d2){
 	cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	datatype td1=d1, td2=d2;
-	if(td1>=U_INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(U_INT8_TYPE + d1-U_INT8_REF_TYPE);
-	if(td2>=U_INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(U_INT8_TYPE + d2-U_INT8_REF_TYPE);
+	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
+	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + d2-INT8_REF_TYPE);
 
-	if((td1>=U_INT8_TYPE && td1<=DOUBLE_TYPE)&&
-		(td2>=U_INT8_TYPE && td2<=DOUBLE_TYPE)){
+	if((td1>=INT8_TYPE && td1<=DOUBLE_TYPE)&&
+		(td2>=INT8_TYPE && td2<=DOUBLE_TYPE)){
 		if(td1>td2) { return td1;
 		} else {
 			return td2;
@@ -71,8 +71,8 @@ datatype arr_deref_type(datatype d1){
 	if(d1==int_arr_type) return int_type;
 	if(d1==char_arr_type) return char_type;
 	*/
-	if(d1>=U_INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
-		return datatype(U_INT8_TYPE+d1-U_INT8_ARR_TYPE);
+	if(d1>=INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
+		return datatype(INT8_TYPE+d1-INT8_ARR_TYPE);
 	}
 	cerr << "Type Error: lineno: trying to access array with non-integer index" << line_no << "\n";
 	++no_errors;

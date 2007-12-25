@@ -112,7 +112,7 @@ void bin_expr::print_oper_assgn(FILE * edit_out){
 			lhs->print_expr(edit_out);
 			fprintf(edit_out,"=*f_ptr;\n");
 			fprintf(edit_out,"}else { cerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_no );
-		} else if (l_op->type==INT32_TYPE || l_op->type==U_INT32_TYPE){
+		} else if (l_op->type==INT32_TYPE){
 			fprintf(edit_out,"if(tmp2-tmp1==sizeof(int)-1){\n");
 			fprintf(edit_out,"\tchar buff[sizeof(int)];int i,j;\n");
 			fprintf(edit_out,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");

@@ -67,15 +67,14 @@ void 	{
 int8_t		{ yylval.dt=INT8_TYPE;	       return INT8_T; }
 int16_t		{ yylval.dt=INT16_TYPE;	       return INT16_T; }
 int32_t		{ yylval.dt=INT32_TYPE;	       return INT32_T; }
-u_int8_t	{ yylval.dt=U_INT8_TYPE;       return U_INT8_T; }
-u_int16_t	{ yylval.dt=U_INT16_TYPE;      return U_INT16_T; }
-u_int32_t	{ yylval.dt=U_INT32_TYPE;      return U_INT32_T; }
 float	{ yylval.dt=FLOAT_TYPE; return FLOAT_T; }
 double { yylval.dt=DOUBLE_TYPE; return DOUBLE_T; }
 
 for 	{
 	return FOR;
 }
+
+fld 	{ return FLD;}
 
 lista 	{
 	return LISTA;

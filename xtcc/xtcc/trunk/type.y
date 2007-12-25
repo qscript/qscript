@@ -86,11 +86,8 @@
 
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
-			{	"u_int8_t" ,U_INT8_TYPE},
 			{	"int8_t" ,INT8_TYPE},
-			{	"u_int16_t",U_INT16_TYPE},
 			{	"int16_t" ,INT16_TYPE},
-			{	"u_int32_t",U_INT32_TYPE},
 			{	"int32_t" ,INT32_TYPE},
 			{	"float", FLOAT_TYPE},
 			{	"double", DOUBLE_TYPE}
@@ -141,7 +138,9 @@
 %type <stmt> top_level_item 
 %type <stmt> func_defn 
 %type <stmt> if_stmt 
+%type <stmt> fld_stmt 
 %token  FOR
+%token FLD
 %token <text_buf> TEXT
 %token <name> NAME
 %token <dval> FNUMBER
@@ -292,7 +291,7 @@ decl:	xtcc_type NAME ';' {
 	|	xtcc_type NAME '[' INUMBER ']' ';' {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
 		//cout << "creating arr var of type: " << $1 << endl;
-		datatype dt=datatype(U_INT8_ARR_TYPE+($1-U_INT8_TYPE));
+		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
 		$$ = active_scope->insert($2, dt, $4, line_no);
 		free($2);
 	}
@@ -300,7 +299,7 @@ decl:	xtcc_type NAME ';' {
 	NxD I only want to allow references in function parameter lists 
 	|	xtcc_type '&' NAME {
 		cout << "creating ref var of type: " << $1 << endl;
-		datatype dt=datatype(U_INT8_REF_TYPE+($1-U_INT8_TYPE));
+		datatype dt=datatype(INT8_REF_TYPE+($1-INT8_TYPE));
 		$$ = active_scope->insert($3, dt, line_no);
 	}
 	*/
@@ -346,7 +345,7 @@ var_decl:	xtcc_type NAME 	{
 	| xtcc_type NAME '[' INUMBER ']'  {
 		/* Neil - I need to fix this */
 		//cout << "creating arr var of type: " << $1 << endl;
-		datatype dt=datatype(U_INT8_ARR_TYPE+($1-U_INT8_TYPE));
+		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
 		$$=new var_list(dt, $2, $4);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no);
@@ -355,7 +354,7 @@ var_decl:	xtcc_type NAME 	{
 	}
 	|	xtcc_type '&' NAME {
 		//cout << "creating ref var of type: " << $1 << endl;
-		datatype dt=datatype(U_INT8_REF_TYPE+($1-U_INT8_TYPE));
+		datatype dt=datatype(INT8_REF_TYPE+($1-INT8_TYPE));
 		$$=new var_list(dt, $3);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no);
@@ -441,6 +440,7 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 			++no_errors;
 		}
 	}
+	|	fld_stmt
 	|	error ';' {
 		cerr << "statement missing ';' around line_no: " << line_no << endl;
 		++no_errors;
@@ -524,7 +524,7 @@ list_stmt:	 LISTA NAME TEXT ';'{
 		} else {
 			struct symtab_ent* se=sym_it->second;
 			datatype name_type=se->type;
-			if( !(name_type==INT8_ARR_TYPE||name_type==U_INT8_TYPE)){
+			if( !(name_type==INT8_ARR_TYPE||name_type==INT8_TYPE)){
 				cerr << "NAME: "<< $2 
 					<< " is not of char array type: line_no:" << line_no << endl;
 				++no_errors;
@@ -567,6 +567,73 @@ if_stmt: IF '(' expression ')' statement{
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no);
 			mem_addr.push_back(m1);
+		}
+	}
+	;
+
+fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
+		expr* start_col=$6;
+		expr* end_col=$8;
+		int width=$11;
+		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab($2);
+		map<string,symtab_ent*>::iterator sym_it2 = find_in_symtab($4);
+		if(!(	(start_col->type>=INT8_TYPE && start_col->type<=INT32_TYPE)&&
+			(end_col->type>=INT8_TYPE && end_col->type<=INT32_TYPE)) ){
+			cerr << "start_col, end_col expressions must be of integer type line_no:" 
+				<< line_no << endl;
+			++no_errors;
+			$$=new err_stmt(line_no);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
+		} else if(sym_it1==active_scope->sym_tab.end()){
+			cerr << "Error: could not find:" << $2<<"  in symbol table: lineno: " << line_no << "\n";
+			++no_errors;
+			$$=new err_stmt(line_no);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
+		} else if (sym_it2==active_scope->sym_tab.end()){
+			cerr << "Error: could not find:" << $4
+				<< " in symbol table: lineno: " << line_no << "\n";
+			++no_errors;
+			$$=new err_stmt(line_no);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no);
+			mem_addr.push_back(m1);
+		} else {
+			// first some validation checks
+			//datatype type1 = sym_it1->type;
+			if( !( 
+				(sym_it1->second->type == INT8_ARR_TYPE) &&
+				(sym_it2->second->type >= INT8_ARR_TYPE) &&
+				(sym_it2->second->type <= INT32_ARR_TYPE)) ) {
+				/* add code here */
+				++no_errors;
+				$$ = new err_stmt(line_no);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
+			} else if (!(width==sizeof(INT8_TYPE) || width==sizeof(INT16_TYPE)
+					||width==sizeof(INT32_TYPE))	){
+				cerr << "width of field can only be : " 
+					<< sizeof(INT8_TYPE) << " or " << sizeof(INT16_TYPE) << " or "
+					<< sizeof(INT32_TYPE) << endl;
+				++no_errors;
+				$$ = new err_stmt(line_no);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
+			} else {
+				//everything is ok
+				// since start_col and end_col can be exprs
+				// we have to move some checks to runtime environment
+				$$ = new fld_stmt(sym_it1->second, sym_it2->second, 
+					start_col, end_col, width);
+				void *ptr=$$;
+				mem_addr_tab m1(ptr, line_no);
+				mem_addr.push_back(m1);
+			}
 		}
 	}
 	;
@@ -670,9 +737,9 @@ expression: expression '+' expression {
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no);
 		mem_addr.push_back(m1);
-		if(!(($1->type >= INT8_TYPE && $1->type<=U_INT32_TYPE)
+		if(!(($1->type >= INT8_TYPE && $1->type<=INT32_TYPE)
 				&&
-			($3->type>=INT8_TYPE && $3->type<=U_INT32_TYPE))){
+			($3->type>=INT8_TYPE && $3->type<=INT32_TYPE))){
 				cerr << " operands of % should be of type int or char only" << endl;
 				++no_errors;
 				$$->type=ERROR_TYPE;
@@ -820,7 +887,7 @@ expression: expression '+' expression {
 			symtab_ent* se=sym_it->second;
 
 			datatype e_type=$3->type;
-			if(e_type>=U_INT8_TYPE && e_type <=INT32_TYPE){
+			if(e_type>=INT8_TYPE && e_type <=INT32_TYPE){
 				datatype nametype =arr_deref_type(se->type);
 				if(nametype==ERROR_TYPE) {
 					cerr << "ERROR: Variable being indexed not of Array Type : Error: lineno: " << line_no << "\n";
@@ -875,8 +942,8 @@ expression: expression '+' expression {
 		}*/ else {
 			datatype e_type1=$3->type;
 			datatype e_type2=$5->type;
-			if( (e_type1>=U_INT8_TYPE && e_type1 <=INT32_TYPE) && 
-					(e_type2>=U_INT8_TYPE && e_type2<=INT32_TYPE)){
+			if( (e_type1>=INT8_TYPE && e_type1 <=INT32_TYPE) && 
+					(e_type2>=INT8_TYPE && e_type2<=INT32_TYPE)){
 				datatype d1=arr_deref_type(se->type);
 				if(d1==ERROR_TYPE){
 					$$ = new un2_expr(ERROR_TYPE);
@@ -1091,9 +1158,9 @@ int main(int argc, char* argv[], char* envp[]){
 		cout << "Usage: " << argv[0] << " <prog-name> <data-file> " << endl;
 		exit(0);
 	}
-	cout << "SOME DEBUGGING INFO: U_INT8_TYPE:" << U_INT8_TYPE 
-		<< " U_INT8_ARR_TYPE:" << U_INT8_ARR_TYPE
-		<< " U_INT8_REF_TYPE:" << U_INT8_REF_TYPE 
+	cout << "SOME DEBUGGING INFO: INT8_TYPE:" << INT8_TYPE 
+		<< " INT8_ARR_TYPE:" << INT8_ARR_TYPE
+		<< " INT8_REF_TYPE:" << INT8_REF_TYPE 
 		<< endl;
 		
 		
@@ -1216,10 +1283,10 @@ bool check_type_compat(datatype typ1, datatype typ2){
 	cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
 	datatype td1=typ1;
 	datatype td2=typ2;
-	if(td1>=U_INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(U_INT8_TYPE + typ1-U_INT8_REF_TYPE);
-	if(td2>=U_INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(U_INT8_TYPE + typ2-U_INT8_REF_TYPE);
-	if((td1>=U_INT8_TYPE&&td1<=DOUBLE_TYPE) &&
-			td2>=U_INT8_TYPE&&td2<=DOUBLE_TYPE){
+	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + typ1-INT8_REF_TYPE);
+	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + typ2-INT8_REF_TYPE);
+	if((td1>=INT8_TYPE&&td1<=DOUBLE_TYPE) &&
+			td2>=INT8_TYPE&&td2<=DOUBLE_TYPE){
 		if(td1>=td2){
 			return true;
 		}
@@ -1249,22 +1316,22 @@ int check_parameters(expr* e, var_list* v){
 	while (e_ptr && fparam) {
 		//e_ptr->print();
 		datatype etype=e_ptr->type, fptype=fparam->var_type; 
-		if((etype>=U_INT8_TYPE && etype<=DOUBLE_TYPE) && 
-			((fptype>=U_INT8_TYPE && fptype<=DOUBLE_TYPE)||
-			 (fptype>=U_INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
+		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE) && 
+			((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)||
+			 (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
 			datatype tdt=fptype;
-				/* the code below makes a U_INT8_REF_TYPE -> U_INT8_TYPE
+				/* the code below makes a INT8_REF_TYPE -> INT8_TYPE
 				   			a INT8_REF_TYPE -> INT8_TYPE
 				 thats because we dont care much about references -> C++
 				 does all the hard work. For checking types they are equivalent to us
 				*/			
-			if(tdt>=U_INT8_REF_TYPE) tdt=datatype(U_INT8_TYPE+tdt-U_INT8_REF_TYPE);
+			if(tdt>=INT8_REF_TYPE) tdt=datatype(INT8_TYPE+tdt-INT8_REF_TYPE);
 			if(etype <= tdt) {
 				cout << "varname: "<< fparam->var_name << " chk_param_counter: " 
 				<< chk_param_counter << " passed " << endl;
 			}
-		} else if ((etype>=U_INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)&&
-				(fptype>=U_INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)&&
+		} else if ((etype>=INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)&&
+				(fptype>=INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)&&
 				(etype==fptype)){
 			cout << "varname: "<< fparam->var_name << " chk_param_counter: " 
 					<< chk_param_counter << " passed " << endl;
@@ -1274,7 +1341,7 @@ int check_parameters(expr* e, var_list* v){
 			cerr << fparam->var_name << " expected type is " << fparam->var_type
 				<< " passed type is " << e_ptr->type 
 				<< " line_no: " << line_no << " or currently allowed promotion to: " 
-				<< e_ptr->type+U_INT8_REF_TYPE
+				<< e_ptr->type+INT8_REF_TYPE
 				<< endl;
 			++no_errors;
 		}

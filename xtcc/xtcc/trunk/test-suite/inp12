@@ -4,6 +4,7 @@ ed_start // this marks the start of the edit program
 
 int8_t a;int8_t b;int8_t d; // these variables here are declared in global scope and will be available in the tabulation
 int32_t global_val;	// section
+int8_t test_arr[20];
 
 int32_t edit_data();
 void func3(float fundc3_a, int32_t func3_b);
@@ -32,6 +33,8 @@ int32_t edit_data()
 	float myfloat;
 	myfloat=c[80,83]; // this data will automatically be converted to type float
 	lista myfloat "myfloat";
+
+	fld test_arr = c(80,87):4;
 	
 	printf(":float: %f", myfloat);
 	

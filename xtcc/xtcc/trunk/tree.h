@@ -93,16 +93,16 @@ struct var_list {
 	int arr_len;
 	struct var_list * next, *prev;
 	var_list(datatype type, char * name): var_type(type), var_name(name), arr_len(-1), next(NULL), prev(NULL){
-		if (!( (type>=U_INT8_TYPE&& type<=DOUBLE_TYPE) ||
-			(type>=U_INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
-			cerr << "SEMANTIC error: only U_INT8_TYPE ... DOUBLE_TYPE is allowed in decl: "  << var_name<< endl;
+		if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
+			(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
+			cerr << "SEMANTIC error: only INT8_TYPE ... DOUBLE_TYPE is allowed in decl: "  << var_name<< endl;
 			cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
 		}
 		//cout << "constructing var_list: " << var_name << endl;
 	}
 	var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), next(NULL), prev(NULL){
-		if(!(type>=U_INT8_ARR_TYPE && type<=DOUBLE_ARR_TYPE)){
-			cerr << "SEMANTIC error: only U_INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
+		if(!(type>=INT8_ARR_TYPE && type<=DOUBLE_ARR_TYPE)){
+			cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
 			cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
 		}
 		cout << "constructing var_list: " << var_name << endl;
@@ -110,13 +110,13 @@ struct var_list {
 	void print(FILE * edit_out){
 		struct var_list * vl_ptr=this;
 		while(vl_ptr){
-			if(vl_ptr->var_type>=U_INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
+			if(vl_ptr->var_type>=INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
 				fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
-			} else if (vl_ptr->var_type>=U_INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
-				datatype tdt=datatype(U_INT8_TYPE + vl_ptr->var_type-U_INT8_ARR_TYPE);
+			} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
+				datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
 				fprintf(edit_out, "%s %s[%d]/* vartype: %d */", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
-			} else if (vl_ptr->var_type>=U_INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
-				datatype tdt=datatype(U_INT8_TYPE + vl_ptr->var_type-U_INT8_REF_TYPE);
+			} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
+				datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
 				fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
 			} else {
 				fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
