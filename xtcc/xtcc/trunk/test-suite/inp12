@@ -6,6 +6,8 @@ int8_t a;int8_t b;int8_t d; // these variables here are declared in global scope
 int32_t global_val;	// section
 int8_t test_arr[20];
 
+int32_t first_4byte_int;
+
 int32_t edit_data();
 void func3(float fundc3_a, int32_t func3_b);
 void pass_by_ref(int16_t & ref_param);
@@ -33,6 +35,8 @@ int32_t edit_data()
 	float myfloat;
 	myfloat=c[80,83]; // this data will automatically be converted to type float
 	lista myfloat "myfloat";
+
+	first_4byte_int=c[40,43];
 
 	fld test_arr = c(80,87):4;
 	
@@ -77,6 +81,7 @@ ed_end  // This marks the end if the edit program
 tabstart 	{
 	tab q1 q2;
 	tab q1 q3;
+	tab q4 q4;
 }
 
 // These are the individual axes that can be tabbed
@@ -103,5 +108,27 @@ cnt; "row"; c= global_val > 40;
 cnt; "A "; c= a==65;
 cnt; "B"; c= b==66;
 cnt; "C"; c= d==68;
+
+
+
+ax q4;
+ttl; "Q4. Integer range tests";
+cnt; " from 201 to 220"; c= first_4byte_int>=201 && first_4byte_int < 220;
+cnt; " from 221 to 250"; c= first_4byte_int>=220 && first_4byte_int < 250;
+cnt; " from 250 to 290"; c= first_4byte_int>=250 && first_4byte_int < 290;
+cnt; " from 290 to 370"; c= first_4byte_int>=290 && first_4byte_int < 370;
+cnt; " from 370 to 500"; c= first_4byte_int>=370 && first_4byte_int < 501;
+
+
+
+/*
+ax q4;
+ttl; "Q4. Integer range tests";
+cnt; " from > 201 "; c= first_4byte_int>201 ;
+cnt; " from > 220"; c= first_4byte_int>220 ;
+cnt; " from > 250"; c= first_4byte_int>250 ;
+cnt; " from > 290"; c= first_4byte_int>290 ;
+cnt; " from > 370"; c= first_4byte_int>370 ;
+*/
 	
 }

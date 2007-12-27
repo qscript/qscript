@@ -45,33 +45,30 @@
      IF = 271,
      ELSE = 272,
      VOID_T = 273,
-     U_INT8_T = 274,
-     INT8_T = 275,
-     U_INT16_T = 276,
-     INT16_T = 277,
-     U_INT32_T = 278,
-     INT32_T = 279,
-     FLOAT_T = 280,
-     DOUBLE_T = 281,
-     AXSTART = 282,
-     TABSTART = 283,
-     ED_START = 284,
-     DATA_STRUCT = 285,
-     REC_LEN = 286,
-     ED_END = 287,
-     TAB = 288,
-     COND_START = 289,
-     CONTINUE = 290,
-     BREAK = 291,
-     LOGOR = 292,
-     LOGAND = 293,
-     NOEQ = 294,
-     ISEQ = 295,
-     GEQ = 296,
-     LEQ = 297,
-     NOT = 298,
-     UMINUS = 299,
-     FUNC_CALL = 300
+     INT8_T = 274,
+     INT16_T = 275,
+     INT32_T = 276,
+     FLOAT_T = 277,
+     DOUBLE_T = 278,
+     AXSTART = 279,
+     TABSTART = 280,
+     ED_START = 281,
+     DATA_STRUCT = 282,
+     REC_LEN = 283,
+     ED_END = 284,
+     TAB = 285,
+     COND_START = 286,
+     CONTINUE = 287,
+     BREAK = 288,
+     LOGOR = 289,
+     LOGAND = 290,
+     NOEQ = 291,
+     ISEQ = 292,
+     GEQ = 293,
+     LEQ = 294,
+     NOT = 295,
+     UMINUS = 296,
+     FUNC_CALL = 297
    };
 #endif
 /* Tokens.  */
@@ -91,33 +88,30 @@
 #define IF 271
 #define ELSE 272
 #define VOID_T 273
-#define U_INT8_T 274
-#define INT8_T 275
-#define U_INT16_T 276
-#define INT16_T 277
-#define U_INT32_T 278
-#define INT32_T 279
-#define FLOAT_T 280
-#define DOUBLE_T 281
-#define AXSTART 282
-#define TABSTART 283
-#define ED_START 284
-#define DATA_STRUCT 285
-#define REC_LEN 286
-#define ED_END 287
-#define TAB 288
-#define COND_START 289
-#define CONTINUE 290
-#define BREAK 291
-#define LOGOR 292
-#define LOGAND 293
-#define NOEQ 294
-#define ISEQ 295
-#define GEQ 296
-#define LEQ 297
-#define NOT 298
-#define UMINUS 299
-#define FUNC_CALL 300
+#define INT8_T 274
+#define INT16_T 275
+#define INT32_T 276
+#define FLOAT_T 277
+#define DOUBLE_T 278
+#define AXSTART 279
+#define TABSTART 280
+#define ED_START 281
+#define DATA_STRUCT 282
+#define REC_LEN 283
+#define ED_END 284
+#define TAB 285
+#define COND_START 286
+#define CONTINUE 287
+#define BREAK 288
+#define LOGOR 289
+#define LOGAND 290
+#define NOEQ 291
+#define ISEQ 292
+#define GEQ 293
+#define LEQ 294
+#define NOT 295
+#define UMINUS 296
+#define FUNC_CALL 297
 
 
 
@@ -142,7 +136,7 @@ typedef union YYSTYPE {
 	class basic_ax_stmt * basic_ax_stmt;
 } YYSTYPE;
 /* Line 1447 of yacc.c.  */
-#line 146 "type.h"
+#line 140 "type.h"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

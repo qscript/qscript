@@ -225,6 +225,9 @@ struct fld_stmt: public stmt{
 		fprintf(fptr, "if( start_col > end_col){\n");
 		fprintf(fptr, "\tprintf(\"start_col evaluated > end_col -> runtime error\");\n");
 		fprintf(fptr, "}\n");
+		fprintf(fptr, "if( end_col-start_col +1 %% width!=0 ){\n");
+		fprintf(fptr, "\tprintf(\"please check your start_col ,  end_col, width for fld statement-> runtime error\");\n");
+		fprintf(fptr, "}\n");
 		
 		fprintf(fptr, "for (int i=start_col; i<= end_col+1-width; i+=width){\n");
 		int lhs_arr_sz;

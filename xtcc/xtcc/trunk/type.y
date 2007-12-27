@@ -158,11 +158,8 @@
  /*%token <dt> INT*/
  /*%token <dt> CHAR*/
 %token <dt> VOID_T
-%token <dt> U_INT8_T
 %token <dt> INT8_T
-%token <dt> U_INT16_T
 %token <dt> INT16_T
-%token <dt> U_INT32_T
 %token <dt> INT32_T
 %token <dt> FLOAT_T
 %token <dt> DOUBLE_T
@@ -234,11 +231,8 @@ top_level_item: decl{
 	;
 
 xtcc_type: VOID_T
-	|U_INT8_T
 	|INT8_T
-	|U_INT16_T
 	|INT16_T
-	|U_INT32_T
 	|INT32_T  	
 	|FLOAT_T
 	|DOUBLE_T

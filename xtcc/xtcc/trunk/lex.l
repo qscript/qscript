@@ -142,6 +142,13 @@ break	{
 	return BREAK;
 }
 
+"&&" 	{
+	return LOGAND;
+}
+
+"||"	{
+	return LOGOR;
+}
 
 "==" 	{
 	return ISEQ;

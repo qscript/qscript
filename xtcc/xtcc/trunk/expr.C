@@ -277,6 +277,21 @@ void bin_expr::print_expr(FILE * edit_out){
 		case oper_assgn:
 			print_oper_assgn(edit_out);		
 		break;
+		case oper_or:{
+			sprintf(oper_buf, "%s" , "||");
+			l_op->print_expr(edit_out);
+			fprintf(edit_out, " %s ", oper_buf);
+			r_op->print_expr(edit_out);
+			}
+		break;
+		case oper_and:{
+			sprintf(oper_buf, "%s" , "&&");
+			l_op->print_expr(edit_out);
+			fprintf(edit_out, " %s ", oper_buf);
+			r_op->print_expr(edit_out);
+			}
+		break;
+
 		default:
 			fprintf(edit_out, " unhandled operator type in expr  " );
 			
