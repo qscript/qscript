@@ -36,6 +36,10 @@ int32_t edit_data()
 	myfloat=c[80,83]; // this data will automatically be converted to type float
 	lista myfloat "myfloat";
 
+	float myfloat2;
+	myfloat2=c[84,87]; // this data will automatically be converted to type float
+	lista myfloat2 "myfloat2";
+
 	first_4byte_int=c[40,43];
 
 	fld test_arr = c(80,87):4;

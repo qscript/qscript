@@ -1147,6 +1147,7 @@ void	generate_edit_section_code();
 extern void yyrestart ( FILE *input_file );
 
 void	print_memory_leaks();
+void reset_files();
 int main(int argc, char* argv[], char* envp[]){
 	if(argc!=3) {
 		cout << "Usage: " << argv[0] << " <prog-name> <data-file> " << endl;
@@ -1156,6 +1157,7 @@ int main(int argc, char* argv[], char* envp[]){
 		<< " INT8_ARR_TYPE:" << INT8_ARR_TYPE
 		<< " INT8_REF_TYPE:" << INT8_REF_TYPE 
 		<< endl;
+	reset_files();
 		
 		
 	active_scope=new scope();
@@ -1554,6 +1556,7 @@ int lookup_func(string func_name_index){
 
 void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 	fprintf(op, "#include <iostream>\n");
+	fprintf(op, "#include <fstream>\n");
 	fprintf(op, "#include <vector>\nusing namespace std;\n");
 	fprintf(tab_drv_func, "#include \"my_table.C\"\n");
 	fprintf(tab_drv_func, "void tab_compute(){\n");
@@ -1579,7 +1582,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 					map_iter_s->first.c_str(), map_iter_b->first.c_str ());
 			fprintf(op, "const int rows, cols;\n");
 			fprintf(op, "vector <int> counter;\n");
-			fprintf(op, "table_%s_%s():rows(%d), cols(%d),counter(%d*%d){for (int i=0;i<counter.size();++i) counter[i]=0; }\n",
+			fprintf(op, "table_%s_%s():rows(%d), cols(%d),counter(%d*%d){\nfor (int i=0;i<counter.size();++i) counter[i]=0; }\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
 					map_iter_s->second->no_count_ax_elems,
 					map_iter_b->second->no_count_ax_elems,
@@ -1597,24 +1600,36 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			fprintf(op, "\t}\n");
 			fprintf(op, "\t} /* compute()*/\n");
 			fprintf(op, "\tvoid print(){\n\t\tint rci=0, cci=0; /* row counter index , col ... */\n");
-			fprintf(op, "\tcout << \"rows: \" << rows << \"cols: \" << cols << endl;");
-			fprintf(op, "\t\tfor(int i=0; i<ax_%s.stmt_text.size(); ++i){\n",
+			fprintf(op, "\t\tofstream tab_op(\"tab_.csv\", ios_base::out|ios_base::app);\n");
+			fprintf(op, "\t\ttab_op << \"rows: \" << rows << \"cols: \" << cols << endl;\n");
+			fprintf(op, "\t\ttab_op << ax_%s.stmt_text[0] << \" x \" << ax_%s.stmt_text[0] << endl;\n",
+					map_iter_s->first.c_str(), map_iter_b->first.c_str()
+					);
+			fprintf(op, "\t\ttab_op << \",\";\n");
+			fprintf(op, "\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n", map_iter_b->first.c_str());
+			fprintf(op, "\t\t\tif(ax_%s.is_a_count_text[j]){\n", map_iter_b->first.c_str());
+			fprintf(op, "\t\t\t\t tab_op << ax_%s.stmt_text[j] << \",\" ;\n", map_iter_b->first.c_str()); 
+			fprintf(op, "\t\t\t}\n");
+			fprintf(op, "\t\t}\n");
+			fprintf(op, "\t\ttab_op << endl;\n");
+			fprintf(op, "\t\t\tfor(int i=1; i<ax_%s.stmt_text.size(); ++i){\n",
 					map_iter_s->first.c_str());
-			fprintf(op, "\t\t\tcci=0;\n");
-			fprintf(op, "\t\t\tcout << ax_%s.stmt_text[i] << \",\";\n", map_iter_s->first.c_str()); 
-			fprintf(op, "\t\t\tif(ax_%s.is_a_count_text[i]){\n", map_iter_s->first.c_str());
-			fprintf(op, "\t\t\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n",
+			fprintf(op, "\t\t\t\tcci=0;\n");
+			fprintf(op, "\t\t\t\ttab_op << ax_%s.stmt_text[i] << \",\";\n", map_iter_s->first.c_str()); 
+			fprintf(op, "\t\t\t\tif(ax_%s.is_a_count_text[i]){\n", map_iter_s->first.c_str());
+			fprintf(op, "\t\t\t\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n",
 					map_iter_b->first.c_str());
 			fprintf(op, "\t\t\t\t\tif(ax_%s.is_a_count_text[j]){\n", map_iter_b->first.c_str());
-			fprintf(op, "\t\t\t\t\t\t//cout << \"rci:\" << rci << \"cci:\" << cci << endl;\n");
-			fprintf(op, "\t\t\t\t\t\tcout << counter[cci+rci*cols]<<\",\";\n");
+			fprintf(op, "\t\t\t\t\t\t//tab_op << \"rci:\" << rci << \"cci:\" << cci << endl;\n");
+			fprintf(op, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
 			fprintf(op, "\t\t\t\t\t\t++cci;\n");
 			fprintf(op, "\t\t\t\t\t}\n");
 			fprintf(op, "\t\t\t\t}\n");
 			fprintf(op, "\t\t\t\t++rci;\n");
 			fprintf(op, "\t\t\t}\n");
-			fprintf(op, "\t\tcout << endl;\n");
+			fprintf(op, "\t\ttab_op << endl;\n");
 			fprintf(op, "\t\t}\n");
+			fprintf(op, "\ttab_op.close();\n");
 			fprintf(op, "\t}\n");
 			fprintf(op, "} tab_%s_%s;\n",
 				map_iter_s->first.c_str(), map_iter_b->first.c_str()
@@ -1740,4 +1755,14 @@ void	generate_edit_section_code(){
 	fprintf(print_list_counts, "}\n");
 	fclose(print_list_counts);
 
+}
+
+#include <fstream>
+void reset_files(){
+	ofstream lst_op("lst_.csv", ios_base::out|ios_base::trunc);
+	lst_op << endl;
+	lst_op.close();
+	ofstream tab_op("tab_.csv", ios_base::out|ios_base::trunc);
+	tab_op << endl;
+	tab_op.close();
 }
