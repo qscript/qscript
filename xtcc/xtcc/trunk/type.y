@@ -1150,7 +1150,7 @@ void	print_memory_leaks();
 void reset_files();
 int main(int argc, char* argv[], char* envp[]){
 	if(argc!=3) {
-		cout << "Usage: " << argv[0] << " <prog-name> <data-file> " << endl;
+		cout << "Usage: " << argv[0] << " <prog-name> <data-file>" << endl;
 		exit(0);
 	}
 	cout << "SOME DEBUGGING INFO: INT8_TYPE:" << INT8_TYPE 

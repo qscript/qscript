@@ -1,0 +1,2 @@
+proc xtcc_exit {} {}
+proc xtcc_version {} {}
