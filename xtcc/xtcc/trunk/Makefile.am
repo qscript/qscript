@@ -16,5 +16,5 @@ EXTRA_DIST=sample.dat sample2.dat
 clean:
 	rm *.o y.output y.tab.[hc] lex.yy.c dp a.out op op1 op.ind op.ind2 cscope.out ch3-04.output y.output y.tab.[hc] lex.yy.c err edit_out.c edit_out.ndg ofile hand_compile loop my_edit.exe my_loop temp.C.exe mk_data first Type_checker7.kdev* massif.* gmon.out myedit.exe rd_data Type_checker8.zip temp.C temp1.C op2 op.C op-mmap Type_checker7.tag read_op read_times dp-static tags mmap_op mmap_time Doxyfile global.C print_list_counts.C temp2.C my_axes.C my_axes_drv_func.C my_tab_drv_func.C my_table.C xtcc xtcc.exe *.rpo stubs/a.out xtcc_work/global.C xtcc_work/my_tab_drv_func.C xtcc_work/temp.C xtcc_work/my_axes.C xtcc_work/myedit.exe xtcc_work/my_axes_drv_func.C xtcc_work/.temp.C.swp xtcc_work/my_tab_summ.C xtcc_work/my_table.C xtcc_work/edit_out.c stubs/a.out
 AUTOMAKE_OPTIONS = dejagnu
-RUNTESTDEFAULTFLAGS = --tool xtcc XTCC=`pwd`/xtcc --srcdir $$srcdir/testsuite
+RUNTESTDEFAULTFLAGS = --tool xtcc --verbose XTCC=`pwd`/xtcc XTCC_TEST_DATA=`pwd`/xtcc/sample2.dat --srcdir $$srcdir/testsuite
 

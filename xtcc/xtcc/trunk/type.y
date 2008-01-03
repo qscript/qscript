@@ -1134,9 +1134,10 @@ ax_stmt:	TOT ';' TEXT ';' {
 
 %%
 
+extern int errno;
 void print_expr(FILE* edit_out, expr * e);
 
-int	compile();
+int	compile( char * const XTCC_HOME);
 int	run(char * data_file_name, int rec_len);
 void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
 void print_axis_code(FILE * op, FILE * axes_drv_func);
@@ -1145,18 +1146,36 @@ void clean_up();
 void	generate_edit_section_code();
 
 extern void yyrestart ( FILE *input_file );
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 void	print_memory_leaks();
 void reset_files();
 int main(int argc, char* argv[], char* envp[]){
+	bool exit_flag=false;
 	if(argc!=3) {
 		cout << "Usage: " << argv[0] << " <prog-name> <data-file>" << endl;
-		exit(0);
+		exit_flag=true;
 	}
-	cout << "SOME DEBUGGING INFO: INT8_TYPE:" << INT8_TYPE 
+	char * XTCC_HOME=getenv("XTCC_HOME");
+	if(!XTCC_HOME){
+		cout << "Please set environment variable XTCC_HOME." << endl 
+			<< "If xtcc was installed in /home/unixuser/xtcc/ In UNIX - bash " << endl
+			<< "you would do this as (assume $ as shell prompt):" << endl 
+			<< "$export XTCC_HOME=/home/unixuser/xtcc" << endl;
+		exit_flag=true;
+	}
+	if(exit_flag){
+		exit(1);
+	}
+	
+	/*cout << "SOME DEBUGGING INFO: INT8_TYPE:" << INT8_TYPE 
 		<< " INT8_ARR_TYPE:" << INT8_ARR_TYPE
 		<< " INT8_REF_TYPE:" << INT8_REF_TYPE 
 		<< endl;
+	*/	
 	reset_files();
 		
 		
@@ -1177,6 +1196,9 @@ int main(int argc, char* argv[], char* envp[]){
 	char *c_arr="c";
 
 	FILE * yyin=fopen(argv[1],"r");
+	if(!yyin) {
+		cerr << "Unable to open file: " << argv[1] << " for read ...exiting" << endl; exit(1);
+	}
 	yyrestart(yyin);
 	if(yyparse()){
 		cout << "Errors in parsing edit: " << no_errors << endl;
@@ -1186,12 +1208,32 @@ int main(int argc, char* argv[], char* envp[]){
 
 	//yyterminate();
 	//print_stmt_lst(tree_root);
+	struct   stat file_info;
+	int xtcc_work_dir_exists=stat("xtcc_work", &file_info);
+	if (xtcc_work_dir_exists==-1){
+		cout << "attempting to create directory xtcc_work" << endl;
+		// file does not exist - so create the directoryo
+		int dir_success=mkdir("xtcc_work", S_IRUSR| S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP);
+		if(dir_success==-1){
+			cerr << "Unable to create temp work directory xtcc_work: ... exiting" << endl;
+			exit(1);
+		} else if (dir_success==0){
+		} else {
+			cerr << "Some error on creating directory xtcc_work ... exiting" << endl;
+			exit(1);
+		}
+	} else if (S_ISDIR(file_info.st_mode)) {
+	} else {
+		cerr << "file xtcc_work exists but is not a directory." << endl << "xtcc uses this directory to create its temporary files - please rename." << endl;
+		exit(1);
+	}
 	if(!no_errors){
 		generate_edit_section_code();
 	} else {
 		cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
 		exit(1);
 	}
+
 	FILE * table_op=fopen("xtcc_work/my_table.C", "w");
 	FILE * tab_drv_func=fopen("xtcc_work/my_tab_drv_func.C", "w");	
 	FILE * tab_summ_func=fopen("xtcc_work/my_tab_summ.C", "w");	
@@ -1226,7 +1268,7 @@ int main(int argc, char* argv[], char* envp[]){
 	fclose(axes_drv_func);
 	fclose(tab_summ_func);
 	bool my_compile_flag=true;
-	if(my_compile_flag&&!compile()){
+	if(my_compile_flag&&!compile(XTCC_HOME)){
 		char * endptr=0;
 		int convert_to_base=10;
 		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
@@ -1503,15 +1545,16 @@ template<class T> T* trav_chain(T* & elem1){
 }
 
 #include <cstdlib>
-int compile(){
+int compile(char * const XTCC_HOME){
 	int rval;
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	system("rm xtcc_work/temp.C");
-	string cmd1="cat xtcc_work/edit_out.c xtcc_work/my_axes_drv_func.C xtcc_work/my_tab_drv_func.C stubs/main_loop.C > xtcc_work/temp.C";
+	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
+	string cmd1=string("cat xtcc_work/edit_out.c xtcc_work/my_axes_drv_func.C xtcc_work/my_tab_drv_func.C ") + string(XTCC_HOME)+ string("/stubs/main_loop.C > xtcc_work/temp.C; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> xtcc_work/temp.C");
 #endif /* GNU/UNIX */
 #if __WIN32__
 	system("del xtcc_work\\temp.C");
-	string cmd1="type xtcc_work\\edit_out.c xtcc_work\\my_axes_drv_func.C xtcc_work\\my_tab_drv_func.C stubs\\main_loop.C > xtcc_work\\temp.C";
+	string cmd1=string("type xtcc_work\\edit_out.c xtcc_work\\my_axes_drv_func.C xtcc_work\\my_tab_drv_func.C ") + string(XTCC_HOME)+ string("\\stubs\\main_loop.C > xtcc_work\\temp.C");
 #endif /* __WIN32__ */
 
 	rval=system(cmd1.c_str());

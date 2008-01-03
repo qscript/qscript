@@ -131,7 +131,7 @@ int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len){
 */
 
 #include "print_list_counts.C"
-#include "../stubs/list_summ_template.C"
+/*#include "../stubs/list_summ_template.C"*/
 int fread_data(FILE * & inp_data_file , int file_size, int rec_len){
 	cout << "read_data" << endl;
 	//char* buffer=new char[sizeof(char)* rec_len];
