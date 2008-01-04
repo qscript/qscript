@@ -1137,7 +1137,7 @@ ax_stmt:	TOT ';' TEXT ';' {
 extern int errno;
 void print_expr(FILE* edit_out, expr * e);
 
-int	compile( char * const XTCC_HOME);
+int	compile( char * const XTCC_HOME, char * const work_dir);
 int	run(char * data_file_name, int rec_len);
 void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
 void print_axis_code(FILE * op, FILE * axes_drv_func);
@@ -1148,17 +1148,49 @@ void	generate_edit_section_code();
 extern void yyrestart ( FILE *input_file );
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <cctype>
 #include <fcntl.h>
 #include <unistd.h>
 
 void	print_memory_leaks();
+char default_work_dir[]="xtcc_work";
+char * work_dir=default_work_dir;
 void reset_files();
-int main(int argc, char* argv[], char* envp[]){
+int main(int argc, char* argv[]/*, char* envp[]*/){
 	bool exit_flag=false;
-	if(argc!=3) {
+	opterr=1;
+	int c;
+
+	while((c=getopt(argc, argv, "w:"))!=-1){
+		switch(c){
+			case 'w':
+				work_dir=optarg;
+			break;
+			case '?':
+				if (optopt == 'w')
+					fprintf (stderr, "Option -%c requires an argument.\n", 
+						optopt);
+				else if (isprint (optopt))
+					fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+				else
+					fprintf (stderr, "Unknown option character `\\x%x'.\n", 
+						optopt);
+				exit(1);
+			break;	
+			default:
+				exit(1);
+		}
+	}
+	printf("work dir set to %s\n", work_dir);
+
+
+	if(argc-optind<2) {
 		cout << "Usage: " << argv[0] << " <prog-name> <data-file>" << endl;
 		exit_flag=true;
 	}
+	char * inp_file = argv[optind++];
+	char * data_file = argv[optind];
+	cerr << "inp_file: " << inp_file << ", data_file: " << data_file << endl;
 	char * XTCC_HOME=getenv("XTCC_HOME");
 	if(!XTCC_HOME){
 		cout << "Please set environment variable XTCC_HOME." << endl 
@@ -1195,7 +1227,7 @@ int main(int argc, char* argv[], char* envp[]){
 	
 	char *c_arr="c";
 
-	FILE * yyin=fopen(argv[1],"r");
+	FILE * yyin=fopen(inp_file,"r");
 	if(!yyin) {
 		cerr << "Unable to open file: " << argv[1] << " for read ...exiting" << endl; exit(1);
 	}
@@ -1209,22 +1241,22 @@ int main(int argc, char* argv[], char* envp[]){
 	//yyterminate();
 	//print_stmt_lst(tree_root);
 	struct   stat file_info;
-	int xtcc_work_dir_exists=stat("xtcc_work", &file_info);
+	int xtcc_work_dir_exists=stat(work_dir, &file_info);
 	if (xtcc_work_dir_exists==-1){
 		cout << "attempting to create directory xtcc_work" << endl;
 		// file does not exist - so create the directoryo
-		int dir_success=mkdir("xtcc_work", S_IRUSR| S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP);
+		int dir_success=mkdir(work_dir, S_IRUSR| S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP);
 		if(dir_success==-1){
-			cerr << "Unable to create temp work directory xtcc_work: ... exiting" << endl;
+			cerr << "Unable to create temp work directory " <<work_dir <<  " : ... exiting" << endl;
 			exit(1);
 		} else if (dir_success==0){
 		} else {
-			cerr << "Some error on creating directory xtcc_work ... exiting" << endl;
+			cerr << "Some error on creating directory " << work_dir << "  ... exiting" << endl;
 			exit(1);
 		}
 	} else if (S_ISDIR(file_info.st_mode)) {
 	} else {
-		cerr << "file xtcc_work exists but is not a directory." << endl << "xtcc uses this directory to create its temporary files - please rename." << endl;
+		cerr << "file " << work_dir << " exists but is not a directory." << endl << "xtcc uses this directory to create its temporary files - please rename." << endl;
 		exit(1);
 	}
 	if(!no_errors){
@@ -1234,9 +1266,13 @@ int main(int argc, char* argv[], char* envp[]){
 		exit(1);
 	}
 
-	FILE * table_op=fopen("xtcc_work/my_table.C", "w");
-	FILE * tab_drv_func=fopen("xtcc_work/my_tab_drv_func.C", "w");	
-	FILE * tab_summ_func=fopen("xtcc_work/my_tab_summ.C", "w");	
+	string fname = string(work_dir) + string("/my_table.C");
+	FILE * table_op=fopen( fname.c_str(), "w");
+
+	fname = string(work_dir) + string("/my_tab_drv_func.C");
+	FILE * tab_drv_func=fopen(fname.c_str(), "w");	
+	fname = string(work_dir) + string("/my_tab_summ.C");
+	FILE * tab_summ_func=fopen(fname.c_str(), "w");	
 	if(!(table_op&&tab_drv_func&&tab_summ_func)){
 		cerr << "Unable to open file for output of table classes" << endl;
 		exit(1);
@@ -1246,8 +1282,10 @@ int main(int argc, char* argv[], char* envp[]){
 		exit(rval);
 	}
 
-	FILE * axes_op=fopen("xtcc_work/my_axes.C", "w");	
-	FILE * axes_drv_func=fopen("xtcc_work/my_axes_drv_func.C", "w");	
+	fname = string(work_dir)+ ("/my_axes.C");
+	FILE * axes_op=fopen(fname.c_str(), "w");	
+	fname = string(work_dir) + string("/my_axes_drv_func.C");
+	FILE * axes_drv_func=fopen(fname.c_str(), "w");	
 	if(!(axes_op&&axes_drv_func)){
 		cerr << "Unable to open file for output of axes classes" << endl;
 		exit(1);
@@ -1268,11 +1306,11 @@ int main(int argc, char* argv[], char* envp[]){
 	fclose(axes_drv_func);
 	fclose(tab_summ_func);
 	bool my_compile_flag=true;
-	if(my_compile_flag&&!compile(XTCC_HOME)){
+	if(my_compile_flag&&!compile(XTCC_HOME, work_dir)){
 		char * endptr=0;
 		int convert_to_base=10;
 		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
-		int rval= run(argv[2], rec_len);
+		int rval= run(data_file, rec_len);
 		if(tree_root) {
 			delete tree_root;
 			tree_root=0;
@@ -1545,25 +1583,48 @@ template<class T> T* trav_chain(T* & elem1){
 }
 
 #include <cstdlib>
-int compile(char * const XTCC_HOME){
+int compile(char * const XTCC_HOME, char * const work_dir){
 	int rval;
+	string my_work_dir=string(work_dir)+string("/");
+	string MY_XTCC_HOME=string(XTCC_HOME)+string("/");
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
-	system("rm xtcc_work/temp.C");
+	string cmd=string("rm ") + string(work_dir) + string("/temp.C");
+	//system("rm xtcc_work/temp.C");
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
-	string cmd1=string("cat xtcc_work/edit_out.c xtcc_work/my_axes_drv_func.C xtcc_work/my_tab_drv_func.C ") + string(XTCC_HOME)+ string("/stubs/main_loop.C > xtcc_work/temp.C; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> xtcc_work/temp.C");
+	char * file_list[]={
+		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
+		"my_tab_drv_func.C", "temp.C"
+	};
+	string cmd1="cat "; 
+	const int main_loop_file_index=2;
+	const int temp_file_index=4;
+
+	for(int i=0; i<(sizeof(file_list)/sizeof(file_list[0]))-1; ++i){
+		if (i==main_loop_file_index){
+			cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
+		} else {
+			cmd1 += my_work_dir + string(file_list[i])+string(" ");
+		}
+	}
+	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
+	string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
+	cmd1 += cmd3;
+
 #endif /* GNU/UNIX */
 #if __WIN32__
+	/* this code has to be updated as above*/
 	system("del xtcc_work\\temp.C");
 	string cmd1=string("type xtcc_work\\edit_out.c xtcc_work\\my_axes_drv_func.C xtcc_work\\my_tab_drv_func.C ") + string(XTCC_HOME)+ string("\\stubs\\main_loop.C > xtcc_work\\temp.C");
 #endif /* __WIN32__ */
 
+	cout << cmd1.c_str() << endl;
 	rval=system(cmd1.c_str());
 	if(rval){
 		cerr << "unable to cat files" << endl;
 		return rval;
 	}
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
-	string cmd2="g++ xtcc_work/temp.C -o xtcc_work/myedit.exe";
+	string cmd2=string("g++ ") + work_dir + string("/temp.C -o ") +  work_dir + string("/myedit.exe");
 #endif /* GNU/UNIX */	
 #if __WIN32__
 	string cmd2="\\Borland\\BCC55\\Bin\\bcc32 -P -I\\Borland\\BCC55\\Include -L\\Borland\\BCC55\\LIB -extcc_work\\myedit.exe xtcc_work\\temp.C ";
@@ -1582,7 +1643,7 @@ int run(char * data_file_name, int rec_len){
 	cmd1 << "xtcc_work\\myedit.exe " << data_file_name  << " " << rec_len;
 #endif /* __WIN32__ */
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
-	cmd1 << "xtcc_work/myedit.exe " << data_file_name  << " " << rec_len;
+	cmd1 <<  work_dir << "/myedit.exe " << data_file_name  << " " << rec_len;
 #endif /* UNIX */
 	rval=system(cmd1.str().c_str());
 	return rval;
@@ -1759,7 +1820,8 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 }
 
 void	generate_edit_section_code(){
-	FILE * global_vars=fopen("xtcc_work/global.C", "wb");
+	string fname=work_dir+string("/global.C");
+	FILE * global_vars=fopen(fname.c_str(), "wb");
 	fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
 	fprintf(global_vars, "#include <sys/types.h>\n");
 	fprintf(global_vars, "#include <map>\n using namespace std;\n");
@@ -1768,11 +1830,13 @@ void	generate_edit_section_code(){
 	fprintf(global_vars, "void tab_summ();\n");
 	fprintf(global_vars, "void ax_compute();\n");
 	fclose(global_vars);
-	FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "wb");
+	fname=work_dir+string("/print_list_counts.C");
+	FILE * print_list_counts=fopen(fname.c_str(), "wb");
 	fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m);\n");
 	fprintf(print_list_counts, "void print_list_counts(){\n");
 	fclose(print_list_counts);
-	FILE * edit_out= fopen("xtcc_work/edit_out.c", "w+b");
+	fname=work_dir+string( "/edit_out.c");
+	FILE * edit_out= fopen(fname.c_str(), "w+b");
 	if(edit_out==0){
 		printf("could not open edit_out.c for writing\n");
 		exit(1);
@@ -1787,14 +1851,16 @@ void	generate_edit_section_code(){
 	cout << "printing edit:" << endl;
 	tree_root->print_stmt_lst(edit_out);
 	fclose(edit_out);
-	global_vars=fopen("xtcc_work/global.C", "a+");
+	fname=work_dir+string("/global.C");
+	global_vars=fopen(fname.c_str(), "a+");
 	if(!global_vars){
 		cerr << "cannot open global.C for writing" << endl;
 		exit(1);
 	}
 	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
 	fclose(global_vars);
-	print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+");
+	fname=work_dir+string("/print_list_counts.C");
+	print_list_counts=fopen(fname.c_str(), "a+");
 	fprintf(print_list_counts, "}\n");
 	fclose(print_list_counts);
 

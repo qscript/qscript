@@ -3,6 +3,8 @@
 #include "tree.h"
 extern vector<mem_addr_tab> mem_addr;
 
+extern char * work_dir;
+
 list_stmt::~list_stmt(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
@@ -196,3 +198,99 @@ expr_stmt::~expr_stmt(){
 		//if(prev ) delete prev;
 		if (expr) delete expr;
 	}
+
+void list_stmt::print_stmt_lst(FILE * & fptr){
+	fflush(fptr);
+	string my_work_dir=string(work_dir)+string("/");
+
+	if(fptr){
+		switch(type){
+		case LISTA_BASIC_TYPE_STMT:{
+			static int counter_number=0;			   
+			string fname= my_work_dir+ string("global.C");
+			FILE * global_vars=fopen(fname.c_str(), "a+b");
+			fname=my_work_dir+ string("print_list_counts.C");
+			FILE * print_list_counts=fopen(fname.c_str(), "a+b");
+			if(!(global_vars&&print_list_counts)){
+				cerr << "Unable to open global.C or print_list_counts.C for append... exiting" << endl;
+				exit(1);
+			}
+			if(se){
+				datatype dt=se->get_type();
+				if(dt>=INT8_TYPE && dt<=DOUBLE_TYPE){
+					fprintf(global_vars, "map<%s,int> list%d;\n", 
+							noun_list[dt].sym, counter_number);
+					fprintf(fptr, "list%d [%s]++;\n", counter_number, se->name);
+					fprintf(print_list_counts, "print_list_summ(list%d );\n", counter_number);
+				}
+
+				++counter_number;
+			}
+			fclose(global_vars);
+			fclose(print_list_counts);
+		}
+		break;
+		case LISTA_BASIC_ARRTYPE_STMT_1INDEX:{
+			static int counter_number=0;			   
+			//FILE * global_vars=fopen("xtcc_work/global.C", "a+b");
+			//FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+b");
+			string fname= my_work_dir+ string("global.C");
+			FILE * global_vars=fopen(fname.c_str(), "a+b");
+			fname=my_work_dir+ string("print_list_counts.C");
+			FILE * print_list_counts=fopen(fname.c_str(), "a+b");
+			if(!global_vars){
+				cerr << "Unable to open global.C for append" << endl;
+			}
+			if(se){
+				datatype dt=se->get_type();
+				if(dt>=INT8_ARR_TYPE&& dt<=DOUBLE_ARR_TYPE){
+					fprintf(global_vars, "map<%s,int> list%d;\n", 
+							noun_list[dt].sym, counter_number);
+					fprintf(fptr, "list1_%d [%s[%d]]++;\n", counter_number, se->name,
+							arr_start);
+					fprintf(print_list_counts, "print_list_summ(list%d );\n", counter_number);
+				}
+				++counter_number;
+			}
+			fclose(global_vars);
+			fclose(print_list_counts);
+		}
+		break;
+		case LISTA_BASIC_ARRTYPE_STMT_2INDEX:{
+			static int counter_number=0;			   
+			//FILE * global_vars=fopen("xtcc_work/global.C", "a+b");
+			//FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+b");
+			string fname= my_work_dir+ string("global.C");
+			FILE * global_vars=fopen(fname.c_str(), "a+b");
+			fname=my_work_dir+ string("print_list_counts.C");
+			FILE * print_list_counts=fopen(fname.c_str(), "a+b");
+			if(!global_vars){
+				cerr << "Unable to open global.C for append" << endl;
+			}
+			if(se){
+				datatype dt=se->get_type();
+				switch(dt){
+				case INT8_ARR_TYPE:	
+					{
+					fprintf(global_vars, "map<%s,int> list2_%d;\n", 
+							noun_list[dt].sym, counter_number);
+					fprintf(fptr, "list2_%d [%s[%d]]++;\n", counter_number, se->name,
+							arr_start);
+					fprintf(print_list_counts, "print_list_summ(list2_%d );\n", counter_number);
+					}
+				break;		      
+				default:
+					++no_errors;
+				}
+				++counter_number;
+			}
+			fclose(print_list_counts);
+			fclose(global_vars);
+		}
+		default:
+			fprintf(fptr, "Unhandled lista statement: \n");	
+		}
+		if(prev) prev->print_stmt_lst(fptr);
+
+	}
+}
