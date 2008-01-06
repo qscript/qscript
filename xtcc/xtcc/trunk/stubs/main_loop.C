@@ -12,6 +12,11 @@ int fread_data(FILE * & inp_data_file , int file_size, int rec_len);
 int read_data(int fd, struct stat &file_info_stat, int rec_len);
 int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len);
 int main(int argc, char * argv[]){
+	xtcc_stdout=fopen(xtcc_stdout_fname.c_str(), "w");
+	if(xtcc_stdout==0){
+		cerr << "Unable to open " << xtcc_stdout_fname.c_str() << " as stdout exiting" << endl;
+		exit(1);
+	}
 	
 	//int fd=open(argv[1], O_RDONLY);
 	if(argc !=3) {

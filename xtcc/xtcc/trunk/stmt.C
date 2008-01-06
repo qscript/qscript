@@ -101,24 +101,27 @@ func_stmt:: func_stmt ( datatype dtype, int lline_number, scope * &sc,
 }
 
 void func_stmt::print_stmt_lst(FILE * & fptr){
-
-		if(fptr){
-			if(f_ptr->return_type >= VOID_TYPE && f_ptr->return_type<=DOUBLE_TYPE){
-				fprintf(fptr,"%s ", noun_list[f_ptr->return_type].sym);
-			} else {
-				fprintf(fptr, "Unxpected return type for function: file: %s, line:%d\n",
-						__FILE__, __LINE__ );
-			}
-			
-			fprintf(fptr, "%s\n", f_ptr->fname.c_str());
-			var_list* v_ptr=f_ptr->param_list;
-			fprintf(fptr, "(");
-			v_ptr->print(fptr);
-			fprintf(fptr, ")");
-			if(func_body) func_body->print_stmt_lst(fptr);
-			if(prev) prev->print_stmt_lst(fptr);
+	if(fptr){
+		if(f_ptr->return_type >= VOID_TYPE && f_ptr->return_type<=DOUBLE_TYPE){
+			fprintf(fptr,"%s ", noun_list[f_ptr->return_type].sym);
+		} else {
+			fprintf(fptr, "Unxpected return type for function: file: %s, line:%d\n",
+					__FILE__, __LINE__ );
 		}
+		
+		if(f_ptr->fname==string("printf")){
+			fprintf(fptr, "fprintf(xtcc_stdout,");
+		} else {
+			fprintf(fptr, "%s/* comment */\n", f_ptr->fname.c_str());
+			fprintf(fptr, "(");
+		}
+		var_list* v_ptr=f_ptr->param_list;
+		v_ptr->print(fptr);
+		fprintf(fptr, ")");
+		if(func_body) func_body->print_stmt_lst(fptr);
+		if(prev) prev->print_stmt_lst(fptr);
 	}
+}
 
 
 func_stmt::~func_stmt(){

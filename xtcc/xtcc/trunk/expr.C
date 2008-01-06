@@ -166,7 +166,11 @@ void un2_expr::print_expr(FILE * edit_out){
 			case oper_func_call:{
 				//cout << "/* oper_func_call */" << endl;
 				//cout << "func_index_in_table: " << func_info_table[e->func_index_in_table]->fname << endl;
-				fprintf(edit_out, "%s(", func_info_table[func_index_in_table]->fname.c_str());
+				if(func_info_table[func_index_in_table]->fname==string("printf")){
+					fprintf(edit_out, "fprintf(xtcc_stdout,");
+				} else {
+					fprintf(edit_out, "%s(", func_info_table[func_index_in_table]->fname.c_str());
+				}
 				struct expr* e_ptr=operand;
 				//fprintf(edit_out,  "/*print_expr: oper_func_call:  %s*/", func_info_table[func_index_in_table]->fname.c_str() );
 				while(e_ptr){

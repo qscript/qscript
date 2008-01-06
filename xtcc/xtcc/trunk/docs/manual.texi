@@ -321,7 +321,7 @@ Runtime	requirements
 	A Sample input program could be as below. I have annotated it with comments. It is always available in the directory @file{test-suite} named as @file{sample_inp}
 @example
 
-@verbatiminclude ../test-suite/sample_inp
+@verbatiminclude ../testsuite/sample_inp
 
 @end example
 

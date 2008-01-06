@@ -225,8 +225,9 @@ struct fld_stmt: public stmt{
 		fprintf(fptr, "if( start_col > end_col){\n");
 		fprintf(fptr, "\tprintf(\"start_col evaluated > end_col -> runtime error\");\n");
 		fprintf(fptr, "}\n");
-		fprintf(fptr, "if( end_col-start_col +1 %% width!=0 ){\n");
-		fprintf(fptr, "\tprintf(\"please check your start_col ,  end_col, width for fld statement-> runtime error\");\n");
+		fprintf(fptr, "if( (end_col-start_col +1) %% width!=0 ){\n");
+		fprintf(fptr, "\t\tprintf(\"expr value:%%d\", end_col-start_col +1 %% width );");
+		fprintf(fptr, "\tprintf(\"please check your start_col=%%d ,  end_col=%%d, width=%%d for fld statement-> runtime error\\n\", start_col, end_col, width);\n");
 		fprintf(fptr, "}\n");
 		
 		fprintf(fptr, "for (int i=start_col; i<= end_col+1-width; i+=width){\n");
@@ -258,7 +259,7 @@ struct fld_stmt: public stmt{
 		fprintf(fptr,"\t\tif(tmp>=1 && tmp <=%d){\n", lsymp->n_elms);
 		fprintf(fptr,"\t\t\t++%s[tmp];\n", lsymp->name);
 		fprintf(fptr,"\t\t} else {\n");
-		fprintf(fptr,"\t\t\tprintf(\" runtime warning: code too big to fit in array\");\n");
+		fprintf(fptr,"\t\t\tprintf(\" runtime warning: code too big to fit in array\\n\");\n");
 		fprintf(fptr,"\t\t}\n;");
 		
 		fprintf(fptr, "}} \n");

@@ -3139,8 +3139,13 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 
 
 void	print_memory_leaks(){
+	fstream mem_leak_log("mem_leak.log", ios_base::out|ios_base::trunc);
+	if(!mem_leak_log){
+		cerr << "Unable to open mem_leak.log for memory leak info output" << endl;
+		exit(1);
+	}
 	for(int i=0; i< mem_addr.size(); ++i ){
-		cout << "addr: " << mem_addr[i].mem_ptr << " line: " << mem_addr[i].line_number << endl;
+		mem_leak_log << "addr: " << mem_addr[i].mem_ptr << " line: " << mem_addr[i].line_number << endl;
 	}
 }
 
@@ -3656,7 +3661,10 @@ void	generate_edit_section_code(){
 #if __WIN32__
 	fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
 #endif /* __WIN32__ */
-	fprintf(edit_out, "#include <cstdio>\n#include <iostream>\nusing namespace std;\n" );
+	fprintf(edit_out, "#include <cstdio>\n#include <iostream>\n#include <string>\nusing namespace std;\n" );
+
+	fprintf(edit_out, "string xtcc_stdout_fname(\"xtcc_stdout.log\");\n");
+	fprintf(edit_out, "FILE * xtcc_stdout=0;\n");
 	fprintf(edit_out, "#include <sys/types.h>\n" );
 	fprintf(edit_out, "int8_t c[%d];\n", rec_len );
 	fprintf(edit_out, "#include \"global.C\"\n" );
