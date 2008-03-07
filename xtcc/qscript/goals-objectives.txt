@@ -1,0 +1,14 @@
+qscript is intended to be a a questionnaire programming language
+
+It will store data in files in a human readable form - 1 serial number per question
+
+Its input language will be a series of questions which are single or multivalued.
+It will have an expression grammar and statements to control flow
+
+It will generate output programs which can be used 
+	a) for data entry
+	b) taken by a cati operator
+	c) taken as a web survey
+
+
+
