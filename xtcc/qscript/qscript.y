@@ -32,17 +32,39 @@
 %token <dt> FLOAT_T
 %token <dt> DOUBLE_T
 
+%left ','
+%right '='
+%left LOGOR
+%left LOGAND
+%left ISEQ NOEQ 
+%left LE GE '<' '>' 
+%left '-' '+'
+%left '*' '/' '%'
+%nonassoc NOT
+%nonassoc UMINUS
+%nonassoc IN COUNT
+%nonassoc FUNC_CALL
+
 
 %%
 
-prog: qlist
-	;
-	
-qlist: ques
-	| qlist ques
+prog:stmt_list
 	;
 
-ques: NAME TEXT qtype datatype ';'
+stmt_list: stmt
+	| stmt_list stmt
+	;
+	
+stmt: ques
+	| expr ';'
+	| IF '(' expr ')' stmt 
+	| IF '(' expr ')' stmt ELSE stmt
+	| cmpd_stmt
+	;
+
+cmpd_stmt: '{' stmt_list '}'
+	;
+ques: NAME TEXT qtype datatype range_allowed_values';'
 
 qtype: SP
 	| MP '(' INUMBER ')'
@@ -54,6 +76,38 @@ datatype: INT8_T
 	|FLOAT_T
 	|DOUBLE_T
 	;
+
+range_allowed_values: NAME
+	| '(' number_range_list ')'
+	;
+
+number_range_list: number_range
+	| number_range_list ',' number_range
+	;
+
+number_range: INUMBER '-' INUMBER
+	| INUMBER 
+	;
+
+expr	: 	expr '>' expr
+	|	expr '<' expr
+	|	expr LE expr
+	|	expr GE expr
+	|	expr ISEQ expr
+	|	expr NOEQ expr
+	|	expr LOGAND expr
+	|	expr LOGOR expr
+	|	NOT expr
+	|	INUMBER
+	|	FNUMBER
+	|	NAME
+	|	q_expr
+	;
+
+q_expr: 	NAME IN range_allowed_values
+	| 	COUNT '(' NAME ')'
+	;
+
 
 %%
 

@@ -33,8 +33,25 @@ double { yylval.dt=DOUBLE_TYPE; return DOUBLE_T; }
 	return ';';
 }
 
+")"	{ return ')'; }
+
+"("	{ return '('; }
+
+
+
+"<=" {return LE;}
+">=" {return GE;}
+"==" {return ISEQ;}
+"!=" {return NOEQ;}
+
+"&&" 	{ return LOGAND; }
+"||"	{ return LOGOR; }
+"!"	{ return NOT; }
+
 sp 	{return SP;}
 mp 	{ return MP;}
+in 	{ return IN;}
+count 	{ return COUNT;}
 
 [0-9]+	{
 	yylval.ival = atoi(yytext);
