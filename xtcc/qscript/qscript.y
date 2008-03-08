@@ -31,6 +31,11 @@
 %token <dt> INT32_T
 %token <dt> FLOAT_T
 %token <dt> DOUBLE_T
+%token '['
+%token ']'
+%token '('
+%token ')'
+%token '='
 
 %left ','
 %right '='
@@ -60,10 +65,16 @@ stmt: ques
 	| IF '(' expr ')' stmt 
 	| IF '(' expr ')' stmt ELSE stmt
 	| cmpd_stmt
+	| decl_stmt
+	;
+
+decl_stmt: datatype NAME ';'
+	| datatype NAME '[' expr ']' ';'
 	;
 
 cmpd_stmt: '{' stmt_list '}'
 	;
+	
 ques: NAME TEXT qtype datatype range_allowed_values';'
 
 qtype: SP
@@ -89,7 +100,12 @@ number_range: INUMBER '-' INUMBER
 	| INUMBER 
 	;
 
-expr	: 	expr '>' expr
+expr	: 	expr '+' expr
+	|	expr '-' expr
+	|	expr '*' expr
+	|	expr '/' expr
+	|	expr '%' expr
+	|	expr '>' expr
 	|	expr '<' expr
 	|	expr LE expr
 	|	expr GE expr
@@ -101,13 +117,14 @@ expr	: 	expr '>' expr
 	|	INUMBER
 	|	FNUMBER
 	|	NAME
+	|	NAME '[' expr ']'
 	|	q_expr
 	;
 
 q_expr: 	NAME IN range_allowed_values
+	|	NAME '[' expr ']' IN range_allowed_values
 	| 	COUNT '(' NAME ')'
 	;
-
 
 %%
 
