@@ -40,6 +40,8 @@ enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, ope
 
 extern noun_list_type noun_list[];
 datatype lcm_type(datatype d1, datatype d2);
+
+
 //struct expr;
 /*
 
@@ -179,8 +181,13 @@ struct func_info{
 struct mem_addr_tab{
 	void * mem_ptr;
 	int line_number;
-	mem_addr_tab(void * ptr, int line): mem_ptr(ptr), line_number(line){}
+	string src_file;
+	int src_file_line_no;
+	mem_addr_tab(void * ptr, int line): mem_ptr(ptr), line_number(line), src_file(""), src_file_line_no(-1){}
+	mem_addr_tab(void * ptr, int line, string l_src_file, int l_src_file_line_no): mem_ptr(ptr), line_number(line), src_file(l_src_file), src_file_line_no(l_src_file_line_no){}
 };
+void mem_log(void * ptr, int compiler_src_line_no, char* compiler_src_fname,
+                int input_prog_line_no);
 
 extern struct stmt * tree_root;
 

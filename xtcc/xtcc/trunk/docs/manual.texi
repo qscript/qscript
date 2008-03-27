@@ -56,11 +56,13 @@ Copyright @copyright{} 2003,2004,2005,2006,2007 Neil Xavier D'Souza, 502, Premie
 @chapter Overview of XtCC
 @cindex Overview of XtCC
 	
-	XTCC - Cross Tabulation compiler, is a set of tools for Market Research MR, companies to assist in Data Processing part of their day to day work. DP -> Data Processing and a people working and this department tend to be called DP(s). For an very brief overview of MR, mainly from a DP point of view, read the chapter "Overview of MR". 
+	XTCC - Cross Tabulation compiler, is a set of tools for Market Research (MR) companies to assist in the Data Processing part of their day to day work. Data Processing shortened DP and people working and this department also are often called DP(s). For an very brief overview of MR, mainly from a DP point of view, read the chapter "Overview of MR". 
 	
 	The main program is a compiler that takes user a user input program and applies the "edit" to repeatedly to every line of data, after which it tabulates the data based on the given tabulation spec.
 
 	The input program consists of 3 parts - an Edit section - containing transformations you would like to apply to the data, the Tabulation section marking the tables which need to be tabulated and the Axes section listing each individual table in the program.
+
+	"xtcc" is designed to be batch oriented. 
 
 
 @node Overview of MR

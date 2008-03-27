@@ -8,7 +8,7 @@
 #define FLEX_SCANNER
 #define YY_FLEX_MAJOR_VERSION 2
 #define YY_FLEX_MINOR_VERSION 5
-#define YY_FLEX_SUBMINOR_VERSION 31
+#define YY_FLEX_SUBMINOR_VERSION 33
 #if YY_FLEX_SUBMINOR_VERSION > 0
 #define FLEX_BETA
 #endif
@@ -30,7 +30,15 @@
 
 /* C99 systems have <inttypes.h>. Non-C99 systems may or may not. */
 
-#if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#if __STDC_VERSION__ >= 199901L
+
+/* C99 says to define __STDC_LIMIT_MACROS before including stdint.h,
+ * if you want the limit (max/min) macros for int types. 
+ */
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS 1
+#endif
+
 #include <inttypes.h>
 typedef int8_t flex_int8_t;
 typedef uint8_t flex_uint8_t;
@@ -271,7 +279,7 @@ int yyleng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = (char *) 0;
-static int yy_init = 1;		/* whether we need to initialize */
+static int yy_init = 0;		/* whether we need to initialize */
 static int yy_start = 0;	/* start state number */
 
 /* Flag which is used to allow yywrap()'s to do buffer switches
@@ -598,20 +606,24 @@ char *yytext;
 	extern int no_errors;
 	using namespace std;
 
-#line 602 "lex.c"
+#line 610 "lex.c"
 
 #define INITIAL 0
 #define comment 1
 
+#ifndef YY_NO_UNISTD_H
 /* Special case for "unistd.h", since it is non-ANSI. We include it way
  * down here because we want the user's section 1 to have been scanned first.
  * The user has a chance to override it with an option.
  */
 #include <unistd.h>
+#endif
 
 #ifndef YY_EXTRA_TYPE
 #define YY_EXTRA_TYPE void *
 #endif
+
+static int yy_init_globals (void );
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -753,11 +765,11 @@ YY_DECL
 
 
 	/* NxD: I shamelessly copied this out of flex's man page */	
-#line 757 "lex.c"
+#line 769 "lex.c"
 
-	if ( (yy_init) )
+	if ( !(yy_init) )
 		{
-		(yy_init) = 0;
+		(yy_init) = 1;
 
 #ifdef YY_USER_INIT
 		YY_USER_INIT;
@@ -839,35 +851,35 @@ BEGIN(comment);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 52 "lex.l"
+#line 51 "lex.l"
 /* eat anything that's not a '*' */
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 53 "lex.l"
+#line 52 "lex.l"
 /* eat up '*'s not followed by '/'s */
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 54 "lex.l"
+#line 53 "lex.l"
 ++line_no;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 55 "lex.l"
+#line 54 "lex.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 58 "lex.l"
+#line 56 "lex.l"
 {
 	// ignore Comment
 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 62 "lex.l"
+#line 60 "lex.l"
 {
 	yylval.dt=VOID_TYPE;
 	return VOID_T;
@@ -875,51 +887,51 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 67 "lex.l"
+#line 65 "lex.l"
 { yylval.dt=INT8_TYPE;	       return INT8_T; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 68 "lex.l"
+#line 66 "lex.l"
 { yylval.dt=INT16_TYPE;	       return INT16_T; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 69 "lex.l"
+#line 67 "lex.l"
 { yylval.dt=INT32_TYPE;	       return INT32_T; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 70 "lex.l"
+#line 68 "lex.l"
 { yylval.dt=FLOAT_TYPE; return FLOAT_T; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 71 "lex.l"
+#line 69 "lex.l"
 { yylval.dt=DOUBLE_TYPE; return DOUBLE_T; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 73 "lex.l"
+#line 71 "lex.l"
 {
 	return FOR;
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 77 "lex.l"
+#line 75 "lex.l"
 { return FLD;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 79 "lex.l"
+#line 77 "lex.l"
 {
 	return LISTA;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 83 "lex.l"
+#line 81 "lex.l"
 {
 	cout << "got token AXSTART" << endl;
 	return AXSTART;
@@ -927,49 +939,49 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 87 "lex.l"
+#line 85 "lex.l"
 {
 	return TAB;
 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 91 "lex.l"
+#line 89 "lex.l"
 {
 	return TABSTART;
 }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 95 "lex.l"
+#line 93 "lex.l"
 {
 	return DATA_STRUCT;
 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 98 "lex.l"
+#line 96 "lex.l"
 {
 	return REC_LEN;
 }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 102 "lex.l"
+#line 100 "lex.l"
 {
 	return ED_START;
 }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 105 "lex.l"
+#line 103 "lex.l"
 {
 	return ED_END;
 }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 110 "lex.l"
+#line 108 "lex.l"
 {
 	//printf("\nreturned AX\n");
 	return AX;
@@ -977,7 +989,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 115 "lex.l"
+#line 113 "lex.l"
 {
 	//printf("lex: tot\n");
 	return TOT;
@@ -985,21 +997,21 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 120 "lex.l"
+#line 118 "lex.l"
 {
 	return CNT;
 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 124 "lex.l"
+#line 122 "lex.l"
 {
 	return TTL;
 }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 128 "lex.l"
+#line 126 "lex.l"
 {
 	//printf("Got COND_START\n");
 	return COND_START;
@@ -1007,98 +1019,98 @@ YY_RULE_SETUP
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 133 "lex.l"
+#line 131 "lex.l"
 {
 	return NOT;
 }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 137 "lex.l"
+#line 135 "lex.l"
 {
 	return CONTINUE;
 }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 141 "lex.l"
+#line 139 "lex.l"
 {
 	return BREAK;
 }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 145 "lex.l"
+#line 143 "lex.l"
 {
 	return LOGAND;
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 149 "lex.l"
+#line 147 "lex.l"
 {
 	return LOGOR;
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 153 "lex.l"
+#line 151 "lex.l"
 {
 	return ISEQ;
 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 157 "lex.l"
+#line 155 "lex.l"
 {
 	return LEQ;
 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 161 "lex.l"
+#line 159 "lex.l"
 {
 	return GEQ;
 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 165 "lex.l"
+#line 163 "lex.l"
 {
 	return NOEQ;
 }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 169 "lex.l"
+#line 167 "lex.l"
 {
 	return ')';
 }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 173 "lex.l"
+#line 171 "lex.l"
 {
 	return '(';
 }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 177 "lex.l"
+#line 175 "lex.l"
 {
 	return '{';
 }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 181 "lex.l"
+#line 179 "lex.l"
 {
 	return '}';
 }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 185 "lex.l"
+#line 183 "lex.l"
 {
 	return ';';
 }
@@ -1106,7 +1118,7 @@ YY_RULE_SETUP
 case 42:
 /* rule 42 can match eol */
 YY_RULE_SETUP
-#line 189 "lex.l"
+#line 187 "lex.l"
 {
 		int len_text=strlen(yytext);
 		if(len_text < MY_STR_MAX-1) {
@@ -1120,7 +1132,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 200 "lex.l"
+#line 198 "lex.l"
 {
 		unsigned int i; int tmp=0;
 		for(i = 1; i < strlen(yytext)-1; i++){
@@ -1135,7 +1147,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 212 "lex.l"
+#line 210 "lex.l"
 {
 	yylval.ival = atoi(yytext);
 	return INUMBER;
@@ -1143,7 +1155,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 217 "lex.l"
+#line 215 "lex.l"
 {
 	yylval.dval = atof(yytext);
 	printf("returned %g\n", yylval.dval);
@@ -1152,21 +1164,21 @@ YY_RULE_SETUP
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 223 "lex.l"
+#line 221 "lex.l"
 {
 		return IF;
 	}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 227 "lex.l"
+#line 225 "lex.l"
 {
 		return ELSE;
 	}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 231 "lex.l"
+#line 229 "lex.l"
 { return CONVERT ; }
 	YY_BREAK
 /*
@@ -1181,20 +1193,20 @@ YY_RULE_SETUP
 	*/
 case 49:
 YY_RULE_SETUP
-#line 244 "lex.l"
+#line 242 "lex.l"
 ; // eat whitespace
 	YY_BREAK
 case 50:
 /* rule 50 can match eol */
 YY_RULE_SETUP
-#line 246 "lex.l"
+#line 244 "lex.l"
 {
 	++line_no;
 }
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 250 "lex.l"
+#line 248 "lex.l"
 {
 	yylval.name=strdup(yytext);
 	return NAME;
@@ -1202,20 +1214,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 255 "lex.l"
+#line 253 "lex.l"
 { return 0;}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 258 "lex.l"
+#line 256 "lex.l"
 return yytext[0];
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 260 "lex.l"
+#line 258 "lex.l"
 ECHO;
 	YY_BREAK
-#line 1219 "lex.c"
+#line 1231 "lex.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -1403,7 +1415,7 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-			size_t num_to_read =
+			int num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -1951,10 +1963,10 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
  * @note If you want to scan bytes that may contain NUL values, then use
  *       yy_scan_bytes() instead.
  */
-YY_BUFFER_STATE yy_scan_string (yyconst char * str )
+YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )
 {
     
-	return yy_scan_bytes(str,strlen(str) );
+	return yy_scan_bytes(yystr,strlen(yystr) );
 }
 
 /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
@@ -1964,7 +1976,7 @@ YY_BUFFER_STATE yy_scan_string (yyconst char * str )
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE yy_scan_bytes  (yyconst char * bytes, int  len )
+YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
 {
 	YY_BUFFER_STATE b;
 	char *buf;
@@ -1972,15 +1984,15 @@ YY_BUFFER_STATE yy_scan_bytes  (yyconst char * bytes, int  len )
 	int i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
-	n = len + 2;
+	n = _yybytes_len + 2;
 	buf = (char *) yyalloc(n  );
 	if ( ! buf )
 		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_bytes()" );
 
-	for ( i = 0; i < len; ++i )
-		buf[i] = bytes[i];
+	for ( i = 0; i < _yybytes_len; ++i )
+		buf[i] = yybytes[i];
 
-	buf[len] = buf[len+1] = YY_END_OF_BUFFER_CHAR;
+	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
 
 	b = yy_scan_buffer(buf,n );
 	if ( ! b )
@@ -2082,6 +2094,34 @@ void yyset_debug (int  bdebug )
         yy_flex_debug = bdebug ;
 }
 
+static int yy_init_globals (void)
+{
+        /* Initialization is the same as for the non-reentrant scanner.
+     * This function is called from yylex_destroy(), so don't allocate here.
+     */
+
+    (yy_buffer_stack) = 0;
+    (yy_buffer_stack_top) = 0;
+    (yy_buffer_stack_max) = 0;
+    (yy_c_buf_p) = (char *) 0;
+    (yy_init) = 0;
+    (yy_start) = 0;
+
+/* Defined in main.c */
+#ifdef YY_STDINIT
+    yyin = stdin;
+    yyout = stdout;
+#else
+    yyin = (FILE *) 0;
+    yyout = (FILE *) 0;
+#endif
+
+    /* For future reference: Set errno on error, since we are called by
+     * yylex_init()
+     */
+    return 0;
+}
+
 /* yylex_destroy is for both reentrant and non-reentrant scanners. */
 int yylex_destroy  (void)
 {
@@ -2097,6 +2137,10 @@ int yylex_destroy  (void)
 	yyfree((yy_buffer_stack) );
 	(yy_buffer_stack) = NULL;
 
+    /* Reset the globals. This is important in a non-reentrant scanner so the next time
+     * yylex() is called, initialization will occur. */
+    yy_init_globals( );
+
     return 0;
 }
 
@@ -2108,7 +2152,7 @@ int yylex_destroy  (void)
 static void yy_flex_strncpy (char* s1, yyconst char * s2, int n )
 {
 	register int i;
-    	for ( i = 0; i < n; ++i )
+	for ( i = 0; i < n; ++i )
 		s1[i] = s2[i];
 }
 #endif
@@ -2117,7 +2161,7 @@ static void yy_flex_strncpy (char* s1, yyconst char * s2, int n )
 static int yy_flex_strlen (yyconst char * s )
 {
 	register int n;
-    	for ( n = 0; s[n]; ++n )
+	for ( n = 0; s[n]; ++n )
 		;
 
 	return n;
@@ -2148,7 +2192,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 260 "lex.l"
+#line 258 "lex.l"
 
 
 

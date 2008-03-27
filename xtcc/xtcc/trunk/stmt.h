@@ -378,7 +378,6 @@ struct decl_stmt: public stmt{
 	{}
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
-
 		if(fptr){
 			if(type >= INT8_TYPE && type <=DOUBLE_TYPE){
 				fprintf(fptr,"%s %s;\n", noun_list[type].sym, symp->name);
@@ -391,7 +390,6 @@ struct decl_stmt: public stmt{
 			}
 			if(prev) prev->print_stmt_lst(fptr);
 		}
-
 	}
 	~decl_stmt(){ 
 		cout << "deleting decl_stmt" << endl;

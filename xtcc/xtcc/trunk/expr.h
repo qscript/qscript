@@ -56,6 +56,7 @@ struct bin_expr: public expr{
 			++no_errors;
 			cerr << "  non lvalue used on LHS of oper_blk_arr_assgn: line_no: " << line_no << endl;
 		}
+		type=lcm_type(l_op->type, r_op->type);
 	}
 	bool is_lvalue(){ return false; }
 	void print_oper_assgn(FILE * edit_out);

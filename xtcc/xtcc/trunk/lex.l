@@ -48,12 +48,10 @@
 
 	/* NxD: I shamelessly copied this out of flex's man page */	
 "/*"         BEGIN(comment);
-
 <comment>[^*\n]*        /* eat anything that's not a '*' */
 <comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */
 <comment>\n             ++line_no;
 <comment>"*"+"/"        BEGIN(INITIAL);
-
 
 \/\/.*	{
 	// ignore Comment

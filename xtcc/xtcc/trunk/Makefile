@@ -175,7 +175,7 @@ BUILT_SOURCES = type.h type.c lex.c
 xtcc_LDADD = -lfl
 EXTRA_DIST = sample.dat sample2.dat
 AUTOMAKE_OPTIONS = dejagnu
-RUNTESTDEFAULTFLAGS = --tool xtcc --verbose XTCC=`pwd`/xtcc XTCC_TEST_DATA=`pwd`/xtcc/sample2.dat --srcdir $$srcdir/testsuite
+RUNTESTDEFAULTFLAGS = --tool xtcc --verbose XTCC=`pwd`/xtcc XTCC_TEST_DATA=`pwd`/sample2.dat --srcdir $$srcdir/testsuite
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

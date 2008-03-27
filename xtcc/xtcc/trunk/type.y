@@ -252,9 +252,9 @@ func_defn:
 	} compound_stmt {
 		struct cmpd_stmt* c_stmt= $7;
 		if(c_stmt==0){
-			cout << "c_stmt==0" << endl;
+			cerr << "INTERNAL COMPILER ERROR: c_stmt==0" << endl;
 		} else {
-			cout << "func_body: is valid " << endl;
+			//cout << "func_body: is valid " << endl;
 		}
 		struct scope *sc=c_stmt->sc;
 		struct var_list * v_list=trav_chain($4);
@@ -264,8 +264,8 @@ func_defn:
 		/*$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, cmpd_stmt, search_for, return_type);
 			// This gives an error - we have to fool the compiler*/
 		$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, func_body, search_for, return_type);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		//void *ptr=$$;
+		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		// Note that the declaration already has a parameter list
 		// the constructor uses the parameter list - name and type to verify everything
@@ -310,7 +310,8 @@ func_decl:	xtcc_type NAME '(' decl_comma_list ')' ';'{
 		datatype return_type=$1;
 		$$=new func_decl_stmt( FUNC_TYPE, line_no, name,  v_list, return_type);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		//mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		//free(name);
 	}
@@ -331,8 +332,8 @@ decl_comma_list: var_decl	{
 var_decl:	xtcc_type NAME 	{
 		//cout << "creating simple var of type: " << $1 << endl;
 		$$=new var_list($1, $2);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		//void *ptr=$$;
+		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		free($2);
 	}
@@ -341,8 +342,8 @@ var_decl:	xtcc_type NAME 	{
 		//cout << "creating arr var of type: " << $1 << endl;
 		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
 		$$=new var_list(dt, $2, $4);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		//void *ptr=$$;
+		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		free($2);
 	}
@@ -350,8 +351,8 @@ var_decl:	xtcc_type NAME 	{
 		//cout << "creating ref var of type: " << $1 << endl;
 		datatype dt=datatype(INT8_REF_TYPE+($1-INT8_TYPE));
 		$$=new var_list(dt, $3);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		//void *ptr=$$;
+		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		free($3);
 	}
@@ -382,12 +383,12 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 			   ++ no_errors;
 			   $$=new struct err_stmt(line_no);
 			   void *ptr=$$;
-			   mem_addr_tab m1(ptr, line_no);
+			   mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 			   mem_addr.push_back(m1);
 		   } else{
 			   $$ = new struct for_stmt(FOR_STMT, line_no, $3, $5, $7, $10);
-			   void *ptr=$$;
-			   mem_addr_tab m1(ptr, line_no);
+			   //void *ptr=$$;
+			   mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 			   mem_addr.push_back(m1);
 		   }
 		   --in_a_loop;
@@ -396,13 +397,13 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	| expression ';' { 
 		if($1->isvalid()){
 			$$ = new expr_stmt(TEXPR_STMT, line_no, $1);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			//void *ptr=$$;
+			mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			$$ = new expr_stmt(ERROR_TYPE, line_no, $1);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			//void *ptr=$$;
+			mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
 		//printf("= %g\n", $1); 
@@ -415,9 +416,9 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	}
 	|	list_stmt
 	|	BREAK ';'{
-		$$=new struct break_stmt(BREAK_STMT, line_no);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		$$=new break_stmt(BREAK_STMT, line_no);
+		//void *ptr=$$;
+		mem_addr_tab m1($$, line_no,__FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if (!in_a_loop){
 			cerr << "break statement outside a loop: line_no: " << line_no<< endl;
@@ -425,9 +426,9 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 		}
 	}
 	| 	CONTINUE ';' {
-		$$=new struct continue_stmt(CONTINUE_STMT, line_no);
+		$$=new continue_stmt(CONTINUE_STMT, line_no);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if (!in_a_loop){
 			cerr << "continue statement outside a loop: line_no: " << line_no<< endl;
@@ -440,7 +441,7 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 		++no_errors;
 		$$ = new struct err_stmt(line_no);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		yyerrok;
 	}
@@ -453,7 +454,7 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			++no_errors;
 			$$=new err_stmt(line_no);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
@@ -463,13 +464,13 @@ list_stmt:	 LISTA NAME TEXT ';'{
 					<< " should be of basic type: " << line_no << endl;
 				++no_errors;
 				$$=new struct err_stmt(line_no);
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				//void *ptr=$$;
+				mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			} else {
 				$$=new list_stmt(LISTA_BASIC_TYPE_STMT, line_no, se);
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				//void *ptr=$$;
+				mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			}
 		}
@@ -482,8 +483,8 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			cerr << "symbol: " << $2 << " not found in symbol table" << endl;
 			++no_errors;
 			$$=new err_stmt(line_no);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			//void *ptr=$$;
+			mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
@@ -494,12 +495,12 @@ list_stmt:	 LISTA NAME TEXT ';'{
 				++no_errors;
 				$$=new err_stmt(line_no);
 				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			} else {
 				$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, line_no, se, $4, -1, string($6));
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				//void *ptr=$$;
+				mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			}
 		}
@@ -512,8 +513,8 @@ list_stmt:	 LISTA NAME TEXT ';'{
 			cerr << "symbol: " << $2 << " not found in symbol table" << endl;
 			++no_errors;
 			$$=new err_stmt(line_no);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			//void *ptr=$$;
+			mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			struct symtab_ent* se=sym_it->second;
@@ -524,8 +525,8 @@ list_stmt:	 LISTA NAME TEXT ';'{
 				++no_errors;
 			} else {
 				$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_2INDEX, line_no, se, $4, $6, string($8));
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				//void *ptr=$$;
+				mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			}
 		}
@@ -538,13 +539,13 @@ if_stmt: IF '(' expression ')' statement{
 			++no_errors;
 			$$=new err_stmt(line_no);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 			cerr << "Error: If condition has void or Error type:" << line_no << endl;
 		} else {
 			$$=new if_stmt(IFE_STMT,line_no,$3,$5,0);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
 	}
@@ -553,13 +554,13 @@ if_stmt: IF '(' expression ')' statement{
 			++no_errors;
 			$$=new err_stmt(line_no);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 			cerr << "Error: If condition has void or Error type:" << line_no << endl;
 		} else {
 			$$=new if_stmt(IFE_STMT, line_no,$3,$5,$7);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
 	}
@@ -578,14 +579,14 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 			++no_errors;
 			$$=new err_stmt(line_no);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else if(sym_it1==active_scope->sym_tab.end()){
 			cerr << "Error: could not find:" << $2<<"  in symbol table: lineno: " << line_no << "\n";
 			++no_errors;
 			$$=new err_stmt(line_no);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else if (sym_it2==active_scope->sym_tab.end()){
 			cerr << "Error: could not find:" << $4
@@ -593,7 +594,7 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 			++no_errors;
 			$$=new err_stmt(line_no);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			// first some validation checks
@@ -606,7 +607,7 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 				++no_errors;
 				$$ = new err_stmt(line_no);
 				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			} else if (!(width==sizeof(INT8_TYPE) || width==sizeof(INT16_TYPE)
 					||width==sizeof(INT32_TYPE))	){
@@ -616,7 +617,7 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 				++no_errors;
 				$$ = new err_stmt(line_no);
 				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			} else {
 				//everything is ok
@@ -625,7 +626,7 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 				$$ = new fld_stmt(sym_it1->second, sym_it2->second, 
 					start_col, end_col, width);
 				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			}
 		}
@@ -643,7 +644,7 @@ compound_stmt: open_curly statement_list '}'	{
 			++no_errors;
 			$$=new struct cmpd_stmt(ERROR_TYPE, line_no, 0);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else { active_scope = active_scope_list[tmp]; }
 		struct stmt* head_of_this_chain=blk_heads.back();
@@ -665,11 +666,10 @@ compound_stmt: open_curly statement_list '}'	{
 	 */
 
 open_curly:	'{' {
-			cout << "In open_curly: " << endl;
 		++nest_lev;
 		$$ = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if(flag_cmpd_stmt_is_a_func_body>=0){
 			$$->sc=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
@@ -678,7 +678,7 @@ open_curly:	'{' {
 		} else {
 			$$->sc= new scope();
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
 		flag_next_stmt_start_of_block=true;
@@ -701,35 +701,35 @@ expr_list: expression { $$=$1; }
 expression: expression '+' expression {
 		$$=new bin_expr($1, $3, oper_plus);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '-' expression {
 		$$=new bin_expr($1, $3, oper_minus);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '*' expression { 
 		$$=new bin_expr($1, $3, oper_mult);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '/' expression {
 		$$=new bin_expr($1, $3, oper_div);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '%' expression {
 		$$=new bin_expr($1, $3, oper_mod);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if(!(($1->type >= INT8_TYPE && $1->type<=INT32_TYPE)
 				&&
@@ -743,7 +743,7 @@ expression: expression '+' expression {
 	|	'-' expression %prec UMINUS {
 		$$ = new un_expr($2, oper_umin);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if($2->type==VOID_TYPE){
 			cerr << "line_no: " << line_no << " expression of void type: check if you are calling a void function on either side" << endl;
@@ -754,73 +754,73 @@ expression: expression '+' expression {
 	|	expression '<' expression {
 		$$=new bin_expr($1, $3, oper_lt);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '>' expression {
 		$$=new bin_expr($1, $3, oper_gt);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression LEQ expression {
 		$$=new bin_expr($1, $3, oper_le);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression GEQ expression {
 		$$=new bin_expr($1, $3, oper_ge);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression ISEQ expression {
 		$$=new bin_expr($1, $3, oper_iseq);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	|	expression NOEQ expression {
 		$$=new bin_expr($1, $3, oper_isneq);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}	
 	| expression LOGOR expression {
 		$$=new bin_expr($1, $3, oper_or);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}	
 	| expression LOGAND expression {
 		$$=new bin_expr($1, $3, oper_and);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		void_check($1->type, $3->type, $$->type);
 	}
 	| expression '=' expression {
 		datatype typ1=$1->type;
 		datatype typ2=$3->type;
-		cout << " oper_assgn: LHS type" << typ1 << " RHS type: " << typ2 << endl;
+		//cout << " oper_assgn: LHS type" << typ1 << " RHS type: " << typ2 << endl;
 		bool b1=check_type_compat(typ1, typ2)&& $1->is_lvalue();
 		if($1->is_lvalue()){
 			$$ = new bin_expr($1, $3, oper_assgn);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			$$ = new un2_expr(ERROR_TYPE);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 			++no_errors;
 			cerr << "oper_assgn error on line: " << line_no<< endl;
@@ -829,7 +829,7 @@ expression: expression '+' expression {
 	|	NOT expression {
 		$$ = new un_expr($2, oper_not);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if($2->type==VOID_TYPE){
 			cerr << "line_no: " << line_no << " expression of void type: applying operator ! to void expr" << endl;
@@ -840,14 +840,14 @@ expression: expression '+' expression {
 	|	INUMBER	{
 		$$ = new un2_expr($1);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		//cerr << "type.y: parsed integer: type" << $$->type << endl;
 	}
 	|	FNUMBER {
 		$$ = new un2_expr($1);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 	}
 	|	NAME	{
@@ -857,12 +857,12 @@ expression: expression '+' expression {
 			++no_errors;
 			$$ = new un2_expr(ERROR_TYPE);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			$$ = new un2_expr(sym_it->second );
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
 		free($1);
@@ -875,7 +875,7 @@ expression: expression '+' expression {
 			++no_errors;
 			$$ = new un2_expr(ERROR_TYPE);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			symtab_ent* se=sym_it->second;
@@ -888,12 +888,12 @@ expression: expression '+' expression {
 					++no_errors;
 					$$ = new un2_expr(ERROR_TYPE);
 					void *ptr=$$;
-					mem_addr_tab m1(ptr, line_no);
+					mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 					mem_addr.push_back(m1);
 				} else {
 					$$ = new un2_expr(oper_arrderef, nametype,  se, $3);
 					void *ptr=$$;
-					mem_addr_tab m1(ptr, line_no);
+					mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 					mem_addr.push_back(m1);
 				}
 			} else {
@@ -901,7 +901,7 @@ expression: expression '+' expression {
 				++no_errors;
 				$$ = new un2_expr(ERROR_TYPE);
 				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			}
 		}
@@ -924,7 +924,7 @@ expression: expression '+' expression {
 				++no_errors;
 			$$ = new un2_expr(ERROR_TYPE);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} /*else if(!(lse->type==INT32_TYPE || lse->type==FLOAT_TYPE)){
 			cerr << "ERROR: LHS:  " << $1 << ":line_no:" << line_no 
@@ -942,20 +942,20 @@ expression: expression '+' expression {
 				if(d1==ERROR_TYPE){
 					$$ = new un2_expr(ERROR_TYPE);
 					void *ptr=$$;
-					mem_addr_tab m1(ptr, line_no);
+					mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 					mem_addr.push_back(m1);
 					cerr << "Type Error:  x: lineno: " << line_no << "\n";
 					++no_errors;
 				} else {
 					$$ = new un2_expr(oper_blk_arr_assgn, d1, se,$3,$5);
 					void *ptr=$$;
-					mem_addr_tab m1(ptr, line_no);
+					mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 					mem_addr.push_back(m1);
 				}
 			} else {
 				$$ = new un2_expr(ERROR_TYPE);
 				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 				cerr << "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
 					<< line_no << "\n";
@@ -977,7 +977,7 @@ expression: expression '+' expression {
 			++ no_errors;
 			$$=new un2_expr(ERROR_TYPE);
 			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no);
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			datatype my_type=func_info_table[index]->return_type;
@@ -991,13 +991,13 @@ expression: expression '+' expression {
 				//$$=new un2_expr(oper_func_call, my_type, $3, index, line_no);
 				$$=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
 				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 
 			} else {
 				$$=new un2_expr(ERROR_TYPE);
 				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no);
+				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			}
 		}
@@ -1006,13 +1006,13 @@ expression: expression '+' expression {
 	|	TEXT {
 		$$ = new un2_expr(strdup($1));
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
 		$$ = new un_expr($2, oper_parexp );
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 	}
 	;
@@ -1034,7 +1034,7 @@ tab_defn:
 		//printf("got table defn: no filter\n");
 		$$=new table($2,$3, line_no);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		// default value for constructor tbl_ptr->filter=NULL;
 		table_list.push_back($$);
@@ -1044,7 +1044,7 @@ tab_defn:
 		//printf("got table defn: with filter\n");
 		$$=new table($2,$3, line_no, $6);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		table_list.push_back($$);
 		//free($2); free($3);
@@ -1067,7 +1067,7 @@ ax_defn:	AX NAME ';' ax_stmt_list {
 		basic_ax_stmt* bptr= trav_chain($4);
 		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, 0);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		
 		ax_map[$2]=$$;
@@ -1082,7 +1082,7 @@ ax_defn:	AX NAME ';' ax_stmt_list {
 		basic_ax_stmt* bptr= trav_chain($7);
 		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, $5);
 		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no);
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		ax_map[$2]=$$;
 #ifdef DEBUG_GRAM
@@ -1152,14 +1152,29 @@ extern void yyrestart ( FILE *input_file );
 #include <fcntl.h>
 #include <unistd.h>
 
+fstream debug_log_file("xtcc_debug.log", ios_base::out|ios_base::trunc);
 void	print_memory_leaks();
 char default_work_dir[]="xtcc_work";
 char * work_dir=default_work_dir;
 void reset_files();
 int main(int argc, char* argv[]/*, char* envp[]*/){
+	if(!debug_log_file){
+		cerr << "unable to open xtcc_debug.log file for debugging info ... exiting\n";
+		exit(1);
+	}
 	bool exit_flag=false;
 	opterr=1;
 	int c;
+	// temp hack
+	/*
+	if(argc>1){
+		for(int i=1; i<argc ; ++i){
+			printf("i:%d, argv[%d]:%s ", i, i, argv[i]);
+		}
+		printf("\n");
+		exit(1);
+	}
+	*/
 
 	while((c=getopt(argc, argv, "w:"))!=-1){
 		switch(c){
@@ -1181,7 +1196,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 				exit(1);
 		}
 	}
-	printf("work dir set to %s\n", work_dir);
+	//printf("work dir set to %s\n", work_dir);
 
 
 	if(argc-optind<2) {
@@ -1306,6 +1321,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	fclose(axes_drv_func);
 	fclose(tab_summ_func);
 	bool my_compile_flag=true;
+	printf("parsing over\n about to begin compiling\n");
 	if(my_compile_flag&&!compile(XTCC_HOME, work_dir)){
 		char * endptr=0;
 		int convert_to_base=10;
@@ -1333,7 +1349,11 @@ void	print_memory_leaks(){
 		exit(1);
 	}
 	for(int i=0; i< mem_addr.size(); ++i ){
-		mem_leak_log << "addr: " << mem_addr[i].mem_ptr << " line: " << mem_addr[i].line_number << endl;
+		mem_leak_log << "addr: " << mem_addr[i].mem_ptr 
+			<< " line: " << mem_addr[i].line_number 
+			<< "src file: " << mem_addr[i].src_file 
+			<< "src line_no: " << mem_addr[i].src_file_line_no
+			<< endl;
 	}
 }
 
@@ -1361,7 +1381,7 @@ void clean_up(){
 
 
 bool check_type_compat(datatype typ1, datatype typ2){
-	cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
+	//cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
 	datatype td1=typ1;
 	datatype td2=typ2;
 	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + typ1-INT8_REF_TYPE);
@@ -1882,4 +1902,7 @@ void reset_files(){
 	ofstream tab_op("tab_.csv", ios_base::out|ios_base::trunc);
 	tab_op << endl;
 	tab_op.close();
+}
+
+void print_err_mesg(){
 }

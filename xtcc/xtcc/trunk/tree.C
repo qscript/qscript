@@ -45,10 +45,11 @@ struct expr * new_expr(){
 
 
 datatype lcm_type(datatype d1, datatype d2){
-	cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
+	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	datatype td1=d1, td2=d2;
 	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
 	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + d2-INT8_REF_TYPE);
+	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
 
 	if((td1>=INT8_TYPE && td1<=DOUBLE_TYPE)&&
 		(td2>=INT8_TYPE && td2<=DOUBLE_TYPE)){
@@ -57,13 +58,11 @@ datatype lcm_type(datatype d1, datatype d2){
 			return td2;
 		}
 	} else {
-		cerr << "lcm_type: error" << endl;
+		cerr << "lcm_type: error: LHS type d1:" << d1 << " RHS type: d2:" << d2 << endl;
+		cerr << "lcm_type: error: LHS type td1:" << td1 << " RHS type: td2:" << td2 << endl;
 		++ no_errors;
 		return ERROR_TYPE;
 	}
-
-
-
 }
 
 datatype arr_deref_type(datatype d1){
@@ -109,4 +108,13 @@ func_info::~func_info(){
 	//if(func_body) { delete func_body; func_body=0; }
 	// func_scope was created by in the constructor - so we delete it
 	if(func_scope) { delete func_scope; func_scope=0; }
+}
+
+#include <vector>
+using std::vector;
+extern vector <mem_addr_tab> mem_addr;
+void mem_log(void * ptr, int compiler_src_line_no, char* compiler_src_fname,
+                int input_prog_line_no){
+        mem_addr_tab m1(ptr, compiler_src_line_no, compiler_src_fname, input_prog_line_no);
+        mem_addr.push_back(m1);
 }

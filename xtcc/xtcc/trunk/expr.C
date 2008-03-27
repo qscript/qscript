@@ -27,6 +27,9 @@
 #include "tree.h"
 #include "expr.h"
 #include <vector>
+#include <fstream>
+
+extern ofstream debug_log_file;
 using namespace std;
 
 extern	vector <func_info*> func_info_table;
@@ -52,7 +55,7 @@ un_expr::~un_expr(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			cout << "un_expr::~un2_expr: setting mem_addr=0" << endl;
+			debug_log_file << "un_expr::~un2_expr: setting mem_addr=0" << endl;
 			break;
 		}
 	}
