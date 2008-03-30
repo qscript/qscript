@@ -29,6 +29,7 @@
 
 #include <cstdlib>
 
+enum compiler_err_category{compiler_syntax_err, compiler_sem_err, compiler_internal_error};
 enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
 		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
 		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
@@ -37,6 +38,7 @@ enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, ope
 	};
 
 #include "symtab.h"
+bool is_of_int_type(datatype dt);
 
 extern noun_list_type noun_list[];
 datatype lcm_type(datatype d1, datatype d2);
@@ -191,6 +193,7 @@ void mem_log(void * ptr, int compiler_src_line_no, char* compiler_src_fname,
 
 extern struct stmt * tree_root;
 
+bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
 
 
 

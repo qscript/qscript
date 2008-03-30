@@ -40,8 +40,9 @@
 
 	using namespace std;
 
+	const bool XTCC_DEBUG_MEM_USAGE=1;
+
 //	struct symtab symtab;
-	using namespace std;
 	int no_errors=0;
 	int no_warn=0;
 	int yylex();
@@ -69,6 +70,8 @@
 	bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
+	void print_err(compiler_err_category cmp_err, 
+			string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
 
 	int flag_cmpd_stmt_is_a_func_body=-1;
 	int lookup_func(string func_name_index);
@@ -700,45 +703,33 @@ expr_list: expression { $$=$1; }
 
 expression: expression '+' expression {
 		$$=new bin_expr($1, $3, oper_plus);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression '-' expression {
 		$$=new bin_expr($1, $3, oper_minus);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression '*' expression { 
 		$$=new bin_expr($1, $3, oper_mult);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression '/' expression {
 		$$=new bin_expr($1, $3, oper_div);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression '%' expression {
 		$$=new bin_expr($1, $3, oper_mod);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		if(!(($1->type >= INT8_TYPE && $1->type<=INT32_TYPE)
-				&&
-			($3->type>=INT8_TYPE && $3->type<=INT32_TYPE))){
-				cerr << " operands of % should be of type int or char only" << endl;
-				++no_errors;
-				$$->type=ERROR_TYPE;
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-		void_check($1->type, $3->type, $$->type);
 	}
 	|	'-' expression %prec UMINUS {
 		$$ = new un_expr($2, oper_umin);
@@ -756,56 +747,56 @@ expression: expression '+' expression {
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		//void_check($1->type, $3->type, $$->type);
 	}
 	|	expression '>' expression {
 		$$=new bin_expr($1, $3, oper_gt);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		//void_check($1->type, $3->type, $$->type);
 	}
 	|	expression LEQ expression {
 		$$=new bin_expr($1, $3, oper_le);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		//void_check($1->type, $3->type, $$->type);
 	}
 	|	expression GEQ expression {
 		$$=new bin_expr($1, $3, oper_ge);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		//void_check($1->type, $3->type, $$->type);
 	}
 	|	expression ISEQ expression {
 		$$=new bin_expr($1, $3, oper_iseq);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		//void_check($1->type, $3->type, $$->type);
 	}
 	|	expression NOEQ expression {
 		$$=new bin_expr($1, $3, oper_isneq);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		//void_check($1->type, $3->type, $$->type);
 	}	
 	| expression LOGOR expression {
 		$$=new bin_expr($1, $3, oper_or);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		//void_check($1->type, $3->type, $$->type);
 	}	
 	| expression LOGAND expression {
 		$$=new bin_expr($1, $3, oper_and);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		void_check($1->type, $3->type, $$->type);
+		//void_check($1->type, $3->type, $$->type);
 	}
 	| expression '=' expression {
 		datatype typ1=$1->type;
@@ -1577,16 +1568,30 @@ int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_
 	}
 }
 
+bool is_of_int_type(datatype dt){
+	return (dt >= INT8_TYPE && dt <=INT32_TYPE);
+}
+
 bool 	void_check( datatype & type1, datatype & type2, datatype& result_type){
-	if(type1==VOID_TYPE|| type2==VOID_TYPE){
-		cerr << "line_no: " << line_no << " either left or rhs of operator - is of void type: check if you are calling a void function on either side" << endl;
+	if(type1==VOID_TYPE){
+		print_err(compiler_sem_err, " lhs of binary expr is of type void ", 
+			line_no, __LINE__, __FILE__);
 		result_type=ERROR_TYPE;
 		++no_errors;
 		return false;
-	} else {
+	} 
+	if( type2==VOID_TYPE){
+		print_err(compiler_sem_err, " rhs of binary expr is of type void ", 
+			line_no, __LINE__, __FILE__);
+		result_type=ERROR_TYPE;
+		++no_errors;
+		return false;
+	}
+	if( !(type1==VOID_TYPE && type2==VOID_TYPE)){
 		result_type=type1 > type2? type1: type2;
 		return true;
 	}
+	//return true;
 }
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
@@ -1904,5 +1909,26 @@ void reset_files(){
 	tab_op.close();
 }
 
-void print_err_mesg(){
+
+void print_err(compiler_err_category cmp_err, string err_msg, 
+	int line_no, int compiler_line_no, string compiler_file_name){
+	++no_errors;
+	switch(cmp_err){
+		case compiler_syntax_err: 
+			cerr << "syntax error: ";
+		break;
+		case compiler_sem_err:
+			cerr << "semantic error: ";
+		break;
+		case compiler_internal_error:
+			cerr << "compiler internal error: " ;
+		break;	
+		default:
+			cerr << "internal compiler error - error code category missing in switch statement: compiler file" 
+				<< __FILE__ << " compiler src code lineno: " << __LINE__ << endl;
+			
+	}
+	cerr << "Error: line_no: " << line_no << err_msg << ", compiler line_no: " 
+		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
 }
+

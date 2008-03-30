@@ -46,18 +46,7 @@ struct bin_expr: public expr{
 	protected:
 	expr *l_op, *r_op;
 	public:
-	bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), l_op(llop), r_op(lrop){
-		if (e_type!=oper_assgn && (l_op->e_type==oper_blk_arr_assgn||r_op->e_type==oper_blk_arr_assgn)){
-			type=ERROR_TYPE;
-			++no_errors;
-			cerr << " oper_blk_arr_assgn: used in binary expr " << line_no << endl;
-		} else if (e_type ==oper_assgn && (!l_op->is_lvalue()) ){
-			type=ERROR_TYPE;
-			++no_errors;
-			cerr << "  non lvalue used on LHS of oper_blk_arr_assgn: line_no: " << line_no << endl;
-		}
-		type=lcm_type(l_op->type, r_op->type);
-	}
+	bin_expr(expr* llop, expr* lrop,e_operator_type letype);
 	bool is_lvalue(){ return false; }
 	void print_oper_assgn(FILE * edit_out);
 	void print_expr(FILE * edit_out);

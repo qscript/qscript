@@ -64,35 +64,35 @@ un_expr::~un_expr(){
 }
 
 void un_expr::print_expr (FILE * edit_out){
-		switch(e_type){
-			case oper_umin:{
-				fprintf(edit_out, "- ");
-				operand->print_expr(edit_out);
-			}
-			break;
-
-			case oper_not:{
-				fprintf(edit_out, "! ");
-				operand->print_expr(edit_out);
-			}
-			break;
-
-			case oper_parexp:{
-				fprintf(edit_out, "(");
-				operand->print_expr(edit_out);
-				fprintf(edit_out, ")");
-				}
-			break;
-			default:
-				fprintf(edit_out, " un handled operator\n" );
-
+	switch(e_type){
+		case oper_umin:{
+			fprintf(edit_out, "- ");
+			operand->print_expr(edit_out);
 		}
+		break;
+
+		case oper_not:{
+			fprintf(edit_out, "! ");
+			operand->print_expr(edit_out);
+		}
+		break;
+
+		case oper_parexp:{
+			fprintf(edit_out, "(");
+			operand->print_expr(edit_out);
+			fprintf(edit_out, ")");
+			}
+		break;
+		default:
+			fprintf(edit_out, " un handled operator\n" );
+
 	}
+}
 
 void bin_expr::print_oper_assgn(FILE * edit_out){
 	//fprintf(edit_out, "/*oper_assgn*/ %s =", symp->name);
 	if(r_op->e_type == oper_blk_arr_assgn &&
-			( l_op->e_type==oper_name||l_op->e_type==oper_arrderef)){
+		( l_op->e_type==oper_name||l_op->e_type==oper_arrderef)){
 		un2_expr* blk_e = static_cast<un2_expr*> (r_op);
 		un2_expr* lhs = static_cast<un2_expr*> (l_op);
 		fprintf(edit_out,"/* DATA CONVERSION */\n");
@@ -143,63 +143,58 @@ void bin_expr::print_oper_assgn(FILE * edit_out){
 
 
 void un2_expr::print_expr(FILE * edit_out){
-		switch(e_type){
-			case oper_name:{
-				fprintf(edit_out, "%s ", symp->name);
-			}
-			break;
-			case oper_arrderef:{
-				fprintf(edit_out, "%s[", symp->name);
-				operand->print_expr(edit_out);
-				fprintf(edit_out, "]");
-				}
-			break;
-
-			case oper_num:{
-				fprintf(edit_out, "%d ", isem_value);
-			}
-			break;
-
-		
-			case oper_float:{
-				fprintf(edit_out, "%f ", dsem_value);
-			}
-			break;
-
-			case oper_func_call:{
-				//cout << "/* oper_func_call */" << endl;
-				//cout << "func_index_in_table: " << func_info_table[e->func_index_in_table]->fname << endl;
-				if(func_info_table[func_index_in_table]->fname==string("printf")){
-					fprintf(edit_out, "fprintf(xtcc_stdout,");
-				} else {
-					fprintf(edit_out, "%s(", func_info_table[func_index_in_table]->fname.c_str());
-				}
-				struct expr* e_ptr=operand;
-				//fprintf(edit_out,  "/*print_expr: oper_func_call:  %s*/", func_info_table[func_index_in_table]->fname.c_str() );
-				while(e_ptr){
-					e_ptr->print_expr(edit_out);
-					if(e_ptr->prev){
-						fprintf(edit_out, ", ");
-					} 
-					e_ptr=e_ptr->prev;
-				}
-				fprintf(edit_out, ")");
-			}
-			break;
-			case oper_text_expr:{
-				fprintf(edit_out, "%s", text);
-			}
-			break;
-
-
-			case oper_blk_arr_assgn: {
-				fprintf(edit_out,"This case should not occur\n");
-			}
-			break;
-			default:
-				fprintf(edit_out, "unhandled expr operator\n");
+	switch(e_type){
+		case oper_name:{
+			fprintf(edit_out, "%s ", symp->name);
 		}
+		break;
+		case oper_arrderef:{
+			fprintf(edit_out, "%s[", symp->name);
+			operand->print_expr(edit_out);
+			fprintf(edit_out, "]");
+			}
+		break;
+
+		case oper_num:{
+			fprintf(edit_out, "%d ", isem_value);
+		}
+		break;
+		case oper_float:{
+			fprintf(edit_out, "%f ", dsem_value);
+		}
+		break;
+		case oper_func_call:{
+			//cout << "/* oper_func_call */" << endl;
+			//cout << "func_index_in_table: " << func_info_table[e->func_index_in_table]->fname << endl;
+			if(func_info_table[func_index_in_table]->fname==string("printf")){
+				fprintf(edit_out, "fprintf(xtcc_stdout,");
+			} else {
+				fprintf(edit_out, "%s(", func_info_table[func_index_in_table]->fname.c_str());
+			}
+			struct expr* e_ptr=operand;
+			//fprintf(edit_out,  "/*print_expr: oper_func_call:  %s*/", func_info_table[func_index_in_table]->fname.c_str() );
+			while(e_ptr){
+				e_ptr->print_expr(edit_out);
+				if(e_ptr->prev){
+					fprintf(edit_out, ", ");
+				} 
+				e_ptr=e_ptr->prev;
+			}
+			fprintf(edit_out, ")");
+		}
+		break;
+		case oper_text_expr:{
+			fprintf(edit_out, "%s", text);
+		}
+		break;
+		case oper_blk_arr_assgn: {
+			fprintf(edit_out,"This case should not occur\n");
+		}
+		break;
+		default:
+			fprintf(edit_out, "unhandled expr operator\n");
 	}
+}
 
 void bin_expr::print_expr(FILE * edit_out){
 	switch(e_type){
@@ -298,11 +293,8 @@ void bin_expr::print_expr(FILE * edit_out){
 			r_op->print_expr(edit_out);
 			}
 		break;
-
 		default:
 			fprintf(edit_out, " unhandled operator type in expr  " );
-			
-		
 	}
 }
 
@@ -335,4 +327,45 @@ un2_expr::~un2_expr(){
 	if(operand) { delete operand; operand=0; }
 	if(operand2) { delete operand2; operand2=0;}
 	//if(symp) { delete symp; symp=0; }
+}
+
+bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), l_op(llop), r_op(lrop){
+	if (e_type!=oper_assgn && (l_op->e_type==oper_blk_arr_assgn||r_op->e_type==oper_blk_arr_assgn)){
+		type=ERROR_TYPE;
+		++no_errors;
+		cerr << " oper_blk_arr_assgn: used in binary expr " << line_no << endl;
+	} else if (e_type ==oper_assgn && (!l_op->is_lvalue()) ){
+		type=ERROR_TYPE;
+		++no_errors;
+		cerr << "  non lvalue used on LHS of oper_blk_arr_assgn: line_no: " << line_no << endl;
+	}
+	switch(e_type){
+		case oper_plus:
+		case oper_minus:
+		case oper_mult:
+		case oper_div:
+		case oper_mod:
+		case oper_le:	
+		case oper_lt:	
+		case oper_ge :	
+		case oper_gt :	
+		case oper_isneq :	
+		case oper_iseq :	
+		case oper_or :	
+		case oper_and :	
+			if(void_check(l_op->type, r_op->type, type)/*true*/){
+				type=lcm_type(l_op->type, r_op->type);
+			}
+			if(e_type==oper_mod && 
+				!( is_of_int_type(l_op->type)
+					&&
+				 is_of_int_type(r_op->type))){
+					cerr << " operands of %% should be of type int/char only" << endl;
+					++no_errors;
+					type=ERROR_TYPE;
+			}
+		break;
+		default:
+			;
+	}
 }
