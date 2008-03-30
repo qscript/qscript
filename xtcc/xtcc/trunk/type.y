@@ -70,8 +70,6 @@
 	bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
-	void print_err(compiler_err_category cmp_err, 
-			string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
 
 	int flag_cmpd_stmt_is_a_func_body=-1;
 	int lookup_func(string func_name_index);
@@ -733,70 +731,57 @@ expression: expression '+' expression {
 	}
 	|	'-' expression %prec UMINUS {
 		$$ = new un_expr($2, oper_umin);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		if($2->type==VOID_TYPE){
-			cerr << "line_no: " << line_no << " expression of void type: check if you are calling a void function on either side" << endl;
-			$$->type=ERROR_TYPE;
-			++no_errors;
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '<' expression {
 		$$=new bin_expr($1, $3, oper_lt);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression '>' expression {
 		$$=new bin_expr($1, $3, oper_gt);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression LEQ expression {
 		$$=new bin_expr($1, $3, oper_le);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression GEQ expression {
 		$$=new bin_expr($1, $3, oper_ge);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression ISEQ expression {
 		$$=new bin_expr($1, $3, oper_iseq);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	expression NOEQ expression {
 		$$=new bin_expr($1, $3, oper_isneq);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}	
 	| expression LOGOR expression {
 		$$=new bin_expr($1, $3, oper_or);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}	
 	| expression LOGAND expression {
 		$$=new bin_expr($1, $3, oper_and);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//void_check($1->type, $3->type, $$->type);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	| expression '=' expression {
 		datatype typ1=$1->type;
@@ -1909,7 +1894,8 @@ void reset_files(){
 	tab_op.close();
 }
 
-
+#include <string>
+using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg, 
 	int line_no, int compiler_line_no, string compiler_file_name){
 	++no_errors;

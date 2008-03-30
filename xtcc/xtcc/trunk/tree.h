@@ -39,6 +39,10 @@ enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, ope
 
 #include "symtab.h"
 bool is_of_int_type(datatype dt);
+#include <string>
+using std::string;
+void print_err(compiler_err_category cmp_err, 
+		string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
 
 extern noun_list_type noun_list[];
 datatype lcm_type(datatype d1, datatype d2);

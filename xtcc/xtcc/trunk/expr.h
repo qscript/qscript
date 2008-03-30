@@ -26,15 +26,7 @@ struct un_expr : public expr{
 	protected:
 	expr* operand;
 	public:
-	un_expr( expr * l_operand=0, e_operator_type le_type=oper_err):expr(le_type), operand(l_operand){
-		if(operand->e_type==oper_blk_arr_assgn){
-			++no_errors;
-			cerr << "oper_blk_arr_assgn: cannot be used with unary operators : line_no:" 
-				<< line_no << endl;
-		} else {
-			type=INT8_TYPE;
-		}
-	}
+	un_expr( expr * l_operand=0, e_operator_type le_type=oper_err);
 	bool is_lvalue(){ return false; }
 	void print_expr(FILE * edit_out);
 	virtual ~un_expr();

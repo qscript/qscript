@@ -63,6 +63,45 @@ un_expr::~un_expr(){
 	if (operand) { delete operand; operand=0; }
 }
 
+#include "tree.h"
+un_expr::un_expr( expr * l_operand, e_operator_type le_type):expr(le_type), operand(l_operand){
+		if(operand->e_type==oper_blk_arr_assgn){
+			print_err(compiler_sem_err, "oper_blk_arr_assgn: cannot be used with unary operators : line_no:",
+				line_no, __LINE__, __FILE__);
+		} else if(l_operand->type==VOID_TYPE){
+			switch(l_operand->e_type){
+				case oper_umin:
+				case oper_not:
+					cerr << "operator Unary minus(-): ";
+					print_err(compiler_sem_err, " unary operator applied to function of type void ", 
+					line_no, __LINE__, __FILE__);
+				break;
+				default: 
+					print_err(compiler_sem_err, " unary operator applied to expr of type void. Internal compiler error ", 
+					line_no, __LINE__, __FILE__);
+			}
+		} else {
+			switch(e_type){
+				case oper_umin:
+					type = l_operand->type;
+				break;
+				case oper_not:
+					type = INT8_TYPE;
+				break;
+				case oper_parexp:
+					type = l_operand->type;
+				break;
+				default:
+					++no_errors;
+					print_err(compiler_internal_error, " unknown unary operator applied to expr. Internal compiler error ", 
+						line_no, __LINE__, __FILE__);
+
+			}
+
+		}
+	}
+
+
 void un_expr::print_expr (FILE * edit_out){
 	switch(e_type){
 		case oper_umin:{
