@@ -398,16 +398,15 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	| expression ';' { 
 		if($1->isvalid()){
 			$$ = new expr_stmt(TEXPR_STMT, line_no, $1);
-			//void *ptr=$$;
-			mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
+			if(XTCC_DEBUG_MEM_USAGE){
+				mem_log($$, __LINE__, __FILE__, line_no);
+			}
 		} else {
 			$$ = new expr_stmt(ERROR_TYPE, line_no, $1);
-			//void *ptr=$$;
-			mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
+			if(XTCC_DEBUG_MEM_USAGE){
+				mem_log($$, __LINE__, __FILE__, line_no);
+			}
 		}
-		//printf("= %g\n", $1); 
 	}
 	|	compound_stmt {
 		$$=$1;
@@ -417,33 +416,25 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	}
 	|	list_stmt
 	|	BREAK ';'{
-		$$=new break_stmt(BREAK_STMT, line_no);
-		//void *ptr=$$;
-		mem_addr_tab m1($$, line_no,__FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		if (!in_a_loop){
-			cerr << "break statement outside a loop: line_no: " << line_no<< endl;
-			++no_errors;
+		$$=new break_stmt(BREAK_STMT, line_no, in_a_loop);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| 	CONTINUE ';' {
-		$$=new continue_stmt(CONTINUE_STMT, line_no);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		if (!in_a_loop){
-			cerr << "continue statement outside a loop: line_no: " << line_no<< endl;
-			++no_errors;
+		$$=new continue_stmt(CONTINUE_STMT, line_no, in_a_loop);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	fld_stmt
 	|	error ';' {
-		cerr << "statement missing ';' around line_no: " << line_no << endl;
-		++no_errors;
+		print_err(compiler_sem_err, "statement missing ';' around line_no: ", 
+			line_no, __LINE__, __FILE__);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 		$$ = new struct err_stmt(line_no);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
 		yyerrok;
 	}
 	;
@@ -784,47 +775,28 @@ expression: expression '+' expression {
 		}
 	}
 	| expression '=' expression {
-		datatype typ1=$1->type;
-		datatype typ2=$3->type;
-		//cout << " oper_assgn: LHS type" << typ1 << " RHS type: " << typ2 << endl;
-		bool b1=check_type_compat(typ1, typ2)&& $1->is_lvalue();
-		if($1->is_lvalue()){
-			$$ = new bin_expr($1, $3, oper_assgn);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else {
-			$$ = new un2_expr(ERROR_TYPE);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-			++no_errors;
-			cerr << "oper_assgn error on line: " << line_no<< endl;
+		$$ = new bin_expr($1, $3, oper_assgn);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	NOT expression {
 		$$ = new un_expr($2, oper_not);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		if($2->type==VOID_TYPE){
-			cerr << "line_no: " << line_no << " expression of void type: applying operator ! to void expr" << endl;
-			$$->type=ERROR_TYPE;
-			++no_errors;
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	INUMBER	{
 		$$ = new un2_expr($1);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//cerr << "type.y: parsed integer: type" << $$->type << endl;
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	FNUMBER {
 		$$ = new un2_expr($1);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	NAME	{
 		map<string,symtab_ent*>::iterator sym_it = find_in_symtab($1);
@@ -902,14 +874,7 @@ expression: expression '+' expression {
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
-		} /*else if(!(lse->type==INT32_TYPE || lse->type==FLOAT_TYPE)){
-			cerr << "ERROR: LHS:  " << $1 << ":line_no:" << line_no 
-				<< " should be of type float or int"
-				<< endl;
-			cerr << "lse type: " << lse->type << endl;
-			++no_errors;
-			$$=new struct err_stmt(line_no);
-		}*/ else {
+		}  else {
 			datatype e_type1=$3->type;
 			datatype e_type2=$5->type;
 			if( (e_type1>=INT8_TYPE && e_type1 <=INT32_TYPE) && 
@@ -981,15 +946,15 @@ expression: expression '+' expression {
 	}
 	|	TEXT {
 		$$ = new un2_expr(strdup($1));
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
 		$$ = new un_expr($2, oper_parexp );
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	;
 

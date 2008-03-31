@@ -77,7 +77,8 @@ un_expr::un_expr( expr * l_operand, e_operator_type le_type):expr(le_type), oper
 					line_no, __LINE__, __FILE__);
 				break;
 				default: 
-					print_err(compiler_sem_err, " unary operator applied to expr of type void. Internal compiler error ", 
+					print_err(compiler_sem_err, 
+						" unary operator applied to expr of type void. Internal compiler error ", 
 					line_no, __LINE__, __FILE__);
 			}
 		} else {
@@ -369,14 +370,30 @@ un2_expr::~un2_expr(){
 }
 
 bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), l_op(llop), r_op(lrop){
+
 	if (e_type!=oper_assgn && (l_op->e_type==oper_blk_arr_assgn||r_op->e_type==oper_blk_arr_assgn)){
 		type=ERROR_TYPE;
 		++no_errors;
-		cerr << " oper_blk_arr_assgn: used in binary expr " << line_no << endl;
-	} else if (e_type ==oper_assgn && (!l_op->is_lvalue()) ){
-		type=ERROR_TYPE;
-		++no_errors;
-		cerr << "  non lvalue used on LHS of oper_blk_arr_assgn: line_no: " << line_no << endl;
+		print_err(compiler_sem_err, "error: oper_blk_arr_assgn: used in binary expr ",
+				line_no, __LINE__, __FILE__);
+	} else if (e_type ==oper_assgn){
+		if( (!l_op->is_lvalue()) ){
+			type=ERROR_TYPE;
+			++no_errors;
+			print_err(compiler_sem_err, "oper_assgn error: lhs of assignment should be lvalue ", 
+				line_no, __LINE__, __FILE__);
+			type = ERROR_TYPE;
+		}
+		datatype typ1=l_op->type;
+		datatype typ2=r_op->type;
+		if(!void_check(l_op->type, r_op->type, type)){
+			type = ERROR_TYPE;
+		}
+		if(!check_type_compat(typ1, typ2)){
+			type = ERROR_TYPE;
+			print_err(compiler_sem_err, "oper_assgn error: operand data types on lhs and rhs should be compatible", 
+				line_no, __LINE__, __FILE__);
+		}
 	}
 	switch(e_type){
 		case oper_plus:

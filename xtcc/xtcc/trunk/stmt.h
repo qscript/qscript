@@ -281,36 +281,36 @@ struct blk_arr_assgn_stmt: public stmt{
 		fflush(fptr);
 
 		if(fptr){
-				fprintf(fptr,"/* DATA CONVERSION */\n");
-				fprintf(fptr,"{int tmp1=");
-				low_indx->print_expr(fptr);
-				fprintf(fptr,";\nint tmp2=");
-				high_indx->print_expr(fptr);
-				fprintf(fptr,";\n");
-				if(lsymp->get_type()==FLOAT_TYPE) {
-					fprintf(fptr,"if(tmp2-tmp1==sizeof(float)-1){\n");
-					fprintf(fptr,"\tchar buff[sizeof(float)];int i,j;\n");
-					fprintf(fptr,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
-					fprintf(fptr,"\t\tbuff[j]=%s[i];\n", rsymp->name);
-					fprintf(fptr,"\t}\n");
-					fprintf(fptr,"\tvoid * v_ptr = buff;\n");
-					fprintf(fptr,"\tfloat *f_ptr = static_cast<float *>(v_ptr);\n");
-					fprintf(fptr,"\t %s=*f_ptr;\n", lsymp->name);
-					fprintf(fptr,"}else { cerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_number );
-				} else if (lsymp->get_type()==INT32_TYPE){
-					fprintf(fptr,"if(tmp2-tmp1==sizeof(int)-1){\n");
-					fprintf(fptr,"\tchar buff[sizeof(int)];int i,j;\n");
-					fprintf(fptr,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
-					fprintf(fptr,"\t\tbuff[j]=%s[i];\n", rsymp->name);
-					fprintf(fptr,"\t}\n");
-					fprintf(fptr,"\tvoid * v_ptr = buff;\n");
-					fprintf(fptr,"\tint *i_ptr = static_cast<int *>(v_ptr);\n");
-					fprintf(fptr,"\t %s=*i_ptr;\n", lsymp->name);
-					fprintf(fptr,"}else { \n\tcerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_number );
-				}
+			fprintf(fptr,"/* DATA CONVERSION */\n");
+			fprintf(fptr,"{int tmp1=");
+			low_indx->print_expr(fptr);
+			fprintf(fptr,";\nint tmp2=");
+			high_indx->print_expr(fptr);
+			fprintf(fptr,";\n");
+			if(lsymp->get_type()==FLOAT_TYPE) {
+				fprintf(fptr,"if(tmp2-tmp1==sizeof(float)-1){\n");
+				fprintf(fptr,"\tchar buff[sizeof(float)];int i,j;\n");
+				fprintf(fptr,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
+				fprintf(fptr,"\t\tbuff[j]=%s[i];\n", rsymp->name);
+				fprintf(fptr,"\t}\n");
+				fprintf(fptr,"\tvoid * v_ptr = buff;\n");
+				fprintf(fptr,"\tfloat *f_ptr = static_cast<float *>(v_ptr);\n");
+				fprintf(fptr,"\t %s=*f_ptr;\n", lsymp->name);
+				fprintf(fptr,"}else { cerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_number );
+			} else if (lsymp->get_type()==INT32_TYPE){
+				fprintf(fptr,"if(tmp2-tmp1==sizeof(int)-1){\n");
+				fprintf(fptr,"\tchar buff[sizeof(int)];int i,j;\n");
+				fprintf(fptr,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
+				fprintf(fptr,"\t\tbuff[j]=%s[i];\n", rsymp->name);
+				fprintf(fptr,"\t}\n");
+				fprintf(fptr,"\tvoid * v_ptr = buff;\n");
+				fprintf(fptr,"\tint *i_ptr = static_cast<int *>(v_ptr);\n");
+				fprintf(fptr,"\t %s=*i_ptr;\n", lsymp->name);
+				fprintf(fptr,"}else { \n\tcerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_number );
 			}
-			if(prev) prev->print_stmt_lst(fptr);
 		}
+		if(prev) prev->print_stmt_lst(fptr);
+	}
 	~blk_arr_assgn_stmt(){
 		cout << "deleting blk_arr_assgn_stmt" << endl;
 		//if(prev) delete prev;
@@ -326,7 +326,12 @@ struct blk_arr_assgn_stmt: public stmt{
 	};
 
 struct break_stmt: public stmt{
-	break_stmt(datatype dtype, int lline_number): stmt(dtype, lline_number){}
+	break_stmt(datatype dtype, int lline_number, int in_a_loop): stmt(dtype, lline_number){
+		if(in_a_loop<=0){
+			print_err(compiler_sem_err, "break statement outside a loop: ",
+				line_no, __LINE__, __FILE__);
+		}
+	}
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
 		if(fptr){
@@ -343,7 +348,12 @@ struct break_stmt: public stmt{
 	break_stmt(const break_stmt&);	
 };
 struct continue_stmt: public stmt{
-	continue_stmt(datatype dtype, int lline_number): stmt(dtype, lline_number){}
+	continue_stmt(datatype dtype, int lline_number, int in_a_loop): stmt(dtype, lline_number){
+		if (!in_a_loop){
+			print_err(compiler_sem_err, "continue statement outside a loop: line_no: ",
+				line_no, __LINE__, __FILE__);
+		}
+	}
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
 

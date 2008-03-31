@@ -14,6 +14,7 @@
 		BREAK_STMT, CONTINUE_STMT,
 		uninit 
 	};
+	bool check_type_compat(datatype typ1, datatype typ2);
 	/*enum decltype { array_decl, pointer_decl };*/
 
 	struct noun_list_type {
