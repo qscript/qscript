@@ -619,9 +619,9 @@ static const yytype_uint16 yyrline[] =
      431,   442,   471,   501,   529,   544,   561,   629,   660,   687,
      688,   693,   699,   705,   711,   717,   723,   729,   735,   741,
      747,   753,   759,   765,   771,   777,   783,   789,   795,   801,
-     818,   858,   908,   947,   953,   961,   966,   974,   984,   993,
-    1001,  1003,  1007,  1022,  1036,  1047,  1050,  1055,  1060,  1065,
-    1070
+     821,   861,   911,   950,   956,   964,   969,   977,   985,   993,
+    1001,  1003,  1007,  1019,  1030,  1041,  1044,  1049,  1057,  1065,
+    1073
 };
 #endif
 
@@ -2489,26 +2489,29 @@ yyreduce:
   case 69:
 #line 801 "type.y"
     {
-		map<string,symtab_ent*>::iterator sym_it = find_in_symtab((yyvsp[(1) - (1)].name));
+		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].name), oper_name );
+		/*
+		map<string,symtab_ent*>::iterator sym_it = find_in_symtab($1);
 		if(sym_it==active_scope->sym_tab.end() ){
-			cerr << "Error: could not find:" << (yyvsp[(1) - (1)].name)<<"  in symbol table: lineno: " << line_no << "\n";
+			cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
 			++no_errors;
-			(yyval.expr) = new un2_expr(ERROR_TYPE);
-			void *ptr=(yyval.expr);
+			$$ = new un2_expr(ERROR_TYPE);
+			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
-			(yyval.expr) = new un2_expr(sym_it->second );
-			void *ptr=(yyval.expr);
+			$$ = new un2_expr(sym_it->second );
+			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
-		free((yyvsp[(1) - (1)].name));
+		free($1);
+		*/
 	}
     break;
 
   case 70:
-#line 818 "type.y"
+#line 821 "type.y"
     {
 		map<string,symtab_ent*>::iterator sym_it = 
 				find_in_symtab((yyvsp[(1) - (4)].name));
@@ -2552,7 +2555,7 @@ yyreduce:
     break;
 
   case 71:
-#line 858 "type.y"
+#line 861 "type.y"
     {
 		symtab_ent* se=0;
 		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab((yyvsp[(1) - (6)].name));
@@ -2606,7 +2609,7 @@ yyreduce:
     break;
 
   case 72:
-#line 908 "type.y"
+#line 911 "type.y"
     {
 		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=(yyvsp[(1) - (4)].name);
@@ -2649,9 +2652,9 @@ yyreduce:
     break;
 
   case 73:
-#line 947 "type.y"
+#line 950 "type.y"
     {
-		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)));
+		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2659,7 +2662,7 @@ yyreduce:
     break;
 
   case 74:
-#line 953 "type.y"
+#line 956 "type.y"
     { 
 		(yyval.expr) = new un_expr((yyvsp[(2) - (3)].expr), oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2669,7 +2672,7 @@ yyreduce:
     break;
 
   case 75:
-#line 961 "type.y"
+#line 964 "type.y"
     { 
 #ifdef DEBUG_GRAM
 	printf("got table defn\n"); 
@@ -2678,7 +2681,7 @@ yyreduce:
     break;
 
   case 76:
-#line 966 "type.y"
+#line 969 "type.y"
     { 
 #ifdef DEBUG_GRAM
 		printf("recursive tab_defn\n"); 
@@ -2687,29 +2690,26 @@ yyreduce:
     break;
 
   case 77:
-#line 974 "type.y"
+#line 977 "type.y"
     {
-		//printf("got table defn: no filter\n");
 		(yyval.tbl)=new table((yyvsp[(2) - (4)].name),(yyvsp[(3) - (4)].name), line_no);
-		void *ptr=(yyval.tbl);
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		// default value for constructor tbl_ptr->filter=NULL;
 		table_list.push_back((yyval.tbl));
-		//free($2); free($3);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.tbl), __LINE__, __FILE__, line_no);
+		}
+		free((yyvsp[(2) - (4)].name)); free((yyvsp[(3) - (4)].name));
 	}
     break;
 
   case 78:
-#line 984 "type.y"
+#line 985 "type.y"
     {
-		//printf("got table defn: with filter\n");
 		(yyval.tbl)=new table((yyvsp[(2) - (7)].name),(yyvsp[(3) - (7)].name), line_no, (yyvsp[(6) - (7)].expr));
-		void *ptr=(yyval.tbl);
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
 		table_list.push_back((yyval.tbl));
-		//free($2); free($3);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.tbl), __LINE__, __FILE__, line_no);
+		}
+		free((yyvsp[(2) - (7)].name)); free((yyvsp[(3) - (7)].name));
 	}
     break;
 
@@ -2740,14 +2740,11 @@ yyreduce:
     {
 		basic_ax_stmt* bptr= trav_chain((yyvsp[(4) - (4)].basic_ax_stmt));
 		(yyval.ax) = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, 0);
-		void *ptr=(yyval.ax);
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.ax), __LINE__, __FILE__, line_no);
+		}
 		
 		ax_map[(yyvsp[(2) - (4)].name)]=(yyval.ax);
-#ifdef DEBUG_GRAM
-		printf("NAME: $2: %s\n", (yyvsp[(2) - (4)].name));
-#endif
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
 		free((yyvsp[(2) - (4)].name));
@@ -2755,17 +2752,14 @@ yyreduce:
     break;
 
   case 83:
-#line 1022 "type.y"
+#line 1019 "type.y"
     {
 		basic_ax_stmt* bptr= trav_chain((yyvsp[(7) - (7)].basic_ax_stmt));
 		(yyval.ax) = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, (yyvsp[(5) - (7)].expr));
-		void *ptr=(yyval.ax);
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.ax), __LINE__, __FILE__, line_no);
+		}
 		ax_map[(yyvsp[(2) - (7)].name)]=(yyval.ax);
-#ifdef DEBUG_GRAM
-		printf("NAME: $2: %s\n", (yyvsp[(2) - (7)].name));
-#endif
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
 		free((yyvsp[(2) - (7)].name));
@@ -2773,7 +2767,7 @@ yyreduce:
     break;
 
   case 84:
-#line 1036 "type.y"
+#line 1030 "type.y"
     {
 		cerr << "Error in axis section line: " <<
 			line_no << endl;
@@ -2784,34 +2778,40 @@ yyreduce:
     break;
 
   case 85:
-#line 1047 "type.y"
+#line 1041 "type.y"
     {
 		(yyval.basic_ax_stmt) = (yyvsp[(1) - (1)].basic_ax_stmt);
 	}
     break;
 
   case 86:
-#line 1050 "type.y"
+#line 1044 "type.y"
     {
 		(yyval.basic_ax_stmt)=link_chain((yyvsp[(1) - (2)].basic_ax_stmt), (yyvsp[(2) - (2)].basic_ax_stmt));
 	}
     break;
 
   case 87:
-#line 1055 "type.y"
+#line 1049 "type.y"
     {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		(yyval.basic_ax_stmt) = new tot_ax_stmt (tot_axstmt,(yyvsp[(3) - (4)].text_buf), 0);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.basic_ax_stmt), __LINE__, __FILE__, line_no);
+		}
 	}
     break;
 
   case 88:
-#line 1060 "type.y"
+#line 1057 "type.y"
     {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		(yyval.basic_ax_stmt) = new tot_ax_stmt (tot_axstmt,(yyvsp[(3) - (7)].text_buf), (yyvsp[(6) - (7)].expr));
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.basic_ax_stmt), __LINE__, __FILE__, line_no);
+		}
 	}
     break;
 
@@ -2821,20 +2821,26 @@ yyreduce:
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		(yyval.basic_ax_stmt) = new count_ax_stmt (cnt_axstmt,(yyvsp[(3) - (7)].text_buf), (yyvsp[(6) - (7)].expr));
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.basic_ax_stmt), __LINE__, __FILE__, line_no);
+		}
 	}
     break;
 
   case 90:
-#line 1070 "type.y"
+#line 1073 "type.y"
     {
 		(yyval.basic_ax_stmt) = new ttl_ax_stmt (txt_axstmt,(yyvsp[(3) - (4)].text_buf));
 		++no_tot_ax_elems;
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.basic_ax_stmt), __LINE__, __FILE__, line_no);
+		}
 	}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 2838 "type.c"
+#line 2844 "type.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3048,7 +3054,7 @@ yyreturn:
 }
 
 
-#line 1076 "type.y"
+#line 1082 "type.y"
 
 
 extern int errno;
@@ -3266,11 +3272,13 @@ void	print_memory_leaks(){
 		exit(1);
 	}
 	for(int i=0; i< mem_addr.size(); ++i ){
-		mem_leak_log << "addr: " << mem_addr[i].mem_ptr 
-			<< " line: " << mem_addr[i].line_number 
-			<< "src file: " << mem_addr[i].src_file 
-			<< "src line_no: " << mem_addr[i].src_file_line_no
-			<< endl;
+		if(mem_addr[i].mem_ptr ){
+			mem_leak_log << "addr: " << mem_addr[i].mem_ptr 
+				<< " line: " << mem_addr[i].line_number 
+				<< "src file: " << mem_addr[i].src_file 
+				<< "src line_no: " << mem_addr[i].src_file_line_no
+				<< endl;
+		}
 	}
 }
 
@@ -3321,7 +3329,7 @@ bool check_type_compat(datatype typ1, datatype typ2){
 
 
 int check_parameters(expr* e, var_list* v){
-	cout << "check_parameters: called" << endl;
+	debug_log_file << "check_parameters: called" << endl;
 	expr* e_ptr=e;
 	var_list* fparam=v;
 	bool match=true;
@@ -3345,13 +3353,13 @@ int check_parameters(expr* e, var_list* v){
 				*/			
 			if(tdt>=INT8_REF_TYPE) tdt=datatype(INT8_TYPE+tdt-INT8_REF_TYPE);
 			if(etype <= tdt) {
-				cout << "varname: "<< fparam->var_name << " chk_param_counter: " 
-				<< chk_param_counter << " passed " << endl;
+				debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
+					<< chk_param_counter << " passed " << endl;
 			}
 		} else if ((etype>=INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)&&
 				(fptype>=INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)&&
 				(etype==fptype)){
-			cout << "varname: "<< fparam->var_name << " chk_param_counter: " 
+			debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
 					<< chk_param_counter << " passed " << endl;
 		}else {
 			match=false;

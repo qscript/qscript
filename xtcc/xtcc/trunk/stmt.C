@@ -2,18 +2,28 @@
 #include "stmt.h"
 #include "tree.h"
 extern vector<mem_addr_tab> mem_addr;
+extern ofstream debug_log_file;
+#include <fstream>
+#include <iostream>
 
 extern char * work_dir;
+stmt::~stmt(){ 
+	if (prev /*
+		    && !((type==FUNC_DEFN)||(type==FUNC_TYPE))*/ ) {
+		delete prev; prev=0;
+	} 
+	debug_log_file << "stmt::~stmt() base destructor" << std::endl;
+}
 
 list_stmt::~list_stmt(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			cout << "list_stmt::~list_stmt: setting mem_addr=0" << endl;
+			debug_log_file << "list_stmt::~list_stmt setting mem_addr: " << this << "=0" << endl;
 			break;
 		}
 	}
-	cout << "deleting list_stmt" << endl;
+	debug_log_file << "deleting list_stmt" << endl;
 	//if(prev) delete prev;
 	//delete se;
 }
@@ -59,14 +69,12 @@ func_decl_stmt::~func_decl_stmt(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			cout << "func_decl_stmt::~func_decl_stmt: setting mem_addr=0" << endl;
+			debug_log_file << "func_decl_stmt::~func_decl_stmt setting mem_addr: " << this<< "=0" << endl;
 			break;
 		}
 	}
-	cout << "deleting func_decl_stmt: name: "  << f_ptr->fname << endl;
-	//if (prev) { delete prev; prev=0; }
+	debug_log_file << "deleting func_decl_stmt: name: "  << f_ptr->fname << endl;
 	if (f_ptr) { delete f_ptr; f_ptr=0; }
-	cout << "End deleting func_decl_stmt" << endl;
 }
 
 func_stmt:: func_stmt ( datatype dtype, int lline_number, scope * &sc,
@@ -128,18 +136,11 @@ func_stmt::~func_stmt(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			cout << "func_stmt::~func_stmt: setting mem_addr=0" << endl;
+			debug_log_file << "func_stmt::~func_stmt: setting mem_addr=0" << endl;
 			break;
 		}
 	}
-	cout << "deleting func_stmt" << endl;
-	/*
-	if(f_ptr){
-		delete f_ptr;
-		f_ptr=0;
-	}
-	*/
-	//if(prev) delete prev;
+	debug_log_file << "deleting func_stmt" << endl;
 	if(func_body) {
 		delete func_body;
 		func_body=0;
@@ -150,11 +151,11 @@ for_stmt:: ~for_stmt(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			cout << "for_stmt::~for_stmt: setting mem_addr=0" << endl;
+			debug_log_file << "for_stmt::~for_stmt setting mem_addr:" << this << "=0" << endl;
 			break;
 		}
 	}
-	cout << "deleting for_stmt" << endl;
+	debug_log_file << "deleting for_stmt" << endl;
 	//if(prev) { delete prev; }
 	if(init) {
 		delete init;
@@ -177,11 +178,11 @@ if_stmt:: ~if_stmt(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 			if(this==mem_addr[i].mem_ptr){
 				mem_addr[i].mem_ptr=0;
-				cout << "if_stmt::~if_stmt: setting mem_addr=0" << endl;
+				debug_log_file << "if_stmt::~if_stmt setting mem_addr:" << this << "=0" << endl;
 				break;
 			}
 		}
-	cout << "deleting if_stmt" << endl;
+	debug_log_file << "deleting if_stmt" << endl;
 	//if (prev) delete prev;
 	delete condition;
 	delete if_body;
@@ -189,18 +190,18 @@ if_stmt:: ~if_stmt(){
 }
 
 
-expr_stmt::~expr_stmt(){
-		for (unsigned int i=0; i< mem_addr.size(); ++i){
-			if(this==mem_addr[i].mem_ptr){
-				mem_addr[i].mem_ptr=0;
-				cout << "expr_stmt::~expr_stmt: setting mem_addr=0" << endl;
-				break;
-			}
+expr_stmt::~expr_stmt() {
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "expr_stmt::~expr_stmt: setting mem_addr: " << this << "=0" << endl;
+			break;
 		}
-		cout << "deleting expr_stmt" << endl;
-		//if(prev ) delete prev;
-		if (expr) delete expr;
 	}
+	debug_log_file << "deleting expr_stmt" << endl;
+	//if(prev ) delete prev;
+	if (expr) delete expr;
+}
 
 void list_stmt::print_stmt_lst(FILE * & fptr){
 	fflush(fptr);
@@ -296,4 +297,29 @@ void list_stmt::print_stmt_lst(FILE * & fptr){
 		if(prev) prev->print_stmt_lst(fptr);
 
 	}
+}
+
+cmpd_stmt::~cmpd_stmt() {
+	debug_log_file << "deleting cmpd_stmt" << endl;
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "basic_count_ax_stmt::~basic_count_ax_stmt setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+	//if(prev) delete prev;
+	if(sc&&flag_cmpd_stmt_is_a_func_body<0) {
+		delete sc;
+		sc=0;
+	}
+	if(cmpd_bdy /*&& flag_cmpd_stmt_is_a_func_body<0*/){
+		delete cmpd_bdy;
+		cmpd_bdy=0;
+	}
+}
+
+decl_stmt::~decl_stmt(){ 
+	debug_log_file << "deleting decl_stmt" << endl;
+	//if(symp) { delete symp; symp=0; }
 }

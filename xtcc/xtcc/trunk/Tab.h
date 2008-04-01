@@ -44,12 +44,7 @@ struct table{
 	expr* filter;
 	table(string s, string t, int lline_no, expr* f=0) : side(s), banner(t),line_no(lline_no),filter(f){
 	}
-	~table(){
-		if(filter) {
-			delete filter;
-			filter=0;
-		}
-	}
+	~table();
 };
 
 
@@ -96,7 +91,7 @@ class ttl_ax_stmt: public basic_print_ax_stmt{
 	string ax_text(){
 		return text;
 	}
-	~ttl_ax_stmt(){}
+	~ttl_ax_stmt();
 };
 
 
@@ -114,12 +109,7 @@ class basic_count_ax_stmt: public basic_ax_stmt{
 	virtual string ax_text(){
 		return text;
 	}
-	virtual ~basic_count_ax_stmt() {
-		if (condn) {
-			delete condn; condn=0;
-		}
-		cout << "deleting ~basic_count_ax_stmt()" << endl;
-	}
+	virtual ~basic_count_ax_stmt() ;
 };
 
 class count_ax_stmt: public basic_count_ax_stmt{
@@ -130,9 +120,7 @@ class count_ax_stmt: public basic_count_ax_stmt{
 		f << "\n";
 		
 	}
-	~count_ax_stmt(){
-		cout << "deleting ~count_ax_stmt()" << endl;
-	}
+	~count_ax_stmt();
 };
 
 class tot_ax_stmt: public basic_count_ax_stmt{
@@ -142,7 +130,7 @@ class tot_ax_stmt: public basic_count_ax_stmt{
 		f << "TOT: " << text;
 		f << "\n";
 	}
-	~tot_ax_stmt(){}
+	~tot_ax_stmt();
 	
 };
 
@@ -160,21 +148,7 @@ class ax	{
 		no_count_ax_elems(l_no_count_ax_elems), no_tot_ax_elems(l_no_tot_ax_elems),
 			condn_flags(l_no_count_ax_elems),
 		filter(f) {}
-	~ax(){
-		basic_ax_stmt* bax_ptr=ax_stmt_start;
-		/*
-		if(bax_ptr->prev){
-			delete bax_ptr->prev;
-		}
-		*/
-		if(ax_stmt_start){
-			delete ax_stmt_start; ax_stmt_start=0;
-		}
-		if(filter) {
-			delete filter; filter=0;
-		}
-		cout << "deleting ax" << endl; 
-	}
+	~ax();
 };
 
 

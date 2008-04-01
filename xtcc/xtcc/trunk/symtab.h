@@ -41,12 +41,7 @@ struct symtab_ent {
 	inline datatype get_type(){
 		return type;
 	}
-	~symtab_ent(){
-		std::cout << "deleting symtab_ent: name: " << name << std::endl;
-		if(name&& created_by_me) { free( name); name=0; }
-		if(text) { delete text; text=0; }
-		std::cout << "FINISHED deleting symtab_ent" << std::endl;
-	}
+	~symtab_ent();
 	private:
 		symtab_ent& operator=(const symtab_ent&);
 		symtab_ent (const symtab_ent&);

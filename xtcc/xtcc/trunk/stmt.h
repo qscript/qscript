@@ -58,15 +58,7 @@ struct stmt{
 		return next;
 	}
 	stmt(datatype dtype=ERROR_TYPE, int lline_number=0):next(0), prev(0), type(dtype), line_number(lline_number){}
-	virtual ~stmt(){ 
-		
-		if (prev /*
-			    && !((type==FUNC_DEFN)||(type==FUNC_TYPE))*/ ) {
-			delete prev; prev=0;
-		} 
-		
-		cout << "stmt::~stmt() base destructor" << endl;
-	}
+	virtual ~stmt();
 	private:
 		stmt(const stmt&);
 		stmt& operator=(const stmt&);
@@ -183,18 +175,7 @@ struct cmpd_stmt: public stmt{
 			if(prev) prev->print_stmt_lst(fptr);
 		}
 	}
-	virtual ~cmpd_stmt(){
-		cout << "deleting cmpd_stmt" << endl;
-		//if(prev) delete prev;
-		if(sc&&flag_cmpd_stmt_is_a_func_body<0) {
-			delete sc;
-			sc=0;
-		}
-		if(cmpd_bdy /*&& flag_cmpd_stmt_is_a_func_body<0*/){
-			delete cmpd_bdy;
-			cmpd_bdy=0;
-		}
-	}
+	virtual ~cmpd_stmt();
 	private:
 	cmpd_stmt& operator=(const cmpd_stmt&);	
 	cmpd_stmt(const cmpd_stmt&);	
@@ -401,10 +382,7 @@ struct decl_stmt: public stmt{
 			if(prev) prev->print_stmt_lst(fptr);
 		}
 	}
-	~decl_stmt(){ 
-		cout << "deleting decl_stmt" << endl;
-		//if(symp) { delete symp; symp=0; }
-	}
+	~decl_stmt();
 	private:
 	decl_stmt& operator=(const decl_stmt&);	
 	decl_stmt(const decl_stmt&);	

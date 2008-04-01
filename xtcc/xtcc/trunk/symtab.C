@@ -30,7 +30,8 @@
 using namespace std;
 
 extern int line_no;
-
+extern ofstream debug_log_file;
+/*
 stmt* sym_tab::insert(string name, datatype dt){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	struct stmt * st_ptr=new_stmt();
@@ -56,3 +57,12 @@ stmt* sym_tab::insert(string name, datatype dt){
 	}
 	return st_ptr;
 }
+*/
+#include <fstream>
+using std::endl;
+symtab_ent::~symtab_ent(){
+		debug_log_file<< "deleting symtab_ent: name: " << name << std::endl;
+		if(name&& created_by_me) { free( name); name=0; }
+		if(text) { delete text; text=0; }
+		debug_log_file << "FINISHED deleting symtab_ent" << std::endl;
+	}

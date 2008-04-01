@@ -29,11 +29,16 @@
 #include <vector>
 #include <fstream>
 
+extern scope* active_scope;
 extern ofstream debug_log_file;
 using namespace std;
 
 extern	vector <func_info*> func_info_table;
 extern vector<mem_addr_tab> mem_addr;
+expr::~expr(){
+	debug_log_file << "deleting expr::~expr(): base destructor for expr" << endl;
+	if(prev) {delete prev; prev=0; }
+}
 
 /*
 	datatype expr::get_type(){
@@ -55,11 +60,11 @@ un_expr::~un_expr(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			debug_log_file << "un_expr::~un2_expr: setting mem_addr=0" << endl;
+			debug_log_file << "un_expr::~un_expr setting mem_addr: " << this << "=0" << endl;
 			break;
 		}
 	}
-	cout << "deleting un_expr: e_type" << e_type << endl;
+	debug_log_file << "deleting un_expr: e_type" << e_type << endl;
 	if (operand) { delete operand; operand=0; }
 }
 
@@ -342,11 +347,11 @@ bin_expr::~bin_expr(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			cout << "bin_expr::~bin_expr: setting mem_addr=0" << endl;
+			debug_log_file << "bin_expr::~bin_expr setting mem_addr: " << this  <<"=0" << endl;
 			break;
 		}
 	}
-	cout << "deleting bin_expr: e_type: " << e_type << endl;
+	debug_log_file << "deleting bin_expr: e_type: " << e_type << endl;
 	if(l_op) { delete l_op; l_op=0;}
 	if(r_op) { delete r_op; r_op=0;}
 }
@@ -354,12 +359,12 @@ bin_expr::~bin_expr(){
 un2_expr::~un2_expr(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
-			cout << "un2_expr::~un2_expr: setting mem_addr=0" << endl;
+			debug_log_file << "un2_expr::~un2_expr setting mem_addr: " << this << "=0" << endl;
 			mem_addr[i].mem_ptr=0;
 			break;
 		}
 	}
-	cout << "deleting un2_expr: e_type: " << e_type << endl;
+	debug_log_file << "deleting un2_expr: e_type: " << e_type << endl;
 	if(e_type==oper_func_call){
 		cout << "line_no: " << line_no << endl;
 	}
@@ -423,5 +428,36 @@ bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), 
 		break;
 		default:
 			;
+	}
+}
+un2_expr::un2_expr( struct symtab_ent * lsymp): 
+	expr(oper_name,lsymp->type), symp(lsymp), isem_value(0), dsem_value(0),
+	func_index_in_table(-1), text(0), operand(0), operand2(0) {
+}
+
+map<string, symtab_ent*>::iterator find_in_symtab(string id);
+un2_expr::un2_expr(char* ltxt, e_operator_type le_type): 
+	expr(le_type, INT8_TYPE), symp(0), isem_value(0), dsem_value(0), func_index_in_table(-1), 
+	text(ltxt), column_no(-1), operand(0), operand2(0) {
+	if(e_type==oper_text_expr){
+		type=INT8_TYPE;
+		//free(ltxt);
+	}
+	if(e_type==oper_name){
+		map<string,symtab_ent*>::iterator sym_it = find_in_symtab(ltxt);
+		if(sym_it==active_scope->sym_tab.end() ){
+			//cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
+			string err_msg = "Error: could not find:" + string(ltxt) + "  in symbol table  ";
+			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+			type=ERROR_TYPE;
+		} else {
+			symp = sym_it->second;
+			type = symp->type;
+			/*$$ = new un2_expr(sym_it->second );
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+			mem_addr.push_back(m1);
+			*/
+		}
 	}
 }

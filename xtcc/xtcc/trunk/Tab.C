@@ -32,6 +32,9 @@
 #include "tree.h"
 
 #include <iostream>
+extern vector<mem_addr_tab> mem_addr;
+extern ofstream debug_log_file;
+/*
 vector<internal_table*> itbl_vec(0);
 void print_banner(int side, internal_table* & itbl_ptr, fstream& tab_);
 void construct_tables(map<string, ax*>& ax_map, vector<table*>& table_list){
@@ -364,4 +367,82 @@ void print_banner(int side, internal_table* & itbl_ptr, fstream& tab_){
 		tab_ << endl;
 	}
 	tab_ << endl;
+}
+*/
+
+
+basic_count_ax_stmt::~basic_count_ax_stmt() {
+	if (condn) {
+		delete condn; condn=0;
+	}
+	debug_log_file << "deleting ~basic_count_ax_stmt()" << endl;
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "basic_count_ax_stmt::~basic_count_ax_stmt setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+}
+
+ttl_ax_stmt::~ttl_ax_stmt(){
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "ttl_ax_stmt::~ttl_ax_stmt setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+}
+
+count_ax_stmt::~count_ax_stmt(){
+	debug_log_file << "deleting ~count_ax_stmt()" << endl;
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "count_ax_stmt::~count_ax_stmt setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+}
+
+tot_ax_stmt::~tot_ax_stmt(){
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "tot_ax_stmt::~tot_ax_stmt setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+}
+
+ax::~ax(){
+	basic_ax_stmt* bax_ptr=ax_stmt_start;
+	if(ax_stmt_start){
+		delete ax_stmt_start; ax_stmt_start=0;
+	}
+	if(filter) {
+		delete filter; filter=0;
+	}
+	debug_log_file << "deleting ax" << endl; 
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "ax::~ax setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+}
+table::~table(){
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "table::~table setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+	if(filter) {
+		delete filter;
+		filter=0;
+	}
 }

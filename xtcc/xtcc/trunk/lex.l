@@ -79,7 +79,6 @@ lista 	{
 }
 
 axstart {
-	cout << "got token AXSTART" << endl;
 	return AXSTART;
 }
 tab {
@@ -106,12 +105,10 @@ ed_end {
 
 
 ax	{
-	//printf("\nreturned AX\n");
 	return AX;
 }
 
 tot 	{
-	//printf("lex: tot\n");
 	return TOT;
 }
 
@@ -124,7 +121,6 @@ ttl	{
 }
 
 c=	{
-	//printf("Got COND_START\n");
 	return COND_START;
 }
 

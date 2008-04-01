@@ -29,10 +29,15 @@
 #include "tree.h"
 #include <string>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 using namespace std;
 
 extern int line_no;
 extern int no_errors;
+extern ofstream debug_log_file;
+extern vector<mem_addr_tab> mem_addr;
+
 
 stmt* scope::insert(char * name, datatype dt, int line_no){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
@@ -117,12 +122,18 @@ stmt* scope::insert(char * name, datatype dt, int arr_size, int line_no, char *t
 	return st_ptr;
 }
 scope::~scope() {
-	cout <<"deleting scope" << endl;
+	debug_log_file <<"deleting scope" << endl;
 	typedef map<string,symtab_ent*>::iterator it;
 	for(it p=sym_tab.begin(); p!=sym_tab.end(); ++p){
-		//cout << "deleting name: " << p->second->name << " in scope" << endl;
 		delete p->second;
 		p->second=0;
 	}
-	cout << "end deleting scope" << endl;
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "scope::~scope setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+	debug_log_file << "end deleting scope" << endl;
 }

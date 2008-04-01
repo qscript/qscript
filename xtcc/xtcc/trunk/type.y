@@ -799,6 +799,8 @@ expression: expression '+' expression {
 		}
 	}
 	|	NAME	{
+		$$ = new un2_expr($1, oper_name );
+		/*
 		map<string,symtab_ent*>::iterator sym_it = find_in_symtab($1);
 		if(sym_it==active_scope->sym_tab.end() ){
 			cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
@@ -814,6 +816,7 @@ expression: expression '+' expression {
 			mem_addr.push_back(m1);
 		}
 		free($1);
+		*/
 	}
 	| 	NAME '[' expression ']' %prec FUNC_CALL {
 		map<string,symtab_ent*>::iterator sym_it = 
@@ -945,7 +948,7 @@ expression: expression '+' expression {
 		free($1);
 	}
 	|	TEXT {
-		$$ = new un2_expr(strdup($1));
+		$$ = new un2_expr(strdup($1), oper_text_expr);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -972,23 +975,20 @@ tab_list: tab_defn	{
 
 tab_defn:
 	TAB NAME NAME';'	{
-		//printf("got table defn: no filter\n");
 		$$=new table($2,$3, line_no);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		// default value for constructor tbl_ptr->filter=NULL;
 		table_list.push_back($$);
-		//free($2); free($3);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+		free($2); free($3);
 	}
 	| TAB NAME NAME';'COND_START expression';'{
-		//printf("got table defn: with filter\n");
 		$$=new table($2,$3, line_no, $6);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
 		table_list.push_back($$);
-		//free($2); free($3);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+		free($2); free($3);
 	}
 	| error ';' {
 		cerr << "Error in tab section line: " <<
@@ -1007,14 +1007,11 @@ ax_list:	ax_defn	{
 ax_defn:	AX NAME ';' ax_stmt_list {
 		basic_ax_stmt* bptr= trav_chain($4);
 		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, 0);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 		
 		ax_map[$2]=$$;
-#ifdef DEBUG_GRAM
-		printf("NAME: $2: %s\n", $2);
-#endif
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
 		free($2);
@@ -1022,13 +1019,10 @@ ax_defn:	AX NAME ';' ax_stmt_list {
 	|	AX NAME ';'COND_START expression ';' ax_stmt_list {
 		basic_ax_stmt* bptr= trav_chain($7);
 		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, $5);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 		ax_map[$2]=$$;
-#ifdef DEBUG_GRAM
-		printf("NAME: $2: %s\n", $2);
-#endif
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
 		free($2);
@@ -1056,20 +1050,32 @@ ax_stmt:	TOT ';' TEXT ';' {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		$$ = new tot_ax_stmt (tot_axstmt,$3, 0);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	| TOT ';' TEXT ';' COND_START expression ';'	{
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		$$ = new tot_ax_stmt (tot_axstmt,$3, $6);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	|	CNT ';'	TEXT ';' COND_START expression ';' 	{
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		$$ = new count_ax_stmt (cnt_axstmt,$3, $6);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	| 	TTL ';' TEXT ';'	{
 		$$ = new ttl_ax_stmt (txt_axstmt,$3);
 		++no_tot_ax_elems;
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	;
 
@@ -1290,11 +1296,13 @@ void	print_memory_leaks(){
 		exit(1);
 	}
 	for(int i=0; i< mem_addr.size(); ++i ){
-		mem_leak_log << "addr: " << mem_addr[i].mem_ptr 
-			<< " line: " << mem_addr[i].line_number 
-			<< "src file: " << mem_addr[i].src_file 
-			<< "src line_no: " << mem_addr[i].src_file_line_no
-			<< endl;
+		if(mem_addr[i].mem_ptr ){
+			mem_leak_log << "addr: " << mem_addr[i].mem_ptr 
+				<< " line: " << mem_addr[i].line_number 
+				<< "src file: " << mem_addr[i].src_file 
+				<< "src line_no: " << mem_addr[i].src_file_line_no
+				<< endl;
+		}
 	}
 }
 
@@ -1345,7 +1353,7 @@ bool check_type_compat(datatype typ1, datatype typ2){
 
 
 int check_parameters(expr* e, var_list* v){
-	cout << "check_parameters: called" << endl;
+	debug_log_file << "check_parameters: called" << endl;
 	expr* e_ptr=e;
 	var_list* fparam=v;
 	bool match=true;
@@ -1369,13 +1377,13 @@ int check_parameters(expr* e, var_list* v){
 				*/			
 			if(tdt>=INT8_REF_TYPE) tdt=datatype(INT8_TYPE+tdt-INT8_REF_TYPE);
 			if(etype <= tdt) {
-				cout << "varname: "<< fparam->var_name << " chk_param_counter: " 
-				<< chk_param_counter << " passed " << endl;
+				debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
+					<< chk_param_counter << " passed " << endl;
 			}
 		} else if ((etype>=INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)&&
 				(fptype>=INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)&&
 				(etype==fptype)){
-			cout << "varname: "<< fparam->var_name << " chk_param_counter: " 
+			debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
 					<< chk_param_counter << " passed " << endl;
 		}else {
 			match=false;
