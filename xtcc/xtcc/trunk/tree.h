@@ -192,7 +192,7 @@ struct mem_addr_tab{
 	mem_addr_tab(void * ptr, int line): mem_ptr(ptr), line_number(line), src_file(""), src_file_line_no(-1){}
 	mem_addr_tab(void * ptr, int line, string l_src_file, int l_src_file_line_no): mem_ptr(ptr), line_number(line), src_file(l_src_file), src_file_line_no(l_src_file_line_no){}
 };
-void mem_log(void * ptr, int compiler_src_line_no, char* compiler_src_fname,
+void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fname,
                 int input_prog_line_no);
 
 extern struct stmt * tree_root;

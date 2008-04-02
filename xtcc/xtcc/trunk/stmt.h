@@ -293,7 +293,7 @@ struct blk_arr_assgn_stmt: public stmt{
 		if(prev) prev->print_stmt_lst(fptr);
 	}
 	~blk_arr_assgn_stmt(){
-		cout << "deleting blk_arr_assgn_stmt" << endl;
+		//cout << "deleting blk_arr_assgn_stmt" << endl;
 		//if(prev) delete prev;
 		delete lsymp; 
 		delete rsymp;
@@ -322,7 +322,7 @@ struct break_stmt: public stmt{
 	}
 	~break_stmt(){
 		cout << "deleting break_stmt" << endl;
-		//if (prev) delete prev;
+		if (prev) delete prev;
 	}
 	private:
 	break_stmt& operator=(const break_stmt&);	
@@ -344,8 +344,8 @@ struct continue_stmt: public stmt{
 		}
 	}
 	~continue_stmt(){
-		cout << "deleting continue_stmt" << endl;
-		//if (prev) delete prev;
+		//cout << "deleting continue_stmt" << endl;
+		if (prev) delete prev;
 	}
 	private:
 	continue_stmt& operator=(const continue_stmt&);	

@@ -28,6 +28,7 @@ list_stmt::~list_stmt(){
 	//delete se;
 }
 
+#include <sstream>
 func_decl_stmt::func_decl_stmt( datatype dtype, int lline_number, char * & name,  var_list* & v_list, datatype return_type)
 		:
 		stmt(dtype, lline_number), f_ptr(0){
@@ -49,9 +50,9 @@ func_decl_stmt::func_decl_stmt( datatype dtype, int lline_number, char * & name,
 		f_ptr=fi;
 		//free(name);
 	} else {
-		cerr << "Symbol : " << name << " already present in symbol table" << endl;
-		cout << "line_no: " << lline_number;
-		++no_errors;
+		stringstream s;
+		s << "Function  Name : " << name << " already present in symbol table." << endl;
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 		type=ERROR_TYPE;
 		free(name);
 	}

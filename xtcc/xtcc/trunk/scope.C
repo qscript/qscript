@@ -39,7 +39,7 @@ extern ofstream debug_log_file;
 extern vector<mem_addr_tab> mem_addr;
 
 
-stmt* scope::insert(char * name, datatype dt, int line_no){
+stmt* scope::insert(const char * name, datatype dt, int line_no){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
 	if(st_ptr){
@@ -64,7 +64,7 @@ stmt* scope::insert(char * name, datatype dt, int line_no){
 }
 
 
-stmt* scope::insert(char * name, datatype dt, int arr_size, int line_no){
+stmt* scope::insert(const char * name, datatype dt, int arr_size, int line_no){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
 	if(st_ptr){
@@ -89,7 +89,7 @@ stmt* scope::insert(char * name, datatype dt, int arr_size, int line_no){
 }
 
 
-stmt* scope::insert(char * name, datatype dt, int arr_size, int line_no, char *text){
+stmt* scope::insert(const char * name, datatype dt, int arr_size, int line_no, char *text){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	int text_len=strlen(text);
 	if(arr_size<text_len-1) {

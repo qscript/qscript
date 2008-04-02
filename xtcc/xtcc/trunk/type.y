@@ -196,7 +196,7 @@
 %%
 
 prog: DATA_STRUCT ';' REC_LEN '=' INUMBER ';' 
-	{	char * c_arr="c";  
+	{	const char * c_arr="c";  
 		rec_len=$5; 
 		active_scope->insert(c_arr, INT8_ARR_TYPE, rec_len, 0);
 	} 
@@ -800,113 +800,23 @@ expression: expression '+' expression {
 	}
 	|	NAME	{
 		$$ = new un2_expr($1, oper_name );
-		/*
-		map<string,symtab_ent*>::iterator sym_it = find_in_symtab($1);
-		if(sym_it==active_scope->sym_tab.end() ){
-			cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
-			++no_errors;
-			$$ = new un2_expr(ERROR_TYPE);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else {
-			$$ = new un2_expr(sym_it->second );
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-		free($1);
-		*/
 	}
 	| 	NAME '[' expression ']' %prec FUNC_CALL {
-		map<string,symtab_ent*>::iterator sym_it = 
-				find_in_symtab($1);
-		if(sym_it==active_scope->sym_tab.end() ){
-			cerr << "Error: Array indexing expr could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
-			++no_errors;
-			$$ = new un2_expr(ERROR_TYPE);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else {
-			symtab_ent* se=sym_it->second;
-
-			datatype e_type=$3->type;
-			if(e_type>=INT8_TYPE && e_type <=INT32_TYPE){
-				datatype nametype =arr_deref_type(se->type);
-				if(nametype==ERROR_TYPE) {
-					cerr << "ERROR: Variable being indexed not of Array Type : Error: lineno: " << line_no << "\n";
-					++no_errors;
-					$$ = new un2_expr(ERROR_TYPE);
-					void *ptr=$$;
-					mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-					mem_addr.push_back(m1);
-				} else {
-					$$ = new un2_expr(oper_arrderef, nametype,  se, $3);
-					void *ptr=$$;
-					mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-					mem_addr.push_back(m1);
-				}
-			} else {
-				cerr << "ERROR: Array index not of Type Int : Error: lineno: " << line_no << "\n";
-				++no_errors;
-				$$ = new un2_expr(ERROR_TYPE);
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			}
+		$$ = new un2_expr(oper_arrderef, /*nametype,  se,*/ $1,$3);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($1);
 	}
 	| NAME '[' expression ',' expression ']'  %prec FUNC_CALL {
-		symtab_ent* se=0;
-		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab($1);
-		if( sym_it1==active_scope->sym_tab.end()) {
-			cerr << "Not able to find :" << $1 << " in symbol table: line_no" 
-				<< line_no
-				<< endl;
-			++no_errors;
-		} else {
-			se=sym_it1->second;
+		$$ = new un2_expr(oper_blk_arr_assgn, $1,$3,$5);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-		if( !(se)){
-			cerr << "Error: could not find name " << $1 << "  in expr " 
-				<< "oper_blk_arr_assgn: " << " line_no: " << line_no;
-				++no_errors;
-			$$ = new un2_expr(ERROR_TYPE);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		}  else {
-			datatype e_type1=$3->type;
-			datatype e_type2=$5->type;
-			if( (e_type1>=INT8_TYPE && e_type1 <=INT32_TYPE) && 
-					(e_type2>=INT8_TYPE && e_type2<=INT32_TYPE)){
-				datatype d1=arr_deref_type(se->type);
-				if(d1==ERROR_TYPE){
-					$$ = new un2_expr(ERROR_TYPE);
-					void *ptr=$$;
-					mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-					mem_addr.push_back(m1);
-					cerr << "Type Error:  x: lineno: " << line_no << "\n";
-					++no_errors;
-				} else {
-					$$ = new un2_expr(oper_blk_arr_assgn, d1, se,$3,$5);
-					void *ptr=$$;
-					mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-					mem_addr.push_back(m1);
-				}
-			} else {
-				$$ = new un2_expr(ERROR_TYPE);
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-				cerr << "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
-					<< line_no << "\n";
-				++no_errors;
-			}
-		}
-		//free($1);
+		free($1);
 	}
 	| NAME '(' expr_list ')' %prec FUNC_CALL{
 		//cout << "parsing Function call: name: " << $1 << endl;
@@ -1181,13 +1091,13 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	 * Hand install printf -> something like a library functions
 	 */
 
-	char * printf_name="printf";
+	const char * printf_name="printf";
 	var_list* v_list=0;
 	datatype myreturn_type=INT8_TYPE;
 	func_info* fi=new func_info(printf_name, v_list, myreturn_type);
 	func_info_table.push_back(fi);
 	
-	char *c_arr="c";
+	const char *c_arr="c";
 
 	FILE * yyin=fopen(inp_file,"r");
 	if(!yyin) {
@@ -1444,7 +1354,7 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
 
 	bool skip_func_type_check(const char * fname){
 		//cout << "skip_func_type_check: BEGIN" << endl;
-		char * skip_func_type_check_list[] = {"printf" };
+		const char * skip_func_type_check_list[] = {"printf" };
 		for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
 			if(!strcmp(fname, skip_func_type_check_list[i])){
 				//cout << "skip_func_type_check: returned true: fname: " << fname << endl;
@@ -1579,7 +1489,7 @@ int compile(char * const XTCC_HOME, char * const work_dir){
 	string cmd=string("rm ") + string(work_dir) + string("/temp.C");
 	//system("rm xtcc_work/temp.C");
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
-	char * file_list[]={
+	const char * file_list[]={
 		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
 		"my_tab_drv_func.C", "temp.C"
 	};

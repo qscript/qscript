@@ -18,7 +18,7 @@
 	/*enum decltype { array_decl, pointer_decl };*/
 
 	struct noun_list_type {
-		char * sym;
+		const char * sym;
 		enum datatype dt;
 	};
 
@@ -35,7 +35,7 @@ struct symtab_ent {
 	bool created_by_me;
 	symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false){
 	}
-	symtab_ent(char * lname, datatype ldt):
+	symtab_ent(const char * lname, datatype ldt):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true)
 	{ }
 	inline datatype get_type(){

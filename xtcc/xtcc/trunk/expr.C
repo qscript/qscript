@@ -366,7 +366,7 @@ un2_expr::~un2_expr(){
 	}
 	debug_log_file << "deleting un2_expr: e_type: " << e_type << endl;
 	if(e_type==oper_func_call){
-		cout << "line_no: " << line_no << endl;
+		//cout << "line_no: " << line_no << endl;
 	}
 	if(text) { free( text) ; text=0; }
 	if(operand) { delete operand; operand=0; }
@@ -461,3 +461,86 @@ un2_expr::un2_expr(char* ltxt, e_operator_type le_type):
 		}
 	}
 }
+
+#include <sstream>
+un2_expr::un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * lsymp,*/ string name, expr* arr_index): 
+	expr(le_type, ERROR_TYPE), symp(0) /* symp(lsymp)*/, isem_value(0), 
+	dsem_value(0), func_index_in_table(-1), text(0),
+	column_no(-1), operand(arr_index),  operand2(0)
+{
+	map<string,symtab_ent*>::iterator sym_it = find_in_symtab(name);
+	if(sym_it==active_scope->sym_tab.end() ){
+		std::stringstream s;
+		s << "Error: Array indexing expr: could not find name: " 
+			<< name <<"  in symbol table: lineno: " << line_no << "\n";
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+	} else {
+		symtab_ent* se=sym_it->second;
+		symp = se;
+		datatype e_type=arr_index->type;
+		if(is_of_int_type(e_type)){
+			datatype nametype =arr_deref_type(se->type);
+			if(nametype==ERROR_TYPE) {
+				std::stringstream s;
+				s << "ERROR: Array indexing expr Variable being indexed not of Array Type : Error: lineno: " << line_no << "\n";
+				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+			} else {
+				//$$ = new un2_expr(oper_arrderef, nametype,  se, $3);
+				type = nametype;
+			}
+		} else {
+			stringstream s;
+			s << "ERROR: Array index not of Type Int : Error: lineno: " << line_no << "\n";
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		}
+	}
+}
+
+un2_expr::un2_expr(e_operator_type le_type, /* datatype dt, struct symtab_ent * lsymp,*/ string name,
+		expr* arr_index, expr* arr_index2): 
+		expr(le_type, ERROR_TYPE), symp(0), isem_value(0), dsem_value(0), func_index_in_table(-1), text(0),
+		column_no(-1), operand(arr_index), operand2(arr_index2){
+		symtab_ent* se=0;
+		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab(name);
+		if( sym_it1==active_scope->sym_tab.end()) {
+			std::stringstream s;
+			s << "Error: Block Array assignment expr: could not find name: " 
+				<< name <<"  in symbol table: lineno: " << line_no << "\n";
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		} else {
+			se=sym_it1->second;
+			symp = se;
+		}
+		if( !(se)){
+			std::stringstream s;
+			s << "Error: Block Array assignment expr: could not find name: " 
+				<< name <<"  in symbol table: lineno: " << line_no << "\n";
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		}  else {
+			datatype e_type1=arr_index->type;
+			datatype e_type2=arr_index2->type;
+			if( is_of_int_type (e_type1)&& 
+				is_of_int_type(e_type2)	){
+				datatype d1=arr_deref_type(se->type);
+				if(d1==ERROR_TYPE){
+					std::stringstream s;
+					s << "ERROR: Block Array assignment expr Variable: " << name << " being indexed not of Array Type : Error: lineno: " << line_no << "\n";
+					print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+				} else {
+
+					//$$ = new un2_expr(oper_blk_arr_assgn, d1, se,$3,$5);
+					//void *ptr=$$;
+					//mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+					//mem_addr.push_back(m1);
+					type = d1;
+				}
+			} else {
+				stringstream s;
+				s <<  "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
+					<< line_no << "\n";
+				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+			}
+		}
+		//free($1);
+	}
+

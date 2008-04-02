@@ -90,13 +90,8 @@ struct un2_expr : public expr{
 		expr(oper_err,d), symp(0), isem_value(0), dsem_value(0), func_index_in_table(-1), text(0),
 		column_no(-1), operand(0), operand2(0)
 	{}
-	un2_expr(e_operator_type le_type, datatype dt, struct symtab_ent * lsymp, expr* arr_index): 
-		expr(le_type, dt), symp(lsymp), isem_value(0), dsem_value(0), func_index_in_table(-1), text(0),
-		column_no(-1), operand(arr_index),  operand2(0)
-	{}
-	un2_expr(e_operator_type le_type, datatype dt, struct symtab_ent * lsymp, expr* arr_index, expr* arr_index2): 
-		expr(le_type, dt), symp(lsymp), isem_value(0), dsem_value(0), func_index_in_table(-1), text(0),
-		column_no(-1), operand(arr_index), operand2(arr_index2){}
+	un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * lsymp,*/ string name, expr* arr_index);
+	un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * lsymp, */ string name,  expr* arr_index, expr* arr_index2);
 	un2_expr(char* ltxt, e_operator_type le_type); 
 	~un2_expr();
 	friend void bin_expr::print_oper_assgn(FILE* edit_out);
