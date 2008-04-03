@@ -84,6 +84,7 @@
 	bool flag_next_stmt_start_of_block=false;
 	//struct stmt* start_of_blk=0;
 	vector <stmt*> blk_heads;
+	vector<bool> blk_start_flag;
 
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
@@ -368,8 +369,10 @@ statement_list: statement {
 		$$=$1; 
 		if(flag_next_stmt_start_of_block){
 			blk_heads.push_back($1);
+			cout << "blk_heads.size(): " << blk_heads.size() << endl;
 			//start_of_blk=$1;
 			flag_next_stmt_start_of_block=false;
+			blk_start_flag.pop_back();
 		}
 	}
 	|	statement_list statement {
@@ -527,6 +530,11 @@ list_stmt:	 LISTA NAME TEXT ';'{
 	;
 
 if_stmt: IF '(' expression ')' statement{
+		$$=new if_stmt(IFE_STMT,line_no,$3,$5,0);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+		 /*
 		if($3->type==VOID_TYPE || $3->type==ERROR_TYPE){
 			++no_errors;
 			$$=new err_stmt(line_no);
@@ -540,8 +548,14 @@ if_stmt: IF '(' expression ')' statement{
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
+		*/
 	}
 	| IF '(' expression ')' statement ELSE statement{
+		$$=new if_stmt(IFE_STMT, line_no,$3,$5,$7);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+		/*
 		if($3->type==VOID_TYPE || $3->type==ERROR_TYPE){
 			++no_errors;
 			$$=new err_stmt(line_no);
@@ -555,6 +569,7 @@ if_stmt: IF '(' expression ')' statement{
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
+		*/
 	}
 	;
 
@@ -625,7 +640,6 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 	}
 	;
 
-
 compound_stmt: open_curly statement_list '}'	{
 		active_scope_list.pop_back();
 		int tmp=active_scope_list.size()-1;
@@ -640,6 +654,9 @@ compound_stmt: open_curly statement_list '}'	{
 			mem_addr.push_back(m1);
 		} else { active_scope = active_scope_list[tmp]; }
 		struct stmt* head_of_this_chain=blk_heads.back();
+		if(blk_start_flag.size() > 0){
+			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
+		}
 		if(  head_of_this_chain==0){
 			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
 			++no_errors;
@@ -674,6 +691,7 @@ open_curly:	'{' {
 			mem_addr.push_back(m1);
 		}
 		flag_next_stmt_start_of_block=true;
+		blk_start_flag.push_back(flag_next_stmt_start_of_block);
 		//cout << "open_curly: cmpd_stmt: " << $$ << endl;
 		//cout << "pushed active_scope: " << active_scope << endl;
 		//active_scope_list.push_back(active_scope);
@@ -1023,15 +1041,6 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	opterr=1;
 	int c;
 	// temp hack
-	/*
-	if(argc>1){
-		for(int i=1; i<argc ; ++i){
-			printf("i:%d, argv[%d]:%s ", i, i, argv[i]);
-		}
-		printf("\n");
-		exit(1);
-	}
-	*/
 
 	while((c=getopt(argc, argv, "w:"))!=-1){
 		switch(c){
@@ -1075,11 +1084,6 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		exit(1);
 	}
 	
-	/*cout << "SOME DEBUGGING INFO: INT8_TYPE:" << INT8_TYPE 
-		<< " INT8_ARR_TYPE:" << INT8_ARR_TYPE
-		<< " INT8_REF_TYPE:" << INT8_REF_TYPE 
-		<< endl;
-	*/	
 	reset_files();
 		
 		
@@ -1192,6 +1196,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		// fi was allocated by us - the "hand installed printf function"
 		delete fi;
 		print_memory_leaks();
+		cout << "xtcc run complete" << endl;
 		return rval;
 	}
 	cout << "returning from main with errors"<< endl;

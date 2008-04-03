@@ -98,10 +98,8 @@ struct if_stmt : public stmt{
 	struct stmt * if_body;
 	struct stmt * else_body;
 	public:
-	if_stmt( datatype dtype, int lline_number, struct  expr * lcondition, struct  stmt * lif_body, struct stmt * lelse_body=NULL): stmt(dtype, lline_number),
-		condition(lcondition), if_body(lif_body), else_body(lelse_body)
-	{
-	}
+	if_stmt( datatype dtype, int lline_number, 
+		struct  expr * lcondition, struct  stmt * lif_body, struct stmt * lelse_body=0);
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
 

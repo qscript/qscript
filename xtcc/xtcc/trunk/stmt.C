@@ -177,12 +177,12 @@ for_stmt:: ~for_stmt(){
 
 if_stmt:: ~if_stmt(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
-			if(this==mem_addr[i].mem_ptr){
-				mem_addr[i].mem_ptr=0;
-				debug_log_file << "if_stmt::~if_stmt setting mem_addr:" << this << "=0" << endl;
-				break;
-			}
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "if_stmt::~if_stmt setting mem_addr:" << this << "=0" << endl;
+			break;
 		}
+	}
 	debug_log_file << "deleting if_stmt" << endl;
 	//if (prev) delete prev;
 	delete condition;
@@ -323,4 +323,15 @@ cmpd_stmt::~cmpd_stmt() {
 decl_stmt::~decl_stmt(){ 
 	debug_log_file << "deleting decl_stmt" << endl;
 	//if(symp) { delete symp; symp=0; }
+}
+
+if_stmt::if_stmt( datatype dtype, int lline_number, 
+		struct  expr * lcondition, struct  stmt * lif_body, struct stmt * lelse_body): 
+		stmt(dtype, lline_number),
+		condition(lcondition), if_body(lif_body), else_body(lelse_body)
+{
+	if(lcondition->type==VOID_TYPE || lcondition->type==ERROR_TYPE){
+		print_err(compiler_sem_err, "If condition expression has Void or Error Type", line_no, __LINE__, __FILE__);
+	} else {
+	}
 }
