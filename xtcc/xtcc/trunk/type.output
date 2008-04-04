@@ -65,8 +65,8 @@ Grammar
    39          | error ';'
 
    40 list_stmt: LISTA NAME TEXT ';'
-   41          | LISTA NAME '[' INUMBER ']' TEXT ';'
-   42          | LISTA NAME '[' INUMBER ',' INUMBER ']' TEXT ';'
+   41          | LISTA NAME '[' expression ']' TEXT ';'
+   42          | LISTA NAME '[' expression ',' expression ']' TEXT ';'
 
    43 if_stmt: IF '(' expression ')' statement
    44        | IF '(' expression ')' statement ELSE statement
@@ -161,7 +161,7 @@ FLD (264) 45
 TEXT (265) 40 41 42 72 86 87 88 89
 NAME (266) 16 17 18 20 23 24 25 40 41 42 45 68 69 70 71 76 77 81 82
 FNUMBER (267) 67
-INUMBER (268) 2 18 24 41 42 45 66
+INUMBER (268) 2 18 24 45 66
 CODELIST (269)
 LISTA (270) 40 41 42
 IF (271) 43 44
@@ -239,8 +239,8 @@ expr_list (81)
     on left: 48 49, on right: 49 71
 expression (82)
     on left: 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67
-    68 69 70 71 72 73, on right: 30 32 43 44 45 48 49 50 51 52 53 54
-    55 56 57 58 59 60 61 62 63 64 65 69 70 73 77 82 87 88
+    68 69 70 71 72 73, on right: 30 32 41 42 43 44 45 48 49 50 51 52
+    53 54 55 56 57 58 59 60 61 62 63 64 65 69 70 73 77 82 87 88
 tab_list (83)
     on left: 74 75, on right: 4 75
 tab_defn (84)
@@ -2286,8 +2286,8 @@ state 153
 state 154
 
    40 list_stmt: LISTA . NAME TEXT ';'
-   41          | LISTA . NAME '[' INUMBER ']' TEXT ';'
-   42          | LISTA . NAME '[' INUMBER ',' INUMBER ']' TEXT ';'
+   41          | LISTA . NAME '[' expression ']' TEXT ';'
+   42          | LISTA . NAME '[' expression ',' expression ']' TEXT ';'
 
     NAME  shift, and go to state 170
 
@@ -2472,8 +2472,8 @@ state 169
 state 170
 
    40 list_stmt: LISTA NAME . TEXT ';'
-   41          | LISTA NAME . '[' INUMBER ']' TEXT ';'
-   42          | LISTA NAME . '[' INUMBER ',' INUMBER ']' TEXT ';'
+   41          | LISTA NAME . '[' expression ']' TEXT ';'
+   42          | LISTA NAME . '[' expression ',' expression ']' TEXT ';'
 
     TEXT  shift, and go to state 180
     '['   shift, and go to state 181
@@ -2592,10 +2592,18 @@ state 180
 
 state 181
 
-   41 list_stmt: LISTA NAME '[' . INUMBER ']' TEXT ';'
-   42          | LISTA NAME '[' . INUMBER ',' INUMBER ']' TEXT ';'
+   41 list_stmt: LISTA NAME '[' . expression ']' TEXT ';'
+   42          | LISTA NAME '[' . expression ',' expression ']' TEXT ';'
 
-    INUMBER  shift, and go to state 187
+    TEXT     shift, and go to state 41
+    NAME     shift, and go to state 42
+    FNUMBER  shift, and go to state 43
+    INUMBER  shift, and go to state 44
+    '('      shift, and go to state 45
+    '-'      shift, and go to state 46
+    NOT      shift, and go to state 47
+
+    expression  go to state 187
 
 
 state 182
@@ -2683,11 +2691,39 @@ state 186
 
 state 187
 
-   41 list_stmt: LISTA NAME '[' INUMBER . ']' TEXT ';'
-   42          | LISTA NAME '[' INUMBER . ',' INUMBER ']' TEXT ';'
+   41 list_stmt: LISTA NAME '[' expression . ']' TEXT ';'
+   42          | LISTA NAME '[' expression . ',' expression ']' TEXT ';'
+   50 expression: expression . '+' expression
+   51           | expression . '-' expression
+   52           | expression . '*' expression
+   53           | expression . '/' expression
+   54           | expression . '%' expression
+   56           | expression . '<' expression
+   57           | expression . '>' expression
+   58           | expression . LEQ expression
+   59           | expression . GEQ expression
+   60           | expression . ISEQ expression
+   61           | expression . NOEQ expression
+   62           | expression . LOGOR expression
+   63           | expression . LOGAND expression
+   64           | expression . '=' expression
 
-    ']'  shift, and go to state 192
-    ','  shift, and go to state 193
+    ']'     shift, and go to state 192
+    '='     shift, and go to state 61
+    ','     shift, and go to state 193
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
 
 
 state 188
@@ -2790,16 +2826,24 @@ state 191
 
 state 192
 
-   41 list_stmt: LISTA NAME '[' INUMBER ']' . TEXT ';'
+   41 list_stmt: LISTA NAME '[' expression ']' . TEXT ';'
 
     TEXT  shift, and go to state 198
 
 
 state 193
 
-   42 list_stmt: LISTA NAME '[' INUMBER ',' . INUMBER ']' TEXT ';'
+   42 list_stmt: LISTA NAME '[' expression ',' . expression ']' TEXT ';'
 
-    INUMBER  shift, and go to state 199
+    TEXT     shift, and go to state 41
+    NAME     shift, and go to state 42
+    FNUMBER  shift, and go to state 43
+    INUMBER  shift, and go to state 44
+    '('      shift, and go to state 45
+    '-'      shift, and go to state 46
+    NOT      shift, and go to state 47
+
+    expression  go to state 199
 
 
 state 194
@@ -2872,16 +2916,44 @@ state 197
 
 state 198
 
-   41 list_stmt: LISTA NAME '[' INUMBER ']' TEXT . ';'
+   41 list_stmt: LISTA NAME '[' expression ']' TEXT . ';'
 
     ';'  shift, and go to state 203
 
 
 state 199
 
-   42 list_stmt: LISTA NAME '[' INUMBER ',' INUMBER . ']' TEXT ';'
+   42 list_stmt: LISTA NAME '[' expression ',' expression . ']' TEXT ';'
+   50 expression: expression . '+' expression
+   51           | expression . '-' expression
+   52           | expression . '*' expression
+   53           | expression . '/' expression
+   54           | expression . '%' expression
+   56           | expression . '<' expression
+   57           | expression . '>' expression
+   58           | expression . LEQ expression
+   59           | expression . GEQ expression
+   60           | expression . ISEQ expression
+   61           | expression . NOEQ expression
+   62           | expression . LOGOR expression
+   63           | expression . LOGAND expression
+   64           | expression . '=' expression
 
-    ']'  shift, and go to state 204
+    ']'     shift, and go to state 204
+    '='     shift, and go to state 61
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
 
 
 state 200
@@ -2974,14 +3046,14 @@ state 202
 
 state 203
 
-   41 list_stmt: LISTA NAME '[' INUMBER ']' TEXT ';' .
+   41 list_stmt: LISTA NAME '[' expression ']' TEXT ';' .
 
     $default  reduce using rule 41 (list_stmt)
 
 
 state 204
 
-   42 list_stmt: LISTA NAME '[' INUMBER ',' INUMBER ']' . TEXT ';'
+   42 list_stmt: LISTA NAME '[' expression ',' expression ']' . TEXT ';'
 
     TEXT  shift, and go to state 208
 
@@ -3039,7 +3111,7 @@ state 207
 
 state 208
 
-   42 list_stmt: LISTA NAME '[' INUMBER ',' INUMBER ']' TEXT . ';'
+   42 list_stmt: LISTA NAME '[' expression ',' expression ']' TEXT . ';'
 
     ';'  shift, and go to state 211
 
@@ -3091,7 +3163,7 @@ state 210
 
 state 211
 
-   42 list_stmt: LISTA NAME '[' INUMBER ',' INUMBER ']' TEXT ';' .
+   42 list_stmt: LISTA NAME '[' expression ',' expression ']' TEXT ';' .
 
     $default  reduce using rule 42 (list_stmt)
 

@@ -222,11 +222,13 @@ void list_stmt::print_stmt_lst(FILE * & fptr){
 			}
 			if(se){
 				datatype dt=se->get_type();
-				if(dt>=INT8_TYPE && dt<=DOUBLE_TYPE){
+				if(/*dt>=INT8_TYPE && dt<=DOUBLE_TYPE*/
+					is_of_noun_type(dt) || is_of_noun_ref_type(dt)){
 					fprintf(global_vars, "map<%s,int> list%d;\n", 
 							noun_list[dt].sym, counter_number);
 					fprintf(fptr, "list%d [%s]++;\n", counter_number, se->name);
-					fprintf(print_list_counts, "print_list_summ(list%d );\n", counter_number);
+					fprintf(print_list_counts, "print_list_summ(list%d, string(\"%s\"), string(%s) );\n", 
+						counter_number, se->name, list_text.c_str());
 				}
 
 				++counter_number;
@@ -249,11 +251,13 @@ void list_stmt::print_stmt_lst(FILE * & fptr){
 			if(se){
 				datatype dt=se->get_type();
 				if(dt>=INT8_ARR_TYPE&& dt<=DOUBLE_ARR_TYPE){
-					fprintf(global_vars, "map<%s,int> list%d;\n", 
+					fprintf(global_vars, "map<%s,int> list1_%d;\n", 
 							noun_list[dt].sym, counter_number);
-					fprintf(fptr, "list1_%d [%s[%d]]++;\n", counter_number, se->name,
-							arr_start);
-					fprintf(print_list_counts, "print_list_summ(list%d );\n", counter_number);
+					fprintf(fptr, "list1_%d [%s[", counter_number, se->name);
+					arr_start->print_expr(fptr);
+					fprintf(fptr, "]]++;\n");
+					fprintf(print_list_counts, "print_list_summ(list1_%d, string(\"%s\"), string(%s) );\n", 
+						counter_number, se->name, list_text.c_str());
 				}
 				++counter_number;
 			}
@@ -279,9 +283,12 @@ void list_stmt::print_stmt_lst(FILE * & fptr){
 					{
 					fprintf(global_vars, "map<%s,int> list2_%d;\n", 
 							noun_list[dt].sym, counter_number);
-					fprintf(fptr, "list2_%d [%s[%d]]++;\n", counter_number, se->name,
+					/*fprintf(fptr, "list2_%d [%s[%d]]++;\n", counter_number, se->name,
 							arr_start);
 					fprintf(print_list_counts, "print_list_summ(list2_%d );\n", counter_number);
+					*/
+					fprintf(print_list_counts, "printf(\"LISTA_BASIC_ARRTYPE_STMT_2INDEX: to be implemented\");\\n\n");
+
 					}
 				break;		      
 				default:
@@ -345,3 +352,50 @@ for_stmt::for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test,
 		type=ERROR_TYPE;
 	} 
 }
+
+
+list_stmt::list_stmt( datatype dtype, string name,
+		string llist_text,
+		expr*  l_arr_start, 
+		expr* l_arr_end
+		):
+		stmt(dtype, line_no), 
+		se(0), list_text(llist_text), arr_start(l_arr_start), arr_end(l_arr_end)
+{
+		map<string,symtab_ent*>::iterator sym_it = find_in_symtab(name);
+		if(sym_it==active_scope->sym_tab.end() ){
+			stringstream s;
+			s << "list_stmt:  statement symbol: " << name << " not found in symbol table" << endl;
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		} else {
+			se=sym_it->second;
+			datatype name_type=se->type;
+			if( !(is_of_noun_type(name_type)|| is_of_noun_ref_type(name_type))
+				/*!(name_type>=INT8_TYPE&&name_type<=DOUBLE_TYPE)*/){
+				stringstream s;
+				s << "list_stmt NAME: "<< name 
+					<< " should be of basic type or basic reference types: " << line_no << endl;
+				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+				type = ERROR_TYPE;
+			} 
+		}
+		if(arr_start){
+			if(! is_of_int_type( arr_start->type) ){
+				type=ERROR_TYPE;
+				stringstream s;
+				s << "list_stmt NAME: "<< name 
+					<< " array index should be of INT type: " << line_no << endl;
+				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+
+			}
+		} 
+		if(arr_end){
+			if(! is_of_int_type( arr_end->type) ){
+				type=ERROR_TYPE;
+				stringstream s;
+				s << "list_stmt NAME: "<< name 
+					<< " array index 2 should be of INT type: " << line_no << endl;
+				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+			}
+		}
+	}

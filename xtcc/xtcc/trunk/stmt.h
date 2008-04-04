@@ -407,16 +407,15 @@ struct func_stmt: public stmt{
 
 struct list_stmt: public stmt{
 	struct symtab_ent * se;
-	int arr_start, arr_end;
+	/*int arr_start, arr_end;*/
 	string list_text;
-	list_stmt( datatype dtype,
-			int lline_number,
-			struct symtab_ent * lse, int l_arr_start=-1, int l_arr_end=-1, string llist_text=string("")
-		 ): stmt(dtype, lline_number), 
-		se(lse), arr_start(l_arr_start), arr_end(l_arr_end), list_text(llist_text)
-	{
-	}
-
+	expr * arr_start;
+	expr * arr_end;
+	list_stmt( datatype dtype, string name,
+		string llist_text=string(""),
+		expr*  l_arr_start=0, 
+		expr* l_arr_end=0
+		);
 	void print_stmt_lst(FILE * & fptr);
 
 	~list_stmt();
@@ -425,5 +424,8 @@ struct list_stmt: public stmt{
 	list_stmt& operator=(const list_stmt&);	
 	list_stmt(const list_stmt&);	
 };
+#include <map>
+using std:: map;
+map<string, symtab_ent*>::iterator find_in_symtab(string id);
 
 #endif /* _xtcc_stmt_h */

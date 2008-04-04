@@ -424,87 +424,23 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	;
 
 list_stmt:	 LISTA NAME TEXT ';'{
-		map<string,symtab_ent*>::iterator sym_it = find_in_symtab($2);
-		if(sym_it==active_scope->sym_tab.end() ){
-			cerr << "symbol: " << $2 << " not found in symbol table" << endl;
-			++no_errors;
-			$$=new err_stmt(line_no);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else {
-			struct symtab_ent* se=sym_it->second;
-			datatype name_type=se->type;
-			if( !(name_type>=INT8_TYPE&&name_type<=DOUBLE_TYPE)){
-				cerr << "NAME: "<< $2 
-					<< " should be of basic type: " << line_no << endl;
-				++no_errors;
-				$$=new struct err_stmt(line_no);
-				//void *ptr=$$;
-				mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			} else {
-				$$=new list_stmt(LISTA_BASIC_TYPE_STMT, line_no, se);
-				//void *ptr=$$;
-				mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			}
+		$$=new list_stmt(LISTA_BASIC_TYPE_STMT, $2, $3);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($2);
 	}
-	| LISTA NAME '[' INUMBER ']' TEXT ';'{
-		map<string,symtab_ent*>::iterator sym_it = 
-				find_in_symtab($2);
-		if(sym_it==active_scope->sym_tab.end() ){
-			cerr << "symbol: " << $2 << " not found in symbol table" << endl;
-			++no_errors;
-			$$=new err_stmt(line_no);
-			//void *ptr=$$;
-			mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else {
-			struct symtab_ent* se=sym_it->second;
-			datatype name_type=se->type;
-			if( !(name_type>=INT8_ARR_TYPE&&name_type<=DOUBLE_ARR_TYPE)){
-				cerr << "NAME: "<< $2 
-					<< " is not of array type: line_no:" << line_no << endl;
-				++no_errors;
-				$$=new err_stmt(line_no);
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			} else {
-				$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, line_no, se, $4, -1, string($6));
-				//void *ptr=$$;
-				mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			}
+	| LISTA NAME '[' expression ']' TEXT ';'{
+		$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($6), $4);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($2);
 	}
-	| LISTA NAME '[' INUMBER ',' INUMBER ']' TEXT ';'{
-		map<string,symtab_ent*>::iterator sym_it = 
-				find_in_symtab($2);
-		if(sym_it==active_scope->sym_tab.end() ){
-			cerr << "symbol: " << $2 << " not found in symbol table" << endl;
-			++no_errors;
-			$$=new err_stmt(line_no);
-			//void *ptr=$$;
-			mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else {
-			struct symtab_ent* se=sym_it->second;
-			datatype name_type=se->type;
-			if( !(name_type==INT8_ARR_TYPE||name_type==INT8_TYPE)){
-				cerr << "NAME: "<< $2 
-					<< " is not of char array type: line_no:" << line_no << endl;
-				++no_errors;
-			} else {
-				$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_2INDEX, line_no, se, $4, $6, string($8));
-				//void *ptr=$$;
-				mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			}
+	| LISTA NAME '[' expression ',' expression ']' TEXT ';'{
+		$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($8), $4, $6);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($2);	
 	}
@@ -1679,7 +1615,7 @@ void	generate_edit_section_code(){
 	fclose(global_vars);
 	fname=work_dir+string("/print_list_counts.C");
 	FILE * print_list_counts=fopen(fname.c_str(), "wb");
-	fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m);\n");
+	fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m, string var_name, string text);\n");
 	fprintf(print_list_counts, "void print_list_counts(){\n");
 	fclose(print_list_counts);
 	fname=work_dir+string( "/edit_out.c");
