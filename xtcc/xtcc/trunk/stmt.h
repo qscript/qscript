@@ -67,8 +67,7 @@ struct stmt{
 struct for_stmt: public stmt{
 	struct expr * init, * test, *incr;
 	struct stmt * for_body;
-	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, expr* l_incr, stmt * lfor_body):
-		stmt(dtype, lline_number), init(l_init), test(l_test), incr(l_incr),  for_body(lfor_body){}
+	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, expr* l_incr, stmt * lfor_body);
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
 

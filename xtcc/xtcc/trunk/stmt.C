@@ -3,6 +3,7 @@
 #include "tree.h"
 extern vector<mem_addr_tab> mem_addr;
 extern ofstream debug_log_file;
+extern int if_line_no;
 #include <fstream>
 #include <iostream>
 
@@ -94,16 +95,15 @@ func_stmt:: func_stmt ( datatype dtype, int lline_number, scope * &sc,
 			type=FUNC_DEFN;
 			f_ptr=func_info_table[index];
 		} else {
-			cerr << "func defn, decl parameter return_types did not match: lline_number: " 
-			<< lline_number
-			<< endl;
-			++no_errors;
+			stringstream s;
+			s << "func defn, decl parameter return_types did not match: function name: " << func_name;
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 			type=ERROR_TYPE;
 		}
 	} else {
-		cerr << "func defn, decl parameter lists did not match: lline_number" 
-			<< lline_number
-			<< endl;
+		stringstream s;
+		s << "func defn, decl parameter return_types did not match: function name: " << func_name;
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 		++no_errors;
 		type=ERROR_TYPE;
 	}
@@ -331,7 +331,17 @@ if_stmt::if_stmt( datatype dtype, int lline_number,
 		condition(lcondition), if_body(lif_body), else_body(lelse_body)
 {
 	if(lcondition->type==VOID_TYPE || lcondition->type==ERROR_TYPE){
-		print_err(compiler_sem_err, "If condition expression has Void or Error Type", line_no, __LINE__, __FILE__);
+		print_err(compiler_sem_err, "If condition expression has Void or Error Type", if_line_no, __LINE__, __FILE__);
 	} else {
 	}
+}
+
+
+for_stmt::for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, expr* l_incr, stmt * lfor_body):
+	stmt(dtype, lline_number), init(l_init), test(l_test), incr(l_incr),  for_body(lfor_body)
+{
+	if(init->type==VOID_TYPE||test->type==VOID_TYPE||incr->type==VOID_TYPE ){
+		print_err(compiler_sem_err, "For condition expression has Void or Error Type", line_no, __LINE__, __FILE__);
+		type=ERROR_TYPE;
+	} 
 }

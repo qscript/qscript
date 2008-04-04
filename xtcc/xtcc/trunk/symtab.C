@@ -61,8 +61,23 @@ stmt* sym_tab::insert(string name, datatype dt){
 #include <fstream>
 using std::endl;
 symtab_ent::~symtab_ent(){
-		debug_log_file<< "deleting symtab_ent: name: " << name << std::endl;
-		if(name&& created_by_me) { free( name); name=0; }
-		if(text) { delete text; text=0; }
-		debug_log_file << "FINISHED deleting symtab_ent" << std::endl;
-	}
+	debug_log_file<< "deleting symtab_ent: name: " << name << std::endl;
+	if(name&& created_by_me) { free( name); name=0; }
+	if(text) { delete text; text=0; }
+	debug_log_file << "FINISHED deleting symtab_ent" << std::endl;
+}
+
+
+bool is_of_int_type(datatype dt){
+	return (dt >= INT8_TYPE && dt <=INT32_TYPE);
+}
+bool is_of_noun_type(datatype dt){
+	return (dt >= INT8_TYPE && dt <=DOUBLE_TYPE);
+}
+bool is_of_noun_ref_type(datatype dt){
+	return (dt >= INT8_REF_TYPE && dt <=DOUBLE_REF_TYPE);
+}
+
+bool is_of_arr_type(datatype dt){
+	return (dt >= INT8_ARR_TYPE && dt <=DOUBLE_ARR_TYPE);
+}

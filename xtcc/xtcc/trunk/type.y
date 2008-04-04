@@ -43,6 +43,7 @@
 	const bool XTCC_DEBUG_MEM_USAGE=1;
 
 //	struct symtab symtab;
+	extern int if_line_no;
 	int no_errors=0;
 	int no_warn=0;
 	int yylex();
@@ -266,9 +267,9 @@ func_defn:
 		/*$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, cmpd_stmt, search_for, return_type);
 			// This gives an error - we have to fool the compiler*/
 		$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, func_body, search_for, return_type);
-		//void *ptr=$$;
-		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 		// Note that the declaration already has a parameter list
 		// the constructor uses the parameter list - name and type to verify everything
 		// but doesnt need the parameter list any more - so we should delete it 
@@ -307,15 +308,12 @@ decl:	xtcc_type NAME ';' {
 
 func_decl:	xtcc_type NAME '(' decl_comma_list ')' ';'{
 		char *name=$2;
-		//char *name=strdup($2);
 		struct var_list* v_list=trav_chain($4);
 		datatype return_type=$1;
 		$$=new func_decl_stmt( FUNC_TYPE, line_no, name,  v_list, return_type);
-		void *ptr=$$;
-		//mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		//free(name);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 	}
 	;
 
@@ -332,35 +330,31 @@ decl_comma_list: var_decl	{
 
 
 var_decl:	xtcc_type NAME 	{
-		//cout << "creating simple var of type: " << $1 << endl;
 		$$=new var_list($1, $2);
-		//void *ptr=$$;
-		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 		free($2);
 	}
 	| xtcc_type NAME '[' INUMBER ']'  {
 		/* Neil - I need to fix this */
-		//cout << "creating arr var of type: " << $1 << endl;
 		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
 		$$=new var_list(dt, $2, $4);
-		//void *ptr=$$;
-		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 		free($2);
 	}
 	|	xtcc_type '&' NAME {
-		//cout << "creating ref var of type: " << $1 << endl;
 		datatype dt=datatype(INT8_REF_TYPE+($1-INT8_TYPE));
 		$$=new var_list(dt, $3);
-		//void *ptr=$$;
-		mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
 		free($3);
 	}
 	|	/* empty */
 		{
-		//$$=new var_list(uninit, "empty");
 		$$=0;
 		}
 	;
@@ -369,7 +363,7 @@ statement_list: statement {
 		$$=$1; 
 		if(flag_next_stmt_start_of_block){
 			blk_heads.push_back($1);
-			cout << "blk_heads.size(): " << blk_heads.size() << endl;
+			//cout << "blk_heads.size(): " << blk_heads.size() << endl;
 			//start_of_blk=$1;
 			flag_next_stmt_start_of_block=false;
 			blk_start_flag.pop_back();
@@ -381,21 +375,8 @@ statement_list: statement {
 	;
 
 statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} statement {
-		   if($3->type==VOID_TYPE||$5->type==VOID_TYPE||$7->type==VOID_TYPE 
-			){
-			   cerr << "For condition has VOID_TYPE or ERROR_TYPE" << endl;
-			   ++ no_errors;
-			   $$=new struct err_stmt(line_no);
-			   void *ptr=$$;
-			   mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-			   mem_addr.push_back(m1);
-		   } else{
-			   $$ = new struct for_stmt(FOR_STMT, line_no, $3, $5, $7, $10);
-			   //void *ptr=$$;
-			   mem_addr_tab m1($$, line_no, __FILE__, __LINE__);
-			   mem_addr.push_back(m1);
-		   }
-		   --in_a_loop;
+		$$ = new struct for_stmt(FOR_STMT, line_no, $3, $5, $7, $10);
+		--in_a_loop;
 	}
 	| if_stmt
 	| expression ';' { 
@@ -530,46 +511,16 @@ list_stmt:	 LISTA NAME TEXT ';'{
 	;
 
 if_stmt: IF '(' expression ')' statement{
-		$$=new if_stmt(IFE_STMT,line_no,$3,$5,0);
+		$$=new if_stmt(IFE_STMT,if_line_no,$3,$5,0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-		 /*
-		if($3->type==VOID_TYPE || $3->type==ERROR_TYPE){
-			++no_errors;
-			$$=new err_stmt(line_no);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-			cerr << "Error: If condition has void or Error type:" << line_no << endl;
-		} else {
-			$$=new if_stmt(IFE_STMT,line_no,$3,$5,0);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		}
-		*/
 	}
 	| IF '(' expression ')' statement ELSE statement{
-		$$=new if_stmt(IFE_STMT, line_no,$3,$5,$7);
+		$$=new if_stmt(IFE_STMT, if_line_no,$3,$5,$7);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-		/*
-		if($3->type==VOID_TYPE || $3->type==ERROR_TYPE){
-			++no_errors;
-			$$=new err_stmt(line_no);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-			cerr << "Error: If condition has void or Error type:" << line_no << endl;
-		} else {
-			$$=new if_stmt(IFE_STMT, line_no,$3,$5,$7);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		}
-		*/
 	}
 	;
 
@@ -692,12 +643,8 @@ open_curly:	'{' {
 		}
 		flag_next_stmt_start_of_block=true;
 		blk_start_flag.push_back(flag_next_stmt_start_of_block);
-		//cout << "open_curly: cmpd_stmt: " << $$ << endl;
-		//cout << "pushed active_scope: " << active_scope << endl;
-		//active_scope_list.push_back(active_scope);
 		active_scope_list.push_back($$->sc);
 		active_scope = $$->sc;
-		//cout << "active_scope: " << active_scope << endl;
 	}
 	;
 
@@ -921,7 +868,6 @@ tab_defn:
 	| error ';' {
 		cerr << "Error in tab section line: " <<
 			line_no << endl;
-		++ line_no;
 		++no_errors;
 	}
 	;
@@ -1089,10 +1035,10 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		
 	active_scope=new scope();
 	active_scope_list.push_back(active_scope);
-	cout << "tree_root: " << tree_root << endl;
+	//cout << "tree_root: " << tree_root << endl;
 	
 	/*
-	 * Hand install printf -> something like a library functions
+	 * Hand install printf -> something like a library function
 	 */
 
 	const char * printf_name="printf";
@@ -1111,8 +1057,8 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	if(yyparse()){
 		cout << "Errors in parsing edit: " << no_errors << endl;
 		exit(1);
-	} else 
-		cout << "edit section parse finished." << endl;
+	} 
+	
 
 	//yyterminate();
 	//print_stmt_lst(tree_root);
@@ -1132,7 +1078,8 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		}
 	} else if (S_ISDIR(file_info.st_mode)) {
 	} else {
-		cerr << "file " << work_dir << " exists but is not a directory." << endl << "xtcc uses this directory to create its temporary files - please rename." << endl;
+		cerr << "file " << work_dir << " exists but is not a directory." << endl 
+			<< "xtcc uses this directory to create its temporary files - please rename." << endl;
 		exit(1);
 	}
 	if(!no_errors){
@@ -1226,7 +1173,7 @@ void	print_memory_leaks(){
 
 
 void clean_up(){
-	cout << "Entered function clean_up()" << endl;
+	debug_log_file << "Entered function clean_up()" << endl;
 	typedef map<string, ax*>::iterator ax_map_iter;
 	for(ax_map_iter it=ax_map.begin(); it!=ax_map.end(); ++it){
 		delete it->second; it->second=0;
@@ -1239,7 +1186,7 @@ void clean_up(){
 	for(int i=0; i<table_list.size(); ++i){
 		delete table_list[i];
 	}
-	cout << "Exited function clean_up()" << endl;
+	debug_log_file << "Exited function clean_up()" << endl;
 			
 }
 
@@ -1316,7 +1263,6 @@ int check_parameters(expr* e, var_list* v){
 	}
 	if(match==true){
 		if(e_ptr==0&& fparam==0){
-			cout << "MATCHED" << endl;
 			match=true;
 		} else {
 			match=false;
@@ -1334,7 +1280,6 @@ int check_parameters(expr* e, var_list* v){
 map<string, symtab_ent*>::iterator find_in_symtab(string id){
 	bool found=false;
 	int i=active_scope_list.size()-1;
-	//cout << "START: find_in_symtab: i=" << i <<endl;
 
 	map<string,symtab_ent*>::iterator sym_it ; 
 	for(;i>-1;--i){
@@ -1358,15 +1303,12 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
    
 
 	bool skip_func_type_check(const char * fname){
-		//cout << "skip_func_type_check: BEGIN" << endl;
 		const char * skip_func_type_check_list[] = {"printf" };
 		for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
 			if(!strcmp(fname, skip_func_type_check_list[i])){
-				//cout << "skip_func_type_check: returned true: fname: " << fname << endl;
 				return true;
 			}
 		}
-		//cout << "skip_func_type_check: returned false: fname: " << fname << endl;
 		return false;
 	}
 
@@ -1416,16 +1358,13 @@ int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_
 		
 	var_list* defn_ptr=v_list;
 	var_list* decl_ptr=func_info_table[index]->param_list;
-	cout << "check_func_decl_with_func_defn: after func_info_table[index]->param_list" << endl;
 
 	
 	while(defn_ptr&&decl_ptr){
 		// I may put a check on the length of the array - but it is not necessary for now I think
 		if((defn_ptr->var_type==decl_ptr->var_type)&&
 			(defn_ptr->var_name==decl_ptr->var_name)){
-			cout << "checking : defn_ptr->var_name: " << defn_ptr->var_name << endl;
 		} else {
-			cerr << "check_func_decl_with_func_defn: return failure" << endl;
 			++no_errors;
 			return 0;
 		}
@@ -1433,16 +1372,10 @@ int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_
 		decl_ptr=decl_ptr->prev;
 	}
 	if(defn_ptr==decl_ptr && decl_ptr==0){
-		cout << "check_func_decl_with_func_defn: return success" << endl;
 		return 1;
 	}else{
-		cout << "check_func_decl_with_func_defn: return failure" << endl;
 		return 0;
 	}
-}
-
-bool is_of_int_type(datatype dt){
-	return (dt >= INT8_TYPE && dt <=INT32_TYPE);
 }
 
 bool 	void_check( datatype & type1, datatype & type2, datatype& result_type){
@@ -1787,6 +1720,7 @@ using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg, 
 	int line_no, int compiler_line_no, string compiler_file_name){
 	++no_errors;
+	cerr << "xtcc " ;
 	switch(cmp_err){
 		case compiler_syntax_err: 
 			cerr << "syntax error: ";
@@ -1798,11 +1732,11 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 			cerr << "compiler internal error: " ;
 		break;	
 		default:
-			cerr << "internal compiler error - error code category missing in switch statement: compiler file" 
+			cerr << "internal compiler error - error code category missing in switch statement: compiler file: " 
 				<< __FILE__ << " compiler src code lineno: " << __LINE__ << endl;
 			
 	}
-	cerr << "Error: line_no: " << line_no << err_msg << ", compiler line_no: " 
+	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: " 
 		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
 }
 

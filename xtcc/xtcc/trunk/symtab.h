@@ -15,7 +15,14 @@
 		uninit 
 	};
 	bool check_type_compat(datatype typ1, datatype typ2);
-	/*enum decltype { array_decl, pointer_decl };*/
+
+	bool is_of_int_type(datatype dt);
+	bool is_of_noun_type(datatype dt);
+	bool is_of_noun_ref_type(datatype dt);
+	bool is_of_arr_type(datatype dt);
+
+		/*enum decltype { array_decl, pointer_decl };*/
+
 
 	struct noun_list_type {
 		const char * sym;

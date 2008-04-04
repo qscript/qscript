@@ -27,6 +27,8 @@
 #include "stmt.h"
 #include <iostream>
 extern int line_no, no_errors;
+#include <fstream>
+extern ofstream debug_log_file;
 using namespace std;
 
 
@@ -117,4 +119,22 @@ void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fnam
                 int input_prog_line_no){
         mem_addr_tab m1(ptr, compiler_src_line_no, compiler_src_fname, input_prog_line_no);
         mem_addr.push_back(m1);
+}
+
+#include <sstream>
+var_list::var_list(datatype type, char * name): 
+	var_type(type), var_name(name), arr_len(-1), next(NULL), prev(NULL){
+	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
+		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
+		stringstream s;
+		s << "SEMANTIC error: only INT8_TYPE ... DOUBLE_TYPE is allowed in decl: "  << var_name<< endl;
+		print_err(compiler_sem_err, s.str() , line_no, __LINE__, __FILE__);
+		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
+	}
+	//cout << "constructing var_list: " << var_name << endl;
+}
+var_list::~var_list(){
+	debug_log_file << "deleting ~var_list: var_name:" << var_name << endl;
+	if (prev) { delete prev; prev=0; }
+	debug_log_file << "end deleting ~var_list " << endl;
 }

@@ -37,6 +37,7 @@
 //	char * yytext;
 	int line_no=1;
 	extern int no_errors;
+	int if_line_no=-1;
 	using namespace std;
 %}
 
@@ -53,8 +54,9 @@
 <comment>\n             ++line_no;
 <comment>"*"+"/"        BEGIN(INITIAL);
 
-\/\/.*	{
+\/\/.*\n	{
 	// ignore Comment
+	++line_no;
 }
 
 void 	{
@@ -210,11 +212,12 @@ break	{
 
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
 	yylval.dval = atof(yytext);
-	printf("returned %g\n", yylval.dval);
+	//printf("returned %g\n", yylval.dval);
 	return FNUMBER;
 	}
 
 if	{
+		if_line_no = line_no;
 		return IF;
 	}
 

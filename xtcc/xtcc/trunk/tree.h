@@ -100,16 +100,9 @@ struct var_list {
 	string var_name;
 	int arr_len;
 	struct var_list * next, *prev;
-	var_list(datatype type, char * name): var_type(type), var_name(name), arr_len(-1), next(NULL), prev(NULL){
-		if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
-			(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
-			cerr << "SEMANTIC error: only INT8_TYPE ... DOUBLE_TYPE is allowed in decl: "  << var_name<< endl;
-			cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
-		}
-		//cout << "constructing var_list: " << var_name << endl;
-	}
+	var_list(datatype type, char * name);
 	var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), next(NULL), prev(NULL){
-		if(!(type>=INT8_ARR_TYPE && type<=DOUBLE_ARR_TYPE)){
+		if(!is_of_arr_type(type)){
 			cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
 			cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
 		}
@@ -135,11 +128,7 @@ struct var_list {
 			}
 		}
 	}
-	~var_list(){
-		cout << "deleting ~var_list: var_name:" << var_name << endl;
-		if (prev) { delete prev; prev=0; }
-		cout << "end deleting ~var_list " << endl;
-	}
+	~var_list();
 	private:
 		var_list& operator=(const var_list&);
 		var_list(const var_list&);
@@ -161,20 +150,20 @@ struct var_list {
 struct func_info;
 #include "stmt.h"
 struct func_info{
-		string fname;
-		struct var_list * param_list;
-		datatype return_type;
-		struct stmt * func_body;
-		struct scope * func_scope;
-		func_info(string name, struct var_list* elist, datatype myreturn_type); 
+	string fname;
+	struct var_list * param_list;
+	datatype return_type;
+	struct stmt * func_body;
+	struct scope * func_scope;
+	func_info(string name, struct var_list* elist, datatype myreturn_type); 
 
-		void print(FILE * fptr);
-		~func_info();
-		
-	private:
-		func_info& operator=(const func_info&);
-		func_info(const func_info&);
-	};
+	void print(FILE * fptr);
+	~func_info();
+	
+private:
+	func_info& operator=(const func_info&);
+	func_info(const func_info&);
+};
 
 
 
