@@ -588,6 +588,7 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 				mem_addr.push_back(m1);
 			}
 		}
+		free($2), free($4);
 	}
 	;
 
@@ -753,6 +754,7 @@ expression: expression '+' expression {
 	}
 	|	INUMBER	{
 		$$ = new un2_expr($1);
+		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -1201,13 +1203,22 @@ bool check_type_compat(datatype typ1, datatype typ2){
 			td2>=INT8_TYPE&&td2<=DOUBLE_TYPE){
 		if(td1>=td2){
 			return true;
+		} else {
+			/*
+			cerr << "ERROR: td1< td2 Assigning unhandle_able Type to var:  line_no:" << line_no 
+				<< " LHS type: " << typ1 << " after converting LHS: " << td1
+				<< " RHS type: " << typ2 << " after converting RHS: " << td2
+				<< endl;
+			*/	
+			return false;
 		}
 	} else {
+		/*
 		cerr << "ERROR: Assigning unhandle_able Type to var:  line_no:" << line_no 
 			<< " LHS type: " << typ1 << " after converting LHS: " << td1
 			<< " RHS type: " << typ2 << " after converting RHS: " << td2
 			<< endl;
-		++no_errors;
+		*/	
 		return false;
 	}
 }

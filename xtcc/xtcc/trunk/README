@@ -8,8 +8,35 @@ powerful data processing software. However I felt it had severe
 limitations, and I also always wanted to write a compiler. xtcc is a
 result of my attempt to address the issues I faced listed below
 
-** SPSS-MR and Quantum are trademarks of SPSS-MR a company that creates
-Market Research software.
+** SPSS-MR and Quantum are trademarks of SPSS-MR 
+	
+REQUIREMENTS for COMPILATION AND RUNNING
+	
+	You need the following
+	1) yacc/bison - I have only tested with bison
+	2) lex/flex - Again I have only tested with flex
+	3) C++ compiler - and standard template library
+	4) Make ( and maybe autoconf and automake in case you need to
+		tweak things)
+	5) dejagnu - if you want to run the testsuite
+
+	Compiling should be easy on UNIX systems
+		There is a configure script. you would type
+		$ ./configure
+		$ make
+	The built program is called "xtcc"
+	Currently the directory "test-inputs" contains a sample program
+	inp12. After a successful build you can run the program as
+	follows
+		$ ./xtcc testsuite/inp12 sample2.dat
+		I haven't as yet added any file-logging facilities to
+		the compiler's edit section so you stdout will be
+		cluttered with messages. To make it run faster you can
+		do this
+		$ ./xtcc testsuite/inp12 sample2.dat > op
+		The tables will be created in tab_.csv and  frequency
+		counts in lst_.csv
+
 
 PROPAGANDA
 
@@ -39,12 +66,12 @@ CURRENT STATUS AND FUTURE PLAN
 	file can be opened by a text editor or most spreadsheet
 	programs.
 
-	I have created 2 sample date files - sample.dat and sample2.dat.
+	I have created 2 sample data files - sample.dat and sample2.dat.
 	sample2.dat has variation in the data and can be used to verify
 	initial output at least. I have created an open-office
 	spreadsheet document which contains the same data as in
 	sample2.dat. The output from the sample input program in
-	directory "testsuite" named "inp12" demonstrates the input
+	directory "test-inputs" named "inp12" demonstrates the input
 	language - edit and tabulation sections.
 
 	I have just figured out how to get dejagnu up and running and am
@@ -65,34 +92,6 @@ CURRENT STATUS AND FUTURE PLAN
 
 	Need to create a pre-processor - so that include files can be
 	processed 
-	
-REQUIREMENTS for COMPILATION AND RUNNING
-	
-	You need the following
-	1) yacc/bison - I have only tested with bison
-	2) lex/flex - Again I have only tested with flex
-	3) C++ compiler - and standard template library
-	4) Make ( and maybe autoconf and automake in case you need to
-		tweak things)
-	5) dejagnu - if you want to run the testsuite
-
-	Compiling should be easy on UNIX systems
-		There is a configure script. you would type
-		$ ./configure
-		$ make
-	The built program is called "xtcc"
-	Currently the directory "testsuite" contains a sample program
-	inp12. After a successful build you can run the program as
-	follows
-		$ ./xtcc testsuite/inp12 sample2.dat
-		I haven't as yet added any file-logging facilities to
-		the compiler's edit section so you stdout will be
-		cluttered with messages. To make it run faster you can
-		do this
-		$ ./xtcc testsuite/inp12 sample2.dat > op
-		The tables will be created in tab_.csv and  frequency
-		counts in lst_.csv
-
 DOCUMENTATION
 
 	I have started on the documentation, but it is lagging way

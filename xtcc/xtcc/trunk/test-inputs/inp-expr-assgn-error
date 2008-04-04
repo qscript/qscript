@@ -1,0 +1,27 @@
+data_struct;rec_len=120; 
+ed_start 
+
+int32_t edit_data();
+int32_t edit_data(){
+	int8_t i;
+	i=0;
+	i=1+2;
+	printf("i=%d\n", i);
+	i=254+1;
+	printf("i=%d\n", i);
+	int16_t j;
+	j=0;
+	j=10000 + 2000 + 300 +40 +5;
+	printf("j=%d\n", j);
+}
+
+ed_end
+
+tabstart{
+	tab q1 q1;
+}
+axstart {
+ax q1;
+ttl; "Q1. Title";
+cnt; "less= 20"; c= 100 >0; 
+}

@@ -50,11 +50,12 @@ datatype lcm_type(datatype d1, datatype d2){
 	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	datatype td1=d1, td2=d2;
 	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
-	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + d2-INT8_REF_TYPE);
-	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
+	//if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + d2-INT8_REF_TYPE);
+	td1=convert_ref_type(td1);
+	td2=convert_ref_type(td2);
 
-	if((td1>=INT8_TYPE && td1<=DOUBLE_TYPE)&&
-		(td2>=INT8_TYPE && td2<=DOUBLE_TYPE)){
+	if(/*(td1>=INT8_TYPE && td1<=DOUBLE_TYPE)*/ is_of_noun_type(td1)&&
+		/*(td2>=INT8_TYPE && td2<=DOUBLE_TYPE)*/ is_of_noun_type(td2)){
 		if(td1>td2) { return td1;
 		} else {
 			return td2;

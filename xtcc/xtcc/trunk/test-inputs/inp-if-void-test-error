@@ -1,0 +1,43 @@
+data_struct;rec_len=120; // This defines the length of each record in the data file
+ed_start // this marks the start of the edit program
+int32_t global_val;	// section
+
+
+int32_t edit_data();
+void func3(float fundc3_a, int32_t func3_b);
+
+int32_t edit_data()
+{
+	if(func3(1.1, 3)){
+		5+5;
+	}
+}
+void func3(float fundc3_a, int32_t func3_b){
+	int32_t d1;
+	d1=d1+10;
+	printf("called: func3\n");
+	if(fundc3_a==1.1){
+		printf("fundc3_a==1.1\n");
+	} else {
+		printf("fundc3_a=%f\n", fundc3_a);
+	}
+}
+
+ed_end  // This marks the end if the edit program
+
+// this is the tabulation section
+tabstart 	{
+	tab q1 q2;
+}
+
+// These are the individual axes that can be tabbed
+axstart {
+
+ax q1;
+ttl; "Q1. Title";
+cnt; "less= 20"; c= global_val <= 20; 
+
+ax q2;
+ttl; "Q2. Title";
+cnt; "q2"; c= global_val > 20;
+}

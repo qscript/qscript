@@ -28,6 +28,7 @@
 #include "expr.h"
 #include <vector>
 #include <fstream>
+#include <sstream>
 
 extern scope* active_scope;
 extern ofstream debug_log_file;
@@ -387,19 +388,26 @@ bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), 
 			++no_errors;
 			print_err(compiler_sem_err, "oper_assgn error: lhs of assignment should be lvalue ", 
 				line_no, __LINE__, __FILE__);
-			type = ERROR_TYPE;
 		}
 		datatype typ1=l_op->type;
 		datatype typ2=r_op->type;
 		if(!void_check(l_op->type, r_op->type, type)){
+			print_err(compiler_sem_err, "oper_assgn error: operand data types on lhs and rhs should be of non-VOID type", 
+				line_no, __LINE__, __FILE__);
 			type = ERROR_TYPE;
+			++no_errors;
 		}
 		if(!check_type_compat(typ1, typ2)){
 			type = ERROR_TYPE;
-			print_err(compiler_sem_err, "oper_assgn error: operand data types on lhs and rhs should be compatible", 
+			stringstream s;
+			s << "oper_assgn error: operand data types on lhs and rhs should be compatible, ";
+			string lhs_hr_type = human_readable_type(typ1);
+			string rhs_hr_type = human_readable_type(typ2);
+			s << "\tlhs type: " << lhs_hr_type << ", rhs type: " << rhs_hr_type << endl;
+			print_err(compiler_sem_err, s.str(), 
 				line_no, __LINE__, __FILE__);
 		}
-	}
+	} else 
 	switch(e_type){
 		case oper_plus:
 		case oper_minus:

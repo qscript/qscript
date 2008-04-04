@@ -81,3 +81,74 @@ bool is_of_noun_ref_type(datatype dt){
 bool is_of_arr_type(datatype dt){
 	return (dt >= INT8_ARR_TYPE && dt <=DOUBLE_ARR_TYPE);
 }
+
+datatype convert_ref_type(datatype dt){
+	if(dt>=INT8_REF_TYPE && dt<=DOUBLE_REF_TYPE) 
+		return datatype(INT8_TYPE + dt-INT8_REF_TYPE);
+	else 
+		return dt;
+}
+
+string human_readable_type(datatype dt){
+	string s="UNKNOWN TYPE";
+	switch(dt){
+		case VOID_TYPE:
+			s= "VOID_TYPE";
+		break;	
+		case INT8_TYPE:
+			s= "INT8_TYPE";
+		break;	
+		case INT16_TYPE:
+			s = "INT16_TYPE";
+		break;
+		case INT32_TYPE:
+			s = "INT32_TYPE";
+		break;	
+		case FLOAT_TYPE:
+			s = "FLOAT_TYPE";
+		break;	
+		case DOUBLE_TYPE:
+			s = "DOUBLE_TYPE";
+		break;	
+		case INT8_ARR_TYPE:
+			s = "INT8_ARR_TYPE";
+		break;	
+		case INT16_ARR_TYPE:
+			s= "INT16_ARR_TYPE";
+		break;	
+		case INT32_ARR_TYPE:	
+			s="INT32_ARR_TYPE";
+		break;	
+		case FLOAT_ARR_TYPE:
+			s="FLOAT_ARR_TYPE";
+		break;	
+		case DOUBLE_ARR_TYPE:
+			s="DOUBLE_ARR_TYPE";
+		break;	
+		case INT8_REF_TYPE:
+			s="INT8_REF_TYPE";
+		break;	
+		case INT16_REF_TYPE:
+			s="INT16_REF_TYPE";
+		break;	
+		case INT32_REF_TYPE:
+			s="INT32_REF_TYPE";
+		break;	
+		case FLOAT_REF_TYPE:
+			s="FLOAT_REF_TYPE";
+		break;	
+		case DOUBLE_REF_TYPE:
+			s="DOUBLE_REF_TYPE";
+		break;	
+		default:
+		;
+	}
+	return s;
+}
+
+
+
+
+			
+
+

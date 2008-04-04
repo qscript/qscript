@@ -618,12 +618,12 @@ static const yytype_uint16 yyrline[] =
      236,   237,   238,   239,   240,   241,   246,   246,   283,   288,
      303,   309,   321,   325,   332,   339,   348,   357,   362,   372,
      377,   377,   381,   382,   395,   398,   401,   402,   408,   414,
-     415,   426,   455,   485,   513,   519,   527,   594,   628,   652,
-     653,   658,   664,   670,   676,   682,   688,   694,   700,   706,
-     712,   718,   724,   730,   736,   742,   748,   754,   760,   766,
-     772,   779,   786,   825,   831,   839,   844,   852,   860,   868,
-     875,   877,   881,   893,   904,   915,   918,   923,   931,   939,
-     947
+     415,   426,   455,   485,   513,   519,   527,   595,   629,   653,
+     654,   659,   665,   671,   677,   683,   689,   695,   701,   707,
+     713,   719,   725,   731,   737,   743,   749,   755,   762,   768,
+     774,   781,   788,   827,   833,   841,   846,   854,   862,   870,
+     877,   879,   883,   895,   906,   917,   920,   925,   933,   941,
+     949
 };
 #endif
 
@@ -2201,11 +2201,12 @@ yyreduce:
 				mem_addr.push_back(m1);
 			}
 		}
+		free((yyvsp[(2) - (12)].name)), free((yyvsp[(4) - (12)].name));
 	}
     break;
 
   case 47:
-#line 594 "type.y"
+#line 595 "type.y"
     {
 		active_scope_list.pop_back();
 		int tmp=active_scope_list.size()-1;
@@ -2236,7 +2237,7 @@ yyreduce:
     break;
 
   case 48:
-#line 628 "type.y"
+#line 629 "type.y"
     {
 		++nest_lev;
 		(yyval.c_stmt) = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
@@ -2261,19 +2262,19 @@ yyreduce:
     break;
 
   case 49:
-#line 652 "type.y"
+#line 653 "type.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); }
     break;
 
   case 50:
-#line 653 "type.y"
+#line 654 "type.y"
     {
 		(yyval.expr)=link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
 	}
     break;
 
   case 51:
-#line 658 "type.y"
+#line 659 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2283,7 +2284,7 @@ yyreduce:
     break;
 
   case 52:
-#line 664 "type.y"
+#line 665 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2293,7 +2294,7 @@ yyreduce:
     break;
 
   case 53:
-#line 670 "type.y"
+#line 671 "type.y"
     { 
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2303,7 +2304,7 @@ yyreduce:
     break;
 
   case 54:
-#line 676 "type.y"
+#line 677 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2313,7 +2314,7 @@ yyreduce:
     break;
 
   case 55:
-#line 682 "type.y"
+#line 683 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2323,7 +2324,7 @@ yyreduce:
     break;
 
   case 56:
-#line 688 "type.y"
+#line 689 "type.y"
     {
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_umin);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2333,7 +2334,7 @@ yyreduce:
     break;
 
   case 57:
-#line 694 "type.y"
+#line 695 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2343,7 +2344,7 @@ yyreduce:
     break;
 
   case 58:
-#line 700 "type.y"
+#line 701 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2353,7 +2354,7 @@ yyreduce:
     break;
 
   case 59:
-#line 706 "type.y"
+#line 707 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2363,7 +2364,7 @@ yyreduce:
     break;
 
   case 60:
-#line 712 "type.y"
+#line 713 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2373,7 +2374,7 @@ yyreduce:
     break;
 
   case 61:
-#line 718 "type.y"
+#line 719 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2383,7 +2384,7 @@ yyreduce:
     break;
 
   case 62:
-#line 724 "type.y"
+#line 725 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2393,7 +2394,7 @@ yyreduce:
     break;
 
   case 63:
-#line 730 "type.y"
+#line 731 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2403,7 +2404,7 @@ yyreduce:
     break;
 
   case 64:
-#line 736 "type.y"
+#line 737 "type.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2413,7 +2414,7 @@ yyreduce:
     break;
 
   case 65:
-#line 742 "type.y"
+#line 743 "type.y"
     {
 		(yyval.expr) = new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2423,7 +2424,7 @@ yyreduce:
     break;
 
   case 66:
-#line 748 "type.y"
+#line 749 "type.y"
     {
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_not);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2433,9 +2434,10 @@ yyreduce:
     break;
 
   case 67:
-#line 754 "type.y"
+#line 755 "type.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].ival));
+		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2443,7 +2445,7 @@ yyreduce:
     break;
 
   case 68:
-#line 760 "type.y"
+#line 762 "type.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].dval));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2453,7 +2455,7 @@ yyreduce:
     break;
 
   case 69:
-#line 766 "type.y"
+#line 768 "type.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].name), oper_name );
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2463,7 +2465,7 @@ yyreduce:
     break;
 
   case 70:
-#line 772 "type.y"
+#line 774 "type.y"
     {
 		(yyval.expr) = new un2_expr(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2474,7 +2476,7 @@ yyreduce:
     break;
 
   case 71:
-#line 779 "type.y"
+#line 781 "type.y"
     {
 		(yyval.expr) = new un2_expr(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2485,7 +2487,7 @@ yyreduce:
     break;
 
   case 72:
-#line 786 "type.y"
+#line 788 "type.y"
     {
 		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=(yyvsp[(1) - (4)].name);
@@ -2528,7 +2530,7 @@ yyreduce:
     break;
 
   case 73:
-#line 825 "type.y"
+#line 827 "type.y"
     {
 		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2538,7 +2540,7 @@ yyreduce:
     break;
 
   case 74:
-#line 831 "type.y"
+#line 833 "type.y"
     { 
 		(yyval.expr) = new un_expr((yyvsp[(2) - (3)].expr), oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2548,7 +2550,7 @@ yyreduce:
     break;
 
   case 75:
-#line 839 "type.y"
+#line 841 "type.y"
     { 
 #ifdef DEBUG_GRAM
 	printf("got table defn\n"); 
@@ -2557,7 +2559,7 @@ yyreduce:
     break;
 
   case 76:
-#line 844 "type.y"
+#line 846 "type.y"
     { 
 #ifdef DEBUG_GRAM
 		printf("recursive tab_defn\n"); 
@@ -2566,7 +2568,7 @@ yyreduce:
     break;
 
   case 77:
-#line 852 "type.y"
+#line 854 "type.y"
     {
 		(yyval.tbl)=new table((yyvsp[(2) - (4)].name),(yyvsp[(3) - (4)].name), line_no);
 		table_list.push_back((yyval.tbl));
@@ -2578,7 +2580,7 @@ yyreduce:
     break;
 
   case 78:
-#line 860 "type.y"
+#line 862 "type.y"
     {
 		(yyval.tbl)=new table((yyvsp[(2) - (7)].name),(yyvsp[(3) - (7)].name), line_no, (yyvsp[(6) - (7)].expr));
 		table_list.push_back((yyval.tbl));
@@ -2590,7 +2592,7 @@ yyreduce:
     break;
 
   case 79:
-#line 868 "type.y"
+#line 870 "type.y"
     {
 		cerr << "Error in tab section line: " <<
 			line_no << endl;
@@ -2599,19 +2601,19 @@ yyreduce:
     break;
 
   case 80:
-#line 875 "type.y"
-    {
-	}
-    break;
-
-  case 81:
 #line 877 "type.y"
     {
 	}
     break;
 
+  case 81:
+#line 879 "type.y"
+    {
+	}
+    break;
+
   case 82:
-#line 881 "type.y"
+#line 883 "type.y"
     {
 		basic_ax_stmt* bptr= trav_chain((yyvsp[(4) - (4)].basic_ax_stmt));
 		(yyval.ax) = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, 0);
@@ -2627,7 +2629,7 @@ yyreduce:
     break;
 
   case 83:
-#line 893 "type.y"
+#line 895 "type.y"
     {
 		basic_ax_stmt* bptr= trav_chain((yyvsp[(7) - (7)].basic_ax_stmt));
 		(yyval.ax) = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, (yyvsp[(5) - (7)].expr));
@@ -2642,7 +2644,7 @@ yyreduce:
     break;
 
   case 84:
-#line 904 "type.y"
+#line 906 "type.y"
     {
 		cerr << "Error in axis section line: " <<
 			line_no << endl;
@@ -2653,21 +2655,21 @@ yyreduce:
     break;
 
   case 85:
-#line 915 "type.y"
+#line 917 "type.y"
     {
 		(yyval.basic_ax_stmt) = (yyvsp[(1) - (1)].basic_ax_stmt);
 	}
     break;
 
   case 86:
-#line 918 "type.y"
+#line 920 "type.y"
     {
 		(yyval.basic_ax_stmt)=link_chain((yyvsp[(1) - (2)].basic_ax_stmt), (yyvsp[(2) - (2)].basic_ax_stmt));
 	}
     break;
 
   case 87:
-#line 923 "type.y"
+#line 925 "type.y"
     {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
@@ -2679,7 +2681,7 @@ yyreduce:
     break;
 
   case 88:
-#line 931 "type.y"
+#line 933 "type.y"
     {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
@@ -2691,7 +2693,7 @@ yyreduce:
     break;
 
   case 89:
-#line 939 "type.y"
+#line 941 "type.y"
     {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
@@ -2703,7 +2705,7 @@ yyreduce:
     break;
 
   case 90:
-#line 947 "type.y"
+#line 949 "type.y"
     {
 		(yyval.basic_ax_stmt) = new ttl_ax_stmt (txt_axstmt,(yyvsp[(3) - (4)].text_buf));
 		++no_tot_ax_elems;
@@ -2715,7 +2717,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2719 "type.c"
+#line 2721 "type.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2929,7 +2931,7 @@ yyreturn:
 }
 
 
-#line 956 "type.y"
+#line 958 "type.y"
 
 
 extern int errno;
@@ -3178,13 +3180,22 @@ bool check_type_compat(datatype typ1, datatype typ2){
 			td2>=INT8_TYPE&&td2<=DOUBLE_TYPE){
 		if(td1>=td2){
 			return true;
+		} else {
+			/*
+			cerr << "ERROR: td1< td2 Assigning unhandle_able Type to var:  line_no:" << line_no 
+				<< " LHS type: " << typ1 << " after converting LHS: " << td1
+				<< " RHS type: " << typ2 << " after converting RHS: " << td2
+				<< endl;
+			*/	
+			return false;
 		}
 	} else {
+		/*
 		cerr << "ERROR: Assigning unhandle_able Type to var:  line_no:" << line_no 
 			<< " LHS type: " << typ1 << " after converting LHS: " << td1
 			<< " RHS type: " << typ2 << " after converting RHS: " << td2
 			<< endl;
-		++no_errors;
+		*/	
 		return false;
 	}
 }
