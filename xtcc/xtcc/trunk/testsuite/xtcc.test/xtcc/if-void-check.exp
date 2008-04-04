@@ -1,0 +1,12 @@
+
+set test "xtcc if-void-check"
+set timeout 20
+global XTCC
+global XTCC_TEST_DATA
+spawn $XTCC test-inputs/inp-if-void-test-error sample2.dat
+
+expect {
+	-re "inp_file: test-inputs/inp-if-void-test-error, data_file: sample2.dat\r\nxtcc semantic error:  line_no: \[0-9\]\[0-9\] If condition expression has Void or Error Type, compiler line_no: \[0-9\]+, compiler_file_name: stmt.C\r\nErrors in Parse:  Total errors: 1\r" { pass $test }
+	default { send_user "failed" }
+	timeout { send_user "failed" } 
+}

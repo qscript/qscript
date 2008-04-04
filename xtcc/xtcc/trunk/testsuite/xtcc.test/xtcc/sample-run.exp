@@ -1,0 +1,11 @@
+set test "xtcc if-void-check"
+set timeout 20
+global XTCC
+global XTCC_TEST_DATA
+spawn $XTCC test-inputs/inp12 sample2.dat
+expect {
+	-re "xtcc run complete\r" { pass $test }
+#-re "24a25\r> Nothing\r" { pass $test }
+	default { send_user "failed" }
+	timeout { send_user "failed" } 
+}

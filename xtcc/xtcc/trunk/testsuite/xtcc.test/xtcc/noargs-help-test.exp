@@ -1,6 +1,6 @@
 set test "xtcc noargs-help-test"
 global XTCC
-spawn $XTCC
+spawn $XTCC 
 expect {
 	-re "^Usage:.*xtcc <prog-name> <data-file>\r" { pass $test }
 	default { send_user "failed" }
