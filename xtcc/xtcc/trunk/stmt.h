@@ -368,14 +368,19 @@ struct decl_stmt: public stmt{
 		fflush(fptr);
 		if(fptr){
 			if(type >= INT8_TYPE && type <=DOUBLE_TYPE){
-				fprintf(fptr,"%s %s;\n", noun_list[type].sym, symp->name);
+				fprintf(fptr,"%s %s", noun_list[type].sym, symp->name);
 			} else if (type >=INT8_ARR_TYPE && type <=DOUBLE_ARR_TYPE){
 				datatype tdt=datatype(INT8_TYPE + type-INT8_ARR_TYPE);
-				fprintf(fptr,"%s %s [ %d ];\n", noun_list[tdt].sym, symp->name, symp->n_elms);
+				fprintf(fptr,"%s %s [ %d ]", noun_list[tdt].sym, symp->name, symp->n_elms);
 			} else if (type >=INT8_REF_TYPE&& type <=DOUBLE_REF_TYPE){
 				datatype tdt=datatype(INT8_TYPE + type-INT8_REF_TYPE);
-				fprintf(fptr,"%s & %s;\n", noun_list[tdt].sym, symp->name);
+				fprintf(fptr,"%s & %s", noun_list[tdt].sym, symp->name);
 			}
+			if( symp->e){
+				fprintf(fptr,"=");
+				symp->e->print_expr(fptr);
+			}
+			fprintf(fptr, ";\n");
 			if(prev) prev->print_stmt_lst(fptr);
 		}
 	}

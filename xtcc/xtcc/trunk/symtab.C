@@ -64,6 +64,7 @@ symtab_ent::~symtab_ent(){
 	debug_log_file<< "deleting symtab_ent: name: " << name << std::endl;
 	if(name&& created_by_me) { free( name); name=0; }
 	if(text) { delete text; text=0; }
+	if(e) { delete e; e=0; }
 	debug_log_file << "FINISHED deleting symtab_ent" << std::endl;
 }
 

@@ -33,6 +33,7 @@ using	std::string ;
 		enum datatype dt;
 	};
 
+struct expr;
 struct symtab_ent {
 	char *name;
 	char *text;
@@ -44,10 +45,14 @@ struct symtab_ent {
 	/*decltype dcl_type;*/
 	int n_elms;
 	bool created_by_me;
-	symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false){
+	expr * e;
+	symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false),e(0){
 	}
 	symtab_ent(const char * lname, datatype ldt):
-		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true)
+		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0)
+	{ }
+	symtab_ent(const char * lname, datatype ldt, expr* le):
+		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le)
 	{ }
 	inline datatype get_type(){
 		return type;

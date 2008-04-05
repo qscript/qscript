@@ -24,6 +24,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <sstream>
 #include "scope.h"
 #include "stmt.h"
 #include "tree.h"
@@ -31,6 +32,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 extern int line_no;
@@ -39,7 +41,7 @@ extern ofstream debug_log_file;
 extern vector<mem_addr_tab> mem_addr;
 
 
-stmt* scope::insert(const char * name, datatype dt, int line_no){
+stmt* scope::insert(const char * name, datatype dt/*, int line_no*/){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
 	if(st_ptr){
@@ -64,7 +66,7 @@ stmt* scope::insert(const char * name, datatype dt, int line_no){
 }
 
 
-stmt* scope::insert(const char * name, datatype dt, int arr_size, int line_no){
+stmt* scope::insert(const char * name, datatype dt, int arr_size/*, int line_no*/){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
 	if(st_ptr){
@@ -88,10 +90,56 @@ stmt* scope::insert(const char * name, datatype dt, int arr_size, int line_no){
 	return st_ptr;
 }
 
-
-stmt* scope::insert(const char * name, datatype dt, int arr_size, int line_no, char *text){
+stmt* scope::insert(const char * name, datatype dt, expr *e){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	int text_len=strlen(text);
+	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+	if(st_ptr){
+	} else {
+		cerr << "Memory allocation failed : line_no" << line_no << endl;
+		exit(1);
+	}
+	if ( sym_tab.find(name) == sym_tab.end() ){
+		cout << "char decl:start\n";
+		symtab_ent* se=new symtab_ent(name, dt, e);
+		if(is_of_noun_type(e->type)){
+			if (check_type_compat(dt,e->type)){
+				string s(name);
+				sym_tab[s] = se;
+				st_ptr->type=dt;
+				st_ptr->symp=se;
+			} else {
+				stringstream s;
+				s << "Type of variable: " << name << "=" << human_readable_type(dt)<< " in decl cannot handle type of expression on rhs of variable: " << human_readable_type(e->type) << endl;
+				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+				st_ptr->type=ERROR_TYPE;
+			}
+		} else {
+			stringstream s;
+			s << "Error in expression on rhs of variable :" << name << endl;
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+			st_ptr->type=ERROR_TYPE;
+		}
+	} else {
+		stringstream s;
+		s << "variable " << name << " already present in symbol table" << endl;
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		st_ptr->type=ERROR_TYPE;
+	}
+	return st_ptr;
+}
+
+stmt* scope::insert(const char * name, datatype dt, int arr_size, /*int line_no, */ char *text){
+	// we have to handle a case here where symbol is a function name: - this is not allowed
+	if(dt!=INT8_ARR_TYPE){
+		stringstream s;
+		s << "only INT8_ARR_TYPE: can be assigned a string expression" << endl;
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+
+	}
+	int text_len=0;
+	if(text){
+		text_len=strlen(text);
+	}
 	if(arr_size<text_len-1) {
 		cerr << "length of TEXT < array size line_no:" << line_no << endl;
 		++no_errors;
@@ -105,17 +153,17 @@ stmt* scope::insert(const char * name, datatype dt, int arr_size, int line_no, c
 	if ( sym_tab.find(name) == sym_tab.end() ){
 		cout << "char decl:start\n";
 		symtab_ent* se=new symtab_ent(name, dt);
-		//se->name = strdup(name.c_str());
-		//se->type=dt;
 		se->n_elms=arr_size;
-		se->text=strdup(text);
+		if(text)
+			se->text=strdup(text);
 		string s(name);
 		sym_tab[s] = se;
 		st_ptr->type=dt;
 		st_ptr->symp=se;
 	} else {
-		cerr << " array NAME failed:" << line_no << endl;
-		cerr << name << " already present in symbol table" << endl;
+		stringstream s;
+		s << " array NAMED:" << name << "  already present in symbol table" << endl;
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 		st_ptr->type=ERROR_TYPE;
 		++no_errors;
 	}

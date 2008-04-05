@@ -4,7 +4,7 @@ Terminals which are not used
    CODELIST
 
 
-State 194 conflicts: 1 shift/reduce
+State 197 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -35,137 +35,139 @@ Grammar
    16 func_defn: xtcc_type NAME '(' decl_comma_list ')' @2 compound_stmt
 
    17 decl: xtcc_type NAME ';'
-   18     | xtcc_type NAME '[' INUMBER ']' ';'
-   19     | func_decl
+   18     | xtcc_type NAME '=' expression ';'
+   19     | xtcc_type NAME '[' INUMBER ']' ';'
+   20     | func_decl
 
-   20 func_decl: xtcc_type NAME '(' decl_comma_list ')' ';'
+   21 func_decl: xtcc_type NAME '(' decl_comma_list ')' ';'
 
-   21 decl_comma_list: var_decl
-   22                | decl_comma_list ',' var_decl
+   22 decl_comma_list: var_decl
+   23                | decl_comma_list ',' var_decl
 
-   23 var_decl: xtcc_type NAME
-   24         | xtcc_type NAME '[' INUMBER ']'
-   25         | xtcc_type '&' NAME
-   26         | /* empty */
+   24 var_decl: xtcc_type NAME
+   25         | xtcc_type NAME '[' INUMBER ']'
+   26         | xtcc_type '&' NAME
+   27         | /* empty */
 
-   27 statement_list: statement
-   28               | statement_list statement
+   28 statement_list: statement
+   29               | statement_list statement
 
-   29 @3: /* empty */
+   30 @3: /* empty */
 
-   30 statement: FOR '(' expression ';' expression ';' expression ')' @3 statement
-   31          | if_stmt
-   32          | expression ';'
-   33          | compound_stmt
-   34          | decl
-   35          | list_stmt
-   36          | BREAK ';'
-   37          | CONTINUE ';'
-   38          | fld_stmt
-   39          | error ';'
+   31 statement: FOR '(' expression ';' expression ';' expression ')' @3 statement
+   32          | if_stmt
+   33          | expression ';'
+   34          | compound_stmt
+   35          | decl
+   36          | list_stmt
+   37          | BREAK ';'
+   38          | CONTINUE ';'
+   39          | fld_stmt
+   40          | error ';'
 
-   40 list_stmt: LISTA NAME TEXT ';'
-   41          | LISTA NAME '[' expression ']' TEXT ';'
-   42          | LISTA NAME '[' expression ',' expression ']' TEXT ';'
+   41 list_stmt: LISTA NAME TEXT ';'
+   42          | LISTA NAME '[' expression ']' TEXT ';'
+   43          | LISTA NAME '[' expression ',' expression ']' TEXT ';'
 
-   43 if_stmt: IF '(' expression ')' statement
-   44        | IF '(' expression ')' statement ELSE statement
+   44 if_stmt: IF '(' expression ')' statement
+   45        | IF '(' expression ')' statement ELSE statement
 
-   45 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
+   46 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
 
-   46 compound_stmt: open_curly statement_list '}'
+   47 compound_stmt: open_curly statement_list '}'
 
-   47 open_curly: '{'
+   48 open_curly: '{'
 
-   48 expr_list: expression
-   49          | expr_list ',' expression
+   49 expr_list: expression
+   50          | expr_list ',' expression
 
-   50 expression: expression '+' expression
-   51           | expression '-' expression
-   52           | expression '*' expression
-   53           | expression '/' expression
-   54           | expression '%' expression
-   55           | '-' expression
-   56           | expression '<' expression
-   57           | expression '>' expression
-   58           | expression LEQ expression
-   59           | expression GEQ expression
-   60           | expression ISEQ expression
-   61           | expression NOEQ expression
-   62           | expression LOGOR expression
-   63           | expression LOGAND expression
-   64           | expression '=' expression
-   65           | NOT expression
-   66           | INUMBER
-   67           | FNUMBER
-   68           | NAME
-   69           | NAME '[' expression ']'
-   70           | NAME '[' expression ',' expression ']'
-   71           | NAME '(' expr_list ')'
-   72           | TEXT
-   73           | '(' expression ')'
+   51 expression: expression '+' expression
+   52           | expression '-' expression
+   53           | expression '*' expression
+   54           | expression '/' expression
+   55           | expression '%' expression
+   56           | '-' expression
+   57           | expression '<' expression
+   58           | expression '>' expression
+   59           | expression LEQ expression
+   60           | expression GEQ expression
+   61           | expression ISEQ expression
+   62           | expression NOEQ expression
+   63           | expression LOGOR expression
+   64           | expression LOGAND expression
+   65           | expression '=' expression
+   66           | NOT expression
+   67           | INUMBER
+   68           | FNUMBER
+   69           | NAME
+   70           | NAME '[' expression ']'
+   71           | NAME '[' expression ',' expression ']'
+   72           | NAME '(' expr_list ')'
+   73           | TEXT
+   74           | '(' expression ')'
 
-   74 tab_list: tab_defn
-   75         | tab_list tab_defn
+   75 tab_list: tab_defn
+   76         | tab_list tab_defn
 
-   76 tab_defn: TAB NAME NAME ';'
-   77         | TAB NAME NAME ';' COND_START expression ';'
-   78         | error ';'
+   77 tab_defn: TAB NAME NAME ';'
+   78         | TAB NAME NAME ';' COND_START expression ';'
+   79         | error ';'
 
-   79 ax_list: ax_defn
-   80        | ax_list ax_defn
+   80 ax_list: ax_defn
+   81        | ax_list ax_defn
 
-   81 ax_defn: AX NAME ';' ax_stmt_list
-   82        | AX NAME ';' COND_START expression ';' ax_stmt_list
-   83        | error ';'
+   82 ax_defn: AX NAME ';' ax_stmt_list
+   83        | AX NAME ';' COND_START expression ';' ax_stmt_list
+   84        | error ';'
 
-   84 ax_stmt_list: ax_stmt
-   85             | ax_stmt_list ax_stmt
+   85 ax_stmt_list: ax_stmt
+   86             | ax_stmt_list ax_stmt
 
-   86 ax_stmt: TOT ';' TEXT ';'
-   87        | TOT ';' TEXT ';' COND_START expression ';'
-   88        | CNT ';' TEXT ';' COND_START expression ';'
-   89        | TTL ';' TEXT ';'
+   87 ax_stmt: TOT ';' TEXT ';'
+   88        | TOT ';' TEXT ';' COND_START expression ';'
+   89        | CNT ';' TEXT ';' COND_START expression ';'
+   90        | TTL ';' TEXT ';'
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'%' (37) 54
-'&' (38) 25
-'(' (40) 16 20 30 43 44 45 71 73
-')' (41) 16 20 30 43 44 45 71 73
-'*' (42) 52
-'+' (43) 50
-',' (44) 22 42 45 49 70
-'-' (45) 51 55
-'/' (47) 53
-':' (58) 45
-';' (59) 2 17 18 20 30 32 36 37 39 40 41 42 45 76 77 78 81 82 83 86
-    87 88 89
-'<' (60) 56
-'=' (61) 2 45 64
-'>' (62) 57
-'[' (91) 18 24 41 42 69 70
-']' (93) 18 24 41 42 69 70
-'{' (123) 3 4 47
-'}' (125) 3 4 46
-error (256) 39 78 83
+'%' (37) 55
+'&' (38) 26
+'(' (40) 16 21 31 44 45 46 72 74
+')' (41) 16 21 31 44 45 46 72 74
+'*' (42) 53
+'+' (43) 51
+',' (44) 23 43 46 50 71
+'-' (45) 52 56
+'/' (47) 54
+':' (58) 46
+';' (59) 2 17 18 19 21 31 33 37 38 40 41 42 43 46 77 78 79 82 83 84
+    87 88 89 90
+'<' (60) 57
+'=' (61) 2 18 46 65
+'>' (62) 58
+'[' (91) 19 25 42 43 70 71
+']' (93) 19 25 42 43 70 71
+'{' (123) 3 4 48
+'}' (125) 3 4 47
+error (256) 40 79 84
 CONVERT (258)
-TOT (259) 86 87
-AX (260) 81 82
-CNT (261) 88
-TTL (262) 89
-FOR (263) 30
-FLD (264) 45
-TEXT (265) 40 41 42 72 86 87 88 89
-NAME (266) 16 17 18 20 23 24 25 40 41 42 45 68 69 70 71 76 77 81 82
-FNUMBER (267) 67
-INUMBER (268) 2 18 24 45 66
+TOT (259) 87 88
+AX (260) 82 83
+CNT (261) 89
+TTL (262) 90
+FOR (263) 31
+FLD (264) 46
+TEXT (265) 41 42 43 73 87 88 89 90
+NAME (266) 16 17 18 19 21 24 25 26 41 42 43 46 69 70 71 72 77 78 82
+    83
+FNUMBER (267) 68
+INUMBER (268) 2 19 25 46 67
 CODELIST (269)
-LISTA (270) 40 41 42
-IF (271) 43 44
-ELSE (272) 44
+LISTA (270) 41 42 43
+IF (271) 44 45
+ELSE (272) 45
 VOID_T (273) 9
 INT8_T (274) 10
 INT16_T (275) 11
@@ -178,17 +180,17 @@ ED_START (281) 2
 DATA_STRUCT (282) 2
 REC_LEN (283) 2
 ED_END (284) 2
-TAB (285) 76 77
-COND_START (286) 77 82 87 88
-CONTINUE (287) 37
-BREAK (288) 36
-LOGOR (289) 62
-LOGAND (290) 63
-NOEQ (291) 61
-ISEQ (292) 60
-GEQ (293) 59
-LEQ (294) 58
-NOT (295) 65
+TAB (285) 77 78
+COND_START (286) 78 83 88 89
+CONTINUE (287) 38
+BREAK (288) 37
+LOGOR (289) 63
+LOGAND (290) 64
+NOEQ (291) 62
+ISEQ (292) 61
+GEQ (293) 60
+LEQ (294) 59
+NOT (295) 66
 UMINUS (296)
 FUNC_CALL (297)
 
@@ -206,53 +208,53 @@ top_level_item_list (64)
 top_level_item (65)
     on left: 7 8, on right: 5 6
 xtcc_type (66)
-    on left: 9 10 11 12 13 14, on right: 16 17 18 20 23 24 25
+    on left: 9 10 11 12 13 14, on right: 16 17 18 19 21 24 25 26
 func_defn (67)
     on left: 16, on right: 8
 @2 (68)
     on left: 15, on right: 16
 decl (69)
-    on left: 17 18 19, on right: 7 34
+    on left: 17 18 19 20, on right: 7 35
 func_decl (70)
-    on left: 20, on right: 19
+    on left: 21, on right: 20
 decl_comma_list (71)
-    on left: 21 22, on right: 16 20 22
+    on left: 22 23, on right: 16 21 23
 var_decl (72)
-    on left: 23 24 25 26, on right: 21 22
+    on left: 24 25 26 27, on right: 22 23
 statement_list (73)
-    on left: 27 28, on right: 28 46
+    on left: 28 29, on right: 29 47
 statement (74)
-    on left: 30 31 32 33 34 35 36 37 38 39, on right: 27 28 30 43 44
+    on left: 31 32 33 34 35 36 37 38 39 40, on right: 28 29 31 44 45
 @3 (75)
-    on left: 29, on right: 30
+    on left: 30, on right: 31
 list_stmt (76)
-    on left: 40 41 42, on right: 35
+    on left: 41 42 43, on right: 36
 if_stmt (77)
-    on left: 43 44, on right: 31
+    on left: 44 45, on right: 32
 fld_stmt (78)
-    on left: 45, on right: 38
+    on left: 46, on right: 39
 compound_stmt (79)
-    on left: 46, on right: 16 33
+    on left: 47, on right: 16 34
 open_curly (80)
-    on left: 47, on right: 46
+    on left: 48, on right: 47
 expr_list (81)
-    on left: 48 49, on right: 49 71
+    on left: 49 50, on right: 50 72
 expression (82)
-    on left: 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67
-    68 69 70 71 72 73, on right: 30 32 41 42 43 44 45 48 49 50 51 52
-    53 54 55 56 57 58 59 60 61 62 63 64 65 69 70 73 77 82 87 88
+    on left: 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68
+    69 70 71 72 73 74, on right: 18 31 33 42 43 44 45 46 49 50 51 52
+    53 54 55 56 57 58 59 60 61 62 63 64 65 66 70 71 74 78 83 88 89
 tab_list (83)
-    on left: 74 75, on right: 4 75
+    on left: 75 76, on right: 4 76
 tab_defn (84)
-    on left: 76 77 78, on right: 74 75
+    on left: 77 78 79, on right: 75 76
 ax_list (85)
-    on left: 79 80, on right: 3 80
+    on left: 80 81, on right: 3 81
 ax_defn (86)
-    on left: 81 82 83, on right: 79 80
+    on left: 82 83 84, on right: 80 81
 ax_stmt_list (87)
-    on left: 84 85, on right: 81 82 85
+    on left: 85 86, on right: 82 83 86
 ax_stmt (88)
-    on left: 86 87 88 89, on right: 84 85
+    on left: 87 88 89 90, on right: 85 86
 
 
 state 0
@@ -332,15 +334,15 @@ state 8
 
 state 9
 
-   83 ax_defn: error . ';'
+   84 ax_defn: error . ';'
 
     ';'  shift, and go to state 18
 
 
 state 10
 
-   81 ax_defn: AX . NAME ';' ax_stmt_list
-   82        | AX . NAME ';' COND_START expression ';' ax_stmt_list
+   82 ax_defn: AX . NAME ';' ax_stmt_list
+   83        | AX . NAME ';' COND_START expression ';' ax_stmt_list
 
     NAME  shift, and go to state 19
 
@@ -348,7 +350,7 @@ state 10
 state 11
 
     3 prog: AXSTART '{' ax_list . '}'
-   80 ax_list: ax_list . ax_defn
+   81 ax_list: ax_list . ax_defn
 
     error  shift, and go to state 9
     AX     shift, and go to state 10
@@ -359,22 +361,22 @@ state 11
 
 state 12
 
-   79 ax_list: ax_defn .
+   80 ax_list: ax_defn .
 
-    $default  reduce using rule 79 (ax_list)
+    $default  reduce using rule 80 (ax_list)
 
 
 state 13
 
-   78 tab_defn: error . ';'
+   79 tab_defn: error . ';'
 
     ';'  shift, and go to state 22
 
 
 state 14
 
-   76 tab_defn: TAB . NAME NAME ';'
-   77         | TAB . NAME NAME ';' COND_START expression ';'
+   77 tab_defn: TAB . NAME NAME ';'
+   78         | TAB . NAME NAME ';' COND_START expression ';'
 
     NAME  shift, and go to state 23
 
@@ -382,7 +384,7 @@ state 14
 state 15
 
     4 prog: TABSTART '{' tab_list . '}'
-   75 tab_list: tab_list . tab_defn
+   76 tab_list: tab_list . tab_defn
 
     error  shift, and go to state 13
     '}'    shift, and go to state 24
@@ -393,9 +395,9 @@ state 15
 
 state 16
 
-   74 tab_list: tab_defn .
+   75 tab_list: tab_defn .
 
-    $default  reduce using rule 74 (tab_list)
+    $default  reduce using rule 75 (tab_list)
 
 
 state 17
@@ -407,15 +409,15 @@ state 17
 
 state 18
 
-   83 ax_defn: error ';' .
+   84 ax_defn: error ';' .
 
-    $default  reduce using rule 83 (ax_defn)
+    $default  reduce using rule 84 (ax_defn)
 
 
 state 19
 
-   81 ax_defn: AX NAME . ';' ax_stmt_list
-   82        | AX NAME . ';' COND_START expression ';' ax_stmt_list
+   82 ax_defn: AX NAME . ';' ax_stmt_list
+   83        | AX NAME . ';' COND_START expression ';' ax_stmt_list
 
     ';'  shift, and go to state 27
 
@@ -429,22 +431,22 @@ state 20
 
 state 21
 
-   80 ax_list: ax_list ax_defn .
+   81 ax_list: ax_list ax_defn .
 
-    $default  reduce using rule 80 (ax_list)
+    $default  reduce using rule 81 (ax_list)
 
 
 state 22
 
-   78 tab_defn: error ';' .
+   79 tab_defn: error ';' .
 
-    $default  reduce using rule 78 (tab_defn)
+    $default  reduce using rule 79 (tab_defn)
 
 
 state 23
 
-   76 tab_defn: TAB NAME . NAME ';'
-   77         | TAB NAME . NAME ';' COND_START expression ';'
+   77 tab_defn: TAB NAME . NAME ';'
+   78         | TAB NAME . NAME ';' COND_START expression ';'
 
     NAME  shift, and go to state 28
 
@@ -458,9 +460,9 @@ state 24
 
 state 25
 
-   75 tab_list: tab_list tab_defn .
+   76 tab_list: tab_list tab_defn .
 
-    $default  reduce using rule 75 (tab_list)
+    $default  reduce using rule 76 (tab_list)
 
 
 state 26
@@ -472,8 +474,8 @@ state 26
 
 state 27
 
-   81 ax_defn: AX NAME ';' . ax_stmt_list
-   82        | AX NAME ';' . COND_START expression ';' ax_stmt_list
+   82 ax_defn: AX NAME ';' . ax_stmt_list
+   83        | AX NAME ';' . COND_START expression ';' ax_stmt_list
 
     TOT         shift, and go to state 30
     CNT         shift, and go to state 31
@@ -486,8 +488,8 @@ state 27
 
 state 28
 
-   76 tab_defn: TAB NAME NAME . ';'
-   77         | TAB NAME NAME . ';' COND_START expression ';'
+   77 tab_defn: TAB NAME NAME . ';'
+   78         | TAB NAME NAME . ';' COND_START expression ';'
 
     ';'  shift, and go to state 36
 
@@ -501,29 +503,29 @@ state 29
 
 state 30
 
-   86 ax_stmt: TOT . ';' TEXT ';'
-   87        | TOT . ';' TEXT ';' COND_START expression ';'
+   87 ax_stmt: TOT . ';' TEXT ';'
+   88        | TOT . ';' TEXT ';' COND_START expression ';'
 
     ';'  shift, and go to state 38
 
 
 state 31
 
-   88 ax_stmt: CNT . ';' TEXT ';' COND_START expression ';'
+   89 ax_stmt: CNT . ';' TEXT ';' COND_START expression ';'
 
     ';'  shift, and go to state 39
 
 
 state 32
 
-   89 ax_stmt: TTL . ';' TEXT ';'
+   90 ax_stmt: TTL . ';' TEXT ';'
 
     ';'  shift, and go to state 40
 
 
 state 33
 
-   82 ax_defn: AX NAME ';' COND_START . expression ';' ax_stmt_list
+   83 ax_defn: AX NAME ';' COND_START . expression ';' ax_stmt_list
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -538,33 +540,33 @@ state 33
 
 state 34
 
-   81 ax_defn: AX NAME ';' ax_stmt_list .
-   85 ax_stmt_list: ax_stmt_list . ax_stmt
+   82 ax_defn: AX NAME ';' ax_stmt_list .
+   86 ax_stmt_list: ax_stmt_list . ax_stmt
 
     TOT  shift, and go to state 30
     CNT  shift, and go to state 31
     TTL  shift, and go to state 32
 
-    $default  reduce using rule 81 (ax_defn)
+    $default  reduce using rule 82 (ax_defn)
 
     ax_stmt  go to state 49
 
 
 state 35
 
-   84 ax_stmt_list: ax_stmt .
+   85 ax_stmt_list: ax_stmt .
 
-    $default  reduce using rule 84 (ax_stmt_list)
+    $default  reduce using rule 85 (ax_stmt_list)
 
 
 state 36
 
-   76 tab_defn: TAB NAME NAME ';' .
-   77         | TAB NAME NAME ';' . COND_START expression ';'
+   77 tab_defn: TAB NAME NAME ';' .
+   78         | TAB NAME NAME ';' . COND_START expression ';'
 
     COND_START  shift, and go to state 50
 
-    $default  reduce using rule 76 (tab_defn)
+    $default  reduce using rule 77 (tab_defn)
 
 
 state 37
@@ -578,63 +580,63 @@ state 37
 
 state 38
 
-   86 ax_stmt: TOT ';' . TEXT ';'
-   87        | TOT ';' . TEXT ';' COND_START expression ';'
+   87 ax_stmt: TOT ';' . TEXT ';'
+   88        | TOT ';' . TEXT ';' COND_START expression ';'
 
     TEXT  shift, and go to state 52
 
 
 state 39
 
-   88 ax_stmt: CNT ';' . TEXT ';' COND_START expression ';'
+   89 ax_stmt: CNT ';' . TEXT ';' COND_START expression ';'
 
     TEXT  shift, and go to state 53
 
 
 state 40
 
-   89 ax_stmt: TTL ';' . TEXT ';'
+   90 ax_stmt: TTL ';' . TEXT ';'
 
     TEXT  shift, and go to state 54
 
 
 state 41
 
-   72 expression: TEXT .
+   73 expression: TEXT .
 
-    $default  reduce using rule 72 (expression)
+    $default  reduce using rule 73 (expression)
 
 
 state 42
 
-   68 expression: NAME .
-   69           | NAME . '[' expression ']'
-   70           | NAME . '[' expression ',' expression ']'
-   71           | NAME . '(' expr_list ')'
+   69 expression: NAME .
+   70           | NAME . '[' expression ']'
+   71           | NAME . '[' expression ',' expression ']'
+   72           | NAME . '(' expr_list ')'
 
     '['  shift, and go to state 55
     '('  shift, and go to state 56
 
-    $default  reduce using rule 68 (expression)
+    $default  reduce using rule 69 (expression)
 
 
 state 43
 
-   67 expression: FNUMBER .
+   68 expression: FNUMBER .
 
-    $default  reduce using rule 67 (expression)
+    $default  reduce using rule 68 (expression)
 
 
 state 44
 
-   66 expression: INUMBER .
+   67 expression: INUMBER .
 
-    $default  reduce using rule 66 (expression)
+    $default  reduce using rule 67 (expression)
 
 
 state 45
 
-   73 expression: '(' . expression ')'
+   74 expression: '(' . expression ')'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -649,7 +651,7 @@ state 45
 
 state 46
 
-   55 expression: '-' . expression
+   56 expression: '-' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -664,7 +666,7 @@ state 46
 
 state 47
 
-   65 expression: NOT . expression
+   66 expression: NOT . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -679,21 +681,21 @@ state 47
 
 state 48
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   82 ax_defn: AX NAME ';' COND_START expression . ';' ax_stmt_list
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   83 ax_defn: AX NAME ';' COND_START expression . ';' ax_stmt_list
 
     ';'     shift, and go to state 60
     '='     shift, and go to state 61
@@ -714,14 +716,14 @@ state 48
 
 state 49
 
-   85 ax_stmt_list: ax_stmt_list ax_stmt .
+   86 ax_stmt_list: ax_stmt_list ax_stmt .
 
-    $default  reduce using rule 85 (ax_stmt_list)
+    $default  reduce using rule 86 (ax_stmt_list)
 
 
 state 50
 
-   77 tab_defn: TAB NAME NAME ';' COND_START . expression ';'
+   78 tab_defn: TAB NAME NAME ';' COND_START . expression ';'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -743,30 +745,30 @@ state 51
 
 state 52
 
-   86 ax_stmt: TOT ';' TEXT . ';'
-   87        | TOT ';' TEXT . ';' COND_START expression ';'
+   87 ax_stmt: TOT ';' TEXT . ';'
+   88        | TOT ';' TEXT . ';' COND_START expression ';'
 
     ';'  shift, and go to state 77
 
 
 state 53
 
-   88 ax_stmt: CNT ';' TEXT . ';' COND_START expression ';'
+   89 ax_stmt: CNT ';' TEXT . ';' COND_START expression ';'
 
     ';'  shift, and go to state 78
 
 
 state 54
 
-   89 ax_stmt: TTL ';' TEXT . ';'
+   90 ax_stmt: TTL ';' TEXT . ';'
 
     ';'  shift, and go to state 79
 
 
 state 55
 
-   69 expression: NAME '[' . expression ']'
-   70           | NAME '[' . expression ',' expression ']'
+   70 expression: NAME '[' . expression ']'
+   71           | NAME '[' . expression ',' expression ']'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -781,7 +783,7 @@ state 55
 
 state 56
 
-   71 expression: NAME '(' . expr_list ')'
+   72 expression: NAME '(' . expr_list ')'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -797,21 +799,21 @@ state 56
 
 state 57
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   73           | '(' expression . ')'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   74           | '(' expression . ')'
 
     ')'     shift, and go to state 83
     '='     shift, and go to state 61
@@ -832,49 +834,49 @@ state 57
 
 state 58
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   55           | '-' expression .
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   56           | '-' expression .
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    $default  reduce using rule 55 (expression)
+    $default  reduce using rule 56 (expression)
 
 
 state 59
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   65           | NOT expression .
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   66           | NOT expression .
 
-    $default  reduce using rule 65 (expression)
+    $default  reduce using rule 66 (expression)
 
 
 state 60
 
-   82 ax_defn: AX NAME ';' COND_START expression ';' . ax_stmt_list
+   83 ax_defn: AX NAME ';' COND_START expression ';' . ax_stmt_list
 
     TOT  shift, and go to state 30
     CNT  shift, and go to state 31
@@ -886,7 +888,7 @@ state 60
 
 state 61
 
-   64 expression: expression '=' . expression
+   65 expression: expression '=' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -901,7 +903,7 @@ state 61
 
 state 62
 
-   62 expression: expression LOGOR . expression
+   63 expression: expression LOGOR . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -916,7 +918,7 @@ state 62
 
 state 63
 
-   63 expression: expression LOGAND . expression
+   64 expression: expression LOGAND . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -931,7 +933,7 @@ state 63
 
 state 64
 
-   61 expression: expression NOEQ . expression
+   62 expression: expression NOEQ . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -946,7 +948,7 @@ state 64
 
 state 65
 
-   60 expression: expression ISEQ . expression
+   61 expression: expression ISEQ . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -961,7 +963,7 @@ state 65
 
 state 66
 
-   56 expression: expression '<' . expression
+   57 expression: expression '<' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -976,7 +978,7 @@ state 66
 
 state 67
 
-   57 expression: expression '>' . expression
+   58 expression: expression '>' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -991,7 +993,7 @@ state 67
 
 state 68
 
-   59 expression: expression GEQ . expression
+   60 expression: expression GEQ . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1006,7 +1008,7 @@ state 68
 
 state 69
 
-   58 expression: expression LEQ . expression
+   59 expression: expression LEQ . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1021,7 +1023,7 @@ state 69
 
 state 70
 
-   51 expression: expression '-' . expression
+   52 expression: expression '-' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1036,7 +1038,7 @@ state 70
 
 state 71
 
-   50 expression: expression '+' . expression
+   51 expression: expression '+' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1051,7 +1053,7 @@ state 71
 
 state 72
 
-   52 expression: expression '*' . expression
+   53 expression: expression '*' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1066,7 +1068,7 @@ state 72
 
 state 73
 
-   53 expression: expression '/' . expression
+   54 expression: expression '/' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1081,7 +1083,7 @@ state 73
 
 state 74
 
-   54 expression: expression '%' . expression
+   55 expression: expression '%' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1096,21 +1098,21 @@ state 74
 
 state 75
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   77 tab_defn: TAB NAME NAME ';' COND_START expression . ';'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   78 tab_defn: TAB NAME NAME ';' COND_START expression . ';'
 
     ';'     shift, and go to state 99
     '='     shift, and go to state 61
@@ -1150,46 +1152,46 @@ state 76
 
 state 77
 
-   86 ax_stmt: TOT ';' TEXT ';' .
-   87        | TOT ';' TEXT ';' . COND_START expression ';'
+   87 ax_stmt: TOT ';' TEXT ';' .
+   88        | TOT ';' TEXT ';' . COND_START expression ';'
 
     COND_START  shift, and go to state 112
 
-    $default  reduce using rule 86 (ax_stmt)
+    $default  reduce using rule 87 (ax_stmt)
 
 
 state 78
 
-   88 ax_stmt: CNT ';' TEXT ';' . COND_START expression ';'
+   89 ax_stmt: CNT ';' TEXT ';' . COND_START expression ';'
 
     COND_START  shift, and go to state 113
 
 
 state 79
 
-   89 ax_stmt: TTL ';' TEXT ';' .
+   90 ax_stmt: TTL ';' TEXT ';' .
 
-    $default  reduce using rule 89 (ax_stmt)
+    $default  reduce using rule 90 (ax_stmt)
 
 
 state 80
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   69           | NAME '[' expression . ']'
-   70           | NAME '[' expression . ',' expression ']'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   70           | NAME '[' expression . ']'
+   71           | NAME '[' expression . ',' expression ']'
 
     ']'     shift, and go to state 114
     '='     shift, and go to state 61
@@ -1211,8 +1213,8 @@ state 80
 
 state 81
 
-   49 expr_list: expr_list . ',' expression
-   71 expression: NAME '(' expr_list . ')'
+   50 expr_list: expr_list . ',' expression
+   72 expression: NAME '(' expr_list . ')'
 
     ')'  shift, and go to state 116
     ','  shift, and go to state 117
@@ -1220,21 +1222,21 @@ state 81
 
 state 82
 
-   48 expr_list: expression .
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   49 expr_list: expression .
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     '='     shift, and go to state 61
     LOGOR   shift, and go to state 62
@@ -1251,47 +1253,47 @@ state 82
     '/'     shift, and go to state 73
     '%'     shift, and go to state 74
 
-    $default  reduce using rule 48 (expr_list)
+    $default  reduce using rule 49 (expr_list)
 
 
 state 83
 
-   73 expression: '(' expression ')' .
+   74 expression: '(' expression ')' .
 
-    $default  reduce using rule 73 (expression)
+    $default  reduce using rule 74 (expression)
 
 
 state 84
 
-   82 ax_defn: AX NAME ';' COND_START expression ';' ax_stmt_list .
-   85 ax_stmt_list: ax_stmt_list . ax_stmt
+   83 ax_defn: AX NAME ';' COND_START expression ';' ax_stmt_list .
+   86 ax_stmt_list: ax_stmt_list . ax_stmt
 
     TOT  shift, and go to state 30
     CNT  shift, and go to state 31
     TTL  shift, and go to state 32
 
-    $default  reduce using rule 82 (ax_defn)
+    $default  reduce using rule 83 (ax_defn)
 
     ax_stmt  go to state 49
 
 
 state 85
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   64           | expression '=' expression .
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   65           | expression '=' expression .
 
     '='     shift, and go to state 61
     LOGOR   shift, and go to state 62
@@ -1308,26 +1310,26 @@ state 85
     '/'     shift, and go to state 73
     '%'     shift, and go to state 74
 
-    $default  reduce using rule 64 (expression)
+    $default  reduce using rule 65 (expression)
 
 
 state 86
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   62           | expression LOGOR expression .
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   63           | expression LOGOR expression .
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     LOGAND  shift, and go to state 63
     NOEQ    shift, and go to state 64
@@ -1342,26 +1344,26 @@ state 86
     '/'     shift, and go to state 73
     '%'     shift, and go to state 74
 
-    $default  reduce using rule 62 (expression)
+    $default  reduce using rule 63 (expression)
 
 
 state 87
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   63           | expression LOGAND expression .
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   64           | expression LOGAND expression .
+   65           | expression . '=' expression
 
     NOEQ  shift, and go to state 64
     ISEQ  shift, and go to state 65
@@ -1375,26 +1377,57 @@ state 87
     '/'   shift, and go to state 73
     '%'   shift, and go to state 74
 
-    $default  reduce using rule 63 (expression)
+    $default  reduce using rule 64 (expression)
 
 
 state 88
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   61           | expression NOEQ expression .
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   62           | expression NOEQ expression .
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+
+    '<'  shift, and go to state 66
+    '>'  shift, and go to state 67
+    GEQ  shift, and go to state 68
+    LEQ  shift, and go to state 69
+    '-'  shift, and go to state 70
+    '+'  shift, and go to state 71
+    '*'  shift, and go to state 72
+    '/'  shift, and go to state 73
+    '%'  shift, and go to state 74
+
+    $default  reduce using rule 62 (expression)
+
+
+state 89
+
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   61           | expression ISEQ expression .
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     '<'  shift, and go to state 66
     '>'  shift, and go to state 67
@@ -1409,81 +1442,23 @@ state 88
     $default  reduce using rule 61 (expression)
 
 
-state 89
-
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   60           | expression ISEQ expression .
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    '<'  shift, and go to state 66
-    '>'  shift, and go to state 67
-    GEQ  shift, and go to state 68
-    LEQ  shift, and go to state 69
-    '-'  shift, and go to state 70
-    '+'  shift, and go to state 71
-    '*'  shift, and go to state 72
-    '/'  shift, and go to state 73
-    '%'  shift, and go to state 74
-
-    $default  reduce using rule 60 (expression)
-
-
 state 90
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   56           | expression '<' expression .
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    '-'  shift, and go to state 70
-    '+'  shift, and go to state 71
-    '*'  shift, and go to state 72
-    '/'  shift, and go to state 73
-    '%'  shift, and go to state 74
-
-    $default  reduce using rule 56 (expression)
-
-
-state 91
-
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   57           | expression '>' expression .
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   57           | expression '<' expression .
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     '-'  shift, and go to state 70
     '+'  shift, and go to state 71
@@ -1494,50 +1469,23 @@ state 91
     $default  reduce using rule 57 (expression)
 
 
-state 92
+state 91
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   59           | expression GEQ expression .
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    '-'  shift, and go to state 70
-    '+'  shift, and go to state 71
-    '*'  shift, and go to state 72
-    '/'  shift, and go to state 73
-    '%'  shift, and go to state 74
-
-    $default  reduce using rule 59 (expression)
-
-
-state 93
-
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   58           | expression LEQ expression .
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   58           | expression '>' expression .
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     '-'  shift, and go to state 70
     '+'  shift, and go to state 71
@@ -1548,23 +1496,102 @@ state 93
     $default  reduce using rule 58 (expression)
 
 
+state 92
+
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   60           | expression GEQ expression .
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+
+    '-'  shift, and go to state 70
+    '+'  shift, and go to state 71
+    '*'  shift, and go to state 72
+    '/'  shift, and go to state 73
+    '%'  shift, and go to state 74
+
+    $default  reduce using rule 60 (expression)
+
+
+state 93
+
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   59           | expression LEQ expression .
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+
+    '-'  shift, and go to state 70
+    '+'  shift, and go to state 71
+    '*'  shift, and go to state 72
+    '/'  shift, and go to state 73
+    '%'  shift, and go to state 74
+
+    $default  reduce using rule 59 (expression)
+
+
 state 94
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   51           | expression '-' expression .
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   52           | expression '-' expression .
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+
+    '*'  shift, and go to state 72
+    '/'  shift, and go to state 73
+    '%'  shift, and go to state 74
+
+    $default  reduce using rule 52 (expression)
+
+
+state 95
+
+   51 expression: expression . '+' expression
+   51           | expression '+' expression .
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     '*'  shift, and go to state 72
     '/'  shift, and go to state 73
@@ -1573,99 +1600,74 @@ state 94
     $default  reduce using rule 51 (expression)
 
 
-state 95
-
-   50 expression: expression . '+' expression
-   50           | expression '+' expression .
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    '*'  shift, and go to state 72
-    '/'  shift, and go to state 73
-    '%'  shift, and go to state 74
-
-    $default  reduce using rule 50 (expression)
-
-
 state 96
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   52           | expression '*' expression .
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    $default  reduce using rule 52 (expression)
-
-
-state 97
-
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   53           | expression '/' expression .
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   53           | expression '*' expression .
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     $default  reduce using rule 53 (expression)
 
 
-state 98
+state 97
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   54           | expression '%' expression .
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   54           | expression '/' expression .
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     $default  reduce using rule 54 (expression)
 
 
+state 98
+
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   55           | expression '%' expression .
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+
+    $default  reduce using rule 55 (expression)
+
+
 state 99
 
-   77 tab_defn: TAB NAME NAME ';' COND_START expression ';' .
+   78 tab_defn: TAB NAME NAME ';' COND_START expression ';' .
 
-    $default  reduce using rule 77 (tab_defn)
+    $default  reduce using rule 78 (tab_defn)
 
 
 state 100
@@ -1741,8 +1743,9 @@ state 108
 
    16 func_defn: xtcc_type . NAME '(' decl_comma_list ')' @2 compound_stmt
    17 decl: xtcc_type . NAME ';'
-   18     | xtcc_type . NAME '[' INUMBER ']' ';'
-   20 func_decl: xtcc_type . NAME '(' decl_comma_list ')' ';'
+   18     | xtcc_type . NAME '=' expression ';'
+   19     | xtcc_type . NAME '[' INUMBER ']' ';'
+   21 func_decl: xtcc_type . NAME '(' decl_comma_list ')' ';'
 
     NAME  shift, and go to state 120
 
@@ -1763,14 +1766,14 @@ state 110
 
 state 111
 
-   19 decl: func_decl .
+   20 decl: func_decl .
 
-    $default  reduce using rule 19 (decl)
+    $default  reduce using rule 20 (decl)
 
 
 state 112
 
-   87 ax_stmt: TOT ';' TEXT ';' COND_START . expression ';'
+   88 ax_stmt: TOT ';' TEXT ';' COND_START . expression ';'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1785,7 +1788,7 @@ state 112
 
 state 113
 
-   88 ax_stmt: CNT ';' TEXT ';' COND_START . expression ';'
+   89 ax_stmt: CNT ';' TEXT ';' COND_START . expression ';'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1800,14 +1803,14 @@ state 113
 
 state 114
 
-   69 expression: NAME '[' expression ']' .
+   70 expression: NAME '[' expression ']' .
 
-    $default  reduce using rule 69 (expression)
+    $default  reduce using rule 70 (expression)
 
 
 state 115
 
-   70 expression: NAME '[' expression ',' . expression ']'
+   71 expression: NAME '[' expression ',' . expression ']'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1822,14 +1825,14 @@ state 115
 
 state 116
 
-   71 expression: NAME '(' expr_list ')' .
+   72 expression: NAME '(' expr_list ')' .
 
-    $default  reduce using rule 71 (expression)
+    $default  reduce using rule 72 (expression)
 
 
 state 117
 
-   49 expr_list: expr_list ',' . expression
+   50 expr_list: expr_list ',' . expression
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -1860,66 +1863,33 @@ state 120
 
    16 func_defn: xtcc_type NAME . '(' decl_comma_list ')' @2 compound_stmt
    17 decl: xtcc_type NAME . ';'
-   18     | xtcc_type NAME . '[' INUMBER ']' ';'
-   20 func_decl: xtcc_type NAME . '(' decl_comma_list ')' ';'
+   18     | xtcc_type NAME . '=' expression ';'
+   19     | xtcc_type NAME . '[' INUMBER ']' ';'
+   21 func_decl: xtcc_type NAME . '(' decl_comma_list ')' ';'
 
     ';'  shift, and go to state 125
     '['  shift, and go to state 126
     '('  shift, and go to state 127
+    '='  shift, and go to state 128
 
 
 state 121
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   87 ax_stmt: TOT ';' TEXT ';' COND_START expression . ';'
-
-    ';'     shift, and go to state 128
-    '='     shift, and go to state 61
-    LOGOR   shift, and go to state 62
-    LOGAND  shift, and go to state 63
-    NOEQ    shift, and go to state 64
-    ISEQ    shift, and go to state 65
-    '<'     shift, and go to state 66
-    '>'     shift, and go to state 67
-    GEQ     shift, and go to state 68
-    LEQ     shift, and go to state 69
-    '-'     shift, and go to state 70
-    '+'     shift, and go to state 71
-    '*'     shift, and go to state 72
-    '/'     shift, and go to state 73
-    '%'     shift, and go to state 74
-
-
-state 122
-
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   88 ax_stmt: CNT ';' TEXT ';' COND_START expression . ';'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   88 ax_stmt: TOT ';' TEXT ';' COND_START expression . ';'
 
     ';'     shift, and go to state 129
     '='     shift, and go to state 61
@@ -1938,25 +1908,60 @@ state 122
     '%'     shift, and go to state 74
 
 
+state 122
+
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   89 ax_stmt: CNT ';' TEXT ';' COND_START expression . ';'
+
+    ';'     shift, and go to state 130
+    '='     shift, and go to state 61
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
+
+
 state 123
 
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-   70           | NAME '[' expression ',' expression . ']'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+   71           | NAME '[' expression ',' expression . ']'
 
-    ']'     shift, and go to state 130
+    ']'     shift, and go to state 131
     '='     shift, and go to state 61
     LOGOR   shift, and go to state 62
     LOGAND  shift, and go to state 63
@@ -1975,21 +1980,21 @@ state 123
 
 state 124
 
-   49 expr_list: expr_list ',' expression .
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   50 expr_list: expr_list ',' expression .
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
     '='     shift, and go to state 61
     LOGOR   shift, and go to state 62
@@ -2006,7 +2011,7 @@ state 124
     '/'     shift, and go to state 73
     '%'     shift, and go to state 74
 
-    $default  reduce using rule 49 (expr_list)
+    $default  reduce using rule 50 (expr_list)
 
 
 state 125
@@ -2018,15 +2023,15 @@ state 125
 
 state 126
 
-   18 decl: xtcc_type NAME '[' . INUMBER ']' ';'
+   19 decl: xtcc_type NAME '[' . INUMBER ']' ';'
 
-    INUMBER  shift, and go to state 131
+    INUMBER  shift, and go to state 132
 
 
 state 127
 
    16 func_defn: xtcc_type NAME '(' . decl_comma_list ')' @2 compound_stmt
-   20 func_decl: xtcc_type NAME '(' . decl_comma_list ')' ';'
+   21 func_decl: xtcc_type NAME '(' . decl_comma_list ')' ';'
 
     VOID_T    shift, and go to state 100
     INT8_T    shift, and go to state 101
@@ -2035,107 +2040,157 @@ state 127
     FLOAT_T   shift, and go to state 104
     DOUBLE_T  shift, and go to state 105
 
-    $default  reduce using rule 26 (var_decl)
+    $default  reduce using rule 27 (var_decl)
 
-    xtcc_type        go to state 132
-    decl_comma_list  go to state 133
-    var_decl         go to state 134
+    xtcc_type        go to state 133
+    decl_comma_list  go to state 134
+    var_decl         go to state 135
 
 
 state 128
 
-   87 ax_stmt: TOT ';' TEXT ';' COND_START expression ';' .
+   18 decl: xtcc_type NAME '=' . expression ';'
 
-    $default  reduce using rule 87 (ax_stmt)
+    TEXT     shift, and go to state 41
+    NAME     shift, and go to state 42
+    FNUMBER  shift, and go to state 43
+    INUMBER  shift, and go to state 44
+    '('      shift, and go to state 45
+    '-'      shift, and go to state 46
+    NOT      shift, and go to state 47
+
+    expression  go to state 136
 
 
 state 129
 
-   88 ax_stmt: CNT ';' TEXT ';' COND_START expression ';' .
+   88 ax_stmt: TOT ';' TEXT ';' COND_START expression ';' .
 
     $default  reduce using rule 88 (ax_stmt)
 
 
 state 130
 
-   70 expression: NAME '[' expression ',' expression ']' .
+   89 ax_stmt: CNT ';' TEXT ';' COND_START expression ';' .
 
-    $default  reduce using rule 70 (expression)
+    $default  reduce using rule 89 (ax_stmt)
 
 
 state 131
 
-   18 decl: xtcc_type NAME '[' INUMBER . ']' ';'
+   71 expression: NAME '[' expression ',' expression ']' .
 
-    ']'  shift, and go to state 135
+    $default  reduce using rule 71 (expression)
 
 
 state 132
 
-   23 var_decl: xtcc_type . NAME
-   24         | xtcc_type . NAME '[' INUMBER ']'
-   25         | xtcc_type . '&' NAME
+   19 decl: xtcc_type NAME '[' INUMBER . ']' ';'
 
-    NAME  shift, and go to state 136
-    '&'   shift, and go to state 137
+    ']'  shift, and go to state 137
 
 
 state 133
 
-   16 func_defn: xtcc_type NAME '(' decl_comma_list . ')' @2 compound_stmt
-   20 func_decl: xtcc_type NAME '(' decl_comma_list . ')' ';'
-   22 decl_comma_list: decl_comma_list . ',' var_decl
+   24 var_decl: xtcc_type . NAME
+   25         | xtcc_type . NAME '[' INUMBER ']'
+   26         | xtcc_type . '&' NAME
 
-    ')'  shift, and go to state 138
-    ','  shift, and go to state 139
+    NAME  shift, and go to state 138
+    '&'   shift, and go to state 139
 
 
 state 134
 
-   21 decl_comma_list: var_decl .
+   16 func_defn: xtcc_type NAME '(' decl_comma_list . ')' @2 compound_stmt
+   21 func_decl: xtcc_type NAME '(' decl_comma_list . ')' ';'
+   23 decl_comma_list: decl_comma_list . ',' var_decl
 
-    $default  reduce using rule 21 (decl_comma_list)
+    ')'  shift, and go to state 140
+    ','  shift, and go to state 141
 
 
 state 135
 
-   18 decl: xtcc_type NAME '[' INUMBER ']' . ';'
+   22 decl_comma_list: var_decl .
 
-    ';'  shift, and go to state 140
+    $default  reduce using rule 22 (decl_comma_list)
 
 
 state 136
 
-   23 var_decl: xtcc_type NAME .
-   24         | xtcc_type NAME . '[' INUMBER ']'
+   18 decl: xtcc_type NAME '=' expression . ';'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    '['  shift, and go to state 141
-
-    $default  reduce using rule 23 (var_decl)
+    ';'     shift, and go to state 142
+    '='     shift, and go to state 61
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
 
 
 state 137
 
-   25 var_decl: xtcc_type '&' . NAME
+   19 decl: xtcc_type NAME '[' INUMBER ']' . ';'
 
-    NAME  shift, and go to state 142
+    ';'  shift, and go to state 143
 
 
 state 138
 
-   16 func_defn: xtcc_type NAME '(' decl_comma_list ')' . @2 compound_stmt
-   20 func_decl: xtcc_type NAME '(' decl_comma_list ')' . ';'
+   24 var_decl: xtcc_type NAME .
+   25         | xtcc_type NAME . '[' INUMBER ']'
 
-    ';'  shift, and go to state 143
+    '['  shift, and go to state 144
 
-    $default  reduce using rule 15 (@2)
-
-    @2  go to state 144
+    $default  reduce using rule 24 (var_decl)
 
 
 state 139
 
-   22 decl_comma_list: decl_comma_list ',' . var_decl
+   26 var_decl: xtcc_type '&' . NAME
+
+    NAME  shift, and go to state 145
+
+
+state 140
+
+   16 func_defn: xtcc_type NAME '(' decl_comma_list ')' . @2 compound_stmt
+   21 func_decl: xtcc_type NAME '(' decl_comma_list ')' . ';'
+
+    ';'  shift, and go to state 146
+
+    $default  reduce using rule 15 (@2)
+
+    @2  go to state 147
+
+
+state 141
+
+   23 decl_comma_list: decl_comma_list ',' . var_decl
 
     VOID_T    shift, and go to state 100
     INT8_T    shift, and go to state 101
@@ -2144,92 +2199,99 @@ state 139
     FLOAT_T   shift, and go to state 104
     DOUBLE_T  shift, and go to state 105
 
-    $default  reduce using rule 26 (var_decl)
+    $default  reduce using rule 27 (var_decl)
 
-    xtcc_type  go to state 132
-    var_decl   go to state 145
-
-
-state 140
-
-   18 decl: xtcc_type NAME '[' INUMBER ']' ';' .
-
-    $default  reduce using rule 18 (decl)
-
-
-state 141
-
-   24 var_decl: xtcc_type NAME '[' . INUMBER ']'
-
-    INUMBER  shift, and go to state 146
+    xtcc_type  go to state 133
+    var_decl   go to state 148
 
 
 state 142
 
-   25 var_decl: xtcc_type '&' NAME .
+   18 decl: xtcc_type NAME '=' expression ';' .
 
-    $default  reduce using rule 25 (var_decl)
+    $default  reduce using rule 18 (decl)
 
 
 state 143
 
-   20 func_decl: xtcc_type NAME '(' decl_comma_list ')' ';' .
+   19 decl: xtcc_type NAME '[' INUMBER ']' ';' .
 
-    $default  reduce using rule 20 (func_decl)
+    $default  reduce using rule 19 (decl)
 
 
 state 144
 
-   16 func_defn: xtcc_type NAME '(' decl_comma_list ')' @2 . compound_stmt
+   25 var_decl: xtcc_type NAME '[' . INUMBER ']'
 
-    '{'  shift, and go to state 147
-
-    compound_stmt  go to state 148
-    open_curly     go to state 149
+    INUMBER  shift, and go to state 149
 
 
 state 145
 
-   22 decl_comma_list: decl_comma_list ',' var_decl .
+   26 var_decl: xtcc_type '&' NAME .
 
-    $default  reduce using rule 22 (decl_comma_list)
+    $default  reduce using rule 26 (var_decl)
 
 
 state 146
 
-   24 var_decl: xtcc_type NAME '[' INUMBER . ']'
+   21 func_decl: xtcc_type NAME '(' decl_comma_list ')' ';' .
 
-    ']'  shift, and go to state 150
+    $default  reduce using rule 21 (func_decl)
 
 
 state 147
 
-   47 open_curly: '{' .
+   16 func_defn: xtcc_type NAME '(' decl_comma_list ')' @2 . compound_stmt
 
-    $default  reduce using rule 47 (open_curly)
+    '{'  shift, and go to state 150
+
+    compound_stmt  go to state 151
+    open_curly     go to state 152
 
 
 state 148
+
+   23 decl_comma_list: decl_comma_list ',' var_decl .
+
+    $default  reduce using rule 23 (decl_comma_list)
+
+
+state 149
+
+   25 var_decl: xtcc_type NAME '[' INUMBER . ']'
+
+    ']'  shift, and go to state 153
+
+
+state 150
+
+   48 open_curly: '{' .
+
+    $default  reduce using rule 48 (open_curly)
+
+
+state 151
 
    16 func_defn: xtcc_type NAME '(' decl_comma_list ')' @2 compound_stmt .
 
     $default  reduce using rule 16 (func_defn)
 
 
-state 149
+state 152
 
-   46 compound_stmt: open_curly . statement_list '}'
+   47 compound_stmt: open_curly . statement_list '}'
 
-    error     shift, and go to state 151
-    '{'       shift, and go to state 147
-    FOR       shift, and go to state 152
-    FLD       shift, and go to state 153
+    error     shift, and go to state 154
+    '{'       shift, and go to state 150
+    FOR       shift, and go to state 155
+    FLD       shift, and go to state 156
     TEXT      shift, and go to state 41
     NAME      shift, and go to state 42
     FNUMBER   shift, and go to state 43
     INUMBER   shift, and go to state 44
-    LISTA     shift, and go to state 154
-    IF        shift, and go to state 155
+    LISTA     shift, and go to state 157
+    IF        shift, and go to state 158
     '('       shift, and go to state 45
     VOID_T    shift, and go to state 100
     INT8_T    shift, and go to state 101
@@ -2237,115 +2299,116 @@ state 149
     INT32_T   shift, and go to state 103
     FLOAT_T   shift, and go to state 104
     DOUBLE_T  shift, and go to state 105
-    CONTINUE  shift, and go to state 156
-    BREAK     shift, and go to state 157
+    CONTINUE  shift, and go to state 159
+    BREAK     shift, and go to state 160
     '-'       shift, and go to state 46
     NOT       shift, and go to state 47
 
-    xtcc_type       go to state 158
-    decl            go to state 159
+    xtcc_type       go to state 161
+    decl            go to state 162
     func_decl       go to state 111
-    statement_list  go to state 160
-    statement       go to state 161
-    list_stmt       go to state 162
-    if_stmt         go to state 163
-    fld_stmt        go to state 164
-    compound_stmt   go to state 165
-    open_curly      go to state 149
-    expression      go to state 166
-
-
-state 150
-
-   24 var_decl: xtcc_type NAME '[' INUMBER ']' .
-
-    $default  reduce using rule 24 (var_decl)
-
-
-state 151
-
-   39 statement: error . ';'
-
-    ';'  shift, and go to state 167
-
-
-state 152
-
-   30 statement: FOR . '(' expression ';' expression ';' expression ')' @3 statement
-
-    '('  shift, and go to state 168
+    statement_list  go to state 163
+    statement       go to state 164
+    list_stmt       go to state 165
+    if_stmt         go to state 166
+    fld_stmt        go to state 167
+    compound_stmt   go to state 168
+    open_curly      go to state 152
+    expression      go to state 169
 
 
 state 153
 
-   45 fld_stmt: FLD . NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
+   25 var_decl: xtcc_type NAME '[' INUMBER ']' .
 
-    NAME  shift, and go to state 169
+    $default  reduce using rule 25 (var_decl)
 
 
 state 154
 
-   40 list_stmt: LISTA . NAME TEXT ';'
-   41          | LISTA . NAME '[' expression ']' TEXT ';'
-   42          | LISTA . NAME '[' expression ',' expression ']' TEXT ';'
+   40 statement: error . ';'
 
-    NAME  shift, and go to state 170
+    ';'  shift, and go to state 170
 
 
 state 155
 
-   43 if_stmt: IF . '(' expression ')' statement
-   44        | IF . '(' expression ')' statement ELSE statement
+   31 statement: FOR . '(' expression ';' expression ';' expression ')' @3 statement
 
     '('  shift, and go to state 171
 
 
 state 156
 
-   37 statement: CONTINUE . ';'
+   46 fld_stmt: FLD . NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
 
-    ';'  shift, and go to state 172
+    NAME  shift, and go to state 172
 
 
 state 157
 
-   36 statement: BREAK . ';'
+   41 list_stmt: LISTA . NAME TEXT ';'
+   42          | LISTA . NAME '[' expression ']' TEXT ';'
+   43          | LISTA . NAME '[' expression ',' expression ']' TEXT ';'
 
-    ';'  shift, and go to state 173
+    NAME  shift, and go to state 173
 
 
 state 158
 
-   17 decl: xtcc_type . NAME ';'
-   18     | xtcc_type . NAME '[' INUMBER ']' ';'
-   20 func_decl: xtcc_type . NAME '(' decl_comma_list ')' ';'
+   44 if_stmt: IF . '(' expression ')' statement
+   45        | IF . '(' expression ')' statement ELSE statement
 
-    NAME  shift, and go to state 174
+    '('  shift, and go to state 174
 
 
 state 159
 
-   34 statement: decl .
+   38 statement: CONTINUE . ';'
 
-    $default  reduce using rule 34 (statement)
+    ';'  shift, and go to state 175
 
 
 state 160
 
-   28 statement_list: statement_list . statement
-   46 compound_stmt: open_curly statement_list . '}'
+   37 statement: BREAK . ';'
 
-    error     shift, and go to state 151
-    '{'       shift, and go to state 147
-    '}'       shift, and go to state 175
-    FOR       shift, and go to state 152
-    FLD       shift, and go to state 153
+    ';'  shift, and go to state 176
+
+
+state 161
+
+   17 decl: xtcc_type . NAME ';'
+   18     | xtcc_type . NAME '=' expression ';'
+   19     | xtcc_type . NAME '[' INUMBER ']' ';'
+   21 func_decl: xtcc_type . NAME '(' decl_comma_list ')' ';'
+
+    NAME  shift, and go to state 177
+
+
+state 162
+
+   35 statement: decl .
+
+    $default  reduce using rule 35 (statement)
+
+
+state 163
+
+   29 statement_list: statement_list . statement
+   47 compound_stmt: open_curly statement_list . '}'
+
+    error     shift, and go to state 154
+    '{'       shift, and go to state 150
+    '}'       shift, and go to state 178
+    FOR       shift, and go to state 155
+    FLD       shift, and go to state 156
     TEXT      shift, and go to state 41
     NAME      shift, and go to state 42
     FNUMBER   shift, and go to state 43
     INUMBER   shift, and go to state 44
-    LISTA     shift, and go to state 154
-    IF        shift, and go to state 155
+    LISTA     shift, and go to state 157
+    IF        shift, and go to state 158
     '('       shift, and go to state 45
     VOID_T    shift, and go to state 100
     INT8_T    shift, and go to state 101
@@ -2353,136 +2416,103 @@ state 160
     INT32_T   shift, and go to state 103
     FLOAT_T   shift, and go to state 104
     DOUBLE_T  shift, and go to state 105
-    CONTINUE  shift, and go to state 156
-    BREAK     shift, and go to state 157
+    CONTINUE  shift, and go to state 159
+    BREAK     shift, and go to state 160
     '-'       shift, and go to state 46
     NOT       shift, and go to state 47
 
-    xtcc_type      go to state 158
-    decl           go to state 159
+    xtcc_type      go to state 161
+    decl           go to state 162
     func_decl      go to state 111
-    statement      go to state 176
-    list_stmt      go to state 162
-    if_stmt        go to state 163
-    fld_stmt       go to state 164
-    compound_stmt  go to state 165
-    open_curly     go to state 149
-    expression     go to state 166
-
-
-state 161
-
-   27 statement_list: statement .
-
-    $default  reduce using rule 27 (statement_list)
-
-
-state 162
-
-   35 statement: list_stmt .
-
-    $default  reduce using rule 35 (statement)
-
-
-state 163
-
-   31 statement: if_stmt .
-
-    $default  reduce using rule 31 (statement)
+    statement      go to state 179
+    list_stmt      go to state 165
+    if_stmt        go to state 166
+    fld_stmt       go to state 167
+    compound_stmt  go to state 168
+    open_curly     go to state 152
+    expression     go to state 169
 
 
 state 164
 
-   38 statement: fld_stmt .
+   28 statement_list: statement .
 
-    $default  reduce using rule 38 (statement)
+    $default  reduce using rule 28 (statement_list)
 
 
 state 165
 
-   33 statement: compound_stmt .
+   36 statement: list_stmt .
 
-    $default  reduce using rule 33 (statement)
+    $default  reduce using rule 36 (statement)
 
 
 state 166
 
-   32 statement: expression . ';'
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   32 statement: if_stmt .
 
-    ';'     shift, and go to state 177
-    '='     shift, and go to state 61
-    LOGOR   shift, and go to state 62
-    LOGAND  shift, and go to state 63
-    NOEQ    shift, and go to state 64
-    ISEQ    shift, and go to state 65
-    '<'     shift, and go to state 66
-    '>'     shift, and go to state 67
-    GEQ     shift, and go to state 68
-    LEQ     shift, and go to state 69
-    '-'     shift, and go to state 70
-    '+'     shift, and go to state 71
-    '*'     shift, and go to state 72
-    '/'     shift, and go to state 73
-    '%'     shift, and go to state 74
+    $default  reduce using rule 32 (statement)
 
 
 state 167
 
-   39 statement: error ';' .
+   39 statement: fld_stmt .
 
     $default  reduce using rule 39 (statement)
 
 
 state 168
 
-   30 statement: FOR '(' . expression ';' expression ';' expression ')' @3 statement
+   34 statement: compound_stmt .
 
-    TEXT     shift, and go to state 41
-    NAME     shift, and go to state 42
-    FNUMBER  shift, and go to state 43
-    INUMBER  shift, and go to state 44
-    '('      shift, and go to state 45
-    '-'      shift, and go to state 46
-    NOT      shift, and go to state 47
-
-    expression  go to state 178
+    $default  reduce using rule 34 (statement)
 
 
 state 169
 
-   45 fld_stmt: FLD NAME . '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
+   33 statement: expression . ';'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    '='  shift, and go to state 179
+    ';'     shift, and go to state 180
+    '='     shift, and go to state 61
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
 
 
 state 170
 
-   40 list_stmt: LISTA NAME . TEXT ';'
-   41          | LISTA NAME . '[' expression ']' TEXT ';'
-   42          | LISTA NAME . '[' expression ',' expression ']' TEXT ';'
+   40 statement: error ';' .
 
-    TEXT  shift, and go to state 180
-    '['   shift, and go to state 181
+    $default  reduce using rule 40 (statement)
 
 
 state 171
 
-   43 if_stmt: IF '(' . expression ')' statement
-   44        | IF '(' . expression ')' statement ELSE statement
+   31 statement: FOR '(' . expression ';' expression ';' expression ')' @3 statement
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -2492,108 +2522,30 @@ state 171
     '-'      shift, and go to state 46
     NOT      shift, and go to state 47
 
-    expression  go to state 182
+    expression  go to state 181
 
 
 state 172
 
-   37 statement: CONTINUE ';' .
+   46 fld_stmt: FLD NAME . '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
 
-    $default  reduce using rule 37 (statement)
+    '='  shift, and go to state 182
 
 
 state 173
 
-   36 statement: BREAK ';' .
+   41 list_stmt: LISTA NAME . TEXT ';'
+   42          | LISTA NAME . '[' expression ']' TEXT ';'
+   43          | LISTA NAME . '[' expression ',' expression ']' TEXT ';'
 
-    $default  reduce using rule 36 (statement)
+    TEXT  shift, and go to state 183
+    '['   shift, and go to state 184
 
 
 state 174
 
-   17 decl: xtcc_type NAME . ';'
-   18     | xtcc_type NAME . '[' INUMBER ']' ';'
-   20 func_decl: xtcc_type NAME . '(' decl_comma_list ')' ';'
-
-    ';'  shift, and go to state 125
-    '['  shift, and go to state 126
-    '('  shift, and go to state 183
-
-
-state 175
-
-   46 compound_stmt: open_curly statement_list '}' .
-
-    $default  reduce using rule 46 (compound_stmt)
-
-
-state 176
-
-   28 statement_list: statement_list statement .
-
-    $default  reduce using rule 28 (statement_list)
-
-
-state 177
-
-   32 statement: expression ';' .
-
-    $default  reduce using rule 32 (statement)
-
-
-state 178
-
-   30 statement: FOR '(' expression . ';' expression ';' expression ')' @3 statement
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    ';'     shift, and go to state 184
-    '='     shift, and go to state 61
-    LOGOR   shift, and go to state 62
-    LOGAND  shift, and go to state 63
-    NOEQ    shift, and go to state 64
-    ISEQ    shift, and go to state 65
-    '<'     shift, and go to state 66
-    '>'     shift, and go to state 67
-    GEQ     shift, and go to state 68
-    LEQ     shift, and go to state 69
-    '-'     shift, and go to state 70
-    '+'     shift, and go to state 71
-    '*'     shift, and go to state 72
-    '/'     shift, and go to state 73
-    '%'     shift, and go to state 74
-
-
-state 179
-
-   45 fld_stmt: FLD NAME '=' . NAME '(' expression ',' expression ')' ':' INUMBER ';'
-
-    NAME  shift, and go to state 185
-
-
-state 180
-
-   40 list_stmt: LISTA NAME TEXT . ';'
-
-    ';'  shift, and go to state 186
-
-
-state 181
-
-   41 list_stmt: LISTA NAME '[' . expression ']' TEXT ';'
-   42          | LISTA NAME '[' . expression ',' expression ']' TEXT ';'
+   44 if_stmt: IF '(' . expression ')' statement
+   45        | IF '(' . expression ')' statement ELSE statement
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -2603,29 +2555,76 @@ state 181
     '-'      shift, and go to state 46
     NOT      shift, and go to state 47
 
-    expression  go to state 187
+    expression  go to state 185
 
 
-state 182
+state 175
 
-   43 if_stmt: IF '(' expression . ')' statement
-   44        | IF '(' expression . ')' statement ELSE statement
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   38 statement: CONTINUE ';' .
 
-    ')'     shift, and go to state 188
+    $default  reduce using rule 38 (statement)
+
+
+state 176
+
+   37 statement: BREAK ';' .
+
+    $default  reduce using rule 37 (statement)
+
+
+state 177
+
+   17 decl: xtcc_type NAME . ';'
+   18     | xtcc_type NAME . '=' expression ';'
+   19     | xtcc_type NAME . '[' INUMBER ']' ';'
+   21 func_decl: xtcc_type NAME . '(' decl_comma_list ')' ';'
+
+    ';'  shift, and go to state 125
+    '['  shift, and go to state 126
+    '('  shift, and go to state 186
+    '='  shift, and go to state 128
+
+
+state 178
+
+   47 compound_stmt: open_curly statement_list '}' .
+
+    $default  reduce using rule 47 (compound_stmt)
+
+
+state 179
+
+   29 statement_list: statement_list statement .
+
+    $default  reduce using rule 29 (statement_list)
+
+
+state 180
+
+   33 statement: expression ';' .
+
+    $default  reduce using rule 33 (statement)
+
+
+state 181
+
+   31 statement: FOR '(' expression . ';' expression ';' expression ')' @3 statement
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+
+    ';'     shift, and go to state 187
     '='     shift, and go to state 61
     LOGOR   shift, and go to state 62
     LOGAND  shift, and go to state 63
@@ -2642,27 +2641,24 @@ state 182
     '%'     shift, and go to state 74
 
 
+state 182
+
+   46 fld_stmt: FLD NAME '=' . NAME '(' expression ',' expression ')' ':' INUMBER ';'
+
+    NAME  shift, and go to state 188
+
+
 state 183
 
-   20 func_decl: xtcc_type NAME '(' . decl_comma_list ')' ';'
+   41 list_stmt: LISTA NAME TEXT . ';'
 
-    VOID_T    shift, and go to state 100
-    INT8_T    shift, and go to state 101
-    INT16_T   shift, and go to state 102
-    INT32_T   shift, and go to state 103
-    FLOAT_T   shift, and go to state 104
-    DOUBLE_T  shift, and go to state 105
-
-    $default  reduce using rule 26 (var_decl)
-
-    xtcc_type        go to state 132
-    decl_comma_list  go to state 189
-    var_decl         go to state 134
+    ';'  shift, and go to state 189
 
 
 state 184
 
-   30 statement: FOR '(' expression ';' . expression ';' expression ')' @3 statement
+   42 list_stmt: LISTA NAME '[' . expression ']' TEXT ';'
+   43          | LISTA NAME '[' . expression ',' expression ']' TEXT ';'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -2677,40 +2673,25 @@ state 184
 
 state 185
 
-   45 fld_stmt: FLD NAME '=' NAME . '(' expression ',' expression ')' ':' INUMBER ';'
+   44 if_stmt: IF '(' expression . ')' statement
+   45        | IF '(' expression . ')' statement ELSE statement
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    '('  shift, and go to state 191
-
-
-state 186
-
-   40 list_stmt: LISTA NAME TEXT ';' .
-
-    $default  reduce using rule 40 (list_stmt)
-
-
-state 187
-
-   41 list_stmt: LISTA NAME '[' expression . ']' TEXT ';'
-   42          | LISTA NAME '[' expression . ',' expression ']' TEXT ';'
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    ']'     shift, and go to state 192
+    ')'     shift, and go to state 191
     '='     shift, and go to state 61
-    ','     shift, and go to state 193
     LOGOR   shift, and go to state 62
     LOGAND  shift, and go to state 63
     NOEQ    shift, and go to state 64
@@ -2726,74 +2707,75 @@ state 187
     '%'     shift, and go to state 74
 
 
-state 188
+state 186
 
-   43 if_stmt: IF '(' expression ')' . statement
-   44        | IF '(' expression ')' . statement ELSE statement
+   21 func_decl: xtcc_type NAME '(' . decl_comma_list ')' ';'
 
-    error     shift, and go to state 151
-    '{'       shift, and go to state 147
-    FOR       shift, and go to state 152
-    FLD       shift, and go to state 153
-    TEXT      shift, and go to state 41
-    NAME      shift, and go to state 42
-    FNUMBER   shift, and go to state 43
-    INUMBER   shift, and go to state 44
-    LISTA     shift, and go to state 154
-    IF        shift, and go to state 155
-    '('       shift, and go to state 45
     VOID_T    shift, and go to state 100
     INT8_T    shift, and go to state 101
     INT16_T   shift, and go to state 102
     INT32_T   shift, and go to state 103
     FLOAT_T   shift, and go to state 104
     DOUBLE_T  shift, and go to state 105
-    CONTINUE  shift, and go to state 156
-    BREAK     shift, and go to state 157
-    '-'       shift, and go to state 46
-    NOT       shift, and go to state 47
 
-    xtcc_type      go to state 158
-    decl           go to state 159
-    func_decl      go to state 111
-    statement      go to state 194
-    list_stmt      go to state 162
-    if_stmt        go to state 163
-    fld_stmt       go to state 164
-    compound_stmt  go to state 165
-    open_curly     go to state 149
-    expression     go to state 166
+    $default  reduce using rule 27 (var_decl)
+
+    xtcc_type        go to state 133
+    decl_comma_list  go to state 192
+    var_decl         go to state 135
+
+
+state 187
+
+   31 statement: FOR '(' expression ';' . expression ';' expression ')' @3 statement
+
+    TEXT     shift, and go to state 41
+    NAME     shift, and go to state 42
+    FNUMBER  shift, and go to state 43
+    INUMBER  shift, and go to state 44
+    '('      shift, and go to state 45
+    '-'      shift, and go to state 46
+    NOT      shift, and go to state 47
+
+    expression  go to state 193
+
+
+state 188
+
+   46 fld_stmt: FLD NAME '=' NAME . '(' expression ',' expression ')' ':' INUMBER ';'
+
+    '('  shift, and go to state 194
 
 
 state 189
 
-   20 func_decl: xtcc_type NAME '(' decl_comma_list . ')' ';'
-   22 decl_comma_list: decl_comma_list . ',' var_decl
+   41 list_stmt: LISTA NAME TEXT ';' .
 
-    ')'  shift, and go to state 195
-    ','  shift, and go to state 139
+    $default  reduce using rule 41 (list_stmt)
 
 
 state 190
 
-   30 statement: FOR '(' expression ';' expression . ';' expression ')' @3 statement
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   42 list_stmt: LISTA NAME '[' expression . ']' TEXT ';'
+   43          | LISTA NAME '[' expression . ',' expression ']' TEXT ';'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    ';'     shift, and go to state 196
+    ']'     shift, and go to state 195
     '='     shift, and go to state 61
+    ','     shift, and go to state 196
     LOGOR   shift, and go to state 62
     LOGAND  shift, and go to state 63
     NOEQ    shift, and go to state 64
@@ -2811,62 +2793,112 @@ state 190
 
 state 191
 
-   45 fld_stmt: FLD NAME '=' NAME '(' . expression ',' expression ')' ':' INUMBER ';'
+   44 if_stmt: IF '(' expression ')' . statement
+   45        | IF '(' expression ')' . statement ELSE statement
 
-    TEXT     shift, and go to state 41
-    NAME     shift, and go to state 42
-    FNUMBER  shift, and go to state 43
-    INUMBER  shift, and go to state 44
-    '('      shift, and go to state 45
-    '-'      shift, and go to state 46
-    NOT      shift, and go to state 47
+    error     shift, and go to state 154
+    '{'       shift, and go to state 150
+    FOR       shift, and go to state 155
+    FLD       shift, and go to state 156
+    TEXT      shift, and go to state 41
+    NAME      shift, and go to state 42
+    FNUMBER   shift, and go to state 43
+    INUMBER   shift, and go to state 44
+    LISTA     shift, and go to state 157
+    IF        shift, and go to state 158
+    '('       shift, and go to state 45
+    VOID_T    shift, and go to state 100
+    INT8_T    shift, and go to state 101
+    INT16_T   shift, and go to state 102
+    INT32_T   shift, and go to state 103
+    FLOAT_T   shift, and go to state 104
+    DOUBLE_T  shift, and go to state 105
+    CONTINUE  shift, and go to state 159
+    BREAK     shift, and go to state 160
+    '-'       shift, and go to state 46
+    NOT       shift, and go to state 47
 
-    expression  go to state 197
+    xtcc_type      go to state 161
+    decl           go to state 162
+    func_decl      go to state 111
+    statement      go to state 197
+    list_stmt      go to state 165
+    if_stmt        go to state 166
+    fld_stmt       go to state 167
+    compound_stmt  go to state 168
+    open_curly     go to state 152
+    expression     go to state 169
 
 
 state 192
 
-   41 list_stmt: LISTA NAME '[' expression ']' . TEXT ';'
+   21 func_decl: xtcc_type NAME '(' decl_comma_list . ')' ';'
+   23 decl_comma_list: decl_comma_list . ',' var_decl
 
-    TEXT  shift, and go to state 198
+    ')'  shift, and go to state 198
+    ','  shift, and go to state 141
 
 
 state 193
 
-   42 list_stmt: LISTA NAME '[' expression ',' . expression ']' TEXT ';'
+   31 statement: FOR '(' expression ';' expression . ';' expression ')' @3 statement
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    TEXT     shift, and go to state 41
-    NAME     shift, and go to state 42
-    FNUMBER  shift, and go to state 43
-    INUMBER  shift, and go to state 44
-    '('      shift, and go to state 45
-    '-'      shift, and go to state 46
-    NOT      shift, and go to state 47
-
-    expression  go to state 199
+    ';'     shift, and go to state 199
+    '='     shift, and go to state 61
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
 
 
 state 194
 
-   43 if_stmt: IF '(' expression ')' statement .
-   44        | IF '(' expression ')' statement . ELSE statement
+   46 fld_stmt: FLD NAME '=' NAME '(' . expression ',' expression ')' ':' INUMBER ';'
 
-    ELSE  shift, and go to state 200
+    TEXT     shift, and go to state 41
+    NAME     shift, and go to state 42
+    FNUMBER  shift, and go to state 43
+    INUMBER  shift, and go to state 44
+    '('      shift, and go to state 45
+    '-'      shift, and go to state 46
+    NOT      shift, and go to state 47
 
-    ELSE      [reduce using rule 43 (if_stmt)]
-    $default  reduce using rule 43 (if_stmt)
+    expression  go to state 200
 
 
 state 195
 
-   20 func_decl: xtcc_type NAME '(' decl_comma_list ')' . ';'
+   42 list_stmt: LISTA NAME '[' expression ']' . TEXT ';'
 
-    ';'  shift, and go to state 143
+    TEXT  shift, and go to state 201
 
 
 state 196
 
-   30 statement: FOR '(' expression ';' expression ';' . expression ')' @3 statement
+   43 list_stmt: LISTA NAME '[' expression ',' . expression ']' TEXT ';'
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -2876,162 +2908,30 @@ state 196
     '-'      shift, and go to state 46
     NOT      shift, and go to state 47
 
-    expression  go to state 201
+    expression  go to state 202
 
 
 state 197
 
-   45 fld_stmt: FLD NAME '=' NAME '(' expression . ',' expression ')' ':' INUMBER ';'
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
+   44 if_stmt: IF '(' expression ')' statement .
+   45        | IF '(' expression ')' statement . ELSE statement
 
-    '='     shift, and go to state 61
-    ','     shift, and go to state 202
-    LOGOR   shift, and go to state 62
-    LOGAND  shift, and go to state 63
-    NOEQ    shift, and go to state 64
-    ISEQ    shift, and go to state 65
-    '<'     shift, and go to state 66
-    '>'     shift, and go to state 67
-    GEQ     shift, and go to state 68
-    LEQ     shift, and go to state 69
-    '-'     shift, and go to state 70
-    '+'     shift, and go to state 71
-    '*'     shift, and go to state 72
-    '/'     shift, and go to state 73
-    '%'     shift, and go to state 74
+    ELSE  shift, and go to state 203
+
+    ELSE      [reduce using rule 44 (if_stmt)]
+    $default  reduce using rule 44 (if_stmt)
 
 
 state 198
 
-   41 list_stmt: LISTA NAME '[' expression ']' TEXT . ';'
+   21 func_decl: xtcc_type NAME '(' decl_comma_list ')' . ';'
 
-    ';'  shift, and go to state 203
+    ';'  shift, and go to state 146
 
 
 state 199
 
-   42 list_stmt: LISTA NAME '[' expression ',' expression . ']' TEXT ';'
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    ']'     shift, and go to state 204
-    '='     shift, and go to state 61
-    LOGOR   shift, and go to state 62
-    LOGAND  shift, and go to state 63
-    NOEQ    shift, and go to state 64
-    ISEQ    shift, and go to state 65
-    '<'     shift, and go to state 66
-    '>'     shift, and go to state 67
-    GEQ     shift, and go to state 68
-    LEQ     shift, and go to state 69
-    '-'     shift, and go to state 70
-    '+'     shift, and go to state 71
-    '*'     shift, and go to state 72
-    '/'     shift, and go to state 73
-    '%'     shift, and go to state 74
-
-
-state 200
-
-   44 if_stmt: IF '(' expression ')' statement ELSE . statement
-
-    error     shift, and go to state 151
-    '{'       shift, and go to state 147
-    FOR       shift, and go to state 152
-    FLD       shift, and go to state 153
-    TEXT      shift, and go to state 41
-    NAME      shift, and go to state 42
-    FNUMBER   shift, and go to state 43
-    INUMBER   shift, and go to state 44
-    LISTA     shift, and go to state 154
-    IF        shift, and go to state 155
-    '('       shift, and go to state 45
-    VOID_T    shift, and go to state 100
-    INT8_T    shift, and go to state 101
-    INT16_T   shift, and go to state 102
-    INT32_T   shift, and go to state 103
-    FLOAT_T   shift, and go to state 104
-    DOUBLE_T  shift, and go to state 105
-    CONTINUE  shift, and go to state 156
-    BREAK     shift, and go to state 157
-    '-'       shift, and go to state 46
-    NOT       shift, and go to state 47
-
-    xtcc_type      go to state 158
-    decl           go to state 159
-    func_decl      go to state 111
-    statement      go to state 205
-    list_stmt      go to state 162
-    if_stmt        go to state 163
-    fld_stmt       go to state 164
-    compound_stmt  go to state 165
-    open_curly     go to state 149
-    expression     go to state 166
-
-
-state 201
-
-   30 statement: FOR '(' expression ';' expression ';' expression . ')' @3 statement
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    ')'     shift, and go to state 206
-    '='     shift, and go to state 61
-    LOGOR   shift, and go to state 62
-    LOGAND  shift, and go to state 63
-    NOEQ    shift, and go to state 64
-    ISEQ    shift, and go to state 65
-    '<'     shift, and go to state 66
-    '>'     shift, and go to state 67
-    GEQ     shift, and go to state 68
-    LEQ     shift, and go to state 69
-    '-'     shift, and go to state 70
-    '+'     shift, and go to state 71
-    '*'     shift, and go to state 72
-    '/'     shift, and go to state 73
-    '%'     shift, and go to state 74
-
-
-state 202
-
-   45 fld_stmt: FLD NAME '=' NAME '(' expression ',' . expression ')' ':' INUMBER ';'
+   31 statement: FOR '(' expression ';' expression ';' . expression ')' @3 statement
 
     TEXT     shift, and go to state 41
     NAME     shift, and go to state 42
@@ -3041,58 +2941,70 @@ state 202
     '-'      shift, and go to state 46
     NOT      shift, and go to state 47
 
-    expression  go to state 207
+    expression  go to state 204
 
 
-state 203
+state 200
 
-   41 list_stmt: LISTA NAME '[' expression ']' TEXT ';' .
+   46 fld_stmt: FLD NAME '=' NAME '(' expression . ',' expression ')' ':' INUMBER ';'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    $default  reduce using rule 41 (list_stmt)
+    '='     shift, and go to state 61
+    ','     shift, and go to state 205
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
 
 
-state 204
+state 201
 
-   42 list_stmt: LISTA NAME '[' expression ',' expression ']' . TEXT ';'
+   42 list_stmt: LISTA NAME '[' expression ']' TEXT . ';'
 
-    TEXT  shift, and go to state 208
-
-
-state 205
-
-   44 if_stmt: IF '(' expression ')' statement ELSE statement .
-
-    $default  reduce using rule 44 (if_stmt)
+    ';'  shift, and go to state 206
 
 
-state 206
+state 202
 
-   30 statement: FOR '(' expression ';' expression ';' expression ')' . @3 statement
+   43 list_stmt: LISTA NAME '[' expression ',' expression . ']' TEXT ';'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    $default  reduce using rule 29 (@3)
-
-    @3  go to state 209
-
-
-state 207
-
-   45 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression . ')' ':' INUMBER ';'
-   50 expression: expression . '+' expression
-   51           | expression . '-' expression
-   52           | expression . '*' expression
-   53           | expression . '/' expression
-   54           | expression . '%' expression
-   56           | expression . '<' expression
-   57           | expression . '>' expression
-   58           | expression . LEQ expression
-   59           | expression . GEQ expression
-   60           | expression . ISEQ expression
-   61           | expression . NOEQ expression
-   62           | expression . LOGOR expression
-   63           | expression . LOGAND expression
-   64           | expression . '=' expression
-
-    ')'     shift, and go to state 210
+    ']'     shift, and go to state 207
     '='     shift, and go to state 61
     LOGOR   shift, and go to state 62
     LOGAND  shift, and go to state 63
@@ -3109,27 +3021,20 @@ state 207
     '%'     shift, and go to state 74
 
 
-state 208
+state 203
 
-   42 list_stmt: LISTA NAME '[' expression ',' expression ']' TEXT . ';'
+   45 if_stmt: IF '(' expression ')' statement ELSE . statement
 
-    ';'  shift, and go to state 211
-
-
-state 209
-
-   30 statement: FOR '(' expression ';' expression ';' expression ')' @3 . statement
-
-    error     shift, and go to state 151
-    '{'       shift, and go to state 147
-    FOR       shift, and go to state 152
-    FLD       shift, and go to state 153
+    error     shift, and go to state 154
+    '{'       shift, and go to state 150
+    FOR       shift, and go to state 155
+    FLD       shift, and go to state 156
     TEXT      shift, and go to state 41
     NAME      shift, and go to state 42
     FNUMBER   shift, and go to state 43
     INUMBER   shift, and go to state 44
-    LISTA     shift, and go to state 154
-    IF        shift, and go to state 155
+    LISTA     shift, and go to state 157
+    IF        shift, and go to state 158
     '('       shift, and go to state 45
     VOID_T    shift, and go to state 100
     INT8_T    shift, and go to state 101
@@ -3137,60 +3042,220 @@ state 209
     INT32_T   shift, and go to state 103
     FLOAT_T   shift, and go to state 104
     DOUBLE_T  shift, and go to state 105
-    CONTINUE  shift, and go to state 156
-    BREAK     shift, and go to state 157
+    CONTINUE  shift, and go to state 159
+    BREAK     shift, and go to state 160
     '-'       shift, and go to state 46
     NOT       shift, and go to state 47
 
-    xtcc_type      go to state 158
-    decl           go to state 159
+    xtcc_type      go to state 161
+    decl           go to state 162
     func_decl      go to state 111
-    statement      go to state 212
-    list_stmt      go to state 162
-    if_stmt        go to state 163
-    fld_stmt       go to state 164
-    compound_stmt  go to state 165
-    open_curly     go to state 149
-    expression     go to state 166
+    statement      go to state 208
+    list_stmt      go to state 165
+    if_stmt        go to state 166
+    fld_stmt       go to state 167
+    compound_stmt  go to state 168
+    open_curly     go to state 152
+    expression     go to state 169
 
 
-state 210
+state 204
 
-   45 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' . ':' INUMBER ';'
+   31 statement: FOR '(' expression ';' expression ';' expression . ')' @3 statement
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
 
-    ':'  shift, and go to state 213
+    ')'     shift, and go to state 209
+    '='     shift, and go to state 61
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
 
 
-state 211
+state 205
 
-   42 list_stmt: LISTA NAME '[' expression ',' expression ']' TEXT ';' .
+   46 fld_stmt: FLD NAME '=' NAME '(' expression ',' . expression ')' ':' INUMBER ';'
+
+    TEXT     shift, and go to state 41
+    NAME     shift, and go to state 42
+    FNUMBER  shift, and go to state 43
+    INUMBER  shift, and go to state 44
+    '('      shift, and go to state 45
+    '-'      shift, and go to state 46
+    NOT      shift, and go to state 47
+
+    expression  go to state 210
+
+
+state 206
+
+   42 list_stmt: LISTA NAME '[' expression ']' TEXT ';' .
 
     $default  reduce using rule 42 (list_stmt)
 
 
+state 207
+
+   43 list_stmt: LISTA NAME '[' expression ',' expression ']' . TEXT ';'
+
+    TEXT  shift, and go to state 211
+
+
+state 208
+
+   45 if_stmt: IF '(' expression ')' statement ELSE statement .
+
+    $default  reduce using rule 45 (if_stmt)
+
+
+state 209
+
+   31 statement: FOR '(' expression ';' expression ';' expression ')' . @3 statement
+
+    $default  reduce using rule 30 (@3)
+
+    @3  go to state 212
+
+
+state 210
+
+   46 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression . ')' ':' INUMBER ';'
+   51 expression: expression . '+' expression
+   52           | expression . '-' expression
+   53           | expression . '*' expression
+   54           | expression . '/' expression
+   55           | expression . '%' expression
+   57           | expression . '<' expression
+   58           | expression . '>' expression
+   59           | expression . LEQ expression
+   60           | expression . GEQ expression
+   61           | expression . ISEQ expression
+   62           | expression . NOEQ expression
+   63           | expression . LOGOR expression
+   64           | expression . LOGAND expression
+   65           | expression . '=' expression
+
+    ')'     shift, and go to state 213
+    '='     shift, and go to state 61
+    LOGOR   shift, and go to state 62
+    LOGAND  shift, and go to state 63
+    NOEQ    shift, and go to state 64
+    ISEQ    shift, and go to state 65
+    '<'     shift, and go to state 66
+    '>'     shift, and go to state 67
+    GEQ     shift, and go to state 68
+    LEQ     shift, and go to state 69
+    '-'     shift, and go to state 70
+    '+'     shift, and go to state 71
+    '*'     shift, and go to state 72
+    '/'     shift, and go to state 73
+    '%'     shift, and go to state 74
+
+
+state 211
+
+   43 list_stmt: LISTA NAME '[' expression ',' expression ']' TEXT . ';'
+
+    ';'  shift, and go to state 214
+
+
 state 212
 
-   30 statement: FOR '(' expression ';' expression ';' expression ')' @3 statement .
+   31 statement: FOR '(' expression ';' expression ';' expression ')' @3 . statement
 
-    $default  reduce using rule 30 (statement)
+    error     shift, and go to state 154
+    '{'       shift, and go to state 150
+    FOR       shift, and go to state 155
+    FLD       shift, and go to state 156
+    TEXT      shift, and go to state 41
+    NAME      shift, and go to state 42
+    FNUMBER   shift, and go to state 43
+    INUMBER   shift, and go to state 44
+    LISTA     shift, and go to state 157
+    IF        shift, and go to state 158
+    '('       shift, and go to state 45
+    VOID_T    shift, and go to state 100
+    INT8_T    shift, and go to state 101
+    INT16_T   shift, and go to state 102
+    INT32_T   shift, and go to state 103
+    FLOAT_T   shift, and go to state 104
+    DOUBLE_T  shift, and go to state 105
+    CONTINUE  shift, and go to state 159
+    BREAK     shift, and go to state 160
+    '-'       shift, and go to state 46
+    NOT       shift, and go to state 47
+
+    xtcc_type      go to state 161
+    decl           go to state 162
+    func_decl      go to state 111
+    statement      go to state 215
+    list_stmt      go to state 165
+    if_stmt        go to state 166
+    fld_stmt       go to state 167
+    compound_stmt  go to state 168
+    open_curly     go to state 152
+    expression     go to state 169
 
 
 state 213
 
-   45 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' . INUMBER ';'
+   46 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' . ':' INUMBER ';'
 
-    INUMBER  shift, and go to state 214
+    ':'  shift, and go to state 216
 
 
 state 214
 
-   45 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER . ';'
+   43 list_stmt: LISTA NAME '[' expression ',' expression ']' TEXT ';' .
 
-    ';'  shift, and go to state 215
+    $default  reduce using rule 43 (list_stmt)
 
 
 state 215
 
-   45 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';' .
+   31 statement: FOR '(' expression ';' expression ';' expression ')' @3 statement .
 
-    $default  reduce using rule 45 (fld_stmt)
+    $default  reduce using rule 31 (statement)
+
+
+state 216
+
+   46 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' . INUMBER ';'
+
+    INUMBER  shift, and go to state 217
+
+
+state 217
+
+   46 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER . ';'
+
+    ';'  shift, and go to state 218
+
+
+state 218
+
+   46 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';' .
+
+    $default  reduce using rule 46 (fld_stmt)

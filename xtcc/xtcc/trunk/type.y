@@ -282,14 +282,18 @@ func_defn:
 
 decl:	xtcc_type NAME ';' {
 		//cout << "creating simple var of type: " << $1 << endl;
-		$$ = active_scope->insert($2, $1, line_no);
+		$$ = active_scope->insert($2, $1/*, line_no*/);
 		free($2);
 	} 
+	| xtcc_type NAME '=' expression ';'{
+		$$ = active_scope->insert($2, $1, $4);
+
+	}
 	|	xtcc_type NAME '[' INUMBER ']' ';' {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
 		//cout << "creating arr var of type: " << $1 << endl;
 		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
-		$$ = active_scope->insert($2, dt, $4, line_no);
+		$$ = active_scope->insert($2, dt, $4/*, line_no*/);
 		free($2);
 	}
 	/*
