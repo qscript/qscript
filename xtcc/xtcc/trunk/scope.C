@@ -99,7 +99,6 @@ stmt* scope::insert(const char * name, datatype dt, expr *e){
 		exit(1);
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
-		cout << "char decl:start\n";
 		symtab_ent* se=new symtab_ent(name, dt, e);
 		if(is_of_noun_type(e->type)){
 			if (check_type_compat(dt,e->type)){
@@ -151,7 +150,6 @@ stmt* scope::insert(const char * name, datatype dt, int arr_size, /*int line_no,
 		exit(1);
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
-		cout << "char decl:start\n";
 		symtab_ent* se=new symtab_ent(name, dt);
 		se->n_elms=arr_size;
 		if(text)

@@ -412,7 +412,6 @@ struct func_stmt: public stmt{
 
 struct list_stmt: public stmt{
 	struct symtab_ent * se;
-	/*int arr_start, arr_end;*/
 	string list_text;
 	expr * arr_start;
 	expr * arr_end;

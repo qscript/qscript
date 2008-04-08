@@ -1,0 +1,15 @@
+set test "xtcc addition-expr"
+set timeout 20
+global XTCC
+global XTCC_TEST_DATA
+spawn rm -f xtcc_stdout.log
+wait
+spawn $XTCC test-inputs/expr-add-success sample2.dat
+wait
+spawn cat xtcc_stdout.log 
+
+expect {
+	-re "^i=12\r\n" { pass $test }
+	default { send_user "failed\n" }
+	timeout { send_user "failed\n" } 
+}
