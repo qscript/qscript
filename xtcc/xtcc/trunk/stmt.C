@@ -399,3 +399,46 @@ list_stmt::list_stmt( datatype dtype, string name,
 			}
 		}
 	}
+
+fld_stmt::fld_stmt(string lhs_name, string rhs_name, expr* l_s, expr* l_e, int l_w):
+	lsymp(0), rsymp(0), start_col(l_s), end_col(l_e), width(l_w)
+{
+	map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab(lhs_name);
+	map<string,symtab_ent*>::iterator sym_it2 = find_in_symtab(rhs_name);
+	if(!(is_of_int_type(start_col->type)/*	(start_col->type>=INT8_TYPE && start_col->type<=INT32_TYPE)*/&&
+		is_of_int_type(end_col->type) /* (end_col->type>=INT8_TYPE && end_col->type<=INT32_TYPE)*/) ){
+		print_err(compiler_sem_err, "fld_stmt: start col and end col expressions must be of integer type", 
+				line_no, __LINE__, __FILE__);
+	} else if(sym_it1==active_scope->sym_tab.end()){
+		stringstream s;
+		s <<  "Error: could not find:" << lhs_name <<"  in symbol table: lineno: " << line_no << "\n";
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+	} else if (sym_it2==active_scope->sym_tab.end()){
+		stringstream s;
+		s <<  "Error: could not find:" << rhs_name <<"  in symbol table: lineno: " << line_no << "\n";
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+	} else {
+		lsymp = sym_it1->second;
+		rsymp = sym_it2->second;
+		// first some validation checks
+		//datatype type1 = sym_it1->type;
+		if( !( 
+			(sym_it1->second->type == INT8_ARR_TYPE) &&
+			(sym_it2->second->type >= INT8_ARR_TYPE) &&
+			(sym_it2->second->type <= INT32_ARR_TYPE)) ) {
+			stringstream s;
+			s << " lhs name should be an array of type int8_t and rhs name should be an integer array ";
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+
+		} else if (!(width==sizeof(INT8_TYPE) || width==sizeof(INT16_TYPE)
+				||width==sizeof(INT32_TYPE))	){
+			stringstream s;
+			s << "fld_stmt width with error: width of field can only be : " 
+				<< sizeof(int8_t) << " or " << sizeof(int16_t) << " or "
+				<< sizeof(int32_t) << endl;
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		} else {
+			//everything is ok
+		}
+	}
+}

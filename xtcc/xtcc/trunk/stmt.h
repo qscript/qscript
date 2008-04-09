@@ -184,9 +184,7 @@ struct fld_stmt: public stmt{
 	// I may need to change width also to expression -> in case of passing
 	// argument width to a subroutine within the language syntax
 	int width;
-	fld_stmt(symtab_ent * l, symtab_ent *r, expr* l_s, expr* l_e, int l_w):
-		lsymp(l), rsymp(r), start_col(l_s), end_col(l_e), width(l_w)
-	{ }
+	fld_stmt(string lhs_name, string rhs_name , expr* l_s, expr* l_e, int l_w);
 	void print_stmt_lst(FILE * & fptr){
 		// runtime checks need to be put
 		// 1 startcol < endcol

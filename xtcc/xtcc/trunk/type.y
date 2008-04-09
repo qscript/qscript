@@ -264,8 +264,6 @@ func_defn:
 		struct stmt* func_body=$7;
 		string search_for=$2;
 		datatype return_type=$1;
-		/*$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, cmpd_stmt, search_for, return_type);
-			// This gives an error - we have to fool the compiler*/
 		$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, func_body, search_for, return_type);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -281,7 +279,6 @@ func_defn:
 
 
 decl:	xtcc_type NAME ';' {
-		//cout << "creating simple var of type: " << $1 << endl;
 		$$ = active_scope->insert($2, $1/*, line_no*/);
 		free($2);
 	} 
@@ -291,7 +288,6 @@ decl:	xtcc_type NAME ';' {
 	}
 	|	xtcc_type NAME '[' INUMBER ']' ';' {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
-		//cout << "creating arr var of type: " << $1 << endl;
 		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
 		$$ = active_scope->insert($2, dt, $4/*, line_no*/);
 		free($2);
@@ -468,6 +464,11 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 		expr* start_col=$6;
 		expr* end_col=$8;
 		int width=$11;
+		$$ = new fld_stmt($2, $4, start_col, end_col, width);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+	/*
 		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab($2);
 		map<string,symtab_ent*>::iterator sym_it2 = find_in_symtab($4);
 		if(!(	(start_col->type>=INT8_TYPE && start_col->type<=INT32_TYPE)&&
@@ -501,7 +502,6 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 				(sym_it1->second->type == INT8_ARR_TYPE) &&
 				(sym_it2->second->type >= INT8_ARR_TYPE) &&
 				(sym_it2->second->type <= INT32_ARR_TYPE)) ) {
-				/* add code here */
 				++no_errors;
 				$$ = new err_stmt(line_no);
 				void *ptr=$$;
@@ -528,6 +528,7 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 				mem_addr.push_back(m1);
 			}
 		}
+		*/
 		free($2), free($4);
 	}
 	;
