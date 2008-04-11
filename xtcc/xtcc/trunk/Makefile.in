@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -32,10 +33,10 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = xtcc$(EXEEXT)
 subdir = .
-DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
-	ChangeLog INSTALL NEWS depcomp install-sh lex.c missing type.c \
-	type.h ylwrap
+DIST_COMMON = README $(am__configure_deps) $(dist_pkgdata_DATA) \
+	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
+	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
+	depcomp install-sh lex.c missing type.c type.h ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -44,7 +45,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_xtcc_OBJECTS = type.$(OBJEXT) lex.$(OBJEXT) expr.$(OBJEXT) \
@@ -69,6 +70,14 @@ YLWRAP = $(top_srcdir)/ylwrap
 YACCCOMPILE = $(YACC) $(YFLAGS) $(AM_YFLAGS)
 SOURCES = $(xtcc_SOURCES)
 DIST_SOURCES = $(xtcc_SOURCES)
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+dist_pkgdataDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(dist_pkgdata_DATA)
 ETAGS = etags
 CTAGS = ctags
 DEJATOOL = $(PACKAGE)
@@ -180,11 +189,13 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CXXFLAGS = -Wall -frepo 
 AM_YFLAGS = -d -v
-xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C
+xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h
 BUILT_SOURCES = type.h type.c lex.c
-xtcc_LDADD = @LEXLIB@
-EXTRA_DIST = sample.dat sample2.dat
+EXTRA_DIST = sample.dat sample2.dat Makefile.borland Makefile.unix Makefile.manual testsuite/mk_data_visual_check.ods
+dist_pkgdata_DATA = stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h 
 AUTOMAKE_OPTIONS = dejagnu
+#DIST_SUBDIRS=test-inputs testsuite testsuite/config testsuite/xtcc.test testsuite/xtcc.test/config testsuite/xtcc.test/xtcc 
+xtcc_LDADD = @LEXLIB@
 RUNTESTDEFAULTFLAGS = --tool xtcc --verbose XTCC=`pwd`/xtcc XTCC_TEST_DATA=`pwd`/sample2.dat --srcdir $$srcdir/testsuite
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -304,6 +315,23 @@ distclean-compile:
 
 .y.c:
 	$(am__skipyacc) $(SHELL) $(YLWRAP) $< y.tab.c $@ y.tab.h $*.h y.output $*.output -- $(YACCCOMPILE)
+install-dist_pkgdataDATA: $(dist_pkgdata_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(pkgdatadir)" || $(MKDIR_P) "$(DESTDIR)$(pkgdatadir)"
+	@list='$(dist_pkgdata_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(dist_pkgdataDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(pkgdatadir)/$$f'"; \
+	  $(dist_pkgdataDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(pkgdatadir)/$$f"; \
+	done
+
+uninstall-dist_pkgdataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_pkgdata_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(pkgdatadir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(pkgdatadir)/$$f"; \
+	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -413,6 +441,9 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
+	$(MAKE) $(AM_MAKEFLAGS) \
+	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
+	  dist-hook
 	-find $(distdir) -type d ! -perm -777 -exec chmod a+rwx {} \; -o \
 	  ! -type d ! -perm -444 -links 1 -exec chmod a+r {} \; -o \
 	  ! -type d ! -perm -400 -exec chmod a+r {} \; -o \
@@ -514,9 +545,9 @@ check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) check-DEJAGNU
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pkgdatadir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -567,7 +598,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-dist_pkgdataDATA
 
 install-dvi: install-dvi-am
 
@@ -604,25 +635,26 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am: uninstall-binPROGRAMS uninstall-dist_pkgdataDATA
 
 .MAKE: install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am am--refresh check check-DEJAGNU \
 	check-am clean clean-binPROGRAMS clean-generic ctags dist \
-	dist-all dist-bzip2 dist-gzip dist-shar dist-tarZ dist-zip \
-	distcheck distclean distclean-DEJAGNU distclean-compile \
-	distclean-generic distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic pdf pdf-am ps ps-am tags uninstall \
-	uninstall-am uninstall-binPROGRAMS
+	dist-all dist-bzip2 dist-gzip dist-hook dist-shar dist-tarZ \
+	dist-zip distcheck distclean distclean-DEJAGNU \
+	distclean-compile distclean-generic distclean-tags \
+	distcleancheck distdir distuninstallcheck dvi dvi-am html \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-dist_pkgdataDATA \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-info install-info-am \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic pdf pdf-am \
+	ps ps-am tags uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-dist_pkgdataDATA
 
 type.y: const_defs.h symtab.h tree.h stmt.h Tab.h expr.h scope.h
 lex.l: type.h
@@ -635,6 +667,12 @@ Tab.C: Tab.h
 .phony: clean
 clean:
 	rm *.o y.output y.tab.[hc] lex.yy.c dp a.out op op1 op.ind op.ind2 cscope.out ch3-04.output y.output y.tab.[hc] lex.yy.c err edit_out.c edit_out.ndg ofile hand_compile loop my_edit.exe my_loop temp.C.exe mk_data first Type_checker7.kdev* massif.* gmon.out myedit.exe rd_data Type_checker8.zip temp.C temp1.C op2 op.C op-mmap Type_checker7.tag read_op read_times dp-static tags mmap_op mmap_time Doxyfile global.C print_list_counts.C temp2.C my_axes.C my_axes_drv_func.C my_tab_drv_func.C my_table.C xtcc xtcc.exe *.rpo stubs/a.out xtcc_work/global.C xtcc_work/my_tab_drv_func.C xtcc_work/temp.C xtcc_work/my_axes.C xtcc_work/myedit.exe xtcc_work/my_axes_drv_func.C xtcc_work/.temp.C.swp xtcc_work/my_tab_summ.C xtcc_work/my_table.C xtcc_work/edit_out.c stubs/a.out
+
+dist-hook:
+	-cp -rp $(srcdir)/test-inputs $(top_distdir)
+	-cp -rp $(srcdir)/testsuite $(top_distdir)
+	-rm -rf `find $(top_distdir)/testsuite -name ".svn"`
+	-rm -rf `find $(top_distdir)/test-inputs -name ".svn"`
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
