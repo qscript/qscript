@@ -6,9 +6,9 @@
 struct expr {
 	e_operator_type e_type;
 	datatype type;
-	struct expr * prev, *next;
-	expr(e_operator_type le_type):e_type(le_type), type(ERROR_TYPE), prev(0), next(0) { }
-	expr(e_operator_type le_type, datatype ldt):e_type(le_type), type(ldt), prev(0), next(0) 
+	struct expr * next, *prev;
+	expr(e_operator_type le_type):e_type(le_type), type(ERROR_TYPE), next(0), prev(0) { }
+	expr(e_operator_type le_type, datatype ldt):e_type(le_type), type(ldt), next(0), prev(0) 
 	{}
 	virtual void print_expr(FILE * edit_out)=0;
 	virtual int isvalid();

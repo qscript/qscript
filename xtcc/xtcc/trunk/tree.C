@@ -38,7 +38,7 @@ struct expr * new_expr(){
 	e->l_op = NULL;
 	e->r_op = NULL;
 	e->symp = NULL;
-	e->prev=e->next=NULL;
+	e->next=e->prev=NULL;
 	e->text=NULL;
 	return e;
 }
@@ -91,7 +91,7 @@ func_info::func_info(string name, struct var_list* elist, datatype myreturn_type
 		se->name = strdup(decl_list->var_name.c_str());
 		se->type=decl_list->var_type;
 		func_scope->sym_tab[decl_list->var_name] = se;
-		decl_list=decl_list->prev;
+		decl_list=decl_list->next;
 	}
 }
 
@@ -124,7 +124,7 @@ void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fnam
 
 #include <sstream>
 var_list::var_list(datatype type, char * name): 
-	var_type(type), var_name(name), arr_len(-1), next(NULL), prev(NULL){
+	var_type(type), var_name(name), arr_len(-1), prev(NULL), next(NULL){
 	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
 		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
 		stringstream s;
@@ -136,6 +136,6 @@ var_list::var_list(datatype type, char * name):
 }
 var_list::~var_list(){
 	debug_log_file << "deleting ~var_list: var_name:" << var_name << endl;
-	if (prev) { delete prev; prev=0; }
+	if (next) { delete next; next=0; }
 	debug_log_file << "end deleting ~var_list " << endl;
 }

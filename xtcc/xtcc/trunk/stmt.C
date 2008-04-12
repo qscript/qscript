@@ -9,9 +9,9 @@ extern int if_line_no;
 
 extern char * work_dir;
 stmt::~stmt(){ 
-	if (prev /*
+	if (next /*
 		    && !((type==FUNC_DEFN)||(type==FUNC_TYPE))*/ ) {
-		delete prev; prev=0;
+		delete next; next=0;
 	} 
 	debug_log_file << "stmt::~stmt() base destructor" << std::endl;
 }
@@ -25,7 +25,7 @@ list_stmt::~list_stmt(){
 		}
 	}
 	debug_log_file << "deleting list_stmt" << endl;
-	//if(prev) delete prev;
+	//if(next) delete next;
 	//delete se;
 }
 
@@ -63,7 +63,7 @@ void func_decl_stmt::print_stmt_lst(FILE * & fptr){
 	fflush(fptr);
 	if(fptr){
 		f_ptr->print(fptr);
-		if(prev) prev->print_stmt_lst(fptr);
+		if(next) next->print_stmt_lst(fptr);
 	}
 }
 
@@ -128,7 +128,7 @@ void func_stmt::print_stmt_lst(FILE * & fptr){
 		v_ptr->print(fptr);
 		fprintf(fptr, ")");
 		if(func_body) func_body->print_stmt_lst(fptr);
-		if(prev) prev->print_stmt_lst(fptr);
+		if(next) next->print_stmt_lst(fptr);
 	}
 }
 
@@ -157,7 +157,7 @@ for_stmt:: ~for_stmt(){
 		}
 	}
 	debug_log_file << "deleting for_stmt" << endl;
-	//if(prev) { delete prev; }
+	//if(next) { delete next; }
 	if(init) {
 		delete init;
 		init =0;
@@ -184,7 +184,7 @@ if_stmt:: ~if_stmt(){
 		}
 	}
 	debug_log_file << "deleting if_stmt" << endl;
-	//if (prev) delete prev;
+	//if (next) delete next;
 	delete condition;
 	delete if_body;
 	if (else_body) delete else_body;
@@ -200,7 +200,7 @@ expr_stmt::~expr_stmt() {
 		}
 	}
 	debug_log_file << "deleting expr_stmt" << endl;
-	//if(prev ) delete prev;
+	//if(next ) delete next;
 	if (expr) delete expr;
 }
 
@@ -302,7 +302,7 @@ void list_stmt::print_stmt_lst(FILE * & fptr){
 		default:
 			fprintf(fptr, "Unhandled lista statement: \n");	
 		}
-		if(prev) prev->print_stmt_lst(fptr);
+		if(next) next->print_stmt_lst(fptr);
 
 	}
 }
@@ -316,7 +316,7 @@ cmpd_stmt::~cmpd_stmt() {
 			break;
 		}
 	}
-	//if(prev) delete prev;
+	//if(next) delete next;
 	if(sc&&flag_cmpd_stmt_is_a_func_body<0) {
 		delete sc;
 		sc=0;

@@ -62,7 +62,7 @@ struct expr{
 	double dsem_value;
 	int column_no;
 	int column_no_2;
-	struct expr * prev, *next;
+	struct expr * next, *prev;
 	int func_index_in_table;
 	char * text;
 	datatype get_type();
@@ -71,7 +71,7 @@ struct expr{
 		type(uninit), 
 		l_op(left), r_op(right), e_operator(eop),
 		symp(0), line_number(-1), isem_value(0),dsem_value(0),column_no(-1), column_no_2(-1),
-		prev(0), next(0), func_index_in_table(-1), text(0)
+		next(0), prev(0), func_index_in_table(-1), text(0)
 	{
 		type=lcm_type(l_op->type, r_op->type);
 	}
@@ -85,8 +85,8 @@ struct expr{
 struct param {
 	struct expr* e;
 	char * text;
-	struct param * next;
 	struct param * prev;
+	struct param * next;
 };
 
 datatype arr_deref_type(datatype d1);
@@ -99,9 +99,9 @@ struct var_list {
 	datatype var_type;
 	string var_name;
 	int arr_len;
-	struct var_list * next, *prev;
+	struct var_list * prev, *next;
 	var_list(datatype type, char * name);
-	var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), next(NULL), prev(NULL){
+	var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev(NULL), next(NULL){
 		if(!is_of_arr_type(type)){
 			cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
 			cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
@@ -122,7 +122,7 @@ struct var_list {
 			} else {
 				fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
 			}
-			vl_ptr=vl_ptr->prev;
+			vl_ptr=vl_ptr->next;
 			if(vl_ptr) {
 				fprintf(edit_out, ",");
 			}

@@ -1209,8 +1209,8 @@ int check_parameters(expr* e, var_list* v){
 				<< endl;
 			++no_errors;
 		}
-		e_ptr=e_ptr->prev;
-		fparam=fparam->prev;
+		e_ptr=e_ptr->next;
+		fparam=fparam->next;
 		chk_param_counter=chk_param_counter+1;
 	}
 	if(match==true){
@@ -1284,8 +1284,8 @@ void	add_func_params_to_cmpd_sc(scope * & sc, var_list * & v_list, string & fnam
 				<< "body of compound function" << endl;
 			cerr << "line: " << line_no << endl;
 		}
-		//v_ptr=v_ptr->next;
-		v_ptr=v_ptr->prev;
+		//v_ptr=v_ptr->prev;
+		v_ptr=v_ptr->next;
 	}
 }
 */
@@ -1320,8 +1320,8 @@ int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_
 			++no_errors;
 			return 0;
 		}
-		defn_ptr=defn_ptr->prev;
-		decl_ptr=decl_ptr->prev;
+		defn_ptr=defn_ptr->next;
+		decl_ptr=decl_ptr->next;
 	}
 	if(defn_ptr==decl_ptr && decl_ptr==0){
 		return 1;
@@ -1353,14 +1353,14 @@ bool 	void_check( datatype & type1, datatype & type2, datatype& result_type){
 }
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
-	elem2->next=elem1;
-	elem1->prev=elem2;
+	elem2->prev=elem1;
+	elem1->next=elem2;
 	return elem2;
 }
 
 template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
-		while (elem1->next) elem1=elem1->next;
+		while (elem1->prev) elem1=elem1->prev;
 		return elem1;
 		/*
 		while (elem1->exists_next()){
@@ -1570,7 +1570,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 		fprintf(op, "\tbitset<%d> is_a_count_text;\n", it->second->no_tot_ax_elems);
 		fprintf(op, "\taxis_%s():stmt_text(%d){\n", it->first.c_str(), it->second->no_tot_ax_elems);
 		int my_counter=0;
-		for(basic_ax_stmt* ax_stmt_iter=it->second->ax_stmt_start; ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->prev,
+		for(basic_ax_stmt* ax_stmt_iter=it->second->ax_stmt_start; ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next,
 				++my_counter){
 			fprintf(op, "\tstmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
 			if(ax_stmt_iter->axtype<=txt_axstmt){
@@ -1598,7 +1598,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 				}
 				++counter;
 			}
-			iter=iter->prev;
+			iter=iter->next;
 		}
 		fprintf(op, "\t} /* close compute func */\n");
 		fprintf(op, "} ax_%s;\n", it->first.c_str()) ;

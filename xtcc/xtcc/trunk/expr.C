@@ -38,7 +38,7 @@ extern	vector <func_info*> func_info_table;
 extern vector<mem_addr_tab> mem_addr;
 expr::~expr(){
 	debug_log_file << "deleting expr::~expr(): base destructor for expr" << endl;
-	if(prev) {delete prev; prev=0; }
+	if(next) {delete next; next=0; }
 }
 
 /*
@@ -221,10 +221,10 @@ void un2_expr::print_expr(FILE * edit_out){
 			//fprintf(edit_out,  "/*print_expr: oper_func_call:  %s*/", func_info_table[func_index_in_table]->fname.c_str() );
 			while(e_ptr){
 				e_ptr->print_expr(edit_out);
-				if(e_ptr->prev){
+				if(e_ptr->next){
 					fprintf(edit_out, ", ");
 				} 
-				e_ptr=e_ptr->prev;
+				e_ptr=e_ptr->next;
 			}
 			fprintf(edit_out, ")");
 		}

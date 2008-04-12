@@ -43,21 +43,21 @@
 // Note : I may have to add file name we are compiling very soon
 struct stmt{
 	public:
-	struct stmt * next;
 	struct stmt * prev;
+	struct stmt * next;
 	datatype type;
 	int line_number;
 	virtual void print_stmt_lst(FILE * & fptr)=0;
 	bool exists_next(){
-		return next;
-	}
-	bool exists_prev(){
 		return prev;
 	}
-	stmt* move_next(){
+	bool exists_prev(){
 		return next;
 	}
-	stmt(datatype dtype=ERROR_TYPE, int lline_number=0):next(0), prev(0), type(dtype), line_number(lline_number){}
+	stmt* move_next(){
+		return prev;
+	}
+	stmt(datatype dtype=ERROR_TYPE, int lline_number=0):prev(0), next(0), type(dtype), line_number(lline_number){}
 	virtual ~stmt();
 	private:
 		stmt(const stmt&);
@@ -81,7 +81,7 @@ struct for_stmt: public stmt{
 			fprintf(fptr, ")");
 			fflush(fptr);
 			for_body->print_stmt_lst(fptr);
-			if(prev) prev->print_stmt_lst(fptr);
+			if(next) next->print_stmt_lst(fptr);
 		}
 	}
 	virtual ~for_stmt();
@@ -113,7 +113,7 @@ struct if_stmt : public stmt{
 				fprintf(fptr,  " else ");
 				else_body->print_stmt_lst(fptr);
 			}
-			if(prev) prev->print_stmt_lst(fptr);
+			if(next) next->print_stmt_lst(fptr);
 		}
 	}
 	virtual ~if_stmt();
@@ -132,7 +132,7 @@ struct expr_stmt: public stmt{
 			//print_expr(fptr, expr);
 			expr->print_expr(fptr);
 			fprintf(fptr,";\n");
-			if(prev) prev->print_stmt_lst(fptr);
+			if(next) next->print_stmt_lst(fptr);
 		}
 	}
 	virtual ~expr_stmt();
@@ -148,7 +148,7 @@ struct err_stmt: public stmt{
 
 		if(fptr){
 			fprintf(fptr, "error");
-			//if(prev) prev->print_stmt_lst(fptr);
+			//if(next) next->print_stmt_lst(fptr);
 		}
 	}
 	private:
@@ -169,7 +169,7 @@ struct cmpd_stmt: public stmt{
 			fprintf(fptr,"{\n");
 			if (cmpd_bdy) cmpd_bdy->print_stmt_lst(fptr);
 			fprintf(fptr,"}\n");
-			if(prev) prev->print_stmt_lst(fptr);
+			if(next) next->print_stmt_lst(fptr);
 		}
 	}
 	virtual ~cmpd_stmt();
@@ -239,7 +239,7 @@ struct fld_stmt: public stmt{
 		fprintf(fptr,"\t\t}\n;");
 		
 		fprintf(fptr, "}} \n");
-		if(prev) prev->print_stmt_lst(fptr);
+		if(next) next->print_stmt_lst(fptr);
 	}
 	~fld_stmt(){
 	}
@@ -285,11 +285,11 @@ struct blk_arr_assgn_stmt: public stmt{
 				fprintf(fptr,"}else { \n\tcerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_number );
 			}
 		}
-		if(prev) prev->print_stmt_lst(fptr);
+		if(next) next->print_stmt_lst(fptr);
 	}
 	~blk_arr_assgn_stmt(){
 		//cout << "deleting blk_arr_assgn_stmt" << endl;
-		//if(prev) delete prev;
+		//if(next) delete next;
 		delete lsymp; 
 		delete rsymp;
 		delete low_indx;
@@ -312,12 +312,12 @@ struct break_stmt: public stmt{
 		fflush(fptr);
 		if(fptr){
 			fprintf(fptr, "break;");
-			if(prev) prev->print_stmt_lst(fptr);
+			if(next) next->print_stmt_lst(fptr);
 		}
 	}
 	~break_stmt(){
 		cout << "deleting break_stmt" << endl;
-		if (prev) delete prev;
+		if (next) delete next;
 	}
 	private:
 	break_stmt& operator=(const break_stmt&);	
@@ -335,12 +335,12 @@ struct continue_stmt: public stmt{
 
 		if(fptr){
 			fprintf(fptr, "continue;");
-			if(prev) prev->print_stmt_lst(fptr);
+			if(next) next->print_stmt_lst(fptr);
 		}
 	}
 	~continue_stmt(){
 		//cout << "deleting continue_stmt" << endl;
-		if (prev) delete prev;
+		if (next) delete next;
 	}
 	private:
 	continue_stmt& operator=(const continue_stmt&);	
@@ -379,7 +379,7 @@ struct decl_stmt: public stmt{
 				symp->e->print_expr(fptr);
 			}
 			fprintf(fptr, ";\n");
-			if(prev) prev->print_stmt_lst(fptr);
+			if(next) next->print_stmt_lst(fptr);
 		}
 	}
 	~decl_stmt();

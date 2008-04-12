@@ -54,16 +54,16 @@ class basic_ax_stmt	{
 	//char * text;
 	//struct expr * expression;
 	axstmt_type axtype;
-	basic_ax_stmt * next;
 	basic_ax_stmt * prev;
-	basic_ax_stmt(axstmt_type ltype=ax_uninit): axtype(ltype),next(0), prev(0) {}
+	basic_ax_stmt * next;
+	basic_ax_stmt(axstmt_type ltype=ax_uninit): axtype(ltype),prev(0), next(0) {}
 
 	virtual void print(fstream& f)=0;
 	virtual string ax_text()=0;
 	virtual ~basic_ax_stmt(){
-		if(prev) {
-			delete prev;
-			prev=0;
+		if(next) {
+			delete next;
+			next=0;
 		}
 	};
 };
