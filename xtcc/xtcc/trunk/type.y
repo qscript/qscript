@@ -468,67 +468,6 @@ fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-	/*
-		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab($2);
-		map<string,symtab_ent*>::iterator sym_it2 = find_in_symtab($4);
-		if(!(	(start_col->type>=INT8_TYPE && start_col->type<=INT32_TYPE)&&
-			(end_col->type>=INT8_TYPE && end_col->type<=INT32_TYPE)) ){
-			cerr << "start_col, end_col expressions must be of integer type line_no:" 
-				<< line_no << endl;
-			++no_errors;
-			$$=new err_stmt(line_no);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else if(sym_it1==active_scope->sym_tab.end()){
-			cerr << "Error: could not find:" << $2<<"  in symbol table: lineno: " << line_no << "\n";
-			++no_errors;
-			$$=new err_stmt(line_no);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else if (sym_it2==active_scope->sym_tab.end()){
-			cerr << "Error: could not find:" << $4
-				<< " in symbol table: lineno: " << line_no << "\n";
-			++no_errors;
-			$$=new err_stmt(line_no);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else {
-			// first some validation checks
-			//datatype type1 = sym_it1->type;
-			if( !( 
-				(sym_it1->second->type == INT8_ARR_TYPE) &&
-				(sym_it2->second->type >= INT8_ARR_TYPE) &&
-				(sym_it2->second->type <= INT32_ARR_TYPE)) ) {
-				++no_errors;
-				$$ = new err_stmt(line_no);
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			} else if (!(width==sizeof(INT8_TYPE) || width==sizeof(INT16_TYPE)
-					||width==sizeof(INT32_TYPE))	){
-				cerr << "width of field can only be : " 
-					<< sizeof(INT8_TYPE) << " or " << sizeof(INT16_TYPE) << " or "
-					<< sizeof(INT32_TYPE) << endl;
-				++no_errors;
-				$$ = new err_stmt(line_no);
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			} else {
-				//everything is ok
-				// since start_col and end_col can be exprs
-				// we have to move some checks to runtime environment
-				$$ = new fld_stmt(sym_it1->second, sym_it2->second, 
-					start_col, end_col, width);
-				void *ptr=$$;
-				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-				mem_addr.push_back(m1);
-			}
-		}
-		*/
 		free($2), free($4);
 	}
 	;
@@ -1446,6 +1385,7 @@ int lookup_func(string func_name_index){
 	return -1;
 }
 
+/*
 void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 	fprintf(op, "#include <iostream>\n");
 	fprintf(op, "#include <fstream>\n");
@@ -1490,8 +1430,8 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			fprintf(op, "\t\t\t} \n");
 			fprintf(op, "\t\t} \n");
 			fprintf(op, "\t}\n");
-			fprintf(op, "\t} /* compute()*/\n");
-			fprintf(op, "\tvoid print(){\n\t\tint rci=0, cci=0; /* row counter index , col ... */\n");
+			fprintf(op, "\t} // compute()\n");
+			fprintf(op, "\tvoid print(){\n\t\tint rci=0, cci=0; // row counter index , col ... \n");
 			fprintf(op, "\t\tofstream tab_op(\"tab_.csv\", ios_base::out|ios_base::app);\n");
 			fprintf(op, "\t\ttab_op << \"rows: \" << rows << \"cols: \" << cols << endl;\n");
 			fprintf(op, "\t\ttab_op << ax_%s.stmt_text[0] << \" x \" << ax_%s.stmt_text[0] << endl;\n",
@@ -1554,7 +1494,9 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 	fprintf(tab_drv_func, "}\n");
 
 }
+*/
 
+/*
 void print_axis_code(FILE * op, FILE * axes_drv_func){
 
 	fprintf(op, "#include <bitset>\n" );
@@ -1600,13 +1542,15 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 			}
 			iter=iter->next;
 		}
-		fprintf(op, "\t} /* close compute func */\n");
+		fprintf(op, "\t} // close compute func \n");
 		fprintf(op, "} ax_%s;\n", it->first.c_str()) ;
 		fprintf(axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
 	}
 	fprintf(axes_drv_func, "}\n");
 }
+*/
 
+/*
 void	generate_edit_section_code(){
 	string fname=work_dir+string("/global.C");
 	FILE * global_vars=fopen(fname.c_str(), "wb");
@@ -1631,7 +1575,7 @@ void	generate_edit_section_code(){
 	}
 #if __WIN32__
 	fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
-#endif /* __WIN32__ */
+#endif // __WIN32__ 
 	fprintf(edit_out, "#include <cstdio>\n#include <iostream>\n#include <string>\nusing namespace std;\n" );
 
 	fprintf(edit_out, "string xtcc_stdout_fname(\"xtcc_stdout.log\");\n");
@@ -1648,7 +1592,7 @@ void	generate_edit_section_code(){
 		cerr << "cannot open global.C for writing" << endl;
 		exit(1);
 	}
-	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
+	fprintf(global_vars, "#endif // __NxD_GLOB_VARS_H\n");
 	fclose(global_vars);
 	fname=work_dir+string("/print_list_counts.C");
 	print_list_counts=fopen(fname.c_str(), "a+");
@@ -1656,6 +1600,7 @@ void	generate_edit_section_code(){
 	fclose(print_list_counts);
 
 }
+*/
 
 #include <fstream>
 void reset_files(){

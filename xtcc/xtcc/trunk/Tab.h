@@ -99,8 +99,8 @@ class ttl_ax_stmt: public basic_print_ax_stmt{
 class basic_count_ax_stmt: public basic_ax_stmt{
 	public:
 	string text;
-	int count;
 	struct expr* condn;
+	int count;
 	basic_count_ax_stmt(axstmt_type ltype,string txt, struct expr* c): basic_ax_stmt(ltype),
 		text(txt), condn(c), count(0){}
 	virtual void print(fstream& f){
@@ -137,11 +137,11 @@ class tot_ax_stmt: public basic_count_ax_stmt{
 
 class ax	{
 	public:
-	vector <bool> condn_flags;
 	basic_ax_stmt * ax_stmt_start;
 	//vector <basic_count_ax_stmt*> bas_cnt_ax_stmt_list;
 	int no_count_ax_elems;	
 	int no_tot_ax_elems;	
+	vector <bool> condn_flags;
 	expr* filter;
 	ax(basic_ax_stmt* ax_s, int l_no_count_ax_elems, int l_no_tot_ax_elems,
 			expr* f=0): ax_stmt_start(ax_s), 
