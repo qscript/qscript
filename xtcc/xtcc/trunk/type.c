@@ -2196,7 +2196,7 @@ yyreduce:
 
   case 54:
 #line 551 "type.y"
-    { 
+    {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);

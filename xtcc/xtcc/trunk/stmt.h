@@ -38,7 +38,8 @@
 	extern scope* active_scope;
 	extern int no_errors;
 	extern noun_list_type noun_list[];
-	extern vector <func_info*> func_info_table;
+
+	//extern vector <func_info*> func_info_table;
 	int check_func_decl_with_func_defn(struct var_list*& v_list, int & index, string func_name);
 // Note : I may have to add file name we are compiling very soon
 struct stmt{
@@ -429,5 +430,36 @@ struct list_stmt: public stmt{
 #include <map>
 using std:: map;
 map<string, symtab_ent*>::iterator find_in_symtab(string id);
+
+
+
+/*
+ * The func_info constructor adds the names of the function parameters into its scope.
+ * When a compound statement is parsed : it checks for the flag_cmpd_stmt_is_a_func_body and
+ * loads that into the active scope if set.
+ * Note that flag_cmpd_stmt_is_a_func_body is initialized to -1 as the 1st function 
+ * will be in index 0 of func_info_table vector.
+ * Also lookup_func searches the func_info_table for the function name and returns -1 on failure
+ * this is naturally compatible with the initial value of flag_cmpd_stmt_is_a_func_body
+ * if the flag is not set -> we need to allocate a new scope - else we will crash
+ */
+#include "scope.h"
+struct func_info;
+//#include "stmt.h"
+struct stmt;
+struct func_info{
+	string fname;
+	struct var_list * param_list;
+	datatype return_type;
+	struct stmt * func_body;
+	struct scope * func_scope;
+	func_info(string name, struct var_list* elist, datatype myreturn_type); 
+	void print(FILE * fptr);
+	~func_info();
+private:
+	func_info& operator=(const func_info&);
+	func_info(const func_info&);
+};
+
 
 #endif /* _xtcc_stmt_h */

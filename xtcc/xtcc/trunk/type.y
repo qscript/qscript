@@ -548,7 +548,7 @@ expression: expression '+' expression {
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
-	|	expression '*' expression { 
+	|	expression '*' expression {
 		$$=new bin_expr($1, $3, oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);

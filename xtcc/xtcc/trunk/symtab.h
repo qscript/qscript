@@ -1,6 +1,6 @@
 #ifndef XTCC_SYMTAB_H
 #define XTCC_SYMTAB_H
-#include <iostream>
+//#include <iostream>
 
 	enum datatype {
 		VOID_TYPE, 

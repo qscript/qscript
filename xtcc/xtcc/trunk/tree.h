@@ -30,12 +30,14 @@
 #include <cstdlib>
 
 enum compiler_err_category{compiler_syntax_err, compiler_sem_err, compiler_internal_error};
+/*
 enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
 		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
 		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
 		oper_blk_arr_assgn,
 		oper_err
 	};
+	*/
 
 #include "symtab.h"
 bool is_of_int_type(datatype dt);
@@ -101,33 +103,10 @@ struct var_list {
 	int arr_len;
 	struct var_list * prev, *next;
 	var_list(datatype type, char * name);
-	var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev(NULL), next(NULL){
-		if(!is_of_arr_type(type)){
-			cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
-			cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
-		}
-		cout << "constructing var_list: " << var_name << endl;
-	}
-	void print(FILE * edit_out){
-		struct var_list * vl_ptr=this;
-		while(vl_ptr){
-			if(vl_ptr->var_type>=INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
-				fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
-			} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
-				datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
-				fprintf(edit_out, "%s %s[%d]/* vartype: %d */", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
-			} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
-				datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
-				fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
-			} else {
-				fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
-			}
-			vl_ptr=vl_ptr->next;
-			if(vl_ptr) {
-				fprintf(edit_out, ",");
-			}
-		}
-	}
+	var_list(datatype type, char * name, int len); 
+
+	void print(FILE * edit_out);
+
 	~var_list();
 	private:
 		var_list& operator=(const var_list&);
@@ -136,6 +115,7 @@ struct var_list {
 };
 
 #include <cstdlib>
+
 /*
  * The func_info constructor adds the names of the function parameters into its scope.
  * When a compound statement is parsed : it checks for the flag_cmpd_stmt_is_a_func_body and
@@ -147,8 +127,10 @@ struct var_list {
  * if the flag is not set -> we need to allocate a new scope - else we will crash
  */
 #include "scope.h"
+/*
 struct func_info;
-#include "stmt.h"
+//#include "stmt.h"
+struct stmt;
 struct func_info{
 	string fname;
 	struct var_list * param_list;
@@ -156,14 +138,12 @@ struct func_info{
 	struct stmt * func_body;
 	struct scope * func_scope;
 	func_info(string name, struct var_list* elist, datatype myreturn_type); 
-
 	void print(FILE * fptr);
 	~func_info();
-	
 private:
 	func_info& operator=(const func_info&);
 	func_info(const func_info&);
-};
+};*/
 
 
 
@@ -184,7 +164,7 @@ struct mem_addr_tab{
 void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fname,
                 int input_prog_line_no);
 
-extern struct stmt * tree_root;
+//extern struct stmt * tree_root;
 
 bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
 

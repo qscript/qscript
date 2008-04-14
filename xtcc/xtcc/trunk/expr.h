@@ -2,6 +2,12 @@
 #define xtcc_expr_h
 #include "tree.h"
 
+enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
+		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
+		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
+		oper_blk_arr_assgn,
+		oper_err
+	};
 
 struct expr {
 	e_operator_type e_type;
@@ -29,7 +35,7 @@ struct un_expr : public expr{
 	virtual ~un_expr();
 };
 
-extern vector <func_info*> func_info_table;
+//extern vector <func_info*> func_info_table;
 
 struct bin_expr: public expr{
 	protected:
@@ -56,40 +62,15 @@ struct un2_expr : public expr{
 	public:
 	// This is a hack - I have to fix this by putting line number in the base class
 	int line_no;
-	bool is_lvalue(){ 
-		if(e_type==oper_name|| e_type==oper_arrderef){
-			return true;
-		} else {
-			return false;
-		}
-	}
-	un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table, int lline_no):
-		expr(le_type, ldt),  symp(0), 	isem_value(0), dsem_value(0), func_index_in_table(lfunc_index_in_table), 
-		text(0), column_no(-1), operand(e_list), operand2(0), line_no(lline_no) {}
-	un2_expr(int l_isem_value): 
-		expr(oper_num), symp(0), isem_value(l_isem_value), dsem_value(0), func_index_in_table(-1),
-		text(0), column_no(-1), operand(0), operand2(0){
-		if( isem_value >= SCHAR_MIN && isem_value<=SCHAR_MAX){
-			type=INT8_TYPE;
-		} else if (isem_value>= SHRT_MIN && isem_value <= SHRT_MAX){
-			type=INT16_TYPE;
-		} else if (isem_value>= INT_MIN && isem_value <= INT_MAX){
-			type=INT32_TYPE;
-		} else {
-			++no_errors;
-			cerr << "very  large integer unhandleable type most probably";
-			type = ERROR_TYPE;
-		}
-		//cout << "parsed integer number: type" << type << endl; 
-	}
-	un2_expr(double l_dsem_value): 
-		expr(oper_float,FLOAT_TYPE), symp(0), isem_value(0), dsem_value(l_dsem_value),
-		func_index_in_table(-1), text(0), operand(0), operand2(0) {}
+	bool is_lvalue();
+	un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table, int lline_no);
+
+	un2_expr(int l_isem_value);
+
+	un2_expr(double l_dsem_value);
+
 	un2_expr( struct symtab_ent * lsymp); 
-	un2_expr(datatype d): 
-		expr(oper_err,d), symp(0), isem_value(0), dsem_value(0), func_index_in_table(-1), text(0),
-		column_no(-1), operand(0), operand2(0)
-	{}
+	un2_expr(datatype d);
 	un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * lsymp,*/ string name, expr* arr_index);
 	un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * lsymp, */ string name,  expr* arr_index, expr* arr_index2);
 	un2_expr(char* ltxt, e_operator_type le_type); 

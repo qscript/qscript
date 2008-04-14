@@ -80,7 +80,7 @@ datatype arr_deref_type(datatype d1){
 	++no_errors;
 	return ERROR_TYPE;
 }
-
+/*
 func_info::func_info(string name, struct var_list* elist, datatype myreturn_type): 
 	fname(name), param_list(elist), return_type(myreturn_type), func_body(0), func_scope(0){
 	func_scope=new scope();
@@ -113,6 +113,8 @@ func_info::~func_info(){
 	if(func_scope) { delete func_scope; func_scope=0; }
 }
 
+*/
+
 #include <vector>
 using std::vector;
 extern vector <mem_addr_tab> mem_addr;
@@ -138,4 +140,34 @@ var_list::~var_list(){
 	debug_log_file << "deleting ~var_list: var_name:" << var_name << endl;
 	if (next) { delete next; next=0; }
 	debug_log_file << "end deleting ~var_list " << endl;
+}
+
+
+void var_list::print(FILE * edit_out){
+	struct var_list * vl_ptr=this;
+	while(vl_ptr){
+		if(vl_ptr->var_type>=INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
+			fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
+		} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
+			datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
+			fprintf(edit_out, "%s %s[%d]/* vartype: %d */", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
+		} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
+			datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
+			fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
+		} else {
+			fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
+		}
+		vl_ptr=vl_ptr->next;
+		if(vl_ptr) {
+			fprintf(edit_out, ",");
+		}
+	}
+}
+
+var_list::var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev(NULL), next(NULL){
+	if(!is_of_arr_type(type)){
+		cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
+		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
+	}
+	cout << "constructing var_list: " << var_name << endl;
 }

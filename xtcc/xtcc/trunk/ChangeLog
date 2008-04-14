@@ -1,0 +1,192 @@
+------------------------------------------------------------------------
+r25 | neilxdsouza | 2008-04-04 22:06:03 +0400 (Fri, 04 Apr 2008) | 8 lines
+
+Added tests for 
+        1) expr assignment - type compatibility error
+        2) if condition - void check
+Created a few utility functions to maniputlate types and promotions
+between types         
+
+
+
+------------------------------------------------------------------------
+r24 | neilxdsouza | 2008-04-04 08:14:06 +0400 (Fri, 04 Apr 2008) | 10 lines
+
+First - forgot to add that the if_stmt was cleaned up in previous
+revision. 
+Added test for void check in if expression in this rev
+Cleaned up for loop - in grammar.
+Sorted out if statement - incorrect line number ERROR reporting for void
+expression in condition. This was happening because we parse the entire
+if_stmt - so line number goes past the if condition expr line number and
+hence we were reporting the last line of the if_stmt line number as
+error - example line number of '}'
+
+------------------------------------------------------------------------
+r23 | neilxdsouza | 2008-04-03 21:52:38 +0400 (Thu, 03 Apr 2008) | 19 lines
+
+To speed up the compilation process I tried to introduce an optimization
+for this case:
+statement_list: statement
+        | statement_list statement
+
+        My idea was to save the head of the chain by pusing the 1st
+        statement at the start of a compound statement block onto the
+        stack. However to implement this correctly you also need to take
+        care while popping off the stack
+        the condition
+        if( expr) {
+                if( expr) {
+                        ...
+        was causing the flag (next statement start of block ) to be
+        clobbered as the 1st if is not completely parsed. I solved this
+        problem by pushing the flag also onto the stack. At each
+        occurrence of '}' I pop the flag from the stack. Still more
+        testing needs to be done - I I think I am thru with this one
+
+------------------------------------------------------------------------
+r22 | neilxdsouza | 2008-04-03 01:02:14 +0400 (Thu, 03 Apr 2008) | 5 lines
+
+Code cleanup. Improved readability of expression grammar, also cleaned
+up a lot of error messages and memory log usage. Found a memory leak in
+block assignment operator - i was not freeing up the NAME parameter
+token - fixed. 
+
+------------------------------------------------------------------------
+r21 | neilxdsouza | 2008-04-02 00:39:02 +0400 (Wed, 02 Apr 2008) | 7 lines
+
+Moved lots of debugging info to debug_log_file, type.y grammar file code
+cleanup. A long way to go - but stdout is less cluttered with debugging
+messages now. Will continue to work on code cleanup and logging
+facilites and error logging improvement before I continue to add
+functionality
+
+
+------------------------------------------------------------------------
+r20 | neilxdsouza | 2008-04-01 00:13:48 +0400 (Tue, 01 Apr 2008) | 3 lines
+
+Overall grammar source code cleanup- moving more of the type checking logic into the
+class handling that particular  datatype
+
+------------------------------------------------------------------------
+r19 | neilxdsouza | 2008-03-31 00:00:42 +0400 (Mon, 31 Mar 2008) | 2 lines
+
+Have started putting checks on the parser expression grammar
+
+------------------------------------------------------------------------
+r18 | neilxdsouza | 2008-03-30 07:47:30 +0400 (Sun, 30 Mar 2008) | 8 lines
+
+Have started normalizing the code in the grammar section. 
+        a) moved void_check call to constructor bin_expr::bin_expr 
+        b) added a print_err function
+        c) added a mem_log function 
+
+        Going forward functions in points b, c above should now be called throughout
+        the source code
+
+------------------------------------------------------------------------
+r17 | neilxdsouza | 2008-03-27 23:33:02 +0400 (Thu, 27 Mar 2008) | 4 lines
+
+Forgot to put function lcm_type into type checker when refactoring code.
+Have corrected this.
+
+
+------------------------------------------------------------------------
+r13 | neilxdsouza | 2008-01-07 00:27:45 +0400 (Mon, 07 Jan 2008) | 7 lines
+
+1) mapped printf -> to fprintf(xtcc_stdout - where xtcc_stdout is a FILE
+        *
+2) moved some memory leak debugging info to a file default name
+        mem_leak.log
+3) Lots of work yet to be done on the destructors - esp in moving their
+        mem-leak information to log file - but at least im aware of it
+
+------------------------------------------------------------------------
+r12 | neilxdsouza | 2008-01-04 23:44:17 +0400 (Fri, 04 Jan 2008) | 3 lines
+
+The temporary work directory can now be specified by a command line
+argument "-w  <dir_name>" and defaults to "xtcc_work"
+
+------------------------------------------------------------------------
+r11 | neilxdsouza | 2008-01-04 03:14:24 +0400 (Fri, 04 Jan 2008) | 5 lines
+
+xtcc can now be run from any directory - the paths to the required
+library files are pulled from the environment variable XTCC_HOME.
+I need to also parametrize the xtcc_work directory - that will be the
+next step
+
+------------------------------------------------------------------------
+r10 | neilxdsouza | 2008-01-02 01:07:52 +0400 (Wed, 02 Jan 2008) | 3 lines
+
+Added frame work for dejagnu testsuite and one test that passed. Also
+updated README
+
+------------------------------------------------------------------------
+r9 | neilxdsouza | 2007-12-30 00:01:45 +0400 (Sun, 30 Dec 2007) | 4 lines
+
+separated out tabulation contents and frequency count contents into
+separate files tab_.csv and lst_.csv. Got a simple banner to be printed
+as well. the banner comes from the 2nd table that is being cross tabbed
+
+------------------------------------------------------------------------
+r8 | neilxdsouza | 2007-12-27 22:39:56 +0400 (Thu, 27 Dec 2007) | 10 lines
+
+ Added operators logical and = "&&" and logical or = "||" to the
+ system. I had made provision for this in the grammar but forgotten to
+ add these tokens to the lexer. Also added a test case to
+ test-suite/inp12 - the case of a more complicated axes. I have also
+ modified the data generator stubs/mk_data.C to create data with some
+ variation in it, along with a visual view of a the data - an openoffice
+ calc spreadsheet with formulas to indicate the varying data. Test
+ results seem consistent with what I exptected - although a lot more
+ testing to be done
+
+------------------------------------------------------------------------
+r7 | neilxdsouza | 2007-12-25 21:14:41 +0400 (Tue, 25 Dec 2007) | 3 lines
+
+Added fld statement to grammar. Also gor rid of all unsigned ints -
+finally made the decision.
+
+------------------------------------------------------------------------
+r6 | neilxdsouza | 2007-12-20 18:37:45 +0400 (Thu, 20 Dec 2007) | 2 lines
+
+Some code refactoring clean-up in function main
+
+------------------------------------------------------------------------
+r5 | neilxdsouza | 2007-11-10 00:41:14 +0400 (Sat, 10 Nov 2007) | 4 lines
+
+Testing commit to sourceforge. Tweaked configure.ac a bit and order of
+running aclocal
+
+
+------------------------------------------------------------------------
+r4 | neilxdsouza | 2007-10-04 12:28:13 +0400 (Thu, 04 Oct 2007) | 2 lines
+
+Most of the changes here include adding destructors to classes - there is still a small memory leak which I think is the function parameter names - but hardly any bytes on my home system - checked with valgrid. The Borland make file may not compile any more will check this in the next revision
+
+------------------------------------------------------------------------
+r3 | neilxdsouza | 2007-08-20 11:20:59 +0400 (Mon, 20 Aug 2007) | 5 lines
+
+Added makefile for borland compiler - Makefile.borland.
+Also added code to maintain UNIX and Windows sources using #define
+Added expr.h to version control - somehow I had forgotten about this
+
+
+------------------------------------------------------------------------
+r2 | neilxdsouza | 2007-08-19 09:43:39 +0400 (Sun, 19 Aug 2007) | 9 lines
+
+Updated Sourceforge repository
+        1) revised expression classes
+        2) Capitalized statement types to avoid name clash with Borland
+        3) Added type checking for conditions of IF and FOR statements
+        4) Handling chaining of statements more efficiently -
+                this has to now extend to parameter lists etc.
+        5) Added some more dependencies to make file
+
+
+------------------------------------------------------------------------
+r1 | nxd | 2007-08-14 15:19:24 +0400 (Tue, 14 Aug 2007) | 2 lines
+
+Documentation updates
+
+------------------------------------------------------------------------

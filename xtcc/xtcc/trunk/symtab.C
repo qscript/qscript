@@ -26,6 +26,7 @@
  */
 #include "symtab.h"
 #include "tree.h"
+#include "expr.h"
 #include <string>
 using namespace std;
 

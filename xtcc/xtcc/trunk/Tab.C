@@ -30,6 +30,7 @@
 #include <cstdlib>
 
 #include "tree.h"
+#include "expr.h"
 
 #include <iostream>
 extern vector<mem_addr_tab> mem_addr;
