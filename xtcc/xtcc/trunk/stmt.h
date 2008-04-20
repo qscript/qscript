@@ -32,6 +32,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+using namespace std;
 
 	void print_expr(FILE* edit_out, struct expr * e);
 	int search_for_func(string& search_for);

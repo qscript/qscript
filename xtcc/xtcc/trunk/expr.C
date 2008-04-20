@@ -24,12 +24,12 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "tree.h"
-#include "expr.h"
 #include <vector>
 #include <fstream>
 #include <sstream>
 #include "stmt.h"
+#include "tree.h"
+#include "expr.h"
 
 extern scope* active_scope;
 extern ofstream debug_log_file;
