@@ -27,12 +27,12 @@
  */
 #ifndef _xtcc_stmt_h
 #define _xtcc_stmt_h
+using namespace std;
 #include "scope.h"
 #include "expr.h"
 
 #include <cstdio>
 #include <cstdlib>
-using namespace std;
 
 	void print_expr(FILE* edit_out, struct expr * e);
 	int search_for_func(string& search_for);

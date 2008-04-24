@@ -31,7 +31,7 @@
 enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
 		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
 		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
-		oper_blk_arr_assgn,
+		oper_blk_arr_assgn, oper_in,
 		oper_err
 	};
 
@@ -62,6 +62,17 @@ struct un_expr : public expr{
 };
 
 //extern vector <func_info*> func_info_table;
+
+struct bin2_expr: public expr{
+	protected:
+	symtab_ent *l_symp, *r_symp;
+	public:
+	bin2_expr(string lname , string rname ,e_operator_type letype);
+	bool is_lvalue(){ return false; }
+	//void print_oper_assgn(FILE * edit_out);
+	void print_expr(FILE * edit_out);
+	~bin2_expr();
+};
 
 struct bin_expr: public expr{
 	protected:
@@ -105,9 +116,17 @@ struct un2_expr : public expr{
 	void print_expr(FILE * edit_out);
 };
 
-struct q_expr: public expr {
-	struct symtab_ent * symp;
-};
 
+#include <vector>
+#include <set>
+
+struct xtcc_set {
+	vector < pair<int,int> > range;
+	set<int> indiv;
+	xtcc_set(datatype dt, string name, xtcc_set& xs1);
+	xtcc_set(xtcc_set& xs1);
+	xtcc_set& operator=(const xtcc_set& xs1);
+	xtcc_set();
+};
 
 #endif /* xtcc_expr_h */

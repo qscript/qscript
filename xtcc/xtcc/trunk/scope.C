@@ -160,13 +160,37 @@ stmt* scope::insert(const char * name, datatype dt, int arr_size, /*int line_no,
 		st_ptr->symp=se;
 	} else {
 		stringstream s;
-		s << " array NAMED:" << name << "  already present in symbol table" << endl;
+		s << " IDENTIFIER: " << name << "  already present in symbol table" << endl;
 		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 		st_ptr->type=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
 }
+
+stmt* scope::insert(const char * name, datatype dt, xtcc_set *lxs){
+	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+	if(st_ptr){
+	} else {
+		cerr << "Memory allocation failed : line_no" << line_no << endl;
+		exit(1);
+	}
+	if ( sym_tab.find(name) == sym_tab.end() ){
+		xtcc_set * xs=new xtcc_set(*lxs);
+		symtab_ent* se=new symtab_ent(name, dt, xs);
+		string s(name);
+		sym_tab[s] = se;
+		st_ptr->type=dt;
+		st_ptr->symp=se;
+	} else {
+		stringstream s;
+		s << " IDENTIFIER: " << name << "  already present in symbol table" << endl;
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		st_ptr->type=ERROR_TYPE;
+	}
+	return st_ptr;
+}
+
 scope::~scope() {
 	debug_log_file <<"deleting scope" << endl;
 	typedef map<string,symtab_ent*>::iterator it;

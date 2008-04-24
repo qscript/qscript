@@ -41,6 +41,7 @@
 	using namespace std;
 
 	const bool XTCC_DEBUG_MEM_USAGE=1;
+	xtcc_set xs;
 
 //	struct symtab symtab;
 	extern int if_line_no;
@@ -146,6 +147,7 @@
 %token FLD
 %token <text_buf> TEXT
 %token <name> NAME
+%token DEFINELIST 
 %token <dval> FNUMBER
 %token <ival> INUMBER
 //%token <column_no> SCOLUMN
@@ -153,6 +155,7 @@
 %token LISTA
 %token IF
 %token ELSE
+%token IN
 %token '['
 %token ']'
 %token '('
@@ -300,6 +303,10 @@ decl:	xtcc_type NAME ';' {
 		$$ = active_scope->insert($3, dt, line_no);
 	}
 	*/
+	| DEFINELIST NAME '=' range_list ';' {
+		$$ = active_scope->insert($2, RANGE_DECL_STMT, &xs);
+		//$$ = new decl_stmt($2, RANGE_DECL_STMT, &xs );
+	}
 	| func_decl	{
 		$$=$1;
 	}
@@ -715,6 +722,30 @@ expression: expression '+' expression {
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
+	}
+	| NAME IN NAME {
+		$$ = new bin2_expr($1, $3, oper_in);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+	}
+	;
+
+range_list: range
+	| range_list ',' range
+	;
+
+range: 	INUMBER '-' INUMBER {
+		if($3<=$1){
+			print_err(compiler_sem_err, "2nd number in range <= 1st number",
+					line_no, __LINE__, __FILE__  );
+
+		} else {
+			xs.range.push_back( pair<int,int>($1,$3));
+		}
+	}
+	|	INUMBER {
+		xs.indiv.insert($1);
 	}
 	;
 

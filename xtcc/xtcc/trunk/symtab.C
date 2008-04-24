@@ -150,7 +150,13 @@ string human_readable_type(datatype dt){
 
 
 
+symtab_ent::symtab_ent(const char * lname, datatype ldt, xtcc_set * lxs):name(strdup(lname)), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0)  { 
+	xs = new xtcc_set(*lxs);
+}
 
 			
+bool is_of_int_arr_type(datatype dt){
+	return (dt >= INT8_ARR_TYPE && dt <=INT32_ARR_TYPE);
+}
 
 

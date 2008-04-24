@@ -426,13 +426,12 @@ bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), 
 			if(void_check(l_op->type, r_op->type, type)/*true*/){
 				type=lcm_type(l_op->type, r_op->type);
 			}
-			if(e_type==oper_mod && 
-				!( is_of_int_type(l_op->type)
-					&&
-				 is_of_int_type(r_op->type))){
-					cerr << " operands of %% should be of type int/char only" << endl;
-					++no_errors;
-					type=ERROR_TYPE;
+			if(e_type==oper_mod && !( is_of_int_type(l_op->type) && is_of_int_type(r_op->type))){
+				print_err(compiler_sem_err, 
+					" operands of %% should be of type int/char only", line_no, __LINE__, __FILE__);
+				//cerr << " operands of %% should be of type int/char only" << endl;
+				//++no_errors;
+				type=ERROR_TYPE;
 			}
 		break;
 		default:
@@ -590,3 +589,85 @@ un2_expr::un2_expr(datatype d):
 		expr(oper_err,d), symp(0), isem_value(0), dsem_value(0), func_index_in_table(-1), text(0),
 		column_no(-1), operand(0), operand2(0)
 	{}
+
+	xtcc_set::xtcc_set(): range(0){ 
+		//range(0), indiv(0){
+		//range.reset(0);
+		//indiv.resize(0);
+		//range.resize(0);
+	}
+
+	xtcc_set::xtcc_set(datatype dt, string name, xtcc_set& xs): 
+		range(xs.range), indiv(xs.indiv){
+	}
+	xtcc_set::xtcc_set(xtcc_set& xs1): range(xs1.range), indiv(xs1.indiv){
+	}
+
+	xtcc_set& xtcc_set::operator= (const xtcc_set& xs1){
+		range=xs1.range;
+		indiv = xs1.indiv;
+		return *this;
+	}
+
+bin2_expr::bin2_expr(string lname , string rname ,e_operator_type letype): expr(letype) {
+	switch(e_type){
+		case oper_in: {
+			datatype  l_type, r_type;
+
+			map<string,symtab_ent*>::iterator sym_it_l = find_in_symtab(lname);
+			if( sym_it_l==active_scope->sym_tab.end() ){
+				string err_msg = "Error: could not find:" + lname + "  in symbol table  ";
+				print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+				type=ERROR_TYPE;
+			} else {
+				l_symp = sym_it_l->second;
+				l_type = l_symp->type;
+			}
+
+			map<string,symtab_ent*>::iterator sym_it_r = find_in_symtab(rname);
+			if( sym_it_r ==active_scope->sym_tab.end() ) {
+				string err_msg = "Error: could not find:" + rname + "  in symbol table  ";
+				print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+				type=ERROR_TYPE;
+			} else {
+				r_symp = sym_it_r->second;
+				r_type = r_symp->type;
+			}
+			if(!(type==ERROR_TYPE) ) {
+				if(  ((l_symp->type == RANGE_DECL_STMT 
+					|| is_of_int_type(l_symp->type))
+					|| is_of_int_arr_type(l_symp->type)) 
+				&& r_symp->type == RANGE_DECL_STMT ){
+					type = BOOL_TYPE;
+				} else {
+					string err_msg=" LHS of operator IN can only be of type NAME, NAME[ EXPR ] of type int or a RANGE_DECL_STMT";
+					print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+				}
+			}
+		}
+		default:
+			type=ERROR_TYPE;      
+			print_err(compiler_internal_error, "unhandled case for bin2_expr::bin2_expr", 
+				line_no, __LINE__, __FILE__);
+	}
+}
+
+void bin2_expr::print_expr (FILE * edit_out){
+	switch(e_type){
+		case oper_in:
+			fprintf(edit_out, "/*printing OPER IN*/");
+		default:
+			print_err(compiler_internal_error, "ERROR bin2_expr:: was passed oper_in with invalid data ", 
+					line_no, __LINE__, __FILE__);
+	}
+}
+
+bin2_expr::~bin2_expr(){
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "bin2_expr::~bin2_expr setting mem_addr: " << this  <<"=0" << endl;
+			break;
+		}
+	}
+}

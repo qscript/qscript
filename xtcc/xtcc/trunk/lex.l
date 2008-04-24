@@ -138,6 +138,8 @@ break	{
 	return BREAK;
 }
 
+in 	{ return IN; }
+
 "&&" 	{
 	return LOGAND;
 }
@@ -226,6 +228,8 @@ else 	{
 	}
 
 conv	{ return CONVERT ; }
+
+definelist { return DEFINELIST; }
 
 	/*
 	c[0-9]+	{

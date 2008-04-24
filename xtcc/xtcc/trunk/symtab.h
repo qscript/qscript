@@ -11,7 +11,7 @@
 		ERROR_TYPE,
 		TEXPR_STMT, CMPD_STMT, IFE_STMT, DECL_STMT, FUNC_TYPE, FUNC_DEFN, FOR_STMT,
 		LISTA_BASIC_TYPE_STMT, LISTA_BASIC_ARRTYPE_STMT_1INDEX, LISTA_BASIC_ARRTYPE_STMT_2INDEX,
-		BREAK_STMT, CONTINUE_STMT,
+		BREAK_STMT, CONTINUE_STMT, RANGE_DECL_STMT,
 		uninit 
 	};
 	bool check_type_compat(datatype typ1, datatype typ2);
@@ -20,6 +20,7 @@
 	bool is_of_noun_type(datatype dt);
 	bool is_of_noun_ref_type(datatype dt);
 	bool is_of_arr_type(datatype dt);
+	bool is_of_int_arr_type(datatype dt);
 	datatype convert_ref_type(datatype dt);
 #include <string>
 using	std::string ;
@@ -34,6 +35,7 @@ using	std::string ;
 	};
 
 struct expr;
+struct xtcc_set;
 struct symtab_ent {
 	char *name;
 	char *text;
@@ -46,14 +48,16 @@ struct symtab_ent {
 	int n_elms;
 	bool created_by_me;
 	expr * e;
-	symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false),e(0){
+	xtcc_set * xs;
+	symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false),e(0), xs(0){
 	}
 	symtab_ent(const char * lname, datatype ldt):
-		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0)
+		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
 	{ }
 	symtab_ent(const char * lname, datatype ldt, expr* le):
-		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le)
+		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le), xs(0)
 	{ }
+	symtab_ent(const char * lname, datatype ldt, xtcc_set * xs);
 	inline datatype get_type(){
 		return type;
 	}
