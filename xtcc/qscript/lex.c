@@ -538,7 +538,7 @@ char *yytext;
 #line 2 "lex.l"
 #include <math.h>
 #include "const_defs.h"
-#include "symtab.h"
+#include "../xtcc/trunk/symtab.h"
 #include "qscript.h"
 	void yyerror(char * s);
 	int line_no=1;

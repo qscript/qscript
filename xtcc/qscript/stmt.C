@@ -1,6 +1,8 @@
-#include "symtab.h"
-#include "stmt.h"
-#include "tree.h"
+#include "../xtcc/trunk/symtab.h"
+#include "../xtcc/trunk/stmt.h"
+#include "../xtcc/trunk/tree.h"
+#include <vector>
+using std::vector;
 extern vector<mem_addr_tab> mem_addr;
 extern vector <func_info*> func_info_table;
 extern ofstream debug_log_file;

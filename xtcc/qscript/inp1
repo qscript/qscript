@@ -1,0 +1,17 @@
+q1 "Question 1 - Gender please" sp int8_t ( 1,2);
+q2 "Question 2 - Marital status" sp int8_t (1,2,3,4,5);
+q3 "Question 3 - Which brands of tea do you consume" mp(20) int8_t (1-3,5-10,11-14) ;
+//q1 in (1-2) && q2 in (5,6-8);
+
+/*
+   // this does not work below any more because the logical AND needs a type - which should not be null
+if( q1 in (1) && q2 in (5,6-8)) {
+	q4 "Question 4 - Ask only male who are single" mp (20) int8_t (1-5,7-10);
+	//q4 "Question 4 - Ask only male who are single" mp (20) int8_t brands;
+}
+
+if(q3[3] in (1-2,5-8)){
+	age >25;
+}
+*/
+

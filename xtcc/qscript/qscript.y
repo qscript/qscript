@@ -1,8 +1,35 @@
+/*
+ * The main grammar for the qscript parser
+ * Copyright (C) 2003,2004, 2005,2006,2007  Neil Xavier D'Souza <nxd_in@yahoo.com>
+ * Postal MAil address
+ * Neil Xavier D'Souza
+ * 502, Premier Park
+ * 1st Tank Lane,
+ * Orlem, Malad(W),
+ * Mumbai India. 400064.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; version 2 
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; see the file COPYING.  If not, write to
+ * The Free Software Foundation, 
+ * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 %{
 #include "const_defs.h"
 //#include "qscript_types.h"
-#include "symtab.h"
-#include "expr.h" 
+#include "../xtcc/trunk/symtab.h"
+#include "../xtcc/trunk/expr.h" 
+#include <iostream>
+	using std::cout;
+	using std::endl;
 	vector <scope*> active_scope_list;
 	scope* active_scope;
 	extern char * yytext;
@@ -30,7 +57,7 @@
 	map<string, symtab_ent*>::iterator find_in_symtab(string id);
 	void print_err(compiler_err_category cmp_err, string err_msg, 
 		int line_no, int compiler_line_no, string compiler_file_name);
-#include "stmt.h"
+#include "../xtcc/trunk/stmt.h"
 	vector <func_info*> func_info_table;
 %}
 
@@ -273,7 +300,7 @@ using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg, 
 	int line_no, int compiler_line_no, string compiler_file_name){
 	++no_errors;
-	cerr << "xtcc " ;
+	cerr << "qscript " ;
 	switch(cmp_err){
 		case compiler_syntax_err: 
 			cerr << "syntax error: ";

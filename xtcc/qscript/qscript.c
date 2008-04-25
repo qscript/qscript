@@ -130,12 +130,15 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 1 "qscript.y"
+#line 25 "qscript.y"
 
 #include "const_defs.h"
 //#include "qscript_types.h"
-#include "symtab.h"
-#include "expr.h" 
+#include "../xtcc/trunk/symtab.h"
+#include "../xtcc/trunk/expr.h" 
+#include <iostream>
+	using std::cout;
+	using std::endl;
 	vector <scope*> active_scope_list;
 	scope* active_scope;
 	extern char * yytext;
@@ -163,7 +166,7 @@
 	map<string, symtab_ent*>::iterator find_in_symtab(string id);
 	void print_err(compiler_err_category cmp_err, string err_msg, 
 		int line_no, int compiler_line_no, string compiler_file_name);
-#include "stmt.h"
+#include "../xtcc/trunk/stmt.h"
 	vector <func_info*> func_info_table;
 
 
@@ -187,7 +190,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 37 "qscript.y"
+#line 64 "qscript.y"
 {
 	double dval;
 	int ival ;
@@ -197,7 +200,7 @@ typedef union YYSTYPE
 	struct expr * expr;
 }
 /* Line 187 of yacc.c.  */
-#line 201 "qscript.c"
+#line 204 "qscript.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -210,7 +213,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 214 "qscript.c"
+#line 217 "qscript.c"
 
 #ifdef short
 # undef short
@@ -516,12 +519,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    86,    86,    89,    90,    93,    94,    95,    96,    97,
-      98,   101,   102,   103,   106,   109,   113,   114,   117,   118,
-     119,   120,   121,   124,   125,   128,   129,   132,   133,   136,
-     142,   148,   154,   160,   166,   172,   178,   184,   190,   196,
-     202,   208,   214,   220,   227,   233,   239,   246,   251,   255,
-     259
+       0,   113,   113,   116,   117,   120,   121,   122,   123,   124,
+     125,   128,   129,   130,   133,   136,   140,   141,   144,   145,
+     146,   147,   148,   151,   152,   155,   156,   159,   160,   163,
+     169,   175,   181,   187,   193,   199,   205,   211,   217,   223,
+     229,   235,   241,   247,   254,   260,   266,   273,   278,   282,
+     286
 };
 #endif
 
@@ -1510,49 +1513,49 @@ yyreduce:
   switch (yyn)
     {
         case 6:
-#line 94 "qscript.y"
+#line 121 "qscript.y"
     { }
     break;
 
   case 7:
-#line 95 "qscript.y"
+#line 122 "qscript.y"
     { }
     break;
 
   case 8:
-#line 96 "qscript.y"
+#line 123 "qscript.y"
     { }
     break;
 
   case 9:
-#line 97 "qscript.y"
+#line 124 "qscript.y"
     { }
     break;
 
   case 10:
-#line 98 "qscript.y"
+#line 125 "qscript.y"
     { }
     break;
 
   case 15:
-#line 109 "qscript.y"
+#line 136 "qscript.y"
     {
 	      cout << " got question " << endl;
       }
     break;
 
   case 23:
-#line 124 "qscript.y"
+#line 151 "qscript.y"
     { }
     break;
 
   case 24:
-#line 125 "qscript.y"
+#line 152 "qscript.y"
     { }
     break;
 
   case 29:
-#line 136 "qscript.y"
+#line 163 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1562,7 +1565,7 @@ yyreduce:
     break;
 
   case 30:
-#line 142 "qscript.y"
+#line 169 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1572,7 +1575,7 @@ yyreduce:
     break;
 
   case 31:
-#line 148 "qscript.y"
+#line 175 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1582,7 +1585,7 @@ yyreduce:
     break;
 
   case 32:
-#line 154 "qscript.y"
+#line 181 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1592,7 +1595,7 @@ yyreduce:
     break;
 
   case 33:
-#line 160 "qscript.y"
+#line 187 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1602,7 +1605,7 @@ yyreduce:
     break;
 
   case 34:
-#line 166 "qscript.y"
+#line 193 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1612,7 +1615,7 @@ yyreduce:
     break;
 
   case 35:
-#line 172 "qscript.y"
+#line 199 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1622,7 +1625,7 @@ yyreduce:
     break;
 
   case 36:
-#line 178 "qscript.y"
+#line 205 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1632,7 +1635,7 @@ yyreduce:
     break;
 
   case 37:
-#line 184 "qscript.y"
+#line 211 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1642,7 +1645,7 @@ yyreduce:
     break;
 
   case 38:
-#line 190 "qscript.y"
+#line 217 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1652,7 +1655,7 @@ yyreduce:
     break;
 
   case 39:
-#line 196 "qscript.y"
+#line 223 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1662,7 +1665,7 @@ yyreduce:
     break;
 
   case 40:
-#line 202 "qscript.y"
+#line 229 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1672,7 +1675,7 @@ yyreduce:
     break;
 
   case 41:
-#line 208 "qscript.y"
+#line 235 "qscript.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1682,7 +1685,7 @@ yyreduce:
     break;
 
   case 42:
-#line 214 "qscript.y"
+#line 241 "qscript.y"
     {
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_not);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1692,7 +1695,7 @@ yyreduce:
     break;
 
   case 43:
-#line 220 "qscript.y"
+#line 247 "qscript.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].ival));
 		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
@@ -1703,7 +1706,7 @@ yyreduce:
     break;
 
   case 44:
-#line 227 "qscript.y"
+#line 254 "qscript.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].dval));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1713,7 +1716,7 @@ yyreduce:
     break;
 
   case 45:
-#line 233 "qscript.y"
+#line 260 "qscript.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].name), oper_name );
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1723,7 +1726,7 @@ yyreduce:
     break;
 
   case 46:
-#line 239 "qscript.y"
+#line 266 "qscript.y"
     {
 		(yyval.expr) = new un2_expr(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1734,14 +1737,14 @@ yyreduce:
     break;
 
   case 47:
-#line 246 "qscript.y"
+#line 273 "qscript.y"
     {
 		(yyval.expr)=0;
 	}
     break;
 
   case 48:
-#line 251 "qscript.y"
+#line 278 "qscript.y"
     {
 			cout << " got NAME IN range_allowed_values " << endl;
 		(yyval.expr)=0;
@@ -1749,7 +1752,7 @@ yyreduce:
     break;
 
   case 49:
-#line 255 "qscript.y"
+#line 282 "qscript.y"
     {
 		cout << "NAME '[' expr ']' IN range_allowed_values " << endl;
 		(yyval.expr)=0;
@@ -1757,7 +1760,7 @@ yyreduce:
     break;
 
   case 50:
-#line 259 "qscript.y"
+#line 286 "qscript.y"
     {
 		cout << "COUNT '(' NAME ')' " << endl;
 		(yyval.expr)=0;
@@ -1766,7 +1769,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1770 "qscript.c"
+#line 1773 "qscript.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1980,7 +1983,7 @@ yyreturn:
 }
 
 
-#line 265 "qscript.y"
+#line 292 "qscript.y"
 
 
 int main(){
@@ -1992,7 +1995,7 @@ using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg, 
 	int line_no, int compiler_line_no, string compiler_file_name){
 	++no_errors;
-	cerr << "xtcc " ;
+	cerr << "qscript " ;
 	switch(cmp_err){
 		case compiler_syntax_err: 
 			cerr << "syntax error: ";
