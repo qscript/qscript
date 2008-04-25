@@ -1,0 +1,13 @@
+
+#define msg3="Hello,World";
+$msg3;
+This is some text that will be echoed to the screen from the top level file input
+
+#include include-file1;msg="Hello,text substitute from file variable msg ";msg2="This is msg2";
+
+Some more text and a subst  again from file "input" the top level file $msg;;$msg2;
+#define msg="Thank You,World";
+
+This is xtpp the Xross tabulation pre-processor: $msg;
+
+#include include-file2; txt="All consumers";
