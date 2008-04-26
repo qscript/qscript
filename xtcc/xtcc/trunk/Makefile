@@ -50,7 +50,8 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_xtcc_OBJECTS = type.$(OBJEXT) lex.$(OBJEXT) expr.$(OBJEXT) \
 	tree.$(OBJEXT) scope.$(OBJEXT) stmt.$(OBJEXT) symtab.$(OBJEXT) \
-	Tab.$(OBJEXT) generate_code.$(OBJEXT)
+	Tab.$(OBJEXT) generate_code.$(OBJEXT) main.$(OBJEXT) \
+	utils.$(OBJEXT)
 xtcc_OBJECTS = $(am_xtcc_OBJECTS)
 xtcc_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.
@@ -189,7 +190,7 @@ top_builddir = .
 top_srcdir = .
 AM_CXXFLAGS = -Wall -frepo 
 AM_YFLAGS = -d -v
-xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C
+xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C main.C utils.C
 #BUILT_SOURCES=type.h type.c lex.c
 EXTRA_DIST = sample.dat sample2.dat Makefile.borland Makefile.unix Makefile.manual testsuite/mk_data_visual_check.ods
 dist_pkgdata_DATA = stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h 
@@ -276,11 +277,13 @@ include ./$(DEPDIR)/Tab.Po
 include ./$(DEPDIR)/expr.Po
 include ./$(DEPDIR)/generate_code.Po
 include ./$(DEPDIR)/lex.Po
+include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/scope.Po
 include ./$(DEPDIR)/stmt.Po
 include ./$(DEPDIR)/symtab.Po
 include ./$(DEPDIR)/tree.Po
 include ./$(DEPDIR)/type.Po
+include ./$(DEPDIR)/utils.Po
 
 .C.o:
 	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

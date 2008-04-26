@@ -50,7 +50,8 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_xtcc_OBJECTS = type.$(OBJEXT) lex.$(OBJEXT) expr.$(OBJEXT) \
 	tree.$(OBJEXT) scope.$(OBJEXT) stmt.$(OBJEXT) symtab.$(OBJEXT) \
-	Tab.$(OBJEXT) generate_code.$(OBJEXT)
+	Tab.$(OBJEXT) generate_code.$(OBJEXT) main.$(OBJEXT) \
+	utils.$(OBJEXT)
 xtcc_OBJECTS = $(am_xtcc_OBJECTS)
 xtcc_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.@am__isrc@
@@ -189,7 +190,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CXXFLAGS = -Wall -frepo 
 AM_YFLAGS = -d -v
-xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C
+xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C main.C utils.C
 #BUILT_SOURCES=type.h type.c lex.c
 EXTRA_DIST = sample.dat sample2.dat Makefile.borland Makefile.unix Makefile.manual testsuite/mk_data_visual_check.ods
 dist_pkgdata_DATA = stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h 
@@ -276,11 +277,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/expr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/generate_code.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lex.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scope.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stmt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/symtab.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tree.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/type.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/utils.Po@am__quote@
 
 .C.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

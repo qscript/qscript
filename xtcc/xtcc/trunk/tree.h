@@ -29,7 +29,8 @@
 
 #include <cstdlib>
 
-enum compiler_err_category{compiler_syntax_err, compiler_sem_err, compiler_internal_error};
+//enum compiler_err_category{compiler_syntax_err, compiler_sem_err, compiler_internal_error};
+#include "utils.h"
 /*
 enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
 		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
