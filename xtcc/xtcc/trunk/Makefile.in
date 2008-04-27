@@ -656,6 +656,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_pkgdataDATA
 	ps ps-am tags uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-dist_pkgdataDATA
 
+type.y:  toplev_gram.y expr_prec.y expr.y
+	m4 toplev_gram.y > type.y
 #type.y: const_defs.h symtab.h tree.h stmt.h Tab.h expr.h scope.h
 #lex.l: type.h const_defs.h symtab.h
 #expr.C: expr.h tree.h
