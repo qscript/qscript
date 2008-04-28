@@ -1,0 +1,16 @@
+
+set test "xtcc nested-if-success"
+set timeout 20
+global XTCC
+global XTCC_TEST_DATA
+spawn rm -f xtcc_stdout.log
+wait
+spawn $XTCC test-inputs/inp-nested-if-success sample2.dat
+wait
+spawn cat xtcc_stdout.log 
+
+expect {
+	-re "^printf inside a nested if\r\n" { pass $test }
+	default { send_user "failed" }
+	timeout { send_user "failed" } 
+}

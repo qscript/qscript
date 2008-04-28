@@ -5,7 +5,7 @@ global XTCC_TEST_DATA
 spawn $XTCC test-inputs/inp-expr-assgn-error sample2.dat
 
 expect {
-	-re "inp_file: test-inputs/inp-expr-assgn-error, data_file: sample2.dat\r\nxtcc semantic error:  line_no: \[0-9\]+ oper_assgn error: operand data types on lhs and rhs should be compatible, 	lhs type: INT8_TYPE, rhs type: INT16_TYPE\r\n, compiler line_no: 408, compiler_file_name: expr.C\r\nErrors in Parse:  Total errors: 1\r\n" { pass $test }
+	-re "inp_file: test-inputs/inp-expr-assgn-error, data_file: sample2.dat\r\nxtcc semantic error:  line_no: \[0-9\]+ oper_assgn error: operand data types on lhs and rhs should be compatible, 	lhs type: INT8_TYPE, rhs type: INT16_TYPE\r\n, compiler line_no: \[0-9\]+, compiler_file_name: expr.C\r\nErrors in Parse:  Total errors: 1\r\n" { pass $test }
 
 	default { send_user "failed" }
 	timeout { send_user "failed" } 

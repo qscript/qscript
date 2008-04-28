@@ -4,24 +4,13 @@ int32_t global_val;	// section
 
 
 int32_t edit_data();
-void func3(float fundc3_a, int32_t func3_b);
 
 int32_t edit_data()
 {
-	if(func3(1.1, 3)){
-		if(1){
-			5+5;
+	if(1){
+		if(2){
+			printf("printf inside a nested if\n");
 		}
-	}
-}
-void func3(float fundc3_a, int32_t func3_b){
-	int32_t d1;
-	d1=d1+10;
-	printf("called: func3\n");
-	if(fundc3_a==1.1){
-		printf("fundc3_a==1.1\n");
-	} else {
-		printf("fundc3_a=%f\n", fundc3_a);
 	}
 }
 
