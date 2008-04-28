@@ -117,11 +117,11 @@ cnt; "C"; c= d==68;
 
 ax q4;
 ttl; "Q4. Integer range tests";
-cnt; " from 201 to 220"; c= first_4byte_int>=201 && first_4byte_int < 220;
-cnt; " from 221 to 250"; c= first_4byte_int>=220 && first_4byte_int < 250;
-cnt; " from 250 to 290"; c= first_4byte_int>=250 && first_4byte_int < 290;
-cnt; " from 290 to 370"; c= first_4byte_int>=290 && first_4byte_int < 370;
-cnt; " from 370 to 500"; c= first_4byte_int>=370 && first_4byte_int < 501;
+cnt; " from 201 to 219"; c= first_4byte_int>=201 && first_4byte_int < 220;
+cnt; " from 220 to 249"; c= first_4byte_int>=220 && first_4byte_int < 250;
+cnt; " from 250 to 289"; c= first_4byte_int>=250 && first_4byte_int < 290;
+cnt; " from 290 to 369"; c= first_4byte_int>=290 && first_4byte_int < 370;
+cnt; " from 370 to 499"; c= first_4byte_int>=370 && first_4byte_int < 501;
 
 
 
