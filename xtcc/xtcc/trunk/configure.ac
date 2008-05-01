@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(xtcc, 0.0, NxD_in@yahoo.com)
+AC_INIT(xtcc, 0.01, NxD_in@yahoo.com)
 AM_INIT_AUTOMAKE	
 AC_CONFIG_SRCDIR([const_defs.h])
 

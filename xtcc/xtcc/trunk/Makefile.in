@@ -190,9 +190,9 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AM_CXXFLAGS = -Wall -frepo 
 AM_YFLAGS = -d -v
-xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C main.C utils.C
+xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C main.C utils.h utils.C toplev_gram.y.inc expr_prec.y.inc expr.y.inc
 #BUILT_SOURCES=type.h type.c lex.c
-EXTRA_DIST = sample.dat sample2.dat Makefile.borland Makefile.unix Makefile.manual testsuite/mk_data_visual_check.ods
+EXTRA_DIST = stubs/sample2.map sample2.dat Makefile.borland Makefile.unix Makefile.manual testsuite/mk_data_visual_check.ods stubs/mk_data.C stubs/human_readable_data.csv 
 dist_pkgdata_DATA = stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h 
 AUTOMAKE_OPTIONS = dejagnu
 #DIST_SUBDIRS=test-inputs testsuite testsuite/config testsuite/xtcc.test testsuite/xtcc.test/config testsuite/xtcc.test/xtcc 
@@ -656,8 +656,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_pkgdataDATA
 	ps ps-am tags uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-dist_pkgdataDATA
 
-type.y:  toplev_gram.y expr_prec.y expr.y
-	m4 toplev_gram.y > type.y
+type.y:  toplev_gram.y.inc expr_prec.y.inc expr.y.inc
+	m4 toplev_gram.y.inc > type.y
 #type.y: const_defs.h symtab.h tree.h stmt.h Tab.h expr.h scope.h
 #lex.l: type.h const_defs.h symtab.h
 #expr.C: expr.h tree.h

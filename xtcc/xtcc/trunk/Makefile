@@ -110,7 +110,7 @@ CXX = g++
 CXXDEPMODE = depmode=gcc3
 CXXFLAGS = -g -O2
 CYGPATH_W = echo
-DEFS = -DPACKAGE_NAME=\"xtcc\" -DPACKAGE_TARNAME=\"xtcc\" -DPACKAGE_VERSION=\"0.0\" -DPACKAGE_STRING=\"xtcc\ 0.0\" -DPACKAGE_BUGREPORT=\"NxD_in@yahoo.com\" -DPACKAGE=\"xtcc\" -DVERSION=\"0.0\" -DYYTEXT_POINTER=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_FCNTL_H=1 -DHAVE_FLOAT_H=1 -DHAVE_LIBINTL_H=1 -DHAVE_LIMITS_H=1 -DHAVE_MALLOC_H=1 -DHAVE_STDDEF_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_STRUCT_STAT_ST_BLKSIZE=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1 -DHAVE_STDLIB_H=1 -DHAVE_UNISTD_H=1 -DHAVE_GETPAGESIZE=1 -DHAVE_MMAP=1 -DHAVE_VPRINTF=1 -DHAVE_MEMSET=1 -DHAVE_STRDUP=1 -DHAVE_STRTOL=1
+DEFS = -DPACKAGE_NAME=\"xtcc\" -DPACKAGE_TARNAME=\"xtcc\" -DPACKAGE_VERSION=\"0.01\" -DPACKAGE_STRING=\"xtcc\ 0.01\" -DPACKAGE_BUGREPORT=\"NxD_in@yahoo.com\" -DPACKAGE=\"xtcc\" -DVERSION=\"0.01\" -DYYTEXT_POINTER=1 -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_FCNTL_H=1 -DHAVE_FLOAT_H=1 -DHAVE_LIBINTL_H=1 -DHAVE_LIMITS_H=1 -DHAVE_MALLOC_H=1 -DHAVE_STDDEF_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -DHAVE_STRUCT_STAT_ST_BLKSIZE=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1 -DHAVE_STDLIB_H=1 -DHAVE_UNISTD_H=1 -DHAVE_GETPAGESIZE=1 -DHAVE_MMAP=1 -DHAVE_VPRINTF=1 -DHAVE_MEMSET=1 -DHAVE_STRDUP=1 -DHAVE_STRTOL=1
 DEPDIR = .deps
 ECHO_C = 
 ECHO_N = -n
@@ -136,14 +136,14 @@ OBJEXT = o
 PACKAGE = xtcc
 PACKAGE_BUGREPORT = NxD_in@yahoo.com
 PACKAGE_NAME = xtcc
-PACKAGE_STRING = xtcc 0.0
+PACKAGE_STRING = xtcc 0.01
 PACKAGE_TARNAME = xtcc
-PACKAGE_VERSION = 0.0
+PACKAGE_VERSION = 0.01
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 0.0
+VERSION = 0.01
 YACC = bison -y
 YFLAGS = 
 abs_builddir = /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/xtcc/trunk
@@ -190,9 +190,9 @@ top_builddir = .
 top_srcdir = .
 AM_CXXFLAGS = -Wall -frepo 
 AM_YFLAGS = -d -v
-xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C main.C utils.C
+xtcc_SOURCES = tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C main.C utils.h utils.C toplev_gram.y.inc expr_prec.y.inc expr.y.inc
 #BUILT_SOURCES=type.h type.c lex.c
-EXTRA_DIST = sample.dat sample2.dat Makefile.borland Makefile.unix Makefile.manual testsuite/mk_data_visual_check.ods
+EXTRA_DIST = stubs/sample2.map sample2.dat Makefile.borland Makefile.unix Makefile.manual testsuite/mk_data_visual_check.ods stubs/mk_data.C stubs/human_readable_data.csv 
 dist_pkgdata_DATA = stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h 
 AUTOMAKE_OPTIONS = dejagnu
 #DIST_SUBDIRS=test-inputs testsuite testsuite/config testsuite/xtcc.test testsuite/xtcc.test/config testsuite/xtcc.test/xtcc 
@@ -656,8 +656,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dist_pkgdataDATA
 	ps ps-am tags uninstall uninstall-am uninstall-binPROGRAMS \
 	uninstall-dist_pkgdataDATA
 
-type.y:  toplev_gram.y expr_prec.y expr.y
-	m4 toplev_gram.y > type.y
+type.y:  toplev_gram.y.inc expr_prec.y.inc expr.y.inc
+	m4 toplev_gram.y.inc > type.y
 #type.y: const_defs.h symtab.h tree.h stmt.h Tab.h expr.h scope.h
 #lex.l: type.h const_defs.h symtab.h
 #expr.C: expr.h tree.h

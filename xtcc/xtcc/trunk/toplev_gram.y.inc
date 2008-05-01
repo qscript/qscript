@@ -188,7 +188,7 @@
 
 
 
-include(`expr_prec.y')
+include(`expr_prec.y.inc')
 
 
 %%
@@ -535,7 +535,7 @@ expr_list: expression { $$=$1; }
 		$$=link_chain($1,$3);
 	}
 	;
-include(`expr.y')
+include(`expr.y.inc')
 range_list: range
 	| range_list ',' range
 	;

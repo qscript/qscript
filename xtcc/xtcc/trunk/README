@@ -1,15 +1,11 @@
 31-Dec-2007. 
+Updated: 1-May-2008
 
 WHAT IS xtcc
 
 xtcc is "Cross Tabulation Compiler" - intended to be a Market Research
-for tool Data Processing. I originally worked on SPSS-MR's Quantum(tm) - a
-powerful data processing software. However I felt it had severe
-limitations, and I also always wanted to write a compiler. xtcc is a
-result of my attempt to address the issues I faced listed below
+for tool Data Processing. 
 
-** SPSS-MR and Quantum are trademarks of SPSS-MR 
-	
 REQUIREMENTS for COMPILATION AND RUNNING
 	
 	You need the following
@@ -20,7 +16,7 @@ REQUIREMENTS for COMPILATION AND RUNNING
 		tweak things)
 	5) dejagnu - if you want to run the testsuite
 
-	Compiling should be easy on UNIX systems
+	Compiling should be easy on GNU/Linux, UNIX systems
 		There is a configure script. you would type
 		$ ./configure
 		$ make
@@ -29,11 +25,7 @@ REQUIREMENTS for COMPILATION AND RUNNING
 	inp12. After a successful build you can run the program as
 	follows
 		$ ./xtcc testsuite/inp12 sample2.dat
-		I haven't as yet added any file-logging facilities to
-		the compiler's edit section so you stdout will be
-		cluttered with messages. To make it run faster you can
-		do this
-		$ ./xtcc testsuite/inp12 sample2.dat > op
+
 		The tables will be created in tab_.csv and  frequency
 		counts in lst_.csv
 
@@ -48,9 +40,9 @@ PROPAGANDA
 		  conditions, or loops. 
 		* you can define variables any where in the edit
 		  section  
-		* The language supports passing of data to functions by
+		* The language supports passing of variables to functions by
 		  reference
-	 * There is no limitation such as a line has to be less than 200
+	 * There is no limitation such as line length has to be less than 200
 	   chars in length. This has been a cause of many crashes and
 	   core dumps in quantum - in my work experience
 	 * The program can read very large records - quantum could read
@@ -58,40 +50,17 @@ PROPAGANDA
 	   hold the record size in a long integer (32-bit)
 	
 CURRENT STATUS AND FUTURE PLAN
-	As of right now I have a working edit section - which I believe
-	is the most difficult part of the software. I have miles to
-	go though. 
+	please check website: http://xtcc.sourceforge.net
 
+
+NOTES:
 	The program outputs a set of tables in a file TAB_.csv. This
 	file can be opened by a text editor or most spreadsheet
-	programs.
+	programs. The sample2.dat data file used in the testsuite is created by 
+	"stubs/mk_data.C". Corresponding to the data file the program also creates
+	"human_readable_data.csv" which is the same data as sample2.dat, but human readable.
+	You can use this file to verify the output.
 
-	I have created 2 sample data files - sample.dat and sample2.dat.
-	sample2.dat has variation in the data and can be used to verify
-	initial output at least. I have created an open-office
-	spreadsheet document which contains the same data as in
-	sample2.dat. The output from the sample input program in
-	directory "test-inputs" named "inp12" demonstrates the input
-	language - edit and tabulation sections.
-
-	I have just figured out how to get dejagnu up and running and am
-	planning to add automated tests to test the expected syntax errors and
-	output. This, I hope, will be a consolidation phase for the
-	compiler where I reach a stage of confidence in the output.
-
-	I also am planning to re-vamp the error reporting, maybe I
-	should add an error class or something and define some error
-	codes as well.
-
-	I need to add multiple field tabulation facilities.
-
-	Creation of a data file standard - I use raw binary data for
-	maximal performance and I should standardize early on the data
-	format, so that the data is portable accross multiple
-	architectures
-
-	Need to create a pre-processor - so that include files can be
-	processed 
 DOCUMENTATION
 
 	I have started on the documentation, but it is lagging way
