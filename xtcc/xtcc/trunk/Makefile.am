@@ -5,7 +5,7 @@ bin_PROGRAMS=xtcc
 xtcc_SOURCES= tree.h Tab.h type.y lex.l expr.C tree.C scope.C  stmt.C  symtab.h  stmt.h expr.h scope.h symtab.C Tab.C const_defs.h generate_code.C main.C utils.h utils.C toplev_gram.y.inc expr_prec.y.inc expr.y.inc
 #BUILT_SOURCES=type.h type.c lex.c
 EXTRA_DIST=stubs/sample2.map sample2.dat Makefile.borland Makefile.unix Makefile.manual testsuite/mk_data_visual_check.ods stubs/mk_data.C stubs/human_readable_data.csv 
-dist_pkgdata_DATA=stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h 
+dist_pkgdata_DATA=stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h docs/manual.texi docs/xtcc_doc.html
 AUTOMAKE_OPTIONS = dejagnu
 #DIST_SUBDIRS=test-inputs testsuite testsuite/config testsuite/xtcc.test testsuite/xtcc.test/config testsuite/xtcc.test/xtcc 
 

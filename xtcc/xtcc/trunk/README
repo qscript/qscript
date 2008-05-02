@@ -29,6 +29,10 @@ REQUIREMENTS for COMPILATION AND RUNNING
 		The tables will be created in tab_.csv and  frequency
 		counts in lst_.csv
 
+		$ make check
+		The above command will run the testsuite
+		The inputs for the testsuite are in the directory "test-inputs"
+
 
 PROPAGANDA
 
@@ -58,7 +62,7 @@ NOTES:
 	file can be opened by a text editor or most spreadsheet
 	programs. The sample2.dat data file used in the testsuite is created by 
 	"stubs/mk_data.C". Corresponding to the data file the program also creates
-	"human_readable_data.csv" which is the same data as sample2.dat, but human readable.
+	"stubs/human_readable_data.csv" which contains the same data as sample2.dat, but human readable.
 	You can use this file to verify the output.
 
 DOCUMENTATION
