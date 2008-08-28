@@ -235,7 +235,7 @@ struct fld_stmt: public stmt{
 			fprintf(fptr,"\t\tint tmp=*i_ptr;\n");
 		}
 		fprintf(fptr,"\t\tif(tmp>=1 && tmp <=%d){\n", lsymp->n_elms);
-		fprintf(fptr,"\t\t\t++%s[tmp];\n", lsymp->name);
+		fprintf(fptr,"\t\t\t++%s[tmp-1];\n", lsymp->name);
 		fprintf(fptr,"\t\t} else {\n");
 		fprintf(fptr,"\t\t\tprintf(\" runtime warning: code too big to fit in array\\n\");\n");
 		fprintf(fptr,"\t\t}\n;");

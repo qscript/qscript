@@ -191,16 +191,22 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	fclose(axes_drv_func);
 	fclose(tab_summ_func);
 	bool my_compile_flag=true;
+	//bool my_compile_flag=false;
 	printf("parsing over\n about to begin compiling\n");
 	if(my_compile_flag&&!compile(XTCC_HOME, work_dir)){
 		char * endptr=0;
 		int convert_to_base=10;
 		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
-		int rval= run(data_file, rec_len);
+		bool run_flag=true;
+		int rval=0;
+		if(run_flag){
+			rval= run(data_file, rec_len);
+		}
 		if(tree_root) {
 			delete tree_root;
 			tree_root=0;
 		}
+
 		clean_up();
 		// fi was allocated by us - the "hand installed printf function"
 		delete fi;
@@ -208,7 +214,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		cout << "xtcc run complete" << endl;
 		return rval;
 	}
-	cout << "returning from main with errors"<< endl;
+	cout << "returning from main with errors: "  << no_errors << endl;
 	return no_errors;
 }
 
@@ -546,5 +552,8 @@ void reset_files(){
 	ofstream tab_op("tab_.csv", ios_base::out|ios_base::trunc);
 	tab_op << endl;
 	tab_op.close();
+	ofstream tab_tex("tab_.tex", ios_base::out|ios_base::trunc);
+	tab_tex << endl;
+	tab_tex.close();
 }
 

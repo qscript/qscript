@@ -626,7 +626,7 @@ bin2_expr::bin2_expr(string lname , string rname ,e_operator_type letype): expr(
 
 			map<string,symtab_ent*>::iterator sym_it_r = find_in_symtab(rname);
 			if( sym_it_r ==active_scope->sym_tab.end() ) {
-				string err_msg = "Error: could not find:" + rname + "  in symbol table  ";
+				string err_msg = "Error: could not find:" + rname + " in symbol table.";
 				print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 				type=ERROR_TYPE;
 			} else {

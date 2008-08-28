@@ -159,4 +159,7 @@ bool is_of_int_arr_type(datatype dt){
 	return (dt >= INT8_ARR_TYPE && dt <=INT32_ARR_TYPE);
 }
 
+bool is_of_int32_arr_type(datatype dt){
+	return (dt == INT32_ARR_TYPE);
+}
 

@@ -76,6 +76,8 @@ for 	{
 
 fld 	{ return FLD;}
 
+bit  	{ return BIT;}
+
 lista 	{
 	return LISTA;
 }

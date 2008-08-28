@@ -384,6 +384,10 @@ basic_count_ax_stmt::~basic_count_ax_stmt() {
 			break;
 		}
 	}
+	if(next) {
+		delete next;
+		next=0;
+	}
 }
 
 ttl_ax_stmt::~ttl_ax_stmt(){
@@ -418,9 +422,17 @@ tot_ax_stmt::~tot_ax_stmt(){
 }
 
 ax::~ax(){
-	basic_ax_stmt* bax_ptr=ax_stmt_start;
-	if(ax_stmt_start){
-		delete ax_stmt_start; ax_stmt_start=0;
+	//basic_ax_stmt* bax_ptr=ax_stmt_start;
+	//basic_count_ax_stmt* count_ptr=count_ax_stmt_start;
+	//basic_print_ax_stmt* print_ptr=ttl_ax_stmt_start;
+
+
+
+	if(count_ax_stmt_start){
+		delete count_ax_stmt_start; count_ax_stmt_start=0;
+	}
+	if(ttl_ax_stmt_start){
+		delete ttl_ax_stmt_start; ttl_ax_stmt_start=0;
 	}
 	if(filter) {
 		delete filter; filter=0;
@@ -447,3 +459,33 @@ table::~table(){
 		filter=0;
 	}
 }
+
+stub::stub(string l_text, int l_code):text(l_text), code(l_code), prev(0), next(0){ }
+#include "utils.h"
+
+extern vector<scope*> active_scope_list;
+extern scope* active_scope;
+//fld_ax_stmt::fld_ax_stmt(string field_name, struct stub * l_stub_list): stub_list(l_stub_list)
+fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_stub_list): basic_count_ax_stmt(ltype,"",0),
+	stub_list(l_stub_list) {
+	// NAME Has to be of array type, Int32 
+	map<string,symtab_ent*>::iterator sym_it=find_in_symtab(field_name);
+	if(sym_it==active_scope->sym_tab.end()){
+		string err_msg = "Error parsing bit statement : could not find array:" + field_name + " in symbol table";
+		print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+	} else {
+		symp = sym_it->second;
+		if(!is_of_int32_arr_type(symp->type)){
+			string err_msg = "Error parsing bit statement : array should be of int32 type:" 
+				+ field_name + " in symbol table";
+			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+		}
+	}
+	cout << "fld_ax_stmt constructor: verifying copying of vector was correct" << endl;
+	cout << "stubs are: " << endl;
+	for(unsigned int i=0; i< stub_list.size(); ++i){
+		cout << stub_list[i]->text << "," << stub_list[i]->code << endl;
+	}
+	cout << endl;
+}
+

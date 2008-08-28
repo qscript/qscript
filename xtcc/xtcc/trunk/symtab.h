@@ -1,6 +1,7 @@
 #ifndef XTCC_SYMTAB_H
 #define XTCC_SYMTAB_H
 //#include <iostream>
+#include <cstring>
 
 	enum datatype {
 		VOID_TYPE, 
@@ -21,6 +22,7 @@
 	bool is_of_noun_ref_type(datatype dt);
 	bool is_of_arr_type(datatype dt);
 	bool is_of_int_arr_type(datatype dt);
+	bool is_of_int32_arr_type(datatype dt);
 	datatype convert_ref_type(datatype dt);
 #include <string>
 using	std::string ;

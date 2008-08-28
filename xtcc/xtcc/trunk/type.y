@@ -86,6 +86,7 @@
 	bool flag_next_stmt_start_of_block=false;
 	//struct stmt* start_of_blk=0;
 	vector <stmt*> blk_heads;
+	vector <stub*> stub_list;
 	vector<bool> blk_start_flag;
 
 	noun_list_type noun_list[]= {
@@ -116,8 +117,10 @@
 	struct var_list * v_list;
 	datatype dt;
 	struct ax * ax;
+	struct stub * stub;
 	struct table * tbl;
-	class basic_ax_stmt * basic_ax_stmt;
+	class basic_print_ax_stmt * print_stmt;
+	class basic_count_ax_stmt * count_stmt;
 };
 
 %token CONVERT
@@ -144,7 +147,7 @@
 %type <stmt> if_stmt 
 %type <stmt> fld_stmt 
 %token  FOR
-%token FLD
+%token FLD BIT
 %token <text_buf> TEXT
 %token <name> NAME
 %token DEFINELIST 
@@ -180,8 +183,14 @@
 %token COND_START
 %type <ax>	ax_list
 %type <ax>	ax_defn
-%type <basic_ax_stmt> ax_stmt_list
-%type <basic_ax_stmt> ax_stmt
+%type <print_stmt> ttl_ax_stmt_list
+%type <print_stmt> ttl_ax_stmt
+%type <count_stmt> count_ax_stmt_list
+%type <count_stmt> count_ax_stmt
+%type <count_stmt> bit_list
+%type <stub> stub
+%type <stub> stub_list
+	//%type <fld_ax_stmt> bit_list
 
 %token CONTINUE BREAK
 
@@ -797,9 +806,11 @@ ax_list:	ax_defn	{
 	}
 	;
 
-ax_defn:	AX NAME ';' ax_stmt_list {
-		basic_ax_stmt* bptr= trav_chain($4);
-		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, 0);
+ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
+		basic_print_ax_stmt  * ttl_stmt_ptr= trav_chain($4);
+		basic_count_ax_stmt * count_stmt_ptr= trav_chain($5);
+
+		$$ = new ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, 0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -809,9 +820,10 @@ ax_defn:	AX NAME ';' ax_stmt_list {
 		no_tot_ax_elems=0;
 		free($2);
 	}
-	|	AX NAME ';'COND_START expression ';' ax_stmt_list {
-		basic_ax_stmt* bptr= trav_chain($7);
-		$$ = new ax(bptr,no_count_ax_elems, no_tot_ax_elems, $5);
+	|	AX NAME ';' COND_START expression ';' ttl_ax_stmt_list count_ax_stmt_list {
+		basic_print_ax_stmt * ttl_stmt_ptr= trav_chain($7);
+		basic_count_ax_stmt * count_stmt_ptr= trav_chain($8);
+		$$ = new ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, $5);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -829,17 +841,44 @@ ax_defn:	AX NAME ';' ax_stmt_list {
 	}
 	;
 
-
-ax_stmt_list: 	
-	ax_stmt	{
-		$$ = $1;
+stub_list: stub 
+	| stub_list stub {
+		//$$=link_chain($1, $2);
 	}
-	|	ax_stmt_list ax_stmt	{
+	;
+	
+stub:	TEXT '=' INUMBER';' {
+		$$=new stub($1, $3);
+		stub_list.push_back($$);
+		++ no_count_ax_elems;
+		++ no_tot_ax_elems;
+	}
+	;
+
+ttl_ax_stmt_list: ttl_ax_stmt { $$=$1; }
+	| ttl_ax_stmt_list ttl_ax_stmt {
 		$$=link_chain($1, $2);
 	}
 	;
 
-ax_stmt:	TOT ';' TEXT ';' {
+ttl_ax_stmt: 	TTL ';' TEXT ';'	{
+		$$ = new ttl_ax_stmt (txt_axstmt,$3);
+		++no_tot_ax_elems;
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+	}
+	;
+
+count_ax_stmt_list: 	count_ax_stmt	{
+		$$ = $1;
+	}
+	|	count_ax_stmt_list count_ax_stmt	{
+		$$=link_chain($1, $2);
+	}
+	;
+
+count_ax_stmt: TOT ';' TEXT ';' {
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
 		$$ = new tot_ax_stmt (tot_axstmt,$3, 0);
@@ -863,13 +902,15 @@ ax_stmt:	TOT ';' TEXT ';' {
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
-	| 	TTL ';' TEXT ';'	{
-		$$ = new ttl_ax_stmt (txt_axstmt,$3);
-		++no_tot_ax_elems;
-		if(XTCC_DEBUG_MEM_USAGE){
-			mem_log($$, __LINE__, __FILE__, line_no);
-		}
-	}
+	| bit_list
+	;
+
+bit_list: BIT NAME ';' stub_list';' {
+		//stub * stub_ptr = trav_chain($4);
+	 	//$$ = new fld_ax_stmt ($2, stub_ptr);
+	 	$$ = new fld_ax_stmt (fld_axstmt, $2, stub_list);
+		stub_list.resize(0);
+	  }
 	;
 
 %%

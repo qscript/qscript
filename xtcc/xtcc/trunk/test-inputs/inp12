@@ -4,7 +4,7 @@ ed_start // this marks the start of the edit program
 
 int8_t a;int8_t b;int8_t d; // these variables here are declared in global scope and will be available in the tabulation
 int32_t global_val;	// section
-int8_t test_arr[20];
+int32_t test_arr[20];
 
 int32_t first_4byte_int;
 

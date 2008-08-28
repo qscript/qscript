@@ -22,7 +22,7 @@ int main(){
 		cerr << "Error trying to create file sample2.dat for writing\n";
 		exit(1);
 	}
-	char buffer[120];
+	char buffer[140];
 	cout << "sizeof(buffer): " << sizeof(buffer) << endl;
 
 	print_data_headers();
@@ -56,6 +56,9 @@ void print_data_headers(){
 	}
 	for(int i=1; i<11; ++i){
 		fprintf(human_readable_csv_data, "Float,");
+	}
+	for(int i=1; i<=5;  ++i){
+		fprintf(human_readable_csv_data, "Integer,");
 	}
 	fprintf(human_readable_csv_data, "\n");
 }
@@ -111,6 +114,20 @@ void dump_data(char data[], int rec_no){
 		}
 		fprintf(human_readable_csv_data, "%f,", no);
 	}
+
+	// some data for the fld statement
+	if(first_time) fprintf(fptr, "4 byte floats ,%d,%d\n",  5+26-1+10+1*10*4+10*4+1,5+26-1+10+10*4+10*4+5*4);
+	for(int i=1; i<=5;  ++i){
+		int no=(i+rec_no)%20;
+		printf( "fld data: %d,", no);
+		ptr=&no;
+		c_ptr=static_cast<char*> (ptr);
+		for(int j=0; j<sizeof(int); ++j){
+			*my_ptr++=*c_ptr++;
+		}
+		fprintf(human_readable_csv_data, "%d,", no);
+	}
+	printf( "\n");
 
 	//cout << "my_ptr-data=" << my_ptr-data << endl;
 	if(first_time) fclose(fptr);

@@ -424,17 +424,17 @@ fld_stmt::fld_stmt(string lhs_name, string rhs_name, expr* l_s, expr* l_e, int l
 		// first some validation checks
 		//datatype type1 = sym_it1->type;
 		if( !( 
-			(sym_it1->second->type == INT8_ARR_TYPE) &&
+			(sym_it1->second->type == INT32_ARR_TYPE) &&
 			(sym_it2->second->type >= INT8_ARR_TYPE) &&
 			(sym_it2->second->type <= INT32_ARR_TYPE)) ) {
 			stringstream s;
-			s << " lhs name should be an array of type int8_t and rhs name should be an integer array ";
+			s << " lhs name should be an array of type int32_t and rhs name should be an integer array ";
 			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 
 		} else if (!(width==sizeof(INT8_TYPE) || width==sizeof(INT16_TYPE)
 				||width==sizeof(INT32_TYPE))	){
 			stringstream s;
-			s << "fld_stmt width with error: width of field can only be : " 
+			s << "fld_stmt width error: width of field can only be : " 
 				<< sizeof(int8_t) << " or " << sizeof(int16_t) << " or "
 				<< sizeof(int32_t) << endl;
 			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
