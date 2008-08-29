@@ -70,13 +70,13 @@ expression: expression '+' expression {
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-	}	
+	}
 	| expression LOGOR expression {
 		$$=new bin_expr($1, $3, oper_or);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-	}	
+	}
 	| expression LOGAND expression {
 		$$=new bin_expr($1, $3, oper_and);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -179,10 +179,12 @@ expression: expression '+' expression {
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
+	/*
 	| NAME IN NAME {
 		$$ = new bin2_expr($1, $3, oper_in);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
+	*/
 	;
