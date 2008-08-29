@@ -47,8 +47,8 @@ break	{
 
 
 
-"<=" {return LE;}
-">=" {return GE;}
+"<=" {return LEQ;}
+">=" {return GEQ;}
 "==" {return ISEQ;}
 "!=" {return NOEQ;}
 

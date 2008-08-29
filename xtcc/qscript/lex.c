@@ -888,12 +888,12 @@ YY_RULE_SETUP
 case 20:
 YY_RULE_SETUP
 #line 50 "lex.l"
-{return LE;}
+{return LEQ;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 51 "lex.l"
-{return GE;}
+{return GEQ;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP

@@ -58,8 +58,8 @@
      LOGAND = 274,
      NOEQ = 275,
      ISEQ = 276,
-     GE = 277,
-     LE = 278,
+     GEQ = 277,
+     LEQ = 278,
      NOT = 279,
      UMINUS = 280,
      COUNT = 281,
@@ -89,8 +89,8 @@
 #define LOGAND 274
 #define NOEQ 275
 #define ISEQ 276
-#define GE 277
-#define LE 278
+#define GEQ 277
+#define LEQ 278
 #define NOT 279
 #define UMINUS 280
 #define COUNT 281
@@ -104,7 +104,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 64 "qscript.y"
+#line 68 "qscript.y"
 {
 	double dval;
 	int ival ;

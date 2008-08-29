@@ -48,7 +48,8 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_qscript_OBJECTS = expr.$(OBJEXT) lex.$(OBJEXT) qscript.$(OBJEXT) \
-	symtab.$(OBJEXT) tree.$(OBJEXT) stmt.$(OBJEXT) scope.$(OBJEXT)
+	symtab.$(OBJEXT) tree.$(OBJEXT) stmt.$(OBJEXT) scope.$(OBJEXT) \
+	utils.$(OBJEXT)
 qscript_OBJECTS = $(am_qscript_OBJECTS)
 qscript_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.
@@ -177,7 +178,7 @@ top_builddir = .
 top_srcdir = .
 AM_CXXFLAGS = -Wall -frepo 
 AM_YFLAGS = -d -v
-qscript_SOURCES = const_defs.h ../xtcc/trunk/expr.C ../xtcc/trunk/expr.h lex.l qscript.y ../xtcc/trunk/symtab.C ../xtcc/trunk/symtab.h ../xtcc/trunk/tree.C ../xtcc/trunk/tree.h stmt.C ../xtcc/trunk/scope.C ../xtcc/trunk/scope.h 
+qscript_SOURCES = const_defs.h ../xtcc/trunk/expr.C ../xtcc/trunk/expr.h lex.l qscript.y ../xtcc/trunk/symtab.C ../xtcc/trunk/symtab.h ../xtcc/trunk/tree.C ../xtcc/trunk/tree.h stmt.C ../xtcc/trunk/scope.C ../xtcc/trunk/scope.h  ../xtcc/trunk/utils.h ../xtcc/trunk/utils.C
 BUILT_SOURCES = qscript.c qscript.h lex.c
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -262,6 +263,7 @@ include ./$(DEPDIR)/scope.Po
 include ./$(DEPDIR)/stmt.Po
 include ./$(DEPDIR)/symtab.Po
 include ./$(DEPDIR)/tree.Po
+include ./$(DEPDIR)/utils.Po
 
 .C.o:
 	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -332,6 +334,20 @@ scope.obj: ../xtcc/trunk/scope.C
 #	source='../xtcc/trunk/scope.C' object='scope.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
 #	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o scope.obj `if test -f '../xtcc/trunk/scope.C'; then $(CYGPATH_W) '../xtcc/trunk/scope.C'; else $(CYGPATH_W) '$(srcdir)/../xtcc/trunk/scope.C'; fi`
+
+utils.o: ../xtcc/trunk/utils.C
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT utils.o -MD -MP -MF $(DEPDIR)/utils.Tpo -c -o utils.o `test -f '../xtcc/trunk/utils.C' || echo '$(srcdir)/'`../xtcc/trunk/utils.C
+	mv -f $(DEPDIR)/utils.Tpo $(DEPDIR)/utils.Po
+#	source='../xtcc/trunk/utils.C' object='utils.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o utils.o `test -f '../xtcc/trunk/utils.C' || echo '$(srcdir)/'`../xtcc/trunk/utils.C
+
+utils.obj: ../xtcc/trunk/utils.C
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT utils.obj -MD -MP -MF $(DEPDIR)/utils.Tpo -c -o utils.obj `if test -f '../xtcc/trunk/utils.C'; then $(CYGPATH_W) '../xtcc/trunk/utils.C'; else $(CYGPATH_W) '$(srcdir)/../xtcc/trunk/utils.C'; fi`
+	mv -f $(DEPDIR)/utils.Tpo $(DEPDIR)/utils.Po
+#	source='../xtcc/trunk/utils.C' object='utils.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o utils.obj `if test -f '../xtcc/trunk/utils.C'; then $(CYGPATH_W) '../xtcc/trunk/utils.C'; else $(CYGPATH_W) '$(srcdir)/../xtcc/trunk/utils.C'; fi`
 
 .c.o:
 	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
