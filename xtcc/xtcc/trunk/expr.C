@@ -28,8 +28,9 @@
 #include <fstream>
 #include <sstream>
 #include "stmt.h"
-#include "tree.h"
+//#include "tree.h"
 #include "expr.h"
+#include <climits>
 
 extern scope* active_scope;
 extern ofstream debug_log_file;
