@@ -23,11 +23,18 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 %{
+#include <iostream>
 #include "const_defs.h"
 //#include "qscript_types.h"
 #include "../xtcc/trunk/symtab.h"
 #include "../xtcc/trunk/expr.h" 
-#include <iostream>
+#include "range_set.h"
+#include "stub_pair.h"
+#include "named_range.h"
+#include "question.h"
+
+	question_type q_type;
+	int no_mpn=0;
 	using std::cout;
 	using std::endl;
 	vector <scope*> active_scope_list;
@@ -43,6 +50,20 @@
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
 	int check_parameters(struct expr* e, struct var_list* v);
+	extern int if_line_no;
+	int nest_lev=0;
+	int flag_cmpd_stmt_is_a_func_body=-1;
+	bool flag_next_stmt_start_of_block=false;
+	vector<bool> blk_start_flag;
+	vector <stmt*> blk_heads;
+
+	char default_work_dir[]="xtcc_work";
+	char * work_dir=default_work_dir;
+        range_data r_data;
+        vector <string> attribute_list;
+	vector <named_range> named_stubs_list;
+        vector <stub_pair> stub_list;
+
 
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
@@ -72,6 +93,9 @@
 	char text_buf[MY_STR_MAX];
 	datatype dt;
 	struct expr * expr;
+	struct stmt * stmt;
+	struct cmpd_stmt * c_stmt;
+	class question* ques;
 };
 
 
@@ -82,13 +106,14 @@
 %token QTEXT
 %token SP
 %token MP
-%token TEXT
 %token <dt> VOID_T
 %token <dt> INT8_T
 %token <dt> INT16_T
 %token <dt> INT32_T
 %token <dt> FLOAT_T
 %token <dt> DOUBLE_T
+%type <dt> datatype
+
 %token '['
 %token ']'
 %token '('
@@ -114,6 +139,15 @@
 %token CONTINUE BREAK
 %token <text_buf> TEXT
 
+%type <stmt> decl_stmt
+%type <stmt> stmt
+%type <stmt> stmt_list
+%type <c_stmt> cmpd_stmt	
+%type <c_stmt> open_curly	
+%type <stmt> ques	
+%token ATTRIBUTE_LIST
+%token STUBS_LIST
+
 %%
 
 prog:stmt_list
@@ -124,27 +158,117 @@ stmt_list: stmt
 	;
 	
 stmt: ques
-	| expression ';' { }
-	| IF '(' expression ')' stmt { }
-	| IF '(' expression ')' stmt ELSE stmt { }
-	| cmpd_stmt { }
-	| decl_stmt { }
+	| expression ';' { 
+		if($1->isvalid()){
+			$$ = new expr_stmt(TEXPR_STMT, line_no, $1);
+			if(XTCC_DEBUG_MEM_USAGE){
+				mem_log($$, __LINE__, __FILE__, line_no);
+			}
+		} else {
+			$$ = new expr_stmt(ERROR_TYPE, line_no, $1);
+			if(XTCC_DEBUG_MEM_USAGE){
+				mem_log($$, __LINE__, __FILE__, line_no);
+			}
+		}
+	}
+	| IF '(' expression ')' stmt {
+		$$=new if_stmt(IFE_STMT,if_line_no,$3,$5,0);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+	}
+	| IF '(' expression ')' stmt ELSE stmt {
+		$$=new if_stmt(IFE_STMT,if_line_no,$3,$5,$7);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+	}
+	| cmpd_stmt { 
+		$$=$1;
+	}
+	| decl_stmt {
+		$$=$1;
+	}
 	;
 
-decl_stmt: datatype NAME ';'
-	| datatype NAME '=' expression ';'
-	| datatype NAME '[' expression ']' ';'
+decl_stmt: datatype NAME ';' {
+		$$ = active_scope->insert($2, $1/*, line_no*/);
+		free($2);
+	   }
+	| datatype NAME '=' expression ';'{
+		$$ = active_scope->insert($2, $1, $4);
+
+	}
+	| datatype NAME '[' expression ']' ';'{
+		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
+		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
+		$$ = active_scope->insert($2, dt, $4/*, line_no*/);
+		free($2);
+	}
 	;
 
-cmpd_stmt: '{' stmt_list '}'
+cmpd_stmt: open_curly stmt_list '}' {
+		active_scope_list.pop_back();
+		int tmp=active_scope_list.size()-1;
+		if(tmp==-1) { 
+			active_scope = 0;
+			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
+				<< endl;
+			++no_errors;
+			$$=new struct cmpd_stmt(ERROR_TYPE, line_no, 0);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+			mem_addr.push_back(m1);
+		} else { active_scope = active_scope_list[tmp]; }
+		struct stmt* head_of_this_chain=blk_heads.back();
+		if(blk_start_flag.size() > 0){
+			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
+		}
+		if(  head_of_this_chain==0){
+			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
+			++no_errors;
+		} else {
+			$1->cmpd_bdy = head_of_this_chain;
+			blk_heads.pop_back();
+		}
+		
+		$$=$1;
+	}
 	;
-	
+
+
+open_curly:	'{' {
+		++nest_lev;
+		$$ = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+		mem_addr.push_back(m1);
+		if(flag_cmpd_stmt_is_a_func_body>=0){
+			$$->sc=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
+			// reset the flag
+			flag_cmpd_stmt_is_a_func_body=-1;
+		} else {
+			$$->sc= new scope();
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+			mem_addr.push_back(m1);
+		}
+		flag_next_stmt_start_of_block=true;
+		blk_start_flag.push_back(flag_next_stmt_start_of_block);
+		active_scope_list.push_back($$->sc);
+		active_scope = $$->sc;
+	}
+	;
+
 ques: NAME TEXT qtype datatype range_allowed_values';' {
 	      cout << " got question " << endl;
+	      string name=$1;
+	      string q_txt=$2;
+	      $$=new range_question(line_no, QUESTION_TYPE, name, q_txt, q_type, no_mpn, $4, r_data);
       }
 
-qtype: SP
-	| MP '(' INUMBER ')'
+qtype: SP { q_type = spn; }
+	| MP '(' INUMBER ')' { q_type = mpn; no_mpn = $3; }
 	;
 
 datatype: INT8_T
@@ -162,8 +286,32 @@ number_range_list: number_range
 	| number_range_list ',' number_range
 	;
 
-number_range: INUMBER '-' INUMBER
-	| INUMBER 
+number_range: INUMBER '-' INUMBER {
+                if( $3 <=$1 ) {
+                        cout << "error on lineno: " << line_no
+                                << "2nd number in range <= 1st number"
+                                << endl;
+                } else {
+			if(r_data.rcount<MAX_RANGE_ELEMENTS/2){
+				r_data.ran_start_end[r_data.rcount*2  ]=$1;
+				r_data.ran_start_end[r_data.rcount*2+1]=$3;
+				++r_data.rcount;
+			} else {
+				cerr << "range_list: ran_start_end rcount : buffer overflow:\n";
+				cerr << " I should use vector and get rid of this restriction\n";
+			}
+			
+                }
+        }
+	| INUMBER {
+                if(r_data.icount<MAX_RANGE_ELEMENTS){
+                        r_data.ran_indiv[r_data.icount]=$1;
+			++r_data.icount;
+		} else {
+                        cerr << "range_list: ran_indiv : buffer overflow:\n";
+				cerr << " I should use vector and get rid of this restriction\n";
+                }
+        }
 	;
 
 include(`../xtcc/trunk/expr.y.inc')
@@ -189,6 +337,53 @@ q_expr: 	NAME IN range_allowed_values {
 expr_list: expression { /*$$=$1;*/ }
 	| expr_list ',' expression {
 		//$$=link_chain($1,$3);
+	}
+	;
+
+text_list:      TEXT ';' {
+                        string s1=$1;
+                        attribute_list.push_back(s1);
+                }
+        | text_list TEXT ';' {
+                        string s1=$2;
+                        attribute_list.push_back(s1);
+        }
+        ;
+
+
+attributes:     ATTRIBUTE_LIST NAME {
+                        attribute_list.resize(0);
+                        //cout << "resize attribute_list to 0\n";
+                }'=' text_list{
+                        //cout <<"got attribute_list size: " << attribute_list.size() << endl;
+                }
+        ;
+
+
+stubs:     STUBS_LIST NAME {
+		stub_list.resize(0);
+		//cout << "resize attribute_list to 0\n";
+	}'=' stub_list ';'{
+		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
+		string stub_name=$2;
+		struct named_range nr1(stub_name,stub_list);
+		named_stubs_list.push_back(nr1);
+	}
+;
+
+
+stub_list:	TEXT INUMBER {
+                        string s1=$1;
+			int code=$2;
+			struct stub_pair pair1(s1,code);
+			stub_list.push_back(pair1);
+	}
+	| stub_list TEXT INUMBER {
+                        string s1=$2;
+			int code=$3;
+			struct stub_pair pair1(s1,code);
+			stub_list.push_back(pair1);
+			//cout << "chaining stublist" << endl;
 	}
 	;
 

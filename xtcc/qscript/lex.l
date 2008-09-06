@@ -5,6 +5,7 @@
 #include "qscript.h"
 	void yyerror(char * s);
 	int line_no=1;
+	int if_line_no=-1;
 	extern int no_errors;
 %}
 
@@ -73,6 +74,7 @@ count 	{ return COUNT;}
 }
 
 if	{
+	if_line_no = line_no;
 	printf("got IF"); 
 	return IF;
 }
@@ -104,6 +106,15 @@ else 	{
 
 
 .	return yytext[0];
+
+
+attributes      {
+        return ATTRIBUTE_LIST;
+}
+
+stubs	{
+	return STUBS_LIST;
+}
 
 
 %%
