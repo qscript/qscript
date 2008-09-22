@@ -42,9 +42,9 @@ break	{
 	return ';';
 }
 
+"("	{ return '('; }
 ")"	{ return ')'; }
 
-"("	{ return '('; }
 
 
 
@@ -75,12 +75,19 @@ count 	{ return COUNT;}
 
 if	{
 	if_line_no = line_no;
-	printf("got IF"); 
 	return IF;
 }
 
 else 	{
 	return ELSE;
+}
+
+attributes      {
+        return ATTRIBUTE_LIST;
+}
+
+stubs	{
+	return STUBS_LIST;
 }
 
 [A-Za-z_][A-Za-z0-9_]*	{
@@ -107,14 +114,6 @@ else 	{
 
 .	return yytext[0];
 
-
-attributes      {
-        return ATTRIBUTE_LIST;
-}
-
-stubs	{
-	return STUBS_LIST;
-}
 
 
 %%

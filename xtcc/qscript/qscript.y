@@ -28,6 +28,7 @@
 //#include "qscript_types.h"
 #include "../xtcc/trunk/symtab.h"
 #include "../xtcc/trunk/expr.h" 
+#include "q_expr.h" 
 #include "range_set.h"
 #include "stub_pair.h"
 #include "named_range.h"
@@ -145,6 +146,8 @@
 %type <c_stmt> cmpd_stmt	
 %type <c_stmt> open_curly	
 %type <stmt> ques	
+%type <stmt> stubs	
+%type <stmt> attributes	
 %token ATTRIBUTE_LIST
 %token STUBS_LIST
 
@@ -153,8 +156,10 @@
 prog:stmt_list
 	;
 
-stmt_list: stmt
-	| stmt_list stmt
+stmt_list: stmt { $$=$1;}
+	| stmt_list stmt {
+		$$=link_chain($1, $2);
+	}
 	;
 	
 stmt: ques
@@ -188,6 +193,12 @@ stmt: ques
 	}
 	| decl_stmt {
 		$$=$1;
+	}
+	| stubs {
+		$$=0;
+	}
+	| attributes{
+		$$=0;
 	}
 	;
 
@@ -260,12 +271,23 @@ open_curly:	'{' {
 	}
 	;
 
-ques: NAME TEXT qtype datatype range_allowed_values';' {
+ques: 	NAME TEXT qtype datatype range_allowed_values';' {
 	      cout << " got question " << endl;
 	      string name=$1;
 	      string q_txt=$2;
 	      $$=new range_question(line_no, QUESTION_TYPE, name, q_txt, q_type, no_mpn, $4, r_data);
-      }
+	      r_data.reset();
+	}
+	| NAME TEXT qtype datatype NAME ';' {
+		cout << " got named stublist type question" << endl;
+	      string name=$1;
+	      string q_txt=$2;
+	      string attribute_list_name=$5;
+	      $$=new named_stub_question(line_no, QUESTION_TYPE, name, q_txt, q_type, no_mpn, $4, attribute_list_name);
+		
+	}
+	;
+
 
 qtype: SP { q_type = spn; }
 	| MP '(' INUMBER ')' { q_type = mpn; no_mpn = $3; }
@@ -278,8 +300,7 @@ datatype: INT8_T
 	|DOUBLE_T
 	;
 
-range_allowed_values: NAME 	{ }
-	| '(' number_range_list ')' { }
+range_allowed_values:  '(' number_range_list ')' { }
 	;
 
 number_range_list: number_range
@@ -394,10 +415,12 @@ expression: expression '+' expression {
 		}
 	}
 	| expression LOGAND expression {
+		cout << "LOGAND expr: " << endl;
 		$$=new bin_expr($1, $3, oper_and);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
+		cout << "after LOGAND expr : " << endl;
 	}
 	| expression '=' expression {
 		$$ = new bin_expr($1, $3, oper_assgn);
@@ -490,6 +513,7 @@ expression: expression '+' expression {
 		}
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
+		cout << "parenth expression" << endl;
 		$$ = new un_expr($2, oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -512,11 +536,13 @@ expression: q_expr {
 
 q_expr: 	NAME IN range_allowed_values {
 			cout << " got NAME IN range_allowed_values " << endl;
-		$$=0;
+			$$=new q_expr($1, r_data, oper_q_expr_in);
+			r_data.reset();
 		}
 	|	NAME '[' expression ']' IN range_allowed_values {
-		cout << "NAME '[' expression ']' IN range_allowed_values " << endl;
-		$$=0;
+			cout << "NAME '[' expression ']' IN range_allowed_values " << endl;
+			$$=new q_expr($1, r_data, oper_q_expr_arr_in);
+			r_data.reset();
 	}
 	| 	COUNT '(' NAME ')' {
 		cout << "COUNT '(' NAME ')' " << endl;
@@ -541,12 +567,13 @@ text_list:      TEXT ';' {
         ;
 
 
-attributes:     ATTRIBUTE_LIST NAME {
-                        attribute_list.resize(0);
-                        //cout << "resize attribute_list to 0\n";
-                }'=' text_list{
-                        //cout <<"got attribute_list size: " << attribute_list.size() << endl;
-                }
+attributes:     ATTRIBUTE_LIST NAME '=' {
+		attribute_list.resize(0);
+		//cout << "resize attribute_list to 0\n";
+	} text_list ';' {
+		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
+		$$=0;
+	}
         ;
 
 
@@ -558,6 +585,7 @@ stubs:     STUBS_LIST NAME {
 		string stub_name=$2;
 		struct named_range nr1(stub_name,stub_list);
 		named_stubs_list.push_back(nr1);
+		$$=0;
 	}
 	;
 
@@ -688,9 +716,16 @@ bool 	void_check( datatype & type1, datatype & type2, datatype& result_type){
 #endif //0
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
-	elem2->prev=elem1;
-	elem1->next=elem2;
-	return elem2;
+	if(elem1 && elem2){
+		elem2->prev=elem1;
+		elem1->next=elem2;
+		return elem2;
+	}
+	else if(elem1){
+		return elem1;
+	} else {
+		return elem2;
+	}
 }
 
 template<class T> T* trav_chain(T* & elem1){

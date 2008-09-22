@@ -108,7 +108,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 89 "qscript.y"
+#line 90 "qscript.y"
 {
 	double dval;
 	int ival ;

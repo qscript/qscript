@@ -371,19 +371,19 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[118] =
     {   0,
-        0,    0,    2,    2,   41,   37,    7,    8,   26,   37,
-       37,   19,   18,   37,   37,   31,   17,   37,   37,   37,
-       35,   35,   35,   35,   35,   35,   35,   35,   35,   35,
-       35,   37,    2,    4,    3,    7,   23,    0,   36,   24,
-       32,    1,    6,    0,   31,   20,   22,   21,   35,   35,
-       35,   35,   35,   35,   35,   33,   29,   28,   27,   35,
-       35,   25,    2,    3,    3,    5,    0,    6,   35,   35,
-       35,   35,   35,   35,   35,   35,   35,   35,    0,   32,
-       35,   35,   35,   35,   35,   34,   35,   35,   35,   35,
-       35,    9,   35,   16,   35,   30,   35,   13,   35,   35,
+        0,    0,    2,    2,   41,   39,    7,    8,   26,   39,
+       39,   18,   19,   39,   39,   31,   17,   39,   39,   39,
+       37,   37,   37,   37,   37,   37,   37,   37,   37,   37,
+       37,   39,    2,    4,    3,    7,   23,    0,   38,   24,
+       32,    1,    6,    0,   31,   20,   22,   21,   37,   37,
+       37,   37,   37,   37,   37,   33,   29,   28,   27,   37,
+       37,   25,    2,    3,    3,    5,    0,    6,   37,   37,
+       37,   37,   37,   37,   37,   37,   37,   37,    0,   32,
+       37,   37,   37,   37,   37,   34,   37,   37,   37,   37,
+       37,    9,   37,   16,   37,   30,   37,   13,   37,   37,
 
-       35,   35,   35,   35,   14,   35,   35,   10,   35,   35,
-       11,   12,   35,   15,   35,   35,    0
+       37,   36,   37,   37,   14,   37,   37,   10,   37,   37,
+       11,   12,   37,   15,   37,   35,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -884,12 +884,12 @@ YY_RULE_SETUP
 case 18:
 YY_RULE_SETUP
 #line 45 "lex.l"
-{ return ')'; }
+{ return '('; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 47 "lex.l"
-{ return '('; }
+#line 46 "lex.l"
+{ return ')'; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
@@ -968,20 +968,33 @@ YY_RULE_SETUP
 #line 76 "lex.l"
 {
 	if_line_no = line_no;
-	printf("got IF"); 
 	return IF;
 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 82 "lex.l"
+#line 81 "lex.l"
 {
 	return ELSE;
 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 86 "lex.l"
+#line 85 "lex.l"
+{
+        return ATTRIBUTE_LIST;
+}
+	YY_BREAK
+case 36:
+YY_RULE_SETUP
+#line 89 "lex.l"
+{
+	return STUBS_LIST;
+}
+	YY_BREAK
+case 37:
+YY_RULE_SETUP
+#line 93 "lex.l"
 {
 	if(yyleng < MY_STR_MAX) {
 		strcpy(yylval.name,yytext);
@@ -992,10 +1005,10 @@ YY_RULE_SETUP
 	}
 }
 	YY_BREAK
-case 36:
-/* rule 36 can match eol */
+case 38:
+/* rule 38 can match eol */
 YY_RULE_SETUP
-#line 96 "lex.l"
+#line 103 "lex.l"
 {
 	int len_text=strlen(yytext);
 	if(yyleng < MY_STR_MAX-1) {
@@ -1007,31 +1020,17 @@ YY_RULE_SETUP
 	return TEXT;
 }
 	YY_BREAK
-case 37:
-YY_RULE_SETUP
-#line 108 "lex.l"
-return yytext[0];
-	YY_BREAK
-case 38:
-YY_RULE_SETUP
-#line 111 "lex.l"
-{
-        return ATTRIBUTE_LIST;
-}
-	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 115 "lex.l"
-{
-	return STUBS_LIST;
-}
+return yytext[0];
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 120 "lex.l"
+#line 119 "lex.l"
 ECHO;
 	YY_BREAK
-#line 1035 "lex.c"
+#line 1034 "lex.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -1996,7 +1995,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 120 "lex.l"
+#line 119 "lex.l"
 
 
 
