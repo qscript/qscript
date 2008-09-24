@@ -271,7 +271,7 @@ open_curly:	'{' {
 	}
 	;
 
-ques: 	NAME TEXT qtype datatype range_allowed_values';' {
+ques: NAME TEXT qtype datatype range_allowed_values';' {
 	      cout << " got question " << endl;
 	      string name=$1;
 	      string q_txt=$2;
@@ -531,7 +531,7 @@ expression: expression '+' expression {
 
 
 expression: q_expr {
-		$$=0;
+		$$=$1;
 	}
 
 q_expr: 	NAME IN range_allowed_values {
@@ -540,7 +540,7 @@ q_expr: 	NAME IN range_allowed_values {
 			r_data.reset();
 		}
 	|	NAME '[' expression ']' IN range_allowed_values {
-			cout << "NAME '[' expression ']' IN range_allowed_values " << endl;
+		cout << "NAME '[' expression ']' IN range_allowed_values " << endl;
 			$$=new q_expr($1, r_data, oper_q_expr_arr_in);
 			r_data.reset();
 	}
@@ -608,6 +608,8 @@ stub_list:	TEXT INUMBER {
 %%
 
 int main(){
+	active_scope=new scope();
+	active_scope_list.push_back(active_scope);
 	return yyparse(); 
 }
 

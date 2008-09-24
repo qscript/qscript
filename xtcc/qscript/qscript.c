@@ -2109,7 +2109,7 @@ yyreduce:
   case 56:
 #line 533 "qscript.y"
     {
-		(yyval.expr)=0;
+		(yyval.expr)=(yyvsp[(1) - (1)].expr);
 	}
     break;
 
@@ -2125,7 +2125,7 @@ yyreduce:
   case 58:
 #line 542 "qscript.y"
     {
-			cout << "NAME '[' expression ']' IN range_allowed_values " << endl;
+		cout << "NAME '[' expression ']' IN range_allowed_values " << endl;
 			(yyval.expr)=new q_expr((yyvsp[(1) - (6)].name), r_data, oper_q_expr_arr_in);
 			r_data.reset();
 	}
@@ -2443,6 +2443,8 @@ yyreturn:
 
 
 int main(){
+	active_scope=new scope();
+	active_scope_list.push_back(active_scope);
 	return yyparse(); 
 }
 
