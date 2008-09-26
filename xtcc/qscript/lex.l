@@ -44,6 +44,8 @@ break	{
 
 "("	{ return '('; }
 ")"	{ return ')'; }
+"{"	{ return '{'; }
+"}"	{ return '}'; }
 
 
 

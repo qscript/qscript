@@ -156,7 +156,17 @@
 prog:stmt_list
 	;
 
-stmt_list: stmt { $$=$1;}
+stmt_list: stmt { 
+		   cerr << "chain 1:"  << $1 << endl; $$=$1; 
+		   cerr << "after $$=$1;" << endl;
+		if(flag_next_stmt_start_of_block){
+			blk_heads.push_back($1);
+			//cout << "blk_heads.size(): " << blk_heads.size() << endl;
+			//start_of_blk=$1;
+			flag_next_stmt_start_of_block=false;
+			blk_start_flag.pop_back();
+		}
+	}
 	| stmt_list stmt {
 		$$=link_chain($1, $2);
 	}
