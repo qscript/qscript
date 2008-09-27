@@ -440,7 +440,7 @@ bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), 
 			}
 		break;
 		default:
-			print_err(compiler_internal_error, " default case of bin_expr", line_no, __LINE__, __FILE__);
+			print_err(compiler_internal_error, " INTERNAL ERROR: default case of bin_expr", line_no, __LINE__, __FILE__);
 			;
 	}
 }
@@ -454,10 +454,9 @@ un2_expr::un2_expr(char* ltxt, e_operator_type le_type):
 	expr(le_type, INT8_TYPE), symp(0), isem_value(0), dsem_value(0), func_index_in_table(-1), 
 	text(ltxt), column_no(-1), operand(0), operand2(0) {
 	if(e_type==oper_text_expr){
-		type=INT8_TYPE;
+		type=STRING_TYPE;
 		//free(ltxt);
-	}
-	if(e_type==oper_name){
+	} else if(e_type==oper_name){
 		map<string,symtab_ent*>::iterator sym_it = find_in_symtab(ltxt);
 		if(sym_it==active_scope->sym_tab.end() ){
 			//cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";

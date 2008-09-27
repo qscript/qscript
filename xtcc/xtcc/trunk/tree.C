@@ -52,7 +52,7 @@ datatype lcm_type(datatype d1, datatype d2){
 	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
 	//if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + d2-INT8_REF_TYPE);
 	if(d1==STRING_TYPE && d2==STRING_TYPE){
-		return BOOL_TYPE;
+		return STRING_TYPE;
 	}
 
 	if(d1==BOOL_TYPE && d2==BOOL_TYPE){

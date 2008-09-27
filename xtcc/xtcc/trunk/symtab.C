@@ -94,6 +94,9 @@ datatype convert_ref_type(datatype dt){
 string human_readable_type(datatype dt){
 	string s="UNKNOWN TYPE";
 	switch(dt){
+		case STRING_TYPE:
+			s="STRING_TYPE";
+		break;
 		case VOID_TYPE:
 			s= "VOID_TYPE";
 		break;	

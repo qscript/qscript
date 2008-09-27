@@ -24,6 +24,9 @@ bool check_type_compat(datatype typ1, datatype typ2){
 	//cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
 	datatype td1=typ1;
 	datatype td2=typ2;
+	if(td1==STRING_TYPE && td2==STRING_TYPE){
+		return true;
+	}
 	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + typ1-INT8_REF_TYPE);
 	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + typ2-INT8_REF_TYPE);
 	if((td1>=INT8_TYPE&&td1<=DOUBLE_TYPE) &&
