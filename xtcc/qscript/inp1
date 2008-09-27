@@ -7,7 +7,6 @@ stubs gender = "Male" 1 "Female" 2;
 
 attributes q1_attrs= "The 1st attribute"; "The 2nd attribute"; "The 3rd attribute"; "By the 4th attribute the respondent is really bored";;
 
-   // this does not work below any more because the logical AND needs a type - which should not be null
 if( q1 in (1) && q2 in (5,6-8)) {
 	q4 "Question 4 - Ask only male who are single" mp (20) int8_t (1-5,7-10);
 	//q4 "Question 4 - Ask only male who are single" mp (20) int8_t brands;
@@ -16,3 +15,10 @@ if( q1 in (1) && q2 in (5,6-8)) {
 if(q3[3] in (1-2,5-8)){
 	q5 "Question 5 - Ask only male who are single" mp (20) int8_t (1-5,7-10);
 }
+
+stubs like_sc_5pt="Like it very much" 5
+		"Like it " 4
+		"Neutral" 3
+		"Dont like it" 2
+		"Dont like it at all" 1;
+

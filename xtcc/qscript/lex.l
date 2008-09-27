@@ -32,6 +32,7 @@ int16_t		{ yylval.dt=INT16_TYPE;	       return INT16_T; }
 int32_t		{ yylval.dt=INT32_TYPE;	       return INT32_T; }
 float	{ yylval.dt=FLOAT_TYPE; return FLOAT_T; }
 double { yylval.dt=DOUBLE_TYPE; return DOUBLE_T; }
+string { yylval.dt=STRING_TYPE; return STRING_T; }
 continue	{
 	return CONTINUE;
 }

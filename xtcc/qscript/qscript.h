@@ -53,22 +53,23 @@
      INT32_T = 269,
      FLOAT_T = 270,
      DOUBLE_T = 271,
-     LOGOR = 272,
-     LOGAND = 273,
-     NOEQ = 274,
-     ISEQ = 275,
-     GEQ = 276,
-     LEQ = 277,
-     NOT = 278,
-     UMINUS = 279,
-     COUNT = 280,
-     IN = 281,
-     FUNC_CALL = 282,
-     CONTINUE = 283,
-     BREAK = 284,
-     TEXT = 285,
-     ATTRIBUTE_LIST = 286,
-     STUBS_LIST = 287
+     STRING_T = 272,
+     LOGOR = 273,
+     LOGAND = 274,
+     NOEQ = 275,
+     ISEQ = 276,
+     GEQ = 277,
+     LEQ = 278,
+     NOT = 279,
+     UMINUS = 280,
+     COUNT = 281,
+     IN = 282,
+     FUNC_CALL = 283,
+     CONTINUE = 284,
+     BREAK = 285,
+     TEXT = 286,
+     ATTRIBUTE_LIST = 287,
+     STUBS_LIST = 288
    };
 #endif
 /* Tokens.  */
@@ -86,22 +87,23 @@
 #define INT32_T 269
 #define FLOAT_T 270
 #define DOUBLE_T 271
-#define LOGOR 272
-#define LOGAND 273
-#define NOEQ 274
-#define ISEQ 275
-#define GEQ 276
-#define LEQ 277
-#define NOT 278
-#define UMINUS 279
-#define COUNT 280
-#define IN 281
-#define FUNC_CALL 282
-#define CONTINUE 283
-#define BREAK 284
-#define TEXT 285
-#define ATTRIBUTE_LIST 286
-#define STUBS_LIST 287
+#define STRING_T 272
+#define LOGOR 273
+#define LOGAND 274
+#define NOEQ 275
+#define ISEQ 276
+#define GEQ 277
+#define LEQ 278
+#define NOT 279
+#define UMINUS 280
+#define COUNT 281
+#define IN 282
+#define FUNC_CALL 283
+#define CONTINUE 284
+#define BREAK 285
+#define TEXT 286
+#define ATTRIBUTE_LIST 287
+#define STUBS_LIST 288
 
 
 
@@ -121,7 +123,7 @@ typedef union YYSTYPE
 	class question* ques;
 }
 /* Line 1489 of yacc.c.  */
-#line 125 "qscript.h"
+#line 127 "qscript.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

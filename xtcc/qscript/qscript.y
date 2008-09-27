@@ -113,6 +113,7 @@
 %token <dt> INT32_T
 %token <dt> FLOAT_T
 %token <dt> DOUBLE_T
+%token <dt> STRING_T
 %type <dt> datatype
 
 %token '['
@@ -214,11 +215,10 @@ stmt: ques
 
 decl_stmt: datatype NAME ';' {
 		$$ = active_scope->insert($2, $1/*, line_no*/);
-		free($2);
-	   }
+		//free($2);
+	}
 	| datatype NAME '=' expression ';'{
 		$$ = active_scope->insert($2, $1, $4);
-
 	}
 	| datatype NAME '[' expression ']' ';'{
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
@@ -308,6 +308,7 @@ datatype: INT8_T
 	|INT32_T  	
 	|FLOAT_T
 	|DOUBLE_T
+	|STRING_T
 	;
 
 range_allowed_values:  '(' number_range_list ')' { }
@@ -543,16 +544,17 @@ expression: expression '+' expression {
 expression: q_expr {
 		$$=$1;
 	}
+	;
 
 q_expr: 	NAME IN range_allowed_values {
-			cout << " got NAME IN range_allowed_values " << endl;
-			$$=new q_expr($1, r_data, oper_q_expr_in);
-			r_data.reset();
-		}
+		cout << " got NAME IN range_allowed_values " << endl;
+		$$=new q_expr($1, r_data, oper_q_expr_in);
+		r_data.reset();
+	}
 	|	NAME '[' expression ']' IN range_allowed_values {
 		cout << "NAME '[' expression ']' IN range_allowed_values " << endl;
-			$$=new q_expr($1, r_data, oper_q_expr_arr_in);
-			r_data.reset();
+		$$=new q_expr($1, r_data, oper_q_expr_arr_in);
+		r_data.reset();
 	}
 	| 	COUNT '(' NAME ')' {
 		cout << "COUNT '(' NAME ')' " << endl;
@@ -567,12 +569,12 @@ expr_list: expression { /*$$=$1;*/ }
 	;
 
 text_list:      TEXT ';' {
-                        string s1=$1;
-                        attribute_list.push_back(s1);
-                }
+		string s1=$1;
+		attribute_list.push_back(s1);
+	}
         | text_list TEXT ';' {
-                        string s1=$2;
-                        attribute_list.push_back(s1);
+		string s1=$2;
+		attribute_list.push_back(s1);
         }
         ;
 
@@ -601,17 +603,17 @@ stubs:     STUBS_LIST NAME {
 
 
 stub_list:	TEXT INUMBER {
-                        string s1=$1;
-			int code=$2;
-			struct stub_pair pair1(s1,code);
-			stub_list.push_back(pair1);
+		string s1=$1;
+		int code=$2;
+		struct stub_pair pair1(s1,code);
+		stub_list.push_back(pair1);
 	}
 	| stub_list TEXT INUMBER {
-                        string s1=$2;
-			int code=$3;
-			struct stub_pair pair1(s1,code);
-			stub_list.push_back(pair1);
-			//cout << "chaining stublist" << endl;
+		string s1=$2;
+		int code=$3;
+		struct stub_pair pair1(s1,code);
+		stub_list.push_back(pair1);
+		//cout << "chaining stublist" << endl;
 	}
 	;
 
