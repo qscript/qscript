@@ -31,7 +31,7 @@
 enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
 		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
 		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
-		oper_blk_arr_assgn, oper_in,
+		oper_blk_arr_assgn, oper_in, oper_q_expr_in, oper_q_expr_arr_in,
 		oper_err
 	};
 

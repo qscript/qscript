@@ -51,6 +51,13 @@ datatype lcm_type(datatype d1, datatype d2){
 	datatype td1=d1, td2=d2;
 	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
 	//if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + d2-INT8_REF_TYPE);
+	if(d1==STRING_TYPE && d2==STRING_TYPE){
+		return BOOL_TYPE;
+	}
+
+	if(d1==BOOL_TYPE && d2==BOOL_TYPE){
+		return BOOL_TYPE;
+	}
 	td1=convert_ref_type(td1);
 	td2=convert_ref_type(td2);
 
@@ -75,6 +82,8 @@ datatype arr_deref_type(datatype d1){
 	*/
 	if(d1>=INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
 		return datatype(INT8_TYPE+d1-INT8_ARR_TYPE);
+	} else if(d1==STRING_ARR_TYPE){
+		return STRING_TYPE;
 	}
 	cerr << "Type Error: lineno: trying to access array with non-integer index" << line_no << "\n";
 	++no_errors;

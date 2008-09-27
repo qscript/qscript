@@ -378,13 +378,16 @@ un2_expr::~un2_expr(){
 }
 
 bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), l_op(llop), r_op(lrop){
+	cout << "entered bin_expr::bin_expr" << endl;
 
 	if (e_type!=oper_assgn && (l_op->e_type==oper_blk_arr_assgn||r_op->e_type==oper_blk_arr_assgn)){
+		cout << "case 1:" << endl;
 		type=ERROR_TYPE;
 		++no_errors;
 		print_err(compiler_sem_err, "error: oper_blk_arr_assgn: used in binary expr ",
 				line_no, __LINE__, __FILE__);
 	} else if (e_type ==oper_assgn){
+		cout << "case 2:" << endl;
 		if( (!l_op->is_lvalue()) ){
 			type=ERROR_TYPE;
 			++no_errors;
@@ -424,6 +427,7 @@ bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), 
 		case oper_iseq :	
 		case oper_or :	
 		case oper_and :	
+			cout << "case 3:" << endl;
 			if(void_check(l_op->type, r_op->type, type)/*true*/){
 				type=lcm_type(l_op->type, r_op->type);
 			}
@@ -436,6 +440,7 @@ bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), 
 			}
 		break;
 		default:
+			print_err(compiler_internal_error, " default case of bin_expr", line_no, __LINE__, __FILE__);
 			;
 	}
 }

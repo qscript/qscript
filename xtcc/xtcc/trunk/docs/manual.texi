@@ -269,7 +269,7 @@ Runtime	requirements
 @example
 	
 	$ ./configure
-	$ ./make
+	$ make
 
 @end example
 	
@@ -285,7 +285,7 @@ Runtime	requirements
 	When the program runs, it needs a temporary directory to create intermediate files this directory should be named @file{xtcc_work}. 
 	
 
-	I have also successfully compiled the program on WINDOWS - I installed the windows binary of bison, flex, gnu make and used Borland's  C++ compiler - which is available in their free command line tools. Since WINDOWS is case sensitive there is no distinction between the "C" files and "c" files, so you need to force the compilation to C++ by passing the -P option to bcc32. Please read the license for bcc32 before using.
+	I have also successfully compiled the program on WINDOWS - I installed the windows binary of bison, flex, gnu make and used Borland's  C++ compiler - which is available in their free command line tools. Since WINDOWS is case insensitive there is no distinction between the "C" files and "c" files, so you need to force the compilation to C++ by passing the -P option to bcc32. Please read the license for bcc32 before using.
 
 	Here is what I do. Put this at the top of the make file:
 
