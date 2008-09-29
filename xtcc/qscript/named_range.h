@@ -11,7 +11,7 @@
 			name(l_name), stubs(l_stubs)
 		{
 			cout << "named_range: constructor" << endl;
-	#if 0
+#if 0
 			string fname=name + ".qin";
 			ofstream ifile(fname.c_str(), ios_base::out);
 			if(!ifile) {

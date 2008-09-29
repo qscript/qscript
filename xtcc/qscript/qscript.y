@@ -32,6 +32,7 @@
 #include "range_set.h"
 #include "stub_pair.h"
 #include "named_range.h"
+#include "named_attributes.h"
 #include "question.h"
 
 	question_type q_type;
@@ -63,6 +64,7 @@
         range_data r_data;
         vector <string> attribute_list;
 	vector <named_range> named_stubs_list;
+	vector <named_attribute_list> named_attributes_list;
         vector <stub_pair> stub_list;
 
 
@@ -585,6 +587,9 @@ attributes:     ATTRIBUTE_LIST NAME '=' {
 	} text_list ';' {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		$$=0;
+		string attr_list_name=$2;
+		struct named_attribute_list attr_list(attr_list_name,attribute_list);
+		named_attributes_list.push_back(attr_list);
 	}
         ;
 
