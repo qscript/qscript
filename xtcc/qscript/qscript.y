@@ -586,10 +586,25 @@ attributes:     ATTRIBUTE_LIST NAME '=' {
 		//cout << "resize attribute_list to 0\n";
 	} text_list ';' {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
-		$$=0;
+		//$$=0;
 		string attr_list_name=$2;
+		struct named_attribute_list * n_attr_stmt = new named_attribute_list(NAMED_ATTRIBUTE_TYPE, 
+				line_no, attr_list_name, attribute_list);
+		$$ = n_attr_stmt;
+		if(active_scope_list.size()!=1){
+			print_err(compiler_sem_err, " named_attribute_list found on scope level higher than 0 ", 
+						line_no, __LINE__, __FILE__);
+		}
+		if(active_scope_list[0]->sym_tab.find($2) == active_scope_list[0]->sym_tab.end()){
+			string s(attr_list_name);
+			symtab_ent* se=new symtab_ent($2, NAMED_ATTRIBUTE_TYPE);
+			active_scope_list[0]->sym_tab[s] = se;
+			n_attr_stmt->symp = se;
+		}
+		/*
 		struct named_attribute_list attr_list(attr_list_name,attribute_list);
 		named_attributes_list.push_back(attr_list);
+		*/
 	}
         ;
 

@@ -572,8 +572,8 @@ static const yytype_uint16 yyrline[] =
      320,   323,   340,   352,   358,   364,   370,   376,   382,   388,
      394,   400,   406,   412,   418,   424,   430,   438,   444,   450,
      457,   463,   469,   476,   483,   522,   528,   546,   551,   556,
-     561,   567,   568,   573,   577,   584,   584,   597,   597,   610,
-     616
+     561,   567,   568,   573,   577,   584,   584,   612,   612,   625,
+     631
 };
 #endif
 
@@ -2198,15 +2198,30 @@ yyreduce:
 #line 587 "qscript.y"
     {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
-		(yyval.stmt)=0;
+		//$$=0;
 		string attr_list_name=(yyvsp[(2) - (6)].name);
+		struct named_attribute_list * n_attr_stmt = new named_attribute_list(NAMED_ATTRIBUTE_TYPE, 
+				line_no, attr_list_name, attribute_list);
+		(yyval.stmt) = n_attr_stmt;
+		if(active_scope_list.size()!=1){
+			print_err(compiler_sem_err, " named_attribute_list found on scope level higher than 0 ", 
+						line_no, __LINE__, __FILE__);
+		}
+		if(active_scope_list[0]->sym_tab.find((yyvsp[(2) - (6)].name)) == active_scope_list[0]->sym_tab.end()){
+			string s(attr_list_name);
+			symtab_ent* se=new symtab_ent((yyvsp[(2) - (6)].name), NAMED_ATTRIBUTE_TYPE);
+			active_scope_list[0]->sym_tab[s] = se;
+			n_attr_stmt->symp = se;
+		}
+		/*
 		struct named_attribute_list attr_list(attr_list_name,attribute_list);
 		named_attributes_list.push_back(attr_list);
+		*/
 	}
     break;
 
   case 67:
-#line 597 "qscript.y"
+#line 612 "qscript.y"
     {
 		stub_list.resize(0);
 		//cout << "resize attribute_list to 0\n";
@@ -2214,7 +2229,7 @@ yyreduce:
     break;
 
   case 68:
-#line 600 "qscript.y"
+#line 615 "qscript.y"
     {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=(yyvsp[(2) - (6)].name);
@@ -2225,7 +2240,7 @@ yyreduce:
     break;
 
   case 69:
-#line 610 "qscript.y"
+#line 625 "qscript.y"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int code=(yyvsp[(2) - (2)].ival);
@@ -2235,7 +2250,7 @@ yyreduce:
     break;
 
   case 70:
-#line 616 "qscript.y"
+#line 631 "qscript.y"
     {
 		string s1=(yyvsp[(2) - (3)].text_buf);
 		int code=(yyvsp[(3) - (3)].ival);
@@ -2247,7 +2262,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2251 "qscript.c"
+#line 2266 "qscript.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2461,7 +2476,7 @@ yyreturn:
 }
 
 
-#line 625 "qscript.y"
+#line 640 "qscript.y"
 
 
 int main(){

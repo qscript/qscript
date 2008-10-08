@@ -1,0 +1,6 @@
+int32_t i;
+string s1;
+s1="This is a test";
+string s2;
+s2="of string addition";
+s1=s1+s2;
