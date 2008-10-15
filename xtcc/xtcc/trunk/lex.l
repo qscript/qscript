@@ -136,6 +136,10 @@ continue	{
 	return CONTINUE;
 }
 
+attributes      {
+        return ATTRIBUTE_LIST;
+}
+
 break	{
 	return BREAK;
 }

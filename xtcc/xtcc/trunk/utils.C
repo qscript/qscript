@@ -5,6 +5,8 @@
 #include "expr.h"
 #include "tree.h"
 #include "stmt.h"
+#include "../../qscript/named_attributes.h"
+extern vector <named_attribute_list> named_attributes_list;
 extern vector<table*>	table_list;
 extern map <string, ax*> ax_map;
 extern vector<mem_addr_tab>  mem_addr;
@@ -52,14 +54,27 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
 		} else {
 			found = true;
 			//cout << "found" << endl;
-			break;
+			return sym_it;
 		}
 	}
+	/*
 	if(found==false){
-		return active_scope->sym_tab.end();
+		for (int i=0; i< named_attributes_list.size(); ++i){
+			if(named_attributes_list[i].name == id){
+				found=true;
+				break;
+			}
+		}
+	}
+	*/
+
+
+	return active_scope->sym_tab.end();
+		/*
 	} else {
 		return sym_it;
 	}
+	*/
 }
 
 

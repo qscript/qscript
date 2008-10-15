@@ -24,6 +24,7 @@
  */
 
 %{
+#include "../../qscript/named_attributes.h"
 #include "const_defs.h"
 #include "symtab.h"
 #include "tree.h"
@@ -88,6 +89,8 @@
 	vector <stmt*> blk_heads;
 	vector <stub*> stub_list;
 	vector<bool> blk_start_flag;
+        vector <string> attribute_list;
+	vector <named_attribute_list> named_attributes_list;
 
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
@@ -172,6 +175,7 @@
 %token <dt> INT32_T
 %token <dt> FLOAT_T
 %token <dt> DOUBLE_T
+%token ATTRIBUTE_LIST
 
 %token AXSTART
 %token TABSTART
@@ -191,6 +195,7 @@
 %type <stub> stub
 %type <stub> stub_list
 	//%type <fld_ax_stmt> bit_list
+%type <stmt> attributes	
 
 %token CONTINUE BREAK
 
@@ -244,7 +249,7 @@ top_level_item_list: top_level_item {
 	;
 
 top_level_item: decl{
-			$$=$1;
+		$$=$1;
 	}
 	| func_defn	{
 		$$=$1;
@@ -393,6 +398,9 @@ statement_list: statement {
 	}
 	|	statement_list statement {
 		$$=link_chain($1,$2);
+	}
+	| attributes {
+		$$=0;
 	}
 	;
 
@@ -716,7 +724,6 @@ expression: expression '+' expression {
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
-
 			} else {
 				$$=new un2_expr(ERROR_TYPE);
 				void *ptr=$$;
@@ -843,6 +850,40 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 	}
 	;
 
+attributes:     ATTRIBUTE_LIST NAME '=' {
+		attribute_list.resize(0);
+		//cout << "resize attribute_list to 0\n";
+	} text_list ';' {
+		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
+		//$$=0;
+		string attr_list_name=$2;
+		struct named_attribute_list * n_attr_stmt= new named_attribute_list(NAMED_ATTRIBUTE_TYPE,
+				line_no, attr_list_name, attribute_list);
+		$$=n_attr_stmt;
+		if(active_scope_list.size()!=1){
+			print_err(compiler_sem_err, " named_attribute_list found on scope level higher than 0 ", 
+						line_no, __LINE__, __FILE__);
+		}
+		//named_attributes_list.push_back(attr_list);
+		if(active_scope_list[0]->sym_tab.find($2) == active_scope_list[0]->sym_tab.end()){
+			string s(attr_list_name);
+			symtab_ent* se=new symtab_ent($2, NAMED_ATTRIBUTE_TYPE);
+			active_scope_list[0]->sym_tab[s] = se;
+			n_attr_stmt->symp = se;
+		}
+	}
+        ;
+
+text_list:      TEXT ';' {
+		string s1=$1;
+		attribute_list.push_back(s1);
+	}
+        | text_list TEXT ';' {
+		string s1=$2;
+		attribute_list.push_back(s1);
+        }
+        ;
+
 stub_list: stub 
 	| stub_list stub {
 		//$$=link_chain($1, $2);
@@ -912,7 +953,7 @@ bit_list: BIT NAME ';' stub_list';' {
 	 	//$$ = new fld_ax_stmt ($2, stub_ptr);
 	 	$$ = new fld_ax_stmt (fld_axstmt, $2, stub_list);
 		stub_list.resize(0);
-	  }
+	}
 	;
 
 %%

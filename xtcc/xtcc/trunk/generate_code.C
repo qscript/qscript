@@ -93,7 +93,12 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			fprintf(op, "\t\ttab_op << ax_%s.ttl_stmt_text[0] << \" x \" << ax_%s.ttl_stmt_text[0] << endl;\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
-			//fprintf(op, "\t\ttab_op << \",\";\n");
+			fprintf(op, "\t\ttab_op << \",,\";\n");
+			fprintf(op, "\t\tfor(int j=0; j<ax_%s.count_stmt_text.size(); ++j){\n", 
+					map_iter_b->first.c_str());
+			fprintf(op, "\t\t\t tab_op << ax_%s.count_stmt_text[j] << \",\" ;\n", 
+					map_iter_b->first.c_str()); 
+			fprintf(op, "\t\t}\n");
 
 #if 0
 			if( banner_ax->ax_stmt_start && banner_ax->fld_stmt==0) {

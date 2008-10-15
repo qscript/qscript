@@ -362,7 +362,7 @@ struct func_decl_stmt: public stmt{
 
 struct decl_stmt: public stmt{
 	struct symtab_ent* symp;
-	decl_stmt( datatype dtype, int lline_number):stmt(dtype, lline_number),symp(0)
+	decl_stmt( datatype dtype, int lline_number):stmt(dtype, lline_number), symp(0)
 	{}
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);

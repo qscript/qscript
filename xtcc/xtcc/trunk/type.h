@@ -63,25 +63,26 @@
      INT32_T = 279,
      FLOAT_T = 280,
      DOUBLE_T = 281,
-     AXSTART = 282,
-     TABSTART = 283,
-     ED_START = 284,
-     DATA_STRUCT = 285,
-     REC_LEN = 286,
-     ED_END = 287,
-     TAB = 288,
-     COND_START = 289,
-     CONTINUE = 290,
-     BREAK = 291,
-     LOGOR = 292,
-     LOGAND = 293,
-     NOEQ = 294,
-     ISEQ = 295,
-     GEQ = 296,
-     LEQ = 297,
-     NOT = 298,
-     UMINUS = 299,
-     FUNC_CALL = 300
+     ATTRIBUTE_LIST = 282,
+     AXSTART = 283,
+     TABSTART = 284,
+     ED_START = 285,
+     DATA_STRUCT = 286,
+     REC_LEN = 287,
+     ED_END = 288,
+     TAB = 289,
+     COND_START = 290,
+     CONTINUE = 291,
+     BREAK = 292,
+     LOGOR = 293,
+     LOGAND = 294,
+     NOEQ = 295,
+     ISEQ = 296,
+     GEQ = 297,
+     LEQ = 298,
+     NOT = 299,
+     UMINUS = 300,
+     FUNC_CALL = 301
    };
 #endif
 /* Tokens.  */
@@ -109,32 +110,33 @@
 #define INT32_T 279
 #define FLOAT_T 280
 #define DOUBLE_T 281
-#define AXSTART 282
-#define TABSTART 283
-#define ED_START 284
-#define DATA_STRUCT 285
-#define REC_LEN 286
-#define ED_END 287
-#define TAB 288
-#define COND_START 289
-#define CONTINUE 290
-#define BREAK 291
-#define LOGOR 292
-#define LOGAND 293
-#define NOEQ 294
-#define ISEQ 295
-#define GEQ 296
-#define LEQ 297
-#define NOT 298
-#define UMINUS 299
-#define FUNC_CALL 300
+#define ATTRIBUTE_LIST 282
+#define AXSTART 283
+#define TABSTART 284
+#define ED_START 285
+#define DATA_STRUCT 286
+#define REC_LEN 287
+#define ED_END 288
+#define TAB 289
+#define COND_START 290
+#define CONTINUE 291
+#define BREAK 292
+#define LOGOR 293
+#define LOGAND 294
+#define NOEQ 295
+#define ISEQ 296
+#define GEQ 297
+#define LEQ 298
+#define NOT 299
+#define UMINUS 300
+#define FUNC_CALL 301
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 106 "type.y"
+#line 109 "type.y"
 {
 	double dval;
 	int ival ;
@@ -155,7 +157,7 @@ typedef union YYSTYPE
 	class basic_count_ax_stmt * count_stmt;
 }
 /* Line 1489 of yacc.c.  */
-#line 159 "type.h"
+#line 161 "type.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
