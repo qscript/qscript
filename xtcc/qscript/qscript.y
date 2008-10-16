@@ -160,12 +160,9 @@ prog:stmt_list
 	;
 
 stmt_list: stmt { 
-		   cerr << "chain 1:"  << $1 << endl; $$=$1; 
-		   cerr << "after $$=$1;" << endl;
+		$$=$1; 
 		if(flag_next_stmt_start_of_block){
 			blk_heads.push_back($1);
-			//cout << "blk_heads.size(): " << blk_heads.size() << endl;
-			//start_of_blk=$1;
 			flag_next_stmt_start_of_block=false;
 			blk_start_flag.pop_back();
 		}
@@ -334,7 +331,6 @@ number_range: INUMBER '-' INUMBER {
 				cerr << "range_list: ran_start_end rcount : buffer overflow:\n";
 				cerr << " I should use vector and get rid of this restriction\n";
 			}
-			
                 }
         }
 	| INUMBER {
