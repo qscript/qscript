@@ -40,17 +40,19 @@
 
 prog: stmt_list {
 	tree_root=$1;
-		while($1->prev){
-			tree_root=$1->prev;
+		while(tree_root->prev){
+			tree_root=tree_root->prev;
 		}
 	}
 
 stmt_list: stmt { 
 		$$=$1;
+		cout << "got stmt" << endl;
 	}
 	| stmt_list stmt {
-		$1->next = $2;
+		$1->next =$2;
 		$2->prev=$1;
+		cout << "chaining" << endl;
 		$$=$2;
 	}
 	;
@@ -63,9 +65,12 @@ stmt: expr ';' {
 
 
 expr: expr LOGAND expr {
+		$$=new bin_expr($1, $3, oper_and);
 	}
 	| NAME IN range_allowed_values {
 		$$=new bin2_expr($1, r_data, oper_in);
+		r_data.icount=0;
+		r_data.rcount=0;
 	}
 	;
 
@@ -110,13 +115,20 @@ number_range: INUMBER '-' INUMBER {
 
 %%
 
+void generate_code();
 
 int main(){
-	return yyparse();
+	int no_errors=yyparse();
+	if(!no_errors){
+		generate_code();
+		return 0;
+	} else return no_errors;
+	/*
 	for(int i=0; i<1000; i++){
 		cout << get_temp_name() << endl;
 	}
-	return 0;
+	*/
+
 }
 
 
@@ -153,4 +165,12 @@ string get_temp_name(){
 	//cout << s << endl;
 	string s1="temp_"+s;
 	return s1;
+}
+
+
+void generate_code(){
+	FILE * op=fopen("expr_oper_in_output.C", "w");
+	struct stmt* st_ptr=tree_root;
+	st_ptr->print_stmt_lst(op);
+	fclose(op);
 }

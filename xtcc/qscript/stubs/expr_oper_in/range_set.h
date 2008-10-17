@@ -37,6 +37,7 @@ struct range_data{
 	range_data(){
 		icount=0;
 		rcount=0;
+		cout << "range_data:: constructor called\n";
 	}
 	range_data (range_data& d1){
 		icount=d1.icount;

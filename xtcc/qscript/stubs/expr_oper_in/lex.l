@@ -40,6 +40,8 @@ in	return IN;
 	}
 }
 
+.	return yytext[0];
+
 
 %%
 

@@ -30,6 +30,7 @@ struct expr_stmt: public stmt{
 	struct expr* expr;
 	expr_stmt(int lline_number, struct expr* e): stmt(lline_number), expr(e) {}
 	void print_stmt_lst(FILE * & fptr){
+		cout << "expr_stmt::print_stmt_lst()" << endl;
 		fflush(fptr);
 		if(fptr){
 			//print_expr(fptr, expr);

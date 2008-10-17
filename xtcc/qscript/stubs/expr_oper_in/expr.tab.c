@@ -430,8 +430,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    41,    41,    48,    51,    58,    65,    67,    72,    78,
-      80,    84,   100
+       0,    41,    41,    48,    52,    60,    67,    70,    77,    83,
+      85,    89,   105
 };
 #endif
 
@@ -1343,8 +1343,8 @@ yyreduce:
 #line 41 "expr.y"
     {
 	tree_root=(yyvsp[(1) - (1)].stmt);
-		while((yyvsp[(1) - (1)].stmt)->prev){
-			tree_root=(yyvsp[(1) - (1)].stmt)->prev;
+		while(tree_root->prev){
+			tree_root=tree_root->prev;
 		}
 	;}
     break;
@@ -1353,59 +1353,64 @@ yyreduce:
 #line 48 "expr.y"
     { 
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
+		cout << "got stmt" << endl;
 	;}
     break;
 
   case 4:
-#line 51 "expr.y"
+#line 52 "expr.y"
     {
-		(yyvsp[(1) - (2)].stmt)->next = (yyvsp[(2) - (2)].stmt);
+		(yyvsp[(1) - (2)].stmt)->next =(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
+		cout << "chaining" << endl;
 		(yyval.stmt)=(yyvsp[(2) - (2)].stmt);
 	;}
     break;
 
   case 5:
-#line 58 "expr.y"
+#line 60 "expr.y"
     {
 		(yyval.stmt) = new expr_stmt(line_no, (yyvsp[(1) - (2)].expr));
 	;}
     break;
 
   case 6:
-#line 65 "expr.y"
+#line 67 "expr.y"
     {
+		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
 	;}
     break;
 
   case 7:
-#line 67 "expr.y"
+#line 70 "expr.y"
     {
 		(yyval.expr)=new bin2_expr((yyvsp[(1) - (3)].name), r_data, oper_in);
+		r_data.icount=0;
+		r_data.rcount=0;
 	;}
     break;
 
   case 8:
-#line 72 "expr.y"
+#line 77 "expr.y"
     { 
 		(yyval.dt)=UNNAMED_RANGE;
 	;}
     break;
 
   case 9:
-#line 78 "expr.y"
+#line 83 "expr.y"
     {
 	;}
     break;
 
   case 10:
-#line 80 "expr.y"
+#line 85 "expr.y"
     {
 	;}
     break;
 
   case 11:
-#line 84 "expr.y"
+#line 89 "expr.y"
     {
                 if( (yyvsp[(3) - (3)].ival) <=(yyvsp[(1) - (3)].ival) ) {
                         cout << "error on lineno: " << line_no
@@ -1425,7 +1430,7 @@ yyreduce:
     break;
 
   case 12:
-#line 100 "expr.y"
+#line 105 "expr.y"
     {
                 if(r_data.icount<MAX_RANGE_ELEMENTS){
                         r_data.ran_indiv[r_data.icount]=(yyvsp[(1) - (1)].ival);
@@ -1439,7 +1444,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1443 "expr.tab.c"
+#line 1448 "expr.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1653,20 +1658,28 @@ yyreturn:
 }
 
 
-#line 111 "expr.y"
+#line 116 "expr.y"
 
 
+void generate_code();
 
 int main(){
-	//return yyparse();
+	int no_errors=yyparse();
+	if(!no_errors){
+		generate_code();
+		return 0;
+	} else return no_errors;
+	/*
 	for(int i=0; i<1000; i++){
 		cout << get_temp_name() << endl;
 	}
-	return 0;
+	*/
+
 }
 
 
 string get_temp_name(){
+	// about a billion temporaries before we run out
 	const int max_temp=10;
 	static int count=0;
 	char buffer[max_temp];
@@ -1698,5 +1711,13 @@ string get_temp_name(){
 	//cout << s << endl;
 	string s1="temp_"+s;
 	return s1;
+}
+
+
+void generate_code(){
+	FILE * op=fopen("expr_oper_in_output.C", "w");
+	struct stmt* st_ptr=tree_root;
+	st_ptr->print_stmt_lst(op);
+	fclose(op);
 }
 

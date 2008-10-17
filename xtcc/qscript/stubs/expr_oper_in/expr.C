@@ -1,5 +1,28 @@
 #include "expr.h"
 
+bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype),
+	l_op(llop), r_op(lrop)
+{
+}
+
+void bin_expr::print_expr(FILE * edit_out){
+	switch(e_type){
+		case oper_and:	
+		l_op->print_expr(edit_out);
+		fprintf(edit_out, " && ");
+		r_op->print_expr(edit_out);
+		break;
+		default:
+			fprintf(edit_out, " invalid e_type in print_expr\n");
+
+	}
+}
+
+void bin_expr::print_oper_assgn(FILE * edit_out){
+}
+
+bin_expr::~bin_expr(){
+}
 
 int expr::isvalid(){
 	//cout << "isvalid called" << endl;
@@ -21,6 +44,24 @@ bin2_expr::~bin2_expr(){
 	delete r_data;
 }
 
+string get_temp_name();
 void bin2_expr::print_expr(FILE* fptr){
+	fprintf(fptr, "bin2_expr::print_expr()");
+	string struct_name = get_temp_name();
+	fprintf(fptr, "\tstruct %s{\n", struct_name.c_str());
+	fprintf(fptr, "\t\tconst int size_ran_indiv;\n");
+	fprintf(fptr, "\t\tconst int size_start_end;\n");
+	fprintf(fptr, "\t\tvector<int> ran_indiv;\n");
+	fprintf(fptr, "\t\tvector< pair<int,int> > ran_start_end;\n");
+	fprintf(fptr, "\t\t%s (): size_ran_indiv(%d), size_start_end(%d),\n", struct_name.c_str(),
+		r_data->icount, r_data->rcount);
+	fprintf(fptr, "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n");
+	for(int i=0; i< r_data->rcount-1; ++i){
+		fprintf(fptr, "ran_start_end[%d]=pair<int,int>(%d, %d);\n",
+			r_data->ran_start_end[i*2], r_data->ran_start_end[i*2+1]);
+	}
+	for(int i=0; i< r_data->icount; ++i){
+		fprintf(fptr, "ran_indiv[%d]=%d;\n", i, r_data->ran_indiv[i]);
+	}
 }
 
