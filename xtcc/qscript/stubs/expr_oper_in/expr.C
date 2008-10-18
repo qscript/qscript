@@ -57,11 +57,28 @@ void bin2_expr::print_expr(FILE* fptr){
 		r_data->icount, r_data->rcount);
 	fprintf(fptr, "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n");
 	for(int i=0; i< r_data->rcount-1; ++i){
-		fprintf(fptr, "ran_start_end[%d]=pair<int,int>(%d, %d);\n",
+		fprintf(fptr, "\t\t\tran_start_end[%d]=pair<int,int>(%d, %d);\n",
 			r_data->ran_start_end[i*2], r_data->ran_start_end[i*2+1]);
 	}
 	for(int i=0; i< r_data->icount; ++i){
-		fprintf(fptr, "ran_indiv[%d]=%d;\n", i, r_data->ran_indiv[i]);
+		fprintf(fptr, "\t\t\tran_indiv[%d]=%d;\n", i, r_data->ran_indiv[i]);
 	}
+	fprintf(fptr, "\t\t}\n");
+
+	fprintf(fptr, "\t\tbool exists(int key){\n");
+	fprintf(fptr, "\t\t\tfor(int i=0; i<size_start_end; ++i){\n");
+	fprintf(fptr, "\t\t\t\tif(key >=ran_start_end[i].first && key <=ran_start_end[i].second){\n");
+	fprintf(fptr, "\t\t\t\t\treturn true;\n");
+	fprintf(fptr, "\t\t\t\t}\n");
+	fprintf(fptr, "\t\t\t}\n");
+	fprintf(fptr, "\t\t\tfor(int i=0; i< size_ran_indiv; ++i){\n");
+	fprintf(fptr, "\t\t\t\tif(key==ran_indiv[i]){\n");
+	fprintf(fptr, "\t\t\t\t\treturn true;\n");
+	fprintf(fptr, "\t\t\t\t}\n");
+	fprintf(fptr, "\t\t\t}\n");
+	fprintf(fptr, "\t\t\treturn false;\n");
+	fprintf(fptr, "\t\t}\n");
+
+	fprintf(fptr, "\t}\n");
 }
 
