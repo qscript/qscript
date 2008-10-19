@@ -11,8 +11,8 @@ int main(){
 		vector<int> ran_indiv;
 		vector< pair<int,int> > ran_start_end;
 
-		temp_0(): size_ran_indiv(3), size_start_end(0), ran_indiv(size_ran_indiv), 
-			ran_start_end(size_start_end)
+		temp_0(): size_ran_indiv(3), size_start_end(0), 
+			ran_indiv(size_ran_indiv), ran_start_end(size_start_end)
 		{
 			ran_indiv[0]=1;
 			ran_indiv[1]=2;

@@ -1,2 +1,2 @@
 name in ( 1,2,3);
-name1 in ( 1,2,3) && name2 in (4,5,6);
+name1 in ( 1,2,3) && name2 in (4,5,6,9-14);

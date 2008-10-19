@@ -46,7 +46,7 @@ bin2_expr::~bin2_expr(){
 
 string get_temp_name();
 void bin2_expr::print_expr(FILE* fptr){
-	fprintf(fptr, "bin2_expr::print_expr()");
+	//fprintf(fptr, "bin2_expr::print_expr()");
 	string struct_name = get_temp_name();
 	fprintf(fptr, "\tstruct %s{\n", struct_name.c_str());
 	fprintf(fptr, "\t\tconst int size_ran_indiv;\n");
@@ -56,8 +56,8 @@ void bin2_expr::print_expr(FILE* fptr){
 	fprintf(fptr, "\t\t%s (): size_ran_indiv(%d), size_start_end(%d),\n", struct_name.c_str(),
 		r_data->icount, r_data->rcount);
 	fprintf(fptr, "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n");
-	for(int i=0; i< r_data->rcount-1; ++i){
-		fprintf(fptr, "\t\t\tran_start_end[%d]=pair<int,int>(%d, %d);\n",
+	for(int i=0; i< r_data->rcount; ++i){
+		fprintf(fptr, "\t\t\tran_start_end[%d]=pair<int,int>(%d, %d);\n", i,
 			r_data->ran_start_end[i*2], r_data->ran_start_end[i*2+1]);
 	}
 	for(int i=0; i< r_data->icount; ++i){
@@ -79,6 +79,10 @@ void bin2_expr::print_expr(FILE* fptr){
 	fprintf(fptr, "\t\t\treturn false;\n");
 	fprintf(fptr, "\t\t}\n");
 
-	fprintf(fptr, "\t}\n");
+	string struct_name1 = get_temp_name();
+	fprintf(fptr, "\t} %s;\n", struct_name1.c_str());
+	string test_bool_var_name=get_temp_name();
+	fprintf(fptr, "bool %s = %s.exists(%s);\n", 
+			test_bool_var_name.c_str(), struct_name1.c_str(), name.c_str());
 }
 
