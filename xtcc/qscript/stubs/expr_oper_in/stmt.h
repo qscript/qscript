@@ -3,6 +3,8 @@
 
 #include <cstdio>
 #include "expr.h"
+#include <sstream>
+using namespace std;
 
 struct stmt {
 	public:
@@ -34,7 +36,10 @@ struct expr_stmt: public stmt{
 		fflush(fptr);
 		if(fptr){
 			//print_expr(fptr, expr);
-			expr->print_expr(fptr);
+			ostringstream code_bef_expr, code_expr;
+			expr->print_expr(code_bef_expr, code_expr);
+			fprintf(fptr, "%s\n", code_bef_expr.str().c_str());
+			fprintf(fptr, "%s\n", code_expr.str().c_str());
 			fprintf(fptr,";\n");
 			if(next) next->print_stmt_lst(fptr);
 		}
