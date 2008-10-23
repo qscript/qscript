@@ -87,10 +87,12 @@
 #define MY_STR_MAX 50
 #include "stmt.h"
 #include "expr.h"
-#include "range_set.h"
+//#include "range_set.h"
 #include "symtab.h"
 #include <iostream>
-	range_data r_data;
+#include "xtcc_set.h"
+	//range_data r_data;
+	xtcc_set xs;
 	extern int line_no;
 	int yylex();
 	int no_errors=0;
@@ -122,7 +124,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 21 "expr.y"
+#line 23 "expr.y"
 {
 	datatype dt;
 	int ival ;
@@ -131,7 +133,7 @@ typedef union YYSTYPE
 	struct stmt * stmt;
 }
 /* Line 187 of yacc.c.  */
-#line 135 "expr.tab.c"
+#line 137 "expr.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -144,7 +146,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 148 "expr.tab.c"
+#line 150 "expr.tab.c"
 
 #ifdef short
 # undef short
@@ -430,8 +432,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    41,    41,    48,    52,    60,    67,    70,    77,    83,
-      85,    89,   105
+       0,    43,    43,    50,    54,    62,    69,    72,    80,    86,
+      88,    92,   111
 };
 #endif
 
@@ -1340,7 +1342,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 41 "expr.y"
+#line 43 "expr.y"
     {
 	tree_root=(yyvsp[(1) - (1)].stmt);
 		while(tree_root->prev){
@@ -1350,7 +1352,7 @@ yyreduce:
     break;
 
   case 3:
-#line 48 "expr.y"
+#line 50 "expr.y"
     { 
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 		cout << "got stmt" << endl;
@@ -1358,7 +1360,7 @@ yyreduce:
     break;
 
   case 4:
-#line 52 "expr.y"
+#line 54 "expr.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next =(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
@@ -1368,55 +1370,57 @@ yyreduce:
     break;
 
   case 5:
-#line 60 "expr.y"
+#line 62 "expr.y"
     {
 		(yyval.stmt) = new expr_stmt(line_no, (yyvsp[(1) - (2)].expr));
 	;}
     break;
 
   case 6:
-#line 67 "expr.y"
+#line 69 "expr.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
 	;}
     break;
 
   case 7:
-#line 70 "expr.y"
+#line 72 "expr.y"
     {
-		(yyval.expr)=new bin2_expr((yyvsp[(1) - (3)].name), r_data, oper_in);
-		r_data.icount=0;
-		r_data.rcount=0;
+		(yyval.expr)=new bin2_expr((yyvsp[(1) - (3)].name), xs, oper_in);
+		xs.reset();
+		//r_data.icount=0;
+		//r_data.rcount=0;
 	;}
     break;
 
   case 8:
-#line 77 "expr.y"
+#line 80 "expr.y"
     { 
 		(yyval.dt)=UNNAMED_RANGE;
 	;}
     break;
 
   case 9:
-#line 83 "expr.y"
+#line 86 "expr.y"
     {
 	;}
     break;
 
   case 10:
-#line 85 "expr.y"
+#line 88 "expr.y"
     {
 	;}
     break;
 
   case 11:
-#line 89 "expr.y"
+#line 92 "expr.y"
     {
                 if( (yyvsp[(3) - (3)].ival) <=(yyvsp[(1) - (3)].ival) ) {
                         cout << "error on lineno: " << line_no
                                 << "2nd number in range <= 1st number"
                                 << endl;
                 } else {
+#if 0
 			if(r_data.rcount<MAX_RANGE_ELEMENTS/2){
 				r_data.ran_start_end[r_data.rcount*2  ]=(yyvsp[(1) - (3)].ival);
 				r_data.ran_start_end[r_data.rcount*2+1]=(yyvsp[(3) - (3)].ival);
@@ -1425,13 +1429,16 @@ yyreduce:
 				cerr << "range_list: ran_start_end rcount : buffer overflow:\n";
 				cerr << " I should use vector and get rid of this restriction\n";
 			}
+#endif /* 0 */
+			xs.add_range((yyvsp[(1) - (3)].ival), (yyvsp[(3) - (3)].ival));
                 }
         ;}
     break;
 
   case 12:
-#line 105 "expr.y"
+#line 111 "expr.y"
     {
+#if 0
                 if(r_data.icount<MAX_RANGE_ELEMENTS){
                         r_data.ran_indiv[r_data.icount]=(yyvsp[(1) - (1)].ival);
 			++r_data.icount;
@@ -1439,12 +1446,14 @@ yyreduce:
                         cerr << "range_list: ran_indiv : buffer overflow:\n";
 				cerr << " I should use vector and get rid of this restriction\n";
                 }
+#endif /* 0 */
+		xs.add_indiv((yyvsp[(1) - (1)].ival));
         ;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1448 "expr.tab.c"
+#line 1457 "expr.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1658,7 +1667,7 @@ yyreturn:
 }
 
 
-#line 116 "expr.y"
+#line 125 "expr.y"
 
 
 void generate_code();

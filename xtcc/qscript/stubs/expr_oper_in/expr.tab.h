@@ -56,7 +56,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 21 "expr.y"
+#line 23 "expr.y"
 {
 	datatype dt;
 	int ival ;

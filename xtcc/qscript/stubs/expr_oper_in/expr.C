@@ -34,17 +34,27 @@ int expr::isvalid(){
 	} else return 1;
 }
 
+/*
 bin2_expr::bin2_expr( string lname , range_data&  l_rd ,e_operator_type letype): expr(letype),
 	name(lname)
 {
 	r_data = new range_data(l_rd);	
 }
+*/
+
+bin2_expr::bin2_expr( string lname , xtcc_set&  l_xs ,e_operator_type letype): expr(letype),
+	name(lname)
+{
+	xs=new xtcc_set(l_xs);
+}
+
 
 
 expr::~expr(){}
 
 bin2_expr::~bin2_expr(){
-	delete r_data;
+	//delete r_data;
+	delete xs;
 }
 
 string get_temp_name();
@@ -58,18 +68,35 @@ void bin2_expr::	print_expr(/*FILE * edit_out*/ ostringstream& code_bef_expr, os
 	code_bef_expr << "\t\tvector<int> ran_indiv;\n";
 	code_bef_expr << "\t\tvector< pair<int,int> > ran_start_end;\n";
 	code_bef_expr << "\t\t" << struct_name.c_str() 
-		<< "(): size_ran_indiv(" << r_data->icount 
-		<< "), size_start_end(" << r_data->rcount << "),\n";
+		<< "(): size_ran_indiv(" << xs->indiv.size() //r_data->icount 
+		<< "), size_start_end(" <<  xs->range.size() //r_data->rcount << "),\n";
+		<< "),\n";								       
 	code_bef_expr << "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n";
+	/*
 	for(int i=0; i< r_data->rcount; ++i){
 		code_bef_expr << "\t\t\tran_start_end[" << i 
 			<< "]=pair<int,int>(" 
 			<< r_data->ran_start_end[i*2] 
 			<< "," << r_data->ran_start_end[i*2+1] << ");\n";
 	}
+	*/
+	for(int i=0; i< xs->range.size() ; ++i){
+		code_bef_expr << "\t\t\tran_start_end[" << i 
+			<< "]=pair<int,int>(" 
+			<< xs->range[i].first 
+			<< "," << xs->range[i].second << ");\n";
+	}
+	/*
 	for(int i=0; i< r_data->icount; ++i){
 		code_bef_expr << "\t\t\tran_indiv[" 
 			<< i << "]=" << r_data->ran_indiv[i] <<";\n";
+	}*/
+	
+	int k=0;
+	for(set<int>::iterator iter=xs->indiv.begin(); 
+		iter!=xs->indiv.end(); ++iter, ++k){
+		code_bef_expr << "\t\t\tran_indiv[" 
+			<< k << "]=" << *iter <<";\n";
 	}
 	code_bef_expr <<  "\t\t}\n";
 

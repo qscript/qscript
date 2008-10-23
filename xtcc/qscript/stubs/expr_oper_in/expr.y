@@ -2,10 +2,12 @@
 #define MY_STR_MAX 50
 #include "stmt.h"
 #include "expr.h"
-#include "range_set.h"
+//#include "range_set.h"
 #include "symtab.h"
 #include <iostream>
-	range_data r_data;
+#include "xtcc_set.h"
+	//range_data r_data;
+	xtcc_set xs;
 	extern int line_no;
 	int yylex();
 	int no_errors=0;
@@ -68,9 +70,10 @@ expr: expr LOGAND expr {
 		$$=new bin_expr($1, $3, oper_and);
 	}
 	| NAME IN range_allowed_values {
-		$$=new bin2_expr($1, r_data, oper_in);
-		r_data.icount=0;
-		r_data.rcount=0;
+		$$=new bin2_expr($1, xs, oper_in);
+		xs.reset();
+		//r_data.icount=0;
+		//r_data.rcount=0;
 	}
 	;
 
@@ -92,6 +95,7 @@ number_range: INUMBER '-' INUMBER {
                                 << "2nd number in range <= 1st number"
                                 << endl;
                 } else {
+#if 0
 			if(r_data.rcount<MAX_RANGE_ELEMENTS/2){
 				r_data.ran_start_end[r_data.rcount*2  ]=$1;
 				r_data.ran_start_end[r_data.rcount*2+1]=$3;
@@ -100,9 +104,12 @@ number_range: INUMBER '-' INUMBER {
 				cerr << "range_list: ran_start_end rcount : buffer overflow:\n";
 				cerr << " I should use vector and get rid of this restriction\n";
 			}
+#endif /* 0 */
+			xs.add_range($1, $3);
                 }
         }
 	| INUMBER {
+#if 0
                 if(r_data.icount<MAX_RANGE_ELEMENTS){
                         r_data.ran_indiv[r_data.icount]=$1;
 			++r_data.icount;
@@ -110,6 +117,8 @@ number_range: INUMBER '-' INUMBER {
                         cerr << "range_list: ran_indiv : buffer overflow:\n";
 				cerr << " I should use vector and get rid of this restriction\n";
                 }
+#endif /* 0 */
+		xs.add_indiv($1);
         }
 	;
 
