@@ -4,6 +4,7 @@
 #include <cstdio>
 #include "expr.h"
 #include <sstream>
+#include <iostream>
 using namespace std;
 
 struct stmt {
