@@ -31,7 +31,7 @@
 //#include "tree.h"
 #include "expr.h"
 #include <climits>
-#include "../../qscript/named_range.h"
+#include "../../qscript/trunk/named_range.h"
 
 extern scope* active_scope;
 extern ofstream debug_log_file;
@@ -113,238 +113,260 @@ un_expr::un_expr( expr * l_operand, e_operator_type le_type):expr(le_type), oper
 }
 
 
-void un_expr::print_expr (FILE * edit_out){
+//void un_expr::print_expr (FILE * edit_out)
+void un_expr::print_expr (ostringstream& code_bef_expr, ostringstream & code_expr){
 	switch(e_type){
 		case oper_umin:{
-			fprintf(edit_out, "- ");
-			operand->print_expr(edit_out);
+			code_expr <<  "- ";
+			operand->print_expr(code_bef_expr, code_expr);
 		}
 		break;
 
 		case oper_not:{
-			fprintf(edit_out, "! ");
-			operand->print_expr(edit_out);
+			//fprintf(edit_out, "! ");
+			code_expr <<  "! ";
+			operand->print_expr(code_bef_expr, code_expr);
 		}
 		break;
 
 		case oper_parexp:{
-			fprintf(edit_out, "(");
-			operand->print_expr(edit_out);
-			fprintf(edit_out, ")");
+			code_expr <<  "(";
+			operand->print_expr(code_bef_expr, code_expr);
+			code_expr <<  ")";
 			}
 		break;
 		default:
-			fprintf(edit_out, " un handled operator\n" );
+			code_expr <<  " un handled operator\n" ;
 
 	}
 }
 
-void bin_expr::print_oper_assgn(FILE * edit_out){
+//void bin_expr::print_oper_assgn(FILE * edit_out)
+void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr){
 	//fprintf(edit_out, "/*oper_assgn*/ %s =", symp->name);
 	if(r_op->e_type == oper_blk_arr_assgn &&
 		( l_op->e_type==oper_name||l_op->e_type==oper_arrderef)){
 		un2_expr* blk_e = static_cast<un2_expr*> (r_op);
 		un2_expr* lhs = static_cast<un2_expr*> (l_op);
-		fprintf(edit_out,"/* DATA CONVERSION */\n");
-		fprintf(edit_out,"{int tmp1=");
-		blk_e->operand->print_expr(edit_out);
-		fprintf(edit_out,";\nint tmp2=");
-		blk_e->operand2->print_expr(edit_out);
-		fprintf(edit_out,";\n");
+		code_expr << "/* DATA CONVERSION */\n";
+		code_expr << "{int tmp1=";
+		//blk_e->operand->print_expr(edit_out);
+		blk_e->operand->print_expr(code_bef_expr, code_expr);
+		code_expr << ";\nint tmp2=";
+		//blk_e->operand2->print_expr(edit_out);
+		blk_e->operand2->print_expr(code_bef_expr, code_expr);
+		code_expr << ";\n";
 		if(l_op->type==FLOAT_TYPE) {
-			fprintf(edit_out,"if(tmp2-tmp1==sizeof(float)-1){\n");
-			fprintf(edit_out,"\tchar buff[sizeof(float)];int i,j;\n");
-			fprintf(edit_out,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
-			fprintf(edit_out,"\t\tbuff[j]=%s[i];\n", blk_e->symp->name);
-			fprintf(edit_out,"\t}\n");
-			fprintf(edit_out,"\tvoid * v_ptr = buff;\n");
-			fprintf(edit_out,"\tfloat *f_ptr = static_cast<float *>(v_ptr);\n");
+			code_expr << "if(tmp2-tmp1==sizeof(float)-1){\n";
+			code_expr << "\tchar buff[sizeof(float)];int i,j;\n";
+			code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
+			code_expr << "\t\tbuff[j]=" <<  blk_e->symp->name << "[i];\n";
+			code_expr << "\t}\n";
+			code_expr << "\tvoid * v_ptr = buff;\n";
+			code_expr << "\tfloat *f_ptr = static_cast<float *>(v_ptr);\n";
 			
 			//fprintf(edit_out,"\t %s=*f_ptr;\n", lsymp->name);
-			fprintf(edit_out,"\t" );
-			lhs->print_expr(edit_out);
-			fprintf(edit_out,"=*f_ptr;\n");
-			fprintf(edit_out,"}else { cerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_no );
+			code_expr << "\t" ;
+			//lhs->print_expr(edit_out);
+			lhs->print_expr(code_bef_expr, code_expr);
+			code_expr << "=*f_ptr;\n";
+			code_expr << "}else { cerr << \"runtime error: line_no : expr out of bounds\" << " 
+				<< line_no  <<";}\n}\n";
 		} else if (l_op->type==INT32_TYPE){
-			fprintf(edit_out,"if(tmp2-tmp1==sizeof(int)-1){\n");
-			fprintf(edit_out,"\tchar buff[sizeof(int)];int i,j;\n");
-			fprintf(edit_out,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
-			fprintf(edit_out,"\t\tbuff[j]=%s[i];\n", blk_e->symp->name);
-			fprintf(edit_out,"\t}\n");
-			fprintf(edit_out,"\tvoid * v_ptr = buff;\n");
-			fprintf(edit_out,"\tint *i_ptr = static_cast<int *>(v_ptr);\n");
-			//fprintf(edit_out,"\t %s=*i_ptr;\n", lsymp->name);
-			fprintf(edit_out,"\t" );
-			lhs->print_expr(edit_out);
-			fprintf(edit_out,"=*i_ptr;\n" );
-			fprintf(edit_out,"}else { \n\tcerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_no );
+			code_expr << "if(tmp2-tmp1==sizeof(int)-1){\n";
+			code_expr << "\tchar buff[sizeof(int)];int i,j;\n";
+			code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
+			code_expr << "\t\tbuff[j]=" << blk_e->symp->name << "[i];\n";
+			code_expr << "\t}\n";
+			code_expr << "\tvoid * v_ptr = buff;\n";
+			code_expr << "\tint *i_ptr = static_cast<int *>(v_ptr);\n";
+			//code_expr << "\t %s=*i_ptr;\n", lsymp->name;
+			code_expr << "\t" ;
+			//lhs->print_expr(edit_out);
+			lhs->print_expr(code_bef_expr, code_expr);
+			code_expr << "=*i_ptr;\n" ;
+			code_expr << "}else { \n\tcerr << \"runtime error: line_no : expr out of bounds\" <<"
+				<< line_no << " ;}\n}\n";
 		} else {
-			fprintf(edit_out, "error\n");
+			code_expr <<  "error\n";
 			cerr << "Error in code generation" << endl;
 		}
 	} else if (r_op->e_type == oper_blk_arr_assgn && l_op->e_type==oper_blk_arr_assgn){
-		fprintf(edit_out," unhandled case LHS ==");
+		code_expr << " unhandled case LHS ==";
 	}else {
-		l_op->print_expr(edit_out);
-		fprintf(edit_out, "/*oper_assgn*/  = ");
-		r_op->print_expr(edit_out);
+		//l_op->print_expr(edit_out);
+		l_op->print_expr(code_bef_expr, code_expr);
+		//fprintf(edit_out, "/*oper_assgn*/  = ");
+		code_expr << " /* oper_assgn */ = ";
+		//r_op->print_expr(edit_out);
+		r_op->print_expr(code_bef_expr, code_expr);
 	}
 }
 
 
-void un2_expr::print_expr(FILE * edit_out){
+void un2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_expr){
 	switch(e_type){
 		case oper_name:{
-			fprintf(edit_out, "%s ", symp->name);
+			code_expr <<  symp->name;
 		}
 		break;
 		case oper_arrderef:{
-			fprintf(edit_out, "%s[", symp->name);
-			operand->print_expr(edit_out);
-			fprintf(edit_out, "]");
+			code_expr <<   symp->name << "[";
+			operand->print_expr(code_expr, code_expr);
+			code_expr <<  "]";
 			}
 		break;
 
 		case oper_num:{
-			fprintf(edit_out, "%d ", isem_value);
+			code_expr <<   isem_value;
 		}
 		break;
 		case oper_float:{
-			fprintf(edit_out, "%f ", dsem_value);
+			code_expr <<   dsem_value;
 		}
 		break;
 		case oper_func_call:{
 			//cout << "/* oper_func_call */" << endl;
 			//cout << "func_index_in_table: " << func_info_table[e->func_index_in_table]->fname << endl;
 			if(func_info_table[func_index_in_table]->fname==string("printf")){
-				fprintf(edit_out, "fprintf(xtcc_stdout,");
+				code_expr <<  "fprintf(xtcc_stdout,";
 			} else {
-				fprintf(edit_out, "%s(", func_info_table[func_index_in_table]->fname.c_str());
+				code_expr << func_info_table[func_index_in_table]->fname.c_str() << "(";
 			}
 			struct expr* e_ptr=operand;
 			//fprintf(edit_out,  "/*print_expr: oper_func_call:  %s*/", func_info_table[func_index_in_table]->fname.c_str() );
 			while(e_ptr){
-				e_ptr->print_expr(edit_out);
+				e_ptr->print_expr(code_bef_expr, code_expr);
 				if(e_ptr->next){
-					fprintf(edit_out, ", ");
+					code_expr <<  ", ";
 				} 
 				e_ptr=e_ptr->next;
 			}
-			fprintf(edit_out, ")");
+			code_expr <<  ")";
 		}
 		break;
 		case oper_text_expr:{
-			fprintf(edit_out, "%s", text);
+			code_expr << text;
 		}
 		break;
 		case oper_blk_arr_assgn: {
-			fprintf(edit_out,"This case should not occur\n");
+			code_expr << "This case should not occur\n";
+			print_err(compiler_internal_error, "This case should not occur\n", 
+						line_no, __LINE__, __FILE__);
 		}
 		break;
 		default:
-			fprintf(edit_out, "unhandled expr operator\n");
+			//fprintf(edit_out, "unhandled expr operator\n");
+			code_expr << "unhandled expr operator\n";
+			print_err(compiler_internal_error, "unhandled expr operator\n", 
+						line_no, __LINE__, __FILE__);
 	}
 }
 
-void bin_expr::print_expr(FILE * edit_out){
+//void bin_expr::print_expr(FILE * edit_out)
+void bin_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_expr){
 	switch(e_type){
 		char oper_buf[3];
 		case oper_plus:{
 			sprintf(oper_buf, "%s" , "+");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			//fprintf(edit_out, " %s ", oper_buf);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_minus:{
 			sprintf(oper_buf, "%s" , "-");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_mult:{
 			sprintf(oper_buf, "%s" , "*");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_div:{
 			sprintf(oper_buf, "%s" , "/");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_mod:{
 			sprintf(oper_buf, "%s" , "%");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	      
 		case oper_lt:{
 			sprintf(oper_buf, "%s" , "<");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_gt:{
 			sprintf(oper_buf, "%s" , ">");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_le:{
 			sprintf(oper_buf, "%s" , "<=");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_ge:{
 			sprintf(oper_buf, "%s" , ">=");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_iseq:{
 			sprintf(oper_buf, "%s" , "==");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_isneq: {
 			sprintf(oper_buf, "%s" , "!=");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;	       
 		case oper_assgn:
-			print_oper_assgn(edit_out);		
+			//print_oper_assgn(edit_out);		
+			print_oper_assgn(code_bef_expr, code_expr);		
 		break;
 		case oper_or:{
 			sprintf(oper_buf, "%s" , "||");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;
 		case oper_and:{
 			sprintf(oper_buf, "%s" , "&&");
-			l_op->print_expr(edit_out);
-			fprintf(edit_out, " %s ", oper_buf);
-			r_op->print_expr(edit_out);
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			r_op->print_expr(code_bef_expr, code_expr);
 			}
 		break;
 		default:
-			fprintf(edit_out, " unhandled operator type in expr  " );
+			code_expr << " unhandled operator type in expr  ";
+			print_err(compiler_sem_err, " unhandled operator type in expr  ", 
+						line_no, __LINE__, __FILE__);
 	}
 }
 
@@ -612,6 +634,48 @@ un2_expr::un2_expr(datatype d):
 		return *this;
 	}
 
+void xtcc_set::reset(){
+	range.clear();
+	indiv.clear();
+}
+
+void xtcc_set::add_range(int n1, int n2){
+	range.push_back( pair<int,int>(n1, n2));
+}
+
+void xtcc_set::add_indiv(int n1){
+	indiv.insert(n1);
+}
+
+bin2_expr::bin2_expr(expr* llop , xtcc_set& l_rd, e_operator_type letype):expr(letype), l_op(llop){
+	switch(e_type){
+		case oper_in:
+			switch( l_op->e_type){
+			case oper_name:
+			case oper_arrderef:
+				type = BOOL_TYPE;
+				xs = new xtcc_set(l_rd);
+				break;
+			default:
+				type = ERROR_TYPE;
+				string err_msg = "bin2_expr:: lhs operator for oper_in can only be NAME or NAME[INDEX]";
+				print_err(compiler_internal_error, err_msg, line_no, __LINE__, __FILE__);
+				type=ERROR_TYPE;
+				
+			}
+			break;
+
+
+		default: {
+			type = ERROR_TYPE;
+			string err_msg = "bin2_expr:: operator in e_type can only be oper_in";
+			print_err(compiler_internal_error, err_msg, line_no, __LINE__, __FILE__);
+			type=ERROR_TYPE;
+		}
+	}
+}
+
+#if 0
 bin2_expr::bin2_expr(string lname , string rname ,e_operator_type letype): expr(letype) {
 	switch(e_type){
 		case oper_in: {
@@ -654,7 +718,9 @@ bin2_expr::bin2_expr(string lname , string rname ,e_operator_type letype): expr(
 				line_no, __LINE__, __FILE__);
 	}
 }
+#endif /* 0 */
 
+#if 0
 void bin2_expr::print_expr (FILE * edit_out){
 	switch(e_type){
 		case oper_in:
@@ -664,6 +730,82 @@ void bin2_expr::print_expr (FILE * edit_out){
 					line_no, __LINE__, __FILE__);
 	}
 }
+#endif /* 0 */
+
+string get_temp_name();
+void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_expr){
+
+	fprintf(stderr, "bin2_expr::print_expr()\n");
+	//fflush(fptr);
+	string struct_name = get_temp_name();
+	fprintf(stderr, "bin2_expr::print_expr(): after get_temp_name()\n");
+	code_bef_expr << "\tstruct " <<  struct_name.c_str() << "{\n" ;
+	code_bef_expr << "\t\tconst int size_ran_indiv;\n";
+	code_bef_expr << "\t\tconst int size_start_end;\n";
+	code_bef_expr << "\t\tvector<int> ran_indiv;\n";
+	code_bef_expr << "\t\tvector< pair<int,int> > ran_start_end;\n";
+	code_bef_expr << "\t\t" << struct_name.c_str() 
+		<< "(): size_ran_indiv(" << xs->indiv.size() //r_data->icount 
+		<< "), size_start_end(" <<  xs->range.size() //r_data->rcount << "),\n";
+		<< "),\n";								       
+	code_bef_expr << "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n";
+	fprintf(stderr, "bin2_expr::print_expr(): printed constructor");
+	/*
+	for(int i=0; i< r_data->rcount; ++i){
+		code_bef_expr << "\t\t\tran_start_end[" << i 
+			<< "]=pair<int,int>(" 
+			<< r_data->ran_start_end[i*2] 
+			<< "," << r_data->ran_start_end[i*2+1] << ");\n";
+	}
+	*/
+	for(int i=0; i< xs->range.size() ; ++i){
+		code_bef_expr << "\t\t\tran_start_end[" << i 
+			<< "]=pair<int,int>(" 
+			<< xs->range[i].first 
+			<< "," << xs->range[i].second << ");\n";
+	}
+	/*
+	for(int i=0; i< r_data->icount; ++i){
+		code_bef_expr << "\t\t\tran_indiv[" 
+			<< i << "]=" << r_data->ran_indiv[i] <<";\n";
+	}*/
+	
+	int k=0;
+	for(set<int>::iterator iter=xs->indiv.begin(); 
+		iter!=xs->indiv.end(); ++iter, ++k){
+		code_bef_expr << "\t\t\tran_indiv[" 
+			<< k << "]=" << *iter <<";\n";
+	}
+	code_bef_expr <<  "\t\t}\n";
+
+	code_bef_expr << "\t\tbool exists(int key){\n";
+	code_bef_expr << "\t\t\tfor(int i=0; i<size_start_end; ++i){\n";
+	code_bef_expr << "\t\t\t\tif(key >=ran_start_end[i].first && key <=ran_start_end[i].second){\n";
+	code_bef_expr << "\t\t\t\t\treturn true;\n";
+	code_bef_expr << "\t\t\t\t}\n";
+	code_bef_expr << "\t\t\t}\n";
+	code_bef_expr << "\t\t\tfor(int i=0; i< size_ran_indiv; ++i){\n";
+	code_bef_expr << "\t\t\t\tif(key==ran_indiv[i]){\n";
+	code_bef_expr << "\t\t\t\t\treturn true;\n";
+	code_bef_expr << "\t\t\t\t}\n";
+	code_bef_expr << "\t\t\t}\n";
+	code_bef_expr << "\t\t\treturn false;\n";
+	code_bef_expr << "\t\t}\n";
+
+	string struct_name1 = get_temp_name();
+	code_bef_expr << "\t} " <<  struct_name1.c_str() <<";\n";
+	string test_bool_var_name=get_temp_name();
+	code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
+		<< " = " << struct_name1.c_str()
+		<< ".exists(";
+	//<< name.c_str() << ");\n";
+	ostringstream code_bef_expr1_discard, code_expr1;
+	l_op->print_expr(code_bef_expr1_discard, code_expr1);
+	code_bef_expr << code_expr1.str() << ");\n";
+	code_expr << test_bool_var_name.c_str() << " " ;
+			  
+}
+
 
 bin2_expr::~bin2_expr(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
@@ -674,3 +816,40 @@ bin2_expr::~bin2_expr(){
 		}
 	}
 }
+
+
+string get_temp_name(){
+	// about a billion temporaries before we run out
+	const int max_temp=10;
+	static int count=0;
+	char buffer[max_temp];
+	char op_buf[max_temp];
+	int dividend=count;
+
+	buffer[0]='0'; buffer[1]='\0';
+
+	int j=0;
+	do {
+		int rem = dividend%10;
+		dividend=dividend/10;
+		buffer[j++]='0' + rem;
+	} while(dividend>0);
+	/*
+	for(int i=0 ; dividend/10>0; dividend=dividend/10,++i,++j){
+		//int quot = dividend/10;
+		int rem = dividend%10;
+		buffer[j]='0' + rem;
+	}
+	*/
+	buffer[j]='\0';
+	for(int i=j-1; i>=0; --i){
+		op_buf[j-1-i]=buffer[i];
+	}
+	op_buf[j]='\0';
+	string s(op_buf);
+	++count;
+	//cout << s << endl;
+	string s1="temp_"+s;
+	return s1;
+}
+

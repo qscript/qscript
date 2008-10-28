@@ -42,7 +42,9 @@ struct expr {
 	expr(e_operator_type le_type):e_type(le_type), type(ERROR_TYPE), next(0), prev(0) { }
 	expr(e_operator_type le_type, datatype ldt):e_type(le_type), type(ldt), next(0), prev(0) 
 	{}
-	virtual void print_expr(FILE * edit_out)=0;
+	//virtual void print_expr(FILE * edit_out)=0;
+	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr)=0;
+
 	virtual int isvalid();
 	virtual bool is_lvalue()=0;
 	virtual ~expr();
@@ -57,20 +59,40 @@ struct un_expr : public expr{
 	public:
 	un_expr( expr * l_operand=0, e_operator_type le_type=oper_err);
 	bool is_lvalue(){ return false; }
-	void print_expr(FILE * edit_out);
+	//void print_expr(FILE * edit_out);
+	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
 	virtual ~un_expr();
 };
 
 //extern vector <func_info*> func_info_table;
 
+#include <vector>
+#include <set>
+using namespace std;
+struct xtcc_set {
+	vector < pair<int,int> > range;
+	set<int> indiv;
+	xtcc_set(datatype dt, string name, xtcc_set& xs1);
+	xtcc_set(xtcc_set& xs1);
+	xtcc_set& operator=(const xtcc_set& xs1);
+	xtcc_set();
+	void reset();
+	void add_range(int n1, int n2);
+	void add_indiv(int n1);
+};
+
 struct bin2_expr: public expr{
 	protected:
-	symtab_ent *l_symp, *r_symp;
+	//symtab_ent *l_symp, *r_symp;
+	expr * l_op;
+	xtcc_set *xs;
 	public:
-	bin2_expr(string lname , string rname ,e_operator_type letype);
+	//bin2_expr(string lname , string rname ,e_operator_type letype);
+	bin2_expr(expr* llop, xtcc_set& l_rd, e_operator_type letype);
 	bool is_lvalue(){ return false; }
 	//void print_oper_assgn(FILE * edit_out);
-	void print_expr(FILE * edit_out);
+	//void print_expr(FILE * edit_out);
+	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
 	~bin2_expr();
 };
 
@@ -80,8 +102,10 @@ struct bin_expr: public expr{
 	public:
 	bin_expr(expr* llop, expr* lrop,e_operator_type letype);
 	bool is_lvalue(){ return false; }
-	void print_oper_assgn(FILE * edit_out);
-	void print_expr(FILE * edit_out);
+	//void print_oper_assgn(FILE * edit_out);
+	void print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr);
+	//void print_expr(FILE * edit_out);
+	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
 	~bin_expr();
 };
 
@@ -112,21 +136,11 @@ struct un2_expr : public expr{
 	un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * lsymp, */ string name,  expr* arr_index, expr* arr_index2);
 	un2_expr(char* ltxt, e_operator_type le_type); 
 	~un2_expr();
-	friend void bin_expr::print_oper_assgn(FILE* edit_out);
-	void print_expr(FILE * edit_out);
+	//friend void bin_expr::print_oper_assgn(FILE* edit_out);
+	friend void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr);
+	//void print_expr(FILE * edit_out);
+	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
 };
 
-
-#include <vector>
-#include <set>
-
-struct xtcc_set {
-	vector < pair<int,int> > range;
-	set<int> indiv;
-	xtcc_set(datatype dt, string name, xtcc_set& xs1);
-	xtcc_set(xtcc_set& xs1);
-	xtcc_set& operator=(const xtcc_set& xs1);
-	xtcc_set();
-};
 
 #endif /* xtcc_expr_h */

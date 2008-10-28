@@ -5,7 +5,7 @@
 #include "expr.h"
 #include "tree.h"
 #include "stmt.h"
-#include "../../qscript/named_attributes.h"
+#include "../../qscript/trunk/named_attributes.h"
 extern vector <named_attribute_list> named_attributes_list;
 extern vector<table*>	table_list;
 extern map <string, ax*> ax_map;

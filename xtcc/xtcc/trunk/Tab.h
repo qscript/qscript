@@ -33,6 +33,7 @@
 #include <vector>
 #include "expr.h"
 #include "tree.h"
+#include <sstream>
 using namespace std;
 int yyparse();
 
@@ -142,8 +143,11 @@ class count_ax_stmt: public basic_count_ax_stmt{
 	}
 	virtual void generate_code(FILE * f, unsigned int index){
 		//fprintf(f, "count_ax_stmt :: generate_code() not yet implemented\n");
-		fprintf(f, "\tif (");
-		condn->print_expr(f);
+		ostringstream code_expr1, code_bef_expr1;
+		condn->print_expr(code_bef_expr1, code_expr1);
+		fprintf(f, "%s", code_bef_expr1.str().c_str());
+		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		//condn->print_expr(f);
 		fprintf(f, " ){\n");
 		fprintf(f, "\t\tflag[%d]=true;\n", index);
 		fprintf(f, "\t}\n");
@@ -164,8 +168,12 @@ class tot_ax_stmt: public basic_count_ax_stmt{
 	}
 	virtual void generate_code(FILE * f, unsigned int index){
 		//fprintf(f, "tot_ax_stmt :: generate_code() not yet implemented\n");
-		fprintf(f, "\tif (");
-		condn->print_expr(f);
+		ostringstream code_expr1, code_bef_expr1;
+		condn->print_expr(code_bef_expr1, code_expr1);
+		fprintf(f, "%s", code_bef_expr1.str().c_str());
+		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		//fprintf(f, "\tif (");
+		//condn->print_expr(f);
 		fprintf(f, " ){\n");
 		fprintf(f, "\t\tflag[%d]=true;\n", index);
 		fprintf(f, "\t}\n");

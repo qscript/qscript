@@ -15,6 +15,7 @@
 		BREAK_STMT, CONTINUE_STMT, RANGE_DECL_STMT,
 		QUESTION_TYPE, 
 		STRING_TYPE, STRING_ARR_TYPE, NAMED_ATTRIBUTE_TYPE,
+		UNNAMED_RANGE,
 		uninit 
 	};
 	bool check_type_compat(datatype typ1, datatype typ2);

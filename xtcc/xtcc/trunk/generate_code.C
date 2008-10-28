@@ -449,7 +449,7 @@ void	generate_edit_section_code(){
 #if __WIN32__
 	fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
 #endif /* __WIN32__ */
-	fprintf(edit_out, "#include <cstdio>\n#include <iostream>\n#include <string>\nusing namespace std;\n" );
+	fprintf(edit_out, "#include <cstdio>\n#include <iostream>\n#include <string>\n#include <vector>\nusing namespace std;\n" );
 
 	fprintf(edit_out, "string xtcc_stdout_fname(\"xtcc_stdout.log\");\n");
 	fprintf(edit_out, "FILE * xtcc_stdout=0;\n");

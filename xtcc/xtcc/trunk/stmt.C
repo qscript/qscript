@@ -255,7 +255,10 @@ void list_stmt::print_stmt_lst(FILE * & fptr){
 					fprintf(global_vars, "map<%s,int> list1_%d;\n", 
 							noun_list[dt].sym, counter_number);
 					fprintf(fptr, "list1_%d [%s[", counter_number, se->name);
-					arr_start->print_expr(fptr);
+					ostringstream code_bef_expr1, code_expr1;
+					//arr_start->print_expr(fptr);
+					arr_start->print_expr(code_bef_expr1, code_expr1);
+					fprintf(fptr, "%s", code_expr1.str().c_str());
 					fprintf(fptr, "]]++;\n");
 					fprintf(print_list_counts, "print_list_summ(list1_%d, string(\"%s\"), string(%s) );\n", 
 						counter_number, se->name, list_text.c_str());

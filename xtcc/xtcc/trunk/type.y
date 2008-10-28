@@ -24,7 +24,7 @@
  */
 
 %{
-#include "../../qscript/named_attributes.h"
+#include "../../qscript/trunk/named_attributes.h"
 #include "const_defs.h"
 #include "symtab.h"
 #include "tree.h"
@@ -724,6 +724,7 @@ expression: expression '+' expression {
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
+
 			} else {
 				$$=new un2_expr(ERROR_TYPE);
 				void *ptr=$$;
@@ -744,6 +745,9 @@ expression: expression '+' expression {
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
+	}
+	| expression IN '(' range_list ')' {
+		$$ = new bin2_expr($1, xs, oper_in);
 	}
 	/*
 	| NAME IN NAME {

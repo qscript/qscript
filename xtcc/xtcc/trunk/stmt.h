@@ -33,6 +33,7 @@ using namespace std;
 
 #include <cstdio>
 #include <cstdlib>
+#include <sstream>
 
 	void print_expr(FILE* edit_out, struct expr * e);
 	int search_for_func(string& search_for);
@@ -74,13 +75,21 @@ struct for_stmt: public stmt{
 		fflush(fptr);
 
 		if(fptr){
-			fprintf(fptr,  "for (");
-			init->print_expr(fptr);
-			fprintf(fptr,  ";");
-			test->print_expr(fptr);
-			fprintf(fptr,  ";");
-			incr->print_expr(fptr);
-			fprintf(fptr, ")");
+			ostringstream code_bef_expr, code_expr;
+			//fprintf(fptr,  "for (");
+			code_expr << "for (" ;
+			//init->print_expr(fptr);
+			init->print_expr(code_bef_expr, code_expr);
+			//fprintf(fptr,  ";");
+			code_expr <<   ";";
+			test->print_expr(code_bef_expr, code_expr);
+			code_expr << ";";
+			//incr->print_expr(fptr);
+			incr->print_expr(code_bef_expr, code_expr);
+			code_expr <<  ")";
+
+			fprintf(fptr, "%s \n", code_bef_expr.str().c_str());
+			fprintf(fptr, "%s \n", code_expr.str().c_str());
 			fflush(fptr);
 			for_body->print_stmt_lst(fptr);
 			if(next) next->print_stmt_lst(fptr);
@@ -105,9 +114,14 @@ struct if_stmt : public stmt{
 		fflush(fptr);
 
 		if(fptr){
-			fprintf(fptr,  "if (");
-			condition->print_expr(fptr);
-			fprintf(fptr,  ")");
+			ostringstream code_bef_expr, code_expr;
+			//fprintf(fptr,  "if (");
+			code_expr << "if (";
+			condition->print_expr(code_bef_expr, code_expr);
+			//fprintf(fptr,  ")");
+			code_expr << ")";
+			fprintf(fptr, " %s ", code_bef_expr.str().c_str());
+			fprintf(fptr, " %s ", code_expr.str().c_str());
 			fflush(fptr);
 			if_body->print_stmt_lst(fptr);
 			fflush(fptr);
@@ -132,7 +146,11 @@ struct expr_stmt: public stmt{
 
 		if(fptr){
 			//print_expr(fptr, expr);
-			expr->print_expr(fptr);
+			ostringstream code_bef_expr, code_expr;
+			expr->print_expr(code_bef_expr, code_expr);
+			//fprintf(fptr,";\n");
+			fprintf(fptr, "%s\n", code_bef_expr.str().c_str());
+			fprintf(fptr, "%s\n", code_expr.str().c_str());
 			fprintf(fptr,";\n");
 			if(next) next->print_stmt_lst(fptr);
 		}
@@ -196,9 +214,17 @@ struct fld_stmt: public stmt{
 		fprintf(fptr, "{\n");
 		fprintf(fptr, "\tfor (int i=0; i<%d; ++i) %s[i]=0;\n", lsymp->n_elms, lsymp->name);
 		fprintf(fptr, "int start_col=");
-		start_col->print_expr(fptr);
+		//start_col->print_expr(fptr);
+		// NOTE: we do not expect operator in to be used in a block initialization
+		// I should document this for myself in a more visible place
+		ostringstream code_bef_expr1, code_expr1;
+		start_col->print_expr(code_bef_expr1, code_expr1);
+		fprintf(fptr, "%s", code_expr1.str().c_str());
 		fprintf(fptr, ",end_col=");
-		end_col->print_expr(fptr);
+		//end_col->print_expr(fptr);
+		ostringstream code_bef_expr2, code_expr2;
+		end_col->print_expr(code_bef_expr2, code_expr2);
+		fprintf(fptr, "%s", code_expr2.str().c_str());
 		fprintf(fptr, ",width=%d;\n", width);
 		fprintf(fptr, "if( start_col > end_col){\n");
 		fprintf(fptr, "\tprintf(\"start_col evaluated > end_col -> runtime error\");\n");
@@ -261,9 +287,16 @@ struct blk_arr_assgn_stmt: public stmt{
 		if(fptr){
 			fprintf(fptr,"/* DATA CONVERSION */\n");
 			fprintf(fptr,"{int tmp1=");
-			low_indx->print_expr(fptr);
+			//low_indx->print_expr(fptr);
+			// NOTE: we do not expect operator in to be used in a block initialization
+			ostringstream code_expr1, code_bef_expr1;
+			low_indx->print_expr(code_bef_expr1, code_expr1);
+			fprintf(fptr, "%s", code_expr1.str().c_str());
 			fprintf(fptr,";\nint tmp2=");
-			high_indx->print_expr(fptr);
+			//high_indx->print_expr(fptr);
+			ostringstream code_expr2, code_bef_expr2;
+			high_indx->print_expr(code_bef_expr2, code_expr2);
+			fprintf(fptr, "%s", code_expr2.str().c_str());
 			fprintf(fptr,";\n");
 			if(lsymp->get_type()==FLOAT_TYPE) {
 				fprintf(fptr,"if(tmp2-tmp1==sizeof(float)-1){\n");
@@ -367,6 +400,11 @@ struct decl_stmt: public stmt{
 	void print_stmt_lst(FILE * & fptr){
 		fflush(fptr);
 		if(fptr){
+			ostringstream code_expr1, code_bef_expr1;
+			if( symp->e){
+				symp->e->print_expr(code_bef_expr1, code_expr1);
+				fprintf(fptr,"%s", code_bef_expr1.str().c_str());
+			}
 			if(type >= INT8_TYPE && type <=DOUBLE_TYPE){
 				fprintf(fptr,"%s %s", noun_list[type].sym, symp->name);
 			} else if (type >=INT8_ARR_TYPE && type <=DOUBLE_ARR_TYPE){
@@ -377,8 +415,8 @@ struct decl_stmt: public stmt{
 				fprintf(fptr,"%s & %s", noun_list[tdt].sym, symp->name);
 			}
 			if( symp->e){
-				fprintf(fptr,"=");
-				symp->e->print_expr(fptr);
+				fprintf(fptr,"=%s", code_expr1.str().c_str());
+				//symp->e->print_expr(fptr);
 			}
 			fprintf(fptr, ";\n");
 			if(next) next->print_stmt_lst(fptr);
