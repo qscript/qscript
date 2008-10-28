@@ -179,6 +179,9 @@ expression: expression '+' expression {
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
+	| expression IN '(' range_list ')' {
+		$$ = new bin2_expr($1, xs, oper_in);
+	}
 	/*
 	| NAME IN NAME {
 		$$ = new bin2_expr($1, $3, oper_in);

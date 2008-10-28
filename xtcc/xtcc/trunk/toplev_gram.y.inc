@@ -24,7 +24,7 @@
  */
 
 %{
-#include "../../qscript/named_attributes.h"
+#include "../../qscript/trunk/named_attributes.h"
 #include "const_defs.h"
 #include "symtab.h"
 #include "tree.h"
