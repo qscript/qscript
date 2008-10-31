@@ -1,0 +1,10 @@
+Release notes: xtcc-0.01 Pre-alpha 
+
+This release has a program mk_data.C which generates the sample2.dat data file used in the test cases. It also creates human_readabable_data.csv which can be opened in a spreadsheet to verify the tabulation output.
+
+The original grammar type.y has been split into 3 include files - we now use m4 as a pre-processor and generate "type.y" on the fly.
+
+Release notes: xtcc-0.02 Pre-alpha
+
+	Multi coded tables demonstraed in the input file inp12 - in q5
+	Expression grammar has operator in used in the edit section.
