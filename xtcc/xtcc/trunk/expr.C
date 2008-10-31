@@ -31,7 +31,8 @@
 //#include "tree.h"
 #include "expr.h"
 #include <climits>
-#include "../../qscript/trunk/named_range.h"
+//#include "../../qscript/trunk/named_range.h"
+#include "named_range.h"
 
 extern scope* active_scope;
 extern ofstream debug_log_file;

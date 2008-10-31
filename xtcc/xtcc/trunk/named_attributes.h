@@ -1,0 +1,1 @@
+../../qscript/trunk/named_attributes.h
