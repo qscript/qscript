@@ -4,7 +4,7 @@
 
 #include <string>
 #include <vector>
-#include "../xtcc/trunk/stmt.h"
+#include "stmt.h"
 using std::string;
 using std::vector;
 struct named_attribute_list: public stmt{

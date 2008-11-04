@@ -1,8 +1,9 @@
 #ifndef xtcc_q_expr_h
 #define xtcc_q_expr_h
 
-#include "../xtcc/trunk/expr.h" 
+#include "../../xtcc/trunk/expr.h" 
 #include "range_set.h"
+
 struct q_expr: public expr {
 	struct symtab_ent * symp;
 	expr * index_expr;

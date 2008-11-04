@@ -1,7 +1,7 @@
 #ifndef xtcc_question_h
 #define xtcc_question_h
 
-#include "../xtcc/trunk/stmt.h"
+#include "../../xtcc/trunk/stmt.h"
 #include "range_set.h"
 #include <cstdlib>
 

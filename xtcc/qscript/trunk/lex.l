@@ -1,7 +1,7 @@
 %{
 #include <math.h>
 #include "const_defs.h"
-#include "../xtcc/trunk/symtab.h"
+#include "../../xtcc/trunk/symtab.h"
 #include "qscript.h"
 	void yyerror(char * s);
 	int line_no=1;

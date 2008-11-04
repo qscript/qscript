@@ -26,8 +26,8 @@
 #include <iostream>
 #include "const_defs.h"
 //#include "qscript_types.h"
-#include "../xtcc/trunk/symtab.h"
-#include "../xtcc/trunk/expr.h" 
+#include "../../xtcc/trunk/symtab.h"
+#include "../../xtcc/trunk/expr.h" 
 #include "q_expr.h" 
 #include "range_set.h"
 #include "stub_pair.h"
@@ -85,7 +85,7 @@
 	map<string, symtab_ent*>::iterator find_in_symtab(string id);
 	void print_err(compiler_err_category cmp_err, string err_msg, 
 		int line_no, int compiler_line_no, string compiler_file_name);
-#include "../xtcc/trunk/stmt.h"
+#include "../../xtcc/trunk/stmt.h"
 	vector <func_info*> func_info_table;
 %}
 
@@ -139,7 +139,7 @@
 
 %type <expr> expression
 %type <expr> expr_list
-%type <expr> q_expr
+ /*%type <expr> q_expr */
 %token CONTINUE BREAK
 %token <text_buf> TEXT
 
@@ -538,13 +538,13 @@ expression: expression '+' expression {
 	*/
 	;
 
+	/*
+	expression: q_expr {
+			$$=$1;
+		}
+		;
 
-expression: q_expr {
-		$$=$1;
-	}
-	;
-
-q_expr: 	NAME IN range_allowed_values {
+	q_expr: 	NAME IN range_allowed_values {
 		cout << " got NAME IN range_allowed_values " << endl;
 		$$=new q_expr($1, r_data, oper_q_expr_in);
 		r_data.reset();
@@ -559,6 +559,7 @@ q_expr: 	NAME IN range_allowed_values {
 		$$=0;
 	}
 	;
+	*/
 
 expr_list: expression { /*$$=$1;*/ }
 	| expr_list ',' expression {
