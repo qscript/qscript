@@ -1,13 +1,15 @@
 %{
 #include <string>
 #include <iostream>
+#include "data_entry.tab.h"
 	using std::string;
 	using std::cout;
 	using std::cerr;
 	using std::endl;
 
-	enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
+	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
 	int scan_datalex();
+	int scan_dataparse();
 %}
 
 %option noyywrap
@@ -17,6 +19,7 @@
 [ \t]+	;
 
 [0-9]+	{
+	scan_datalval.ival = atoi(yytext);
 	return NUMBER;
 }
 
@@ -24,15 +27,17 @@
 	return HYPHEN;
 }
 
-<<EOF>>	{
-	cout << "finished parse" << endl;
-	return END_OF_DATA;
-}
+	/*<<EOF>>	{
+		cout << "finished parse returning END_OF_DATA" << endl;
+		return END_OF_DATA;
+	}*/
 
 . 	{
-	cerr << "ERROR: running ECHO rule" ;
+	cerr << "ERROR: running ECHO rule" << endl;
 	ECHO;
+	return yytext[0];
 	}
+	
 
 %%
 
@@ -48,10 +53,11 @@
 	vector<int> data;
 
 int main(){
-	string s="1 2 4-8";
+	string s="1 2 4-8 12-15 5";
 	YY_BUFFER_STATE s_data =  yy_scan_string(s.c_str());
 
-	read_question_data();
+	//read_question_data();
+	scan_dataparse();
 	cout << endl;
 	yy_delete_buffer(s_data);
 
@@ -64,6 +70,7 @@ int main(){
 }
 
 
+/*
 void read_question_data(){
 	int tok;
 	bool is_range=false;
@@ -83,6 +90,7 @@ void read_question_data(){
 				default:
 				cerr << "syntax error in data" << endl;
 			}
+			break;
 		default:
 			cerr << "syntax error in data" << endl;
 		}
@@ -96,3 +104,4 @@ void read_question_data(){
 
 	}
 }
+*/
