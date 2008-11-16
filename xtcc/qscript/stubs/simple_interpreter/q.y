@@ -115,7 +115,55 @@ range: 	INUMBER '-' INUMBER {
 
 %%
 
-int main(){
+#include <unistd.h>
+#include <string>
+extern void yyrestart ( FILE *input_file );
+
+using std::string;
+int main(int argc, char* argv[]){
+	int opterr=1, c;
+	string fname;
+	int fname_flag=0;
+	
+	while( (c=getopt(argc, argv, "f:"))!=-1 ){
+		char ch=optopt;
+		cout << "ch: " << ch << endl;
+		switch(c){
+		case 'f':
+			fname=optarg;
+			fname_flag=1;
+			cout << " got fname: " << fname << endl;
+			break;
+		case '?': 
+			if(optopt == 'f' ) 
+				cerr << " option -'" << optopt << "' requires an argument" << endl;
+			else if (isprint(optopt)){
+				cerr << " unknown option : '-" << optopt << "'" << endl;
+			} else 	
+				cerr << " unknown character " << optopt << endl;
+			exit(1);
+			break;
+		default:
+			cerr << "def usage: " << endl
+				<< argv[0] << " -f <input-file>\n" <<   endl << "hello\t" << endl;
+			exit(0);
+		}
+		if(fname_flag==1){
+			break;
+		}
+	}
+	if(!fname_flag){
+		cout << "usage: " 
+			<< endl
+			<< argv[0] << " -f <input-file> "  << endl << endl;
+		exit(0);
+	}
+	FILE * yyin = fopen(fname.c_str(), "r");
+	if(!yyin){
+		cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
+		exit(1);
+	}
+	yyrestart(yyin);
 	if( !yyparse()){
 		cout << "Input parsed sucessfully: starting interpreter" << endl;
 		tree_root->eval();

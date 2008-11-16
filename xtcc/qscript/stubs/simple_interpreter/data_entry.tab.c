@@ -58,6 +58,14 @@
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
+/* Substitute the variable and function names.  */
+#define yyparse scan_dataparse
+#define yylex   scan_datalex
+#define yyerror scan_dataerror
+#define yylval  scan_datalval
+#define yychar  scan_datachar
+#define yydebug scan_datadebug
+#define yynerrs scan_datanerrs
 
 
 /* Tokens.  */
@@ -66,61 +74,28 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     INUMBER = 258,
-     NAME = 259,
-     TEXT = 260,
-     SP = 261,
-     MP = 262,
-     VOID_T = 263,
-     INT8_T = 264,
-     INT16_T = 265,
-     INT32_T = 266,
-     FLOAT_T = 267,
-     DOUBLE_T = 268,
-     STRING_T = 269
+     NUMBER = 258,
+     HYPHEN = 259
    };
 #endif
 /* Tokens.  */
-#define INUMBER 258
-#define NAME 259
-#define TEXT 260
-#define SP 261
-#define MP 262
-#define VOID_T 263
-#define INT8_T 264
-#define INT16_T 265
-#define INT32_T 266
-#define FLOAT_T 267
-#define DOUBLE_T 268
-#define STRING_T 269
+#define NUMBER 258
+#define HYPHEN 259
 
 
 
 
 /* Copy the first part of user declarations.  */
-#line 1 "q.y"
+#line 2 "data_entry.y"
 
-
-#include "common.h"	
-#include "stmt.h"	
-#include <string>
+#include <vector>
+	using std::vector;
+	vector<int> data;
 #include <iostream>
-	using std::string;
-	void print_err(compiler_err_category cmp_err, 
-		string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
-	extern int line_no;
-
-	question_type q_type;
-#include "const_defs.h"
-#include "xtcc_set.h"
-	int no_mpn=0;
-	xtcc_set xs;
-	int yylex();
-	void yyerror(const char * s);
-	int no_errors;
-
-	struct stmt* tree_root=0;
-
+using namespace std;
+//#define yylex scan_datalex
+	int scan_datalex();
+	void scan_dataerror(char *s);
 
 
 /* Enabling traces.  */
@@ -143,17 +118,12 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 26 "q.y"
+#line 13 "data_entry.y"
 {
 	int ival;
-	char name[MY_STR_MAX];
-	char text_buf[MY_STR_MAX];
-	datatype dt;
-	struct stmt * stmt;
-	//class question* ques;
 }
 /* Line 187 of yacc.c.  */
-#line 157 "q.tab.c"
+#line 127 "data_entry.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -166,7 +136,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 170 "q.tab.c"
+#line 140 "data_entry.tab.c"
 
 #ifdef short
 # undef short
@@ -381,20 +351,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  6
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   23
+#define YYLAST   5
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  20
+#define YYNTOKENS  5
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  9
+#define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  18
+#define YYNRULES  6
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  32
+#define YYNSTATES  9
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   269
+#define YYMAXUTOK   259
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -406,8 +376,6 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      16,    17,     2,     2,    18,    19,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    15,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -427,8 +395,9 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12,    13,    14
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     2,     3,     4
 };
 
 #if YYDEBUG
@@ -436,26 +405,20 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     7,    10,    17,    19,    24,    26,
-      28,    30,    32,    34,    36,    40,    42,    46,    50
+       0,     0,     3,     5,     7,    10,    12
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      21,     0,    -1,    22,    -1,    23,    -1,    22,    23,    -1,
-       4,     5,    24,    25,    26,    15,    -1,     6,    -1,     7,
-      16,     3,    17,    -1,     9,    -1,    10,    -1,    11,    -1,
-      12,    -1,    13,    -1,    14,    -1,    16,    27,    17,    -1,
-      28,    -1,    27,    18,    28,    -1,     3,    19,     3,    -1,
-       3,    -1
+       6,     0,    -1,     7,    -1,     8,    -1,     7,     8,    -1,
+       3,    -1,     3,     4,     3,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    56,    56,    63,    66,    73,    81,    82,    85,    86,
-      87,    88,    89,    90,    93,    97,    98,   101,   110
+       0,    25,    25,    30,    31,    34,    37
 };
 #endif
 
@@ -464,11 +427,8 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "INUMBER", "NAME", "TEXT", "SP", "MP",
-  "VOID_T", "INT8_T", "INT16_T", "INT32_T", "FLOAT_T", "DOUBLE_T",
-  "STRING_T", "';'", "'('", "')'", "','", "'-'", "$accept", "prog",
-  "question_list", "question", "qtype", "datatype", "range_allowed_values",
-  "range_list", "range", 0
+  "$end", "error", "$undefined", "NUMBER", "HYPHEN", "$accept", "prog",
+  "datalist", "data", 0
 };
 #endif
 
@@ -477,23 +437,20 @@ static const char *const yytname[] =
    token YYLEX-NUM.  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267,   268,   269,    59,    40,    41,    44,    45
+       0,   256,   257,   258,   259
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    20,    21,    22,    22,    23,    24,    24,    25,    25,
-      25,    25,    25,    25,    26,    27,    27,    28,    28
+       0,     5,     6,     7,     7,     8,     8
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     6,     1,     4,     1,     1,
-       1,     1,     1,     1,     3,     1,     3,     3,     1
+       0,     2,     1,     1,     2,     1,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -501,33 +458,27 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     2,     3,     0,     1,     4,     6,     0,
-       0,     0,     8,     9,    10,    11,    12,    13,     0,     0,
-       0,     0,     7,    18,     0,    15,     5,     0,    14,     0,
-      17,    16
+       0,     5,     0,     2,     3,     0,     1,     4,     6
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,     4,    10,    18,    21,    24,    25
+      -1,     2,     3,     4
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -10
+#define YYPACT_NINF -4
 static const yytype_int8 yypact[] =
 {
-       4,     6,    12,     4,   -10,     0,   -10,   -10,   -10,    -3,
-      -9,    11,   -10,   -10,   -10,   -10,   -10,   -10,    -1,     1,
-      13,     2,   -10,     3,    -8,   -10,   -10,    16,   -10,    13,
-     -10,   -10
+      -3,    -2,     1,    -3,    -4,     0,    -4,    -4,    -4
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -10,   -10,   -10,    17,   -10,   -10,   -10,   -10,    -6
+      -4,    -4,    -4,     2
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -537,26 +488,19 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      12,    13,    14,    15,    16,    17,     8,     9,     1,    28,
-      29,     5,     6,    11,    19,    20,    23,    26,    22,    30,
-       7,     0,    27,    31
+       1,     6,     5,     8,     0,     7
 };
 
 static const yytype_int8 yycheck[] =
 {
-       9,    10,    11,    12,    13,    14,     6,     7,     4,    17,
-      18,     5,     0,    16,     3,    16,     3,    15,    17,     3,
-       3,    -1,    19,    29
+       3,     0,     4,     3,    -1,     3
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     4,    21,    22,    23,     5,     0,    23,     6,     7,
-      24,    16,     9,    10,    11,    12,    13,    14,    25,     3,
-      16,    26,    17,     3,    27,    28,    15,    19,    17,    18,
-       3,    28
+       0,     3,     6,     7,     8,     4,     0,     8,     3
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1371,78 +1315,32 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 56 "q.y"
+#line 25 "data_entry.y"
     {
-		tree_root=(yyvsp[(1) - (1)].stmt);
-		while(tree_root->prev) 
-			tree_root=tree_root->prev;
-	;}
-    break;
-
-  case 3:
-#line 63 "q.y"
-    {
-		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
-	;}
-    break;
-
-  case 4:
-#line 66 "q.y"
-    {
-		(yyvsp[(1) - (2)].stmt)->next=(yyvsp[(2) - (2)].stmt);
-		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
-		(yyval.stmt)=(yyvsp[(2) - (2)].stmt);
+		cout << "GOT END_OF_DATA" << endl;
 	;}
     break;
 
   case 5:
-#line 73 "q.y"
+#line 34 "data_entry.y"
     {
-		  string name((yyvsp[(1) - (6)].name));
-		  string q_text((yyvsp[(2) - (6)].text_buf));
-		  datatype dt=(yyvsp[(4) - (6)].dt);
-		  (yyval.stmt) = new q_stmt(line_no, name, q_text, q_type, no_mpn, dt, xs);
-	  ;}
-    break;
-
-  case 6:
-#line 81 "q.y"
-    { q_type = spn; ;}
-    break;
-
-  case 7:
-#line 82 "q.y"
-    { q_type = mpn; no_mpn = (yyvsp[(3) - (4)].ival); ;}
-    break;
-
-  case 14:
-#line 93 "q.y"
-    { ;}
-    break;
-
-  case 17:
-#line 101 "q.y"
-    {
-		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
-			print_err(compiler_sem_err, "2nd number in range <= 1st number",
-					line_no, __LINE__, __FILE__  );
-
-		} else {
-			xs.range.push_back( pair<int,int>((yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival)));
-		}
+	      data.push_back((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
-  case 18:
-#line 110 "q.y"
+  case 6:
+#line 37 "data_entry.y"
     {
-		xs.indiv.insert((yyvsp[(1) - (1)].ival));
+	      data.push_back((yyvsp[(1) - (3)].ival));
+		for(int i=data[data.size()-1]+1; i<=(yyvsp[(3) - (3)].ival); ++i){
+			data.push_back(i);
+		}
 	;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1446 "q.tab.c"
+#line 1344 "data_entry.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1656,89 +1554,10 @@ yyreturn:
 }
 
 
-#line 116 "q.y"
+#line 44 "data_entry.y"
 
 
-#include <unistd.h>
-#include <string>
-extern void yyrestart ( FILE *input_file );
-
-using std::string;
-int main(int argc, char* argv[]){
-	int opterr=1, c;
-	string fname;
-	int fname_flag=0;
-	
-	while( (c=getopt(argc, argv, "f:"))!=-1 ){
-		char ch=optopt;
-		cout << "ch: " << ch << endl;
-		switch(c){
-		case 'f':
-			fname=optarg;
-			fname_flag=1;
-			cout << " got fname: " << fname << endl;
-			break;
-		case '?': 
-			if(optopt == 'f' ) 
-				cerr << " option -'" << optopt << "' requires an argument" << endl;
-			else if (isprint(optopt)){
-				cerr << " unknown option : '-" << optopt << "'" << endl;
-			} else 	
-				cerr << " unknown character " << optopt << endl;
-			exit(1);
-			break;
-		default:
-			cerr << "def usage: " << endl
-				<< argv[0] << " -f <input-file>\n" <<   endl << "hello\t" << endl;
-			exit(0);
-		}
-		if(fname_flag==1){
-			break;
-		}
+	void scan_dataerror(char *s){
+		cout << "error in input: " << s << endl;
 	}
-	if(!fname_flag){
-		cout << "usage: " 
-			<< endl
-			<< argv[0] << " -f <input-file> "  << endl << endl;
-		exit(0);
-	}
-	FILE * yyin = fopen(fname.c_str(), "r");
-	if(!yyin){
-		cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
-		exit(1);
-	}
-	yyrestart(yyin);
-	if( !yyparse()){
-		cout << "Input parsed sucessfully: starting interpreter" << endl;
-		tree_root->eval();
-	} else {
-		cerr << "There were : " << no_errors << " in parse" << endl;
-	}
-	return no_errors;
-}
-
-#include <string>
-using std::string;
-void print_err(compiler_err_category cmp_err, string err_msg, 
-	int line_no, int compiler_line_no, string compiler_file_name){
-	++no_errors;
-	cerr << "xtcc " ;
-	switch(cmp_err){
-		case compiler_syntax_err: 
-			cerr << "syntax error: ";
-		break;
-		case compiler_sem_err:
-			cerr << "semantic error: ";
-		break;
-		case compiler_internal_error:
-			cerr << "compiler internal error: " ;
-		break;	
-		default:
-			cerr << "internal compiler error - error code category missing in switch statement: compiler file: " 
-				<< __FILE__ << " compiler src code lineno: " << __LINE__ << endl;
-			
-	}
-	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: " 
-		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
-}
 
