@@ -16,6 +16,8 @@ struct xtcc_set {
 	void reset();
 	void add_range(int n1, int n2);
 	void add_indiv(int n1);
+	bool exists(int key);
+
 };
 
 #endif /* xtcc_set_h */

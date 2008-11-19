@@ -32,3 +32,20 @@ void xtcc_set::add_indiv(int n1){
 	indiv.insert(n1);
 }
 
+
+bool xtcc_set::exists(int key)
+{
+	for (int i = 0; i < range.size(); ++i) {
+		if (key >= range[i].first
+		    && key <= range[i].second) {
+		    return true;
+		}
+	}
+	for(	set<int>::iterator it=indiv.begin(); it!=indiv.end(); ++it){
+		if (key == *it) {
+			return true;
+		}
+	}
+	return false;
+}
+

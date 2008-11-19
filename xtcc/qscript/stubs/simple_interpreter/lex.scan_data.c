@@ -1780,12 +1780,24 @@ void read_question_data(){
 }
 */
 
-void read_data();
-void read_data(){
-	char * line=readline("Data: ");
+#include <vector>
+using std::vector;
+extern  vector<int> data;
+
+void read_data( const char * prompt);
+void read_data( const char * prompt){
+	char * line=readline(prompt);
 	printf("readline: %s\n", line);
-	//YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
-	//scan_dataparse();
-	//scan_data_delete_buffer(s_data);
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
+	scan_dataparse();
+	cout << "read: " << endl;
+	for(int i=0; i<data.size(); ++i){
+		cout << data[i] << "," ;
+	}
+	cout << endl;
+	scan_data_delete_buffer(s_data);
+	free(line);
+	line=0;
 }
+
 

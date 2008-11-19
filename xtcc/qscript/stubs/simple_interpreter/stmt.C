@@ -4,7 +4,7 @@
 
 using std::cout;
 using std::endl;
-void read_data();
+void read_data(const char * prompt);
 
 q_stmt::q_stmt(int l_no, string l_name, string l_text, question_type l_q_type, int l_no_mpn, datatype l_dt,
 	xtcc_set& l_r_data): 
@@ -30,9 +30,28 @@ void q_stmt::eval(){
 			cout << j << endl; 
 		}
 	}
-	read_data();
+
+	bool invalid_code=false;
+	string prompt="before do: Enter Data:";
+	do{
+		invalid_code=false;
+		read_data(prompt.c_str());
+		cout << "data.size(): " << data.size() << endl;
+		for(int i=0; i<data.size(); ++i){
+			cout << "Testing data exists: " << data[i] << endl;
+			if (!r_data->exists(data[i])){
+				invalid_code=true;
+				prompt = "Input contained some invalid data\nRe-enter Data\n";
+				data.clear();
+				break;
+			}
+		}
+	} while (invalid_code==true);
+	
 
 	if(next){
 		next->eval();
 	}
 }
+
+

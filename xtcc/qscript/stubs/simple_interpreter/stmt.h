@@ -20,6 +20,7 @@ struct q_stmt: public stmt {
 	int no_mpn;
 	datatype dt;
 	xtcc_set * r_data;
+	set<int> input_data;
 	q_stmt(int l_no, string l_name, string l_text, question_type l_q_type, int l_no_mpn, 
 		datatype l_dt, xtcc_set& l_r_data);
 	void eval();
