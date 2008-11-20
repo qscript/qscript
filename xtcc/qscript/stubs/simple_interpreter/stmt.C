@@ -46,8 +46,22 @@ void q_stmt::eval(){
 				break;
 			}
 		}
+		if(invalid_code)
+			continue;
+		if(q_type==spn && data.size()>1) {
+			prompt="Single coded question - please enter only 1 code:" ;
+			invalid_code=true;
+			data.clear();
+		} else if (q_type==mpn && data.size() > no_mpn){
+			prompt="Multi coded question codes exceed no of max codes:  " ;
+			invalid_code=true;
+			data.clear();
+		} else {
+			invalid_code=false;
+		}
 	} while (invalid_code==true);
 	
+	data.clear();
 
 	if(next){
 		next->eval();

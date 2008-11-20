@@ -144,8 +144,8 @@ int main(int argc, char* argv[]){
 			exit(1);
 			break;
 		default:
-			cerr << "def usage: " << endl
-				<< argv[0] << " -f <input-file>\n" <<   endl << "hello\t" << endl;
+			cerr << "usage: " << endl
+				<< argv[0] << " -f <input-file>\n" <<   endl ;
 			exit(0);
 		}
 		if(fname_flag==1){
