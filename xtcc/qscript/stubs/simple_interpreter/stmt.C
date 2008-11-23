@@ -59,6 +59,14 @@ void q_stmt::eval(){
 		} else {
 			invalid_code=false;
 		}
+
+		if(invalid_code==false){
+			input_data.erase(input_data.begin(), input_data.end());
+			for(int i=0; i<data.size(); ++i){
+				input_data.insert(data[i]);
+				cout << "storing: " << data[i] << " into input_data" << endl;
+			}
+		}
 	} while (invalid_code==true);
 	
 	data.clear();

@@ -19,6 +19,8 @@
 	int no_errors;
 
 	struct stmt* tree_root=0;
+#include <vector>
+	vector <q_stmt*> q_list;
 
 %}
 
@@ -71,10 +73,12 @@ question_list: question {
 	;
 
 question: NAME TEXT qtype datatype range_allowed_values ';' {
-		  string name($1);
-		  string q_text($2);
-		  datatype dt=$4;
-		  $$ = new q_stmt(line_no, name, q_text, q_type, no_mpn, dt, xs);
+		string name($1);
+		string q_text($2);
+		datatype dt=$4;
+		q_stmt* q= new q_stmt(line_no, name, q_text, q_type, no_mpn, dt, xs);
+		$$=q;
+		q_list.push_back(q);
 	  }
 	;
 
@@ -118,6 +122,8 @@ range: 	INUMBER '-' INUMBER {
 #include <unistd.h>
 #include <string>
 extern void yyrestart ( FILE *input_file );
+
+void data_entry_loop();
 
 using std::string;
 int main(int argc, char* argv[]){
@@ -166,7 +172,7 @@ int main(int argc, char* argv[]){
 	yyrestart(yyin);
 	if( !yyparse()){
 		cout << "Input parsed sucessfully: starting interpreter" << endl;
-		tree_root->eval();
+		data_entry_loop();
 	} else {
 		cerr << "There were : " << no_errors << " in parse" << endl;
 	}
@@ -196,4 +202,29 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 	}
 	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: " 
 		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
+}
+
+#include <sstream>
+void data_entry_loop(){
+	int ser_no;
+	cout << "Enter Serial No (0) to exit: " << flush;
+	cin >> ser_no;
+	string jno="j_1001";
+	while(ser_no!=0){
+		stringstream fname_str;
+		fname_str << jno << "_" << ser_no << ".dat";
+		FILE * fptr = fopen(fname_str.str().c_str(), "w+b");
+		tree_root->eval();
+		cout << "Enter Serial No (0) to exit: " << flush;
+		cin >> ser_no;
+		for (int i=0; i<q_list.size(); ++i){
+			fprintf(fptr, "%s: ", q_list[i]->name.c_str());
+			for( set<int>::iterator iter=q_list[i]->input_data.begin();
+					iter!=q_list[i]->input_data.end(); ++iter){
+				fprintf(fptr, "%d ", *iter);
+			}
+			fprintf(fptr, "\n");
+		}
+		fclose(fptr);
+	} 
 }

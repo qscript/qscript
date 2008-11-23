@@ -72,7 +72,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 26 "q.y"
+#line 28 "q.y"
 {
 	int ival;
 	char name[MY_STR_MAX];

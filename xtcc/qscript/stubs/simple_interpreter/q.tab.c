@@ -120,6 +120,8 @@
 	int no_errors;
 
 	struct stmt* tree_root=0;
+#include <vector>
+	vector <q_stmt*> q_list;
 
 
 
@@ -143,7 +145,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 26 "q.y"
+#line 28 "q.y"
 {
 	int ival;
 	char name[MY_STR_MAX];
@@ -153,7 +155,7 @@ typedef union YYSTYPE
 	//class question* ques;
 }
 /* Line 187 of yacc.c.  */
-#line 157 "q.tab.c"
+#line 159 "q.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -166,7 +168,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 170 "q.tab.c"
+#line 172 "q.tab.c"
 
 #ifdef short
 # undef short
@@ -454,8 +456,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    56,    56,    63,    66,    73,    81,    82,    85,    86,
-      87,    88,    89,    90,    93,    97,    98,   101,   110
+       0,    58,    58,    65,    68,    75,    85,    86,    89,    90,
+      91,    92,    93,    94,    97,   101,   102,   105,   114
 };
 #endif
 
@@ -1371,7 +1373,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 56 "q.y"
+#line 58 "q.y"
     {
 		tree_root=(yyvsp[(1) - (1)].stmt);
 		while(tree_root->prev) 
@@ -1380,14 +1382,14 @@ yyreduce:
     break;
 
   case 3:
-#line 63 "q.y"
+#line 65 "q.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 	;}
     break;
 
   case 4:
-#line 66 "q.y"
+#line 68 "q.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
@@ -1396,32 +1398,34 @@ yyreduce:
     break;
 
   case 5:
-#line 73 "q.y"
+#line 75 "q.y"
     {
-		  string name((yyvsp[(1) - (6)].name));
-		  string q_text((yyvsp[(2) - (6)].text_buf));
-		  datatype dt=(yyvsp[(4) - (6)].dt);
-		  (yyval.stmt) = new q_stmt(line_no, name, q_text, q_type, no_mpn, dt, xs);
+		string name((yyvsp[(1) - (6)].name));
+		string q_text((yyvsp[(2) - (6)].text_buf));
+		datatype dt=(yyvsp[(4) - (6)].dt);
+		q_stmt* q= new q_stmt(line_no, name, q_text, q_type, no_mpn, dt, xs);
+		(yyval.stmt)=q;
+		q_list.push_back(q);
 	  ;}
     break;
 
   case 6:
-#line 81 "q.y"
+#line 85 "q.y"
     { q_type = spn; ;}
     break;
 
   case 7:
-#line 82 "q.y"
+#line 86 "q.y"
     { q_type = mpn; no_mpn = (yyvsp[(3) - (4)].ival); ;}
     break;
 
   case 14:
-#line 93 "q.y"
+#line 97 "q.y"
     { ;}
     break;
 
   case 17:
-#line 101 "q.y"
+#line 105 "q.y"
     {
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
 			print_err(compiler_sem_err, "2nd number in range <= 1st number",
@@ -1434,7 +1438,7 @@ yyreduce:
     break;
 
   case 18:
-#line 110 "q.y"
+#line 114 "q.y"
     {
 		xs.indiv.insert((yyvsp[(1) - (1)].ival));
 	;}
@@ -1442,7 +1446,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1446 "q.tab.c"
+#line 1450 "q.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1656,12 +1660,14 @@ yyreturn:
 }
 
 
-#line 116 "q.y"
+#line 120 "q.y"
 
 
 #include <unistd.h>
 #include <string>
 extern void yyrestart ( FILE *input_file );
+
+void data_entry_loop();
 
 using std::string;
 int main(int argc, char* argv[]){
@@ -1710,7 +1716,7 @@ int main(int argc, char* argv[]){
 	yyrestart(yyin);
 	if( !yyparse()){
 		cout << "Input parsed sucessfully: starting interpreter" << endl;
-		tree_root->eval();
+		data_entry_loop();
 	} else {
 		cerr << "There were : " << no_errors << " in parse" << endl;
 	}
@@ -1740,5 +1746,30 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 	}
 	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: " 
 		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
+}
+
+#include <sstream>
+void data_entry_loop(){
+	int ser_no;
+	cout << "Enter Serial No (0) to exit: " << flush;
+	cin >> ser_no;
+	string jno="j_1001";
+	while(ser_no!=0){
+		stringstream fname_str;
+		fname_str << jno << "_" << ser_no << ".dat";
+		FILE * fptr = fopen(fname_str.str().c_str(), "w+b");
+		tree_root->eval();
+		cout << "Enter Serial No (0) to exit: " << flush;
+		cin >> ser_no;
+		for (int i=0; i<q_list.size(); ++i){
+			fprintf(fptr, "%s: ", q_list[i]->name.c_str());
+			for( set<int>::iterator iter=q_list[i]->input_data.begin();
+					iter!=q_list[i]->input_data.end(); ++iter){
+				fprintf(fptr, "%d ", *iter);
+			}
+			fprintf(fptr, "\n");
+		}
+		fclose(fptr);
+	} 
 }
 
