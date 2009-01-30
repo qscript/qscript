@@ -74,7 +74,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 
 
 	if(argc-optind<2) {
-		cout << "Usage: " << argv[0] << " <prog-name> <data-file>" << endl;
+		cout << "Usage: " << argv[0] << " <prog-name> <data-file>" << endl << endl;
 		exit_flag=true;
 	}
 	char * inp_file = argv[optind++];

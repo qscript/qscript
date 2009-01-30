@@ -30,6 +30,7 @@
 using namespace std;
 #include "scope.h"
 #include "expr.h"
+#include "utils.h"
 
 #include <cstdio>
 #include <cstdlib>

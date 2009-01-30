@@ -36,8 +36,8 @@ struct bin2_expr: public expr{
 	xtcc_set * xs;
 	public:
 	//bin2_expr(string lname , string rname, e_operator_type letype);
-	//bin2_expr(string lname , range_data&  l_rd ,e_operator_type letype);
-	bin2_expr(string lname , xtcc_set&  l_rd ,e_operator_type letype);
+	bin2_expr(string lname , range_data&  l_rd ,e_operator_type letype);
+	//bin2_expr(expr * llop , xtcc_set&  l_rd ,e_operator_type letype);
 	bool is_lvalue(){ return false; }
 	//void print_oper_assgn(FILE * edit_out);
 	void print_expr(/*FILE * edit_out*/ ostringstream& code_bef_expr, ostringstream & code_expr);

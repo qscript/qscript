@@ -101,8 +101,8 @@
 #line 1 "q.y"
 
 
-#include "common.h"	
-#include "stmt.h"	
+#include "common.h"
+#include "stmt.h"
 #include <string>
 #include <iostream>
 	using std::string;
@@ -122,6 +122,7 @@
 	struct stmt* tree_root=0;
 #include <vector>
 	vector <q_stmt*> q_list;
+	void generate_code();
 
 
 
@@ -145,7 +146,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 28 "q.y"
+#line 29 "q.y"
 {
 	int ival;
 	char name[MY_STR_MAX];
@@ -155,7 +156,7 @@ typedef union YYSTYPE
 	//class question* ques;
 }
 /* Line 187 of yacc.c.  */
-#line 159 "q.tab.c"
+#line 160 "q.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -168,7 +169,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 172 "q.tab.c"
+#line 173 "q.tab.c"
 
 #ifdef short
 # undef short
@@ -456,8 +457,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    59,    59,    66,    69,    76,    91,   101,   102,   105,
-     106,   107,   108,   109,   110,   113,   117,   118,   121,   130
+       0,    60,    60,    67,    70,    77,    92,   102,   103,   106,
+     107,   108,   109,   110,   111,   114,   118,   119,   122,   131
 };
 #endif
 
@@ -1373,7 +1374,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 59 "q.y"
+#line 60 "q.y"
     {
 		tree_root=(yyvsp[(1) - (1)].stmt);
 		while(tree_root->prev) 
@@ -1382,14 +1383,14 @@ yyreduce:
     break;
 
   case 3:
-#line 66 "q.y"
+#line 67 "q.y"
     {
 		   (yyval.stmt)=(yyvsp[(1) - (1)].stmt);
-	   ;}
+	;}
     break;
 
   case 4:
-#line 69 "q.y"
+#line 70 "q.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
@@ -1398,7 +1399,7 @@ yyreduce:
     break;
 
   case 6:
-#line 91 "q.y"
+#line 92 "q.y"
     {
 		string name((yyvsp[(1) - (6)].name));
 		string q_text((yyvsp[(2) - (6)].text_buf));
@@ -1410,22 +1411,22 @@ yyreduce:
     break;
 
   case 7:
-#line 101 "q.y"
+#line 102 "q.y"
     { q_type = spn; ;}
     break;
 
   case 8:
-#line 102 "q.y"
+#line 103 "q.y"
     { q_type = mpn; no_mpn = (yyvsp[(3) - (4)].ival); ;}
     break;
 
   case 15:
-#line 113 "q.y"
+#line 114 "q.y"
     { ;}
     break;
 
   case 18:
-#line 121 "q.y"
+#line 122 "q.y"
     {
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
 			print_err(compiler_sem_err, "2nd number in range <= 1st number",
@@ -1438,7 +1439,7 @@ yyreduce:
     break;
 
   case 19:
-#line 130 "q.y"
+#line 131 "q.y"
     {
 		xs.indiv.insert((yyvsp[(1) - (1)].ival));
 	;}
@@ -1446,7 +1447,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1450 "q.tab.c"
+#line 1451 "q.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1660,7 +1661,7 @@ yyreturn:
 }
 
 
-#line 136 "q.y"
+#line 137 "q.y"
 
 
 #include <unistd.h>
@@ -1716,7 +1717,8 @@ int main(int argc, char* argv[]){
 	yyrestart(yyin);
 	if( !yyparse()){
 		cout << "Input parsed sucessfully: starting interpreter" << endl;
-		data_entry_loop();
+		//data_entry_loop();
+		generate_code();
 	} else {
 		cerr << "There were : " << no_errors << " in parse" << endl;
 	}
@@ -1771,5 +1773,49 @@ void data_entry_loop(){
 		}
 		fclose(fptr);
 	} 
+}
+void print_header(FILE* script);
+void print_close(FILE* script);
+void generate_code(){
+	string script_name("test_script.c");
+	FILE * script = fopen(script_name.c_str(), "w");
+	if(!script){
+		cerr << "unable to open output file to dump script data: " << script_name << endl;
+		exit(1);
+	}
+	print_header(script);
+	tree_root->generate_code(script);
+	print_close(script);
+}
+
+void print_header(FILE* script){
+	fprintf(script, "#include <iostream>\n");
+	fprintf(script, "#include <vector>\n");
+	fprintf(script, "#include <string>\n");
+	fprintf(script, "#include <sstream>\n");
+	fprintf(script, "#include \"stmt.h\"\n");
+	fprintf(script, "#include \"xtcc_set.h\"\n");
+
+	fprintf(script, "using namespace std;\n");
+	fprintf(script, "void read_data(const char * prompt);\n");
+	fprintf(script, "extern vector<int> data;\n");
+	fprintf(script, "int main(){\n");
+
+	fprintf(script, "\tint ser_no;\n");
+	fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
+	fprintf(script, "\t\tcin >> ser_no;\n");
+	fprintf(script, "\t\tstring jno=\"j_1001\";\n");
+	fprintf(script, "\t\twhile(ser_no!=0){\n");
+	fprintf(script, "\t\t\tstringstream fname_str;\n");
+	fprintf(script, "\t\t\tfname_str << jno << \"_\" << ser_no << \".dat\";\n");
+	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
+
+}
+
+void print_close(FILE* script){
+	fprintf(script,	"cout << \"Enter Serial No (0) to exit: \" << flush;\n");
+	fprintf(script, "cin >> ser_no;\n");
+	fprintf(script, "\n} /* close while */\n");
+	fprintf(script, "\n} /* close main */\n");
 }
 

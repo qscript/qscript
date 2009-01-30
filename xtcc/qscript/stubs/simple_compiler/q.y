@@ -1,7 +1,7 @@
 %{
 
-#include "common.h"	
-#include "stmt.h"	
+#include "common.h"
+#include "stmt.h"
 #include <string>
 #include <iostream>
 	using std::string;
@@ -21,6 +21,7 @@
 	struct stmt* tree_root=0;
 #include <vector>
 	vector <q_stmt*> q_list;
+	void generate_code();
 
 %}
 
@@ -65,7 +66,7 @@ prog: stmt_list {
 
 stmt_list: stmt {
 		   $$=$1;
-	   }
+	}
 	| stmt_list stmt{
 		$1->next=$2;
 		$2->prev=$1;
@@ -188,7 +189,8 @@ int main(int argc, char* argv[]){
 	yyrestart(yyin);
 	if( !yyparse()){
 		cout << "Input parsed sucessfully: starting interpreter" << endl;
-		data_entry_loop();
+		//data_entry_loop();
+		generate_code();
 	} else {
 		cerr << "There were : " << no_errors << " in parse" << endl;
 	}
@@ -243,4 +245,48 @@ void data_entry_loop(){
 		}
 		fclose(fptr);
 	} 
+}
+void print_header(FILE* script);
+void print_close(FILE* script);
+void generate_code(){
+	string script_name("test_script.c");
+	FILE * script = fopen(script_name.c_str(), "w");
+	if(!script){
+		cerr << "unable to open output file to dump script data: " << script_name << endl;
+		exit(1);
+	}
+	print_header(script);
+	tree_root->generate_code(script);
+	print_close(script);
+}
+
+void print_header(FILE* script){
+	fprintf(script, "#include <iostream>\n");
+	fprintf(script, "#include <vector>\n");
+	fprintf(script, "#include <string>\n");
+	fprintf(script, "#include <sstream>\n");
+	fprintf(script, "#include \"stmt.h\"\n");
+	fprintf(script, "#include \"xtcc_set.h\"\n");
+
+	fprintf(script, "using namespace std;\n");
+	fprintf(script, "void read_data(const char * prompt);\n");
+	fprintf(script, "extern vector<int> data;\n");
+	fprintf(script, "int main(){\n");
+
+	fprintf(script, "\tint ser_no;\n");
+	fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
+	fprintf(script, "\t\tcin >> ser_no;\n");
+	fprintf(script, "\t\tstring jno=\"j_1001\";\n");
+	fprintf(script, "\t\twhile(ser_no!=0){\n");
+	fprintf(script, "\t\t\tstringstream fname_str;\n");
+	fprintf(script, "\t\t\tfname_str << jno << \"_\" << ser_no << \".dat\";\n");
+	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
+
+}
+
+void print_close(FILE* script){
+	fprintf(script,	"cout << \"Enter Serial No (0) to exit: \" << flush;\n");
+	fprintf(script, "cin >> ser_no;\n");
+	fprintf(script, "\n} /* close while */\n");
+	fprintf(script, "\n} /* close main */\n");
 }

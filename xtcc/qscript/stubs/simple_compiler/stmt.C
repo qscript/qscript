@@ -1,0 +1,162 @@
+#include "stmt.h"
+#include <string>
+#include <iostream>
+#include <cstdio>
+
+using std::cout;
+using std::endl;
+void read_data(const char * prompt);
+
+q_stmt::q_stmt(int l_no, string l_name, string l_text, question_type l_q_type, int l_no_mpn, datatype l_dt,
+	xtcc_set& l_r_data): 
+	stmt(l_no), name(l_name), text(l_text), q_type(l_q_type) , 
+	no_mpn(l_no_mpn),
+	dt(l_dt)
+{
+	r_data = new xtcc_set(l_r_data);
+}
+
+
+#include <sstream>
+int scan_datalex();
+int scan_dataparse();
+extern vector<int> data;
+void q_stmt::eval(){
+	cout << name << "." << text << endl << endl;
+	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
+		cout << *it << endl;
+	}
+	for(int i=0; i<r_data->range.size(); ++i){
+		for(int j=r_data->range[i].first; j<=r_data->range[i].second;++j){  
+			cout << j << endl; 
+		}
+	}
+
+	bool invalid_code=false;
+	string prompt="before do: Enter Data:";
+	do{
+		invalid_code=false;
+		read_data(prompt.c_str());
+		cout << "data.size(): " << data.size() << endl;
+		for(int i=0; i<data.size(); ++i){
+			cout << "Testing data exists: " << data[i] << endl;
+			if (!r_data->exists(data[i])){
+				invalid_code=true;
+				prompt = "Input contained some invalid data\nRe-enter Data\n";
+				data.clear();
+				break;
+			}
+		}
+		if(invalid_code)
+			continue;
+		if(q_type==spn && data.size()>1) {
+			prompt="Single coded question - please enter only 1 code:" ;
+			invalid_code=true;
+			data.clear();
+		} else if (q_type==mpn && data.size() > no_mpn){
+			prompt="Multi coded question codes exceed no of max codes:  " ;
+			invalid_code=true;
+			data.clear();
+		} else {
+			invalid_code=false;
+		}
+
+		if(invalid_code==false){
+			input_data.erase(input_data.begin(), input_data.end());
+			for(int i=0; i<data.size(); ++i){
+				input_data.insert(data[i]);
+				cout << "storing: " << data[i] << " into input_data" << endl;
+			}
+		}
+	} while (invalid_code==true);
+	
+	data.clear();
+
+	if(next){
+		next->eval();
+	}
+}
+
+void q_stmt::generate_code(FILE * script){
+	/*
+	fprintf(script, "cout <<  \"%s.%s\" << endl << endl;\n\n", name.c_str(), text.c_str());
+	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
+		fprintf(script, "cout << %d << endl;\n", *it );
+	}
+	for(int i=0; i<r_data->range.size(); ++i){
+		for(int j=r_data->range[i].first; j<=r_data->range[i].second;++j){  
+			fprintf(script, "cout << %d << endl;\n",j ); 
+		}
+	}
+	*/
+	
+	static int xtcc_set_counter=0;
+	const int BUF_SIZE=100;
+	char xtcc_set_name[BUF_SIZE];
+	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
+	fprintf(script, "xtcc_set %s;\n", xtcc_set_name);
+	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
+		fprintf(script, "%s.indiv.insert(%d);\n", xtcc_set_name, *it);
+	}
+	for(int i=0; i<r_data->range.size(); ++i){
+		fprintf(script, "%s.range.push_back(pair<int,int>(%d,%d));\n",
+			xtcc_set_name, r_data->range[i].first, r_data->range[i].second);
+	}
+	string q_type_str;
+	print_q_type(q_type_str);
+
+	string datatype_str;
+	print_data_type(datatype_str);
+
+	fprintf(script, "q_stmt * %s = new q_stmt(%d, \"%s\", \"%s\", %s, %d, %s, %s);\n",
+		name.c_str(),
+		line_no, name.c_str(), text.c_str(), q_type_str.c_str(), no_mpn, datatype_str.c_str(), xtcc_set_name
+		); 
+	fprintf(script, "%s->eval();\n", name.c_str());
+	if(next){
+		next->generate_code(script);
+	}
+
+}
+
+void q_stmt::print_q_type(string &s){
+	const int BUF_SIZE=200;
+	char buff[BUF_SIZE];
+	if(q_type==spn){
+		s="spn";
+	} else if(q_type==mpn){
+		s="mpn";
+	} else {
+		sprintf(buff, " internal compiler error: update q_stmt::print_q_type: %d, %s", 
+			__LINE__, __FILE__);
+		s=buff;
+	}
+}
+
+
+
+void q_stmt::print_data_type(string &s){
+	if(dt==	VOID_TYPE){
+		s="VOID_TYPE";
+	} else if(dt==INT8_TYPE){
+		s="INT8_TYPE";
+	} else if(dt== INT16_TYPE) {
+		s="INT16_TYPE";
+	} else if(dt==  INT32_TYPE){
+		s="INT32_TYPE";
+	} else if(dt== FLOAT_TYPE){
+		s="FLOAT_TYPE";
+	} else if (dt== DOUBLE_TYPE){
+		s="DOUBLE_TYPE";
+	} else if (dt== BOOL_TYPE){
+		s="BOOL_TYPE";
+	} else if (dt== STRING_TYPE){
+		s="STRING_TYPE";
+	} else {
+		const int BUF_SIZE=200;
+		char buff[BUF_SIZE];
+		sprintf(buff, " internal compiler error: update q_stmt::print_data_type : %d, %s", 
+			__LINE__, __FILE__);
+		s=buff;
+	}
+}
