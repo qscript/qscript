@@ -4,6 +4,7 @@
 #include "stmt.h"
 #include <string>
 #include <iostream>
+#include <sstream>
 	using std::string;
 	void print_err(compiler_err_category cmp_err, 
 		string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
@@ -247,7 +248,7 @@ void data_entry_loop(){
 	} 
 }
 void print_header(FILE* script);
-void print_close(FILE* script);
+void print_close(FILE* script, stringstream & program_code);
 void generate_code(){
 	string script_name("test_script.c");
 	FILE * script = fopen(script_name.c_str(), "w");
@@ -255,9 +256,11 @@ void generate_code(){
 		cerr << "unable to open output file to dump script data: " << script_name << endl;
 		exit(1);
 	}
+	stringstream quest_defns, program_code;
 	print_header(script);
-	tree_root->generate_code(script);
-	print_close(script);
+	tree_root->generate_code(quest_defns, program_code);
+	fprintf(script, "%s\n", quest_defns.str().c_str());
+	print_close(script, program_code);
 }
 
 void print_header(FILE* script){
@@ -271,22 +274,34 @@ void print_header(FILE* script){
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "extern vector<int> data;\n");
+	fprintf(script, "vector <q_stmt*> q_list;\n");
 	fprintf(script, "int main(){\n");
+
+}
+
+void print_close(FILE* script, stringstream & program_code){
 
 	fprintf(script, "\tint ser_no;\n");
 	fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
 	fprintf(script, "\t\tcin >> ser_no;\n");
 	fprintf(script, "\t\tstring jno=\"j_1001\";\n");
 	fprintf(script, "\t\twhile(ser_no!=0){\n");
+	fprintf(script, "%s\n", program_code.str().c_str());
 	fprintf(script, "\t\t\tstringstream fname_str;\n");
 	fprintf(script, "\t\t\tfname_str << jno << \"_\" << ser_no << \".dat\";\n");
 	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
-
-}
-
-void print_close(FILE* script){
 	fprintf(script,	"cout << \"Enter Serial No (0) to exit: \" << flush;\n");
 	fprintf(script, "cin >> ser_no;\n");
-	fprintf(script, "\n} /* close while */\n");
+	fprintf(script, "\tfor (int i=0; i<q_list.size(); ++i){\n");
+	fprintf(script, "\t\tfprintf(fptr, \"%%s: \", q_list[i]->name.c_str());\n");
+	fprintf(script, "\t\tfor( set<int>::iterator iter=q_list[i]->input_data.begin();\n");
+	fprintf(script, "\t\t\t\titer!=q_list[i]->input_data.end(); ++iter){\n");
+	fprintf(script, "\t\t\tfprintf(fptr, \"%%d \", *iter);\n");
+	fprintf(script, "\t\t}\n");
+	fprintf(script, "\t\tfprintf(fptr, \"\\n\");\n");
+	fprintf(script, "\t}\n");
+	fprintf(script, "\tfclose(fptr);\n");
+	fprintf(script, "\n");
+	fprintf(script, "\n\t} /* close while */\n");
 	fprintf(script, "\n} /* close main */\n");
 }

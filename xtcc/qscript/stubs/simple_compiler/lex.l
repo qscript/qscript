@@ -49,7 +49,7 @@ mp 	{ return MP;}
 }
 
 \"[^\"]*\"      {
-	int len_text=strlen(yytext)-2;
+	int len_text=strlen(yytext);
 	yytext[len_text-1]='\0';
 	if(yyleng < MY_STR_MAX-1) {
 		strcpy(yylval.text_buf, yytext+1);

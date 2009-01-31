@@ -77,7 +77,7 @@ void q_stmt::eval(){
 	}
 }
 
-void q_stmt::generate_code(FILE * script){
+void q_stmt::generate_code(/*FILE * script*/ stringstream & quest_defns, stringstream& program_code){
 	/*
 	fprintf(script, "cout <<  \"%s.%s\" << endl << endl;\n\n", name.c_str(), text.c_str());
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
@@ -94,13 +94,18 @@ void q_stmt::generate_code(FILE * script){
 	const int BUF_SIZE=100;
 	char xtcc_set_name[BUF_SIZE];
 	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
-	fprintf(script, "xtcc_set %s;\n", xtcc_set_name);
+	//fprintf(script, "xtcc_set %s;\n", xtcc_set_name);
+	quest_defns  << "xtcc_set " << xtcc_set_name << ";" << endl;
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
-		fprintf(script, "%s.indiv.insert(%d);\n", xtcc_set_name, *it);
+		//fprintf(script, "%s.indiv.insert(%d);\n", xtcc_set_name, *it);
+		quest_defns << xtcc_set_name << ".indiv.insert(" << *it << ");" << endl;
 	}
 	for(int i=0; i<r_data->range.size(); ++i){
-		fprintf(script, "%s.range.push_back(pair<int,int>(%d,%d));\n",
-			xtcc_set_name, r_data->range[i].first, r_data->range[i].second);
+		//fprintf(script, "%s.range.push_back(pair<int,int>(%d,%d));\n",
+		//	xtcc_set_name, r_data->range[i].first, r_data->range[i].second);
+		quest_defns << xtcc_set_name << ".range.push_back(pair<int,int>("
+			<< r_data->range[i].first << "," << r_data->range[i].second
+			<< "));" << endl;
 	}
 	string q_type_str;
 	print_q_type(q_type_str);
@@ -108,13 +113,28 @@ void q_stmt::generate_code(FILE * script){
 	string datatype_str;
 	print_data_type(datatype_str);
 
+	/*
 	fprintf(script, "q_stmt * %s = new q_stmt(%d, \"%s\", \"%s\", %s, %d, %s, %s);\n",
 		name.c_str(),
 		line_no, name.c_str(), text.c_str(), q_type_str.c_str(), no_mpn, datatype_str.c_str(), xtcc_set_name
 		); 
-	fprintf(script, "%s->eval();\n", name.c_str());
+	*/
+	quest_defns << "q_stmt * " << name.c_str() << " = new q_stmt("
+		<< line_no << "," 
+		<< "\"" << name.c_str() << "\"" << "," 
+		<< "\"" << text.c_str() << "\"" << ","
+		<< q_type_str.c_str() << ","
+		<< no_mpn << ","
+		<< datatype_str.c_str() << ","
+		<< xtcc_set_name << ");\n";
+
+	//fprintf(script, "q_list.push_back(%s);", name.c_str());
+	quest_defns << "q_list.push_back(" << name.c_str() << ");\n";
+
+	//fprintf(script, "%s->eval();\n", name.c_str());
+	program_code << "\t\t" << name.c_str() << "->eval();\n" ;
 	if(next){
-		next->generate_code(script);
+		next->generate_code(quest_defns, program_code);
 	}
 
 }

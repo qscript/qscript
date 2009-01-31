@@ -3,6 +3,7 @@
 #include "xtcc_set.h"
 #include "common.h"
 #include <string>
+#include <sstream>
 using std::string;
 struct stmt {
 	struct stmt * prev, *next;
@@ -10,7 +11,8 @@ struct stmt {
 	stmt(int l_no): prev(0), next(0), line_no(l_no)
 	{}
 	virtual void eval()=0;
-	virtual void generate_code(FILE * script)=0;
+	//virtual void generate_code(FILE * script)=0;
+	virtual void generate_code(stringstream& quest_defns, stringstream& program_code)=0;
 };
 
 
@@ -25,7 +27,8 @@ struct q_stmt: public stmt {
 	q_stmt(int l_no, string l_name, string l_text, question_type l_q_type, int l_no_mpn, 
 		datatype l_dt, xtcc_set& l_r_data);
 	void eval();
-	void generate_code(FILE* script);
+	//void generate_code(FILE* script);
+	void generate_code(stringstream & quest_defns, stringstream& program_code);
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 };
