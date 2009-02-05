@@ -77,6 +77,7 @@
 %token <dt> FLOAT_T
 %token <dt> DOUBLE_T
 %token <dt> STRING_T
+%type <dt> datatype
 
 
 %token '['
@@ -98,11 +99,12 @@
 %nonassoc IN COUNT
 %nonassoc FUNC_CALL
 
-%type <dt> datatype
 %type <stmt> question
 %type <stmt> stmt
 %type <stmt> expr_stmt
 %type <stmt> stmt_list
+%type <stmt> decl_stmt
+
 
 %type <expr> expression
 %type <expr> expr_list
@@ -119,7 +121,7 @@ prog: stmt_list {
 	;
 
 stmt_list: stmt {
-		   $$=$1;
+		$$=$1;
 	}
 	| stmt_list stmt{
 		$1->next=$2;
@@ -128,8 +130,37 @@ stmt_list: stmt {
 	}
 	;
 
+
+datatype: VOID_T
+	| INT8_T
+	|INT16_T
+	|INT32_T  	
+	|FLOAT_T
+	|DOUBLE_T
+	|STRING_T
+	;
+
+decl_stmt: datatype NAME ';' {
+		$$ = active_scope->insert($2, $1/*, line_no*/);
+		//free($2);
+	}
+	| datatype NAME '=' expression ';'{
+		$$ = active_scope->insert($2, $1, $4);
+	}
+	| datatype NAME '[' expression ']' ';'{
+		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
+		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
+		$$ = active_scope->insert($2, dt, $4/*, line_no*/);
+		free($2);
+	}
+	;
+
+
+
+
 stmt:	question
 	| expr_stmt
+	| decl_stmt
 	;
 	
 expr_stmt:	expression ';' 
@@ -371,14 +402,6 @@ expr_list: expression { $$=$1; }
 
 qtype: SP { q_type = spn; }
 	| MP '(' INUMBER ')' { q_type = mpn; no_mpn = $3; }
-	;
-
-datatype: INT8_T
-	|INT16_T
-	|INT32_T  	
-	|FLOAT_T
-	|DOUBLE_T
-	|STRING_T
 	;
 
 range_allowed_values:  '(' range_list ')' { }

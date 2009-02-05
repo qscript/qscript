@@ -196,6 +196,7 @@ void q_stmt::print_data_type(string &s){
 
 void expr_stmt::generate_code(ostringstream & quest_defns, ostringstream& program_code){
 	expr->print_expr(quest_defns, program_code);
+	program_code << ";" << endl;
 	if(next){
 		next->generate_code(quest_defns, program_code);
 	}
@@ -213,4 +214,58 @@ expr_stmt::~expr_stmt() {
 	debug_log_file << "deleting expr_stmt" << endl;
 	//if(next ) delete next;
 	if (expr) delete expr;
+}
+
+
+//decl_stmt::decl_stmt( datatype dtype, int lline_number):stmt(dtype, lline_number), symp(0) {}
+
+
+
+void decl_stmt::generate_code(ostringstream & quest_defns, ostringstream& program_code){
+	//expr->print_expr(quest_defns, program_code);
+	program_code << " // decl_stmt::generate_code " << endl;
+	ostringstream code_expr1, code_bef_expr1;
+	if( symp->e){
+		symp->e->print_expr(code_bef_expr1, code_expr1);
+		//fprintf(fptr,"%s", code_bef_expr1.str().c_str());
+		program_code << code_bef_expr1.str().c_str();
+	}
+	if(type >= INT8_TYPE && type <=DOUBLE_TYPE){
+		//fprintf(fptr,"%s %s", noun_list[type].sym, symp->name);
+		program_code << noun_list[type].sym << " " << symp->name;
+	} else if (type >=INT8_ARR_TYPE && type <=DOUBLE_ARR_TYPE){
+		datatype tdt=datatype(INT8_TYPE + type-INT8_ARR_TYPE);
+		//fprintf(fptr,"%s %s [ %d ]", noun_list[tdt].sym, symp->name, symp->n_elms);
+		program_code << noun_list[tdt].sym << symp->name << "[" << symp->n_elms << "]";
+	} else if (type >=INT8_REF_TYPE&& type <=DOUBLE_REF_TYPE){
+		datatype tdt=datatype(INT8_TYPE + type-INT8_REF_TYPE);
+		//fprintf(fptr,"%s & %s", noun_list[tdt].sym, symp->name);
+		program_code << noun_list[tdt].sym << " & " << symp->name ;
+	}
+	if( symp->e){
+		//fprintf(fptr,"=%s", code_expr1.str().c_str());
+		program_code << "=" << code_expr1.str().c_str();
+
+	}
+	//fprintf(fptr, ";\n");
+	program_code << ";" << endl;
+
+	if(next){
+		next->generate_code(quest_defns, program_code);
+	}
+}
+
+
+
+decl_stmt::~decl_stmt() {
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "decl_stmt::~decl_stmt: setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+	debug_log_file << "deleting decl_stmt" << endl;
+	//if(symp) { delete symp; symp=0; }
+
 }

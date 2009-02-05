@@ -1,7 +1,7 @@
 CC=g++ -c
 LIBS=-lreadline
 
-OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o
+OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o
 simple_interpreter: $(OBJS)
 	g++ -o simple_interpreter $(OBJS) $(LIBS)
 
@@ -12,7 +12,7 @@ lex.yy.c: lex.l
 	flex $<
 
 q.tab.c q.tab.h: q.y common.h
-	bison -d $<
+	bison -v -d $<
 
 q.tab.o: q.tab.c
 	$(CC) $<
@@ -47,3 +47,7 @@ tree.o: tree.C tree.h
 	
 utils.o: utils.C utils.h
 	$(CC) $<
+
+scope.o: scope.C scope.h
+	$(CC) $<
+

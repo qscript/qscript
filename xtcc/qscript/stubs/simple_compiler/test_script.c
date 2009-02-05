@@ -22,7 +22,7 @@ main ()
   xs_1.indiv.insert (2);
   xs_1.range.push_back (pair < int, int >(5, 8));
   q_stmt *q2 =
-    new q_stmt (1, "q2", "Q2. This is question 2", mpn, 5, INT32_TYPE, xs_1);
+    new q_stmt (4, "q2", "Q2. This is question 2", mpn, 5, INT32_TYPE, xs_1);
   q_list.push_back (q2);
 
   int ser_no;
@@ -32,6 +32,11 @@ main ()
   while (ser_no != 0)
     {
       q1->eval ();
+      // decl_stmt::generate_code 
+      int8_t var1;
+      // decl_stmt::generate_code 
+      int8_t var2;
+      (12.5 * 13.3) - 8 + 7 * (12 % 7);
       q2->eval ();
 
       stringstream fname_str;

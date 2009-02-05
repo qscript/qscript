@@ -62,5 +62,42 @@ private:
 	func_info(const func_info&);
 };
 
+struct decl_stmt: public stmt{
+	struct symtab_ent* symp;
+	decl_stmt( datatype dtype, int lline_number):stmt(dtype, lline_number), symp(0) {}
+#if 0
+	void print_stmt_lst(FILE * & fptr){
+		fflush(fptr);
+		if(fptr){
+			ostringstream code_expr1, code_bef_expr1;
+			if( symp->e){
+				symp->e->print_expr(code_bef_expr1, code_expr1);
+				fprintf(fptr,"%s", code_bef_expr1.str().c_str());
+			}
+			if(type >= INT8_TYPE && type <=DOUBLE_TYPE){
+				fprintf(fptr,"%s %s", noun_list[type].sym, symp->name);
+			} else if (type >=INT8_ARR_TYPE && type <=DOUBLE_ARR_TYPE){
+				datatype tdt=datatype(INT8_TYPE + type-INT8_ARR_TYPE);
+				fprintf(fptr,"%s %s [ %d ]", noun_list[tdt].sym, symp->name, symp->n_elms);
+			} else if (type >=INT8_REF_TYPE&& type <=DOUBLE_REF_TYPE){
+				datatype tdt=datatype(INT8_TYPE + type-INT8_REF_TYPE);
+				fprintf(fptr,"%s & %s", noun_list[tdt].sym, symp->name);
+			}
+			if( symp->e){
+				fprintf(fptr,"=%s", code_expr1.str().c_str());
+				//symp->e->print_expr(fptr);
+			}
+			fprintf(fptr, ";\n");
+			if(next) next->print_stmt_lst(fptr);
+		}
+	}
+#endif /* 0 */
+	~decl_stmt();
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	private:
+	decl_stmt& operator=(const decl_stmt&);	
+	decl_stmt(const decl_stmt&);	
+};
+
 
 #endif /* stmt_h */
