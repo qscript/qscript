@@ -22,6 +22,15 @@
 "("	{ return '('; }
 ")"	{ return ')'; }
 
+"<=" {return LEQ;}
+">=" {return GEQ;}
+"==" {return ISEQ;}
+"!=" {return NOEQ;}
+
+"&&" 	{ return LOGAND; }
+"||"	{ return LOGOR; }
+"!"	{ return NOT; }
+
 void		{ yylval.dt=VOID_TYPE; return VOID_T; }
 int8_t		{ yylval.dt=INT8_TYPE; return INT8_T; }
 int16_t		{ yylval.dt=INT16_TYPE;	return INT16_T; }
@@ -35,6 +44,12 @@ mp 	{ return MP;}
 [0-9]+	{
 	yylval.ival = atoi(yytext);
 	return INUMBER;
+}
+
+([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
+	yylval.dval = atof(yytext);
+	printf("returned %g\n", yylval.dval);
+	return FNUMBER;
 }
 
 [_A-Za-z][A-Za-z0-9_]*	{

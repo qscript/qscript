@@ -40,49 +40,75 @@
       know about them.  */
    enum yytokentype {
      INUMBER = 258,
-     NAME = 259,
-     TEXT = 260,
-     SP = 261,
-     MP = 262,
-     VOID_T = 263,
-     INT8_T = 264,
-     INT16_T = 265,
-     INT32_T = 266,
-     FLOAT_T = 267,
-     DOUBLE_T = 268,
-     STRING_T = 269
+     FNUMBER = 259,
+     NAME = 260,
+     TEXT = 261,
+     SP = 262,
+     MP = 263,
+     VOID_T = 264,
+     INT8_T = 265,
+     INT16_T = 266,
+     INT32_T = 267,
+     FLOAT_T = 268,
+     DOUBLE_T = 269,
+     STRING_T = 270,
+     LOGOR = 271,
+     LOGAND = 272,
+     NOEQ = 273,
+     ISEQ = 274,
+     GEQ = 275,
+     LEQ = 276,
+     NOT = 277,
+     UMINUS = 278,
+     COUNT = 279,
+     IN = 280,
+     FUNC_CALL = 281
    };
 #endif
 /* Tokens.  */
 #define INUMBER 258
-#define NAME 259
-#define TEXT 260
-#define SP 261
-#define MP 262
-#define VOID_T 263
-#define INT8_T 264
-#define INT16_T 265
-#define INT32_T 266
-#define FLOAT_T 267
-#define DOUBLE_T 268
-#define STRING_T 269
+#define FNUMBER 259
+#define NAME 260
+#define TEXT 261
+#define SP 262
+#define MP 263
+#define VOID_T 264
+#define INT8_T 265
+#define INT16_T 266
+#define INT32_T 267
+#define FLOAT_T 268
+#define DOUBLE_T 269
+#define STRING_T 270
+#define LOGOR 271
+#define LOGAND 272
+#define NOEQ 273
+#define ISEQ 274
+#define GEQ 275
+#define LEQ 276
+#define NOT 277
+#define UMINUS 278
+#define COUNT 279
+#define IN 280
+#define FUNC_CALL 281
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 30 "q.y"
+#line 56 "q.y"
 {
 	int ival;
+	double dval;
 	char name[MY_STR_MAX];
 	char text_buf[MY_STR_MAX];
 	datatype dt;
 	struct stmt * stmt;
+	struct expr * expr;
 	//class question* ques;
 }
 /* Line 1489 of yacc.c.  */
-#line 86 "q.tab.h"
+#line 112 "q.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

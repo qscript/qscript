@@ -1,15 +1,26 @@
+#include "expr.h"
 #include "stmt.h"
 #include <string>
 #include <iostream>
 #include <cstdio>
+#include <fstream>
 
+extern vector<mem_addr_tab> mem_addr;
+
+extern ofstream debug_log_file;
 using std::cout;
 using std::endl;
 void read_data(const char * prompt);
+stmt::~stmt(){ 
+	if (next  ) {
+		delete next; next=0;
+	} 
+	debug_log_file << "stmt::~stmt() base destructor" << endl;
+}
 
-q_stmt::q_stmt(int l_no, string l_name, string l_text, question_type l_q_type, int l_no_mpn, datatype l_dt,
+q_stmt::q_stmt(datatype l_type, int l_no, string l_name, string l_text, question_type l_q_type, int l_no_mpn, datatype l_dt,
 	xtcc_set& l_r_data): 
-	stmt(l_no), name(l_name), text(l_text), q_type(l_q_type) , 
+	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) , 
 	no_mpn(l_no_mpn),
 	dt(l_dt)
 {
@@ -21,6 +32,7 @@ q_stmt::q_stmt(int l_no, string l_name, string l_text, question_type l_q_type, i
 int scan_datalex();
 int scan_dataparse();
 extern vector<int> data;
+/*
 void q_stmt::eval(){
 	cout << name << "." << text << endl << endl;
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
@@ -76,8 +88,9 @@ void q_stmt::eval(){
 		next->eval();
 	}
 }
+*/
 
-void q_stmt::generate_code(/*FILE * script*/ stringstream & quest_defns, stringstream& program_code){
+void q_stmt::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostringstream& program_code){
 	/*
 	fprintf(script, "cout <<  \"%s.%s\" << endl << endl;\n\n", name.c_str(), text.c_str());
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
@@ -179,4 +192,25 @@ void q_stmt::print_data_type(string &s){
 			__LINE__, __FILE__);
 		s=buff;
 	}
+}
+
+void expr_stmt::generate_code(ostringstream & quest_defns, ostringstream& program_code){
+	expr->print_expr(quest_defns, program_code);
+	if(next){
+		next->generate_code(quest_defns, program_code);
+	}
+}
+
+
+expr_stmt::~expr_stmt() {
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "expr_stmt::~expr_stmt: setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+	debug_log_file << "deleting expr_stmt" << endl;
+	//if(next ) delete next;
+	if (expr) delete expr;
 }

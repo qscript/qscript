@@ -4,7 +4,8 @@
 #include <vector>
 #include <set>
 #include <string>
-#include "common.h"
+//#include "common.h"
+#include "symtab.h"
 using namespace std;
 struct xtcc_set {
 	vector < pair<int,int> > range;
