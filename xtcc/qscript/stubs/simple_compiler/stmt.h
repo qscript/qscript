@@ -19,22 +19,45 @@ struct stmt {
 };
 
 
-struct q_stmt: public stmt {
+struct question: public stmt {
 	string name;
 	string text;
 	question_type q_type;
 	int no_mpn;
 	datatype dt;
-	xtcc_set * r_data;
-	set<int> input_data;
-	q_stmt(datatype l_type,int l_no, string l_name, string l_text, question_type l_q_type, int l_no_mpn, 
-		datatype l_dt, xtcc_set& l_r_data);
-	//void eval();
-	//void generate_code(FILE* script);
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	question(datatype l_type,int l_no, string l_name, string l_text,
+		question_type l_q_type, int l_no_mpn, 
+		datatype l_dt /*, xtcc_set& l_r_data*/);
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 };
+
+struct range_question: public question {
+	xtcc_set * r_data;
+	set<int> input_data;
+	range_question(datatype this_stmt_type, int line_number,
+		string l_name, string l_q_text,
+		question_type l_q_type, int l_no_mpn, datatype l_dt,
+		xtcc_set& l_r_data);
+
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+};
+
+
+class named_stub_question: public question {
+	string named_list;
+	set<int> input_data;
+	public:
+	named_stub_question(int line_number, datatype this_stmt_type, 
+		string l_name, string l_q_text,
+		question_type l_q_type, int l_no_mpn, datatype l_dt,
+		string & list_name);
+	//void print_stmt_lst(FILE * & fptr);
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+};
+
+
 
 
 struct expr_stmt: public stmt{

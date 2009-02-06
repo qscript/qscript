@@ -5,6 +5,8 @@
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
+//#include "named_attributes.h"
+
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -39,7 +41,7 @@
 
 	struct stmt* tree_root=0;
 #include <vector>
-	vector <q_stmt*> q_list;
+	vector <question*> question_list;
 	void generate_code();
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
@@ -104,6 +106,7 @@
 %type <stmt> expr_stmt
 %type <stmt> stmt_list
 %type <stmt> decl_stmt
+ /*%type <stmt> attributes	*/
 
 
 %type <expr> expression
@@ -195,9 +198,9 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		string name($1);
 		string q_text($2);
 		datatype dt=$4;
-		q_stmt* q= new q_stmt(QUESTION_TYPE, line_no, name, q_text, q_type, no_mpn, dt, xs);
+		range_question * q= new range_question(QUESTION_TYPE, line_no, name, q_text, q_type, no_mpn, dt, xs);
 		$$=q;
-		q_list.push_back(q);
+		question_list.push_back(q);
 	  }
 	;
 
@@ -534,10 +537,10 @@ void data_entry_loop(){
 		tree_root->eval();
 		cout << "Enter Serial No (0) to exit: " << flush;
 		cin >> ser_no;
-		for (int i=0; i<q_list.size(); ++i){
-			fprintf(fptr, "%s: ", q_list[i]->name.c_str());
-			for( set<int>::iterator iter=q_list[i]->input_data.begin();
-					iter!=q_list[i]->input_data.end(); ++iter){
+		for (int i=0; i<question_list.size(); ++i){
+			fprintf(fptr, "%s: ", question_list[i]->name.c_str());
+			for( set<int>::iterator iter=question_list[i]->input_data.begin();
+					iter!=question_list[i]->input_data.end(); ++iter){
 				fprintf(fptr, "%d ", *iter);
 			}
 			fprintf(fptr, "\n");
@@ -574,7 +577,7 @@ void print_header(FILE* script){
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "extern vector<int> data;\n");
-	fprintf(script, "vector <q_stmt*> q_list;\n");
+	fprintf(script, "vector <question*> question_list;\n");
 	fprintf(script, "int main(){\n");
 
 }
@@ -592,10 +595,10 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
 	fprintf(script,	"cout << \"Enter Serial No (0) to exit: \" << flush;\n");
 	fprintf(script, "cin >> ser_no;\n");
-	fprintf(script, "\tfor (int i=0; i<q_list.size(); ++i){\n");
-	fprintf(script, "\t\tfprintf(fptr, \"%%s: \", q_list[i]->name.c_str());\n");
-	fprintf(script, "\t\tfor( set<int>::iterator iter=q_list[i]->input_data.begin();\n");
-	fprintf(script, "\t\t\t\titer!=q_list[i]->input_data.end(); ++iter){\n");
+	fprintf(script, "\tfor (int i=0; i<question_list.size(); ++i){\n");
+	fprintf(script, "\t\tfprintf(fptr, \"%%s: \", question_list[i]->name.c_str());\n");
+	fprintf(script, "\t\tfor( set<int>::iterator iter=question_list[i]->input_data.begin();\n");
+	fprintf(script, "\t\t\t\titer!=question_list[i]->input_data.end(); ++iter){\n");
 	fprintf(script, "\t\t\tfprintf(fptr, \"%%d \", *iter);\n");
 	fprintf(script, "\t\t}\n");
 	fprintf(script, "\t\tfprintf(fptr, \"\\n\");\n");

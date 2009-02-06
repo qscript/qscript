@@ -18,11 +18,22 @@ stmt::~stmt(){
 	debug_log_file << "stmt::~stmt() base destructor" << endl;
 }
 
-q_stmt::q_stmt(datatype l_type, int l_no, string l_name, string l_text, question_type l_q_type, int l_no_mpn, datatype l_dt,
-	xtcc_set& l_r_data): 
+question::question(datatype l_type, int l_no, string l_name, string l_text, 
+	question_type l_q_type, int l_no_mpn, datatype l_dt
+	/*, xtcc_set& l_r_data */): 
 	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) , 
 	no_mpn(l_no_mpn),
 	dt(l_dt)
+{
+	//r_data = new xtcc_set(l_r_data);
+}
+
+range_question::range_question(datatype this_stmt_type, int line_number,
+	string l_name, string l_q_text,
+	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	xtcc_set& l_r_data): 
+	question(this_stmt_type, line_number, l_name, l_q_text,
+		l_q_type, l_no_mpn, l_dt)
 {
 	r_data = new xtcc_set(l_r_data);
 }
@@ -33,7 +44,7 @@ int scan_datalex();
 int scan_dataparse();
 extern vector<int> data;
 /*
-void q_stmt::eval(){
+void question::eval(){
 	cout << name << "." << text << endl << endl;
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
 		cout << *it << endl;
@@ -90,7 +101,7 @@ void q_stmt::eval(){
 }
 */
 
-void q_stmt::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostringstream& program_code){
+void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostringstream& program_code){
 	/*
 	fprintf(script, "cout <<  \"%s.%s\" << endl << endl;\n\n", name.c_str(), text.c_str());
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
@@ -127,12 +138,12 @@ void q_stmt::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostrin
 	print_data_type(datatype_str);
 
 	/*
-	fprintf(script, "q_stmt * %s = new q_stmt(%d, \"%s\", \"%s\", %s, %d, %s, %s);\n",
+	fprintf(script, "question * %s = new question(%d, \"%s\", \"%s\", %s, %d, %s, %s);\n",
 		name.c_str(),
 		line_no, name.c_str(), text.c_str(), q_type_str.c_str(), no_mpn, datatype_str.c_str(), xtcc_set_name
 		); 
 	*/
-	quest_defns << "q_stmt * " << name.c_str() << " = new q_stmt("
+	quest_defns << "question * " << name.c_str() << " = new question("
 		<< line_no << "," 
 		<< "\"" << name.c_str() << "\"" << "," 
 		<< "\"" << text.c_str() << "\"" << ","
@@ -141,8 +152,8 @@ void q_stmt::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostrin
 		<< datatype_str.c_str() << ","
 		<< xtcc_set_name << ");\n";
 
-	//fprintf(script, "q_list.push_back(%s);", name.c_str());
-	quest_defns << "q_list.push_back(" << name.c_str() << ");\n";
+	//fprintf(script, "question_list.push_back(%s);", name.c_str());
+	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
 
 	//fprintf(script, "%s->eval();\n", name.c_str());
 	program_code << "\t\t" << name.c_str() << "->eval();\n" ;
@@ -152,7 +163,14 @@ void q_stmt::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostrin
 
 }
 
-void q_stmt::print_q_type(string &s){
+
+void named_stub_question::generate_code( ostringstream & quest_defns, 
+		ostringstream& program_code){
+	quest_defns << "// named_stub_question::generate_code() : to be implemented" << endl;
+
+}
+
+void question::print_q_type(string &s){
 	const int BUF_SIZE=200;
 	char buff[BUF_SIZE];
 	if(q_type==spn){
@@ -160,7 +178,7 @@ void q_stmt::print_q_type(string &s){
 	} else if(q_type==mpn){
 		s="mpn";
 	} else {
-		sprintf(buff, " internal compiler error: update q_stmt::print_q_type: %d, %s", 
+		sprintf(buff, " internal compiler error: update question::print_q_type: %d, %s", 
 			__LINE__, __FILE__);
 		s=buff;
 	}
@@ -168,7 +186,7 @@ void q_stmt::print_q_type(string &s){
 
 
 
-void q_stmt::print_data_type(string &s){
+void question::print_data_type(string &s){
 	if(dt==	VOID_TYPE){
 		s="VOID_TYPE";
 	} else if(dt==INT8_TYPE){
@@ -188,7 +206,7 @@ void q_stmt::print_data_type(string &s){
 	} else {
 		const int BUF_SIZE=200;
 		char buff[BUF_SIZE];
-		sprintf(buff, " internal compiler error: update q_stmt::print_data_type : %d, %s", 
+		sprintf(buff, " internal compiler error: update question::print_data_type : %d, %s", 
 			__LINE__, __FILE__);
 		s=buff;
 	}
