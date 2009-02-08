@@ -5,7 +5,8 @@
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
-//#include "named_attributes.h"
+#include "named_attributes.h"
+#include "named_range.h"
 
 #include <string>
 #include <iostream>
@@ -50,6 +51,12 @@
 	vector<mem_addr_tab>  mem_addr;
 	vector <func_info*> func_info_table;
 	int check_parameters(struct expr* e, struct var_list* v);
+
+        vector <string> attribute_list;
+	vector <named_range*> named_stubs_list;
+	vector <named_attribute_list> named_attributes_list;
+        vector <stub_pair> stub_list;
+
 
 
 %}
@@ -107,6 +114,8 @@
 %type <stmt> stmt_list
 %type <stmt> decl_stmt
  /*%type <stmt> attributes	*/
+%type <stmt> stubs	
+%token STUBS_LIST
 
 
 %type <expr> expression
@@ -164,6 +173,7 @@ decl_stmt: datatype NAME ';' {
 stmt:	question
 	| expr_stmt
 	| decl_stmt
+	| stubs 
 	;
 	
 expr_stmt:	expression ';' 
@@ -198,11 +208,38 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		string name($1);
 		string q_text($2);
 		datatype dt=$4;
-		range_question * q= new range_question(QUESTION_TYPE, line_no, name, q_text, q_type, no_mpn, dt, xs);
+		range_question * q= new range_question(QUESTION_TYPE, line_no, 
+			name, q_text, q_type, no_mpn, dt, xs);
 		$$=q;
 		question_list.push_back(q);
-	  }
+	}
+	| NAME TEXT qtype datatype NAME ';' {
+		cout << " got named stublist type question" << endl;
+		string name=$1;
+		string q_txt=$2;
+		datatype dt=$4;
+		string attribute_list_name=$5;
+		bool found=false;
+		for(int i=0; i<named_stubs_list.size(); ++i){
+			struct named_range* nr_ptr = named_stubs_list[i];
+			if(nr_ptr->name==attribute_list_name){
+				found=true; break;
+			}
+		}
+		if(!found){
+			print_err(compiler_sem_err, string("named_stubs_list ") 
+				+ attribute_list_name + string(" not found \n"), line_no,
+				__LINE__, __FILE__);
+		}
+		named_stub_question* q=new named_stub_question(QUESTION_TYPE, 
+				line_no, name, q_txt, 
+				q_type, no_mpn, dt, attribute_list_name);
+		question_list.push_back(q);
+		$$=q;
+	}
 	;
+
+
 
 expression: expression '+' expression {
 		$$=new bin_expr($1, $3, oper_plus);
@@ -428,6 +465,37 @@ range: 	INUMBER '-' INUMBER {
 		xs.indiv.insert($1);
 	}
 	;
+
+stubs:     STUBS_LIST NAME {
+		stub_list.resize(0);
+		cout << "resize attribute_list to 0\n";
+	}'=' stub_list ';'{
+		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
+		string stub_name=$2;
+		cerr << "parsed stub_list" << endl;
+		struct named_range* nr_ptr= new named_range(NAMED_RANGE, line_no, stub_name,stub_list);
+		named_stubs_list.push_back(nr_ptr);
+		//$$=0;
+		$$ = nr_ptr;
+	}
+	;
+
+
+stub_list:	TEXT INUMBER {
+		string s1=$1;
+		int code=$2;
+		struct stub_pair pair1(s1,code);
+		stub_list.push_back(pair1);
+	}
+	| stub_list TEXT INUMBER {
+		string s1=$2;
+		int code=$3;
+		struct stub_pair pair1(s1,code);
+		stub_list.push_back(pair1);
+		//cout << "chaining stublist" << endl;
+	}
+	;
+
 
 
 %%

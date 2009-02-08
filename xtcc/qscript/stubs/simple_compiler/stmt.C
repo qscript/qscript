@@ -102,6 +102,7 @@ void question::eval(){
 */
 
 void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostringstream& program_code){
+	cout << "range_question::generate_code() CAME HERE" << endl;
 	/*
 	fprintf(script, "cout <<  \"%s.%s\" << endl << endl;\n\n", name.c_str(), text.c_str());
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
@@ -167,7 +168,19 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 void named_stub_question::generate_code( ostringstream & quest_defns, 
 		ostringstream& program_code){
 	quest_defns << "// named_stub_question::generate_code() : to be implemented" << endl;
+	if(next){
+		next->generate_code(quest_defns, program_code);
+	}
 
+}
+
+named_stub_question::named_stub_question(datatype this_stmt_type, int line_number,
+	string l_name, string l_q_text,
+	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	string& l_named_list): 
+	question(this_stmt_type, line_number, l_name, l_q_text,
+		l_q_type, l_no_mpn, l_dt), named_list(l_named_list)
+{
 }
 
 void question::print_q_type(string &s){

@@ -62,7 +62,8 @@
      UMINUS = 278,
      COUNT = 279,
      IN = 280,
-     FUNC_CALL = 281
+     FUNC_CALL = 281,
+     STUBS_LIST = 282
    };
 #endif
 /* Tokens.  */
@@ -90,13 +91,14 @@
 #define COUNT 279
 #define IN 280
 #define FUNC_CALL 281
+#define STUBS_LIST 282
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 58 "q.y"
+#line 65 "q.y"
 {
 	int ival;
 	double dval;
@@ -108,7 +110,7 @@ typedef union YYSTYPE
 	//class question* ques;
 }
 /* Line 1489 of yacc.c.  */
-#line 112 "q.tab.h"
+#line 114 "q.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

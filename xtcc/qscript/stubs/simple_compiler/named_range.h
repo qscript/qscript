@@ -2,24 +2,29 @@
 #ifndef xtcc_named_range_h
 #define xtcc_named_range_h
 #include "stub_pair.h"
+#include "stmt.h"
 #include <fstream>
-	struct named_range{
-		string name;
-		vector <stub_pair> stubs;
-		named_range(): name(""), stubs(){}
-		named_range(string l_name, vector <stub_pair>& l_stubs ):
-			name(l_name), stubs(l_stubs)
-		{
-			cout << "named_range: constructor" << endl;
+
+struct named_range: public stmt{
+	string name;
+	vector <stub_pair> stubs;
+	//named_range(): name(""), stubs(){}
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	named_range(datatype l_type, int l_line_number, 
+		string l_name, vector <stub_pair>& l_stubs ):
+		stmt(l_type, l_line_number),
+		name(l_name), stubs(l_stubs)
+	{
+		//cout << "named_range: constructor" << endl;
 #if 0
-			string fname=name + ".qin";
-			ofstream ifile(fname.c_str(), ios_base::out);
-			if(!ifile) {
-				cerr << "Unable to open include file for outputting stubs" << endl;
-				return;
-			}
-			int scale=name[name.length()-1]-'0';
-			cout <<"scale: " << scale << "name[len-1]=" << name[name.length()-1] << endl;
+		string fname=name + ".qin";
+		ofstream ifile(fname.c_str(), ios_base::out);
+		if(!ifile) {
+			cerr << "Unable to open include file for outputting stubs" << endl;
+			return;
+		}
+		int scale=name[name.length()-1]-'0';
+		cout <<"scale: " << scale << "name[len-1]=" << name[name.length()-1] << endl;
 
 			if(scale==5 && scale==stubs.size()){
 
@@ -101,6 +106,7 @@
 			}
 #endif /*  0 */
 		}
+		~named_range();
 	};
 
 #endif /* xtcc_named_range_h */

@@ -40,7 +40,7 @@ using namespace std;
 
 extern	vector <func_info*> func_info_table;
 extern vector<mem_addr_tab> mem_addr;
-extern vector <named_range> named_stubs_list;
+extern vector <named_range*> named_stubs_list;
 expr::~expr(){
 	debug_log_file << "deleting expr::~expr(): base destructor for expr" << endl;
 	if(next) {delete next; next=0; }

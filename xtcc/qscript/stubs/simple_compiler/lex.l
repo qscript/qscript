@@ -9,7 +9,21 @@
 
 %}
 
+%x comment
+
+
 %%
+
+
+"/*"         BEGIN(comment);
+<comment>[^*\n]*        /* eat anything that's not a '*' */
+<comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */
+<comment>\n             ++line_no;
+<comment>"*"+"/"        BEGIN(INITIAL);
+\/\/.*	{
+	// ignore Comment
+}
+
 
 [ \t]+	; /* ignore */
 
@@ -30,6 +44,9 @@
 "&&" 	{ return LOGAND; }
 "||"	{ return LOGOR; }
 "!"	{ return NOT; }
+
+stubs	{ return STUBS_LIST; }
+
 
 void		{ yylval.dt=VOID_TYPE; return VOID_T; }
 int8_t		{ yylval.dt=INT8_TYPE; return INT8_T; }

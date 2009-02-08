@@ -12,14 +12,15 @@ int main(){
 xtcc_set xs_0;
 xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);
-question * q1 = new question(0,"q1","Q1. This is question 1",spn,0,INT32_TYPE,xs_0);
+question * q1 = new question(7,"q1","Q1. This is question 1",spn,0,INT32_TYPE,xs_0);
 question_list.push_back(q1);
 xtcc_set xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
-question * q2 = new question(4,"q2","Q2. This is question 2",mpn,5,INT32_TYPE,xs_1);
+question * q2 = new question(11,"q2","Q2. This is question 2",mpn,5,INT32_TYPE,xs_1);
 question_list.push_back(q2);
+// named_stub_question::generate_code() : to be implemented
 
 	int ser_no;
 		cout << "Enter Serial No (0) to exit: " << flush;
