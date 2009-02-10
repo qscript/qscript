@@ -220,8 +220,9 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		datatype dt=$4;
 		string attribute_list_name=$5;
 		bool found=false;
+		struct named_range* nr_ptr = 0;
 		for(int i=0; i<named_stubs_list.size(); ++i){
-			struct named_range* nr_ptr = named_stubs_list[i];
+			nr_ptr = named_stubs_list[i];
 			if(nr_ptr->name==attribute_list_name){
 				found=true; break;
 			}
@@ -233,7 +234,9 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		}
 		named_stub_question* q=new named_stub_question(QUESTION_TYPE, 
 				line_no, name, q_txt, 
-				q_type, no_mpn, dt, attribute_list_name);
+				q_type, no_mpn, dt, 
+				//attribute_list_name);
+				nr_ptr);
 		question_list.push_back(q);
 		$$=q;
 	}
@@ -639,13 +642,32 @@ void print_header(FILE* script){
 	fprintf(script, "#include <vector>\n");
 	fprintf(script, "#include <string>\n");
 	fprintf(script, "#include <sstream>\n");
+	fprintf(script, "#include <fstream>\n");
 	fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
+	fprintf(script, "#include \"stub_pair.h\"\n");
+	fprintf(script, "#include \"symtab.h\"\n");
+	fprintf(script, "#include \"debug_mem.h\"\n");
+	fprintf(script, "fstream debug_log_file(\"xtcc_debug.log\", ios_base::out|ios_base::trunc);\n");
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "extern vector<int> data;\n");
 	fprintf(script, "vector <question*> question_list;\n");
+	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
+
+
+	fprintf(script, "\tnoun_list_type noun_list[]= {\n");
+	fprintf(script, "\t\t\t{\t\"void\"\t, VOID_TYPE},\n");
+	fprintf(script, "\t\t\t{\t\"int8_t\" ,INT8_TYPE},\n");
+	fprintf(script, "\t\t\t{\t\"int16_t\" ,INT16_TYPE},\n");
+	fprintf(script, "\t\t\t{\t\"int32_t\" ,INT32_TYPE},\n");
+	fprintf(script, "\t\t\t{\t\"float\", FLOAT_TYPE},\n");
+	fprintf(script, "\t\t\t{\t\"double\", DOUBLE_TYPE}\n");
+	fprintf(script, "\t\t};\n");
+	fprintf(script, "\n");
+
+
 	fprintf(script, "int main(){\n");
 
 }

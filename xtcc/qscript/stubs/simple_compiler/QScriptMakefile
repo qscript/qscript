@@ -1,7 +1,7 @@
 
 CC=g++ -c
 LIBS=-lreadline
-OBJS = test_script.o stmt.o xtcc_set.o lex.scan_data.o data_entry.tab.o
+OBJS = test_script.o stmt.o xtcc_set.o lex.scan_data.o data_entry.tab.o 
 test_script:  $(OBJS)
 	g++ -o $@ $(OBJS) $(LIBS)
 
@@ -27,3 +27,5 @@ data_entry.tab.o: data_entry.tab.c
 
 xtcc_set.o: xtcc_set.C xtcc_set.h
 	$(CC) $<
+
+
