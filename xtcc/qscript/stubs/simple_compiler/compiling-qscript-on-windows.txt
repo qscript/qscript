@@ -8,9 +8,15 @@ Step I. Installing MinGW - Minimalist GNU for Windows.
 
 Step II. Installing UnxUtils - which is a Win32 port of GNU port of GNU utilities like bison, flex GNU make etc. which are required to do a build on Win32.
 	
-	UnxUtils has been installed on my system in a tree rooted at d:\UnxUtils\ (at that time I didn't have the h: hardisk).
+	UnxUtils has been installed on my system in a tree rooted at d:\UnxUtils\ (at that time I didn't have the h: hardisk). You also need to download the readline runtime and developer files from : http://gnuwin32.sourceforge.net/packages/readline.htm. I downloaded readline-5.0-1-bin.zip into the folder h:/nxd/dnld and did the following:
+
+	Unix_Prompt$ cd d:/UnxUtils
+	Unix_Prompt$ unzip h:/nxd/readline-5.0.1-bin.zip 
+
+	which unzips the files in the UnxUtils directory. This automatically puts the readline files in the right place under the d:/UnxUtils tree.
 
 Step III. Download the subversion client for Win32 from http://subversion.tigris.org/ . I used the standard installer which put it into "d:\Program Files\CollabNet Subversion Server\"
+
 
 Step IV. Setting up the paths correctly.
 
@@ -58,4 +64,4 @@ Some important notes peculiar to my installation which may be of use to others:
 
 	now in case you need to rebuild q.tab.c - the bison command will run correctly.
 
-	do let me know if you are able to compile successfully.
+	do let me know if you are able to compile successfully, or if you face any problems in the compilation.
