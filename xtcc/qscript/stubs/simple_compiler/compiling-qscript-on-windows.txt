@@ -1,0 +1,61 @@
+The following instructions explain how to compile and build qscript the questionnaire on Windows.
+
+Step I. Installing MinGW - Minimalist GNU for Windows.
+
+	The current website for MinGW is : http://www.mingw.org/
+
+	I have installed this on the 11-Feb-2009. I downloaded the proposed installer MinGW-5.1.4.exe and ran it, which then automatically downloads the other tools required and installs them. Please check the GNU C++ compiler as this is a required tool. This is currently installed in my system on my h: drive in h:\MinGW
+
+Step II. Installing UnxUtils - which is a Win32 port of GNU port of GNU utilities like bison, flex GNU make etc. which are required to do a build on Win32.
+	
+	UnxUtils has been installed on my system in a tree rooted at d:\UnxUtils\ (at that time I didn't have the h: hardisk).
+
+Step III. Download the subversion client for Win32 from http://subversion.tigris.org/ . I used the standard installer which put it into "d:\Program Files\CollabNet Subversion Server\"
+
+Step IV. Setting up the paths correctly.
+
+	In your Win32 home directory, please setup the path in autoexec.bat to correctly reflect all the paths to the installed binaries.
+
+	set PATH=%PATH%;"d:\Program Files\CollabNet Subversion Server\";d:\UnxUtils\usr\local\wbin;d:\UnxUtils\bin;h:\MinGW;
+
+	I have Borlands C++ freecommandline compiler installed. Their make interferes with GNU make if the borland compiler path occurs before the UnxUtils path in your path listing. Preventing the clash is simple. For my system the following sequence of commands does the trick.
+
+	Prompt> d:
+	Prompt> cd \UnxUtils\usr\local\wbin
+	Prompt> move make.exe gmake.exe
+
+	From this point on - when using GNU make in win32 call the binary "gmake" in command invocations instead of make.
+
+Step V. When dropping to a prompt, run autoexec.bat. After that run 
+	Prompt> sh 
+	which invokes the shell which comes with UnxUtils (for Me d:/UnxUtils/bin - note that this is now in the PATH variable)
+
+Step VI. Checking out the sources and compiling: 
+	
+	Prompt>svn co https://xtcc.svn.sourceforge.net/svnroot/xtcc xtcc_local_copy
+
+	This will create a local directory xtcc_local_copy
+
+	The qscript sources exists in xtcc_local_copy\xtcc\qscript\stubs\simple_compiler
+
+	hence cd to this directory. Then please switch to the UNIX shell and issue a make i.e.
+
+	Unix_Prompt$ cd xtcc_local_copy/xtcc/qscript/stubs/simple_compiler
+	Unix_Prompt$ gmake -f WinMakefile
+
+Some important notes peculiar to my installation which may be of use to others:
+
+	Note the binary version for bison in the package is v 1.28. This expects bison.simple to be located at: 
+	/usr/local/share.
+
+	My UnxUtils install is on D: and the sources for xtcc are in h:\nxd\xtcc_local_copy
+
+	Hence I did the following to satisfy bison:
+	
+	Unix_Prompt$ cd h:
+	Unix_Prompt$ mkdir -p /usr/local/share
+	Unix_Prompt$ cp d:/UnxUtils/usr/local/share/bison.simple h:/usr/local/share
+
+	now in case you need to rebuild q.tab.c - the bison command will run correctly.
+
+	do let me know if you are able to compile successfully.
