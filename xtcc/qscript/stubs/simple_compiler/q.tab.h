@@ -52,18 +52,20 @@
      FLOAT_T = 268,
      DOUBLE_T = 269,
      STRING_T = 270,
-     LOGOR = 271,
-     LOGAND = 272,
-     NOEQ = 273,
-     ISEQ = 274,
-     GEQ = 275,
-     LEQ = 276,
-     NOT = 277,
-     UMINUS = 278,
-     COUNT = 279,
-     IN = 280,
+     IN = 271,
+     LOGOR = 272,
+     LOGAND = 273,
+     NOEQ = 274,
+     ISEQ = 275,
+     GEQ = 276,
+     LEQ = 277,
+     NOT = 278,
+     UMINUS = 279,
+     COUNT = 280,
      FUNC_CALL = 281,
-     STUBS_LIST = 282
+     IF = 282,
+     ELSE = 283,
+     STUBS_LIST = 284
    };
 #endif
 /* Tokens.  */
@@ -80,25 +82,27 @@
 #define FLOAT_T 268
 #define DOUBLE_T 269
 #define STRING_T 270
-#define LOGOR 271
-#define LOGAND 272
-#define NOEQ 273
-#define ISEQ 274
-#define GEQ 275
-#define LEQ 276
-#define NOT 277
-#define UMINUS 278
-#define COUNT 279
-#define IN 280
+#define IN 271
+#define LOGOR 272
+#define LOGAND 273
+#define NOEQ 274
+#define ISEQ 275
+#define GEQ 276
+#define LEQ 277
+#define NOT 278
+#define UMINUS 279
+#define COUNT 280
 #define FUNC_CALL 281
-#define STUBS_LIST 282
+#define IF 282
+#define ELSE 283
+#define STUBS_LIST 284
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 65 "q.y"
+#line 73 "q.y"
 {
 	int ival;
 	double dval;
@@ -108,9 +112,11 @@ typedef union YYSTYPE
 	struct stmt * stmt;
 	struct expr * expr;
 	//class question* ques;
+	struct cmpd_stmt * c_stmt;
+
 }
 /* Line 1489 of yacc.c.  */
-#line 114 "q.tab.h"
+#line 120 "q.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

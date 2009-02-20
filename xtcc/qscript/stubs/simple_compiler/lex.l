@@ -6,6 +6,8 @@
 	void yyerror(const char * s);
 	int line_no;
 	extern int no_errors;
+	int if_line_no=-1;
+
 
 %}
 
@@ -44,6 +46,22 @@
 "&&" 	{ return LOGAND; }
 "||"	{ return LOGOR; }
 "!"	{ return NOT; }
+"{"	{ return '{'; }
+"}"	{ return '}'; }
+
+
+
+if	{
+	if_line_no = line_no;
+	return IF;
+}
+
+else 	{
+	return ELSE;
+}
+
+in 	{ return IN; }
+
 
 stubs	{ return STUBS_LIST; }
 
@@ -65,7 +83,6 @@ mp 	{ return MP;}
 
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
 	yylval.dval = atof(yytext);
-	printf("returned %g\n", yylval.dval);
 	return FNUMBER;
 }
 

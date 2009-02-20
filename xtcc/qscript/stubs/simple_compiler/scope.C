@@ -109,7 +109,10 @@ stmt* scope::insert(const char * name, datatype dt, expr *e){
 				st_ptr->symp=se;
 			} else {
 				stringstream s;
-				s << "Type of variable: " << name << "=" << human_readable_type(dt)<< " in decl cannot handle type of expression on rhs of variable: " << human_readable_type(e->type) << endl;
+				s << "Type of variable: " << name << "=" 
+					<< human_readable_type(dt)
+					<< " in decl cannot handle type of expression on rhs of variable: " 
+					<< human_readable_type(e->type) << endl;
 				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 				st_ptr->type=ERROR_TYPE;
 			}

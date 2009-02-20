@@ -481,7 +481,7 @@ un2_expr::un2_expr(char* ltxt, e_operator_type le_type):
 		map<string,symtab_ent*>::iterator sym_it = find_in_symtab(ltxt);
 		if(sym_it==active_scope->sym_tab.end() ){
 			//cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
-			string err_msg = "Error: could not find:" + string(ltxt) + "  in symbol table  ";
+			string err_msg = "Error: could not find:" + string(text) + "  in symbol table  ";
 			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 			type=ERROR_TYPE;
 		} else {
@@ -603,9 +603,15 @@ un2_expr::un2_expr(int l_isem_value):
 		//cout << "parsed integer number: type" << type << endl; 
 	}
 
+/*
 un2_expr::un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table, int lline_no):
 	expr(le_type, ldt),  symp(0), 	isem_value(0), dsem_value(0), func_index_in_table(lfunc_index_in_table), 
 	text(0), column_no(-1), operand(e_list), operand2(0), line_no(lline_no) {}
+*/	
+
+un2_expr::un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table):
+	expr(le_type, ldt),  symp(0), 	isem_value(0), dsem_value(0), func_index_in_table(lfunc_index_in_table), 
+	text(0), column_no(-1), operand(e_list), operand2(0) {}
 
 un2_expr::un2_expr(double l_dsem_value): 
 	expr(oper_float,FLOAT_TYPE), symp(0), isem_value(0), dsem_value(l_dsem_value),
@@ -664,7 +670,6 @@ bin2_expr::bin2_expr(expr* llop , xtcc_set& l_rd, e_operator_type letype):expr(l
 				string err_msg = "bin2_expr:: lhs operator for oper_in can only be NAME or NAME[INDEX]";
 				print_err(compiler_internal_error, err_msg, line_no, __LINE__, __FILE__);
 				type=ERROR_TYPE;
-				
 			}
 			break;
 

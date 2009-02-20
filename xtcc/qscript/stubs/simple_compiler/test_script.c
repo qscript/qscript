@@ -39,10 +39,10 @@ xtcc_set xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
-range_question * q2 = new range_question(QUESTION_TYPE, 9,string(" q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
+range_question * q2 = new range_question(QUESTION_TYPE, 10,string(" q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
 question_list.push_back(q2);
 // named_stub_question::generate_code() : to be implemented
-named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 10,string(" q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
+named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 11,string(" q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
 question_list.push_back(q3);
 
 	int ser_no;
@@ -56,8 +56,35 @@ int8_t var1=5*12;
  // decl_stmt::generate_code 
 int8_t var2=7*var1;
 (12.5*13.3)-8+7*(12%7);
+	struct temp_0{
+		const int size_ran_indiv;
+		const int size_start_end;
+		vector<int> ran_indiv;
+		vector< pair<int,int> > ran_start_end;
+		temp_0(): size_ran_indiv(2), size_start_end(0),
+			ran_indiv(size_ran_indiv), ran_start_end(size_start_end){
+			ran_indiv[0]=1;
+			ran_indiv[1]=2;
+		}
+		bool exists(int key){
+			for(int i=0; i<size_start_end; ++i){
+				if(key >=ran_start_end[i].first && key <=ran_start_end[i].second){
+					return true;
+				}
+			}
+			for(int i=0; i< size_ran_indiv; ++i){
+				if(key==ran_indiv[i]){
+					return true;
+				}
+			}
+			return false;
+		}
+	} temp_1;
+bool temp_2 = temp_1.exists(q1);
+if (temp_2 ){
 		q2->eval();
 		q3->eval();
+}
 
 			stringstream fname_str;
 			fname_str << jno << "_" << ser_no << ".dat";

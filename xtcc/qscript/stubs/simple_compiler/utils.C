@@ -5,11 +5,6 @@
 #include "expr.h"
 #include "tree.h"
 #include "stmt.h"
-//#include "../../qscript/trunk/named_attributes.h"
-//#include "named_attributes.h"
-//extern vector <named_attribute_list> named_attributes_list;
-//extern vector<table*>	table_list;
-//extern map <string, ax*> ax_map;
 extern vector<mem_addr_tab>  mem_addr;
 extern int rec_len;
 extern struct stmt * tree_root;
@@ -58,24 +53,8 @@ map<string, symtab_ent*>::iterator find_in_symtab(string id){
 			return sym_it;
 		}
 	}
-	/*
-	if(found==false){
-		for (int i=0; i< named_attributes_list.size(); ++i){
-			if(named_attributes_list[i].name == id){
-				found=true;
-				break;
-			}
-		}
-	}
-	*/
-
 
 	return active_scope->sym_tab.end();
-		/*
-	} else {
-		return sym_it;
-	}
-	*/
 }
 
 
@@ -95,8 +74,6 @@ int search_for_func(string& search_for){
 
 
 int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_name){
-	//cout << "Entered check_func_decl_with_func_defn: " << func_name << endl;
-		
 	var_list* defn_ptr=v_list;
 	var_list* decl_ptr=func_info_table[index]->param_list;
 	

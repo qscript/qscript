@@ -14,12 +14,19 @@
 #include <sstream>
 	scope* active_scope;
 	vector <scope*> active_scope_list;
+	int nest_lev=0;
+	int flag_cmpd_stmt_is_a_func_body=-1;
+	bool flag_next_stmt_start_of_block=false;
+	vector<bool> blk_start_flag;
+	vector <stmt*> blk_heads;
+
 
 
 	fstream debug_log_file("xtcc_debug.log", ios_base::out|ios_base::trunc);
 	using std::string;
 	void print_err(compiler_err_category cmp_err, 
-		string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
+		string err_msg, int line_no, 
+		int compiler_line_no, string compiler_file_name);
 	extern int line_no;
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
@@ -56,6 +63,7 @@
 	vector <named_range*> named_stubs_list;
 	vector <named_attribute_list> named_attributes_list;
         vector <stub_pair> stub_list;
+	extern int if_line_no;
 
 
 
@@ -71,6 +79,8 @@
 	struct stmt * stmt;
 	struct expr * expr;
 	//class question* ques;
+	struct cmpd_stmt * c_stmt;
+
 };
 
 %token <ival> INUMBER
@@ -87,6 +97,7 @@
 %token <dt> DOUBLE_T
 %token <dt> STRING_T
 %type <dt> datatype
+%token IN
 
 
 %token '['
@@ -115,6 +126,12 @@
 %type <stmt> decl_stmt
  /*%type <stmt> attributes	*/
 %type <stmt> stubs	
+%type <c_stmt> cmpd_stmt	
+%type <c_stmt> open_curly	
+%type <stmt> if_stmt	
+
+%token IF ELSE
+
 %token STUBS_LIST
 
 
@@ -134,6 +151,14 @@ prog: stmt_list {
 
 stmt_list: stmt {
 		$$=$1;
+		if(flag_next_stmt_start_of_block){
+			blk_heads.push_back($1);
+			//cout << "blk_heads.size(): " << blk_heads.size() << endl;
+			//start_of_blk=$1;
+			flag_next_stmt_start_of_block=false;
+			blk_start_flag.pop_back();
+		}
+
 	}
 	| stmt_list stmt{
 		$1->next=$2;
@@ -174,7 +199,83 @@ stmt:	question
 	| expr_stmt
 	| decl_stmt
 	| stubs 
+	| cmpd_stmt  {
+		$$ = $1;
+	}
+	| if_stmt
 	;
+
+cmpd_stmt: open_curly stmt_list '}' {
+
+		active_scope_list.pop_back();
+		int tmp=active_scope_list.size()-1;
+		if(tmp==-1) { 
+			active_scope = 0;
+			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
+				<< endl;
+			++no_errors;
+			$$=new struct cmpd_stmt(ERROR_TYPE, line_no, 0);
+			void *ptr=$$;
+			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+			mem_addr.push_back(m1);
+		} else { 
+			active_scope = active_scope_list[tmp]; 
+		}
+		struct stmt* head_of_this_chain=blk_heads.back();
+		if(blk_start_flag.size() > 0){
+			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
+		}
+		if(  head_of_this_chain==0){
+			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
+			++no_errors;
+		} else {
+			$1->cmpd_bdy = head_of_this_chain;
+			blk_heads.pop_back();
+		}
+		
+		$$=$1;
+	}
+	;
+
+open_curly:	'{' {
+		++nest_lev;
+		$$ = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
+		void *ptr=$$;
+		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+		mem_addr.push_back(m1);
+		if(flag_cmpd_stmt_is_a_func_body>=0){
+			$$->sc=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
+			// reset the flag
+			flag_cmpd_stmt_is_a_func_body=-1;
+		} else {
+			$$->sc= new scope();
+			//void *ptr=$$;
+			//mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+			//mem_addr.push_back(m1);
+		}
+		flag_next_stmt_start_of_block=true;
+		blk_start_flag.push_back(flag_next_stmt_start_of_block);
+		active_scope_list.push_back($$->sc);
+		active_scope = $$->sc;
+	}
+	;
+
+
+
+if_stmt:  IF '(' expression ')' stmt {
+		$$=new if_stmt(IFE_STMT,if_line_no,$3,$5,0);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+	}
+	| IF '(' expression ')' stmt ELSE stmt {
+		$$=new if_stmt(IFE_STMT,if_line_no,$3,$5,$7);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+	}
+	;
+
 	
 expr_stmt:	expression ';' 
 	{
@@ -212,9 +313,11 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 			name, q_text, q_type, no_mpn, dt, xs);
 		$$=q;
 		question_list.push_back(q);
+		// questions always get pushed in scope level 0 as they
+		// are global variables - no matter what the level of nesting
+		active_scope_list[0]->insert($1, QUESTION_TYPE);
 	}
 	| NAME TEXT qtype datatype NAME ';' {
-		cout << " got named stublist type question" << endl;
 		string name=$1;
 		string q_txt=$2;
 		datatype dt=$4;
@@ -239,6 +342,7 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 				nr_ptr);
 		question_list.push_back(q);
 		$$=q;
+		active_scope_list[0]->insert($1, QUESTION_TYPE);
 	}
 	;
 
@@ -400,7 +504,8 @@ expression: expression '+' expression {
 			}
 			if(match || skip_type_check){
 				//$$=new un2_expr(oper_func_call, my_type, $3, index, line_no);
-				$$=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
+				//$$=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
+				$$=new un2_expr(oper_func_call, my_type, e_ptr, index);
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
@@ -420,12 +525,16 @@ expression: expression '+' expression {
 		}
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
-		cout << "parenth expression" << endl;
 		$$ = new un_expr($2, oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
+	| expression IN range_allowed_values {
+		$$ = new bin2_expr($1, xs, oper_in);
+		xs.reset();
+	}
+
 	/*
 	| NAME IN NAME {
 		$$ = new bin2_expr($1, $3, oper_in);
@@ -471,11 +580,9 @@ range: 	INUMBER '-' INUMBER {
 
 stubs:     STUBS_LIST NAME {
 		stub_list.resize(0);
-		cout << "resize attribute_list to 0\n";
 	}'=' stub_list ';'{
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=$2;
-		cerr << "parsed stub_list" << endl;
 		struct named_range* nr_ptr= new named_range(NAMED_RANGE, line_no, stub_name,stub_list);
 		named_stubs_list.push_back(nr_ptr);
 		//$$=0;
@@ -517,12 +624,10 @@ int main(int argc, char* argv[]){
 	
 	while( (c=getopt(argc, argv, "f:"))!=-1 ){
 		char ch=optopt;
-		cout << "ch: " << ch << endl;
 		switch(c){
 		case 'f':
 			fname=optarg;
 			fname_flag=1;
-			cout << " got fname: " << fname << endl;
 			break;
 		case '?': 
 			if(optopt == 'f' ) 
@@ -557,12 +662,12 @@ int main(int argc, char* argv[]){
 		exit(1);
 	}
 	yyrestart(yyin);
-	if( !yyparse()){
-		cout << "Input parsed sucessfully: starting interpreter" << endl;
+	if( !yyparse() && !no_errors){
+		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
 		generate_code();
 	} else {
-		cerr << "There were : " << no_errors << " in parse" << endl;
+		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
 	return no_errors;
 }

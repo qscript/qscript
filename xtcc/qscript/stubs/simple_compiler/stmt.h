@@ -134,5 +134,69 @@ struct decl_stmt: public stmt{
 	decl_stmt(const decl_stmt&);	
 };
 
+struct cmpd_stmt: public stmt{
+	struct stmt* cmpd_bdy;
+	struct scope * sc;
+	int flag_cmpd_stmt_is_a_func_body;
+	public:
+	cmpd_stmt(datatype dtype, int lline_number, int l_flag_cmpd_stmt_is_a_func_body);
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	/*
+	void print_stmt_lst(FILE * & fptr){
+		fflush(fptr);
+		if(fptr){
+			fprintf(fptr,"{\n");
+			if (cmpd_bdy) cmpd_bdy->print_stmt_lst(fptr);
+			fprintf(fptr,"}\n");
+			if(next) next->print_stmt_lst(fptr);
+		}
+	}
+	*/
+	virtual ~cmpd_stmt();
+	private:
+	cmpd_stmt& operator=(const cmpd_stmt&);	
+	cmpd_stmt(const cmpd_stmt&);	
+};
+
+
+struct if_stmt : public stmt{
+	protected:
+	struct expr * condition;
+	struct stmt * if_body;
+	struct stmt * else_body;
+	public:
+	if_stmt( datatype dtype, int lline_number, 
+		struct  expr * lcondition, struct  stmt * lif_body, struct stmt * lelse_body=0);
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	/*
+	void print_stmt_lst(FILE * & fptr){
+		fflush(fptr);
+
+		if(fptr){
+			ostringstream code_bef_expr, code_expr;
+			//fprintf(fptr,  "if (");
+			code_expr << "if (";
+			condition->print_expr(code_bef_expr, code_expr);
+			//fprintf(fptr,  ")");
+			code_expr << ")";
+			fprintf(fptr, " %s ", code_bef_expr.str().c_str());
+			fprintf(fptr, " %s ", code_expr.str().c_str());
+			fflush(fptr);
+			if_body->print_stmt_lst(fptr);
+			fflush(fptr);
+			if(else_body){
+				fprintf(fptr,  " else ");
+				else_body->print_stmt_lst(fptr);
+			}
+			if(next) next->print_stmt_lst(fptr);
+		}
+	}
+	*/
+	virtual ~if_stmt();
+	private:
+	if_stmt& operator=(const if_stmt&);	
+	if_stmt(const if_stmt&);	
+};
+
 
 #endif /* stmt_h */

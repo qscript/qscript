@@ -8,6 +8,7 @@
 #include "named_range.h"
 
 extern vector<mem_addr_tab> mem_addr;
+extern int if_line_no;
 
 extern ofstream debug_log_file;
 using std::cout;
@@ -165,6 +166,7 @@ void named_stub_question::eval(){
 }
 
 void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostringstream& program_code){
+	cerr << "range_question::generate_code invoked: question: " << name << endl;
 	/*
 	fprintf(script, "cout <<  \"%s.%s\" << endl << endl;\n\n", name.c_str(), text.c_str());
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
@@ -230,6 +232,7 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 
 void named_stub_question::generate_code( ostringstream & quest_defns, 
 		ostringstream& program_code){
+	cerr << "named_stub_question::generate_code invoked: question: " << name << endl;
 	string q_type_str;
 	print_q_type(q_type_str);
 
@@ -394,3 +397,97 @@ decl_stmt::~decl_stmt() {
 	//if(symp) { delete symp; symp=0; }
 
 }
+
+if_stmt::if_stmt( datatype dtype, int lline_number, 
+	struct  expr * lcondition, struct  stmt * lif_body, struct stmt * lelse_body): 
+	stmt(dtype, lline_number),
+	condition(lcondition), if_body(lif_body), else_body(lelse_body)
+{
+	if(lcondition->type==VOID_TYPE || lcondition->type==ERROR_TYPE){
+		print_err(compiler_sem_err, 
+			"If condition expression has Void or Error Type", 
+			if_line_no, __LINE__, __FILE__);
+	} else {
+	}
+}
+
+
+void if_stmt::generate_code(ostringstream & quest_defns, ostringstream& program_code){
+	ostringstream code_bef_expr, code_expr;
+	code_expr << "if (";
+	condition->print_expr(code_bef_expr, code_expr);
+	code_expr << ")";
+	//fprintf(fptr, " %s ", code_bef_expr.str().c_str());
+	//fprintf(fptr, " %s ", code_expr.str().c_str());
+	program_code << code_bef_expr.str();
+	program_code << code_expr.str();
+	//fflush(fptr);
+	//if_body->print_stmt_lst(fptr);
+	if_body->generate_code(quest_defns, program_code);
+	//fflush(fptr);
+	if(else_body){
+		//fprintf(fptr,  " else ");
+		program_code << " else " << endl;
+		//else_body->print_stmt_lst(fptr);
+		else_body->generate_code(quest_defns, program_code);
+	}
+	if(next) 
+		next->generate_code(quest_defns, program_code);
+}
+
+
+if_stmt:: ~if_stmt(){
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file 
+				<< "if_stmt::~if_stmt setting mem_addr:" 
+				<< this << "=0" << endl;
+			break;
+		}
+	}
+	debug_log_file << "deleting if_stmt" << endl;
+	//if (next) delete next;
+	delete condition;
+	delete if_body;
+	if (else_body) delete else_body;
+}
+
+cmpd_stmt::cmpd_stmt(datatype dtype, int lline_number, int l_flag_cmpd_stmt_is_a_func_body): 
+	stmt(dtype, lline_number), 
+	cmpd_bdy(0), sc(0), 
+	flag_cmpd_stmt_is_a_func_body(l_flag_cmpd_stmt_is_a_func_body) 
+{}
+
+
+void cmpd_stmt::generate_code(ostringstream & quest_defns, 
+	ostringstream& program_code){
+	program_code << "{" << endl;
+	if (cmpd_bdy) 
+		cmpd_bdy->generate_code(quest_defns, program_code);
+	program_code << "}" << endl;
+	if(next) 
+		next->generate_code(quest_defns, program_code);
+}
+
+
+cmpd_stmt::~cmpd_stmt() {
+	debug_log_file << "deleting cmpd_stmt" << endl;
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "basic_count_ax_stmt::~basic_count_ax_stmt setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+	//if(next) delete next;
+	if(sc&&flag_cmpd_stmt_is_a_func_body<0) {
+		delete sc;
+		sc=0;
+	}
+	if(cmpd_bdy /*&& flag_cmpd_stmt_is_a_func_body<0*/){
+		delete cmpd_bdy;
+		cmpd_bdy=0;
+	}
+}
+

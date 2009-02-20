@@ -126,9 +126,10 @@ struct un2_expr : public expr{
 	expr* operand2;
 	public:
 	// This is a hack - I have to fix this by putting line number in the base class
-	int line_no;
+	//int line_no;
 	bool is_lvalue();
-	un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table, int lline_no);
+	//un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table, int lline_no);
+	un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table);
 
 	un2_expr(int l_isem_value);
 
