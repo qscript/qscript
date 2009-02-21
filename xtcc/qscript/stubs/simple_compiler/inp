@@ -3,7 +3,7 @@ stubs age = "15 to 21" 1
 	"31 to 40" 3
 	"41 to 59" 4;
 
-q1 "Q1. This is question 1" sp int32_t (1,2);
+q1 "Q1. This is question 1" sp int32_t (1,2,3,4);
 int8_t var1= 5 * 12;
 int8_t var2 = 7* var1;
 (12.5 * 13.3) - 8+7 *(12%7);

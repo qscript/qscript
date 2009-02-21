@@ -159,6 +159,9 @@
 		string err_msg, int line_no, 
 		int compiler_line_no, string compiler_file_name);
 	extern int line_no;
+	extern noun_list_type noun_list[];
+
+	/*
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
 			{	"int8_t" ,INT8_TYPE},
@@ -167,6 +170,7 @@
 			{	"float", FLOAT_TYPE},
 			{	"double", DOUBLE_TYPE}
 		};
+	*/	
 
 
 	question_type q_type;
@@ -220,7 +224,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 73 "q.y"
+#line 77 "q.y"
 {
 	int ival;
 	double dval;
@@ -234,7 +238,7 @@ typedef union YYSTYPE
 
 }
 /* Line 187 of yacc.c.  */
-#line 238 "q.tab.c"
+#line 242 "q.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -247,7 +251,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 251 "q.tab.c"
+#line 255 "q.tab.c"
 
 #ifdef short
 # undef short
@@ -559,13 +563,13 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   145,   145,   152,   163,   171,   172,   173,   174,   175,
-     176,   177,   180,   184,   187,   198,   199,   200,   201,   202,
-     205,   208,   240,   265,   271,   280,   308,   320,   351,   357,
-     363,   369,   375,   381,   387,   393,   399,   405,   411,   417,
-     423,   429,   437,   443,   449,   456,   462,   468,   475,   482,
-     521,   527,   533,   549,   550,   555,   556,   559,   563,   564,
-     567,   576,   581,   581,   594,   600
+       0,   149,   149,   157,   168,   176,   177,   178,   179,   180,
+     181,   182,   185,   189,   192,   203,   204,   205,   206,   207,
+     210,   213,   245,   270,   276,   285,   313,   326,   357,   363,
+     369,   375,   381,   387,   393,   399,   405,   411,   417,   423,
+     429,   435,   443,   449,   455,   462,   468,   474,   481,   488,
+     527,   533,   539,   555,   556,   561,   562,   565,   569,   570,
+     573,   582,   587,   587,   600,   606
 };
 #endif
 
@@ -1596,8 +1600,9 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 145 "q.y"
+#line 149 "q.y"
     {
+		cerr << "prog: finished parse";
 		tree_root=(yyvsp[(1) - (1)].stmt);
 		while(tree_root->prev) 
 			tree_root=tree_root->prev;
@@ -1605,7 +1610,7 @@ yyreduce:
     break;
 
   case 3:
-#line 152 "q.y"
+#line 157 "q.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 		if(flag_next_stmt_start_of_block){
@@ -1620,7 +1625,7 @@ yyreduce:
     break;
 
   case 4:
-#line 163 "q.y"
+#line 168 "q.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
@@ -1629,7 +1634,7 @@ yyreduce:
     break;
 
   case 12:
-#line 180 "q.y"
+#line 185 "q.y"
     {
 		(yyval.stmt) = active_scope->insert((yyvsp[(2) - (3)].name), (yyvsp[(1) - (3)].dt)/*, line_no*/);
 		//free($2);
@@ -1637,14 +1642,14 @@ yyreduce:
     break;
 
   case 13:
-#line 184 "q.y"
+#line 189 "q.y"
     {
 		(yyval.stmt) = active_scope->insert((yyvsp[(2) - (5)].name), (yyvsp[(1) - (5)].dt), (yyvsp[(4) - (5)].expr));
 	;}
     break;
 
   case 14:
-#line 187 "q.y"
+#line 192 "q.y"
     {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
 		datatype dt=datatype(INT8_ARR_TYPE+((yyvsp[(1) - (6)].dt)-INT8_TYPE));
@@ -1654,14 +1659,14 @@ yyreduce:
     break;
 
   case 19:
-#line 202 "q.y"
+#line 207 "q.y"
     {
 		(yyval.stmt) = (yyvsp[(1) - (1)].c_stmt);
 	;}
     break;
 
   case 21:
-#line 208 "q.y"
+#line 213 "q.y"
     {
 
 		active_scope_list.pop_back();
@@ -1695,7 +1700,7 @@ yyreduce:
     break;
 
   case 22:
-#line 240 "q.y"
+#line 245 "q.y"
     {
 		++nest_lev;
 		(yyval.c_stmt) = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
@@ -1720,7 +1725,7 @@ yyreduce:
     break;
 
   case 23:
-#line 265 "q.y"
+#line 270 "q.y"
     {
 		(yyval.stmt)=new if_stmt(IFE_STMT,if_line_no,(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].stmt),0);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1730,7 +1735,7 @@ yyreduce:
     break;
 
   case 24:
-#line 271 "q.y"
+#line 276 "q.y"
     {
 		(yyval.stmt)=new if_stmt(IFE_STMT,if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1740,7 +1745,7 @@ yyreduce:
     break;
 
   case 25:
-#line 281 "q.y"
+#line 286 "q.y"
     {
 		if((yyvsp[(1) - (2)].expr)->isvalid()){
 			(yyval.stmt) = new expr_stmt(TEXPR_STMT, line_no, (yyvsp[(1) - (2)].expr));
@@ -1757,7 +1762,7 @@ yyreduce:
     break;
 
   case 26:
-#line 308 "q.y"
+#line 313 "q.y"
     {
 		string name((yyvsp[(1) - (6)].name));
 		string q_text((yyvsp[(2) - (6)].text_buf));
@@ -1766,6 +1771,7 @@ yyreduce:
 			name, q_text, q_type, no_mpn, dt, xs);
 		(yyval.stmt)=q;
 		question_list.push_back(q);
+		xs.reset();
 		// questions always get pushed in scope level 0 as they
 		// are global variables - no matter what the level of nesting
 		active_scope_list[0]->insert((yyvsp[(1) - (6)].name), QUESTION_TYPE);
@@ -1773,7 +1779,7 @@ yyreduce:
     break;
 
   case 27:
-#line 320 "q.y"
+#line 326 "q.y"
     {
 		string name=(yyvsp[(1) - (6)].name);
 		string q_txt=(yyvsp[(2) - (6)].text_buf);
@@ -1804,7 +1810,7 @@ yyreduce:
     break;
 
   case 28:
-#line 351 "q.y"
+#line 357 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1814,7 +1820,7 @@ yyreduce:
     break;
 
   case 29:
-#line 357 "q.y"
+#line 363 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1824,7 +1830,7 @@ yyreduce:
     break;
 
   case 30:
-#line 363 "q.y"
+#line 369 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1834,7 +1840,7 @@ yyreduce:
     break;
 
   case 31:
-#line 369 "q.y"
+#line 375 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1844,7 +1850,7 @@ yyreduce:
     break;
 
   case 32:
-#line 375 "q.y"
+#line 381 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1854,7 +1860,7 @@ yyreduce:
     break;
 
   case 33:
-#line 381 "q.y"
+#line 387 "q.y"
     {
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_umin);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1864,7 +1870,7 @@ yyreduce:
     break;
 
   case 34:
-#line 387 "q.y"
+#line 393 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1874,7 +1880,7 @@ yyreduce:
     break;
 
   case 35:
-#line 393 "q.y"
+#line 399 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1884,7 +1890,7 @@ yyreduce:
     break;
 
   case 36:
-#line 399 "q.y"
+#line 405 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1894,7 +1900,7 @@ yyreduce:
     break;
 
   case 37:
-#line 405 "q.y"
+#line 411 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1904,7 +1910,7 @@ yyreduce:
     break;
 
   case 38:
-#line 411 "q.y"
+#line 417 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1914,7 +1920,7 @@ yyreduce:
     break;
 
   case 39:
-#line 417 "q.y"
+#line 423 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1924,7 +1930,7 @@ yyreduce:
     break;
 
   case 40:
-#line 423 "q.y"
+#line 429 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1934,7 +1940,7 @@ yyreduce:
     break;
 
   case 41:
-#line 429 "q.y"
+#line 435 "q.y"
     {
 		cout << "LOGAND expr: " << endl;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
@@ -1946,7 +1952,7 @@ yyreduce:
     break;
 
   case 42:
-#line 437 "q.y"
+#line 443 "q.y"
     {
 		(yyval.expr) = new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1956,7 +1962,7 @@ yyreduce:
     break;
 
   case 43:
-#line 443 "q.y"
+#line 449 "q.y"
     {
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_not);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1966,7 +1972,7 @@ yyreduce:
     break;
 
   case 44:
-#line 449 "q.y"
+#line 455 "q.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].ival));
 		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
@@ -1977,7 +1983,7 @@ yyreduce:
     break;
 
   case 45:
-#line 456 "q.y"
+#line 462 "q.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].dval));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1987,7 +1993,7 @@ yyreduce:
     break;
 
   case 46:
-#line 462 "q.y"
+#line 468 "q.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].name), oper_name );
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1997,7 +2003,7 @@ yyreduce:
     break;
 
   case 47:
-#line 468 "q.y"
+#line 474 "q.y"
     {
 		(yyval.expr) = new un2_expr(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2008,7 +2014,7 @@ yyreduce:
     break;
 
   case 48:
-#line 475 "q.y"
+#line 481 "q.y"
     {
 		(yyval.expr) = new un2_expr(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2019,7 +2025,7 @@ yyreduce:
     break;
 
   case 49:
-#line 482 "q.y"
+#line 488 "q.y"
     {
 		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=(yyvsp[(1) - (4)].name);
@@ -2062,7 +2068,7 @@ yyreduce:
     break;
 
   case 50:
-#line 521 "q.y"
+#line 527 "q.y"
     {
 		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2072,7 +2078,7 @@ yyreduce:
     break;
 
   case 51:
-#line 527 "q.y"
+#line 533 "q.y"
     { 
 		(yyval.expr) = new un_expr((yyvsp[(2) - (3)].expr), oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2082,7 +2088,7 @@ yyreduce:
     break;
 
   case 52:
-#line 533 "q.y"
+#line 539 "q.y"
     {
 		(yyval.expr) = new bin2_expr((yyvsp[(1) - (3)].expr), xs, oper_in);
 		xs.reset();
@@ -2090,34 +2096,34 @@ yyreduce:
     break;
 
   case 53:
-#line 549 "q.y"
+#line 555 "q.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 54:
-#line 550 "q.y"
+#line 556 "q.y"
     {
 		(yyval.expr)=link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
 	;}
     break;
 
   case 55:
-#line 555 "q.y"
+#line 561 "q.y"
     { q_type = spn; ;}
     break;
 
   case 56:
-#line 556 "q.y"
+#line 562 "q.y"
     { q_type = mpn; no_mpn = (yyvsp[(3) - (4)].ival); ;}
     break;
 
   case 57:
-#line 559 "q.y"
+#line 565 "q.y"
     { ;}
     break;
 
   case 60:
-#line 567 "q.y"
+#line 573 "q.y"
     {
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
 			print_err(compiler_sem_err, "2nd number in range <= 1st number",
@@ -2130,21 +2136,21 @@ yyreduce:
     break;
 
   case 61:
-#line 576 "q.y"
+#line 582 "q.y"
     {
 		xs.indiv.insert((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
   case 62:
-#line 581 "q.y"
+#line 587 "q.y"
     {
 		stub_list.resize(0);
 	;}
     break;
 
   case 63:
-#line 583 "q.y"
+#line 589 "q.y"
     {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=(yyvsp[(2) - (6)].name);
@@ -2156,7 +2162,7 @@ yyreduce:
     break;
 
   case 64:
-#line 594 "q.y"
+#line 600 "q.y"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int code=(yyvsp[(2) - (2)].ival);
@@ -2166,7 +2172,7 @@ yyreduce:
     break;
 
   case 65:
-#line 600 "q.y"
+#line 606 "q.y"
     {
 		string s1=(yyvsp[(2) - (3)].text_buf);
 		int code=(yyvsp[(3) - (3)].ival);
@@ -2178,7 +2184,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2182 "q.tab.c"
+#line 2188 "q.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2392,7 +2398,7 @@ yyreturn:
 }
 
 
-#line 611 "q.y"
+#line 617 "q.y"
 
 
 #include <unistd.h>
@@ -2582,6 +2588,7 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\t\t\tfprintf(fptr, \"%%d \", *iter);\n");
 	fprintf(script, "\t\t}\n");
 	fprintf(script, "\t\tfprintf(fptr, \"\\n\");\n");
+	fprintf(script, "\t\tquestion_list[i]->input_data.clear();\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "\tfclose(fptr);\n");
 	fprintf(script, "\n");

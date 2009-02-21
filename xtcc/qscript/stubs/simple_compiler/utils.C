@@ -154,3 +154,11 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: " 
 		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
 }
+	noun_list_type noun_list[]= {
+			{	"void"	, VOID_TYPE},
+			{	"int8_t" ,INT8_TYPE},
+			{	"int16_t" ,INT16_TYPE},
+			{	"int32_t" ,INT32_TYPE},
+			{	"float", FLOAT_TYPE},
+			{	"double", DOUBLE_TYPE}
+		};

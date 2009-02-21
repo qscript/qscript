@@ -28,6 +28,9 @@
 		string err_msg, int line_no, 
 		int compiler_line_no, string compiler_file_name);
 	extern int line_no;
+	extern noun_list_type noun_list[];
+
+	/*
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
 			{	"int8_t" ,INT8_TYPE},
@@ -36,6 +39,7 @@
 			{	"float", FLOAT_TYPE},
 			{	"double", DOUBLE_TYPE}
 		};
+	*/	
 
 
 	question_type q_type;
@@ -143,6 +147,7 @@
 
 
 prog: stmt_list {
+		cerr << "prog: finished parse";
 		tree_root=$1;
 		while(tree_root->prev) 
 			tree_root=tree_root->prev;
@@ -313,6 +318,7 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 			name, q_text, q_type, no_mpn, dt, xs);
 		$$=q;
 		question_list.push_back(q);
+		xs.reset();
 		// questions always get pushed in scope level 0 as they
 		// are global variables - no matter what the level of nesting
 		active_scope_list[0]->insert($1, QUESTION_TYPE);
@@ -797,6 +803,7 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\t\t\tfprintf(fptr, \"%%d \", *iter);\n");
 	fprintf(script, "\t\t}\n");
 	fprintf(script, "\t\tfprintf(fptr, \"\\n\");\n");
+	fprintf(script, "\t\tquestion_list[i]->input_data.clear();\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "\tfclose(fptr);\n");
 	fprintf(script, "\n");

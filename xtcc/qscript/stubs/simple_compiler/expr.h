@@ -84,11 +84,12 @@ struct xtcc_set {
 */
 
 #include "xtcc_set.h"
-
+struct un2_expr;
 struct bin2_expr: public expr{
 	protected:
 	//symtab_ent *l_symp, *r_symp;
-	expr * l_op;
+	//expr * l_op;
+	un2_expr * l_op;	
 	xtcc_set *xs;
 	public:
 	//bin2_expr(string lname , string rname ,e_operator_type letype);
@@ -130,6 +131,9 @@ struct un2_expr : public expr{
 	bool is_lvalue();
 	//un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table, int lline_no);
 	un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table);
+	const symtab_ent* get_symp_ptr(){
+		return (const symtab_ent*) symp;
+	}
 
 	un2_expr(int l_isem_value);
 

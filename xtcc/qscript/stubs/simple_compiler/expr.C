@@ -656,28 +656,33 @@ void xtcc_set::add_indiv(int n1){
 }
 #endif /* 0 */
 
-bin2_expr::bin2_expr(expr* llop , xtcc_set& l_rd, e_operator_type letype):expr(letype), l_op(llop){
+bin2_expr::bin2_expr(expr* llop , xtcc_set& l_rd, 
+		e_operator_type letype):expr(letype)/*, l_op(llop)*/{
+	cerr << "bin2_expr::bin2_expr" << endl;
 	switch(e_type){
 		case oper_in:
-			switch( l_op->e_type){
+			switch( llop->e_type){
 			case oper_name:
 			case oper_arrderef:
 				type = BOOL_TYPE;
+				cerr << "bin2_expr::static_cast" << endl;
+				l_op=static_cast<un2_expr*>(llop);
 				xs = new xtcc_set(l_rd);
 				break;
 			default:
+				l_op=0;
 				type = ERROR_TYPE;
 				string err_msg = "bin2_expr:: lhs operator for oper_in can only be NAME or NAME[INDEX]";
-				print_err(compiler_internal_error, err_msg, line_no, __LINE__, __FILE__);
+				print_err(compiler_sem_err, err_msg, 
+					line_no, __LINE__, __FILE__);
 				type=ERROR_TYPE;
 			}
 			break;
-
-
 		default: {
+			l_op=0;
 			type = ERROR_TYPE;
 			string err_msg = "bin2_expr:: operator in e_type can only be oper_in";
-			print_err(compiler_internal_error, err_msg, line_no, __LINE__, __FILE__);
+			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 			type=ERROR_TYPE;
 		}
 	}
@@ -800,18 +805,55 @@ void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_ex
 	code_bef_expr << "\t\t\treturn false;\n";
 	code_bef_expr << "\t\t}\n";
 
+	code_bef_expr << "\t\tbool contains_subset(set<int> & set_data){\n";
+	code_bef_expr << "\t\t\tbool val_exists = false;\n";
+	code_bef_expr << "\t\t\tfor(\tset<int>::iterator it=set_data.begin();\n";
+	code_bef_expr << "\t\t\t\tit!=set_data.end(); ++it){\n";
+	code_bef_expr << "\t\t\t\t\tval_exists=exists(*it);\n";
+	code_bef_expr << "\t\t\t\tif(!val_exists){\n";
+	code_bef_expr << "\t\t\t\t\treturn false;\n";
+	code_bef_expr << "\t\t\t\t}\n";
+	code_bef_expr << "\t\t\t}\n";
+	code_bef_expr << "\t\t\tif(!val_exists){\n";
+	code_bef_expr << "\t\t\t\treturn false;\n";
+	code_bef_expr << "\t\t\t}\n";
+	code_bef_expr << "\t\t}\n";
 	string struct_name1 = get_temp_name();
 	code_bef_expr << "\t} " <<  struct_name1.c_str() <<";\n";
-	string test_bool_var_name=get_temp_name();
-	code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
-		<< " = " << struct_name1.c_str()
-		<< ".exists(";
-	//<< name.c_str() << ");\n";
-	ostringstream code_bef_expr1_discard, code_expr1;
-	l_op->print_expr(code_bef_expr1_discard, code_expr1);
-	code_bef_expr << code_expr1.str() << ");\n";
-	code_expr << test_bool_var_name.c_str() << " " ;
-			  
+	
+	switch(l_op->get_symp_ptr()->type){
+		case INT8_TYPE ... DOUBLE_REF_TYPE:
+		case BOOL_TYPE:{	
+			string test_bool_var_name=get_temp_name();
+			code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
+				<< " = " << struct_name1.c_str()
+				<< ".exists(";
+			//<< name.c_str() << ");\n";
+			ostringstream code_bef_expr1_discard, code_expr1;
+			l_op->print_expr(code_bef_expr1_discard, code_expr1);
+			code_bef_expr << code_expr1.str() << ");\n";
+			code_expr << test_bool_var_name.c_str() << " " ;
+		}
+			break;
+		case QUESTION_TYPE:{
+			string test_bool_var_name=get_temp_name();
+			code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
+				<< " = " << struct_name1.c_str()
+				<< ".contains_subset(";
+			ostringstream code_bef_expr1_discard, code_expr1;
+			l_op->print_expr(code_bef_expr1_discard, code_expr1);
+			code_bef_expr << code_expr1.str() 
+				<< "->input_data"
+				<< ");\n";
+			code_expr << test_bool_var_name.c_str() << " " ;
+		}
+		break;	
+		default:	
+			std::stringstream s;
+			s << "file: " << __FILE__ << ", line: " << __LINE__ << endl;
+			print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
+	}
+
 }
 
 

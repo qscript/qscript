@@ -33,6 +33,8 @@ age.push_back( stub_pair("41 to 59", 4));
 xtcc_set xs_0;
 xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);
+xs_0.indiv.insert(3);
+xs_0.indiv.insert(4);
 range_question * q1 = new range_question(QUESTION_TYPE, 5,string(" q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0);
 question_list.push_back(q1);
 xtcc_set xs_1;
@@ -79,8 +81,21 @@ int8_t var2=7*var1;
 			}
 			return false;
 		}
+		bool contains_subset(set<int> & set_data){
+			bool val_exists = false;
+			for(	set<int>::iterator it=set_data.begin();
+				it!=set_data.end(); ++it){
+					val_exists=exists(*it);
+				if(!val_exists){
+					return false;
+				}
+			}
+			if(!val_exists){
+				return false;
+			}
+		}
 	} temp_1;
-bool temp_2 = temp_1.exists(q1);
+bool temp_2 = temp_1.contains_subset(q1->input_data);
 if (temp_2 ){
 		q2->eval();
 		q3->eval();
@@ -98,6 +113,7 @@ cin >> ser_no;
 			fprintf(fptr, "%d ", *iter);
 		}
 		fprintf(fptr, "\n");
+		question_list[i]->input_data.clear();
 	}
 	fclose(fptr);
 

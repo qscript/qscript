@@ -1,7 +1,7 @@
 CC=g++ -c
 LIBS=-lreadline
 
-OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o
+OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o question.o stmt_common.o
 simple_interpreter: $(OBJS)
 	g++ -o simple_interpreter $(OBJS) $(LIBS)
 
@@ -52,4 +52,10 @@ scope.o: scope.C scope.h
 	$(CC) $<
 
 named_range.o: named_range.C named_range.h
+	$(CC) $<
+
+question.o:  question.C question.h
+	$(CC) $<
+
+stmt_common.o:  stmt_common.C 
 	$(CC) $<
