@@ -142,64 +142,71 @@ void un_expr::print_expr (ostringstream& code_bef_expr, ostringstream & code_exp
 	}
 }
 
-//void bin_expr::print_oper_assgn(FILE * edit_out)
 void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr){
-	//fprintf(edit_out, "/*oper_assgn*/ %s =", symp->name);
 	if(r_op->e_type == oper_blk_arr_assgn &&
 		( l_op->e_type==oper_name||l_op->e_type==oper_arrderef)){
 		un2_expr* blk_e = static_cast<un2_expr*> (r_op);
 		un2_expr* lhs = static_cast<un2_expr*> (l_op);
 		code_expr << "/* DATA CONVERSION */\n";
 		code_expr << "{int tmp1=";
-		//blk_e->operand->print_expr(edit_out);
 		blk_e->operand->print_expr(code_bef_expr, code_expr);
 		code_expr << ";\nint tmp2=";
-		//blk_e->operand2->print_expr(edit_out);
 		blk_e->operand2->print_expr(code_bef_expr, code_expr);
 		code_expr << ";\n";
-		if(l_op->type==FLOAT_TYPE) {
-			code_expr << "if(tmp2-tmp1==sizeof(float)-1){\n";
-			code_expr << "\tchar buff[sizeof(float)];int i,j;\n";
-			code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
-			code_expr << "\t\tbuff[j]=" <<  blk_e->symp->name << "[i];\n";
-			code_expr << "\t}\n";
-			code_expr << "\tvoid * v_ptr = buff;\n";
-			code_expr << "\tfloat *f_ptr = static_cast<float *>(v_ptr);\n";
-			
-			//fprintf(edit_out,"\t %s=*f_ptr;\n", lsymp->name);
-			code_expr << "\t" ;
-			//lhs->print_expr(edit_out);
-			lhs->print_expr(code_bef_expr, code_expr);
-			code_expr << "=*f_ptr;\n";
-			code_expr << "}else { cerr << \"runtime error: line_no : expr out of bounds\" << " 
-				<< line_no  <<";}\n}\n";
-		} else if (l_op->type==INT32_TYPE){
-			code_expr << "if(tmp2-tmp1==sizeof(int)-1){\n";
-			code_expr << "\tchar buff[sizeof(int)];int i,j;\n";
-			code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
-			code_expr << "\t\tbuff[j]=" << blk_e->symp->name << "[i];\n";
-			code_expr << "\t}\n";
-			code_expr << "\tvoid * v_ptr = buff;\n";
-			code_expr << "\tint *i_ptr = static_cast<int *>(v_ptr);\n";
-			//code_expr << "\t %s=*i_ptr;\n", lsymp->name;
-			code_expr << "\t" ;
-			//lhs->print_expr(edit_out);
-			lhs->print_expr(code_bef_expr, code_expr);
-			code_expr << "=*i_ptr;\n" ;
-			code_expr << "}else { \n\tcerr << \"runtime error: line_no : expr out of bounds\" <<"
-				<< line_no << " ;}\n}\n";
-		} else {
-			code_expr <<  "error\n";
-			cerr << "Error in code generation" << endl;
+		switch(lhs->get_symp_ptr()->type){
+			case INT8_TYPE ... DOUBLE_REF_TYPE:
+			case BOOL_TYPE:	{	
+				if(l_op->type==FLOAT_TYPE) {
+					code_expr << "if(tmp2-tmp1==sizeof(float)-1){\n";
+					code_expr << "\tchar buff[sizeof(float)];int i,j;\n";
+					code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
+					code_expr << "\t\tbuff[j]=" <<  blk_e->symp->name << "[i];\n";
+					code_expr << "\t}\n";
+					code_expr << "\tvoid * v_ptr = buff;\n";
+					code_expr << "\tfloat *f_ptr = static_cast<float *>(v_ptr);\n";
+					
+					code_expr << "\t" ;
+					lhs->print_expr(code_bef_expr, code_expr);
+					code_expr << "=*f_ptr;\n";
+					code_expr << "}else { cerr << \"runtime error: line_no : expr out of bounds\" << " 
+						<< line_no  <<";}\n}\n";
+				} else if (l_op->type==INT32_TYPE){
+					code_expr << "if(tmp2-tmp1==sizeof(int)-1){\n";
+					code_expr << "\tchar buff[sizeof(int)];int i,j;\n";
+					code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
+					code_expr << "\t\tbuff[j]=" << blk_e->symp->name << "[i];\n";
+					code_expr << "\t}\n";
+					code_expr << "\tvoid * v_ptr = buff;\n";
+					code_expr << "\tint *i_ptr = static_cast<int *>(v_ptr);\n";
+					code_expr << "\t" ;
+					lhs->print_expr(code_bef_expr, code_expr);
+					code_expr << "=*i_ptr;\n" ;
+					code_expr << "}else { \n\tcerr << \"runtime error: line_no : expr out of bounds\" <<"
+						<< line_no << " ;}\n}\n";
+				} else {
+					std::stringstream s;
+					s << "Error in code generation file: ";
+					print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
+					code_expr <<  "error\n";
+				}
+			}
+			break;
+
+			case QUESTION_TYPE:{
+				std::stringstream s;
+				s << "ASSIGNING to question_type named variable to be programmed  : ";
+				print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
+				code_expr <<  "error\n";
+			}
 		}
 	} else if (r_op->e_type == oper_blk_arr_assgn && l_op->e_type==oper_blk_arr_assgn){
-		code_expr << " unhandled case LHS ==";
+		std::stringstream s;
+		s << "unhandled case LHS. Error in code generation file: ";
+		print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
+		code_expr <<  "error\n";
 	}else {
-		//l_op->print_expr(edit_out);
 		l_op->print_expr(code_bef_expr, code_expr);
-		//fprintf(edit_out, "/*oper_assgn*/  = ");
 		code_expr << " /* oper_assgn */ = ";
-		//r_op->print_expr(edit_out);
 		r_op->print_expr(code_bef_expr, code_expr);
 	}
 }
@@ -834,7 +841,7 @@ void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_ex
 			code_bef_expr << code_expr1.str() << ");\n";
 			code_expr << test_bool_var_name.c_str() << " " ;
 		}
-			break;
+		break;
 		case QUESTION_TYPE:{
 			string test_bool_var_name=get_temp_name();
 			code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
