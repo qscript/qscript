@@ -33,6 +33,7 @@
 #include <climits>
 //#include "../../qscript/trunk/named_range.h"
 #include "named_range.h"
+question* find_in_question_list(string name);
 
 extern scope* active_scope;
 extern ofstream debug_log_file;

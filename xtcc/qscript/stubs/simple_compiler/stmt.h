@@ -150,7 +150,6 @@ struct if_stmt : public stmt{
 	if_stmt& operator=(const if_stmt&);	
 	if_stmt(const if_stmt&);	
 };
-question* find_in_question_list(string name);
 
 
 #endif /* stmt_h */

@@ -2,8 +2,8 @@ CC=g++ -c
 LIBS=-lreadline
 
 OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o question.o stmt_common.o
-simple_interpreter: $(OBJS)
-	g++ -o simple_interpreter $(OBJS) $(LIBS)
+simple_compiler: $(OBJS)
+	g++ -o simple_compiler $(OBJS) $(LIBS)
 
 lex.yy.o: lex.yy.c q.tab.h
 	$(CC) $<
@@ -59,3 +59,12 @@ question.o:  question.C question.h
 
 stmt_common.o:  stmt_common.C 
 	$(CC) $<
+
+.phony: clean
+clean:
+	rm *.o simple_compiler test_script
+
+test_script: inp simple_compiler
+	simple_compiler -f inp
+	make -f QScriptMakefile
+	

@@ -191,6 +191,7 @@ cmpd_stmt::~cmpd_stmt() {
 	}
 }
 
+question* find_in_question_list(string name);
 extern vector <question*> question_list;
 question* find_in_question_list(string name){
 	for(int i=0; i<question_list.size(); ++i){
