@@ -205,9 +205,24 @@ void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & co
 		print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
 		code_expr <<  "error\n";
 	}else {
-		l_op->print_expr(code_bef_expr, code_expr);
-		code_expr << " /* oper_assgn */ = ";
-		r_op->print_expr(code_bef_expr, code_expr);
+		if(l_op->type==QUESTION_TYPE){
+			un2_expr* lhs= static_cast<un2_expr*>(l_op);
+			const symtab_ent * symp = lhs->get_symp_ptr();
+			question* q = find_in_question_list(symp->name);
+			code_expr << q->name << "->input_data.clear();" << endl;
+			code_expr << q->name << "->input_data.insert(";
+			r_op->print_expr(code_bef_expr, code_expr);
+			code_expr << ") " ;
+			cerr << "WARNING : line: " << __LINE__ 
+				<< ", file: " << "__FILE__"
+				<< " put range check on allowed codes" 
+				<< endl;
+
+		} else {
+			l_op->print_expr(code_bef_expr, code_expr);
+			code_expr << " /* oper_assgn */ = ";
+			r_op->print_expr(code_bef_expr, code_expr);
+		}
 	}
 }
 
@@ -409,29 +424,54 @@ un2_expr::~un2_expr(){
 	//if(symp) { delete symp; symp=0; }
 }
 
-bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):expr(letype), l_op(llop), r_op(lrop){
-
-	if (e_type!=oper_assgn && (l_op->e_type==oper_blk_arr_assgn||r_op->e_type==oper_blk_arr_assgn)){
+bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):
+	expr(letype), l_op(llop), r_op(lrop){
+	if (e_type!=oper_assgn && 
+		(l_op->e_type==oper_blk_arr_assgn
+		 	||r_op->e_type==oper_blk_arr_assgn)){
 		type=ERROR_TYPE;
 		++no_errors;
-		print_err(compiler_sem_err, "error: oper_blk_arr_assgn: used in binary expr ",
-				line_no, __LINE__, __FILE__);
+		print_err(compiler_sem_err, 
+			"error: oper_blk_arr_assgn: used in binary expr ",
+			line_no, __LINE__, __FILE__);
 	} else if (e_type ==oper_assgn){
 		if( (!l_op->is_lvalue()) ){
 			type=ERROR_TYPE;
 			++no_errors;
-			print_err(compiler_sem_err, "oper_assgn error: lhs of assignment should be lvalue ", 
+			print_err(compiler_sem_err, 
+				"oper_assgn error: lhs of \
+				assignment should be lvalue ", 
 				line_no, __LINE__, __FILE__);
 		}
 		datatype typ1=l_op->type;
 		datatype typ2=r_op->type;
 		if(!void_check(l_op->type, r_op->type, type)){
-			print_err(compiler_sem_err, "oper_assgn error: operand data types on lhs and rhs should be of non-VOID type", 
+			print_err(compiler_sem_err, 
+				"oper_assgn error: operand data types on \
+				lhs and rhs should be of non-VOID type", 
 				line_no, __LINE__, __FILE__);
 			type = ERROR_TYPE;
 			++no_errors;
 		}
-		if(!check_type_compat(typ1, typ2)){
+		if(typ1==QUESTION_TYPE){
+			un2_expr* lhs= static_cast<un2_expr*>(l_op);
+			const symtab_ent * symp = lhs->get_symp_ptr();
+			//cerr << "Question name: " << symp->name << endl;
+			question* q = find_in_question_list(symp->name);
+			if(!q) {
+				stringstream s;
+				s << "Question not found in symbol table after parsing input" << endl;
+				print_err(compiler_internal_error, s.str(), 
+					line_no, __LINE__, __FILE__);
+			} else {
+				if(q->q_type!=spn){
+					stringstream s;
+					s << "Direct assignment to question only allowed for SPN question_type" << endl;
+					print_err(compiler_internal_error, s.str(), 
+						line_no, __LINE__, __FILE__);
+				} 
+			}
+		} else if(!check_type_compat(typ1, typ2)){
 			type = ERROR_TYPE;
 			stringstream s;
 			s << "oper_assgn error: operand data types on lhs and rhs should be compatible, ";
@@ -479,8 +519,9 @@ un2_expr::un2_expr( struct symtab_ent * lsymp):
 
 map<string, symtab_ent*>::iterator find_in_symtab(string id);
 un2_expr::un2_expr(char* ltxt, e_operator_type le_type): 
-	expr(le_type, INT8_TYPE), symp(0), isem_value(0), dsem_value(0), func_index_in_table(-1), 
-	text(ltxt), column_no(-1), operand(0), operand2(0) {
+	expr(le_type, INT8_TYPE), symp(0), isem_value(0), dsem_value(0), 
+	func_index_in_table(-1), text(ltxt), column_no(-1), 
+	operand(0), operand2(0) {
 	if(e_type==oper_text_expr){
 		type=STRING_TYPE;
 		//free(ltxt);
@@ -565,7 +606,9 @@ un2_expr::un2_expr(e_operator_type le_type, /* datatype dt, struct symtab_ent * 
 				datatype d1=arr_deref_type(se->type);
 				if(d1==ERROR_TYPE){
 					std::stringstream s;
-					s << "ERROR: Block Array assignment expr Variable: " << name << " being indexed not of Array Type : Error: lineno: " << line_no << "\n";
+					s << "ERROR: Block Array assignment expr Variable: " 
+						<< name << " being indexed not of Array Type : Error: lineno: " 
+						<< line_no << "\n";
 					print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 				} else {
 

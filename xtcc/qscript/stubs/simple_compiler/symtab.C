@@ -145,6 +145,8 @@ string human_readable_type(datatype dt){
 		case DOUBLE_REF_TYPE:
 			s="DOUBLE_REF_TYPE";
 		break;	
+		case QUESTION_TYPE:
+			s="QUESTION_TYPE";
 		default:
 		;
 	}

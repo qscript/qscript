@@ -147,7 +147,7 @@
 
 
 prog: stmt_list {
-		cerr << "prog: finished parse";
+		cerr << "prog: finished parse" << endl;
 		tree_root=$1;
 		while(tree_root->prev) 
 			tree_root=tree_root->prev;
@@ -185,9 +185,11 @@ datatype: VOID_T
 decl_stmt: datatype NAME ';' {
 		$$ = active_scope->insert($2, $1/*, line_no*/);
 		//free($2);
+		// -- why am i not freeing this?
 	}
 	| datatype NAME '=' expression ';'{
 		$$ = active_scope->insert($2, $1, $4);
+		// -- why am i not freeing this?
 	}
 	| datatype NAME '[' expression ']' ';'{
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
@@ -322,6 +324,12 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		// questions always get pushed in scope level 0 as they
 		// are global variables - no matter what the level of nesting
 		active_scope_list[0]->insert($1, QUESTION_TYPE);
+		// I need to modify the insert in scope to
+		// take a 3rd parameter which is a question *
+		// and store that into the symbol table
+		// I should be able to retrieve that 
+		// question* pointer later 
+
 	}
 	| NAME TEXT qtype datatype NAME ';' {
 		string name=$1;

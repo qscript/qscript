@@ -1331,7 +1331,7 @@ yyreduce:
   case 6:
 #line 37 "data_entry.y"
     {
-	      data.push_back((yyvsp[(1) - (3)].ival));
+		data.push_back((yyvsp[(1) - (3)].ival));
 		for(int i=data[data.size()-1]+1; i<=(yyvsp[(3) - (3)].ival); ++i){
 			data.push_back(i);
 		}

@@ -41,10 +41,10 @@ xtcc_set xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
-range_question * q2 = new range_question(QUESTION_TYPE, 10,string(" q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
+range_question * q2 = new range_question(QUESTION_TYPE, 11,string(" q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
 question_list.push_back(q2);
 // named_stub_question::generate_code() : to be implemented
-named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 11,string(" q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
+named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 12,string(" q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
 question_list.push_back(q3);
 
 	int ser_no;
@@ -97,6 +97,8 @@ int8_t var2=7*var1;
 	} temp_1;
 bool temp_2 = temp_1.contains_subset(q1->input_data);
 if (temp_2 ){
+q1->input_data.clear();
+q1->input_data.insert(3) ;
 		q2->eval();
 		q3->eval();
 }

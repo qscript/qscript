@@ -35,7 +35,7 @@ data: NUMBER	{
 	      data.push_back($1);
 	}
 	| NUMBER HYPHEN NUMBER {
-	      data.push_back($1);
+		data.push_back($1);
 		for(int i=data[data.size()-1]+1; i<=$3; ++i){
 			data.push_back(i);
 		}

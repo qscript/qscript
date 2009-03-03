@@ -191,3 +191,12 @@ cmpd_stmt::~cmpd_stmt() {
 	}
 }
 
+extern vector <question*> question_list;
+question* find_in_question_list(string name){
+	for(int i=0; i<question_list.size(); ++i){
+		if(question_list[i]->name==name){
+			return question_list[i];
+		}
+	}
+	return 0;
+}
