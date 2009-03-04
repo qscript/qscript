@@ -1,3 +1,9 @@
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/named_range.C
+ *
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
+
 #include "named_range.h"
 #include <iostream>
 

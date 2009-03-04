@@ -1,3 +1,8 @@
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/stub_pair.h
+ *
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
 #ifndef xtcc_stub_pair_h
 
 #define xtcc_stub_pair_h

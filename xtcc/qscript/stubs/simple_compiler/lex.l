@@ -1,3 +1,10 @@
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/lex.l
+ *
+ * lex tokenizer for the grammar
+ *
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
 
 %{
 #include "const_defs.h"

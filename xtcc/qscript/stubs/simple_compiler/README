@@ -1,0 +1,17 @@
+This is a demo of the qscript compiler. It creates a file called test_script.c 
+The input data entry program should then be compiled after this point
+
+Step 1:
+	make
+		-> ouput will be simple_compiler
+Step 2:
+	simple_compiler -f inp	
+		-> ouput will be test_script.c
+
+Step 3:
+	make -f QScriptMakefile
+		-> ouput will be test_script
+		step 3 uses test_script.c and re-uses certain *.o files to create test_script which can be executed
+
+	
+

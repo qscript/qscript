@@ -1,3 +1,9 @@
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/named_attributes.h
+ *
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
+
 #ifndef xtcc_named_attributes_h
 #define xtcc_named_attributes_h
 

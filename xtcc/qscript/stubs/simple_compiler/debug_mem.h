@@ -1,3 +1,10 @@
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/debug_mem.h
+ *
+ *  memory leak support functions and structures
+ *
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
 #ifndef xtcc_debug_mem_h
 #define xtcc_debug_mem_h
 struct mem_addr_tab{

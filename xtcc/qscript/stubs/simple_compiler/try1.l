@@ -1,3 +1,9 @@
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/try1.l
+ *
+ * tokenizer for the data entry command line - this file should be named better 
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
 %{
 #include <string>
 #include <iostream>
