@@ -225,7 +225,10 @@ void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & co
 			//r_op->print_expr(code_bef_expr, code_expr);
 			code_expr << tmp_name ;
 			code_expr << ") ; " << endl ;
-			code_expr << "}";
+			code_expr << "} else {";
+			code_expr << "cerr << \"runtime error - value assigned to question: \" << \"" 
+				<< q->name << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
+			code_expr << "}" << endl;
 			cerr << "WARNING : line: " << __LINE__ 
 				<< ", file: " << "__FILE__"
 				<< " put range check on allowed codes" 

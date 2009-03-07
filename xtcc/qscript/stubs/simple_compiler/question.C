@@ -63,7 +63,7 @@ void range_question::eval(){
 		cout << "data.size(): " << data.size() << endl;
 		for(int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
-			if (is_valid(data[i])){
+			if (!is_valid(data[i])){
 				invalid_code=true;
 				prompt = "Input contained some invalid data\nRe-enter Data\n";
 				data.clear();
@@ -104,10 +104,10 @@ bool named_stub_question::is_valid(int value){
 	vector<stub_pair> vec= *stub_ptr;
 	for (int j=0; j<vec.size(); ++j){
 		if(vec[j].code==value){
-			return false;
+			return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 void named_stub_question::eval(){
@@ -135,8 +135,10 @@ void named_stub_question::eval(){
 			}
 			*/
 			//if(invalid_code==true)
-			if(!is_valid(data[i])){
+			invalid_code=!is_valid(data[i]);
+			if(invalid_code==true){
 				prompt = "Input contained some invalid data\nRe-enter Data\n";
+				//invalid_code=false;
 				data.clear();
 				break;
 			}

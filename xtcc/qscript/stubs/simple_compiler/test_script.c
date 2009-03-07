@@ -97,11 +97,13 @@ int8_t var2=7*var1;
 	} temp_1;
 bool temp_2 = temp_1.contains_subset(q1->input_data);
 if (temp_2 ){
-int32_t temp_3=3;
+int32_t temp_3=5;
 if ( q1->is_valid(temp_3)) {
 q1->input_data.clear();
 q1->input_data.insert(temp_3) ; 
-};
+} else {cerr << "runtime error - value assigned to question: " << "q1" << " is not in allowed range: " <<temp_3 << endl; 
+}
+;
 		q2->eval();
 		q3->eval();
 }
