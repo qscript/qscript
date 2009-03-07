@@ -20,6 +20,7 @@ struct question: public stmt {
 		datatype l_dt /*, xtcc_set& l_r_data*/);
 	virtual void generate_code(ostringstream & quest_defns, ostringstream& program_code)=0;
 	virtual void eval()=0;
+	virtual bool is_valid(int value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 };
@@ -34,6 +35,7 @@ struct range_question: public question {
 		xtcc_set& l_r_data);
 
 	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	virtual bool is_valid(int value);
 	void eval();
 };
 
@@ -53,6 +55,7 @@ class named_stub_question: public question {
 		vector<stub_pair> * l_stub_ptr);
 	//void print_stmt_lst(FILE * & fptr);
 	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	virtual bool is_valid(int value);
 	void eval();
 };
 

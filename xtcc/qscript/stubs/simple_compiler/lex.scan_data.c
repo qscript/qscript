@@ -454,7 +454,13 @@ int scan_data_flex_debug = 0;
 #define YY_RESTORE_YY_MORE_OFFSET
 char *scan_datatext;
 #line 1 "try1.l"
-#line 2 "try1.l"
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/try1.l
+ *
+ * tokenizer for the data entry command line - this file should be named better 
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
+#line 8 "try1.l"
 #include <string>
 #include <iostream>
 #include "data_entry.tab.h"
@@ -467,7 +473,7 @@ char *scan_datatext;
 	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
 	int scan_datalex();
 	int scan_dataparse();
-#line 471 "lex.scan_data.c"
+#line 477 "lex.scan_data.c"
 
 #define INITIAL 0
 
@@ -620,9 +626,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 19 "try1.l"
+#line 25 "try1.l"
 
-#line 626 "lex.scan_data.c"
+#line 632 "lex.scan_data.c"
 
 	if ( !(yy_init) )
 		{
@@ -707,12 +713,12 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 20 "try1.l"
+#line 26 "try1.l"
 ;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 22 "try1.l"
+#line 28 "try1.l"
 {
 	scan_datalval.ival = atoi(scan_datatext);
 	return NUMBER;
@@ -720,7 +726,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 27 "try1.l"
+#line 33 "try1.l"
 {
 	return HYPHEN;
 }
@@ -731,7 +737,7 @@ YY_RULE_SETUP
 	}*/
 case 4:
 YY_RULE_SETUP
-#line 36 "try1.l"
+#line 42 "try1.l"
 {
 	cerr << "ERROR: running ECHO rule" << endl;
 	ECHO;
@@ -740,10 +746,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 43 "try1.l"
+#line 49 "try1.l"
 ECHO;
 	YY_BREAK
-#line 747 "lex.scan_data.c"
+#line 753 "lex.scan_data.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1710,7 +1716,7 @@ void scan_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 43 "try1.l"
+#line 49 "try1.l"
 
 
 

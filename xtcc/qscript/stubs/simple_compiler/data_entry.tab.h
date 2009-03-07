@@ -52,7 +52,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 13 "data_entry.y"
+#line 20 "data_entry.y"
 {
 	int ival;
 }

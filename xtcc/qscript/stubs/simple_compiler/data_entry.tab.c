@@ -86,7 +86,7 @@
 
 
 /* Copy the first part of user declarations.  */
-#line 2 "data_entry.y"
+#line 9 "data_entry.y"
 
 #include <vector>
 	using std::vector;
@@ -118,7 +118,7 @@ using namespace std;
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 13 "data_entry.y"
+#line 20 "data_entry.y"
 {
 	int ival;
 }
@@ -418,7 +418,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    25,    25,    30,    31,    34,    37
+       0,    32,    32,    37,    38,    41,    44
 };
 #endif
 
@@ -1315,21 +1315,21 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 25 "data_entry.y"
+#line 32 "data_entry.y"
     {
 		cout << "GOT END_OF_DATA" << endl;
 	;}
     break;
 
   case 5:
-#line 34 "data_entry.y"
+#line 41 "data_entry.y"
     {
 	      data.push_back((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
   case 6:
-#line 37 "data_entry.y"
+#line 44 "data_entry.y"
     {
 		data.push_back((yyvsp[(1) - (3)].ival));
 		for(int i=data[data.size()-1]+1; i<=(yyvsp[(3) - (3)].ival); ++i){
@@ -1554,7 +1554,7 @@ yyreturn:
 }
 
 
-#line 44 "data_entry.y"
+#line 51 "data_entry.y"
 
 
 	void scan_dataerror(char *s){

@@ -94,25 +94,25 @@ string human_readable_type(datatype dt){
 	string s="UNKNOWN TYPE";
 	switch(dt){
 		case STRING_TYPE:
-			s="STRING_TYPE";
+			s="string";
 		break;
 		case VOID_TYPE:
-			s= "VOID_TYPE";
+			s= "void";
 		break;	
 		case INT8_TYPE:
-			s= "INT8_TYPE";
+			s= "int8_t";
 		break;	
 		case INT16_TYPE:
-			s = "INT16_TYPE";
+			s = "int16_t";
 		break;
 		case INT32_TYPE:
-			s = "INT32_TYPE";
+			s = "int32_t";
 		break;	
 		case FLOAT_TYPE:
-			s = "FLOAT_TYPE";
+			s = "float";
 		break;	
 		case DOUBLE_TYPE:
-			s = "DOUBLE_TYPE";
+			s = "double";
 		break;	
 		case INT8_ARR_TYPE:
 			s = "INT8_ARR_TYPE";
@@ -130,19 +130,19 @@ string human_readable_type(datatype dt){
 			s="DOUBLE_ARR_TYPE";
 		break;	
 		case INT8_REF_TYPE:
-			s="INT8_REF_TYPE";
+			s="int8_t &";
 		break;	
 		case INT16_REF_TYPE:
-			s="INT16_REF_TYPE";
+			s="int16_type &";
 		break;	
 		case INT32_REF_TYPE:
-			s="INT32_REF_TYPE";
+			s="int32_t &";
 		break;	
 		case FLOAT_REF_TYPE:
-			s="FLOAT_REF_TYPE";
+			s="float &";
 		break;	
 		case DOUBLE_REF_TYPE:
-			s="DOUBLE_REF_TYPE";
+			s="double_t &";
 		break;	
 		case QUESTION_TYPE:
 			s="QUESTION_TYPE";

@@ -34,6 +34,7 @@
 //#include "../../qscript/trunk/named_range.h"
 #include "named_range.h"
 question* find_in_question_list(string name);
+string get_temp_name();
 
 extern scope* active_scope;
 extern ofstream debug_log_file;
@@ -143,6 +144,7 @@ void un_expr::print_expr (ostringstream& code_bef_expr, ostringstream & code_exp
 	}
 }
 
+string human_readable_type(datatype dt);
 void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr){
 	if(r_op->e_type == oper_blk_arr_assgn &&
 		( l_op->e_type==oper_name||l_op->e_type==oper_arrderef)){
@@ -210,10 +212,20 @@ void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & co
 			un2_expr* lhs= static_cast<un2_expr*>(l_op);
 			const symtab_ent * symp = lhs->get_symp_ptr();
 			question* q = find_in_question_list(symp->name);
+			string cpp_data_type=human_readable_type(q->dt);
+			string tmp_name = get_temp_name();
+			
+			code_expr << cpp_data_type << " " << tmp_name << "=";
+			r_op->print_expr(code_bef_expr, code_expr);
+			code_expr << ";" << endl;
+			code_expr << "if ( " << q->name << "->is_valid("<<  tmp_name
+				<<  ")) {" << endl; 
 			code_expr << q->name << "->input_data.clear();" << endl;
 			code_expr << q->name << "->input_data.insert(";
-			r_op->print_expr(code_bef_expr, code_expr);
-			code_expr << ") " ;
+			//r_op->print_expr(code_bef_expr, code_expr);
+			code_expr << tmp_name ;
+			code_expr << ") ; " << endl ;
+			code_expr << "}";
 			cerr << "WARNING : line: " << __LINE__ 
 				<< ", file: " << "__FILE__"
 				<< " put range check on allowed codes" 
@@ -796,7 +808,6 @@ void bin2_expr::print_expr (FILE * edit_out){
 }
 #endif /* 0 */
 
-string get_temp_name();
 void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_expr){
 
 	fprintf(stderr, "bin2_expr::print_expr()\n");

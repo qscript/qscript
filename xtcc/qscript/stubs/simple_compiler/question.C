@@ -39,6 +39,11 @@ range_question::range_question(datatype this_stmt_type, int line_number,
 int scan_datalex();
 int scan_dataparse();
 extern vector<int> data;
+
+bool range_question::is_valid(int value){
+	return (r_data->exists(value))? true: false;
+}
+
 void range_question::eval(){
 	cout << name << "." << text << endl << endl;
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
@@ -58,7 +63,7 @@ void range_question::eval(){
 		cout << "data.size(): " << data.size() << endl;
 		for(int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
-			if (!r_data->exists(data[i])){
+			if (is_valid(data[i])){
 				invalid_code=true;
 				prompt = "Input contained some invalid data\nRe-enter Data\n";
 				data.clear();
@@ -95,6 +100,16 @@ void range_question::eval(){
 	//}
 }
 
+bool named_stub_question::is_valid(int value){
+	vector<stub_pair> vec= *stub_ptr;
+	for (int j=0; j<vec.size(); ++j){
+		if(vec[j].code==value){
+			return false;
+		}
+	}
+	return true;
+}
+
 void named_stub_question::eval(){
 	cout << name << "." << text << endl << endl;
 	vector<stub_pair> vec= *stub_ptr;
@@ -112,20 +127,15 @@ void named_stub_question::eval(){
 		for(int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
 			/*
-			if (!r_data->exists(data[i])){
-				invalid_code=true;
-				prompt = "Input contained some invalid data\nRe-enter Data\n";
-				data.clear();
-				break;
-			}
-			*/
 			for (int j=0; j<vec.size(); ++j){
 				if(vec[j].code==data[i]){
 					invalid_code=false;
 					break;
 				}
 			}
-			if(invalid_code==true){
+			*/
+			//if(invalid_code==true)
+			if(!is_valid(data[i])){
 				prompt = "Input contained some invalid data\nRe-enter Data\n";
 				data.clear();
 				break;
