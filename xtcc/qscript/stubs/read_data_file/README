@@ -1,0 +1,12 @@
+12-mar-2009
+stub program to read a data file
+this will later be embedded into the qscript classes to read a datafile from disk if a particular serial number was already entered previously and now needs to be edited
+
+BUILD INTRUCTIONS:
+$ make
+
+	output-> read_data
+
+TEST INTRUCTIONS:
+$ ./read_data < j_1001_1.dat 
+	where j_1001_1.dat is a datafile created by qscript
