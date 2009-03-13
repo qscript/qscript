@@ -87,6 +87,12 @@
 #include <iostream>
 	using namespace std;
 #include "const_defs.h"
+#include "question_disk_data.h"
+#include <vector>
+
+	
+	vector<int> data;
+	vector <question_disk_data*> qdd_list;
 	int yylex();
 	int no_errors;
 	void yyerror(const char * s);
@@ -112,14 +118,14 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 12 "qscript_data.y"
+#line 18 "qscript_data.y"
 {
 	int ival;
 	double dval;
 	char name[MY_STR_MAX];
 }
 /* Line 187 of yacc.c.  */
-#line 123 "qscript_data.tab.c"
+#line 129 "qscript_data.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -132,7 +138,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 136 "qscript_data.tab.c"
+#line 142 "qscript_data.tab.c"
 
 #ifdef short
 # undef short
@@ -345,18 +351,18 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  5
+#define YYFINAL  6
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   8
+#define YYLAST   7
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  7
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  4
+#define YYNNTS  5
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  7
+#define YYNRULES  8
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  12
+#define YYNSTATES  13
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -402,21 +408,21 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     8,    13,    17,    19
+       0,     0,     3,     5,     7,    10,    15,    19,    21
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-       8,     0,    -1,     9,    -1,     8,     9,    -1,     3,     4,
-      10,     6,    -1,     3,     4,     6,    -1,     5,    -1,    10,
-       5,    -1
+       8,     0,    -1,     9,    -1,    10,    -1,     9,    10,    -1,
+       3,     4,    11,     6,    -1,     3,     4,     6,    -1,     5,
+      -1,    11,     5,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    25,    25,    26,    29,    32,    37,    39
+       0,    31,    31,    35,    36,    39,    52,    61,    64
 };
 #endif
 
@@ -426,7 +432,7 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "NAME", "COLON", "INUMBER", "NEWL",
-  "$accept", "question_list", "question", "numberlist", 0
+  "$accept", "program", "question_list", "question", "numberlist", 0
 };
 #endif
 
@@ -442,13 +448,13 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,     7,     8,     8,     9,     9,    10,    10
+       0,     7,     8,     9,     9,    10,    10,    11,    11
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     2,     4,     3,     1,     2
+       0,     2,     1,     1,     2,     4,     3,     1,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -456,29 +462,29 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     2,     0,     1,     3,     6,     5,     0,
-       7,     4
+       0,     0,     0,     2,     3,     0,     1,     4,     7,     6,
+       0,     8,     5
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,     9
+      -1,     2,     3,     4,    10
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -5
+#define YYPACT_NINF -6
 static const yytype_int8 yypact[] =
 {
-       3,     4,     0,    -5,    -4,    -5,    -5,    -5,    -5,    -1,
-      -5,    -5
+       1,     2,     5,     1,    -6,    -5,    -6,    -6,    -6,    -6,
+      -3,    -6,    -6
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -5,    -5,     5,    -5
+      -6,    -6,    -6,     4,    -6
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -488,20 +494,20 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       5,     7,     8,     1,    10,    11,     1,     6,     4
+       8,     9,    11,    12,     1,     6,     5,     7
 };
 
 static const yytype_uint8 yycheck[] =
 {
-       0,     5,     6,     3,     5,     6,     3,     2,     4
+       5,     6,     5,     6,     3,     0,     4,     3
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     8,     9,     4,     0,     9,     5,     6,    10,
-       5,     6
+       0,     3,     8,     9,    10,     4,     0,    10,     5,     6,
+      11,     5,     6
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1315,29 +1321,58 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 4:
-#line 29 "qscript_data.y"
+        case 2:
+#line 31 "qscript_data.y"
     {
-	cout << "got question" << endl;
+	return no_errors;
 	;}
     break;
 
   case 5:
-#line 32 "qscript_data.y"
+#line 39 "qscript_data.y"
     {
-	cout << "got empty question" << endl;
+		//cout << "data<int>[]: ";
+		for(int i=0; i<data.size(); ++i){
+			cout << data[i] << " ";
+		}
+		cout << "data.capacity(): " << data.capacity() << endl;
+		cout <<endl;
+		//cout << "got question" << endl;
+		string qno((yyvsp[(1) - (4)].name));
+		question_disk_data * qdd = new question_disk_data(qno, data);
+		qdd_list.push_back(qdd);
+		data.clear();
 	;}
     break;
 
   case 6:
-#line 37 "qscript_data.y"
+#line 52 "qscript_data.y"
     {
+		//cout << "got empty question" << endl;
+		string qno((yyvsp[(1) - (3)].name));
+		question_disk_data * qdd = new question_disk_data(qno);
+		qdd_list.push_back(qdd);
+		data.clear();
+	;}
+    break;
+
+  case 7:
+#line 61 "qscript_data.y"
+    {
+		    data.push_back((yyvsp[(1) - (1)].ival));
+	;}
+    break;
+
+  case 8:
+#line 64 "qscript_data.y"
+    {
+		    data.push_back((yyvsp[(2) - (2)].ival));
 	;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1341 "qscript_data.tab.c"
+#line 1376 "qscript_data.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1551,10 +1586,24 @@ yyreturn:
 }
 
 
-#line 43 "qscript_data.y"
+#line 70 "qscript_data.y"
 
 
 int main(){
-	return yyparse();
+	data.reserve(50);
+	qdd_list.reserve(100);
+	if(!yyparse()&& !no_errors){
+		for(int i=0; i< qdd_list.size(); ++i){
+			cout << qdd_list[i]->qno << endl;
+			cout  << ":" << qdd_list[i]->data.size() << endl;
+			for(int j=0; j<qdd_list[i]->data.size(); ++j){
+				cout << qdd_list[i]->data[j] << " ";
+			}
+			cout << endl;
+		}
+	}  else {
+		cout << "errors in parse: " << no_errors;
+		return 1;
+	}
 }
 

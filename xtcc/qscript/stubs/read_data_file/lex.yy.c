@@ -705,7 +705,7 @@ YY_RULE_SETUP
 #line 16 "qscript_data.l"
 {
 	yylval.ival = atoi(yytext);
-	cout << "got INUMBER" << endl; 
+	//cout << "got INUMBER" << endl; 
 	return INUMBER;
 }
 	YY_BREAK
@@ -714,7 +714,7 @@ case 2:
 YY_RULE_SETUP
 #line 22 "qscript_data.l"
 {
-	cout << "got NEWL" << endl;
+	//cout << "got NEWL" << endl;
 	return NEWL;
 }
 	YY_BREAK
@@ -722,7 +722,7 @@ case 3:
 YY_RULE_SETUP
 #line 27 "qscript_data.l"
 {
-	cout << "got COLON" << endl;
+	//cout << "got COLON" << endl;
 	return COLON;
 }
 	YY_BREAK
@@ -737,10 +737,10 @@ YY_RULE_SETUP
 {
 	if(yyleng < MY_STR_MAX) {
 		strcpy(yylval.name,yytext);
-		cout << "got name" << endl;
+		//cout << "got name" << endl;
 		return NAME;
 	} else {
-		printf("TEXT TOKEN too long... exiting lexer\n");
+		//printf("TEXT TOKEN too long... exiting lexer\n");
 		exit(1);
 	}
 }

@@ -15,17 +15,17 @@
 
 [0-9]+	{
 	yylval.ival = atoi(yytext);
-	cout << "got INUMBER" << endl; 
+	//cout << "got INUMBER" << endl; 
 	return INUMBER;
 }
 
 \n {
-	cout << "got NEWL" << endl;
+	//cout << "got NEWL" << endl;
 	return NEWL;
 }
 
 ":"	{
-	cout << "got COLON" << endl;
+	//cout << "got COLON" << endl;
 	return COLON;
 }
 
@@ -34,10 +34,10 @@
 [_A-Za-z][A-Za-z0-9_]*	{
 	if(yyleng < MY_STR_MAX) {
 		strcpy(yylval.name,yytext);
-		cout << "got name" << endl;
+		//cout << "got name" << endl;
 		return NAME;
 	} else {
-		printf("TEXT TOKEN too long... exiting lexer\n");
+		//printf("TEXT TOKEN too long... exiting lexer\n");
 		exit(1);
 	}
 }
