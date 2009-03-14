@@ -1,5 +1,5 @@
 
-#line 3 "lex.yy.c"
+#line 3 "lex.read_disk_data.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -133,7 +133,7 @@ typedef unsigned int flex_uint32_t;
 #define YY_STATE_EOF(state) (YY_END_OF_BUFFER + state + 1)
 
 /* Special action meaning "start processing a new file". */
-#define YY_NEW_FILE yyrestart(yyin  )
+#define YY_NEW_FILE read_disk_datarestart(read_disk_datain  )
 
 #define YY_END_OF_BUFFER_CHAR 0
 
@@ -151,9 +151,9 @@ typedef unsigned int flex_uint32_t;
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
 #endif
 
-extern int yyleng;
+extern int read_disk_dataleng;
 
-extern FILE *yyin, *yyout;
+extern FILE *read_disk_datain, *read_disk_dataout;
 
 #define EOB_ACT_CONTINUE_SCAN 0
 #define EOB_ACT_END_OF_FILE 1
@@ -165,13 +165,13 @@ extern FILE *yyin, *yyout;
 #define yyless(n) \
 	do \
 		{ \
-		/* Undo effects of setting up yytext. */ \
+		/* Undo effects of setting up read_disk_datatext. */ \
         int yyless_macro_arg = (n); \
         YY_LESS_LINENO(yyless_macro_arg);\
 		*yy_cp = (yy_hold_char); \
 		YY_RESTORE_YY_MORE_OFFSET \
 		(yy_c_buf_p) = yy_cp = yy_bp + yyless_macro_arg - YY_MORE_ADJ; \
-		YY_DO_BEFORE_ACTION; /* set up yytext again */ \
+		YY_DO_BEFORE_ACTION; /* set up read_disk_datatext again */ \
 		} \
 	while ( 0 )
 
@@ -244,8 +244,8 @@ struct yy_buffer_state
 	 * possible backing-up.
 	 *
 	 * When we actually see the EOF, we change the status to "new"
-	 * (via yyrestart()), so that the user can continue scanning by
-	 * just pointing yyin at a new input file.
+	 * (via read_disk_datarestart()), so that the user can continue scanning by
+	 * just pointing read_disk_datain at a new input file.
 	 */
 #define YY_BUFFER_EOF_PENDING 2
 
@@ -272,51 +272,51 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
  */
 #define YY_CURRENT_BUFFER_LVALUE (yy_buffer_stack)[(yy_buffer_stack_top)]
 
-/* yy_hold_char holds the character lost when yytext is formed. */
+/* yy_hold_char holds the character lost when read_disk_datatext is formed. */
 static char yy_hold_char;
 static int yy_n_chars;		/* number of characters read into yy_ch_buf */
-int yyleng;
+int read_disk_dataleng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = (char *) 0;
 static int yy_init = 0;		/* whether we need to initialize */
 static int yy_start = 0;	/* start state number */
 
-/* Flag which is used to allow yywrap()'s to do buffer switches
- * instead of setting up a fresh yyin.  A bit of a hack ...
+/* Flag which is used to allow read_disk_datawrap()'s to do buffer switches
+ * instead of setting up a fresh read_disk_datain.  A bit of a hack ...
  */
 static int yy_did_buffer_switch_on_eof;
 
-void yyrestart (FILE *input_file  );
-void yy_switch_to_buffer (YY_BUFFER_STATE new_buffer  );
-YY_BUFFER_STATE yy_create_buffer (FILE *file,int size  );
-void yy_delete_buffer (YY_BUFFER_STATE b  );
-void yy_flush_buffer (YY_BUFFER_STATE b  );
-void yypush_buffer_state (YY_BUFFER_STATE new_buffer  );
-void yypop_buffer_state (void );
+void read_disk_datarestart (FILE *input_file  );
+void read_disk_data_switch_to_buffer (YY_BUFFER_STATE new_buffer  );
+YY_BUFFER_STATE read_disk_data_create_buffer (FILE *file,int size  );
+void read_disk_data_delete_buffer (YY_BUFFER_STATE b  );
+void read_disk_data_flush_buffer (YY_BUFFER_STATE b  );
+void read_disk_datapush_buffer_state (YY_BUFFER_STATE new_buffer  );
+void read_disk_datapop_buffer_state (void );
 
-static void yyensure_buffer_stack (void );
-static void yy_load_buffer_state (void );
-static void yy_init_buffer (YY_BUFFER_STATE b,FILE *file  );
+static void read_disk_dataensure_buffer_stack (void );
+static void read_disk_data_load_buffer_state (void );
+static void read_disk_data_init_buffer (YY_BUFFER_STATE b,FILE *file  );
 
-#define YY_FLUSH_BUFFER yy_flush_buffer(YY_CURRENT_BUFFER )
+#define YY_FLUSH_BUFFER read_disk_data_flush_buffer(YY_CURRENT_BUFFER )
 
-YY_BUFFER_STATE yy_scan_buffer (char *base,yy_size_t size  );
-YY_BUFFER_STATE yy_scan_string (yyconst char *yy_str  );
-YY_BUFFER_STATE yy_scan_bytes (yyconst char *bytes,int len  );
+YY_BUFFER_STATE read_disk_data_scan_buffer (char *base,yy_size_t size  );
+YY_BUFFER_STATE read_disk_data_scan_string (yyconst char *yy_str  );
+YY_BUFFER_STATE read_disk_data_scan_bytes (yyconst char *bytes,int len  );
 
-void *yyalloc (yy_size_t  );
-void *yyrealloc (void *,yy_size_t  );
-void yyfree (void *  );
+void *read_disk_dataalloc (yy_size_t  );
+void *read_disk_datarealloc (void *,yy_size_t  );
+void read_disk_datafree (void *  );
 
-#define yy_new_buffer yy_create_buffer
+#define yy_new_buffer read_disk_data_create_buffer
 
 #define yy_set_interactive(is_interactive) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){ \
-        yyensure_buffer_stack (); \
+        read_disk_dataensure_buffer_stack (); \
 		YY_CURRENT_BUFFER_LVALUE =    \
-            yy_create_buffer(yyin,YY_BUF_SIZE ); \
+            read_disk_data_create_buffer(read_disk_datain,YY_BUF_SIZE ); \
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_is_interactive = is_interactive; \
 	}
@@ -324,9 +324,9 @@ void yyfree (void *  );
 #define yy_set_bol(at_bol) \
 	{ \
 	if ( ! YY_CURRENT_BUFFER ){\
-        yyensure_buffer_stack (); \
+        read_disk_dataensure_buffer_stack (); \
 		YY_CURRENT_BUFFER_LVALUE =    \
-            yy_create_buffer(yyin,YY_BUF_SIZE ); \
+            read_disk_data_create_buffer(read_disk_datain,YY_BUF_SIZE ); \
 	} \
 	YY_CURRENT_BUFFER_LVALUE->yy_at_bol = at_bol; \
 	}
@@ -335,15 +335,18 @@ void yyfree (void *  );
 
 /* Begin user sect3 */
 
+#define read_disk_datawrap(n) 1
+#define YY_SKIP_YYWRAP
+
 typedef unsigned char YY_CHAR;
 
-FILE *yyin = (FILE *) 0, *yyout = (FILE *) 0;
+FILE *read_disk_datain = (FILE *) 0, *read_disk_dataout = (FILE *) 0;
 
 typedef int yy_state_type;
 
-extern int yylineno;
-extern char *yytext;
-#define yytext_ptr yytext
+extern int read_disk_datalineno;
+extern char *read_disk_datatext;
+#define yytext_ptr read_disk_datatext
 
 static yy_state_type yy_get_previous_state (void );
 static yy_state_type yy_try_NUL_trans (yy_state_type current_state  );
@@ -351,11 +354,11 @@ static int yy_get_next_buffer (void );
 static void yy_fatal_error (yyconst char msg[]  );
 
 /* Done after the current pattern has been matched and before the
- * corresponding action - sets up yytext.
+ * corresponding action - sets up read_disk_datatext.
  */
 #define YY_DO_BEFORE_ACTION \
 	(yytext_ptr) = yy_bp; \
-	yyleng = (size_t) (yy_cp - yy_bp); \
+	read_disk_dataleng = (size_t) (yy_cp - yy_bp); \
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
@@ -439,8 +442,8 @@ static yyconst flex_int16_t yy_chk[19] =
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
 
-extern int yy_flex_debug;
-int yy_flex_debug = 0;
+extern int read_disk_data_flex_debug;
+int read_disk_data_flex_debug = 0;
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -449,7 +452,7 @@ int yy_flex_debug = 0;
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
-char *yytext;
+char *read_disk_datatext;
 #line 1 "qscript_data.l"
 #line 2 "qscript_data.l"
 
@@ -457,11 +460,11 @@ char *yytext;
 #include "qscript_data.tab.h"
 #include <iostream>
 	using namespace std;
-	void yyerror(const char * s);
+	void read_disk_dataerror(const char * s);
 	int line_no;
 	extern int no_errors;
 
-#line 465 "lex.yy.c"
+#line 468 "lex.read_disk_data.c"
 
 #define INITIAL 0
 
@@ -485,9 +488,9 @@ static int yy_init_globals (void );
 
 #ifndef YY_SKIP_YYWRAP
 #ifdef __cplusplus
-extern "C" int yywrap (void );
+extern "C" int read_disk_datawrap (void );
 #else
-extern int yywrap (void );
+extern int read_disk_datawrap (void );
 #endif
 #endif
 
@@ -521,7 +524,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO (void) fwrite( yytext, yyleng, 1, yyout )
+#define ECHO (void) fwrite( read_disk_datatext, read_disk_dataleng, 1, read_disk_dataout )
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -534,18 +537,18 @@ static int input (void );
 		int c = '*'; \
 		size_t n; \
 		for ( n = 0; n < max_size && \
-			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
+			     (c = getc( read_disk_datain )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
 		if ( c == '\n' ) \
 			buf[n++] = (char) c; \
-		if ( c == EOF && ferror( yyin ) ) \
+		if ( c == EOF && ferror( read_disk_datain ) ) \
 			YY_FATAL_ERROR( "input in flex scanner failed" ); \
 		result = n; \
 		} \
 	else \
 		{ \
 		errno=0; \
-		while ( (result = fread(buf, 1, max_size, yyin))==0 && ferror(yyin)) \
+		while ( (result = fread(buf, 1, max_size, read_disk_datain))==0 && ferror(read_disk_datain)) \
 			{ \
 			if( errno != EINTR) \
 				{ \
@@ -553,7 +556,7 @@ static int input (void );
 				break; \
 				} \
 			errno=0; \
-			clearerr(yyin); \
+			clearerr(read_disk_datain); \
 			} \
 		}\
 \
@@ -586,12 +589,12 @@ static int input (void );
 #ifndef YY_DECL
 #define YY_DECL_IS_OURS 1
 
-extern int yylex (void);
+extern int read_disk_datalex (void);
 
-#define YY_DECL int yylex (void)
+#define YY_DECL int read_disk_datalex (void)
 #endif /* !YY_DECL */
 
-/* Code executed at the beginning of each rule, after yytext and yyleng
+/* Code executed at the beginning of each rule, after read_disk_datatext and read_disk_dataleng
  * have been set up.
  */
 #ifndef YY_USER_ACTION
@@ -614,10 +617,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 14 "qscript_data.l"
+#line 16 "qscript_data.l"
 
 
-#line 621 "lex.yy.c"
+#line 624 "lex.read_disk_data.c"
 
 	if ( !(yy_init) )
 		{
@@ -630,26 +633,26 @@ YY_DECL
 		if ( ! (yy_start) )
 			(yy_start) = 1;	/* first start state */
 
-		if ( ! yyin )
-			yyin = stdin;
+		if ( ! read_disk_datain )
+			read_disk_datain = stdin;
 
-		if ( ! yyout )
-			yyout = stdout;
+		if ( ! read_disk_dataout )
+			read_disk_dataout = stdout;
 
 		if ( ! YY_CURRENT_BUFFER ) {
-			yyensure_buffer_stack ();
+			read_disk_dataensure_buffer_stack ();
 			YY_CURRENT_BUFFER_LVALUE =
-				yy_create_buffer(yyin,YY_BUF_SIZE );
+				read_disk_data_create_buffer(read_disk_datain,YY_BUF_SIZE );
 		}
 
-		yy_load_buffer_state( );
+		read_disk_data_load_buffer_state( );
 		}
 
 	while ( 1 )		/* loops until end-of-file is reached */
 		{
 		yy_cp = (yy_c_buf_p);
 
-		/* Support of yytext. */
+		/* Support of read_disk_datatext. */
 		*yy_cp = (yy_hold_char);
 
 		/* yy_bp points to the position in yy_ch_buf of the start of
@@ -702,9 +705,9 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 16 "qscript_data.l"
+#line 18 "qscript_data.l"
 {
-	yylval.ival = atoi(yytext);
+	read_disk_datalval.ival = atoi(read_disk_datatext);
 	//cout << "got INUMBER" << endl; 
 	return INUMBER;
 }
@@ -712,7 +715,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 22 "qscript_data.l"
+#line 24 "qscript_data.l"
 {
 	//cout << "got NEWL" << endl;
 	return NEWL;
@@ -720,7 +723,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 27 "qscript_data.l"
+#line 29 "qscript_data.l"
 {
 	//cout << "got COLON" << endl;
 	return COLON;
@@ -728,15 +731,15 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 32 "qscript_data.l"
+#line 34 "qscript_data.l"
 ; /* ignore */
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 34 "qscript_data.l"
+#line 36 "qscript_data.l"
 {
-	if(yyleng < MY_STR_MAX) {
-		strcpy(yylval.name,yytext);
+	if(read_disk_dataleng < MY_STR_MAX) {
+		strcpy(read_disk_datalval.name,read_disk_datatext);
 		//cout << "got name" << endl;
 		return NAME;
 	} else {
@@ -747,10 +750,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 45 "qscript_data.l"
+#line 47 "qscript_data.l"
 ECHO;
 	YY_BREAK
-#line 754 "lex.yy.c"
+#line 757 "lex.read_disk_data.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -767,15 +770,15 @@ case YY_STATE_EOF(INITIAL):
 			{
 			/* We're scanning a new file or input source.  It's
 			 * possible that this happened because the user
-			 * just pointed yyin at a new source and called
-			 * yylex().  If so, then we have to assure
+			 * just pointed read_disk_datain at a new source and called
+			 * read_disk_datalex().  If so, then we have to assure
 			 * consistency between YY_CURRENT_BUFFER and our
 			 * globals.  Here is the right place to do so, because
 			 * this is the first action (other than possibly a
 			 * back-up) that will match for the new input source.
 			 */
 			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
-			YY_CURRENT_BUFFER_LVALUE->yy_input_file = yyin;
+			YY_CURRENT_BUFFER_LVALUE->yy_input_file = read_disk_datain;
 			YY_CURRENT_BUFFER_LVALUE->yy_buffer_status = YY_BUFFER_NORMAL;
 			}
 
@@ -828,11 +831,11 @@ case YY_STATE_EOF(INITIAL):
 				{
 				(yy_did_buffer_switch_on_eof) = 0;
 
-				if ( yywrap( ) )
+				if ( read_disk_datawrap( ) )
 					{
 					/* Note: because we've taken care in
 					 * yy_get_next_buffer() to have set up
-					 * yytext, we can now set up
+					 * read_disk_datatext, we can now set up
 					 * yy_c_buf_p so that if some total
 					 * hoser (like flex itself) wants to
 					 * call the scanner after we return the
@@ -881,7 +884,7 @@ case YY_STATE_EOF(INITIAL):
 			"fatal flex scanner internal error--no action found" );
 	} /* end of action switch */
 		} /* end of scanning one token */
-} /* end of yylex */
+} /* end of read_disk_datalex */
 
 /* yy_get_next_buffer - try to read in a new buffer
  *
@@ -959,7 +962,7 @@ static int yy_get_next_buffer (void)
 
 				b->yy_ch_buf = (char *)
 					/* Include room in for 2 EOB chars. */
-					yyrealloc((void *) b->yy_ch_buf,b->yy_buf_size + 2  );
+					read_disk_datarealloc((void *) b->yy_ch_buf,b->yy_buf_size + 2  );
 				}
 			else
 				/* Can't grow it, we don't own it. */
@@ -991,7 +994,7 @@ static int yy_get_next_buffer (void)
 		if ( number_to_move == YY_MORE_ADJ )
 			{
 			ret_val = EOB_ACT_END_OF_FILE;
-			yyrestart(yyin  );
+			read_disk_datarestart(read_disk_datain  );
 			}
 
 		else
@@ -1077,7 +1080,7 @@ static int yy_get_next_buffer (void)
     
     yy_cp = (yy_c_buf_p);
 
-	/* undo effects of setting up yytext */
+	/* undo effects of setting up read_disk_datatext */
 	*yy_cp = (yy_hold_char);
 
 	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
@@ -1149,13 +1152,13 @@ static int yy_get_next_buffer (void)
 					 */
 
 					/* Reset buffer status. */
-					yyrestart(yyin );
+					read_disk_datarestart(read_disk_datain );
 
 					/*FALLTHROUGH*/
 
 				case EOB_ACT_END_OF_FILE:
 					{
-					if ( yywrap( ) )
+					if ( read_disk_datawrap( ) )
 						return EOF;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
@@ -1175,7 +1178,7 @@ static int yy_get_next_buffer (void)
 		}
 
 	c = *(unsigned char *) (yy_c_buf_p);	/* cast for 8-bit char's */
-	*(yy_c_buf_p) = '\0';	/* preserve yytext */
+	*(yy_c_buf_p) = '\0';	/* preserve read_disk_datatext */
 	(yy_hold_char) = *++(yy_c_buf_p);
 
 	return c;
@@ -1187,32 +1190,32 @@ static int yy_get_next_buffer (void)
  * 
  * @note This function does not reset the start condition to @c INITIAL .
  */
-    void yyrestart  (FILE * input_file )
+    void read_disk_datarestart  (FILE * input_file )
 {
     
 	if ( ! YY_CURRENT_BUFFER ){
-        yyensure_buffer_stack ();
+        read_disk_dataensure_buffer_stack ();
 		YY_CURRENT_BUFFER_LVALUE =
-            yy_create_buffer(yyin,YY_BUF_SIZE );
+            read_disk_data_create_buffer(read_disk_datain,YY_BUF_SIZE );
 	}
 
-	yy_init_buffer(YY_CURRENT_BUFFER,input_file );
-	yy_load_buffer_state( );
+	read_disk_data_init_buffer(YY_CURRENT_BUFFER,input_file );
+	read_disk_data_load_buffer_state( );
 }
 
 /** Switch to a different input buffer.
  * @param new_buffer The new input buffer.
  * 
  */
-    void yy_switch_to_buffer  (YY_BUFFER_STATE  new_buffer )
+    void read_disk_data_switch_to_buffer  (YY_BUFFER_STATE  new_buffer )
 {
     
 	/* TODO. We should be able to replace this entire function body
 	 * with
-	 *		yypop_buffer_state();
-	 *		yypush_buffer_state(new_buffer);
+	 *		read_disk_datapop_buffer_state();
+	 *		read_disk_datapush_buffer_state(new_buffer);
      */
-	yyensure_buffer_stack ();
+	read_disk_dataensure_buffer_stack ();
 	if ( YY_CURRENT_BUFFER == new_buffer )
 		return;
 
@@ -1225,21 +1228,21 @@ static int yy_get_next_buffer (void)
 		}
 
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
-	yy_load_buffer_state( );
+	read_disk_data_load_buffer_state( );
 
 	/* We don't actually know whether we did this switch during
-	 * EOF (yywrap()) processing, but the only time this flag
-	 * is looked at is after yywrap() is called, so it's safe
+	 * EOF (read_disk_datawrap()) processing, but the only time this flag
+	 * is looked at is after read_disk_datawrap() is called, so it's safe
 	 * to go ahead and always set it.
 	 */
 	(yy_did_buffer_switch_on_eof) = 1;
 }
 
-static void yy_load_buffer_state  (void)
+static void read_disk_data_load_buffer_state  (void)
 {
     	(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_n_chars;
 	(yytext_ptr) = (yy_c_buf_p) = YY_CURRENT_BUFFER_LVALUE->yy_buf_pos;
-	yyin = YY_CURRENT_BUFFER_LVALUE->yy_input_file;
+	read_disk_datain = YY_CURRENT_BUFFER_LVALUE->yy_input_file;
 	(yy_hold_char) = *(yy_c_buf_p);
 }
 
@@ -1249,35 +1252,35 @@ static void yy_load_buffer_state  (void)
  * 
  * @return the allocated buffer state.
  */
-    YY_BUFFER_STATE yy_create_buffer  (FILE * file, int  size )
+    YY_BUFFER_STATE read_disk_data_create_buffer  (FILE * file, int  size )
 {
 	YY_BUFFER_STATE b;
     
-	b = (YY_BUFFER_STATE) yyalloc(sizeof( struct yy_buffer_state )  );
+	b = (YY_BUFFER_STATE) read_disk_dataalloc(sizeof( struct yy_buffer_state )  );
 	if ( ! b )
-		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in read_disk_data_create_buffer()" );
 
 	b->yy_buf_size = size;
 
 	/* yy_ch_buf has to be 2 characters longer than the size given because
 	 * we need to put in 2 end-of-buffer characters.
 	 */
-	b->yy_ch_buf = (char *) yyalloc(b->yy_buf_size + 2  );
+	b->yy_ch_buf = (char *) read_disk_dataalloc(b->yy_buf_size + 2  );
 	if ( ! b->yy_ch_buf )
-		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in read_disk_data_create_buffer()" );
 
 	b->yy_is_our_buffer = 1;
 
-	yy_init_buffer(b,file );
+	read_disk_data_init_buffer(b,file );
 
 	return b;
 }
 
 /** Destroy the buffer.
- * @param b a buffer created with yy_create_buffer()
+ * @param b a buffer created with read_disk_data_create_buffer()
  * 
  */
-    void yy_delete_buffer (YY_BUFFER_STATE  b )
+    void read_disk_data_delete_buffer (YY_BUFFER_STATE  b )
 {
     
 	if ( ! b )
@@ -1287,9 +1290,9 @@ static void yy_load_buffer_state  (void)
 		YY_CURRENT_BUFFER_LVALUE = (YY_BUFFER_STATE) 0;
 
 	if ( b->yy_is_our_buffer )
-		yyfree((void *) b->yy_ch_buf  );
+		read_disk_datafree((void *) b->yy_ch_buf  );
 
-	yyfree((void *) b  );
+	read_disk_datafree((void *) b  );
 }
 
 #ifndef __cplusplus
@@ -1298,20 +1301,20 @@ extern int isatty (int );
     
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
- * such as during a yyrestart() or at EOF.
+ * such as during a read_disk_datarestart() or at EOF.
  */
-    static void yy_init_buffer  (YY_BUFFER_STATE  b, FILE * file )
+    static void read_disk_data_init_buffer  (YY_BUFFER_STATE  b, FILE * file )
 
 {
 	int oerrno = errno;
     
-	yy_flush_buffer(b );
+	read_disk_data_flush_buffer(b );
 
 	b->yy_input_file = file;
 	b->yy_fill_buffer = 1;
 
-    /* If b is the current buffer, then yy_init_buffer was _probably_
-     * called from yyrestart() or through yy_get_next_buffer.
+    /* If b is the current buffer, then read_disk_data_init_buffer was _probably_
+     * called from read_disk_datarestart() or through yy_get_next_buffer.
      * In that case, we don't want to reset the lineno or column.
      */
     if (b != YY_CURRENT_BUFFER){
@@ -1328,7 +1331,7 @@ extern int isatty (int );
  * @param b the buffer state to be flushed, usually @c YY_CURRENT_BUFFER.
  * 
  */
-    void yy_flush_buffer (YY_BUFFER_STATE  b )
+    void read_disk_data_flush_buffer (YY_BUFFER_STATE  b )
 {
     	if ( ! b )
 		return;
@@ -1348,7 +1351,7 @@ extern int isatty (int );
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
 	if ( b == YY_CURRENT_BUFFER )
-		yy_load_buffer_state( );
+		read_disk_data_load_buffer_state( );
 }
 
 /** Pushes the new state onto the stack. The new state becomes
@@ -1357,14 +1360,14 @@ extern int isatty (int );
  *  @param new_buffer The new state.
  *  
  */
-void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
+void read_disk_datapush_buffer_state (YY_BUFFER_STATE new_buffer )
 {
     	if (new_buffer == NULL)
 		return;
 
-	yyensure_buffer_stack();
+	read_disk_dataensure_buffer_stack();
 
-	/* This block is copied from yy_switch_to_buffer. */
+	/* This block is copied from read_disk_data_switch_to_buffer. */
 	if ( YY_CURRENT_BUFFER )
 		{
 		/* Flush out information for old buffer. */
@@ -1378,8 +1381,8 @@ void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
 		(yy_buffer_stack_top)++;
 	YY_CURRENT_BUFFER_LVALUE = new_buffer;
 
-	/* copied from yy_switch_to_buffer. */
-	yy_load_buffer_state( );
+	/* copied from read_disk_data_switch_to_buffer. */
+	read_disk_data_load_buffer_state( );
 	(yy_did_buffer_switch_on_eof) = 1;
 }
 
@@ -1387,18 +1390,18 @@ void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
  *  The next element becomes the new top.
  *  
  */
-void yypop_buffer_state (void)
+void read_disk_datapop_buffer_state (void)
 {
     	if (!YY_CURRENT_BUFFER)
 		return;
 
-	yy_delete_buffer(YY_CURRENT_BUFFER );
+	read_disk_data_delete_buffer(YY_CURRENT_BUFFER );
 	YY_CURRENT_BUFFER_LVALUE = NULL;
 	if ((yy_buffer_stack_top) > 0)
 		--(yy_buffer_stack_top);
 
 	if (YY_CURRENT_BUFFER) {
-		yy_load_buffer_state( );
+		read_disk_data_load_buffer_state( );
 		(yy_did_buffer_switch_on_eof) = 1;
 	}
 }
@@ -1406,7 +1409,7 @@ void yypop_buffer_state (void)
 /* Allocates the stack if it does not exist.
  *  Guarantees space for at least one push.
  */
-static void yyensure_buffer_stack (void)
+static void read_disk_dataensure_buffer_stack (void)
 {
 	int num_to_alloc;
     
@@ -1417,7 +1420,7 @@ static void yyensure_buffer_stack (void)
 		 * immediate realloc on the next call.
          */
 		num_to_alloc = 1;
-		(yy_buffer_stack) = (struct yy_buffer_state**)yyalloc
+		(yy_buffer_stack) = (struct yy_buffer_state**)read_disk_dataalloc
 								(num_to_alloc * sizeof(struct yy_buffer_state*)
 								);
 		
@@ -1434,7 +1437,7 @@ static void yyensure_buffer_stack (void)
 		int grow_size = 8 /* arbitrary grow size */;
 
 		num_to_alloc = (yy_buffer_stack_max) + grow_size;
-		(yy_buffer_stack) = (struct yy_buffer_state**)yyrealloc
+		(yy_buffer_stack) = (struct yy_buffer_state**)read_disk_datarealloc
 								((yy_buffer_stack),
 								num_to_alloc * sizeof(struct yy_buffer_state*)
 								);
@@ -1451,7 +1454,7 @@ static void yyensure_buffer_stack (void)
  * 
  * @return the newly allocated buffer state object. 
  */
-YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
+YY_BUFFER_STATE read_disk_data_scan_buffer  (char * base, yy_size_t  size )
 {
 	YY_BUFFER_STATE b;
     
@@ -1461,9 +1464,9 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 		/* They forgot to leave room for the EOB's. */
 		return 0;
 
-	b = (YY_BUFFER_STATE) yyalloc(sizeof( struct yy_buffer_state )  );
+	b = (YY_BUFFER_STATE) read_disk_dataalloc(sizeof( struct yy_buffer_state )  );
 	if ( ! b )
-		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_buffer()" );
+		YY_FATAL_ERROR( "out of dynamic memory in read_disk_data_scan_buffer()" );
 
 	b->yy_buf_size = size - 2;	/* "- 2" to take care of EOB's */
 	b->yy_buf_pos = b->yy_ch_buf = base;
@@ -1475,33 +1478,33 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 	b->yy_fill_buffer = 0;
 	b->yy_buffer_status = YY_BUFFER_NEW;
 
-	yy_switch_to_buffer(b  );
+	read_disk_data_switch_to_buffer(b  );
 
 	return b;
 }
 
-/** Setup the input buffer state to scan a string. The next call to yylex() will
+/** Setup the input buffer state to scan a string. The next call to read_disk_datalex() will
  * scan from a @e copy of @a str.
  * @param str a NUL-terminated string to scan
  * 
  * @return the newly allocated buffer state object.
  * @note If you want to scan bytes that may contain NUL values, then use
- *       yy_scan_bytes() instead.
+ *       read_disk_data_scan_bytes() instead.
  */
-YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )
+YY_BUFFER_STATE read_disk_data_scan_string (yyconst char * yystr )
 {
     
-	return yy_scan_bytes(yystr,strlen(yystr) );
+	return read_disk_data_scan_bytes(yystr,strlen(yystr) );
 }
 
-/** Setup the input buffer state to scan the given bytes. The next call to yylex() will
+/** Setup the input buffer state to scan the given bytes. The next call to read_disk_datalex() will
  * scan from a @e copy of @a bytes.
  * @param bytes the byte buffer to scan
  * @param len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
+YY_BUFFER_STATE read_disk_data_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
 {
 	YY_BUFFER_STATE b;
 	char *buf;
@@ -1510,18 +1513,18 @@ YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
-	buf = (char *) yyalloc(n  );
+	buf = (char *) read_disk_dataalloc(n  );
 	if ( ! buf )
-		YY_FATAL_ERROR( "out of dynamic memory in yy_scan_bytes()" );
+		YY_FATAL_ERROR( "out of dynamic memory in read_disk_data_scan_bytes()" );
 
 	for ( i = 0; i < _yybytes_len; ++i )
 		buf[i] = yybytes[i];
 
 	buf[_yybytes_len] = buf[_yybytes_len+1] = YY_END_OF_BUFFER_CHAR;
 
-	b = yy_scan_buffer(buf,n );
+	b = read_disk_data_scan_buffer(buf,n );
 	if ( ! b )
-		YY_FATAL_ERROR( "bad buffer in yy_scan_bytes()" );
+		YY_FATAL_ERROR( "bad buffer in read_disk_data_scan_bytes()" );
 
 	/* It's okay to grow etc. this buffer, and we should throw it
 	 * away when we're done.
@@ -1547,14 +1550,14 @@ static void yy_fatal_error (yyconst char* msg )
 #define yyless(n) \
 	do \
 		{ \
-		/* Undo effects of setting up yytext. */ \
+		/* Undo effects of setting up read_disk_datatext. */ \
         int yyless_macro_arg = (n); \
         YY_LESS_LINENO(yyless_macro_arg);\
-		yytext[yyleng] = (yy_hold_char); \
-		(yy_c_buf_p) = yytext + yyless_macro_arg; \
+		read_disk_datatext[read_disk_dataleng] = (yy_hold_char); \
+		(yy_c_buf_p) = read_disk_datatext + yyless_macro_arg; \
 		(yy_hold_char) = *(yy_c_buf_p); \
 		*(yy_c_buf_p) = '\0'; \
-		yyleng = yyless_macro_arg; \
+		read_disk_dataleng = yyless_macro_arg; \
 		} \
 	while ( 0 )
 
@@ -1563,66 +1566,66 @@ static void yy_fatal_error (yyconst char* msg )
 /** Get the input stream.
  * 
  */
-FILE *yyget_in  (void)
+FILE *read_disk_dataget_in  (void)
 {
-        return yyin;
+        return read_disk_datain;
 }
 
 /** Get the output stream.
  * 
  */
-FILE *yyget_out  (void)
+FILE *read_disk_dataget_out  (void)
 {
-        return yyout;
+        return read_disk_dataout;
 }
 
 /** Get the length of the current token.
  * 
  */
-int yyget_leng  (void)
+int read_disk_dataget_leng  (void)
 {
-        return yyleng;
+        return read_disk_dataleng;
 }
 
 /** Get the current token.
  * 
  */
 
-char *yyget_text  (void)
+char *read_disk_dataget_text  (void)
 {
-        return yytext;
+        return read_disk_datatext;
 }
 
 /** Set the input stream. This does not discard the current
  * input buffer.
  * @param in_str A readable stream.
  * 
- * @see yy_switch_to_buffer
+ * @see read_disk_data_switch_to_buffer
  */
-void yyset_in (FILE *  in_str )
+void read_disk_dataset_in (FILE *  in_str )
 {
-        yyin = in_str ;
+        read_disk_datain = in_str ;
 }
 
-void yyset_out (FILE *  out_str )
+void read_disk_dataset_out (FILE *  out_str )
 {
-        yyout = out_str ;
+        read_disk_dataout = out_str ;
 }
 
-int yyget_debug  (void)
+int read_disk_dataget_debug  (void)
 {
-        return yy_flex_debug;
+        return read_disk_data_flex_debug;
 }
 
-void yyset_debug (int  bdebug )
+void read_disk_dataset_debug (int  bdebug )
 {
-        yy_flex_debug = bdebug ;
+        read_disk_data_flex_debug = bdebug ;
 }
 
 static int yy_init_globals (void)
 {
         /* Initialization is the same as for the non-reentrant scanner.
-     * This function is called from yylex_destroy(), so don't allocate here.
+     * This function is called from read_disk_datalex_destroy(), so don't allocate here.
      */
 
     (yy_buffer_stack) = 0;
@@ -1634,36 +1637,36 @@ static int yy_init_globals (void)
 
 /* Defined in main.c */
 #ifdef YY_STDINIT
-    yyin = stdin;
-    yyout = stdout;
+    read_disk_datain = stdin;
+    read_disk_dataout = stdout;
 #else
-    yyin = (FILE *) 0;
-    yyout = (FILE *) 0;
+    read_disk_datain = (FILE *) 0;
+    read_disk_dataout = (FILE *) 0;
 #endif
 
     /* For future reference: Set errno on error, since we are called by
-     * yylex_init()
+     * read_disk_datalex_init()
      */
     return 0;
 }
 
-/* yylex_destroy is for both reentrant and non-reentrant scanners. */
-int yylex_destroy  (void)
+/* read_disk_datalex_destroy is for both reentrant and non-reentrant scanners. */
+int read_disk_datalex_destroy  (void)
 {
     
     /* Pop the buffer stack, destroying each element. */
 	while(YY_CURRENT_BUFFER){
-		yy_delete_buffer(YY_CURRENT_BUFFER  );
+		read_disk_data_delete_buffer(YY_CURRENT_BUFFER  );
 		YY_CURRENT_BUFFER_LVALUE = NULL;
-		yypop_buffer_state();
+		read_disk_datapop_buffer_state();
 	}
 
 	/* Destroy the stack itself. */
-	yyfree((yy_buffer_stack) );
+	read_disk_datafree((yy_buffer_stack) );
 	(yy_buffer_stack) = NULL;
 
     /* Reset the globals. This is important in a non-reentrant scanner so the next time
-     * yylex() is called, initialization will occur. */
+     * read_disk_datalex() is called, initialization will occur. */
     yy_init_globals( );
 
     return 0;
@@ -1693,12 +1696,12 @@ static int yy_flex_strlen (yyconst char * s )
 }
 #endif
 
-void *yyalloc (yy_size_t  size )
+void *read_disk_dataalloc (yy_size_t  size )
 {
 	return (void *) malloc( size );
 }
 
-void *yyrealloc  (void * ptr, yy_size_t  size )
+void *read_disk_datarealloc  (void * ptr, yy_size_t  size )
 {
 	/* The cast to (char *) in the following accommodates both
 	 * implementations that use char* generic pointers, and those
@@ -1710,24 +1713,26 @@ void *yyrealloc  (void * ptr, yy_size_t  size )
 	return (void *) realloc( (char *) ptr, size );
 }
 
-void yyfree (void * ptr )
+void read_disk_datafree (void * ptr )
 {
-	free( (char *) ptr );	/* see yyrealloc() for (char *) cast */
+	free( (char *) ptr );	/* see read_disk_datarealloc() for (char *) cast */
 }
 
 #define YYTABLES_NAME "yytables"
 
-#line 45 "qscript_data.l"
+#line 47 "qscript_data.l"
 
 
 
-	void yyerror(const char * s){
+	void read_disk_dataerror(const char * s){
 		++no_errors;
-	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext  );
+	 	printf("%s: line: %d: read_disk_datatext: %s\n", s, line_no, read_disk_datatext  );
 		printf("no_errors: %d\n", no_errors);
 	}
 
-int yywrap(){
+#if 0
+int read_disk_datawrap(){
 	return 1;
 }
+#endif 
 

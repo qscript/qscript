@@ -9,9 +9,9 @@
 	
 	vector<int> data;
 	vector <question_disk_data*> qdd_list;
-	int yylex();
+	int read_disk_datalex();
 	int no_errors;
-	void yyerror(const char * s);
+	void read_disk_dataerror(const char * s);
 %}
 
 
@@ -72,7 +72,7 @@ numberlist: INUMBER {
 int main(){
 	data.reserve(50);
 	qdd_list.reserve(100);
-	if(!yyparse()&& !no_errors){
+	if(!read_disk_dataparse()&& !no_errors){
 		for(int i=0; i< qdd_list.size(); ++i){
 			cout << qdd_list[i]->qno << endl;
 			cout  << ":" << qdd_list[i]->data.size() << endl;

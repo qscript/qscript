@@ -58,6 +58,14 @@
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
+/* Substitute the variable and function names.  */
+#define yyparse read_disk_dataparse
+#define yylex   read_disk_datalex
+#define yyerror read_disk_dataerror
+#define yylval  read_disk_datalval
+#define yychar  read_disk_datachar
+#define yydebug read_disk_datadebug
+#define yynerrs read_disk_datanerrs
 
 
 /* Tokens.  */
@@ -93,9 +101,9 @@
 	
 	vector<int> data;
 	vector <question_disk_data*> qdd_list;
-	int yylex();
+	int read_disk_datalex();
 	int no_errors;
-	void yyerror(const char * s);
+	void read_disk_dataerror(const char * s);
 
 
 /* Enabling traces.  */
@@ -125,7 +133,7 @@ typedef union YYSTYPE
 	char name[MY_STR_MAX];
 }
 /* Line 187 of yacc.c.  */
-#line 129 "qscript_data.tab.c"
+#line 137 "qscript_data.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -138,7 +146,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 142 "qscript_data.tab.c"
+#line 150 "qscript_data.tab.c"
 
 #ifdef short
 # undef short
@@ -1372,7 +1380,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1376 "qscript_data.tab.c"
+#line 1384 "qscript_data.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1592,7 +1600,7 @@ yyreturn:
 int main(){
 	data.reserve(50);
 	qdd_list.reserve(100);
-	if(!yyparse()&& !no_errors){
+	if(!read_disk_dataparse()&& !no_errors){
 		for(int i=0; i< qdd_list.size(); ++i){
 			cout << qdd_list[i]->qno << endl;
 			cout  << ":" << qdd_list[i]->data.size() << endl;

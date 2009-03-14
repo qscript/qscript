@@ -4,17 +4,19 @@
 #include "qscript_data.tab.h"
 #include <iostream>
 	using namespace std;
-	void yyerror(const char * s);
+	void read_disk_dataerror(const char * s);
 	int line_no;
 	extern int no_errors;
 
 %}
+%option noyywrap
+%option prefix="read_disk_data"
 
 
 %%
 
 [0-9]+	{
-	yylval.ival = atoi(yytext);
+	read_disk_datalval.ival = atoi(read_disk_datatext);
 	//cout << "got INUMBER" << endl; 
 	return INUMBER;
 }
@@ -32,8 +34,8 @@
 [ \t]+	; /* ignore */
 
 [_A-Za-z][A-Za-z0-9_]*	{
-	if(yyleng < MY_STR_MAX) {
-		strcpy(yylval.name,yytext);
+	if(read_disk_dataleng < MY_STR_MAX) {
+		strcpy(read_disk_datalval.name,read_disk_datatext);
 		//cout << "got name" << endl;
 		return NAME;
 	} else {
@@ -44,12 +46,14 @@
 
 %%
 
-	void yyerror(const char * s){
+	void read_disk_dataerror(const char * s){
 		++no_errors;
-	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext  );
+	 	printf("%s: line: %d: read_disk_datatext: %s\n", s, line_no, read_disk_datatext  );
 		printf("no_errors: %d\n", no_errors);
 	}
 
-int yywrap(){
+#if 0
+int read_disk_datawrap(){
 	return 1;
 }
+#endif 
