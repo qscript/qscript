@@ -40,3 +40,36 @@ int load_data(string jno, int ser_no){
 		}
 	}
 }
+// this is inefficient and will later be replaced
+// but right now i want to see this working
+// ideally we should be storing the questions in a map
+// with the question no as a key and the index as the value
+// and looking up the vector that way
+#include "question.h"
+extern vector <question*> question_list;
+void merge_disk_data_into_questions(){
+	cout << "merge_disk_data_into_questions: " << endl;
+	for (int i=0; i< question_list.size(); ++i){
+		bool found=false;
+		question* q= question_list[i];
+		question_disk_data * q_disk=0;
+		cout << "searching for : |" << q->name  << "|" << endl;
+		cout << "qdd_list:" ;
+		for(int j=0; j< qdd_list.size(); ++j){
+			cout << "|" <<qdd_list[j]->qno << "|" << " ";
+			if(q->name == qdd_list[j]->qno) {
+				cout << "found in qdd_list[" << j << "]" << qdd_list[j]->qno << endl;
+				q_disk=qdd_list[j];
+				found=true;
+				break;
+			}
+		}
+		if(found){
+			q->input_data.erase(q->input_data.begin(), q->input_data.end());
+			for(int k=0; k<q_disk->data.size(); ++k){
+				q->input_data.insert(q_disk->data[k]);
+			}
+			found=false;
+		}
+	}
+}

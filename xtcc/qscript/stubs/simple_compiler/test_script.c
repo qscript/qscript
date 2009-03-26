@@ -7,6 +7,8 @@
 #include "xtcc_set.h"
 #include "stub_pair.h"
 #include "symtab.h"
+#include "qscript_lib.h"
+#include "question_disk_data.h"
 #include "debug_mem.h"
 fstream debug_log_file("xtcc_debug.log", ios_base::out|ios_base::trunc);
 using namespace std;
@@ -14,6 +16,8 @@ void read_data(const char * prompt);
 extern vector<int> data;
 vector <question*> question_list;
 vector<mem_addr_tab>  mem_addr;
+extern vector<question_disk_data*>  qdd_list;
+void merge_disk_data_into_questions();
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
 			{	"int8_t" ,INT8_TYPE},
@@ -23,6 +27,7 @@ vector<mem_addr_tab>  mem_addr;
 			{	"double", DOUBLE_TYPE}
 		};
 
+int check_if_reg_file_exists(string jno, int ser_no);
 int main(){
 vector <stub_pair> age;
 
@@ -35,23 +40,37 @@ xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);
 xs_0.indiv.insert(3);
 xs_0.indiv.insert(4);
-range_question * q1 = new range_question(QUESTION_TYPE, 5,string(" q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0);
+range_question * q1 = new range_question(QUESTION_TYPE, 5,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0);
 question_list.push_back(q1);
 xtcc_set xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
-range_question * q2 = new range_question(QUESTION_TYPE, 11,string(" q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
+range_question * q2 = new range_question(QUESTION_TYPE, 11,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
 question_list.push_back(q2);
 // named_stub_question::generate_code() : to be implemented
-named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 12,string(" q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
+named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 12,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
 question_list.push_back(q3);
 
 	int ser_no;
-		cout << "Enter Serial No (0) to exit: " << flush;
-		cin >> ser_no;
-		string jno="j_1001";
-		while(ser_no!=0){
+	cout << "Enter Serial No (0) to exit: " << flush;
+	cin >> ser_no;
+	string jno="j_1001";
+	while(ser_no!=0){
+	int exists=check_if_reg_file_exists(jno, ser_no);
+	if(exists){
+		load_data(jno,ser_no);
+		merge_disk_data_into_questions();
+		for(int i=0; i< qdd_list.size(); ++i){
+			cout << qdd_list[i]->qno << endl;
+			cout  << ":" << qdd_list[i]->data.size() << endl;
+			for(int j=0; j<qdd_list[i]->data.size(); ++j){
+				cout << qdd_list[i]->data[j] << " ";
+			}
+			cout << endl;
+		}
+	}
+
 		q1->eval();
  // decl_stmt::generate_code 
 int8_t var1=5*12;
@@ -111,8 +130,6 @@ q1->input_data.insert(temp_3) ;
 			stringstream fname_str;
 			fname_str << jno << "_" << ser_no << ".dat";
 			FILE * fptr = fopen(fname_str.str().c_str(), "w+b");
-cout << "Enter Serial No (0) to exit: " << flush;
-cin >> ser_no;
 	for (int i=0; i<question_list.size(); ++i){
 		fprintf(fptr, "%s: ", question_list[i]->name.c_str());
 		for( set<int>::iterator iter=question_list[i]->input_data.begin();
@@ -124,6 +141,8 @@ cin >> ser_no;
 	}
 	fclose(fptr);
 
+	cout << "Enter Serial No (0) to exit: " << flush;
+	cin >> ser_no;
 
 	} /* close while */
 

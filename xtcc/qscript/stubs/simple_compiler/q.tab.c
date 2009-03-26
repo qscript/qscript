@@ -2551,6 +2551,9 @@ void print_header(FILE* script){
 	fprintf(script, "#include \"xtcc_set.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"symtab.h\"\n");
+	fprintf(script, "#include \"qscript_lib.h\"\n");
+	fprintf(script, "#include \"question_disk_data.h\"\n");
+
 	fprintf(script, "#include \"debug_mem.h\"\n");
 	fprintf(script, "fstream debug_log_file(\"xtcc_debug.log\", ios_base::out|ios_base::trunc);\n");
 
@@ -2559,6 +2562,8 @@ void print_header(FILE* script){
 	fprintf(script, "extern vector<int> data;\n");
 	fprintf(script, "vector <question*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
+	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
+	fprintf(script, "void merge_disk_data_into_questions();\n");
 
 
 	fprintf(script, "\tnoun_list_type noun_list[]= {\n");
@@ -2570,25 +2575,27 @@ void print_header(FILE* script){
 	fprintf(script, "\t\t\t{\t\"double\", DOUBLE_TYPE}\n");
 	fprintf(script, "\t\t};\n");
 	fprintf(script, "\n");
+	fprintf(script, "int check_if_reg_file_exists(string jno, int ser_no);\n");
 
 
 	fprintf(script, "int main(){\n");
 
 }
 
+const char * file_exists_check_code();
+
 void print_close(FILE* script, ostringstream & program_code){
 
 	fprintf(script, "\tint ser_no;\n");
-	fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
-	fprintf(script, "\t\tcin >> ser_no;\n");
-	fprintf(script, "\t\tstring jno=\"j_1001\";\n");
-	fprintf(script, "\t\twhile(ser_no!=0){\n");
+	fprintf(script, "\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
+	fprintf(script, "\tcin >> ser_no;\n");
+	fprintf(script, "\tstring jno=\"j_1001\";\n");
+	fprintf(script, "\twhile(ser_no!=0){\n");
+	fprintf(script, "%s\n", file_exists_check_code());
 	fprintf(script, "%s\n", program_code.str().c_str());
 	fprintf(script, "\t\t\tstringstream fname_str;\n");
 	fprintf(script, "\t\t\tfname_str << jno << \"_\" << ser_no << \".dat\";\n");
 	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
-	fprintf(script,	"cout << \"Enter Serial No (0) to exit: \" << flush;\n");
-	fprintf(script, "cin >> ser_no;\n");
 	fprintf(script, "\tfor (int i=0; i<question_list.size(); ++i){\n");
 	fprintf(script, "\t\tfprintf(fptr, \"%%s: \", question_list[i]->name.c_str());\n");
 	fprintf(script, "\t\tfor( set<int>::iterator iter=question_list[i]->input_data.begin();\n");
@@ -2600,6 +2607,8 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\t}\n");
 	fprintf(script, "\tfclose(fptr);\n");
 	fprintf(script, "\n");
+	fprintf(script,	"\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
+	fprintf(script, "\tcin >> ser_no;\n");
 	fprintf(script, "\n\t} /* close while */\n");
 	fprintf(script, "\n} /* close main */\n");
 }
@@ -2698,4 +2707,22 @@ int check_parameters(expr* e, var_list* v){
 	return match;
 }
 
+
+const char * file_exists_check_code(){
+	const char * file_check_code =  
+	"\tint exists=check_if_reg_file_exists(jno, ser_no);\n"
+	"\tif(exists){\n"
+	"\t	load_data(jno,ser_no);\n"
+	"\t	merge_disk_data_into_questions();\n"
+	"\t	for(int i=0; i< qdd_list.size(); ++i){\n"
+	"\t		cout << qdd_list[i]->qno << endl;\n"
+	"\t		cout  << \":\" << qdd_list[i]->data.size() << endl;\n"
+	"\t		for(int j=0; j<qdd_list[i]->data.size(); ++j){\n"
+	"\t			cout << qdd_list[i]->data[j] << \" \";\n"
+	"\t		}\n"
+	"\t		cout << endl;\n"
+	"\t	}\n"
+	"\t}\n";
+	return file_check_code;
+}
 

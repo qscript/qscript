@@ -55,6 +55,15 @@ void range_question::eval(){
 		}
 	}
 
+
+	if(input_data.begin()!=input_data.end()){
+		cout << "Current data values: ";
+		set<int>::iterator iter=input_data.begin();
+		for(iter; iter!=input_data.end(); ++iter){
+			cout << *iter << " ";
+		}
+		cout << endl;
+	}
 	bool invalid_code=false;
 	string prompt="before do: Enter Data:";
 	do{
@@ -118,6 +127,14 @@ void named_stub_question::eval(){
 	}
 
 
+	if(input_data.begin()!=input_data.end()){
+		cout << "Current data values: ";
+		set<int>::iterator iter=input_data.begin();
+		for(iter; iter!=input_data.end(); ++iter){
+			cout << *iter << " ";
+		}
+		cout << endl;
+	}
 	bool invalid_code=false;
 	string prompt="before do: Enter Data:";
 	do{
@@ -216,7 +233,7 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 
 	quest_defns << "range_question * " << name.c_str() << " = new range_question(QUESTION_TYPE, "
 		<< line_no << "," 
-		<< "string(\" " << name.c_str() << "\")" << "," 
+		<< "string( \"" << name.c_str() << "\")" << "," 
 		<< "string(\" " << text.c_str() << "\")" << ","
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
@@ -246,7 +263,7 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 	quest_defns << "// named_stub_question::generate_code() : to be implemented" << endl;
 	quest_defns << "named_stub_question * " << name.c_str() << " = new named_stub_question(QUESTION_TYPE, "
 		<< line_no << "," 
-		<< "string(\" " << name.c_str() << "\")" << "," 
+		<< "string( \"" << name.c_str() << "\")" << "," 
 		<< "string(\" " << text.c_str() << "\")" << ","
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","

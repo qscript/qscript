@@ -16,7 +16,7 @@ void read_data(const char * prompt);
 extern vector<int> data;
 vector <question*> question_list;
 vector<mem_addr_tab>  mem_addr;
-extern vector <question_disk_data*> qdd_list;
+extern vector<question_disk_data*>  qdd_list;
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
 			{	"int8_t" ,INT8_TYPE},
