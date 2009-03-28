@@ -33,6 +33,7 @@
 
 //#include "defs.h"
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 struct stmt;
@@ -53,6 +54,7 @@ using namespace std;
 		stmt* insert(const char * name, datatype dt, int arr_size /*, int line_no*/);
 		stmt* insert(const char * name, datatype dt, int arr_size, /*int line_no,*/ char *text);
 		stmt* insert(const char * name, datatype dt, xtcc_set *lxs);
+		void print_scope(vector<string> &stack);
 		~scope();
 	};
 

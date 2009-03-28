@@ -5,11 +5,14 @@
  */
 #include "question.h"
 #include "named_range.h"
+#include "scope.h"
 
 #include <iostream>
+#include <string>
 using std::cout;
 using std::endl;
 using std::cerr;
+extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
 question::question(datatype l_type, int l_no, string l_name, string l_text, 
 	question_type l_q_type, int l_no_mpn, datatype l_dt
@@ -200,6 +203,15 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 		}
 	}
 	*/
+
+	program_code << "lab_" << name << ":" << endl;
+	program_code << "/* " << endl;
+	vector<string> active_vars_for_this_question = map_of_active_vars_for_questions[name];
+	for(int i=0; i< active_vars_for_this_question.size(); ++i){
+		program_code << active_vars_for_this_question[i] << " ";
+	}
+
+	program_code << "*/ " << endl;
 	
 	static int xtcc_set_counter=0;
 	const int BUF_SIZE=100;
@@ -251,9 +263,21 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 
 }
 
+//extern vector <scope*> active_scope_list;
 
 void named_stub_question::generate_code( ostringstream & quest_defns, 
 		ostringstream& program_code){
+
+
+	program_code << "lab_" << name << ":" << endl;
+
+	program_code << "/* " << endl;
+	vector<string> active_vars_for_this_question = map_of_active_vars_for_questions[name];
+	for(int i=0; i< active_vars_for_this_question.size(); ++i){
+		program_code << active_vars_for_this_question[i] << " ";
+	}
+
+	program_code << "*/ " << endl;
 	cerr << "named_stub_question::generate_code invoked: question: " << name << endl;
 	string q_type_str;
 	print_q_type(q_type_str);

@@ -3,6 +3,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <map>
 #include "stmt.h"
 #include "xtcc_set.h"
 #include "stub_pair.h"
@@ -28,6 +29,7 @@ void merge_disk_data_into_questions();
 		};
 
 int check_if_reg_file_exists(string jno, int ser_no);
+map<string, vector<string> > map_of_active_vars_for_questions;
 int main(){
 vector <stub_pair> age;
 
@@ -71,6 +73,9 @@ question_list.push_back(q3);
 		}
 	}
 
+lab_q1:
+/* 
+*/ 
 		q1->eval();
  // decl_stmt::generate_code 
 int8_t var1=5*12;
@@ -123,7 +128,13 @@ q1->input_data.insert(temp_3) ;
 } else {cerr << "runtime error - value assigned to question: " << "q1" << " is not in allowed range: " <<temp_3 << endl; 
 }
 ;
+lab_q2:
+/* 
+q1 var1 var2 */ 
 		q2->eval();
+lab_q3:
+/* 
+q1 q2 var1 var2 */ 
 		q3->eval();
 }
 

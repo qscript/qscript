@@ -211,3 +211,11 @@ scope::~scope() {
 	}
 	debug_log_file << "end deleting scope" << endl;
 }
+
+void scope::print_scope(vector<string> &stack){
+	map<string,symtab_ent*>::iterator it;
+	for(it=sym_tab.begin(); it!=sym_tab.end(); ++it){
+		symtab_ent * sym_ptr=  it->second;
+		stack.push_back( sym_ptr-> name);
+	}
+}

@@ -25,6 +25,8 @@
 	bool flag_next_stmt_start_of_block=false;
 	vector<bool> blk_start_flag;
 	vector <stmt*> blk_heads;
+	vector<string> stack_of_active_vars;
+	map<string, vector<string> > map_of_active_vars_for_questions;
 
 
 
@@ -322,6 +324,13 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		string name($1);
 		string q_text($2);
 		datatype dt=$4;
+
+		vector<string> active_vars;
+		for(int i=0; i< active_scope_list.size(); ++i){
+			scope* sc_ptr= active_scope_list[i];
+			sc_ptr->print_scope(active_vars);
+		}
+		map_of_active_vars_for_questions[name] = active_vars;
 		range_question * q= new range_question(QUESTION_TYPE, line_no, 
 			name, q_text, q_type, no_mpn, dt, xs);
 		$$=q;
@@ -342,6 +351,14 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		string q_txt=$2;
 		datatype dt=$4;
 		string attribute_list_name=$5;
+
+		vector<string> active_vars;
+		for(int i=0; i< active_scope_list.size(); ++i){
+			scope* sc_ptr= active_scope_list[i];
+			sc_ptr->print_scope(active_vars);
+		}
+		map_of_active_vars_for_questions[name] = active_vars;
+
 		bool found=false;
 		struct named_range* nr_ptr = 0;
 		for(int i=0; i<named_stubs_list.size(); ++i){
@@ -768,6 +785,7 @@ void print_header(FILE* script){
 	fprintf(script, "#include <string>\n");
 	fprintf(script, "#include <sstream>\n");
 	fprintf(script, "#include <fstream>\n");
+	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
@@ -797,9 +815,28 @@ void print_header(FILE* script){
 	fprintf(script, "\t\t};\n");
 	fprintf(script, "\n");
 	fprintf(script, "int check_if_reg_file_exists(string jno, int ser_no);\n");
-
+	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
+	
 
 	fprintf(script, "int main(){\n");
+	/*
+	map<string, vector<string> > ::iterator iter;
+	for(iter=map_of_active_vars_for_questions.begin();
+		iter!=map_of_active_vars_for_questions.end();
+		++iter){
+		//fprintf("\t");
+		string q_name = iter->first;
+		fprintf(script, "vector <string> active_vars_%s;\n",
+			q_name.c_str());
+		vector<string>& v=iter->second;
+		for(int i=0; i<v.size(); ++i){
+			fprintf(script, "active_vars_%s.push_back(%s);\n",
+				q_name.c_str(), v[i].c_str());
+		}
+		fprintf(script, "map_of_active_vars_for_questions[%s] = active_vars_%s;\n",
+			q_name.c_str(), q_name.c_str());
+	}
+	*/
 
 }
 
