@@ -25,7 +25,7 @@
 	bool flag_next_stmt_start_of_block=false;
 	vector<bool> blk_start_flag;
 	vector <stmt*> blk_heads;
-	vector<string> stack_of_active_vars;
+	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
 
 
@@ -324,13 +324,19 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		string name($1);
 		string q_text($2);
 		datatype dt=$4;
-
-		vector<string> active_vars;
+		// This is preparatory work
+		// for jumping between questions
+		// store
+		vector<string> active_push_vars;
+		vector<string> active_pop_vars;
 		for(int i=0; i< active_scope_list.size(); ++i){
 			scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_vars);
+			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
-		map_of_active_vars_for_questions[name] = active_vars;
+		string q_push_name = name + "_push";
+		string q_pop_name = name + "_pop";
+		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 		range_question * q= new range_question(QUESTION_TYPE, line_no, 
 			name, q_text, q_type, no_mpn, dt, xs);
 		$$=q;
@@ -352,12 +358,19 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		datatype dt=$4;
 		string attribute_list_name=$5;
 
-		vector<string> active_vars;
+		// This is preparatory work
+		// for jumping between questions
+		// store
+		vector<string> active_push_vars;
+		vector<string> active_pop_vars;
 		for(int i=0; i< active_scope_list.size(); ++i){
 			scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_vars);
+			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
-		map_of_active_vars_for_questions[name] = active_vars;
+		string q_push_name = name + "_push";
+		string q_pop_name = name + "_pop";
+		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 
 		bool found=false;
 		struct named_range* nr_ptr = 0;
@@ -816,24 +829,29 @@ void print_header(FILE* script){
 	fprintf(script, "\n");
 	fprintf(script, "int check_if_reg_file_exists(string jno, int ser_no);\n");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
-	
+	fprintf(script, "vector <int8_t> vector_int8_t;\n");
+	fprintf(script, "vector <int16_t> vector_int16_t;\n");
+	fprintf(script, "vector <int32_t> vector_int32_t;\n");
+	fprintf(script, "vector <float> vector_float_t;\n");
+	fprintf(script, "vector <double> vector_double_t;\n");
+	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
 
 	fprintf(script, "int main(){\n");
 	/*
 	map<string, vector<string> > ::iterator iter;
-	for(iter=map_of_active_vars_for_questions.begin();
-		iter!=map_of_active_vars_for_questions.end();
+	for(iter=map_of_active_push_vars_for_questions.begin();
+		iter!=map_of_active_push_vars_for_questions.end();
 		++iter){
 		//fprintf("\t");
 		string q_name = iter->first;
-		fprintf(script, "vector <string> active_vars_%s;\n",
+		fprintf(script, "vector <string> active_push_vars_%s;\n",
 			q_name.c_str());
 		vector<string>& v=iter->second;
 		for(int i=0; i<v.size(); ++i){
-			fprintf(script, "active_vars_%s.push_back(%s);\n",
+			fprintf(script, "active_push_vars_%s.push_back(%s);\n",
 				q_name.c_str(), v[i].c_str());
 		}
-		fprintf(script, "map_of_active_vars_for_questions[%s] = active_vars_%s;\n",
+		fprintf(script, "map_of_active_push_vars_for_questions[%s] = active_push_vars_%s;\n",
 			q_name.c_str(), q_name.c_str());
 	}
 	*/

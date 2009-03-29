@@ -205,13 +205,22 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 	*/
 
 	program_code << "lab_" << name << ":" << endl;
-	program_code << "/* " << endl;
-	vector<string> active_vars_for_this_question = map_of_active_vars_for_questions[name];
-	for(int i=0; i< active_vars_for_this_question.size(); ++i){
-		program_code << active_vars_for_this_question[i] << " ";
-	}
+	//program_code << "/* " << endl;
 
-	program_code << "*/ " << endl;
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
+	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
+	for(int i=0; i< active_push_vars_for_this_question.size(); ++i){
+		program_code << active_push_vars_for_this_question[i] << endl;
+	}
+	program_code << "if ( back_jump==true ) {" << endl;
+	for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
+		program_code << active_pop_vars_for_this_question[i] << endl;
+	}
+	program_code << "}" << endl;
+
+	//program_code << "*/ " << endl;
 	
 	static int xtcc_set_counter=0;
 	const int BUF_SIZE=100;
@@ -271,13 +280,21 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 
 	program_code << "lab_" << name << ":" << endl;
 
-	program_code << "/* " << endl;
-	vector<string> active_vars_for_this_question = map_of_active_vars_for_questions[name];
-	for(int i=0; i< active_vars_for_this_question.size(); ++i){
-		program_code << active_vars_for_this_question[i] << " ";
+	//program_code << "/* " << endl;
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
+	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
+	for(int i=0; i< active_push_vars_for_this_question.size(); ++i){
+		program_code << active_push_vars_for_this_question[i] << endl;
 	}
+	program_code << "if ( back_jump==true ) {" << endl;
+	for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
+		program_code << active_pop_vars_for_this_question[i] << endl;
+	}
+	program_code << "}" << endl;
 
-	program_code << "*/ " << endl;
+	//program_code << "*/ " << endl;
 	cerr << "named_stub_question::generate_code invoked: question: " << name << endl;
 	string q_type_str;
 	print_q_type(q_type_str);

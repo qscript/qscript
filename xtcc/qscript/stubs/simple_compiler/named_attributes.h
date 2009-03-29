@@ -24,6 +24,10 @@ struct named_attribute_list: public stmt{
 	void print_stmt_lst(FILE * & fptr){
 		cout << "named_attribute_list: not yet implemented" << endl;
 	}
+	private:
+		named_attribute_list& operator=(const named_attribute_list&);
+		named_attribute_list (const named_attribute_list&);
+
 };
 
 #endif /* xtcc_named_attributes_h */

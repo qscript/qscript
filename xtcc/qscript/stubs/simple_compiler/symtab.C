@@ -167,3 +167,58 @@ bool is_of_int32_arr_type(datatype dt){
 	return (dt == INT32_ARR_TYPE);
 }
 
+void symtab_ent::print_push_stack(string & str){
+	stringstream s("NONE");
+	switch(type){
+	case INT8_TYPE:
+		s << "vector_int8_t.push_back(" << name << ");\n";
+		break;
+	case INT16_TYPE:	
+		s << "vector_int16_t.push_back(" << name << ");\n";
+		break;
+	case INT32_TYPE:	
+		s << "vector_int32_t.push_back(" << name << ");\n";
+		break;
+	case FLOAT_TYPE:
+		s << "vector_float.push_back(" << name << ");\n";
+		break;
+	case DOUBLE_TYPE:
+		s << "vector_double.push_back(" << name << ");\n";
+		break;
+	case QUESTION_TYPE:
+		s << "// QUESTION_TYPE - will think of this later " << endl;
+		break;
+	}
+	str = s.str();
+}
+
+
+void symtab_ent::print_pop_stack(string & str){
+	stringstream s("NONE");
+	switch(type){
+	case INT8_TYPE:
+		s << name << "=vector_int8_t.back();\n";
+		s << "vector_int8_t.pop_back();\n";
+		break;
+	case INT16_TYPE:	
+		s << name << "=vector_int16_t.back();\n";
+		s << "vector_int16_t.pop_back();\n";
+		break;
+	case INT32_TYPE:	
+		s << name << "=vector_int32_t.back();\n";
+		s << "vector_int32_t.pop_back();\n";
+		break;
+	case FLOAT_TYPE:
+		s << name << "=vector_float_t.back();\n";
+		s << "vector_float_t.pop_back();\n";
+		break;
+	case DOUBLE_TYPE:
+		s << name << "=vector_double_t.back();\n";
+		s << "vector_double_t.pop_back();\n";
+		break;
+	case QUESTION_TYPE:
+		s << "// QUESTION_TYPE - will think of this later " << endl;
+		break;
+	}
+	str = s.str();
+}

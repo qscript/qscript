@@ -23,6 +23,9 @@ struct question: public stmt {
 	virtual bool is_valid(int value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
+	private:
+		question& operator=(const question&);
+		question (const question&);
 };
 
 
@@ -37,6 +40,9 @@ struct range_question: public question {
 	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
 	virtual bool is_valid(int value);
 	void eval();
+	private:
+		range_question& operator=(const range_question&);
+		range_question (const range_question&);
 };
 
 
@@ -57,6 +63,9 @@ class named_stub_question: public question {
 	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
 	virtual bool is_valid(int value);
 	void eval();
+	private:
+		named_stub_question& operator=(const named_stub_question&);
+		named_stub_question (const named_stub_question&);
 };
 
 

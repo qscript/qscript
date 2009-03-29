@@ -212,10 +212,19 @@ scope::~scope() {
 	debug_log_file << "end deleting scope" << endl;
 }
 
-void scope::print_scope(vector<string> &stack){
+string human_readable_type(datatype dt);
+void scope::print_scope(vector<string> &push_stack, vector<string>& pop_stack){
 	map<string,symtab_ent*>::iterator it;
 	for(it=sym_tab.begin(); it!=sym_tab.end(); ++it){
 		symtab_ent * sym_ptr=  it->second;
-		stack.push_back( sym_ptr-> name);
+		/*
+		string s = sym_ptr-> name;
+		s += " " + human_readable_type(sym_ptr->type);
+		*/
+		string s("NONE");
+		sym_ptr->print_push_stack(s);
+		push_stack.push_back(s);
+		sym_ptr->print_pop_stack(s);
+		pop_stack.push_back(s);
 	}
 }

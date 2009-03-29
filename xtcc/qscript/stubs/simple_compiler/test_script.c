@@ -30,6 +30,12 @@ void merge_disk_data_into_questions();
 
 int check_if_reg_file_exists(string jno, int ser_no);
 map<string, vector<string> > map_of_active_vars_for_questions;
+vector <int8_t> vector_int8_t;
+vector <int16_t> vector_int16_t;
+vector <int32_t> vector_int32_t;
+vector <float> vector_float_t;
+vector <double> vector_double_t;
+bool back_jump=false;// no need for this but state the intent
 int main(){
 vector <stub_pair> age;
 
@@ -48,10 +54,10 @@ xtcc_set xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
-range_question * q2 = new range_question(QUESTION_TYPE, 11,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
+range_question * q2 = new range_question(QUESTION_TYPE, 12,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
 question_list.push_back(q2);
 // named_stub_question::generate_code() : to be implemented
-named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 12,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
+named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 13,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
 question_list.push_back(q3);
 
 	int ser_no;
@@ -74,13 +80,15 @@ question_list.push_back(q3);
 	}
 
 lab_q1:
-/* 
-*/ 
+if ( back_jump==true ) {
+}
 		q1->eval();
  // decl_stmt::generate_code 
 int8_t var1=5*12;
  // decl_stmt::generate_code 
 int8_t var2=7*var1;
+ // decl_stmt::generate_code 
+int32_t my_32int=600*700;
 (12.5*13.3)-8+7*(12%7);
 	struct temp_0{
 		const int size_ran_indiv;
@@ -129,12 +137,54 @@ q1->input_data.insert(temp_3) ;
 }
 ;
 lab_q2:
-/* 
-q1 var1 var2 */ 
+vector_int32_t.push_back(my_32int);
+
+// QUESTION_TYPE - will think of this later 
+
+vector_int8_t.push_back(var1);
+
+vector_int8_t.push_back(var2);
+
+if ( back_jump==true ) {
+var2=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+var1=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
+
+my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+}
 		q2->eval();
 lab_q3:
-/* 
-q1 q2 var1 var2 */ 
+vector_int32_t.push_back(my_32int);
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+vector_int8_t.push_back(var1);
+
+vector_int8_t.push_back(var2);
+
+if ( back_jump==true ) {
+var2=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+var1=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+}
 		q3->eval();
 }
 

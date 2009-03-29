@@ -54,7 +54,8 @@ using namespace std;
 		stmt* insert(const char * name, datatype dt, int arr_size /*, int line_no*/);
 		stmt* insert(const char * name, datatype dt, int arr_size, /*int line_no,*/ char *text);
 		stmt* insert(const char * name, datatype dt, xtcc_set *lxs);
-		void print_scope(vector<string> &stack);
+		void print_scope(vector<string> &push_stack, 
+				vector<string>& pop_stack);
 		~scope();
 	};
 

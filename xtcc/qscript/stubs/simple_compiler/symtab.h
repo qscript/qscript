@@ -7,7 +7,9 @@
 #define XTCC_SYMTAB_H
 //#include <iostream>
 #include <cstring>
+#include <sstream>
 
+using std::stringstream;
 	enum datatype {
 		VOID_TYPE, 
 		INT8_TYPE,  INT16_TYPE,  INT32_TYPE, FLOAT_TYPE, DOUBLE_TYPE,
@@ -73,6 +75,8 @@ struct symtab_ent {
 		return type;
 	}
 	~symtab_ent();
+	void print_push_stack(string & str);
+	void print_pop_stack(string & str);
 	private:
 		symtab_ent& operator=(const symtab_ent&);
 		symtab_ent (const symtab_ent&);

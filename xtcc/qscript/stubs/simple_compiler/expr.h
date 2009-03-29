@@ -48,6 +48,9 @@ struct expr {
 	virtual int isvalid();
 	virtual bool is_lvalue()=0;
 	virtual ~expr();
+	private:
+		expr& operator=(const expr&);
+		expr (const expr&);
 };
 
 extern int no_errors;

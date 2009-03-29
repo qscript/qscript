@@ -150,7 +150,7 @@
 	bool flag_next_stmt_start_of_block=false;
 	vector<bool> blk_start_flag;
 	vector <stmt*> blk_heads;
-	vector<string> stack_of_active_vars;
+	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
 
 
@@ -567,11 +567,11 @@ static const yytype_uint16 yyrline[] =
 {
        0,   157,   157,   165,   176,   184,   185,   186,   187,   188,
      189,   190,   193,   198,   202,   213,   214,   215,   216,   217,
-     220,   223,   255,   280,   286,   295,   323,   349,   388,   394,
-     400,   406,   412,   418,   424,   430,   436,   442,   448,   454,
-     460,   466,   474,   480,   486,   493,   499,   505,   512,   519,
-     558,   564,   570,   586,   587,   592,   593,   596,   600,   601,
-     604,   613,   618,   618,   631,   637
+     220,   223,   255,   280,   286,   295,   323,   355,   401,   407,
+     413,   419,   425,   431,   437,   443,   449,   455,   461,   467,
+     473,   479,   487,   493,   499,   506,   512,   518,   525,   532,
+     571,   577,   583,   599,   600,   605,   606,   609,   613,   614,
+     617,   626,   631,   631,   644,   650
 };
 #endif
 
@@ -1771,13 +1771,19 @@ yyreduce:
 		string name((yyvsp[(1) - (6)].name));
 		string q_text((yyvsp[(2) - (6)].text_buf));
 		datatype dt=(yyvsp[(4) - (6)].dt);
-
-		vector<string> active_vars;
+		// This is preparatory work
+		// for jumping between questions
+		// store
+		vector<string> active_push_vars;
+		vector<string> active_pop_vars;
 		for(int i=0; i< active_scope_list.size(); ++i){
 			scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_vars);
+			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
-		map_of_active_vars_for_questions[name] = active_vars;
+		string q_push_name = name + "_push";
+		string q_pop_name = name + "_pop";
+		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 		range_question * q= new range_question(QUESTION_TYPE, line_no, 
 			name, q_text, q_type, no_mpn, dt, xs);
 		(yyval.stmt)=q;
@@ -1796,19 +1802,26 @@ yyreduce:
     break;
 
   case 27:
-#line 349 "q.y"
+#line 355 "q.y"
     {
 		string name=(yyvsp[(1) - (6)].name);
 		string q_txt=(yyvsp[(2) - (6)].text_buf);
 		datatype dt=(yyvsp[(4) - (6)].dt);
 		string attribute_list_name=(yyvsp[(5) - (6)].name);
 
-		vector<string> active_vars;
+		// This is preparatory work
+		// for jumping between questions
+		// store
+		vector<string> active_push_vars;
+		vector<string> active_pop_vars;
 		for(int i=0; i< active_scope_list.size(); ++i){
 			scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_vars);
+			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
-		map_of_active_vars_for_questions[name] = active_vars;
+		string q_push_name = name + "_push";
+		string q_pop_name = name + "_pop";
+		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 
 		bool found=false;
 		struct named_range* nr_ptr = 0;
@@ -1835,7 +1848,7 @@ yyreduce:
     break;
 
   case 28:
-#line 388 "q.y"
+#line 401 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1845,7 +1858,7 @@ yyreduce:
     break;
 
   case 29:
-#line 394 "q.y"
+#line 407 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1855,7 +1868,7 @@ yyreduce:
     break;
 
   case 30:
-#line 400 "q.y"
+#line 413 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1865,7 +1878,7 @@ yyreduce:
     break;
 
   case 31:
-#line 406 "q.y"
+#line 419 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1875,7 +1888,7 @@ yyreduce:
     break;
 
   case 32:
-#line 412 "q.y"
+#line 425 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1885,7 +1898,7 @@ yyreduce:
     break;
 
   case 33:
-#line 418 "q.y"
+#line 431 "q.y"
     {
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_umin);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1895,7 +1908,7 @@ yyreduce:
     break;
 
   case 34:
-#line 424 "q.y"
+#line 437 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1905,7 +1918,7 @@ yyreduce:
     break;
 
   case 35:
-#line 430 "q.y"
+#line 443 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1915,7 +1928,7 @@ yyreduce:
     break;
 
   case 36:
-#line 436 "q.y"
+#line 449 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1925,7 +1938,7 @@ yyreduce:
     break;
 
   case 37:
-#line 442 "q.y"
+#line 455 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1935,7 +1948,7 @@ yyreduce:
     break;
 
   case 38:
-#line 448 "q.y"
+#line 461 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1945,7 +1958,7 @@ yyreduce:
     break;
 
   case 39:
-#line 454 "q.y"
+#line 467 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1955,7 +1968,7 @@ yyreduce:
     break;
 
   case 40:
-#line 460 "q.y"
+#line 473 "q.y"
     {
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1965,7 +1978,7 @@ yyreduce:
     break;
 
   case 41:
-#line 466 "q.y"
+#line 479 "q.y"
     {
 		cout << "LOGAND expr: " << endl;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
@@ -1977,7 +1990,7 @@ yyreduce:
     break;
 
   case 42:
-#line 474 "q.y"
+#line 487 "q.y"
     {
 		(yyval.expr) = new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1987,7 +2000,7 @@ yyreduce:
     break;
 
   case 43:
-#line 480 "q.y"
+#line 493 "q.y"
     {
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_not);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -1997,7 +2010,7 @@ yyreduce:
     break;
 
   case 44:
-#line 486 "q.y"
+#line 499 "q.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].ival));
 		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
@@ -2008,7 +2021,7 @@ yyreduce:
     break;
 
   case 45:
-#line 493 "q.y"
+#line 506 "q.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].dval));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2018,7 +2031,7 @@ yyreduce:
     break;
 
   case 46:
-#line 499 "q.y"
+#line 512 "q.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].name), oper_name );
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2028,7 +2041,7 @@ yyreduce:
     break;
 
   case 47:
-#line 505 "q.y"
+#line 518 "q.y"
     {
 		(yyval.expr) = new un2_expr(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2039,7 +2052,7 @@ yyreduce:
     break;
 
   case 48:
-#line 512 "q.y"
+#line 525 "q.y"
     {
 		(yyval.expr) = new un2_expr(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2050,7 +2063,7 @@ yyreduce:
     break;
 
   case 49:
-#line 519 "q.y"
+#line 532 "q.y"
     {
 		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=(yyvsp[(1) - (4)].name);
@@ -2093,7 +2106,7 @@ yyreduce:
     break;
 
   case 50:
-#line 558 "q.y"
+#line 571 "q.y"
     {
 		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2103,7 +2116,7 @@ yyreduce:
     break;
 
   case 51:
-#line 564 "q.y"
+#line 577 "q.y"
     { 
 		(yyval.expr) = new un_expr((yyvsp[(2) - (3)].expr), oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2113,7 +2126,7 @@ yyreduce:
     break;
 
   case 52:
-#line 570 "q.y"
+#line 583 "q.y"
     {
 		(yyval.expr) = new bin2_expr((yyvsp[(1) - (3)].expr), xs, oper_in);
 		xs.reset();
@@ -2121,34 +2134,34 @@ yyreduce:
     break;
 
   case 53:
-#line 586 "q.y"
+#line 599 "q.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 54:
-#line 587 "q.y"
+#line 600 "q.y"
     {
 		(yyval.expr)=link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
 	;}
     break;
 
   case 55:
-#line 592 "q.y"
+#line 605 "q.y"
     { q_type = spn; ;}
     break;
 
   case 56:
-#line 593 "q.y"
+#line 606 "q.y"
     { q_type = mpn; no_mpn = (yyvsp[(3) - (4)].ival); ;}
     break;
 
   case 57:
-#line 596 "q.y"
+#line 609 "q.y"
     { ;}
     break;
 
   case 60:
-#line 604 "q.y"
+#line 617 "q.y"
     {
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
 			print_err(compiler_sem_err, "2nd number in range <= 1st number",
@@ -2161,21 +2174,21 @@ yyreduce:
     break;
 
   case 61:
-#line 613 "q.y"
+#line 626 "q.y"
     {
 		xs.indiv.insert((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
   case 62:
-#line 618 "q.y"
+#line 631 "q.y"
     {
 		stub_list.resize(0);
 	;}
     break;
 
   case 63:
-#line 620 "q.y"
+#line 633 "q.y"
     {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=(yyvsp[(2) - (6)].name);
@@ -2187,7 +2200,7 @@ yyreduce:
     break;
 
   case 64:
-#line 631 "q.y"
+#line 644 "q.y"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int code=(yyvsp[(2) - (2)].ival);
@@ -2197,7 +2210,7 @@ yyreduce:
     break;
 
   case 65:
-#line 637 "q.y"
+#line 650 "q.y"
     {
 		string s1=(yyvsp[(2) - (3)].text_buf);
 		int code=(yyvsp[(3) - (3)].ival);
@@ -2209,7 +2222,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2213 "q.tab.c"
+#line 2226 "q.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2423,7 +2436,7 @@ yyreturn:
 }
 
 
-#line 648 "q.y"
+#line 661 "q.y"
 
 
 #include <unistd.h>
@@ -2595,24 +2608,29 @@ void print_header(FILE* script){
 	fprintf(script, "\n");
 	fprintf(script, "int check_if_reg_file_exists(string jno, int ser_no);\n");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
-	
+	fprintf(script, "vector <int8_t> vector_int8_t;\n");
+	fprintf(script, "vector <int16_t> vector_int16_t;\n");
+	fprintf(script, "vector <int32_t> vector_int32_t;\n");
+	fprintf(script, "vector <float> vector_float_t;\n");
+	fprintf(script, "vector <double> vector_double_t;\n");
+	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
 
 	fprintf(script, "int main(){\n");
 	/*
 	map<string, vector<string> > ::iterator iter;
-	for(iter=map_of_active_vars_for_questions.begin();
-		iter!=map_of_active_vars_for_questions.end();
+	for(iter=map_of_active_push_vars_for_questions.begin();
+		iter!=map_of_active_push_vars_for_questions.end();
 		++iter){
 		//fprintf("\t");
 		string q_name = iter->first;
-		fprintf(script, "vector <string> active_vars_%s;\n",
+		fprintf(script, "vector <string> active_push_vars_%s;\n",
 			q_name.c_str());
 		vector<string>& v=iter->second;
 		for(int i=0; i<v.size(); ++i){
-			fprintf(script, "active_vars_%s.push_back(%s);\n",
+			fprintf(script, "active_push_vars_%s.push_back(%s);\n",
 				q_name.c_str(), v[i].c_str());
 		}
-		fprintf(script, "map_of_active_vars_for_questions[%s] = active_vars_%s;\n",
+		fprintf(script, "map_of_active_push_vars_for_questions[%s] = active_push_vars_%s;\n",
 			q_name.c_str(), q_name.c_str());
 	}
 	*/

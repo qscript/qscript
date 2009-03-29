@@ -6,6 +6,7 @@ stubs age = "15 to 21" 1
 q1 "Q1. This is question 1" sp int32_t (1,2,3,4);
 int8_t var1= 5 * 12;
 int8_t var2 = 7* var1;
+int32_t my_32int = 600*700;
 (12.5 * 13.3) - 8+7 *(12%7);
 if(q1 in (1,2)) {
 	q1 = 5;

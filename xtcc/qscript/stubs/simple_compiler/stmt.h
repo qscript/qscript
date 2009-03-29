@@ -23,6 +23,9 @@ struct stmt {
 	virtual void generate_code(ostringstream& quest_defns, ostringstream& program_code)=0;
 	//virtual void eval()=0;
 	virtual ~stmt();
+	private:
+		stmt& operator=(const stmt&);
+		stmt (const stmt&);
 };
 
 //#include "named_range.h"
