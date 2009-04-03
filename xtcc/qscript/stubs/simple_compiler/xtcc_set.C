@@ -40,7 +40,7 @@ void xtcc_set::add_indiv(int n1){
 
 bool xtcc_set::exists(int key)
 {
-	for (int i = 0; i < range.size(); ++i) {
+	for (unsigned int i = 0; i < range.size(); ++i) {
 		if (key >= range[i].first
 		    && key <= range[i].second) {
 		    return true;

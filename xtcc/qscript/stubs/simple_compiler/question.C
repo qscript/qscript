@@ -61,8 +61,9 @@ void range_question::eval(){
 
 	if(input_data.begin()!=input_data.end()){
 		cout << "Current data values: ";
-		set<int>::iterator iter=input_data.begin();
-		for(iter; iter!=input_data.end(); ++iter){
+
+		for(set<int>::iterator iter=input_data.begin();
+			iter!=input_data.end(); ++iter){
 			cout << *iter << " ";
 		}
 		cout << endl;
@@ -73,7 +74,7 @@ void range_question::eval(){
 		invalid_code=false;
 		read_data(prompt.c_str());
 		cout << "data.size(): " << data.size() << endl;
-		for(int i=0; i<data.size(); ++i){
+		for(unsigned int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
 			if (!is_valid(data[i])){
 				invalid_code=true;
@@ -98,7 +99,7 @@ void range_question::eval(){
 
 		if(invalid_code==false){
 			input_data.erase(input_data.begin(), input_data.end());
-			for(int i=0; i<data.size(); ++i){
+			for(unsigned int i=0; i<data.size(); ++i){
 				input_data.insert(data[i]);
 				cout << "storing: " << data[i] << " into input_data" << endl;
 			}
@@ -114,7 +115,7 @@ void range_question::eval(){
 
 bool named_stub_question::is_valid(int value){
 	vector<stub_pair> vec= *stub_ptr;
-	for (int j=0; j<vec.size(); ++j){
+	for (unsigned int j=0; j<vec.size(); ++j){
 		if(vec[j].code==value){
 			return true;
 		}
@@ -125,15 +126,16 @@ bool named_stub_question::is_valid(int value){
 void named_stub_question::eval(){
 	cout << name << "." << text << endl << endl;
 	vector<stub_pair> vec= *stub_ptr;
-	for(int i=0; i< vec.size(); ++i){
+	for(unsigned int i=0; i< vec.size(); ++i){
 		cout << vec[i].stub_text << ": " << vec[i].code << endl;
 	}
 
 
 	if(input_data.begin()!=input_data.end()){
 		cout << "Current data values: ";
-		set<int>::iterator iter=input_data.begin();
-		for(iter; iter!=input_data.end(); ++iter){
+		
+		for(set<int>::iterator iter=input_data.begin();
+			iter!=input_data.end(); ++iter){
 			cout << *iter << " ";
 		}
 		cout << endl;
@@ -144,7 +146,7 @@ void named_stub_question::eval(){
 		invalid_code=true;
 		read_data(prompt.c_str());
 		cout << "data.size(): " << data.size() << endl;
-		for(int i=0; i<data.size(); ++i){
+		for(unsigned int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
 			/*
 			for (int j=0; j<vec.size(); ++j){
@@ -179,7 +181,7 @@ void named_stub_question::eval(){
 
 		if(invalid_code==false){
 			input_data.erase(input_data.begin(), input_data.end());
-			for(int i=0; i<data.size(); ++i){
+			for(unsigned int i=0; i<data.size(); ++i){
 				input_data.insert(data[i]);
 				cout << "storing: " << data[i] << " into input_data" << endl;
 			}
@@ -211,7 +213,7 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 	string q_pop_name = name + "_pop";
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
-	for(int i=0; i< active_push_vars_for_this_question.size(); ++i){
+	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
 		program_code << active_push_vars_for_this_question[i] << endl;
 	}
 	program_code << "if ( back_jump==true ) {" << endl;
@@ -232,7 +234,7 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 		//fprintf(script, "%s.indiv.insert(%d);\n", xtcc_set_name, *it);
 		quest_defns << xtcc_set_name << ".indiv.insert(" << *it << ");" << endl;
 	}
-	for(int i=0; i<r_data->range.size(); ++i){
+	for(unsigned int i=0; i<r_data->range.size(); ++i){
 		//fprintf(script, "%s.range.push_back(pair<int,int>(%d,%d));\n",
 		//	xtcc_set_name, r_data->range[i].first, r_data->range[i].second);
 		quest_defns << xtcc_set_name << ".range.push_back(pair<int,int>("
@@ -285,7 +287,7 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 	string q_pop_name = name + "_pop";
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
-	for(int i=0; i< active_push_vars_for_this_question.size(); ++i){
+	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
 		program_code << active_push_vars_for_this_question[i] << endl;
 	}
 	program_code << "if ( back_jump==true ) {" << endl;

@@ -1776,7 +1776,7 @@ yyreduce:
 		// store
 		vector<string> active_push_vars;
 		vector<string> active_pop_vars;
-		for(int i=0; i< active_scope_list.size(); ++i){
+		for(unsigned int i=0; i< active_scope_list.size(); ++i){
 			scope* sc_ptr= active_scope_list[i];
 			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
@@ -1814,7 +1814,7 @@ yyreduce:
 		// store
 		vector<string> active_push_vars;
 		vector<string> active_pop_vars;
-		for(int i=0; i< active_scope_list.size(); ++i){
+		for(unsigned int i=0; i< active_scope_list.size(); ++i){
 			scope* sc_ptr= active_scope_list[i];
 			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
@@ -1825,7 +1825,7 @@ yyreduce:
 
 		bool found=false;
 		struct named_range* nr_ptr = 0;
-		for(int i=0; i<named_stubs_list.size(); ++i){
+		for(unsigned int i=0; i<named_stubs_list.size(); ++i){
 			nr_ptr = named_stubs_list[i];
 			if(nr_ptr->name==attribute_list_name){
 				found=true; break;
@@ -2626,7 +2626,7 @@ void print_header(FILE* script){
 		fprintf(script, "vector <string> active_push_vars_%s;\n",
 			q_name.c_str());
 		vector<string>& v=iter->second;
-		for(int i=0; i<v.size(); ++i){
+		for(unsigned int i=0; i<v.size(); ++i){
 			fprintf(script, "active_push_vars_%s.push_back(%s);\n",
 				q_name.c_str(), v[i].c_str());
 		}
@@ -2769,7 +2769,7 @@ const char * file_exists_check_code(){
 	"\tif(exists){\n"
 	"\t	load_data(jno,ser_no);\n"
 	"\t	merge_disk_data_into_questions();\n"
-	"\t	for(int i=0; i< qdd_list.size(); ++i){\n"
+	"\t	for(unsigned int i=0; i< qdd_list.size(); ++i){\n"
 	"\t		cout << qdd_list[i]->qno << endl;\n"
 	"\t		cout  << \":\" << qdd_list[i]->data.size() << endl;\n"
 	"\t		for(int j=0; j<qdd_list[i]->data.size(); ++j){\n"

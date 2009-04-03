@@ -108,15 +108,15 @@ bool 	void_check( datatype & type1, datatype & type2, datatype& result_type){
 		result_type=ERROR_TYPE;
 		++no_errors;
 		return false;
-	} 
-	if( type2==VOID_TYPE){
+	}  else if( type2==VOID_TYPE){
 		print_err(compiler_sem_err, " rhs of binary expr is of type void ", 
 			line_no, __LINE__, __FILE__);
 		result_type=ERROR_TYPE;
 		++no_errors;
 		return false;
 	}
-	if( !(type1==VOID_TYPE && type2==VOID_TYPE)){
+	//if( !(type1==VOID_TYPE && type2==VOID_TYPE))
+	else {
 		result_type=type1 > type2? type1: type2;
 		return true;
 	}

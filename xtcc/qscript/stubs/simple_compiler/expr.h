@@ -65,6 +65,9 @@ struct un_expr : public expr{
 	//void print_expr(FILE * edit_out);
 	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
 	virtual ~un_expr();
+	private:
+		un_expr& operator=(const un_expr&);
+		un_expr (const un_expr&);
 };
 
 //extern vector <func_info*> func_info_table;
@@ -102,6 +105,9 @@ struct bin2_expr: public expr{
 	//void print_expr(FILE * edit_out);
 	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
 	~bin2_expr();
+	private:
+		bin2_expr& operator=(const bin2_expr&);
+		bin2_expr (const bin2_expr&);
 };
 
 struct bin_expr: public expr{
@@ -115,6 +121,9 @@ struct bin_expr: public expr{
 	//void print_expr(FILE * edit_out);
 	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
 	~bin_expr();
+	private:
+		bin_expr& operator=(const bin_expr&);
+		bin_expr (const bin_expr&);
 };
 
 
@@ -152,6 +161,9 @@ struct un2_expr : public expr{
 	friend void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr);
 	//void print_expr(FILE * edit_out);
 	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
+	private:
+		un2_expr& operator=(const un2_expr&);
+		un2_expr (const un2_expr&);
 };
 
 

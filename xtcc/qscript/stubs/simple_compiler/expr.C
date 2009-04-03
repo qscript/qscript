@@ -157,7 +157,21 @@ void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & co
 		blk_e->operand2->print_expr(code_bef_expr, code_expr);
 		code_expr << ";\n";
 		switch(lhs->get_symp_ptr()->type){
-			case INT8_TYPE ... DOUBLE_REF_TYPE:
+			case INT8_TYPE:
+			case INT16_TYPE:
+			case INT32_TYPE:
+			case FLOAT_TYPE:
+			case DOUBLE_TYPE:
+			case INT8_ARR_TYPE:
+			case INT16_ARR_TYPE:
+			case INT32_ARR_TYPE:
+			case FLOAT_ARR_TYPE:
+			case DOUBLE_ARR_TYPE:
+			case INT8_REF_TYPE:
+			case INT16_REF_TYPE:
+			case INT32_REF_TYPE:
+			case FLOAT_REF_TYPE:
+			case DOUBLE_REF_TYPE:
 			case BOOL_TYPE:	{	
 				if(l_op->type==FLOAT_TYPE) {
 					code_expr << "if(tmp2-tmp1==sizeof(float)-1){\n";
@@ -201,6 +215,14 @@ void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & co
 				print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
 				code_expr <<  "error\n";
 			}
+			break;
+			default:{
+				std::stringstream s;
+				s << "Un handled datatype for bin_expr";
+				print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
+				code_expr <<  "error\n";
+			}
+				
 		}
 	} else if (r_op->e_type == oper_blk_arr_assgn && l_op->e_type==oper_blk_arr_assgn){
 		std::stringstream s;
@@ -575,8 +597,8 @@ un2_expr::un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * l
 	} else {
 		symtab_ent* se=sym_it->second;
 		symp = se;
-		datatype e_type=arr_index->type;
-		if(is_of_int_type(e_type)){
+		datatype l_e_type=arr_index->type;
+		if(is_of_int_type(l_e_type)){
 			datatype nametype =arr_deref_type(se->type);
 			if(nametype==ERROR_TYPE) {
 				std::stringstream s;
@@ -812,7 +834,6 @@ void bin2_expr::print_expr (FILE * edit_out){
 #endif /* 0 */
 
 void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_expr){
-
 	fprintf(stderr, "bin2_expr::print_expr()\n");
 	//fflush(fptr);
 	string struct_name = get_temp_name();
@@ -828,25 +849,12 @@ void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_ex
 		<< "),\n";								       
 	code_bef_expr << "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n";
 	fprintf(stderr, "bin2_expr::print_expr(): printed constructor");
-	/*
-	for(int i=0; i< r_data->rcount; ++i){
-		code_bef_expr << "\t\t\tran_start_end[" << i 
-			<< "]=pair<int,int>(" 
-			<< r_data->ran_start_end[i*2] 
-			<< "," << r_data->ran_start_end[i*2+1] << ");\n";
-	}
-	*/
 	for(int i=0; i< xs->range.size() ; ++i){
 		code_bef_expr << "\t\t\tran_start_end[" << i 
 			<< "]=pair<int,int>(" 
 			<< xs->range[i].first 
 			<< "," << xs->range[i].second << ");\n";
 	}
-	/*
-	for(int i=0; i< r_data->icount; ++i){
-		code_bef_expr << "\t\t\tran_indiv[" 
-			<< i << "]=" << r_data->ran_indiv[i] <<";\n";
-	}*/
 	
 	int k=0;
 	for(set<int>::iterator iter=xs->indiv.begin(); 
@@ -887,7 +895,21 @@ void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_ex
 	code_bef_expr << "\t} " <<  struct_name1.c_str() <<";\n";
 	
 	switch(l_op->get_symp_ptr()->type){
-		case INT8_TYPE ... DOUBLE_REF_TYPE:
+		case INT8_TYPE:
+		case INT16_TYPE:
+		case INT32_TYPE:
+		case FLOAT_TYPE:
+		case DOUBLE_TYPE:
+		case INT8_ARR_TYPE:
+		case INT16_ARR_TYPE:
+		case INT32_ARR_TYPE:
+		case FLOAT_ARR_TYPE:
+		case DOUBLE_ARR_TYPE:
+		case INT8_REF_TYPE:
+		case INT16_REF_TYPE:
+		case INT32_REF_TYPE:
+		case FLOAT_REF_TYPE:
+		case DOUBLE_REF_TYPE:
 		case BOOL_TYPE:{	
 			string test_bool_var_name=get_temp_name();
 			code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
@@ -913,10 +935,11 @@ void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_ex
 			code_expr << test_bool_var_name.c_str() << " " ;
 		}
 		break;	
-		default:	
+		default: {
 			std::stringstream s;
 			s << "file: " << __FILE__ << ", line: " << __LINE__ << endl;
 			print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
+			 }
 	}
 
 }

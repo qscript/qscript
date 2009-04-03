@@ -188,6 +188,11 @@ void symtab_ent::print_push_stack(string & str){
 	case QUESTION_TYPE:
 		s << "// QUESTION_TYPE - will think of this later " << endl;
 		break;
+	default: {
+			string err_msg = "unhandled type in print_push_stack";
+			s << err_msg;
+			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+		}
 	}
 	str = s.str();
 }
@@ -219,6 +224,11 @@ void symtab_ent::print_pop_stack(string & str){
 	case QUESTION_TYPE:
 		s << "// QUESTION_TYPE - will think of this later " << endl;
 		break;
+	default: {
+			string err_msg = "unhandled type in print_pop_stack";
+			s << err_msg;
+			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+		}
 	}
 	str = s.str();
 }

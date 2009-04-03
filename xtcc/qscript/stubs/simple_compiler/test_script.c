@@ -69,7 +69,7 @@ question_list.push_back(q3);
 	if(exists){
 		load_data(jno,ser_no);
 		merge_disk_data_into_questions();
-		for(int i=0; i< qdd_list.size(); ++i){
+		for(unsigned int i=0; i< qdd_list.size(); ++i){
 			cout << qdd_list[i]->qno << endl;
 			cout  << ":" << qdd_list[i]->data.size() << endl;
 			for(int j=0; j<qdd_list[i]->data.size(); ++j){
