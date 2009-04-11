@@ -7,17 +7,20 @@
  */
 
 %{
+#include <cstdio>
 #include "const_defs.h"
 #include "common.h"
 #include "q.tab.h"
-	void yyerror(const char * s);
+
+	//void yyerror(const char * s);
 	int line_no;
 	extern int no_errors;
 	int if_line_no=-1;
+	using namespace std;
 
 
 %}
-
+%option never-interactive
 %x comment
 
 
@@ -121,6 +124,7 @@ mp 	{ return MP;}
 
 %%
 
+	void yyerror(const char * s);
 	void yyerror(const char * s){
 		++no_errors;
 	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext  );

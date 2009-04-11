@@ -9,16 +9,14 @@
 #include <iostream>
 #include "data_entry.tab.h"
 #include <readline/readline.h>
-	using std::string;
-	using std::cout;
-	using std::cerr;
-	using std::endl;
+	using namespace std;
 
 	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
 	int scan_datalex();
 	int scan_dataparse();
 %}
 
+%option never-interactive
 %option noyywrap
 %option prefix="scan_data"
 
@@ -115,22 +113,24 @@ void read_question_data(){
 */
 
 #include <vector>
-using std::vector;
-extern  vector<int> data;
+	using std::vector;
+	extern  vector<int> data;
+	void scan_dataerror(char *s);
 
-void read_data( const char * prompt);
-void read_data( const char * prompt){
-	char * line=readline(prompt);
-	printf("readline: %s\n", line);
-	YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
-	scan_dataparse();
-	cout << "read: " << endl;
-	for(int i=0; i<data.size(); ++i){
-		cout << data[i] << "," ;
+	void read_data( const char * prompt);
+		void read_data( const char * prompt){
+		char * line=readline(prompt);
+		//printf("readline: %s\n", line);
+		cout << "readline: " << line << endl;
+		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
+		scan_dataparse();
+		cout << "read: " << endl;
+		for(int i=0; i<data.size(); ++i){
+			cout << data[i] << "," ;
+		}
+		cout << endl;
+		yy_delete_buffer(s_data);
+		free(line);
+		line=0;
 	}
-	cout << endl;
-	yy_delete_buffer(s_data);
-	free(line);
-	line=0;
-}
 

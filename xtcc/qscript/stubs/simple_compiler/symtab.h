@@ -6,6 +6,7 @@
 #ifndef XTCC_SYMTAB_H
 #define XTCC_SYMTAB_H
 //#include <iostream>
+#include <limits.h>
 #include <cstring>
 #include <sstream>
 
@@ -35,6 +36,7 @@ using std::stringstream;
 	bool is_of_int_arr_type(datatype dt);
 	bool is_of_int32_arr_type(datatype dt);
 	datatype convert_ref_type(datatype dt);
+	bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
 #include <string>
 using	std::string ;
 	string human_readable_type(datatype dt);

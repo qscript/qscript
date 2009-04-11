@@ -30,7 +30,7 @@
 #include "scope.h"
 #include "tree.h"
 #include <string>
-#include <cstring>
+//#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -141,7 +141,7 @@ stmt* scope::insert(const char * name, datatype dt, int arr_size, /*int line_no,
 	}
 	int text_len=0;
 	if(text){
-		text_len=strlen(text);
+		text_len=std::strlen(text);
 	}
 	if(arr_size<text_len-1) {
 		cerr << "length of TEXT < array size line_no:" << line_no << endl;

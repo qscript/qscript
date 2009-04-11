@@ -465,15 +465,12 @@ char *scan_datatext;
 #include <iostream>
 #include "data_entry.tab.h"
 #include <readline/readline.h>
-	using std::string;
-	using std::cout;
-	using std::cerr;
-	using std::endl;
+	using namespace std;
 
 	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
 	int scan_datalex();
 	int scan_dataparse();
-#line 477 "lex.scan_data.c"
+#line 474 "lex.scan_data.c"
 
 #define INITIAL 0
 
@@ -626,9 +623,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 25 "try1.l"
+#line 23 "try1.l"
 
-#line 632 "lex.scan_data.c"
+#line 629 "lex.scan_data.c"
 
 	if ( !(yy_init) )
 		{
@@ -687,16 +684,12 @@ yy_match:
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 9 );
+		while ( yy_current_state != 11 );
+		yy_cp = (yy_last_accepting_cpos);
+		yy_current_state = (yy_last_accepting_state);
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
-		if ( yy_act == 0 )
-			{ /* have to back up */
-			yy_cp = (yy_last_accepting_cpos);
-			yy_current_state = (yy_last_accepting_state);
-			yy_act = yy_accept[yy_current_state];
-			}
 
 		YY_DO_BEFORE_ACTION;
 
@@ -713,12 +706,12 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 26 "try1.l"
+#line 24 "try1.l"
 ;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 28 "try1.l"
+#line 26 "try1.l"
 {
 	scan_datalval.ival = atoi(scan_datatext);
 	return NUMBER;
@@ -726,7 +719,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 33 "try1.l"
+#line 31 "try1.l"
 {
 	return HYPHEN;
 }
@@ -737,7 +730,7 @@ YY_RULE_SETUP
 	}*/
 case 4:
 YY_RULE_SETUP
-#line 42 "try1.l"
+#line 40 "try1.l"
 {
 	cerr << "ERROR: running ECHO rule" << endl;
 	ECHO;
@@ -746,10 +739,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 49 "try1.l"
+#line 47 "try1.l"
 ECHO;
 	YY_BREAK
-#line 753 "lex.scan_data.c"
+#line 746 "lex.scan_data.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -816,7 +809,8 @@ case YY_STATE_EOF(INITIAL):
 
 			else
 				{
-				yy_cp = (yy_c_buf_p);
+				yy_cp = (yy_last_accepting_cpos);
+				yy_current_state = (yy_last_accepting_state);
 				goto yy_find_action;
 				}
 			}
@@ -1291,10 +1285,6 @@ static void scan_data_load_buffer_state  (void)
 	scan_datafree((void *) b  );
 }
 
-#ifndef __cplusplus
-extern int isatty (int );
-#endif /* __cplusplus */
-    
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
  * such as during a scan_datarestart() or at EOF.
@@ -1318,7 +1308,7 @@ extern int isatty (int );
         b->yy_bs_column = 0;
     }
 
-        b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
+        b->yy_is_interactive = 0;
     
 	errno = oerrno;
 }
@@ -1716,7 +1706,7 @@ void scan_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 49 "try1.l"
+#line 47 "try1.l"
 
 
 
@@ -1787,23 +1777,25 @@ void read_question_data(){
 */
 
 #include <vector>
-using std::vector;
-extern  vector<int> data;
+	using std::vector;
+	extern  vector<int> data;
+	void scan_dataerror(char *s);
 
-void read_data( const char * prompt);
-void read_data( const char * prompt){
-	char * line=readline(prompt);
-	printf("readline: %s\n", line);
-	YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
-	scan_dataparse();
-	cout << "read: " << endl;
-	for(int i=0; i<data.size(); ++i){
-		cout << data[i] << "," ;
+	void read_data( const char * prompt);
+		void read_data( const char * prompt){
+		char * line=readline(prompt);
+		//printf("readline: %s\n", line);
+		cout << "readline: " << line << endl;
+		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
+		scan_dataparse();
+		cout << "read: " << endl;
+		for(int i=0; i<data.size(); ++i){
+			cout << data[i] << "," ;
+		}
+		cout << endl;
+		scan_data_delete_buffer(s_data);
+		free(line);
+		line=0;
 	}
-	cout << endl;
-	scan_data_delete_buffer(s_data);
-	free(line);
-	line=0;
-}
 
 

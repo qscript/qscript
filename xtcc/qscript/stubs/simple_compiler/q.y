@@ -7,6 +7,8 @@
 %{
 
 //#include "common.h"
+
+#include <limits.h>
 #include "tree.h"
 #include "symtab.h"
 #include "stmt.h"
@@ -93,7 +95,7 @@
 	//class question* ques;
 	struct cmpd_stmt * c_stmt;
 
-};
+}
 
 %token <ival> INUMBER
 %token <dval> FNUMBER
@@ -779,7 +781,7 @@ void data_entry_loop(){
 void print_header(FILE* script);
 void print_close(FILE* script, ostringstream & program_code);
 void generate_code(){
-	string script_name("test_script.c");
+	string script_name("test_script.C");
 	FILE * script = fopen(script_name.c_str(), "w");
 	if(!script){
 		cerr << "unable to open output file to dump script data: " << script_name << endl;

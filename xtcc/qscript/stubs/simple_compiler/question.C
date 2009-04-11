@@ -12,6 +12,7 @@
 using std::cout;
 using std::endl;
 using std::cerr;
+using namespace std;
 extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
 question::question(datatype l_type, int l_no, string l_name, string l_text, 

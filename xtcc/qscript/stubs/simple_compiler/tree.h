@@ -157,7 +157,7 @@ private:
 
 //extern struct stmt * tree_root;
 
-bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
+//bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
 
 
 

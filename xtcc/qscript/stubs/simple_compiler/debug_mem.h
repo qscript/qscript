@@ -7,6 +7,8 @@
  */
 #ifndef xtcc_debug_mem_h
 #define xtcc_debug_mem_h
+#include <string>
+using std::string;
 struct mem_addr_tab{
 	void * mem_ptr;
 	int line_number;

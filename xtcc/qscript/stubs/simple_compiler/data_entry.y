@@ -7,11 +7,11 @@
  */
 
 %{
+#include <limits.h>
 #include <vector>
-	using std::vector;
+using namespace std;
 	vector<int> data;
 #include <iostream>
-using namespace std;
 //#define yylex scan_datalex
 	int scan_datalex();
 	void scan_dataerror(char *s);

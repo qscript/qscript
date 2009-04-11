@@ -538,17 +538,20 @@ char *yytext;
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
 #line 10 "lex.l"
+#include <cstdio>
 #include "const_defs.h"
 #include "common.h"
 #include "q.tab.h"
-	void yyerror(const char * s);
+
+	//void yyerror(const char * s);
 	int line_no;
 	extern int no_errors;
 	int if_line_no=-1;
+	using namespace std;
 
 
 
-#line 552 "lex.yy.c"
+#line 555 "lex.yy.c"
 
 #define INITIAL 0
 #define comment 1
@@ -702,11 +705,11 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 24 "lex.l"
+#line 27 "lex.l"
 
 
 
-#line 710 "lex.yy.c"
+#line 713 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -765,16 +768,12 @@ yy_match:
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 182 );
+		while ( yy_current_state != 97 );
+		yy_cp = (yy_last_accepting_cpos);
+		yy_current_state = (yy_last_accepting_state);
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
-		if ( yy_act == 0 )
-			{ /* have to back up */
-			yy_cp = (yy_last_accepting_cpos);
-			yy_current_state = (yy_last_accepting_state);
-			yy_act = yy_accept[yy_current_state];
-			}
 
 		YY_DO_BEFORE_ACTION;
 
@@ -791,113 +790,113 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 27 "lex.l"
+#line 30 "lex.l"
 BEGIN(comment);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 28 "lex.l"
+#line 31 "lex.l"
 /* eat anything that's not a '*' */
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 29 "lex.l"
+#line 32 "lex.l"
 /* eat up '*'s not followed by '/'s */
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 30 "lex.l"
+#line 33 "lex.l"
 ++line_no;
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 31 "lex.l"
+#line 34 "lex.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 32 "lex.l"
+#line 35 "lex.l"
 {
 	// ignore Comment
 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 37 "lex.l"
+#line 40 "lex.l"
 ; /* ignore */
 	YY_BREAK
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 39 "lex.l"
+#line 42 "lex.l"
 { ++line_no; } 
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 41 "lex.l"
+#line 44 "lex.l"
 {
 	return ';';
 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 45 "lex.l"
+#line 48 "lex.l"
 { return '('; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 46 "lex.l"
+#line 49 "lex.l"
 { return ')'; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 48 "lex.l"
+#line 51 "lex.l"
 {return LEQ;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 49 "lex.l"
+#line 52 "lex.l"
 {return GEQ;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 50 "lex.l"
+#line 53 "lex.l"
 {return ISEQ;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 51 "lex.l"
+#line 54 "lex.l"
 {return NOEQ;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 53 "lex.l"
+#line 56 "lex.l"
 { return LOGAND; }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 54 "lex.l"
+#line 57 "lex.l"
 { return LOGOR; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 55 "lex.l"
+#line 58 "lex.l"
 { return NOT; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 56 "lex.l"
+#line 59 "lex.l"
 { return '{'; }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 57 "lex.l"
+#line 60 "lex.l"
 { return '}'; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 61 "lex.l"
+#line 64 "lex.l"
 {
 	if_line_no = line_no;
 	return IF;
@@ -905,69 +904,69 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 66 "lex.l"
+#line 69 "lex.l"
 {
 	return ELSE;
 }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 70 "lex.l"
+#line 73 "lex.l"
 { return IN; }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 73 "lex.l"
+#line 76 "lex.l"
 { return STUBS_LIST; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 76 "lex.l"
+#line 79 "lex.l"
 { yylval.dt=VOID_TYPE; return VOID_T; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 77 "lex.l"
+#line 80 "lex.l"
 { yylval.dt=INT8_TYPE; return INT8_T; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 78 "lex.l"
+#line 81 "lex.l"
 { yylval.dt=INT16_TYPE;	return INT16_T; }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 79 "lex.l"
+#line 82 "lex.l"
 { yylval.dt=INT32_TYPE;	return INT32_T; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 80 "lex.l"
+#line 83 "lex.l"
 { yylval.dt=FLOAT_TYPE; return FLOAT_T; }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 81 "lex.l"
+#line 84 "lex.l"
 { yylval.dt=DOUBLE_TYPE; return DOUBLE_T; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 82 "lex.l"
+#line 85 "lex.l"
 { yylval.dt=STRING_TYPE; return STRING_T; }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 83 "lex.l"
+#line 86 "lex.l"
 {return SP;}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 84 "lex.l"
+#line 87 "lex.l"
 { return MP;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 86 "lex.l"
+#line 89 "lex.l"
 {
 	yylval.ival = atoi(yytext);
 	return INUMBER;
@@ -975,7 +974,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 91 "lex.l"
+#line 94 "lex.l"
 {
 	yylval.dval = atof(yytext);
 	return FNUMBER;
@@ -983,7 +982,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 96 "lex.l"
+#line 99 "lex.l"
 {
 	if(yyleng < MY_STR_MAX) {
 		strcpy(yylval.name,yytext);
@@ -998,7 +997,7 @@ YY_RULE_SETUP
 case 37:
 /* rule 37 can match eol */
 YY_RULE_SETUP
-#line 107 "lex.l"
+#line 110 "lex.l"
 {
 	int len_text=strlen(yytext);
 	yytext[len_text-1]='\0';
@@ -1013,15 +1012,15 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 119 "lex.l"
+#line 122 "lex.l"
 return yytext[0];
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 122 "lex.l"
+#line 125 "lex.l"
 ECHO;
 	YY_BREAK
-#line 1025 "lex.yy.c"
+#line 1024 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -1089,7 +1088,8 @@ case YY_STATE_EOF(comment):
 
 			else
 				{
-				yy_cp = (yy_c_buf_p);
+				yy_cp = (yy_last_accepting_cpos);
+				yy_current_state = (yy_last_accepting_state);
 				goto yy_find_action;
 				}
 			}
@@ -1564,10 +1564,6 @@ static void yy_load_buffer_state  (void)
 	yyfree((void *) b  );
 }
 
-#ifndef __cplusplus
-extern int isatty (int );
-#endif /* __cplusplus */
-    
 /* Initializes or reinitializes a buffer.
  * This function is sometimes called more than once on the same buffer,
  * such as during a yyrestart() or at EOF.
@@ -1591,7 +1587,7 @@ extern int isatty (int );
         b->yy_bs_column = 0;
     }
 
-        b->yy_is_interactive = file ? (isatty( fileno(file) ) > 0) : 0;
+        b->yy_is_interactive = 0;
     
 	errno = oerrno;
 }
@@ -1989,10 +1985,11 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 122 "lex.l"
+#line 125 "lex.l"
 
 
 
+	void yyerror(const char * s);
 	void yyerror(const char * s){
 		++no_errors;
 	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext  );
