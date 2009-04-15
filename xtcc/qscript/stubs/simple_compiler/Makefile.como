@@ -1,0 +1,91 @@
+#CC=g++ -Weffc++ -c
+INCLCUDE_DIR_CNAMES=/home/home/nxd/dnld/comeau-compiler/libcomo43101/cnames
+INCLCUDE_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
+#INCLUDE_C_STD_INCLUDES=/usr/include  
+#INCLUDE_C_STD_INCLUDES=/home/home/nxd/dnld/comeau-compiler/include 
+CXXFLAGS = --no_plv --export -D_POSIX_SOURCE=1 -O -I. -DLIBCIO= --diag_suppress=68,177 -D__REALLY_NEW_LINUXES -D_SVID_SOURCE=1 --no_g++ -no_A 
+
+#CC=como -D_POSIX_SOURCE=1 -D__REALLY_NEW_LINUXES -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -I $(INCLUDE_C_STD_INCLUDES) -c
+#CC=como -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -I $(INCLUDE_C_STD_INCLUDES) $(CXXFLAGS) -c
+#PRE_CC=como -D_POSIX_SOURCE=1 -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -I $(INCLUDE_C_STD_INCLUDES) -E
+SIMPLE_CC=como --no_plv --export -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR) -no_A --no_g++ -D__REALLY_NEW_LINUXES -D_SVID_SOURCE -c
+CC=como -I $(INCLCUDE_DIR_CNAMES) -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR)  $(CXXFLAGS) -c
+PRE_CC=como -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -E
+LIB_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
+LIBS=-lreadline -lcomo
+
+OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o question.o stmt_common.o
+simple_compiler.como: $(OBJS)
+#como --no_g++ --no_plv --export -no_A -L $(LIB_DIR)  -o simple_compiler $(OBJS) $(LIBS) 
+	como -L $(LIB_DIR)  -o $@ $(OBJS) $(LIBS) 
+
+lex.yy.o: lex.yy.c q.tab.h
+	$(CC) $<
+
+lex.yy.c: lex.l
+	flex $<
+
+q.tab.c q.tab.h: q.y common.h
+	bison -v -d $<
+
+q.tab.o: q.tab.c
+#$(CC) $< 2>err || $(PRE_CC) $< > preprocessed-file && exit 1
+	$(CC) $<
+
+xtcc_set.o: xtcc_set.C xtcc_set.h
+#$(CC) $< 2>err ||  $(PRE_CC) $< > preprocessed-file && exit 1
+	$(CC) $<
+
+stmt.o: stmt.C stmt.h
+	$(CC) $<
+
+expr.o: expr.C expr.h
+	$(CC) $<
+
+symtab.o: symtab.C symtab.h
+	$(CC) $<
+
+data_entry.tab.c data_entry.tab.h: data_entry.y	
+	bison -d -p scan_data $<
+	
+
+lex.scan_data.c: try1.l
+	flex $<
+
+lex.scan_data.o: lex.scan_data.c data_entry.tab.h
+#$(CC) $< 2>err || $(PRE_CC) $< > preprocessed-file && exit 1
+#	$(CC) $< 2>err 
+	$(SIMPLE_CC) $< 
+
+data_entry.tab.o: data_entry.tab.c
+	$(CC) $<
+
+tree.o: tree.C tree.h
+#$(CC) $<
+	$(SIMPLE_CC) -I $(INCLCUDE_DIR_CNAMES) $< 
+	
+utils.o: utils.C utils.h
+	$(CC) $<
+
+scope.o: scope.C scope.h
+	$(CC) $<
+
+named_range.o: named_range.C named_range.h
+	$(SIMPLE_CC) -I $(INCLCUDE_DIR_CNAMES) $< 
+
+question.o:  question.C question.h
+	$(CC) $<
+
+stmt_common.o:  stmt_common.C 
+	$(CC) $<
+
+.phony: clean
+clean:
+	rm *.o *.ti *.ii simple_compiler.como test_script.como 
+
+test_script: inp simple_compiler
+	simple_compiler -f inp
+	make -f QScriptMakefile
+	
+test.o: test.c
+	$(CC) $<

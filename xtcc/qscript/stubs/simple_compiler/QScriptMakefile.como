@@ -1,0 +1,58 @@
+
+INCLCUDE_DIR_CNAMES=/home/home/nxd/dnld/comeau-compiler/libcomo43101/cnames
+INCLCUDE_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
+CXXFLAGS = --no_plv --export -D_POSIX_SOURCE=1 -O -I. -DLIBCIO= --diag_suppress=68,177 -D__REALLY_NEW_LINUXES -D_SVID_SOURCE=1 --no_g++ -no_A 
+SIMPLE_CC=como --no_plv --export -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR) -no_A --no_g++ -D__REALLY_NEW_LINUXES -D_SVID_SOURCE -c
+CC=como -I $(INCLCUDE_DIR_CNAMES) -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR)  $(CXXFLAGS) -c
+PRE_CC=como -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -E
+LIB_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
+LIBS=-lreadline -lcomo
+
+#CC=g++ -c
+LIBS=-lreadline -lcomo
+OBJS = test_script.o xtcc_set.o lex.scan_data.o data_entry.tab.o question.o stmt_common.o qscript_lib.o qscript_data.tab.o lex.read_disk_data.o
+test_script.como:  $(OBJS)
+	como --no_g++ --no_plv --export -no_A -L $(LIB_DIR) -o $@ $(OBJS) $(LIBS)
+
+test_script.o: test_script.C
+	$(CC) -p $<
+
+stmt.o: stmt.C stmt.h common.h xtcc_set.h	
+	$(CC)  $<
+
+data_entry.tab.c data_entry.tab.h: data_entry.y	
+	bison -d -p scan_data $<
+	
+
+lex.scan_data.c: try1.l
+	flex $<
+
+
+lex.scan_data.o: lex.scan_data.c data_entry.tab.h
+	$(CC) $<
+
+data_entry.tab.o: data_entry.tab.c
+	$(CC) $<
+
+xtcc_set.o: xtcc_set.C xtcc_set.h
+	$(CC) $<
+
+
+question.o: question.C question.h
+	$(CC) $<
+
+qscript_lib.o: qscript_lib.C
+	$(CC) $<
+
+qscript_data.tab.c qscript_data.tab.h: qscript_data.y
+	bison -d -p read_disk_data $<
+
+lex.read_disk_data.c: qscript_data.l
+	flex $<
+	
+qscript_data.tab.o: qscript_data.tab.c qscript_data.tab.h
+	$(CC) $<
+	
+
+lex.read_disk_data.o: lex.read_disk_data.c qscript_data.tab.h
+	$(CC) $<
