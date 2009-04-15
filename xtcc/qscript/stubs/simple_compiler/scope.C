@@ -131,6 +131,47 @@ stmt* scope::insert(const char * name, datatype dt, expr *e){
 	return st_ptr;
 }
 
+
+stmt* scope::insert(const char * name, datatype dt, expr *e, type_qualifier tq){
+	// we have to handle a case here where symbol is a function name: - this is not allowed
+	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+	if(st_ptr){
+	} else {
+		cerr << "Memory allocation failed : line_no" << line_no << endl;
+		exit(1);
+	}
+	if ( sym_tab.find(name) == sym_tab.end() ){
+		symtab_ent* se=new symtab_ent(name, dt, e, tq);
+		if(is_of_noun_type(e->type)){
+			if (check_type_compat(dt,e->type)){
+				string s(name);
+				sym_tab[s] = se;
+				st_ptr->type=dt;
+				st_ptr->symp=se;
+			} else {
+				stringstream s;
+				s << "Type of variable: " << name << "=" 
+					<< human_readable_type(dt)
+					<< " in decl cannot handle type of expression on rhs of variable: " 
+					<< human_readable_type(e->type) << endl;
+				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+				st_ptr->type=ERROR_TYPE;
+			}
+		} else {
+			stringstream s;
+			s << "Error in expression on rhs of variable :" << name << endl;
+			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+			st_ptr->type=ERROR_TYPE;
+		}
+	} else {
+		stringstream s;
+		s << "variable " << name << " already present in symbol table" << endl;
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		st_ptr->type=ERROR_TYPE;
+	}
+	return st_ptr;
+}
+
 stmt* scope::insert(const char * name, datatype dt, int arr_size, /*int line_no, */ char *text){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	if(dt!=INT8_ARR_TYPE){

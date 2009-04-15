@@ -11,6 +11,9 @@
 #include <sstream>
 
 using std::stringstream;
+	enum type_qualifier {
+		CONST_QUAL
+	};
 	enum datatype {
 		VOID_TYPE, 
 		INT8_TYPE,  INT16_TYPE,  INT32_TYPE, FLOAT_TYPE, DOUBLE_TYPE,
@@ -62,15 +65,20 @@ struct symtab_ent {
 	/*decltype dcl_type;*/
 	int n_elms;
 	bool created_by_me;
+	type_qualifier type_qual;
 	expr * e;
 	xtcc_set * xs;
-	symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false),e(0), xs(0){
-	}
+	//symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false),e(0), xs(0){
+	//}
 	symtab_ent(const char * lname, datatype ldt):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
 	{ }
 	symtab_ent(const char * lname, datatype ldt, expr* le):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le), xs(0)
+	{ }
+	symtab_ent(const char * lname, datatype ldt, expr* le, type_qualifier l_tq):
+		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le), xs(0),
+		type_qual(l_tq)
 	{ }
 	symtab_ent(const char * lname, datatype ldt, xtcc_set * xs);
 	inline datatype get_type(){

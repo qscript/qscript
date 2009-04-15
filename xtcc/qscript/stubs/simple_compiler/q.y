@@ -85,6 +85,7 @@
 
 
 %union {
+	type_qualifier type_qual;
 	int ival;
 	double dval;
 	char name[MY_STR_MAX];
@@ -119,6 +120,7 @@
 %token '('
 %token ')'
 %token '='
+%token CONST 
 
 %left ','
 %right '='
@@ -133,6 +135,7 @@
 %nonassoc IN COUNT
 %nonassoc FUNC_CALL
 
+%type <type_qual> type_qual
 %type <stmt> question
 %type <stmt> stmt
 %type <stmt> expr_stmt
@@ -192,10 +195,17 @@ datatype: VOID_T
 	|STRING_T
 	;
 
+type_qual: CONST {
+		   $$ = CONST_QUAL;
+	}
+	;
+
 decl_stmt: datatype NAME ';' {
 		$$ = active_scope->insert($2, $1/*, line_no*/);
 		//free($2);
 		// -- why am i not freeing this?
+	}
+	| type_qual datatype NAME '=' expression ';' {
 	}
 	| datatype NAME '=' expression ';'{
 		$$ = active_scope->insert($2, $1, $4);

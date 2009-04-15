@@ -2,6 +2,7 @@ CC=g++ -Weffc++ -c
 LIBS=-lreadline
 
 OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o question.o stmt_common.o
+SOURCES=debug_mem.h
 simple_compiler: $(OBJS)
 	g++ -Weffc++ -o simple_compiler $(OBJS) $(LIBS)
 
@@ -42,7 +43,7 @@ lex.scan_data.o: lex.scan_data.c data_entry.tab.h
 data_entry.tab.o: data_entry.tab.c
 	$(CC) $<
 
-tree.o: tree.C tree.h
+tree.o: tree.C tree.h debug_mem.h
 	$(CC) $<
 	
 utils.o: utils.C utils.h

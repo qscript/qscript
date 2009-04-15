@@ -9,7 +9,8 @@
 %{
 #include <cstdio>
 #include "const_defs.h"
-#include "common.h"
+//#include "common.h"
+#include "symtab.h"
 #include "q.tab.h"
 
 	//void yyerror(const char * s);
@@ -85,6 +86,8 @@ double 		{ yylval.dt=DOUBLE_TYPE; return DOUBLE_T; }
 string 		{ yylval.dt=STRING_TYPE; return STRING_T; }
 sp 	{return SP;}
 mp 	{ return MP;}
+const { return CONST; }
+
 
 [0-9]+	{
 	yylval.ival = atoi(yytext);

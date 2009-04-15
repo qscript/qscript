@@ -51,6 +51,7 @@ using namespace std;
 		}
 		stmt* insert(const char * name, datatype dt/*, int line_no*/);
 		stmt* insert(const char * name, datatype dt, expr *e);
+		stmt* insert(const char * name, datatype dt, expr *e, type_qualifier tq);
 		stmt* insert(const char * name, datatype dt, int arr_size /*, int line_no*/);
 		stmt* insert(const char * name, datatype dt, int arr_size, /*int line_no,*/ char *text);
 		stmt* insert(const char * name, datatype dt, xtcc_set *lxs);

@@ -53,19 +53,20 @@
      DOUBLE_T = 269,
      STRING_T = 270,
      IN = 271,
-     LOGOR = 272,
-     LOGAND = 273,
-     NOEQ = 274,
-     ISEQ = 275,
-     GEQ = 276,
-     LEQ = 277,
-     NOT = 278,
-     UMINUS = 279,
-     COUNT = 280,
-     FUNC_CALL = 281,
-     IF = 282,
-     ELSE = 283,
-     STUBS_LIST = 284
+     CONST = 272,
+     LOGOR = 273,
+     LOGAND = 274,
+     NOEQ = 275,
+     ISEQ = 276,
+     GEQ = 277,
+     LEQ = 278,
+     NOT = 279,
+     UMINUS = 280,
+     COUNT = 281,
+     FUNC_CALL = 282,
+     IF = 283,
+     ELSE = 284,
+     STUBS_LIST = 285
    };
 #endif
 /* Tokens.  */
@@ -83,19 +84,20 @@
 #define DOUBLE_T 269
 #define STRING_T 270
 #define IN 271
-#define LOGOR 272
-#define LOGAND 273
-#define NOEQ 274
-#define ISEQ 275
-#define GEQ 276
-#define LEQ 277
-#define NOT 278
-#define UMINUS 279
-#define COUNT 280
-#define FUNC_CALL 281
-#define IF 282
-#define ELSE 283
-#define STUBS_LIST 284
+#define CONST 272
+#define LOGOR 273
+#define LOGAND 274
+#define NOEQ 275
+#define ISEQ 276
+#define GEQ 277
+#define LEQ 278
+#define NOT 279
+#define UMINUS 280
+#define COUNT 281
+#define FUNC_CALL 282
+#define IF 283
+#define ELSE 284
+#define STUBS_LIST 285
 
 
 
@@ -104,6 +106,7 @@
 typedef union YYSTYPE
 #line 87 "q.y"
 {
+	type_qualifier type_qual;
 	int ival;
 	double dval;
 	char name[MY_STR_MAX];
@@ -116,7 +119,7 @@ typedef union YYSTYPE
 
 }
 /* Line 1489 of yacc.c.  */
-#line 120 "q.tab.h"
+#line 123 "q.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
