@@ -73,6 +73,8 @@ else 	{
 
 in 	{ return IN; }
 
+for	{ return FOR; }
+
 
 stubs	{ return STUBS_LIST; }
 

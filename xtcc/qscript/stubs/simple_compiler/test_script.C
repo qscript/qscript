@@ -59,6 +59,11 @@ question_list.push_back(q2);
 // named_stub_question::generate_code() : to be implemented
 named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 13,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
 question_list.push_back(q3);
+xtcc_set xs_2;
+xs_2.indiv.insert(99);
+xs_2.range.push_back(pair<int,int>(1,15));
+range_question * q4 = new range_question(QUESTION_TYPE, 18,string( "q4"),string(" q4"),mpn,5,INT32_TYPE,xs_2);
+question_list.push_back(q4);
 
 	int ser_no;
 	cout << "Enter Serial No (0) to exit: " << flush;
@@ -186,6 +191,46 @@ vector_int32_t.pop_back();
 
 }
 		q3->eval();
+}
+ // decl_stmt::generate_code 
+int32_t i=0;
+for (i /* oper_assgn */ = 0;i<10;i /* oper_assgn */ = i+1){
+lab_q4:
+vector_int32_t.push_back(i);
+
+vector_int32_t.push_back(my_32int);
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+vector_int8_t.push_back(var1);
+
+vector_int8_t.push_back(var2);
+
+if ( back_jump==true ) {
+var2=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+var1=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+i=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+}
+		q4->eval();
 }
 
 			stringstream fname_str;

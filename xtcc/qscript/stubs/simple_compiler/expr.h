@@ -28,6 +28,9 @@
 #define xtcc_expr_h
 #include "tree.h"
 
+
+// the user of this enum e_operator_type should not depend on the order in which 
+// the elements are defined
 enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
 		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
 		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
@@ -47,6 +50,8 @@ struct expr {
 
 	virtual int isvalid();
 	virtual bool is_lvalue()=0;
+	virtual bool is_const()=0;
+	virtual bool is_integral_expr()=0;
 	virtual ~expr();
 	private:
 		expr& operator=(const expr&);
@@ -65,6 +70,8 @@ struct un_expr : public expr{
 	//void print_expr(FILE * edit_out);
 	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
 	virtual ~un_expr();
+	virtual bool is_const();
+	virtual bool is_integral_expr();
 	private:
 		un_expr& operator=(const un_expr&);
 		un_expr (const un_expr&);
@@ -101,6 +108,8 @@ struct bin2_expr: public expr{
 	//bin2_expr(string lname , string rname ,e_operator_type letype);
 	bin2_expr(expr* llop, xtcc_set& l_rd, e_operator_type letype);
 	bool is_lvalue(){ return false; }
+	virtual bool is_const();
+	virtual bool is_integral_expr();
 	//void print_oper_assgn(FILE * edit_out);
 	//void print_expr(FILE * edit_out);
 	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
@@ -120,6 +129,8 @@ struct bin_expr: public expr{
 	void print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr);
 	//void print_expr(FILE * edit_out);
 	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
+	virtual bool is_const();
+	virtual bool is_integral_expr();
 	~bin_expr();
 	private:
 		bin_expr& operator=(const bin_expr&);
@@ -141,6 +152,8 @@ struct un2_expr : public expr{
 	// This is a hack - I have to fix this by putting line number in the base class
 	//int line_no;
 	bool is_lvalue();
+	virtual bool is_const();
+	virtual bool is_integral_expr();
 	//un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table, int lline_no);
 	un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table);
 	const symtab_ent* get_symp_ptr(){

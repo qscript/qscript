@@ -119,6 +119,16 @@ struct cmpd_stmt: public stmt{
 	cmpd_stmt(const cmpd_stmt&);	
 };
 
+struct for_stmt: public stmt{
+	struct expr * init, * test, *incr;
+	struct stmt * for_body;
+	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, expr* l_incr, stmt * lfor_body);
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	virtual ~for_stmt();
+	private:
+	for_stmt& operator=(const for_stmt&);	
+	for_stmt(const for_stmt&);	
+};
 
 struct if_stmt : public stmt{
 	protected:

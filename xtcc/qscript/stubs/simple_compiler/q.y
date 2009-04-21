@@ -113,6 +113,7 @@
 %token <dt> STRING_T
 %type <dt> datatype
 %token IN
+%token FOR
 
 
 %token '['
@@ -146,6 +147,7 @@
 %type <c_stmt> cmpd_stmt	
 %type <c_stmt> open_curly	
 %type <stmt> if_stmt	
+%type <stmt> for_loop_stmt	
 
 %token IF ELSE
 
@@ -230,6 +232,16 @@ stmt:	question
 		$$ = $1;
 	}
 	| if_stmt
+	| for_loop_stmt 
+	;
+
+for_loop_stmt: 
+	FOR '(' expression ';' expression ';' expression ')' cmpd_stmt {
+		$$ = new for_stmt(FOR_STMT, line_no, $3, $5, $7, $9);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, line_no);
+		}
+	}
 	;
 
 cmpd_stmt: open_curly stmt_list '}' {

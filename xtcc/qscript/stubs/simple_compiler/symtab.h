@@ -12,6 +12,7 @@
 
 using std::stringstream;
 	enum type_qualifier {
+		NO_QUAL, // used to mark that nothing was specified 
 		CONST_QUAL
 	};
 	enum datatype {
@@ -75,6 +76,8 @@ struct symtab_ent {
 	{ }
 	symtab_ent(const char * lname, datatype ldt, expr* le):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le), xs(0)
+		, type_qual(NO_QUAL)
+		
 	{ }
 	symtab_ent(const char * lname, datatype ldt, expr* le, type_qualifier l_tq):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le), xs(0),

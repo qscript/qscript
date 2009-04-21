@@ -115,6 +115,10 @@ un_expr::un_expr( expr * l_operand, e_operator_type le_type):expr(le_type), oper
 	}
 }
 
+bool un_expr::is_integral_expr(){
+	return operand->is_integral_expr();
+}
+
 
 //void un_expr::print_expr (FILE * edit_out)
 void un_expr::print_expr (ostringstream& code_bef_expr, ostringstream & code_expr){
@@ -142,6 +146,20 @@ void un_expr::print_expr (ostringstream& code_bef_expr, ostringstream & code_exp
 			code_expr <<  " un handled operator\n" ;
 
 	}
+}
+
+bool un_expr::is_const(){
+	return operand->is_const();
+}
+
+
+// will sort this out later
+bool bin_expr::is_const(){
+	return l_op->is_const() && r_op->is_const();	
+}
+
+bool bin_expr::is_integral_expr(){
+	return l_op->is_integral_expr();
 }
 
 string human_readable_type(datatype dt);
@@ -264,6 +282,37 @@ void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & co
 	}
 }
 
+bool un2_expr::is_const(){
+	switch(e_type){
+		case oper_num:
+		case oper_float:
+			return true;
+		case oper_name:
+			if(symp->type_qual==CONST_QUAL){
+				return true;
+			} else {
+				return false;
+			}
+		default:
+			return false;
+	}
+}
+
+
+bool un2_expr::is_integral_expr(){
+	switch(e_type){
+		case oper_num:
+			return true;
+		case oper_name:
+			if(symp->type==oper_num){
+				return true;
+			} else {
+				return false;
+			}
+		default:
+			return false;
+	}
+}
 
 void un2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_expr){
 	switch(e_type){
@@ -743,6 +792,14 @@ void xtcc_set::add_indiv(int n1){
 	indiv.insert(n1);
 }
 #endif /* 0 */
+
+bool bin2_expr::is_const(){
+	return false;
+}
+
+bool bin2_expr::is_integral_expr(){
+	return false;
+}
 
 bin2_expr::bin2_expr(expr* llop , xtcc_set& l_rd, 
 		e_operator_type letype):expr(letype)/*, l_op(llop)*/{

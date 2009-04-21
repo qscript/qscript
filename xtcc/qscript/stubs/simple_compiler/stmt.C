@@ -206,3 +206,53 @@ question* find_in_question_list(string name){
 	}
 	return 0;
 }
+
+
+for_stmt::for_stmt( datatype dtype, int lline_number, 
+	expr * l_init, expr * l_test, expr* l_incr, stmt * l_for_body): 
+	stmt(dtype, lline_number),
+	init(l_init), test(l_test), incr(l_incr), for_body(l_for_body)
+{
+	if(init->type==VOID_TYPE||test->type==VOID_TYPE||incr->type==VOID_TYPE ){
+		print_err(compiler_sem_err, 
+				"For condition expression has Void or Error Type", 
+				line_no, __LINE__, __FILE__);
+		type=ERROR_TYPE;
+	} 
+}
+
+void for_stmt::generate_code(ostringstream& quest_defns, ostringstream& program_code){
+	ostringstream code_bef_expr, code_expr;
+	code_expr << "for (" ;
+	init->print_expr(code_bef_expr, code_expr);
+	code_expr <<   ";";
+	test->print_expr(code_bef_expr, code_expr);
+	code_expr << ";";
+	incr->print_expr(code_bef_expr, code_expr);
+	code_expr <<  ")";
+
+	program_code << code_bef_expr.str();
+	program_code << code_expr.str();
+	for_body->generate_code(quest_defns, program_code);
+	if(next) 
+		next->generate_code(quest_defns, program_code);
+}
+
+
+for_stmt:: ~for_stmt(){
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file 
+				<< "for_stmt::~for_stmt setting mem_addr:" 
+				<< this << "=0" << endl;
+			break;
+		}
+	}
+	debug_log_file << "deleting for_stmt" << endl;
+	//if (next) delete next;
+	delete init; init=0;
+	delete test; test=0;
+	delete incr; incr=0;
+	delete for_body; for_body=0;
+}

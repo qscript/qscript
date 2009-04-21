@@ -63,7 +63,7 @@ stmt_common.o:  stmt_common.C
 
 .phony: clean
 clean:
-	rm *.o simple_compiler test_script
+	rm *.o simple_compiler test_script lex.yy.c  lex.scan_data.c data_entry.tab.h q.tab.c
 
 test_script: inp simple_compiler
 	simple_compiler -f inp

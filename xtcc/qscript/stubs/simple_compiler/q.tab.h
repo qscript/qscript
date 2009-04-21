@@ -53,20 +53,21 @@
      DOUBLE_T = 269,
      STRING_T = 270,
      IN = 271,
-     CONST = 272,
-     LOGOR = 273,
-     LOGAND = 274,
-     NOEQ = 275,
-     ISEQ = 276,
-     GEQ = 277,
-     LEQ = 278,
-     NOT = 279,
-     UMINUS = 280,
-     COUNT = 281,
-     FUNC_CALL = 282,
-     IF = 283,
-     ELSE = 284,
-     STUBS_LIST = 285
+     FOR = 272,
+     CONST = 273,
+     LOGOR = 274,
+     LOGAND = 275,
+     NOEQ = 276,
+     ISEQ = 277,
+     GEQ = 278,
+     LEQ = 279,
+     NOT = 280,
+     UMINUS = 281,
+     COUNT = 282,
+     FUNC_CALL = 283,
+     IF = 284,
+     ELSE = 285,
+     STUBS_LIST = 286
    };
 #endif
 /* Tokens.  */
@@ -84,20 +85,21 @@
 #define DOUBLE_T 269
 #define STRING_T 270
 #define IN 271
-#define CONST 272
-#define LOGOR 273
-#define LOGAND 274
-#define NOEQ 275
-#define ISEQ 276
-#define GEQ 277
-#define LEQ 278
-#define NOT 279
-#define UMINUS 280
-#define COUNT 281
-#define FUNC_CALL 282
-#define IF 283
-#define ELSE 284
-#define STUBS_LIST 285
+#define FOR 272
+#define CONST 273
+#define LOGOR 274
+#define LOGAND 275
+#define NOEQ 276
+#define ISEQ 277
+#define GEQ 278
+#define LEQ 279
+#define NOT 280
+#define UMINUS 281
+#define COUNT 282
+#define FUNC_CALL 283
+#define IF 284
+#define ELSE 285
+#define STUBS_LIST 286
 
 
 
@@ -119,7 +121,7 @@ typedef union YYSTYPE
 
 }
 /* Line 1489 of yacc.c.  */
-#line 123 "q.tab.h"
+#line 125 "q.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
