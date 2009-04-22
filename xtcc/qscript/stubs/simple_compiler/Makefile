@@ -1,10 +1,10 @@
-CC=g++ -Weffc++ -c
+CC=g++ -Weffc++ -c -g
 LIBS=-lreadline
 
 OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o question.o stmt_common.o
 SOURCES=debug_mem.h
 simple_compiler: $(OBJS)
-	g++ -Weffc++ -o simple_compiler $(OBJS) $(LIBS)
+	g++ -g -Weffc++ -o simple_compiler $(OBJS) $(LIBS)
 
 lex.yy.o: lex.yy.c q.tab.h
 	$(CC) $<

@@ -158,10 +158,14 @@ if_stmt:: ~if_stmt(){
 	if (else_body) delete else_body;
 }
 
-cmpd_stmt::cmpd_stmt(datatype dtype, int lline_number, int l_flag_cmpd_stmt_is_a_func_body): 
+cmpd_stmt::cmpd_stmt(datatype dtype, int lline_number, 
+	int l_flag_cmpd_stmt_is_a_func_body,
+	int l_flag_cmpd_stmt_is_a_for_body): 
 	stmt(dtype, lline_number), 
 	cmpd_bdy(0), sc(0), 
-	flag_cmpd_stmt_is_a_func_body(l_flag_cmpd_stmt_is_a_func_body) 
+	flag_cmpd_stmt_is_a_func_body(l_flag_cmpd_stmt_is_a_func_body),
+	flag_cmpd_stmt_is_a_for_body(l_flag_cmpd_stmt_is_a_for_body),
+	counter_contains_questions(0)
 {}
 
 
@@ -209,7 +213,7 @@ question* find_in_question_list(string name){
 
 
 for_stmt::for_stmt( datatype dtype, int lline_number, 
-	expr * l_init, expr * l_test, expr* l_incr, stmt * l_for_body): 
+	expr * l_init, expr * l_test, expr* l_incr, cmpd_stmt * l_for_body): 
 	stmt(dtype, lline_number),
 	init(l_init), test(l_test), incr(l_incr), for_body(l_for_body)
 {
@@ -218,7 +222,20 @@ for_stmt::for_stmt( datatype dtype, int lline_number,
 				"For condition expression has Void or Error Type", 
 				line_no, __LINE__, __FILE__);
 		type=ERROR_TYPE;
-	} 
+	}
+	// NxD - I have to correct here
+	// test should be a binary expression and 
+	// test->e_type should be <, >, <=, >=, == or !=
+	if(for_body->counter_contains_questions && 
+		! (test->is_integral_expr() && test->is_const())){
+		print_err(compiler_sem_err, 
+			"If the for loop contains questions, then the counter of the for loop should be an integer and a constant expression"
+			,
+
+			line_no, __LINE__, __FILE__);
+		cerr << "is integral expr: " << test->is_integral_expr() << endl;
+		cerr << "is const expr: " << test->is_const() << endl;
+	}
 }
 
 void for_stmt::generate_code(ostringstream& quest_defns, ostringstream& program_code){

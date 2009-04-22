@@ -99,8 +99,21 @@ struct cmpd_stmt: public stmt{
 	struct stmt* cmpd_bdy;
 	struct scope * sc;
 	int flag_cmpd_stmt_is_a_func_body;
+	int flag_cmpd_stmt_is_a_for_body;
+	// When parsing the compound statement
+	// it will be pushed onto a stack 
+	// Everytime the parser encounters a question
+	// it will increment the counter of the cmpd 
+	// stmt on the stack by 1
+	// This way we can determine if 
+	// the compound body has a question and if
+	// so - decide if the for loop counter
+	// should be an integer constant or not
+	int counter_contains_questions;
 	public:
-	cmpd_stmt(datatype dtype, int lline_number, int l_flag_cmpd_stmt_is_a_func_body);
+	cmpd_stmt(datatype dtype, int lline_number
+		, int l_flag_cmpd_stmt_is_a_func_body
+		, int l_flag_cmpd_stmt_is_a_for_body);
 	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
 	/*
 	void print_stmt_lst(FILE * & fptr){
@@ -121,8 +134,9 @@ struct cmpd_stmt: public stmt{
 
 struct for_stmt: public stmt{
 	struct expr * init, * test, *incr;
-	struct stmt * for_body;
-	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, expr* l_incr, stmt * lfor_body);
+	struct cmpd_stmt * for_body;
+	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, 
+			expr* l_incr, cmpd_stmt * lfor_body);
 	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
 	virtual ~for_stmt();
 	private:

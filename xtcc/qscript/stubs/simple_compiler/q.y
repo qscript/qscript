@@ -24,9 +24,12 @@
 	vector <scope*> active_scope_list;
 	int nest_lev=0;
 	int flag_cmpd_stmt_is_a_func_body=-1;
+	int flag_cmpd_stmt_is_a_for_body=-1;
 	bool flag_next_stmt_start_of_block=false;
 	vector<bool> blk_start_flag;
 	vector <stmt*> blk_heads;
+	const int DEFAULT_STACK_SIZE=20;
+	vector<cmpd_stmt*> stack_cmpd_stmt(DEFAULT_STACK_SIZE);
 	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
 
@@ -161,7 +164,8 @@
 %%
 
 
-prog: stmt_list {
+	//prog: stmt_list {
+prog: cmpd_stmt {
 		cerr << "prog: finished parse" << endl;
 		tree_root=$1;
 		while(tree_root->prev) 
@@ -236,8 +240,10 @@ stmt:	question
 	;
 
 for_loop_stmt: 
-	FOR '(' expression ';' expression ';' expression ')' cmpd_stmt {
-		$$ = new for_stmt(FOR_STMT, line_no, $3, $5, $7, $9);
+	FOR '(' expression ';' expression ';' expression ')' {
+		flag_cmpd_stmt_is_a_for_body=1;
+	} cmpd_stmt {
+		$$ = new for_stmt(FOR_STMT, line_no, $3, $5, $7, $10);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -253,7 +259,7 @@ cmpd_stmt: open_curly stmt_list '}' {
 			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
 				<< endl;
 			++no_errors;
-			$$=new struct cmpd_stmt(ERROR_TYPE, line_no, 0);
+			$$=new struct cmpd_stmt(ERROR_TYPE, line_no, 0, 0);
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
@@ -278,7 +284,13 @@ cmpd_stmt: open_curly stmt_list '}' {
 
 open_curly:	'{' {
 		++nest_lev;
-		$$ = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
+		cmpd_stmt * cmpd_stmt_ptr= new cmpd_stmt(CMPD_STMT, 
+				line_no, flag_cmpd_stmt_is_a_func_body,
+				flag_cmpd_stmt_is_a_for_body);
+		$$ = cmpd_stmt_ptr;
+		stack_cmpd_stmt.push_back(cmpd_stmt_ptr);
+		cout << "pushed  cmpd_stmt_ptr: " << cmpd_stmt_ptr 
+			<< " onto stack" << endl;
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
@@ -363,6 +375,14 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 		range_question * q= new range_question(QUESTION_TYPE, line_no, 
 			name, q_text, q_type, no_mpn, dt, xs);
+		if(stack_cmpd_stmt.size()==0){
+			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
+					"... exiting",
+					line_no, __LINE__, __FILE__  );
+			exit(1);
+		}
+		cmpd_stmt * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+		++(cmpd_stmt_ptr->counter_contains_questions);
 		$$=q;
 		question_list.push_back(q);
 		xs.reset();
@@ -522,7 +542,7 @@ expression: expression '+' expression {
 	}
 	|	INUMBER	{
 		$$ = new un2_expr($1);
-		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
+		cout << "got INUMBER: " << $1 << ", e_type : " << $$->e_type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}

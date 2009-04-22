@@ -300,6 +300,9 @@ bool un2_expr::is_const(){
 
 
 bool un2_expr::is_integral_expr(){
+	cerr << "un2_expr::is_integral_expr(): "
+		<< e_type << endl;
+	cout << "oper_num: " << oper_num << endl;
 	switch(e_type){
 		case oper_num:
 			return true;
