@@ -38,6 +38,8 @@ enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, ope
 		oper_err
 	};
 
+string human_readable_expr_type( e_operator_type e_type);
+
 struct expr {
 	e_operator_type e_type;
 	datatype type;
@@ -120,7 +122,7 @@ struct bin2_expr: public expr{
 };
 
 struct bin_expr: public expr{
-	protected:
+	public:
 	expr *l_op, *r_op;
 	public:
 	bin_expr(expr* llop, expr* lrop,e_operator_type letype);

@@ -1789,8 +1789,8 @@ yyreduce:
 				flag_cmpd_stmt_is_a_for_body);
 		(yyval.c_stmt) = cmpd_stmt_ptr;
 		stack_cmpd_stmt.push_back(cmpd_stmt_ptr);
-		cout << "pushed  cmpd_stmt_ptr: " << cmpd_stmt_ptr 
-			<< " onto stack" << endl;
+		//cout << "pushed  cmpd_stmt_ptr: " << cmpd_stmt_ptr 
+		//	<< " onto stack" << endl;
 		void *ptr=(yyval.c_stmt);
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
@@ -2104,7 +2104,7 @@ yyreduce:
 #line 543 "q.y"
     {
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].ival));
-		cout << "got INUMBER: " << (yyvsp[(1) - (1)].ival) << ", e_type : " << (yyval.expr)->e_type << endl;
+		//cout << "got INUMBER: " << $1 << ", e_type : " << $$->e_type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}

@@ -226,15 +226,22 @@ for_stmt::for_stmt( datatype dtype, int lline_number,
 	// NxD - I have to correct here
 	// test should be a binary expression and 
 	// test->e_type should be <, >, <=, >=, == or !=
-	if(for_body->counter_contains_questions && 
-		! (test->is_integral_expr() && test->is_const())){
-		print_err(compiler_sem_err, 
-			"If the for loop contains questions, then the counter of the for loop should be an integer and a constant expression"
-			,
 
-			line_no, __LINE__, __FILE__);
-		cerr << "is integral expr: " << test->is_integral_expr() << endl;
-		cerr << "is const expr: " << test->is_const() << endl;
+	if(for_body->counter_contains_questions){
+		/*&& ! (test->is_integral_expr() && test->is_const()))*/
+		bin_expr * test_expr = dynamic_cast<bin_expr*>(test);
+		if(test_expr==0){
+			print_err(compiler_sem_err, 
+				" test expr should be a binary expression ",
+				line_no, __LINE__, __FILE__);
+		} else if(!(test_expr->r_op->is_integral_expr() 
+				&& test_expr->r_op->is_const())) {
+			print_err(compiler_sem_err, 
+				"If the for loop contains questions, then the counter of the for loop should be an integer and a constant expression"
+			, line_no, __LINE__, __FILE__);
+		}
+		//cerr << "is integral expr: " << test->is_integral_expr() << endl;
+		//cerr << "is const expr: " << test->is_const() << endl;
 	}
 }
 

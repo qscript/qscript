@@ -48,22 +48,27 @@ xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);
 xs_0.indiv.insert(3);
 xs_0.indiv.insert(4);
-range_question * q1 = new range_question(QUESTION_TYPE, 5,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0);
+range_question * q1 = new range_question(QUESTION_TYPE, 6,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0);
 question_list.push_back(q1);
 xtcc_set xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
-range_question * q2 = new range_question(QUESTION_TYPE, 12,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
+range_question * q2 = new range_question(QUESTION_TYPE, 13,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
 question_list.push_back(q2);
 // named_stub_question::generate_code() : to be implemented
-named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 13,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
+named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 14,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
 question_list.push_back(q3);
 xtcc_set xs_2;
 xs_2.indiv.insert(99);
 xs_2.range.push_back(pair<int,int>(1,15));
-range_question * q4 = new range_question(QUESTION_TYPE, 18,string( "q4"),string(" q4"),mpn,5,INT32_TYPE,xs_2);
+range_question * q4 = new range_question(QUESTION_TYPE, 20,string( "q4"),string(" q4"),mpn,5,INT32_TYPE,xs_2);
 question_list.push_back(q4);
+xtcc_set xs_3;
+xs_3.indiv.insert(99);
+xs_3.range.push_back(pair<int,int>(1,15));
+range_question * q7 = new range_question(QUESTION_TYPE, 24,string( "q7"),string(" q7"),mpn,5,INT32_TYPE,xs_3);
+question_list.push_back(q7);
 
 	int ser_no;
 	cout << "Enter Serial No (0) to exit: " << flush;
@@ -84,6 +89,7 @@ question_list.push_back(q4);
 		}
 	}
 
+{
 lab_q1:
 if ( back_jump==true ) {
 }
@@ -142,9 +148,9 @@ q1->input_data.insert(temp_3) ;
 }
 ;
 lab_q2:
-vector_int32_t.push_back(my_32int);
-
 // QUESTION_TYPE - will think of this later 
+
+vector_int32_t.push_back(my_32int);
 
 vector_int8_t.push_back(var1);
 
@@ -157,19 +163,19 @@ vector_int8_t.pop_back();
 var1=vector_int8_t.back();
 vector_int8_t.pop_back();
 
-// QUESTION_TYPE - will think of this later 
-
 my_32int=vector_int32_t.back();
 vector_int32_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
 
 }
 		q2->eval();
 lab_q3:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
 vector_int32_t.push_back(my_32int);
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
 
 vector_int8_t.push_back(var1);
 
@@ -182,29 +188,33 @@ vector_int8_t.pop_back();
 var1=vector_int8_t.back();
 vector_int8_t.pop_back();
 
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
 my_32int=vector_int32_t.back();
 vector_int32_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
 
 }
 		q3->eval();
 }
  // decl_stmt::generate_code 
 int32_t i=0;
+ // decl_stmt::generate_code 
+int32_t var=10;
 for (i /* oper_assgn */ = 0;i<10;i /* oper_assgn */ = i+1){
 lab_q4:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
 vector_int32_t.push_back(i);
 
 vector_int32_t.push_back(my_32int);
 
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
+vector_int32_t.push_back(var);
 
 vector_int8_t.push_back(var1);
 
@@ -217,11 +227,8 @@ vector_int8_t.pop_back();
 var1=vector_int8_t.back();
 vector_int8_t.pop_back();
 
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
+var=vector_int32_t.back();
+vector_int32_t.pop_back();
 
 my_32int=vector_int32_t.back();
 vector_int32_t.pop_back();
@@ -229,8 +236,62 @@ vector_int32_t.pop_back();
 i=vector_int32_t.back();
 vector_int32_t.pop_back();
 
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
 }
 		q4->eval();
+}
+for (i /* oper_assgn */ = 0;i!=5*5;i /* oper_assgn */ = i+1){
+lab_q7:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+vector_int32_t.push_back(i);
+
+vector_int32_t.push_back(my_32int);
+
+vector_int32_t.push_back(var);
+
+vector_int8_t.push_back(var1);
+
+vector_int8_t.push_back(var2);
+
+if ( back_jump==true ) {
+var2=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+var1=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+var=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+i=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q7->eval();
+}
 }
 
 			stringstream fname_str;

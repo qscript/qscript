@@ -270,7 +270,7 @@ void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & co
 				<< q->name << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
 			code_expr << "}" << endl;
 			cerr << "WARNING : line: " << __LINE__ 
-				<< ", file: " << "__FILE__"
+				<< ", file: " << __FILE__
 				<< " put range check on allowed codes" 
 				<< endl;
 
@@ -300,9 +300,9 @@ bool un2_expr::is_const(){
 
 
 bool un2_expr::is_integral_expr(){
-	cerr << "un2_expr::is_integral_expr(): "
-		<< e_type << endl;
-	cout << "oper_num: " << oper_num << endl;
+	//cerr << "un2_expr::is_integral_expr(): "
+	//		<< e_type << endl;
+	//cout << "oper_num: " << oper_num << endl;
 	switch(e_type){
 		case oper_num:
 			return true;
@@ -516,6 +516,11 @@ un2_expr::~un2_expr(){
 
 bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):
 	expr(letype), l_op(llop), r_op(lrop){
+	cerr << "line_no: " << line_no << endl;	
+	cerr << "bin_expr::print_expr()" << endl;
+	cerr << "l_op->e_type: " << human_readable_expr_type(l_op->e_type) << endl;
+	cerr << "r_op->e_type: " << human_readable_expr_type(r_op->e_type) << endl;
+	cerr << "e_type: " << human_readable_expr_type(e_type) << endl;
 	if (e_type!=oper_assgn && 
 		(l_op->e_type==oper_blk_arr_assgn
 		 	||r_op->e_type==oper_blk_arr_assgn)){
@@ -806,14 +811,14 @@ bool bin2_expr::is_integral_expr(){
 
 bin2_expr::bin2_expr(expr* llop , xtcc_set& l_rd, 
 		e_operator_type letype):expr(letype)/*, l_op(llop)*/{
-	cerr << "bin2_expr::bin2_expr" << endl;
+	//cerr << "bin2_expr::bin2_expr" << endl;
 	switch(e_type){
 		case oper_in:
 			switch( llop->e_type){
 			case oper_name:
 			case oper_arrderef:
 				type = BOOL_TYPE;
-				cerr << "bin2_expr::static_cast" << endl;
+				//cerr << "bin2_expr::static_cast" << endl;
 				l_op=static_cast<un2_expr*>(llop);
 				xs = new xtcc_set(l_rd);
 				break;
@@ -1051,3 +1056,99 @@ string get_temp_name(){
 	return s1;
 }
 
+string human_readable_expr_type( e_operator_type e_type){
+	string s="UNKNOWN EXPR TYPE";
+	switch(e_type){
+		case oper_plus:
+			s="oper_plus";
+		break;
+		case oper_minus:
+			s="oper_minus";
+		break;
+		case oper_mult:
+			s="oper_mult";
+		break;
+		case oper_div:
+			s="oper_div";
+		break;
+		case oper_and:
+			s="oper_and";
+		break;
+		case oper_or:
+			s="oper_or";
+		break;
+		case oper_lt:
+			s="oper_lt";
+		break;
+		case oper_gt:
+			s="oper_gt";
+		break;
+		case oper_le:
+			s="oper_le";
+		break;
+		case oper_ge:
+			s="oper_ge";
+		break;
+		case oper_isneq:
+			s="oper_isneq";
+		break;
+		case oper_iseq:
+			s="oper_iseq";
+		break;
+		case oper_parexp:
+			s="oper_parexp";
+		break;
+
+		case oper_umin:
+			s="oper_umin";
+		break;
+		case oper_num:
+			s="oper_num";
+		break;
+		case oper_name:
+			s="oper_name";
+		break;
+		case oper_arrderef:
+			s="oper_arrderef";
+		break;
+		case oper_arr2deref:
+			s="oper_arr2deref";
+		break;
+		case oper_func_call:
+			s="oper_func_call";
+		break;
+		case oper_text_expr:
+			s="oper_text_expr";
+		break;
+		case oper_float:
+			s="oper_float";
+		break;
+		case oper_assgn:
+			s="oper_assgn";
+		break;
+		case oper_not:
+			s="oper_not";
+		break;
+		case oper_mod:
+			s="oper_mod";
+		break;
+		case oper_blk_arr_assgn:
+			s="oper_blk_arr_assgn";
+		break;
+		case oper_in:
+			s="oper_in";
+		break;
+		case oper_q_expr_in:
+			s="oper_q_expr_in";
+		break;
+		case oper_q_expr_arr_in:
+			s="oper_q_expr_arr_in";
+		break;
+		case oper_err:
+			s="oper_err";
+		break;
+		default:
+		;
+	}
+	return s;
+}

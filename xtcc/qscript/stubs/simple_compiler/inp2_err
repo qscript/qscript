@@ -20,6 +20,10 @@
 	for(i=0; i<10; i=i+1){
 		q4 "q4" mp(5) int32_t(1-15,99);
 	}
+	// expected error
+	for(i=0; i!=1.5; i=i+1){
+		q6 "q6" mp(5) int32_t(1-15,99);
+	}
 	// should not be an error
 	for(i=0; i!=5 * 5; i=i+1){
 		q7 "q7" mp(5) int32_t(1-15,99);

@@ -289,8 +289,8 @@ open_curly:	'{' {
 				flag_cmpd_stmt_is_a_for_body);
 		$$ = cmpd_stmt_ptr;
 		stack_cmpd_stmt.push_back(cmpd_stmt_ptr);
-		cout << "pushed  cmpd_stmt_ptr: " << cmpd_stmt_ptr 
-			<< " onto stack" << endl;
+		//cout << "pushed  cmpd_stmt_ptr: " << cmpd_stmt_ptr 
+		//	<< " onto stack" << endl;
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
@@ -542,7 +542,7 @@ expression: expression '+' expression {
 	}
 	|	INUMBER	{
 		$$ = new un2_expr($1);
-		cout << "got INUMBER: " << $1 << ", e_type : " << $$->e_type << endl;
+		//cout << "got INUMBER: " << $1 << ", e_type : " << $$->e_type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
