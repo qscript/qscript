@@ -516,11 +516,11 @@ un2_expr::~un2_expr(){
 
 bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):
 	expr(letype), l_op(llop), r_op(lrop){
-	cerr << "line_no: " << line_no << endl;	
-	cerr << "bin_expr::print_expr()" << endl;
-	cerr << "l_op->e_type: " << human_readable_expr_type(l_op->e_type) << endl;
-	cerr << "r_op->e_type: " << human_readable_expr_type(r_op->e_type) << endl;
-	cerr << "e_type: " << human_readable_expr_type(e_type) << endl;
+	//cerr << "line_no: " << line_no << endl;	
+	//cerr << "bin_expr::print_expr()" << endl;
+	//cerr << "l_op->e_type: " << human_readable_expr_type(l_op->e_type) << endl;
+	//cerr << "r_op->e_type: " << human_readable_expr_type(r_op->e_type) << endl;
+	//cerr << "e_type: " << human_readable_expr_type(e_type) << endl;
 	if (e_type!=oper_assgn && 
 		(l_op->e_type==oper_blk_arr_assgn
 		 	||r_op->e_type==oper_blk_arr_assgn)){
@@ -899,10 +899,7 @@ void bin2_expr::print_expr (FILE * edit_out){
 #endif /* 0 */
 
 void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_expr){
-	fprintf(stderr, "bin2_expr::print_expr()\n");
-	//fflush(fptr);
 	string struct_name = get_temp_name();
-	fprintf(stderr, "bin2_expr::print_expr(): after get_temp_name()\n");
 	code_bef_expr << "\tstruct " <<  struct_name.c_str() << "{\n" ;
 	code_bef_expr << "\t\tconst int size_ran_indiv;\n";
 	code_bef_expr << "\t\tconst int size_start_end;\n";
@@ -913,7 +910,7 @@ void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_ex
 		<< "), size_start_end(" <<  xs->range.size() //r_data->rcount << "),\n";
 		<< "),\n";								       
 	code_bef_expr << "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n";
-	fprintf(stderr, "bin2_expr::print_expr(): printed constructor");
+	//fprintf(stderr, "bin2_expr::print_expr(): printed constructor");
 	for(int i=0; i< xs->range.size() ; ++i){
 		code_bef_expr << "\t\t\tran_start_end[" << i 
 			<< "]=pair<int,int>(" 

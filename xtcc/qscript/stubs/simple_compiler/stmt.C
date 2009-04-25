@@ -158,6 +158,11 @@ if_stmt:: ~if_stmt(){
 	if (else_body) delete else_body;
 }
 
+// There is a reason the scope pointer in the 
+// compound statement is initialised to 0
+//  - if the cmpd_stmt is part of a function body
+// the the variables 
+
 cmpd_stmt::cmpd_stmt(datatype dtype, int lline_number, 
 	int l_flag_cmpd_stmt_is_a_func_body,
 	int l_flag_cmpd_stmt_is_a_for_body): 

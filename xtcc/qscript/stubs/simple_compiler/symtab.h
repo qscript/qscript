@@ -1,4 +1,5 @@
-/*
+/*! \file
+    \brief Symbol table class
  *  xtcc/xtcc/qscript/stubs/simple_compiler/common.h
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
@@ -11,10 +12,14 @@
 #include <sstream>
 
 using std::stringstream;
+	//!  type_qualifier enum: used for marking variables as constant
+	//!  for example: const int BUFSIZE=1024;
 	enum type_qualifier {
 		NO_QUAL, // used to mark that nothing was specified 
 		CONST_QUAL
 	};
+	//! datatype enum: This enum is used to mark the type of a statement
+	//! and the type of a variable and the type of an expression
 	enum datatype {
 		VOID_TYPE, 
 		INT8_TYPE,  INT16_TYPE,  INT32_TYPE, FLOAT_TYPE, DOUBLE_TYPE,
@@ -30,7 +35,15 @@ using std::stringstream;
 		UNNAMED_RANGE,
 		uninit 
 	};
+	//! question_type enum: A question can be single code,
+	//! multicoded or numeric (which I havent yet added to the
+	//! grammar)
 	enum question_type { spn, mpn };
+	//! This helper function will evaluate 2 types for 
+	//! compatibility. For example an INT8_TYPE
+	//! and a INT8_ARR_TYPE are not compatible
+	//! this is used to determine if a type promotion is
+	//! possible or the compiler should signal a type error
 	bool check_type_compat(datatype typ1, datatype typ2);
 
 	bool is_of_int_type(datatype dt);
@@ -45,8 +58,6 @@ using std::stringstream;
 using	std::string ;
 	string human_readable_type(datatype dt);
 
-		/*enum decltype { array_decl, pointer_decl };*/
-
 
 	struct noun_list_type {
 		const char * sym;
@@ -55,6 +66,10 @@ using	std::string ;
 
 struct expr;
 struct xtcc_set;
+//! \class symtab_ent: a Symbol table entry
+/*!
+  All variable definitions are objects of this class.
+*/
 struct symtab_ent {
 	char *name;
 	char *text;
@@ -67,22 +82,29 @@ struct symtab_ent {
 	int n_elms;
 	bool created_by_me;
 	type_qualifier type_qual;
+	//! if the variable declaration is initialised with 
+	//! a value - the expression for that value is held here
 	expr * e;
+	//! if the variable is a set then the values are held here
 	xtcc_set * xs;
 	//symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false),e(0), xs(0){
 	//}
+	//! constructor for variable declaration without initialisation
 	symtab_ent(const char * lname, datatype ldt):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
 	{ }
+	//! constructor for variable declaration and initialisation with an expression
 	symtab_ent(const char * lname, datatype ldt, expr* le):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le), xs(0)
 		, type_qual(NO_QUAL)
 		
 	{ }
+	//! constructor for const qualified variable declaration and initialisation with an expression
 	symtab_ent(const char * lname, datatype ldt, expr* le, type_qualifier l_tq):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le), xs(0),
 		type_qual(l_tq)
 	{ }
+	//! constructor for qualified variable which is a named set
 	symtab_ent(const char * lname, datatype ldt, xtcc_set * xs);
 	inline datatype get_type(){
 		return type;

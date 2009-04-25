@@ -194,7 +194,7 @@ void named_stub_question::eval(){
 }
 
 void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostringstream& program_code){
-	cerr << "range_question::generate_code invoked: question: " << name << endl;
+	//cerr << "range_question::generate_code invoked: question: " << name << endl;
 	/*
 	fprintf(script, "cout <<  \"%s.%s\" << endl << endl;\n\n", name.c_str(), text.c_str());
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
@@ -298,7 +298,7 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 	program_code << "}" << endl;
 
 	//program_code << "*/ " << endl;
-	cerr << "named_stub_question::generate_code invoked: question: " << name << endl;
+	//cerr << "named_stub_question::generate_code invoked: question: " << name << endl;
 	string q_type_str;
 	print_q_type(q_type_str);
 

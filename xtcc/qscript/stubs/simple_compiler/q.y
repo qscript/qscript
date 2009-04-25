@@ -28,8 +28,8 @@
 	bool flag_next_stmt_start_of_block=false;
 	vector<bool> blk_start_flag;
 	vector <stmt*> blk_heads;
-	const int DEFAULT_STACK_SIZE=20;
-	vector<cmpd_stmt*> stack_cmpd_stmt(DEFAULT_STACK_SIZE);
+	//const int DEFAULT_STACK_SIZE=20;
+	vector<cmpd_stmt*> stack_cmpd_stmt;
 	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
 
@@ -166,10 +166,11 @@
 
 	//prog: stmt_list {
 prog: cmpd_stmt {
-		cerr << "prog: finished parse" << endl;
 		tree_root=$1;
-		while(tree_root->prev) 
+		while(tree_root->prev) {
+			cerr << "climbing up the tree" << endl;
 			tree_root=tree_root->prev;
+		}
 	}
 	;
 
@@ -277,7 +278,17 @@ cmpd_stmt: open_curly stmt_list '}' {
 			$1->cmpd_bdy = head_of_this_chain;
 			blk_heads.pop_back();
 		}
-		
+
+		//! update the counter of enlosing cmpd_stmt with 
+		//! the number of questions in this cmpd_stmt being popped of
+		//! right now
+		if(stack_cmpd_stmt.size()>1){
+			cmpd_stmt * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
+			stack_cmpd_stmt.pop_back();
+			cmpd_stmt * current  = stack_cmpd_stmt.back();
+			current->counter_contains_questions+= 
+				(popped_off_cmpd_stmt_ptr->counter_contains_questions);
+		} 
 		$$=$1;
 	}
 	;
@@ -289,8 +300,6 @@ open_curly:	'{' {
 				flag_cmpd_stmt_is_a_for_body);
 		$$ = cmpd_stmt_ptr;
 		stack_cmpd_stmt.push_back(cmpd_stmt_ptr);
-		//cout << "pushed  cmpd_stmt_ptr: " << cmpd_stmt_ptr 
-		//	<< " onto stack" << endl;
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
@@ -300,9 +309,6 @@ open_curly:	'{' {
 			flag_cmpd_stmt_is_a_func_body=-1;
 		} else {
 			$$->sc= new scope();
-			//void *ptr=$$;
-			//mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			//mem_addr.push_back(m1);
 		}
 		flag_next_stmt_start_of_block=true;
 		blk_start_flag.push_back(flag_next_stmt_start_of_block);
@@ -394,7 +400,6 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		// and store that into the symbol table
 		// I should be able to retrieve that 
 		// question* pointer later 
-
 	}
 	| NAME TEXT qtype datatype NAME ';' {
 		string name=$1;
@@ -437,6 +442,14 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		question_list.push_back(q);
 		$$=q;
 		active_scope_list[0]->insert($1, QUESTION_TYPE);
+		if(stack_cmpd_stmt.size()==0){
+			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
+					"... exiting",
+					line_no, __LINE__, __FILE__  );
+			exit(1);
+		}
+		cmpd_stmt * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+		++(cmpd_stmt_ptr->counter_contains_questions);
 	}
 	;
 
@@ -542,7 +555,6 @@ expression: expression '+' expression {
 	}
 	|	INUMBER	{
 		$$ = new un2_expr($1);
-		//cout << "got INUMBER: " << $1 << ", e_type : " << $$->e_type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
