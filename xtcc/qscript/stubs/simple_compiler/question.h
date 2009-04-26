@@ -1,4 +1,10 @@
-/*
+/*! \file
+    \brief The "question" statement classes of the qscript language
+           are contained in this file. The question classes are 
+	   required in the runtime as well as compile environment.
+	   Hence they have been factored out to speed up compilation
+	   and prevent unnecessary code from entering the runtime binary
+
  *  xtcc/xtcc/qscript/stubs/simple_compiler/question.h
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
@@ -8,6 +14,7 @@
 #include "stmt.h"
 
 struct named_range;
+//! The question pure virtual base class - inherits from stmt
 struct question: public stmt {
 	string name;
 	string text;
@@ -30,6 +37,12 @@ struct question: public stmt {
 
 
 
+//! range_question range questions in the qscript language become object instantiations of this class.
+/*!
+  	Below is an example of a range question - the allowed codes are hard coded
+	numbers -> (1,2,5-8)
+		q2 "Q2. This is question 2" mp (5) int32_t (1,2,5-8);
+*/
 struct range_question: public question {
 	xtcc_set * r_data;
 	range_question(datatype this_stmt_type, int line_number,
@@ -46,6 +59,13 @@ struct range_question: public question {
 };
 
 
+//! named_stub_question named  questions in the qscript language become object instantiations of this class.
+/*!
+  	Below is an example of a named_stub_question - the allowed codes are a
+	predefined name like "age" below
+
+		q3 "Q3. Respondents age" sp int32_t age; 
+*/
 class named_stub_question: public question {
 	string named_list;
 	named_range * nr_ptr;

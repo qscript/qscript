@@ -1,5 +1,6 @@
 /*! \file
-    \brief The classes for the statements in the language are contained in this file
+    \brief The classes for the statements parsed in the input 
+            language are contained in this file
  *  xtcc/xtcc/qscript/stubs/simple_compiler/stmt.h
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza

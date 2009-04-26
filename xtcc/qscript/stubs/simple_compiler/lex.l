@@ -13,12 +13,14 @@
 #include "symtab.h"
 #include "q.tab.h"
 
+namespace qscript_parser {
 	//void yyerror(const char * s);
 	int line_no;
 	extern int no_errors;
 	int if_line_no=-1;
 	using namespace std;
 
+}
 
 %}
 %option never-interactive
@@ -31,7 +33,7 @@
 "/*"         BEGIN(comment);
 <comment>[^*\n]*        /* eat anything that's not a '*' */
 <comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */
-<comment>\n             ++line_no;
+<comment>\n             ++qscript_parser::line_no;
 <comment>"*"+"/"        BEGIN(INITIAL);
 \/\/.*	{
 	// ignore Comment
@@ -40,7 +42,7 @@
 
 [ \t]+	; /* ignore */
 
-\n	{ ++line_no; } 
+\n	{ ++qscript_parser::line_no; } 
 
 ";"	{
 	return ';';
@@ -63,7 +65,7 @@
 
 
 if	{
-	if_line_no = line_no;
+	qscript_parser::if_line_no = qscript_parser::line_no;
 	return IF;
 }
 
@@ -131,6 +133,8 @@ const { return CONST; }
 
 	void yyerror(const char * s);
 	void yyerror(const char * s){
+		using qscript_parser::no_errors;
+		using qscript_parser::line_no;
 		++no_errors;
 	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext  );
 		printf("no_errors: %d\n", no_errors);
@@ -139,3 +143,4 @@ const { return CONST; }
 int yywrap(){
 	return 1;
 }
+

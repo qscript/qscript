@@ -60,8 +60,8 @@ struct expr {
 		expr (const expr&);
 };
 
-extern int no_errors;
-extern int line_no;
+//extern int no_errors;
+//extern int line_no;
 
 struct un_expr : public expr{
 	protected:

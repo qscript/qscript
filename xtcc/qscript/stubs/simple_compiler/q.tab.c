@@ -138,6 +138,12 @@
 //#include "common.h"
 
 #include <limits.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
 #include "tree.h"
 #include "symtab.h"
 #include "stmt.h"
@@ -145,74 +151,13 @@
 #include "named_attributes.h"
 #include "named_range.h"
 
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-	scope* active_scope;
-	vector <scope*> active_scope_list;
-	int nest_lev=0;
-	int flag_cmpd_stmt_is_a_func_body=-1;
-	int flag_cmpd_stmt_is_a_for_body=-1;
-	bool flag_next_stmt_start_of_block=false;
-	vector<bool> blk_start_flag;
-	vector <stmt*> blk_heads;
-	//const int DEFAULT_STACK_SIZE=20;
-	vector<cmpd_stmt*> stack_cmpd_stmt;
-	vector<string> stack_of_active_push_vars;
-	map<string, vector<string> > map_of_active_vars_for_questions;
+#include "qscript_parser.h"
 
-
-
-	fstream debug_log_file("xtcc_debug.log", ios_base::out|ios_base::trunc);
-	using std::string;
-	void print_err(compiler_err_category cmp_err, 
-		string err_msg, int line_no, 
-		int compiler_line_no, string compiler_file_name);
-	extern int line_no;
-	extern noun_list_type noun_list[];
-
-	/*
-	noun_list_type noun_list[]= {
-			{	"void"	, VOID_TYPE},
-			{	"int8_t" ,INT8_TYPE},
-			{	"int16_t" ,INT16_TYPE},
-			{	"int32_t" ,INT32_TYPE},
-			{	"float", FLOAT_TYPE},
-			{	"double", DOUBLE_TYPE}
-		};
-	*/	
-
-
-	question_type q_type;
-#include "const_defs.h"
-#include "xtcc_set.h"
-	int no_mpn=0;
-	xtcc_set xs;
-	int yylex();
-	void yyerror(const char * s);
-	int no_errors;
-
-	struct stmt* tree_root=0;
-#include <vector>
-	vector <question*> question_list;
-	void generate_code();
-	template<class T> T* link_chain(T* & elem1, T* & elem2);
-	template<class T> T* trav_chain(T* & elem1);
-	const bool XTCC_DEBUG_MEM_USAGE=true;
-	bool skip_func_type_check(const char * fname);
-	vector<mem_addr_tab>  mem_addr;
-	vector <func_info*> func_info_table;
-	int check_parameters(struct expr* e, struct var_list* v);
-
-        vector <string> attribute_list;
-	vector <named_range*> named_stubs_list;
-	vector <named_attribute_list> named_attributes_list;
-        vector <stub_pair> stub_list;
-	extern int if_line_no;
-
-
-
+	//using qscript_parser::yyerror;
+	//using qscript_parser::yylex;
+	//using qscript_parser::yywrap;
+	extern int yylex();
+	extern void yyerror(const char * s);
 
 
 /* Enabling traces.  */
@@ -235,7 +180,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 90 "q.y"
+#line 35 "q.y"
 {
 	type_qualifier type_qual;
 	int ival;
@@ -250,7 +195,7 @@ typedef union YYSTYPE
 
 }
 /* Line 187 of yacc.c.  */
-#line 254 "q.tab.c"
+#line 199 "q.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -263,7 +208,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 267 "q.tab.c"
+#line 212 "q.tab.c"
 
 #ifdef short
 # undef short
@@ -579,14 +524,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   168,   168,   177,   188,   196,   197,   198,   199,   200,
-     201,   202,   205,   210,   215,   217,   221,   232,   233,   234,
-     235,   236,   239,   240,   244,   244,   254,   296,   322,   328,
-     337,   365,   404,   458,   464,   470,   476,   482,   488,   494,
-     500,   506,   512,   518,   524,   530,   536,   544,   550,   556,
-     562,   568,   574,   581,   588,   627,   633,   639,   655,   656,
-     661,   662,   665,   669,   670,   673,   682,   687,   687,   700,
-     706
+       0,   113,   113,   122,   133,   141,   142,   143,   144,   145,
+     146,   147,   150,   155,   160,   162,   166,   177,   178,   179,
+     180,   181,   184,   185,   189,   189,   200,   251,   291,   301,
+     313,   344,   396,   462,   471,   480,   489,   498,   507,   516,
+     525,   534,   543,   552,   561,   570,   579,   590,   599,   608,
+     617,   625,   633,   642,   651,   703,   710,   717,   735,   736,
+     741,   742,   745,   749,   750,   753,   763,   768,   768,   786,
+     793
 };
 #endif
 
@@ -1649,33 +1594,33 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 168 "q.y"
+#line 113 "q.y"
     {
-		tree_root=(yyvsp[(1) - (1)].c_stmt);
-		while(tree_root->prev) {
+	qscript_parser::tree_root=(yyvsp[(1) - (1)].c_stmt);
+		while(qscript_parser::tree_root->prev) {
 			cerr << "climbing up the tree" << endl;
-			tree_root=tree_root->prev;
+			qscript_parser::tree_root=qscript_parser::tree_root->prev;
 		}
 	;}
     break;
 
   case 3:
-#line 177 "q.y"
+#line 122 "q.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
-		if(flag_next_stmt_start_of_block){
-			blk_heads.push_back((yyvsp[(1) - (1)].stmt));
+		if(qscript_parser::flag_next_stmt_start_of_block){
+			qscript_parser::blk_heads.push_back((yyvsp[(1) - (1)].stmt));
 			//cout << "blk_heads.size(): " << blk_heads.size() << endl;
 			//start_of_blk=$1;
-			flag_next_stmt_start_of_block=false;
-			blk_start_flag.pop_back();
+			qscript_parser::flag_next_stmt_start_of_block=false;
+			qscript_parser::blk_start_flag.pop_back();
 		}
 
 	;}
     break;
 
   case 4:
-#line 188 "q.y"
+#line 133 "q.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
@@ -1684,72 +1629,82 @@ yyreduce:
     break;
 
   case 12:
-#line 205 "q.y"
+#line 150 "q.y"
     {
 		   (yyval.type_qual) = CONST_QUAL;
 	;}
     break;
 
   case 13:
-#line 210 "q.y"
+#line 155 "q.y"
     {
-		(yyval.stmt) = active_scope->insert((yyvsp[(2) - (3)].name), (yyvsp[(1) - (3)].dt)/*, line_no*/);
+		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (3)].name), (yyvsp[(1) - (3)].dt)/*, line_no*/);
 		//free($2);
 		// -- why am i not freeing this?
 	;}
     break;
 
   case 14:
-#line 215 "q.y"
+#line 160 "q.y"
     {
 	;}
     break;
 
   case 15:
-#line 217 "q.y"
+#line 162 "q.y"
     {
-		(yyval.stmt) = active_scope->insert((yyvsp[(2) - (5)].name), (yyvsp[(1) - (5)].dt), (yyvsp[(4) - (5)].expr));
+		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (5)].name), (yyvsp[(1) - (5)].dt), (yyvsp[(4) - (5)].expr));
 		// -- why am i not freeing this?
 	;}
     break;
 
   case 16:
-#line 221 "q.y"
+#line 166 "q.y"
     {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
 		datatype dt=datatype(INT8_ARR_TYPE+((yyvsp[(1) - (6)].dt)-INT8_TYPE));
-		(yyval.stmt) = active_scope->insert((yyvsp[(2) - (6)].name), dt, (yyvsp[(4) - (6)].expr)/*, line_no*/);
+		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (6)].name), dt, (yyvsp[(4) - (6)].expr)/*, line_no*/);
 		free((yyvsp[(2) - (6)].name));
 	;}
     break;
 
   case 21:
-#line 236 "q.y"
+#line 181 "q.y"
     {
 		(yyval.stmt) = (yyvsp[(1) - (1)].c_stmt);
 	;}
     break;
 
   case 24:
-#line 244 "q.y"
+#line 189 "q.y"
     {
-		flag_cmpd_stmt_is_a_for_body=1;
+		qscript_parser::flag_cmpd_stmt_is_a_for_body=1;
 	;}
     break;
 
   case 25:
-#line 246 "q.y"
+#line 191 "q.y"
     {
+		using qscript_parser::line_no;
 		(yyval.stmt) = new for_stmt(FOR_STMT, line_no, (yyvsp[(3) - (10)].expr), (yyvsp[(5) - (10)].expr), (yyvsp[(7) - (10)].expr), (yyvsp[(10) - (10)].c_stmt));
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 26:
-#line 254 "q.y"
+#line 200 "q.y"
     {
+		using qscript_parser::active_scope;
+		using qscript_parser::active_scope_list;
+		using qscript_parser::stack_cmpd_stmt;
+		using qscript_parser::blk_start_flag;
+		using qscript_parser::blk_heads;
+		using qscript_parser::mem_addr;
+		using qscript_parser::flag_next_stmt_start_of_block;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 
 		active_scope_list.pop_back();
 		int tmp=active_scope_list.size()-1;
@@ -1792,8 +1747,22 @@ yyreduce:
     break;
 
   case 27:
-#line 296 "q.y"
+#line 251 "q.y"
     {
+		using qscript_parser::active_scope;
+		using qscript_parser::active_scope_list;
+		using qscript_parser::stack_cmpd_stmt;
+		using qscript_parser::blk_start_flag;
+		using qscript_parser::blk_heads;
+		using qscript_parser::mem_addr;
+		using qscript_parser::flag_next_stmt_start_of_block;
+		using qscript_parser::flag_cmpd_stmt_is_a_func_body;
+		using qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		using qscript_parser::func_info_table;
+		using qscript_parser::nest_lev;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+
 		++nest_lev;
 		cmpd_stmt * cmpd_stmt_ptr= new cmpd_stmt(CMPD_STMT, 
 				line_no, flag_cmpd_stmt_is_a_func_body,
@@ -1804,22 +1773,26 @@ yyreduce:
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if(flag_cmpd_stmt_is_a_func_body>=0){
-			(yyval.c_stmt)->sc=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
+			(yyval.c_stmt)->sc=func_info_table[qscript_parser::flag_cmpd_stmt_is_a_func_body]->func_scope;
 			// reset the flag
-			flag_cmpd_stmt_is_a_func_body=-1;
+			qscript_parser::flag_cmpd_stmt_is_a_func_body=-1;
 		} else {
 			(yyval.c_stmt)->sc= new scope();
 		}
-		flag_next_stmt_start_of_block=true;
-		blk_start_flag.push_back(flag_next_stmt_start_of_block);
-		active_scope_list.push_back((yyval.c_stmt)->sc);
-		active_scope = (yyval.c_stmt)->sc;
+		qscript_parser::flag_next_stmt_start_of_block=true;
+		qscript_parser::blk_start_flag.push_back(flag_next_stmt_start_of_block);
+		qscript_parser::active_scope_list.push_back((yyval.c_stmt)->sc);
+		qscript_parser::active_scope = (yyval.c_stmt)->sc;
 	;}
     break;
 
   case 28:
-#line 322 "q.y"
+#line 291 "q.y"
     {
+		using qscript_parser::if_line_no;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		using qscript_parser::XTCC_DEBUG_MEM_USAGE;
 		(yyval.stmt)=new if_stmt(IFE_STMT,if_line_no,(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].stmt),0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
@@ -1828,26 +1801,32 @@ yyreduce:
     break;
 
   case 29:
-#line 328 "q.y"
+#line 301 "q.y"
     {
-		(yyval.stmt)=new if_stmt(IFE_STMT,if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
-		if(XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
+		using qscript_parser::if_line_no;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		(yyval.stmt)=new if_stmt(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.stmt), __LINE__, __FILE__, qscript_parser::line_no);
 		}
 	;}
     break;
 
   case 30:
-#line 338 "q.y"
+#line 314 "q.y"
     {
+		using qscript_parser::if_line_no;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		if((yyvsp[(1) - (2)].expr)->isvalid()){
 			(yyval.stmt) = new expr_stmt(TEXPR_STMT, line_no, (yyvsp[(1) - (2)].expr));
-			if(XTCC_DEBUG_MEM_USAGE){
+			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 			}
 		} else {
 			(yyval.stmt) = new expr_stmt(ERROR_TYPE, line_no, (yyvsp[(1) - (2)].expr));
-			if(XTCC_DEBUG_MEM_USAGE){
+			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 			}
 		}
@@ -1855,8 +1834,21 @@ yyreduce:
     break;
 
   case 31:
-#line 365 "q.y"
+#line 344 "q.y"
     {
+		using qscript_parser::active_scope;
+		using qscript_parser::active_scope_list;
+		using qscript_parser::stack_cmpd_stmt;
+		using qscript_parser::mem_addr;
+		using qscript_parser::map_of_active_vars_for_questions;
+		using qscript_parser::question_list;
+		using qscript_parser::xs;
+		using qscript_parser::q_type;
+		using qscript_parser::no_mpn;
+		using qscript_parser::if_line_no;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+
 		string name((yyvsp[(1) - (6)].name));
 		string q_text((yyvsp[(2) - (6)].text_buf));
 		datatype dt=(yyvsp[(4) - (6)].dt);
@@ -1898,8 +1890,20 @@ yyreduce:
     break;
 
   case 32:
-#line 404 "q.y"
+#line 396 "q.y"
     {
+		using qscript_parser::active_scope;
+		using qscript_parser::active_scope_list;
+		using qscript_parser::stack_cmpd_stmt;
+		using qscript_parser::mem_addr;
+		using qscript_parser::map_of_active_vars_for_questions;
+		using qscript_parser::named_stubs_list;
+		using qscript_parser::question_list;
+		using qscript_parser::q_type;
+		using qscript_parser::no_mpn;
+		using qscript_parser::if_line_no;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		string name=(yyvsp[(1) - (6)].name);
 		string q_txt=(yyvsp[(2) - (6)].text_buf);
 		datatype dt=(yyvsp[(4) - (6)].dt);
@@ -1952,141 +1956,183 @@ yyreduce:
     break;
 
   case 33:
-#line 458 "q.y"
+#line 462 "q.y"
     {
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		using qscript_parser::mem_addr;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 34:
-#line 464 "q.y"
+#line 471 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 35:
-#line 470 "q.y"
+#line 480 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 36:
-#line 476 "q.y"
+#line 489 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 37:
-#line 482 "q.y"
+#line 498 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 38:
-#line 488 "q.y"
+#line 507 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_umin);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 39:
-#line 494 "q.y"
+#line 516 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 40:
-#line 500 "q.y"
+#line 525 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 41:
-#line 506 "q.y"
+#line 534 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 42:
-#line 512 "q.y"
+#line 543 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 43:
-#line 518 "q.y"
+#line 552 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 44:
-#line 524 "q.y"
+#line 561 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 45:
-#line 530 "q.y"
+#line 570 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 46:
-#line 536 "q.y"
+#line 579 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		cout << "LOGAND expr: " << endl;
 		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 		cout << "after LOGAND expr : " << endl;
@@ -2094,60 +2140,75 @@ yyreduce:
     break;
 
   case 47:
-#line 544 "q.y"
+#line 590 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr) = new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 48:
-#line 550 "q.y"
+#line 599 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_not);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 49:
-#line 556 "q.y"
+#line 608 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].ival));
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 50:
-#line 562 "q.y"
+#line 617 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].dval));
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 51:
-#line 568 "q.y"
+#line 625 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
 		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].name), oper_name );
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 52:
-#line 574 "q.y"
+#line 633 "q.y"
     {
+		using qscript_parser::line_no;
+		using qscript_parser::mem_addr;
 		(yyval.expr) = new un2_expr(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 		free((yyvsp[(1) - (4)].name));
@@ -2155,10 +2216,12 @@ yyreduce:
     break;
 
   case 53:
-#line 581 "q.y"
+#line 642 "q.y"
     {
+		using qscript_parser::line_no;
+		using qscript_parser::mem_addr;
 		(yyval.expr) = new un2_expr(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 		free((yyvsp[(1) - (6)].name));
@@ -2166,8 +2229,21 @@ yyreduce:
     break;
 
   case 54:
-#line 588 "q.y"
+#line 651 "q.y"
     {
+		using qscript_parser::mem_addr;
+		using qscript_parser::named_stubs_list;
+		using qscript_parser::func_info_table;
+		using qscript_parser::xs;
+		using qscript_parser::q_type;
+		using qscript_parser::no_mpn;
+		using qscript_parser::trav_chain;
+		using qscript_parser::skip_func_type_check;
+		using qscript_parser::check_parameters;
+		using qscript_parser::link_chain;
+		using qscript_parser::stub_list;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
 		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=(yyvsp[(1) - (4)].name);
 		bool found=false;
@@ -2209,90 +2285,100 @@ yyreduce:
     break;
 
   case 55:
-#line 627 "q.y"
+#line 703 "q.y"
     {
+		using qscript_parser::line_no;
 		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 56:
-#line 633 "q.y"
+#line 710 "q.y"
     { 
+		using qscript_parser::line_no;
 		(yyval.expr) = new un_expr((yyvsp[(2) - (3)].expr), oper_parexp );
-		if(XTCC_DEBUG_MEM_USAGE){
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 57:
-#line 639 "q.y"
+#line 717 "q.y"
     {
+		using qscript_parser::xs;
+		using qscript_parser::line_no;
 		(yyval.expr) = new bin2_expr((yyvsp[(1) - (3)].expr), xs, oper_in);
 		xs.reset();
 	;}
     break;
 
   case 58:
-#line 655 "q.y"
+#line 735 "q.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 59:
-#line 656 "q.y"
+#line 736 "q.y"
     {
-		(yyval.expr)=link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
+		(yyval.expr)=qscript_parser::link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
 	;}
     break;
 
   case 60:
-#line 661 "q.y"
-    { q_type = spn; ;}
+#line 741 "q.y"
+    { qscript_parser::q_type = spn; ;}
     break;
 
   case 61:
-#line 662 "q.y"
-    { q_type = mpn; no_mpn = (yyvsp[(3) - (4)].ival); ;}
+#line 742 "q.y"
+    { qscript_parser::q_type = mpn; qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival); ;}
     break;
 
   case 62:
-#line 665 "q.y"
+#line 745 "q.y"
     { ;}
     break;
 
   case 65:
-#line 673 "q.y"
+#line 753 "q.y"
     {
+		using qscript_parser::line_no;
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
 			print_err(compiler_sem_err, "2nd number in range <= 1st number",
 					line_no, __LINE__, __FILE__  );
 
 		} else {
-			xs.range.push_back( pair<int,int>((yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival)));
+			qscript_parser::xs.range.push_back( pair<int,int>((yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival)));
 		}
 	;}
     break;
 
   case 66:
-#line 682 "q.y"
+#line 763 "q.y"
     {
-		xs.indiv.insert((yyvsp[(1) - (1)].ival));
+		qscript_parser::xs.indiv.insert((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
   case 67:
-#line 687 "q.y"
+#line 768 "q.y"
     {
+		using qscript_parser:: stub_list;
+		using qscript_parser:: named_stubs_list;
 		stub_list.resize(0);
 	;}
     break;
 
   case 68:
-#line 689 "q.y"
+#line 772 "q.y"
     {
+		using qscript_parser::line_no;
+		using qscript_parser:: stub_list;
+		using qscript_parser:: named_stubs_list;
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=(yyvsp[(2) - (6)].name);
 		struct named_range* nr_ptr= new named_range(NAMED_RANGE, line_no, stub_name,stub_list);
@@ -2303,8 +2389,9 @@ yyreduce:
     break;
 
   case 69:
-#line 700 "q.y"
+#line 786 "q.y"
     {
+		using qscript_parser::stub_list;
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int code=(yyvsp[(2) - (2)].ival);
 		struct stub_pair pair1(s1,code);
@@ -2313,8 +2400,9 @@ yyreduce:
     break;
 
   case 70:
-#line 706 "q.y"
+#line 793 "q.y"
     {
+		using qscript_parser::stub_list;
 		string s1=(yyvsp[(2) - (3)].text_buf);
 		int code=(yyvsp[(3) - (3)].ival);
 		struct stub_pair pair1(s1,code);
@@ -2325,7 +2413,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2329 "q.tab.c"
+#line 2417 "q.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2539,238 +2627,13 @@ yyreturn:
 }
 
 
-#line 717 "q.y"
+#line 805 "q.y"
 
 
 #include <unistd.h>
 #include <string>
-extern void yyrestart ( FILE *input_file );
 
-void data_entry_loop();
-
-using std::string;
-int main(int argc, char* argv[]){
-	int opterr=1, c;
-	string fname;
-	int fname_flag=0;
-	
-	while( (c=getopt(argc, argv, "f:"))!=-1 ){
-		char ch=optopt;
-		switch(c){
-		case 'f':
-			fname=optarg;
-			fname_flag=1;
-			break;
-		case '?': 
-			if(optopt == 'f' ) 
-				cerr << " option -'" << optopt << "' requires an argument" << endl;
-			else if (isprint(optopt)){
-				cerr << " unknown option : '-" << optopt << "'" << endl;
-			} else 	
-				cerr << " unknown character " << optopt << endl;
-			exit(1);
-			break;
-		default:
-			cerr << "usage: " << endl
-				<< argv[0] << " -f <input-file>\n" <<   endl ;
-			exit(0);
-		}
-		if(fname_flag==1){
-			break;
-		}
-	}
-	if(!fname_flag){
-		cout << "usage: " 
-			<< endl
-			<< argv[0] << " -f <input-file> "  << endl << endl;
-		exit(0);
-	}
-	active_scope=new scope();
-	active_scope_list.push_back(active_scope);
-
-	FILE * yyin = fopen(fname.c_str(), "r");
-	if(!yyin){
-		cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
-		exit(1);
-	}
-	yyrestart(yyin);
-	if( !yyparse() && !no_errors){
-		cout << "Input parsed sucessfully: generating code" << endl;
-		//data_entry_loop();
-		generate_code();
-	} else {
-		cerr << "There were : " << no_errors << " errors in parse" << endl;
-	}
-	return no_errors;
-}
-
-#include <string>
-using std::string;
-#if 0
-void print_err(compiler_err_category cmp_err, string err_msg, 
-	int line_no, int compiler_line_no, string compiler_file_name){
-	++no_errors;
-	cerr << "xtcc " ;
-	switch(cmp_err){
-		case compiler_syntax_err: 
-			cerr << "syntax error: ";
-		break;
-		case compiler_sem_err:
-			cerr << "semantic error: ";
-		break;
-		case compiler_internal_error:
-			cerr << "compiler internal error: " ;
-		break;	
-		default:
-			cerr << "internal compiler error - error code category missing in switch statement: compiler file: " 
-				<< __FILE__ << " compiler src code lineno: " << __LINE__ << endl;
-			
-	}
-	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: " 
-		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
-}
-#endif /* 0 */
-
-#include <sstream>
-/*
-void data_entry_loop(){
-	int ser_no;
-	cout << "Enter Serial No (0) to exit: " << flush;
-	cin >> ser_no;
-	string jno="j_1001";
-	while(ser_no!=0){
-		stringstream fname_str;
-		fname_str << jno << "_" << ser_no << ".dat";
-		FILE * fptr = fopen(fname_str.str().c_str(), "w+b");
-		tree_root->eval();
-		cout << "Enter Serial No (0) to exit: " << flush;
-		cin >> ser_no;
-		for (int i=0; i<question_list.size(); ++i){
-			fprintf(fptr, "%s: ", question_list[i]->name.c_str());
-			for( set<int>::iterator iter=question_list[i]->input_data.begin();
-					iter!=question_list[i]->input_data.end(); ++iter){
-				fprintf(fptr, "%d ", *iter);
-			}
-			fprintf(fptr, "\n");
-		}
-		fclose(fptr);
-	} 
-}
-*/
-
-void print_header(FILE* script);
-void print_close(FILE* script, ostringstream & program_code);
-void generate_code(){
-	string script_name("test_script.C");
-	FILE * script = fopen(script_name.c_str(), "w");
-	if(!script){
-		cerr << "unable to open output file to dump script data: " << script_name << endl;
-		exit(1);
-	}
-	ostringstream quest_defns, program_code;
-	print_header(script);
-	tree_root->generate_code(quest_defns, program_code);
-	fprintf(script, "%s\n", quest_defns.str().c_str());
-	print_close(script, program_code);
-}
-
-void print_header(FILE* script){
-	fprintf(script, "#include <iostream>\n");
-	fprintf(script, "#include <vector>\n");
-	fprintf(script, "#include <string>\n");
-	fprintf(script, "#include <sstream>\n");
-	fprintf(script, "#include <fstream>\n");
-	fprintf(script, "#include <map>\n");
-	fprintf(script, "#include \"stmt.h\"\n");
-	fprintf(script, "#include \"xtcc_set.h\"\n");
-	fprintf(script, "#include \"stub_pair.h\"\n");
-	fprintf(script, "#include \"symtab.h\"\n");
-	fprintf(script, "#include \"qscript_lib.h\"\n");
-	fprintf(script, "#include \"question_disk_data.h\"\n");
-
-	fprintf(script, "#include \"debug_mem.h\"\n");
-	fprintf(script, "fstream debug_log_file(\"xtcc_debug.log\", ios_base::out|ios_base::trunc);\n");
-
-	fprintf(script, "using namespace std;\n");
-	fprintf(script, "void read_data(const char * prompt);\n");
-	fprintf(script, "extern vector<int> data;\n");
-	fprintf(script, "vector <question*> question_list;\n");
-	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
-	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
-	fprintf(script, "void merge_disk_data_into_questions();\n");
-
-
-	fprintf(script, "\tnoun_list_type noun_list[]= {\n");
-	fprintf(script, "\t\t\t{\t\"void\"\t, VOID_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"int8_t\" ,INT8_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"int16_t\" ,INT16_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"int32_t\" ,INT32_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"float\", FLOAT_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"double\", DOUBLE_TYPE}\n");
-	fprintf(script, "\t\t};\n");
-	fprintf(script, "\n");
-	fprintf(script, "int check_if_reg_file_exists(string jno, int ser_no);\n");
-	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
-	fprintf(script, "vector <int8_t> vector_int8_t;\n");
-	fprintf(script, "vector <int16_t> vector_int16_t;\n");
-	fprintf(script, "vector <int32_t> vector_int32_t;\n");
-	fprintf(script, "vector <float> vector_float_t;\n");
-	fprintf(script, "vector <double> vector_double_t;\n");
-	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
-
-	fprintf(script, "int main(){\n");
-	/*
-	map<string, vector<string> > ::iterator iter;
-	for(iter=map_of_active_push_vars_for_questions.begin();
-		iter!=map_of_active_push_vars_for_questions.end();
-		++iter){
-		//fprintf("\t");
-		string q_name = iter->first;
-		fprintf(script, "vector <string> active_push_vars_%s;\n",
-			q_name.c_str());
-		vector<string>& v=iter->second;
-		for(unsigned int i=0; i<v.size(); ++i){
-			fprintf(script, "active_push_vars_%s.push_back(%s);\n",
-				q_name.c_str(), v[i].c_str());
-		}
-		fprintf(script, "map_of_active_push_vars_for_questions[%s] = active_push_vars_%s;\n",
-			q_name.c_str(), q_name.c_str());
-	}
-	*/
-
-}
-
-const char * file_exists_check_code();
-
-void print_close(FILE* script, ostringstream & program_code){
-
-	fprintf(script, "\tint ser_no;\n");
-	fprintf(script, "\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
-	fprintf(script, "\tcin >> ser_no;\n");
-	fprintf(script, "\tstring jno=\"j_1001\";\n");
-	fprintf(script, "\twhile(ser_no!=0){\n");
-	fprintf(script, "%s\n", file_exists_check_code());
-	fprintf(script, "%s\n", program_code.str().c_str());
-	fprintf(script, "\t\t\tstringstream fname_str;\n");
-	fprintf(script, "\t\t\tfname_str << jno << \"_\" << ser_no << \".dat\";\n");
-	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
-	fprintf(script, "\tfor (int i=0; i<question_list.size(); ++i){\n");
-	fprintf(script, "\t\tfprintf(fptr, \"%%s: \", question_list[i]->name.c_str());\n");
-	fprintf(script, "\t\tfor( set<int>::iterator iter=question_list[i]->input_data.begin();\n");
-	fprintf(script, "\t\t\t\titer!=question_list[i]->input_data.end(); ++iter){\n");
-	fprintf(script, "\t\t\tfprintf(fptr, \"%%d \", *iter);\n");
-	fprintf(script, "\t\t}\n");
-	fprintf(script, "\t\tfprintf(fptr, \"\\n\");\n");
-	fprintf(script, "\t\tquestion_list[i]->input_data.clear();\n");
-	fprintf(script, "\t}\n");
-	fprintf(script, "\tfclose(fptr);\n");
-	fprintf(script, "\n");
-	fprintf(script,	"\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
-	fprintf(script, "\tcin >> ser_no;\n");
-	fprintf(script, "\n\t} /* close while */\n");
-	fprintf(script, "\n} /* close main */\n");
-}
-
+namespace qscript_parser {
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
 	if(elem1 && elem2){
@@ -2785,6 +2648,7 @@ template<class T> T* link_chain(T* &elem1, T* &elem2){
 	}
 }
 
+
 template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
 		while (elem1->prev) elem1=elem1->prev;
@@ -2792,95 +2656,5 @@ template<class T> T* trav_chain(T* & elem1){
 	} else return 0;
 }
 
-	bool skip_func_type_check(const char * fname){
-		const char * skip_func_type_check_list[] = {"printf" };
-		for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
-			if(!strcmp(fname, skip_func_type_check_list[i])){
-				return true;
-			}
-		}
-		return false;
-	}
-
-int check_parameters(expr* e, var_list* v){
-	debug_log_file << "check_parameters: called" << endl;
-	expr* e_ptr=e;
-	var_list* fparam=v;
-	bool match=true;
-	/* Important point to note: I am not allowing references in ordinary variable decl
-	   Only in function parameter list - the object is to allow modifying of variables
-	   in a function as in C++
-	   */
-
-	int chk_param_counter=1;
-	while (e_ptr && fparam) {
-		//e_ptr->print();
-		datatype etype=e_ptr->type, fptype=fparam->var_type; 
-		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE) && 
-			((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)||
-			 (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
-			datatype tdt=fptype;
-				/* the code below makes a INT8_REF_TYPE -> INT8_TYPE
-				   			a INT8_REF_TYPE -> INT8_TYPE
-				 thats because we dont care much about references -> C++
-				 does all the hard work. For checking types they are equivalent to us
-				*/			
-			if(tdt>=INT8_REF_TYPE) tdt=datatype(INT8_TYPE+tdt-INT8_REF_TYPE);
-			if(etype <= tdt) {
-				debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
-					<< chk_param_counter << " passed " << endl;
-			}
-		} else if ((etype>=INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)&&
-				(fptype>=INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)&&
-				(etype==fptype)){
-			debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
-					<< chk_param_counter << " passed " << endl;
-		}else {
-			match=false;
-			cerr << "Parameter type mismatch name: " << endl;
-			cerr << fparam->var_name << " expected type is " << fparam->var_type
-				<< " passed type is " << e_ptr->type 
-				<< " line_no: " << line_no << " or currently allowed promotion to: " 
-				<< e_ptr->type+INT8_REF_TYPE
-				<< endl;
-			++no_errors;
-		}
-		e_ptr=e_ptr->next;
-		fparam=fparam->next;
-		chk_param_counter=chk_param_counter+1;
-	}
-	if(match==true){
-		if(e_ptr==0&& fparam==0){
-			match=true;
-		} else {
-			match=false;
-			++no_errors;
-			cerr << "NOTMATCHED: No of parameters in function call not matching with no of paramters in expr: line_no"
-				<< line_no << endl;
-		}
-	}
-	if(!match) {
-		cerr << "function parameter type check FAILURE: line_no " << line_no << endl;
-	}
-	return match;
-}
-
-
-const char * file_exists_check_code(){
-	const char * file_check_code =  
-	"\tint exists=check_if_reg_file_exists(jno, ser_no);\n"
-	"\tif(exists){\n"
-	"\t	load_data(jno,ser_no);\n"
-	"\t	merge_disk_data_into_questions();\n"
-	"\t	for(unsigned int i=0; i< qdd_list.size(); ++i){\n"
-	"\t		cout << qdd_list[i]->qno << endl;\n"
-	"\t		cout  << \":\" << qdd_list[i]->data.size() << endl;\n"
-	"\t		for(int j=0; j<qdd_list[i]->data.size(); ++j){\n"
-	"\t			cout << qdd_list[i]->data[j] << \" \";\n"
-	"\t		}\n"
-	"\t		cout << endl;\n"
-	"\t	}\n"
-	"\t}\n";
-	return file_check_code;
 }
 

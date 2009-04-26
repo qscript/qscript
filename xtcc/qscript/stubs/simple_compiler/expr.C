@@ -33,16 +33,21 @@
 #include <climits>
 //#include "../../qscript/trunk/named_range.h"
 #include "named_range.h"
+#include "qscript_parser.h"
 question* find_in_question_list(string name);
+using std::string;
 string get_temp_name();
 
-extern scope* active_scope;
-extern ofstream debug_log_file;
-using namespace std;
-
-extern	vector <func_info*> func_info_table;
-extern vector<mem_addr_tab> mem_addr;
-extern vector <named_range*> named_stubs_list;
+//extern scope* active_scope;
+//extern ofstream debug_log_file;
+//using namespace std;
+//
+//extern	vector <func_info*> func_info_table;
+//extern vector<mem_addr_tab> mem_addr;
+//extern vector <named_range*> named_stubs_list;
+using qscript_parser::debug_log_file;
+using qscript_parser::line_no;
+using qscript_parser::no_errors;
 expr::~expr(){
 	debug_log_file << "deleting expr::~expr(): base destructor for expr" << endl;
 	if(next) {delete next; next=0; }
@@ -65,6 +70,7 @@ int expr::isvalid(){
 }
 
 un_expr::~un_expr(){
+	using qscript_parser::mem_addr;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
@@ -303,6 +309,8 @@ bool un2_expr::is_integral_expr(){
 	//cerr << "un2_expr::is_integral_expr(): "
 	//		<< e_type << endl;
 	//cout << "oper_num: " << oper_num << endl;
+	cerr << "Sort out later expr.C:316: warning: comparison between ‘enum datatype’ and ‘enum e_operator_type’" 
+		<< endl;
 	switch(e_type){
 		case oper_num:
 			return true;
@@ -339,6 +347,7 @@ void un2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_exp
 		}
 		break;
 		case oper_func_call:{
+			using qscript_parser::func_info_table;
 			//cout << "/* oper_func_call */" << endl;
 			//cout << "func_index_in_table: " << func_info_table[e->func_index_in_table]->fname << endl;
 			if(func_info_table[func_index_in_table]->fname==string("printf")){
@@ -484,6 +493,7 @@ void bin_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_exp
 }
 
 bin_expr::~bin_expr(){
+	using qscript_parser::mem_addr;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
@@ -497,6 +507,7 @@ bin_expr::~bin_expr(){
 }
 
 un2_expr::~un2_expr(){
+	using qscript_parser::mem_addr;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			debug_log_file << "un2_expr::~un2_expr setting mem_addr: " << this << "=0" << endl;
@@ -622,6 +633,7 @@ un2_expr::un2_expr(char* ltxt, e_operator_type le_type):
 		//free(ltxt);
 	} else if(e_type==oper_name){
 		map<string,symtab_ent*>::iterator sym_it = find_in_symtab(ltxt);
+		using qscript_parser::active_scope;
 		if(sym_it==active_scope->sym_tab.end() ){
 			//cerr << "Error: could not find:" << $1<<"  in symbol table: lineno: " << line_no << "\n";
 			string err_msg = "Error: could not find:" + string(text) + "  in symbol table  ";
@@ -645,6 +657,7 @@ un2_expr::un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * l
 	dsem_value(0), func_index_in_table(-1), text(0),
 	column_no(-1), operand(arr_index),  operand2(0)
 {
+	using qscript_parser::active_scope;
 	map<string,symtab_ent*>::iterator sym_it = find_in_symtab(name);
 	if(sym_it==active_scope->sym_tab.end() ){
 		std::stringstream s;
@@ -679,6 +692,7 @@ un2_expr::un2_expr(e_operator_type le_type, /* datatype dt, struct symtab_ent * 
 		column_no(-1), operand(arr_index), operand2(arr_index2){
 		symtab_ent* se=0;
 		map<string,symtab_ent*>::iterator sym_it1 = find_in_symtab(name);
+		using qscript_parser::active_scope;
 		if( sym_it1==active_scope->sym_tab.end()) {
 			std::stringstream s;
 			s << "Error: Block Array assignment expr: could not find name: " 
@@ -1008,6 +1022,7 @@ void bin2_expr::print_expr(ostringstream& code_bef_expr, ostringstream & code_ex
 
 
 bin2_expr::~bin2_expr(){
+	using qscript_parser::mem_addr;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;

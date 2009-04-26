@@ -9,11 +9,13 @@
 
 #include <iostream>
 #include <string>
+#include "qscript_parser.h"
+
 using std::cout;
 using std::endl;
 using std::cerr;
 using namespace std;
-extern map<string, vector<string> > map_of_active_vars_for_questions;
+//extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
 question::question(datatype l_type, int l_no, string l_name, string l_text, 
 	question_type l_q_type, int l_no_mpn, datatype l_dt
@@ -212,6 +214,7 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 
 	string q_push_name = name + "_push";
 	string q_pop_name = name + "_pop";
+	using qscript_parser::map_of_active_vars_for_questions;
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
 	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
@@ -286,6 +289,7 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 	//program_code << "/* " << endl;
 	string q_push_name = name + "_push";
 	string q_pop_name = name + "_pop";
+	using qscript_parser::map_of_active_vars_for_questions;
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
 	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){

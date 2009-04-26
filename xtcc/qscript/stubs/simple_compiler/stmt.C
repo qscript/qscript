@@ -3,19 +3,25 @@
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
-#include "expr.h"
-#include "debug_mem.h"
-#include "stmt.h"
+
 #include <string>
 #include <iostream>
 #include <cstdio>
 #include <fstream>
+#include <vector>
+#include "expr.h"
+#include "debug_mem.h"
+#include "stmt.h"
+#include "question.h"
 #include "named_range.h"
+#include "qscript_parser.h"
+
 
 extern vector<mem_addr_tab> mem_addr;
 extern int if_line_no;
 
-extern ofstream debug_log_file;
+//extern ofstream debug_log_file;
+using qscript_parser::debug_log_file;
 using std::cout;
 using std::endl;
 void read_data(const char * prompt);
@@ -37,6 +43,7 @@ void expr_stmt::generate_code(ostringstream & quest_defns, ostringstream& progra
 
 
 expr_stmt::~expr_stmt() {
+	using qscript_parser::mem_addr;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
@@ -91,6 +98,7 @@ void decl_stmt::generate_code(ostringstream & quest_defns, ostringstream& progra
 
 
 decl_stmt::~decl_stmt() {
+	using qscript_parser::mem_addr;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
@@ -111,7 +119,7 @@ if_stmt::if_stmt( datatype dtype, int lline_number,
 	if(lcondition->type==VOID_TYPE || lcondition->type==ERROR_TYPE){
 		print_err(compiler_sem_err, 
 			"If condition expression has Void or Error Type", 
-			if_line_no, __LINE__, __FILE__);
+			qscript_parser::if_line_no, __LINE__, __FILE__);
 	} else {
 	}
 }
@@ -142,6 +150,7 @@ void if_stmt::generate_code(ostringstream & quest_defns, ostringstream& program_
 
 
 if_stmt:: ~if_stmt(){
+	using qscript_parser::mem_addr;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
@@ -186,6 +195,7 @@ void cmpd_stmt::generate_code(ostringstream & quest_defns,
 
 
 cmpd_stmt::~cmpd_stmt() {
+	using qscript_parser::mem_addr;
 	debug_log_file << "deleting cmpd_stmt" << endl;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
@@ -206,8 +216,11 @@ cmpd_stmt::~cmpd_stmt() {
 }
 
 question* find_in_question_list(string name);
-extern vector <question*> question_list;
+extern vector <question*> qscript_parser::question_list;
+using qscript_parser::question_list;
 question* find_in_question_list(string name){
+	//using qscript_parser::question_list;
+
 	for(int i=0; i<question_list.size(); ++i){
 		if(question_list[i]->name==name){
 			return question_list[i];
@@ -269,6 +282,7 @@ void for_stmt::generate_code(ostringstream& quest_defns, ostringstream& program_
 
 
 for_stmt:: ~for_stmt(){
+	using qscript_parser::mem_addr;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;

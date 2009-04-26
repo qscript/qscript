@@ -23,14 +23,18 @@
  * The Free Software Foundation, 
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+#include <string>
+#include "qscript_parser.h"
 #include "symtab.h"
 #include "tree.h"
 #include "expr.h"
-#include <string>
 using namespace std;
 
-extern int line_no;
-extern ofstream debug_log_file;
+using qscript_parser::line_no;
+//extern int line_no;
+//extern ofstream debug_log_file;
+using qscript_parser::debug_log_file;
 /*
 stmt* sym_tab::insert(string name, datatype dt){
 	// we have to handle a case here where symbol is a function name: - this is not allowed

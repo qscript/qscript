@@ -10,13 +10,20 @@
 #include "expr.h"
 #include "tree.h"
 #include "stmt.h"
-extern vector<mem_addr_tab>  mem_addr;
-extern int rec_len;
-extern struct stmt * tree_root;
-void flex_finish();
-extern vector <scope*> active_scope_list;
-extern scope* active_scope;
-extern vector <func_info*> func_info_table;
+#include "qscript_parser.h"
+
+using qscript_parser::active_scope;
+using qscript_parser::active_scope_list;
+using qscript_parser::no_errors;
+using qscript_parser::func_info_table;
+using qscript_parser::line_no;
+//extern vector<mem_addr_tab>  mem_addr;
+//extern int rec_len;
+//extern struct stmt * tree_root;
+//void flex_finish();
+//extern vector <scope*> active_scope_list;
+//extern scope* active_scope;
+//extern vector <func_info*> func_info_table;
 
 #include <string>
 using std::string;

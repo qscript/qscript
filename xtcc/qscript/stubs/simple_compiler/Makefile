@@ -1,7 +1,7 @@
-CC=g++ -Weffc++ -c -g
+CC=g++ -Weffc++ -c -g -frepo
 LIBS=-lreadline
 
-OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o question.o stmt_common.o
+OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o question.o stmt_common.o main.o qscript_parser.o
 SOURCES=debug_mem.h
 simple_compiler: $(OBJS)
 	g++ -g -Weffc++ -o simple_compiler $(OBJS) $(LIBS)
@@ -12,7 +12,7 @@ lex.yy.o: lex.yy.c q.tab.h
 lex.yy.c: lex.l
 	flex $<
 
-q.tab.c q.tab.h: q.y common.h
+q.tab.c q.tab.h: q.y tree.h symtab.h stmt.h expr.h named_attributes.h named_range.h
 	bison -v -d $<
 
 q.tab.o: q.tab.c
@@ -61,6 +61,10 @@ question.o:  question.C question.h
 stmt_common.o:  stmt_common.C 
 	$(CC) $<
 
+main.o: main.C
+	$(CC) $<
+
+
 .phony: clean
 clean:
 	rm *.o simple_compiler test_script lex.yy.c  lex.scan_data.c data_entry.tab.h q.tab.c
@@ -68,4 +72,7 @@ clean:
 test_script: inp simple_compiler
 	simple_compiler -f inp
 	make -f QScriptMakefile
+	
+qscript_parser.o: qscript_parser.C qscript_parser.h
+	$(CC) $<
 	

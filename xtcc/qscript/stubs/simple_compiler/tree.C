@@ -27,9 +27,15 @@
 #include "tree.h"
 #include "stmt.h"
 #include <iostream>
-extern int line_no, no_errors;
+//extern int line_no, no_errors;
 #include <fstream>
-extern ofstream debug_log_file;
+#include "qscript_parser.h"
+//extern ofstream debug_log_file;
+using qscript_parser::debug_log_file;
+using qscript_parser::mem_addr;
+using qscript_parser::line_no;
+using qscript_parser::no_errors;
+using qscript_parser::map_of_active_vars_for_questions;
 using namespace std;
 
 

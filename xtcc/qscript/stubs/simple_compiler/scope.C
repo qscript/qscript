@@ -34,12 +34,17 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include "qscript_parser.h"
 using namespace std;
 
-extern int line_no;
-extern int no_errors;
-extern ofstream debug_log_file;
-extern vector<mem_addr_tab> mem_addr;
+//extern int line_no;
+//extern int no_errors;
+//extern ofstream debug_log_file;
+//extern vector<mem_addr_tab> mem_addr;
+using qscript_parser::line_no;
+using qscript_parser::no_errors;
+using qscript_parser::debug_log_file;
+using qscript_parser::mem_addr;
 
 
 stmt* scope::insert(const char * name, datatype dt/*, int line_no*/){
