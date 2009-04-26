@@ -1,7 +1,7 @@
 
 CC=g++ -c
 LIBS=-lreadline
-OBJS = test_script.o xtcc_set.o lex.scan_data.o data_entry.tab.o question.o stmt_common.o qscript_lib.o qscript_data.tab.o lex.read_disk_data.o
+OBJS = test_script.o xtcc_set.o lex.scan_data.o data_entry.tab.o question.o stmt_common.o qscript_lib.o qscript_data.tab.o lex.read_disk_data.o qscript_parser.o
 test_script:  $(OBJS)
 	g++ -o $@ $(OBJS) $(LIBS)
 
@@ -47,3 +47,7 @@ qscript_data.tab.o: qscript_data.tab.c qscript_data.tab.h
 
 lex.read_disk_data.o: lex.read_disk_data.c qscript_data.tab.h
 	$(CC) $<
+
+qscript_parser.o: qscript_parser.C qscript_parser.h
+	$(CC) $<
+

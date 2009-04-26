@@ -282,6 +282,7 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 
 void named_stub_question::generate_code( ostringstream & quest_defns, 
 		ostringstream& program_code){
+	using qscript_parser::map_of_active_vars_for_questions;
 
 
 	program_code << "lab_" << name << ":" << endl;

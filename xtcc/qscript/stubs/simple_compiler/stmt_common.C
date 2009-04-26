@@ -14,7 +14,6 @@
 #include "named_range.h"
 #include "qscript_parser.h"
 
-using qscript_parser::debug_log_file;
 
 
 extern vector<mem_addr_tab> mem_addr;
@@ -25,6 +24,7 @@ using std::cout;
 using std::endl;
 void read_data(const char * prompt);
 stmt::~stmt(){ 
+using qscript_parser::debug_log_file;
 	if (next  ) {
 		delete next; next=0;
 	} 

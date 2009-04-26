@@ -21,7 +21,7 @@ namespace qscript_parser {
 	void print_err(compiler_err_category cmp_err, 
 		string err_msg, int line_no, 
 		int compiler_line_no, string compiler_file_name);
-	extern int line_no;
+	int line_no;
 	extern noun_list_type noun_list[];
 
 	/*
@@ -60,7 +60,7 @@ namespace qscript_parser {
 	vector <named_range*> named_stubs_list;
 	vector <named_attribute_list> named_attributes_list;
         vector <stub_pair> stub_list;
-	extern int if_line_no;
+	int if_line_no=-1;
 	
 	int yywrap();
 

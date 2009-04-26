@@ -15,9 +15,9 @@
 
 namespace qscript_parser {
 	//void yyerror(const char * s);
-	int line_no;
+	extern int line_no;
 	extern int no_errors;
-	int if_line_no=-1;
+	extern int if_line_no;
 	using namespace std;
 
 }
