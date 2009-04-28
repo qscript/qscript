@@ -238,7 +238,7 @@ for_stmt::for_stmt( datatype dtype, int lline_number,
 	if(init->type==VOID_TYPE||test->type==VOID_TYPE||incr->type==VOID_TYPE ){
 		print_err(compiler_sem_err, 
 				"For condition expression has Void or Error Type", 
-				line_no, __LINE__, __FILE__);
+				qscript_parser::line_no, __LINE__, __FILE__);
 		type=ERROR_TYPE;
 	}
 	// NxD - I have to correct here
@@ -251,12 +251,12 @@ for_stmt::for_stmt( datatype dtype, int lline_number,
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
-				line_no, __LINE__, __FILE__);
+				qscript_parser::line_no, __LINE__, __FILE__);
 		} else if(!(test_expr->r_op->is_integral_expr() 
 				&& test_expr->r_op->is_const())) {
 			print_err(compiler_sem_err, 
 				"If the for loop contains questions, then the counter of the for loop should be an integer and a constant expression"
-			, line_no, __LINE__, __FILE__);
+			, qscript_parser::line_no, __LINE__, __FILE__);
 		}
 		//cerr << "is integral expr: " << test->is_integral_expr() << endl;
 		//cerr << "is const expr: " << test->is_const() << endl;
@@ -299,3 +299,53 @@ for_stmt:: ~for_stmt(){
 	delete incr; incr=0;
 	delete for_body; for_body=0;
 }
+
+
+var_list::var_list(datatype type, char * name): 
+	var_type(type), var_name(name), arr_len(-1), prev(NULL), next(NULL){
+	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
+		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
+		stringstream s;
+		s << "SEMANTIC error: only INT8_TYPE ... DOUBLE_TYPE is allowed in decl: "  << var_name<< endl;
+		print_err(compiler_sem_err, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
+		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
+	}
+	//cout << "constructing var_list: " << var_name << endl;
+}
+var_list::~var_list(){
+	debug_log_file << "deleting ~var_list: var_name:" << var_name << endl;
+	if (next) { delete next; next=0; }
+	debug_log_file << "end deleting ~var_list " << endl;
+}
+
+
+void var_list::print(FILE * edit_out){
+	struct var_list * vl_ptr=this;
+	while(vl_ptr){
+		if(vl_ptr->var_type>=INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
+			fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
+		} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
+			datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
+			fprintf(edit_out, "%s %s[%d]/* vartype: %d */", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
+		} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
+			datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
+			fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
+		} else {
+			fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
+		}
+		vl_ptr=vl_ptr->next;
+		if(vl_ptr) {
+			fprintf(edit_out, ",");
+		}
+	}
+}
+
+var_list::var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev(NULL), next(NULL){
+	if(!is_of_arr_type(type)){
+		cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
+		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
+	}
+	cout << "constructing var_list: " << var_name << endl;
+}
+
+

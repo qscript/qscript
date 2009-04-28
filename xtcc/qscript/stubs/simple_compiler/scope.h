@@ -1,4 +1,7 @@
-/*
+/*!\file
+   \brief Class implementing the scoping level features of the qscript language
+
+
  * scope.h
  *  
  * implementation of scoping rules

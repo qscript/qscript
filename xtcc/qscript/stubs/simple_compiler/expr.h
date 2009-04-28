@@ -1,4 +1,6 @@
-/* expr.h
+/*!\file  
+   \brief The classes for the expressions allowed in the qscript grammar 
+   are contained in this file
  *
  * expression for xtcc grammar
  * Copyright (C) 2003,2004, 2005,2006,2007  Neil Xavier D'Souza <nxd_in@yahoo.com>
@@ -29,8 +31,10 @@
 #include "tree.h"
 
 
-// the user of this enum e_operator_type should not depend on the order in which 
-// the elements are defined
+//! every expression has an operator type - which is one of those below
+/*! the user of this enum e_operator_type should not depend on the order in which 
+    the elements are defined
+*/
 enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
 		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
 		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
@@ -38,8 +42,12 @@ enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, ope
 		oper_err
 	};
 
+//! helper function when debugging
 string human_readable_expr_type( e_operator_type e_type);
 
+//!expr  Pure virtual base class - all expression classes inherit from this class
+/*!
+ */
 struct expr {
 	e_operator_type e_type;
 	datatype type;
@@ -48,11 +56,17 @@ struct expr {
 	expr(e_operator_type le_type, datatype ldt):e_type(le_type), type(ldt), next(0), prev(0) 
 	{}
 	//virtual void print_expr(FILE * edit_out)=0;
+	//! Pure virtual function. Generates the code for a particular expression.
 	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr)=0;
 
 	virtual int isvalid();
+	//! pure virtual function will tell us if an expr can appear on the 
+	//! left side of the assignment operator
+	//! of the 
 	virtual bool is_lvalue()=0;
+	// ! determines if an expression is a constant value
 	virtual bool is_const()=0;
+	// ! determines if an expression is an integral value
 	virtual bool is_integral_expr()=0;
 	virtual ~expr();
 	private:
@@ -60,9 +74,13 @@ struct expr {
 		expr (const expr&);
 };
 
-//extern int no_errors;
-//extern int line_no;
 
+//! holds Unary expressions of the form '-' expression, ! expression,  and '(' expression ')'. 
+/*! Note that these are expressions constructed
+    out of an operator and another expression - there is no additional
+    data involved which is what differentiates these from the un2_expr
+    expressions
+*/
 struct un_expr : public expr{
 	protected:
 	expr* operand;
@@ -83,23 +101,14 @@ struct un_expr : public expr{
 
 #include <vector>
 #include <set>
-using namespace std;
-/*
-struct xtcc_set {
-	vector < pair<int,int> > range;
-	set<int> indiv;
-	xtcc_set(datatype dt, string name, xtcc_set& xs1);
-	xtcc_set(xtcc_set& xs1);
-	xtcc_set& operator=(const xtcc_set& xs1);
-	xtcc_set();
-	void reset();
-	void add_range(int n1, int n2);
-	void add_indiv(int n1);
-};
-*/
+//using namespace std;
 
 #include "xtcc_set.h"
 struct un2_expr;
+
+//! holds expressions of the form
+//! a in (1,2,4) - where a can be a varible or an integral expression
+//! and the right hand side of operator "in" is a set 
 struct bin2_expr: public expr{
 	protected:
 	//symtab_ent *l_symp, *r_symp;
@@ -121,6 +130,8 @@ struct bin2_expr: public expr{
 		bin2_expr (const bin2_expr&);
 };
 
+//! bin_expr holds expressions operated on by binary operators.
+//!  For example a +b , a-b etc
 struct bin_expr: public expr{
 	public:
 	expr *l_op, *r_op;
@@ -139,7 +150,12 @@ struct bin_expr: public expr{
 		bin_expr (const bin_expr&);
 };
 
+//! un2_expr are single operands which have some data attached with them
+/*
+ Some examples are INUMBER, FNUMBER, NAME, NAME[], NAME[,]
+ NAME ( expr_list ) function call, TEXT
 
+*/
 struct un2_expr : public expr{
 	protected:
 	struct symtab_ent * symp;
@@ -168,8 +184,8 @@ struct un2_expr : public expr{
 
 	un2_expr( struct symtab_ent * lsymp); 
 	un2_expr(datatype d);
-	un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * lsymp,*/ string name, expr* arr_index);
-	un2_expr(e_operator_type le_type, /*datatype dt, struct symtab_ent * lsymp, */ string name,  expr* arr_index, expr* arr_index2);
+	un2_expr(e_operator_type le_type,  string name, expr* arr_index);
+	un2_expr(e_operator_type le_type,  string name,  expr* arr_index, expr* arr_index2);
 	un2_expr(char* ltxt, e_operator_type le_type); 
 	~un2_expr();
 	//friend void bin_expr::print_oper_assgn(FILE* edit_out);

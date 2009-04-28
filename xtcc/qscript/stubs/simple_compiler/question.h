@@ -13,6 +13,7 @@
 #define qscript_question_h
 #include "stmt.h"
 
+using std::ostringstream;
 struct named_range;
 //! The question pure virtual base class - inherits from stmt
 struct question: public stmt {

@@ -35,7 +35,7 @@
 #include <iostream>
 #include <sstream>
 #include "qscript_parser.h"
-using namespace std;
+//using namespace std;
 
 //extern int line_no;
 //extern int no_errors;

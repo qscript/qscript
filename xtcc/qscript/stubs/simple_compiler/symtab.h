@@ -1,9 +1,14 @@
-/*! \file
-    \brief Symbol table class
+/*    
  *  xtcc/xtcc/qscript/stubs/simple_compiler/common.h
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
+
+
+/*! \file
+    \brief Symbol table entries - supporting class
+*/
+
 #ifndef XTCC_SYMTAB_H
 #define XTCC_SYMTAB_H
 //#include <iostream>
@@ -12,14 +17,13 @@
 #include <sstream>
 
 using std::stringstream;
-	//!  type_qualifier enum: used for marking variables as constant
-	//!  for example: const int BUFSIZE=1024;
+	/*!  type_qualifier enum: used to add qualifiers to the definition of a variable. For example: const int BUFSIZE=1024; // Here const is a qualifier
+	 */ 
 	enum type_qualifier {
 		NO_QUAL, // used to mark that nothing was specified 
 		CONST_QUAL
 	};
-	//! datatype enum: This enum is used to mark the type of a statement
-	//! and the type of a variable and the type of an expression
+	//! datatype enum: This enum is used to mark the type of a statement, the type of a variable and the type of an expression
 	enum datatype {
 		VOID_TYPE, 
 		INT8_TYPE,  INT16_TYPE,  INT32_TYPE, FLOAT_TYPE, DOUBLE_TYPE,
@@ -39,10 +43,9 @@ using std::stringstream;
 	//! multicoded or numeric (which I havent yet added to the
 	//! grammar)
 	enum question_type { spn, mpn };
-	//! This helper function will evaluate 2 types for 
-	//! compatibility. For example an INT8_TYPE
-	//! and a INT8_ARR_TYPE are not compatible
-	//! this is used to determine if a type promotion is
+	//! This helper function will evaluate 2 types for  compatibility. 
+	//!For example an INT8_TYPE and a INT8_ARR_TYPE are not compatible.
+	//! This is used to determine if a type promotion in an expression is
 	//! possible or the compiler should signal a type error
 	bool check_type_compat(datatype typ1, datatype typ2);
 
@@ -56,6 +59,7 @@ using std::stringstream;
 	bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
 #include <string>
 using	std::string ;
+	//! useful when debugging
 	string human_readable_type(datatype dt);
 
 
@@ -68,7 +72,7 @@ struct expr;
 struct xtcc_set;
 //! \class symtab_ent: a Symbol table entry
 /*!
-  All variable definitions are objects of this class.
+  All variable declarations/definitions are objects of this class.
 */
 struct symtab_ent {
 	char *name;
@@ -82,10 +86,9 @@ struct symtab_ent {
 	int n_elms;
 	bool created_by_me;
 	type_qualifier type_qual;
-	//! if the variable declaration is initialised with 
-	//! a value - the expression for that value is held here
+	//! if the variable declaration is initialised with a value - the expression for that value is held here
 	expr * e;
-	//! if the variable is a set then the values are held here
+	//! if the variable is a "set" and initialised then the values are held here
 	xtcc_set * xs;
 	//symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false),e(0), xs(0){
 	//}

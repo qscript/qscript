@@ -1,10 +1,15 @@
-/*! \file
-    \brief The classes for the statements parsed in the input 
-            language are contained in this file
+/*
  *  xtcc/xtcc/qscript/stubs/simple_compiler/stmt.h
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
+
+/*! \file
+    \brief The classes for the statements parsed in the input 
+            language "qscript" are contained in this file
+*/
+
+
 #ifndef stmt_h
 #define stmt_h
 #include "xtcc_set.h"
@@ -14,6 +19,7 @@
 #include <sstream>
 #include "stub_pair.h"
 using std::string;
+using std::ostringstream;
 
 //!stmt  Pure virtual base class - all statement classes inherit from this class except for class func_info
 /*!
@@ -32,10 +38,10 @@ struct stmt {
 	//! Constructor - statement type and line number of the statement in the source code
 	stmt(datatype l_type, int l_line_no): prev(0), next(0), line_no(l_line_no), type(l_type) 
 	{}
-	//! generate_code(): Pure virtual functions takes 2 streams which as parameters
-	//! code is written to both the streams 
-	//! the code in the quest_defns stream appears before the code in 
-	//! the program_code stream
+	//! generate_code(): Pure virtual functions takes 2 streams as parameters.
+	//! Compiler generated code is written to both the streams.
+	//! The code to the quest_defns stream appears before code written to  
+	//! the program_code stream in the generated compiled code
 	virtual void generate_code(ostringstream& quest_defns, ostringstream& program_code)=0;
 	virtual ~stmt();
 	private:
@@ -100,6 +106,12 @@ struct expr_stmt: public stmt{
 	has been set and if so loads the scope from the function declaration
 	found in the  func_info_table array - by using the variable 
 	flag_cmpd_stmt_is_a_func_body - to index into the func_info_table
+
+	Note that flag_cmpd_stmt_is_a_func_body is initialized to -1 as the 1st function 
+	will be in index 0 of func_info_table vector.
+	Also lookup_func searches the func_info_table for the function name and returns -1 on failure
+	this is naturally compatible with the initial value of flag_cmpd_stmt_is_a_func_body
+	if the flag is not set -> we need to allocate a new scope - else we will crash
   
 */
 
@@ -258,6 +270,28 @@ struct if_stmt : public stmt{
 	private:
 	if_stmt& operator=(const if_stmt&);	
 	if_stmt(const if_stmt&);	
+};
+
+using std::string;
+struct var_list {
+	datatype var_type;
+	string var_name;
+	int arr_len;
+	struct var_list * prev, *next;
+	var_list(datatype type, char * name);
+	var_list(datatype type, char * name, int len); 
+	void print(FILE * edit_out);
+	~var_list();
+	private:
+		var_list& operator=(const var_list&);
+		var_list(const var_list&);
+};
+
+struct param {
+	struct expr* e;
+	char * text;
+	struct param * prev;
+	struct param * next;
 };
 
 

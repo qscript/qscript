@@ -1,4 +1,6 @@
-/*
+/*! \file 
+    \brief Implementation of sets specific to the qscript/xtcc programming langauge
+
  *  xtcc/xtcc/qscript/stubs/simple_compiler/xtcc_set.h
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
@@ -11,7 +13,16 @@
 #include <string>
 //#include "common.h"
 #include "symtab.h"
-using namespace std;
+//using namespace std;
+using std::vector;
+using std::pair;
+using std::set;
+
+//! xtcc_set is of the form  { 1, 2-5, 10, 21-40} etc
+/*
+   The set can consist of individual elements or ranges of 
+   elements as demonstrated above
+*/
 struct xtcc_set {
 	vector < pair<int,int> > range;
 	set<int> indiv;
