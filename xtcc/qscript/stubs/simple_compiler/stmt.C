@@ -23,6 +23,7 @@ extern int if_line_no;
 //extern ofstream debug_log_file;
 using qscript_parser::debug_log_file;
 using std::cout;
+using std::cerr;
 using std::endl;
 void read_data(const char * prompt);
 #if 0

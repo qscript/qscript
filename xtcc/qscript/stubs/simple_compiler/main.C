@@ -7,6 +7,8 @@
 #include "named_attributes.h"
 #include "named_range.h"
 #include "qscript_parser.h"
+#include "scope.h"
+using  std::cerr;
 
 	//extern scope* active_scope;
 	//extern vector <scope*> active_scope_list;

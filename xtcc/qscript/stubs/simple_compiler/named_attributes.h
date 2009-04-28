@@ -10,9 +10,13 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 #include "stmt.h"
+
 using std::string;
 using std::vector;
+using std::cout;
+using std::endl;
 struct named_attribute_list: public stmt{
 	string name;
 	vector<string> attribute;

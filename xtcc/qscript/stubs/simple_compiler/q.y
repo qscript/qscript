@@ -15,8 +15,10 @@
 #include <sstream>
 #include <vector>
 
-#include "tree.h"
+//#include "tree.h"
+#include "debug_mem.h"
 #include "symtab.h"
+#include "scope.h"
 #include "stmt.h"
 #include "expr.h"
 #include "named_attributes.h"
@@ -29,6 +31,9 @@
 	//using qscript_parser::yywrap;
 	extern int yylex();
 	extern void yyerror(const char * s);
+	using std::cout;
+	using std::cerr;
+	using std::endl;
 %}
 
 

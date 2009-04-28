@@ -28,7 +28,10 @@
 
 #ifndef xtcc_expr_h
 #define xtcc_expr_h
-#include "tree.h"
+//#include "tree.h"
+#include "symtab.h"
+#include <sstream>
+using std::ostringstream;
 
 
 //! every expression has an operator type - which is one of those below
@@ -43,6 +46,7 @@ enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, ope
 	};
 
 //! helper function when debugging
+using std::string;
 string human_readable_expr_type( e_operator_type e_type);
 
 //!expr  Pure virtual base class - all expression classes inherit from this class

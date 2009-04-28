@@ -27,10 +27,11 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <climits>
 #include "stmt.h"
 //#include "tree.h"
 #include "expr.h"
-#include <climits>
+#include "scope.h"
 //#include "../../qscript/trunk/named_range.h"
 #include "named_range.h"
 #include "qscript_parser.h"
@@ -45,9 +46,13 @@ string get_temp_name();
 //extern	vector <func_info*> func_info_table;
 //extern vector<mem_addr_tab> mem_addr;
 //extern vector <named_range*> named_stubs_list;
+#include <iostream>
 using qscript_parser::debug_log_file;
 using qscript_parser::line_no;
 using qscript_parser::no_errors;
+using std::cout;
+using std::cerr;
+using std::endl;
 expr::~expr(){
 	debug_log_file << "deleting expr::~expr(): base destructor for expr" << endl;
 	if(next) {delete next; next=0; }

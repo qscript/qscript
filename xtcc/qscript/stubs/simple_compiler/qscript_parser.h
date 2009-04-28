@@ -1,7 +1,12 @@
+/*!  \file
+	\brief Global variables used by the parser
+ */
 #ifndef qscript_parser_h
 #define qscript_parser_h
 
-#include "tree.h"
+#include <fstream>
+#include <vector>
+#include "debug_mem.h"
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
@@ -9,9 +14,14 @@
 #include "named_range.h"
 #include "const_defs.h"
 #include "xtcc_set.h"
+#include "utils.h"
 
+using std::ofstream;
+using std::vector;
 namespace qscript_parser {
+	//! This is a pointer to the most active scope on the active_scope_list stack
 	extern scope* active_scope;
+	//! maintains the scope levels in the files being parsed. The active_scope_list is treated like a stack
 	extern vector <scope*> active_scope_list;
 	extern int nest_lev;
 	extern int flag_cmpd_stmt_is_a_func_body;

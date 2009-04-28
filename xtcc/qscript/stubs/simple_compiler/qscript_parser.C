@@ -1,6 +1,7 @@
 #include "qscript_parser.h"
 
 namespace qscript_parser {
+	using std::cerr;
 	scope* active_scope;
 	vector <scope*> active_scope_list;
 	int nest_lev=0;
@@ -16,7 +17,7 @@ namespace qscript_parser {
 
 
 
-	ofstream debug_log_file("xtcc_debug.log", ios_base::out|ios_base::trunc);
+	ofstream debug_log_file("xtcc_debug.log", std::ios_base::out|std::ios_base::trunc);
 	using std::string;
 	void print_err(compiler_err_category cmp_err, 
 		string err_msg, int line_no, 

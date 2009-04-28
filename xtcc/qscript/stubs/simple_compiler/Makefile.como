@@ -25,7 +25,7 @@ lex.yy.o: lex.yy.c q.tab.h
 lex.yy.c: lex.l
 	flex $<
 
-q.tab.c q.tab.h: q.y tree.h symtab.h stmt.h expr.h named_attributes.h named_range.h
+q.tab.c q.tab.h: q.y symtab.h stmt.h expr.h named_attributes.h named_range.h
 	bison -v -d $<
 
 q.tab.o: q.tab.c
