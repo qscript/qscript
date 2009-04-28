@@ -1,7 +1,7 @@
 CC=g++ -Weffc++ -c -g -frepo
 LIBS=-lreadline
 
-OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o tree.o utils.o scope.o named_range.o question.o stmt_common.o main.o qscript_parser.o
+OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o utils.o scope.o named_range.o question.o stmt_common.o main.o qscript_parser.o debug_mem.o
 SOURCES=debug_mem.h
 simple_compiler: $(OBJS)
 	g++ -g -Weffc++ -o simple_compiler $(OBJS) $(LIBS)
@@ -43,7 +43,10 @@ lex.scan_data.o: lex.scan_data.c data_entry.tab.h
 data_entry.tab.o: data_entry.tab.c
 	$(CC) $<
 
-tree.o: tree.C tree.h debug_mem.h
+#tree.o: tree.C tree.h debug_mem.h
+#	$(CC) $<
+	
+debug_mem.o: debug_mem.C debug_mem.h
 	$(CC) $<
 	
 utils.o: utils.C utils.h
@@ -67,7 +70,7 @@ main.o: main.C
 
 .phony: clean
 clean:
-	rm *.o simple_compiler test_script lex.yy.c  lex.scan_data.c data_entry.tab.h q.tab.c
+	rm *.o simple_compiler test_script lex.yy.c  lex.scan_data.c data_entry.tab.h q.tab.c q.tab.h
 
 test_script: inp simple_compiler
 	simple_compiler -f inp

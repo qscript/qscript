@@ -32,18 +32,15 @@
 #include "utils.h"
 
 #include "symtab.h"
-bool is_of_int_type(datatype dt);
+//bool is_of_int_type(datatype dt);
 #include <string>
 using std::string;
 //void print_err(compiler_err_category cmp_err, 
 //		string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
 
-extern noun_list_type noun_list[];
-datatype lcm_type(datatype d1, datatype d2);
-
-
-
-datatype arr_deref_type(datatype d1);
+//extern noun_list_type noun_list[];
+//datatype lcm_type(datatype d1, datatype d2);
+//datatype arr_deref_type(datatype d1);
 
 
 #include <string>

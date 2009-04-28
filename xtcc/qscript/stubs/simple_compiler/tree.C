@@ -41,6 +41,7 @@ using qscript_parser::map_of_active_vars_for_questions;
 
 
 
+/*
 datatype lcm_type(datatype d1, datatype d2){
 	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	datatype td1=d1, td2=d2;
@@ -49,15 +50,13 @@ datatype lcm_type(datatype d1, datatype d2){
 	if(d1==STRING_TYPE && d2==STRING_TYPE){
 		return STRING_TYPE;
 	}
-
 	if(d1==BOOL_TYPE && d2==BOOL_TYPE){
 		return BOOL_TYPE;
 	}
 	td1=convert_ref_type(td1);
 	td2=convert_ref_type(td2);
-
-	if(/*(td1>=INT8_TYPE && td1<=DOUBLE_TYPE)*/ is_of_noun_type(td1)&&
-		/*(td2>=INT8_TYPE && td2<=DOUBLE_TYPE)*/ is_of_noun_type(td2)){
+	if( is_of_noun_type(td1)&&
+		 is_of_noun_type(td2)){
 		if(td1>td2) { return td1;
 		} else {
 			return td2;
@@ -69,12 +68,10 @@ datatype lcm_type(datatype d1, datatype d2){
 		return ERROR_TYPE;
 	}
 }
+*/
 
+/*
 datatype arr_deref_type(datatype d1){
-	/*
-	if(d1==int_arr_type) return int_type;
-	if(d1==char_arr_type) return char_type;
-	*/
 	if(d1>=INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
 		return datatype(INT8_TYPE+d1-INT8_ARR_TYPE);
 	} else if(d1==STRING_ARR_TYPE){
@@ -84,8 +81,9 @@ datatype arr_deref_type(datatype d1){
 	++no_errors;
 	return ERROR_TYPE;
 }
+*/
 
-#include <vector>
+/*#include <vector>
 using std::vector;
 extern vector <mem_addr_tab> mem_addr;
 void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fname,
@@ -93,5 +91,6 @@ void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fnam
         mem_addr_tab m1(ptr, compiler_src_line_no, compiler_src_fname, input_prog_line_no);
         mem_addr.push_back(m1);
 }
+*/
 
 #include <sstream>

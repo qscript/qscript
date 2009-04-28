@@ -100,7 +100,7 @@ int8_t var1=5*12;
 int8_t var2=7*var1;
  // decl_stmt::generate_code 
 int32_t my_32int=600*700;
-(12.5*13.3)-8+7*(12%7);
+(1.250000e+01*1.330000e+01)-8+7*(12%7);
 	struct temp_0{
 		const int size_ran_indiv;
 		const int size_start_end;

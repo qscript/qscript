@@ -16,4 +16,11 @@ void print_err(compiler_err_category cmp_err,
 		string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
 map<string, symtab_ent*>::iterator find_in_symtab(string id);
 int search_for_func(string& search_for);
+bool is_of_int_type(datatype dt);
+
+extern noun_list_type noun_list[];
+datatype lcm_type(datatype d1, datatype d2);
+datatype arr_deref_type(datatype d1);
+
+
 #endif // xtcc_utils_h

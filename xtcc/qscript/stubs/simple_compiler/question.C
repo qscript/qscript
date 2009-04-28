@@ -290,7 +290,7 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 	//program_code << "/* " << endl;
 	string q_push_name = name + "_push";
 	string q_pop_name = name + "_pop";
-	using qscript_parser::map_of_active_vars_for_questions;
+	//using qscript_parser::map_of_active_vars_for_questions;
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
 	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){

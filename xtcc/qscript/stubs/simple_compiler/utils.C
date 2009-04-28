@@ -174,3 +174,45 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 			{	"float", FLOAT_TYPE},
 			{	"double", DOUBLE_TYPE}
 		};
+
+
+
+datatype lcm_type(datatype d1, datatype d2){
+	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
+	datatype td1=d1, td2=d2;
+	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
+	//if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + d2-INT8_REF_TYPE);
+	if(d1==STRING_TYPE && d2==STRING_TYPE){
+		return STRING_TYPE;
+	}
+	if(d1==BOOL_TYPE && d2==BOOL_TYPE){
+		return BOOL_TYPE;
+	}
+	td1=convert_ref_type(td1);
+	td2=convert_ref_type(td2);
+	if(/*(td1>=INT8_TYPE && td1<=DOUBLE_TYPE)*/ is_of_noun_type(td1)&&
+		/*(td2>=INT8_TYPE && td2<=DOUBLE_TYPE)*/ is_of_noun_type(td2)){
+		if(td1>td2) { return td1;
+		} else {
+			return td2;
+		}
+	} else {
+		cerr << "lcm_type: error: LHS type d1:" << d1 << " RHS type: d2:" << d2 << endl;
+		cerr << "lcm_type: error: LHS type td1:" << td1 << " RHS type: td2:" << td2 << endl;
+		++ no_errors;
+		return ERROR_TYPE;
+	}
+}
+
+
+datatype arr_deref_type(datatype d1){
+	if(d1>=INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
+		return datatype(INT8_TYPE+d1-INT8_ARR_TYPE);
+	} else if(d1==STRING_ARR_TYPE){
+		return STRING_TYPE;
+	}
+	cerr << "Type Error: lineno: trying to access array with non-integer index" << line_no << "\n";
+	++no_errors;
+	return ERROR_TYPE;
+}
+
