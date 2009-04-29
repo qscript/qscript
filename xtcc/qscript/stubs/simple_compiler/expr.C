@@ -314,15 +314,22 @@ bool un2_expr::is_integral_expr(){
 	//cerr << "un2_expr::is_integral_expr(): "
 	//		<< e_type << endl;
 	//cout << "oper_num: " << oper_num << endl;
-	cerr << "Sort out later expr.C:316: warning: comparison between ‘enum datatype’ and ‘enum e_operator_type’" 
-		<< endl;
 	switch(e_type){
 		case oper_num:
 			return true;
 		case oper_name:
-			if(symp->type==oper_num){
+			switch(symp->type){
+			case INT8_TYPE:
+			case INT16_TYPE:
+			case INT32_TYPE:
+			case INT8_ARR_TYPE:
+			case INT16_ARR_TYPE:
+			case INT32_ARR_TYPE:
+			case INT8_REF_TYPE:
+			case INT16_REF_TYPE:
+			case INT32_REF_TYPE:
 				return true;
-			} else {
+			default:
 				return false;
 			}
 		default:
@@ -625,7 +632,7 @@ bin_expr::bin_expr(expr* llop, expr* lrop,e_operator_type letype):
 }
 un2_expr::un2_expr( struct symtab_ent * lsymp): 
 	expr(oper_name,lsymp->type), symp(lsymp), isem_value(0), dsem_value(0),
-	func_index_in_table(-1), text(0), operand(0), operand2(0) {
+	func_index_in_table(-1), text(0), operand(0), operand2(0), column_no(-1) {
 }
 
 map<string, symtab_ent*>::iterator find_in_symtab(string id);
@@ -779,7 +786,7 @@ un2_expr::un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfun
 
 un2_expr::un2_expr(double l_dsem_value): 
 	expr(oper_float,FLOAT_TYPE), symp(0), isem_value(0), dsem_value(l_dsem_value),
-	func_index_in_table(-1), text(0), operand(0), operand2(0) {}
+	func_index_in_table(-1), text(0), column_no(-1), operand(0), operand2(0){}
 
 un2_expr::un2_expr(datatype d): 
 		expr(oper_err,d), symp(0), isem_value(0), dsem_value(0), func_index_in_table(-1), text(0),
@@ -829,7 +836,7 @@ bool bin2_expr::is_integral_expr(){
 }
 
 bin2_expr::bin2_expr(expr* llop , xtcc_set& l_rd, 
-		e_operator_type letype):expr(letype)/*, l_op(llop)*/{
+		e_operator_type letype):expr(letype), l_op(0), xs(0){
 	//cerr << "bin2_expr::bin2_expr" << endl;
 	switch(e_type){
 		case oper_in:

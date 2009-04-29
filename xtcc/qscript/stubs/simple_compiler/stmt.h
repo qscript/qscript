@@ -12,12 +12,13 @@
 
 #ifndef stmt_h
 #define stmt_h
-#include "xtcc_set.h"
-#include "symtab.h"
-//#include "common.h"
 #include <string>
 #include <sstream>
+#include "xtcc_set.h"
+#include "symtab.h"
 #include "stub_pair.h"
+#include "scope.h"
+//#include "common.h"
 using std::string;
 using std::ostringstream;
 

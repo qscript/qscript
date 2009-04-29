@@ -110,9 +110,7 @@ struct un_expr : public expr{
 #include "xtcc_set.h"
 struct un2_expr;
 
-//! holds expressions of the form
-//! a in (1,2,4) - where a can be a varible or an integral expression
-//! and the right hand side of operator "in" is a set 
+//! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set 
 struct bin2_expr: public expr{
 	protected:
 	//symtab_ent *l_symp, *r_symp;
@@ -134,8 +132,7 @@ struct bin2_expr: public expr{
 		bin2_expr (const bin2_expr&);
 };
 
-//! bin_expr holds expressions operated on by binary operators.
-//!  For example a +b , a-b etc
+//! bin_expr holds expressions operated on by binary operators. For example a +b , a-b etc
 struct bin_expr: public expr{
 	public:
 	expr *l_op, *r_op;
