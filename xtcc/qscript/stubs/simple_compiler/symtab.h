@@ -34,7 +34,7 @@ using std::stringstream;
 		TEXPR_STMT, CMPD_STMT, IFE_STMT, DECL_STMT, FUNC_TYPE, FUNC_DEFN, FOR_STMT,
 		LISTA_BASIC_TYPE_STMT, LISTA_BASIC_ARRTYPE_STMT_1INDEX, LISTA_BASIC_ARRTYPE_STMT_2INDEX,
 		BREAK_STMT, CONTINUE_STMT, RANGE_DECL_STMT,
-		QUESTION_TYPE, 
+		QUESTION_TYPE, QUESTION_ARR_TYPE,
 		STRING_TYPE, STRING_ARR_TYPE, NAMED_ATTRIBUTE_TYPE, NAMED_RANGE,
 		UNNAMED_RANGE,
 		uninit 
@@ -82,7 +82,6 @@ struct symtab_ent {
 		int ival;
 	};
 	datatype type;
-	/*decltype dcl_type;*/
 	int n_elms;
 	bool created_by_me;
 	type_qualifier type_qual;
@@ -90,8 +89,6 @@ struct symtab_ent {
 	expr * e;
 	//! if the variable is a "set" and initialised then the values are held here
 	xtcc_set * xs;
-	//symtab_ent():name(0), text(0), dval(0), type(uninit), n_elms(0), created_by_me(false),e(0), xs(0){
-	//}
 	//! constructor for variable declaration without initialisation
 	symtab_ent(const char * lname, datatype ldt):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
@@ -107,7 +104,7 @@ struct symtab_ent {
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(le), xs(0),
 		type_qual(l_tq)
 	{ }
-	//! constructor for qualified variable which is a named set
+	//! constructor for a variable which is a named set
 	symtab_ent(const char * lname, datatype ldt, xtcc_set * xs);
 	inline datatype get_type(){
 		return type;

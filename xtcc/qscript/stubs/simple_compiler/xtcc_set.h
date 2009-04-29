@@ -18,10 +18,11 @@ using std::vector;
 using std::pair;
 using std::set;
 
-//! xtcc_set is of the form  { 1, 2-5, 10, 21-40} etc
-/*
+//! xtcc_set is the implementation of sets customised for the qscript and xtcc compilers
+/*!
    The set can consist of individual elements or ranges of 
-   elements as demonstrated above
+   elements as demonstrated below
+	{ 1, 2-5, 10, 21-40} 
 */
 struct xtcc_set {
 	vector < pair<int,int> > range;

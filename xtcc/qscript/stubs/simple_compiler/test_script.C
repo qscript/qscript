@@ -62,12 +62,12 @@ question_list.push_back(q3);
 xtcc_set xs_2;
 xs_2.indiv.insert(99);
 xs_2.range.push_back(pair<int,int>(1,15));
-range_question * q4 = new range_question(QUESTION_TYPE, 20,string( "q4"),string(" q4"),mpn,5,INT32_TYPE,xs_2);
+range_question * q4 = new range_question(QUESTION_TYPE, 22,string( "q4"),string(" q4"),mpn,5,INT32_TYPE,xs_2);
 question_list.push_back(q4);
 xtcc_set xs_3;
 xs_3.indiv.insert(99);
 xs_3.range.push_back(pair<int,int>(1,15));
-range_question * q7 = new range_question(QUESTION_TYPE, 24,string( "q7"),string(" q7"),mpn,5,INT32_TYPE,xs_3);
+range_question * q7 = new range_question(QUESTION_TYPE, 27,string( "q7"),string(" q7"),mpn,5,INT32_TYPE,xs_3);
 question_list.push_back(q7);
 
 	int ser_no;
@@ -201,8 +201,11 @@ vector_int32_t.pop_back();
  // decl_stmt::generate_code 
 int32_t i=0;
  // decl_stmt::generate_code 
+int32_t j=0;
+ // decl_stmt::generate_code 
 int32_t var=10;
-for (i /* oper_assgn */ = 0;i<10;i /* oper_assgn */ = i+1){
+for (i /* oper_assgn */ = 0;i<3;i /* oper_assgn */ = i+1){
+for (j /* oper_assgn */ = 0;j<4;j /* oper_assgn */ = j+1){
 lab_q4:
 // QUESTION_TYPE - will think of this later 
 
@@ -211,6 +214,8 @@ lab_q4:
 // QUESTION_TYPE - will think of this later 
 
 vector_int32_t.push_back(i);
+
+vector_int32_t.push_back(j);
 
 vector_int32_t.push_back(my_32int);
 
@@ -231,6 +236,9 @@ var=vector_int32_t.back();
 vector_int32_t.pop_back();
 
 my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+j=vector_int32_t.back();
 vector_int32_t.pop_back();
 
 i=vector_int32_t.back();
@@ -245,6 +253,7 @@ vector_int32_t.pop_back();
 }
 		q4->eval();
 }
+}
 for (i /* oper_assgn */ = 0;i!=5*5;i /* oper_assgn */ = i+1){
 lab_q7:
 // QUESTION_TYPE - will think of this later 
@@ -256,6 +265,8 @@ lab_q7:
 // QUESTION_TYPE - will think of this later 
 
 vector_int32_t.push_back(i);
+
+vector_int32_t.push_back(j);
 
 vector_int32_t.push_back(my_32int);
 
@@ -276,6 +287,9 @@ var=vector_int32_t.back();
 vector_int32_t.pop_back();
 
 my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+j=vector_int32_t.back();
 vector_int32_t.pop_back();
 
 i=vector_int32_t.back();

@@ -2,11 +2,12 @@
 
 namespace qscript_parser {
 	using std::cerr;
+	vector<expr*> for_loop_max_counter_stack;
 	scope* active_scope;
 	vector <scope*> active_scope_list;
 	int nest_lev=0;
 	int flag_cmpd_stmt_is_a_func_body=-1;
-	int flag_cmpd_stmt_is_a_for_body=-1;
+	int flag_cmpd_stmt_is_a_for_body=0;
 	bool flag_next_stmt_start_of_block=false;
 	vector<bool> blk_start_flag;
 	vector <stmt*> blk_heads;
@@ -15,13 +16,14 @@ namespace qscript_parser {
 	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
 
+	expr * recurse_for_index(int stack_index);
 
 
 	ofstream debug_log_file("xtcc_debug.log", std::ios_base::out|std::ios_base::trunc);
 	using std::string;
-	void print_err(compiler_err_category cmp_err, 
-		string err_msg, int line_no, 
-		int compiler_line_no, string compiler_file_name);
+	//void print_err(compiler_err_category cmp_err, 
+	//	string err_msg, int line_no, 
+	//	int compiler_line_no, string compiler_file_name);
 	int line_no;
 	extern noun_list_type noun_list[];
 

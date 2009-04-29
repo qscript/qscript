@@ -20,6 +20,7 @@ using std::ofstream;
 using std::vector;
 namespace qscript_parser {
 	//! This is a pointer to the most active scope on the active_scope_list stack
+	extern vector<expr*> for_loop_max_counter_stack;
 	extern scope* active_scope;
 	//! maintains the scope levels in the files being parsed. The active_scope_list is treated like a stack
 	extern vector <scope*> active_scope_list;
@@ -35,12 +36,13 @@ namespace qscript_parser {
 	extern map<string, vector<string> > map_of_active_vars_for_questions;
 
 
+	expr * recurse_for_index(int stack_index);
 
 	extern ofstream debug_log_file;
 	using std::string;
-	void print_err(compiler_err_category cmp_err, 
-		string err_msg, int line_no, 
-		int compiler_line_no, string compiler_file_name);
+	//void print_err(compiler_err_category cmp_err, 
+	//	string err_msg, int line_no, 
+	//	int compiler_line_no, string compiler_file_name);
 	extern int line_no;
 	extern noun_list_type noun_list[];
 

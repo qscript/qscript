@@ -166,11 +166,17 @@ bool un_expr::is_const(){
 
 // will sort this out later
 bool bin_expr::is_const(){
+	//cerr << "bin_expr::is_const(): returning: " 
+	//	<< (l_op->is_integral_expr() && r_op->is_integral_expr() )
+	//	<< endl;
 	return l_op->is_const() && r_op->is_const();	
 }
 
 bool bin_expr::is_integral_expr(){
-	return l_op->is_integral_expr();
+	//cerr << "bin_expr::is_integral_expr(): returning: " 
+	//	<< (l_op->is_integral_expr() && r_op->is_integral_expr())
+	//	<< endl;
+	return l_op->is_integral_expr() && r_op->is_integral_expr();
 }
 
 string human_readable_type(datatype dt);
@@ -297,6 +303,7 @@ bool un2_expr::is_const(){
 	switch(e_type){
 		case oper_num:
 		case oper_float:
+			//cerr << "un2_expr::is_const() returning true."<< endl ; 
 			return true;
 		case oper_name:
 			if(symp->type_qual==CONST_QUAL){
@@ -313,9 +320,10 @@ bool un2_expr::is_const(){
 bool un2_expr::is_integral_expr(){
 	//cerr << "un2_expr::is_integral_expr(): "
 	//		<< e_type << endl;
-	//cout << "oper_num: " << oper_num << endl;
+	//cerr << "oper_num: " << oper_num << endl;
 	switch(e_type){
 		case oper_num:
+			//cerr << "un2_expr::is_integral_expr: returning true" << endl ;
 			return true;
 		case oper_name:
 			switch(symp->type){
