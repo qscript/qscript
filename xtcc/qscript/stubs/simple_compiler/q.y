@@ -118,7 +118,7 @@
 prog: cmpd_stmt {
 	qscript_parser::tree_root=$1;
 		while(qscript_parser::tree_root->prev) {
-			cerr << "climbing up the tree" << endl;
+			cerr << "This should never appear: climbing up the tree" << endl;
 			qscript_parser::tree_root=qscript_parser::tree_root->prev;
 		}
 	}
@@ -457,6 +457,18 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 				+ attribute_list_name + string(" not found \n"), line_no,
 				__LINE__, __FILE__);
 		}
+		
+		expr * arr_sz=0;
+		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
+			cout << "flag_cmpd_stmt_is_a_for_body: " 
+				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
+			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
+			//ostringstream s1, s2;
+			//arr_sz->print_expr(s1, s2);
+			//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
+		}
+
+
 		named_stub_question* q=new named_stub_question(QUESTION_TYPE, 
 				line_no, name, q_txt, 
 				q_type, no_mpn, dt, 

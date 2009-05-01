@@ -303,7 +303,7 @@ for_stmt:: ~for_stmt(){
 
 
 var_list::var_list(datatype type, char * name): 
-	var_type(type), var_name(name), arr_len(-1), prev(NULL), next(NULL){
+	var_type(type), var_name(name), arr_len(-1), prev(0), next(0){
 	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
 		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
 		stringstream s;
@@ -341,7 +341,7 @@ void var_list::print(FILE * edit_out){
 	}
 }
 
-var_list::var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev(NULL), next(NULL){
+var_list::var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev(0), next(0){
 	if(!is_of_arr_type(type)){
 		cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
 		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
