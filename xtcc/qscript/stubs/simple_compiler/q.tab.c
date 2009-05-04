@@ -532,11 +532,11 @@ static const yytype_uint16 yyrline[] =
        0,   118,   118,   127,   138,   146,   147,   148,   149,   150,
      151,   152,   155,   160,   165,   167,   171,   182,   183,   184,
      185,   186,   189,   190,   194,   194,   209,   260,   300,   310,
-     322,   353,   415,   481,   490,   499,   508,   517,   526,   535,
-     544,   553,   562,   571,   580,   589,   598,   609,   618,   627,
-     636,   644,   652,   661,   670,   722,   729,   736,   754,   755,
-     760,   761,   764,   768,   769,   772,   782,   787,   787,   805,
-     812
+     322,   353,   422,   503,   512,   521,   530,   539,   548,   557,
+     566,   575,   584,   593,   602,   611,   620,   631,   640,   649,
+     658,   666,   674,   683,   692,   744,   751,   758,   776,   777,
+     782,   783,   786,   790,   791,   794,   804,   809,   809,   827,
+     834
 };
 #endif
 
@@ -1603,7 +1603,7 @@ yyreduce:
     {
 	qscript_parser::tree_root=(yyvsp[(1) - (1)].c_stmt);
 		while(qscript_parser::tree_root->prev) {
-			cerr << "climbing up the tree" << endl;
+			cerr << "This should never appear: climbing up the tree" << endl;
 			qscript_parser::tree_root=qscript_parser::tree_root->prev;
 		}
 	;}
@@ -1876,16 +1876,23 @@ yyreduce:
 		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 		
 		expr * arr_sz=0;
+		range_question * q=0;
 		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
 			cout << "flag_cmpd_stmt_is_a_for_body: " 
 				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
 			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
+			q= new range_question(QUESTION_TYPE, line_no, 
+				name, q_text, q_type, no_mpn, dt, xs
+				//, arr_sz
+				,qscript_parser::for_loop_max_counter_stack
+				);
 			//ostringstream s1, s2;
 			//arr_sz->print_expr(s1, s2);
 			//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
+		} else {
+			q= new range_question(QUESTION_TYPE, line_no, 
+				name, q_text, q_type, no_mpn, dt, xs);
 		}
-		range_question * q= new range_question(QUESTION_TYPE, line_no, 
-			name, q_text, q_type, no_mpn, dt, xs);
 		if(stack_cmpd_stmt.size()==0){
 			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
 					"... exiting",
@@ -1909,7 +1916,7 @@ yyreduce:
     break;
 
   case 32:
-#line 415 "q.y"
+#line 422 "q.y"
     {
 		using qscript_parser::active_scope;
 		using qscript_parser::active_scope_list;
@@ -1955,11 +1962,26 @@ yyreduce:
 				+ attribute_list_name + string(" not found \n"), line_no,
 				__LINE__, __FILE__);
 		}
-		named_stub_question* q=new named_stub_question(QUESTION_TYPE, 
+		
+		expr * arr_sz=0;
+		named_stub_question* q=0;
+		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
+			cout << "flag_cmpd_stmt_is_a_for_body: " 
+				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
+			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
+			q=new named_stub_question(QUESTION_TYPE, 
 				line_no, name, q_txt, 
 				q_type, no_mpn, dt, 
-				//attribute_list_name);
+				nr_ptr
+				//, arr_sz
+				,qscript_parser::for_loop_max_counter_stack
+				);
+		} else {
+			q=new named_stub_question(QUESTION_TYPE, 
+				line_no, name, q_txt, 
+				q_type, no_mpn, dt, 
 				nr_ptr);
+		}
 		question_list.push_back(q);
 		(yyval.stmt)=q;
 		active_scope_list[0]->insert((yyvsp[(1) - (6)].name), QUESTION_TYPE);
@@ -1975,7 +1997,7 @@ yyreduce:
     break;
 
   case 33:
-#line 481 "q.y"
+#line 503 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
@@ -1988,7 +2010,7 @@ yyreduce:
     break;
 
   case 34:
-#line 490 "q.y"
+#line 512 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2001,7 +2023,7 @@ yyreduce:
     break;
 
   case 35:
-#line 499 "q.y"
+#line 521 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2014,7 +2036,7 @@ yyreduce:
     break;
 
   case 36:
-#line 508 "q.y"
+#line 530 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2027,7 +2049,7 @@ yyreduce:
     break;
 
   case 37:
-#line 517 "q.y"
+#line 539 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2040,7 +2062,7 @@ yyreduce:
     break;
 
   case 38:
-#line 526 "q.y"
+#line 548 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2053,7 +2075,7 @@ yyreduce:
     break;
 
   case 39:
-#line 535 "q.y"
+#line 557 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2066,7 +2088,7 @@ yyreduce:
     break;
 
   case 40:
-#line 544 "q.y"
+#line 566 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2079,7 +2101,7 @@ yyreduce:
     break;
 
   case 41:
-#line 553 "q.y"
+#line 575 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2092,7 +2114,7 @@ yyreduce:
     break;
 
   case 42:
-#line 562 "q.y"
+#line 584 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2105,7 +2127,7 @@ yyreduce:
     break;
 
   case 43:
-#line 571 "q.y"
+#line 593 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2118,7 +2140,7 @@ yyreduce:
     break;
 
   case 44:
-#line 580 "q.y"
+#line 602 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2131,7 +2153,7 @@ yyreduce:
     break;
 
   case 45:
-#line 589 "q.y"
+#line 611 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2144,7 +2166,7 @@ yyreduce:
     break;
 
   case 46:
-#line 598 "q.y"
+#line 620 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2159,7 +2181,7 @@ yyreduce:
     break;
 
   case 47:
-#line 609 "q.y"
+#line 631 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2172,7 +2194,7 @@ yyreduce:
     break;
 
   case 48:
-#line 618 "q.y"
+#line 640 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2185,7 +2207,7 @@ yyreduce:
     break;
 
   case 49:
-#line 627 "q.y"
+#line 649 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2198,7 +2220,7 @@ yyreduce:
     break;
 
   case 50:
-#line 636 "q.y"
+#line 658 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2210,7 +2232,7 @@ yyreduce:
     break;
 
   case 51:
-#line 644 "q.y"
+#line 666 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2222,7 +2244,7 @@ yyreduce:
     break;
 
   case 52:
-#line 652 "q.y"
+#line 674 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
@@ -2235,7 +2257,7 @@ yyreduce:
     break;
 
   case 53:
-#line 661 "q.y"
+#line 683 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
@@ -2248,7 +2270,7 @@ yyreduce:
     break;
 
   case 54:
-#line 670 "q.y"
+#line 692 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::named_stubs_list;
@@ -2304,7 +2326,7 @@ yyreduce:
     break;
 
   case 55:
-#line 722 "q.y"
+#line 744 "q.y"
     {
 		using qscript_parser::line_no;
 		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
@@ -2315,7 +2337,7 @@ yyreduce:
     break;
 
   case 56:
-#line 729 "q.y"
+#line 751 "q.y"
     { 
 		using qscript_parser::line_no;
 		(yyval.expr) = new un_expr((yyvsp[(2) - (3)].expr), oper_parexp );
@@ -2326,7 +2348,7 @@ yyreduce:
     break;
 
   case 57:
-#line 736 "q.y"
+#line 758 "q.y"
     {
 		using qscript_parser::xs;
 		using qscript_parser::line_no;
@@ -2336,34 +2358,34 @@ yyreduce:
     break;
 
   case 58:
-#line 754 "q.y"
+#line 776 "q.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 59:
-#line 755 "q.y"
+#line 777 "q.y"
     {
 		(yyval.expr)=qscript_parser::link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
 	;}
     break;
 
   case 60:
-#line 760 "q.y"
+#line 782 "q.y"
     { qscript_parser::q_type = spn; ;}
     break;
 
   case 61:
-#line 761 "q.y"
+#line 783 "q.y"
     { qscript_parser::q_type = mpn; qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival); ;}
     break;
 
   case 62:
-#line 764 "q.y"
+#line 786 "q.y"
     { ;}
     break;
 
   case 65:
-#line 772 "q.y"
+#line 794 "q.y"
     {
 		using qscript_parser::line_no;
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
@@ -2377,14 +2399,14 @@ yyreduce:
     break;
 
   case 66:
-#line 782 "q.y"
+#line 804 "q.y"
     {
 		qscript_parser::xs.indiv.insert((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
   case 67:
-#line 787 "q.y"
+#line 809 "q.y"
     {
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
@@ -2393,7 +2415,7 @@ yyreduce:
     break;
 
   case 68:
-#line 791 "q.y"
+#line 813 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser:: stub_list;
@@ -2408,7 +2430,7 @@ yyreduce:
     break;
 
   case 69:
-#line 805 "q.y"
+#line 827 "q.y"
     {
 		using qscript_parser::stub_list;
 		string s1=(yyvsp[(1) - (2)].text_buf);
@@ -2419,7 +2441,7 @@ yyreduce:
     break;
 
   case 70:
-#line 812 "q.y"
+#line 834 "q.y"
     {
 		using qscript_parser::stub_list;
 		string s1=(yyvsp[(2) - (3)].text_buf);
@@ -2432,7 +2454,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2436 "q.tab.c"
+#line 2458 "q.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2646,7 +2668,7 @@ yyreturn:
 }
 
 
-#line 824 "q.y"
+#line 846 "q.y"
 
 
 

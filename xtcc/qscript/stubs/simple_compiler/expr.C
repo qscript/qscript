@@ -293,7 +293,7 @@ void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & co
 
 		} else {
 			l_op->print_expr(code_bef_expr, code_expr);
-			code_expr << " /* oper_assgn */ = ";
+			code_expr << "  = ";
 			r_op->print_expr(code_bef_expr, code_expr);
 		}
 	}

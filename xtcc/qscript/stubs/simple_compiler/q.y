@@ -382,16 +382,23 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 		
 		expr * arr_sz=0;
+		range_question * q=0;
 		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
 			cout << "flag_cmpd_stmt_is_a_for_body: " 
 				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
 			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
+			q= new range_question(QUESTION_TYPE, line_no, 
+				name, q_text, q_type, no_mpn, dt, xs
+				//, arr_sz
+				,qscript_parser::for_loop_max_counter_stack
+				);
 			//ostringstream s1, s2;
 			//arr_sz->print_expr(s1, s2);
 			//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
+		} else {
+			q= new range_question(QUESTION_TYPE, line_no, 
+				name, q_text, q_type, no_mpn, dt, xs);
 		}
-		range_question * q= new range_question(QUESTION_TYPE, line_no, 
-			name, q_text, q_type, no_mpn, dt, xs);
 		if(stack_cmpd_stmt.size()==0){
 			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
 					"... exiting",
@@ -459,21 +466,24 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		}
 		
 		expr * arr_sz=0;
+		named_stub_question* q=0;
 		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
 			cout << "flag_cmpd_stmt_is_a_for_body: " 
 				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
 			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
-			//ostringstream s1, s2;
-			//arr_sz->print_expr(s1, s2);
-			//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
-		}
-
-
-		named_stub_question* q=new named_stub_question(QUESTION_TYPE, 
+			q=new named_stub_question(QUESTION_TYPE, 
 				line_no, name, q_txt, 
 				q_type, no_mpn, dt, 
-				//attribute_list_name);
+				nr_ptr
+				//, arr_sz
+				,qscript_parser::for_loop_max_counter_stack
+				);
+		} else {
+			q=new named_stub_question(QUESTION_TYPE, 
+				line_no, name, q_txt, 
+				q_type, no_mpn, dt, 
 				nr_ptr);
+		}
 		question_list.push_back(q);
 		$$=q;
 		active_scope_list[0]->insert($1, QUESTION_TYPE);

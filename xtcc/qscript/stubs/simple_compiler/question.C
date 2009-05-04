@@ -17,14 +17,29 @@ using std::cerr;
 using namespace std;
 //extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
-question::question(datatype l_type, int l_no, string l_name, string l_text, 
-	question_type l_q_type, int l_no_mpn, datatype l_dt
-	/*, xtcc_set& l_r_data */): 
+
+question::question(datatype l_type, int l_no, string l_name, string l_text
+	, question_type l_q_type, int l_no_mpn, datatype l_dt
+	//, expr* l_arr_sz
+	, vector<expr*> & l_for_bounds_stack
+	): 
 	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) , 
 	no_mpn(l_no_mpn),
 	dt(l_dt)
+	//, arr_sz(l_arr_sz)
+	, for_bounds_stack(l_for_bounds_stack)
 {
 	//r_data = new xtcc_set(l_r_data);
+}
+
+question::question(datatype l_type, int l_no, string l_name, string l_text
+	, question_type l_q_type, int l_no_mpn, datatype l_dt
+	): 
+	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) , 
+	no_mpn(l_no_mpn),
+	dt(l_dt)
+	, for_bounds_stack(0)
+{
 }
 
 
@@ -32,13 +47,30 @@ question::question(datatype l_type, int l_no, string l_name, string l_text,
 range_question::range_question(datatype this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	question_type l_q_type, int l_no_mpn, datatype l_dt,
-	xtcc_set& l_r_data): 
+	xtcc_set& l_r_data
+	//, expr* l_arr_sz
+	, vector<expr*> & l_for_bounds_stack
+	): 
 	question(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt)
+		l_q_type, l_no_mpn, l_dt
+		//, l_arr_sz
+		, l_for_bounds_stack
+		)
 {
 	r_data = new xtcc_set(l_r_data);
 }
 
+range_question::range_question(datatype this_stmt_type, int line_number,
+	string l_name, string l_q_text,
+	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	xtcc_set& l_r_data
+	): 
+	question(this_stmt_type, line_number, l_name, l_q_text,
+		l_q_type, l_no_mpn, l_dt
+		)
+{
+	r_data = new xtcc_set(l_r_data);
+}
 
 
 #include <sstream>
@@ -111,9 +143,6 @@ void range_question::eval(){
 	
 	data.clear();
 
-	//if(next){
-	//	next->eval();
-	//}
 }
 
 bool named_stub_question::is_valid(int value){
@@ -151,19 +180,9 @@ void named_stub_question::eval(){
 		cout << "data.size(): " << data.size() << endl;
 		for(unsigned int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
-			/*
-			for (int j=0; j<vec.size(); ++j){
-				if(vec[j].code==data[i]){
-					invalid_code=false;
-					break;
-				}
-			}
-			*/
-			//if(invalid_code==true)
 			invalid_code=!is_valid(data[i]);
 			if(invalid_code==true){
 				prompt = "Input contained some invalid data\nRe-enter Data\n";
-				//invalid_code=false;
 				data.clear();
 				break;
 			}
@@ -195,22 +214,9 @@ void named_stub_question::eval(){
 	
 }
 
-void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns, ostringstream& program_code){
-	//cerr << "range_question::generate_code invoked: question: " << name << endl;
-	/*
-	fprintf(script, "cout <<  \"%s.%s\" << endl << endl;\n\n", name.c_str(), text.c_str());
-	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
-		fprintf(script, "cout << %d << endl;\n", *it );
-	}
-	for(int i=0; i<r_data->range.size(); ++i){
-		for(int j=r_data->range[i].first; j<=r_data->range[i].second;++j){  
-			fprintf(script, "cout << %d << endl;\n",j ); 
-		}
-	}
-	*/
+void range_question::generate_code_single_question( ostringstream & quest_defns, ostringstream& program_code){
 
 	program_code << "lab_" << name << ":" << endl;
-	//program_code << "/* " << endl;
 
 	string q_push_name = name + "_push";
 	string q_pop_name = name + "_pop";
@@ -226,21 +232,16 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 	}
 	program_code << "}" << endl;
 
-	//program_code << "*/ " << endl;
 	
 	static int xtcc_set_counter=0;
 	const int BUF_SIZE=100;
 	char xtcc_set_name[BUF_SIZE];
 	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
-	//fprintf(script, "xtcc_set %s;\n", xtcc_set_name);
 	quest_defns  << "xtcc_set " << xtcc_set_name << ";" << endl;
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
-		//fprintf(script, "%s.indiv.insert(%d);\n", xtcc_set_name, *it);
 		quest_defns << xtcc_set_name << ".indiv.insert(" << *it << ");" << endl;
 	}
 	for(unsigned int i=0; i<r_data->range.size(); ++i){
-		//fprintf(script, "%s.range.push_back(pair<int,int>(%d,%d));\n",
-		//	xtcc_set_name, r_data->range[i].first, r_data->range[i].second);
 		quest_defns << xtcc_set_name << ".range.push_back(pair<int,int>("
 			<< r_data->range[i].first << "," << r_data->range[i].second
 			<< "));" << endl;
@@ -251,12 +252,6 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 	string datatype_str;
 	print_data_type(datatype_str);
 
-	/*
-	fprintf(script, "question * %s = new question(%d, \"%s\", \"%s\", %s, %d, %s, %s);\n",
-		name.c_str(),
-		line_no, name.c_str(), text.c_str(), q_type_str.c_str(), no_mpn, datatype_str.c_str(), xtcc_set_name
-		); 
-	*/
 
 	quest_defns << "range_question * " << name.c_str() << " = new range_question(QUESTION_TYPE, "
 		<< line_no << "," 
@@ -267,30 +262,34 @@ void range_question::generate_code(/*FILE * script*/ ostringstream & quest_defns
 		<< datatype_str.c_str() << ","
 		<< xtcc_set_name << ");\n";
 
-	//fprintf(script, "question_list.push_back(%s);", name.c_str());
 	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
 
-	//fprintf(script, "%s->eval();\n", name.c_str());
-	program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+	if(for_bounds_stack.size()==0){
+		program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+	} else {
+		program_code << "\t\t" << name.c_str() << "_list[";
+		for(int i=0; i<for_bounds_stack.size(); ++i){
+			//program_code << 
+			for_bounds_stack[i]->print_expr(quest_defns, program_code);
+				
+		}
+		program_code << "]->eval();\n" ;
+	}
+	/*
 	if(next){
 		next->generate_code(quest_defns, program_code);
-	}
+	}*/
 
 }
 
-//extern vector <scope*> active_scope_list;
-
-void named_stub_question::generate_code( ostringstream & quest_defns, 
-		ostringstream& program_code){
-	using qscript_parser::map_of_active_vars_for_questions;
-
+void range_question::generate_code( ostringstream & quest_defns, ostringstream& program_code){
+	/*
 
 	program_code << "lab_" << name << ":" << endl;
 
-	//program_code << "/* " << endl;
 	string q_push_name = name + "_push";
 	string q_pop_name = name + "_pop";
-	//using qscript_parser::map_of_active_vars_for_questions;
+	using qscript_parser::map_of_active_vars_for_questions;
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
 	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
@@ -302,8 +301,94 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 	}
 	program_code << "}" << endl;
 
-	//program_code << "*/ " << endl;
-	//cerr << "named_stub_question::generate_code invoked: question: " << name << endl;
+	
+	static int xtcc_set_counter=0;
+	const int BUF_SIZE=100;
+	char xtcc_set_name[BUF_SIZE];
+	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
+	quest_defns  << "xtcc_set " << xtcc_set_name << ";" << endl;
+	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
+		quest_defns << xtcc_set_name << ".indiv.insert(" << *it << ");" << endl;
+	}
+	for(unsigned int i=0; i<r_data->range.size(); ++i){
+		quest_defns << xtcc_set_name << ".range.push_back(pair<int,int>("
+			<< r_data->range[i].first << "," << r_data->range[i].second
+			<< "));" << endl;
+	}
+	string q_type_str;
+	print_q_type(q_type_str);
+
+	string datatype_str;
+	print_data_type(datatype_str);
+
+
+	quest_defns << "range_question * " << name.c_str() << " = new range_question(QUESTION_TYPE, "
+		<< line_no << "," 
+		<< "string( \"" << name.c_str() << "\")" << "," 
+		<< "string(\" " << text.c_str() << "\")" << ","
+		<< q_type_str.c_str() << ","
+		<< no_mpn << ","
+		<< datatype_str.c_str() << ","
+		<< xtcc_set_name << ");\n";
+
+	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
+
+	program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+
+	*/
+	//if(arr_sz==0)
+	if(for_bounds_stack.size()==0){
+		generate_code_single_question(quest_defns, program_code);
+	} else {
+		/*
+		quest_defns << "for(int i=0; i<";
+		//arr_sz->print_expr(quest_defns, program_code);
+		arr_sz->print_expr(quest_defns, quest_defns);
+		quest_defns << "; ++i){" << endl;
+		*/
+		quest_defns << "vector <question*> " << name << "_list;" << endl;
+		for(int i=0; i< for_bounds_stack.size(); ++i){
+			quest_defns << "for(int i=0; i<";
+			// quest_defns is passed twice
+			// becaues we want the expr to appear in the for
+			// loop in the questions section of the code
+			for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
+			quest_defns << "; ++i){" << endl;
+		}
+		
+		generate_code_single_question(quest_defns, program_code);
+		quest_defns << name << "_list.push_back(" << name << ");"
+			<< endl;
+		for(int i=0; i< for_bounds_stack.size(); ++i){
+			quest_defns << "}" << endl;
+		}
+	}
+	if(next){
+		next->generate_code(quest_defns, program_code);
+	}
+}
+
+//extern vector <scope*> active_scope_list;
+void named_stub_question::generate_code_single_question( ostringstream & quest_defns, 
+		ostringstream& program_code){
+	using qscript_parser::map_of_active_vars_for_questions;
+
+
+	program_code << "lab_" << name << ":" << endl;
+
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
+	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
+	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
+		program_code << active_push_vars_for_this_question[i] << endl;
+	}
+	program_code << "if ( back_jump==true ) {" << endl;
+	for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
+		program_code << active_pop_vars_for_this_question[i] << endl;
+	}
+	program_code << "}" << endl;
+
 	string q_type_str;
 	print_q_type(q_type_str);
 
@@ -321,6 +406,53 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
 	program_code << "\t\t" << name.c_str() << "->eval();\n" ;
 
+	/*
+	if(next){
+		next->generate_code(quest_defns, program_code);
+	}
+	*/
+
+}
+
+void named_stub_question::generate_code( ostringstream & quest_defns, 
+		ostringstream& program_code){
+	/*
+	using qscript_parser::map_of_active_vars_for_questions;
+
+
+	program_code << "lab_" << name << ":" << endl;
+
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
+	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
+	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
+		program_code << active_push_vars_for_this_question[i] << endl;
+	}
+	program_code << "if ( back_jump==true ) {" << endl;
+	for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
+		program_code << active_pop_vars_for_this_question[i] << endl;
+	}
+	program_code << "}" << endl;
+
+	string q_type_str;
+	print_q_type(q_type_str);
+
+	string datatype_str;
+	print_data_type(datatype_str);
+	quest_defns << "// named_stub_question::generate_code() : to be implemented" << endl;
+	quest_defns << "named_stub_question * " << name.c_str() << " = new named_stub_question(QUESTION_TYPE, "
+		<< line_no << "," 
+		<< "string( \"" << name.c_str() << "\")" << "," 
+		<< "string(\" " << text.c_str() << "\")" << ","
+		<< q_type_str.c_str() << ","
+		<< no_mpn << ","
+		<< datatype_str.c_str() << ",&"
+		<< nr_ptr->name  << ");\n";
+	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
+	program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+	*/
+
 	if(next){
 		next->generate_code(quest_defns, program_code);
 	}
@@ -331,22 +463,56 @@ named_stub_question::named_stub_question(datatype this_stmt_type, int line_numbe
 	string l_name, string l_q_text,
 	question_type l_q_type, int l_no_mpn, datatype l_dt,
 	//string& l_named_list): 
-	named_range* l_nr_ptr):
+	named_range* l_nr_ptr
+	//, expr* l_arr_sz
+	, vector<expr*>& l_for_bounds_stack
+	):
 	question(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt), 
+		l_q_type, l_no_mpn, l_dt
+		//, l_arr_sz
+		, l_for_bounds_stack
+		), 
 	//named_list(l_named_list)
 	nr_ptr(l_nr_ptr), stub_ptr(0)
 {
 }
 
+named_stub_question::named_stub_question(datatype this_stmt_type, int line_number,
+	string l_name, string l_q_text,
+	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	named_range* l_nr_ptr
+	):
+	question(this_stmt_type, line_number, l_name, l_q_text,
+		l_q_type, l_no_mpn, l_dt
+		), 
+	nr_ptr(l_nr_ptr), stub_ptr(0)
+{
+}
 
 named_stub_question::named_stub_question(datatype this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	question_type l_q_type, int l_no_mpn, datatype l_dt,
-	vector<stub_pair>* l_stub_ptr):
+	vector<stub_pair>* l_stub_ptr
+	//, expr* l_arr_sz
+	, vector<expr*>& l_for_bounds_stack
+	):
 	question(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt), 
-	//named_list(l_named_list)
+		l_q_type, l_no_mpn, l_dt
+		//, l_arr_sz
+		, l_for_bounds_stack), 
+	nr_ptr(0), stub_ptr(l_stub_ptr)
+{
+}
+
+named_stub_question::named_stub_question(datatype this_stmt_type, int line_number,
+	string l_name, string l_q_text,
+	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	vector<stub_pair>* l_stub_ptr
+	//, expr* l_arr_sz
+	):
+	question(this_stmt_type, line_number, l_name, l_q_text,
+		l_q_type, l_no_mpn, l_dt
+		), 
 	nr_ptr(0), stub_ptr(l_stub_ptr)
 {
 }
