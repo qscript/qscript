@@ -37,7 +37,6 @@ using namespace std;
 #include <sstream>
 
 	void print_expr(FILE* edit_out, struct expr * e);
-	int search_for_func(string& search_for);
 	extern scope* active_scope;
 	extern int no_errors;
 	extern noun_list_type noun_list[];

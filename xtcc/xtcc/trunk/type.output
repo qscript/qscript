@@ -4,22 +4,6 @@ Terminals which are not used
    CODELIST
 
 
-State 58 conflicts: 1 shift/reduce
-State 59 conflicts: 1 shift/reduce
-State 89 conflicts: 1 shift/reduce
-State 90 conflicts: 1 shift/reduce
-State 91 conflicts: 1 shift/reduce
-State 92 conflicts: 1 shift/reduce
-State 93 conflicts: 1 shift/reduce
-State 94 conflicts: 1 shift/reduce
-State 95 conflicts: 1 shift/reduce
-State 96 conflicts: 1 shift/reduce
-State 97 conflicts: 1 shift/reduce
-State 98 conflicts: 1 shift/reduce
-State 99 conflicts: 1 shift/reduce
-State 100 conflicts: 1 shift/reduce
-State 101 conflicts: 1 shift/reduce
-State 102 conflicts: 1 shift/reduce
 State 233 conflicts: 1 shift/reduce
 
 
@@ -930,9 +914,6 @@ state 58
    67           | expression . '=' expression
    77           | expression . IN '(' range_list ')'
 
-    IN  shift, and go to state 61
-
-    IN        [reduce using rule 58 (expression)]
     $default  reduce using rule 58 (expression)
 
 
@@ -955,9 +936,6 @@ state 59
    68           | NOT expression .
    77           | expression . IN '(' range_list ')'
 
-    IN  shift, and go to state 61
-
-    IN        [reduce using rule 68 (expression)]
     $default  reduce using rule 68 (expression)
 
 
@@ -1435,7 +1413,6 @@ state 89
     '/'     shift, and go to state 74
     '%'     shift, and go to state 75
 
-    IN        [reduce using rule 67 (expression)]
     $default  reduce using rule 67 (expression)
 
 
@@ -1472,7 +1449,6 @@ state 90
     '/'     shift, and go to state 74
     '%'     shift, and go to state 75
 
-    IN        [reduce using rule 65 (expression)]
     $default  reduce using rule 65 (expression)
 
 
@@ -1508,7 +1484,6 @@ state 91
     '/'   shift, and go to state 74
     '%'   shift, and go to state 75
 
-    IN        [reduce using rule 66 (expression)]
     $default  reduce using rule 66 (expression)
 
 
@@ -1542,7 +1517,6 @@ state 92
     '/'  shift, and go to state 74
     '%'  shift, and go to state 75
 
-    IN        [reduce using rule 64 (expression)]
     $default  reduce using rule 64 (expression)
 
 
@@ -1576,7 +1550,6 @@ state 93
     '/'  shift, and go to state 74
     '%'  shift, and go to state 75
 
-    IN        [reduce using rule 63 (expression)]
     $default  reduce using rule 63 (expression)
 
 
@@ -1606,7 +1579,6 @@ state 94
     '/'  shift, and go to state 74
     '%'  shift, and go to state 75
 
-    IN        [reduce using rule 59 (expression)]
     $default  reduce using rule 59 (expression)
 
 
@@ -1636,7 +1608,6 @@ state 95
     '/'  shift, and go to state 74
     '%'  shift, and go to state 75
 
-    IN        [reduce using rule 60 (expression)]
     $default  reduce using rule 60 (expression)
 
 
@@ -1666,7 +1637,6 @@ state 96
     '/'  shift, and go to state 74
     '%'  shift, and go to state 75
 
-    IN        [reduce using rule 62 (expression)]
     $default  reduce using rule 62 (expression)
 
 
@@ -1696,7 +1666,6 @@ state 97
     '/'  shift, and go to state 74
     '%'  shift, and go to state 75
 
-    IN        [reduce using rule 61 (expression)]
     $default  reduce using rule 61 (expression)
 
 
@@ -1719,12 +1688,10 @@ state 98
    67           | expression . '=' expression
    77           | expression . IN '(' range_list ')'
 
-    IN   shift, and go to state 61
     '*'  shift, and go to state 73
     '/'  shift, and go to state 74
     '%'  shift, and go to state 75
 
-    IN        [reduce using rule 54 (expression)]
     $default  reduce using rule 54 (expression)
 
 
@@ -1747,12 +1714,10 @@ state 99
    67           | expression . '=' expression
    77           | expression . IN '(' range_list ')'
 
-    IN   shift, and go to state 61
     '*'  shift, and go to state 73
     '/'  shift, and go to state 74
     '%'  shift, and go to state 75
 
-    IN        [reduce using rule 53 (expression)]
     $default  reduce using rule 53 (expression)
 
 
@@ -1775,9 +1740,6 @@ state 100
    67           | expression . '=' expression
    77           | expression . IN '(' range_list ')'
 
-    IN  shift, and go to state 61
-
-    IN        [reduce using rule 55 (expression)]
     $default  reduce using rule 55 (expression)
 
 
@@ -1800,9 +1762,6 @@ state 101
    67           | expression . '=' expression
    77           | expression . IN '(' range_list ')'
 
-    IN  shift, and go to state 61
-
-    IN        [reduce using rule 56 (expression)]
     $default  reduce using rule 56 (expression)
 
 
@@ -1825,9 +1784,6 @@ state 102
    67           | expression . '=' expression
    77           | expression . IN '(' range_list ')'
 
-    IN  shift, and go to state 61
-
-    IN        [reduce using rule 57 (expression)]
     $default  reduce using rule 57 (expression)
 
 

@@ -210,6 +210,7 @@
 %left LOGAND
 %left ISEQ NOEQ 
 %left LEQ GEQ '<' '>' 
+%nonassoc IN
 %left '-' '+'
 %left '*' '/' '%'
 %nonassoc NOT
