@@ -295,5 +295,7 @@ struct param {
 	struct param * next;
 };
 
+struct question;
+question* find_in_question_list(string name);
 
 #endif /* stmt_h */

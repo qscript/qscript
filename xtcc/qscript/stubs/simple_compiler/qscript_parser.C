@@ -117,14 +117,14 @@ void print_header(FILE* script){
 	fprintf(script, "void merge_disk_data_into_questions();\n");
 
 
-	fprintf(script, "\tnoun_list_type noun_list[]= {\n");
-	fprintf(script, "\t\t\t{\t\"void\"\t, VOID_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"int8_t\" ,INT8_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"int16_t\" ,INT16_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"int32_t\" ,INT32_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"float\", FLOAT_TYPE},\n");
-	fprintf(script, "\t\t\t{\t\"double\", DOUBLE_TYPE}\n");
-	fprintf(script, "\t\t};\n");
+	//fprintf(script, "\tnoun_list_type noun_list[]= {\n");
+	//fprintf(script, "\t\t\t{\t\"void\"\t, VOID_TYPE},\n");
+	//fprintf(script, "\t\t\t{\t\"int8_t\" ,INT8_TYPE},\n");
+	//fprintf(script, "\t\t\t{\t\"int16_t\" ,INT16_TYPE},\n");
+	//fprintf(script, "\t\t\t{\t\"int32_t\" ,INT32_TYPE},\n");
+	//fprintf(script, "\t\t\t{\t\"float\", FLOAT_TYPE},\n");
+	//fprintf(script, "\t\t\t{\t\"double\", DOUBLE_TYPE}\n");
+	//fprintf(script, "\t\t};\n");
 	fprintf(script, "\n");
 	fprintf(script, "int check_if_reg_file_exists(string jno, int ser_no);\n");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");

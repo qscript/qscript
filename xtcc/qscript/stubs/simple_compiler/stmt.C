@@ -216,7 +216,6 @@ cmpd_stmt::~cmpd_stmt() {
 	}
 }
 
-question* find_in_question_list(string name);
 extern vector <question*> qscript_parser::question_list;
 using qscript_parser::question_list;
 question* find_in_question_list(string name){

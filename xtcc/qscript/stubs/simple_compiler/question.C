@@ -8,6 +8,7 @@
 #include "scope.h"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include "qscript_parser.h"
 
@@ -267,12 +268,61 @@ void range_question::generate_code_single_question( ostringstream & quest_defns,
 	if(for_bounds_stack.size()==0){
 		program_code << "\t\t" << name.c_str() << "->eval();\n" ;
 	} else {
+
+
+
 		program_code << "\t\t" << name.c_str() << "_list[";
+		/*
 		for(int i=0; i<for_bounds_stack.size(); ++i){
 			//program_code << 
 			for_bounds_stack[i]->print_expr(quest_defns, program_code);
 				
+		}*/
+		// ----------------------------------
+		ostringstream * string_stream_vec=new ostringstream[for_bounds_stack.size()];
+		for(int i=0; i< for_bounds_stack.size(); ++i){
+			bin_expr * bin_expr_ptr = dynamic_cast<bin_expr*>(for_bounds_stack[i]);
+			if(bin_expr_ptr){
+				expr * rhs = bin_expr_ptr->r_op;
+				expr * lhs = bin_expr_ptr->l_op;
+				lhs->print_expr(string_stream_vec[i], string_stream_vec[i]); 
+				if(i<for_bounds_stack.size()-1) {
+					string_stream_vec[i] << "*" ;
+				}
+			} else {
+				for_bounds_stack[i]->print_expr(string_stream_vec[i], string_stream_vec[i]);
+				print_err(compiler_sem_err
+					, "for loop index condition is not a binary expression" 
+					, 0, __LINE__, __FILE__);
+			}
+			for(int j=i+1; j<for_bounds_stack.size(); j++){
+				// quest_defns is passed twice
+				// becaues we want the expr to appear in the for
+				// loop in the questions section of the code
+				bin_expr * bin_expr_ptr2 = dynamic_cast<bin_expr*>(for_bounds_stack[j]);
+				if(bin_expr_ptr2){
+					expr * rhs = bin_expr_ptr2->r_op;
+					rhs->print_expr(string_stream_vec[i], string_stream_vec[i]);
+					if(j<for_bounds_stack.size()-1) {
+						string_stream_vec[i] << "*" ;
+					}
+
+				} else {
+					for_bounds_stack[i]->print_expr(string_stream_vec[i], string_stream_vec[i]);
+					print_err(compiler_sem_err
+						, "for loop index condition is not a binary expression" 
+						, 0, __LINE__, __FILE__);
+				}
+			}
 		}
+		for(int i=0; i<for_bounds_stack.size(); ++i) {
+			//for_bounds_stack[i]->print_expr(quest_defns, program_code);
+			program_code << string_stream_vec[i].str();
+			if(i <for_bounds_stack.size()-1 ){
+				program_code << "+";
+			}
+		}
+		// ---------------------------------
 		program_code << "]->eval();\n" ;
 	}
 	/*

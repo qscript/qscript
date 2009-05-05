@@ -1,19 +1,24 @@
 
 CC=g++ -c
 LIBS=-lreadline
-OBJS = test_script.o xtcc_set.o lex.scan_data.o data_entry.tab.o question.o stmt_common.o qscript_lib.o qscript_data.tab.o lex.read_disk_data.o qscript_parser.o
+OBJS = test_script.o xtcc_set.o lex.scan_data.o data_entry.tab.o question.o stmt_common.o qscript_lib.o qscript_data.tab.o lex.read_disk_data.o qscript_parser.o expr.o utils.o symtab.o stmt.o scope.o
 test_script:  $(OBJS)
 	g++ -o $@ $(OBJS) $(LIBS)
 
 test_script.o: test_script.C
 	$(CC) -c $<
 
-stmt.o: stmt.C stmt.h common.h xtcc_set.h	
+stmt.o: stmt.C stmt.h 
+	$(CC) -c $<	
+
+expr.o: expr.C expr.h 
 	$(CC) -c $<	
 
 data_entry.tab.c data_entry.tab.h: data_entry.y	
 	bison -d -p scan_data $<
 	
+utils.o: utils.C utils.h
+	$(CC) -c $<	
 
 lex.scan_data.c: try1.l
 	flex $<
@@ -49,5 +54,11 @@ lex.read_disk_data.o: lex.read_disk_data.c qscript_data.tab.h
 	$(CC) $<
 
 qscript_parser.o: qscript_parser.C qscript_parser.h
+	$(CC) $<
+
+symtab.o: symtab.C symtab.h
+	$(CC) $<
+
+scope.o: scope.C scope.h
 	$(CC) $<
 
