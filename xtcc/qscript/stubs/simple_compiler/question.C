@@ -398,12 +398,31 @@ void range_question::generate_code( ostringstream & quest_defns, ostringstream& 
 		*/
 		quest_defns << "vector <question*> " << name << "_list;" << endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
-			quest_defns << "for(int i=0; i<";
+			quest_defns << "for(int ";
+			bin_expr * bin_expr_ptr = dynamic_cast<bin_expr*>(for_bounds_stack[i]);
+			if(bin_expr_ptr){
+				expr * rhs = bin_expr_ptr->r_op;
+				expr * lhs = bin_expr_ptr->l_op;
+				lhs->print_expr(quest_defns, quest_defns);
+				quest_defns << "=0;";
+				/*
+				lhs->print_expr(quest_defns, quest_defns);
+				quest_defns << "<";
+				*/
+				for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
+				quest_defns << "; ++";
+				lhs->print_expr(quest_defns, quest_defns);
+				quest_defns <<	"){" << endl;
+			} else {
+				for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
+				print_err(compiler_sem_err
+					, "for loop index condition is not a binary expression" 
+					, 0, __LINE__, __FILE__);
+			}
+
 			// quest_defns is passed twice
 			// becaues we want the expr to appear in the for
 			// loop in the questions section of the code
-			for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
-			quest_defns << "; ++i){" << endl;
 		}
 		
 		generate_code_single_question(quest_defns, program_code);

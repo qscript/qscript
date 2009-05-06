@@ -48,16 +48,28 @@ xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
 range_question * q2 = new range_question(QUESTION_TYPE, 13,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
 question_list.push_back(q2);
+vector <question*> q4_list;
+for(int i=0;i<3; ++i){
+for(int j=0;j<4; ++j){
+for(int k=0;k<5; ++k){
 xtcc_set xs_2;
 xs_2.indiv.insert(99);
 xs_2.range.push_back(pair<int,int>(1,15));
-range_question * q4 = new range_question(QUESTION_TYPE, 34,string( "q4"),string(" q4"),mpn,5,INT32_TYPE,xs_2);
+range_question * q4 = new range_question(QUESTION_TYPE, 24,string( "q4"),string(" q4"),mpn,5,INT32_TYPE,xs_2);
 question_list.push_back(q4);
+q4_list.push_back(q4);
+}
+}
+}
+vector <question*> q7_list;
+for(int i=0;i!=5*5; ++i){
 xtcc_set xs_3;
 xs_3.indiv.insert(99);
 xs_3.range.push_back(pair<int,int>(1,15));
-range_question * q7 = new range_question(QUESTION_TYPE, 35,string( "q7"),string(" q7"),mpn,5,INT32_TYPE,xs_3);
+range_question * q7 = new range_question(QUESTION_TYPE, 30,string( "q7"),string(" q7"),mpn,5,INT32_TYPE,xs_3);
 question_list.push_back(q7);
+q7_list.push_back(q7);
+}
 
 	int ser_no;
 	cout << "Enter Serial No (0) to exit: " << flush;
@@ -168,6 +180,9 @@ int32_t j=0;
 int32_t k=0;
  // decl_stmt::generate_code 
 int32_t var=10;
+for (i  = 0;i<3;i  = i+1){
+for (j  = 0;j<4;j  = j+1){
+for (k  = 0;k<5;k  = k+1){
 lab_q4:
 // QUESTION_TYPE - will think of this later 
 
@@ -218,7 +233,11 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q4->eval();
+		q4_list[i*4*5+j*5+k]->eval();
+}
+}
+}
+for (i  = 0;i!=5*5;i  = i+1){
 lab_q7:
 // QUESTION_TYPE - will think of this later 
 
@@ -273,7 +292,8 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q7->eval();
+		q7_list[i]->eval();
+}
 }
 
 			stringstream fname_str;
