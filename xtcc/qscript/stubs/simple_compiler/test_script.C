@@ -35,41 +35,33 @@ age.push_back( stub_pair("15 to 21", 1));
 age.push_back( stub_pair("22 to 30", 2));
 age.push_back( stub_pair("31 to 40", 3));
 age.push_back( stub_pair("41 to 59", 4));
+vector <stub_pair> csd_brand_list;
+
+csd_brand_list.push_back( stub_pair("goqe", 1));
+csd_brand_list.push_back( stub_pair("bebzi", 2));
+csd_brand_list.push_back( stub_pair("oogla", 3));
+csd_brand_list.push_back( stub_pair("zingmoo", 4));
+csd_brand_list.push_back( stub_pair("thunder", 5));
+csd_brand_list.push_back( stub_pair("zoinks", 6));
 xtcc_set xs_0;
 xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);
 xs_0.indiv.insert(3);
 xs_0.indiv.insert(4);
-range_question * q1 = new range_question(QUESTION_TYPE, 6,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0);
+range_question * q1 = new range_question(QUESTION_TYPE, 16,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0);
 question_list.push_back(q1);
 xtcc_set xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
-range_question * q2 = new range_question(QUESTION_TYPE, 13,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
+range_question * q2 = new range_question(QUESTION_TYPE, 23,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1);
 question_list.push_back(q2);
-vector <question*> q4_list;
-for(int i=0;i<3; ++i){
-for(int j=0;j<4; ++j){
-for(int k=0;k<5; ++k){
-xtcc_set xs_2;
-xs_2.indiv.insert(99);
-xs_2.range.push_back(pair<int,int>(1,15));
-range_question * q4 = new range_question(QUESTION_TYPE, 24,string( "q4"),string(" q4"),mpn,5,INT32_TYPE,xs_2);
+// named_stub_question::generate_code() : to be implemented
+named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 24,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
+question_list.push_back(q3);
+// named_stub_question::generate_code() : to be implemented
+named_stub_question * q4 = new named_stub_question(QUESTION_TYPE, 29,string( "q4"),string(" Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first"),spn,5,INT32_TYPE,&csd_brand_list);
 question_list.push_back(q4);
-q4_list.push_back(q4);
-}
-}
-}
-vector <question*> q7_list;
-for(int i=0;i!=5*5; ++i){
-xtcc_set xs_3;
-xs_3.indiv.insert(99);
-xs_3.range.push_back(pair<int,int>(1,15));
-range_question * q7 = new range_question(QUESTION_TYPE, 30,string( "q7"),string(" q7"),mpn,5,INT32_TYPE,xs_3);
-question_list.push_back(q7);
-q7_list.push_back(q7);
-}
 
 	int ser_no;
 	cout << "Enter Serial No (0) to exit: " << flush;
@@ -171,7 +163,65 @@ vector_int32_t.pop_back();
 
 }
 		q2->eval();
+lab_q3:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+vector_int32_t.push_back(my_32int);
+
+vector_int8_t.push_back(var1);
+
+vector_int8_t.push_back(var2);
+
+if ( back_jump==true ) {
+var2=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+var1=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
 }
+		q3->eval();
+}
+lab_q4:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+vector_int32_t.push_back(my_32int);
+
+vector_int8_t.push_back(var1);
+
+vector_int8_t.push_back(var2);
+
+if ( back_jump==true ) {
+var2=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+var1=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q4->eval();
  // decl_stmt::generate_code 
 int32_t i=0;
  // decl_stmt::generate_code 
@@ -180,120 +230,6 @@ int32_t j=0;
 int32_t k=0;
  // decl_stmt::generate_code 
 int32_t var=10;
-for (i  = 0;i<3;i  = i+1){
-for (j  = 0;j<4;j  = j+1){
-for (k  = 0;k<5;k  = k+1){
-lab_q4:
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-vector_int32_t.push_back(i);
-
-vector_int32_t.push_back(j);
-
-vector_int32_t.push_back(k);
-
-vector_int32_t.push_back(my_32int);
-
-vector_int32_t.push_back(var);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
-
-if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-k=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-j=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-i=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-}
-		q4_list[i*4*5+j*5+k]->eval();
-}
-}
-}
-for (i  = 0;i!=5*5;i  = i+1){
-lab_q7:
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-vector_int32_t.push_back(i);
-
-vector_int32_t.push_back(j);
-
-vector_int32_t.push_back(k);
-
-vector_int32_t.push_back(my_32int);
-
-vector_int32_t.push_back(var);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
-
-if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-k=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-j=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-i=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-// QUESTION_TYPE - will think of this later 
-
-}
-		q7_list[i]->eval();
-}
 }
 
 			stringstream fname_str;

@@ -4,6 +4,16 @@
 		"31 to 40" 3
 		"41 to 59" 4;
 
+	stubs csd_brand_list =
+		"goqe" 1
+		"bebzi" 2
+		"oogla" 3
+		"zingmoo" 4
+		"thunder" 5
+		"zoinks" 6
+		;
+
+
 	q1 "Q1. This is question 1" sp int32_t (1,2,3,4);
 	int8_t var1= 5 * 12;
 	int8_t var2 = 7* var1;
@@ -15,22 +25,26 @@
 		q3 "Q3. Respondents age" sp int32_t age; 
 	}
 
+
+	q4 "Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first"
+		sp int32_t csd_brand_list;
+
 	int32_t i=0;
 	int32_t j=0;
 	int32_t k=0;
 	int32_t var=10;
+	/*
 	for(i=0; i<3; i=i+1){
 		for(j=0; j<4; j=j+1){
 			for(k=0; k<5; k=k+1){
-				q4 "q4" mp(5) int32_t(1-15,99);
+				q14 "q14" mp(5) int32_t(1-15,99);
 			}
 		}
 	}
 	// should not be an error
 	for(i=0; i!=5 * 5; i=i+1){
-		q7 "q7" mp(5) int32_t(1-15,99);
+		q15 "q15" mp(5) int32_t(1-15,99);
 	}
-	/*
 	q4 "q4" mp(5) int32_t(1-15,99);
 	q7 "q7" mp(5) int32_t(1-15,99);
 	*/

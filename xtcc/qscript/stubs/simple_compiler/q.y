@@ -420,6 +420,7 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		// question* pointer later 
 	}
 	| NAME TEXT qtype datatype NAME ';' {
+		cerr << "parsing question: " << $1 << endl;
 		using qscript_parser::active_scope;
 		using qscript_parser::active_scope_list;
 		using qscript_parser::stack_cmpd_stmt;
