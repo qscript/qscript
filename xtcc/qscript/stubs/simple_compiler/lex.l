@@ -69,16 +69,14 @@ if	{
 	return IF;
 }
 
-else 	{
-	return ELSE;
-}
+else 	{ return ELSE; }
 
-in 	{ return IN; }
+in 		{ return IN; }
 
-for	{ return FOR; }
+for		{ return FOR; }
 
 
-stubs	{ return STUBS_LIST; }
+stubs		{ return STUBS_LIST; }
 
 
 void		{ yylval.dt=VOID_TYPE; return VOID_T; }
@@ -88,9 +86,11 @@ int32_t		{ yylval.dt=INT32_TYPE;	return INT32_T; }
 float		{ yylval.dt=FLOAT_TYPE; return FLOAT_T; }
 double 		{ yylval.dt=DOUBLE_TYPE; return DOUBLE_T; }
 string 		{ yylval.dt=STRING_TYPE; return STRING_T; }
-sp 	{return SP;}
-mp 	{ return MP;}
-const { return CONST; }
+sp 		{return SP;}
+mp 		{ return MP;}
+const 		{ return CONST; }
+setdel		{ return SETDEL; }
+setadd		{ return SETADD; }
 
 
 [0-9]+	{

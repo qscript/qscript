@@ -67,7 +67,9 @@
      FUNC_CALL = 283,
      IF = 284,
      ELSE = 285,
-     STUBS_LIST = 286
+     STUBS_LIST = 286,
+     SETDEL = 287,
+     SETADD = 288
    };
 #endif
 /* Tokens.  */
@@ -100,6 +102,8 @@
 #define IF 284
 #define ELSE 285
 #define STUBS_LIST 286
+#define SETDEL 287
+#define SETADD 288
 
 
 
@@ -121,7 +125,7 @@ typedef union YYSTYPE
 
 }
 /* Line 1489 of yacc.c.  */
-#line 125 "q.tab.h"
+#line 129 "q.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

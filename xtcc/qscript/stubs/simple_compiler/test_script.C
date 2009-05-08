@@ -222,14 +222,7 @@ vector_int32_t.pop_back();
 
 }
 		q4->eval();
- // decl_stmt::generate_code 
-int32_t i=0;
- // decl_stmt::generate_code 
-int32_t j=0;
- // decl_stmt::generate_code 
-int32_t k=0;
- // decl_stmt::generate_code 
-int32_t var=10;
+/*stub_manip::generate_code()*/
 }
 
 			stringstream fname_str;

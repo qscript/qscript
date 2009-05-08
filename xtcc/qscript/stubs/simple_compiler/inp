@@ -28,6 +28,9 @@
 
 	q4 "Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first"
 		sp int32_t csd_brand_list;
+	setdel(csd_brand_list, q4);
+	//setdel(age, q4);
+	//setadd(csd_brand_list, q4);
 
 	int32_t i=0;
 	int32_t j=0;

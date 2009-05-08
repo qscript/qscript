@@ -216,7 +216,6 @@ void named_stub_question::eval(){
 }
 
 void range_question::generate_code_single_question( ostringstream & quest_defns, ostringstream& program_code){
-	cerr << "range_question::generate_code_single_question name" << name << endl;
 
 	program_code << "lab_" << name << ":" << endl;
 
@@ -334,7 +333,6 @@ void range_question::generate_code_single_question( ostringstream & quest_defns,
 }
 
 void range_question::generate_code( ostringstream & quest_defns, ostringstream& program_code){
-	cerr << "range_question::generate_code name" << name << endl;
 	if(for_bounds_stack.size()==0){
 		generate_code_single_question(quest_defns, program_code);
 	} else {
@@ -378,7 +376,6 @@ void range_question::generate_code( ostringstream & quest_defns, ostringstream& 
 //extern vector <scope*> active_scope_list;
 void named_stub_question::generate_code_single_question( ostringstream & quest_defns, 
 		ostringstream& program_code){
-	cerr << "named_stub_question::generate_code_single_question name:" << name  << endl;
 	using qscript_parser::map_of_active_vars_for_questions;
 
 
@@ -424,7 +421,6 @@ void named_stub_question::generate_code_single_question( ostringstream & quest_d
 
 void named_stub_question::generate_code( ostringstream & quest_defns, 
 		ostringstream& program_code){
-	cerr << "named_stub_question::generate_code name:" << name << endl;
 	if(for_bounds_stack.size()==0){
 		generate_code_single_question(quest_defns, program_code);
 	}  else {

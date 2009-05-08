@@ -87,10 +87,10 @@ struct range_question: public question {
 		q3 "Q3. Respondents age" sp int32_t age; 
 */
 class named_stub_question: public question {
+	public:
 	string named_list;
 	named_range * nr_ptr;
 	vector<stub_pair> * stub_ptr;
-	public:
 	named_stub_question(datatype this_stmt_type, int line_number, 
 		string l_name, string l_q_text,
 		question_type l_q_type, int l_no_mpn, datatype l_dt,

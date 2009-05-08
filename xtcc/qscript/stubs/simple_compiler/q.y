@@ -101,10 +101,13 @@
 %type <c_stmt> open_curly	
 %type <stmt> if_stmt	
 %type <stmt> for_loop_stmt	
+%type <stmt> stub_manip_stmts	
 
 %token IF ELSE
 
 %token STUBS_LIST
+%token SETDEL
+%token SETADD
 
 
 %type <expr> expression
@@ -188,6 +191,7 @@ stmt:	question
 	}
 	| if_stmt
 	| for_loop_stmt 
+	| stub_manip_stmts
 	;
 
 for_loop_stmt: 
@@ -420,7 +424,6 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		// question* pointer later 
 	}
 	| NAME TEXT qtype datatype NAME ';' {
-		cerr << "parsing question: " << $1 << endl;
 		using qscript_parser::active_scope;
 		using qscript_parser::active_scope_list;
 		using qscript_parser::stack_cmpd_stmt;
@@ -841,6 +844,17 @@ stub_list:	TEXT INUMBER {
 		//cout << "chaining stublist" << endl;
 	}
 	;
+
+stub_manip_stmts: 
+	  SETDEL '(' NAME ',' NAME ')' ';' {
+		$$ = qscript_parser::setup_setdel_stmt( $3, $5);
+	}
+	/*
+	| SETADD '(' NAME ',' NAME ')' ';' {
+	}
+	*/
+	;
+	
 
 
 

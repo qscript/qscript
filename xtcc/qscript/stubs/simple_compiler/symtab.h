@@ -36,7 +36,7 @@ using std::stringstream;
 		BREAK_STMT, CONTINUE_STMT, RANGE_DECL_STMT,
 		QUESTION_TYPE, QUESTION_ARR_TYPE,
 		STRING_TYPE, STRING_ARR_TYPE, NAMED_ATTRIBUTE_TYPE, NAMED_RANGE,
-		UNNAMED_RANGE,
+		UNNAMED_RANGE, STUB_MANIP_ADD, STUB_MANIP_DEL,
 		uninit 
 	};
 	//! question_type enum: A question can be single code,

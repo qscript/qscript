@@ -83,6 +83,7 @@ namespace qscript_parser {
 	extern int if_line_no;
 	extern int yywrap();
 
+	extern stmt* setup_setdel_stmt(char* stub_list_name, char * question_name);
 
 }
 

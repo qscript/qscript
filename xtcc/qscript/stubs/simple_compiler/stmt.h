@@ -298,4 +298,16 @@ struct param {
 struct question;
 question* find_in_question_list(string name);
 
+struct stub_manip: public stmt {
+	string question_name;
+	string named_stub;
+	stub_manip( datatype dtype, int lline_number, 
+		string l_named_stub, string l_question_name);
+	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	virtual ~stub_manip();
+	private:
+		stub_manip& operator=(const stub_manip&);
+		stub_manip(const stub_manip&);
+};
+
 #endif /* stmt_h */

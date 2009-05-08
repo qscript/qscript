@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 #include "expr.h"
 #include "debug_mem.h"
 #include "stmt.h"
@@ -349,3 +350,18 @@ var_list::var_list(datatype type, char * name, int len): var_type(type), var_nam
 }
 
 
+stub_manip::stub_manip( datatype dtype, int lline_number, 
+	string l_named_stub, string l_question_name
+	): 
+	stmt(dtype, lline_number), 
+	named_stub(l_named_stub), question_name(l_question_name)
+{
+
+}
+
+void stub_manip::generate_code(ostringstream& quest_defns, ostringstream& program_code){
+	program_code << "/*stub_manip::generate_code()*/" << endl;
+}
+
+stub_manip::~stub_manip(){
+}
