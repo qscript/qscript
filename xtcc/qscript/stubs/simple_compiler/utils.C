@@ -8,7 +8,6 @@
 #include "scope.h"
 //#include "Tab.h"
 #include "expr.h"
-#include "tree.h"
 #include "stmt.h"
 #include "qscript_parser.h"
 

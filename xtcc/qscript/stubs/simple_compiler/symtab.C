@@ -25,9 +25,9 @@
  */
 
 #include <string>
+#include <cstdlib>
 #include "qscript_parser.h"
 #include "symtab.h"
-#include "tree.h"
 #include "expr.h"
 using namespace std;
 

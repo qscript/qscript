@@ -5,12 +5,12 @@
 		"41 to 59" 4;
 
 	stubs csd_brand_list =
-		"goqe" 1
-		"bebzi" 2
-		"oogla" 3
-		"zingmoo" 4
-		"thunder" 5
-		"zoinks" 6
+		"Goqe" 1
+		"Bebzi" 2
+		"Oogla" 3
+		"Zingmoo" 4
+		"Thunder" 5
+		"Zoinks" 6
 		;
 
 

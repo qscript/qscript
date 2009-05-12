@@ -1,6 +1,5 @@
 #include <unistd.h>
 #include <string>
-#include "tree.h"
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"

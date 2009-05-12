@@ -37,12 +37,12 @@ age.push_back( stub_pair("31 to 40", 3));
 age.push_back( stub_pair("41 to 59", 4));
 vector <stub_pair> csd_brand_list;
 
-csd_brand_list.push_back( stub_pair("goqe", 1));
-csd_brand_list.push_back( stub_pair("bebzi", 2));
-csd_brand_list.push_back( stub_pair("oogla", 3));
-csd_brand_list.push_back( stub_pair("zingmoo", 4));
-csd_brand_list.push_back( stub_pair("thunder", 5));
-csd_brand_list.push_back( stub_pair("zoinks", 6));
+csd_brand_list.push_back( stub_pair("Goqe", 1));
+csd_brand_list.push_back( stub_pair("Bebzi", 2));
+csd_brand_list.push_back( stub_pair("Oogla", 3));
+csd_brand_list.push_back( stub_pair("Zingmoo", 4));
+csd_brand_list.push_back( stub_pair("Thunder", 5));
+csd_brand_list.push_back( stub_pair("Zoinks", 6));
 xtcc_set xs_0;
 xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);

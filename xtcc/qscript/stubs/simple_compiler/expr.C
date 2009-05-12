@@ -28,8 +28,8 @@
 #include <fstream>
 #include <sstream>
 #include <climits>
+#include <cstdlib>
 #include "stmt.h"
-//#include "tree.h"
 #include "expr.h"
 #include "scope.h"
 //#include "../../qscript/trunk/named_range.h"
@@ -87,7 +87,6 @@ un_expr::~un_expr(){
 	if (operand) { delete operand; operand=0; }
 }
 
-#include "tree.h"
 un_expr::un_expr( expr * l_operand, e_operator_type le_type):expr(le_type), operand(l_operand){
 	if(operand->e_type==oper_blk_arr_assgn){
 		print_err(compiler_sem_err, "oper_blk_arr_assgn: cannot be used with unary operators : line_no:",
