@@ -65,7 +65,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			fprintf(op, "\t\t\t\tif(");
 			fprintf(op, "ax_%s.flag[i]", map_iter_s->first.c_str());
 			fprintf(op, " && " );
-			fprintf(op, "ax_%s.flag[i]){\n", map_iter_b->first.c_str());
+			fprintf(op, "ax_%s.flag[j]){\n", map_iter_b->first.c_str());
 			fprintf(op, "\t\t\t\t\t++counter[i*cols+j];\n");
 			fprintf(op, "\t\t\t\t} \n");
 			fprintf(op, "\t\t\t} \n");
