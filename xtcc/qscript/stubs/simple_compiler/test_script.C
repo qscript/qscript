@@ -60,8 +60,11 @@ question_list.push_back(q2);
 named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 24,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age);
 question_list.push_back(q3);
 // named_stub_question::generate_code() : to be implemented
-named_stub_question * q4 = new named_stub_question(QUESTION_TYPE, 29,string( "q4"),string(" Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first"),spn,5,INT32_TYPE,&csd_brand_list);
+named_stub_question * q4 = new named_stub_question(QUESTION_TYPE, 29,string( "q4"),string(" Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first?"),spn,5,INT32_TYPE,&csd_brand_list);
 question_list.push_back(q4);
+// named_stub_question::generate_code() : to be implemented
+named_stub_question * q4_2 = new named_stub_question(QUESTION_TYPE, 33,string( "q4_2"),string(" Q4.2 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list);
+question_list.push_back(q4_2);
 
 	int ser_no;
 	cout << "Enter Serial No (0) to exit: " << flush;
@@ -222,7 +225,85 @@ vector_int32_t.pop_back();
 
 }
 		q4->eval();
-/*stub_manip::generate_code()*/
+/*stub_manip::generate_code()q4:csd_brand_list*/
+{
+set<int>::iterator set_iter = q4->input_data.begin();
+for( ; set_iter!= q4->input_data.end(); ++set_iter){
+for(int i=0; i< csd_brand_list.size(); ++i){
+if(csd_brand_list[i].code==*set_iter ) {
+csd_brand_list[i].mask=false; 
+}
+}
+
+}
+for(int i=0; i< csd_brand_list.size(); ++i){
+cout << csd_brand_list[i].stub_text << ":" <<
+csd_brand_list[i].mask << ":" <<
+csd_brand_list[i].code  << endl;
+
+}
+}
+lab_q4_2:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+vector_int32_t.push_back(my_32int);
+
+vector_int8_t.push_back(var1);
+
+vector_int8_t.push_back(var2);
+
+if ( back_jump==true ) {
+var2=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+var1=vector_int8_t.back();
+vector_int8_t.pop_back();
+
+my_32int=vector_int32_t.back();
+vector_int32_t.pop_back();
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q4_2->eval();
+/*stub_manip::generate_code()q4:csd_brand_list*/
+{
+set<int>::iterator set_iter = q4->input_data.begin();
+for( ; set_iter!= q4->input_data.end(); ++set_iter){
+for(int i=0; i< csd_brand_list.size(); ++i){
+if(csd_brand_list[i].code==*set_iter ) {
+csd_brand_list[i].mask=false; 
+}
+}
+
+}
+for(int i=0; i< csd_brand_list.size(); ++i){
+cout << csd_brand_list[i].stub_text << ":" <<
+csd_brand_list[i].mask << ":" <<
+csd_brand_list[i].code  << endl;
+
+}
+}
+ // decl_stmt::generate_code 
+int32_t i=0;
+ // decl_stmt::generate_code 
+int32_t j=0;
+ // decl_stmt::generate_code 
+int32_t k=0;
+ // decl_stmt::generate_code 
+int32_t var=10;
 }
 
 			stringstream fname_str;

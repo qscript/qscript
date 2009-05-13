@@ -26,9 +26,13 @@
 	}
 
 
-	q4 "Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first"
+	q4 "Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first?"
 		sp int32_t csd_brand_list;
 	setdel(csd_brand_list, q4);
+
+	q4_2 "Q4.2 Which other brands come to mind ?"
+		sp int32_t csd_brand_list;
+	setdel(csd_brand_list, q4_2);
 	//setdel(age, q4);
 	//setadd(csd_brand_list, q4);
 

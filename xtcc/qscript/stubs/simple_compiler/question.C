@@ -160,7 +160,8 @@ void named_stub_question::eval(){
 	cout << name << "." << text << endl << endl;
 	vector<stub_pair> vec= *stub_ptr;
 	for(unsigned int i=0; i< vec.size(); ++i){
-		cout << vec[i].stub_text << ": " << vec[i].code << endl;
+		if( vec[i].mask)
+			cout << vec[i].stub_text << ": " << vec[i].code << endl;
 	}
 
 

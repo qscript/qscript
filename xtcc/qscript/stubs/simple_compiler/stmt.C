@@ -359,8 +359,53 @@ stub_manip::stub_manip( datatype dtype, int lline_number,
 
 }
 
-void stub_manip::generate_code(ostringstream& quest_defns, ostringstream& program_code){
-	program_code << "/*stub_manip::generate_code()*/" << endl;
+void stub_manip::generate_code(ostringstream& quest_defns
+		, ostringstream& program_code){
+	using qscript_parser::question_list;
+	program_code << "/*stub_manip::generate_code()" 
+		<< question_name << ":" << named_stub << "*/"
+		<< endl;
+	program_code << "{" << endl;
+
+	program_code << "set<int>::iterator set_iter = " << question_name 
+		<< "->input_data.begin();" << endl;
+	program_code << "for( ; set_iter!= " 
+		<< question_name << "->input_data.end(); ++set_iter){" << endl;
+	program_code << "for(int i=0; i< " << named_stub << ".size(); ++i){" << endl;
+	program_code << "if(" << named_stub << "[i].code==*set_iter ) {" << endl;
+	program_code << named_stub << "[i].mask=false; " << endl;
+	program_code << "}" << endl;
+	program_code << "}" << endl;
+
+	program_code << endl;
+
+	program_code << "}" << endl;
+
+	/*
+	int index=-1;
+	for(int i=0; i<question_list.size(); ++i){
+		if(question_list[i]->name == question_name){
+			index = i;
+			break;
+		}
+	}
+	if(index==-1){
+		stringstream s;
+		s << "Error while generating code - parsed question not found in question list";
+		print_err(compiler_code_generation_error, s.str() , 
+				qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+	}*/
+	// Just to print out whats going on after masking something
+	program_code << "for(int i=0; i< " << named_stub << ".size(); ++i){" << endl;
+	program_code << "cout << " << named_stub << "[i].stub_text << \":\" <<"  << endl 
+		<< named_stub << "[i].mask << \":\" <<" << endl 
+		<< named_stub << "[i].code  << endl;" << endl 
+		<< endl;
+	program_code << "}" << endl;
+	program_code << "}" << endl;
+	if(next) 
+		next->generate_code(quest_defns, program_code);
 }
 
 stub_manip::~stub_manip(){
