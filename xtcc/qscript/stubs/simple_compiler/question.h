@@ -11,6 +11,7 @@
  */
 #ifndef qscript_question_h
 #define qscript_question_h
+#include <iosfwd>
 #include "stmt.h"
 
 using std::ostringstream;

@@ -30,7 +30,8 @@
 #define xtcc_expr_h
 //#include "tree.h"
 #include "symtab.h"
-#include <sstream>
+#include <iosfwd>
+//#include <sstream>
 using std::ostringstream;
 
 

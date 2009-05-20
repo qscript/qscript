@@ -16,6 +16,8 @@ using qscript_parser::active_scope_list;
 using qscript_parser::no_errors;
 using qscript_parser::func_info_table;
 using qscript_parser::line_no;
+using std::cerr;
+using std::endl;
 //extern vector<mem_addr_tab>  mem_addr;
 //extern int rec_len;
 //extern struct stmt * tree_root;

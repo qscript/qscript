@@ -24,22 +24,26 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <iostream>
 #include <sstream>
-#include "stmt.h"
-#include "expr.h"
-#include "scope.h"
+
 #include <string>
-//#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include "qscript_parser.h"
+#include "stmt.h"
+#include "expr.h"
+#include "scope.h"
 //using namespace std;
+using std::cerr;
+using std::endl;
 
 //extern int line_no;
 //extern int no_errors;
 //extern ofstream debug_log_file;
 //extern vector<mem_addr_tab> mem_addr;
+
 using qscript_parser::line_no;
 using qscript_parser::no_errors;
 using qscript_parser::debug_log_file;

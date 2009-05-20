@@ -35,15 +35,15 @@
 #include <string>
 
 //#include "defs.h"
-#include <iostream>
-#include <sstream>
+//#include <sstream>
 #include <vector>
 
 struct stmt;
-using namespace std;
+using std::vector;
+using std::string;
+using std::map;
 
 	struct scope;
-	//extern vector<scope*> active_scope_list;
 
 #include "symtab.h"
 
