@@ -7,6 +7,9 @@
 #include "named_range.h"
 #include "qscript_parser.h"
 #include "scope.h"
+
+
+#include <fstream>
 using  std::cerr;
 
 	//extern scope* active_scope;
@@ -70,5 +73,31 @@ int main(int argc, char* argv[]){
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
+
+////////////////////////////////	
+	try
+	{
+		std::ofstream conf;
+		conf.exceptions(std::ios::failbit | std::ios::badbit);
+		conf.open("a.cfg");
+		
+		std::vector<question*> &qv = qscript_parser::question_list;
+		conf << qv.size() << "\n";
+		for(int i=0; i<qv.size(); ++i) 
+		{
+			conf << qv[i]->name << " ";
+			switch(qv[i]->dt)
+			{
+				case INT8_TYPE  : conf << "int8  \n"; break;
+				case INT16_TYPE : conf << "int16 \n"; break;
+				case INT32_TYPE : conf << "int32 \n"; break;
+				case FLOAT_TYPE : conf << "float \n"; break;
+				case DOUBLE_TYPE: conf << "double\n"; break;
+			}
+		}
+	}
+	catch(...){ std::cout << "error while generating configuration file\n"; }
+////////////////////////////////
+	
 	return no_errors;
 }
