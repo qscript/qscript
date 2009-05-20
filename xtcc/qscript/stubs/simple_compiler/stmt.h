@@ -13,7 +13,8 @@
 #ifndef stmt_h
 #define stmt_h
 #include <string>
-#include <sstream>
+//#include <sstream>
+#include <iosfwd>
 #include "xtcc_set.h"
 #include "symtab.h"
 #include "stub_pair.h"

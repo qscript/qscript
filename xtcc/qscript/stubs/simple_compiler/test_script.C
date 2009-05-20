@@ -278,10 +278,10 @@ vector_int32_t.pop_back();
 
 }
 		q4_2->eval();
-/*stub_manip::generate_code()q4:csd_brand_list*/
+/*stub_manip::generate_code()q4_2:csd_brand_list*/
 {
-set<int>::iterator set_iter = q4->input_data.begin();
-for( ; set_iter!= q4->input_data.end(); ++set_iter){
+set<int>::iterator set_iter = q4_2->input_data.begin();
+for( ; set_iter!= q4_2->input_data.end(); ++set_iter){
 for(int i=0; i< csd_brand_list.size(); ++i){
 if(csd_brand_list[i].code==*set_iter ) {
 csd_brand_list[i].mask=false; 
