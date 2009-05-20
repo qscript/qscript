@@ -20,7 +20,7 @@ data_entry.tab.c data_entry.tab.h: data_entry.y
 utils.o: utils.C utils.h
 	$(CC) -c $<	
 
-lex.scan_data.c: try1.l
+lex.scan_data.c: scan_data.l
 	flex $<
 
 
