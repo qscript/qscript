@@ -84,14 +84,16 @@ struct symtab_ent {
 	datatype type;
 	int n_elms;
 	bool created_by_me;
-	type_qualifier type_qual;
 	//! if the variable declaration is initialised with a value - the expression for that value is held here
 	expr * e;
 	//! if the variable is a "set" and initialised then the values are held here
 	xtcc_set * xs;
+	type_qualifier type_qual;
 	//! constructor for variable declaration without initialisation
 	symtab_ent(const char * lname, datatype ldt):
 		name(strdup(lname)), text(0), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
+		, type_qual(NO_QUAL)
+
 	{ }
 	//! constructor for variable declaration and initialisation with an expression
 	symtab_ent(const char * lname, datatype ldt, expr* le):

@@ -1,7 +1,8 @@
 #ifndef qscript_lib_h
 #define qscript_lib_h
 
-#include <sstream>
+//#include <sstream>
+//#include <iosfwd>
 #include <string>
 #include <sys/stat.h>
 using namespace std;

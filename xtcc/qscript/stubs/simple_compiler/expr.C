@@ -32,7 +32,6 @@
 #include "stmt.h"
 #include "expr.h"
 #include "scope.h"
-//#include "../../qscript/trunk/named_range.h"
 #include "named_range.h"
 #include "qscript_parser.h"
 question* find_in_question_list(string name);

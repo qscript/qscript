@@ -634,7 +634,7 @@ scan_data.c: scan_data.l data_entry.y
 
 .phony: clean
 clean:
-	rm *.o 
+	rm *.o *.rpo
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

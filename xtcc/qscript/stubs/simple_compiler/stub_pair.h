@@ -13,7 +13,7 @@ struct	stub_pair{
 	string stub_text;
 	int code;
 	bool mask;
-	stub_pair():stub_text(""), code(-1){}
+	stub_pair():stub_text(""), code(-1), mask(false) {}
 	stub_pair(string l_txt, int l_code)
 		: stub_text(l_txt), code(l_code), mask(true) 
 	{}

@@ -95,6 +95,8 @@ int main(int argc, char* argv[]){
 				case INT32_TYPE : conf << "int32 \n"; break;
 				case FLOAT_TYPE : conf << "float \n"; break;
 				case DOUBLE_TYPE: conf << "double\n"; break;
+				default:
+					conf << "Unrecognised type\n";
 			}
 		}
 	}
