@@ -11,9 +11,7 @@
 #include <vector>
 #include <set>
 #include <string>
-//#include "common.h"
 #include "symtab.h"
-//using namespace std;
 using std::vector;
 using std::pair;
 using std::set;

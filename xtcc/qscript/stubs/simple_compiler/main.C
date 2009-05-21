@@ -11,6 +11,8 @@
 
 #include <fstream>
 using  std::cerr;
+using  std::endl;
+using  std::cout;
 
 	//extern scope* active_scope;
 	//extern vector <scope*> active_scope_list;

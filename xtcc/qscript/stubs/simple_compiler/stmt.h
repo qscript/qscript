@@ -152,7 +152,7 @@ struct decl_stmt: public stmt{
      of a function definition or a normal compound statement.
      If the cmpd_stmt is a part of a func_defn it will get its scope 
      from the declaration of the function which is stored in the
-     func_info_table vector array. Otherwise the constructer will
+     func_info_table vector array. Otherwise the constructor will
      allocate a scope for the variable
   <p>2. The other case for a compound statement is when it is the body of 
      a for loop. There are certain restrictions on the language because

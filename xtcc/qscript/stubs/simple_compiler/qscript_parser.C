@@ -2,6 +2,8 @@
 
 namespace qscript_parser {
 	using std::cerr;
+	using std::cout;
+	using std::endl;
 	vector<expr*> for_loop_max_counter_stack;
 	scope* active_scope;
 	vector <scope*> active_scope_list;

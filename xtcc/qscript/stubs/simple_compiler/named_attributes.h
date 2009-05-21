@@ -15,19 +15,13 @@
 
 using std::string;
 using std::vector;
-using std::cout;
-using std::endl;
 struct named_attribute_list: public stmt{
 	string name;
 	vector<string> attribute;
 	struct symtab_ent* symp;
 
-	named_attribute_list(datatype dt, int lline_no,  string l_name, vector<string> l_attr):  stmt(dt, lline_no),
-		name(l_name), attribute(l_attr), symp(0)
-	{}
-	void print_stmt_lst(FILE * & fptr){
-		cout << "named_attribute_list: not yet implemented" << endl;
-	}
+	named_attribute_list(datatype dt, int lline_no,  string l_name, vector<string> l_attr);
+	void print_stmt_lst(FILE * & fptr);
 	private:
 		named_attribute_list& operator=(const named_attribute_list&);
 		named_attribute_list (const named_attribute_list&);
