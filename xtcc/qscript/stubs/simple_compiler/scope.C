@@ -38,6 +38,7 @@
 //using namespace std;
 using std::cerr;
 using std::endl;
+using std::stringstream;
 
 //extern int line_no;
 //extern int no_errors;

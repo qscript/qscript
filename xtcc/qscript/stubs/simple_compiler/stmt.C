@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstdio>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <algorithm>
 #include "expr.h"
@@ -26,6 +27,7 @@ using qscript_parser::debug_log_file;
 using std::cout;
 using std::cerr;
 using std::endl;
+using std::stringstream;
 void read_data(const char * prompt);
 #if 0
 stmt::~stmt(){ 

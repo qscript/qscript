@@ -24,12 +24,14 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <sstream>
 #include <string>
 #include <cstdlib>
 #include "qscript_parser.h"
 #include "symtab.h"
 #include "expr.h"
-using namespace std;
+//using namespace std;
+using std::stringstream;
 
 using qscript_parser::line_no;
 //extern int line_no;

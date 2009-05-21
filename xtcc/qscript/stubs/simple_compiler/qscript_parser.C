@@ -1,9 +1,12 @@
 #include "qscript_parser.h"
 
+#include <sstream>
+#include <iostream>
 namespace qscript_parser {
 	using std::cerr;
 	using std::cout;
 	using std::endl;
+	using std::stringstream;
 	vector<expr*> for_loop_max_counter_stack;
 	scope* active_scope;
 	vector <scope*> active_scope_list;

@@ -14,9 +14,9 @@
 //#include <iostream>
 #include <limits.h>
 #include <cstring>
-#include <sstream>
+//#include <sstream>
 
-using std::stringstream;
+//using std::stringstream;
 	/*!  type_qualifier enum: used to add qualifiers to the definition of a variable. For example: const int BUFSIZE=1024; // Here const is a qualifier
 	 */ 
 	enum type_qualifier {

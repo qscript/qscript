@@ -38,7 +38,7 @@ struct stmt {
 	datatype type;
 	int line_no;
 	//! Constructor - statement type and line number of the statement in the source code
-	stmt(datatype l_type, int l_line_no): prev(0), next(0), line_no(l_line_no), type(l_type) 
+	stmt(datatype l_type, int l_line_no): prev(0), next(0), type(l_type), line_no(l_line_no) 
 	{}
 	//! generate_code(): Pure virtual functions takes 2 streams as parameters.
 	//! Compiler generated code is written to both the streams.

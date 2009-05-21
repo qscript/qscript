@@ -28,5 +28,4 @@ qscript_LDADD=@LEXLIB@
 
 .phony: clean
 clean:
-	rm *.o 
-
+	rm *.o *.rpo

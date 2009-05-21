@@ -6,8 +6,11 @@
 
 #include "named_range.h"
 #include <iostream>
+#include <sstream>
 using std::cout;
 using std::endl;
+using std::stringstream;
+using std::string;
 
 named_range::~named_range(){
 }

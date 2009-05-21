@@ -37,6 +37,7 @@
 #include "qscript_parser.h"
 question* find_in_question_list(string name);
 using std::string;
+using std::stringstream;
 string get_temp_name();
 
 //extern scope* active_scope;
