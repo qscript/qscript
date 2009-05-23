@@ -196,7 +196,7 @@ qscript_SOURCES = q.y lex.l  debug_mem.C expr.C main.C named_range.C qscript_par
 #	mv lex.scan_data.c scan_data.c
 #	flex $<
 BUILT_SOURCES = q.h q.c lex.c
-EXTRA_DIST = inp QScriptMakefile qscript_lib.C qscript_lib.h qscript_data.y
+EXTRA_DIST = inp QScriptMakefile qscript_lib.C qscript_lib.h qscript_data.y qscript_data.l
 #dist_pkgdata_DATA=stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h docs/manual.texi docs/qscript_doc.html
 #AUTOMAKE_OPTIONS = dejagnu
 #DIST_SUBDIRS=test-inputs testsuite testsuite/config testsuite/qscript.test testsuite/qscript.test/config testsuite/qscript.test/qscript 
