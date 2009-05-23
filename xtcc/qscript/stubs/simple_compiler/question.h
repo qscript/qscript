@@ -12,10 +12,11 @@
 #ifndef qscript_question_h
 #define qscript_question_h
 #include <iosfwd>
-#include <ostream>
+//#include <fstream>
 #include "stmt.h"
 
 using std::ostringstream;
+using std::ofstream;
 struct named_range;
 //! The question pure virtual base class - inherits from stmt
 struct question: public stmt {
@@ -48,7 +49,7 @@ struct question: public stmt {
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 	void init_arr(int n, question* q);
-	//void write_data_to_disk(ofstream & data_file)=0;
+	virtual void write_data_to_disk(ofstream & data_file)=0;
 	private:
 		question& operator=(const question&);
 		question (const question&);
@@ -86,7 +87,7 @@ struct range_question: public question {
 	void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code);
 	virtual bool is_valid(int value);
 	void eval();
-	//void write_data_to_disk(ofstream& data_file);
+	void write_data_to_disk(ofstream& data_file);
 	private:
 		range_question& operator=(const range_question&);
 		range_question (const range_question&);
@@ -139,7 +140,7 @@ class named_stub_question: public question {
 	void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code);
 	virtual bool is_valid(int value);
 	void eval();
-	//void write_data_to_disk(ofstream& data_file);
+	void write_data_to_disk(ofstream& data_file);
 	private:
 		named_stub_question& operator=(const named_stub_question&);
 		named_stub_question (const named_stub_question&);

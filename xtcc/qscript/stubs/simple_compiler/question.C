@@ -49,6 +49,9 @@ question::question(datatype l_type, int l_no, string l_name, string l_text
 	, no_mpn(l_no_mpn), dt(l_dt) , for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
 {
+	for(int i=0; i<l_loop_index_values.size(); ++i){
+		cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
+	}
 }
 
 
@@ -162,15 +165,21 @@ void range_question::eval(){
 	data.clear();
 }
 
-/*
 void range_question::write_data_to_disk(ofstream& data_file){
-	data_file << name << ":" ;
+	data_file << name ;
+	if(loop_index_values.size()>0){
+		for(int i=0; i< loop_index_values.size(); ++i){
+			data_file << "$" << loop_index_values[i];
+		}
+	}
+	data_file << ":" ;
 	for( set<int>::iterator iter=input_data.begin();
 			iter!=input_data.end(); ++iter){
 		data_file << *iter << " ";
 	}
+	data_file << endl;
+	input_data.clear();
 }
-*/
 
 bool named_stub_question::is_valid(int value){
 	vector<stub_pair> vec= *stub_ptr;
@@ -381,8 +390,8 @@ void range_question::generate_code( ostringstream & quest_defns, ostringstream& 
 				lhs->print_expr(quest_defns, quest_defns);
 				quest_defns <<	"){" << endl;
 				if(i==0){
-					quest_defns << "vector<int> stack_of_loop_indices("
-						<< for_bounds_stack.size() << ");\n";
+					quest_defns << "vector<int> stack_of_loop_indices;\n";
+						// << "(" << for_bounds_stack.size() << ");\n";
 				}
 				quest_defns << "stack_of_loop_indices.push_back(";
 				lhs->print_expr(quest_defns, quest_defns);
@@ -403,6 +412,7 @@ void range_question::generate_code( ostringstream & quest_defns, ostringstream& 
 		quest_defns << name << "_list.push_back(" << name << ");"
 			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
+			quest_defns << "stack_of_loop_indices.pop_back();\n";
 			quest_defns << "}" << endl;
 		}
 	}
@@ -524,8 +534,8 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 				lhs->print_expr(quest_defns, quest_defns);
 				quest_defns <<	"){" << endl;
 				if(i==0){
-					quest_defns << "vector<int> stack_of_loop_indices("
-						<< for_bounds_stack.size() << ");\n";
+					quest_defns << "vector<int> stack_of_loop_indices; \n";
+						//<< "(" <<  for_bounds_stack.size() << ");\n";
 				}
 				quest_defns << "stack_of_loop_indices.push_back(";
 				lhs->print_expr(quest_defns, quest_defns);
@@ -546,6 +556,7 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 		quest_defns << name << "_list.push_back(" << name << ");"
 			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
+			quest_defns << "stack_of_loop_indices.pop_back();\n";
 			quest_defns << "}" << endl;
 		}
 	}
@@ -664,5 +675,22 @@ void question::print_data_type(string &s){
 			__LINE__, __FILE__);
 		s=buff;
 	}
+}
+
+
+void named_stub_question::write_data_to_disk(ofstream& data_file){
+	data_file << name ;
+	if(loop_index_values.size()>0){
+		for(int i=0; i< loop_index_values.size(); ++i){
+			data_file << "$" << loop_index_values[i];
+		}
+	}
+	data_file << ":" ;
+	for( set<int>::iterator iter=input_data.begin();
+			iter!=input_data.end(); ++iter){
+		data_file << *iter << " ";
+	}
+	data_file << endl;
+	input_data.clear();
 }
 

@@ -28,6 +28,7 @@ vector <int32_t> vector_int32_t;
 vector <float> vector_float_t;
 vector <double> vector_double_t;
 bool back_jump=false;// no need for this but state the intent
+void write_data_to_disk(const vector<question*>& q_vec, string jno, int ser_no);
 int main(){
 vector <stub_pair> age;
 
@@ -67,7 +68,7 @@ named_stub_question * q4_2 = new named_stub_question(QUESTION_TYPE, 33,string( "
 question_list.push_back(q4_2);
 vector <question*> q17_list;
 for(int i=0;i<2; ++i){
-vector<int> stack_of_loop_indices(3);
+vector<int> stack_of_loop_indices; 
 stack_of_loop_indices.push_back(i);
 for(int j=0;j<3; ++j){
 stack_of_loop_indices.push_back(j);
@@ -77,12 +78,15 @@ stack_of_loop_indices.push_back(k);
 named_stub_question * q17 = new named_stub_question(QUESTION_TYPE, 46,string( "q17"),string(" Q17. Respondents age"),spn,5,INT32_TYPE,&age, stack_of_loop_indices /* 3*/);
 question_list.push_back(q17);
 q17_list.push_back(q17);
+stack_of_loop_indices.pop_back();
 }
+stack_of_loop_indices.pop_back();
 }
+stack_of_loop_indices.pop_back();
 }
 vector <question*> q15_list;
-for(int i=0;i!=5*5; ++i){
-vector<int> stack_of_loop_indices(1);
+for(int i=0;i<5; ++i){
+vector<int> stack_of_loop_indices;
 stack_of_loop_indices.push_back(i);
 xtcc_set xs_2;
 xs_2.indiv.insert(99);
@@ -90,6 +94,7 @@ xs_2.range.push_back(pair<int,int>(1,15));
 range_question * q15 = new range_question(QUESTION_TYPE, 52,string( "q15"),string(" q15"),mpn,5,INT32_TYPE,xs_2, stack_of_loop_indices /* 1*/);
 question_list.push_back(q15);
 q15_list.push_back(q15);
+stack_of_loop_indices.pop_back();
 }
 
 	int ser_no;
@@ -395,7 +400,7 @@ vector_int32_t.pop_back();
 }
 }
 }
-for (i  = 0;i!=5*5;i  = i+1){
+for (i  = 0;i<5;i  = i+1){
 lab_q15:
 // QUESTION_TYPE - will think of this later 
 
@@ -462,23 +467,39 @@ vector_int32_t.pop_back();
 }
 }
 
-			stringstream fname_str;
-			fname_str << jno << "_" << ser_no << ".dat";
-			FILE * fptr = fopen(fname_str.str().c_str(), "w+b");
-	for (int i=0; i<question_list.size(); ++i){
-		fprintf(fptr, "%s: ", question_list[i]->name.c_str());
-		for( set<int>::iterator iter=question_list[i]->input_data.begin();
-				iter!=question_list[i]->input_data.end(); ++iter){
-			fprintf(fptr, "%d ", *iter);
-		}
-		fprintf(fptr, "\n");
-		question_list[i]->input_data.clear();
-	}
-	fclose(fptr);
-
+		write_data_to_disk(question_list, jno, ser_no);
 	cout << "Enter Serial No (0) to exit: " << flush;
 	cin >> ser_no;
 
 	} /* close while */
 
 } /* close main */
+	void write_data_to_disk(const vector<question*>& q_vec
+		, string jno
+		, int ser_no) {
+		stringstream fname_str;
+		fname_str << jno << "_" << ser_no << ".dat";
+		//FILE * fptr = fopen(fname_str.str().c_str(), "w+b");
+	
+	
+		std::ofstream data_file;
+		data_file.exceptions(std::ios::failbit | std::ios::badbit);
+		data_file.open(fname_str.str().c_str());
+	
+		for (int i=0; i<question_list.size(); ++i){
+			question_list[i]->write_data_to_disk(data_file);
+			/*
+			fprintf(fptr, "%s: ", question_list[i]->name.c_str());
+			for( set<int>::iterator iter=question_list[i]->input_data.begin();
+					iter!=question_list[i]->input_data.end(); ++iter){
+				fprintf(fptr, "%d ", *iter);
+			}
+			fprintf(fptr, "
+");
+			question_list[i]->input_data.clear();
+			*/
+		}
+		//fclose(fptr);
+	}
+
+

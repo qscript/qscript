@@ -35,7 +35,8 @@ subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	depcomp install-sh lex.c missing q.c q.h ylwrap
+	data_entry.c data_entry.h depcomp install-sh lex.c missing q.c \
+	q.h ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -128,14 +129,14 @@ OBJEXT = o
 PACKAGE = qscript
 PACKAGE_BUGREPORT = nxd_in@yahoo.com
 PACKAGE_NAME = qscript
-PACKAGE_STRING = qscript 0.02
+PACKAGE_STRING = qscript 0.03
 PACKAGE_TARNAME = qscript
-PACKAGE_VERSION = 0.02
+PACKAGE_VERSION = 0.03
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 0.02
+VERSION = 0.03
 YACC = bison -y
 YFLAGS = 
 abs_builddir = /home/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
@@ -182,7 +183,7 @@ top_builddir = .
 top_srcdir = .
 AM_CXXFLAGS = -Wall -Weffc++ -frepo 
 AM_YFLAGS = -d -v
-qscript_SOURCES = q.y lex.l  debug_mem.C expr.C main.C named_range.C qscript_parser.C question.C scope.C stmt.C stmt_common.C symtab.C utils.C xtcc_set.C const_defs.h debug_mem.h expr.h named_attributes.h named_range.h qscript_lib.h qscript_parser.h question_disk_data.h question.h scope.h stmt.h stub_pair.h symtab.h utils.h xtcc_set.h data_entry.c data_entry.h scan_data.c
+qscript_SOURCES = q.y lex.l  debug_mem.C expr.C main.C named_range.C qscript_parser.C question.C scope.C stmt.C stmt_common.C symtab.C utils.C xtcc_set.C const_defs.h debug_mem.h expr.h named_attributes.h named_range.h qscript_lib.h qscript_parser.h question_disk_data.h question.h scope.h stmt.h stub_pair.h symtab.h utils.h xtcc_set.h data_entry.y scan_data.c
 BUILT_SOURCES = q.h q.c lex.c
 EXTRA_DIST = inp
 #dist_pkgdata_DATA=stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h docs/manual.texi docs/qscript_doc.html
@@ -271,6 +272,11 @@ q.h: q.c
 	@if test ! -f $@; then \
 	  rm -f q.c; \
 	  $(MAKE) $(AM_MAKEFLAGS) q.c; \
+	else :; fi
+data_entry.h: data_entry.c
+	@if test ! -f $@; then \
+	  rm -f data_entry.c; \
+	  $(MAKE) $(AM_MAKEFLAGS) data_entry.c; \
 	else :; fi
 qscript$(EXEEXT): $(qscript_OBJECTS) $(qscript_DEPENDENCIES) 
 	@rm -f qscript$(EXEEXT)
@@ -539,6 +545,8 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-rm -f data_entry.c
+	-rm -f data_entry.h
 	-rm -f lex.c
 	-rm -f q.c
 	-rm -f q.h
@@ -620,10 +628,10 @@ uninstall-am: uninstall-binPROGRAMS
 
 
 lex.c: q.y
-data_entry.c data_entry.h: data_entry.y 
-	bison -d -p scan_data $<
-	mv data_entry.tab.h data_entry.h
-	mv data_entry.tab.c data_entry.c
+#data_entry.c data_entry.h: data_entry.y 
+#	bison -d -p scan_data $<
+#	mv data_entry.tab.h data_entry.h
+#	mv data_entry.tab.c data_entry.c
 
 #scan_data.c: scan_data.l
 

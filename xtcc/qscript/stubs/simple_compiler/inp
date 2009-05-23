@@ -49,7 +49,7 @@
 		}
 	}
 	// should not be an error
-	for(i=0; i!=5 * 5; i=i+1){
+	for(i=0; i< 5; i=i+1){
 		q15 "q15" mp(5) int32_t(1-15,99);
 	}
 	//q4 "q4" mp(5) int32_t(1-15,99);

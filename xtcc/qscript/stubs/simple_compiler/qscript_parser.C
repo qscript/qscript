@@ -139,6 +139,8 @@ void print_header(FILE* script){
 	fprintf(script, "vector <float> vector_float_t;\n");
 	fprintf(script, "vector <double> vector_double_t;\n");
 	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
+	fprintf(script, "void write_data_to_disk(const vector<question*>& q_vec, string jno, int ser_no);\n");
+
 
 	fprintf(script, "int main(){\n");
 	/*
@@ -163,6 +165,7 @@ void print_header(FILE* script){
 }
 
 const char * file_exists_check_code();
+const char * write_data_to_disk_code();
 
 void print_close(FILE* script, ostringstream & program_code){
 
@@ -173,6 +176,7 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\twhile(ser_no!=0){\n");
 	fprintf(script, "%s\n", file_exists_check_code());
 	fprintf(script, "%s\n", program_code.str().c_str());
+	/*
 	fprintf(script, "\t\t\tstringstream fname_str;\n");
 	fprintf(script, "\t\t\tfname_str << jno << \"_\" << ser_no << \".dat\";\n");
 	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
@@ -187,33 +191,16 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\t}\n");
 	fprintf(script, "\tfclose(fptr);\n");
 	fprintf(script, "\n");
+	*/
+	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
+
 	fprintf(script,	"\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
 	fprintf(script, "\tcin >> ser_no;\n");
 	fprintf(script, "\n\t} /* close while */\n");
 	fprintf(script, "\n} /* close main */\n");
+	fprintf(script, "%s\n", write_data_to_disk_code());
 }
 
-/*
-template<class T> T* link_chain(T* &elem1, T* &elem2){
-	if(elem1 && elem2){
-		elem2->prev=elem1;
-		elem1->next=elem2;
-		return elem2;
-	}
-	else if(elem1){
-		return elem1;
-	} else {
-		return elem2;
-	}
-}
-
-template<class T> T* trav_chain(T* & elem1){
-	if(elem1){
-		while (elem1->prev) elem1=elem1->prev;
-		return elem1;
-	} else return 0;
-}
-*/
 
 	bool skip_func_type_check(const char * fname){
 		const char * skip_func_type_check_list[] = {"printf" };
@@ -367,4 +354,37 @@ const char * file_exists_check_code(){
 	}
 
 
+const char * write_data_to_disk_code(){
+	const char * write_data_disk_code = 
+	"\tvoid write_data_to_disk(const vector<question*>& q_vec\n"
+	"\t	, string jno\n"
+	"\t	, int ser_no) {\n"
+	"\t	stringstream fname_str;\n"
+	"\t	fname_str << jno << \"_\" << ser_no << \".dat\";\n"
+	"\t	//FILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n"
+	"\t\n"
+	"\t\n"
+	"\t	std::ofstream data_file;\n"
+	"\t	data_file.exceptions(std::ios::failbit | std::ios::badbit);\n"
+	"\t	data_file.open(fname_str.str().c_str());\n"
+	"\t\n"
+	"\t	for (int i=0; i<question_list.size(); ++i){\n"
+	"\t		question_list[i]->write_data_to_disk(data_file);\n"
+	"\t		/*\n"
+	"\t		fprintf(fptr, \"%s: \", question_list[i]->name.c_str());\n"
+	"\t		for( set<int>::iterator iter=question_list[i]->input_data.begin();\n"
+	"\t				iter!=question_list[i]->input_data.end(); ++iter){\n"
+	"\t			fprintf(fptr, \"%d \", *iter);\n"
+	"\t		}\n"
+	"\t		fprintf(fptr, \"\n\");\n"
+	"\t		question_list[i]->input_data.clear();\n"
+	"\t		*/\n"
+	"\t	}\n"
+	"\t	//fclose(fptr);\n"
+	"\t}\n"
+	"\n";
+	return write_data_disk_code;
+}
+
+/* end of namespace */
 }
