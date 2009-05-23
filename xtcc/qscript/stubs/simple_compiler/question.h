@@ -12,6 +12,7 @@
 #ifndef qscript_question_h
 #define qscript_question_h
 #include <iosfwd>
+#include <ostream>
 #include "stmt.h"
 
 using std::ostringstream;
@@ -26,14 +27,19 @@ struct question: public stmt {
 	set<int> input_data;
 	//expr * arr_sz;
 	vector<expr*> for_bounds_stack;
-	question(datatype l_type,int l_no, string l_name, string l_text,
-		question_type l_q_type, int l_no_mpn, 
-		datatype l_dt, /*expr* l_arr_sz=0*/
-		vector<expr*>& l_for_bounds_stack
+	vector<int> loop_index_values;
+	question(datatype l_type,int l_no, string l_name, string l_text
+		, question_type l_q_type, int l_no_mpn, datatype l_dt
+		, vector<expr*>& l_for_bounds_stack
 		);
-	question(datatype l_type,int l_no, string l_name, string l_text,
-		question_type l_q_type, int l_no_mpn, 
-		datatype l_dt 
+
+	question(datatype l_type,int l_no, string l_name, string l_text
+		, question_type l_q_type, int l_no_mpn, datatype l_dt 
+		);
+
+	question(datatype l_type,int l_no, string l_name, string l_text
+		, question_type l_q_type, int l_no_mpn , datatype l_dt
+		, const vector<int>& l_loop_index_values
 		);
 	virtual void generate_code(ostringstream & quest_defns, ostringstream& program_code)=0;
 	virtual void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code)=0;
@@ -42,6 +48,7 @@ struct question: public stmt {
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 	void init_arr(int n, question* q);
+	//void write_data_to_disk(ofstream & data_file)=0;
 	private:
 		question& operator=(const question&);
 		question (const question&);
@@ -57,11 +64,11 @@ struct question: public stmt {
 */
 struct range_question: public question {
 	xtcc_set * r_data;
+	vector <int> stack_loop_index_values;
 	range_question(datatype this_stmt_type, int line_number,
 		string l_name, string l_q_text,
 		question_type l_q_type, int l_no_mpn, datatype l_dt,
 		xtcc_set& l_r_data
-		//, expr* l_arr_sz=0
 		, vector<expr*>& l_for_bounds_stack
 		);
 	range_question(datatype this_stmt_type, int line_number,
@@ -69,11 +76,17 @@ struct range_question: public question {
 		question_type l_q_type, int l_no_mpn, datatype l_dt,
 		xtcc_set& l_r_data
 		);
+	range_question(datatype this_stmt_type, int line_number,
+		string l_name, string l_q_text,
+		question_type l_q_type, int l_no_mpn, datatype l_dt,
+		xtcc_set& l_r_data, const vector<int> & l_loop_index_values
+		);
 
 	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
 	void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code);
 	virtual bool is_valid(int value);
 	void eval();
+	//void write_data_to_disk(ofstream& data_file);
 	private:
 		range_question& operator=(const range_question&);
 		range_question (const range_question&);
@@ -96,7 +109,6 @@ class named_stub_question: public question {
 		string l_name, string l_q_text,
 		question_type l_q_type, int l_no_mpn, datatype l_dt,
 		named_range * l_nr_ptr 
-		//,expr* l_arr_sz=0
 		, vector<expr*>& l_for_bounds_stack
 		);
 	named_stub_question(datatype this_stmt_type, int line_number, 
@@ -109,7 +121,6 @@ class named_stub_question: public question {
 		string l_name, string l_q_text,
 		question_type l_q_type, int l_no_mpn, datatype l_dt,
 		vector<stub_pair> * l_stub_ptr
-		//, expr* l_arr_sz=0
 		, vector<expr*>& l_for_bounds_stack
 		);
 	named_stub_question(datatype this_stmt_type, int line_number, 
@@ -122,6 +133,7 @@ class named_stub_question: public question {
 	void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code);
 	virtual bool is_valid(int value);
 	void eval();
+	//void write_data_to_disk(ofstream& data_file);
 	private:
 		named_stub_question& operator=(const named_stub_question&);
 		named_stub_question (const named_stub_question&);

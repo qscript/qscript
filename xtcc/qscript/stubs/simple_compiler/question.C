@@ -3,13 +3,14 @@
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+
 #include "question.h"
 #include "named_range.h"
 #include "scope.h"
-
-#include <iostream>
-#include <sstream>
-#include <string>
 #include "qscript_parser.h"
 
 using std::cout;
@@ -21,41 +22,56 @@ void read_data(const char * prompt);
 
 question::question(datatype l_type, int l_no, string l_name, string l_text
 	, question_type l_q_type, int l_no_mpn, datatype l_dt
-	//, expr* l_arr_sz
 	, vector<expr*> & l_for_bounds_stack
 	): 
-	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) , 
-	no_mpn(l_no_mpn),
-	dt(l_dt)
-	//, arr_sz(l_arr_sz)
+	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type)
+	, no_mpn(l_no_mpn), dt(l_dt)
 	, for_bounds_stack(l_for_bounds_stack)
 {
-	//r_data = new xtcc_set(l_r_data);
 }
+
 
 question::question(datatype l_type, int l_no, string l_name, string l_text
 	, question_type l_q_type, int l_no_mpn, datatype l_dt
 	): 
-	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) , 
-	no_mpn(l_no_mpn),
-	dt(l_dt)
+	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) 
+	, no_mpn(l_no_mpn), dt(l_dt)
 	, for_bounds_stack(0)
 {
 }
 
+
+question::question(datatype l_type, int l_no, string l_name, string l_text
+	, question_type l_q_type, int l_no_mpn, datatype l_dt
+	, const vector<int>& l_loop_index_values
+	): 
+	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) 
+	, no_mpn(l_no_mpn), dt(l_dt) , for_bounds_stack(0)
+	, loop_index_values(l_loop_index_values)
+{
+}
 
 
 range_question::range_question(datatype this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	question_type l_q_type, int l_no_mpn, datatype l_dt,
 	xtcc_set& l_r_data
-	//, expr* l_arr_sz
 	, vector<expr*> & l_for_bounds_stack
+	): 
+	question(this_stmt_type, line_number, l_name, l_q_text
+		, l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
+		)
+{
+	r_data = new xtcc_set(l_r_data);
+}
+
+range_question::range_question(datatype this_stmt_type, int line_number
+	, string l_name, string l_q_text
+	, question_type l_q_type, int l_no_mpn
+	, datatype l_dt , xtcc_set& l_r_data
 	): 
 	question(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
-		//, l_arr_sz
-		, l_for_bounds_stack
 		)
 {
 	r_data = new xtcc_set(l_r_data);
@@ -65,9 +81,10 @@ range_question::range_question(datatype this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	question_type l_q_type, int l_no_mpn, datatype l_dt,
 	xtcc_set& l_r_data
+	, const vector<int> & l_loop_index_values
 	): 
 	question(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt
+		l_q_type, l_no_mpn, l_dt, l_loop_index_values
 		)
 {
 	r_data = new xtcc_set(l_r_data);
@@ -143,8 +160,17 @@ void range_question::eval(){
 	} while (invalid_code==true);
 	
 	data.clear();
-
 }
+
+/*
+void range_question::write_data_to_disk(ofstream& data_file){
+	data_file << name << ":" ;
+	for( set<int>::iterator iter=input_data.begin();
+			iter!=input_data.end(); ++iter){
+		data_file << *iter << " ";
+	}
+}
+*/
 
 bool named_stub_question::is_valid(int value){
 	vector<stub_pair> vec= *stub_ptr;
@@ -216,13 +242,14 @@ void named_stub_question::eval(){
 	
 }
 
-void range_question::generate_code_single_question( ostringstream & quest_defns, ostringstream& program_code){
+void range_question::generate_code_single_question( ostringstream & quest_defns
+		, ostringstream& program_code){
+	using qscript_parser::map_of_active_vars_for_questions;
 
 	program_code << "lab_" << name << ":" << endl;
 
 	string q_push_name = name + "_push";
 	string q_pop_name = name + "_pop";
-	using qscript_parser::map_of_active_vars_for_questions;
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
 	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
@@ -350,6 +377,13 @@ void range_question::generate_code( ostringstream & quest_defns, ostringstream& 
 				quest_defns << "; ++";
 				lhs->print_expr(quest_defns, quest_defns);
 				quest_defns <<	"){" << endl;
+				if(i==0){
+					quest_defns << "vector<int> stack_of_loop_indices("
+						<< for_bounds_stack.size() << ");\n";
+				}
+				quest_defns << "stack_of_loop_indices.push_back(";
+				lhs->print_expr(quest_defns, quest_defns);
+				quest_defns << ");\n";
 			} else {
 				for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
 				print_err(compiler_sem_err
@@ -375,10 +409,9 @@ void range_question::generate_code( ostringstream & quest_defns, ostringstream& 
 }
 
 //extern vector <scope*> active_scope_list;
-void named_stub_question::generate_code_single_question( ostringstream & quest_defns, 
-		ostringstream& program_code){
+void named_stub_question::generate_code_single_question( ostringstream & quest_defns
+		, ostringstream& program_code){
 	using qscript_parser::map_of_active_vars_for_questions;
-
 
 	program_code << "lab_" << name << ":" << endl;
 
@@ -410,13 +443,59 @@ void named_stub_question::generate_code_single_question( ostringstream & quest_d
 		<< datatype_str.c_str() << ",&"
 		<< nr_ptr->name  << ");\n";
 	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
-	program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+	//program_code << "\t\t" << name.c_str() << "->eval();\n" ;
 
-	/*
-	if(next){
-		next->generate_code(quest_defns, program_code);
+	if(for_bounds_stack.size()==0){
+		program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+	}  else {
+		program_code << "\t\t" << name.c_str() << "_list[";
+		// ----------------------------------
+		ostringstream * string_stream_vec=new ostringstream[for_bounds_stack.size()];
+		for(int i=0; i< for_bounds_stack.size(); ++i){
+			bin_expr * bin_expr_ptr = dynamic_cast<bin_expr*>(for_bounds_stack[i]);
+			if(bin_expr_ptr){
+				expr * rhs = bin_expr_ptr->r_op;
+				expr * lhs = bin_expr_ptr->l_op;
+				lhs->print_expr(string_stream_vec[i], string_stream_vec[i]); 
+				if(i<for_bounds_stack.size()-1) {
+					string_stream_vec[i] << "*" ;
+				}
+			} else {
+				for_bounds_stack[i]->print_expr(string_stream_vec[i], string_stream_vec[i]);
+				print_err(compiler_sem_err
+					, "for loop index condition is not a binary expression" 
+					, 0, __LINE__, __FILE__);
+			}
+			for(int j=i+1; j<for_bounds_stack.size(); j++){
+				// quest_defns is passed twice
+				// becaues we want the expr to appear in the for
+				// loop in the questions section of the code
+				bin_expr * bin_expr_ptr2 = dynamic_cast<bin_expr*>(for_bounds_stack[j]);
+				if(bin_expr_ptr2){
+					expr * rhs = bin_expr_ptr2->r_op;
+					rhs->print_expr(string_stream_vec[i], string_stream_vec[i]);
+					if(j<for_bounds_stack.size()-1) {
+						string_stream_vec[i] << "*" ;
+					}
+
+				} else {
+					for_bounds_stack[i]->print_expr(string_stream_vec[i], string_stream_vec[i]);
+					print_err(compiler_sem_err
+						, "for loop index condition is not a binary expression" 
+						, 0, __LINE__, __FILE__);
+				}
+			}
+		}
+		for(int i=0; i<for_bounds_stack.size(); ++i) {
+			//for_bounds_stack[i]->print_expr(quest_defns, program_code);
+			program_code << string_stream_vec[i].str();
+			if(i <for_bounds_stack.size()-1 ){
+				program_code << "+";
+			}
+		}
+		// ---------------------------------
+		program_code << "]->eval();\n" ;
 	}
-	*/
 
 }
 
@@ -438,6 +517,13 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 				quest_defns << "; ++";
 				lhs->print_expr(quest_defns, quest_defns);
 				quest_defns <<	"){" << endl;
+				if(i==0){
+					quest_defns << "vector<int> stack_of_loop_indices("
+						<< for_bounds_stack.size() << ");\n";
+				}
+				quest_defns << "stack_of_loop_indices.push_back(";
+				lhs->print_expr(quest_defns, quest_defns);
+				quest_defns << ");\n";
 			} else {
 				for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
 				print_err(compiler_sem_err
