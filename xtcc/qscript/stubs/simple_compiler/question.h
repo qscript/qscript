@@ -128,6 +128,12 @@ class named_stub_question: public question {
 		question_type l_q_type, int l_no_mpn, datatype l_dt,
 		vector<stub_pair> * l_stub_ptr
 		);
+	named_stub_question(datatype this_stmt_type, int line_number
+		, string l_name, string l_q_text
+		, question_type l_q_type, int l_no_mpn, datatype l_dt
+		, vector<stub_pair> * l_stub_ptr 
+		, const vector<int> & l_loop_index_values
+		);
 
 	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
 	void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code);

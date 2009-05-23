@@ -289,7 +289,10 @@ void range_question::generate_code_single_question( ostringstream & quest_defns
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
 		<< datatype_str.c_str() << ","
-		<< xtcc_set_name << ");\n";
+		<< xtcc_set_name 
+		<<  ( (for_bounds_stack.size() > 0 ) ? ", stack_of_loop_indices " : "" )
+		<< "/* " << for_bounds_stack.size() << "*/"
+		<< ");\n";
 
 	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
 
@@ -441,7 +444,10 @@ void named_stub_question::generate_code_single_question( ostringstream & quest_d
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
 		<< datatype_str.c_str() << ",&"
-		<< nr_ptr->name  << ");\n";
+		<< nr_ptr->name  
+		<<  ( (for_bounds_stack.size() > 0 ) ? ", stack_of_loop_indices " : "" )
+		<< "/* " << for_bounds_stack.size() << "*/"
+		<< ");\n";
 	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
 	//program_code << "\t\t" << name.c_str() << "->eval();\n" ;
 
@@ -584,12 +590,10 @@ named_stub_question::named_stub_question(datatype this_stmt_type, int line_numbe
 	string l_name, string l_q_text,
 	question_type l_q_type, int l_no_mpn, datatype l_dt,
 	vector<stub_pair>* l_stub_ptr
-	//, expr* l_arr_sz
 	, vector<expr*>& l_for_bounds_stack
 	):
 	question(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
-		//, l_arr_sz
 		, l_for_bounds_stack), 
 	nr_ptr(0), stub_ptr(l_stub_ptr)
 {
@@ -599,10 +603,22 @@ named_stub_question::named_stub_question(datatype this_stmt_type, int line_numbe
 	string l_name, string l_q_text,
 	question_type l_q_type, int l_no_mpn, datatype l_dt,
 	vector<stub_pair>* l_stub_ptr
-	//, expr* l_arr_sz
 	):
 	question(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
+		), 
+	nr_ptr(0), stub_ptr(l_stub_ptr)
+{
+}
+
+named_stub_question::named_stub_question(datatype this_stmt_type, int line_number
+	, string l_name, string l_q_text
+	, question_type l_q_type, int l_no_mpn, datatype l_dt
+	, vector<stub_pair>* l_stub_ptr
+	, const vector<int> & l_loop_index_values
+	):
+	question(this_stmt_type, line_number, l_name, l_q_text,
+		l_q_type, l_no_mpn, l_dt, l_loop_index_values
 		), 
 	nr_ptr(0), stub_ptr(l_stub_ptr)
 {
