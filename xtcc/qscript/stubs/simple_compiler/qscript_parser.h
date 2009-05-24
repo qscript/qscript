@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <vector>
+#include <cstdlib>
 #include "debug_mem.h"
 #include "symtab.h"
 #include "stmt.h"
