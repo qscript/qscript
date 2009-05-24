@@ -219,7 +219,7 @@ cmpd_stmt::~cmpd_stmt() {
 	}
 }
 
-extern vector <question*> qscript_parser::question_list;
+//extern vector <question*> qscript_parser::question_list;
 using qscript_parser::question_list;
 question* find_in_question_list(string name){
 	//using qscript_parser::question_list;

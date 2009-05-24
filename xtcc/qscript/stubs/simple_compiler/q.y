@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <cstdlib>
 
 //#include "tree.h"
 #include "debug_mem.h"

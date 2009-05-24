@@ -1,34 +1,34 @@
-#CC=g++ -Weffc++ -c
 INCLCUDE_DIR_CNAMES=/home/home/nxd/dnld/comeau-compiler/libcomo43101/cnames
-INCLCUDE_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
-#INCLUDE_C_STD_INCLUDES=/usr/include  
-#INCLUDE_C_STD_INCLUDES=/home/home/nxd/dnld/comeau-compiler/include 
-CXXFLAGS = --no_plv --export -D_POSIX_SOURCE=1 -O -I. -DLIBCIO= --diag_suppress=68,177 -D__REALLY_NEW_LINUXES -D_SVID_SOURCE=1 --no_g++ -no_A 
+###INCLCUDE_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
+###CXXFLAGS = --no_plv --export -D_POSIX_SOURCE=1 -O -I. -DLIBCIO= --diag_suppress=68,177 -D__REALLY_NEW_LINUXES -D_SVID_SOURCE=1 --no_g++ -no_A 
 
-#CC=como -D_POSIX_SOURCE=1 -D__REALLY_NEW_LINUXES -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -I $(INCLUDE_C_STD_INCLUDES) -c
-#CC=como -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -I $(INCLUDE_C_STD_INCLUDES) $(CXXFLAGS) -c
-#PRE_CC=como -D_POSIX_SOURCE=1 -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -I $(INCLUDE_C_STD_INCLUDES) -E
 SIMPLE_CC=como --no_plv -I $(INCLCUDE_DIR_CNAMES) --export -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR) -no_A --no_g++ -D__REALLY_NEW_LINUXES -D_SVID_SOURCE -c
-CC=como -I $(INCLCUDE_DIR_CNAMES) -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR)  $(CXXFLAGS) -c
-PRE_CC=como -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -E
-LIB_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
-LIBS=-lreadline -lcomo
+###CC=como -I $(INCLCUDE_DIR_CNAMES) -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR)  $(CXXFLAGS) -c
+###PRE_CC=como -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -E
+###LIB_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
+###LIBS=-lreadline -lcomo
+#SIMPLE_CC=como -I $(INCLCUDE_DIR_CNAMES) -c
+CC=como -I $(INCLCUDE_DIR_CNAMES) -c
 
-OBJS=lex.yy.o q.tab.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o utils.o scope.o named_range.o question.o stmt_common.o main.o qscript_parser.o debug_mem.o
+OBJS=lex.o q.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o utils.o scope.o named_range.o question.o stmt_common.o main.o qscript_parser.o debug_mem.o
 simple_compiler.como: $(OBJS)
 #como --no_g++ --no_plv --export -no_A -L $(LIB_DIR)  -o simple_compiler $(OBJS) $(LIBS) 
 	como -L $(LIB_DIR)  -o $@ $(OBJS) $(LIBS) 
 
-lex.yy.o: lex.yy.c q.tab.h
-	$(CC) $<
+lex.o: lex.c q.h
+#$(CC) $<
+	$(SIMPLE_CC) $<
 
-lex.yy.c: lex.l
+lex.c: lex.l
 	flex $<
+	mv lex.yy.c lex.c
 
-q.tab.c q.tab.h: q.y symtab.h stmt.h expr.h named_attributes.h named_range.h
+q.c q.h: q.y symtab.h stmt.h expr.h named_attributes.h named_range.h
 	bison -v -d $<
+	mv q.tab.c q.c
+	mv q.tab.h q.h
 
-q.tab.o: q.tab.c
+q.o: q.c q.h
 #$(CC) $< 2>err || $(PRE_CC) $< > preprocessed-file && exit 1
 	$(SIMPLE_CC) $<
 
@@ -51,7 +51,7 @@ data_entry.tab.c data_entry.tab.h: data_entry.y
 	bison -d -p scan_data $<
 	
 
-lex.scan_data.c: try1.l
+lex.scan_data.c: scan_data.l
 	flex $<
 
 lex.scan_data.o: lex.scan_data.c data_entry.tab.h
@@ -70,7 +70,7 @@ debug_mem.o: debug_mem.C debug_mem.h
 	$(SIMPLE_CC) $<
 	
 utils.o: utils.C utils.h
-	$(CC) $<
+	$(SIMPLE_CC) $<
 
 scope.o: scope.C scope.h
 	$(CC) $<
@@ -82,7 +82,7 @@ question.o:  question.C question.h
 	$(CC) $<
 
 stmt_common.o:  stmt_common.C 
-	$(CC) $<
+	$(SIMPLE_CC) $<
 
 .phony: clean
 clean:

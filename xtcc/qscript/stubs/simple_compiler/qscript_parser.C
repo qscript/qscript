@@ -1,5 +1,6 @@
 #include "qscript_parser.h"
 
+#include <cstdlib>
 #include <sstream>
 #include <iostream>
 namespace qscript_parser {
@@ -103,6 +104,7 @@ void print_header(FILE* script){
 	fprintf(script, "#include <sstream>\n");
 	fprintf(script, "#include <fstream>\n");
 	fprintf(script, "#include <map>\n");
+	fprintf(script, "#include <cstdlib>\n");
 	fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");

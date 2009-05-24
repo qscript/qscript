@@ -110,7 +110,7 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 40 "q.y"
+#line 41 "q.y"
 {
 	type_qualifier type_qual;
 	int ival;

@@ -8,6 +8,8 @@
 
 %{
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include "const_defs.h"
 //#include "common.h"
 #include "symtab.h"

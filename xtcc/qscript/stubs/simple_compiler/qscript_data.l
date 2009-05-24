@@ -3,6 +3,7 @@
 #include "const_defs.h"
 #include "qscript_data.tab.h"
 #include <iostream>
+#include <cstdlib>
 	using namespace std;
 	void read_disk_dataerror(const char * s);
 	int line_no;

@@ -31,6 +31,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 #include "qscript_parser.h"
 #include "stmt.h"
 #include "expr.h"

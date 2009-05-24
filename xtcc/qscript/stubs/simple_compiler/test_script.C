@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <map>
+#include <cstdlib>
 #include "stmt.h"
 #include "xtcc_set.h"
 #include "stub_pair.h"
