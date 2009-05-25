@@ -27,6 +27,7 @@
 %{
 #define YY_NEVER_INTERACTIVE 1
 #include <iostream>
+#include <cstdlib>
 #include "symtab.h"
 #include "const_defs.h"
 //#include "y.tab.h"

@@ -25,6 +25,7 @@
 %{
 #include "symtab.h"
 #include <string.h>
+#include <cstdlib>
 #include "tree.h"
 %}
 

@@ -7,6 +7,7 @@ extern ofstream debug_log_file;
 extern int if_line_no;
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 
 extern char * work_dir;
 stmt::~stmt(){ 

@@ -12,6 +12,7 @@ extern int rec_len;
 #include <map>
 #include <string>
 #include <iostream>
+#include <cstdlib>
 
 using std::vector;
 using std::map;
