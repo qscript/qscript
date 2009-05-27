@@ -375,7 +375,19 @@ void stub_manip::generate_code(ostringstream& quest_defns
 		<< question_name << "->input_data.end(); ++set_iter){" << endl;
 	program_code << "for(int i=0; i< " << named_stub << ".size(); ++i){" << endl;
 	program_code << "if(" << named_stub << "[i].code==*set_iter ) {" << endl;
-	program_code << named_stub << "[i].mask=false; " << endl;
+	if(type==STUB_MANIP_DEL){
+		program_code << named_stub << "[i].mask=false; " << endl;
+	} else if(type==STUB_MANIP_ADD) {
+		program_code << named_stub << "[i].mask=true; " << endl;
+	} else {
+		stringstream err_text;
+		err_text << "question: " << question_name
+			<< " , dataype of stub_manip statement is not as expected"
+			<< endl;
+		print_err(compiler_sem_err, err_text.str(),
+			line_no, __LINE__, __FILE__  );
+		program_code << "ERROR: stub_manip: this should fail compilation" << endl;
+	}
 	program_code << "}" << endl;
 	program_code << "}" << endl;
 

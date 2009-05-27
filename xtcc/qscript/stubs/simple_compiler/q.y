@@ -848,12 +848,11 @@ stub_list:	TEXT INUMBER {
 
 stub_manip_stmts: 
 	  SETDEL '(' NAME ',' NAME ')' ';' {
-		$$ = qscript_parser::setup_setdel_stmt( $3, $5);
+		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL, $3, $5);
 	}
-	/*
 	| SETADD '(' NAME ',' NAME ')' ';' {
+		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD, $3, $5);
 	}
-	*/
 	;
 	
 

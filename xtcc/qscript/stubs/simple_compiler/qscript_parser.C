@@ -297,63 +297,63 @@ const char * file_exists_check_code(){
 }
 
 
-	stmt* setup_setdel_stmt(char* stub_list_name, char * question_name
-		){
-		int index=-1;
-		for(int i=0; i<named_stubs_list.size(); ++i){
-			named_range * nr_ptr = named_stubs_list[i];
-			if(nr_ptr->name==stub_list_name){
-				index=i;
-				break;
-			}
+stmt* setup_stub_manip_stmt(datatype dt, char* stub_list_name, char * question_name
+	){
+	int index=-1;
+	for(int i=0; i<named_stubs_list.size(); ++i){
+		named_range * nr_ptr = named_stubs_list[i];
+		if(nr_ptr->name==stub_list_name){
+			index=i;
+			break;
 		}
-		if(index==-1){
-			stringstream err_text;
-			err_text << "named stub list does not exist: " << stub_list_name;
-			print_err(compiler_sem_err, err_text.str(),
-				line_no, __LINE__, __FILE__  );
-		} 
-		int index_question=-1;
-		for(int i=0; i<question_list.size(); ++i){
-			if(question_list[i]->name == question_name){
-				index_question=i;
-				break;
-			}
+	}
+	if(index==-1){
+		stringstream err_text;
+		err_text << "named stub list does not exist: " << stub_list_name;
+		print_err(compiler_sem_err, err_text.str(),
+			line_no, __LINE__, __FILE__  );
+	} 
+	int index_question=-1;
+	for(int i=0; i<question_list.size(); ++i){
+		if(question_list[i]->name == question_name){
+			index_question=i;
+			break;
 		}
-		if(index_question==-1){
-			stringstream err_text;
-			err_text << "question does not exist: " << question_name;
-			print_err(compiler_sem_err, err_text.str(),
-				line_no, __LINE__, __FILE__  );
-		} else {
-			if(index_question>=0 && index>=0){
-				named_stub_question * q_ptr= 
-					dynamic_cast<named_stub_question*> (question_list[index_question]);
-				if(q_ptr){
-					if(! (q_ptr->nr_ptr->name == stub_list_name) ){
-						stringstream err_text;
-						err_text << "question: " << question_name
-							<< " named range: " << q_ptr->nr_ptr->name 
-							<< " and named stub is : " << stub_list_name 
-							<< endl;
-
-						print_err(compiler_sem_err, err_text.str(),
-							line_no, __LINE__, __FILE__  );
-					}
-				} else {
+	}
+	if(index_question==-1){
+		stringstream err_text;
+		err_text << "question does not exist: " << question_name;
+		print_err(compiler_sem_err, err_text.str(),
+			line_no, __LINE__, __FILE__  );
+	} else {
+		if(index_question>=0 && index>=0){
+			named_stub_question * q_ptr= 
+				dynamic_cast<named_stub_question*> (question_list[index_question]);
+			if(q_ptr){
+				if(! (q_ptr->nr_ptr->name == stub_list_name) ){
 					stringstream err_text;
-					err_text << "question : " << question_name <<
-						"is not a named range question" ;
+					err_text << "question: " << question_name
+						<< " named range: " << q_ptr->nr_ptr->name 
+						<< " and named stub is : " << stub_list_name 
+						<< endl;
+
 					print_err(compiler_sem_err, err_text.str(),
 						line_no, __LINE__, __FILE__  );
 				}
+			} else {
+				stringstream err_text;
+				err_text << "question : " << question_name <<
+					"is not a named range question" ;
+				print_err(compiler_sem_err, err_text.str(),
+					line_no, __LINE__, __FILE__  );
 			}
 		}
-		struct stmt* st_ptr = new stub_manip(STUB_MANIP_ADD,
-			line_no, stub_list_name, question_name);
-		
-		return st_ptr;
 	}
+	struct stmt* st_ptr = new stub_manip(dt,
+		line_no, stub_list_name, question_name);
+	
+	return st_ptr;
+}
 
 
 const char * write_data_to_disk_code(){
