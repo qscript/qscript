@@ -459,12 +459,13 @@ char *read_disk_datatext;
 #include "const_defs.h"
 #include "qscript_data.tab.h"
 #include <iostream>
+#include <cstdlib>
 	using namespace std;
 	void read_disk_dataerror(const char * s);
 	int line_no;
 	extern int no_errors;
 
-#line 468 "lex.read_disk_data.c"
+#line 469 "lex.read_disk_data.c"
 
 #define INITIAL 0
 
@@ -617,10 +618,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 16 "qscript_data.l"
+#line 17 "qscript_data.l"
 
 
-#line 624 "lex.read_disk_data.c"
+#line 625 "lex.read_disk_data.c"
 
 	if ( !(yy_init) )
 		{
@@ -705,7 +706,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 18 "qscript_data.l"
+#line 19 "qscript_data.l"
 {
 	read_disk_datalval.ival = atoi(read_disk_datatext);
 	//cout << "got INUMBER" << endl; 
@@ -715,7 +716,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 24 "qscript_data.l"
+#line 25 "qscript_data.l"
 {
 	//cout << "got NEWL" << endl;
 	return NEWL;
@@ -723,7 +724,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 29 "qscript_data.l"
+#line 30 "qscript_data.l"
 {
 	//cout << "got COLON" << endl;
 	return COLON;
@@ -731,12 +732,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 34 "qscript_data.l"
+#line 35 "qscript_data.l"
 ; /* ignore */
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 36 "qscript_data.l"
+#line 37 "qscript_data.l"
 {
 	if(read_disk_dataleng < MY_STR_MAX) {
 		strcpy(read_disk_datalval.name,read_disk_datatext);
@@ -750,10 +751,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 47 "qscript_data.l"
+#line 48 "qscript_data.l"
 ECHO;
 	YY_BREAK
-#line 757 "lex.read_disk_data.c"
+#line 758 "lex.read_disk_data.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1720,7 +1721,7 @@ void read_disk_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 47 "qscript_data.l"
+#line 48 "qscript_data.l"
 
 
 

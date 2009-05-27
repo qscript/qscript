@@ -1,5 +1,5 @@
 
-#line 3 "lex.yy.c"
+#line 3 "lex.c"
 
 #define  YY_INT_ALIGNED short int
 
@@ -566,7 +566,7 @@ namespace qscript_parser {
 }
 
 
-#line 570 "lex.yy.c"
+#line 570 "lex.c"
 
 #define INITIAL 0
 #define comment 1
@@ -724,7 +724,7 @@ YY_DECL
 
 
 
-#line 728 "lex.yy.c"
+#line 728 "lex.c"
 
 	if ( !(yy_init) )
 		{
@@ -1053,7 +1053,7 @@ YY_RULE_SETUP
 #line 134 "lex.l"
 ECHO;
 	YY_BREAK
-#line 1057 "lex.yy.c"
+#line 1057 "lex.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();

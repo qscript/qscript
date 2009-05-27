@@ -182,9 +182,9 @@ void range_question::write_data_to_disk(ofstream& data_file){
 }
 
 bool named_stub_question::is_valid(int value){
-	vector<stub_pair> vec= *stub_ptr;
+	vector<stub_pair> & vec= *stub_ptr;
 	for (unsigned int j=0; j<vec.size(); ++j){
-		if(vec[j].code==value){
+		if(vec[j].code==value && vec[j].mask){
 			return true;
 		}
 	}

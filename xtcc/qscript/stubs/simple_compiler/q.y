@@ -931,4 +931,5 @@ expr * recurse_for_index(int stack_index){
 	}
 }
 
+// Close namespace
 }

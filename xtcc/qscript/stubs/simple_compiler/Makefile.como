@@ -1,14 +1,13 @@
 INCLCUDE_DIR_CNAMES=/home/home/nxd/dnld/comeau-compiler/libcomo43101/cnames
-###INCLCUDE_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
-###CXXFLAGS = --no_plv --export -D_POSIX_SOURCE=1 -O -I. -DLIBCIO= --diag_suppress=68,177 -D__REALLY_NEW_LINUXES -D_SVID_SOURCE=1 --no_g++ -no_A 
+INCLCUDE_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
+CXXFLAGS = --no_plv --export -D_POSIX_SOURCE=1 -O -I. -DLIBCIO= --diag_suppress=68,177 -D__REALLY_NEW_LINUXES -D_SVID_SOURCE=1 --no_g++ -no_A 
 
 SIMPLE_CC=como --no_plv -I $(INCLCUDE_DIR_CNAMES) --export -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR) -no_A --no_g++ -D__REALLY_NEW_LINUXES -D_SVID_SOURCE -c
-###CC=como -I $(INCLCUDE_DIR_CNAMES) -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR)  $(CXXFLAGS) -c
-###PRE_CC=como -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -E
-###LIB_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
-###LIBS=-lreadline -lcomo
-#SIMPLE_CC=como -I $(INCLCUDE_DIR_CNAMES) -c
-CC=como -I $(INCLCUDE_DIR_CNAMES) -c
+CC=como -I $(INCLCUDE_DIR_CNAMES) -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR)  $(CXXFLAGS) -c
+PRE_CC=como -D_POSIX_SOURCE=1 -D_XOPEN_SOURCE=1 -I $(INCLCUDE_DIR_CNAMES) -I $(INCLCUDE_DIR) -E
+LIB_DIR=/home/home/nxd/dnld/comeau-compiler/libcomo43101
+LIBS=-lreadline -lcomo
+#CC=como -no_A -I $(INCLCUDE_DIR_CNAMES) -c
 
 OBJS=lex.o q.o xtcc_set.o stmt.o data_entry.tab.o lex.scan_data.o expr.o symtab.o utils.o scope.o named_range.o question.o stmt_common.o main.o qscript_parser.o debug_mem.o
 simple_compiler.como: $(OBJS)
