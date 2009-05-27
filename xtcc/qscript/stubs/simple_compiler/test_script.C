@@ -71,7 +71,7 @@ question_list.push_back(q4_2);
 named_stub_question * q4_3 = new named_stub_question(QUESTION_TYPE, 36,string( "q4_3"),string(" Q4.3 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_3);
 // named_stub_question::generate_code() : to be implemented
-named_stub_question * q4_5 = new named_stub_question(QUESTION_TYPE, 42,string( "q4_5"),string(" Q4.5 Which brand do you consume most often?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
+named_stub_question * q4_5 = new named_stub_question(QUESTION_TYPE, 44,string( "q4_5"),string(" Q4.5 Which brand do you consume most often?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_5);
 vector <question*> q17_list;
 for(int i=0;i<2; ++i){
@@ -82,7 +82,7 @@ stack_of_loop_indices.push_back(j);
 for(int k=0;k<4; ++k){
 stack_of_loop_indices.push_back(k);
 // named_stub_question::generate_code() : to be implemented
-named_stub_question * q17 = new named_stub_question(QUESTION_TYPE, 54,string( "q17"),string(" Q17. Respondents age"),spn,5,INT32_TYPE,&age, stack_of_loop_indices /* 3*/);
+named_stub_question * q17 = new named_stub_question(QUESTION_TYPE, 56,string( "q17"),string(" Q17. Respondents age"),spn,5,INT32_TYPE,&age, stack_of_loop_indices /* 3*/);
 question_list.push_back(q17);
 q17_list.push_back(q17);
 stack_of_loop_indices.pop_back();
@@ -98,7 +98,7 @@ stack_of_loop_indices.push_back(i);
 xtcc_set xs_2;
 xs_2.indiv.insert(99);
 xs_2.range.push_back(pair<int,int>(1,15));
-range_question * q15 = new range_question(QUESTION_TYPE, 60,string( "q15"),string(" q15"),mpn,5,INT32_TYPE,xs_2, stack_of_loop_indices /* 1*/);
+range_question * q15 = new range_question(QUESTION_TYPE, 62,string( "q15"),string(" q15"),mpn,5,INT32_TYPE,xs_2, stack_of_loop_indices /* 1*/);
 question_list.push_back(q15);
 q15_list.push_back(q15);
 stack_of_loop_indices.pop_back();
@@ -267,19 +267,13 @@ vector_int32_t.pop_back();
 {
 set<int>::iterator set_iter = q4->input_data.begin();
 for( ; set_iter!= q4->input_data.end(); ++set_iter){
-for(int i=0; i< csd_brand_list.size(); ++i){
-if(csd_brand_list[i].code==*set_iter ) {
-csd_brand_list[i].mask=false; 
-}
+	for(int i=0; i< csd_brand_list.size(); ++i){
+		if(csd_brand_list[i].code==*set_iter ) {
+			csd_brand_list[i].mask=false; 
+		}
+	}
 }
 
-}
-for(int i=0; i< csd_brand_list.size(); ++i){
-cout << csd_brand_list[i].stub_text << ":" <<
-csd_brand_list[i].mask << ":" <<
-csd_brand_list[i].code  << endl;
-
-}
 }
 lab_q4_2:
 // QUESTION_TYPE - will think of this later 
@@ -320,19 +314,13 @@ vector_int32_t.pop_back();
 {
 set<int>::iterator set_iter = q4_2->input_data.begin();
 for( ; set_iter!= q4_2->input_data.end(); ++set_iter){
-for(int i=0; i< csd_brand_list.size(); ++i){
-if(csd_brand_list[i].code==*set_iter ) {
-csd_brand_list[i].mask=false; 
-}
+	for(int i=0; i< csd_brand_list.size(); ++i){
+		if(csd_brand_list[i].code==*set_iter ) {
+			csd_brand_list[i].mask=false; 
+		}
+	}
 }
 
-}
-for(int i=0; i< csd_brand_list.size(); ++i){
-cout << csd_brand_list[i].stub_text << ":" <<
-csd_brand_list[i].mask << ":" <<
-csd_brand_list[i].code  << endl;
-
-}
 }
 lab_q4_3:
 // QUESTION_TYPE - will think of this later 
@@ -373,41 +361,48 @@ vector_int32_t.pop_back();
 
 }
 		q4_3->eval();
+/*stub_manip::generate_code():csd_brand_list*/
+{
+for(int i=0; i< csd_brand_list.size(); ++i){
+csd_brand_list[i].mask=false; 
+}
+
+}
 /*stub_manip::generate_code()q4:csd_brand_list*/
 {
 set<int>::iterator set_iter = q4->input_data.begin();
 for( ; set_iter!= q4->input_data.end(); ++set_iter){
-for(int i=0; i< csd_brand_list.size(); ++i){
-if(csd_brand_list[i].code==*set_iter ) {
-csd_brand_list[i].mask=true; 
-}
+	for(int i=0; i< csd_brand_list.size(); ++i){
+		if(csd_brand_list[i].code==*set_iter ) {
+			csd_brand_list[i].mask=true; 
+		}
+	}
 }
 
-}
-for(int i=0; i< csd_brand_list.size(); ++i){
-cout << csd_brand_list[i].stub_text << ":" <<
-csd_brand_list[i].mask << ":" <<
-csd_brand_list[i].code  << endl;
-
-}
 }
 /*stub_manip::generate_code()q4_2:csd_brand_list*/
 {
 set<int>::iterator set_iter = q4_2->input_data.begin();
 for( ; set_iter!= q4_2->input_data.end(); ++set_iter){
-for(int i=0; i< csd_brand_list.size(); ++i){
-if(csd_brand_list[i].code==*set_iter ) {
-csd_brand_list[i].mask=true; 
-}
+	for(int i=0; i< csd_brand_list.size(); ++i){
+		if(csd_brand_list[i].code==*set_iter ) {
+			csd_brand_list[i].mask=true; 
+		}
+	}
 }
 
 }
-for(int i=0; i< csd_brand_list.size(); ++i){
-cout << csd_brand_list[i].stub_text << ":" <<
-csd_brand_list[i].mask << ":" <<
-csd_brand_list[i].code  << endl;
-
+/*stub_manip::generate_code()q4_3:csd_brand_list*/
+{
+set<int>::iterator set_iter = q4_3->input_data.begin();
+for( ; set_iter!= q4_3->input_data.end(); ++set_iter){
+	for(int i=0; i< csd_brand_list.size(); ++i){
+		if(csd_brand_list[i].code==*set_iter ) {
+			csd_brand_list[i].mask=true; 
+		}
+	}
 }
+
 }
 lab_q4_5:
 // QUESTION_TYPE - will think of this later 

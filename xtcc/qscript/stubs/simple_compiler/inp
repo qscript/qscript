@@ -36,8 +36,10 @@
 	q4_3 "Q4.3 Which other brands come to mind ?"
 		sp int32_t csd_brand_list;
 	//setdel(age, q4);
+	unset(csd_brand_list);
 	setadd(csd_brand_list, q4);
 	setadd(csd_brand_list, q4_2);
+	setadd(csd_brand_list, q4_3);
 
 	q4_5 "Q4.5 Which brand do you consume most often?"
 		sp int32_t csd_brand_list;

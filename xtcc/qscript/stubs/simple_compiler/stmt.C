@@ -358,7 +358,14 @@ stub_manip::stub_manip( datatype dtype, int lline_number,
 	stmt(dtype, lline_number), 
 	named_stub(l_named_stub), question_name(l_question_name)
 {
+}
 
+stub_manip::stub_manip( datatype dtype, int lline_number, 
+	string l_named_stub
+	): 
+	stmt(dtype, lline_number), 
+	named_stub(l_named_stub)
+{
 }
 
 void stub_manip::generate_code(ostringstream& quest_defns
@@ -369,16 +376,30 @@ void stub_manip::generate_code(ostringstream& quest_defns
 		<< endl;
 	program_code << "{" << endl;
 
-	program_code << "set<int>::iterator set_iter = " << question_name 
-		<< "->input_data.begin();" << endl;
-	program_code << "for( ; set_iter!= " 
-		<< question_name << "->input_data.end(); ++set_iter){" << endl;
-	program_code << "for(int i=0; i< " << named_stub << ".size(); ++i){" << endl;
-	program_code << "if(" << named_stub << "[i].code==*set_iter ) {" << endl;
-	if(type==STUB_MANIP_DEL){
-		program_code << named_stub << "[i].mask=false; " << endl;
-	} else if(type==STUB_MANIP_ADD) {
-		program_code << named_stub << "[i].mask=true; " << endl;
+
+	if(type==STUB_MANIP_DEL || type==STUB_MANIP_ADD){
+		program_code << "set<int>::iterator set_iter = " << question_name 
+			<< "->input_data.begin();" << endl;
+		program_code << "for( ; set_iter!= " 
+			<< question_name << "->input_data.end(); ++set_iter){" << endl;
+		program_code << "\tfor(int i=0; i< " << named_stub << ".size(); ++i){" << endl;
+		program_code << "\t\tif(" << named_stub << "[i].code==*set_iter ) {" << endl;
+		if(type==STUB_MANIP_DEL){
+			program_code << "\t\t\t" << named_stub << "[i].mask=false; " << endl;
+		} else if(type==STUB_MANIP_ADD) {
+			program_code << "\t\t\t" << named_stub << "[i].mask=true; " << endl;
+		}
+		program_code << "\t\t}" << endl;
+		program_code << "\t}" << endl;
+		program_code << "}" << endl;
+	} else if (type==STUB_MANIP_UNSET_ALL || type==STUB_MANIP_SET_ALL) {
+		program_code << "for(int i=0; i< " << named_stub << ".size(); ++i){" << endl;
+		if(type==STUB_MANIP_UNSET_ALL){
+			program_code << named_stub << "[i].mask=false; " << endl;
+		} else if(type==STUB_MANIP_SET_ALL) {
+			program_code << named_stub << "[i].mask=true; " << endl;
+		} 
+		program_code << "}" << endl;
 	} else {
 		stringstream err_text;
 		err_text << "question: " << question_name
@@ -388,8 +409,6 @@ void stub_manip::generate_code(ostringstream& quest_defns
 			line_no, __LINE__, __FILE__  );
 		program_code << "ERROR: stub_manip: this should fail compilation" << endl;
 	}
-	program_code << "}" << endl;
-	program_code << "}" << endl;
 
 	program_code << endl;
 
@@ -411,13 +430,14 @@ void stub_manip::generate_code(ostringstream& quest_defns
 	} else {
 	}*/
 	// Just to print out whats going on after masking something
+	/*
 	program_code << "for(int i=0; i< " << named_stub << ".size(); ++i){" << endl;
 	program_code << "cout << " << named_stub << "[i].stub_text << \":\" <<"  << endl 
 		<< named_stub << "[i].mask << \":\" <<" << endl 
 		<< named_stub << "[i].code  << endl;" << endl 
 		<< endl;
 	program_code << "}" << endl;
-	program_code << "}" << endl;
+	*/
 	if(next) 
 		next->generate_code(quest_defns, program_code);
 }

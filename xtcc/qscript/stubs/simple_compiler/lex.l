@@ -93,6 +93,8 @@ mp 		{ return MP;}
 const 		{ return CONST; }
 setdel		{ return SETDEL; }
 setadd		{ return SETADD; }
+unset		{ return UNSET; }
+setall		{ return SETALL; }
 
 
 [0-9]+	{

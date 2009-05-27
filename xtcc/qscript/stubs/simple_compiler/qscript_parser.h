@@ -84,7 +84,10 @@ namespace qscript_parser {
 	extern int if_line_no;
 	extern int yywrap();
 
-	extern stmt* setup_stub_manip_stmt(datatype dt, char* stub_list_name, char * question_name);
+	extern stmt* setup_stub_manip_stmt(datatype dt
+			, char* stub_list_name, char * question_name);
+	extern stmt* setup_stub_manip_stmt_set_unset(datatype dt
+			, char* stub_list_name);
 
 }
 

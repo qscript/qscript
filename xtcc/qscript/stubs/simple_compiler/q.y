@@ -109,6 +109,8 @@
 %token STUBS_LIST
 %token SETDEL
 %token SETADD
+%token UNSET
+%token SETALL
 
 
 %type <expr> expression
@@ -852,6 +854,12 @@ stub_manip_stmts:
 	}
 	| SETADD '(' NAME ',' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD, $3, $5);
+	}
+	| UNSET '(' NAME ')' ';' {
+		$$ = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, $3);
+	}
+	| SETALL '(' NAME ')' ';' {
+		$$ = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_SET_ALL, $3);
 	}
 	;
 	

@@ -297,7 +297,8 @@ const char * file_exists_check_code(){
 }
 
 
-stmt* setup_stub_manip_stmt(datatype dt, char* stub_list_name, char * question_name
+stmt* setup_stub_manip_stmt(datatype dt
+		, char* stub_list_name , char * question_name
 	){
 	int index=-1;
 	for(int i=0; i<named_stubs_list.size(); ++i){
@@ -355,6 +356,29 @@ stmt* setup_stub_manip_stmt(datatype dt, char* stub_list_name, char * question_n
 	return st_ptr;
 }
 
+
+stmt* setup_stub_manip_stmt_set_unset(datatype dt
+		, char* stub_list_name)
+{
+	int index=-1;
+	for(int i=0; i<named_stubs_list.size(); ++i){
+		named_range * nr_ptr = named_stubs_list[i];
+		if(nr_ptr->name==stub_list_name){
+			index=i;
+			break;
+		}
+	}
+	if(index==-1){
+		stringstream err_text;
+		err_text << "named stub list does not exist: " << stub_list_name;
+		print_err(compiler_sem_err, err_text.str(),
+			line_no, __LINE__, __FILE__  );
+	} 
+	struct stmt* st_ptr = new stub_manip(dt,
+		line_no, stub_list_name);
+	
+	return st_ptr;
+}
 
 const char * write_data_to_disk_code(){
 	const char * write_data_disk_code = 

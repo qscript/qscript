@@ -69,7 +69,9 @@
      ELSE = 285,
      STUBS_LIST = 286,
      SETDEL = 287,
-     SETADD = 288
+     SETADD = 288,
+     UNSET = 289,
+     SETALL = 290
    };
 #endif
 /* Tokens.  */
@@ -104,6 +106,8 @@
 #define STUBS_LIST 286
 #define SETDEL 287
 #define SETADD 288
+#define UNSET 289
+#define SETALL 290
 
 
 
@@ -125,7 +129,7 @@ typedef union YYSTYPE
 
 }
 /* Line 1489 of yacc.c.  */
-#line 129 "q.h"
+#line 133 "q.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
