@@ -114,7 +114,7 @@ void print_xtcc_file_format()
 		// from here on it should be easy for you to figure 
 		// it out - we should be writing out chunks of
 		// recormap.size() just like in your program
-		sample_data_file.write(out_buf, curr_pos-out_buf+1);
+		sample_data_file.write(out_buf, curr_pos-out_buf); //pompon: second arg was "curr_pos-out_buf+1" so 1B of unused space was being written to the file
 
 	}
 	catch(...){ std::cerr << "error while trying to open  sample_job.xtdat file\n"; }
