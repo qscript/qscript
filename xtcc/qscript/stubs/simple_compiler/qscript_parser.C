@@ -8,21 +8,21 @@ namespace qscript_parser {
 	using std::cout;
 	using std::endl;
 	using std::stringstream;
-	vector<expr*> for_loop_max_counter_stack;
-	scope* active_scope;
-	vector <scope*> active_scope_list;
+	vector<AbstractExpression*> for_loop_max_counter_stack;
+	Scope* active_scope;
+	vector <Scope*> active_scope_list;
 	int nest_lev=0;
-	int flag_cmpd_stmt_is_a_func_body=-1;
-	int flag_cmpd_stmt_is_a_for_body=0;
+	int flagIsAFunctionBody_=-1;
+	int flagIsAForBody_=0;
 	bool flag_next_stmt_start_of_block=false;
 	vector<bool> blk_start_flag;
-	vector <stmt*> blk_heads;
+	vector <AbstractStatement*> blk_heads;
 	//const int DEFAULT_STACK_SIZE=20;
-	vector<cmpd_stmt*> stack_cmpd_stmt;
+	vector<CompoundStatement*> stack_cmpd_stmt;
 	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
 
-	expr * recurse_for_index(int stack_index);
+	AbstractExpression * recurse_for_index(int stack_index);
 
 
 	ofstream debug_log_file("xtcc_debug.log", std::ios_base::out|std::ios_base::trunc);
@@ -45,25 +45,25 @@ namespace qscript_parser {
 	*/	
 
 
-	question_type q_type;
+	QuestionType q_type;
 #include "const_defs.h"
 #include "xtcc_set.h"
 	int no_mpn=0;
-	xtcc_set xs;
+	XtccSet xs;
 	int yylex();
 	void yyerror(const char * s);
 	int no_errors;
 
-	struct stmt* tree_root=0;
+	struct AbstractStatement* tree_root=0;
 	vector <question*> question_list;
-	void generate_code();
+	void GenerateCode();
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
 	const bool XTCC_DEBUG_MEM_USAGE=true;
 	bool skip_func_type_check(const char * fname);
 	vector<mem_addr_tab>  mem_addr;
-	vector <func_info*> func_info_table;
-	int check_parameters(struct expr* e, struct var_list* v);
+	vector <FunctionInformation*> func_info_table;
+	int check_parameters(struct AbstractExpression* e, struct VariableList* v);
 
         vector <string> attribute_list;
 	vector <named_range*> named_stubs_list;
@@ -83,7 +83,7 @@ using std::string;
 
 void print_header(FILE* script);
 void print_close(FILE* script, ostringstream & program_code);
-void generate_code(){
+void GenerateCode(){
 	string script_name("test_script.C");
 	FILE * script = fopen(script_name.c_str(), "w");
 	if(!script){
@@ -92,7 +92,7 @@ void generate_code(){
 	}
 	ostringstream quest_defns, program_code;
 	print_header(script);
-	tree_root->generate_code(quest_defns, program_code);
+	tree_root->GenerateCode(quest_defns, program_code);
 	fprintf(script, "%s\n", quest_defns.str().c_str());
 	print_close(script, program_code);
 }
@@ -183,7 +183,7 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\t\t\tfname_str << jno << \"_\" << ser_no << \".dat\";\n");
 	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
 	fprintf(script, "\tfor (int i=0; i<question_list.size(); ++i){\n");
-	fprintf(script, "\t\tfprintf(fptr, \"%%s: \", question_list[i]->name.c_str());\n");
+	fprintf(script, "\t\tfprintf(fptr, \"%%s: \", question_list[i]->name_.c_str());\n");
 	fprintf(script, "\t\tfor( set<int>::iterator iter=question_list[i]->input_data.begin();\n");
 	fprintf(script, "\t\t\t\titer!=question_list[i]->input_data.end(); ++iter){\n");
 	fprintf(script, "\t\t\tfprintf(fptr, \"%%d \", *iter);\n");
@@ -214,10 +214,10 @@ void print_close(FILE* script, ostringstream & program_code){
 		return false;
 	}
 
-int check_parameters(expr* e, var_list* v){
+int check_parameters(AbstractExpression* e, VariableList* v){
 	debug_log_file << "check_parameters: called" << endl;
-	expr* e_ptr=e;
-	var_list* fparam=v;
+	AbstractExpression* e_ptr=e;
+	VariableList* fparam=v;
 	bool match=true;
 	/* Important point to note: I am not allowing references in ordinary variable decl
 	   Only in function parameter list - the object is to allow modifying of variables
@@ -227,38 +227,38 @@ int check_parameters(expr* e, var_list* v){
 	int chk_param_counter=1;
 	while (e_ptr && fparam) {
 		//e_ptr->print();
-		datatype etype=e_ptr->type, fptype=fparam->var_type; 
+		DataType etype=e_ptr->type_, fptype=fparam->variableType_; 
 		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE) && 
 			((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)||
 			 (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
-			datatype tdt=fptype;
+			DataType tdt=fptype;
 				/* the code below makes a INT8_REF_TYPE -> INT8_TYPE
 				   			a INT8_REF_TYPE -> INT8_TYPE
 				 thats because we dont care much about references -> C++
 				 does all the hard work. For checking types they are equivalent to us
 				*/			
-			if(tdt>=INT8_REF_TYPE) tdt=datatype(INT8_TYPE+tdt-INT8_REF_TYPE);
+			if(tdt>=INT8_REF_TYPE) tdt=DataType(INT8_TYPE+tdt-INT8_REF_TYPE);
 			if(etype <= tdt) {
-				debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
+				debug_log_file << "varname: "<< fparam->variableName_ << " chk_param_counter: " 
 					<< chk_param_counter << " passed " << endl;
 			}
 		} else if ((etype>=INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)&&
 				(fptype>=INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)&&
 				(etype==fptype)){
-			debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
+			debug_log_file << "varname: "<< fparam->variableName_ << " chk_param_counter: " 
 					<< chk_param_counter << " passed " << endl;
 		}else {
 			match=false;
 			cerr << "Parameter type mismatch name: " << endl;
-			cerr << fparam->var_name << " expected type is " << fparam->var_type
-				<< " passed type is " << e_ptr->type 
+			cerr << fparam->variableName_ << " expected type is " << fparam->variableType_
+				<< " passed type is " << e_ptr->type_ 
 				<< " line_no: " << line_no << " or currently allowed promotion to: " 
-				<< e_ptr->type+INT8_REF_TYPE
+				<< e_ptr->type_+INT8_REF_TYPE
 				<< endl;
 			++no_errors;
 		}
-		e_ptr=e_ptr->next;
-		fparam=fparam->next;
+		e_ptr=e_ptr->next_;
+		fparam=fparam->next_;
 		chk_param_counter=chk_param_counter+1;
 	}
 	if(match==true){
@@ -267,7 +267,7 @@ int check_parameters(expr* e, var_list* v){
 		} else {
 			match=false;
 			++no_errors;
-			cerr << "NOTMATCHED: No of parameters in function call not matching with no of paramters in expr: line_no"
+			cerr << "NOTMATCHED: No of parameters in function call not matching with no of paramters in AbstractExpression: line_no"
 				<< line_no << endl;
 		}
 	}
@@ -297,7 +297,7 @@ const char * file_exists_check_code(){
 }
 
 
-stmt* setup_stub_manip_stmt(datatype dt
+AbstractStatement* setup_stub_manip_stmt(DataType dt
 		, char* stub_list_name , char * question_name
 	){
 	int index=-1;
@@ -316,7 +316,7 @@ stmt* setup_stub_manip_stmt(datatype dt
 	} 
 	int index_question=-1;
 	for(int i=0; i<question_list.size(); ++i){
-		if(question_list[i]->name == question_name){
+		if(question_list[i]->name_ == question_name){
 			index_question=i;
 			break;
 		}
@@ -350,14 +350,14 @@ stmt* setup_stub_manip_stmt(datatype dt
 			}
 		}
 	}
-	struct stmt* st_ptr = new stub_manip(dt,
+	struct AbstractStatement* st_ptr = new StubManipStatement(dt,
 		line_no, stub_list_name, question_name);
 	
 	return st_ptr;
 }
 
 
-stmt* setup_stub_manip_stmt_set_unset(datatype dt
+AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 		, char* stub_list_name)
 {
 	int index=-1;
@@ -374,7 +374,7 @@ stmt* setup_stub_manip_stmt_set_unset(datatype dt
 		print_err(compiler_sem_err, err_text.str(),
 			line_no, __LINE__, __FILE__  );
 	} 
-	struct stmt* st_ptr = new stub_manip(dt,
+	struct AbstractStatement* st_ptr = new StubManipStatement(dt,
 		line_no, stub_list_name);
 	
 	return st_ptr;

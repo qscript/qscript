@@ -15,8 +15,8 @@ using std::string;
 named_range::~named_range(){
 }
 
-void named_range::generate_code (ostringstream & quest_defns, ostringstream& program_code){
-	//std::cout << "named_range:: generate_code()" << endl;
+void named_range::GenerateCode (ostringstream & quest_defns, ostringstream& program_code){
+	//std::cout << "named_range:: GenerateCode()" << endl;
 
 	quest_defns << "vector <stub_pair> " << name 
 		//<< "(" << stubs.size() << ");"  
@@ -29,8 +29,8 @@ void named_range::generate_code (ostringstream & quest_defns, ostringstream& pro
 			<< endl;
 	}
 	//quest_defns << "};" << endl;
-	if(next){
-		next->generate_code(quest_defns, program_code);
+	if(next_){
+		next_->GenerateCode(quest_defns, program_code);
 	}
 }
 

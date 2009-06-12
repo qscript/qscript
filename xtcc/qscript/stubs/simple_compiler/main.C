@@ -15,11 +15,11 @@ using  std::cerr;
 using  std::endl;
 using  std::cout;
 
-	//extern scope* active_scope;
-	//extern vector <scope*> active_scope_list;
+	//extern Scope* active_scope;
+	//extern vector <Scope*> active_scope_list;
 	extern void yyrestart ( FILE *input_file );
 	extern int yyparse();
-	extern void generate_code();
+	extern void GenerateCode();
 
 int main(int argc, char* argv[]){
 	using qscript_parser::active_scope_list;
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]){
 			<< argv[0] << " -f <input-file> "  << endl << endl;
 		exit(0);
 	}
-	active_scope=new scope();
+	active_scope=new Scope();
 	active_scope_list.push_back(active_scope);
 
 	FILE * yyin = fopen(fname.c_str(), "r");
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]){
 	if( !yyparse() && !no_errors){
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
-		qscript_parser::generate_code();
+		qscript_parser::GenerateCode();
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]){
 		conf << qv.size() << "\n";
 		for(int i=0; i<qv.size(); ++i) 
 		{
-			conf << qv[i]->name << " ";
+			conf << qv[i]->name_ << " ";
 			switch(qv[i]->dt)
 			{
 				case INT8_TYPE  : conf << "int8  \n"; break;

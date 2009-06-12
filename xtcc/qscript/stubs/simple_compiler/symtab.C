@@ -38,7 +38,7 @@ using qscript_parser::line_no;
 //extern ofstream debug_log_file;
 using qscript_parser::debug_log_file;
 /*
-stmt* sym_tab::insert(string name, datatype dt){
+stmt* sym_tab::insert(string name, DataType dt){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	struct stmt * st_ptr=new_stmt();
 	if(st_ptr){
@@ -48,7 +48,7 @@ stmt* sym_tab::insert(string name, datatype dt){
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
 		cout << "char decl:start\n";
-		struct symtab_ent* se=new struct symtab_ent;
+		struct SymbolTableEntry* se=new struct SymbolTableEntry;
 		se->name = name;
 		se->type=char_type;
 		string s(name);
@@ -66,37 +66,37 @@ stmt* sym_tab::insert(string name, datatype dt){
 */
 #include <fstream>
 using std::endl;
-symtab_ent::~symtab_ent(){
-	debug_log_file<< "deleting symtab_ent: name: " << name << std::endl;
-	if(name&& created_by_me) { free( name); name=0; }
-	if(text) { delete text; text=0; }
+SymbolTableEntry::~SymbolTableEntry(){
+	debug_log_file<< "deleting SymbolTableEntry: name_: " << name_ << std::endl;
+	if(name_&& created_by_me) { free( name_); name_=0; }
+	if(text_) { delete text_; text_=0; }
 	if(e) { delete e; e=0; }
-	debug_log_file << "FINISHED deleting symtab_ent" << std::endl;
+	debug_log_file << "FINISHED deleting SymbolTableEntry" << std::endl;
 }
 
 
-bool is_of_int_type(datatype dt){
+bool is_of_int_type(DataType dt){
 	return (dt >= INT8_TYPE && dt <=INT32_TYPE);
 }
-bool is_of_noun_type(datatype dt){
+bool is_of_noun_type(DataType dt){
 	return (dt >= INT8_TYPE && dt <=DOUBLE_TYPE);
 }
-bool is_of_noun_ref_type(datatype dt){
+bool is_of_noun_ref_type(DataType dt){
 	return (dt >= INT8_REF_TYPE && dt <=DOUBLE_REF_TYPE);
 }
 
-bool is_of_arr_type(datatype dt){
+bool is_of_arr_type(DataType dt){
 	return (dt >= INT8_ARR_TYPE && dt <=DOUBLE_ARR_TYPE);
 }
 
-datatype convert_ref_type(datatype dt){
+DataType convert_ref_type(DataType dt){
 	if(dt>=INT8_REF_TYPE && dt<=DOUBLE_REF_TYPE) 
-		return datatype(INT8_TYPE + dt-INT8_REF_TYPE);
+		return DataType(INT8_TYPE + dt-INT8_REF_TYPE);
 	else 
 		return dt;
 }
 
-string human_readable_type(datatype dt){
+string human_readable_type(DataType dt){
 	string s="UNKNOWN TYPE";
 	switch(dt){
 		case STRING_TYPE:
@@ -160,36 +160,36 @@ string human_readable_type(datatype dt){
 
 
 
-symtab_ent::symtab_ent(const char * lname, datatype ldt, xtcc_set * lxs):name(strdup(lname)), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0)  { 
-	xs = new xtcc_set(*lxs);
+SymbolTableEntry::SymbolTableEntry(const char * lname, DataType ldt, XtccSet * lxs):name_(strdup(lname)), dval(0), type_(ldt), n_elms(-1), created_by_me(true), e(0)  { 
+	xs = new XtccSet(*lxs);
 }
 
 			
-bool is_of_int_arr_type(datatype dt){
+bool is_of_int_arr_type(DataType dt){
 	return (dt >= INT8_ARR_TYPE && dt <=INT32_ARR_TYPE);
 }
 
-bool is_of_int32_arr_type(datatype dt){
+bool is_of_int32_arr_type(DataType dt){
 	return (dt == INT32_ARR_TYPE);
 }
 
-void symtab_ent::print_push_stack(string & str){
+void SymbolTableEntry::print_push_stack(string & str){
 	stringstream s("NONE");
-	switch(type){
+	switch(type_){
 	case INT8_TYPE:
-		s << "vector_int8_t.push_back(" << name << ");\n";
+		s << "vector_int8_t.push_back(" << name_ << ");\n";
 		break;
 	case INT16_TYPE:	
-		s << "vector_int16_t.push_back(" << name << ");\n";
+		s << "vector_int16_t.push_back(" << name_ << ");\n";
 		break;
 	case INT32_TYPE:	
-		s << "vector_int32_t.push_back(" << name << ");\n";
+		s << "vector_int32_t.push_back(" << name_ << ");\n";
 		break;
 	case FLOAT_TYPE:
-		s << "vector_float.push_back(" << name << ");\n";
+		s << "vector_float.push_back(" << name_ << ");\n";
 		break;
 	case DOUBLE_TYPE:
-		s << "vector_double.push_back(" << name << ");\n";
+		s << "vector_double.push_back(" << name_ << ");\n";
 		break;
 	case QUESTION_TYPE:
 		s << "// QUESTION_TYPE - will think of this later " << endl;
@@ -204,27 +204,27 @@ void symtab_ent::print_push_stack(string & str){
 }
 
 
-void symtab_ent::print_pop_stack(string & str){
+void SymbolTableEntry::print_pop_stack(string & str){
 	stringstream s("NONE");
-	switch(type){
+	switch(type_){
 	case INT8_TYPE:
-		s << name << "=vector_int8_t.back();\n";
+		s << name_ << "=vector_int8_t.back();\n";
 		s << "vector_int8_t.pop_back();\n";
 		break;
 	case INT16_TYPE:	
-		s << name << "=vector_int16_t.back();\n";
+		s << name_ << "=vector_int16_t.back();\n";
 		s << "vector_int16_t.pop_back();\n";
 		break;
 	case INT32_TYPE:	
-		s << name << "=vector_int32_t.back();\n";
+		s << name_ << "=vector_int32_t.back();\n";
 		s << "vector_int32_t.pop_back();\n";
 		break;
 	case FLOAT_TYPE:
-		s << name << "=vector_float_t.back();\n";
+		s << name_ << "=vector_float_t.back();\n";
 		s << "vector_float_t.pop_back();\n";
 		break;
 	case DOUBLE_TYPE:
-		s << name << "=vector_double_t.back();\n";
+		s << name_ << "=vector_double_t.back();\n";
 		s << "vector_double_t.pop_back();\n";
 		break;
 	case QUESTION_TYPE:

@@ -36,70 +36,82 @@ using std::ostringstream;
 
 
 //! every expression has an operator type - which is one of those below
-/*! the user of this enum e_operator_type should not depend on the order in which 
+/*! the user of this enum ExpressionOperatorType should not depend on the order in which 
     the elements are defined
 */
-enum e_operator_type { oper_plus, oper_minus, oper_mult, oper_div, oper_and, oper_or, oper_lt, oper_gt,
-		oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef,
-		oper_arr2deref, oper_func_call, oper_text_expr, oper_float, oper_assgn , oper_not, oper_mod,
-		oper_blk_arr_assgn, oper_in, oper_q_expr_in, oper_q_expr_arr_in,
-		oper_err
+enum ExpressionOperatorType 
+{ 	oper_plus, oper_minus, oper_mult, oper_div
+	, oper_and, oper_or, oper_lt, oper_gt
+	, oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp
+	, oper_umin, oper_num,  oper_name, oper_arrderef
+	, oper_arr2deref, oper_func_call, oper_text_expr
+	, oper_float, oper_assgn , oper_not, oper_mod
+	, oper_blk_arr_assgn, oper_in, oper_q_expr_in
+	, oper_q_expr_arr_in, oper_err
 	};
 
 //! helper function when debugging
 using std::string;
-string human_readable_expr_type( e_operator_type e_type);
+string human_readable_expr_type( ExpressionOperatorType e_type);
 
-//!expr  Pure virtual base class - all expression classes inherit from this class
+//!AbstractExpression  Pure virtual base class - all expression classes inherit from this class
 /*!
  */
-struct expr {
-	e_operator_type e_type;
-	datatype type;
-	struct expr * next, *prev;
-	expr(e_operator_type le_type):e_type(le_type), type(ERROR_TYPE), next(0), prev(0) { }
-	expr(e_operator_type le_type, datatype ldt):e_type(le_type), type(ldt), next(0), prev(0) 
+struct AbstractExpression 
+{
+	ExpressionOperatorType exprOperatorType_;
+	DataType type_;
+	struct AbstractExpression * next_, *prev_;
+	AbstractExpression(ExpressionOperatorType le_type)
+		:exprOperatorType_(le_type), type_(ERROR_TYPE)
+		 , next_(0), prev_(0) 
 	{}
-	//virtual void print_expr(FILE * edit_out)=0;
+	AbstractExpression(ExpressionOperatorType le_type, DataType ldt)
+		:exprOperatorType_(le_type), type_(ldt), next_(0), prev_(0) 
+	{}
+	//virtual void PrintExpressionCode(FILE * edit_out)=0;
 	//! Pure virtual function. Generates the code for a particular expression.
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr)=0;
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr)=0;
 
-	virtual int isvalid();
-	//! pure virtual function will tell us if an expr can appear on the 
+	virtual int IsValid();
+	//! pure virtual function will tell us if an AbstractExpression can appear on the 
 	//! left side of the assignment operator
 	//! of the 
-	virtual bool is_lvalue()=0;
+	virtual bool IsLValue()=0;
 	// ! determines if an expression is a constant value
-	virtual bool is_const()=0;
+	virtual bool IsConst()=0;
 	// ! determines if an expression is an integral value
-	virtual bool is_integral_expr()=0;
-	virtual ~expr();
+	virtual bool IsIntegralExpression()=0;
+	virtual ~AbstractExpression();
 	private:
-		expr& operator=(const expr&);
-		expr (const expr&);
+		AbstractExpression& operator=(const AbstractExpression&);
+		AbstractExpression (const AbstractExpression&);
 };
 
 
 //! holds Unary expressions of the form '-' expression, ! expression,  and '(' expression ')'. 
 /*! Note that these are expressions constructed
     out of an operator and another expression - there is no additional
-    data involved which is what differentiates these from the un2_expr
+    data involved which is what differentiates these from the Unary2Expression
     expressions
 */
-struct un_expr : public expr{
+struct UnaryExpression : public AbstractExpression
+{
 	protected:
-	expr* operand;
+	AbstractExpression* operand_;
 	public:
-	un_expr( expr * l_operand=0, e_operator_type le_type=oper_err);
-	bool is_lvalue(){ return false; }
-	//void print_expr(FILE * edit_out);
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
-	virtual ~un_expr();
-	virtual bool is_const();
-	virtual bool is_integral_expr();
+	UnaryExpression( AbstractExpression * l_operand=0
+			, ExpressionOperatorType le_type=oper_err);
+	bool IsLValue(){ return false; }
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	virtual ~UnaryExpression();
+	virtual bool IsConst();
+	virtual bool IsIntegralExpression();
 	private:
-		un_expr& operator=(const un_expr&);
-		un_expr (const un_expr&);
+		UnaryExpression& operator=(const UnaryExpression&);
+		UnaryExpression (const UnaryExpression&);
 };
 
 //extern vector <func_info*> func_info_table;
@@ -109,94 +121,99 @@ struct un_expr : public expr{
 //using namespace std;
 
 #include "xtcc_set.h"
-struct un2_expr;
+struct Unary2Expression;
 
 //! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set 
-struct bin2_expr: public expr{
+struct Binary2Expression: public AbstractExpression
+{
 	protected:
-	//symtab_ent *l_symp, *r_symp;
-	//expr * l_op;
-	un2_expr * l_op;	
-	xtcc_set *xs;
+	Unary2Expression * leftOperand_;
+	XtccSet *xs;
 	public:
-	//bin2_expr(string lname , string rname ,e_operator_type letype);
-	bin2_expr(expr* llop, xtcc_set& l_rd, e_operator_type letype);
-	bool is_lvalue(){ return false; }
-	virtual bool is_const();
-	virtual bool is_integral_expr();
-	//void print_oper_assgn(FILE * edit_out);
-	//void print_expr(FILE * edit_out);
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
-	~bin2_expr();
+	Binary2Expression(AbstractExpression* llop
+			, XtccSet& l_rd, ExpressionOperatorType letype);
+	bool IsLValue(){ return false; }
+	virtual bool IsConst();
+	virtual bool IsIntegralExpression();
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	~Binary2Expression();
 	private:
-		bin2_expr& operator=(const bin2_expr&);
-		bin2_expr (const bin2_expr&);
+		Binary2Expression& operator=(const Binary2Expression&);
+		Binary2Expression (const Binary2Expression&);
 };
 
-//! bin_expr holds expressions operated on by binary operators. For example a +b , a-b etc
-struct bin_expr: public expr{
+//! BinaryExpression holds expressions operated on by binary operators. For example a +b , a-b etc
+struct BinaryExpression: public AbstractExpression
+{
 	public:
-	expr *l_op, *r_op;
+	AbstractExpression *leftOperand_, *rightOperand_;
 	public:
-	bin_expr(expr* llop, expr* lrop,e_operator_type letype);
-	bool is_lvalue(){ return false; }
-	//void print_oper_assgn(FILE * edit_out);
-	void print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr);
-	//void print_expr(FILE * edit_out);
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
-	virtual bool is_const();
-	virtual bool is_integral_expr();
-	~bin_expr();
+	BinaryExpression(AbstractExpression* llop, AbstractExpression* lrop
+			,ExpressionOperatorType letype);
+	bool IsLValue(){ return false; }
+	void print_oper_assgn(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	virtual bool IsConst();
+	virtual bool IsIntegralExpression();
+	~BinaryExpression();
 	private:
-		bin_expr& operator=(const bin_expr&);
-		bin_expr (const bin_expr&);
+		BinaryExpression& operator=(const BinaryExpression&);
+		BinaryExpression (const BinaryExpression&);
 };
 
-//! un2_expr are single operands which have some data attached with them
+//! Unary2Expression are single operands which have some data attached with them
 /*
  Some examples are INUMBER, FNUMBER, NAME, NAME[], NAME[,]
  NAME ( expr_list ) function call, TEXT
 
 */
-struct un2_expr : public expr{
+struct Unary2Expression : public AbstractExpression
+{
 	protected:
-	struct symtab_ent * symp;
-	int isem_value;
-	double dsem_value;
+	struct SymbolTableEntry * symbolTableEntry_;
+	int intSemanticValue_;
+	double doubleSemanticValue_;
 	int func_index_in_table;
 	char * text;
 	int column_no;
-	expr* operand;
-	expr* operand2;
+	AbstractExpression* operand_;
+	AbstractExpression* operand2_;
 	public:
 	// This is a hack - I have to fix this by putting line number in the base class
-	//int line_no;
-	bool is_lvalue();
-	virtual bool is_const();
-	virtual bool is_integral_expr();
-	//un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table, int lline_no);
-	un2_expr(e_operator_type le_type, datatype ldt, expr* e_list, int lfunc_index_in_table);
-	const symtab_ent* get_symp_ptr(){
-		return (const symtab_ent*) symp;
+	bool IsLValue();
+	virtual bool IsConst();
+	virtual bool IsIntegralExpression();
+	Unary2Expression(ExpressionOperatorType le_type, DataType ldt
+			, AbstractExpression* e_list, int lfunc_index_in_table);
+	const SymbolTableEntry* get_symp_ptr()
+	{
+		return (const SymbolTableEntry*) symbolTableEntry_;
 	}
 
-	un2_expr(int l_isem_value);
+	Unary2Expression(int l_isem_value);
 
-	un2_expr(double l_dsem_value);
+	Unary2Expression(double l_dsem_value);
 
-	un2_expr( struct symtab_ent * lsymp); 
-	un2_expr(datatype d);
-	un2_expr(e_operator_type le_type,  string name, expr* arr_index);
-	un2_expr(e_operator_type le_type,  string name,  expr* arr_index, expr* arr_index2);
-	un2_expr(char* ltxt, e_operator_type le_type); 
-	~un2_expr();
-	//friend void bin_expr::print_oper_assgn(FILE* edit_out);
-	friend void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr);
-	//void print_expr(FILE * edit_out);
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
+	Unary2Expression( struct SymbolTableEntry * lsymp); 
+	Unary2Expression(DataType d);
+	Unary2Expression(ExpressionOperatorType le_type,  string name
+			, AbstractExpression* arr_index);
+	Unary2Expression(ExpressionOperatorType le_type,  string name
+			, AbstractExpression* arr_index
+			, AbstractExpression* arr_index2);
+	Unary2Expression(char* ltxt, ExpressionOperatorType le_type); 
+	~Unary2Expression();
+	friend void BinaryExpression::print_oper_assgn(
+			ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
 	private:
-		un2_expr& operator=(const un2_expr&);
-		un2_expr (const un2_expr&);
+		Unary2Expression& operator=(const Unary2Expression&);
+		Unary2Expression (const Unary2Expression&);
 };
 
 

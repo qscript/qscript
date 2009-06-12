@@ -52,137 +52,137 @@ using qscript_parser::debug_log_file;
 using qscript_parser::mem_addr;
 
 
-stmt* scope::insert(const char * name, datatype dt/*, int line_no*/){
+AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
-	if ( sym_tab.find(name) == sym_tab.end() ){
-		symtab_ent* se=new symtab_ent(name, dt);
+	if ( SymbolTable.find(name) == SymbolTable.end() ){
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
 		//se->name = strdup(name.c_str());
-		//se->type=dt;
+		//se->type_=dt;
 		string s(name);
-		sym_tab[s] = se;
-		st_ptr->type=dt;
-		st_ptr->symp=se;
+		SymbolTable[s] = se;
+		st_ptr->type_=dt;
+		st_ptr->symbolTableEntry_=se;
 	} else {
 		cerr << "ERROR: " << name << " already present in symbol table" << endl;
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
 }
 
 
-stmt* scope::insert(const char * name, datatype dt, int arr_size/*, int line_no*/){
+AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size/*, int line_no*/){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
-	if ( sym_tab.find(name) == sym_tab.end() ){
-		symtab_ent* se=new symtab_ent(name, dt);
+	if ( SymbolTable.find(name) == SymbolTable.end() ){
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
 		se->n_elms=arr_size;
 		string s(name);
-		sym_tab[s] = se;
-		st_ptr->type=dt;
-		st_ptr->symp=se;
+		SymbolTable[s] = se;
+		st_ptr->type_=dt;
+		st_ptr->symbolTableEntry_=se;
 	} else {
 		cerr << " array NAME failed:" << line_no << endl;
 		cerr << name << " already present in symbol table" << endl;
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
 }
 
-stmt* scope::insert(const char * name, datatype dt, expr *e){
+AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpression *e){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
-	if ( sym_tab.find(name) == sym_tab.end() ){
-		symtab_ent* se=new symtab_ent(name, dt, e);
-		if(is_of_noun_type(e->type)){
-			if (check_type_compat(dt,e->type)){
+	if ( SymbolTable.find(name) == SymbolTable.end() ){
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt, e);
+		if(is_of_noun_type(e->type_)){
+			if (check_type_compat(dt,e->type_)){
 				string s(name);
-				sym_tab[s] = se;
-				st_ptr->type=dt;
-				st_ptr->symp=se;
+				SymbolTable[s] = se;
+				st_ptr->type_=dt;
+				st_ptr->symbolTableEntry_=se;
 			} else {
 				stringstream s;
 				s << "Type of variable: " << name << "=" 
 					<< human_readable_type(dt)
 					<< " in decl cannot handle type of expression on rhs of variable: " 
-					<< human_readable_type(e->type) << endl;
+					<< human_readable_type(e->type_) << endl;
 				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
-				st_ptr->type=ERROR_TYPE;
+				st_ptr->type_=ERROR_TYPE;
 			}
 		} else {
 			stringstream s;
 			s << "Error in expression on rhs of variable :" << name << endl;
 			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
-			st_ptr->type=ERROR_TYPE;
+			st_ptr->type_=ERROR_TYPE;
 		}
 	} else {
 		stringstream s;
 		s << "variable " << name << " already present in symbol table" << endl;
 		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 	}
 	return st_ptr;
 }
 
 
-stmt* scope::insert(const char * name, datatype dt, expr *e, type_qualifier tq){
+AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpression *e, type_qualifier tq){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
-	if ( sym_tab.find(name) == sym_tab.end() ){
-		symtab_ent* se=new symtab_ent(name, dt, e, tq);
-		if(is_of_noun_type(e->type)){
-			if (check_type_compat(dt,e->type)){
+	if ( SymbolTable.find(name) == SymbolTable.end() ){
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt, e, tq);
+		if(is_of_noun_type(e->type_)){
+			if (check_type_compat(dt,e->type_)){
 				string s(name);
-				sym_tab[s] = se;
-				st_ptr->type=dt;
-				st_ptr->symp=se;
+				SymbolTable[s] = se;
+				st_ptr->type_=dt;
+				st_ptr->symbolTableEntry_=se;
 			} else {
 				stringstream s;
 				s << "Type of variable: " << name << "=" 
 					<< human_readable_type(dt)
 					<< " in decl cannot handle type of expression on rhs of variable: " 
-					<< human_readable_type(e->type) << endl;
+					<< human_readable_type(e->type_) << endl;
 				print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
-				st_ptr->type=ERROR_TYPE;
+				st_ptr->type_=ERROR_TYPE;
 			}
 		} else {
 			stringstream s;
 			s << "Error in expression on rhs of variable :" << name << endl;
 			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
-			st_ptr->type=ERROR_TYPE;
+			st_ptr->type_=ERROR_TYPE;
 		}
 	} else {
 		stringstream s;
 		s << "variable " << name << " already present in symbol table" << endl;
 		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 	}
 	return st_ptr;
 }
 
-stmt* scope::insert(const char * name, datatype dt, int arr_size, /*int line_no, */ char *text){
+AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /*int line_no, */ char *text){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	if(dt!=INT8_ARR_TYPE){
 		stringstream s;
@@ -198,79 +198,79 @@ stmt* scope::insert(const char * name, datatype dt, int arr_size, /*int line_no,
 		cerr << "length of TEXT < array size line_no:" << line_no << endl;
 		++no_errors;
 	}
-	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
-	if ( sym_tab.find(name) == sym_tab.end() ){
-		symtab_ent* se=new symtab_ent(name, dt);
+	if ( SymbolTable.find(name) == SymbolTable.end() ){
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
 		se->n_elms=arr_size;
 		if(text)
-			se->text=strdup(text);
+			se->text_=strdup(text);
 		string s(name);
-		sym_tab[s] = se;
-		st_ptr->type=dt;
-		st_ptr->symp=se;
+		SymbolTable[s] = se;
+		st_ptr->type_=dt;
+		st_ptr->symbolTableEntry_=se;
 	} else {
 		stringstream s;
 		s << " IDENTIFIER: " << name << "  already present in symbol table" << endl;
 		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
 }
 
-stmt* scope::insert(const char * name, datatype dt, xtcc_set *lxs){
-	decl_stmt * st_ptr=new decl_stmt(dt, line_no);
+AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs){
+	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
-	if ( sym_tab.find(name) == sym_tab.end() ){
-		xtcc_set * xs=new xtcc_set(*lxs);
-		symtab_ent* se=new symtab_ent(name, dt, xs);
+	if ( SymbolTable.find(name) == SymbolTable.end() ){
+		XtccSet * xs=new XtccSet(*lxs);
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt, xs);
 		string s(name);
-		sym_tab[s] = se;
-		st_ptr->type=dt;
-		st_ptr->symp=se;
+		SymbolTable[s] = se;
+		st_ptr->type_=dt;
+		st_ptr->symbolTableEntry_=se;
 	} else {
 		stringstream s;
 		s << " IDENTIFIER: " << name << "  already present in symbol table" << endl;
 		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 	}
 	return st_ptr;
 }
 
-scope::~scope() {
-	debug_log_file <<"deleting scope" << endl;
-	typedef map<string,symtab_ent*>::iterator it;
-	for(it p=sym_tab.begin(); p!=sym_tab.end(); ++p){
+Scope::~Scope() {
+	debug_log_file <<"deleting Scope" << endl;
+	typedef map<string,SymbolTableEntry*>::iterator it;
+	for(it p=SymbolTable.begin(); p!=SymbolTable.end(); ++p){
 		delete p->second;
 		p->second=0;
 	}
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			debug_log_file << "scope::~scope setting mem_addr: " << this << "=0" << endl;
+			debug_log_file << "Scope::~Scope setting mem_addr: " << this << "=0" << endl;
 			break;
 		}
 	}
-	debug_log_file << "end deleting scope" << endl;
+	debug_log_file << "end deleting Scope" << endl;
 }
 
-string human_readable_type(datatype dt);
-void scope::print_scope(vector<string> &push_stack, vector<string>& pop_stack){
-	map<string,symtab_ent*>::iterator it;
-	for(it=sym_tab.begin(); it!=sym_tab.end(); ++it){
-		symtab_ent * sym_ptr=  it->second;
+string human_readable_type(DataType dt);
+void Scope::print_scope(vector<string> &push_stack, vector<string>& pop_stack){
+	map<string,SymbolTableEntry*>::iterator it;
+	for(it=SymbolTable.begin(); it!=SymbolTable.end(); ++it){
+		SymbolTableEntry * sym_ptr=  it->second;
 		/*
 		string s = sym_ptr-> name;
-		s += " " + human_readable_type(sym_ptr->type);
+		s += " " + human_readable_type(sym_ptr->type_);
 		*/
 		string s("NONE");
 		sym_ptr->print_push_stack(s);

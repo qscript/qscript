@@ -20,32 +20,32 @@ using namespace std;
 //extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
 
-question::question(datatype l_type, int l_no, string l_name, string l_text
-	, question_type l_q_type, int l_no_mpn, datatype l_dt
-	, vector<expr*> & l_for_bounds_stack
+question::question(DataType l_type, int l_no, string l_name, string l_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+	, vector<AbstractExpression*> & l_for_bounds_stack
 	): 
-	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type)
+	AbstractStatement(l_type, l_no), name_(l_name), text(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt)
 	, for_bounds_stack(l_for_bounds_stack)
 {
 }
 
 
-question::question(datatype l_type, int l_no, string l_name, string l_text
-	, question_type l_q_type, int l_no_mpn, datatype l_dt
+question::question(DataType l_type, int l_no, string l_name, string l_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 	): 
-	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) 
+	AbstractStatement(l_type, l_no), name_(l_name), text(l_text), q_type(l_q_type) 
 	, no_mpn(l_no_mpn), dt(l_dt)
 	, for_bounds_stack(0)
 {
 }
 
 
-question::question(datatype l_type, int l_no, string l_name, string l_text
-	, question_type l_q_type, int l_no_mpn, datatype l_dt
+question::question(DataType l_type, int l_no, string l_name, string l_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 	, const vector<int>& l_loop_index_values
 	): 
-	stmt(l_type, l_no), name(l_name), text(l_text), q_type(l_q_type) 
+	AbstractStatement(l_type, l_no), name_(l_name), text(l_text), q_type(l_q_type) 
 	, no_mpn(l_no_mpn), dt(l_dt) , for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
 {
@@ -55,42 +55,42 @@ question::question(datatype l_type, int l_no, string l_name, string l_text
 }
 
 
-range_question::range_question(datatype this_stmt_type, int line_number,
+range_question::range_question(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
-	question_type l_q_type, int l_no_mpn, datatype l_dt,
-	xtcc_set& l_r_data
-	, vector<expr*> & l_for_bounds_stack
+	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
+	XtccSet& l_r_data
+	, vector<AbstractExpression*> & l_for_bounds_stack
 	): 
 	question(this_stmt_type, line_number, l_name, l_q_text
 		, l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
 		)
 {
-	r_data = new xtcc_set(l_r_data);
+	r_data = new XtccSet(l_r_data);
 }
 
-range_question::range_question(datatype this_stmt_type, int line_number
+range_question::range_question(DataType this_stmt_type, int line_number
 	, string l_name, string l_q_text
-	, question_type l_q_type, int l_no_mpn
-	, datatype l_dt , xtcc_set& l_r_data
+	, QuestionType l_q_type, int l_no_mpn
+	, DataType l_dt , XtccSet& l_r_data
 	): 
 	question(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
 		)
 {
-	r_data = new xtcc_set(l_r_data);
+	r_data = new XtccSet(l_r_data);
 }
 
-range_question::range_question(datatype this_stmt_type, int line_number,
+range_question::range_question(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
-	question_type l_q_type, int l_no_mpn, datatype l_dt,
-	xtcc_set& l_r_data
+	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
+	XtccSet& l_r_data
 	, const vector<int> & l_loop_index_values
 	): 
 	question(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values
 		)
 {
-	r_data = new xtcc_set(l_r_data);
+	r_data = new XtccSet(l_r_data);
 }
 
 
@@ -104,7 +104,7 @@ bool range_question::is_valid(int value){
 }
 
 void range_question::eval(){
-	cout << name << "." << text << endl << endl;
+	cout << name_ << "." << text << endl << endl;
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
 		cout << *it << endl;
 	}
@@ -166,7 +166,7 @@ void range_question::eval(){
 }
 
 void range_question::write_data_to_disk(ofstream& data_file){
-	data_file << name ;
+	data_file << name_ ;
 	if(loop_index_values.size()>0){
 		for(int i=0; i< loop_index_values.size(); ++i){
 			data_file << "$" << loop_index_values[i];
@@ -192,7 +192,7 @@ bool named_stub_question::is_valid(int value){
 }
 
 void named_stub_question::eval(){
-	cout << name << "." << text << endl << endl;
+	cout << name_ << "." << text << endl << endl;
 	vector<stub_pair> vec= *stub_ptr;
 	for(unsigned int i=0; i< vec.size(); ++i){
 		if( vec[i].mask)
@@ -255,10 +255,10 @@ void range_question::generate_code_single_question( ostringstream & quest_defns
 		, ostringstream& program_code){
 	using qscript_parser::map_of_active_vars_for_questions;
 
-	program_code << "lab_" << name << ":" << endl;
+	program_code << "lab_" << name_ << ":" << endl;
 
-	string q_push_name = name + "_push";
-	string q_pop_name = name + "_pop";
+	string q_push_name = name_ + "_push";
+	string q_pop_name = name_ + "_pop";
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
 	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
@@ -275,7 +275,7 @@ void range_question::generate_code_single_question( ostringstream & quest_defns
 	const int BUF_SIZE=100;
 	char xtcc_set_name[BUF_SIZE];
 	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
-	quest_defns  << "xtcc_set " << xtcc_set_name << ";" << endl;
+	quest_defns  << "XtccSet " << xtcc_set_name << ";" << endl;
 	for(	set<int>::iterator it=r_data->indiv.begin(); it!=r_data->indiv.end(); ++it){
 		quest_defns << xtcc_set_name << ".indiv.insert(" << *it << ");" << endl;
 	}
@@ -291,9 +291,9 @@ void range_question::generate_code_single_question( ostringstream & quest_defns
 	print_data_type(datatype_str);
 
 
-	quest_defns << "range_question * " << name.c_str() << " = new range_question(QUESTION_TYPE, "
-		<< line_no << "," 
-		<< "string( \"" << name.c_str() << "\")" << "," 
+	quest_defns << "range_question * " << name_.c_str() << " = new range_question(QUESTION_TYPE, "
+		<< lineNo_ << "," 
+		<< "string( \"" << name_.c_str() << "\")" << "," 
 		<< "string(\" " << text.c_str() << "\")" << ","
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
@@ -303,52 +303,52 @@ void range_question::generate_code_single_question( ostringstream & quest_defns
 		<< "/* " << for_bounds_stack.size() << "*/"
 		<< ");\n";
 
-	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
+	quest_defns << "question_list.push_back(" << name_.c_str() << ");\n";
 
 	if(for_bounds_stack.size()==0){
-		program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+		program_code << "\t\t" << name_.c_str() << "->eval();\n" ;
 	} else {
 
 
 
-		program_code << "\t\t" << name.c_str() << "_list[";
+		program_code << "\t\t" << name_.c_str() << "_list[";
 		/*
 		for(int i=0; i<for_bounds_stack.size(); ++i){
 			//program_code << 
-			for_bounds_stack[i]->print_expr(quest_defns, program_code);
+			for_bounds_stack[i]->PrintExpressionCode(quest_defns, program_code);
 				
 		}*/
 		// ----------------------------------
 		ostringstream * string_stream_vec=new ostringstream[for_bounds_stack.size()];
 		for(int i=0; i< for_bounds_stack.size(); ++i){
-			bin_expr * bin_expr_ptr = dynamic_cast<bin_expr*>(for_bounds_stack[i]);
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 			if(bin_expr_ptr){
-				expr * rhs = bin_expr_ptr->r_op;
-				expr * lhs = bin_expr_ptr->l_op;
-				lhs->print_expr(string_stream_vec[i], string_stream_vec[i]); 
+				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+				lhs->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]); 
 				if(i<for_bounds_stack.size()-1) {
 					string_stream_vec[i] << "*" ;
 				}
 			} else {
-				for_bounds_stack[i]->print_expr(string_stream_vec[i], string_stream_vec[i]);
+				for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 				print_err(compiler_sem_err
 					, "for loop index condition is not a binary expression" 
 					, 0, __LINE__, __FILE__);
 			}
 			for(int j=i+1; j<for_bounds_stack.size(); j++){
 				// quest_defns is passed twice
-				// becaues we want the expr to appear in the for
+				// becaues we want the AbstractExpression to appear in the for
 				// loop in the questions section of the code
-				bin_expr * bin_expr_ptr2 = dynamic_cast<bin_expr*>(for_bounds_stack[j]);
+				BinaryExpression * bin_expr_ptr2 = dynamic_cast<BinaryExpression*>(for_bounds_stack[j]);
 				if(bin_expr_ptr2){
-					expr * rhs = bin_expr_ptr2->r_op;
-					rhs->print_expr(string_stream_vec[i], string_stream_vec[i]);
+					AbstractExpression * rhs = bin_expr_ptr2->rightOperand_;
+					rhs->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 					if(j<for_bounds_stack.size()-1) {
 						string_stream_vec[i] << "*" ;
 					}
 
 				} else {
-					for_bounds_stack[i]->print_expr(string_stream_vec[i], string_stream_vec[i]);
+					for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 					print_err(compiler_sem_err
 						, "for loop index condition is not a binary expression" 
 						, 0, __LINE__, __FILE__);
@@ -356,7 +356,7 @@ void range_question::generate_code_single_question( ostringstream & quest_defns
 			}
 		}
 		for(int i=0; i<for_bounds_stack.size(); ++i) {
-			//for_bounds_stack[i]->print_expr(quest_defns, program_code);
+			//for_bounds_stack[i]->PrintExpressionCode(quest_defns, program_code);
 			program_code << string_stream_vec[i].str();
 			if(i <for_bounds_stack.size()-1 ){
 				program_code << "+";
@@ -366,58 +366,58 @@ void range_question::generate_code_single_question( ostringstream & quest_defns
 		program_code << "]->eval();\n" ;
 	}
 	/*
-	if(next){
-		next->generate_code(quest_defns, program_code);
+	if(next_){
+		next_->GenerateCode(quest_defns, program_code);
 	}*/
 
 }
 
-void range_question::generate_code( ostringstream & quest_defns, ostringstream& program_code){
+void range_question::GenerateCode( ostringstream & quest_defns, ostringstream& program_code){
 	if(for_bounds_stack.size()==0){
 		generate_code_single_question(quest_defns, program_code);
 	} else {
-		quest_defns << "vector <question*> " << name << "_list;" << endl;
+		quest_defns << "vector <question*> " << name_ << "_list;" << endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
 			quest_defns << "for(int ";
-			bin_expr * bin_expr_ptr = dynamic_cast<bin_expr*>(for_bounds_stack[i]);
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 			if(bin_expr_ptr){
-				expr * rhs = bin_expr_ptr->r_op;
-				expr * lhs = bin_expr_ptr->l_op;
-				lhs->print_expr(quest_defns, quest_defns);
+				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+				lhs->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns << "=0;";
-				for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
+				for_bounds_stack[i]->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns << "; ++";
-				lhs->print_expr(quest_defns, quest_defns);
+				lhs->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns <<	"){" << endl;
 				if(i==0){
 					quest_defns << "vector<int> stack_of_loop_indices;\n";
 						// << "(" << for_bounds_stack.size() << ");\n";
 				}
 				quest_defns << "stack_of_loop_indices.push_back(";
-				lhs->print_expr(quest_defns, quest_defns);
+				lhs->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns << ");\n";
 			} else {
-				for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
+				for_bounds_stack[i]->PrintExpressionCode(quest_defns, quest_defns);
 				print_err(compiler_sem_err
 					, "for loop index condition is not a binary expression" 
 					, 0, __LINE__, __FILE__);
 			}
 
 			// quest_defns is passed twice
-			// becaues we want the expr to appear in the for
+			// becaues we want the AbstractExpression to appear in the for
 			// loop in the questions section of the code
 		}
 		
 		generate_code_single_question(quest_defns, program_code);
-		quest_defns << name << "_list.push_back(" << name << ");"
+		quest_defns << name_ << "_list.push_back(" << name_ << ");"
 			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
 			quest_defns << "stack_of_loop_indices.pop_back();\n";
 			quest_defns << "}" << endl;
 		}
 	}
-	if(next){
-		next->generate_code(quest_defns, program_code);
+	if(next_){
+		next_->GenerateCode(quest_defns, program_code);
 	}
 }
 
@@ -426,10 +426,10 @@ void named_stub_question::generate_code_single_question( ostringstream & quest_d
 		, ostringstream& program_code){
 	using qscript_parser::map_of_active_vars_for_questions;
 
-	program_code << "lab_" << name << ":" << endl;
+	program_code << "lab_" << name_ << ":" << endl;
 
-	string q_push_name = name + "_push";
-	string q_pop_name = name + "_pop";
+	string q_push_name = name_ + "_push";
+	string q_pop_name = name_ + "_pop";
 	vector<string> active_push_vars_for_this_question = map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = map_of_active_vars_for_questions[q_pop_name];
 	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i){
@@ -446,10 +446,10 @@ void named_stub_question::generate_code_single_question( ostringstream & quest_d
 
 	string datatype_str;
 	print_data_type(datatype_str);
-	quest_defns << "// named_stub_question::generate_code() : to be implemented" << endl;
-	quest_defns << "named_stub_question * " << name.c_str() << " = new named_stub_question(QUESTION_TYPE, "
-		<< line_no << "," 
-		<< "string( \"" << name.c_str() << "\")" << "," 
+	quest_defns << "// named_stub_question::GenerateCode() : to be implemented" << endl;
+	quest_defns << "named_stub_question * " << name_.c_str() << " = new named_stub_question(QUESTION_TYPE, "
+		<< lineNo_ << "," 
+		<< "string( \"" << name_.c_str() << "\")" << "," 
 		<< "string(\" " << text.c_str() << "\")" << ","
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
@@ -458,44 +458,44 @@ void named_stub_question::generate_code_single_question( ostringstream & quest_d
 		<<  ( (for_bounds_stack.size() > 0 ) ? ", stack_of_loop_indices " : "" )
 		<< "/* " << for_bounds_stack.size() << "*/"
 		<< ");\n";
-	quest_defns << "question_list.push_back(" << name.c_str() << ");\n";
-	//program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+	quest_defns << "question_list.push_back(" << name_.c_str() << ");\n";
+	//program_code << "\t\t" << name_.c_str() << "->eval();\n" ;
 
 	if(for_bounds_stack.size()==0){
-		program_code << "\t\t" << name.c_str() << "->eval();\n" ;
+		program_code << "\t\t" << name_.c_str() << "->eval();\n" ;
 	}  else {
-		program_code << "\t\t" << name.c_str() << "_list[";
+		program_code << "\t\t" << name_.c_str() << "_list[";
 		// ----------------------------------
 		ostringstream * string_stream_vec=new ostringstream[for_bounds_stack.size()];
 		for(int i=0; i< for_bounds_stack.size(); ++i){
-			bin_expr * bin_expr_ptr = dynamic_cast<bin_expr*>(for_bounds_stack[i]);
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 			if(bin_expr_ptr){
-				expr * rhs = bin_expr_ptr->r_op;
-				expr * lhs = bin_expr_ptr->l_op;
-				lhs->print_expr(string_stream_vec[i], string_stream_vec[i]); 
+				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+				lhs->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]); 
 				if(i<for_bounds_stack.size()-1) {
 					string_stream_vec[i] << "*" ;
 				}
 			} else {
-				for_bounds_stack[i]->print_expr(string_stream_vec[i], string_stream_vec[i]);
+				for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 				print_err(compiler_sem_err
 					, "for loop index condition is not a binary expression" 
 					, 0, __LINE__, __FILE__);
 			}
 			for(int j=i+1; j<for_bounds_stack.size(); j++){
 				// quest_defns is passed twice
-				// becaues we want the expr to appear in the for
+				// becaues we want the AbstractExpression to appear in the for
 				// loop in the questions section of the code
-				bin_expr * bin_expr_ptr2 = dynamic_cast<bin_expr*>(for_bounds_stack[j]);
+				BinaryExpression * bin_expr_ptr2 = dynamic_cast<BinaryExpression*>(for_bounds_stack[j]);
 				if(bin_expr_ptr2){
-					expr * rhs = bin_expr_ptr2->r_op;
-					rhs->print_expr(string_stream_vec[i], string_stream_vec[i]);
+					AbstractExpression * rhs = bin_expr_ptr2->rightOperand_;
+					rhs->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 					if(j<for_bounds_stack.size()-1) {
 						string_stream_vec[i] << "*" ;
 					}
 
 				} else {
-					for_bounds_stack[i]->print_expr(string_stream_vec[i], string_stream_vec[i]);
+					for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 					print_err(compiler_sem_err
 						, "for loop index condition is not a binary expression" 
 						, 0, __LINE__, __FILE__);
@@ -503,7 +503,7 @@ void named_stub_question::generate_code_single_question( ostringstream & quest_d
 			}
 		}
 		for(int i=0; i<for_bounds_stack.size(); ++i) {
-			//for_bounds_stack[i]->print_expr(quest_defns, program_code);
+			//for_bounds_stack[i]->PrintExpressionCode(quest_defns, program_code);
 			program_code << string_stream_vec[i].str();
 			if(i <for_bounds_stack.size()-1 ){
 				program_code << "+";
@@ -515,45 +515,45 @@ void named_stub_question::generate_code_single_question( ostringstream & quest_d
 
 }
 
-void named_stub_question::generate_code( ostringstream & quest_defns, 
+void named_stub_question::GenerateCode( ostringstream & quest_defns, 
 		ostringstream& program_code){
 	if(for_bounds_stack.size()==0){
 		generate_code_single_question(quest_defns, program_code);
 	}  else {
-		quest_defns << "vector <question*> " << name << "_list;" << endl;
+		quest_defns << "vector <question*> " << name_ << "_list;" << endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
 			quest_defns << "for(int ";
-			bin_expr * bin_expr_ptr = dynamic_cast<bin_expr*>(for_bounds_stack[i]);
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 			if(bin_expr_ptr){
-				expr * rhs = bin_expr_ptr->r_op;
-				expr * lhs = bin_expr_ptr->l_op;
-				lhs->print_expr(quest_defns, quest_defns);
+				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+				lhs->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns << "=0;";
-				for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
+				for_bounds_stack[i]->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns << "; ++";
-				lhs->print_expr(quest_defns, quest_defns);
+				lhs->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns <<	"){" << endl;
 				if(i==0){
 					quest_defns << "vector<int> stack_of_loop_indices; \n";
 						//<< "(" <<  for_bounds_stack.size() << ");\n";
 				}
 				quest_defns << "stack_of_loop_indices.push_back(";
-				lhs->print_expr(quest_defns, quest_defns);
+				lhs->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns << ");\n";
 			} else {
-				for_bounds_stack[i]->print_expr(quest_defns, quest_defns);
+				for_bounds_stack[i]->PrintExpressionCode(quest_defns, quest_defns);
 				print_err(compiler_sem_err
 					, "for loop index condition is not a binary expression" 
 					, 0, __LINE__, __FILE__);
 			}
 
 			// quest_defns is passed twice
-			// becaues we want the expr to appear in the for
+			// becaues we want the AbstractExpression to appear in the for
 			// loop in the questions section of the code
 		}
 		
 		generate_code_single_question(quest_defns, program_code);
-		quest_defns << name << "_list.push_back(" << name << ");"
+		quest_defns << name_ << "_list.push_back(" << name_ << ");"
 			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
 			quest_defns << "stack_of_loop_indices.pop_back();\n";
@@ -561,19 +561,19 @@ void named_stub_question::generate_code( ostringstream & quest_defns,
 		}
 	}
 
-	if(next){
-		next->generate_code(quest_defns, program_code);
+	if(next_){
+		next_->GenerateCode(quest_defns, program_code);
 	} 
 
 }
 
-named_stub_question::named_stub_question(datatype this_stmt_type, int line_number,
+named_stub_question::named_stub_question(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
-	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 	//string& l_named_list): 
 	named_range* l_nr_ptr
-	//, expr* l_arr_sz
-	, vector<expr*>& l_for_bounds_stack
+	//, AbstractExpression* l_arr_sz
+	, vector<AbstractExpression*>& l_for_bounds_stack
 	):
 	question(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
@@ -585,9 +585,9 @@ named_stub_question::named_stub_question(datatype this_stmt_type, int line_numbe
 {
 }
 
-named_stub_question::named_stub_question(datatype this_stmt_type, int line_number,
+named_stub_question::named_stub_question(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
-	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 	named_range* l_nr_ptr
 	):
 	question(this_stmt_type, line_number, l_name, l_q_text,
@@ -597,11 +597,11 @@ named_stub_question::named_stub_question(datatype this_stmt_type, int line_numbe
 {
 }
 
-named_stub_question::named_stub_question(datatype this_stmt_type, int line_number,
+named_stub_question::named_stub_question(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
-	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 	vector<stub_pair>* l_stub_ptr
-	, vector<expr*>& l_for_bounds_stack
+	, vector<AbstractExpression*>& l_for_bounds_stack
 	):
 	question(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
@@ -610,9 +610,9 @@ named_stub_question::named_stub_question(datatype this_stmt_type, int line_numbe
 {
 }
 
-named_stub_question::named_stub_question(datatype this_stmt_type, int line_number,
+named_stub_question::named_stub_question(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
-	question_type l_q_type, int l_no_mpn, datatype l_dt,
+	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 	vector<stub_pair>* l_stub_ptr
 	):
 	question(this_stmt_type, line_number, l_name, l_q_text,
@@ -622,9 +622,9 @@ named_stub_question::named_stub_question(datatype this_stmt_type, int line_numbe
 {
 }
 
-named_stub_question::named_stub_question(datatype this_stmt_type, int line_number
+named_stub_question::named_stub_question(DataType this_stmt_type, int line_number
 	, string l_name, string l_q_text
-	, question_type l_q_type, int l_no_mpn, datatype l_dt
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 	, vector<stub_pair>* l_stub_ptr
 	, const vector<int> & l_loop_index_values
 	):
@@ -679,7 +679,7 @@ void question::print_data_type(string &s){
 
 
 void named_stub_question::write_data_to_disk(ofstream& data_file){
-	data_file << name ;
+	data_file << name_ ;
 	if(loop_index_values.size()>0){
 		for(int i=0; i< loop_index_values.size(); ++i){
 			data_file << "$" << loop_index_values[i];

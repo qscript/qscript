@@ -45,32 +45,32 @@ csd_brand_list.push_back( stub_pair("Oogla", 3));
 csd_brand_list.push_back( stub_pair("Zingmoo", 4));
 csd_brand_list.push_back( stub_pair("Thunder", 5));
 csd_brand_list.push_back( stub_pair("Zoinks", 6));
-xtcc_set xs_0;
+XtccSet xs_0;
 xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);
 xs_0.indiv.insert(3);
 xs_0.indiv.insert(4);
 range_question * q1 = new range_question(QUESTION_TYPE, 16,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0/* 0*/);
 question_list.push_back(q1);
-xtcc_set xs_1;
+XtccSet xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
 range_question * q2 = new range_question(QUESTION_TYPE, 23,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1/* 0*/);
 question_list.push_back(q2);
-// named_stub_question::generate_code() : to be implemented
+// named_stub_question::GenerateCode() : to be implemented
 named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 24,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age/* 0*/);
 question_list.push_back(q3);
-// named_stub_question::generate_code() : to be implemented
+// named_stub_question::GenerateCode() : to be implemented
 named_stub_question * q4 = new named_stub_question(QUESTION_TYPE, 29,string( "q4"),string(" Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4);
-// named_stub_question::generate_code() : to be implemented
+// named_stub_question::GenerateCode() : to be implemented
 named_stub_question * q4_2 = new named_stub_question(QUESTION_TYPE, 33,string( "q4_2"),string(" Q4.2 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_2);
-// named_stub_question::generate_code() : to be implemented
+// named_stub_question::GenerateCode() : to be implemented
 named_stub_question * q4_3 = new named_stub_question(QUESTION_TYPE, 36,string( "q4_3"),string(" Q4.3 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_3);
-// named_stub_question::generate_code() : to be implemented
+// named_stub_question::GenerateCode() : to be implemented
 named_stub_question * q4_5 = new named_stub_question(QUESTION_TYPE, 44,string( "q4_5"),string(" Q4.5 Which brand do you consume most often?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_5);
 vector <question*> q17_list;
@@ -81,7 +81,7 @@ for(int j=0;j<3; ++j){
 stack_of_loop_indices.push_back(j);
 for(int k=0;k<4; ++k){
 stack_of_loop_indices.push_back(k);
-// named_stub_question::generate_code() : to be implemented
+// named_stub_question::GenerateCode() : to be implemented
 named_stub_question * q17 = new named_stub_question(QUESTION_TYPE, 56,string( "q17"),string(" Q17. Respondents age"),spn,5,INT32_TYPE,&age, stack_of_loop_indices /* 3*/);
 question_list.push_back(q17);
 q17_list.push_back(q17);
@@ -95,7 +95,7 @@ vector <question*> q15_list;
 for(int i=0;i<5; ++i){
 vector<int> stack_of_loop_indices;
 stack_of_loop_indices.push_back(i);
-xtcc_set xs_2;
+XtccSet xs_2;
 xs_2.indiv.insert(99);
 xs_2.range.push_back(pair<int,int>(1,15));
 range_question * q15 = new range_question(QUESTION_TYPE, 62,string( "q15"),string(" q15"),mpn,5,INT32_TYPE,xs_2, stack_of_loop_indices /* 1*/);
@@ -128,11 +128,11 @@ lab_q1:
 if ( back_jump==true ) {
 }
 		q1->eval();
- // decl_stmt::generate_code 
+ // DeclarationStatement::GenerateCode 
 int8_t var1=5*12;
- // decl_stmt::generate_code 
+ // DeclarationStatement::GenerateCode 
 int8_t var2=7*var1;
- // decl_stmt::generate_code 
+ // DeclarationStatement::GenerateCode 
 int32_t my_32int=600*700;
 (12.5*13.3)-8+7*(12%7);
 	struct temp_0{
@@ -263,7 +263,7 @@ vector_int32_t.pop_back();
 
 }
 		q4->eval();
-/*stub_manip::generate_code()q4:csd_brand_list*/
+/*StubManipStatement::GenerateCode()q4:csd_brand_list*/
 {
 set<int>::iterator set_iter = q4->input_data.begin();
 for( ; set_iter!= q4->input_data.end(); ++set_iter){
@@ -310,7 +310,7 @@ vector_int32_t.pop_back();
 
 }
 		q4_2->eval();
-/*stub_manip::generate_code()q4_2:csd_brand_list*/
+/*StubManipStatement::GenerateCode()q4_2:csd_brand_list*/
 {
 set<int>::iterator set_iter = q4_2->input_data.begin();
 for( ; set_iter!= q4_2->input_data.end(); ++set_iter){
@@ -361,14 +361,14 @@ vector_int32_t.pop_back();
 
 }
 		q4_3->eval();
-/*stub_manip::generate_code():csd_brand_list*/
+/*StubManipStatement::GenerateCode():csd_brand_list*/
 {
 for(int i=0; i< csd_brand_list.size(); ++i){
 csd_brand_list[i].mask=false; 
 }
 
 }
-/*stub_manip::generate_code()q4:csd_brand_list*/
+/*StubManipStatement::GenerateCode()q4:csd_brand_list*/
 {
 set<int>::iterator set_iter = q4->input_data.begin();
 for( ; set_iter!= q4->input_data.end(); ++set_iter){
@@ -380,7 +380,7 @@ for( ; set_iter!= q4->input_data.end(); ++set_iter){
 }
 
 }
-/*stub_manip::generate_code()q4_2:csd_brand_list*/
+/*StubManipStatement::GenerateCode()q4_2:csd_brand_list*/
 {
 set<int>::iterator set_iter = q4_2->input_data.begin();
 for( ; set_iter!= q4_2->input_data.end(); ++set_iter){
@@ -392,7 +392,7 @@ for( ; set_iter!= q4_2->input_data.end(); ++set_iter){
 }
 
 }
-/*stub_manip::generate_code()q4_3:csd_brand_list*/
+/*StubManipStatement::GenerateCode()q4_3:csd_brand_list*/
 {
 set<int>::iterator set_iter = q4_3->input_data.begin();
 for( ; set_iter!= q4_3->input_data.end(); ++set_iter){
@@ -447,13 +447,13 @@ vector_int32_t.pop_back();
 
 }
 		q4_5->eval();
- // decl_stmt::generate_code 
+ // DeclarationStatement::GenerateCode 
 int32_t i=0;
- // decl_stmt::generate_code 
+ // DeclarationStatement::GenerateCode 
 int32_t j=0;
- // decl_stmt::generate_code 
+ // DeclarationStatement::GenerateCode 
 int32_t k=0;
- // decl_stmt::generate_code 
+ // DeclarationStatement::GenerateCode 
 int32_t var=10;
 for (i  = 0;i<2;i  = i+1){
 for (j  = 0;j<3;j  = j+1){

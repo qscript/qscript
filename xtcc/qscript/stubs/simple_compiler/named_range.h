@@ -10,14 +10,14 @@
 #include "stub_pair.h"
 #include "stmt.h"
 
-struct named_range: public stmt{
+struct named_range: public AbstractStatement{
 	string name;
 	vector <stub_pair> stubs;
 	//named_range(): name(""), stubs(){}
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
-	named_range(datatype l_type, int l_line_number, 
+	void GenerateCode(ostringstream & quest_defns, ostringstream& program_code);
+	named_range(DataType l_type, int l_line_number, 
 		string l_name, vector <stub_pair>& l_stubs ):
-		stmt(l_type, l_line_number),
+		AbstractStatement(l_type, l_line_number),
 		name(l_name), stubs(l_stubs)
 	{
 		//cout << "named_range: constructor" << endl;

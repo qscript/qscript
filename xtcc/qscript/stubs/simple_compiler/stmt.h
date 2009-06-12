@@ -1,5 +1,5 @@
 /*
- *  xtcc/xtcc/qscript/stubs/simple_compiler/stmt.h
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/AbstractStatement.h
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
@@ -23,32 +23,36 @@
 using std::string;
 using std::ostringstream;
 
-//!stmt  Pure virtual base class - all statement classes inherit from this class except for class func_info
+//!AbstractStatement  Pure virtual base class - all statement classes inherit from this class except for class FunctionInformation
 /*!
-  All language statements classes are derived from the stmt class
-  the stmt class - contains members (stmt * prev, *next pointers to chain
-  to other statements. It also contains line and filename information 
+  All language statements classes are derived from the AbstractStatement class
+  the AbstractStatement class - contains members (
+  AbstractStatement * prev_, *next_ pointers to chain other statements). 
+  It also contains line and filename information 
   about the statement being parsed
 */
 
-struct stmt {
-	//! chainers to the previous and next statement
-	struct stmt * prev, *next;
+struct AbstractStatement 
+{
+	//! chainers to the previous and next_ statement
+	struct AbstractStatement * prev_, *next_;
 	//! statement type
-	datatype type;
-	int line_no;
+	DataType type_;
+	int lineNo_;
 	//! Constructor - statement type and line number of the statement in the source code
-	stmt(datatype l_type, int l_line_no): prev(0), next(0), type(l_type), line_no(l_line_no) 
+	AbstractStatement(DataType l_type, int l_line_no): 
+		prev_(0), next_(0), type_(l_type), lineNo_(l_line_no) 
 	{}
-	//! generate_code(): Pure virtual functions takes 2 streams as parameters.
+	//! GenerateCode(): Pure virtual functions takes 2 streams as parameters.
 	//! Compiler generated code is written to both the streams.
 	//! The code to the quest_defns stream appears before code written to  
 	//! the program_code stream in the generated compiled code
-	virtual void generate_code(ostringstream& quest_defns, ostringstream& program_code)=0;
-	virtual ~stmt();
+	virtual void GenerateCode(ostringstream& quest_defns
+			, ostringstream& program_code)=0;
+	virtual ~AbstractStatement();
 	private:
-		stmt& operator=(const stmt&);
-		stmt (const stmt&);
+		AbstractStatement& operator=(const AbstractStatement&);
+		AbstractStatement (const AbstractStatement&);
 };
 
 //#include "named_range.h"
@@ -57,103 +61,114 @@ struct named_range;
 #include "question.h"
 
 
-//!expr_stmt Parsed expressions statements become object instanstiations of this class
+//!ExpressionStatement Parsed expressions statements become object instanstiations of this class
 /*!
   an example of an expression statement is the assignment statement below: 
   	a=5*10;
-  This class contains and expr* pure virutal base class pointer as a member. 
-  The expr* expr generates its own
+  This class contains an AbstractExpression* pure virutal base class pointer as a member. 
+  The AbstractExpression* expr generates its own
   code through the print_expr(ostringstream& code_bef_expr, ostringstream& code_expr)
   pure virtual function - which is over-ridden in each of the expression classes
 */
-struct expr_stmt: public stmt{
-	struct expr* expr;
-	expr_stmt(datatype l_type, int l_line_number, struct expr* e): stmt(l_type, l_line_number), expr(e) {}
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
-	virtual ~expr_stmt();
+struct ExpressionStatement: public AbstractStatement
+{
+	struct AbstractExpression* expression_;
+	ExpressionStatement(DataType l_type, int l_line_number 
+			, struct AbstractExpression* e)
+		: AbstractStatement(l_type, l_line_number), expression_(e) 
+	{}
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code);
+	virtual ~ExpressionStatement();
 	private:
-	expr_stmt& operator=(const expr_stmt&);	
-	expr_stmt(const expr_stmt&);	
+	ExpressionStatement& operator=(const ExpressionStatement&);	
+	ExpressionStatement(const ExpressionStatement&);	
 };
 
 
-//!func_info : parsed function declarations and definitions become object instanstiations of this class
+//!FunctionInformation : parsed function declarations and definitions become object instanstiations of this class
 /*!
-  Important notes for the func_info class:
+  Important notes for the FunctionInformation class:
 
   <p>
   When a function declaration is parsed all the variables
-  which are function parameters become should available in the scope of this 
+  which are function parameters become should available in the Scope of this 
   function. 
 
   On the other hand the function body (which is a compound statement)
   will appear at a later stage, i.e. the declaration of the function. 
 
   The implementation of compound statements is that each compound statement contains
-  a scope variable of its own. Hence to bring the function parameter 
-  declarations into the scope of the compound statement the following is done:
+  a Scope variable of its own. Hence to bring the function parameter 
+  declarations into the Scope of the compound statement the following is done:
 
-  <p>1. func_info has a scope called func_scope - this scope is allocated 
+  <p>1. FunctionInformation has a Scope called functionScope_ - this Scope is allocated 
      at the time of declaration of the function. This declaration is then
      stored in the func_info_table vector array
   <p>2. The grammar has a inline rule when detecting a function
-  	definition - it sets the variable : flag_cmpd_stmt_is_a_for_body
+  	definition - it sets the variable : flagIsAForBody_
 	to the index of the function in the func_info_table vector array
 	or -1 on failure. This grammar rule can be seen 
-	by searching for the pattern ^func_info in the "type.y" grammar
+	by searching for the pattern ^FunctionInformation in the "type.y" grammar
 	file in the xtcc compiler sources. The simple compiler in qscript
 	does not use functions as yet
   <p>3. When a compound body is being parsed (the ^open_curly rule in
-  	type.y in the xtcc compiler - it checks if flag_cmpd_stmt_is_a_func_body
-	has been set and if so loads the scope from the function declaration
+  	type.y in the xtcc compiler - it checks if flagIsAFunctionBody_
+	has been set and if so loads the Scope from the function declaration
 	found in the  func_info_table array - by using the variable 
-	flag_cmpd_stmt_is_a_func_body - to index into the func_info_table
+	flagIsAFunctionBody_ - to index into the func_info_table
 
-	Note that flag_cmpd_stmt_is_a_func_body is initialized to -1 as the 1st function 
+	Note that flagIsAFunctionBody_ is initialized to -1 as the 1st function 
 	will be in index 0 of func_info_table vector.
 	Also lookup_func searches the func_info_table for the function name and returns -1 on failure
-	this is naturally compatible with the initial value of flag_cmpd_stmt_is_a_func_body
-	if the flag is not set -> we need to allocate a new scope - else we will crash
+	this is naturally compatible with the initial value of flagIsAFunctionBody_
+	if the flag is not set -> we need to allocate a new Scope - else we will crash
   
 */
 
-struct func_info{
-	string fname;
-	struct var_list * param_list;
-	datatype return_type;
-	struct stmt * func_body;
-	struct scope * func_scope;
-	func_info(string name, struct var_list* elist, datatype myreturn_type); 
+struct FunctionInformation
+{
+	string functionName_;
+	struct VariableList * parameterList_;
+	DataType returnType_;
+	struct AbstractStatement * functionBody_;
+	struct Scope * functionScope_;
+	FunctionInformation(string name, VariableList* elist
+			, DataType myreturn_type); 
 	void print(FILE * fptr);
-	~func_info();
+	~FunctionInformation();
 private:
-	func_info& operator=(const func_info&);
-	func_info(const func_info&);
+	FunctionInformation& operator=(const FunctionInformation&);
+	FunctionInformation(const FunctionInformation&);
 };
 
-//! decl_stmt  parsed variable declarations become object instanstiations of this class
-struct decl_stmt: public stmt{
-	struct symtab_ent* symp;
-	decl_stmt( datatype dtype, int lline_number):stmt(dtype, lline_number), symp(0) {}
-	~decl_stmt();
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+//! DeclarationStatement  parsed variable declarations become object instanstiations of this class
+struct DeclarationStatement: public AbstractStatement
+{
+	struct SymbolTableEntry* symbolTableEntry_;
+	DeclarationStatement( DataType dtype, int lline_number)
+		:AbstractStatement(dtype, lline_number), symbolTableEntry_(0) 
+	{}
+	~DeclarationStatement();
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code);
 	private:
-	decl_stmt& operator=(const decl_stmt&);	
-	decl_stmt(const decl_stmt&);	
+	DeclarationStatement& operator=(const DeclarationStatement&);	
+	DeclarationStatement(const DeclarationStatement&);	
 };
 
-//! cmpd_stmt parsed compound statements become object instanstiations of this class
+//! CompoundStatement parsed compound statements become object instanstiations of this class
 /*!
-  important notes for this class(cmpd_stmt):
+  important notes for this class(CompoundStatement):
   <p>1. function definitions have a compound statement as the body
-     of the class. The compound scope is not allocated in the 
-     constructor of the cmpd_stmt initialiser list because 
+     of the class. The compound Scope is not allocated in the 
+     constructor of the CompoundStatement initialiser list because 
      we need to determine if this statement is a part
      of a function definition or a normal compound statement.
-     If the cmpd_stmt is a part of a func_defn it will get its scope 
+     If the CompoundStatement is a part of a func_defn it will get its Scope 
      from the declaration of the function which is stored in the
      func_info_table vector array. Otherwise the constructor will
-     allocate a scope for the variable
+     allocate a Scope for the variable
   <p>2. The other case for a compound statement is when it is the body of 
      a for loop. There are certain restrictions on the language because
      the questionnaire is stored on disk. Consider the following .
@@ -183,9 +198,9 @@ struct decl_stmt: public stmt{
 
 	Hence the compound_stmt needs to determine if it contains questions
 	and if so set a flag. Then when parsing a for statement - and note that
-	a for statement has been forced by the grammar to have only a cmpd_stmt 
-	as the body - we check if the cmpd_stmt has questions and run additional
-	checks on the test index of the for loop to ensure it is an integral value
+	a for statement has been forced by the grammar to have only a CompoundStatement 
+	as the body - we check if the CompoundStatement has questions and run additional
+	checks on the testExpression_ index of the for loop to ensure it is an integral value
 	(i.e. countable and determinable)
 
 
@@ -193,8 +208,8 @@ struct decl_stmt: public stmt{
 	When parsing a compound statement the parser it will push the 
 	cmpd_stmt_ptr object onto the stack named stack_cmpd_stmt. This is 
 	done in the ^open_curly rule in q.y 
-	Everytime the parser encounters a question in the body of the cmpd_stmt
-	it will increment the counter "counter_contains_questions" cmpd_stmt
+	Everytime the parser encounters a question in the body of the CompoundStatement
+	it will increment the counter "counterContainsQuestions_" CompoundStatement
 	member variable by 1. You can see this happening in the ^question rule
 	in q.y 
 	This way we can determine if the compound body has a question. Once this has
@@ -203,114 +218,130 @@ struct decl_stmt: public stmt{
 
 */	
 
-struct cmpd_stmt: public stmt{
+struct CompoundStatement: public AbstractStatement
+{
 	//! pointer to the first chain of statements
-	//! in the cmpd_stmt 
-	struct stmt* cmpd_bdy;
-	//! The scope for the cmpd_stmt will contain all
+	//! in the CompoundStatement 
+	struct AbstractStatement* compoundBody_;
+	//! The Scope for the CompoundStatement will contain all
 	//! the variables declared in the body of the 
-	//! cmpd_stmt. This variable is set in 2 ways.
+	//! CompoundStatement. This variable is set in 2 ways.
 	//! 1. If it is the body of a func_defn then
-	//     it is assigned to the scope variable in the function
+	//     it is assigned to the Scope variable in the function
 	//     declaration
-	//  2. Otherwise a new scope object is allocated
-	struct scope * sc;
+	//  2. Otherwise a new Scope object is allocated
+	struct Scope * scope_;
 	//! this flag variable is set in the grammar type.y
 	//! in the xtcc compiler sources and not used in 
 	//! the qscript compiler as yet.
 	//! The rule used to set the variable is ^func_defn
 	//! The variable is used in the ^open_curly rule when deciding
-	//! if a scope is to be allocated or pulled from the function 
+	//! if a Scope is to be allocated or pulled from the function 
 	//! declaration
-	int flag_cmpd_stmt_is_a_func_body;
+	int flagIsAFunctionBody_;
 	//! this flag variable is set in the ^for_loop_stmt in 
 	//! q.y in an inline action in the grammar
-	int flag_cmpd_stmt_is_a_for_body;
+	int flagIsAForBody_;
 
 	//! this counter variable is set in the ^question rule in 
 	//! q.y in an inline action in the grammar
-	int counter_contains_questions;
+	int counterContainsQuestions_;
 	public:
-	cmpd_stmt(datatype dtype, int lline_number
-		, int l_flag_cmpd_stmt_is_a_func_body
-		, int l_flag_cmpd_stmt_is_a_for_body);
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
-	virtual ~cmpd_stmt();
+	CompoundStatement(DataType dtype, int lline_number
+			, int l_flag_cmpd_stmt_is_a_func_body 
+			, int l_flag_cmpd_stmt_is_a_for_body);
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code);
+	virtual ~CompoundStatement();
 	private:
-	cmpd_stmt& operator=(const cmpd_stmt&);	
-	cmpd_stmt(const cmpd_stmt&);	
+	CompoundStatement& operator=(const CompoundStatement&);	
+	CompoundStatement(const CompoundStatement&);	
 };
 
-//! for_stmt: A parsed for statement in the language becomes an object instanstiation of this class
-/*! Refer to point 2. in the documentation for cmpd_stmt about for loop index
+//! ForStatement: A parsed for statement in the language becomes an object instanstiation of this class
+/*! Refer to point 2. in the documentation for CompoundStatement about for loop index
     restrictions when you have a question statement in the body 
     of a for statement
  */
-struct for_stmt: public stmt{
-	struct expr * init, * test, *incr;
-	struct cmpd_stmt * for_body;
-	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, 
-			expr* l_incr, cmpd_stmt * lfor_body);
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
-	virtual ~for_stmt();
+struct ForStatement: public AbstractStatement
+{
+	AbstractExpression * initializationExpression_
+		, * testExpression_, *incrementExpression_;
+	CompoundStatement * forBody_;
+	ForStatement(DataType dtype, int lline_number 
+			, AbstractExpression* l_init
+			, AbstractExpression* l_test 
+			, AbstractExpression* l_incr
+			, CompoundStatement * lfor_body);
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code);
+	virtual ~ForStatement();
 	private:
-	for_stmt& operator=(const for_stmt&);	
-	for_stmt(const for_stmt&);	
+	ForStatement& operator=(const ForStatement&);	
+	ForStatement(const ForStatement&);	
 };
 
-//! if_stmt if statements in the language become object instantiations of this class
-struct if_stmt : public stmt{
+//! IfStatement if statements in the language become object instantiations of this class
+struct IfStatement : public AbstractStatement
+{
 	protected:
-	struct expr * condition;
-	struct stmt * if_body;
-	struct stmt * else_body;
+	struct AbstractExpression * ifCondition_;
+	struct AbstractStatement * ifBody_;
+	struct AbstractStatement * elseBody_;
 	public:
-	if_stmt( datatype dtype, int lline_number, 
-		struct  expr * lcondition, struct  stmt * lif_body, struct stmt * lelse_body=0);
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
-	virtual ~if_stmt();
+	IfStatement( DataType dtype, int lline_number
+			, AbstractExpression * lcondition
+			, AbstractStatement * lif_body
+			, AbstractStatement * lelse_body=0);
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code);
+	virtual ~IfStatement();
 	private:
-	if_stmt& operator=(const if_stmt&);	
-	if_stmt(const if_stmt&);	
+	IfStatement& operator=(const IfStatement&);	
+	IfStatement(const IfStatement&);	
 };
 
 using std::string;
-struct var_list {
-	datatype var_type;
-	string var_name;
-	int arr_len;
-	struct var_list * prev, *next;
-	var_list(datatype type, char * name);
-	var_list(datatype type, char * name, int len); 
+struct VariableList 
+{
+	DataType variableType_;
+	string variableName_;
+	int arrayLength_;
+	struct VariableList * prev_, *next_;
+	VariableList(DataType type, char * name);
+	VariableList(DataType type, char * name, int len); 
 	void print(FILE * edit_out);
-	~var_list();
+	~VariableList();
 	private:
-		var_list& operator=(const var_list&);
-		var_list(const var_list&);
+		VariableList& operator=(const VariableList&);
+		VariableList(const VariableList&);
 };
 
-struct param {
-	struct expr* e;
+struct Parameter 
+{
+	struct AbstractExpression* e;
 	char * text;
-	struct param * prev;
-	struct param * next;
+	struct Parameter * prev_;
+	struct Parameter * next_;
 };
 
 struct question;
 question* find_in_question_list(string name);
 
-struct stub_manip: public stmt {
-	string question_name;
-	string named_stub;
-	stub_manip( datatype dtype, int lline_number, 
-		string l_named_stub, string l_question_name);
-	stub_manip( datatype dtype, int lline_number, 
-		string l_named_stub);
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
-	virtual ~stub_manip();
+struct StubManipStatement: public AbstractStatement 
+{
+	string questionName_;
+	string namedStub_;
+	StubManipStatement( DataType dtype, int lline_number
+			, string l_named_stub, string l_question_name);
+	StubManipStatement( DataType dtype, int lline_number
+			, string l_named_stub);
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code);
+	virtual ~StubManipStatement();
 	private:
-		stub_manip& operator=(const stub_manip&);
-		stub_manip(const stub_manip&);
+		StubManipStatement& operator=(const StubManipStatement&);
+		StubManipStatement(const StubManipStatement&);
 };
 
 #endif /* stmt_h */

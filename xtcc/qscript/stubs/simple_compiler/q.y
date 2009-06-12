@@ -44,11 +44,11 @@
 	double dval;
 	char name[MY_STR_MAX];
 	char text_buf[MY_STR_MAX];
-	datatype dt;
-	struct stmt * stmt;
-	struct expr * expr;
+	DataType dt;
+	struct AbstractStatement * stmt;
+	struct AbstractExpression * expr;
 	//class question* ques;
-	struct cmpd_stmt * c_stmt;
+	struct CompoundStatement * c_stmt;
 
 }
 
@@ -123,9 +123,9 @@
 	//prog: stmt_list {
 prog: cmpd_stmt {
 	qscript_parser::tree_root=$1;
-		while(qscript_parser::tree_root->prev) {
+		while(qscript_parser::tree_root->prev_) {
 			cerr << "This should never appear: climbing up the tree" << endl;
-			qscript_parser::tree_root=qscript_parser::tree_root->prev;
+			qscript_parser::tree_root=qscript_parser::tree_root->prev_;
 		}
 	}
 	;
@@ -142,8 +142,8 @@ stmt_list: stmt {
 
 	}
 	| stmt_list stmt{
-		$1->next=$2;
-		$2->prev=$1;
+		$1->next_=$2;
+		$2->prev_=$1;
 		$$=$2;
 	}
 	;
@@ -176,7 +176,7 @@ decl_stmt: datatype NAME ';' {
 	}
 	| datatype NAME '[' expression ']' ';'{
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
-		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
+		DataType dt=DataType(INT8_ARR_TYPE+($1-INT8_TYPE));
 		$$ = qscript_parser::active_scope->insert($2, dt, $4/*, line_no*/);
 		free($2);
 	}
@@ -199,13 +199,13 @@ stmt:	question
 
 for_loop_stmt: 
 	FOR '(' expression ';' expression ';' expression ')' {
-		++qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		++qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.push_back($5);
 	} cmpd_stmt {
 		using qscript_parser::line_no;
-		$$ = new for_stmt(FOR_STMT, line_no, $3, $5, $7, $10);
+		$$ = new ForStatement(FOR_STMT, line_no, $3, $5, $7, $10);
 
-		--qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		--qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.pop_back();
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -231,34 +231,34 @@ cmpd_stmt: open_curly stmt_list '}' {
 			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
 				<< endl;
 			++no_errors;
-			$$=new struct cmpd_stmt(ERROR_TYPE, line_no, 0, 0);
+			$$=new struct CompoundStatement(ERROR_TYPE, line_no, 0, 0);
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else { 
 			active_scope = active_scope_list[tmp]; 
 		}
-		struct stmt* head_of_this_chain=blk_heads.back();
+		struct AbstractStatement* head_of_this_chain=blk_heads.back();
 		if(blk_start_flag.size() > 0){
 			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
 		}
 		if(  head_of_this_chain==0){
-			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
+			cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
 			++no_errors;
 		} else {
-			$1->cmpd_bdy = head_of_this_chain;
+			$1->compoundBody_ = head_of_this_chain;
 			blk_heads.pop_back();
 		}
 
-		//! update the counter of enlosing cmpd_stmt with 
-		//! the number of questions in this cmpd_stmt being popped of
+		//! update the counter of enlosing CompoundStatement with 
+		//! the number of questions in this CompoundStatement being popped of
 		//! right now
 		if(stack_cmpd_stmt.size()>1){
-			cmpd_stmt * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
+			CompoundStatement * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
 			stack_cmpd_stmt.pop_back();
-			cmpd_stmt * current  = stack_cmpd_stmt.back();
-			current->counter_contains_questions+= 
-				(popped_off_cmpd_stmt_ptr->counter_contains_questions);
+			CompoundStatement * current  = stack_cmpd_stmt.back();
+			current->counterContainsQuestions_+= 
+				(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
 		} 
 		$$=$1;
 	}
@@ -272,33 +272,33 @@ open_curly:	'{' {
 		using qscript_parser::blk_heads;
 		using qscript_parser::mem_addr;
 		using qscript_parser::flag_next_stmt_start_of_block;
-		using qscript_parser::flag_cmpd_stmt_is_a_func_body;
-		using qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		using qscript_parser::flagIsAFunctionBody_;
+		using qscript_parser::flagIsAForBody_;
 		using qscript_parser::func_info_table;
 		using qscript_parser::nest_lev;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 
 		++nest_lev;
-		cmpd_stmt * cmpd_stmt_ptr= new cmpd_stmt(CMPD_STMT, 
-				line_no, flag_cmpd_stmt_is_a_func_body,
-				flag_cmpd_stmt_is_a_for_body);
+		CompoundStatement * cmpd_stmt_ptr= new CompoundStatement(CMPD_STMT, 
+				line_no, flagIsAFunctionBody_,
+				flagIsAForBody_);
 		$$ = cmpd_stmt_ptr;
 		stack_cmpd_stmt.push_back(cmpd_stmt_ptr);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		if(flag_cmpd_stmt_is_a_func_body>=0){
-			$$->sc=func_info_table[qscript_parser::flag_cmpd_stmt_is_a_func_body]->func_scope;
+		if(flagIsAFunctionBody_>=0){
+			$$->scope_=func_info_table[qscript_parser::flagIsAFunctionBody_]->functionScope_;
 			// reset the flag
-			qscript_parser::flag_cmpd_stmt_is_a_func_body=-1;
+			qscript_parser::flagIsAFunctionBody_=-1;
 		} else {
-			$$->sc= new scope();
+			$$->scope_= new Scope();
 		}
 		qscript_parser::flag_next_stmt_start_of_block=true;
 		qscript_parser::blk_start_flag.push_back(flag_next_stmt_start_of_block);
-		qscript_parser::active_scope_list.push_back($$->sc);
-		qscript_parser::active_scope = $$->sc;
+		qscript_parser::active_scope_list.push_back($$->scope_);
+		qscript_parser::active_scope = $$->scope_;
 	}
 	;
 
@@ -309,7 +309,7 @@ if_stmt:  IF '(' expression ')' stmt {
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		using qscript_parser::XTCC_DEBUG_MEM_USAGE;
-		$$=new if_stmt(IFE_STMT,if_line_no,$3,$5,0);
+		$$=new IfStatement(IFE_STMT,if_line_no,$3,$5,0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -318,7 +318,7 @@ if_stmt:  IF '(' expression ')' stmt {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new if_stmt(IFE_STMT,qscript_parser::if_line_no,$3,$5,$7);
+		$$=new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,$5,$7);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, qscript_parser::line_no);
 		}
@@ -331,13 +331,13 @@ expr_stmt:	expression ';'
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		if($1->isvalid()){
-			$$ = new expr_stmt(TEXPR_STMT, line_no, $1);
+		if($1->IsValid()){
+			$$ = new ExpressionStatement(TEXPR_STMT, line_no, $1);
 			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 				mem_log($$, __LINE__, __FILE__, line_no);
 			}
 		} else {
-			$$ = new expr_stmt(ERROR_TYPE, line_no, $1);
+			$$ = new ExpressionStatement(ERROR_TYPE, line_no, $1);
 			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 				mem_log($$, __LINE__, __FILE__, line_no);
 			}
@@ -350,8 +350,8 @@ expr_stmt:	expression ';'
 		$$=$1;
 	}
 	| question_list question {
-		$1->next=$2;
-		$2->prev=$1;
+		$1->next_=$2;
+		$2->prev_=$1;
 		$$=$2;
 	}
 	;
@@ -373,14 +373,14 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 
 		string name($1);
 		string q_text($2);
-		datatype dt=$4;
+		DataType dt=$4;
 		// This is preparatory work
 		// for jumping between questions
 		// store
 		vector<string> active_push_vars;
 		vector<string> active_pop_vars;
 		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			scope* sc_ptr= active_scope_list[i];
+			Scope* sc_ptr= active_scope_list[i];
 			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
 		string q_push_name = name + "_push";
@@ -388,11 +388,11 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
 		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 		
-		expr * arr_sz=0;
+		AbstractExpression * arr_sz=0;
 		range_question * q=0;
-		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
-			cout << "flag_cmpd_stmt_is_a_for_body: " 
-				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
+		if(qscript_parser::flagIsAForBody_){
+			cout << "flagIsAForBody_: " 
+				<< qscript_parser::flagIsAForBody_ << endl;
 			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
 			q= new range_question(QUESTION_TYPE, line_no, 
 				name, q_text, q_type, no_mpn, dt, xs
@@ -412,15 +412,15 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 					line_no, __LINE__, __FILE__  );
 			exit(1);
 		}
-		cmpd_stmt * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counter_contains_questions);
+		CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+		++(cmpd_stmt_ptr->counterContainsQuestions_);
 		$$=q;
 		question_list.push_back(q);
 		xs.reset();
-		// questions always get pushed in scope level 0 as they
+		// questions always get pushed in Scope level 0 as they
 		// are global variables - no matter what the level of nesting
 		active_scope_list[0]->insert($1, QUESTION_TYPE);
-		// I need to modify the insert in scope to
+		// I need to modify the insert in Scope to
 		// take a 3rd parameter which is a question *
 		// and store that into the symbol table
 		// I should be able to retrieve that 
@@ -441,7 +441,7 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		using qscript_parser::no_errors;
 		string name=$1;
 		string q_txt=$2;
-		datatype dt=$4;
+		DataType dt=$4;
 		string attribute_list_name=$5;
 
 		// This is preparatory work
@@ -450,7 +450,7 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 		vector<string> active_push_vars;
 		vector<string> active_pop_vars;
 		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			scope* sc_ptr= active_scope_list[i];
+			Scope* sc_ptr= active_scope_list[i];
 			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
 		string q_push_name = name + "_push";
@@ -472,11 +472,11 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 				__LINE__, __FILE__);
 		}
 		
-		expr * arr_sz=0;
+		AbstractExpression * arr_sz=0;
 		named_stub_question* q=0;
-		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
-			cout << "flag_cmpd_stmt_is_a_for_body: " 
-				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
+		if(qscript_parser::flagIsAForBody_){
+			cout << "flagIsAForBody_: " 
+				<< qscript_parser::flagIsAForBody_ << endl;
 			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
 			q=new named_stub_question(QUESTION_TYPE, 
 				line_no, name, q_txt, 
@@ -500,8 +500,8 @@ question: NAME TEXT qtype datatype range_allowed_values ';' {
 					line_no, __LINE__, __FILE__  );
 			exit(1);
 		}
-		cmpd_stmt * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counter_contains_questions);
+		CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+		++(cmpd_stmt_ptr->counterContainsQuestions_);
 	}
 	;
 
@@ -511,7 +511,7 @@ expression: expression '+' expression {
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		using qscript_parser::mem_addr;
-		$$=new bin_expr($1, $3, oper_plus);
+		$$=new BinaryExpression($1, $3, oper_plus);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -520,7 +520,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_minus);
+		$$=new BinaryExpression($1, $3, oper_minus);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -529,7 +529,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_mult);
+		$$=new BinaryExpression($1, $3, oper_mult);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -538,7 +538,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_div);
+		$$=new BinaryExpression($1, $3, oper_div);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -547,7 +547,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_mod);
+		$$=new BinaryExpression($1, $3, oper_mod);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -556,7 +556,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$ = new un_expr($2, oper_umin);
+		$$ = new UnaryExpression($2, oper_umin);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -565,7 +565,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_lt);
+		$$=new BinaryExpression($1, $3, oper_lt);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -574,7 +574,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_gt);
+		$$=new BinaryExpression($1, $3, oper_gt);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -583,7 +583,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_le);
+		$$=new BinaryExpression($1, $3, oper_le);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -592,7 +592,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_ge);
+		$$=new BinaryExpression($1, $3, oper_ge);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -601,7 +601,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_iseq);
+		$$=new BinaryExpression($1, $3, oper_iseq);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -610,7 +610,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_isneq);
+		$$=new BinaryExpression($1, $3, oper_isneq);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -619,7 +619,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new bin_expr($1, $3, oper_or);
+		$$=new BinaryExpression($1, $3, oper_or);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -629,7 +629,7 @@ expression: expression '+' expression {
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		cout << "LOGAND expr: " << endl;
-		$$=new bin_expr($1, $3, oper_and);
+		$$=new BinaryExpression($1, $3, oper_and);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -639,7 +639,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$ = new bin_expr($1, $3, oper_assgn);
+		$$ = new BinaryExpression($1, $3, oper_assgn);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -648,7 +648,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$ = new un_expr($2, oper_not);
+		$$ = new UnaryExpression($2, oper_not);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -657,7 +657,7 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$ = new un2_expr($1);
+		$$ = new Unary2Expression($1);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -665,7 +665,7 @@ expression: expression '+' expression {
 	|	FNUMBER {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
-		$$ = new un2_expr($1);
+		$$ = new Unary2Expression($1);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -673,7 +673,7 @@ expression: expression '+' expression {
 	|	NAME	{
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
-		$$ = new un2_expr($1, oper_name );
+		$$ = new Unary2Expression($1, oper_name );
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -681,7 +681,7 @@ expression: expression '+' expression {
 	| 	NAME '[' expression ']' %prec FUNC_CALL {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
-		$$ = new un2_expr(oper_arrderef, /*nametype,  se,*/ $1,$3);
+		$$ = new Unary2Expression(oper_arrderef, /*nametype,  se,*/ $1,$3);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -690,7 +690,7 @@ expression: expression '+' expression {
 	| NAME '[' expression ',' expression ']'  %prec FUNC_CALL {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
-		$$ = new un2_expr(oper_blk_arr_assgn, $1,$3,$5);
+		$$ = new Unary2Expression(oper_blk_arr_assgn, $1,$3,$5);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -720,27 +720,27 @@ expression: expression '+' expression {
 			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
 			cerr << "function : " << search_for << " used without decl" << endl;
 			++ no_errors;
-			$$=new un2_expr(ERROR_TYPE);
+			$$=new Unary2Expression(ERROR_TYPE);
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
-			datatype my_type=func_info_table[index]->return_type;
-			expr* e_ptr=trav_chain($3);
-			var_list* fparam=func_info_table[index]->param_list;
+			DataType my_type=func_info_table[index]->returnType_;
+			AbstractExpression* e_ptr=trav_chain($3);
+			VariableList* fparam=func_info_table[index]->parameterList_;
 			bool match=false;
 			if(skip_type_check==false){
 				match=check_parameters(e_ptr, fparam);
 			}
 			if(match || skip_type_check){
-				//$$=new un2_expr(oper_func_call, my_type, $3, index, line_no);
-				//$$=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
-				$$=new un2_expr(oper_func_call, my_type, e_ptr, index);
+				//$$=new Unary2Expression(oper_func_call, my_type, $3, index, line_no);
+				//$$=new Unary2Expression(oper_func_call, my_type, e_ptr, index, line_no);
+				$$=new Unary2Expression(oper_func_call, my_type, e_ptr, index);
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			} else {
-				$$=new un2_expr(ERROR_TYPE);
+				$$=new Unary2Expression(ERROR_TYPE);
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
@@ -750,14 +750,14 @@ expression: expression '+' expression {
 	}
 	|	TEXT {
 		using qscript_parser::line_no;
-		$$ = new un2_expr(strdup($1), oper_text_expr);
+		$$ = new Unary2Expression(strdup($1), oper_text_expr);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
 		using qscript_parser::line_no;
-		$$ = new un_expr($2, oper_parexp );
+		$$ = new UnaryExpression($2, oper_parexp );
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -765,13 +765,13 @@ expression: expression '+' expression {
 	| expression IN range_allowed_values {
 		using qscript_parser::xs;
 		using qscript_parser::line_no;
-		$$ = new bin2_expr($1, xs, oper_in);
+		$$ = new Binary2Expression($1, xs, oper_in);
 		xs.reset();
 	}
 
 	/*
 	| NAME IN NAME {
-		$$ = new bin2_expr($1, $3, oper_in);
+		$$ = new Binary2Expression($1, $3, oper_in);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -877,8 +877,8 @@ namespace qscript_parser {
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
 	if(elem1 && elem2){
-		elem2->prev=elem1;
-		elem1->next=elem2;
+		elem2->prev_=elem1;
+		elem1->next_=elem2;
 		return elem2;
 	}
 	else if(elem1){
@@ -891,7 +891,7 @@ template<class T> T* link_chain(T* &elem1, T* &elem2){
 
 template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
-		while (elem1->prev) elem1=elem1->prev;
+		while (elem1->prev_) elem1=elem1->prev_;
 		return elem1;
 	} else return 0;
 }
@@ -900,40 +900,40 @@ template<class T> T* trav_chain(T* & elem1){
 //! is determined by the nesting level of the question inside the
 //! for loop and the maximum bound of the loop index - it is a multiplication
 //! of all the maximum counters in the enclosing for loops
-expr * recurse_for_index(int stack_index){
+AbstractExpression * recurse_for_index(int stack_index){
 	//cerr << "entered: recurse_for_index: stack_index: " << stack_index << endl;
 	if(stack_index==0){
-		bin_expr * test_expr = dynamic_cast<bin_expr*>(for_loop_max_counter_stack[0]);
+		BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[0]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return 0;
-		} else if(test_expr->r_op->is_integral_expr() 
-				&& test_expr->r_op->is_const()) {
-			return test_expr->r_op;
+		} else if(test_expr->rightOperand_->IsIntegralExpression() 
+				&& test_expr->rightOperand_->IsConst()) {
+			return test_expr->rightOperand_;
 		} else {
 			print_err(compiler_sem_err, 
 				" test expr not integer and const",
 				qscript_parser::line_no, __LINE__, __FILE__);
-			return test_expr->r_op;
+			return test_expr->rightOperand_;
 		}
 	} else {
-		bin_expr * test_expr = dynamic_cast<bin_expr*>(for_loop_max_counter_stack[stack_index]);
+		BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[stack_index]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return 0;
-		} else if(test_expr->r_op->is_integral_expr() 
-				&& test_expr->r_op->is_const()) {
-			return new bin_expr(test_expr->r_op,
+		} else if(test_expr->rightOperand_->IsIntegralExpression() 
+				&& test_expr->rightOperand_->IsConst()) {
+			return new BinaryExpression(test_expr->rightOperand_,
 				recurse_for_index(stack_index-1), oper_mult);
 		} else {
 			print_err(compiler_sem_err, 
 				" test expr not integer and const",
 				qscript_parser::line_no, __LINE__, __FILE__);
-			return test_expr->r_op;
+			return test_expr->rightOperand_;
 		}
 	}
 }

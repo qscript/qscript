@@ -121,11 +121,11 @@ typedef union YYSTYPE
 	double dval;
 	char name[MY_STR_MAX];
 	char text_buf[MY_STR_MAX];
-	datatype dt;
-	struct stmt * stmt;
-	struct expr * expr;
+	DataType dt;
+	struct AbstractStatement * stmt;
+	struct AbstractExpression * expr;
 	//class question* ques;
-	struct cmpd_stmt * c_stmt;
+	struct CompoundStatement * c_stmt;
 
 }
 /* Line 1489 of yacc.c.  */

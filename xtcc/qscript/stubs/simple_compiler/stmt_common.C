@@ -23,10 +23,10 @@ extern int if_line_no;
 using std::cout;
 using std::endl;
 void read_data(const char * prompt);
-stmt::~stmt(){ 
+AbstractStatement::~AbstractStatement(){ 
 using qscript_parser::debug_log_file;
-	if (next  ) {
-		delete next; next=0;
+	if (next_  ) {
+		delete next_; next_=0;
 	} 
-	debug_log_file << "stmt::~stmt() base destructor" << endl;
+	debug_log_file << "AbstractStatement::~AbstractStatement() base destructor" << endl;
 }

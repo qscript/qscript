@@ -16,19 +16,19 @@ using std::vector;
 using std::pair;
 using std::set;
 
-//! xtcc_set is the implementation of sets customised for the qscript and xtcc compilers
+//! XtccSet is the implementation of sets customised for the qscript and xtcc compilers
 /*!
    The set can consist of individual elements or ranges of 
    elements as demonstrated below
 	{ 1, 2-5, 10, 21-40} 
 */
-struct xtcc_set {
+struct XtccSet {
 	vector < pair<int,int> > range;
 	set<int> indiv;
-	xtcc_set(datatype dt, string name, xtcc_set& xs1);
-	xtcc_set(xtcc_set& xs1);
-	xtcc_set& operator=(const xtcc_set& xs1);
-	xtcc_set();
+	XtccSet(DataType dt, string name, XtccSet& xs1);
+	XtccSet(XtccSet& xs1);
+	XtccSet& operator=(const XtccSet& xs1);
+	XtccSet();
 	void reset();
 	void add_range(int n1, int n2);
 	void add_indiv(int n1);

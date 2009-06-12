@@ -18,31 +18,31 @@
 using std::ostringstream;
 using std::ofstream;
 struct named_range;
-//! The question pure virtual base class - inherits from stmt
-struct question: public stmt {
-	string name;
+//! The question pure virtual base class - inherits from AbstractStatement
+struct question: public AbstractStatement {
+	string name_;
 	string text;
-	question_type q_type;
+	QuestionType q_type;
 	int no_mpn;
-	datatype dt;
+	DataType dt;
 	set<int> input_data;
-	//expr * arr_sz;
-	vector<expr*> for_bounds_stack;
+	//AbstractExpression * arr_sz;
+	vector<AbstractExpression*> for_bounds_stack;
 	vector<int> loop_index_values;
-	question(datatype l_type,int l_no, string l_name, string l_text
-		, question_type l_q_type, int l_no_mpn, datatype l_dt
-		, vector<expr*>& l_for_bounds_stack
+	question(DataType l_type,int l_no, string l_name, string l_text
+		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+		, vector<AbstractExpression*>& l_for_bounds_stack
 		);
 
-	question(datatype l_type,int l_no, string l_name, string l_text
-		, question_type l_q_type, int l_no_mpn, datatype l_dt 
+	question(DataType l_type,int l_no, string l_name, string l_text
+		, QuestionType l_q_type, int l_no_mpn, DataType l_dt 
 		);
 
-	question(datatype l_type,int l_no, string l_name, string l_text
-		, question_type l_q_type, int l_no_mpn , datatype l_dt
+	question(DataType l_type,int l_no, string l_name, string l_text
+		, QuestionType l_q_type, int l_no_mpn , DataType l_dt
 		, const vector<int>& l_loop_index_values
 		);
-	virtual void generate_code(ostringstream & quest_defns, ostringstream& program_code)=0;
+	virtual void GenerateCode(ostringstream & quest_defns, ostringstream& program_code)=0;
 	virtual void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code)=0;
 	virtual void eval()=0;
 	virtual bool is_valid(int value)=0;
@@ -64,26 +64,26 @@ struct question: public stmt {
 		q2 "Q2. This is question 2" mp (5) int32_t (1,2,5-8);
 */
 struct range_question: public question {
-	xtcc_set * r_data;
+	XtccSet * r_data;
 	vector <int> stack_loop_index_values;
-	range_question(datatype this_stmt_type, int line_number,
+	range_question(DataType this_stmt_type, int line_number,
 		string l_name, string l_q_text,
-		question_type l_q_type, int l_no_mpn, datatype l_dt,
-		xtcc_set& l_r_data
-		, vector<expr*>& l_for_bounds_stack
+		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
+		XtccSet& l_r_data
+		, vector<AbstractExpression*>& l_for_bounds_stack
 		);
-	range_question(datatype this_stmt_type, int line_number,
+	range_question(DataType this_stmt_type, int line_number,
 		string l_name, string l_q_text,
-		question_type l_q_type, int l_no_mpn, datatype l_dt,
-		xtcc_set& l_r_data
+		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
+		XtccSet& l_r_data
 		);
-	range_question(datatype this_stmt_type, int line_number,
+	range_question(DataType this_stmt_type, int line_number,
 		string l_name, string l_q_text,
-		question_type l_q_type, int l_no_mpn, datatype l_dt,
-		xtcc_set& l_r_data, const vector<int> & l_loop_index_values
+		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
+		XtccSet& l_r_data, const vector<int> & l_loop_index_values
 		);
 
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	void GenerateCode(ostringstream & quest_defns, ostringstream& program_code);
 	void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code);
 	virtual bool is_valid(int value);
 	void eval();
@@ -106,37 +106,37 @@ class named_stub_question: public question {
 	string named_list;
 	named_range * nr_ptr;
 	vector<stub_pair> * stub_ptr;
-	named_stub_question(datatype this_stmt_type, int line_number, 
+	named_stub_question(DataType this_stmt_type, int line_number, 
 		string l_name, string l_q_text,
-		question_type l_q_type, int l_no_mpn, datatype l_dt,
+		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		named_range * l_nr_ptr 
-		, vector<expr*>& l_for_bounds_stack
+		, vector<AbstractExpression*>& l_for_bounds_stack
 		);
-	named_stub_question(datatype this_stmt_type, int line_number, 
+	named_stub_question(DataType this_stmt_type, int line_number, 
 		string l_name, string l_q_text,
-		question_type l_q_type, int l_no_mpn, datatype l_dt,
+		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		named_range * l_nr_ptr 
 		);
 
-	named_stub_question(datatype this_stmt_type, int line_number, 
+	named_stub_question(DataType this_stmt_type, int line_number, 
 		string l_name, string l_q_text,
-		question_type l_q_type, int l_no_mpn, datatype l_dt,
+		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		vector<stub_pair> * l_stub_ptr
-		, vector<expr*>& l_for_bounds_stack
+		, vector<AbstractExpression*>& l_for_bounds_stack
 		);
-	named_stub_question(datatype this_stmt_type, int line_number, 
+	named_stub_question(DataType this_stmt_type, int line_number, 
 		string l_name, string l_q_text,
-		question_type l_q_type, int l_no_mpn, datatype l_dt,
+		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		vector<stub_pair> * l_stub_ptr
 		);
-	named_stub_question(datatype this_stmt_type, int line_number
+	named_stub_question(DataType this_stmt_type, int line_number
 		, string l_name, string l_q_text
-		, question_type l_q_type, int l_no_mpn, datatype l_dt
+		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, vector<stub_pair> * l_stub_ptr 
 		, const vector<int> & l_loop_index_values
 		);
 
-	void generate_code(ostringstream & quest_defns, ostringstream& program_code);
+	void GenerateCode(ostringstream & quest_defns, ostringstream& program_code);
 	void generate_code_single_question(ostringstream & quest_defns, ostringstream& program_code);
 	virtual bool is_valid(int value);
 	void eval();

@@ -15,12 +15,12 @@
 
 using std::string;
 using std::vector;
-struct named_attribute_list: public stmt{
+struct named_attribute_list: public AbstractStatement {
 	string name;
 	vector<string> attribute;
 	struct symtab_ent* symp;
 
-	named_attribute_list(datatype dt, int lline_no,  string l_name, vector<string> l_attr);
+	named_attribute_list(DataType dt, int lline_no,  string l_name, vector<string> l_attr);
 	void print_stmt_lst(FILE * & fptr);
 	private:
 		named_attribute_list& operator=(const named_attribute_list&);

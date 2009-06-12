@@ -201,11 +201,11 @@ typedef union YYSTYPE
 	double dval;
 	char name[MY_STR_MAX];
 	char text_buf[MY_STR_MAX];
-	datatype dt;
-	struct stmt * stmt;
-	struct expr * expr;
+	DataType dt;
+	struct AbstractStatement * stmt;
+	struct AbstractExpression * expr;
 	//class question* ques;
-	struct cmpd_stmt * c_stmt;
+	struct CompoundStatement * c_stmt;
 
 }
 /* Line 187 of yacc.c.  */
@@ -1629,9 +1629,9 @@ yyreduce:
 #line 124 "q.y"
     {
 	qscript_parser::tree_root=(yyvsp[(1) - (1)].c_stmt);
-		while(qscript_parser::tree_root->prev) {
+		while(qscript_parser::tree_root->prev_) {
 			cerr << "This should never appear: climbing up the tree" << endl;
-			qscript_parser::tree_root=qscript_parser::tree_root->prev;
+			qscript_parser::tree_root=qscript_parser::tree_root->prev_;
 		}
 	}
     break;
@@ -1654,8 +1654,8 @@ yyreduce:
   case 4:
 #line 144 "q.y"
     {
-		(yyvsp[(1) - (2)].stmt)->next=(yyvsp[(2) - (2)].stmt);
-		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
+		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
+		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
 		(yyval.stmt)=(yyvsp[(2) - (2)].stmt);
 	}
     break;
@@ -1694,7 +1694,7 @@ yyreduce:
 #line 177 "q.y"
     {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
-		datatype dt=datatype(INT8_ARR_TYPE+((yyvsp[(1) - (6)].dt)-INT8_TYPE));
+		DataType dt=DataType(INT8_ARR_TYPE+((yyvsp[(1) - (6)].dt)-INT8_TYPE));
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (6)].name), dt, (yyvsp[(4) - (6)].expr)/*, line_no*/);
 		free((yyvsp[(2) - (6)].name));
 	}
@@ -1710,7 +1710,7 @@ yyreduce:
   case 25:
 #line 201 "q.y"
     {
-		++qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		++qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.push_back((yyvsp[(5) - (8)].expr));
 	}
     break;
@@ -1719,9 +1719,9 @@ yyreduce:
 #line 204 "q.y"
     {
 		using qscript_parser::line_no;
-		(yyval.stmt) = new for_stmt(FOR_STMT, line_no, (yyvsp[(3) - (10)].expr), (yyvsp[(5) - (10)].expr), (yyvsp[(7) - (10)].expr), (yyvsp[(10) - (10)].c_stmt));
+		(yyval.stmt) = new ForStatement(FOR_STMT, line_no, (yyvsp[(3) - (10)].expr), (yyvsp[(5) - (10)].expr), (yyvsp[(7) - (10)].expr), (yyvsp[(10) - (10)].c_stmt));
 
-		--qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		--qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.pop_back();
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
@@ -1749,34 +1749,34 @@ yyreduce:
 			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
 				<< endl;
 			++no_errors;
-			(yyval.c_stmt)=new struct cmpd_stmt(ERROR_TYPE, line_no, 0, 0);
+			(yyval.c_stmt)=new struct CompoundStatement(ERROR_TYPE, line_no, 0, 0);
 			void *ptr=(yyval.c_stmt);
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else { 
 			active_scope = active_scope_list[tmp]; 
 		}
-		struct stmt* head_of_this_chain=blk_heads.back();
+		struct AbstractStatement* head_of_this_chain=blk_heads.back();
 		if(blk_start_flag.size() > 0){
 			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
 		}
 		if(  head_of_this_chain==0){
-			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
+			cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
 			++no_errors;
 		} else {
-			(yyvsp[(1) - (3)].c_stmt)->cmpd_bdy = head_of_this_chain;
+			(yyvsp[(1) - (3)].c_stmt)->compoundBody_ = head_of_this_chain;
 			blk_heads.pop_back();
 		}
 
-		//! update the counter of enlosing cmpd_stmt with 
-		//! the number of questions in this cmpd_stmt being popped of
+		//! update the counter of enlosing CompoundStatement with 
+		//! the number of questions in this CompoundStatement being popped of
 		//! right now
 		if(stack_cmpd_stmt.size()>1){
-			cmpd_stmt * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
+			CompoundStatement * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
 			stack_cmpd_stmt.pop_back();
-			cmpd_stmt * current  = stack_cmpd_stmt.back();
-			current->counter_contains_questions+= 
-				(popped_off_cmpd_stmt_ptr->counter_contains_questions);
+			CompoundStatement * current  = stack_cmpd_stmt.back();
+			current->counterContainsQuestions_+= 
+				(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
 		} 
 		(yyval.c_stmt)=(yyvsp[(1) - (3)].c_stmt);
 	}
@@ -1792,33 +1792,33 @@ yyreduce:
 		using qscript_parser::blk_heads;
 		using qscript_parser::mem_addr;
 		using qscript_parser::flag_next_stmt_start_of_block;
-		using qscript_parser::flag_cmpd_stmt_is_a_func_body;
-		using qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		using qscript_parser::flagIsAFunctionBody_;
+		using qscript_parser::flagIsAForBody_;
 		using qscript_parser::func_info_table;
 		using qscript_parser::nest_lev;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 
 		++nest_lev;
-		cmpd_stmt * cmpd_stmt_ptr= new cmpd_stmt(CMPD_STMT, 
-				line_no, flag_cmpd_stmt_is_a_func_body,
-				flag_cmpd_stmt_is_a_for_body);
+		CompoundStatement * cmpd_stmt_ptr= new CompoundStatement(CMPD_STMT, 
+				line_no, flagIsAFunctionBody_,
+				flagIsAForBody_);
 		(yyval.c_stmt) = cmpd_stmt_ptr;
 		stack_cmpd_stmt.push_back(cmpd_stmt_ptr);
 		void *ptr=(yyval.c_stmt);
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
-		if(flag_cmpd_stmt_is_a_func_body>=0){
-			(yyval.c_stmt)->sc=func_info_table[qscript_parser::flag_cmpd_stmt_is_a_func_body]->func_scope;
+		if(flagIsAFunctionBody_>=0){
+			(yyval.c_stmt)->scope_=func_info_table[qscript_parser::flagIsAFunctionBody_]->functionScope_;
 			// reset the flag
-			qscript_parser::flag_cmpd_stmt_is_a_func_body=-1;
+			qscript_parser::flagIsAFunctionBody_=-1;
 		} else {
-			(yyval.c_stmt)->sc= new scope();
+			(yyval.c_stmt)->scope_= new Scope();
 		}
 		qscript_parser::flag_next_stmt_start_of_block=true;
 		qscript_parser::blk_start_flag.push_back(flag_next_stmt_start_of_block);
-		qscript_parser::active_scope_list.push_back((yyval.c_stmt)->sc);
-		qscript_parser::active_scope = (yyval.c_stmt)->sc;
+		qscript_parser::active_scope_list.push_back((yyval.c_stmt)->scope_);
+		qscript_parser::active_scope = (yyval.c_stmt)->scope_;
 	}
     break;
 
@@ -1829,7 +1829,7 @@ yyreduce:
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		using qscript_parser::XTCC_DEBUG_MEM_USAGE;
-		(yyval.stmt)=new if_stmt(IFE_STMT,if_line_no,(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].stmt),0);
+		(yyval.stmt)=new IfStatement(IFE_STMT,if_line_no,(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].stmt),0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 		}
@@ -1842,7 +1842,7 @@ yyreduce:
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.stmt)=new if_stmt(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
+		(yyval.stmt)=new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, qscript_parser::line_no);
 		}
@@ -1855,13 +1855,13 @@ yyreduce:
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		if((yyvsp[(1) - (2)].expr)->isvalid()){
-			(yyval.stmt) = new expr_stmt(TEXPR_STMT, line_no, (yyvsp[(1) - (2)].expr));
+		if((yyvsp[(1) - (2)].expr)->IsValid()){
+			(yyval.stmt) = new ExpressionStatement(TEXPR_STMT, line_no, (yyvsp[(1) - (2)].expr));
 			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 			}
 		} else {
-			(yyval.stmt) = new expr_stmt(ERROR_TYPE, line_no, (yyvsp[(1) - (2)].expr));
+			(yyval.stmt) = new ExpressionStatement(ERROR_TYPE, line_no, (yyvsp[(1) - (2)].expr));
 			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 			}
@@ -1887,14 +1887,14 @@ yyreduce:
 
 		string name((yyvsp[(1) - (6)].name));
 		string q_text((yyvsp[(2) - (6)].text_buf));
-		datatype dt=(yyvsp[(4) - (6)].dt);
+		DataType dt=(yyvsp[(4) - (6)].dt);
 		// This is preparatory work
 		// for jumping between questions
 		// store
 		vector<string> active_push_vars;
 		vector<string> active_pop_vars;
 		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			scope* sc_ptr= active_scope_list[i];
+			Scope* sc_ptr= active_scope_list[i];
 			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
 		string q_push_name = name + "_push";
@@ -1902,11 +1902,11 @@ yyreduce:
 		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
 		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 		
-		expr * arr_sz=0;
+		AbstractExpression * arr_sz=0;
 		range_question * q=0;
-		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
-			cout << "flag_cmpd_stmt_is_a_for_body: " 
-				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
+		if(qscript_parser::flagIsAForBody_){
+			cout << "flagIsAForBody_: " 
+				<< qscript_parser::flagIsAForBody_ << endl;
 			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
 			q= new range_question(QUESTION_TYPE, line_no, 
 				name, q_text, q_type, no_mpn, dt, xs
@@ -1926,15 +1926,15 @@ yyreduce:
 					line_no, __LINE__, __FILE__  );
 			exit(1);
 		}
-		cmpd_stmt * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counter_contains_questions);
+		CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+		++(cmpd_stmt_ptr->counterContainsQuestions_);
 		(yyval.stmt)=q;
 		question_list.push_back(q);
 		xs.reset();
-		// questions always get pushed in scope level 0 as they
+		// questions always get pushed in Scope level 0 as they
 		// are global variables - no matter what the level of nesting
 		active_scope_list[0]->insert((yyvsp[(1) - (6)].name), QUESTION_TYPE);
-		// I need to modify the insert in scope to
+		// I need to modify the insert in Scope to
 		// take a 3rd parameter which is a question *
 		// and store that into the symbol table
 		// I should be able to retrieve that 
@@ -1959,7 +1959,7 @@ yyreduce:
 		using qscript_parser::no_errors;
 		string name=(yyvsp[(1) - (6)].name);
 		string q_txt=(yyvsp[(2) - (6)].text_buf);
-		datatype dt=(yyvsp[(4) - (6)].dt);
+		DataType dt=(yyvsp[(4) - (6)].dt);
 		string attribute_list_name=(yyvsp[(5) - (6)].name);
 
 		// This is preparatory work
@@ -1968,7 +1968,7 @@ yyreduce:
 		vector<string> active_push_vars;
 		vector<string> active_pop_vars;
 		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			scope* sc_ptr= active_scope_list[i];
+			Scope* sc_ptr= active_scope_list[i];
 			sc_ptr->print_scope(active_push_vars, active_pop_vars);
 		}
 		string q_push_name = name + "_push";
@@ -1990,11 +1990,11 @@ yyreduce:
 				__LINE__, __FILE__);
 		}
 		
-		expr * arr_sz=0;
+		AbstractExpression * arr_sz=0;
 		named_stub_question* q=0;
-		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
-			cout << "flag_cmpd_stmt_is_a_for_body: " 
-				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
+		if(qscript_parser::flagIsAForBody_){
+			cout << "flagIsAForBody_: " 
+				<< qscript_parser::flagIsAForBody_ << endl;
 			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
 			q=new named_stub_question(QUESTION_TYPE, 
 				line_no, name, q_txt, 
@@ -2018,8 +2018,8 @@ yyreduce:
 					line_no, __LINE__, __FILE__  );
 			exit(1);
 		}
-		cmpd_stmt * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counter_contains_questions);
+		CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+		++(cmpd_stmt_ptr->counterContainsQuestions_);
 	}
     break;
 
@@ -2029,7 +2029,7 @@ yyreduce:
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		using qscript_parser::mem_addr;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2042,7 +2042,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2055,7 +2055,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2068,7 +2068,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2081,7 +2081,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2094,7 +2094,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_umin);
+		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (2)].expr), oper_umin);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2107,7 +2107,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2120,7 +2120,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2133,7 +2133,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2146,7 +2146,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2159,7 +2159,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2172,7 +2172,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2185,7 +2185,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2199,7 +2199,7 @@ yyreduce:
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		cout << "LOGAND expr: " << endl;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2213,7 +2213,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr) = new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
+		(yyval.expr) = new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2226,7 +2226,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_not);
+		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (2)].expr), oper_not);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2239,7 +2239,7 @@ yyreduce:
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].ival));
+		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].ival));
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2251,7 +2251,7 @@ yyreduce:
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
-		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].dval));
+		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].dval));
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2263,7 +2263,7 @@ yyreduce:
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
-		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].name), oper_name );
+		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].name), oper_name );
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2275,7 +2275,7 @@ yyreduce:
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
-		(yyval.expr) = new un2_expr(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
+		(yyval.expr) = new Unary2Expression(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2288,7 +2288,7 @@ yyreduce:
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
-		(yyval.expr) = new un2_expr(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
+		(yyval.expr) = new Unary2Expression(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2322,27 +2322,27 @@ yyreduce:
 			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
 			cerr << "function : " << search_for << " used without decl" << endl;
 			++ no_errors;
-			(yyval.expr)=new un2_expr(ERROR_TYPE);
+			(yyval.expr)=new Unary2Expression(ERROR_TYPE);
 			void *ptr=(yyval.expr);
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
-			datatype my_type=func_info_table[index]->return_type;
-			expr* e_ptr=trav_chain((yyvsp[(3) - (4)].expr));
-			var_list* fparam=func_info_table[index]->param_list;
+			DataType my_type=func_info_table[index]->returnType_;
+			AbstractExpression* e_ptr=trav_chain((yyvsp[(3) - (4)].expr));
+			VariableList* fparam=func_info_table[index]->parameterList_;
 			bool match=false;
 			if(skip_type_check==false){
 				match=check_parameters(e_ptr, fparam);
 			}
 			if(match || skip_type_check){
-				//$$=new un2_expr(oper_func_call, my_type, $3, index, line_no);
-				//$$=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
-				(yyval.expr)=new un2_expr(oper_func_call, my_type, e_ptr, index);
+				//$$=new Unary2Expression(oper_func_call, my_type, $3, index, line_no);
+				//$$=new Unary2Expression(oper_func_call, my_type, e_ptr, index, line_no);
+				(yyval.expr)=new Unary2Expression(oper_func_call, my_type, e_ptr, index);
 				void *ptr=(yyval.expr);
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			} else {
-				(yyval.expr)=new un2_expr(ERROR_TYPE);
+				(yyval.expr)=new Unary2Expression(ERROR_TYPE);
 				void *ptr=(yyval.expr);
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
@@ -2356,7 +2356,7 @@ yyreduce:
 #line 751 "q.y"
     {
 		using qscript_parser::line_no;
-		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
+		(yyval.expr) = new Unary2Expression(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2367,7 +2367,7 @@ yyreduce:
 #line 758 "q.y"
     { 
 		using qscript_parser::line_no;
-		(yyval.expr) = new un_expr((yyvsp[(2) - (3)].expr), oper_parexp );
+		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (3)].expr), oper_parexp );
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2379,7 +2379,7 @@ yyreduce:
     {
 		using qscript_parser::xs;
 		using qscript_parser::line_no;
-		(yyval.expr) = new bin2_expr((yyvsp[(1) - (3)].expr), xs, oper_in);
+		(yyval.expr) = new Binary2Expression((yyvsp[(1) - (3)].expr), xs, oper_in);
 		xs.reset();
 	}
     break;
@@ -2735,8 +2735,8 @@ namespace qscript_parser {
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
 	if(elem1 && elem2){
-		elem2->prev=elem1;
-		elem1->next=elem2;
+		elem2->prev_=elem1;
+		elem1->next_=elem2;
 		return elem2;
 	}
 	else if(elem1){
@@ -2749,7 +2749,7 @@ template<class T> T* link_chain(T* &elem1, T* &elem2){
 
 template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
-		while (elem1->prev) elem1=elem1->prev;
+		while (elem1->prev_) elem1=elem1->prev_;
 		return elem1;
 	} else return 0;
 }
@@ -2758,40 +2758,40 @@ template<class T> T* trav_chain(T* & elem1){
 //! is determined by the nesting level of the question inside the
 //! for loop and the maximum bound of the loop index - it is a multiplication
 //! of all the maximum counters in the enclosing for loops
-expr * recurse_for_index(int stack_index){
+AbstractExpression * recurse_for_index(int stack_index){
 	//cerr << "entered: recurse_for_index: stack_index: " << stack_index << endl;
 	if(stack_index==0){
-		bin_expr * test_expr = dynamic_cast<bin_expr*>(for_loop_max_counter_stack[0]);
+		BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[0]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return 0;
-		} else if(test_expr->r_op->is_integral_expr() 
-				&& test_expr->r_op->is_const()) {
-			return test_expr->r_op;
+		} else if(test_expr->rightOperand_->IsIntegralExpression() 
+				&& test_expr->rightOperand_->IsConst()) {
+			return test_expr->rightOperand_;
 		} else {
 			print_err(compiler_sem_err, 
 				" test expr not integer and const",
 				qscript_parser::line_no, __LINE__, __FILE__);
-			return test_expr->r_op;
+			return test_expr->rightOperand_;
 		}
 	} else {
-		bin_expr * test_expr = dynamic_cast<bin_expr*>(for_loop_max_counter_stack[stack_index]);
+		BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[stack_index]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return 0;
-		} else if(test_expr->r_op->is_integral_expr() 
-				&& test_expr->r_op->is_const()) {
-			return new bin_expr(test_expr->r_op,
+		} else if(test_expr->rightOperand_->IsIntegralExpression() 
+				&& test_expr->rightOperand_->IsConst()) {
+			return new BinaryExpression(test_expr->rightOperand_,
 				recurse_for_index(stack_index-1), oper_mult);
 		} else {
 			print_err(compiler_sem_err, 
 				" test expr not integer and const",
 				qscript_parser::line_no, __LINE__, __FILE__);
-			return test_expr->r_op;
+			return test_expr->rightOperand_;
 		}
 	}
 }

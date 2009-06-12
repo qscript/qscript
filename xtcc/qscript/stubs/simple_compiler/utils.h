@@ -18,13 +18,13 @@ void print_err(compiler_err_category cmp_err,
 		int line_no, 
 		int compiler_line_no, 
 		string compiler_file_name);
-map<string, symtab_ent*>::iterator find_in_symtab(string id);
+map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
 int search_for_func(string& search_for);
-bool is_of_int_type(datatype dt);
+bool is_of_int_type(DataType dt);
 
 extern noun_list_type noun_list[];
-datatype lcm_type(datatype d1, datatype d2);
-datatype arr_deref_type(datatype d1);
+DataType lcm_type(DataType d1, DataType d2);
+DataType arr_deref_type(DataType d1);
 
 
 #endif // xtcc_utils_h
