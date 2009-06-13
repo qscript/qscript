@@ -84,6 +84,8 @@ void print_xtcc_file_format()
 		*c_ptr++='C'; 
 		*c_ptr++='D'; 
 		*/
+
+
 		c_ptr=static_cast<char*> (ptr);
 		*curr_pos++=*c_ptr++; // 1st byte of double
 		*curr_pos++=*c_ptr++; // 2nd byte of double
@@ -99,15 +101,45 @@ void print_xtcc_file_format()
 		cout.precision(60);
 		cout << "d64: " << d64 << endl;
 
+		count = sprintf(curr_pos, "%s\n", "STUBINFORMATION");
+		curr_pos+=count;
+
+		count=sprintf(curr_pos, "age = \"15 to 21\" 1 \"22 to 30\" 2 \"31 to 40\" 3 \"41 to 59\" 4;\n");
+		curr_pos+=count;
+
+		count=sprintf(curr_pos, "csd_brand_list = \"Goqe\" 1 \"Bebzi\" 2 \"Oogla\" 3 \"Zingmoo\" 4 \"Thunder\" 5 \"Zoinks\" 6;\n");
+		curr_pos+=count;
+
+		count=sprintf(curr_pos, "qscript_q1_codelist=1-4;\n");
+		curr_pos+=count;
+
+		count=sprintf(curr_pos, "qscript_q2_codelist=1-2,5-8;\n");
+		curr_pos+=count;
+
+		count=sprintf(curr_pos, "qscript_ser_no=1-500,601-800;\n");
+		curr_pos+=count;
+
+
+		count = sprintf(curr_pos, "%s\n", "ENDSTUBINFORMATION");
+		curr_pos+=count;
+
+
 		// Forget about the blank space for now
 		// here is the map.
-		count = sprintf(curr_pos, "ser_no,sp,int32_t,1,4\n");
+		count = sprintf(curr_pos, "ser_no,sp,int32_t,1,4,qscript_ser_no;\n");
 		curr_pos+=count;
-		count = sprintf(curr_pos, "q1,sp,int32_t,5,8\n" );
+		count = sprintf(curr_pos, "q1,sp,int32_t,5,8,qscript_q1_codelist;\n" );
 		curr_pos+=count;
-		count = sprintf(curr_pos, "q2,mp,int32_t,5,9,28\n" );
+		count = sprintf(curr_pos, "q2,sp,int32_t,9,12,qscript_q2_codelist;\n" );
 		curr_pos+=count;
-		count = sprintf(curr_pos, "q3,mp,int16_t,2,29,36\n" );
+		count = sprintf(curr_pos, "q3,sp,int32_t,13,16,age;\n" );
+		curr_pos+=count;
+		count = sprintf(curr_pos, "q4,sp,int32_t,17,20,csd_brand_list;\n" );
+		curr_pos+=count;
+		// For the mp question type I have dropped the number of codes
+		// since it can be determined by 
+		//((last_position-first_position)+1)/sizeof(question_type)
+		count = sprintf(curr_pos, "q4_2,mp,int32_t,21,36,csd_brand_list;\n" );
 		curr_pos+=count;
 		*curr_pos++='\0';
 		// I should be writing the raw data here - but 
