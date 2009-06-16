@@ -31,10 +31,13 @@
 #include <map>
 #include <fstream>
 #include <vector>
+#include <sstream>
 #include "expr.h"
 #include "tree.h"
-#include <sstream>
-using namespace std;
+//using namespace std;
+using std::string;
+using std::map;
+using std::vector;
 int yyparse();
 
 enum axstmt_type { ax_uninit,txt_axstmt, tot_axstmt, cnt_axstmt, fld_axstmt };
@@ -43,9 +46,10 @@ struct table{
 	string side;
 	string banner;
 	int line_no;
-	expr* filter;
-	table(string s, string t, int lline_no, expr* f=0) : side(s), banner(t),line_no(lline_no),filter(f){
-	}
+	AbstractExpression* filter;
+	table(string s, string t, int lline_no, AbstractExpression* f=0) 
+		: side(s), banner(t),line_no(lline_no),filter(f)
+	{ }
 	~table();
 };
 
@@ -55,16 +59,16 @@ class basic_ax_stmt	{
 	public:
 	int type;
 	axstmt_type axtype;
-	basic_ax_stmt * prev;
-	basic_ax_stmt * next;
-	basic_ax_stmt(axstmt_type ltype=ax_uninit): axtype(ltype),prev(0), next(0) {}
+	basic_ax_stmt * prev_;
+	basic_ax_stmt * next_;
+	basic_ax_stmt(axstmt_type ltype=ax_uninit): axtype(ltype),prev_(0), next_(0) {}
 
 	virtual void print(fstream& f)=0;
 	virtual string ax_text()=0;
 	virtual ~basic_ax_stmt(){
-		if(next) {
-			delete next;
-			next=0;
+		if(next_) {
+			delete next_;
+			next_=0;
 		}
 	}
 };
@@ -75,12 +79,12 @@ using namespace std;
 class basic_print_ax_stmt {
 	public:
 	axstmt_type axtype;
-	basic_print_ax_stmt * prev;
-	basic_print_ax_stmt * next;
+	basic_print_ax_stmt * prev_;
+	basic_print_ax_stmt * next_;
 	string text;
 	basic_print_ax_stmt(axstmt_type ltype ,string s): 
 		axtype(ltype), 
-		prev(0), next(0),
+		prev_(0), next_(0),
 		text(s){}
 	virtual void print(fstream& f){
 		f << text << endl ;
@@ -89,9 +93,9 @@ class basic_print_ax_stmt {
 		return text;
 	}
 	virtual ~basic_print_ax_stmt(){
-		if(next) {
-			delete next;
-			next=0;
+		if(next_) {
+			delete next_;
+			next_=0;
 		}
 	}
 };
@@ -113,14 +117,15 @@ class ttl_ax_stmt: public basic_print_ax_stmt{
 class basic_count_ax_stmt {
 	public:
 	axstmt_type axtype;
-	basic_count_ax_stmt * prev;
-	basic_count_ax_stmt * next;
+	basic_count_ax_stmt * prev_;
+	basic_count_ax_stmt * next_;
 	string text;
-	struct expr* condn;
+	struct AbstractExpression* condn;
 	int count;
-	basic_count_ax_stmt(axstmt_type ltype,string txt, struct expr* c): 
+	basic_count_ax_stmt(axstmt_type ltype,string txt
+			, struct AbstractExpression* c): 
 		axtype(ltype),
-		prev(0), next(0),
+		prev_(0), next_(0),
 		text(txt), condn(c), count(0){}
 	virtual void print(fstream& f){
 		f << "basic_count_ax_stmt::print(): Should not be called\n";
@@ -135,13 +140,14 @@ class basic_count_ax_stmt {
 
 class count_ax_stmt: public basic_count_ax_stmt{
 	public:
-	count_ax_stmt(axstmt_type ltype,string txt, struct expr* c): basic_count_ax_stmt(ltype,txt,c) {}
+	count_ax_stmt(axstmt_type ltype,string txt, struct AbstractExpression* c): basic_count_ax_stmt(ltype,txt,c) {}
 	virtual void print(fstream& f){
 		f << "CNT: " << text ;
 		f << "\n";
 		
 	}
-	virtual void generate_code(FILE * f, unsigned int index){
+	virtual void generate_code(FILE * f, unsigned int index)
+	{
 		//fprintf(f, "count_ax_stmt :: generate_code() not yet implemented\n");
 		ostringstream code_expr1, code_bef_expr1;
 		condn->print_expr(code_bef_expr1, code_expr1);
@@ -153,16 +159,23 @@ class count_ax_stmt: public basic_count_ax_stmt{
 		fprintf(f, "\t}\n");
 
 	}
-	virtual void print_axis_constructor_text(FILE * f, unsigned int start_index){
-		fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n", start_index, ax_text().c_str());
+	virtual void print_axis_constructor_text(FILE * f
+			, unsigned int start_index)
+	{
+		fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+				, start_index, ax_text().c_str());
 	}
 	~count_ax_stmt();
 };
 
-class tot_ax_stmt: public basic_count_ax_stmt{
+class tot_ax_stmt: public basic_count_ax_stmt
+{
 	public:
-	tot_ax_stmt(axstmt_type ltype, string txt, struct expr* c): basic_count_ax_stmt(ltype,txt,c) {}
-	virtual void print(fstream& f){
+	tot_ax_stmt(axstmt_type ltype, string txt
+			, struct AbstractExpression* c)
+		: basic_count_ax_stmt(ltype,txt,c) {}
+	virtual void print(fstream& f)
+	{
 		f << "TOT: " << text;
 		f << "\n";
 	}
@@ -178,8 +191,11 @@ class tot_ax_stmt: public basic_count_ax_stmt{
 		fprintf(f, "\t\tflag[%d]=true;\n", index);
 		fprintf(f, "\t}\n");
 	}
-	virtual void print_axis_constructor_text(FILE * f, unsigned int start_index){
-		fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n", start_index, ax_text().c_str());
+	virtual void print_axis_constructor_text(FILE * f
+			, unsigned int start_index)
+	{
+		fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+				, start_index, ax_text().c_str());
 	}
 	~tot_ax_stmt();
 };
@@ -187,7 +203,7 @@ class tot_ax_stmt: public basic_count_ax_stmt{
 struct stub {
 	string text;
 	int code;
-	struct stub* prev, *next;
+	struct stub* prev_, *next_;
 	stub(string l_text, int l_code);
 };
 
@@ -195,27 +211,32 @@ struct stub {
 using std::string;
 class fld_ax_stmt : public basic_count_ax_stmt {
 	public:
-	struct symtab_ent* symp;
+	struct SymbolTableEntry* symp;
 	//struct stub* stub_list;
 	vector<stub*> stub_list;
 	//fld_ax_stmt(string field_name, struct stub * l_stub_list);
-	fld_ax_stmt(axstmt_type ltype ,string field_name, vector<stub*> l_stub_list);
-	virtual void generate_code(FILE * f, unsigned int index){
-		//f << "fld_ax_stmt :: generate_code() not yet implemented" << endl;
-		//fprintf(f, "fld_ax_stmt :: generate_code() not yet implemented\n");
+	fld_ax_stmt(axstmt_type ltype ,string field_name
+			, vector<stub*> l_stub_list);
+	virtual void generate_code(FILE * f, unsigned int index)
+	{
 		for(unsigned int i=0; i< stub_list.size(); ++i){
-			fprintf(f, "\t\tif (%s[%d]){\n", symp->name, stub_list[i]->code-1);
-			fprintf(f, "\t\t\t flag[%d]=true;\n\t\t}\n", index+stub_list[i]->code-1);
+			fprintf(f, "\t\tif (%s[%d]){\n"
+					, symp->name_, stub_list[i]->code-1);
+			fprintf(f, "\t\t\t flag[%d]=true;\n\t\t}\n"
+					, index+stub_list[i]->code-1);
 		}
 	}
-	virtual void print_axis_constructor_text(FILE * f, unsigned int start_index){
-		cout << "came to print_axis_constructor_text in fld_ax_stmt" << endl;
+	virtual void print_axis_constructor_text(FILE * f
+			, unsigned int start_index){
+		cout << "came to print_axis_constructor_text in fld_ax_stmt" 
+			<< endl;
 		for(int i=0; i<stub_list.size(); ++i) {
-			fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n", i+start_index, 
-				stub_list[i]->text.c_str()
-				);
+			fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+					, i+start_index
+					, stub_list[i]->text.c_str());
 		}
-		cout << "exited print_axis_constructor_text in fld_ax_stmt" << endl;
+		cout << "exited print_axis_constructor_text in fld_ax_stmt" 
+			<< endl;
 	}
 };
 
@@ -229,26 +250,15 @@ class ax	{
 	int no_count_ax_elems;	
 	int no_tot_ax_elems;	
 	vector <bool> condn_flags;
-	expr* filter;
+	AbstractExpression* filter;
 	//fld_ax_stmt * fld_stmt;
-	/*
-	ax( expr * f, fld_ax_stmt * l_ax_stmt): ax_stmt_start(0),
-			no_count_ax_elems(l_ax_stmt->stub_list.size()), no_tot_ax_elems(0), 
-			condn_flags(0), filter(f), fld_stmt(l_ax_stmt)
-		{
-			cout << "fld_stmt constructor: verifying vector was copied correctly" << endl;
-		}
-	ax(basic_ax_stmt* ax_s, int l_no_count_ax_elems, int l_no_tot_ax_elems,
-			expr* f=0): ax_stmt_start(ax_s), 
-		no_count_ax_elems(l_no_count_ax_elems), no_tot_ax_elems(l_no_tot_ax_elems),
-			condn_flags(l_no_count_ax_elems),
-		filter(f), fld_stmt(0) {}
-	*/
-	ax(basic_print_ax_stmt * ttl_s,	basic_count_ax_stmt* cnt_ax_s, int l_no_count_ax_elems, int l_no_tot_ax_elems,
-			expr* f=0): ttl_ax_stmt_start(ttl_s),  count_ax_stmt_start(cnt_ax_s), 
-		no_count_ax_elems(l_no_count_ax_elems), no_tot_ax_elems(l_no_tot_ax_elems),
-			condn_flags(l_no_count_ax_elems),
-		filter(f) {}
+	ax(basic_print_ax_stmt * ttl_s,	basic_count_ax_stmt* cnt_ax_s
+			, int l_no_count_ax_elems, int l_no_tot_ax_elems
+			, AbstractExpression* f=0)
+		: ttl_ax_stmt_start(ttl_s),  count_ax_stmt_start(cnt_ax_s)
+		, no_count_ax_elems(l_no_count_ax_elems)
+		, no_tot_ax_elems(l_no_tot_ax_elems)
+		, condn_flags(l_no_count_ax_elems), filter(f) {}
 
 	~ax();
 };
@@ -262,7 +272,8 @@ void construct_tables(map<string, ax*>& ax_map, vector<table*> & table_list);
 
 typedef map<string, ax*>::const_iterator CMAPITER;
 
-void construct_internal_table(map<string, ax*>& ax_map, vector<table*>& table_list);
+void construct_internal_table(map<string, ax*>& ax_map
+		, vector<table*>& table_list);
 
 struct internal_table{
 	vector<basic_count_ax_stmt*> side;
@@ -271,10 +282,10 @@ struct internal_table{
 	vector< vector<float> > tbl_perc;
 	ax* side_ax, *ban_ax;
 	internal_table(CMAPITER &map_iter_s, CMAPITER &map_iter_b, 
-			expr* f, int i);
-	expr* filter;
-	expr* ban_filter;
-	expr* side_filter;
+			AbstractExpression* f, int i);
+	AbstractExpression* filter;
+	AbstractExpression* ban_filter;
+	AbstractExpression* side_filter;
 	int base;
 	int index;
 };

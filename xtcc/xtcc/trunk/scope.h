@@ -1,5 +1,5 @@
 /*
- * scope.h
+ * Scope.h
  *  
  * implementation of scoping rules
  * Copyright (C) 2003,2004, 2005,2006,2007  Neil Xavier D'Souza <nxd_in@yahoo.com>
@@ -36,25 +36,25 @@
 #include <iostream>
 #include <vector>
 
-struct stmt;
-using namespace std;
+struct AbstractStatement;
+using std::map;
 
-	struct scope;
-	//extern vector<scope*> active_scope_list;
+	struct Scope;
+	//extern vector<Scope*> active_scope_list;
 
 #include "symtab.h"
 
-	struct scope{
-		map<string,symtab_ent*> sym_tab;
-		scope()	{
-			//cout << " constructing scope(): this: " << this << endl;
+	struct Scope{
+		map<string,SymbolTableEntry*> sym_tab;
+		Scope()	{
+			//cout << " constructing Scope(): this: " << this << endl;
 		}
-		stmt* insert(const char * name, datatype dt/*, int line_no*/);
-		stmt* insert(const char * name, datatype dt, expr *e);
-		stmt* insert(const char * name, datatype dt, int arr_size /*, int line_no*/);
-		stmt* insert(const char * name, datatype dt, int arr_size, /*int line_no,*/ char *text);
-		stmt* insert(const char * name, datatype dt, xtcc_set *lxs);
-		~scope();
+		AbstractStatement* insert(const char * name, DataType dt/*, int line_no*/);
+		AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
+		AbstractStatement* insert(const char * name, DataType dt, int arr_size /*, int line_no*/);
+		AbstractStatement* insert(const char * name, DataType dt, int arr_size, /*int line_no,*/ char *text);
+		AbstractStatement* insert(const char * name, DataType dt, xtcc_set *lxs);
+		~Scope();
 	};
 
 #endif /* __SCOPE_H */

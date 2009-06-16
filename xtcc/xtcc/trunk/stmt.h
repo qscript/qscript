@@ -1,5 +1,5 @@
 /*
- * stmt.h
+ * AbstractStatement.h
  *  
  * implementation of statement handling routines in the xtcc grammar
  * Copyright (C) 2003,2004, 2005,2006,2007  Neil Xavier D'Souza <nxd_in@yahoo.com>
@@ -27,7 +27,6 @@
  */
 #ifndef _xtcc_stmt_h
 #define _xtcc_stmt_h
-using namespace std;
 #include "scope.h"
 #include "expr.h"
 #include "utils.h"
@@ -36,468 +35,264 @@ using namespace std;
 #include <cstdlib>
 #include <sstream>
 
-	void print_expr(FILE* edit_out, struct expr * e);
-	extern scope* active_scope;
-	extern int no_errors;
-	extern noun_list_type noun_list[];
+void print_expr(FILE* edit_out, struct AbstractExpression * e);
+extern noun_list_type noun_list[];
+int check_func_decl_with_func_defn(struct FunctionParameter*& v_list
+		, int & index, string func_name);
 
-	//extern vector <func_info*> func_info_table;
-	int check_func_decl_with_func_defn(struct var_list*& v_list, int & index, string func_name);
 // Note : I may have to add file name we are compiling very soon
-struct stmt{
+struct AbstractStatement
+{
 	public:
-	struct stmt * prev;
-	struct stmt * next;
-	datatype type;
+	AbstractStatement * prev_;
+	AbstractStatement * next_;
+	DataType type;
 	int line_number;
-	virtual void print_stmt_lst(FILE * & fptr)=0;
-	bool exists_next(){
-		return prev;
-	}
-	bool exists_prev(){
-		return next;
-	}
-	stmt* move_next(){
-		return prev;
-	}
-	stmt(datatype dtype=ERROR_TYPE, int lline_number=0):prev(0), next(0), type(dtype), line_number(lline_number){}
-	virtual ~stmt();
+	virtual void GenerateCode(FILE * & fptr)=0;
+	AbstractStatement(DataType dtype=ERROR_TYPE, int lline_number=0)
+		:prev_(0), next_(0), type(dtype), line_number(lline_number)
+	{}
+	virtual ~AbstractStatement();
 	private:
-		stmt(const stmt&);
-		stmt& operator=(const stmt&);
+		AbstractStatement(const AbstractStatement&);
+		AbstractStatement& operator=(const AbstractStatement&);
 };
 
-struct for_stmt: public stmt{
-	struct expr * init, * test, *incr;
-	struct stmt * for_body;
-	for_stmt(datatype dtype, int lline_number, expr* l_init, expr* l_test, expr* l_incr, stmt * lfor_body);
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-
-		if(fptr){
-			ostringstream code_bef_expr, code_expr;
-			//fprintf(fptr,  "for (");
-			code_expr << "for (" ;
-			//init->print_expr(fptr);
-			init->print_expr(code_bef_expr, code_expr);
-			//fprintf(fptr,  ";");
-			code_expr <<   ";";
-			test->print_expr(code_bef_expr, code_expr);
-			code_expr << ";";
-			//incr->print_expr(fptr);
-			incr->print_expr(code_bef_expr, code_expr);
-			code_expr <<  ")";
-
-			fprintf(fptr, "%s \n", code_bef_expr.str().c_str());
-			fprintf(fptr, "%s \n", code_expr.str().c_str());
-			fflush(fptr);
-			for_body->print_stmt_lst(fptr);
-			if(next) next->print_stmt_lst(fptr);
-		}
-	}
-	virtual ~for_stmt();
+struct ForStatement: public AbstractStatement
+{
+	struct AbstractExpression * initializationExpression_
+		, * testExpression_, *incrementExpression_;
+	struct AbstractStatement * forBody_;
+	ForStatement(DataType dtype, int lline_number
+			, AbstractExpression* l_init
+			, AbstractExpression* l_test
+			, AbstractExpression* l_incr
+			, AbstractStatement * lfor_body);
+	void GenerateCode(FILE * & fptr);
+	virtual ~ForStatement();
 	private:
-	for_stmt& operator=(const for_stmt&);	
-	for_stmt(const for_stmt&);	
+	ForStatement& operator=(const ForStatement&);	
+	ForStatement(const ForStatement&);	
 };
 
 // Refinement3
-struct if_stmt : public stmt{
+struct IfStatement : public AbstractStatement
+{
 	protected:
-	struct expr * condition;
-	struct stmt * if_body;
-	struct stmt * else_body;
+	AbstractExpression * ifCondition_;
+	AbstractStatement * ifBody_;
+	AbstractStatement * elseBody_;
 	public:
-	if_stmt( datatype dtype, int lline_number, 
-		struct  expr * lcondition, struct  stmt * lif_body, struct stmt * lelse_body=0);
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-
-		if(fptr){
-			ostringstream code_bef_expr, code_expr;
-			//fprintf(fptr,  "if (");
-			code_expr << "if (";
-			condition->print_expr(code_bef_expr, code_expr);
-			//fprintf(fptr,  ")");
-			code_expr << ")";
-			fprintf(fptr, " %s ", code_bef_expr.str().c_str());
-			fprintf(fptr, " %s ", code_expr.str().c_str());
-			fflush(fptr);
-			if_body->print_stmt_lst(fptr);
-			fflush(fptr);
-			if(else_body){
-				fprintf(fptr,  " else ");
-				else_body->print_stmt_lst(fptr);
-			}
-			if(next) next->print_stmt_lst(fptr);
-		}
-	}
-	virtual ~if_stmt();
+	IfStatement( DataType dtype, int lline_number
+		, AbstractExpression * lcondition, AbstractStatement * lif_body
+		, AbstractStatement * lelse_body=0);
+	void GenerateCode(FILE * & fptr);
+	virtual ~IfStatement();
 	private:
-	if_stmt& operator=(const if_stmt&);	
-	if_stmt(const if_stmt&);	
+	IfStatement& operator=(const IfStatement&);	
+	IfStatement(const IfStatement&);	
 };
 
-struct expr_stmt: public stmt{
-	struct expr* expr;
-	expr_stmt(datatype dtype, int lline_number, struct expr* e): stmt(dtype, lline_number), expr(e) {}
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-
-		if(fptr){
-			//print_expr(fptr, expr);
-			ostringstream code_bef_expr, code_expr;
-			expr->print_expr(code_bef_expr, code_expr);
-			//fprintf(fptr,";\n");
-			fprintf(fptr, "%s\n", code_bef_expr.str().c_str());
-			fprintf(fptr, "%s\n", code_expr.str().c_str());
-			fprintf(fptr,";\n");
-			if(next) next->print_stmt_lst(fptr);
-		}
-	}
-	virtual ~expr_stmt();
+struct ExpressionStatement: public AbstractStatement
+{
+	struct AbstractExpression* expression_;
+	ExpressionStatement(DataType dtype, int lline_number
+			, struct AbstractExpression* e)
+		: AbstractStatement(dtype, lline_number), expression_(e) 
+	{}
+	void GenerateCode(FILE * & fptr);
+	virtual ~ExpressionStatement();
 	private:
-	expr_stmt& operator=(const expr_stmt&);	
-	expr_stmt(const expr_stmt&);	
+	ExpressionStatement& operator=(const ExpressionStatement&);	
+	ExpressionStatement(const ExpressionStatement&);	
 };
 
-struct err_stmt: public stmt{
-	err_stmt( int lline_number): stmt(ERROR_TYPE, lline_number){}
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-
-		if(fptr){
-			fprintf(fptr, "error");
-			//if(next) next->print_stmt_lst(fptr);
-		}
-	}
+struct ErrorStatement: public AbstractStatement
+{
+	ErrorStatement( int lline_number)
+		: AbstractStatement(ERROR_TYPE, lline_number)
+	{}
+	void GenerateCode(FILE * & fptr);
 	private:
-	err_stmt& operator=(const err_stmt&);	
-	err_stmt(const err_stmt&);	
+	ErrorStatement& operator=(const ErrorStatement&);	
+	ErrorStatement(const ErrorStatement&);	
 };
 
-struct cmpd_stmt: public stmt{
-	struct stmt* cmpd_bdy;
-	struct scope * sc;
-	int flag_cmpd_stmt_is_a_func_body;
+struct CompoundStatement: public AbstractStatement
+{
+	struct AbstractStatement* compoundBody_;
+	struct Scope * scope_;
+	int flagIsFunctionBody_;
 	public:
-	cmpd_stmt(datatype dtype, int lline_number, int l_flag_cmpd_stmt_is_a_func_body): 
-		stmt(dtype, lline_number), cmpd_bdy(0), sc(0), flag_cmpd_stmt_is_a_func_body(l_flag_cmpd_stmt_is_a_func_body) {}
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-		if(fptr){
-			fprintf(fptr,"{\n");
-			if (cmpd_bdy) cmpd_bdy->print_stmt_lst(fptr);
-			fprintf(fptr,"}\n");
-			if(next) next->print_stmt_lst(fptr);
-		}
-	}
-	virtual ~cmpd_stmt();
+	CompoundStatement(DataType dtype, int lline_number
+			, int l_flag_cmpd_stmt_is_a_func_body)
+		: AbstractStatement(dtype, lline_number), compoundBody_(0)
+		, scope_(0)
+		, flagIsFunctionBody_(l_flag_cmpd_stmt_is_a_func_body)
+	{}
+	void GenerateCode(FILE * & fptr);
+	virtual ~CompoundStatement();
 	private:
-	cmpd_stmt& operator=(const cmpd_stmt&);	
-	cmpd_stmt(const cmpd_stmt&);	
+	CompoundStatement& operator=(const CompoundStatement&);	
+	CompoundStatement(const CompoundStatement&);	
 };
 
-struct fld_stmt: public stmt{
-	struct symtab_ent * lsymp, *rsymp;
-	expr* start_col, *end_col;
-	// I may need to change width also to expression -> in case of passing
-	// argument width to a subroutine within the language syntax
+struct FieldStatement: public AbstractStatement
+{
+	struct SymbolTableEntry * lhsSymbolTableEntry_, *rhsSymbolTableEntry_;
+	AbstractExpression* start_col, *end_col;
 	int width;
-	fld_stmt(string lhs_name, string rhs_name , expr* l_s, expr* l_e, int l_w);
-	void print_stmt_lst(FILE * & fptr){
-		// runtime checks need to be put
-		// 1 startcol < endcol
-		// endcol-startcol+1 % width == 0
-		fprintf(fptr, "/* fld stmt code will be generated here */\n");
-
-		fprintf(fptr, "{\n");
-		fprintf(fptr, "\tfor (int i=0; i<%d; ++i) %s[i]=0;\n", lsymp->n_elms, lsymp->name);
-		fprintf(fptr, "int start_col=");
-		//start_col->print_expr(fptr);
-		// NOTE: we do not expect operator in to be used in a block initialization
-		// I should document this for myself in a more visible place
-		ostringstream code_bef_expr1, code_expr1;
-		start_col->print_expr(code_bef_expr1, code_expr1);
-		fprintf(fptr, "%s", code_expr1.str().c_str());
-		fprintf(fptr, ",end_col=");
-		//end_col->print_expr(fptr);
-		ostringstream code_bef_expr2, code_expr2;
-		end_col->print_expr(code_bef_expr2, code_expr2);
-		fprintf(fptr, "%s", code_expr2.str().c_str());
-		fprintf(fptr, ",width=%d;\n", width);
-		fprintf(fptr, "if( start_col > end_col){\n");
-		fprintf(fptr, "\tprintf(\"start_col evaluated > end_col -> runtime error\");\n");
-		fprintf(fptr, "}\n");
-		fprintf(fptr, "if( (end_col-start_col +1) %% width!=0 ){\n");
-		fprintf(fptr, "\t\tprintf(\"expr value:%%d\", end_col-start_col +1 %% width );");
-		fprintf(fptr, "\tprintf(\"please check your start_col=%%d ,  end_col=%%d, width=%%d for fld statement-> runtime error\\n\", start_col, end_col, width);\n");
-		fprintf(fptr, "}\n");
-		
-		fprintf(fptr, "for (int i=start_col; i<= end_col+1-width; i+=width){\n");
-		int lhs_arr_sz;
-		if(lsymp->type==INT8_ARR_TYPE){
-			lhs_arr_sz=sizeof(INT8_TYPE);
-		} else if (lsymp->type==INT16_ARR_TYPE){
-			lhs_arr_sz=sizeof(INT16_TYPE);
-		} else if (lsymp->type==INT32_ARR_TYPE){
-			lhs_arr_sz=sizeof(INT32_TYPE);
-		} else {
-			fprintf(fptr, "prevent compilation: compiler bug filename:%s, line_number: %d\n", __FILE__, __LINE__);
-		}
-		fprintf(fptr, "\t\tchar buff[%d];\n", lhs_arr_sz);
-		fprintf(fptr,"\t\tfor(int s=i,j=0;s<i+width;++s,++j){\n");
-		fprintf(fptr,"\t\t\t\tbuff[j]=%s[s];\n", rsymp->name);
-		fprintf(fptr,"\t\t}\n");
-		fprintf(fptr,"\tvoid * v_ptr = buff;\n");
-		if(lhs_arr_sz==sizeof(char)){
-			fprintf(fptr,"\tchar *c_ptr = static_cast<char *>(v_ptr);\n");
-			fprintf(fptr,"\tint tmp=*c_ptr;\n");
-		} else if (lhs_arr_sz==sizeof(short int)){
-			fprintf(fptr,"\tshort int  *si_ptr = static_cast<short int *>(v_ptr);\n");
-			fprintf(fptr,"\tint tmp=*si_ptr;\n");
-		} else if (lhs_arr_sz==sizeof( int)){
-			fprintf(fptr,"\t\tint  *i_ptr = static_cast<int *>(v_ptr);\n");
-			fprintf(fptr,"\t\tint tmp=*i_ptr;\n");
-		}
-		fprintf(fptr,"\t\tif(tmp>=1 && tmp <=%d){\n", lsymp->n_elms);
-		fprintf(fptr,"\t\t\t++%s[tmp-1];\n", lsymp->name);
-		fprintf(fptr,"\t\t} else {\n");
-		fprintf(fptr,"\t\t\tprintf(\" runtime warning: code too big to fit in array\\n\");\n");
-		fprintf(fptr,"\t\t}\n;");
-		
-		fprintf(fptr, "}} \n");
-		if(next) next->print_stmt_lst(fptr);
-	}
-	~fld_stmt(){
-	}
+	FieldStatement(string lhs_name, string rhs_name
+			, AbstractExpression* l_s, AbstractExpression* l_e
+			, int l_w);
+	void GenerateCode(FILE * & fptr);
+	~FieldStatement()
+	{}
 };
 		 
 
-struct blk_arr_assgn_stmt: public stmt{
-	struct symtab_ent * lsymp;
-	struct symtab_ent * rsymp;
-	expr * low_indx, *high_indx;
-	blk_arr_assgn_stmt(datatype dtype, int lline_number, symtab_ent* llsymp, symtab_ent* lrsymp,
-			expr * lbd, expr* hbd): stmt(dtype, lline_number), lsymp(llsymp), rsymp(lrsymp),
-						low_indx(lbd), high_indx(hbd){}
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-
-		if(fptr){
-			fprintf(fptr,"/* DATA CONVERSION */\n");
-			fprintf(fptr,"{int tmp1=");
-			//low_indx->print_expr(fptr);
-			// NOTE: we do not expect operator in to be used in a block initialization
-			ostringstream code_expr1, code_bef_expr1;
-			low_indx->print_expr(code_bef_expr1, code_expr1);
-			fprintf(fptr, "%s", code_expr1.str().c_str());
-			fprintf(fptr,";\nint tmp2=");
-			//high_indx->print_expr(fptr);
-			ostringstream code_expr2, code_bef_expr2;
-			high_indx->print_expr(code_bef_expr2, code_expr2);
-			fprintf(fptr, "%s", code_expr2.str().c_str());
-			fprintf(fptr,";\n");
-			if(lsymp->get_type()==FLOAT_TYPE) {
-				fprintf(fptr,"if(tmp2-tmp1==sizeof(float)-1){\n");
-				fprintf(fptr,"\tchar buff[sizeof(float)];int i,j;\n");
-				fprintf(fptr,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
-				fprintf(fptr,"\t\tbuff[j]=%s[i];\n", rsymp->name);
-				fprintf(fptr,"\t}\n");
-				fprintf(fptr,"\tvoid * v_ptr = buff;\n");
-				fprintf(fptr,"\tfloat *f_ptr = static_cast<float *>(v_ptr);\n");
-				fprintf(fptr,"\t %s=*f_ptr;\n", lsymp->name);
-				fprintf(fptr,"}else { cerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_number );
-			} else if (lsymp->get_type()==INT32_TYPE){
-				fprintf(fptr,"if(tmp2-tmp1==sizeof(int)-1){\n");
-				fprintf(fptr,"\tchar buff[sizeof(int)];int i,j;\n");
-				fprintf(fptr,"\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n");
-				fprintf(fptr,"\t\tbuff[j]=%s[i];\n", rsymp->name);
-				fprintf(fptr,"\t}\n");
-				fprintf(fptr,"\tvoid * v_ptr = buff;\n");
-				fprintf(fptr,"\tint *i_ptr = static_cast<int *>(v_ptr);\n");
-				fprintf(fptr,"\t %s=*i_ptr;\n", lsymp->name);
-				fprintf(fptr,"}else { \n\tcerr << \"runtime error: line_no : expr out of bounds\" << %d;}\n}\n", line_number );
-			}
-		}
-		if(next) next->print_stmt_lst(fptr);
-	}
-	~blk_arr_assgn_stmt(){
-		//cout << "deleting blk_arr_assgn_stmt" << endl;
-		//if(next) delete next;
-		delete lsymp; 
-		delete rsymp;
-		delete low_indx;
-		delete	high_indx;
-	}
+struct BlockArrayAssignmentStatement: public AbstractStatement
+{
+	struct SymbolTableEntry * lhsSymbolTableEntry_;
+	struct SymbolTableEntry * rhsSymbolTableEntry_;
+	AbstractExpression * low_indx, *high_indx;
+	BlockArrayAssignmentStatement(DataType dtype, int lline_number
+			, SymbolTableEntry* llsymp, SymbolTableEntry* lrsymp
+			, AbstractExpression * lbd, AbstractExpression* hbd)
+		: AbstractStatement(dtype, lline_number)
+		  , lhsSymbolTableEntry_(llsymp), rhsSymbolTableEntry_(lrsymp)
+		  , low_indx(lbd), high_indx(hbd)
+	{}
+	void GenerateCode(FILE * & fptr);
+	~BlockArrayAssignmentStatement();
 	
 	private:
-	blk_arr_assgn_stmt& operator=(const blk_arr_assgn_stmt&);	
-	blk_arr_assgn_stmt(const blk_arr_assgn_stmt&);	
-	};
-
-struct break_stmt: public stmt{
-	break_stmt(datatype dtype, int lline_number, int in_a_loop): stmt(dtype, lline_number){
-		if(in_a_loop<=0){
-			print_err(compiler_sem_err, "break statement outside a loop: ",
-				line_no, __LINE__, __FILE__);
-		}
-	}
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-		if(fptr){
-			fprintf(fptr, "break;");
-			if(next) next->print_stmt_lst(fptr);
-		}
-	}
-	~break_stmt(){
-		cout << "deleting break_stmt" << endl;
-		if (next) delete next;
-	}
-	private:
-	break_stmt& operator=(const break_stmt&);	
-	break_stmt(const break_stmt&);	
-};
-struct continue_stmt: public stmt{
-	continue_stmt(datatype dtype, int lline_number, int in_a_loop): stmt(dtype, lline_number){
-		if (!in_a_loop){
-			print_err(compiler_sem_err, "continue statement outside a loop: line_no: ",
-				line_no, __LINE__, __FILE__);
-		}
-	}
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-
-		if(fptr){
-			fprintf(fptr, "continue;");
-			if(next) next->print_stmt_lst(fptr);
-		}
-	}
-	~continue_stmt(){
-		//cout << "deleting continue_stmt" << endl;
-		if (next) delete next;
-	}
-	private:
-	continue_stmt& operator=(const continue_stmt&);	
-	continue_stmt(const continue_stmt&);	
+	BlockArrayAssignmentStatement& operator=
+		(const BlockArrayAssignmentStatement&);	
+	BlockArrayAssignmentStatement(const BlockArrayAssignmentStatement&);	
 };
 
-struct func_decl_stmt: public stmt{
-	struct func_info * f_ptr;
-
-	func_decl_stmt( datatype dtype, int lline_number, char * & name,  struct var_list* & v_list, datatype return_type);
-	void print_stmt_lst(FILE * & fptr);
-	~func_decl_stmt();
+struct BreakStatement: public AbstractStatement
+{
+	BreakStatement(DataType dtype, int lline_number, int in_a_loop);
+	void GenerateCode(FILE * & fptr);
+	~BreakStatement();
 	private:
-	func_decl_stmt& operator=(const func_decl_stmt&);	
-	func_decl_stmt(const func_decl_stmt&);	
+	BreakStatement& operator=(const BreakStatement&);	
+	BreakStatement(const BreakStatement&);	
 };
 
-struct decl_stmt: public stmt{
-	struct symtab_ent* symp;
-	decl_stmt( datatype dtype, int lline_number):stmt(dtype, lline_number), symp(0)
+struct ContinueStatement: public AbstractStatement{
+	ContinueStatement(DataType dtype, int lline_number, int in_a_loop);
+	void GenerateCode(FILE * & fptr);
+	~ContinueStatement(){
+		//cout << "deleting ContinueStatement" << endl;
+		if (next_) delete next_;
+	}
+	private:
+	ContinueStatement& operator=(const ContinueStatement&);	
+	ContinueStatement(const ContinueStatement&);	
+};
+
+struct FunctionDeclarationStatement: public AbstractStatement
+{
+	struct FunctionInformation * funcInfo_;
+
+	FunctionDeclarationStatement( DataType dtype
+			, int lline_number, char * & name
+			, FunctionParameter* & v_list, DataType returnType_);
+	void GenerateCode(FILE * & fptr);
+	~FunctionDeclarationStatement();
+	private:
+	FunctionDeclarationStatement& operator=
+		(const FunctionDeclarationStatement&);	
+	FunctionDeclarationStatement(const FunctionDeclarationStatement&);	
+};
+
+struct DeclarationStatement: public AbstractStatement
+{
+	struct SymbolTableEntry* symbolTableEntry_;
+	DeclarationStatement( DataType dtype, int lline_number)
+		:AbstractStatement(dtype, lline_number), symbolTableEntry_(0)
 	{}
-	void print_stmt_lst(FILE * & fptr){
-		fflush(fptr);
-		if(fptr){
-			ostringstream code_expr1, code_bef_expr1;
-			if( symp->e){
-				symp->e->print_expr(code_bef_expr1, code_expr1);
-				fprintf(fptr,"%s", code_bef_expr1.str().c_str());
-			}
-			if(type >= INT8_TYPE && type <=DOUBLE_TYPE){
-				fprintf(fptr,"%s %s", noun_list[type].sym, symp->name);
-			} else if (type >=INT8_ARR_TYPE && type <=DOUBLE_ARR_TYPE){
-				datatype tdt=datatype(INT8_TYPE + type-INT8_ARR_TYPE);
-				fprintf(fptr,"%s %s [ %d ]", noun_list[tdt].sym, symp->name, symp->n_elms);
-			} else if (type >=INT8_REF_TYPE&& type <=DOUBLE_REF_TYPE){
-				datatype tdt=datatype(INT8_TYPE + type-INT8_REF_TYPE);
-				fprintf(fptr,"%s & %s", noun_list[tdt].sym, symp->name);
-			}
-			if( symp->e){
-				fprintf(fptr,"=%s", code_expr1.str().c_str());
-				//symp->e->print_expr(fptr);
-			}
-			fprintf(fptr, ";\n");
-			if(next) next->print_stmt_lst(fptr);
-		}
-	}
-	~decl_stmt();
+	void GenerateCode(FILE * & fptr);
+	~DeclarationStatement();
 	private:
-	decl_stmt& operator=(const decl_stmt&);	
-	decl_stmt(const decl_stmt&);	
+	DeclarationStatement& operator=(const DeclarationStatement&);	
+	DeclarationStatement(const DeclarationStatement&);	
 };
 
 
-struct func_stmt: public stmt{
-	struct func_info * f_ptr;
-	struct stmt *func_body;
-	datatype return_type;
+struct FunctionStatement: public AbstractStatement
+{
+	struct FunctionInformation * funcInfo_;
+	struct AbstractStatement *funcBody_;
+	DataType returnType_;
 
-	func_stmt ( datatype dtype, int lline_number, struct scope * &sc,
-		struct var_list * & v_list,
-		struct stmt* & lfunc_body,
-		string func_name,
-		datatype lreturn_type
-		) ;
-	void print_stmt_lst(FILE * & fptr);
-	~func_stmt();
-	private:
-	func_stmt& operator=(const func_stmt&);	
-	func_stmt(const func_stmt&);	
-};
-
-
-struct list_stmt: public stmt{
-	struct symtab_ent * se;
-	string list_text;
-	expr * arr_start;
-	expr * arr_end;
-	list_stmt( datatype dtype, string name,
-		string llist_text=string(""),
-		expr*  l_arr_start=0, 
-		expr* l_arr_end=0
+	FunctionStatement ( DataType dtype, int lline_number
+			, struct Scope * &scope_
+			, struct FunctionParameter * & v_list
+			, struct AbstractStatement* & lfunc_body
+			, string func_name
+			, DataType lreturn_type
 		);
-	void print_stmt_lst(FILE * & fptr);
+	void GenerateCode(FILE * & fptr);
+	~FunctionStatement();
+	private:
+	FunctionStatement& operator=(const FunctionStatement&);	
+	FunctionStatement(const FunctionStatement&);	
+};
 
-	~list_stmt();
+
+struct ListStatement: public AbstractStatement{
+	struct SymbolTableEntry * symbolTableEntry_;
+	string list_text;
+	AbstractExpression * arr_start;
+	AbstractExpression * arr_end;
+	ListStatement( DataType dtype, string name,
+		string llist_text=string(""),
+		AbstractExpression*  l_arr_start=0, 
+		AbstractExpression* l_arr_end=0
+		);
+	void GenerateCode(FILE * & fptr);
+
+	~ListStatement();
 
 	private:
-	list_stmt& operator=(const list_stmt&);	
-	list_stmt(const list_stmt&);	
+	ListStatement& operator=(const ListStatement&);	
+	ListStatement(const ListStatement&);	
 };
 #include <map>
 using std:: map;
-map<string, symtab_ent*>::iterator find_in_symtab(string id);
+map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
 
 
 
 /*
- * The func_info constructor adds the names of the function parameters into its scope.
- * When a compound statement is parsed : it checks for the flag_cmpd_stmt_is_a_func_body and
- * loads that into the active scope if set.
- * Note that flag_cmpd_stmt_is_a_func_body is initialized to -1 as the 1st function 
+ * The FunctionInformation constructor adds the names of the function parameters into its Scope.
+ * When a compound statement is parsed : it checks for the flagIsFunctionBody_ and
+ * loads that into the active Scope if set.
+ * Note that flagIsFunctionBody_ is initialized to -1 as the 1st function 
  * will be in index 0 of func_info_table vector.
  * Also lookup_func searches the func_info_table for the function name and returns -1 on failure
- * this is naturally compatible with the initial value of flag_cmpd_stmt_is_a_func_body
- * if the flag is not set -> we need to allocate a new scope - else we will crash
+ * this is naturally compatible with the initial value of flagIsFunctionBody_
+ * if the flag is not set -> we need to allocate a new Scope - else we will crash
  */
-#include "scope.h"
-struct func_info;
-//#include "stmt.h"
-struct stmt;
-struct func_info{
-	string fname;
-	struct var_list * param_list;
-	datatype return_type;
-	struct stmt * func_body;
-	struct scope * func_scope;
-	func_info(string name, struct var_list* elist, datatype myreturn_type); 
+//struct FunctionInformation;
+struct FunctionInformation
+{
+	string funcName_;
+	struct FunctionParameter * paramList_;
+	DataType returnType_;
+	struct AbstractStatement * funcBody_;
+	struct Scope * funcScope_;
+	FunctionInformation(string name, struct FunctionParameter* elist
+			, DataType myreturn_type); 
 	void print(FILE * fptr);
-	~func_info();
+	~FunctionInformation();
 private:
-	func_info& operator=(const func_info&);
-	func_info(const func_info&);
+	FunctionInformation& operator=(const FunctionInformation&);
+	FunctionInformation(const FunctionInformation&);
 };
 
 

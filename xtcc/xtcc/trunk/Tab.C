@@ -26,8 +26,8 @@
  */
 
 //#include <cstdio>
-#include "Tab.h"
 #include <cstdlib>
+#include "Tab.h"
 
 #include "tree.h"
 #include "expr.h"
@@ -142,9 +142,9 @@ void compute_table(vector<string>& data_arr){
 			//cout << "loop j: " << j << endl;
 			for(register unsigned int k=0; k<itbl_ptr->banner.size(); k++){
 				//cout << "loop k: " << k << endl;
-				//cout << "side expr: " << 
+				//cout << "side AbstractExpression: " << 
 				//	itbl_ptr->side[j]->condn;
-				//cout << " banner expr: " << 
+				//cout << " banner AbstractExpression: " << 
 				//	itbl_ptr->banner[k]->condn << endl;
 				if( (itbl_ptr->side[j]->condn == NULL ||
 				     itbl_ptr->side[j]->condn->eval(data_arr, eval_out)) &&
@@ -384,9 +384,9 @@ basic_count_ax_stmt::~basic_count_ax_stmt() {
 			break;
 		}
 	}
-	if(next) {
-		delete next;
-		next=0;
+	if(next_) {
+		delete next_;
+		next_=0;
 	}
 }
 
@@ -460,16 +460,16 @@ table::~table(){
 	}
 }
 
-stub::stub(string l_text, int l_code):text(l_text), code(l_code), prev(0), next(0){ }
+stub::stub(string l_text, int l_code):text(l_text), code(l_code), prev_(0), next_(0){ }
 #include "utils.h"
 
-extern vector<scope*> active_scope_list;
-extern scope* active_scope;
+extern vector<Scope*> active_scope_list;
+extern Scope* active_scope;
 //fld_ax_stmt::fld_ax_stmt(string field_name, struct stub * l_stub_list): stub_list(l_stub_list)
 fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_stub_list): basic_count_ax_stmt(ltype,"",0),
 	stub_list(l_stub_list) {
 	// NAME Has to be of array type, Int32 
-	map<string,symtab_ent*>::iterator sym_it=find_in_symtab(field_name);
+	map<string,SymbolTableEntry*>::iterator sym_it=find_in_symtab(field_name);
 	if(sym_it==active_scope->sym_tab.end()){
 		string err_msg = "Error parsing bit statement : could not find array:" + field_name + " in symbol table";
 		print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);

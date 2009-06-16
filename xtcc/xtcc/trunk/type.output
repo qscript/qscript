@@ -61,20 +61,20 @@ Grammar
    35          | expression ';'
    36          | compound_stmt
    37          | decl
-   38          | list_stmt
+   38          | ListStatement
    39          | BREAK ';'
    40          | CONTINUE ';'
-   41          | fld_stmt
+   41          | FieldStatement
    42          | error ';'
 
-   43 list_stmt: LISTA NAME TEXT ';'
-   44          | LISTA NAME '[' expression ']' TEXT ';'
-   45          | LISTA NAME '[' expression ',' expression ']' TEXT ';'
+   43 ListStatement: LISTA NAME TEXT ';'
+   44              | LISTA NAME '[' expression ']' TEXT ';'
+   45              | LISTA NAME '[' expression ',' expression ']' TEXT ';'
 
    46 if_stmt: IF '(' expression ')' statement
    47        | IF '(' expression ')' statement ELSE statement
 
-   48 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
+   48 FieldStatement: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
 
    49 compound_stmt: open_curly statement_list '}'
 
@@ -259,11 +259,11 @@ statement (78)
     on left: 33 34 35 36 37 38 39 40 41 42, on right: 29 30 33 46 47
 @3 (79)
     on left: 32, on right: 33
-list_stmt (80)
+ListStatement (80)
     on left: 43 44 45, on right: 38
 if_stmt (81)
     on left: 46 47, on right: 34
-fld_stmt (82)
+FieldStatement (82)
     on left: 48, on right: 41
 compound_stmt (83)
     on left: 49, on right: 16 36
@@ -2666,9 +2666,9 @@ state 183
     func_decl       go to state 119
     statement_list  go to state 195
     statement       go to state 196
-    list_stmt       go to state 197
+    ListStatement   go to state 197
     if_stmt         go to state 198
-    fld_stmt        go to state 199
+    FieldStatement  go to state 199
     compound_stmt   go to state 200
     open_curly      go to state 183
     expression      go to state 201
@@ -2698,16 +2698,16 @@ state 186
 
 state 187
 
-   48 fld_stmt: FLD . NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
+   48 FieldStatement: FLD . NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
 
     NAME  shift, and go to state 205
 
 
 state 188
 
-   43 list_stmt: LISTA . NAME TEXT ';'
-   44          | LISTA . NAME '[' expression ']' TEXT ';'
-   45          | LISTA . NAME '[' expression ',' expression ']' TEXT ';'
+   43 ListStatement: LISTA . NAME TEXT ';'
+   44              | LISTA . NAME '[' expression ']' TEXT ';'
+   45              | LISTA . NAME '[' expression ',' expression ']' TEXT ';'
 
     NAME  shift, and go to state 206
 
@@ -2787,16 +2787,16 @@ state 195
     '-'         shift, and go to state 42
     NOT         shift, and go to state 43
 
-    xtcc_type      go to state 193
-    decl           go to state 194
-    func_decl      go to state 119
-    statement      go to state 213
-    list_stmt      go to state 197
-    if_stmt        go to state 198
-    fld_stmt       go to state 199
-    compound_stmt  go to state 200
-    open_curly     go to state 183
-    expression     go to state 201
+    xtcc_type       go to state 193
+    decl            go to state 194
+    func_decl       go to state 119
+    statement       go to state 213
+    ListStatement   go to state 197
+    if_stmt         go to state 198
+    FieldStatement  go to state 199
+    compound_stmt   go to state 200
+    open_curly      go to state 183
+    expression      go to state 201
 
 
 state 196
@@ -2808,7 +2808,7 @@ state 196
 
 state 197
 
-   38 statement: list_stmt .
+   38 statement: ListStatement .
 
     $default  reduce using rule 38 (statement)
 
@@ -2822,7 +2822,7 @@ state 198
 
 state 199
 
-   41 statement: fld_stmt .
+   41 statement: FieldStatement .
 
     $default  reduce using rule 41 (statement)
 
@@ -2902,16 +2902,16 @@ state 204
 
 state 205
 
-   48 fld_stmt: FLD NAME . '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
+   48 FieldStatement: FLD NAME . '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'
 
     '='  shift, and go to state 216
 
 
 state 206
 
-   43 list_stmt: LISTA NAME . TEXT ';'
-   44          | LISTA NAME . '[' expression ']' TEXT ';'
-   45          | LISTA NAME . '[' expression ',' expression ']' TEXT ';'
+   43 ListStatement: LISTA NAME . TEXT ';'
+   44              | LISTA NAME . '[' expression ']' TEXT ';'
+   45              | LISTA NAME . '[' expression ',' expression ']' TEXT ';'
 
     TEXT  shift, and go to state 217
     '['   shift, and go to state 218
@@ -3027,22 +3027,22 @@ state 215
 
 state 216
 
-   48 fld_stmt: FLD NAME '=' . NAME '(' expression ',' expression ')' ':' INUMBER ';'
+   48 FieldStatement: FLD NAME '=' . NAME '(' expression ',' expression ')' ':' INUMBER ';'
 
     NAME  shift, and go to state 223
 
 
 state 217
 
-   43 list_stmt: LISTA NAME TEXT . ';'
+   43 ListStatement: LISTA NAME TEXT . ';'
 
     ';'  shift, and go to state 224
 
 
 state 218
 
-   44 list_stmt: LISTA NAME '[' . expression ']' TEXT ';'
-   45          | LISTA NAME '[' . expression ',' expression ']' TEXT ';'
+   44 ListStatement: LISTA NAME '[' . expression ']' TEXT ';'
+   45              | LISTA NAME '[' . expression ',' expression ']' TEXT ';'
 
     TEXT     shift, and go to state 37
     NAME     shift, and go to state 38
@@ -3137,22 +3137,22 @@ state 222
 
 state 223
 
-   48 fld_stmt: FLD NAME '=' NAME . '(' expression ',' expression ')' ':' INUMBER ';'
+   48 FieldStatement: FLD NAME '=' NAME . '(' expression ',' expression ')' ':' INUMBER ';'
 
     '('  shift, and go to state 230
 
 
 state 224
 
-   43 list_stmt: LISTA NAME TEXT ';' .
+   43 ListStatement: LISTA NAME TEXT ';' .
 
-    $default  reduce using rule 43 (list_stmt)
+    $default  reduce using rule 43 (ListStatement)
 
 
 state 225
 
-   44 list_stmt: LISTA NAME '[' expression . ']' TEXT ';'
-   45          | LISTA NAME '[' expression . ',' expression ']' TEXT ';'
+   44 ListStatement: LISTA NAME '[' expression . ']' TEXT ';'
+   45              | LISTA NAME '[' expression . ',' expression ']' TEXT ';'
    53 expression: expression . '+' expression
    54           | expression . '-' expression
    55           | expression . '*' expression
@@ -3216,16 +3216,16 @@ state 226
     '-'         shift, and go to state 42
     NOT         shift, and go to state 43
 
-    xtcc_type      go to state 193
-    decl           go to state 194
-    func_decl      go to state 119
-    statement      go to state 233
-    list_stmt      go to state 197
-    if_stmt        go to state 198
-    fld_stmt       go to state 199
-    compound_stmt  go to state 200
-    open_curly     go to state 183
-    expression     go to state 201
+    xtcc_type       go to state 193
+    decl            go to state 194
+    func_decl       go to state 119
+    statement       go to state 233
+    ListStatement   go to state 197
+    if_stmt         go to state 198
+    FieldStatement  go to state 199
+    compound_stmt   go to state 200
+    open_curly      go to state 183
+    expression      go to state 201
 
 
 state 227
@@ -3285,7 +3285,7 @@ state 229
 
 state 230
 
-   48 fld_stmt: FLD NAME '=' NAME '(' . expression ',' expression ')' ':' INUMBER ';'
+   48 FieldStatement: FLD NAME '=' NAME '(' . expression ',' expression ')' ':' INUMBER ';'
 
     TEXT     shift, and go to state 37
     NAME     shift, and go to state 38
@@ -3300,14 +3300,14 @@ state 230
 
 state 231
 
-   44 list_stmt: LISTA NAME '[' expression ']' . TEXT ';'
+   44 ListStatement: LISTA NAME '[' expression ']' . TEXT ';'
 
     TEXT  shift, and go to state 239
 
 
 state 232
 
-   45 list_stmt: LISTA NAME '[' expression ',' . expression ']' TEXT ';'
+   45 ListStatement: LISTA NAME '[' expression ',' . expression ']' TEXT ';'
 
     TEXT     shift, and go to state 37
     NAME     shift, and go to state 38
@@ -3371,7 +3371,7 @@ state 237
 
 state 238
 
-   48 fld_stmt: FLD NAME '=' NAME '(' expression . ',' expression ')' ':' INUMBER ';'
+   48 FieldStatement: FLD NAME '=' NAME '(' expression . ',' expression ')' ':' INUMBER ';'
    53 expression: expression . '+' expression
    54           | expression . '-' expression
    55           | expression . '*' expression
@@ -3408,14 +3408,14 @@ state 238
 
 state 239
 
-   44 list_stmt: LISTA NAME '[' expression ']' TEXT . ';'
+   44 ListStatement: LISTA NAME '[' expression ']' TEXT . ';'
 
     ';'  shift, and go to state 247
 
 
 state 240
 
-   45 list_stmt: LISTA NAME '[' expression ',' expression . ']' TEXT ';'
+   45 ListStatement: LISTA NAME '[' expression ',' expression . ']' TEXT ';'
    53 expression: expression . '+' expression
    54           | expression . '-' expression
    55           | expression . '*' expression
@@ -3477,16 +3477,16 @@ state 241
     '-'         shift, and go to state 42
     NOT         shift, and go to state 43
 
-    xtcc_type      go to state 193
-    decl           go to state 194
-    func_decl      go to state 119
-    statement      go to state 249
-    list_stmt      go to state 197
-    if_stmt        go to state 198
-    fld_stmt       go to state 199
-    compound_stmt  go to state 200
-    open_curly     go to state 183
-    expression     go to state 201
+    xtcc_type       go to state 193
+    decl            go to state 194
+    func_decl       go to state 119
+    statement       go to state 249
+    ListStatement   go to state 197
+    if_stmt         go to state 198
+    FieldStatement  go to state 199
+    compound_stmt   go to state 200
+    open_curly      go to state 183
+    expression      go to state 201
 
 
 state 242
@@ -3549,7 +3549,7 @@ state 245
 
 state 246
 
-   48 fld_stmt: FLD NAME '=' NAME '(' expression ',' . expression ')' ':' INUMBER ';'
+   48 FieldStatement: FLD NAME '=' NAME '(' expression ',' . expression ')' ':' INUMBER ';'
 
     TEXT     shift, and go to state 37
     NAME     shift, and go to state 38
@@ -3564,14 +3564,14 @@ state 246
 
 state 247
 
-   44 list_stmt: LISTA NAME '[' expression ']' TEXT ';' .
+   44 ListStatement: LISTA NAME '[' expression ']' TEXT ';' .
 
-    $default  reduce using rule 44 (list_stmt)
+    $default  reduce using rule 44 (ListStatement)
 
 
 state 248
 
-   45 list_stmt: LISTA NAME '[' expression ',' expression ']' . TEXT ';'
+   45 ListStatement: LISTA NAME '[' expression ',' expression ']' . TEXT ';'
 
     TEXT  shift, and go to state 253
 
@@ -3601,7 +3601,7 @@ state 251
 
 state 252
 
-   48 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression . ')' ':' INUMBER ';'
+   48 FieldStatement: FLD NAME '=' NAME '(' expression ',' expression . ')' ':' INUMBER ';'
    53 expression: expression . '+' expression
    54           | expression . '-' expression
    55           | expression . '*' expression
@@ -3638,7 +3638,7 @@ state 252
 
 state 253
 
-   45 list_stmt: LISTA NAME '[' expression ',' expression ']' TEXT . ';'
+   45 ListStatement: LISTA NAME '[' expression ',' expression ']' TEXT . ';'
 
     ';'  shift, and go to state 256
 
@@ -3670,30 +3670,30 @@ state 254
     '-'         shift, and go to state 42
     NOT         shift, and go to state 43
 
-    xtcc_type      go to state 193
-    decl           go to state 194
-    func_decl      go to state 119
-    statement      go to state 257
-    list_stmt      go to state 197
-    if_stmt        go to state 198
-    fld_stmt       go to state 199
-    compound_stmt  go to state 200
-    open_curly     go to state 183
-    expression     go to state 201
+    xtcc_type       go to state 193
+    decl            go to state 194
+    func_decl       go to state 119
+    statement       go to state 257
+    ListStatement   go to state 197
+    if_stmt         go to state 198
+    FieldStatement  go to state 199
+    compound_stmt   go to state 200
+    open_curly      go to state 183
+    expression      go to state 201
 
 
 state 255
 
-   48 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' . ':' INUMBER ';'
+   48 FieldStatement: FLD NAME '=' NAME '(' expression ',' expression ')' . ':' INUMBER ';'
 
     ':'  shift, and go to state 258
 
 
 state 256
 
-   45 list_stmt: LISTA NAME '[' expression ',' expression ']' TEXT ';' .
+   45 ListStatement: LISTA NAME '[' expression ',' expression ']' TEXT ';' .
 
-    $default  reduce using rule 45 (list_stmt)
+    $default  reduce using rule 45 (ListStatement)
 
 
 state 257
@@ -3705,20 +3705,20 @@ state 257
 
 state 258
 
-   48 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' . INUMBER ';'
+   48 FieldStatement: FLD NAME '=' NAME '(' expression ',' expression ')' ':' . INUMBER ';'
 
     INUMBER  shift, and go to state 259
 
 
 state 259
 
-   48 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER . ';'
+   48 FieldStatement: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER . ';'
 
     ';'  shift, and go to state 260
 
 
 state 260
 
-   48 fld_stmt: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';' .
+   48 FieldStatement: FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';' .
 
-    $default  reduce using rule 48 (fld_stmt)
+    $default  reduce using rule 48 (FieldStatement)

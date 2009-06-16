@@ -40,7 +40,6 @@
 #include <sys/types.h>
 #include <limits.h>
 
-	using namespace std;
 
 	const bool XTCC_DEBUG_MEM_USAGE=1;
 	xtcc_set xs;
@@ -53,25 +52,25 @@
 	void yyerror(char * s);
 	extern int line_no;
 	extern char * yytext;
-	bool check_type_compat(datatype typ1, datatype typ2);
-	vector <func_info*> func_info_table;
-	int check_parameters(struct expr* e, struct var_list* v);
-	vector <scope*> active_scope_list;
-	scope* active_scope;
-	map<string, symtab_ent*>::iterator find_in_symtab(string id);
-	//struct stmt * load_func_into_symbol_table( char * & name,  struct var_list* & v_list, datatype int_type);
+	bool check_type_compat(DataType typ1, DataType typ2);
+	vector <FunctionInformation*> func_info_table;
+	int check_parameters(struct AbstractExpression* e, struct var_list* v);
+	vector <Scope*> active_scope_list;
+	Scope* active_scope;
+	map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
+	//struct stmt * load_func_into_symbol_table( char * & name,  struct var_list* & v_list, DataType int_type);
 	bool skip_func_type_check(const char * fname);
-	//void	add_func_params_to_cmpd_sc(struct scope * & sc, struct var_list * & v_list, string & fname);
+	//void	add_func_params_to_cmpd_sc(struct Scope * & scope_, struct var_list * & v_list, string & fname);
 	int search_for_func(string& search_for);
 	int check_func_decl_with_func_defn(struct var_list*& v_list, int & index, string func_name);
-	struct stmt* make_func_defn_stmt( struct scope *& sc,
+	struct AbstractStatement* make_func_defn_stmt( struct Scope *& scope_,
 		struct var_list * & v_list,
-		struct stmt* & func_body,
+		struct AbstractStatement* & func_body,
 		string search_for,
-		datatype return_type
+		DataType return_type
 		);
-	struct stmt * tree_root=0;
-	bool 	void_check( datatype & type1, datatype & type2, datatype& result_type);
+	struct AbstractStatement * tree_root=0;
+	bool 	void_check( DataType & type1, DataType & type2, DataType& result_type);
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
 
@@ -86,8 +85,8 @@
 	int nest_lev=0;
 	int rec_len;
 	bool flag_next_stmt_start_of_block=false;
-	//struct stmt* start_of_blk=0;
-	vector <stmt*> blk_heads;
+	//struct AbstractStatement* start_of_blk=0;
+	vector <AbstractStatement*> blk_heads;
 	vector <stub*> stub_list;
 	vector<bool> blk_start_flag;
         vector <string> attribute_list;
@@ -112,14 +111,14 @@
 	int ival ;
 	struct symtab *symp;
 	char * name;
-	struct expr * expr;
-	struct stmt * stmt;
-	struct cmpd_stmt * c_stmt;
+	struct AbstractExpression * expr;
+	struct AbstractStatement * stmt;
+	struct CompoundStatement * c_stmt;
 	int column_no;
 	int code_list;
 	char text_buf[MY_STR_MAX];
 	struct var_list * v_list;
-	datatype dt;
+	DataType dt;
 	struct ax * ax;
 	struct stub * stub;
 	struct table * tbl;
@@ -140,7 +139,7 @@
 %type <stmt> prog
 %type <stmt> statement
 %type <stmt> statement_list
-%type <stmt> list_stmt
+%type <stmt> ListStatement
 // %type <stmt> decl_list
 %type <stmt> decl
 %type <stmt> func_decl	
@@ -149,7 +148,7 @@
 %type <stmt> top_level_item 
 %type <stmt> func_defn 
 %type <stmt> if_stmt 
-%type <stmt> fld_stmt 
+%type <stmt> FieldStatement 
 %token  FOR
 %token FLD BIT
 %token <text_buf> TEXT
@@ -264,18 +263,18 @@ func_defn:
 				<< "line_no: " << line_no  << endl;
 		}
 	} compound_stmt {
-		struct cmpd_stmt* c_stmt= $7;
+		struct CompoundStatement* c_stmt= $7;
 		if(c_stmt==0){
 			cerr << "INTERNAL COMPILER ERROR: c_stmt==0" << endl;
 		} else {
 			//cout << "func_body: is valid " << endl;
 		}
-		struct scope *sc=c_stmt->sc;
+		struct Scope *scope_=c_stmt->scope_;
 		struct var_list * v_list=trav_chain($4);
-		struct stmt* func_body=$7;
+		struct AbstractStatement* func_body=$7;
 		string search_for=$2;
-		datatype return_type=$1;
-		$$=new func_stmt(FUNC_DEFN, line_no, sc, v_list, func_body, search_for, return_type);
+		DataType return_type=$1;
+		$$=new FunctionStatement(FUNC_DEFN, line_no, scope_, v_list, func_body, search_for, return_type);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -298,8 +297,8 @@ decl:	xtcc_type NAME ';' {
 
 	}
 	|	xtcc_type NAME '[' INUMBER ']' ';' {
-		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
-		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
+		/* NxD: I have ordered the types in DataType so that this hack is possible I hope */
+		DataType dt=DataType(INT8_ARR_TYPE+($1-INT8_TYPE));
 		$$ = active_scope->insert($2, dt, $4/*, line_no*/);
 		free($2);
 	}
@@ -307,7 +306,7 @@ decl:	xtcc_type NAME ';' {
 	NxD I only want to allow references in function parameter lists 
 	|	xtcc_type '&' NAME {
 		cout << "creating ref var of type: " << $1 << endl;
-		datatype dt=datatype(INT8_REF_TYPE+($1-INT8_TYPE));
+		DataType dt=DataType(INT8_REF_TYPE+($1-INT8_TYPE));
 		$$ = active_scope->insert($3, dt, line_no);
 	}
 	*/
@@ -324,8 +323,8 @@ decl:	xtcc_type NAME ';' {
 func_decl:	xtcc_type NAME '(' decl_comma_list ')' ';'{
 		char *name=$2;
 		struct var_list* v_list=trav_chain($4);
-		datatype return_type=$1;
-		$$=new func_decl_stmt( FUNC_TYPE, line_no, name,  v_list, return_type);
+		DataType return_type=$1;
+		$$=new FunctionDeclarationStatement( FUNC_TYPE, line_no, name,  v_list, return_type);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -353,7 +352,7 @@ var_decl:	xtcc_type NAME 	{
 	}
 	| xtcc_type NAME '[' INUMBER ']'  {
 		/* Neil - I need to fix this */
-		datatype dt=datatype(INT8_ARR_TYPE+($1-INT8_TYPE));
+		DataType dt=DataType(INT8_ARR_TYPE+($1-INT8_TYPE));
 		$$=new var_list(dt, $2, $4);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -361,7 +360,7 @@ var_decl:	xtcc_type NAME 	{
 		free($2);
 	}
 	|	xtcc_type '&' NAME {
-		datatype dt=datatype(INT8_REF_TYPE+($1-INT8_TYPE));
+		DataType dt=DataType(INT8_REF_TYPE+($1-INT8_TYPE));
 		$$=new var_list(dt, $3);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -393,18 +392,18 @@ statement_list: statement {
 	;
 
 statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} statement {
-		$$ = new struct for_stmt(FOR_STMT, line_no, $3, $5, $7, $10);
+		$$ = new struct ForStatement(FOR_STMT, line_no, $3, $5, $7, $10);
 		--in_a_loop;
 	}
 	| if_stmt
 	| expression ';' { 
 		if($1->isvalid()){
-			$$ = new expr_stmt(TEXPR_STMT, line_no, $1);
+			$$ = new ExpressionStatement(TEXPR_STMT, line_no, $1);
 			if(XTCC_DEBUG_MEM_USAGE){
 				mem_log($$, __LINE__, __FILE__, line_no);
 			}
 		} else {
-			$$ = new expr_stmt(ERROR_TYPE, line_no, $1);
+			$$ = new ExpressionStatement(ERROR_TYPE, line_no, $1);
 			if(XTCC_DEBUG_MEM_USAGE){
 				mem_log($$, __LINE__, __FILE__, line_no);
 			}
@@ -416,47 +415,47 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	|	decl {
 		$$=$1;
 	}
-	|	list_stmt
+	|	ListStatement
 	|	BREAK ';'{
-		$$=new break_stmt(BREAK_STMT, line_no, in_a_loop);
+		$$=new BreakStatement(BREAK_STMT, line_no, in_a_loop);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| 	CONTINUE ';' {
-		$$=new continue_stmt(CONTINUE_STMT, line_no, in_a_loop);
+		$$=new ContinueStatement(CONTINUE_STMT, line_no, in_a_loop);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
-	|	fld_stmt
+	|	FieldStatement
 	|	error ';' {
 		print_err(compiler_sem_err, "statement missing ';' around line_no: ", 
 			line_no, __LINE__, __FILE__);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-		$$ = new struct err_stmt(line_no);
+		$$ = new struct ErrorStatement(line_no);
 		yyerrok;
 	}
 	;
 
-list_stmt:	 LISTA NAME TEXT ';'{
-		$$=new list_stmt(LISTA_BASIC_TYPE_STMT, $2, $3);
+ListStatement:	 LISTA NAME TEXT ';'{
+		$$=new ListStatement(LISTA_BASIC_TYPE_STMT, $2, $3);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($2);
 	}
 	| LISTA NAME '[' expression ']' TEXT ';'{
-		$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($6), $4);
+		$$=new ListStatement( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($6), $4);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($2);
 	}
 	| LISTA NAME '[' expression ',' expression ']' TEXT ';'{
-		$$=new list_stmt( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($8), $4, $6);
+		$$=new ListStatement( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($8), $4, $6);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -465,24 +464,24 @@ list_stmt:	 LISTA NAME TEXT ';'{
 	;
 
 if_stmt: IF '(' expression ')' statement{
-		$$=new if_stmt(IFE_STMT,if_line_no,$3,$5,0);
+		$$=new IfStatement(IFE_STMT,if_line_no,$3,$5,0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| IF '(' expression ')' statement ELSE statement{
-		$$=new if_stmt(IFE_STMT, if_line_no,$3,$5,$7);
+		$$=new IfStatement(IFE_STMT, if_line_no,$3,$5,$7);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	;
 
-fld_stmt:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
-		expr* start_col=$6;
-		expr* end_col=$8;
+FieldStatement:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
+		AbstractExpression* start_col=$6;
+		AbstractExpression* end_col=$8;
 		int width=$11;
-		$$ = new fld_stmt($2, $4, start_col, end_col, width);
+		$$ = new FieldStatement($2, $4, start_col, end_col, width);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -498,20 +497,20 @@ compound_stmt: open_curly statement_list '}'	{
 			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
 				<< endl;
 			++no_errors;
-			$$=new struct cmpd_stmt(ERROR_TYPE, line_no, 0);
+			$$=new struct CompoundStatement(ERROR_TYPE, line_no, 0);
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else { active_scope = active_scope_list[tmp]; }
-		struct stmt* head_of_this_chain=blk_heads.back();
+		struct AbstractStatement* head_of_this_chain=blk_heads.back();
 		if(blk_start_flag.size() > 0){
 			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
 		}
 		if(  head_of_this_chain==0){
-			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
+			cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
 			++no_errors;
 		} else {
-			$1->cmpd_bdy = head_of_this_chain;
+			$1->compoundBody_ = head_of_this_chain;
 			blk_heads.pop_back();
 		}
 		
@@ -519,31 +518,31 @@ compound_stmt: open_curly statement_list '}'	{
 	}
 	;
 	/* Very important point to note
-	 * The scope for a function is created at the time of declaration
-	 * and all the variables are dumped into it. This is loaded here if we are a function scope
-	 * - otherwise if we are the scope of a for / while / if/else stmt - we create a new one
+	 * The Scope for a function is created at the time of declaration
+	 * and all the variables are dumped into it. This is loaded here if we are a function Scope
+	 * - otherwise if we are the Scope of a for / while / if/else stmt - we create a new one
 	 */
 
 open_curly:	'{' {
 		++nest_lev;
-		$$ = new cmpd_stmt(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
+		$$ = new CompoundStatement(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if(flag_cmpd_stmt_is_a_func_body>=0){
-			$$->sc=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
+			$$->scope_=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
 			// reset the flag
 			flag_cmpd_stmt_is_a_func_body=-1;
 		} else {
-			$$->sc= new scope();
+			$$->scope_= new Scope();
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		}
 		flag_next_stmt_start_of_block=true;
 		blk_start_flag.push_back(flag_next_stmt_start_of_block);
-		active_scope_list.push_back($$->sc);
-		active_scope = $$->sc;
+		active_scope_list.push_back($$->scope_);
+		active_scope = $$->scope_;
 	}
 	;
 
@@ -660,13 +659,13 @@ attributes:     ATTRIBUTE_LIST NAME '=' {
 				line_no, attr_list_name, attribute_list);
 		$$=n_attr_stmt;
 		if(active_scope_list.size()!=1){
-			print_err(compiler_sem_err, " named_attribute_list found on scope level higher than 0 ", 
+			print_err(compiler_sem_err, " named_attribute_list found on Scope level higher than 0 ", 
 						line_no, __LINE__, __FILE__);
 		}
 		//named_attributes_list.push_back(attr_list);
 		if(active_scope_list[0]->sym_tab.find($2) == active_scope_list[0]->sym_tab.end()){
 			string s(attr_list_name);
-			symtab_ent* se=new symtab_ent($2, NAMED_ATTRIBUTE_TYPE);
+			SymbolTableEntry* se=new SymbolTableEntry($2, NAMED_ATTRIBUTE_TYPE);
 			active_scope_list[0]->sym_tab[s] = se;
 			n_attr_stmt->symp = se;
 		}
@@ -759,14 +758,14 @@ bit_list: BIT NAME ';' stub_list';' {
 
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
-	elem2->prev=elem1;
-	elem1->next=elem2;
+	elem2->prev_=elem1;
+	elem1->next_=elem2;
 	return elem2;
 }
 
 template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
-		while (elem1->prev) elem1=elem1->prev;
+		while (elem1->prev_) elem1=elem1->prev_;
 		return elem1;
 	} else return 0;
 }

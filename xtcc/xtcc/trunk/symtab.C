@@ -24,30 +24,30 @@
  * The Free Software Foundation, 
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#include <string>
+#include <cstdlib>
 #include "symtab.h"
 #include "tree.h"
 #include "expr.h"
-#include <string>
-#include <cstdlib>
 using namespace std;
 
 extern int line_no;
 extern ofstream debug_log_file;
 /*
-stmt* sym_tab::insert(string name, datatype dt){
-	// we have to handle a case here where symbol is a function name: - this is not allowed
+stmt* sym_tab::insert(string name_, DataType dt){
+	// we have to handle a case here where symbol is a function name_: - this is not allowed
 	struct stmt * st_ptr=new_stmt();
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
-	if ( sym_tab.find(name) == sym_tab.end() ){
+	if ( sym_tab.find(name_) == sym_tab.end() ){
 		cout << "char decl:start\n";
-		struct symtab_ent* se=new struct symtab_ent;
-		se->name = name;
+		struct SymbolTableEntry* se=new struct SymbolTableEntry;
+		se->name_ = name_;
 		se->type=char_type;
-		string s(name);
+		string s(name_);
 		active_scope->sym_tab[s] = se;
 		st_ptr->type=char_type;
 		st_ptr->symp=se;
@@ -62,37 +62,37 @@ stmt* sym_tab::insert(string name, datatype dt){
 */
 #include <fstream>
 using std::endl;
-symtab_ent::~symtab_ent(){
-	debug_log_file<< "deleting symtab_ent: name: " << name << std::endl;
-	if(name&& created_by_me) { free( name); name=0; }
-	if(text) { delete text; text=0; }
+SymbolTableEntry::~SymbolTableEntry(){
+	debug_log_file<< "deleting SymbolTableEntry: name_: " << name_ << std::endl;
+	if(name_&& created_by_me) { free( name_); name_=0; }
+	if(text_) { delete text_; text_=0; }
 	if(e) { delete e; e=0; }
-	debug_log_file << "FINISHED deleting symtab_ent" << std::endl;
+	debug_log_file << "FINISHED deleting SymbolTableEntry" << std::endl;
 }
 
 
-bool is_of_int_type(datatype dt){
+bool is_of_int_type(DataType dt){
 	return (dt >= INT8_TYPE && dt <=INT32_TYPE);
 }
-bool is_of_noun_type(datatype dt){
+bool is_of_noun_type(DataType dt){
 	return (dt >= INT8_TYPE && dt <=DOUBLE_TYPE);
 }
-bool is_of_noun_ref_type(datatype dt){
+bool is_of_noun_ref_type(DataType dt){
 	return (dt >= INT8_REF_TYPE && dt <=DOUBLE_REF_TYPE);
 }
 
-bool is_of_arr_type(datatype dt){
+bool is_of_arr_type(DataType dt){
 	return (dt >= INT8_ARR_TYPE && dt <=DOUBLE_ARR_TYPE);
 }
 
-datatype convert_ref_type(datatype dt){
+DataType convert_ref_type(DataType dt){
 	if(dt>=INT8_REF_TYPE && dt<=DOUBLE_REF_TYPE) 
-		return datatype(INT8_TYPE + dt-INT8_REF_TYPE);
+		return DataType(INT8_TYPE + dt-INT8_REF_TYPE);
 	else 
 		return dt;
 }
 
-string human_readable_type(datatype dt){
+string human_readable_type(DataType dt){
 	string s="UNKNOWN TYPE";
 	switch(dt){
 		case STRING_TYPE:
@@ -154,16 +154,20 @@ string human_readable_type(datatype dt){
 
 
 
-symtab_ent::symtab_ent(const char * lname, datatype ldt, xtcc_set * lxs):name(strdup(lname)), dval(0), type(ldt), n_elms(-1), created_by_me(true), e(0)  { 
+SymbolTableEntry::SymbolTableEntry(const char * lname, DataType ldt
+		, xtcc_set * lxs)
+	:name_(strdup(lname)), dval(0), type(ldt)
+	 , n_elms(-1), created_by_me(true), e(0)
+{ 
 	xs = new xtcc_set(*lxs);
 }
 
 			
-bool is_of_int_arr_type(datatype dt){
+bool is_of_int_arr_type(DataType dt){
 	return (dt >= INT8_ARR_TYPE && dt <=INT32_ARR_TYPE);
 }
 
-bool is_of_int32_arr_type(datatype dt){
+bool is_of_int32_arr_type(DataType dt){
 	return (dt == INT32_ARR_TYPE);
 }
 

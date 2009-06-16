@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstdio>
 #include "expr.h"
 #include "tree.h"
 #include "stmt.h"
@@ -9,17 +10,17 @@ extern vector<table*>	table_list;
 extern map <string, ax*> ax_map;
 extern vector<mem_addr_tab>  mem_addr;
 extern int rec_len;
-extern struct stmt * tree_root;
+extern struct AbstractStatement * tree_root;
 void flex_finish();
-extern vector <scope*> active_scope_list;
-extern scope* active_scope;
-extern vector <func_info*> func_info_table;
+extern vector <Scope*> active_scope_list;
+extern Scope* active_scope;
+extern vector <FunctionInformation*> func_info_table;
 
 extern int errno;
-void print_expr(FILE* edit_out, expr * e);
+void print_expr(FILE* edit_out, AbstractExpression * e);
 
-int check_parameters(struct expr* e, struct var_list* v);
-bool check_type_compat(datatype typ1, datatype typ2);
+int check_parameters(struct AbstractExpression* e, struct FunctionParameter* v);
+bool check_type_compat(DataType typ1, DataType typ2);
 int	compile( char * const XTCC_HOME, char * const work_dir);
 int	run(char * data_file_name, int rec_len);
 void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
@@ -95,7 +96,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	reset_files();
 		
 		
-	active_scope=new scope();
+	active_scope=new Scope();
 	active_scope_list.push_back(active_scope);
 	//cout << "tree_root: " << tree_root << endl;
 	
@@ -104,9 +105,9 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	 */
 
 	const char * printf_name="printf";
-	var_list* v_list=0;
-	datatype myreturn_type=INT8_TYPE;
-	func_info* fi=new func_info(printf_name, v_list, myreturn_type);
+	FunctionParameter* v_list=0;
+	DataType myreturn_type=INT8_TYPE;
+	FunctionInformation* fi=new FunctionInformation(printf_name, v_list, myreturn_type);
 	func_info_table.push_back(fi);
 	
 	const char *c_arr="c";
@@ -123,7 +124,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	
 
 	//yyterminate();
-	//print_stmt_lst(tree_root);
+	//GenerateCode(tree_root);
 	struct   stat file_info;
 	int xtcc_work_dir_exists=stat(work_dir, &file_info);
 	if (xtcc_work_dir_exists==-1){
@@ -236,8 +237,6 @@ void	print_memory_leaks(){
 	}
 }
 
-#include <cstdlib>
-#include <cstdio>
 
 
 void clean_up(){
@@ -246,7 +245,7 @@ void clean_up(){
 	for(ax_map_iter it=ax_map.begin(); it!=ax_map.end(); ++it){
 		delete it->second; it->second=0;
 	}
-	// we should only delete the 0 index scope as this was manually created by us
+	// we should only delete the 0 index Scope as this was manually created by us
 	if (active_scope_list[0]) {
 		delete active_scope_list[0]; active_scope_list[0]=0;
 	}
@@ -259,12 +258,12 @@ void clean_up(){
 }
 
 /*
-bool check_type_compat(datatype typ1, datatype typ2){
+bool check_type_compat(DataType typ1, DataType typ2){
 	//cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
-	datatype td1=typ1;
-	datatype td2=typ2;
-	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + typ1-INT8_REF_TYPE);
-	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + typ2-INT8_REF_TYPE);
+	DataType td1=typ1;
+	DataType td2=typ2;
+	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=DataType(INT8_TYPE + typ1-INT8_REF_TYPE);
+	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=DataType(INT8_TYPE + typ2-INT8_REF_TYPE);
 	if((td1>=INT8_TYPE&&td1<=DOUBLE_TYPE) &&
 			td2>=INT8_TYPE&&td2<=DOUBLE_TYPE){
 		if(td1>=td2){
@@ -279,10 +278,10 @@ bool check_type_compat(datatype typ1, datatype typ2){
 
 
 
-int check_parameters(expr* e, var_list* v){
+int check_parameters(AbstractExpression* e, FunctionParameter* v){
 	debug_log_file << "check_parameters: called" << endl;
-	expr* e_ptr=e;
-	var_list* fparam=v;
+	AbstractExpression* e_ptr=e;
+	FunctionParameter* fparam=v;
 	bool match=true;
 	/* Important point to note: I am not allowing references in ordinary variable decl
 	   Only in function parameter list - the object is to allow modifying of variables
@@ -292,17 +291,17 @@ int check_parameters(expr* e, var_list* v){
 	int chk_param_counter=1;
 	while (e_ptr && fparam) {
 		//e_ptr->print();
-		datatype etype=e_ptr->type, fptype=fparam->var_type; 
+		DataType etype=e_ptr->type, fptype=fparam->var_type; 
 		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE) && 
 			((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)||
 			 (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
-			datatype tdt=fptype;
+			DataType tdt=fptype;
 				/* the code below makes a INT8_REF_TYPE -> INT8_TYPE
 				   			a INT8_REF_TYPE -> INT8_TYPE
 				 thats because we dont care much about references -> C++
 				 does all the hard work. For checking types they are equivalent to us
 				*/			
-			if(tdt>=INT8_REF_TYPE) tdt=datatype(INT8_TYPE+tdt-INT8_REF_TYPE);
+			if(tdt>=INT8_REF_TYPE) tdt=DataType(INT8_TYPE+tdt-INT8_REF_TYPE);
 			if(etype <= tdt) {
 				debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
 					<< chk_param_counter << " passed " << endl;
@@ -322,8 +321,8 @@ int check_parameters(expr* e, var_list* v){
 				<< endl;
 			++no_errors;
 		}
-		e_ptr=e_ptr->next;
-		fparam=fparam->next;
+		e_ptr=e_ptr->next_;
+		fparam=fparam->next_;
 		chk_param_counter=chk_param_counter+1;
 	}
 	if(match==true){
@@ -332,7 +331,7 @@ int check_parameters(expr* e, var_list* v){
 		} else {
 			match=false;
 			++no_errors;
-			cerr << "NOTMATCHED: No of parameters in function call not matching with no of paramters in expr: line_no"
+			cerr << "NOTMATCHED: No of parameters in function call not matching with no of paramters in AbstractExpression: line_no"
 				<< line_no << endl;
 		}
 	}
@@ -397,11 +396,11 @@ int search_for_func(string& search_for){
 */
 
 /*
-int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_name){
+int check_func_decl_with_func_defn(FunctionParameter* & v_list, int & index, string func_name){
 	//cout << "Entered check_func_decl_with_func_defn: " << func_name << endl;
 		
-	var_list* defn_ptr=v_list;
-	var_list* decl_ptr=func_info_table[index]->param_list;
+	FunctionParameter* defn_ptr=v_list;
+	FunctionParameter* decl_ptr=func_info_table[index]->param_list;
 	
 	while(defn_ptr&&decl_ptr){
 		// I may put a check on the length of the array - but it is not necessary for now I think
@@ -411,8 +410,8 @@ int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_
 			++no_errors;
 			return 0;
 		}
-		defn_ptr=defn_ptr->next;
-		decl_ptr=decl_ptr->next;
+		defn_ptr=defn_ptr->next_;
+		decl_ptr=decl_ptr->next_;
 	}
 	if(defn_ptr==decl_ptr && decl_ptr==0){
 		return 1;
@@ -422,7 +421,7 @@ int check_func_decl_with_func_defn(var_list* & v_list, int & index, string func_
 }*/
 
 /*
-bool 	void_check( datatype & type1, datatype & type2, datatype& result_type){
+bool 	void_check( DataType & type1, DataType & type2, DataType& result_type){
 	if(type1==VOID_TYPE){
 		print_err(compiler_sem_err, " lhs of binary expr is of type void ", 
 			line_no, __LINE__, __FILE__);
@@ -446,14 +445,14 @@ bool 	void_check( datatype & type1, datatype & type2, datatype& result_type){
 */
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
-	elem2->prev=elem1;
-	elem1->next=elem2;
+	elem2->prev_=elem1;
+	elem1->next_=elem2;
 	return elem2;
 }
 
 template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
-		while (elem1->prev) elem1=elem1->prev;
+		while (elem1->prev_) elem1=elem1->prev_;
 		return elem1;
 		/*
 		while (elem1->exists_next()){

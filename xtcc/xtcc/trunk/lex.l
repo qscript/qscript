@@ -39,7 +39,6 @@
 	int line_no=1;
 	extern int no_errors;
 	int if_line_no=-1;
-	using namespace std;
 %}
 
 %x comment

@@ -144,8 +144,8 @@ expression: expression '+' expression {
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
-			datatype my_type=func_info_table[index]->return_type;
-			expr* e_ptr=trav_chain($3);
+			DataType my_type=func_info_table[index]->return_type;
+			AbstractExpression* e_ptr=trav_chain($3);
 			var_list* fparam=func_info_table[index]->param_list;
 			bool match=false;
 			if(skip_type_check==false){

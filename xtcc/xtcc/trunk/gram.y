@@ -23,9 +23,9 @@
  */
 
 %{
-#include "symtab.h"
-#include <string.h>
 #include <cstdlib>
+#include <string.h>
+#include "symtab.h"
 #include "tree.h"
 %}
 

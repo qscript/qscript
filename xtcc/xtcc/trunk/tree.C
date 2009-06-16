@@ -28,8 +28,8 @@
 #include <iostream>
 extern int line_no, no_errors;
 #include <fstream>
+using std::ofstream;
 extern ofstream debug_log_file;
-using namespace std;
 
 
 /*
@@ -38,7 +38,7 @@ struct expr * new_expr(){
 	e->l_op = NULL;
 	e->r_op = NULL;
 	e->symp = NULL;
-	e->next=e->prev=NULL;
+	e->next_=e->prev_=NULL;
 	e->text=NULL;
 	return e;
 }
@@ -46,11 +46,11 @@ struct expr * new_expr(){
 
 
 
-datatype lcm_type(datatype d1, datatype d2){
+DataType lcm_type(DataType d1, DataType d2){
 	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
-	datatype td1=d1, td2=d2;
-	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=datatype(INT8_TYPE + d1-INT8_REF_TYPE);
-	//if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=datatype(INT8_TYPE + d2-INT8_REF_TYPE);
+	DataType td1=d1, td2=d2;
+	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=DataType(INT8_TYPE + d1-INT8_REF_TYPE);
+	//if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=DataType(INT8_TYPE + d2-INT8_REF_TYPE);
 	if(d1==STRING_TYPE && d2==STRING_TYPE){
 		return STRING_TYPE;
 	}
@@ -75,13 +75,13 @@ datatype lcm_type(datatype d1, datatype d2){
 	}
 }
 
-datatype arr_deref_type(datatype d1){
+DataType arr_deref_type(DataType d1){
 	/*
 	if(d1==int_arr_type) return int_type;
 	if(d1==char_arr_type) return char_type;
 	*/
 	if(d1>=INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
-		return datatype(INT8_TYPE+d1-INT8_ARR_TYPE);
+		return DataType(INT8_TYPE+d1-INT8_ARR_TYPE);
 	} else if(d1==STRING_ARR_TYPE){
 		return STRING_TYPE;
 	}
@@ -90,17 +90,17 @@ datatype arr_deref_type(datatype d1){
 	return ERROR_TYPE;
 }
 /*
-func_info::func_info(string name, struct var_list* elist, datatype myreturn_type): 
+func_info::func_info(string name, struct FunctionParameter* elist, DataType myreturn_type): 
 	fname(name), param_list(elist), return_type(myreturn_type), func_body(0), func_scope(0){
 	func_scope=new scope();
-	struct var_list* decl_list=elist;
+	struct FunctionParameter* decl_list=elist;
 	while(decl_list){
 		//cout << " constructing func_info decl list names are: " << decl_list->var_name << endl;
 		struct symtab_ent* se=new struct symtab_ent;
 		se->name = strdup(decl_list->var_name.c_str());
 		se->type=decl_list->var_type;
 		func_scope->sym_tab[decl_list->var_name] = se;
-		decl_list=decl_list->next;
+		decl_list=decl_list->next_;
 	}
 }
 
@@ -134,8 +134,8 @@ void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fnam
 }
 
 #include <sstream>
-var_list::var_list(datatype type, char * name): 
-	var_type(type), var_name(name), arr_len(-1), prev(NULL), next(NULL){
+FunctionParameter::FunctionParameter(DataType type, char * name): 
+	var_type(type), var_name(name), arr_len(-1), prev_(NULL), next_(NULL){
 	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
 		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
 		stringstream s;
@@ -143,40 +143,40 @@ var_list::var_list(datatype type, char * name):
 		print_err(compiler_sem_err, s.str() , line_no, __LINE__, __FILE__);
 		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
 	}
-	//cout << "constructing var_list: " << var_name << endl;
+	//cout << "constructing FunctionParameter: " << var_name << endl;
 }
-var_list::~var_list(){
-	debug_log_file << "deleting ~var_list: var_name:" << var_name << endl;
-	if (next) { delete next; next=0; }
-	debug_log_file << "end deleting ~var_list " << endl;
+FunctionParameter::~FunctionParameter(){
+	debug_log_file << "deleting ~FunctionParameter: var_name:" << var_name << endl;
+	if (next_) { delete next_; next_=0; }
+	debug_log_file << "end deleting ~FunctionParameter " << endl;
 }
 
 
-void var_list::print(FILE * edit_out){
-	struct var_list * vl_ptr=this;
+void FunctionParameter::print(FILE * edit_out){
+	struct FunctionParameter * vl_ptr=this;
 	while(vl_ptr){
 		if(vl_ptr->var_type>=INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
 			fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
 		} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
-			datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
+			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
 			fprintf(edit_out, "%s %s[%d]/* vartype: %d */", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
 		} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
-			datatype tdt=datatype(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
+			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
 			fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
 		} else {
 			fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
 		}
-		vl_ptr=vl_ptr->next;
+		vl_ptr=vl_ptr->next_;
 		if(vl_ptr) {
 			fprintf(edit_out, ",");
 		}
 	}
 }
 
-var_list::var_list(datatype type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev(NULL), next(NULL){
+FunctionParameter::FunctionParameter(DataType type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev_(NULL), next_(NULL){
 	if(!is_of_arr_type(type)){
 		cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
 		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
 	}
-	cout << "constructing var_list: " << var_name << endl;
+	cout << "constructing FunctionParameter: " << var_name << endl;
 }

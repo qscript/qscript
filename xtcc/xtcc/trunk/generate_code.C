@@ -1,10 +1,10 @@
 #include "expr.h"
 #include "stmt.h"
 
-struct stmt;
+struct AbstractStatement;
 struct table;
 struct ax;
-extern stmt * tree_root;
+extern AbstractStatement * tree_root;
 extern char* work_dir;
 extern int rec_len;
 #include "Tab.h"
@@ -42,7 +42,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 				<< endl;
 			++ no_errors;
 		} else {
-			expr* f= table_list[i]->filter;
+			AbstractExpression* f= table_list[i]->filter;
 			cout << "table: " <<
 				map_iter_b->first << " by " <<
 				map_iter_s->first << endl;
@@ -288,7 +288,7 @@ void print_latex_print(FILE* op, int table_index){
 	fprintf(op, "\t\t\t}\n");
 	fprintf(op, "\t\ttab_op << \"\\\\\\\\ \\\\hline}\"<< endl ;\n");
 	fprintf(op, "\t\ttab_op << \"\\\\tabletail\\n\";\n");
-	fprintf(op, "\t\ttab_op << \"{\\\\hline \\\\multicolumn{3}{r}{\\\\emph{Continued on next page}}\\\\\\\\}\\\\n\";\n");
+	fprintf(op, "\t\ttab_op << \"{\\\\hline \\\\multicolumn{3}{r}{\\\\emph{Continued on next_ page}}\\\\\\\\}\\\\n\";\n");
 	fprintf(op, "\t\t}\n");
 	fprintf(op, "\t\ttab_op << endl;\n");
 	fprintf(op, "\t\t\tfor(int i=1; i<ax_%s.stmt_text.size(); ++i){\n",
@@ -339,7 +339,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 
 		int my_counter=0;
 		for(basic_print_ax_stmt* ax_stmt_iter=it->second->ttl_ax_stmt_start; 
-				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next,
+				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next_,
 				++my_counter){
 			fprintf(op, "\t\tttl_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
 
@@ -353,7 +353,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 		}
 		my_counter=0;
 		for( basic_count_ax_stmt* ax_stmt_iter=it->second->count_ax_stmt_start; 
-				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next,
+				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next_,
 				++my_counter){
 			//fprintf(op, "\tcount_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
 			ax_stmt_iter->print_axis_constructor_text(op, my_counter);
@@ -382,7 +382,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 		while(iter){
 			iter->generate_code(op, counter);
 			++counter;
-			iter=iter->next;
+			iter=iter->next_;
 		}
 		/*
 		while(iter){
@@ -400,7 +400,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 				}
 				++counter;
 			}
-			iter=iter->next;
+			iter=iter->next_;
 		}
 		*/
 		/*
@@ -458,7 +458,7 @@ void	generate_edit_section_code(){
 	fprintf(edit_out, "int8_t c[%d];\n", rec_len );
 	fprintf(edit_out, "#include \"global.C\"\n" );
 	cout << "printing edit:" << endl;
-	tree_root->print_stmt_lst(edit_out);
+	tree_root->GenerateCode(edit_out);
 	fclose(edit_out);
 	fname=work_dir+string("/global.C");
 	global_vars=fopen(fname.c_str(), "a+");
