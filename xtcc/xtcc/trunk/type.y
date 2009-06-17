@@ -25,6 +25,15 @@
 
 %{
 //#include "../../qscript/trunk/named_attributes.h"
+
+#include <cstring>
+#include <iostream>
+#include <vector>
+#include <map>
+#include <sys/types.h>
+#include <limits.h>
+#include "scope.h"
+#include "xtcc_set.h"
 #include "named_attributes.h"
 #include "const_defs.h"
 #include "symtab.h"
@@ -32,17 +41,10 @@
 #include "expr.h"
 #include "stmt.h"
 #include "Tab.h"
-#include <cstring>
-#include <iostream>
-#include <vector>
-#include "scope.h"
-#include <map>
-#include <sys/types.h>
-#include <limits.h>
 
 
 	const bool XTCC_DEBUG_MEM_USAGE=1;
-	xtcc_set xs;
+	XtccSet xs;
 
 //	struct symtab symtab;
 	extern int if_line_no;
@@ -568,129 +570,129 @@ expr_list: expression { $$=$1; }
 	;
 
 expression: expression '+' expression {
-		$$=new bin_expr($1, $3, oper_plus);
+		$$=new BinaryExpression($1, $3, oper_plus);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '-' expression {
-		$$=new bin_expr($1, $3, oper_minus);
+		$$=new BinaryExpression($1, $3, oper_minus);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '*' expression {
-		$$=new bin_expr($1, $3, oper_mult);
+		$$=new BinaryExpression($1, $3, oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '/' expression {
-		$$=new bin_expr($1, $3, oper_div);
+		$$=new BinaryExpression($1, $3, oper_div);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '%' expression {
-		$$=new bin_expr($1, $3, oper_mod);
+		$$=new BinaryExpression($1, $3, oper_mod);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	'-' expression %prec UMINUS {
-		$$ = new un_expr($2, oper_umin);
+		$$ = new UnaryExpression($2, oper_umin);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '<' expression {
-		$$=new bin_expr($1, $3, oper_lt);
+		$$=new BinaryExpression($1, $3, oper_lt);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '>' expression {
-		$$=new bin_expr($1, $3, oper_gt);
+		$$=new BinaryExpression($1, $3, oper_gt);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression LEQ expression {
-		$$=new bin_expr($1, $3, oper_le);
+		$$=new BinaryExpression($1, $3, oper_le);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression GEQ expression {
-		$$=new bin_expr($1, $3, oper_ge);
+		$$=new BinaryExpression($1, $3, oper_ge);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression ISEQ expression {
-		$$=new bin_expr($1, $3, oper_iseq);
+		$$=new BinaryExpression($1, $3, oper_iseq);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression NOEQ expression {
-		$$=new bin_expr($1, $3, oper_isneq);
+		$$=new BinaryExpression($1, $3, oper_isneq);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| expression LOGOR expression {
-		$$=new bin_expr($1, $3, oper_or);
+		$$=new BinaryExpression($1, $3, oper_or);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| expression LOGAND expression {
-		$$=new bin_expr($1, $3, oper_and);
+		$$=new BinaryExpression($1, $3, oper_and);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| expression '=' expression {
-		$$ = new bin_expr($1, $3, oper_assgn);
+		$$ = new BinaryExpression($1, $3, oper_assgn);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	NOT expression {
-		$$ = new un_expr($2, oper_not);
+		$$ = new UnaryExpression($2, oper_not);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	INUMBER	{
-		$$ = new un2_expr($1);
+		$$ = new Unary2Expression($1);
 		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	FNUMBER {
-		$$ = new un2_expr($1);
+		$$ = new Unary2Expression($1);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	NAME	{
-		$$ = new un2_expr($1, oper_name );
+		$$ = new Unary2Expression($1, oper_name );
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| 	NAME '[' expression ']' %prec FUNC_CALL {
-		$$ = new un2_expr(oper_arrderef, /*nametype,  se,*/ $1,$3);
+		$$ = new Unary2Expression(oper_arrderef, /*nametype,  se,*/ $1,$3);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($1);
 	}
 	| NAME '[' expression ',' expression ']'  %prec FUNC_CALL {
-		$$ = new un2_expr(oper_blk_arr_assgn, $1,$3,$5);
+		$$ = new Unary2Expression(oper_blk_arr_assgn, $1,$3,$5);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -707,7 +709,7 @@ expression: expression '+' expression {
 			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
 			cerr << "function : " << search_for << " used without decl" << endl;
 			++ no_errors;
-			$$=new un2_expr(ERROR_TYPE);
+			$$=new Unary2Expression(ERROR_TYPE);
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
@@ -720,14 +722,14 @@ expression: expression '+' expression {
 				match=check_parameters(e_ptr, fparam);
 			}
 			if(match || skip_type_check){
-				//$$=new un2_expr(oper_func_call, my_type, $3, index, line_no);
-				$$=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
+				//$$=new Unary2Expression(oper_func_call, my_type, $3, index, line_no);
+				$$=new Unary2Expression(oper_func_call, my_type, e_ptr, index, line_no);
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 
 			} else {
-				$$=new un2_expr(ERROR_TYPE);
+				$$=new Unary2Expression(ERROR_TYPE);
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
@@ -736,23 +738,23 @@ expression: expression '+' expression {
 		free($1);
 	}
 	|	TEXT {
-		$$ = new un2_expr(strdup($1), oper_text_expr);
+		$$ = new Unary2Expression(strdup($1), oper_text_expr);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
-		$$ = new un_expr($2, oper_parexp );
+		$$ = new UnaryExpression($2, oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| expression IN '(' range_list ')' {
-		$$ = new bin2_expr($1, xs, oper_in);
+		$$ = new Binary2Expression($1, xs, oper_in);
 	}
 	/*
 	| NAME IN NAME {
-		$$ = new bin2_expr($1, $3, oper_in);
+		$$ = new Binary2Expression($1, $3, oper_in);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}

@@ -184,14 +184,14 @@ void ForStatement::GenerateCode(FILE * & fptr)
 		ostringstream code_bef_expr, code_expr;
 		//fprintf(fptr,  "for (");
 		code_expr << "for (" ;
-		//initializationExpression_->print_expr(fptr);
-		initializationExpression_->print_expr(code_bef_expr, code_expr);
+		//initializationExpression_->PrintExpressionCode(fptr);
+		initializationExpression_->PrintExpressionCode(code_bef_expr, code_expr);
 		//fprintf(fptr,  ";");
 		code_expr <<   ";";
-		testExpression_->print_expr(code_bef_expr, code_expr);
+		testExpression_->PrintExpressionCode(code_bef_expr, code_expr);
 		code_expr << ";";
-		//incrementExpression_->print_expr(fptr);
-		incrementExpression_->print_expr(code_bef_expr, code_expr);
+		//incrementExpression_->PrintExpressionCode(fptr);
+		incrementExpression_->PrintExpressionCode(code_bef_expr, code_expr);
 		code_expr <<  ")";
 
 		fprintf(fptr, "%s \n", code_bef_expr.str().c_str());
@@ -237,7 +237,7 @@ void IfStatement::GenerateCode(FILE * & fptr)
 		ostringstream code_bef_expr, code_expr;
 		//fprintf(fptr,  "if (");
 		code_expr << "if (";
-		ifCondition_->print_expr(code_bef_expr, code_expr);
+		ifCondition_->PrintExpressionCode(code_bef_expr, code_expr);
 		//fprintf(fptr,  ")");
 		code_expr << ")";
 		fprintf(fptr, " %s ", code_bef_expr.str().c_str());
@@ -274,9 +274,9 @@ void ExpressionStatement::GenerateCode(FILE * & fptr)
 	fflush(fptr);
 
 	if(fptr){
-		//print_expr(fptr, expr);
+		//PrintExpressionCode(fptr, expr);
 		ostringstream code_bef_expr, code_expr;
-		expression_->print_expr(code_bef_expr, code_expr);
+		expression_->PrintExpressionCode(code_bef_expr, code_expr);
 		//fprintf(fptr,";\n");
 		fprintf(fptr, "%s\n", code_bef_expr.str().c_str());
 		fprintf(fptr, "%s\n", code_expr.str().c_str());
@@ -416,8 +416,8 @@ void ListStatement::GenerateCode(FILE * & fptr)
 						, counter_number, symbolTableEntry_->name_);
 					ostringstream code_bef_expr1
 						, code_expr1;
-					//arr_start->print_expr(fptr);
-					arr_start->print_expr(code_bef_expr1
+					//arr_start->PrintExpressionCode(fptr);
+					arr_start->PrintExpressionCode(code_bef_expr1
 							, code_expr1);
 					fprintf(fptr, "%s"
 						, code_expr1.str().c_str());
@@ -511,7 +511,7 @@ void DeclarationStatement::GenerateCode(FILE * & fptr)
 	if(fptr){
 		ostringstream code_expr1, code_bef_expr1;
 		if( symbolTableEntry_->e){
-			symbolTableEntry_->e->print_expr(code_bef_expr1, code_expr1);
+			symbolTableEntry_->e->PrintExpressionCode(code_bef_expr1, code_expr1);
 			fprintf(fptr,"%s", code_bef_expr1.str().c_str());
 		}
 		if(type >= INT8_TYPE && type <=DOUBLE_TYPE){
@@ -528,7 +528,7 @@ void DeclarationStatement::GenerateCode(FILE * & fptr)
 		}
 		if( symbolTableEntry_->e){
 			fprintf(fptr,"=%s", code_expr1.str().c_str());
-			//symbolTableEntry_->e->print_expr(fptr);
+			//symbolTableEntry_->e->PrintExpressionCode(fptr);
 		}
 		fprintf(fptr, ";\n");
 		if(next_) next_->GenerateCode(fptr);
@@ -677,16 +677,16 @@ void FieldStatement::GenerateCode(FILE * & fptr)
 	fprintf(fptr, "{\n");
 	fprintf(fptr, "\tfor (int i=0; i<%d; ++i) %s[i]=0;\n", lhsSymbolTableEntry_->n_elms, lhsSymbolTableEntry_->name_);
 	fprintf(fptr, "int start_col=");
-	//start_col->print_expr(fptr);
+	//start_col->PrintExpressionCode(fptr);
 	// NOTE: we do not expect operator in to be used in a block initialization
 	// I should document this for myself in a more visible place
 	ostringstream code_bef_expr1, code_expr1;
-	start_col->print_expr(code_bef_expr1, code_expr1);
+	start_col->PrintExpressionCode(code_bef_expr1, code_expr1);
 	fprintf(fptr, "%s", code_expr1.str().c_str());
 	fprintf(fptr, ",end_col=");
-	//end_col->print_expr(fptr);
+	//end_col->PrintExpressionCode(fptr);
 	ostringstream code_bef_expr2, code_expr2;
-	end_col->print_expr(code_bef_expr2, code_expr2);
+	end_col->PrintExpressionCode(code_bef_expr2, code_expr2);
 	fprintf(fptr, "%s", code_expr2.str().c_str());
 	fprintf(fptr, ",width=%d;\n", width);
 	fprintf(fptr, "if( start_col > end_col){\n");
@@ -741,15 +741,15 @@ void BlockArrayAssignmentStatement::GenerateCode(FILE * & fptr)
 	if(fptr){
 		fprintf(fptr,"/* DATA CONVERSION */\n");
 		fprintf(fptr,"{int tmp1=");
-		//low_indx->print_expr(fptr);
+		//low_indx->PrintExpressionCode(fptr);
 		// NOTE: we do not expect operator in to be used in a block initialization
 		ostringstream code_expr1, code_bef_expr1;
-		low_indx->print_expr(code_bef_expr1, code_expr1);
+		low_indx->PrintExpressionCode(code_bef_expr1, code_expr1);
 		fprintf(fptr, "%s", code_expr1.str().c_str());
 		fprintf(fptr,";\nint tmp2=");
-		//high_indx->print_expr(fptr);
+		//high_indx->PrintExpressionCode(fptr);
 		ostringstream code_expr2, code_bef_expr2;
-		high_indx->print_expr(code_bef_expr2, code_expr2);
+		high_indx->PrintExpressionCode(code_bef_expr2, code_expr2);
 		fprintf(fptr, "%s", code_expr2.str().c_str());
 		fprintf(fptr,";\n");
 		if(lhsSymbolTableEntry_->get_type()==FLOAT_TYPE) {

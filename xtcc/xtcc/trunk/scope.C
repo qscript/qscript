@@ -25,15 +25,18 @@
  */
 
 #include <sstream>
-#include "scope.h"
-#include "stmt.h"
-#include "tree.h"
+
 #include <string>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+
+#include "scope.h"
+#include "stmt.h"
+#include "tree.h"
+
 using namespace std;
 
 extern int line_no;
@@ -190,7 +193,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, xtcc_set *lxs)
+AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
 {
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if(st_ptr){
@@ -199,7 +202,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, xtcc_set *lxs)
 		exit(1);
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
-		xtcc_set * xs=new xtcc_set(*lxs);
+		XtccSet * xs=new XtccSet(*lxs);
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt, xs);
 		string s(name);
 		sym_tab[s] = se;

@@ -35,7 +35,7 @@
 #include <cstdlib>
 #include <sstream>
 
-void print_expr(FILE* edit_out, struct AbstractExpression * e);
+void PrintExpressionCode(FILE* edit_out, struct AbstractExpression * e);
 extern noun_list_type noun_list[];
 int check_func_decl_with_func_defn(struct FunctionParameter*& v_list
 		, int & index, string func_name);

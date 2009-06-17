@@ -26,14 +26,15 @@
 
 #ifndef xtcc_expr_h
 #define xtcc_expr_h
-#include "tree.h"
 #include <iosfwd>
 #include <sstream>
+#include "tree.h"
+#include "xtcc_set.h"
 
 using std::ostringstream;
 
-enum e_operator_type 
-{ oper_plus, oper_minus, oper_mult, oper_div
+enum ExpressionOperatorType 
+{ 	oper_plus, oper_minus, oper_mult, oper_div
 	, oper_and, oper_or, oper_lt, oper_gt
 	, oper_le, oper_ge, oper_isneq, oper_iseq
 	, oper_parexp, oper_umin, oper_num,  oper_name, oper_arrderef
@@ -44,14 +45,18 @@ enum e_operator_type
 };
 
 struct AbstractExpression {
-	e_operator_type e_type;
+	ExpressionOperatorType exprOperatorType_;
 	DataType type;
 	struct AbstractExpression * next_, *prev_;
-	AbstractExpression(e_operator_type le_type):e_type(le_type), type(ERROR_TYPE), next_(0), prev_(0) { }
-	AbstractExpression(e_operator_type le_type, DataType ldt):e_type(le_type), type(ldt), next_(0), prev_(0) 
+	AbstractExpression(ExpressionOperatorType le_type)
+		:exprOperatorType_(le_type), type(ERROR_TYPE)
+		 , next_(0), prev_(0) 
 	{}
-	//virtual void print_expr(FILE * edit_out)=0;
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr)=0;
+	AbstractExpression(ExpressionOperatorType le_type, DataType ldt)
+		:exprOperatorType_(le_type), type(ldt), next_(0), prev_(0) 
+	{}
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr)=0;
 
 	virtual int isvalid();
 	virtual bool is_lvalue()=0;
@@ -61,22 +66,22 @@ struct AbstractExpression {
 extern int no_errors;
 extern int line_no;
 
-struct un_expr : public AbstractExpression{
+struct UnaryExpression : public AbstractExpression
+{
 	protected:
-	AbstractExpression* operand;
+	AbstractExpression* operand_;
 	public:
-	un_expr( AbstractExpression * l_operand=0, e_operator_type le_type=oper_err);
+	UnaryExpression( AbstractExpression * l_operand=0
+			, ExpressionOperatorType le_type=oper_err);
 	bool is_lvalue(){ return false; }
-	//void print_expr(FILE * edit_out);
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
-	virtual ~un_expr();
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	virtual ~UnaryExpression();
 };
 
-//extern vector <func_info*> func_info_table;
 
 #include <vector>
 #include <set>
-//using namespace std;
 using std::vector;
 using std::set;
 using std::pair;
@@ -85,78 +90,87 @@ using std::cerr;
 using std::endl;
 using std::string;
 using std::stringstream;
-
-struct xtcc_set {
+/*
+struct XtccSet {
 	vector < pair<int,int> > range;
 	set<int> indiv;
-	xtcc_set(DataType dt, string name, xtcc_set& xs1);
-	xtcc_set(xtcc_set& xs1);
-	xtcc_set& operator=(const xtcc_set& xs1);
-	xtcc_set();
+	XtccSet(DataType dt, string name, XtccSet& xs1);
+	XtccSet(XtccSet& xs1);
+	XtccSet& operator=(const XtccSet& xs1);
+	XtccSet();
 	void reset();
 	void add_range(int n1, int n2);
 	void add_indiv(int n1);
 };
+*/
 
-struct bin2_expr: public AbstractExpression{
+struct Binary2Expression: public AbstractExpression
+{
 	protected:
-	//SymbolTableEntry *l_symp, *r_symp;
-	AbstractExpression * l_op;
-	xtcc_set *xs;
+	AbstractExpression * leftOperand_;
+	XtccSet *xs;
 	public:
-	//bin2_expr(string lname , string rname ,e_operator_type letype);
-	bin2_expr(AbstractExpression* llop, xtcc_set& l_rd, e_operator_type letype);
+	Binary2Expression(AbstractExpression* llop
+			, XtccSet& l_rd, ExpressionOperatorType letype);
 	bool is_lvalue(){ return false; }
-	//void print_oper_assgn(FILE * edit_out);
-	//void print_expr(FILE * edit_out);
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
-	~bin2_expr();
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	~Binary2Expression();
 };
 
-struct bin_expr: public AbstractExpression{
+struct BinaryExpression: public AbstractExpression
+{
 	protected:
-	AbstractExpression *l_op, *r_op;
+	AbstractExpression *leftOperand_, *rightOperand_;
 	public:
-	bin_expr(AbstractExpression* llop, AbstractExpression* lrop,e_operator_type letype);
+	BinaryExpression(AbstractExpression* llop
+			, AbstractExpression* lrop
+			,ExpressionOperatorType letype);
 	bool is_lvalue(){ return false; }
-	//void print_oper_assgn(FILE * edit_out);
-	void print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr);
-	//void print_expr(FILE * edit_out);
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
-	~bin_expr();
+	void print_oper_assgn(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
+	~BinaryExpression();
 };
 
 
-struct un2_expr : public AbstractExpression{
+struct Unary2Expression : public AbstractExpression
+{
 	protected:
-	struct SymbolTableEntry * symp;
+	struct SymbolTableEntry * symbolTableEntry_;
 	int isem_value;
 	double dsem_value;
 	int func_index_in_table;
 	char * text;
 	int column_no;
-	AbstractExpression* operand;
-	AbstractExpression* operand2;
+	AbstractExpression* operand_;
+	AbstractExpression* operand2_;
 	public:
 	// This is a hack - I have to fix this by putting line number in the base class
 	int line_no;
 	bool is_lvalue();
-	un2_expr(e_operator_type le_type, DataType ldt, AbstractExpression* e_list, int lfunc_index_in_table, int lline_no);
+	Unary2Expression(ExpressionOperatorType le_type, DataType ldt
+		, AbstractExpression* e_list, int lfunc_index_in_table
+		, int lline_no);
 
-	un2_expr(int l_isem_value);
+	Unary2Expression(int l_isem_value);
 
-	un2_expr(double l_dsem_value);
+	Unary2Expression(double l_dsem_value);
 
-	un2_expr( struct SymbolTableEntry * lsymp); 
-	un2_expr(DataType d);
-	un2_expr(e_operator_type le_type, /*DataType dt, struct SymbolTableEntry * lsymp,*/ string name, AbstractExpression* arr_index);
-	un2_expr(e_operator_type le_type, /*DataType dt, struct SymbolTableEntry * lsymp, */ string name,  AbstractExpression* arr_index, AbstractExpression* arr_index2);
-	un2_expr(char* ltxt, e_operator_type le_type); 
-	~un2_expr();
-	//friend void bin_expr::print_oper_assgn(FILE* edit_out);
-	friend void bin_expr::print_oper_assgn(ostringstream& code_bef_expr, ostringstream & code_expr);
-	//void print_expr(FILE * edit_out);
-	virtual void print_expr(ostringstream& code_bef_expr, ostringstream & code_expr);
+	Unary2Expression( struct SymbolTableEntry * lsymp); 
+	Unary2Expression(DataType d);
+	Unary2Expression(ExpressionOperatorType le_type, string name
+			, AbstractExpression* arr_index);
+	Unary2Expression(ExpressionOperatorType le_type, string name
+			, AbstractExpression* arr_index
+			, AbstractExpression* arr_index2);
+	Unary2Expression(char* ltxt, ExpressionOperatorType le_type); 
+	~Unary2Expression();
+	friend void BinaryExpression::print_oper_assgn
+		(ostringstream& code_bef_expr, ostringstream & code_expr);
+	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+			, ostringstream & code_expr);
 };
 
 

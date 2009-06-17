@@ -29,6 +29,8 @@
 #include "symtab.h"
 #include "tree.h"
 #include "expr.h"
+#include "xtcc_set.h"
+
 using namespace std;
 
 extern int line_no;
@@ -155,11 +157,11 @@ string human_readable_type(DataType dt){
 
 
 SymbolTableEntry::SymbolTableEntry(const char * lname, DataType ldt
-		, xtcc_set * lxs)
+		, XtccSet * lxs)
 	:name_(strdup(lname)), dval(0), type(ldt)
 	 , n_elms(-1), created_by_me(true), e(0)
 { 
-	xs = new xtcc_set(*lxs);
+	xs = new XtccSet(*lxs);
 }
 
 			

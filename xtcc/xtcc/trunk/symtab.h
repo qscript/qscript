@@ -43,7 +43,7 @@ using	std::string ;
 	};
 
 struct AbstractExpression;
-struct xtcc_set;
+struct XtccSet;
 struct SymbolTableEntry {
 	char *name_;
 	char *text_;
@@ -56,7 +56,7 @@ struct SymbolTableEntry {
 	int n_elms;
 	bool created_by_me;
 	AbstractExpression * e;
-	xtcc_set * xs;
+	XtccSet * xs;
 	SymbolTableEntry():name_(0), text_(0), dval(0)
 	, type(uninit), n_elms(0), created_by_me(false),e(0), xs(0)
 	{ }
@@ -69,7 +69,7 @@ struct SymbolTableEntry {
 		: name_(strdup(lname)), text_(0), dval(0), type(ldt)
 		  , n_elms(-1), created_by_me(true), e(le), xs(0)
 	{ }
-	SymbolTableEntry(const char * lname, DataType ldt, xtcc_set * xs);
+	SymbolTableEntry(const char * lname, DataType ldt, XtccSet * xs);
 	inline DataType get_type(){
 		return type;
 	}

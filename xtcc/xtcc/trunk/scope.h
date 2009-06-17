@@ -35,6 +35,7 @@
 //#include "defs.h"
 #include <iostream>
 #include <vector>
+#include "xtcc_set.h"
 
 struct AbstractStatement;
 using std::map;
@@ -53,7 +54,7 @@ using std::map;
 		AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
 		AbstractStatement* insert(const char * name, DataType dt, int arr_size /*, int line_no*/);
 		AbstractStatement* insert(const char * name, DataType dt, int arr_size, /*int line_no,*/ char *text);
-		AbstractStatement* insert(const char * name, DataType dt, xtcc_set *lxs);
+		AbstractStatement* insert(const char * name, DataType dt, XtccSet *lxs);
 		~Scope();
 	};
 
