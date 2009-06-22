@@ -214,91 +214,13 @@ for_loop_stmt:
 	;
 
 cmpd_stmt: open_curly stmt_list '}' {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::blk_start_flag;
-		using qscript_parser::blk_heads;
-		using qscript_parser::mem_addr;
-		using qscript_parser::flag_next_stmt_start_of_block;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-
-		active_scope_list.pop_back();
-		int tmp=active_scope_list.size()-1;
-		if(tmp==-1) { 
-			active_scope = 0;
-			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
-				<< endl;
-			++no_errors;
-			$$=new struct CompoundStatement(ERROR_TYPE, line_no, 0, 0);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else { 
-			active_scope = active_scope_list[tmp]; 
-		}
-		struct AbstractStatement* head_of_this_chain=blk_heads.back();
-		if(blk_start_flag.size() > 0){
-			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
-		}
-		if(  head_of_this_chain==0){
-			cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
-			++no_errors;
-		} else {
-			$1->compoundBody_ = head_of_this_chain;
-			blk_heads.pop_back();
-		}
-
-		//! update the counter of enlosing CompoundStatement with 
-		//! the number of questions in this CompoundStatement being popped of
-		//! right now
-		if(stack_cmpd_stmt.size()>1){
-			CompoundStatement * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
-			stack_cmpd_stmt.pop_back();
-			CompoundStatement * current  = stack_cmpd_stmt.back();
-			current->counterContainsQuestions_+= 
-				(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
-		} 
-		$$=$1;
+		$$ = qscript_parser::ProcessCompoundStatement($1, $2);
 	}
 	;
 
 open_curly:	'{' {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::blk_start_flag;
-		using qscript_parser::blk_heads;
-		using qscript_parser::mem_addr;
-		using qscript_parser::flag_next_stmt_start_of_block;
-		using qscript_parser::flagIsAFunctionBody_;
-		using qscript_parser::flagIsAForBody_;
-		using qscript_parser::func_info_table;
-		using qscript_parser::nest_lev;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-
-		++nest_lev;
-		CompoundStatement * cmpd_stmt_ptr= new CompoundStatement(CMPD_STMT, 
-				line_no, flagIsAFunctionBody_,
-				flagIsAForBody_);
-		$$ = cmpd_stmt_ptr;
-		stack_cmpd_stmt.push_back(cmpd_stmt_ptr);
-		void *ptr=$$;
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		if(flagIsAFunctionBody_>=0){
-			$$->scope_=func_info_table[qscript_parser::flagIsAFunctionBody_]->functionScope_;
-			// reset the flag
-			qscript_parser::flagIsAFunctionBody_=-1;
-		} else {
-			$$->scope_= new Scope();
-		}
-		qscript_parser::flag_next_stmt_start_of_block=true;
-		qscript_parser::blk_start_flag.push_back(flag_next_stmt_start_of_block);
-		qscript_parser::active_scope_list.push_back($$->scope_);
-		qscript_parser::active_scope = $$->scope_;
+		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
+		$$=cmpdStmt;
 	}
 	;
 
@@ -937,6 +859,89 @@ AbstractExpression * recurse_for_index(int stack_index){
 		}
 	}
 }
+
+CompoundStatement* ProcessOpenCurly()
+{
+	++nest_lev;
+	CompoundStatement * cmpdStmt= new CompoundStatement(CMPD_STMT, 
+			line_no, flagIsAFunctionBody_,
+			flagIsAForBody_);
+	stack_cmpd_stmt.push_back(cmpdStmt);
+	void *ptr=cmpdStmt;
+	mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+	mem_addr.push_back(m1);
+	if(flagIsAFunctionBody_>=0){
+		cmpdStmt->scope_=func_info_table[qscript_parser::flagIsAFunctionBody_]->functionScope_;
+		// reset the flag
+		qscript_parser::flagIsAFunctionBody_=-1;
+	} else {
+		cmpdStmt->scope_= new Scope();
+	}
+	flag_next_stmt_start_of_block=true;
+	blk_start_flag.push_back(flag_next_stmt_start_of_block);
+	active_scope_list.push_back(cmpdStmt->scope_);
+	active_scope = cmpdStmt->scope_;
+	return cmpdStmt;
+}
+
+CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
+		AbstractStatement *stmt)
+{
+	/*
+	using qscript_parser::active_scope;
+	using qscript_parser::active_scope_list;
+	using qscript_parser::stack_cmpd_stmt;
+	using qscript_parser::blk_start_flag;
+	using qscript_parser::blk_heads;
+	using qscript_parser::mem_addr;
+	using qscript_parser::flag_next_stmt_start_of_block;
+	using qscript_parser::line_no;
+	using qscript_parser::no_errors;
+	*/
+
+	active_scope_list.pop_back();
+	int tmp=active_scope_list.size()-1;
+	if(tmp==-1) { 
+		active_scope = 0;
+		print_err(compiler_internal_error
+				, "Error: active_scope == 0 in ProcessCompoundStatement : should never happen :"
+				"... exiting",
+				line_no, __LINE__, __FILE__  );
+		exit(1);
+	} else { 
+		active_scope = active_scope_list[tmp]; 
+	}
+	struct AbstractStatement* head_of_this_chain=blk_heads.back();
+	if(blk_start_flag.size() > 0){
+		flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
+	}
+	if(  head_of_this_chain==0){
+		//cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
+		//++no_errors;
+		print_err(compiler_internal_error
+				, "Error: head_of_this_chain == 0 in ProcessCompoundStatement : should never happen :"
+				"... exiting",
+				line_no, __LINE__, __FILE__  );
+		exit(1);
+	} else {
+		cmpdStmt->compoundBody_ = head_of_this_chain;
+		blk_heads.pop_back();
+	}
+
+	//! update the counter of enlosing CompoundStatement with 
+	//! the number of questions in this CompoundStatement being popped of
+	//! right now
+	if(stack_cmpd_stmt.size()>1){
+		CompoundStatement * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
+		stack_cmpd_stmt.pop_back();
+		CompoundStatement * current  = stack_cmpd_stmt.back();
+		current->counterContainsQuestions_+= 
+			(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
+	} 
+	//$$=$1;
+	return cmpdStmt;
+}
+
 
 // Close namespace
 }

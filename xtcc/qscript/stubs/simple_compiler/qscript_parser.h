@@ -89,6 +89,9 @@ namespace qscript_parser {
 	extern AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 			, char* stub_list_name);
 
+	CompoundStatement* ProcessOpenCurly();
+	CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
+			AbstractStatement *stmt);
 }
 
 #endif /* qscript_parser_h */
