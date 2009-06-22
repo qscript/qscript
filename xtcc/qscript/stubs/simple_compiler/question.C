@@ -49,9 +49,9 @@ question::question(DataType l_type, int l_no, string l_name, string l_text
 	, no_mpn(l_no_mpn), dt(l_dt) , for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
 {
-	for(int i=0; i<l_loop_index_values.size(); ++i){
-		cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
-	}
+	//for(int i=0; i<l_loop_index_values.size(); ++i){
+	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
+	//}
 }
 
 
