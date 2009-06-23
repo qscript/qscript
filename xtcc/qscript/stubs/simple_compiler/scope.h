@@ -48,20 +48,18 @@ using std::map;
 
 #include "symtab.h"
 
-	struct Scope{
-		map<string,SymbolTableEntry*> SymbolTable;
-		Scope()	{
-			//cout << " constructing Scope(): this: " << this << endl;
-		}
-		AbstractStatement* insert(const char * name, DataType dt/*, int line_no*/);
-		AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
-		AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e, type_qualifier tq);
-		AbstractStatement* insert(const char * name, DataType dt, int arr_size /*, int line_no*/);
-		AbstractStatement* insert(const char * name, DataType dt, int arr_size, /*int line_no,*/ char *text);
-		AbstractStatement* insert(const char * name, DataType dt, XtccSet *lxs);
-		void print_scope(vector<string> &push_stack, 
-				vector<string>& pop_stack);
-		~Scope();
-	};
+struct Scope
+{
+	map<string,SymbolTableEntry*> SymbolTable;
+	Scope()	{ }
+	AbstractStatement* insert(const char * name, DataType dt/*, int line_no*/);
+	AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
+	AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e, type_qualifier tq);
+	AbstractStatement* insert(const char * name, DataType dt, int arr_size /*, int line_no*/);
+	AbstractStatement* insert(const char * name, DataType dt, int arr_size, /*int line_no,*/ char *text);
+	AbstractStatement* insert(const char * name, DataType dt, XtccSet *lxs);
+	void print_scope(vector<string> &push_stack, vector<string>& pop_stack);
+	~Scope();
+};
 
 #endif /* __SCOPE_H */

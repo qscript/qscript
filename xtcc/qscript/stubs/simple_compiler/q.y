@@ -120,7 +120,6 @@
 %%
 
 
-	//prog: stmt_list {
 prog: cmpd_stmt {
 	qscript_parser::tree_root=$1;
 		while(qscript_parser::tree_root->prev_) {
@@ -134,8 +133,6 @@ stmt_list: stmt {
 		$$=$1;
 		if(qscript_parser::flag_next_stmt_start_of_block){
 			qscript_parser::blk_heads.push_back($1);
-			//cout << "blk_heads.size(): " << blk_heads.size() << endl;
-			//start_of_blk=$1;
 			qscript_parser::flag_next_stmt_start_of_block=false;
 			qscript_parser::blk_start_flag.pop_back();
 		}
@@ -267,163 +264,12 @@ expr_stmt:	expression ';'
 	}
 	;
 
-	/*
-	question_list: question {
-		$$=$1;
-	}
-	| question_list question {
-		$1->next_=$2;
-		$2->prev_=$1;
-		$$=$2;
-	}
-	;
-	*/
 
 question: NAME TEXT qtype datatype range_allowed_values ';' {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::mem_addr;
-		using qscript_parser::map_of_active_vars_for_questions;
-		using qscript_parser::question_list;
-		using qscript_parser::xs;
-		using qscript_parser::q_type;
-		using qscript_parser::no_mpn;
-		using qscript_parser::if_line_no;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-
-		string name($1);
-		string q_text($2);
-		DataType dt=$4;
-		// This is preparatory work
-		// for jumping between questions
-		// store
-		vector<string> active_push_vars;
-		vector<string> active_pop_vars;
-		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			Scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_push_vars, active_pop_vars);
-		}
-		string q_push_name = name + "_push";
-		string q_pop_name = name + "_pop";
-		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
-		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
-		
-		AbstractExpression * arr_sz=0;
-		range_question * q=0;
-		if(qscript_parser::flagIsAForBody_){
-			cout << "flagIsAForBody_: " 
-				<< qscript_parser::flagIsAForBody_ << endl;
-			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
-			q= new range_question(QUESTION_TYPE, line_no, 
-				name, q_text, q_type, no_mpn, dt, xs
-				//, arr_sz
-				,qscript_parser::for_loop_max_counter_stack
-				);
-			//ostringstream s1, s2;
-			//arr_sz->print_expr(s1, s2);
-			//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
-		} else {
-			q= new range_question(QUESTION_TYPE, line_no, 
-				name, q_text, q_type, no_mpn, dt, xs);
-		}
-		if(stack_cmpd_stmt.size()==0){
-			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
-					"... exiting",
-					line_no, __LINE__, __FILE__  );
-			exit(1);
-		}
-		CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counterContainsQuestions_);
-		$$=q;
-		question_list.push_back(q);
-		xs.reset();
-		// questions always get pushed in Scope level 0 as they
-		// are global variables - no matter what the level of nesting
-		active_scope_list[0]->insert($1, QUESTION_TYPE);
-		// I need to modify the insert in Scope to
-		// take a 3rd parameter which is a question *
-		// and store that into the symbol table
-		// I should be able to retrieve that 
-		// question* pointer later 
+		$$ = qscript_parser::ProcessRangeQuestion($1, $2, $4);
 	}
 	| NAME TEXT qtype datatype NAME ';' {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::mem_addr;
-		using qscript_parser::map_of_active_vars_for_questions;
-		using qscript_parser::named_stubs_list;
-		using qscript_parser::question_list;
-		using qscript_parser::q_type;
-		using qscript_parser::no_mpn;
-		using qscript_parser::if_line_no;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		string name=$1;
-		string q_txt=$2;
-		DataType dt=$4;
-		string attribute_list_name=$5;
-
-		// This is preparatory work
-		// for jumping between questions
-		// store
-		vector<string> active_push_vars;
-		vector<string> active_pop_vars;
-		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			Scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_push_vars, active_pop_vars);
-		}
-		string q_push_name = name + "_push";
-		string q_pop_name = name + "_pop";
-		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
-		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
-
-		bool found=false;
-		struct named_range* nr_ptr = 0;
-		for(unsigned int i=0; i<named_stubs_list.size(); ++i){
-			nr_ptr = named_stubs_list[i];
-			if(nr_ptr->name==attribute_list_name){
-				found=true; break;
-			}
-		}
-		if(!found){
-			print_err(compiler_sem_err, string("named_stubs_list ") 
-				+ attribute_list_name + string(" not found \n"), line_no,
-				__LINE__, __FILE__);
-		}
-		
-		AbstractExpression * arr_sz=0;
-		named_stub_question* q=0;
-		if(qscript_parser::flagIsAForBody_){
-			cout << "flagIsAForBody_: " 
-				<< qscript_parser::flagIsAForBody_ << endl;
-			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
-			q=new named_stub_question(QUESTION_TYPE, 
-				line_no, name, q_txt, 
-				q_type, no_mpn, dt, 
-				nr_ptr
-				//, arr_sz
-				,qscript_parser::for_loop_max_counter_stack
-				);
-		} else {
-			q=new named_stub_question(QUESTION_TYPE, 
-				line_no, name, q_txt, 
-				q_type, no_mpn, dt, 
-				nr_ptr);
-		}
-		question_list.push_back(q);
-		$$=q;
-		active_scope_list[0]->insert($1, QUESTION_TYPE);
-		if(stack_cmpd_stmt.size()==0){
-			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
-					"... exiting",
-					line_no, __LINE__, __FILE__  );
-			exit(1);
-		}
-		CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counterContainsQuestions_);
+		$$ = qscript_parser::ProcessNamedQuestion($1, $2, $4, $5);
 	}
 	;
 
@@ -639,8 +485,10 @@ expression: expression '+' expression {
 		if(index!=-1) found=true;
 		bool skip_type_check=skip_func_type_check(search_for.c_str());
 		if( skip_type_check==false  && found==false ) {
-			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
-			cerr << "function : " << search_for << " used without decl" << endl;
+			cerr << "ERROR: function call Error on line_no: " 
+				<< line_no << endl;
+			cerr << "function : " << search_for 
+				<< " used without decl" << endl;
 			++ no_errors;
 			$$=new Unary2Expression(ERROR_TYPE);
 			void *ptr=$$;
@@ -649,7 +497,8 @@ expression: expression '+' expression {
 		} else {
 			DataType my_type=func_info_table[index]->returnType_;
 			AbstractExpression* e_ptr=trav_chain($3);
-			VariableList* fparam=func_info_table[index]->parameterList_;
+			VariableList* fparam=
+				func_info_table[index]->parameterList_;
 			bool match=false;
 			if(skip_type_check==false){
 				match=check_parameters(e_ptr, fparam);
@@ -709,7 +558,9 @@ expr_list: expression { $$=$1; }
 	;
 
 qtype: SP { qscript_parser::q_type = spn; }
-	| MP '(' INUMBER ')' { qscript_parser::q_type = mpn; qscript_parser::no_mpn = $3; }
+	| MP '(' INUMBER ')' { qscript_parser::q_type = mpn; 
+		qscript_parser::no_mpn = $3; 
+	}
 	;
 
 range_allowed_values:  '(' range_list ')' { }
@@ -723,11 +574,13 @@ range_list: range
 range: 	INUMBER '-' INUMBER {
 		using qscript_parser::line_no;
 		if($3<=$1){
-			print_err(compiler_sem_err, "2nd number in range <= 1st number",
+			print_err(compiler_sem_err
+					, "2nd number in range <= 1st number",
 					line_no, __LINE__, __FILE__  );
 
 		} else {
-			qscript_parser::xs.range.push_back( pair<int,int>($1,$3));
+			qscript_parser::
+				xs.range.push_back( pair<int,int>($1,$3));
 		}
 	}
 	|	INUMBER {
@@ -745,7 +598,8 @@ stubs:     STUBS_LIST NAME {
 		using qscript_parser:: named_stubs_list;
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=$2;
-		struct named_range* nr_ptr= new named_range(NAMED_RANGE, line_no, stub_name,stub_list);
+		struct named_range* nr_ptr= new named_range(NAMED_RANGE
+				, line_no, stub_name,stub_list);
 		named_stubs_list.push_back(nr_ptr);
 		//$$=0;
 		$$ = nr_ptr;
@@ -772,10 +626,12 @@ stub_list:	TEXT INUMBER {
 
 stub_manip_stmts: 
 	  SETDEL '(' NAME ',' NAME ')' ';' {
-		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL, $3, $5);
+		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
+				, $3, $5);
 	}
 	| SETADD '(' NAME ',' NAME ')' ';' {
-		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD, $3, $5);
+		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
+				, $3, $5);
 	}
 	| UNSET '(' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, $3);
@@ -825,7 +681,9 @@ template<class T> T* trav_chain(T* & elem1){
 AbstractExpression * recurse_for_index(int stack_index){
 	//cerr << "entered: recurse_for_index: stack_index: " << stack_index << endl;
 	if(stack_index==0){
-		BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[0]);
+		BinaryExpression * test_expr = 
+			dynamic_cast<BinaryExpression*>(
+					for_loop_max_counter_stack[0]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
@@ -841,7 +699,9 @@ AbstractExpression * recurse_for_index(int stack_index){
 			return test_expr->rightOperand_;
 		}
 	} else {
-		BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[stack_index]);
+		BinaryExpression * test_expr = 
+			dynamic_cast<BinaryExpression*>(
+				for_loop_max_counter_stack[stack_index]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
@@ -871,7 +731,8 @@ CompoundStatement* ProcessOpenCurly()
 	mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 	mem_addr.push_back(m1);
 	if(flagIsAFunctionBody_>=0){
-		cmpdStmt->scope_=func_info_table[qscript_parser::flagIsAFunctionBody_]->functionScope_;
+		cmpdStmt->scope_=func_info_table[
+			qscript_parser::flagIsAFunctionBody_]->functionScope_;
 		// reset the flag
 		qscript_parser::flagIsAFunctionBody_=-1;
 	} else {
@@ -887,25 +748,14 @@ CompoundStatement* ProcessOpenCurly()
 CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 		AbstractStatement *stmt)
 {
-	/*
-	using qscript_parser::active_scope;
-	using qscript_parser::active_scope_list;
-	using qscript_parser::stack_cmpd_stmt;
-	using qscript_parser::blk_start_flag;
-	using qscript_parser::blk_heads;
-	using qscript_parser::mem_addr;
-	using qscript_parser::flag_next_stmt_start_of_block;
-	using qscript_parser::line_no;
-	using qscript_parser::no_errors;
-	*/
 
 	active_scope_list.pop_back();
 	int tmp=active_scope_list.size()-1;
 	if(tmp==-1) { 
 		active_scope = 0;
 		print_err(compiler_internal_error
-				, "Error: active_scope == 0 in ProcessCompoundStatement : should never happen :"
-				"... exiting",
+			, "Error: active_scope == 0 in ProcessCompoundStatement"
+			": should never happen :... exiting",
 				line_no, __LINE__, __FILE__  );
 		exit(1);
 	} else { 
@@ -919,9 +769,10 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 		//cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
 		//++no_errors;
 		print_err(compiler_internal_error
-				, "Error: head_of_this_chain == 0 in ProcessCompoundStatement : should never happen :"
-				"... exiting",
-				line_no, __LINE__, __FILE__  );
+			, "Error: head_of_this_chain == 0 in "
+			"ProcessCompoundStatement : should never happen :"
+			"... exiting"
+			, line_no, __LINE__, __FILE__  );
 		exit(1);
 	} else {
 		cmpdStmt->compoundBody_ = head_of_this_chain;
@@ -942,6 +793,123 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 	return cmpdStmt;
 }
 
+AbstractStatement * ProcessRangeQuestion(const string &name
+		, const string & q_text, const DataType& dt )
+{
+
+	vector<string> active_push_vars;
+	vector<string> active_pop_vars;
+	for(unsigned int i=0; i< active_scope_list.size(); ++i){
+		Scope* sc_ptr= active_scope_list[i];
+		sc_ptr->print_scope(active_push_vars, active_pop_vars);
+	}
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+	
+	AbstractExpression * arr_sz=0;
+	range_question * q=0;
+	if(qscript_parser::flagIsAForBody_){
+		cout << "flagIsAForBody_: " 
+			<< qscript_parser::flagIsAForBody_ << endl;
+		arr_sz = qscript_parser::recurse_for_index(
+			qscript_parser::for_loop_max_counter_stack.size()-1);
+		q= new range_question(QUESTION_TYPE, line_no, 
+			name, q_text, q_type, no_mpn, dt, xs
+			//, arr_sz
+			,qscript_parser::for_loop_max_counter_stack
+			);
+		//ostringstream s1, s2;
+		//arr_sz->print_expr(s1, s2);
+		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
+	} else {
+		q= new range_question(QUESTION_TYPE, line_no, 
+			name, q_text, q_type, no_mpn, dt, xs);
+	}
+	if(stack_cmpd_stmt.size()==0){
+		print_err(compiler_internal_error
+			, "compound statement stack is 0 when parsing"
+			"a question... exiting",
+				line_no, __LINE__, __FILE__  );
+		exit(1);
+	}
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	//$$=q;
+	question_list.push_back(q);
+	xs.reset();
+	// questions always get pushed in Scope level 0 as they
+	// are global variables - no matter what the level of nesting
+	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
+	// I need to modify the insert in Scope to
+	// take a 3rd parameter which is a question *
+	// and store that into the symbol table
+	// I should be able to retrieve that 
+	// question* pointer later 
+	return q;
+}
+
+AbstractStatement * ProcessNamedQuestion(const string &name
+			, const string & q_txt , const DataType& dt 
+			, const string & attribute_list_name )
+{
+
+	// This is preparatory work
+	// for jumping between questions
+	// store
+	vector<string> active_push_vars;
+	vector<string> active_pop_vars;
+	for(unsigned int i=0; i< active_scope_list.size(); ++i){
+		Scope* sc_ptr= active_scope_list[i];
+		sc_ptr->print_scope(active_push_vars, active_pop_vars);
+	}
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+
+	bool found=false;
+	struct named_range* nr_ptr = 0;
+	for(unsigned int i=0; i<named_stubs_list.size(); ++i){
+		nr_ptr = named_stubs_list[i];
+		if(nr_ptr->name==attribute_list_name){
+			found=true; break;
+		}
+	}
+	if(!found){
+		print_err(compiler_sem_err, string("named_stubs_list ") 
+			+ attribute_list_name + string(" not found \n"), line_no,
+			__LINE__, __FILE__);
+	}
+	
+	AbstractExpression * arr_sz=0;
+	named_stub_question* q=0;
+	if(qscript_parser::flagIsAForBody_){
+		cout << "flagIsAForBody_: " 
+			<< qscript_parser::flagIsAForBody_ << endl;
+		arr_sz = qscript_parser::recurse_for_index(
+			qscript_parser::for_loop_max_counter_stack.size()-1);
+		q=new named_stub_question(QUESTION_TYPE, line_no
+				, name, q_txt, q_type, no_mpn, dt , nr_ptr
+				,qscript_parser::for_loop_max_counter_stack);
+	} else {
+		q=new named_stub_question(QUESTION_TYPE, 
+			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr);
+	}
+	question_list.push_back(q);
+	//$$=q;
+	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
+	if(stack_cmpd_stmt.size()==0){
+		print_err(compiler_internal_error, "compound statement stack "
+			"is 0 when parsing a question... exiting"
+			, line_no, __LINE__, __FILE__  );
+		exit(1);
+	}
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	return q;
+}
 
 // Close namespace
 }

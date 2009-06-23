@@ -92,6 +92,11 @@ namespace qscript_parser {
 	CompoundStatement* ProcessOpenCurly();
 	CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 			AbstractStatement *stmt);
+	AbstractStatement * ProcessRangeQuestion(const string &name
+			, const string & q_text , const DataType& dt );
+	AbstractStatement * ProcessNamedQuestion(const string &name
+			, const string & q_txt , const DataType& dt 
+			, const string & named_stub_list );
 }
 
 #endif /* qscript_parser_h */

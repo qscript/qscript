@@ -542,14 +542,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   124,   124,   133,   144,   152,   153,   154,   155,   156,
-     157,   158,   161,   166,   171,   173,   177,   188,   189,   190,
-     191,   192,   195,   196,   197,   201,   201,   216,   270,   278,
-     288,   300,   331,   400,   481,   490,   499,   508,   517,   526,
-     535,   544,   553,   562,   571,   580,   589,   598,   609,   618,
-     627,   636,   644,   652,   661,   670,   722,   729,   736,   754,
-     755,   760,   761,   764,   768,   769,   772,   782,   787,   787,
-     805,   812,   823,   826,   829,   832
+       0,   123,   123,   132,   141,   149,   150,   151,   152,   153,
+     154,   155,   158,   163,   168,   170,   174,   185,   186,   187,
+     188,   189,   192,   193,   194,   198,   198,   213,   218,   226,
+     236,   248,   268,   271,   278,   287,   296,   305,   314,   323,
+     332,   341,   350,   359,   368,   377,   386,   395,   406,   415,
+     424,   433,   441,   449,   458,   467,   522,   529,   536,   554,
+     555,   560,   561,   566,   570,   571,   574,   586,   591,   591,
+     610,   617,   628,   632,   636,   639
 };
 #endif
 
@@ -1626,7 +1626,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 124 "q.y"
+#line 123 "q.y"
     {
 	qscript_parser::tree_root=(yyvsp[(1) - (1)].c_stmt);
 		while(qscript_parser::tree_root->prev_) {
@@ -1637,13 +1637,11 @@ yyreduce:
     break;
 
   case 3:
-#line 133 "q.y"
+#line 132 "q.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 		if(qscript_parser::flag_next_stmt_start_of_block){
 			qscript_parser::blk_heads.push_back((yyvsp[(1) - (1)].stmt));
-			//cout << "blk_heads.size(): " << blk_heads.size() << endl;
-			//start_of_blk=$1;
 			qscript_parser::flag_next_stmt_start_of_block=false;
 			qscript_parser::blk_start_flag.pop_back();
 		}
@@ -1652,7 +1650,7 @@ yyreduce:
     break;
 
   case 4:
-#line 144 "q.y"
+#line 141 "q.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
@@ -1661,14 +1659,14 @@ yyreduce:
     break;
 
   case 12:
-#line 161 "q.y"
+#line 158 "q.y"
     {
 		   (yyval.type_qual) = CONST_QUAL;
 	}
     break;
 
   case 13:
-#line 166 "q.y"
+#line 163 "q.y"
     {
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (3)].name), (yyvsp[(1) - (3)].dt)/*, line_no*/);
 		//free($2);
@@ -1677,13 +1675,13 @@ yyreduce:
     break;
 
   case 14:
-#line 171 "q.y"
+#line 168 "q.y"
     {
 	}
     break;
 
   case 15:
-#line 173 "q.y"
+#line 170 "q.y"
     {
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (5)].name), (yyvsp[(1) - (5)].dt), (yyvsp[(4) - (5)].expr));
 		// -- why am i not freeing this?
@@ -1691,7 +1689,7 @@ yyreduce:
     break;
 
   case 16:
-#line 177 "q.y"
+#line 174 "q.y"
     {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
 		DataType dt=DataType(INT8_ARR_TYPE+((yyvsp[(1) - (6)].dt)-INT8_TYPE));
@@ -1701,14 +1699,14 @@ yyreduce:
     break;
 
   case 21:
-#line 192 "q.y"
+#line 189 "q.y"
     {
 		(yyval.stmt) = (yyvsp[(1) - (1)].c_stmt);
 	}
     break;
 
   case 25:
-#line 201 "q.y"
+#line 198 "q.y"
     {
 		++qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.push_back((yyvsp[(5) - (8)].expr));
@@ -1716,7 +1714,7 @@ yyreduce:
     break;
 
   case 26:
-#line 204 "q.y"
+#line 201 "q.y"
     {
 		using qscript_parser::line_no;
 		(yyval.stmt) = new ForStatement(FOR_STMT, line_no, (yyvsp[(3) - (10)].expr), (yyvsp[(5) - (10)].expr), (yyvsp[(7) - (10)].expr), (yyvsp[(10) - (10)].c_stmt));
@@ -1730,63 +1728,14 @@ yyreduce:
     break;
 
   case 27:
-#line 216 "q.y"
+#line 213 "q.y"
     {
 		(yyval.c_stmt) = qscript_parser::ProcessCompoundStatement((yyvsp[(1) - (3)].c_stmt), (yyvsp[(2) - (3)].stmt));
-		/*
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::blk_start_flag;
-		using qscript_parser::blk_heads;
-		using qscript_parser::mem_addr;
-		using qscript_parser::flag_next_stmt_start_of_block;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-
-		active_scope_list.pop_back();
-		int tmp=active_scope_list.size()-1;
-		if(tmp==-1) { 
-			active_scope = 0;
-			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
-				<< endl;
-			++no_errors;
-			$$=new struct CompoundStatement(ERROR_TYPE, line_no, 0, 0);
-			void *ptr=$$;
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else { 
-			active_scope = active_scope_list[tmp]; 
-		}
-		struct AbstractStatement* head_of_this_chain=blk_heads.back();
-		if(blk_start_flag.size() > 0){
-			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
-		}
-		if(  head_of_this_chain==0){
-			cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
-			++no_errors;
-		} else {
-			$1->compoundBody_ = head_of_this_chain;
-			blk_heads.pop_back();
-		}
-
-		//! update the counter of enlosing CompoundStatement with 
-		//! the number of questions in this CompoundStatement being popped of
-		//! right now
-		if(stack_cmpd_stmt.size()>1){
-			CompoundStatement * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
-			stack_cmpd_stmt.pop_back();
-			CompoundStatement * current  = stack_cmpd_stmt.back();
-			current->counterContainsQuestions_+= 
-				(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
-		} 
-		$$=$1;
-		*/
 	}
     break;
 
   case 28:
-#line 270 "q.y"
+#line 218 "q.y"
     {
 		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
 		(yyval.c_stmt)=cmpdStmt;
@@ -1794,7 +1743,7 @@ yyreduce:
     break;
 
   case 29:
-#line 278 "q.y"
+#line 226 "q.y"
     {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
@@ -1808,7 +1757,7 @@ yyreduce:
     break;
 
   case 30:
-#line 288 "q.y"
+#line 236 "q.y"
     {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
@@ -1821,7 +1770,7 @@ yyreduce:
     break;
 
   case 31:
-#line 301 "q.y"
+#line 249 "q.y"
     {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
@@ -1841,161 +1790,21 @@ yyreduce:
     break;
 
   case 32:
-#line 331 "q.y"
+#line 268 "q.y"
     {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::mem_addr;
-		using qscript_parser::map_of_active_vars_for_questions;
-		using qscript_parser::question_list;
-		using qscript_parser::xs;
-		using qscript_parser::q_type;
-		using qscript_parser::no_mpn;
-		using qscript_parser::if_line_no;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-
-		string name((yyvsp[(1) - (6)].name));
-		string q_text((yyvsp[(2) - (6)].text_buf));
-		DataType dt=(yyvsp[(4) - (6)].dt);
-		// This is preparatory work
-		// for jumping between questions
-		// store
-		vector<string> active_push_vars;
-		vector<string> active_pop_vars;
-		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			Scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_push_vars, active_pop_vars);
-		}
-		string q_push_name = name + "_push";
-		string q_pop_name = name + "_pop";
-		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
-		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
-		
-		AbstractExpression * arr_sz=0;
-		range_question * q=0;
-		if(qscript_parser::flagIsAForBody_){
-			cout << "flagIsAForBody_: " 
-				<< qscript_parser::flagIsAForBody_ << endl;
-			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
-			q= new range_question(QUESTION_TYPE, line_no, 
-				name, q_text, q_type, no_mpn, dt, xs
-				//, arr_sz
-				,qscript_parser::for_loop_max_counter_stack
-				);
-			//ostringstream s1, s2;
-			//arr_sz->print_expr(s1, s2);
-			//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
-		} else {
-			q= new range_question(QUESTION_TYPE, line_no, 
-				name, q_text, q_type, no_mpn, dt, xs);
-		}
-		if(stack_cmpd_stmt.size()==0){
-			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
-					"... exiting",
-					line_no, __LINE__, __FILE__  );
-			exit(1);
-		}
-		CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counterContainsQuestions_);
-		(yyval.stmt)=q;
-		question_list.push_back(q);
-		xs.reset();
-		// questions always get pushed in Scope level 0 as they
-		// are global variables - no matter what the level of nesting
-		active_scope_list[0]->insert((yyvsp[(1) - (6)].name), QUESTION_TYPE);
-		// I need to modify the insert in Scope to
-		// take a 3rd parameter which is a question *
-		// and store that into the symbol table
-		// I should be able to retrieve that 
-		// question* pointer later 
+		(yyval.stmt) = qscript_parser::ProcessRangeQuestion((yyvsp[(1) - (6)].name), (yyvsp[(2) - (6)].text_buf), (yyvsp[(4) - (6)].dt));
 	}
     break;
 
   case 33:
-#line 400 "q.y"
+#line 271 "q.y"
     {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::mem_addr;
-		using qscript_parser::map_of_active_vars_for_questions;
-		using qscript_parser::named_stubs_list;
-		using qscript_parser::question_list;
-		using qscript_parser::q_type;
-		using qscript_parser::no_mpn;
-		using qscript_parser::if_line_no;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		string name=(yyvsp[(1) - (6)].name);
-		string q_txt=(yyvsp[(2) - (6)].text_buf);
-		DataType dt=(yyvsp[(4) - (6)].dt);
-		string attribute_list_name=(yyvsp[(5) - (6)].name);
-
-		// This is preparatory work
-		// for jumping between questions
-		// store
-		vector<string> active_push_vars;
-		vector<string> active_pop_vars;
-		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			Scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_push_vars, active_pop_vars);
-		}
-		string q_push_name = name + "_push";
-		string q_pop_name = name + "_pop";
-		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
-		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
-
-		bool found=false;
-		struct named_range* nr_ptr = 0;
-		for(unsigned int i=0; i<named_stubs_list.size(); ++i){
-			nr_ptr = named_stubs_list[i];
-			if(nr_ptr->name==attribute_list_name){
-				found=true; break;
-			}
-		}
-		if(!found){
-			print_err(compiler_sem_err, string("named_stubs_list ") 
-				+ attribute_list_name + string(" not found \n"), line_no,
-				__LINE__, __FILE__);
-		}
-		
-		AbstractExpression * arr_sz=0;
-		named_stub_question* q=0;
-		if(qscript_parser::flagIsAForBody_){
-			cout << "flagIsAForBody_: " 
-				<< qscript_parser::flagIsAForBody_ << endl;
-			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
-			q=new named_stub_question(QUESTION_TYPE, 
-				line_no, name, q_txt, 
-				q_type, no_mpn, dt, 
-				nr_ptr
-				//, arr_sz
-				,qscript_parser::for_loop_max_counter_stack
-				);
-		} else {
-			q=new named_stub_question(QUESTION_TYPE, 
-				line_no, name, q_txt, 
-				q_type, no_mpn, dt, 
-				nr_ptr);
-		}
-		question_list.push_back(q);
-		(yyval.stmt)=q;
-		active_scope_list[0]->insert((yyvsp[(1) - (6)].name), QUESTION_TYPE);
-		if(stack_cmpd_stmt.size()==0){
-			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
-					"... exiting",
-					line_no, __LINE__, __FILE__  );
-			exit(1);
-		}
-		CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counterContainsQuestions_);
+		(yyval.stmt) = qscript_parser::ProcessNamedQuestion((yyvsp[(1) - (6)].name), (yyvsp[(2) - (6)].text_buf), (yyvsp[(4) - (6)].dt), (yyvsp[(5) - (6)].name));
 	}
     break;
 
   case 34:
-#line 481 "q.y"
+#line 278 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
@@ -2008,7 +1817,7 @@ yyreduce:
     break;
 
   case 35:
-#line 490 "q.y"
+#line 287 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2021,7 +1830,7 @@ yyreduce:
     break;
 
   case 36:
-#line 499 "q.y"
+#line 296 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2034,7 +1843,7 @@ yyreduce:
     break;
 
   case 37:
-#line 508 "q.y"
+#line 305 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2047,7 +1856,7 @@ yyreduce:
     break;
 
   case 38:
-#line 517 "q.y"
+#line 314 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2060,7 +1869,7 @@ yyreduce:
     break;
 
   case 39:
-#line 526 "q.y"
+#line 323 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2073,7 +1882,7 @@ yyreduce:
     break;
 
   case 40:
-#line 535 "q.y"
+#line 332 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2086,7 +1895,7 @@ yyreduce:
     break;
 
   case 41:
-#line 544 "q.y"
+#line 341 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2099,7 +1908,7 @@ yyreduce:
     break;
 
   case 42:
-#line 553 "q.y"
+#line 350 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2112,7 +1921,7 @@ yyreduce:
     break;
 
   case 43:
-#line 562 "q.y"
+#line 359 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2125,7 +1934,7 @@ yyreduce:
     break;
 
   case 44:
-#line 571 "q.y"
+#line 368 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2138,7 +1947,7 @@ yyreduce:
     break;
 
   case 45:
-#line 580 "q.y"
+#line 377 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2151,7 +1960,7 @@ yyreduce:
     break;
 
   case 46:
-#line 589 "q.y"
+#line 386 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2164,7 +1973,7 @@ yyreduce:
     break;
 
   case 47:
-#line 598 "q.y"
+#line 395 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2179,7 +1988,7 @@ yyreduce:
     break;
 
   case 48:
-#line 609 "q.y"
+#line 406 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2192,7 +2001,7 @@ yyreduce:
     break;
 
   case 49:
-#line 618 "q.y"
+#line 415 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2205,7 +2014,7 @@ yyreduce:
     break;
 
   case 50:
-#line 627 "q.y"
+#line 424 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2218,7 +2027,7 @@ yyreduce:
     break;
 
   case 51:
-#line 636 "q.y"
+#line 433 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2230,7 +2039,7 @@ yyreduce:
     break;
 
   case 52:
-#line 644 "q.y"
+#line 441 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2242,7 +2051,7 @@ yyreduce:
     break;
 
   case 53:
-#line 652 "q.y"
+#line 449 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
@@ -2255,7 +2064,7 @@ yyreduce:
     break;
 
   case 54:
-#line 661 "q.y"
+#line 458 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
@@ -2268,7 +2077,7 @@ yyreduce:
     break;
 
   case 55:
-#line 670 "q.y"
+#line 467 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::named_stubs_list;
@@ -2290,8 +2099,10 @@ yyreduce:
 		if(index!=-1) found=true;
 		bool skip_type_check=skip_func_type_check(search_for.c_str());
 		if( skip_type_check==false  && found==false ) {
-			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
-			cerr << "function : " << search_for << " used without decl" << endl;
+			cerr << "ERROR: function call Error on line_no: " 
+				<< line_no << endl;
+			cerr << "function : " << search_for 
+				<< " used without decl" << endl;
 			++ no_errors;
 			(yyval.expr)=new Unary2Expression(ERROR_TYPE);
 			void *ptr=(yyval.expr);
@@ -2300,7 +2111,8 @@ yyreduce:
 		} else {
 			DataType my_type=func_info_table[index]->returnType_;
 			AbstractExpression* e_ptr=trav_chain((yyvsp[(3) - (4)].expr));
-			VariableList* fparam=func_info_table[index]->parameterList_;
+			VariableList* fparam=
+				func_info_table[index]->parameterList_;
 			bool match=false;
 			if(skip_type_check==false){
 				match=check_parameters(e_ptr, fparam);
@@ -2324,7 +2136,7 @@ yyreduce:
     break;
 
   case 56:
-#line 722 "q.y"
+#line 522 "q.y"
     {
 		using qscript_parser::line_no;
 		(yyval.expr) = new Unary2Expression(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
@@ -2335,7 +2147,7 @@ yyreduce:
     break;
 
   case 57:
-#line 729 "q.y"
+#line 529 "q.y"
     { 
 		using qscript_parser::line_no;
 		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (3)].expr), oper_parexp );
@@ -2346,7 +2158,7 @@ yyreduce:
     break;
 
   case 58:
-#line 736 "q.y"
+#line 536 "q.y"
     {
 		using qscript_parser::xs;
 		using qscript_parser::line_no;
@@ -2356,55 +2168,59 @@ yyreduce:
     break;
 
   case 59:
-#line 754 "q.y"
+#line 554 "q.y"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); }
     break;
 
   case 60:
-#line 755 "q.y"
+#line 555 "q.y"
     {
 		(yyval.expr)=qscript_parser::link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
 	}
     break;
 
   case 61:
-#line 760 "q.y"
+#line 560 "q.y"
     { qscript_parser::q_type = spn; }
     break;
 
   case 62:
-#line 761 "q.y"
-    { qscript_parser::q_type = mpn; qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival); }
+#line 561 "q.y"
+    { qscript_parser::q_type = mpn; 
+		qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival); 
+	}
     break;
 
   case 63:
-#line 764 "q.y"
+#line 566 "q.y"
     { }
     break;
 
   case 66:
-#line 772 "q.y"
+#line 574 "q.y"
     {
 		using qscript_parser::line_no;
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
-			print_err(compiler_sem_err, "2nd number in range <= 1st number",
+			print_err(compiler_sem_err
+					, "2nd number in range <= 1st number",
 					line_no, __LINE__, __FILE__  );
 
 		} else {
-			qscript_parser::xs.range.push_back( pair<int,int>((yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival)));
+			qscript_parser::
+				xs.range.push_back( pair<int,int>((yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival)));
 		}
 	}
     break;
 
   case 67:
-#line 782 "q.y"
+#line 586 "q.y"
     {
 		qscript_parser::xs.indiv.insert((yyvsp[(1) - (1)].ival));
 	}
     break;
 
   case 68:
-#line 787 "q.y"
+#line 591 "q.y"
     {
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
@@ -2413,14 +2229,15 @@ yyreduce:
     break;
 
   case 69:
-#line 791 "q.y"
+#line 595 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=(yyvsp[(2) - (6)].name);
-		struct named_range* nr_ptr= new named_range(NAMED_RANGE, line_no, stub_name,stub_list);
+		struct named_range* nr_ptr= new named_range(NAMED_RANGE
+				, line_no, stub_name,stub_list);
 		named_stubs_list.push_back(nr_ptr);
 		//$$=0;
 		(yyval.stmt) = nr_ptr;
@@ -2428,7 +2245,7 @@ yyreduce:
     break;
 
   case 70:
-#line 805 "q.y"
+#line 610 "q.y"
     {
 		using qscript_parser::stub_list;
 		string s1=(yyvsp[(1) - (2)].text_buf);
@@ -2439,7 +2256,7 @@ yyreduce:
     break;
 
   case 71:
-#line 812 "q.y"
+#line 617 "q.y"
     {
 		using qscript_parser::stub_list;
 		string s1=(yyvsp[(2) - (3)].text_buf);
@@ -2451,28 +2268,30 @@ yyreduce:
     break;
 
   case 72:
-#line 823 "q.y"
+#line 628 "q.y"
     {
-		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
+		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
+				, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
 	}
     break;
 
   case 73:
-#line 826 "q.y"
+#line 632 "q.y"
     {
-		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
+		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
+				, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
 	}
     break;
 
   case 74:
-#line 829 "q.y"
+#line 636 "q.y"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, (yyvsp[(3) - (5)].name));
 	}
     break;
 
   case 75:
-#line 832 "q.y"
+#line 639 "q.y"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_SET_ALL, (yyvsp[(3) - (5)].name));
 	}
@@ -2480,7 +2299,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 2484 "q.c"
+#line 2303 "q.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2694,7 +2513,7 @@ yyreturn:
 }
 
 
-#line 840 "q.y"
+#line 647 "q.y"
 
 
 
@@ -2732,7 +2551,9 @@ template<class T> T* trav_chain(T* & elem1){
 AbstractExpression * recurse_for_index(int stack_index){
 	//cerr << "entered: recurse_for_index: stack_index: " << stack_index << endl;
 	if(stack_index==0){
-		BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[0]);
+		BinaryExpression * test_expr = 
+			dynamic_cast<BinaryExpression*>(
+					for_loop_max_counter_stack[0]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
@@ -2748,7 +2569,9 @@ AbstractExpression * recurse_for_index(int stack_index){
 			return test_expr->rightOperand_;
 		}
 	} else {
-		BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[stack_index]);
+		BinaryExpression * test_expr = 
+			dynamic_cast<BinaryExpression*>(
+				for_loop_max_counter_stack[stack_index]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
@@ -2778,7 +2601,8 @@ CompoundStatement* ProcessOpenCurly()
 	mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 	mem_addr.push_back(m1);
 	if(flagIsAFunctionBody_>=0){
-		cmpdStmt->scope_=func_info_table[qscript_parser::flagIsAFunctionBody_]->functionScope_;
+		cmpdStmt->scope_=func_info_table[
+			qscript_parser::flagIsAFunctionBody_]->functionScope_;
 		// reset the flag
 		qscript_parser::flagIsAFunctionBody_=-1;
 	} else {
@@ -2794,25 +2618,14 @@ CompoundStatement* ProcessOpenCurly()
 CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 		AbstractStatement *stmt)
 {
-	/*
-	using qscript_parser::active_scope;
-	using qscript_parser::active_scope_list;
-	using qscript_parser::stack_cmpd_stmt;
-	using qscript_parser::blk_start_flag;
-	using qscript_parser::blk_heads;
-	using qscript_parser::mem_addr;
-	using qscript_parser::flag_next_stmt_start_of_block;
-	using qscript_parser::line_no;
-	using qscript_parser::no_errors;
-	*/
 
 	active_scope_list.pop_back();
 	int tmp=active_scope_list.size()-1;
 	if(tmp==-1) { 
 		active_scope = 0;
 		print_err(compiler_internal_error
-				, "Error: active_scope == 0 in ProcessCompoundStatement : should never happen :"
-				"... exiting",
+			, "Error: active_scope == 0 in ProcessCompoundStatement"
+			": should never happen :... exiting",
 				line_no, __LINE__, __FILE__  );
 		exit(1);
 	} else { 
@@ -2826,9 +2639,10 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 		//cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
 		//++no_errors;
 		print_err(compiler_internal_error
-				, "Error: head_of_this_chain == 0 in ProcessCompoundStatement : should never happen :"
-				"... exiting",
-				line_no, __LINE__, __FILE__  );
+			, "Error: head_of_this_chain == 0 in "
+			"ProcessCompoundStatement : should never happen :"
+			"... exiting"
+			, line_no, __LINE__, __FILE__  );
 		exit(1);
 	} else {
 		cmpdStmt->compoundBody_ = head_of_this_chain;
@@ -2849,6 +2663,123 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 	return cmpdStmt;
 }
 
+AbstractStatement * ProcessRangeQuestion(const string &name
+		, const string & q_text, const DataType& dt )
+{
+
+	vector<string> active_push_vars;
+	vector<string> active_pop_vars;
+	for(unsigned int i=0; i< active_scope_list.size(); ++i){
+		Scope* sc_ptr= active_scope_list[i];
+		sc_ptr->print_scope(active_push_vars, active_pop_vars);
+	}
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+	
+	AbstractExpression * arr_sz=0;
+	range_question * q=0;
+	if(qscript_parser::flagIsAForBody_){
+		cout << "flagIsAForBody_: " 
+			<< qscript_parser::flagIsAForBody_ << endl;
+		arr_sz = qscript_parser::recurse_for_index(
+			qscript_parser::for_loop_max_counter_stack.size()-1);
+		q= new range_question(QUESTION_TYPE, line_no, 
+			name, q_text, q_type, no_mpn, dt, xs
+			//, arr_sz
+			,qscript_parser::for_loop_max_counter_stack
+			);
+		//ostringstream s1, s2;
+		//arr_sz->print_expr(s1, s2);
+		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
+	} else {
+		q= new range_question(QUESTION_TYPE, line_no, 
+			name, q_text, q_type, no_mpn, dt, xs);
+	}
+	if(stack_cmpd_stmt.size()==0){
+		print_err(compiler_internal_error
+			, "compound statement stack is 0 when parsing"
+			"a question... exiting",
+				line_no, __LINE__, __FILE__  );
+		exit(1);
+	}
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	//$$=q;
+	question_list.push_back(q);
+	xs.reset();
+	// questions always get pushed in Scope level 0 as they
+	// are global variables - no matter what the level of nesting
+	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
+	// I need to modify the insert in Scope to
+	// take a 3rd parameter which is a question *
+	// and store that into the symbol table
+	// I should be able to retrieve that 
+	// question* pointer later 
+	return q;
+}
+
+AbstractStatement * ProcessNamedQuestion(const string &name
+			, const string & q_txt , const DataType& dt 
+			, const string & attribute_list_name )
+{
+
+	// This is preparatory work
+	// for jumping between questions
+	// store
+	vector<string> active_push_vars;
+	vector<string> active_pop_vars;
+	for(unsigned int i=0; i< active_scope_list.size(); ++i){
+		Scope* sc_ptr= active_scope_list[i];
+		sc_ptr->print_scope(active_push_vars, active_pop_vars);
+	}
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+
+	bool found=false;
+	struct named_range* nr_ptr = 0;
+	for(unsigned int i=0; i<named_stubs_list.size(); ++i){
+		nr_ptr = named_stubs_list[i];
+		if(nr_ptr->name==attribute_list_name){
+			found=true; break;
+		}
+	}
+	if(!found){
+		print_err(compiler_sem_err, string("named_stubs_list ") 
+			+ attribute_list_name + string(" not found \n"), line_no,
+			__LINE__, __FILE__);
+	}
+	
+	AbstractExpression * arr_sz=0;
+	named_stub_question* q=0;
+	if(qscript_parser::flagIsAForBody_){
+		cout << "flagIsAForBody_: " 
+			<< qscript_parser::flagIsAForBody_ << endl;
+		arr_sz = qscript_parser::recurse_for_index(
+			qscript_parser::for_loop_max_counter_stack.size()-1);
+		q=new named_stub_question(QUESTION_TYPE, line_no
+				, name, q_txt, q_type, no_mpn, dt , nr_ptr
+				,qscript_parser::for_loop_max_counter_stack);
+	} else {
+		q=new named_stub_question(QUESTION_TYPE, 
+			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr);
+	}
+	question_list.push_back(q);
+	//$$=q;
+	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
+	if(stack_cmpd_stmt.size()==0){
+		print_err(compiler_internal_error, "compound statement stack "
+			"is 0 when parsing a question... exiting"
+			, line_no, __LINE__, __FILE__  );
+		exit(1);
+	}
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	return q;
+}
 
 // Close namespace
 }
