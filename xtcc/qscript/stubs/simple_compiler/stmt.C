@@ -212,11 +212,11 @@ CompoundStatement::~CompoundStatement()
 }
 
 using qscript_parser::question_list;
-question* find_in_question_list(string name)
+AbstractQuestion* find_in_question_list(string name)
 {
 
 	for(int i=0; i<question_list.size(); ++i){
-		if(question_list[i]->name_==name){
+		if(question_list[i]->questionName_==name){
 			return question_list[i];
 		}
 	}
@@ -431,7 +431,7 @@ void StubManipStatement::GenerateCode(ostringstream& quest_defns
 		program_code << "}" << endl;
 	} else {
 		stringstream err_text;
-		err_text << "question: " << questionName_
+		err_text << "AbstractQuestion: " << questionName_
 			<< " , dataype of StubManipStatement statement is not as expected"
 			<< endl;
 		print_err(compiler_sem_err, err_text.str()

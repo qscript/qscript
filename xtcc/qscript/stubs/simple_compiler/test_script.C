@@ -16,7 +16,7 @@ fstream debug_log_file("xtcc_debug.log", ios_base::out|ios_base::trunc);
 using namespace std;
 void read_data(const char * prompt);
 extern vector<int> data;
-vector <question*> question_list;
+vector <AbstractQuestion*> question_list;
 vector<mem_addr_tab>  mem_addr;
 extern vector<question_disk_data*>  qdd_list;
 void merge_disk_data_into_questions();
@@ -29,7 +29,7 @@ vector <int32_t> vector_int32_t;
 vector <float> vector_float_t;
 vector <double> vector_double_t;
 bool back_jump=false;// no need for this but state the intent
-void write_data_to_disk(const vector<question*>& q_vec, string jno, int ser_no);
+void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int ser_no);
 int main(){
 vector <stub_pair> age;
 
@@ -50,30 +50,30 @@ xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);
 xs_0.indiv.insert(3);
 xs_0.indiv.insert(4);
-range_question * q1 = new range_question(QUESTION_TYPE, 16,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0/* 0*/);
+RangeQuestion * q1 = new RangeQuestion(QUESTION_TYPE, 16,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0/* 0*/);
 question_list.push_back(q1);
 XtccSet xs_1;
 xs_1.indiv.insert(1);
 xs_1.indiv.insert(2);
 xs_1.range.push_back(pair<int,int>(5,8));
-range_question * q2 = new range_question(QUESTION_TYPE, 23,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1/* 0*/);
+RangeQuestion * q2 = new RangeQuestion(QUESTION_TYPE, 23,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1/* 0*/);
 question_list.push_back(q2);
-// named_stub_question::GenerateCode() : to be implemented
-named_stub_question * q3 = new named_stub_question(QUESTION_TYPE, 24,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age/* 0*/);
+// NamedStubQuestion::GenerateCode() : to be implemented
+NamedStubQuestion * q3 = new NamedStubQuestion(QUESTION_TYPE, 24,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age/* 0*/);
 question_list.push_back(q3);
-// named_stub_question::GenerateCode() : to be implemented
-named_stub_question * q4 = new named_stub_question(QUESTION_TYPE, 29,string( "q4"),string(" Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
+// NamedStubQuestion::GenerateCode() : to be implemented
+NamedStubQuestion * q4 = new NamedStubQuestion(QUESTION_TYPE, 29,string( "q4"),string(" Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4);
-// named_stub_question::GenerateCode() : to be implemented
-named_stub_question * q4_2 = new named_stub_question(QUESTION_TYPE, 33,string( "q4_2"),string(" Q4.2 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
+// NamedStubQuestion::GenerateCode() : to be implemented
+NamedStubQuestion * q4_2 = new NamedStubQuestion(QUESTION_TYPE, 33,string( "q4_2"),string(" Q4.2 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_2);
-// named_stub_question::GenerateCode() : to be implemented
-named_stub_question * q4_3 = new named_stub_question(QUESTION_TYPE, 36,string( "q4_3"),string(" Q4.3 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
+// NamedStubQuestion::GenerateCode() : to be implemented
+NamedStubQuestion * q4_3 = new NamedStubQuestion(QUESTION_TYPE, 36,string( "q4_3"),string(" Q4.3 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_3);
-// named_stub_question::GenerateCode() : to be implemented
-named_stub_question * q4_5 = new named_stub_question(QUESTION_TYPE, 44,string( "q4_5"),string(" Q4.5 Which brand do you consume most often?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
+// NamedStubQuestion::GenerateCode() : to be implemented
+NamedStubQuestion * q4_5 = new NamedStubQuestion(QUESTION_TYPE, 44,string( "q4_5"),string(" Q4.5 Which brand do you consume most often?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_5);
-vector <question*> q17_list;
+vector <AbstractQuestion*> q17_list;
 for(int i=0;i<2; ++i){
 vector<int> stack_of_loop_indices; 
 stack_of_loop_indices.push_back(i);
@@ -81,8 +81,8 @@ for(int j=0;j<3; ++j){
 stack_of_loop_indices.push_back(j);
 for(int k=0;k<4; ++k){
 stack_of_loop_indices.push_back(k);
-// named_stub_question::GenerateCode() : to be implemented
-named_stub_question * q17 = new named_stub_question(QUESTION_TYPE, 56,string( "q17"),string(" Q17. Respondents age"),spn,5,INT32_TYPE,&age, stack_of_loop_indices /* 3*/);
+// NamedStubQuestion::GenerateCode() : to be implemented
+NamedStubQuestion * q17 = new NamedStubQuestion(QUESTION_TYPE, 56,string( "q17"),string(" Q17. Respondents age"),spn,5,INT32_TYPE,&age, stack_of_loop_indices /* 3*/);
 question_list.push_back(q17);
 q17_list.push_back(q17);
 stack_of_loop_indices.pop_back();
@@ -91,14 +91,14 @@ stack_of_loop_indices.pop_back();
 }
 stack_of_loop_indices.pop_back();
 }
-vector <question*> q15_list;
+vector <AbstractQuestion*> q15_list;
 for(int i=0;i<5; ++i){
 vector<int> stack_of_loop_indices;
 stack_of_loop_indices.push_back(i);
 XtccSet xs_2;
 xs_2.indiv.insert(99);
 xs_2.range.push_back(pair<int,int>(1,15));
-range_question * q15 = new range_question(QUESTION_TYPE, 62,string( "q15"),string(" q15"),mpn,5,INT32_TYPE,xs_2, stack_of_loop_indices /* 1*/);
+RangeQuestion * q15 = new RangeQuestion(QUESTION_TYPE, 62,string( "q15"),string(" q15"),mpn,5,INT32_TYPE,xs_2, stack_of_loop_indices /* 1*/);
 question_list.push_back(q15);
 q15_list.push_back(q15);
 stack_of_loop_indices.pop_back();
@@ -178,7 +178,7 @@ int32_t temp_3=5;
 if ( q1->is_valid(temp_3)) {
 q1->input_data.clear();
 q1->input_data.insert(temp_3) ; 
-} else {cerr << "runtime error - value assigned to question: " << "q1" << " is not in allowed range: " <<temp_3 << endl; 
+} else {cerr << "runtime error - value assigned to AbstractQuestion: " << "q1" << " is not in allowed range: " <<temp_3 << endl; 
 }
 ;
 lab_q2:
@@ -610,7 +610,7 @@ vector_int32_t.pop_back();
 	} /* close while */
 
 } /* close main */
-	void write_data_to_disk(const vector<question*>& q_vec
+	void write_data_to_disk(const vector<AbstractQuestion*>& q_vec
 		, string jno
 		, int ser_no) {
 		stringstream fname_str;

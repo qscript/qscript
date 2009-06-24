@@ -204,7 +204,7 @@ typedef union YYSTYPE
 	DataType dt;
 	struct AbstractStatement * stmt;
 	struct AbstractExpression * expr;
-	//class question* ques;
+	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 
 }
@@ -566,7 +566,7 @@ static const char *const yytname[] =
   "FUNC_CALL", "IF", "ELSE", "STUBS_LIST", "SETDEL", "SETADD", "UNSET",
   "SETALL", "';'", "'}'", "'{'", "$accept", "prog", "stmt_list",
   "datatype", "type_qual", "decl_stmt", "stmt", "for_loop_stmt", "@1",
-  "cmpd_stmt", "open_curly", "if_stmt", "expr_stmt", "question",
+  "cmpd_stmt", "open_curly", "if_stmt", "expr_stmt", "AbstractQuestion",
   "expression", "expr_list", "qtype", "range_allowed_values", "range_list",
   "range", "stubs", "@2", "stub_list", "stub_manip_stmts", 0
 };
@@ -2544,8 +2544,8 @@ template<class T> T* trav_chain(T* & elem1){
 	} else return 0;
 }
 
-//! The array size of a question inside a for loop
-//! is determined by the nesting level of the question inside the
+//! The array size of a AbstractQuestion inside a for loop
+//! is determined by the nesting level of the AbstractQuestion inside the
 //! for loop and the maximum bound of the loop index - it is a multiplication
 //! of all the maximum counters in the enclosing for loops
 AbstractExpression * recurse_for_index(int stack_index){
@@ -2679,13 +2679,13 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
 	
 	AbstractExpression * arr_sz=0;
-	range_question * q=0;
+	RangeQuestion * q=0;
 	if(qscript_parser::flagIsAForBody_){
 		cout << "flagIsAForBody_: " 
 			<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
-		q= new range_question(QUESTION_TYPE, line_no, 
+		q= new RangeQuestion(QUESTION_TYPE, line_no, 
 			name, q_text, q_type, no_mpn, dt, xs
 			//, arr_sz
 			,qscript_parser::for_loop_max_counter_stack
@@ -2694,13 +2694,13 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 		//arr_sz->print_expr(s1, s2);
 		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
 	} else {
-		q= new range_question(QUESTION_TYPE, line_no, 
+		q= new RangeQuestion(QUESTION_TYPE, line_no, 
 			name, q_text, q_type, no_mpn, dt, xs);
 	}
 	if(stack_cmpd_stmt.size()==0){
 		print_err(compiler_internal_error
 			, "compound statement stack is 0 when parsing"
-			"a question... exiting",
+			"a AbstractQuestion... exiting",
 				line_no, __LINE__, __FILE__  );
 		exit(1);
 	}
@@ -2713,10 +2713,10 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	// are global variables - no matter what the level of nesting
 	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
 	// I need to modify the insert in Scope to
-	// take a 3rd parameter which is a question *
+	// take a 3rd parameter which is a AbstractQuestion *
 	// and store that into the symbol table
 	// I should be able to retrieve that 
-	// question* pointer later 
+	// AbstractQuestion* pointer later 
 	return q;
 }
 
@@ -2754,17 +2754,17 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	}
 	
 	AbstractExpression * arr_sz=0;
-	named_stub_question* q=0;
+	NamedStubQuestion* q=0;
 	if(qscript_parser::flagIsAForBody_){
 		cout << "flagIsAForBody_: " 
 			<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
-		q=new named_stub_question(QUESTION_TYPE, line_no
+		q=new NamedStubQuestion(QUESTION_TYPE, line_no
 				, name, q_txt, q_type, no_mpn, dt , nr_ptr
 				,qscript_parser::for_loop_max_counter_stack);
 	} else {
-		q=new named_stub_question(QUESTION_TYPE, 
+		q=new NamedStubQuestion(QUESTION_TYPE, 
 			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr);
 	}
 	question_list.push_back(q);
@@ -2772,7 +2772,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
 	if(stack_cmpd_stmt.size()==0){
 		print_err(compiler_internal_error, "compound statement stack "
-			"is 0 when parsing a question... exiting"
+			"is 0 when parsing a AbstractQuestion... exiting"
 			, line_no, __LINE__, __FILE__  );
 		exit(1);
 	}

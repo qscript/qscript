@@ -67,7 +67,7 @@ namespace qscript_parser {
 	extern int no_errors;
 
 	extern struct AbstractStatement* tree_root;
-	extern vector <question*> question_list;
+	extern vector <AbstractQuestion*> question_list;
 	extern void GenerateCode();
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);

@@ -34,7 +34,7 @@
 #include "scope.h"
 #include "named_range.h"
 #include "qscript_parser.h"
-question* find_in_question_list(string name);
+AbstractQuestion* find_in_question_list(string name);
 using std::string;
 using std::stringstream;
 string get_temp_name();
@@ -281,7 +281,7 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 			Unary2Expression* lhs= 
 				static_cast<Unary2Expression*>(leftOperand_);
 			const SymbolTableEntry * symp = lhs->get_symp_ptr();
-			question* q = find_in_question_list(symp->name_);
+			AbstractQuestion* q = find_in_question_list(symp->name_);
 			string cpp_data_type=human_readable_type(q->dt);
 			string tmp_name = get_temp_name();
 			
@@ -290,17 +290,17 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 					, code_expr);
 			code_expr << ";" << endl;
 			code_expr << "if ( " 
-				<< q->name_ << "->is_valid("<<  tmp_name
+				<< q->questionName_ << "->is_valid("<<  tmp_name
 				<<  ")) {" << endl; 
-			code_expr << q->name_ 
+			code_expr << q->questionName_ 
 				<< "->input_data.clear();" << endl;
-			code_expr << q->name_ << "->input_data.insert(";
+			code_expr << q->questionName_ << "->input_data.insert(";
 			//rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
 			code_expr << tmp_name ;
 			code_expr << ") ; " << endl ;
 			code_expr << "} else {";
-			code_expr << "cerr << \"runtime error - value assigned to question: \" << \"" 
-				<< q->name_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
+			code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
+				<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
 			code_expr << "}" << endl;
 			cerr << "WARNING : line: " << __LINE__ 
 				<< ", file: " << __FILE__
@@ -625,8 +625,8 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			Unary2Expression* lhs
 				= static_cast<Unary2Expression*>(leftOperand_);
 			const SymbolTableEntry * symp = lhs->get_symp_ptr();
-			//cerr << "Question name_: " << symp->name_ << endl;
-			question* q = find_in_question_list(symp->name_);
+			//cerr << "Question questionName_: " << symp->name_ << endl;
+			AbstractQuestion* q = find_in_question_list(symp->name_);
 			if(!q) {
 				stringstream s;
 				s << "Question not found in symbol table after parsing input" << endl;
@@ -635,7 +635,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			} else {
 				if(q->q_type!=spn){
 					stringstream s;
-					s << "Direct assignment to question only allowed for SPN question_type" << endl;
+					s << "Direct assignment to AbstractQuestion only allowed for SPN question_type" << endl;
 					print_err(compiler_internal_error, s.str(), 
 						line_no, __LINE__, __FILE__);
 				} 

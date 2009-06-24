@@ -84,11 +84,11 @@ int main(int argc, char* argv[]){
 		conf.exceptions(std::ios::failbit | std::ios::badbit);
 		conf.open("a.cfg");
 		
-		std::vector<question*> &qv = qscript_parser::question_list;
+		std::vector<AbstractQuestion*> &qv = qscript_parser::question_list;
 		conf << qv.size() << "\n";
 		for(int i=0; i<qv.size(); ++i) 
 		{
-			conf << qv[i]->name_ << " ";
+			conf << qv[i]->questionName_ << " ";
 			switch(qv[i]->dt)
 			{
 				case INT8_TYPE  : conf << "int8  \n"; break;

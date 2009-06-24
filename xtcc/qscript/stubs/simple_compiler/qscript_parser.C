@@ -55,7 +55,7 @@ namespace qscript_parser {
 	int no_errors;
 
 	struct AbstractStatement* tree_root=0;
-	vector <question*> question_list;
+	vector <AbstractQuestion*> question_list;
 	void GenerateCode();
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
@@ -118,7 +118,7 @@ void print_header(FILE* script){
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "extern vector<int> data;\n");
-	fprintf(script, "vector <question*> question_list;\n");
+	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
 	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
 	fprintf(script, "void merge_disk_data_into_questions();\n");
@@ -141,7 +141,7 @@ void print_header(FILE* script){
 	fprintf(script, "vector <float> vector_float_t;\n");
 	fprintf(script, "vector <double> vector_double_t;\n");
 	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
-	fprintf(script, "void write_data_to_disk(const vector<question*>& q_vec, string jno, int ser_no);\n");
+	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int ser_no);\n");
 
 
 	fprintf(script, "int main(){\n");
@@ -316,24 +316,24 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	} 
 	int index_question=-1;
 	for(int i=0; i<question_list.size(); ++i){
-		if(question_list[i]->name_ == question_name){
+		if(question_list[i]->questionName_ == question_name){
 			index_question=i;
 			break;
 		}
 	}
 	if(index_question==-1){
 		stringstream err_text;
-		err_text << "question does not exist: " << question_name;
+		err_text << "AbstractQuestion does not exist: " << question_name;
 		print_err(compiler_sem_err, err_text.str(),
 			line_no, __LINE__, __FILE__  );
 	} else {
 		if(index_question>=0 && index>=0){
-			named_stub_question * q_ptr= 
-				dynamic_cast<named_stub_question*> (question_list[index_question]);
+			NamedStubQuestion * q_ptr= 
+				dynamic_cast<NamedStubQuestion*> (question_list[index_question]);
 			if(q_ptr){
 				if(! (q_ptr->nr_ptr->name == stub_list_name) ){
 					stringstream err_text;
-					err_text << "question: " << question_name
+					err_text << "AbstractQuestion: " << question_name
 						<< " named range: " << q_ptr->nr_ptr->name 
 						<< " and named stub is : " << stub_list_name 
 						<< endl;
@@ -343,8 +343,8 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				}
 			} else {
 				stringstream err_text;
-				err_text << "question : " << question_name <<
-					"is not a named range question" ;
+				err_text << "AbstractQuestion : " << question_name <<
+					"is not a named range AbstractQuestion" ;
 				print_err(compiler_sem_err, err_text.str(),
 					line_no, __LINE__, __FILE__  );
 			}
@@ -382,7 +382,7 @@ AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 
 const char * write_data_to_disk_code(){
 	const char * write_data_disk_code = 
-	"\tvoid write_data_to_disk(const vector<question*>& q_vec\n"
+	"\tvoid write_data_to_disk(const vector<AbstractQuestion*>& q_vec\n"
 	"\t	, string jno\n"
 	"\t	, int ser_no) {\n"
 	"\t	stringstream fname_str;\n"

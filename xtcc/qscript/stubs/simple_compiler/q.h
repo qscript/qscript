@@ -124,7 +124,7 @@ typedef union YYSTYPE
 	DataType dt;
 	struct AbstractStatement * stmt;
 	struct AbstractExpression * expr;
-	//class question* ques;
+	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 
 }

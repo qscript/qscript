@@ -208,11 +208,11 @@ struct DeclarationStatement: public AbstractStatement
 	When parsing a compound statement the parser it will push the 
 	cmpd_stmt_ptr object onto the stack named stack_cmpd_stmt. This is 
 	done in the ^open_curly rule in q.y 
-	Everytime the parser encounters a question in the body of the CompoundStatement
+	Everytime the parser encounters a AbstractQuestion in the body of the CompoundStatement
 	it will increment the counter "counterContainsQuestions_" CompoundStatement
-	member variable by 1. You can see this happening in the ^question rule
+	member variable by 1. You can see this happening in the ^AbstractQuestion rule
 	in q.y 
-	This way we can determine if the compound body has a question. Once this has
+	This way we can determine if the compound body has a AbstractQuestion. Once this has
 	been determined we put addition restrictions on the loop index of the for
 	statement
 
@@ -243,7 +243,7 @@ struct CompoundStatement: public AbstractStatement
 	//! q.y in an inline action in the grammar
 	int flagIsAForBody_;
 
-	//! this counter variable is set in the ^question rule in 
+	//! this counter variable is set in the ^AbstractQuestion rule in 
 	//! q.y in an inline action in the grammar
 	int counterContainsQuestions_;
 	public:
@@ -260,7 +260,7 @@ struct CompoundStatement: public AbstractStatement
 
 //! ForStatement: A parsed for statement in the language becomes an object instanstiation of this class
 /*! Refer to point 2. in the documentation for CompoundStatement about for loop index
-    restrictions when you have a question statement in the body 
+    restrictions when you have a AbstractQuestion statement in the body 
     of a for statement
  */
 struct ForStatement: public AbstractStatement
@@ -325,8 +325,8 @@ struct Parameter
 	struct Parameter * next_;
 };
 
-struct question;
-question* find_in_question_list(string name);
+struct AbstractQuestion;
+AbstractQuestion* find_in_question_list(string name);
 
 struct StubManipStatement: public AbstractStatement 
 {
