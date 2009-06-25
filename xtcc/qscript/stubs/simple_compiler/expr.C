@@ -290,7 +290,7 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 					, code_expr);
 			code_expr << ";" << endl;
 			code_expr << "if ( " 
-				<< q->questionName_ << "->is_valid("<<  tmp_name
+				<< q->questionName_ << "->IsValid("<<  tmp_name
 				<<  ")) {" << endl; 
 			code_expr << q->questionName_ 
 				<< "->input_data.clear();" << endl;

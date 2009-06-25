@@ -20,7 +20,8 @@ using std::ostringstream;
 using std::ofstream;
 struct named_range;
 //! The AbstractQuestion pure virtual base class - inherits from AbstractStatement
-struct AbstractQuestion: public AbstractStatement {
+struct AbstractQuestion: public AbstractStatement 
+{
 	string questionName_;
 	string questionText_;
 	QuestionType q_type;
@@ -45,14 +46,14 @@ struct AbstractQuestion: public AbstractStatement {
 		);
 	virtual void GenerateCode(ostringstream & quest_defns
 			, ostringstream& program_code)=0;
-	virtual void generate_code_single_question(ostringstream & quest_defns
+	virtual void GenerateCodeSingleQuestion(ostringstream & quest_defns
 			, ostringstream& program_code)=0;
 	virtual void eval()=0;
-	virtual bool is_valid(int value)=0;
+	virtual bool IsValid(int value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 	void init_arr(int n, AbstractQuestion* q);
-	virtual void write_data_to_disk(ofstream & data_file)=0;
+	virtual void WriteDataToDisk(ofstream & data_file)=0;
 	void PrintSetupBackJump(ostringstream & quest_defns
 			, ostringstream& program_code);
 	void PrintEvalArrayQuestion(ostringstream & quest_defns
@@ -66,11 +67,12 @@ struct AbstractQuestion: public AbstractStatement {
 
 //! RangeQuestion range questions in the qscript language become object instantiations of this class.
 /*!
-  	Below is an example of a range AbstractQuestion - the allowed codes are hard coded
+  	Below is an example of a RangeQuestion  - the allowed codes are hard coded
 	numbers -> (1,2,5-8)
 		q2 "Q2. This is AbstractQuestion 2" mp (5) int32_t (1,2,5-8);
 */
-struct RangeQuestion: public AbstractQuestion {
+struct RangeQuestion: public AbstractQuestion 
+{
 	XtccSet * r_data;
 	vector <int> stack_loop_index_values;
 	RangeQuestion(DataType this_stmt_type, int line_number,
@@ -92,11 +94,12 @@ struct RangeQuestion: public AbstractQuestion {
 
 	void GenerateCode(ostringstream & quest_defns
 			, ostringstream& program_code);
-	void generate_code_single_question(ostringstream & quest_defns
+	void GenerateCodeSingleQuestion(ostringstream & quest_defns
 			, ostringstream& program_code);
-	virtual bool is_valid(int value);
+	virtual bool IsValid(int value);
 	void eval();
-	void write_data_to_disk(ofstream& data_file);
+	void WriteDataToDisk(ofstream& data_file);
+	~RangeQuestion();
 	private:
 		RangeQuestion& operator=(const RangeQuestion&);
 		RangeQuestion (const RangeQuestion&);
@@ -110,7 +113,8 @@ struct RangeQuestion: public AbstractQuestion {
 
 		q3 "Q3. Respondents age" sp int32_t age; 
 */
-class NamedStubQuestion: public AbstractQuestion {
+class NamedStubQuestion: public AbstractQuestion 
+{
 	public:
 	string named_list;
 	named_range * nr_ptr;
@@ -147,11 +151,11 @@ class NamedStubQuestion: public AbstractQuestion {
 
 	void GenerateCode(ostringstream & quest_defns
 			, ostringstream& program_code);
-	void generate_code_single_question(ostringstream & quest_defns
+	void GenerateCodeSingleQuestion(ostringstream & quest_defns
 			, ostringstream& program_code);
-	virtual bool is_valid(int value);
+	virtual bool IsValid(int value);
 	void eval();
-	void write_data_to_disk(ofstream& data_file);
+	void WriteDataToDisk(ofstream& data_file);
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
 		NamedStubQuestion (const NamedStubQuestion&);

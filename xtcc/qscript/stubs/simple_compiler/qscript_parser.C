@@ -395,7 +395,7 @@ const char * write_data_to_disk_code(){
 	"\t	data_file.open(fname_str.str().c_str());\n"
 	"\t\n"
 	"\t	for (int i=0; i<question_list.size(); ++i){\n"
-	"\t		question_list[i]->write_data_to_disk(data_file);\n"
+	"\t		question_list[i]->WriteDataToDisk(data_file);\n"
 	"\t		/*\n"
 	"\t		fprintf(fptr, \"%s: \", question_list[i]->name.c_str());\n"
 	"\t		for( set<int>::iterator iter=question_list[i]->input_data.begin();\n"

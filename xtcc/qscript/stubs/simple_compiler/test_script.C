@@ -175,7 +175,7 @@ int32_t my_32int=600*700;
 bool temp_2 = temp_1.contains_subset(q1->input_data);
 if (temp_2 ){
 int32_t temp_3=5;
-if ( q1->is_valid(temp_3)) {
+if ( q1->IsValid(temp_3)) {
 q1->input_data.clear();
 q1->input_data.insert(temp_3) ; 
 } else {cerr << "runtime error - value assigned to AbstractQuestion: " << "q1" << " is not in allowed range: " <<temp_3 << endl; 
@@ -623,7 +623,7 @@ vector_int32_t.pop_back();
 		data_file.open(fname_str.str().c_str());
 	
 		for (int i=0; i<question_list.size(); ++i){
-			question_list[i]->write_data_to_disk(data_file);
+			question_list[i]->WriteDataToDisk(data_file);
 			/*
 			fprintf(fptr, "%s: ", question_list[i]->name.c_str());
 			for( set<int>::iterator iter=question_list[i]->input_data.begin();

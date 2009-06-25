@@ -106,7 +106,7 @@ int scan_datalex();
 int scan_dataparse();
 extern vector<int> data;
 
-bool RangeQuestion::is_valid(int value)
+bool RangeQuestion::IsValid(int value)
 {
 	return (r_data->exists(value))? true: false;
 }
@@ -143,7 +143,7 @@ void RangeQuestion::eval()
 		cout << "data.size(): " << data.size() << endl;
 		for(unsigned int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
-			if (!is_valid(data[i])){
+			if (!IsValid(data[i])){
 				invalid_code=true;
 				prompt = "Input contained some invalid data\nRe-enter Data\n";
 				data.clear();
@@ -177,7 +177,7 @@ void RangeQuestion::eval()
 	data.clear();
 }
 
-void RangeQuestion::write_data_to_disk(ofstream& data_file)
+void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	data_file << questionName_ ;
 	if(loop_index_values.size()>0){
@@ -194,7 +194,7 @@ void RangeQuestion::write_data_to_disk(ofstream& data_file)
 	input_data.clear();
 }
 
-bool NamedStubQuestion::is_valid(int value)
+bool NamedStubQuestion::IsValid(int value)
 {
 	vector<stub_pair> & vec= *stub_ptr;
 	for (unsigned int j=0; j<vec.size(); ++j){
@@ -232,7 +232,7 @@ void NamedStubQuestion::eval()
 		cout << "data.size(): " << data.size() << endl;
 		for(unsigned int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
-			invalid_code=!is_valid(data[i]);
+			invalid_code=!IsValid(data[i]);
 			if(invalid_code==true){
 				prompt = "Input contained some invalid data\nRe-enter Data\n";
 				data.clear();
@@ -267,7 +267,7 @@ void NamedStubQuestion::eval()
 	
 }
 
-void RangeQuestion::generate_code_single_question( ostringstream & quest_defns
+void RangeQuestion::GenerateCodeSingleQuestion( ostringstream & quest_defns
 		, ostringstream& program_code)
 {
 	AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
@@ -330,7 +330,7 @@ void RangeQuestion::GenerateCode( ostringstream & quest_defns
 		, ostringstream& program_code)
 {
 	if(for_bounds_stack.size()==0){
-		generate_code_single_question(quest_defns, program_code);
+		GenerateCodeSingleQuestion(quest_defns, program_code);
 	} else {
 		quest_defns << "vector <AbstractQuestion*> " << questionName_ << "_list;" << endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
@@ -364,7 +364,7 @@ void RangeQuestion::GenerateCode( ostringstream & quest_defns
 			// loop in the questions section of the code
 		}
 		
-		generate_code_single_question(quest_defns, program_code);
+		GenerateCodeSingleQuestion(quest_defns, program_code);
 		quest_defns << questionName_ << "_list.push_back(" << questionName_ << ");"
 			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
@@ -378,7 +378,7 @@ void RangeQuestion::GenerateCode( ostringstream & quest_defns
 }
 
 //extern vector <scope*> active_scope_list;
-void NamedStubQuestion::generate_code_single_question( 
+void NamedStubQuestion::GenerateCodeSingleQuestion( 
 		ostringstream & quest_defns
 		, ostringstream& program_code)
 {
@@ -417,7 +417,7 @@ void NamedStubQuestion::GenerateCode( ostringstream & quest_defns,
 		ostringstream& program_code)
 {
 	if(for_bounds_stack.size()==0){
-		generate_code_single_question(quest_defns, program_code);
+		GenerateCodeSingleQuestion(quest_defns, program_code);
 	}  else {
 		quest_defns << "vector <AbstractQuestion*> " << questionName_ << "_list;" << endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
@@ -451,7 +451,7 @@ void NamedStubQuestion::GenerateCode( ostringstream & quest_defns,
 			// loop in the questions section of the code
 		}
 		
-		generate_code_single_question(quest_defns, program_code);
+		GenerateCodeSingleQuestion(quest_defns, program_code);
 		quest_defns << questionName_ << "_list.push_back(" << questionName_ << ");"
 			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
@@ -579,7 +579,7 @@ void AbstractQuestion::print_data_type(string &s)
 }
 
 
-void NamedStubQuestion::write_data_to_disk(ofstream& data_file)
+void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	data_file << questionName_ ;
 	if(loop_index_values.size()>0){
@@ -671,4 +671,9 @@ void AbstractQuestion::PrintEvalArrayQuestion(ostringstream & quest_defns
 	}
 	// ---------------------------------
 	program_code << "]->eval();\n" ;
+}
+
+RangeQuestion::~RangeQuestion()
+{
+	delete r_data ; r_data=0;
 }
