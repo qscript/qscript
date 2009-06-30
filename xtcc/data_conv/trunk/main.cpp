@@ -1,21 +1,17 @@
 //Grzegorz Prusak
 
 /*	
- structure of the text config file:
- 
- 	[output machine type name]
- 	[output (binary) filename] 
- 	[number of questions (qc)] [number of data files (fc)]
- 	
- 	[question name] [answer type]
- 	[question name] [answer type]
- 	[question name] [answer type] 
- 	...	(qc times)
- 	
- 	[data file name]
-	[data file name]
-	[data file name]
-	... (fc times)
+	structure of the text config file:
+
+	[output machine type name]
+	[output (binary) filename]
+	[data files directory]
+	[number of questions (qc)]
+	
+	[question name] [answer type]
+	[question name] [answer type]
+	[question name] [answer type] 
+	...	(qc times)
 */
 
 #include "RecordMap.h"
@@ -23,6 +19,7 @@
 #include "Type.h"
 #include <iostream>
 #include <fstream>
+#include <boost/filesystem/operations.hpp>
 
 //debug mode
 #define DEBUG_MODE 1
@@ -37,16 +34,17 @@
 int main(int argc, char **argv)
 {
 	//check for config file
-	if(argc<2){ std::cout << "usage: conv config_file\n"; return 1; }
+	if(argc<2){ std::cout << "usage: " << argv[0] << " config_file\n"; return 1; }
 	
 	try
 	{
 		//open config file
 		std::ifstream conf; conf.exceptions(exc_flags); conf.open(argv[1]);
-		std::string format_name,out_name; int qc,fc; conf >> format_name >> out_name >> qc >> fc;
+		std::string format_name,out_name,dir_name; int qc;
+		conf >> format_name >> out_name >> dir_name >> qc;
 		
 		DEBUG(0) std::cout << "format_name='" << format_name << "'; out_name='" << out_name 
-					<< "'; qc=" << qc << "; fc=" << fc << "\n"; 
+					<< "; dir_name='" << dir_name << "'; qc=" << qc << "\n"; 
 		
 		RecordMap rec_map(*AbstractFormat::get(format_name));
 		
@@ -54,29 +52,27 @@ int main(int argc, char **argv)
 		REP(i,qc)
 		{
 			std::string name,type; conf >> name >> type;
-			rec_map.add_field(name+':',AbstractType::get(type));
+			rec_map.add_field(name,AbstractType::get(type));
 		}
 		
 		//gather aswers from the data files and save answer to the output file
 		std::ofstream of; of.exceptions(exc_flags); of.open(out_name.c_str());
-		REP(i,fc)
+		rec_map.write_header(of); rec_map.write_stubinfo(of); rec_map.write_filemap(of);
+		for(boost::filesystem::directory_iterator it(dir_name),end; it!=end; ++it)
 		{
-			std::string df_name; conf >> df_name;
-			std::ifstream df; df.open(df_name.c_str()); 
-		
-			char buffer[rec_map.byte_length()];
-			for(std::string name,value; df >> name >> value;) rec_map.parse(name,value,buffer);
+			DEBUG(0) std::cout << "it->string()='" << it->string() << "'\n";
+			std::ifstream df; df.open(it->string().c_str()); char buffer[rec_map.byte_length()];
+			for(std::string name,value; df>>std::ws, std::getline(df,name,':'), df>>value;)
+			{
+				DEBUG(0) std::cout << "name='" << name << "' value='" << value << "'\n";
+				rec_map.parse(name,value,buffer);
+			}
 			of.write(buffer,rec_map.byte_length());
 		}
 	}
-	catch(std::ios::failure e)
-	{
-		std::cout << "IO error: " << e.what() << "\n";
-	}
-	catch(const std::string &s)
-	{
-		std::cout << "error: " << s << "\n";
-	}
+	catch(std::ios::failure e){ std::cout << "IO error: " << e.what() << "\n"; }
+	catch(const std::string &s){ std::cout << "error: " << s << "\n"; }
+	catch(boost::filesystem::filesystem_error e){ std::cout << e.what() << "\n"; }
 		
 	return 0;
 }
