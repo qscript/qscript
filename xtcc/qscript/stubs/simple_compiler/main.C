@@ -77,7 +77,7 @@ int main(int argc, char* argv[]){
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
 
-////////////////////////////////	
+////////////////////////////////
 	try
 	{
 		std::ofstream conf;
@@ -85,20 +85,32 @@ int main(int argc, char* argv[]){
 		conf.open("a.cfg");
 		
 		std::vector<AbstractQuestion*> &qv = qscript_parser::question_list;
-		conf << qv.size() << "\n";
+		conf << qv.size() << '\n';
 		for(int i=0; i<qv.size(); ++i) 
 		{
-			conf << qv[i]->questionName_ << " ";
+			conf << qv[i]->questionName_ << ' ';
 			switch(qv[i]->dt)
 			{
-				case INT8_TYPE  : conf << "int8  \n"; break;
-				case INT16_TYPE : conf << "int16 \n"; break;
-				case INT32_TYPE : conf << "int32 \n"; break;
-				case FLOAT_TYPE : conf << "float \n"; break;
-				case DOUBLE_TYPE: conf << "double\n"; break;
-				default:
-					conf << "Unrecognised type\n";
+				case INT8_TYPE  : conf << "int8"  ; break;
+				case INT16_TYPE : conf << "int16" ; break;
+				case INT32_TYPE : conf << "int32" ; break;
+				case FLOAT_TYPE : conf << "float" ; break;
+				case DOUBLE_TYPE: conf << "double"; break;
+				default: conf << "Unrecognised type";
 			}
+			conf << ' ';
+			NamedStubQuestion *nsq = dynamic_cast<NamedStubQuestion*>(qv[i]); if(nsq) conf << nsq->nr_ptr->name;
+			conf << '\n';
+		}
+		
+		std::vector<named_range*> &nsl = qscript_parser::named_stubs_list;
+		conf << nsl.size() << "\n";
+		for(int i=0; i<nsl.size(); ++i)
+		{
+			conf << nsl[i]->name;
+			std::vector<stub_pair> &sv = nsl[i]->stubs;
+			for(int i=0; i<sv.size(); ++i) conf << ' ' << sv[i].code << " \"" << sv[i].stub_text << '\"';
+			conf << '\n';
 		}
 	}
 	catch(...){ std::cout << "error while generating configuration file\n"; }
