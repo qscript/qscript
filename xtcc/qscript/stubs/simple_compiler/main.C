@@ -104,7 +104,6 @@ int main(int argc, char* argv[]){
 		}
 		
 		std::vector<named_range*> &nsl = qscript_parser::named_stubs_list;
-		conf << nsl.size() << "\n";
 		for(int i=0; i<nsl.size(); ++i)
 		{
 			conf << nsl[i]->name;
