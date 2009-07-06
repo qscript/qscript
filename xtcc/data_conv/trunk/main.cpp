@@ -8,10 +8,11 @@
 	[data files directory]
 	[number of questions (qc)]
 	
-	[question name] [answer type]
-	[question name] [answer type]
-	[question name] [answer type] 
+	[question name] [answer type] [stub tag - optional; up to the '\n']
+	[question name] [answer type] [stub tag]
+	[question name] [answer type] [stub tag]
 	...	(qc times)
+	[stubinfo section - up to the eof]
 */
 
 #include "RecordMap.h"
@@ -51,9 +52,12 @@ int main(int argc, char **argv)
 		//read questions' configauration
 		REP(i,qc)
 		{
-			std::string name,type; conf >> name >> type;
-			rec_map.add_field(name,AbstractType::get(type));
+			std::string name,type,tag; conf >> name >> type; std::getline(conf,tag);
+			rec_map.add_field(name,AbstractType::get(type),tag);
 		}
+		
+		//read raw stubinfo
+		std::getline(conf,rec_map.stubinfo,'\0');
 		
 		//gather aswers from the data files and save answer to the output file
 		std::ofstream of; of.exceptions(exc_flags); of.open(out_name.c_str());

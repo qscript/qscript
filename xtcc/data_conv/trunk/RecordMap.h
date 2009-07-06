@@ -35,7 +35,7 @@ class RecordMap
 	
 		void write_stubinfo(std::ostream &os)
 		{
-			os << "STUBINFORMATION\n" << "ENDSTUBINFORMATION\n";
+			os << "STUBINFORMATION\n" << stubinfo << "ENDSTUBINFORMATION\n";
 		}
 	
 		void write_filemap(std::ostream &os)
@@ -44,9 +44,9 @@ class RecordMap
 			os.put(0);
 		}
 	
-		void add_field(const std::string &name, AbstractType *type)
+		void add_field(const std::string &name, AbstractType *type, const std::string &tag)
 		{
-			fields.push_back(Field(name,type,byte_length()));
+			fields.push_back(Field(name,type,byte_length(),tag));
 		}
 	
 		void parse(const std::string &name, const std::string &value, void *buffer)
@@ -62,17 +62,19 @@ class RecordMap
 		}
 	
 		AbstractFormat &format;
+		std::string stubinfo;
 	
 	private:
 	
 		struct Field
 		{
-			Field(const std::string &n, AbstractType *t, int p) : name(n), type(t), byte_pos(p) {}
-			std::string name; AbstractType *type; int byte_pos;
+			Field(const std::string &n, AbstractType *t, int p, const std::string &tg) :
+				name(n), type(t), byte_pos(p), tag(tg) {}
+			std::string name,tag; AbstractType *type; int byte_pos;
 			
 			friend std::ostream & operator<<(std::ostream &os, Field &f)
 			{
-				os << f.name << " " << f.type->token << " " << f.byte_pos << " " << f.byte_pos+f.type->size()-1;
+				os << f.name << " " << f.type->token << " " << f.byte_pos << " " << f.byte_pos+f.type->size()-1 << f.tag;
 				return os;
 			}
 		};
