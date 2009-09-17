@@ -448,5 +448,4 @@ void StubManipStatement::GenerateCode(ostringstream& quest_defns
 }
 
 StubManipStatement::~StubManipStatement()
-{
-}
+{ }
