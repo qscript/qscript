@@ -91,7 +91,7 @@
 %nonassoc FUNC_CALL
 
 %type <type_qual> type_qual
-%type <stmt> AbstractQuestion
+%type <stmt> question
 %type <stmt> stmt
 %type <stmt> expr_stmt
 %type <stmt> stmt_list
@@ -182,7 +182,7 @@ decl_stmt: datatype NAME ';' {
 
 
 
-stmt:	AbstractQuestion
+stmt:	question
 	| expr_stmt
 	| decl_stmt
 	| stubs 
@@ -265,7 +265,7 @@ expr_stmt:	expression ';'
 	;
 
 
-AbstractQuestion: NAME TEXT qtype datatype range_allowed_values ';' {
+question: NAME TEXT qtype datatype range_allowed_values ';' {
 		$$ = qscript_parser::ProcessRangeQuestion($1, $2, $4);
 	}
 	| NAME TEXT qtype datatype NAME ';' {
@@ -674,8 +674,8 @@ template<class T> T* trav_chain(T* & elem1){
 	} else return 0;
 }
 
-//! The array size of a AbstractQuestion inside a for loop
-//! is determined by the nesting level of the AbstractQuestion inside the
+//! The array size of a question inside a for loop
+//! is determined by the nesting level of the question inside the
 //! for loop and the maximum bound of the loop index - it is a multiplication
 //! of all the maximum counters in the enclosing for loops
 AbstractExpression * recurse_for_index(int stack_index){
@@ -830,7 +830,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	if(stack_cmpd_stmt.size()==0){
 		print_err(compiler_internal_error
 			, "compound statement stack is 0 when parsing"
-			"a AbstractQuestion... exiting",
+			"a question... exiting",
 				line_no, __LINE__, __FILE__  );
 		exit(1);
 	}

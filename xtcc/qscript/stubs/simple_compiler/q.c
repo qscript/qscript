@@ -566,7 +566,7 @@ static const char *const yytname[] =
   "FUNC_CALL", "IF", "ELSE", "STUBS_LIST", "SETDEL", "SETADD", "UNSET",
   "SETALL", "';'", "'}'", "'{'", "$accept", "prog", "stmt_list",
   "datatype", "type_qual", "decl_stmt", "stmt", "for_loop_stmt", "@1",
-  "cmpd_stmt", "open_curly", "if_stmt", "expr_stmt", "AbstractQuestion",
+  "cmpd_stmt", "open_curly", "if_stmt", "expr_stmt", "question",
   "expression", "expr_list", "qtype", "range_allowed_values", "range_list",
   "range", "stubs", "@2", "stub_list", "stub_manip_stmts", 0
 };
@@ -2544,8 +2544,8 @@ template<class T> T* trav_chain(T* & elem1){
 	} else return 0;
 }
 
-//! The array size of a AbstractQuestion inside a for loop
-//! is determined by the nesting level of the AbstractQuestion inside the
+//! The array size of a question inside a for loop
+//! is determined by the nesting level of the question inside the
 //! for loop and the maximum bound of the loop index - it is a multiplication
 //! of all the maximum counters in the enclosing for loops
 AbstractExpression * recurse_for_index(int stack_index){
@@ -2700,7 +2700,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	if(stack_cmpd_stmt.size()==0){
 		print_err(compiler_internal_error
 			, "compound statement stack is 0 when parsing"
-			"a AbstractQuestion... exiting",
+			"a question... exiting",
 				line_no, __LINE__, __FILE__  );
 		exit(1);
 	}
