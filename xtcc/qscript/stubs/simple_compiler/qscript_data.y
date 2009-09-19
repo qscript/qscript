@@ -30,6 +30,7 @@
 %%
 
 program: question_list{
+	cout << "got question_list: parsed to program: " << endl;
 	return no_errors;
 	}
 	;
@@ -69,15 +70,19 @@ question: NAME COLON numberlist NEWL {
 		} else {
 			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
 			//qdd_list.push_back(qdd);
+			cout << "Array question found but bounds not set in data file - this is an error in the data file" 
+				<< endl;
 		}
 		array_index_list.clear();
 		data.clear();
+		cout << " Got array question: " << qno << endl;
 	}
-	| NAME BOUNDS numberlist {
+	| NAME BOUNDS numberlist NEWL{
 		string qno($1);
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
 		qdd_list.push_back(qdd);
 		data.clear();
+		cout << " Got bounds for: " << qno << endl;
 	}
 	;
 

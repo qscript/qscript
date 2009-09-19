@@ -33,11 +33,7 @@ struct question_disk_data{
 		cerr << "question_disk_data: (string& l_qno) " << endl;
 	}
 
-	void set_array_data(vector<int> l_array_index_list, vector<int> & l_data){
-		int index;
-		for(int i=0; i<l_array_index_list.size(); ++i){
-		}
-	}
+	void set_array_data(vector<int> l_array_index_list, vector<int> & l_data);
 
 };
 

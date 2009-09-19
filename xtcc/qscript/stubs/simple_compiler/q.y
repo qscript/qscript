@@ -267,9 +267,11 @@ expr_stmt:	expression ';'
 
 question: NAME TEXT qtype datatype range_allowed_values ';' {
 		$$ = qscript_parser::ProcessRangeQuestion($1, $2, $4);
+		cout << "parsed range question : " << $1 << endl;
 	}
 	| NAME TEXT qtype datatype NAME ';' {
 		$$ = qscript_parser::ProcessNamedQuestion($1, $2, $4, $5);
+		cout << "parsed named question : " << $1 << endl;
 	}
 	;
 
@@ -837,7 +839,12 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
 	++(cmpd_stmt_ptr->counterContainsQuestions_);
 	//$$=q;
+
 	question_list.push_back(q);
+	cout << "question_list: questions are " << endl;
+	for(int i=0; i<question_list.size(); ++i){
+		cout << question_list[i]->questionName_ << endl;
+	}
 	xs.reset();
 	// questions always get pushed in Scope level 0 as they
 	// are global variables - no matter what the level of nesting

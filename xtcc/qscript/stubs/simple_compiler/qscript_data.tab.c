@@ -366,7 +366,7 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   19
+#define YYLAST   20
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  9
@@ -375,7 +375,7 @@ union yyalloc
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  12
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  23
+#define YYNSTATES  24
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -421,8 +421,8 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     7,    10,    15,    19,    25,    29,
-      31,    34,    37
+       0,     0,     3,     5,     7,    10,    15,    19,    25,    30,
+      32,    35,    38
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -430,16 +430,16 @@ static const yytype_int8 yyrhs[] =
 {
       10,     0,    -1,    11,    -1,    12,    -1,    11,    12,    -1,
        3,     4,    13,     8,    -1,     3,     4,     8,    -1,     3,
-      14,     4,    13,     8,    -1,     3,     6,    13,    -1,     7,
-      -1,    13,     7,    -1,     5,     7,    -1,    14,     5,     7,
-      -1
+      14,     4,    13,     8,    -1,     3,     6,    13,     8,    -1,
+       7,    -1,    13,     7,    -1,     5,     7,    -1,    14,     5,
+       7,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    32,    32,    37,    38,    41,    54,    61,    76,    84,
-      87,    92,    95
+       0,    32,    32,    38,    39,    42,    55,    62,    80,    89,
+      92,    97,   100
 };
 #endif
 
@@ -473,7 +473,7 @@ static const yytype_uint8 yyr1[] =
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     4,     3,     5,     3,     1,
+       0,     2,     1,     1,     2,     4,     3,     5,     4,     1,
        2,     2,     3
 };
 
@@ -483,8 +483,8 @@ static const yytype_uint8 yyr2[] =
 static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,     2,     3,     0,     0,     0,     0,     1,
-       4,     9,     6,     0,    11,     8,     0,     0,    10,     5,
-       0,    12,     7
+       4,     9,     6,     0,    11,     0,     0,     0,    10,     5,
+       8,     0,    12,     7
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
@@ -498,9 +498,9 @@ static const yytype_int8 yydefgoto[] =
 #define YYPACT_NINF -8
 static const yytype_int8 yypact[] =
 {
-       1,    -3,    10,     1,    -8,    -2,     8,     9,     3,    -8,
-      -8,    -8,    -8,     4,    -8,    11,     9,    12,    -8,    -8,
-       6,    -8,    -8
+       1,    -3,    10,     1,    -8,    -2,    11,    12,     3,    -8,
+      -8,    -8,    -8,     4,    -8,     6,    12,    13,    -8,    -8,
+      -8,     8,    -8,    -8
 };
 
 /* YYPGOTO[NTERM-NUM].  */
@@ -516,14 +516,16 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      15,     5,     6,     7,     1,    11,    12,    16,    17,    20,
-       9,    18,    19,    18,    22,    14,    11,    10,    18,    21
+      15,     5,     6,     7,     1,    11,    12,    16,    17,    21,
+       9,    18,    19,    18,    20,    18,    23,    10,    14,    11,
+      22
 };
 
 static const yytype_uint8 yycheck[] =
 {
        7,     4,     5,     6,     3,     7,     8,     4,     5,    16,
-       0,     7,     8,     7,     8,     7,     7,     3,     7,     7
+       0,     7,     8,     7,     8,     7,     8,     3,     7,     7,
+       7
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -532,7 +534,7 @@ static const yytype_uint8 yystos[] =
 {
        0,     3,    10,    11,    12,     4,     5,     6,    14,     0,
       12,     7,     8,    13,     7,    13,     4,     5,     7,     8,
-      13,     7,     8
+       8,    13,     7,     8
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1349,12 +1351,13 @@ yyreduce:
         case 2:
 #line 32 "qscript_data.y"
     {
+	cout << "got question_list: parsed to program: " << endl;
 	return no_errors;
 	;}
     break;
 
   case 5:
-#line 41 "qscript_data.y"
+#line 42 "qscript_data.y"
     {
 		//cout << "data<int>[]: ";
 		for(int i=0; i<data.size(); ++i){
@@ -1371,7 +1374,7 @@ yyreduce:
     break;
 
   case 6:
-#line 54 "qscript_data.y"
+#line 55 "qscript_data.y"
     {
 		//cout << "got empty question" << endl;
 		string qno((yyvsp[(1) - (3)].name));
@@ -1382,7 +1385,7 @@ yyreduce:
     break;
 
   case 7:
-#line 61 "qscript_data.y"
+#line 62 "qscript_data.y"
     {
 		string qno((yyvsp[(1) - (5)].name));
 		QuestionExists q_eq(qno);
@@ -1394,45 +1397,49 @@ yyreduce:
 		} else {
 			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
 			//qdd_list.push_back(qdd);
+			cout << "Array question found but bounds not set in data file - this is an error in the data file" 
+				<< endl;
 		}
 		array_index_list.clear();
 		data.clear();
+		cout << " Got array question: " << qno << endl;
 	;}
     break;
 
   case 8:
-#line 76 "qscript_data.y"
+#line 80 "qscript_data.y"
     {
-		string qno((yyvsp[(1) - (3)].name));
+		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
 		qdd_list.push_back(qdd);
 		data.clear();
+		cout << " Got bounds for: " << qno << endl;
 	;}
     break;
 
   case 9:
-#line 84 "qscript_data.y"
+#line 89 "qscript_data.y"
     {
 		    data.push_back((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
   case 10:
-#line 87 "qscript_data.y"
+#line 92 "qscript_data.y"
     {
 		    data.push_back((yyvsp[(2) - (2)].ival));
 	;}
     break;
 
   case 11:
-#line 92 "qscript_data.y"
+#line 97 "qscript_data.y"
     {
 		array_index_list.push_back((yyvsp[(2) - (2)].ival));
 	;}
     break;
 
   case 12:
-#line 95 "qscript_data.y"
+#line 100 "qscript_data.y"
     {
 		array_index_list.push_back((yyvsp[(3) - (3)].ival));
 	;}
@@ -1440,7 +1447,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1444 "qscript_data.tab.c"
+#line 1451 "qscript_data.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1654,7 +1661,7 @@ yyreturn:
 }
 
 
-#line 100 "qscript_data.y"
+#line 105 "qscript_data.y"
 
 
 /*

@@ -55,14 +55,14 @@ bool check_type_compat(DataType typ1, DataType typ2){
 
 
 map<string, SymbolTableEntry*>::iterator find_in_symtab(string id){
-	bool found=false;
+	//bool found=false;
 	int i=active_scope_list.size()-1;
 	map<string,SymbolTableEntry*>::iterator sym_it ; 
 	for(;i>-1;--i){
 		sym_it = active_scope_list[i]->SymbolTable.find(id);
 		if (sym_it == active_scope_list[i]->SymbolTable.end() ){
 		} else {
-			found = true;
+			//found = true;
 			//cout << "found" << endl;
 			return sym_it;
 		}
