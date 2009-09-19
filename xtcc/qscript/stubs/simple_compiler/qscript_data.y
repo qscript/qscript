@@ -8,6 +8,7 @@
 
 	
 	static vector<int> data;
+	static vector<int> array_index_list;
 	vector <question_disk_data*> qdd_list;
 	int read_disk_datalex();
 	int no_errors;
@@ -21,7 +22,7 @@
 	char name[MY_STR_MAX];
 }
 %token <name> NAME
-%token COLON
+%token COLON DOLLAR BOUNDS
 %token <ival> INUMBER
 %token  NEWL
 
@@ -31,6 +32,7 @@
 program: question_list{
 	return no_errors;
 	}
+	;
 
 question_list: question
 	| question_list question
@@ -56,6 +58,27 @@ question: NAME COLON numberlist NEWL {
 		qdd_list.push_back(qdd);
 		data.clear();
 	}
+	| NAME array_index_list COLON numberlist NEWL {
+		string qno($1);
+		QuestionExists q_eq(qno);
+		vector<question_disk_data*> ::iterator it = find_if(qdd_list.begin(),
+				qdd_list.end(), q_eq);
+		if(it!=qdd_list.end()){
+			question_disk_data * qdd = *it;
+			qdd->set_array_data(array_index_list, data);
+		} else {
+			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
+			//qdd_list.push_back(qdd);
+		}
+		array_index_list.clear();
+		data.clear();
+	}
+	| NAME BOUNDS numberlist {
+		string qno($1);
+		question_disk_data * qdd = new question_disk_data(qno, data, data);
+		qdd_list.push_back(qdd);
+		data.clear();
+	}
 	;
 
 numberlist: INUMBER {
@@ -66,6 +89,13 @@ numberlist: INUMBER {
 	}
 	;
 
+array_index_list: DOLLAR INUMBER {
+		array_index_list.push_back($2);
+	}
+	| array_index_list DOLLAR INUMBER {
+		array_index_list.push_back($3);
+	}
+	;
 
 %%
 

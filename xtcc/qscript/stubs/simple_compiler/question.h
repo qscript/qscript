@@ -161,5 +161,26 @@ class NamedStubQuestion: public AbstractQuestion
 		NamedStubQuestion (const NamedStubQuestion&);
 };
 
+class DummyArrayQuestion: public AbstractQuestion{
+	vector<int> array_bounds;
+	public:
+
+	DummyArrayQuestion(string l_qno, vector<int> l_array_bounds)
+		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, "", spn 
+		, 0, INT32_TYPE ),
+		  array_bounds(l_array_bounds)
+	{ }
+	void WriteDataToDisk(ofstream& data_file);
+	void eval(){}
+	bool IsValid(int value){ return false;}
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code){}
+	void GenerateCodeSingleQuestion(ostringstream & quest_defns
+			, ostringstream& program_code){}
+	private:
+		DummyArrayQuestion& operator=(const DummyArrayQuestion&);
+		DummyArrayQuestion (const DummyArrayQuestion&);
+};
+
 
 #endif /* qscript_question_h */

@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <cstdlib>
 
 #include "question.h"
 #include "named_range.h"
@@ -179,11 +180,13 @@ void RangeQuestion::eval()
 
 void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 {
-	data_file << questionName_ ;
 	if(loop_index_values.size()>0){
+		data_file << questionName_;
 		for(int i=0; i< loop_index_values.size(); ++i){
 			data_file << "$" << loop_index_values[i];
 		}
+	} else {
+		data_file << questionName_ ;
 	}
 	data_file << ":" ;
 	for( set<int>::iterator iter=input_data.begin();
@@ -332,7 +335,38 @@ void RangeQuestion::GenerateCode( ostringstream & quest_defns
 	if(for_bounds_stack.size()==0){
 		GenerateCodeSingleQuestion(quest_defns, program_code);
 	} else {
-		quest_defns << "vector <AbstractQuestion*> " << questionName_ << "_list;" << endl;
+		//quest_defns << "vector <AbstractQuestion*> " << questionName_ << "_list;" << endl;
+		//----------------------------------------
+		string temp_array_bounds_name = "list_" + questionName_ + "_array_bounds";
+		quest_defns << "vector<int> " << temp_array_bounds_name 
+			<< "(" << for_bounds_stack.size() << ")"
+			<< ";" << endl;
+		for(int i=0; i< for_bounds_stack.size(); ++i){
+			ostringstream array_bounds;
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
+			if(bin_expr_ptr){
+				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				rhs->PrintExpressionCode(array_bounds, array_bounds);
+				//int bounds = atoi(array_bounds.str().c_str());
+				quest_defns << temp_array_bounds_name 
+					<< "[" << i << "]=" << array_bounds.str() << ";\n";
+				array_bounds.clear();
+
+			} else {
+				for_bounds_stack[i]->PrintExpressionCode(array_bounds, array_bounds);
+				print_err(compiler_sem_err
+					, "for loop index condition is not a binary expression" 
+					, 0, __LINE__, __FILE__);
+			}
+		}
+		//----------------------------------------
+		quest_defns << "ArrayQuestion " << questionName_ << "_list(" 
+			<< temp_array_bounds_name <<");" << endl;
+		quest_defns << "DummyArrayQuestion* dum_" << questionName_ 
+			<< "= new DummyArrayQuestion(\""  << questionName_ << "\","
+			<< temp_array_bounds_name <<");" << endl;
+		quest_defns << "question_list.push_back( dum_" << questionName_ << ");" 
+			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
 			quest_defns << "for(int ";
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
@@ -365,7 +399,8 @@ void RangeQuestion::GenerateCode( ostringstream & quest_defns
 		}
 		
 		GenerateCodeSingleQuestion(quest_defns, program_code);
-		quest_defns << questionName_ << "_list.push_back(" << questionName_ << ");"
+		quest_defns << questionName_ << "_list"
+			<< ".questionList.push_back(" << questionName_ << ");"
 			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
 			quest_defns << "stack_of_loop_indices.pop_back();\n";
@@ -419,7 +454,36 @@ void NamedStubQuestion::GenerateCode( ostringstream & quest_defns,
 	if(for_bounds_stack.size()==0){
 		GenerateCodeSingleQuestion(quest_defns, program_code);
 	}  else {
-		quest_defns << "vector <AbstractQuestion*> " << questionName_ << "_list;" << endl;
+		//----------------------------------------
+		string temp_array_bounds_name = "list_" + questionName_ + "_array_bounds";
+		quest_defns << "vector<int> " << temp_array_bounds_name 
+			<< "(" << for_bounds_stack.size() << ")"
+			<< ";" << endl;
+		for(int i=0; i< for_bounds_stack.size(); ++i){
+			ostringstream array_bounds;
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
+			if(bin_expr_ptr){
+				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				rhs->PrintExpressionCode(array_bounds, array_bounds);
+				//int bounds = atoi(array_bounds.str().c_str());
+				quest_defns << temp_array_bounds_name 
+					<< "[" << i << "]=" << array_bounds.str() << ";\n";
+				//array_bounds.clear();
+			} else {
+				for_bounds_stack[i]->PrintExpressionCode(array_bounds, array_bounds);
+				print_err(compiler_sem_err
+					, "for loop index condition is not a binary expression" 
+					, 0, __LINE__, __FILE__);
+			}
+		}
+		//----------------------------------------
+		quest_defns << "ArrayQuestion " << questionName_ << "_list(" 
+			<< temp_array_bounds_name <<");" << endl;
+		quest_defns << "DummyArrayQuestion* dum_" << questionName_ 
+			<< "= new DummyArrayQuestion(\""  << questionName_ << "\","
+			<< temp_array_bounds_name <<");" << endl;
+		quest_defns << "question_list.push_back( dum_" << questionName_ << ");" 
+			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
 			quest_defns << "for(int ";
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
@@ -452,7 +516,7 @@ void NamedStubQuestion::GenerateCode( ostringstream & quest_defns,
 		}
 		
 		GenerateCodeSingleQuestion(quest_defns, program_code);
-		quest_defns << questionName_ << "_list.push_back(" << questionName_ << ");"
+		quest_defns << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
 		for(int i=0; i< for_bounds_stack.size(); ++i){
 			quest_defns << "stack_of_loop_indices.pop_back();\n";
@@ -581,11 +645,14 @@ void AbstractQuestion::print_data_type(string &s)
 
 void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 {
-	data_file << questionName_ ;
 	if(loop_index_values.size()>0){
+
+		data_file << questionName_;
 		for(int i=0; i< loop_index_values.size(); ++i){
 			data_file << "$" << loop_index_values[i];
 		}
+	} else  {
+		data_file << questionName_ ;
 	}
 	data_file << ":" ;
 	for( set<int>::iterator iter=input_data.begin();
@@ -624,7 +691,7 @@ void AbstractQuestion::PrintSetupBackJump(ostringstream & quest_defns
 void AbstractQuestion::PrintEvalArrayQuestion(ostringstream & quest_defns
 			, ostringstream& program_code)
 {
-	program_code << "\t\t" << questionName_.c_str() << "_list[";
+	program_code << "\t\t" << questionName_.c_str() << "_list.questionList[";
 	// ----------------------------------
 	ostringstream * string_stream_vec=
 		new ostringstream[for_bounds_stack.size()];
@@ -669,6 +736,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(ostringstream & quest_defns
 			program_code << "+";
 		}
 	}
+	delete[] string_stream_vec;
 	// ---------------------------------
 	program_code << "]->eval();\n" ;
 }
@@ -676,4 +744,18 @@ void AbstractQuestion::PrintEvalArrayQuestion(ostringstream & quest_defns
 RangeQuestion::~RangeQuestion()
 {
 	delete r_data ; r_data=0;
+}
+
+
+// -----------------------------------------------------
+// DummyArrayQuestion
+
+
+void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
+{
+	data_file << questionName_ << " BOUNDS" ;
+	for(int i=0; i<array_bounds.size(); ++i){
+		data_file << " "<< array_bounds[i];
+	}
+	data_file << endl;
 }

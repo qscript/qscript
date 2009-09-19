@@ -82,6 +82,7 @@ using std::string;
 #include <sstream>
 
 void print_header(FILE* script);
+void print_array_question_class(FILE* script);
 void print_close(FILE* script, ostringstream & program_code);
 void GenerateCode(){
 	string script_name("test_script.C");
@@ -142,6 +143,7 @@ void print_header(FILE* script){
 	fprintf(script, "vector <double> vector_double_t;\n");
 	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int ser_no);\n");
+	print_array_question_class(script);
 
 
 	fprintf(script, "int main(){\n");
@@ -410,6 +412,26 @@ const char * write_data_to_disk_code(){
 	"\t}\n"
 	"\n";
 	return write_data_disk_code;
+}
+
+
+void print_array_question_class(FILE* script)
+{
+	fprintf(script, "class ArrayQuestion\n");
+	fprintf(script, "{\n");
+	fprintf(script, "public: \n");
+	fprintf(script, "\tvector<AbstractQuestion*> questionList;\n");
+	fprintf(script, "\tvector<int> arrayBounds;\n");
+	fprintf(script, "\tArrayQuestion(vector<int>& l_arrayBounds): arrayBounds(l_arrayBounds)\n");
+	fprintf(script, "\t{\n");
+	fprintf(script, "\t\tint bounds = 1;\n");
+	fprintf(script, "\t\tfor(int i=0; i<arrayBounds.size(); ++i){\n");
+	fprintf(script, "\t\t\tbounds*=arrayBounds[i];\n");
+	fprintf(script, "\t\t}\n");
+	fprintf(script, "\t\tquestionList.reserve(bounds);\n");
+	fprintf(script, "\t}\n");
+	fprintf(script, "};\n\n");
+
 }
 
 /* end of namespace */

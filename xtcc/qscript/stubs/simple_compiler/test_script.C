@@ -30,6 +30,21 @@ vector <float> vector_float_t;
 vector <double> vector_double_t;
 bool back_jump=false;// no need for this but state the intent
 void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int ser_no);
+class ArrayQuestion
+{
+public: 
+	vector<AbstractQuestion*> questionList;
+	vector<int> arrayBounds;
+	ArrayQuestion(vector<int>& l_arrayBounds): arrayBounds(l_arrayBounds)
+	{
+		int bounds = 1;
+		for(int i=0; i<arrayBounds.size(); ++i){
+			bounds*=arrayBounds[i];
+		}
+		questionList.reserve(bounds);
+	}
+};
+
 int main(){
 vector <stub_pair> age;
 
@@ -73,7 +88,13 @@ question_list.push_back(q4_3);
 // NamedStubQuestion::GenerateCode() : to be implemented
 NamedStubQuestion * q4_5 = new NamedStubQuestion(QUESTION_TYPE, 44,string( "q4_5"),string(" Q4.5 Which brand do you consume most often?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
 question_list.push_back(q4_5);
-vector <AbstractQuestion*> q17_list;
+vector<int> list_q17_array_bounds(3);
+list_q17_array_bounds[0]=2;
+list_q17_array_bounds[1]=3;
+list_q17_array_bounds[2]=4;
+ArrayQuestion q17_list(list_q17_array_bounds);
+DummyArrayQuestion* dum_q17= new DummyArrayQuestion("q17",list_q17_array_bounds);
+question_list.push_back( dum_q17);
 for(int i=0;i<2; ++i){
 vector<int> stack_of_loop_indices; 
 stack_of_loop_indices.push_back(i);
@@ -84,14 +105,18 @@ stack_of_loop_indices.push_back(k);
 // NamedStubQuestion::GenerateCode() : to be implemented
 NamedStubQuestion * q17 = new NamedStubQuestion(QUESTION_TYPE, 56,string( "q17"),string(" Q17. Respondents age"),spn,5,INT32_TYPE,&age, stack_of_loop_indices /* 3*/);
 question_list.push_back(q17);
-q17_list.push_back(q17);
+q17_list.questionList.push_back(q17);
 stack_of_loop_indices.pop_back();
 }
 stack_of_loop_indices.pop_back();
 }
 stack_of_loop_indices.pop_back();
 }
-vector <AbstractQuestion*> q15_list;
+vector<int> list_q15_array_bounds(1);
+list_q15_array_bounds[0]=5;
+ArrayQuestion q15_list(list_q15_array_bounds);
+DummyArrayQuestion* dum_q15= new DummyArrayQuestion("q15",list_q15_array_bounds);
+question_list.push_back( dum_q15);
 for(int i=0;i<5; ++i){
 vector<int> stack_of_loop_indices;
 stack_of_loop_indices.push_back(i);
@@ -100,7 +125,7 @@ xs_2.indiv.insert(99);
 xs_2.range.push_back(pair<int,int>(1,15));
 RangeQuestion * q15 = new RangeQuestion(QUESTION_TYPE, 62,string( "q15"),string(" q15"),mpn,5,INT32_TYPE,xs_2, stack_of_loop_indices /* 1*/);
 question_list.push_back(q15);
-q15_list.push_back(q15);
+q15_list.questionList.push_back(q15);
 stack_of_loop_indices.pop_back();
 }
 
@@ -524,7 +549,7 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q17_list[i*3*4+j*4+k]->eval();
+		q17_list.questionList[i*3*4+j*4+k]->eval();
 }
 }
 }
@@ -599,7 +624,7 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q15_list[i]->eval();
+		q15_list.questionList[i]->eval();
 }
 }
 

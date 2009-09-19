@@ -37,6 +37,7 @@ int load_data(string jno, int ser_no){
 		if(!read_disk_dataparse()){
 			return 1;
 		} else {
+			cerr << "input datafile found had errors" << endl;
 			return 0;
 		}
 	}

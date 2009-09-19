@@ -32,7 +32,15 @@
 	return COLON;
 }
 
+"$" 	{
+	return DOLLAR;
+}
+
 [ \t]+	; /* ignore */
+
+BOUNDS {
+	return BOUNDS;
+}
 
 [_A-Za-z][A-Za-z0-9_]*	{
 	if(read_disk_dataleng < MY_STR_MAX) {

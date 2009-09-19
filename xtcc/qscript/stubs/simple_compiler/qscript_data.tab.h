@@ -41,29 +41,33 @@
    enum yytokentype {
      NAME = 258,
      COLON = 259,
-     INUMBER = 260,
-     NEWL = 261
+     DOLLAR = 260,
+     BOUNDS = 261,
+     INUMBER = 262,
+     NEWL = 263
    };
 #endif
 /* Tokens.  */
 #define NAME 258
 #define COLON 259
-#define INUMBER 260
-#define NEWL 261
+#define DOLLAR 260
+#define BOUNDS 261
+#define INUMBER 262
+#define NEWL 263
 
 
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 18 "qscript_data.y"
+#line 19 "qscript_data.y"
 {
 	int ival;
 	double dval;
 	char name[MY_STR_MAX];
 }
 /* Line 1489 of yacc.c.  */
-#line 67 "qscript_data.tab.h"
+#line 71 "qscript_data.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
