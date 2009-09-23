@@ -94,8 +94,10 @@ tabstart {
 }
 
 data_struct {
+	std::cout << "DATA_STRUCT" << std::endl;
 	return DATA_STRUCT;
 }
+
 rec_len {
 	return REC_LEN;
 }
@@ -103,6 +105,7 @@ rec_len {
 ed_start {
 	return ED_START;
 }
+
 ed_end {
 	return ED_END;
 }

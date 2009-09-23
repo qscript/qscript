@@ -685,7 +685,7 @@ expression: expression '+' expression {
 		}
 	}
 	| 	NAME '[' expression ']' %prec FUNC_CALL {
-		$$ = new Unary2Expression(oper_arrderef, /*nametype,  se,*/ $1,$3);
+		$$ = new Unary2Expression (oper_arrderef, /*nametype,  se,*/ $1,$3);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -973,8 +973,7 @@ template<class T> T* link_chain(T* &elem1, T* &elem2)
 	return elem2;
 }
 
-template<class T> T* trav_chain(T* & elem1)
-{
+template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
 		while (elem1->prev_) elem1=elem1->prev_;
 		return elem1;

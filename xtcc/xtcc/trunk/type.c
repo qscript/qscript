@@ -2468,7 +2468,7 @@ yyreduce:
   case 73:
 #line 687 "type.y"
     {
-		(yyval.expr) = new Unary2Expression(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
+		(yyval.expr) = new Unary2Expression (oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -3059,8 +3059,7 @@ template<class T> T* link_chain(T* &elem1, T* &elem2)
 	return elem2;
 }
 
-template<class T> T* trav_chain(T* & elem1)
-{
+template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
 		while (elem1->prev_) elem1=elem1->prev_;
 		return elem1;

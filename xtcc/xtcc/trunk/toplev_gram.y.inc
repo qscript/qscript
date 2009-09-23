@@ -25,6 +25,15 @@
 
 %{
 //#include "../../qscript/trunk/named_attributes.h"
+
+#include <cstring>
+#include <iostream>
+#include <vector>
+#include <map>
+#include <sys/types.h>
+#include <limits.h>
+#include "scope.h"
+#include "xtcc_set.h"
 #include "named_attributes.h"
 #include "const_defs.h"
 #include "symtab.h"
@@ -32,17 +41,10 @@
 #include "expr.h"
 #include "stmt.h"
 #include "Tab.h"
-#include <cstring>
-#include <iostream>
-#include <vector>
-#include "scope.h"
-#include <map>
-#include <sys/types.h>
-#include <limits.h>
 
 
 	const bool XTCC_DEBUG_MEM_USAGE=1;
-	xtcc_set xs;
+	XtccSet xs;
 
 //	struct symtab symtab;
 	extern int if_line_no;
@@ -54,20 +56,20 @@
 	extern char * yytext;
 	bool check_type_compat(DataType typ1, DataType typ2);
 	vector <FunctionInformation*> func_info_table;
-	int check_parameters(struct AbstractExpression* e, struct var_list* v);
+	int check_parameters(struct AbstractExpression* e, struct FunctionParameter* v);
 	vector <Scope*> active_scope_list;
 	Scope* active_scope;
 	map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
-	//struct stmt * load_func_into_symbol_table( char * & name,  struct var_list* & v_list, DataType int_type);
+	//struct stmt * load_func_into_symbol_table( char * & name,  struct FunctionParameter* & v_list, DataType int_type);
 	bool skip_func_type_check(const char * fname);
-	//void	add_func_params_to_cmpd_sc(struct Scope * & scope_, struct var_list * & v_list, string & fname);
+	//void	add_func_params_to_cmpd_sc(struct Scope * & scope_, struct FunctionParameter * & v_list, string & fname);
 	int search_for_func(string& search_for);
-	int check_func_decl_with_func_defn(struct var_list*& v_list, int & index, string func_name);
+	int check_func_decl_with_func_defn(struct FunctionParameter*& v_list, int & index, string func_name);
 	struct AbstractStatement* make_func_defn_stmt( struct Scope *& scope_,
-		struct var_list * & v_list,
-		struct AbstractStatement* & func_body,
+		struct FunctionParameter * & v_list,
+		struct AbstractStatement* & funcBody_,
 		string search_for,
-		DataType return_type
+		DataType returnType_
 		);
 	struct AbstractStatement * tree_root=0;
 	bool 	void_check( DataType & type1, DataType & type2, DataType& result_type);
@@ -109,7 +111,7 @@
 %union {
 	double dval;
 	int ival ;
-	struct symtab *symp;
+	struct symtab *symbolTableEntry_;
 	char * name;
 	struct AbstractExpression * expr;
 	struct AbstractStatement * stmt;
@@ -117,7 +119,7 @@
 	int column_no;
 	int code_list;
 	char text_buf[MY_STR_MAX];
-	struct var_list * v_list;
+	struct FunctionParameter * v_list;
 	DataType dt;
 	struct ax * ax;
 	struct stub * stub;
@@ -267,14 +269,14 @@ func_defn:
 		if(c_stmt==0){
 			cerr << "INTERNAL COMPILER ERROR: c_stmt==0" << endl;
 		} else {
-			//cout << "func_body: is valid " << endl;
+			//cout << "funcBody_: is valid " << endl;
 		}
 		struct Scope *scope_=c_stmt->scope_;
-		struct var_list * v_list=trav_chain($4);
-		struct AbstractStatement* func_body=$7;
+		struct FunctionParameter * v_list=trav_chain($4);
+		struct AbstractStatement* funcBody_=$7;
 		string search_for=$2;
-		DataType return_type=$1;
-		$$=new FunctionStatement(FUNC_DEFN, line_no, scope_, v_list, func_body, search_for, return_type);
+		DataType returnType_=$1;
+		$$=new FunctionStatement(FUNC_DEFN, line_no, scope_, v_list, funcBody_, search_for, returnType_);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -322,9 +324,9 @@ decl:	xtcc_type NAME ';' {
 
 func_decl:	xtcc_type NAME '(' decl_comma_list ')' ';'{
 		char *name=$2;
-		struct var_list* v_list=trav_chain($4);
-		DataType return_type=$1;
-		$$=new FunctionDeclarationStatement( FUNC_TYPE, line_no, name,  v_list, return_type);
+		struct FunctionParameter* v_list=trav_chain($4);
+		DataType returnType_=$1;
+		$$=new FunctionDeclarationStatement( FUNC_TYPE, line_no, name,  v_list, returnType_);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -344,7 +346,7 @@ decl_comma_list: var_decl	{
 
 
 var_decl:	xtcc_type NAME 	{
-		$$=new var_list($1, $2);
+		$$=new FunctionParameter($1, $2);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -353,7 +355,7 @@ var_decl:	xtcc_type NAME 	{
 	| xtcc_type NAME '[' INUMBER ']'  {
 		/* Neil - I need to fix this */
 		DataType dt=DataType(INT8_ARR_TYPE+($1-INT8_TYPE));
-		$$=new var_list(dt, $2, $4);
+		$$=new FunctionParameter(dt, $2, $4);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -361,7 +363,7 @@ var_decl:	xtcc_type NAME 	{
 	}
 	|	xtcc_type '&' NAME {
 		DataType dt=DataType(INT8_REF_TYPE+($1-INT8_TYPE));
-		$$=new var_list(dt, $3);
+		$$=new FunctionParameter(dt, $3);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -530,7 +532,7 @@ open_curly:	'{' {
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
 		if(flag_cmpd_stmt_is_a_func_body>=0){
-			$$->scope_=func_info_table[flag_cmpd_stmt_is_a_func_body]->func_scope;
+			$$->scope_=func_info_table[flag_cmpd_stmt_is_a_func_body]->funcScope_;
 			// reset the flag
 			flag_cmpd_stmt_is_a_func_body=-1;
 		} else {
@@ -667,7 +669,7 @@ attributes:     ATTRIBUTE_LIST NAME '=' {
 			string s(attr_list_name);
 			SymbolTableEntry* se=new SymbolTableEntry($2, NAMED_ATTRIBUTE_TYPE);
 			active_scope_list[0]->sym_tab[s] = se;
-			n_attr_stmt->symp = se;
+			n_attr_stmt->symbolTableEntry_ = se;
 		}
 	}
         ;
@@ -757,7 +759,8 @@ bit_list: BIT NAME ';' stub_list';' {
 %%
 
 
-template<class T> T* link_chain(T* &elem1, T* &elem2){
+template<class T> T* link_chain(T* &elem1, T* &elem2)
+{
 	elem2->prev_=elem1;
 	elem1->next_=elem2;
 	return elem2;
