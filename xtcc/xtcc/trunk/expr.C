@@ -49,7 +49,7 @@ AbstractExpression::~AbstractExpression()
 
 int AbstractExpression::isvalid()
 {
-	if (type==ERROR_TYPE){
+	if (type_==ERROR_TYPE){
 		return 0;
 	} else return 1;
 }
@@ -77,7 +77,7 @@ UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 		print_err(compiler_sem_err
 				, "oper_blk_arr_assgn: cannot be used with unary operators : line_no:",
 			line_no, __LINE__, __FILE__);
-	} else if(l_operand->type==VOID_TYPE){
+	} else if(l_operand->type_==VOID_TYPE){
 		switch(l_operand->exprOperatorType_){
 			case oper_umin:
 			case oper_not:
@@ -94,13 +94,13 @@ UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 	} else {
 		switch(exprOperatorType_){
 			case oper_umin:
-				type = l_operand->type;
+				type_ = l_operand->type_;
 			break;
 			case oper_not:
-				type = INT8_TYPE;
+				type_ = INT8_TYPE;
 			break;
 			case oper_parexp:
-				type = l_operand->type;
+				type_ = l_operand->type_;
 			break;
 			default:
 				++no_errors;
@@ -148,19 +148,22 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 	if(rightOperand_->exprOperatorType_ == oper_blk_arr_assgn &&
 		( leftOperand_->exprOperatorType_==oper_name
 		  ||leftOperand_->exprOperatorType_==oper_arrderef)){
-		Unary2Expression* blk_e = static_cast<Unary2Expression*> (rightOperand_);
-		Unary2Expression* lhs = static_cast<Unary2Expression*> (leftOperand_);
+		Unary2Expression* blk_e = 
+			static_cast<Unary2Expression*> (rightOperand_);
+		Unary2Expression* lhs 
+			= static_cast<Unary2Expression*> (leftOperand_);
 		code_expr << "/* DATA CONVERSION */\n";
 		code_expr << "{int tmp1=";
 		blk_e->operand_->PrintExpressionCode(code_bef_expr, code_expr);
 		code_expr << ";\nint tmp2=";
 		blk_e->operand2_->PrintExpressionCode(code_bef_expr, code_expr);
 		code_expr << ";\n";
-		if(leftOperand_->type==FLOAT_TYPE) {
+		if(leftOperand_->type_==FLOAT_TYPE) {
 			code_expr << "if(tmp2-tmp1==sizeof(float)-1){\n";
 			code_expr << "\tchar buff[sizeof(float)];int i,j;\n";
 			code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
-			code_expr << "\t\tbuff[j]=" <<  blk_e->symbolTableEntry_->name_ << "[i];\n";
+			code_expr << "\t\tbuff[j]=" 
+				<<  blk_e->symbolTableEntry_->name_ << "[i];\n";
 			code_expr << "\t}\n";
 			code_expr << "\tvoid * v_ptr = buff;\n";
 			code_expr << "\tfloat *f_ptr = static_cast<float *>(v_ptr);\n";
@@ -170,11 +173,12 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 			code_expr << "=*f_ptr;\n";
 			code_expr << "}else { cerr << \"runtime error: line_no : AbstractExpression out of bounds\" << " 
 				<< line_no  <<";}\n}\n";
-		} else if (leftOperand_->type==INT32_TYPE){
+		} else if (leftOperand_->type_==INT32_TYPE){
 			code_expr << "if(tmp2-tmp1==sizeof(int)-1){\n";
 			code_expr << "\tchar buff[sizeof(int)];int i,j;\n";
 			code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
-			code_expr << "\t\tbuff[j]=" << blk_e->symbolTableEntry_->name_ << "[i];\n";
+			code_expr << "\t\tbuff[j]=" 
+				<< blk_e->symbolTableEntry_->name_ << "[i];\n";
 			code_expr << "\t}\n";
 			code_expr << "\tvoid * v_ptr = buff;\n";
 			code_expr << "\tint *i_ptr = static_cast<int *>(v_ptr);\n";
@@ -400,27 +404,27 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 		&& (leftOperand_->exprOperatorType_==oper_blk_arr_assgn
 			||rightOperand_->exprOperatorType_==oper_blk_arr_assgn))
 	{
-		type=ERROR_TYPE;
+		type_=ERROR_TYPE;
 		++no_errors;
 		print_err(compiler_sem_err, "error: oper_blk_arr_assgn: used in binary AbstractExpression ",
 				line_no, __LINE__, __FILE__);
 	} else if (exprOperatorType_ ==oper_assgn){
 		if( (!leftOperand_->is_lvalue()) ){
-			type=ERROR_TYPE;
+			type_=ERROR_TYPE;
 			++no_errors;
 			print_err(compiler_sem_err, "oper_assgn error: lhs of assignment should be lvalue ", 
 				line_no, __LINE__, __FILE__);
 		}
-		DataType typ1=leftOperand_->type;
-		DataType typ2=rightOperand_->type;
-		if(!void_check(leftOperand_->type, rightOperand_->type, type)){
+		DataType typ1=leftOperand_->type_;
+		DataType typ2=rightOperand_->type_;
+		if(!void_check(leftOperand_->type_, rightOperand_->type_, type_)){
 			print_err(compiler_sem_err, "oper_assgn error: operand_ data types on lhs and rhs should be of non-VOID type", 
 				line_no, __LINE__, __FILE__);
-			type = ERROR_TYPE;
+			type_ = ERROR_TYPE;
 			++no_errors;
 		}
 		if(!check_type_compat(typ1, typ2)){
-			type = ERROR_TYPE;
+			type_ = ERROR_TYPE;
 			stringstream s;
 			s << "oper_assgn error: operand_ data types on lhs and rhs should be compatible, ";
 			string lhs_hr_type = human_readable_type(typ1);
@@ -444,17 +448,17 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 		case oper_iseq :	
 		case oper_or :	
 		case oper_and :	
-			if(void_check(leftOperand_->type
-						, rightOperand_->type, type)){
-				type=lcm_type(leftOperand_->type
-						, rightOperand_->type);
+			if(void_check(leftOperand_->type_
+						, rightOperand_->type_, type_)){
+				type_=lcm_type(leftOperand_->type_
+						, rightOperand_->type_);
 			}
 			if(exprOperatorType_==oper_mod 
-				&& !( is_of_int_type(leftOperand_->type) 
-					&& is_of_int_type(rightOperand_->type))){
+				&& !( is_of_int_type(leftOperand_->type_) 
+					&& is_of_int_type(rightOperand_->type_))){
 				print_err(compiler_sem_err, 
 					" operands of %% should be of type int/char only", line_no, __LINE__, __FILE__);
-				type=ERROR_TYPE;
+				type_=ERROR_TYPE;
 			}
 		break;
 		default:
@@ -463,7 +467,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 	}
 }
 Unary2Expression::Unary2Expression( struct SymbolTableEntry * lsymp)
-	: AbstractExpression(oper_name,lsymp->type), symbolTableEntry_(lsymp)
+	: AbstractExpression(oper_name,lsymp->type_), symbolTableEntry_(lsymp)
 	, isem_value(0), dsem_value(0)
 	, func_index_in_table(-1), text(0), operand_(0), operand2_(0) 
 {
@@ -476,7 +480,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 	, text(ltxt), column_no(-1), operand_(0), operand2_(0) 
 {
 	if(exprOperatorType_==oper_text_expr){
-		type=STRING_TYPE;
+		type_=STRING_TYPE;
 	} else if(exprOperatorType_==oper_name){
 		map<string,SymbolTableEntry*>::iterator sym_it = 
 			find_in_symtab(ltxt);
@@ -484,10 +488,10 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 			string err_msg = "Error: could not find:" 
 				+ string(ltxt) + "  in symbol table  ";
 			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
-			type=ERROR_TYPE;
+			type_=ERROR_TYPE;
 		} else {
 			symbolTableEntry_ = sym_it->second;
-			type = symbolTableEntry_->type;
+			type_ = symbolTableEntry_->type_;
 		}
 	}
 }
@@ -508,16 +512,16 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 	} else {
 		SymbolTableEntry* se=sym_it->second;
 		symbolTableEntry_ = se;
-		DataType exprOperatorType_=arr_index->type;
+		DataType exprOperatorType_=arr_index->type_;
 		if(is_of_int_type(exprOperatorType_)){
-			DataType nametype =arr_deref_type(se->type);
+			DataType nametype =arr_deref_type(se->type_);
 			if(nametype==ERROR_TYPE) {
 				std::stringstream s;
 				s << "ERROR: Array indexing AbstractExpression Variable being indexed not of Array Type : Error: lineno: " << line_no << "\n";
 				print_err(compiler_sem_err
 					, s.str(), line_no, __LINE__, __FILE__);
 			} else {
-				type = nametype;
+				type_ = nametype;
 			}
 		} else {
 			stringstream s;
@@ -555,18 +559,18 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 		print_err(compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
 	}  else {
-		DataType e_type1=arr_index->type;
-		DataType e_type2=arr_index2->type;
+		DataType e_type1=arr_index->type_;
+		DataType e_type2=arr_index2->type_;
 		if( is_of_int_type (e_type1)&& 
 			is_of_int_type(e_type2)	){
-			DataType d1=arr_deref_type(se->type);
+			DataType d1=arr_deref_type(se->type_);
 			if(d1==ERROR_TYPE){
 				std::stringstream s;
 				s << "ERROR: Block Array assignment AbstractExpression Variable: " << name << " being indexed not of Array Type : Error: lineno: " << line_no << "\n";
 				print_err(compiler_sem_err, s.str()
 					, line_no, __LINE__, __FILE__);
 			} else {
-				type = d1;
+				type_ = d1;
 			}
 		} else {
 			stringstream s;
@@ -595,14 +599,14 @@ Unary2Expression::Unary2Expression(int l_isem_value)
 	, operand_(0), operand2_(0)
 {
 	if( isem_value >= SCHAR_MIN && isem_value<=SCHAR_MAX){
-		type=INT8_TYPE;
+		type_=INT8_TYPE;
 	} else if (isem_value>= SHRT_MIN && isem_value <= SHRT_MAX){
-		type=INT16_TYPE;
+		type_=INT16_TYPE;
 	} else if (isem_value>= INT_MIN && isem_value <= INT_MAX){
-		type=INT32_TYPE;
+		type_=INT32_TYPE;
 	} else {
 		++no_errors;
-		type = ERROR_TYPE;
+		type_ = ERROR_TYPE;
 		stringstream s;
 		s << "very large integer unhandleable type most probably line_no: "
 			<< line_no << "\n";
@@ -675,26 +679,26 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop , XtccSet& l_rd
 		switch( leftOperand_->exprOperatorType_){
 		case oper_name:
 		case oper_arrderef:
-			type = BOOL_TYPE;
+			type_ = BOOL_TYPE;
 			xs = new XtccSet(l_rd);
 			break;
 		default:
-			type = ERROR_TYPE;
+			type_ = ERROR_TYPE;
 			string err_msg = "Binary2Expression:: lhs operator for oper_in can only be NAME or NAME[INDEX]";
 			print_err(compiler_internal_error, err_msg
 					, line_no, __LINE__, __FILE__);
-			type=ERROR_TYPE;
+			type_=ERROR_TYPE;
 			
 		}
 		break;
 
 
 	default: {
-			type = ERROR_TYPE;
+			type_ = ERROR_TYPE;
 			string err_msg = "Binary2Expression:: operator in exprOperatorType_ can only be oper_in";
 			print_err(compiler_internal_error, err_msg
 					, line_no, __LINE__, __FILE__);
-			type=ERROR_TYPE;
+			type_=ERROR_TYPE;
 		}
 	}
 }

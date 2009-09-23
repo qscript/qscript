@@ -58,15 +58,15 @@ AbstractStatement* Scope::insert(const char * name, DataType dt)
 	if ( sym_tab.find(name) == sym_tab.end() ){
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
 		//se->name = strdup(name.c_str());
-		//se->type=dt;
+		//se->type_=dt;
 		string s(name);
 		sym_tab[s] = se;
-		st_ptr->type=dt;
+		st_ptr->type_=dt;
 		st_ptr->symbolTableEntry_=se;
 	} else {
 		cerr << "ERROR: " << name 
 			<< " already present in symbol table" << endl;
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
@@ -87,12 +87,12 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size)
 		se->n_elms=arr_size;
 		string s(name);
 		sym_tab[s] = se;
-		st_ptr->type=dt;
+		st_ptr->type_=dt;
 		st_ptr->symbolTableEntry_=se;
 	} else {
 		cerr << " array NAME failed:" << line_no << endl;
 		cerr << name << " already present in symbol table" << endl;
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
@@ -110,21 +110,21 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt, e);
-		if(is_of_noun_type(e->type)){
-			if (check_type_compat(dt,e->type)){
+		if(is_of_noun_type(e->type_)){
+			if (check_type_compat(dt,e->type_)){
 				string s(name);
 				sym_tab[s] = se;
-				st_ptr->type=dt;
+				st_ptr->type_=dt;
 				st_ptr->symbolTableEntry_=se;
 			} else {
 				stringstream s;
 				s << "Type of variable: " << name << "=" 
 					<< human_readable_type(dt)
 					<< " in decl cannot handle type of expression on rhs of variable: " 
-					<< human_readable_type(e->type) << endl;
+					<< human_readable_type(e->type_) << endl;
 				print_err(compiler_sem_err, s.str(), line_no
 						, __LINE__, __FILE__);
-				st_ptr->type=ERROR_TYPE;
+				st_ptr->type_=ERROR_TYPE;
 			}
 		} else {
 			stringstream s;
@@ -132,7 +132,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 				<< name << endl;
 			print_err(compiler_sem_err, s.str(), line_no
 					, __LINE__, __FILE__);
-			st_ptr->type=ERROR_TYPE;
+			st_ptr->type_=ERROR_TYPE;
 		}
 	} else {
 		stringstream s;
@@ -140,7 +140,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 			<< " already present in symbol table" << endl;
 		print_err(compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 	}
 	return st_ptr;
 }
@@ -179,7 +179,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 			se->text_=strdup(text_);
 		string s(name);
 		sym_tab[s] = se;
-		st_ptr->type=dt;
+		st_ptr->type_=dt;
 		st_ptr->symbolTableEntry_=se;
 	} else {
 		stringstream s;
@@ -187,7 +187,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 			<< "  already present in symbol table" << endl;
 		print_err(compiler_sem_err, s.str()
 				, line_no, __LINE__, __FILE__);
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
@@ -206,7 +206,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt, xs);
 		string s(name);
 		sym_tab[s] = se;
-		st_ptr->type=dt;
+		st_ptr->type_=dt;
 		st_ptr->symbolTableEntry_=se;
 	} else {
 		stringstream s;
@@ -214,7 +214,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
 			<< "  already present in symbol table" << endl;
 		print_err(compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
-		st_ptr->type=ERROR_TYPE;
+		st_ptr->type_=ERROR_TYPE;
 	}
 	return st_ptr;
 }

@@ -291,7 +291,7 @@ int check_parameters(AbstractExpression* e, FunctionParameter* v){
 	int chk_param_counter=1;
 	while (e_ptr && fparam) {
 		//e_ptr->print();
-		DataType etype=e_ptr->type, fptype=fparam->var_type; 
+		DataType etype=e_ptr->type_, fptype=fparam->var_type; 
 		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE) && 
 			((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)||
 			 (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
@@ -315,9 +315,9 @@ int check_parameters(AbstractExpression* e, FunctionParameter* v){
 			match=false;
 			cerr << "Parameter type mismatch name: " << endl;
 			cerr << fparam->var_name << " expected type is " << fparam->var_type
-				<< " passed type is " << e_ptr->type 
+				<< " passed type is " << e_ptr->type_ 
 				<< " line_no: " << line_no << " or currently allowed promotion to: " 
-				<< e_ptr->type+INT8_REF_TYPE
+				<< e_ptr->type_+INT8_REF_TYPE
 				<< endl;
 			++no_errors;
 		}

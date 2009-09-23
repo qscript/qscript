@@ -51,27 +51,27 @@ struct SymbolTableEntry {
 		double dval;
 		int ival;
 	};
-	DataType type;
+	DataType type_;
 	/*decltype dcl_type;*/
 	int n_elms;
 	bool created_by_me;
 	AbstractExpression * e;
 	XtccSet * xs;
 	SymbolTableEntry():name_(0), text_(0), dval(0)
-	, type(uninit), n_elms(0), created_by_me(false),e(0), xs(0)
+	, type_(uninit), n_elms(0), created_by_me(false),e(0), xs(0)
 	{ }
 	SymbolTableEntry(const char * lname, DataType ldt):
 		name_(strdup(lname)), text_(0), dval(0)
-		, type(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
+		, type_(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
 	{ }
 	SymbolTableEntry(const char * lname, DataType ldt
 			, AbstractExpression* le)
-		: name_(strdup(lname)), text_(0), dval(0), type(ldt)
+		: name_(strdup(lname)), text_(0), dval(0), type_(ldt)
 		  , n_elms(-1), created_by_me(true), e(le), xs(0)
 	{ }
 	SymbolTableEntry(const char * lname, DataType ldt, XtccSet * xs);
 	inline DataType get_type(){
-		return type;
+		return type_;
 	}
 	~SymbolTableEntry();
 	private:

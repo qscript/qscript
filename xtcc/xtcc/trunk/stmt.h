@@ -25,6 +25,11 @@
  * The Free Software Foundation, 
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+/* !\file
+   \brief The classes for the statements parsed in the input
+   	language to the "xtcc" compiler are contained in this file
+*/
+
 #ifndef _xtcc_stmt_h
 #define _xtcc_stmt_h
 #include "scope.h"
@@ -40,17 +45,27 @@ extern noun_list_type noun_list[];
 int check_func_decl_with_func_defn(struct FunctionParameter*& v_list
 		, int & index, string func_name);
 
-// Note : I may have to add file name we are compiling very soon
+//!AbstractStatement  Pure virtual base class - all statement classes inherit from this class except for class FunctionInformation
+/*!
+  All language statements classes are derived from the AbstractStatement class
+  the AbstractStatement class - contains members (
+  AbstractStatement * prev_, *next_ pointers to chain other statements). 
+  It also contains line and filename information 
+  about the statement being parsed
+*/
+
 struct AbstractStatement
 {
 	public:
+	//! chainers to the previous and next_ statement
 	AbstractStatement * prev_;
 	AbstractStatement * next_;
-	DataType type;
-	int line_number;
+	DataType type_;
+	int lineNo_;
 	virtual void GenerateCode(FILE * & fptr)=0;
+	//! Constructor - statement type and line number of the statement in the source code
 	AbstractStatement(DataType dtype=ERROR_TYPE, int lline_number=0)
-		:prev_(0), next_(0), type(dtype), line_number(lline_number)
+		:prev_(0), next_(0), type_(dtype), lineNo_(lline_number)
 	{}
 	virtual ~AbstractStatement();
 	private:
@@ -58,6 +73,7 @@ struct AbstractStatement
 		AbstractStatement& operator=(const AbstractStatement&);
 };
 
+//! ForStatement: A parsed for statement in the language becomes an object instanstiation of this class
 struct ForStatement: public AbstractStatement
 {
 	struct AbstractExpression * initializationExpression_
@@ -75,7 +91,7 @@ struct ForStatement: public AbstractStatement
 	ForStatement(const ForStatement&);	
 };
 
-// Refinement3
+//! IfStatement if statements in the language become object instantiations of this class
 struct IfStatement : public AbstractStatement
 {
 	protected:
@@ -93,6 +109,7 @@ struct IfStatement : public AbstractStatement
 	IfStatement(const IfStatement&);	
 };
 
+//!ExpressionStatement Parsed expressions statements become object instanstiations of this class
 struct ExpressionStatement: public AbstractStatement
 {
 	struct AbstractExpression* expression_;

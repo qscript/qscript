@@ -475,7 +475,7 @@ fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_s
 		print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 	} else {
 		symp = sym_it->second;
-		if(!is_of_int32_arr_type(symp->type)){
+		if(!is_of_int32_arr_type(symp->type_)){
 			string err_msg = "Error parsing bit statement : array should be of int32 type:" 
 				+ field_name + " in symbol table";
 			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);

@@ -158,7 +158,7 @@ string human_readable_type(DataType dt){
 
 SymbolTableEntry::SymbolTableEntry(const char * lname, DataType ldt
 		, XtccSet * lxs)
-	:name_(strdup(lname)), dval(0), type(ldt)
+	:name_(strdup(lname)), dval(0), type_(ldt)
 	 , n_elms(-1), created_by_me(true), e(0)
 { 
 	xs = new XtccSet(*lxs);

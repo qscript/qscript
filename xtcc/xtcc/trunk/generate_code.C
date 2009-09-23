@@ -60,6 +60,8 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 					map_iter_s->second->no_count_ax_elems,
 					map_iter_b->second->no_count_ax_elems
 					);
+
+			/*
 			fprintf(op, "\tvoid compute(){\n");
 			fprintf(op, "\t\tfor(int i=0; i<rows; ++i){\n");
 			fprintf(op, "\t\t\tfor(int j=0; j<cols; ++j){\n");
@@ -71,7 +73,27 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			fprintf(op, "\t\t\t\t} \n");
 			fprintf(op, "\t\t\t} \n");
 			fprintf(op, "\t\t}\n");
-			fprintf(op, "\t} /* compute()*/\n");
+			fprintf(op, "\t} \n");
+			*/
+
+			fprintf(op, "\tvoid compute(){\n");
+
+			int rows=map_iter_s->second->no_count_ax_elems;
+			int cols=map_iter_b->second->no_count_ax_elems;
+			for(int i=0; i<rows; ++i){
+				for(int j=0; j<cols; ++j){
+					fprintf(op, "\t\tif(");
+					fprintf(op, "ax_%s.flag[%d]", map_iter_s->first.c_str(), i);
+					fprintf(op, " && " );
+					fprintf(op, "ax_%s.flag[%d]){\n", map_iter_b->first.c_str(), j);
+					//fprintf(op, "\t\t\t++counter[i*cols+j];\n",
+					fprintf(op, "\t\t\t++counter[%d*cols+%d];\n",
+							i, j);
+					fprintf(op, "\t\t}\n");
+				}
+			}
+			fprintf(op, "\t} \n");
+
 
 #if 0
 			ax * side_ax = map_iter_s->second;

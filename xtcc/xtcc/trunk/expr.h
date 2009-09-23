@@ -46,14 +46,14 @@ enum ExpressionOperatorType
 
 struct AbstractExpression {
 	ExpressionOperatorType exprOperatorType_;
-	DataType type;
+	DataType type_;
 	struct AbstractExpression * next_, *prev_;
 	AbstractExpression(ExpressionOperatorType le_type)
-		:exprOperatorType_(le_type), type(ERROR_TYPE)
+		:exprOperatorType_(le_type), type_(ERROR_TYPE)
 		 , next_(0), prev_(0) 
 	{}
 	AbstractExpression(ExpressionOperatorType le_type, DataType ldt)
-		:exprOperatorType_(le_type), type(ldt), next_(0), prev_(0) 
+		:exprOperatorType_(le_type), type_(ldt), next_(0), prev_(0) 
 	{}
 	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 			, ostringstream & code_expr)=0;
@@ -90,20 +90,8 @@ using std::cerr;
 using std::endl;
 using std::string;
 using std::stringstream;
-/*
-struct XtccSet {
-	vector < pair<int,int> > range;
-	set<int> indiv;
-	XtccSet(DataType dt, string name, XtccSet& xs1);
-	XtccSet(XtccSet& xs1);
-	XtccSet& operator=(const XtccSet& xs1);
-	XtccSet();
-	void reset();
-	void add_range(int n1, int n2);
-	void add_indiv(int n1);
-};
-*/
 
+//! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set 
 struct Binary2Expression: public AbstractExpression
 {
 	protected:
@@ -118,6 +106,7 @@ struct Binary2Expression: public AbstractExpression
 	~Binary2Expression();
 };
 
+//! BinaryExpression holds expressions operated on by binary operators. For example a +b , a-b etc
 struct BinaryExpression: public AbstractExpression
 {
 	protected:
@@ -135,6 +124,12 @@ struct BinaryExpression: public AbstractExpression
 };
 
 
+//! Unary2Expression are single operands which have some data attached with them
+/*
+ Some examples are INUMBER, FNUMBER, NAME, NAME[], NAME[,]
+ NAME ( expr_list ) function call, TEXT
+
+*/
 struct Unary2Expression : public AbstractExpression
 {
 	protected:
