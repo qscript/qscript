@@ -7,15 +7,16 @@
 #include "stmt.h"
 using std::string;
 using std::vector;
-struct named_attribute_list: public stmt{
+struct named_attribute_list: public AbstractStatement{
 	string name;
 	vector<string> attribute;
-	struct symtab_ent* symp;
+	struct SymbolTableEntry* symbolTableEntry_;
 
-	named_attribute_list(datatype dt, int lline_no,  string l_name, vector<string> l_attr):  stmt(dt, lline_no),
-		name(l_name), attribute(l_attr), symp(0)
+	named_attribute_list(DataType dt, int lline_no,  string l_name, vector<string> l_attr):  
+		AbstractStatement(dt, lline_no),
+		name(l_name), attribute(l_attr), symbolTableEntry_(0)
 	{}
-	void print_stmt_lst(FILE * & fptr){
+	void GenerateCode(FILE * & fptr){
 		cout << "named_attribute_list: not yet implemented" << endl;
 	}
 };
