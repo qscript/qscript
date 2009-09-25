@@ -23,11 +23,19 @@ extern Scope* active_scope;
 
 
 extern char * work_dir;
+extern int no_errors;
+extern int line_no;
 
 namespace Statement {
 using std::cout;
 using std::endl;
 using std::cerr;
+using std::stringstream;
+using std::ostringstream;
+using ::line_no;
+using ::no_errors;
+extern int no_errors;
+extern int line_no;
 AbstractStatement::~AbstractStatement(){ 
 	if (next_ /*
 		    && !((type_==FUNC_DEFN)||(type_==FUNC_TYPE))*/ ) {
@@ -558,7 +566,7 @@ DeclarationStatement::~DeclarationStatement(){
 }
 
 IfStatement::IfStatement( DataType dtype, int lline_number
-		, AbstractExpression * lcondition, AbstractStatement * lif_body
+		, Expression::AbstractExpression * lcondition, AbstractStatement * lif_body
 		, AbstractStatement * lelse_body) 
 	: AbstractStatement(dtype, lline_number), ifCondition_(lcondition)
 	  , ifBody_(lif_body), elseBody_(lelse_body)
@@ -573,8 +581,8 @@ IfStatement::IfStatement( DataType dtype, int lline_number
 
 
 ForStatement::ForStatement(DataType dtype, int lline_number
-		, AbstractExpression* l_init, AbstractExpression* l_test
-		, AbstractExpression* l_incr
+		, Expression::AbstractExpression* l_init, Expression::AbstractExpression* l_test
+		, Expression::AbstractExpression* l_incr
 		, AbstractStatement * lfor_body)
 	: AbstractStatement(dtype, lline_number)
 	, initializationExpression_(l_init)
@@ -594,8 +602,8 @@ ForStatement::ForStatement(DataType dtype, int lline_number
 
 ListStatement::ListStatement( DataType dtype, string name,
 		string llist_text,
-		AbstractExpression*  l_arr_start, 
-		AbstractExpression* l_arr_end
+		Expression::AbstractExpression*  l_arr_start, 
+		Expression::AbstractExpression* l_arr_end
 		):
 	AbstractStatement(dtype, line_no)
 	, symbolTableEntry_(0), list_text(llist_text)
@@ -648,8 +656,8 @@ ListStatement::ListStatement( DataType dtype, string name,
 }
 
 FieldStatement::FieldStatement(string lhs_name
-		, string rhs_name, AbstractExpression* l_s
-		, AbstractExpression* l_e, int l_w)
+		, string rhs_name, Expression::AbstractExpression* l_s
+		, Expression::AbstractExpression* l_e, int l_w)
 	: lhsSymbolTableEntry_(0), rhsSymbolTableEntry_(0)
 	  , start_col(l_s), end_col(l_e), width(l_w)
 {
@@ -797,7 +805,7 @@ void BlockArrayAssignmentStatement::GenerateCode(FILE * & fptr)
 			fprintf(fptr,"\tvoid * v_ptr = buff;\n");
 			fprintf(fptr,"\tfloat *f_ptr = static_cast<float *>(v_ptr);\n");
 			fprintf(fptr,"\t %s=*f_ptr;\n", lhsSymbolTableEntry_->name_);
-			fprintf(fptr,"}else { cerr << \"runtime error: line_no : AbstractExpression out of bounds\" << %d;}\n}\n", lineNo_ );
+			fprintf(fptr,"}else { cerr << \"runtime error: line_no : Expression::AbstractExpression out of bounds\" << %d;}\n}\n", lineNo_ );
 		} else if (lhsSymbolTableEntry_->get_type()==INT32_TYPE){
 			fprintf(fptr,"if(tmp2-tmp1==sizeof(int)-1){\n");
 			fprintf(fptr,"\tchar buff[sizeof(int)];int i,j;\n");
@@ -807,7 +815,7 @@ void BlockArrayAssignmentStatement::GenerateCode(FILE * & fptr)
 			fprintf(fptr,"\tvoid * v_ptr = buff;\n");
 			fprintf(fptr,"\tint *i_ptr = static_cast<int *>(v_ptr);\n");
 			fprintf(fptr,"\t %s=*i_ptr;\n", lhsSymbolTableEntry_->name_);
-			fprintf(fptr,"}else { \n\tcerr << \"runtime error: line_no : AbstractExpression out of bounds\" << %d;}\n}\n", lineNo_ );
+			fprintf(fptr,"}else { \n\tcerr << \"runtime error: line_no : Expression::AbstractExpression out of bounds\" << %d;}\n}\n", lineNo_ );
 		}
 	}
 	if(next_) next_->GenerateCode(fptr);

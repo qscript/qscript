@@ -15,6 +15,8 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::cerr;
+extern int no_errors;
+extern int line_no;
 extern vector <Statement::named_attribute_list> named_attributes_list;
 extern vector<Table::table*>	table_list;
 extern map <string, Table::ax*> ax_map;
@@ -188,9 +190,9 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 }
 
 
-int check_parameters(AbstractExpression* e, Statement::FunctionParameter* v){
+int check_parameters(Expression::AbstractExpression* e, Statement::FunctionParameter* v){
 	//debug_log_file << "check_parameters: called" << endl;
-	AbstractExpression* e_ptr=e;
+	Expression::AbstractExpression* e_ptr=e;
 	Statement::FunctionParameter* fparam=v;
 	bool match=true;
 	/* Important point to note: I am not allowing references in ordinary variable decl

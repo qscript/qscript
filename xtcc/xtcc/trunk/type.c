@@ -198,7 +198,7 @@
 	extern char * yytext;
 	bool check_type_compat(DataType typ1, DataType typ2);
 	vector <Statement::FunctionInformation*> func_info_table;
-	int check_parameters(struct AbstractExpression* e, struct Statement::FunctionParameter* v);
+	int check_parameters(struct Expression::AbstractExpression* e, struct Statement::FunctionParameter* v);
 	vector <Scope*> active_scope_list;
 	Scope* active_scope;
 	map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
@@ -281,7 +281,7 @@ typedef union YYSTYPE
 	int ival ;
 	struct symtab *symbolTableEntry_;
 	char * name;
-	struct AbstractExpression * expr;
+	struct Expression::AbstractExpression * expr;
 	struct Statement::AbstractStatement * stmt;
 	struct Statement::CompoundStatement * c_stmt;
 	int column_no;
@@ -2202,8 +2202,8 @@ yyreduce:
   case 49:
 #line 503 "type.y"
     {
-		AbstractExpression* start_col=(yyvsp[(6) - (12)].expr);
-		AbstractExpression* end_col=(yyvsp[(8) - (12)].expr);
+		Expression::AbstractExpression* start_col=(yyvsp[(6) - (12)].expr);
+		Expression::AbstractExpression* end_col=(yyvsp[(8) - (12)].expr);
 		int width=(yyvsp[(11) - (12)].ival);
 		(yyval.stmt) = new Statement::FieldStatement((yyvsp[(2) - (12)].name), (yyvsp[(4) - (12)].name), start_col, end_col, width);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -2285,7 +2285,7 @@ yyreduce:
   case 54:
 #line 580 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_plus);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2295,7 +2295,7 @@ yyreduce:
   case 55:
 #line 586 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_minus);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2305,7 +2305,7 @@ yyreduce:
   case 56:
 #line 592 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2315,7 +2315,7 @@ yyreduce:
   case 57:
 #line 598 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_div);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2325,7 +2325,7 @@ yyreduce:
   case 58:
 #line 604 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_mod);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2335,7 +2335,7 @@ yyreduce:
   case 59:
 #line 610 "type.y"
     {
-		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (2)].expr), oper_umin);
+		(yyval.expr) = new Expression::UnaryExpression((yyvsp[(2) - (2)].expr), Expression::oper_umin);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2345,7 +2345,7 @@ yyreduce:
   case 60:
 #line 616 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_lt);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2355,7 +2355,7 @@ yyreduce:
   case 61:
 #line 622 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_gt);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2365,7 +2365,7 @@ yyreduce:
   case 62:
 #line 628 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_le);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2375,7 +2375,7 @@ yyreduce:
   case 63:
 #line 634 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_ge);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2385,7 +2385,7 @@ yyreduce:
   case 64:
 #line 640 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_iseq);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2395,7 +2395,7 @@ yyreduce:
   case 65:
 #line 646 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_isneq);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2405,7 +2405,7 @@ yyreduce:
   case 66:
 #line 652 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_or);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2415,7 +2415,7 @@ yyreduce:
   case 67:
 #line 658 "type.y"
     {
-		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
+		(yyval.expr)=new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_and);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2425,7 +2425,7 @@ yyreduce:
   case 68:
 #line 664 "type.y"
     {
-		(yyval.expr) = new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
+		(yyval.expr) = new Expression::BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), Expression::oper_assgn);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2435,7 +2435,7 @@ yyreduce:
   case 69:
 #line 670 "type.y"
     {
-		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (2)].expr), oper_not);
+		(yyval.expr) = new Expression::UnaryExpression((yyvsp[(2) - (2)].expr), Expression::oper_not);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2445,7 +2445,7 @@ yyreduce:
   case 70:
 #line 676 "type.y"
     {
-		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].ival));
+		(yyval.expr) = new Expression::Unary2Expression((yyvsp[(1) - (1)].ival));
 		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
@@ -2456,7 +2456,7 @@ yyreduce:
   case 71:
 #line 683 "type.y"
     {
-		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].dval));
+		(yyval.expr) = new Expression::Unary2Expression((yyvsp[(1) - (1)].dval));
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2466,7 +2466,7 @@ yyreduce:
   case 72:
 #line 689 "type.y"
     {
-		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].name), oper_name );
+		(yyval.expr) = new Expression::Unary2Expression((yyvsp[(1) - (1)].name), Expression::oper_name );
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2476,7 +2476,7 @@ yyreduce:
   case 73:
 #line 695 "type.y"
     {
-		(yyval.expr) = new Unary2Expression (oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
+		(yyval.expr) = new Expression::Unary2Expression (Expression::oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2487,7 +2487,7 @@ yyreduce:
   case 74:
 #line 702 "type.y"
     {
-		(yyval.expr) = new Unary2Expression(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
+		(yyval.expr) = new Expression::Unary2Expression(Expression::oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2508,13 +2508,13 @@ yyreduce:
 			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
 			cerr << "function : " << search_for << " used without decl" << endl;
 			++ no_errors;
-			(yyval.expr)=new Unary2Expression(ERROR_TYPE);
+			(yyval.expr)=new Expression::Unary2Expression(ERROR_TYPE);
 			void *ptr=(yyval.expr);
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			DataType my_type=func_info_table[index]->returnType_;
-			AbstractExpression* e_ptr=trav_chain((yyvsp[(3) - (4)].expr));
+			Expression::AbstractExpression* e_ptr=trav_chain((yyvsp[(3) - (4)].expr));
 			Statement::FunctionParameter* fparam=func_info_table[index]->paramList_;
 			bool match=false;
 			if(skip_type_check==false){
@@ -2522,13 +2522,13 @@ yyreduce:
 			}
 			if(match || skip_type_check){
 				//$$=new Unary2Expression(oper_func_call, my_type, $3, index, line_no);
-				(yyval.expr)=new Unary2Expression(oper_func_call, my_type, e_ptr, index, line_no);
+				(yyval.expr)=new Expression::Unary2Expression(Expression::oper_func_call, my_type, e_ptr, index, line_no);
 				void *ptr=(yyval.expr);
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 
 			} else {
-				(yyval.expr)=new Unary2Expression(ERROR_TYPE);
+				(yyval.expr)=new Expression::Unary2Expression(ERROR_TYPE);
 				void *ptr=(yyval.expr);
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
@@ -2541,7 +2541,7 @@ yyreduce:
   case 76:
 #line 748 "type.y"
     {
-		(yyval.expr) = new Unary2Expression(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
+		(yyval.expr) = new Expression::Unary2Expression(strdup((yyvsp[(1) - (1)].text_buf)), Expression::oper_text_expr);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2551,7 +2551,7 @@ yyreduce:
   case 77:
 #line 754 "type.y"
     { 
-		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (3)].expr), oper_parexp );
+		(yyval.expr) = new Expression::UnaryExpression((yyvsp[(2) - (3)].expr), Expression::oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2561,7 +2561,7 @@ yyreduce:
   case 78:
 #line 760 "type.y"
     {
-		(yyval.expr) = new Binary2Expression((yyvsp[(1) - (5)].expr), xs, oper_in);
+		(yyval.expr) = new Expression::Binary2Expression((yyvsp[(1) - (5)].expr), xs, Expression::oper_in);
 	}
     break;
 

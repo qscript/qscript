@@ -19,7 +19,7 @@ extern Scope* active_scope;
 extern vector <Statement::FunctionInformation*> func_info_table;
 
 extern int errno;
-void print_expr(FILE* edit_out, AbstractExpression * e);
+//void print_expr(FILE* edit_out, AbstractExpression * e);
 
 int check_parameters(struct AbstractExpression* e, struct FunctionParameter* v);
 bool check_type_compat(DataType typ1, DataType typ2);
@@ -44,6 +44,10 @@ void	print_memory_leaks();
 char default_work_dir[]="xtcc_work";
 char * work_dir=default_work_dir;
 void reset_files();
+
+
+extern int no_errors;
+extern int line_no;
 int main(int argc, char* argv[]/*, char* envp[]*/){
 	using std::cout;
 	using std::endl;
@@ -355,7 +359,7 @@ int compile(char * const XTCC_HOME, char * const work_dir){
 #include <sstream>
 int run(char * data_file_name, int rec_len){
 	int rval;
-	ostringstream cmd1;
+	std::ostringstream cmd1;
 #if	__WIN32__
 	cmd1 << "xtcc_work\\myedit.exe " << data_file_name  << " " << rec_len;
 #endif /* __WIN32__ */

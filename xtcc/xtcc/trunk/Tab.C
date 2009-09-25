@@ -28,15 +28,23 @@
 //#include <cstdio>
 #include <cstdlib>
 #include "Tab.h"
+#include "utils.h"
 
 #include "debug_mem.h"
 //#include "tree.h"
 #include "expr.h"
 
 #include <iostream>
-using namespace Table;
-extern vector<mem_addr_tab> mem_addr;
-extern ofstream debug_log_file;
+extern std::vector<mem_addr_tab> mem_addr;
+extern std::ofstream debug_log_file;
+extern int no_errors;
+extern int line_no;
+extern Scope* active_scope;
+namespace Table {
+	using ::mem_addr;
+	using ::debug_log_file;
+	using ::no_errors;
+	using ::line_no;
 /*
 vector<internal_table*> itbl_vec(0);
 void print_banner(int side, internal_table* & itbl_ptr, fstream& tab_);
@@ -471,8 +479,8 @@ extern Scope* active_scope;
 fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_stub_list): basic_count_ax_stmt(ltype,"",0),
 	stub_list(l_stub_list) {
 	// NAME Has to be of array type, Int32 
-	map<string,SymbolTableEntry*>::iterator sym_it=find_in_symtab(field_name);
-	if(sym_it==active_scope->sym_tab.end()){
+	map<string,SymbolTableEntry*>::iterator sym_it=::find_in_symtab(field_name);
+	if(sym_it==::active_scope->sym_tab.end()){
 		string err_msg = "Error parsing bit statement : could not find array:" + field_name + " in symbol table";
 		print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 	} else {
@@ -490,4 +498,4 @@ fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_s
 	}
 	cout << endl;
 }
-
+} /* close namespace Table */

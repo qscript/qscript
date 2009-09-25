@@ -58,7 +58,7 @@
 	extern char * yytext;
 	bool check_type_compat(DataType typ1, DataType typ2);
 	vector <Statement::FunctionInformation*> func_info_table;
-	int check_parameters(struct AbstractExpression* e, struct Statement::FunctionParameter* v);
+	int check_parameters(struct Expression::AbstractExpression* e, struct Statement::FunctionParameter* v);
 	vector <Scope*> active_scope_list;
 	Scope* active_scope;
 	map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
@@ -120,7 +120,7 @@
 	int ival ;
 	struct symtab *symbolTableEntry_;
 	char * name;
-	struct AbstractExpression * expr;
+	struct Expression::AbstractExpression * expr;
 	struct Statement::AbstractStatement * stmt;
 	struct Statement::CompoundStatement * c_stmt;
 	int column_no;
@@ -501,8 +501,8 @@ if_stmt: IF '(' expression ')' statement{
 	;
 
 FieldStatement:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
-		AbstractExpression* start_col=$6;
-		AbstractExpression* end_col=$8;
+		Expression::AbstractExpression* start_col=$6;
+		Expression::AbstractExpression* end_col=$8;
 		int width=$11;
 		$$ = new Statement::FieldStatement($2, $4, start_col, end_col, width);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -578,129 +578,129 @@ expr_list: expression { $$=$1; }
 	;
 
 expression: expression '+' expression {
-		$$=new BinaryExpression($1, $3, oper_plus);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_plus);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '-' expression {
-		$$=new BinaryExpression($1, $3, oper_minus);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_minus);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '*' expression {
-		$$=new BinaryExpression($1, $3, oper_mult);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_mult);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '/' expression {
-		$$=new BinaryExpression($1, $3, oper_div);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_div);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '%' expression {
-		$$=new BinaryExpression($1, $3, oper_mod);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_mod);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	'-' expression %prec UMINUS {
-		$$ = new UnaryExpression($2, oper_umin);
+		$$ = new Expression::UnaryExpression($2, Expression::oper_umin);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '<' expression {
-		$$=new BinaryExpression($1, $3, oper_lt);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_lt);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression '>' expression {
-		$$=new BinaryExpression($1, $3, oper_gt);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_gt);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression LEQ expression {
-		$$=new BinaryExpression($1, $3, oper_le);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_le);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression GEQ expression {
-		$$=new BinaryExpression($1, $3, oper_ge);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_ge);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression ISEQ expression {
-		$$=new BinaryExpression($1, $3, oper_iseq);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_iseq);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	expression NOEQ expression {
-		$$=new BinaryExpression($1, $3, oper_isneq);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_isneq);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| expression LOGOR expression {
-		$$=new BinaryExpression($1, $3, oper_or);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_or);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| expression LOGAND expression {
-		$$=new BinaryExpression($1, $3, oper_and);
+		$$=new Expression::BinaryExpression($1, $3, Expression::oper_and);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| expression '=' expression {
-		$$ = new BinaryExpression($1, $3, oper_assgn);
+		$$ = new Expression::BinaryExpression($1, $3, Expression::oper_assgn);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	NOT expression {
-		$$ = new UnaryExpression($2, oper_not);
+		$$ = new Expression::UnaryExpression($2, Expression::oper_not);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	INUMBER	{
-		$$ = new Unary2Expression($1);
+		$$ = new Expression::Unary2Expression($1);
 		//cout << "got INUMBER: " << $1 << " type : " << $$->type << endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	FNUMBER {
-		$$ = new Unary2Expression($1);
+		$$ = new Expression::Unary2Expression($1);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	NAME	{
-		$$ = new Unary2Expression($1, oper_name );
+		$$ = new Expression::Unary2Expression($1, Expression::oper_name );
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| 	NAME '[' expression ']' %prec FUNC_CALL {
-		$$ = new Unary2Expression (oper_arrderef, /*nametype,  se,*/ $1,$3);
+		$$ = new Expression::Unary2Expression (Expression::oper_arrderef, /*nametype,  se,*/ $1,$3);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($1);
 	}
 	| NAME '[' expression ',' expression ']'  %prec FUNC_CALL {
-		$$ = new Unary2Expression(oper_blk_arr_assgn, $1,$3,$5);
+		$$ = new Expression::Unary2Expression(Expression::oper_blk_arr_assgn, $1,$3,$5);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -717,13 +717,13 @@ expression: expression '+' expression {
 			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
 			cerr << "function : " << search_for << " used without decl" << endl;
 			++ no_errors;
-			$$=new Unary2Expression(ERROR_TYPE);
+			$$=new Expression::Unary2Expression(ERROR_TYPE);
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
 			DataType my_type=func_info_table[index]->returnType_;
-			AbstractExpression* e_ptr=trav_chain($3);
+			Expression::AbstractExpression* e_ptr=trav_chain($3);
 			Statement::FunctionParameter* fparam=func_info_table[index]->paramList_;
 			bool match=false;
 			if(skip_type_check==false){
@@ -731,13 +731,13 @@ expression: expression '+' expression {
 			}
 			if(match || skip_type_check){
 				//$$=new Unary2Expression(oper_func_call, my_type, $3, index, line_no);
-				$$=new Unary2Expression(oper_func_call, my_type, e_ptr, index, line_no);
+				$$=new Expression::Unary2Expression(Expression::oper_func_call, my_type, e_ptr, index, line_no);
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 
 			} else {
-				$$=new Unary2Expression(ERROR_TYPE);
+				$$=new Expression::Unary2Expression(ERROR_TYPE);
 				void *ptr=$$;
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
@@ -746,19 +746,19 @@ expression: expression '+' expression {
 		free($1);
 	}
 	|	TEXT {
-		$$ = new Unary2Expression(strdup($1), oper_text_expr);
+		$$ = new Expression::Unary2Expression(strdup($1), Expression::oper_text_expr);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| 	'(' expression ')' %prec UMINUS{ 
-		$$ = new UnaryExpression($2, oper_parexp );
+		$$ = new Expression::UnaryExpression($2, Expression::oper_parexp );
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| expression IN '(' range_list ')' {
-		$$ = new Binary2Expression($1, xs, oper_in);
+		$$ = new Expression::Binary2Expression($1, xs, Expression::oper_in);
 	}
 	/*
 	| NAME IN NAME {

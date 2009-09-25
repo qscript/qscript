@@ -41,8 +41,9 @@ using	std::string ;
 		const char * sym;
 		enum DataType dt;
 	};
-
-struct AbstractExpression;
+namespace Expression {
+	struct AbstractExpression;
+}
 struct XtccSet;
 struct SymbolTableEntry {
 	char *name_;
@@ -55,7 +56,7 @@ struct SymbolTableEntry {
 	/*decltype dcl_type;*/
 	int n_elms;
 	bool created_by_me;
-	AbstractExpression * e;
+	Expression::AbstractExpression * e;
 	XtccSet * xs;
 	SymbolTableEntry():name_(0), text_(0), dval(0)
 	, type_(uninit), n_elms(0), created_by_me(false),e(0), xs(0)
@@ -65,7 +66,7 @@ struct SymbolTableEntry {
 		, type_(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
 	{ }
 	SymbolTableEntry(const char * lname, DataType ldt
-			, AbstractExpression* le)
+			, Expression::AbstractExpression* le)
 		: name_(strdup(lname)), text_(0), dval(0), type_(ldt)
 		  , n_elms(-1), created_by_me(true), e(le), xs(0)
 	{ }

@@ -55,7 +55,7 @@ using std::map;
 			//cout << " constructing Scope(): this: " << this << endl;
 		}
 		Statement::AbstractStatement* insert(const char * name, DataType dt/*, int line_no*/);
-		Statement::AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
+		Statement::AbstractStatement* insert(const char * name, DataType dt, Expression::AbstractExpression *e);
 		Statement::AbstractStatement* insert(const char * name, DataType dt, int arr_size /*, int line_no*/);
 		Statement::AbstractStatement* insert(const char * name, DataType dt, int arr_size, /*int line_no,*/ char *text);
 		Statement::AbstractStatement* insert(const char * name, DataType dt, XtccSet *lxs);

@@ -107,13 +107,13 @@ struct AbstractStatement
 //! ForStatement: A parsed for statement in the language becomes an object instanstiation of this class
 struct ForStatement: public AbstractStatement
 {
-	struct AbstractExpression * initializationExpression_
+	struct Expression::AbstractExpression * initializationExpression_
 		, * testExpression_, *incrementExpression_;
 	struct AbstractStatement * forBody_;
 	ForStatement(DataType dtype, int lline_number
-			, AbstractExpression* l_init
-			, AbstractExpression* l_test
-			, AbstractExpression* l_incr
+			, Expression::AbstractExpression* l_init
+			, Expression::AbstractExpression* l_test
+			, Expression::AbstractExpression* l_incr
 			, AbstractStatement * lfor_body);
 	void GenerateCode(FILE * & fptr);
 	virtual ~ForStatement();
@@ -126,12 +126,12 @@ struct ForStatement: public AbstractStatement
 struct IfStatement : public AbstractStatement
 {
 	protected:
-	AbstractExpression * ifCondition_;
+	Expression::AbstractExpression * ifCondition_;
 	AbstractStatement * ifBody_;
 	AbstractStatement * elseBody_;
 	public:
 	IfStatement( DataType dtype, int lline_number
-		, AbstractExpression * lcondition, AbstractStatement * lif_body
+		, Expression::AbstractExpression * lcondition, AbstractStatement * lif_body
 		, AbstractStatement * lelse_body=0);
 	void GenerateCode(FILE * & fptr);
 	virtual ~IfStatement();
@@ -143,9 +143,9 @@ struct IfStatement : public AbstractStatement
 //!ExpressionStatement Parsed expressions statements become object instanstiations of this class
 struct ExpressionStatement: public AbstractStatement
 {
-	struct AbstractExpression* expression_;
+	struct Expression::AbstractExpression* expression_;
 	ExpressionStatement(DataType dtype, int lline_number
-			, struct AbstractExpression* e)
+			, struct Expression::AbstractExpression* e)
 		: AbstractStatement(dtype, lline_number), expression_(e) 
 	{}
 	void GenerateCode(FILE * & fptr);
@@ -188,10 +188,10 @@ struct CompoundStatement: public AbstractStatement
 struct FieldStatement: public AbstractStatement
 {
 	struct SymbolTableEntry * lhsSymbolTableEntry_, *rhsSymbolTableEntry_;
-	AbstractExpression* start_col, *end_col;
+	Expression::AbstractExpression* start_col, *end_col;
 	int width;
 	FieldStatement(string lhs_name, string rhs_name
-			, AbstractExpression* l_s, AbstractExpression* l_e
+			, Expression::AbstractExpression* l_s, Expression::AbstractExpression* l_e
 			, int l_w);
 	void GenerateCode(FILE * & fptr);
 	~FieldStatement()
@@ -203,10 +203,10 @@ struct BlockArrayAssignmentStatement: public AbstractStatement
 {
 	struct SymbolTableEntry * lhsSymbolTableEntry_;
 	struct SymbolTableEntry * rhsSymbolTableEntry_;
-	AbstractExpression * low_indx, *high_indx;
+	Expression::AbstractExpression * low_indx, *high_indx;
 	BlockArrayAssignmentStatement(DataType dtype, int lline_number
 			, SymbolTableEntry* llsymp, SymbolTableEntry* lrsymp
-			, AbstractExpression * lbd, AbstractExpression* hbd)
+			, Expression::AbstractExpression * lbd, Expression::AbstractExpression* hbd)
 		: AbstractStatement(dtype, lline_number)
 		  , lhsSymbolTableEntry_(llsymp), rhsSymbolTableEntry_(lrsymp)
 		  , low_indx(lbd), high_indx(hbd)
@@ -295,12 +295,12 @@ struct FunctionStatement: public AbstractStatement
 struct ListStatement: public AbstractStatement{
 	struct SymbolTableEntry * symbolTableEntry_;
 	string list_text;
-	AbstractExpression * arr_start;
-	AbstractExpression * arr_end;
+	Expression::AbstractExpression * arr_start;
+	Expression::AbstractExpression * arr_end;
 	ListStatement( DataType dtype, string name,
 		string llist_text=string(""),
-		AbstractExpression*  l_arr_start=0, 
-		AbstractExpression* l_arr_end=0
+		Expression::AbstractExpression*  l_arr_start=0, 
+		Expression::AbstractExpression* l_arr_end=0
 		);
 	void GenerateCode(FILE * & fptr);
 

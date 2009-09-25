@@ -100,7 +100,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, int 
 }
 
 Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
-		, AbstractExpression *e)
+		, Expression::AbstractExpression *e)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);

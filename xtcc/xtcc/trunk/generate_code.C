@@ -20,6 +20,8 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::cerr;
+extern int no_errors;
+extern int line_no;
 extern vector<Table::table*>	table_list;
 extern map <string, Table::ax*> ax_map;
 #include <cstdio>
@@ -43,7 +45,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 				<< endl;
 			++ no_errors;
 		} else {
-			AbstractExpression* f= table_list[i]->filter;
+			Expression::AbstractExpression* f= table_list[i]->filter;
 			cout << "table: " <<
 				map_iter_b->first << " by " <<
 				map_iter_s->first << endl;

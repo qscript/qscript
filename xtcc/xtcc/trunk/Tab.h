@@ -55,8 +55,8 @@ struct table{
 	string side;
 	string banner;
 	int line_no;
-	AbstractExpression* filter;
-	table(string s, string t, int lline_no, AbstractExpression* f=0) 
+	Expression::AbstractExpression* filter;
+	table(string s, string t, int lline_no, Expression::AbstractExpression* f=0) 
 		: side(s), banner(t),line_no(lline_no),filter(f)
 	{ }
 	~table();
@@ -129,10 +129,10 @@ class basic_count_ax_stmt {
 	basic_count_ax_stmt * prev_;
 	basic_count_ax_stmt * next_;
 	string text;
-	struct AbstractExpression* condn;
+	struct Expression::AbstractExpression* condn;
 	int count;
 	basic_count_ax_stmt(axstmt_type ltype,string txt
-			, struct AbstractExpression* c): 
+			, struct Expression::AbstractExpression* c): 
 		axtype(ltype),
 		prev_(0), next_(0),
 		text(txt), condn(c), count(0){}
@@ -149,7 +149,7 @@ class basic_count_ax_stmt {
 
 class count_ax_stmt: public basic_count_ax_stmt{
 	public:
-	count_ax_stmt(axstmt_type ltype,string txt, struct AbstractExpression* c): basic_count_ax_stmt(ltype,txt,c) {}
+	count_ax_stmt(axstmt_type ltype,string txt, struct Expression::AbstractExpression* c): basic_count_ax_stmt(ltype,txt,c) {}
 	virtual void print(fstream& f){
 		f << "CNT: " << text ;
 		f << "\n";
@@ -181,7 +181,7 @@ class tot_ax_stmt: public basic_count_ax_stmt
 {
 	public:
 	tot_ax_stmt(axstmt_type ltype, string txt
-			, struct AbstractExpression* c)
+			, struct Expression::AbstractExpression* c)
 		: basic_count_ax_stmt(ltype,txt,c) {}
 	virtual void print(fstream& f)
 	{
@@ -259,11 +259,11 @@ class ax	{
 	int no_count_ax_elems;	
 	int no_tot_ax_elems;	
 	vector <bool> condn_flags;
-	AbstractExpression* filter;
+	Expression::AbstractExpression* filter;
 	//fld_ax_stmt * fld_stmt;
 	ax(basic_print_ax_stmt * ttl_s,	basic_count_ax_stmt* cnt_ax_s
 			, int l_no_count_ax_elems, int l_no_tot_ax_elems
-			, AbstractExpression* f=0)
+			, Expression::AbstractExpression* f=0)
 		: ttl_ax_stmt_start(ttl_s),  count_ax_stmt_start(cnt_ax_s)
 		, no_count_ax_elems(l_no_count_ax_elems)
 		, no_tot_ax_elems(l_no_tot_ax_elems)
@@ -291,10 +291,10 @@ struct internal_table{
 	vector< vector<float> > tbl_perc;
 	ax* side_ax, *ban_ax;
 	internal_table(CMAPITER &map_iter_s, CMAPITER &map_iter_b, 
-			AbstractExpression* f, int i);
-	AbstractExpression* filter;
-	AbstractExpression* ban_filter;
-	AbstractExpression* side_filter;
+			Expression::AbstractExpression* f, int i);
+	Expression::AbstractExpression* filter;
+	Expression::AbstractExpression* ban_filter;
+	Expression::AbstractExpression* side_filter;
 	int base;
 	int index;
 };

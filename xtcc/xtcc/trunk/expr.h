@@ -31,6 +31,8 @@
 //#include "tree.h"
 #include "xtcc_set.h"
 
+namespace Expression {
+
 using std::ostringstream;
 
 enum ExpressionOperatorType 
@@ -63,8 +65,8 @@ struct AbstractExpression {
 	virtual ~AbstractExpression();
 };
 
-extern int no_errors;
-extern int line_no;
+//extern int no_errors;
+//extern int line_no;
 
 struct UnaryExpression : public AbstractExpression
 {
@@ -168,5 +170,5 @@ struct Unary2Expression : public AbstractExpression
 			, ostringstream & code_expr);
 };
 
-
+} /* close namespace Expression */
 #endif /* xtcc_expr_h */

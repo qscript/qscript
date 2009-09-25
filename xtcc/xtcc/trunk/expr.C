@@ -34,17 +34,22 @@
 #include "debug_mem.h"
 #include "named_range.h"
 
+extern int no_errors;
+extern int line_no;
+extern Scope* active_scope;
+extern std::ofstream debug_log_file;
+extern	std::vector <Statement::FunctionInformation*> func_info_table;
+extern std::vector<mem_addr_tab> mem_addr;
+extern std::vector <named_range> named_stubs_list;
+namespace Expression {
+using ::line_no;
+using ::no_errors;
 using std::ofstream;
 using std::cout;
 using std::cerr;
 using std::endl;
 
-extern Scope* active_scope;
-extern ofstream debug_log_file;
 
-extern	vector <Statement::FunctionInformation*> func_info_table;
-extern vector<mem_addr_tab> mem_addr;
-extern vector <named_range> named_stubs_list;
 AbstractExpression::~AbstractExpression()
 {
 	debug_log_file << "deleting AbstractExpression::~AbstractExpression(): base destructor for AbstractExpression" << endl;
@@ -177,7 +182,7 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 			lhs->PrintExpressionCode(code_bef_expr, code_expr);
 			code_expr << "=*f_ptr;\n";
 			code_expr << "}else { cerr << \"runtime error: line_no : AbstractExpression out of bounds\" << " 
-				<< line_no  <<";}\n}\n";
+				<< ::line_no  <<";}\n}\n";
 		} else if (leftOperand_->type_==INT32_TYPE){
 			code_expr << "if(tmp2-tmp1==sizeof(int)-1){\n";
 			code_expr << "\tchar buff[sizeof(int)];int i,j;\n";
@@ -488,7 +493,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 		type_=STRING_TYPE;
 	} else if(exprOperatorType_==oper_name){
 		map<string,SymbolTableEntry*>::iterator sym_it = 
-			find_in_symtab(ltxt);
+			::find_in_symtab(ltxt);
 		if(sym_it==active_scope->sym_tab.end() ){
 			string err_msg = "Error: could not find:" 
 				+ string(ltxt) + "  in symbol table  ";
@@ -508,7 +513,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 	, isem_value(0), dsem_value(0), func_index_in_table(-1)
 	, text(0), column_no(-1), operand_(arr_index),  operand2_(0)
 {
-	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(name);
+	map<string,SymbolTableEntry*>::iterator sym_it = ::find_in_symtab(name);
 	if(sym_it==active_scope->sym_tab.end() ){
 		std::stringstream s;
 		s << "Error: Array indexing AbstractExpression: could not find name: " 
@@ -545,7 +550,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 {
 	SymbolTableEntry* se=0;
 	map<string,SymbolTableEntry*>::iterator sym_it1 = 
-		find_in_symtab(name);
+		::find_in_symtab(name);
 	if( sym_it1==active_scope->sym_tab.end()) {
 		std::stringstream s;
 		s << "Error: Block Array assignment AbstractExpression: could not find name: " 
@@ -867,3 +872,4 @@ string get_temp_name()
 	return s1;
 }
 
+} /* close namespace Expression */

@@ -142,7 +142,7 @@ typedef union YYSTYPE
 	int ival ;
 	struct symtab *symbolTableEntry_;
 	char * name;
-	struct AbstractExpression * expr;
+	struct Expression::AbstractExpression * expr;
 	struct Statement::AbstractStatement * stmt;
 	struct Statement::CompoundStatement * c_stmt;
 	int column_no;
