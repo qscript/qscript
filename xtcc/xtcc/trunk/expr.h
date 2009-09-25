@@ -28,7 +28,7 @@
 #define xtcc_expr_h
 #include <iosfwd>
 #include <sstream>
-#include "tree.h"
+//#include "tree.h"
 #include "xtcc_set.h"
 
 using std::ostringstream;
@@ -85,9 +85,9 @@ struct UnaryExpression : public AbstractExpression
 using std::vector;
 using std::set;
 using std::pair;
-using std::cout;
-using std::cerr;
-using std::endl;
+//using std::cout;
+//using std::cerr;
+//using std::endl;
 using std::string;
 using std::stringstream;
 

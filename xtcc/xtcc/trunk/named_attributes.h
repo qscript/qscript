@@ -7,6 +7,7 @@
 #include "stmt.h"
 using std::string;
 using std::vector;
+namespace Statement {
 struct named_attribute_list: public AbstractStatement{
 	string name;
 	vector<string> attribute;
@@ -16,9 +17,8 @@ struct named_attribute_list: public AbstractStatement{
 		AbstractStatement(dt, lline_no),
 		name(l_name), attribute(l_attr), symbolTableEntry_(0)
 	{}
-	void GenerateCode(FILE * & fptr){
-		cout << "named_attribute_list: not yet implemented" << endl;
-	}
+	void GenerateCode(FILE * & fptr);
 };
 
+} /* close namespace Statement */
 #endif /* xtcc_named_attributes_h */

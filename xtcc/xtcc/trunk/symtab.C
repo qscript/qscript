@@ -27,7 +27,8 @@
 #include <string>
 #include <cstdlib>
 #include "symtab.h"
-#include "tree.h"
+//#include "tree.h"
+#include "debug_mem.h"
 #include "expr.h"
 #include "xtcc_set.h"
 

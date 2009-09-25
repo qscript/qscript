@@ -46,11 +46,9 @@ struct expr * new_expr(){
 
 
 
+/*
 DataType lcm_type(DataType d1, DataType d2){
-	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	DataType td1=d1, td2=d2;
-	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=DataType(INT8_TYPE + d1-INT8_REF_TYPE);
-	//if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=DataType(INT8_TYPE + d2-INT8_REF_TYPE);
 	if(d1==STRING_TYPE && d2==STRING_TYPE){
 		return STRING_TYPE;
 	}
@@ -61,8 +59,8 @@ DataType lcm_type(DataType d1, DataType d2){
 	td1=convert_ref_type(td1);
 	td2=convert_ref_type(td2);
 
-	if(/*(td1>=INT8_TYPE && td1<=DOUBLE_TYPE)*/ is_of_noun_type(td1)&&
-		/*(td2>=INT8_TYPE && td2<=DOUBLE_TYPE)*/ is_of_noun_type(td2)){
+	if( is_of_noun_type(td1)&&
+		 is_of_noun_type(td2)){
 		if(td1>td2) { return td1;
 		} else {
 			return td2;
@@ -74,12 +72,10 @@ DataType lcm_type(DataType d1, DataType d2){
 		return ERROR_TYPE;
 	}
 }
+*/
 
+/*
 DataType arr_deref_type(DataType d1){
-	/*
-	if(d1==int_arr_type) return int_type;
-	if(d1==char_arr_type) return char_type;
-	*/
 	if(d1>=INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
 		return DataType(INT8_TYPE+d1-INT8_ARR_TYPE);
 	} else if(d1==STRING_ARR_TYPE){
@@ -89,39 +85,6 @@ DataType arr_deref_type(DataType d1){
 	++no_errors;
 	return ERROR_TYPE;
 }
-/*
-func_info::func_info(string name, struct FunctionParameter* elist, DataType myreturn_type): 
-	fname(name), param_list(elist), return_type(myreturn_type), func_body(0), func_scope(0){
-	func_scope=new scope();
-	struct FunctionParameter* decl_list=elist;
-	while(decl_list){
-		//cout << " constructing func_info decl list names are: " << decl_list->var_name << endl;
-		struct symtab_ent* se=new struct symtab_ent;
-		se->name = strdup(decl_list->var_name.c_str());
-		se->type=decl_list->var_type;
-		func_scope->sym_tab[decl_list->var_name] = se;
-		decl_list=decl_list->next_;
-	}
-}
-
-void func_info::print(FILE * fptr){
-	if(return_type >=VOID_TYPE && return_type <=DOUBLE_TYPE){
-		fprintf(fptr, "%s ", noun_list[return_type].sym );
-	} else {
-		fprintf(fptr, "Unexpected return type for function\n");
-	}
-	fprintf(fptr, "%s(", fname.c_str());
-	if (param_list) param_list->print(fptr);
-	fprintf(fptr, ");\n" );
-}
-
-func_info::~func_info(){
-	if(param_list) { delete param_list; param_list=0; }
-	//if(func_body) { delete func_body; func_body=0; }
-	// func_scope was created by in the constructor - so we delete it
-	if(func_scope) { delete func_scope; func_scope=0; }
-}
-
 */
 
 #include <vector>
@@ -134,6 +97,8 @@ void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fnam
 }
 
 #include <sstream>
+
+/*
 FunctionParameter::FunctionParameter(DataType type, char * name): 
 	var_type(type), var_name(name), arr_len(-1), prev_(NULL), next_(NULL){
 	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
@@ -159,7 +124,7 @@ void FunctionParameter::print(FILE * edit_out){
 			fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
 		} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
 			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
-			fprintf(edit_out, "%s %s[%d]/* vartype: %d */", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
+			fprintf(edit_out, "%s %s[%d]", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
 		} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
 			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
 			fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
@@ -180,3 +145,4 @@ FunctionParameter::FunctionParameter(DataType type, char * name, int len): var_t
 	}
 	cout << "constructing FunctionParameter: " << var_name << endl;
 }
+*/

@@ -35,7 +35,8 @@
 
 #include "scope.h"
 #include "stmt.h"
-#include "tree.h"
+//#include "tree.h"
+#include "debug_mem.h"
 
 using namespace std;
 
@@ -46,10 +47,10 @@ extern vector<mem_addr_tab> mem_addr;
 extern Scope* active_scope;
 
 
-AbstractStatement* Scope::insert(const char * name, DataType dt)
+Statement::AbstractStatement* Scope::insert(const char * name, DataType dt)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
@@ -73,10 +74,10 @@ AbstractStatement* Scope::insert(const char * name, DataType dt)
 }
 
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size)
+Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
@@ -98,11 +99,11 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size)
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt
+Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 		, AbstractExpression *e)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
@@ -145,7 +146,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt
+Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 		, int arr_size,  char *text_)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
@@ -166,7 +167,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 			<< line_no << endl;
 		++no_errors;
 	}
-	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
@@ -193,9 +194,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
+Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
 {
-	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;

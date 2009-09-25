@@ -29,10 +29,12 @@
 #include <cstdlib>
 #include "Tab.h"
 
-#include "tree.h"
+#include "debug_mem.h"
+//#include "tree.h"
 #include "expr.h"
 
 #include <iostream>
+using namespace Table;
 extern vector<mem_addr_tab> mem_addr;
 extern ofstream debug_log_file;
 /*

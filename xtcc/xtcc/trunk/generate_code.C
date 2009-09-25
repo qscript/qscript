@@ -1,10 +1,10 @@
 #include "expr.h"
 #include "stmt.h"
 
-struct AbstractStatement;
-struct table;
-struct ax;
-extern AbstractStatement * tree_root;
+//struct AbstractStatement;
+//struct table;
+//struct ax;
+extern Statement::AbstractStatement * tree_root;
 extern char* work_dir;
 extern int rec_len;
 #include "Tab.h"
@@ -20,12 +20,13 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::cerr;
-extern vector<table*>	table_list;
-extern map <string, ax*> ax_map;
+extern vector<Table::table*>	table_list;
+extern map <string, Table::ax*> ax_map;
 #include <cstdio>
 void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
 void print_latex_print(FILE* op, int table_index);
 void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
+	using namespace Table;
 	fprintf(op, "#include <iostream>\n");
 	fprintf(op, "#include <fstream>\n");
 	fprintf(op, "#include <vector>\nusing namespace std;\n");
@@ -292,6 +293,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 
 }
 void print_latex_print(FILE* op, int table_index){
+	using namespace Table;
 	CMAPITER map_iter_s= ax_map.find(table_list[table_index]->side);
 	CMAPITER map_iter_b= ax_map.find(table_list[table_index]->banner);
 	fprintf(op, "\tvoid print_latex(){\n\t\tint rci=0, cci=0; /* row counter index , col ... */\n");
@@ -337,6 +339,7 @@ void print_latex_print(FILE* op, int table_index){
 
 void print_axis_code(FILE * op, FILE * axes_drv_func);
 void print_axis_code(FILE * op, FILE * axes_drv_func){
+	using namespace Table;
 
 	fprintf(op, "#include <bitset>\n" );
 	fprintf(op, "#include <string>\n" );

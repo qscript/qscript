@@ -1,20 +1,22 @@
 #include <cstdlib>
 #include <cstdio>
+#include <fstream>
 #include "expr.h"
-#include "tree.h"
+//#include "tree.h"
+#include "debug_mem.h"
 #include "stmt.h"
 #include "Tab.h"
 template<class T> T* link_chain(T* & elem1, T* & elem2);
 template<class T> T* trav_chain(T* & elem1);
-extern vector<table*>	table_list;
-extern map <string, ax*> ax_map;
+extern vector<Table::table*>	table_list;
+extern map <string, Table::ax*> ax_map;
 extern vector<mem_addr_tab>  mem_addr;
 extern int rec_len;
-extern struct AbstractStatement * tree_root;
+extern struct Statement::AbstractStatement * tree_root;
 void flex_finish();
 extern vector <Scope*> active_scope_list;
 extern Scope* active_scope;
-extern vector <FunctionInformation*> func_info_table;
+extern vector <Statement::FunctionInformation*> func_info_table;
 
 extern int errno;
 void print_expr(FILE* edit_out, AbstractExpression * e);
@@ -30,18 +32,23 @@ void clean_up();
 void	generate_edit_section_code();
 
 extern void yyrestart ( FILE *input_file );
+extern int yyparse();
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <cctype>
 #include <fcntl.h>
 #include <unistd.h>
 
-fstream debug_log_file("xtcc_debug.log", ios_base::out|ios_base::trunc);
+std::fstream debug_log_file("xtcc_debug.log", std::ios_base::out|std::ios_base::trunc);
 void	print_memory_leaks();
 char default_work_dir[]="xtcc_work";
 char * work_dir=default_work_dir;
 void reset_files();
 int main(int argc, char* argv[]/*, char* envp[]*/){
+	using std::cout;
+	using std::endl;
+	using std::cerr;
+
 	if(!debug_log_file){
 		cerr << "unable to open xtcc_debug.log file for debugging info ... exiting\n";
 		exit(1);
@@ -105,9 +112,9 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	 */
 
 	const char * printf_name="printf";
-	FunctionParameter* v_list=0;
+	Statement::FunctionParameter* v_list=0;
 	DataType myreturn_type=INT8_TYPE;
-	FunctionInformation* fi=new FunctionInformation(printf_name, v_list, myreturn_type);
+	Statement::FunctionInformation* fi=new Statement::FunctionInformation(printf_name, v_list, myreturn_type);
 	func_info_table.push_back(fi);
 	
 	const char *c_arr="c";
@@ -221,7 +228,10 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 
 
 void	print_memory_leaks(){
-	fstream mem_leak_log("mem_leak.log", ios_base::out|ios_base::trunc);
+	using std::cout;
+	using std::endl;
+	using std::cerr;
+	std::fstream mem_leak_log("mem_leak.log", std::ios_base::out|std::ios_base::trunc);
 	if(!mem_leak_log){
 		cerr << "Unable to open mem_leak.log for memory leak info output" << endl;
 		exit(1);
@@ -240,8 +250,11 @@ void	print_memory_leaks(){
 
 
 void clean_up(){
+	using std::cout;
+	using std::endl;
+	using std::cerr;
 	debug_log_file << "Entered function clean_up()" << endl;
-	typedef map<string, ax*>::iterator ax_map_iter;
+	typedef map<string, Table::ax*>::iterator ax_map_iter;
 	for(ax_map_iter it=ax_map.begin(); it!=ax_map.end(); ++it){
 		delete it->second; it->second=0;
 	}
@@ -257,192 +270,13 @@ void clean_up(){
 			
 }
 
-/*
-bool check_type_compat(DataType typ1, DataType typ2){
-	//cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
-	DataType td1=typ1;
-	DataType td2=typ2;
-	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=DataType(INT8_TYPE + typ1-INT8_REF_TYPE);
-	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=DataType(INT8_TYPE + typ2-INT8_REF_TYPE);
-	if((td1>=INT8_TYPE&&td1<=DOUBLE_TYPE) &&
-			td2>=INT8_TYPE&&td2<=DOUBLE_TYPE){
-		if(td1>=td2){
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
-	}
-}*/
 
-
-
-int check_parameters(AbstractExpression* e, FunctionParameter* v){
-	debug_log_file << "check_parameters: called" << endl;
-	AbstractExpression* e_ptr=e;
-	FunctionParameter* fparam=v;
-	bool match=true;
-	/* Important point to note: I am not allowing references in ordinary variable decl
-	   Only in function parameter list - the object is to allow modifying of variables
-	   in a function as in C++
-	   */
-
-	int chk_param_counter=1;
-	while (e_ptr && fparam) {
-		//e_ptr->print();
-		DataType etype=e_ptr->type_, fptype=fparam->var_type; 
-		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE) && 
-			((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)||
-			 (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
-			DataType tdt=fptype;
-				/* the code below makes a INT8_REF_TYPE -> INT8_TYPE
-				   			a INT8_REF_TYPE -> INT8_TYPE
-				 thats because we dont care much about references -> C++
-				 does all the hard work. For checking types they are equivalent to us
-				*/			
-			if(tdt>=INT8_REF_TYPE) tdt=DataType(INT8_TYPE+tdt-INT8_REF_TYPE);
-			if(etype <= tdt) {
-				debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
-					<< chk_param_counter << " passed " << endl;
-			}
-		} else if ((etype>=INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)&&
-				(fptype>=INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)&&
-				(etype==fptype)){
-			debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: " 
-					<< chk_param_counter << " passed " << endl;
-		}else {
-			match=false;
-			cerr << "Parameter type mismatch name: " << endl;
-			cerr << fparam->var_name << " expected type is " << fparam->var_type
-				<< " passed type is " << e_ptr->type_ 
-				<< " line_no: " << line_no << " or currently allowed promotion to: " 
-				<< e_ptr->type_+INT8_REF_TYPE
-				<< endl;
-			++no_errors;
-		}
-		e_ptr=e_ptr->next_;
-		fparam=fparam->next_;
-		chk_param_counter=chk_param_counter+1;
-	}
-	if(match==true){
-		if(e_ptr==0&& fparam==0){
-			match=true;
-		} else {
-			match=false;
-			++no_errors;
-			cerr << "NOTMATCHED: No of parameters in function call not matching with no of paramters in AbstractExpression: line_no"
-				<< line_no << endl;
-		}
-	}
-	if(!match) {
-		cerr << "function parameter type check FAILURE: line_no " << line_no << endl;
-	}
-	return match;
-}
-/*
-map<string, symtab_ent*>::iterator find_in_symtab(string id){
-	bool found=false;
-	int i=active_scope_list.size()-1;
-	map<string,symtab_ent*>::iterator sym_it ; 
-	for(;i>-1;--i){
-		sym_it = active_scope_list[i]->sym_tab.find(id);
-		if (sym_it == active_scope_list[i]->sym_tab.end() ){
-		} else {
-			found = true;
-			//cout << "found" << endl;
-			break;
-		}
-	}
-	if(found==false){
-		return active_scope->sym_tab.end();
-	} else {
-		return sym_it;
-	}
-}*/
-
-/* NxD: I need to write a detailed note about this function's responsibilities
-   */
-   
-
-	bool skip_func_type_check(const char * fname){
-		const char * skip_func_type_check_list[] = {"printf" };
-		for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
-			if(!strcmp(fname, skip_func_type_check_list[i])){
-				return true;
-			}
-		}
-		return false;
-	}
 
 		
 
 
-/*
 
-int search_for_func(string& search_for){
-	//cout << "Entered search_for_func: " << endl;
-	unsigned int i=0;
-	
-	for (i=0;i<func_info_table.size();++i){
-		if(search_for==func_info_table[i]->fname){
-			//cout << "search_for_func(): found: " << search_for << " index: " << i << endl;
-			return i;
-		}
-	}
-	cout << "search_for_func():not found function: " <<search_for  << endl;
-	return -1;
-}
-*/
 
-/*
-int check_func_decl_with_func_defn(FunctionParameter* & v_list, int & index, string func_name){
-	//cout << "Entered check_func_decl_with_func_defn: " << func_name << endl;
-		
-	FunctionParameter* defn_ptr=v_list;
-	FunctionParameter* decl_ptr=func_info_table[index]->param_list;
-	
-	while(defn_ptr&&decl_ptr){
-		// I may put a check on the length of the array - but it is not necessary for now I think
-		if((defn_ptr->var_type==decl_ptr->var_type)&&
-			(defn_ptr->var_name==decl_ptr->var_name)){
-		} else {
-			++no_errors;
-			return 0;
-		}
-		defn_ptr=defn_ptr->next_;
-		decl_ptr=decl_ptr->next_;
-	}
-	if(defn_ptr==decl_ptr && decl_ptr==0){
-		return 1;
-	}else{
-		return 0;
-	}
-}*/
-
-/*
-bool 	void_check( DataType & type1, DataType & type2, DataType& result_type){
-	if(type1==VOID_TYPE){
-		print_err(compiler_sem_err, " lhs of binary expr is of type void ", 
-			line_no, __LINE__, __FILE__);
-		result_type=ERROR_TYPE;
-		++no_errors;
-		return false;
-	} 
-	if( type2==VOID_TYPE){
-		print_err(compiler_sem_err, " rhs of binary expr is of type void ", 
-			line_no, __LINE__, __FILE__);
-		result_type=ERROR_TYPE;
-		++no_errors;
-		return false;
-	}
-	if( !(type1==VOID_TYPE && type2==VOID_TYPE)){
-		result_type=type1 > type2? type1: type2;
-		return true;
-	}
-	//return true;
-}
-*/
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
 	elem2->prev_=elem1;
@@ -464,6 +298,9 @@ template<class T> T* trav_chain(T* & elem1){
 
 #include <cstdlib>
 int compile(char * const XTCC_HOME, char * const work_dir){
+	using std::cout;
+	using std::endl;
+	using std::cerr;
 	int rval;
 	string my_work_dir=string(work_dir)+string("/");
 	string MY_XTCC_HOME=string(XTCC_HOME)+string("/");
@@ -529,29 +366,22 @@ int run(char * data_file_name, int rec_len){
 	return rval;
 }
 
-/*
-int lookup_func(string func_name_index){
-	for(register unsigned int i=0; i<func_info_table.size(); ++i){
-		if(func_name_index==func_info_table[i]->fname){
-			return i;
-		}
-	}
-	return -1;
-}
-*/
 
 
 
 
 #include <fstream>
 void reset_files(){
-	ofstream lst_op("lst_.csv", ios_base::out|ios_base::trunc);
+	using std::cout;
+	using std::endl;
+	using std::cerr;
+	std::ofstream lst_op("lst_.csv", std::ios_base::out|std::ios_base::trunc);
 	lst_op << endl;
 	lst_op.close();
-	ofstream tab_op("tab_.csv", ios_base::out|ios_base::trunc);
+	std::ofstream tab_op("tab_.csv", std::ios_base::out|std::ios_base::trunc);
 	tab_op << endl;
 	tab_op.close();
-	ofstream tab_tex("tab_.tex", ios_base::out|ios_base::trunc);
+	std::ofstream tab_tex("tab_.tex", std::ios_base::out|std::ios_base::trunc);
 	tab_tex << endl;
 	tab_tex.close();
 }

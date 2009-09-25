@@ -37,7 +37,11 @@
 #include <vector>
 #include "xtcc_set.h"
 
-struct AbstractStatement;
+namespace Statement {
+	class AbstractStatement;
+}
+
+//struct Statement::AbstractStatement;
 using std::map;
 
 	struct Scope;
@@ -50,11 +54,11 @@ using std::map;
 		Scope()	{
 			//cout << " constructing Scope(): this: " << this << endl;
 		}
-		AbstractStatement* insert(const char * name, DataType dt/*, int line_no*/);
-		AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
-		AbstractStatement* insert(const char * name, DataType dt, int arr_size /*, int line_no*/);
-		AbstractStatement* insert(const char * name, DataType dt, int arr_size, /*int line_no,*/ char *text);
-		AbstractStatement* insert(const char * name, DataType dt, XtccSet *lxs);
+		Statement::AbstractStatement* insert(const char * name, DataType dt/*, int line_no*/);
+		Statement::AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
+		Statement::AbstractStatement* insert(const char * name, DataType dt, int arr_size /*, int line_no*/);
+		Statement::AbstractStatement* insert(const char * name, DataType dt, int arr_size, /*int line_no,*/ char *text);
+		Statement::AbstractStatement* insert(const char * name, DataType dt, XtccSet *lxs);
 		~Scope();
 	};
 

@@ -40,8 +40,39 @@
 #include <cstdlib>
 #include <sstream>
 
-void PrintExpressionCode(FILE* edit_out, struct AbstractExpression * e);
+#include <map>
+using std:: map;
+map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
 extern noun_list_type noun_list[];
+
+namespace Statement {
+
+
+struct FunctionArgument {
+	struct expr* e;
+	char * text;
+	struct FunctionArgument * prev_;
+	struct FunctionArgument * next_;
+};
+
+struct FunctionParameter {
+	DataType var_type;
+	string var_name;
+	int arr_len;
+	struct FunctionParameter * prev_, *next_;
+	FunctionParameter(DataType type, char * name);
+	FunctionParameter(DataType type, char * name, int len); 
+
+	void print(FILE * edit_out);
+
+	~FunctionParameter();
+	private:
+		FunctionParameter& operator=(const FunctionParameter&);
+		FunctionParameter(const FunctionParameter&);
+	
+};
+
+void PrintExpressionCode(FILE* edit_out, struct AbstractExpression * e);
 int check_func_decl_with_func_defn(struct FunctionParameter*& v_list
 		, int & index, string func_name);
 
@@ -137,8 +168,8 @@ struct ErrorStatement: public AbstractStatement
 
 struct CompoundStatement: public AbstractStatement
 {
-	struct AbstractStatement* compoundBody_;
-	struct Scope * scope_;
+	AbstractStatement* compoundBody_;
+	Scope * scope_;
 	int flagIsFunctionBody_;
 	public:
 	CompoundStatement(DataType dtype, int lline_number
@@ -279,9 +310,6 @@ struct ListStatement: public AbstractStatement{
 	ListStatement& operator=(const ListStatement&);	
 	ListStatement(const ListStatement&);	
 };
-#include <map>
-using std:: map;
-map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
 
 
 
@@ -313,4 +341,5 @@ private:
 };
 
 
+} /* close namespace Statement */
 #endif /* _xtcc_stmt_h */

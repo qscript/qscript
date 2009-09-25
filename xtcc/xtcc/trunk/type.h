@@ -136,25 +136,25 @@
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 111 "type.y"
+#line 118 "type.y"
 {
 	double dval;
 	int ival ;
 	struct symtab *symbolTableEntry_;
 	char * name;
 	struct AbstractExpression * expr;
-	struct AbstractStatement * stmt;
-	struct CompoundStatement * c_stmt;
+	struct Statement::AbstractStatement * stmt;
+	struct Statement::CompoundStatement * c_stmt;
 	int column_no;
 	int code_list;
 	char text_buf[MY_STR_MAX];
-	struct FunctionParameter * v_list;
+	struct Statement::FunctionParameter * v_list;
 	DataType dt;
-	struct ax * ax;
-	struct stub * stub;
-	struct table * tbl;
-	class basic_print_ax_stmt * print_stmt;
-	class basic_count_ax_stmt * count_stmt;
+	struct Table::ax * ax;
+	struct Table::stub * stub;
+	struct Table::table * tbl;
+	Table::basic_print_ax_stmt * print_stmt;
+	Table::basic_count_ax_stmt * count_stmt;
 }
 /* Line 1489 of yacc.c.  */
 #line 161 "type.h"

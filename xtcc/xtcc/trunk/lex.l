@@ -31,6 +31,8 @@
 #include "symtab.h"
 #include "const_defs.h"
 //#include "y.tab.h"
+#include "Tab.h"
+#include "stmt.h"
 #include "type.h"
 #include <math.h>
 #include <string.h>

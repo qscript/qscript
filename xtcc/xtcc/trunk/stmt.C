@@ -1,20 +1,33 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <vector>
+#include <map>
 #include "symtab.h"
+#include "scope.h"
 #include "stmt.h"
-#include "tree.h"
+#include "utils.h"
+#include "debug_mem.h"
+//#include "tree.h"
 using std::map;
 using std::vector;
 using std::ofstream;
 extern vector<mem_addr_tab> mem_addr;
-extern vector <FunctionInformation*> func_info_table;
+namespace Statement{
+	struct FunctionInformation;
+}
+extern vector <Statement::FunctionInformation*> func_info_table;
 extern ofstream debug_log_file;
 extern int if_line_no;
 extern Scope* active_scope;
 
 
 extern char * work_dir;
+
+namespace Statement {
+using std::cout;
+using std::endl;
+using std::cerr;
 AbstractStatement::~AbstractStatement(){ 
 	if (next_ /*
 		    && !((type_==FUNC_DEFN)||(type_==FUNC_TYPE))*/ ) {
@@ -114,7 +127,7 @@ FunctionStatement:: FunctionStatement ( DataType dtype, int lline_number
 			<< lline_number << endl;
 		type_=ERROR_TYPE;
 		++no_errors;
-	} else if(check_func_decl_with_func_defn(v_list, index, func_name)){
+	} else if(::check_func_decl_with_func_defn(v_list, index, func_name)){
 		if(returnType_==func_info_table[index]->returnType_){
 			type_=FUNC_DEFN;
 			funcInfo_=func_info_table[index];
@@ -847,4 +860,51 @@ FunctionInformation::~FunctionInformation()
 	// funcScope_ was created by in the constructor - so we delete it
 	if(funcScope_) { delete funcScope_; funcScope_=0; }
 }
+FunctionParameter::FunctionParameter(DataType type, char * name): 
+	var_type(type), var_name(name), arr_len(-1), prev_(NULL), next_(NULL){
+	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
+		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
+		stringstream s;
+		s << "SEMANTIC error: only INT8_TYPE ... DOUBLE_TYPE is allowed in decl: "  << var_name<< endl;
+		print_err(compiler_sem_err, s.str() , line_no, __LINE__, __FILE__);
+		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
+	}
+	//cout << "constructing FunctionParameter: " << var_name << endl;
+}
+FunctionParameter::~FunctionParameter(){
+	debug_log_file << "deleting ~FunctionParameter: var_name:" << var_name << endl;
+	if (next_) { delete next_; next_=0; }
+	debug_log_file << "end deleting ~FunctionParameter " << endl;
+}
 
+
+void FunctionParameter::print(FILE * edit_out){
+	struct FunctionParameter * vl_ptr=this;
+	while(vl_ptr){
+		if(vl_ptr->var_type>=INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
+			fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
+		} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
+			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
+			fprintf(edit_out, "%s %s[%d]", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
+		} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
+			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
+			fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
+		} else {
+			fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
+		}
+		vl_ptr=vl_ptr->next_;
+		if(vl_ptr) {
+			fprintf(edit_out, ",");
+		}
+	}
+}
+
+FunctionParameter::FunctionParameter(DataType type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev_(NULL), next_(NULL){
+	if(!is_of_arr_type(type)){
+		cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
+		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
+	}
+	cout << "constructing FunctionParameter: " << var_name << endl;
+}
+
+} /* close namespace Statement */

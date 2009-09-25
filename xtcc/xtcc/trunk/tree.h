@@ -32,16 +32,17 @@
 #include "utils.h"
 
 #include "symtab.h"
-bool is_of_int_type(DataType dt);
+//bool is_of_int_type(DataType dt);
 #include <string>
 using std::string;
-void print_err(compiler_err_category cmp_err, 
-		string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
+//void print_err(compiler_err_category cmp_err, 
+//		string err_msg, int line_no, int compiler_line_no, string compiler_file_name);
 
 extern noun_list_type noun_list[];
 DataType lcm_type(DataType d1, DataType d2);
 
 
+/*
 
 struct FunctionArgument {
 	struct expr* e;
@@ -49,12 +50,15 @@ struct FunctionArgument {
 	struct FunctionArgument * prev_;
 	struct FunctionArgument * next_;
 };
+*/
 
-DataType arr_deref_type(DataType d1);
+//DataType arr_deref_type(DataType d1);
 
 //struct expr * new_expr();
 
 #include <string>
+/*
+
 struct FunctionParameter {
 	DataType var_type;
 	string var_name;
@@ -71,6 +75,8 @@ struct FunctionParameter {
 		FunctionParameter(const FunctionParameter&);
 	
 };
+
+*/
 
 #include <cstdlib>
 

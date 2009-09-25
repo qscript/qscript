@@ -32,12 +32,21 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <iostream>
 #include "expr.h"
-#include "tree.h"
+#include "scope.h"
+//#include "tree.h"
+#include "debug_mem.h"
 //using namespace std;
+namespace Table {
+
 using std::string;
 using std::map;
 using std::vector;
+using std::cout;
+using std::cerr;
+using std::endl;
+
 int yyparse();
 
 enum axstmt_type { ax_uninit,txt_axstmt, tot_axstmt, cnt_axstmt, fld_axstmt };
@@ -289,6 +298,8 @@ struct internal_table{
 	int base;
 	int index;
 };
+
+} /* Close Namespace Table */
 
 /*
 void compute_table(vector<string>& data_arr);

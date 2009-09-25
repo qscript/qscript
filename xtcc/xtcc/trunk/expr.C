@@ -27,17 +27,22 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <climits>
+#include "utils.h"
 #include "stmt.h"
 #include "expr.h"
-#include <climits>
+#include "debug_mem.h"
 #include "named_range.h"
 
 using std::ofstream;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 extern Scope* active_scope;
 extern ofstream debug_log_file;
 
-extern	vector <FunctionInformation*> func_info_table;
+extern	vector <Statement::FunctionInformation*> func_info_table;
 extern vector<mem_addr_tab> mem_addr;
 extern vector <named_range> named_stubs_list;
 AbstractExpression::~AbstractExpression()
@@ -68,7 +73,7 @@ UnaryExpression::~UnaryExpression()
 	if (operand_) { delete operand_; operand_=0; }
 }
 
-#include "tree.h"
+//#include "tree.h"
 UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 		, ExpressionOperatorType le_type)
 	:AbstractExpression(le_type), operand_(l_operand)
