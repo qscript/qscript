@@ -36,6 +36,12 @@ using ::line_no;
 using ::no_errors;
 extern int no_errors;
 extern int line_no;
+using Util::print_err;
+using Util::void_check;
+using Util::lcm_type;
+using Util::arr_deref_type;
+using Util::search_for_func;
+
 AbstractStatement::~AbstractStatement(){ 
 	if (next_ /*
 		    && !((type_==FUNC_DEFN)||(type_==FUNC_TYPE))*/ ) {
@@ -88,7 +94,7 @@ FunctionDeclarationStatement::FunctionDeclarationStatement( DataType dtype
 		stringstream s;
 		s << "Function  Name : " 
 			<< name << " already present in symbol table." << endl;
-		print_err(compiler_sem_err, s.str()
+		print_err(Util::compiler_sem_err, s.str()
 				, line_no, __LINE__, __FILE__);
 		type_=ERROR_TYPE;
 		free(name);
@@ -135,21 +141,21 @@ FunctionStatement:: FunctionStatement ( DataType dtype, int lline_number
 			<< lline_number << endl;
 		type_=ERROR_TYPE;
 		++no_errors;
-	} else if(::check_func_decl_with_func_defn(v_list, index, func_name)){
+	} else if(Util::check_func_decl_with_func_defn(v_list, index, func_name)){
 		if(returnType_==func_info_table[index]->returnType_){
 			type_=FUNC_DEFN;
 			funcInfo_=func_info_table[index];
 		} else {
 			stringstream s;
 			s << "func defn, decl parameter return_types did not match: function name: " << func_name;
-			print_err(compiler_sem_err, s.str(), line_no
+			print_err(Util::compiler_sem_err, s.str(), line_no
 					, __LINE__, __FILE__);
 			type_=ERROR_TYPE;
 		}
 	} else {
 		stringstream s;
 		s << "func defn, decl parameter return_types did not match: function name: " << func_name;
-		print_err(compiler_sem_err, s.str(), line_no
+		print_err(Util::compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
 		++no_errors;
 		type_=ERROR_TYPE;
@@ -338,7 +344,7 @@ BreakStatement::BreakStatement(DataType dtype, int lline_number, int in_a_loop)
 	: AbstractStatement(dtype, lline_number)
 {
 	if(in_a_loop<=0){
-		print_err(compiler_sem_err, "break statement outside a loop: "
+		print_err(Util::compiler_sem_err, "break statement outside a loop: "
 			, line_no, __LINE__, __FILE__);
 	}
 }
@@ -363,7 +369,7 @@ ContinueStatement::ContinueStatement(DataType dtype, int lline_number
 	: AbstractStatement(dtype, lline_number)
 {
 	if (in_a_loop<=0){
-		print_err(compiler_sem_err
+		print_err(Util::compiler_sem_err
 				, "continue statement outside a loop: line_no: "
 				, line_no, __LINE__, __FILE__);
 	}
@@ -572,7 +578,7 @@ IfStatement::IfStatement( DataType dtype, int lline_number
 	  , ifBody_(lif_body), elseBody_(lelse_body)
 {
 	if(lcondition->type_==VOID_TYPE || lcondition->type_==ERROR_TYPE){
-		print_err(compiler_sem_err
+		print_err(Util::compiler_sem_err
 			, "If ifCondition_ expression has Void or Error Type"
 			, if_line_no, __LINE__, __FILE__);
 	} else {
@@ -592,7 +598,7 @@ ForStatement::ForStatement(DataType dtype, int lline_number
 	if(initializationExpression_->type_==VOID_TYPE
 			||testExpression_->type_==VOID_TYPE
 			||incrementExpression_->type_==VOID_TYPE ){
-		print_err(compiler_sem_err, 
+		print_err(Util::compiler_sem_err, 
 			"For ifCondition_ expression has Void or Error Type"
 			, line_no, __LINE__, __FILE__);
 		type_=ERROR_TYPE;
@@ -610,12 +616,12 @@ ListStatement::ListStatement( DataType dtype, string name,
 	, arr_start(l_arr_start), arr_end(l_arr_end)
 
 {
-	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(name);
+	map<string,SymbolTableEntry*>::iterator sym_it = Util::find_in_symtab(name);
 	if(sym_it==active_scope->sym_tab.end() ){
 		stringstream s;
 		s << "ListStatement:  statement symbol: " << name 
 		  << " not found in symbol table" << endl;
-		print_err(compiler_sem_err, s.str(), line_no, __LINE__
+		print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__
 			  , __FILE__);
 	} else {
 		symbolTableEntry_=sym_it->second;
@@ -625,7 +631,7 @@ ListStatement::ListStatement( DataType dtype, string name,
 			stringstream s;
 			s << "ListStatement NAME: "<< name 
 			  << " should be of basic type or basic reference types: " << line_no << endl;
-			print_err(compiler_sem_err, s.str(), line_no
+			print_err(Util::compiler_sem_err, s.str(), line_no
 				  , __LINE__, __FILE__);
 			type_ = ERROR_TYPE;
 		} 
@@ -637,7 +643,7 @@ ListStatement::ListStatement( DataType dtype, string name,
 			s << "ListStatement NAME: "<< name 
 			  << " array index should be of INT type: " 
 			  << line_no << endl;
-			print_err(compiler_sem_err, s.str(), line_no, __LINE__
+			print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__
 				  , __FILE__);
 
 		}
@@ -649,7 +655,7 @@ ListStatement::ListStatement( DataType dtype, string name,
 			s << "ListStatement NAME: "<< name 
 			  << " array index 2 should be of INT type: " 
 			  << line_no << endl;
-			print_err(compiler_sem_err, s.str(), line_no, __LINE__
+			print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__
 				  , __FILE__);
 		}
 	}
@@ -662,24 +668,24 @@ FieldStatement::FieldStatement(string lhs_name
 	  , start_col(l_s), end_col(l_e), width(l_w)
 {
 	map<string,SymbolTableEntry*>::iterator sym_it1
-	    = find_in_symtab(lhs_name);
+	    = Util::find_in_symtab(lhs_name);
 	map<string,SymbolTableEntry*>::iterator sym_it2 
-	    = find_in_symtab(rhs_name);
+	    = Util::find_in_symtab(rhs_name);
 	if(!(is_of_int_type(start_col->type_)&&
 		is_of_int_type(end_col->type_) ) ){
-		print_err(compiler_sem_err, "FieldStatement: start col and end col expressions must be of integer type"
+		print_err(Util::compiler_sem_err, "FieldStatement: start col and end col expressions must be of integer type"
 			  , line_no, __LINE__, __FILE__);
 	} else if(sym_it1==active_scope->sym_tab.end()){
 		stringstream s;
 		s <<  "Error: could not find:" << lhs_name 
 		  <<"  in symbol table: lineno: " << line_no << "\n";
-		print_err(compiler_sem_err, s.str(), line_no, __LINE__
+		print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__
 			  , __FILE__);
 	} else if (sym_it2==active_scope->sym_tab.end()){
 		stringstream s;
 		s <<  "Error: could not find:" << rhs_name 
 		  <<"  in symbol table: lineno: " << line_no << "\n";
-		print_err(compiler_sem_err, s.str(), line_no, __LINE__
+		print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__
 			  , __FILE__);
 	} else {
 		lhsSymbolTableEntry_ = sym_it1->second;
@@ -692,7 +698,7 @@ FieldStatement::FieldStatement(string lhs_name
 			(sym_it2->second->type_ <= INT32_ARR_TYPE)) ) {
 			stringstream s;
 			s << " lhs name should be an array of type int32_t and rhs name should be an integer array ";
-			print_err(compiler_sem_err, s.str(), line_no, __LINE__
+			print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__
 				  , __FILE__);
 
 		} else if (!(width==sizeof(INT8_TYPE) 
@@ -703,7 +709,7 @@ FieldStatement::FieldStatement(string lhs_name
 			  << sizeof(int8_t) << " or " << sizeof(int16_t) 
 			  << " or "
 			  << sizeof(int32_t) << endl;
-			print_err(compiler_sem_err, s.str(), line_no, __LINE__
+			print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__
 				  , __FILE__);
 		} else {
 			//everything is ok
@@ -874,7 +880,7 @@ FunctionParameter::FunctionParameter(DataType type, char * name):
 		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
 		stringstream s;
 		s << "SEMANTIC error: only INT8_TYPE ... DOUBLE_TYPE is allowed in decl: "  << var_name<< endl;
-		print_err(compiler_sem_err, s.str() , line_no, __LINE__, __FILE__);
+		print_err(Util::compiler_sem_err, s.str() , line_no, __LINE__, __FILE__);
 		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
 	}
 	//cout << "constructing FunctionParameter: " << var_name << endl;

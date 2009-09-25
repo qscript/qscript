@@ -48,7 +48,10 @@ using std::ofstream;
 using std::cout;
 using std::cerr;
 using std::endl;
-
+using Util::print_err;
+using Util::void_check;
+using Util::lcm_type;
+using Util::arr_deref_type;
 
 AbstractExpression::~AbstractExpression()
 {
@@ -84,7 +87,7 @@ UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 	:AbstractExpression(le_type), operand_(l_operand)
 {
 	if(operand_->exprOperatorType_==oper_blk_arr_assgn){
-		print_err(compiler_sem_err
+		Util::print_err(Util::compiler_sem_err
 				, "oper_blk_arr_assgn: cannot be used with unary operators : line_no:",
 			line_no, __LINE__, __FILE__);
 	} else if(l_operand->type_==VOID_TYPE){
@@ -92,12 +95,12 @@ UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 			case oper_umin:
 			case oper_not:
 				cerr << "operator Unary minus(-): ";
-				print_err(compiler_sem_err
+				Util::print_err(Util::compiler_sem_err
 						, " unary operator applied to function of type void ", 
 						line_no, __LINE__, __FILE__);
 			break;
 			default: 
-				print_err(compiler_sem_err, 
+				print_err(Util::compiler_sem_err, 
 					" unary operator applied to AbstractExpression of type void. Internal compiler error ", 
 					line_no, __LINE__, __FILE__);
 		}
@@ -114,7 +117,7 @@ UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 			break;
 			default:
 				++no_errors;
-				print_err(compiler_internal_error, " unknown unary operator applied to AbstractExpression. Internal compiler error ", 
+				Util::print_err(Util::compiler_internal_error, " unknown unary operator applied to AbstractExpression. Internal compiler error ", 
 					line_no, __LINE__, __FILE__);
 
 		}
@@ -258,13 +261,13 @@ void Unary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
 		break;
 		case oper_blk_arr_assgn: {
 			code_expr << "This case should not occur\n";
-			print_err(compiler_internal_error, "This case should not occur\n", 
+			Util::print_err(Util::compiler_internal_error, "This case should not occur\n", 
 						line_no, __LINE__, __FILE__);
 		}
 		break;
 		default:
 			code_expr << "unhandled AbstractExpression operator\n";
-			print_err(compiler_internal_error, "unhandled AbstractExpression operator\n", 
+			Util::print_err(Util::compiler_internal_error, "unhandled AbstractExpression operator\n", 
 						line_no, __LINE__, __FILE__);
 	}
 }
@@ -272,108 +275,108 @@ void Unary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
 void BinaryExpression::PrintExpressionCode(ostringstream& code_bef_expr
 		, ostringstream & code_expr){
 	switch(exprOperatorType_) {
-	char oper_buf[3];
-	case oper_plus:{
-		sprintf(oper_buf, "%s" , "+");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		//fprintf(edit_out, " %s ", oper_buf);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_minus:{
-		sprintf(oper_buf, "%s" , "-");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_mult:{
-		sprintf(oper_buf, "%s" , "*");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_div:{
-		sprintf(oper_buf, "%s" , "/");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_mod:{
-		sprintf(oper_buf, "%s" , "%");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	      
-	case oper_lt:{
-		sprintf(oper_buf, "%s" , "<");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_gt:{
-		sprintf(oper_buf, "%s" , ">");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_le:{
-		sprintf(oper_buf, "%s" , "<=");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_ge:{
-		sprintf(oper_buf, "%s" , ">=");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_iseq:{
-		sprintf(oper_buf, "%s" , "==");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_isneq: {
-		sprintf(oper_buf, "%s" , "!=");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;	       
-	case oper_assgn:
-		print_oper_assgn(code_bef_expr, code_expr);		
-	break;
-	case oper_or:{
-		sprintf(oper_buf, "%s" , "||");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;
-	case oper_and:{
-		sprintf(oper_buf, "%s" , "&&");
-		leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << oper_buf;
-		rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-		}
-	break;
-	default:
-		code_expr << " unhandled operator type in AbstractExpression  ";
-		print_err(compiler_sem_err
-				, " unhandled operator type in AbstractExpression  ", 
-					line_no, __LINE__, __FILE__);
-}
+		char oper_buf[3];
+		case oper_plus:{
+			sprintf(oper_buf, "%s" , "+");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			//fprintf(edit_out, " %s ", oper_buf);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_minus:{
+			sprintf(oper_buf, "%s" , "-");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_mult:{
+			sprintf(oper_buf, "%s" , "*");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_div:{
+			sprintf(oper_buf, "%s" , "/");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_mod:{
+			sprintf(oper_buf, "%s" , "%");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	      
+		case oper_lt:{
+			sprintf(oper_buf, "%s" , "<");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_gt:{
+			sprintf(oper_buf, "%s" , ">");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_le:{
+			sprintf(oper_buf, "%s" , "<=");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_ge:{
+			sprintf(oper_buf, "%s" , ">=");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_iseq:{
+			sprintf(oper_buf, "%s" , "==");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_isneq: {
+			sprintf(oper_buf, "%s" , "!=");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;	       
+		case oper_assgn:
+			print_oper_assgn(code_bef_expr, code_expr);		
+		break;
+		case oper_or:{
+			sprintf(oper_buf, "%s" , "||");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;
+		case oper_and:{
+			sprintf(oper_buf, "%s" , "&&");
+			leftOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+			}
+		break;
+		default:
+			code_expr << " unhandled operator type in AbstractExpression  ";
+			Util::print_err(Util::compiler_sem_err
+					, " unhandled operator type in AbstractExpression  ", 
+						line_no, __LINE__, __FILE__);
+	}
 }
 
 BinaryExpression::~BinaryExpression(){
@@ -416,31 +419,31 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 	{
 		type_=ERROR_TYPE;
 		++no_errors;
-		print_err(compiler_sem_err, "error: oper_blk_arr_assgn: used in binary AbstractExpression ",
+		print_err(Util::compiler_sem_err, "error: oper_blk_arr_assgn: used in binary AbstractExpression ",
 				line_no, __LINE__, __FILE__);
 	} else if (exprOperatorType_ ==oper_assgn){
 		if( (!leftOperand_->is_lvalue()) ){
 			type_=ERROR_TYPE;
 			++no_errors;
-			print_err(compiler_sem_err, "oper_assgn error: lhs of assignment should be lvalue ", 
+			print_err(Util::compiler_sem_err, "oper_assgn error: lhs of assignment should be lvalue ", 
 				line_no, __LINE__, __FILE__);
 		}
 		DataType typ1=leftOperand_->type_;
 		DataType typ2=rightOperand_->type_;
 		if(!void_check(leftOperand_->type_, rightOperand_->type_, type_)){
-			print_err(compiler_sem_err, "oper_assgn error: operand_ data types on lhs and rhs should be of non-VOID type", 
+			print_err(Util::compiler_sem_err, "oper_assgn error: operand_ data types on lhs and rhs should be of non-VOID type", 
 				line_no, __LINE__, __FILE__);
 			type_ = ERROR_TYPE;
 			++no_errors;
 		}
-		if(!check_type_compat(typ1, typ2)){
+		if(!Util::check_type_compat(typ1, typ2)){
 			type_ = ERROR_TYPE;
 			stringstream s;
 			s << "oper_assgn error: operand_ data types on lhs and rhs should be compatible, ";
 			string lhs_hr_type = human_readable_type(typ1);
 			string rhs_hr_type = human_readable_type(typ2);
 			s << "\tlhs type: " << lhs_hr_type << ", rhs type: " << rhs_hr_type << endl;
-			print_err(compiler_sem_err, s.str(), 
+			print_err(Util::compiler_sem_err, s.str(), 
 				line_no, __LINE__, __FILE__);
 		}
 	} else 
@@ -466,13 +469,13 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			if(exprOperatorType_==oper_mod 
 				&& !( is_of_int_type(leftOperand_->type_) 
 					&& is_of_int_type(rightOperand_->type_))){
-				print_err(compiler_sem_err, 
+				print_err(Util::compiler_sem_err, 
 					" operands of %% should be of type int/char only", line_no, __LINE__, __FILE__);
 				type_=ERROR_TYPE;
 			}
 		break;
 		default:
-			print_err(compiler_internal_error, " INTERNAL ERROR: default case of BinaryExpression", line_no, __LINE__, __FILE__);
+			print_err(Util::compiler_internal_error, " INTERNAL ERROR: default case of BinaryExpression", line_no, __LINE__, __FILE__);
 			;
 	}
 }
@@ -493,11 +496,11 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 		type_=STRING_TYPE;
 	} else if(exprOperatorType_==oper_name){
 		map<string,SymbolTableEntry*>::iterator sym_it = 
-			::find_in_symtab(ltxt);
+			Util::find_in_symtab(ltxt);
 		if(sym_it==active_scope->sym_tab.end() ){
 			string err_msg = "Error: could not find:" 
 				+ string(ltxt) + "  in symbol table  ";
-			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+			print_err(Util::compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 			type_=ERROR_TYPE;
 		} else {
 			symbolTableEntry_ = sym_it->second;
@@ -513,12 +516,12 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 	, isem_value(0), dsem_value(0), func_index_in_table(-1)
 	, text(0), column_no(-1), operand_(arr_index),  operand2_(0)
 {
-	map<string,SymbolTableEntry*>::iterator sym_it = ::find_in_symtab(name);
+	map<string,SymbolTableEntry*>::iterator sym_it = Util::find_in_symtab(name);
 	if(sym_it==active_scope->sym_tab.end() ){
 		std::stringstream s;
 		s << "Error: Array indexing AbstractExpression: could not find name: " 
 			<< name <<"  in symbol table: lineno: " << line_no << "\n";
-		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 	} else {
 		SymbolTableEntry* se=sym_it->second;
 		symbolTableEntry_ = se;
@@ -528,7 +531,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 			if(nametype==ERROR_TYPE) {
 				std::stringstream s;
 				s << "ERROR: Array indexing AbstractExpression Variable being indexed not of Array Type : Error: lineno: " << line_no << "\n";
-				print_err(compiler_sem_err
+				print_err(Util::compiler_sem_err
 					, s.str(), line_no, __LINE__, __FILE__);
 			} else {
 				type_ = nametype;
@@ -536,7 +539,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 		} else {
 			stringstream s;
 			s << "ERROR: Array index not of Type Int : Error: lineno: " << line_no << "\n";
-			print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+			print_err(Util::compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 		}
 	}
 }
@@ -550,12 +553,12 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 {
 	SymbolTableEntry* se=0;
 	map<string,SymbolTableEntry*>::iterator sym_it1 = 
-		::find_in_symtab(name);
+		Util::find_in_symtab(name);
 	if( sym_it1==active_scope->sym_tab.end()) {
 		std::stringstream s;
 		s << "Error: Block Array assignment AbstractExpression: could not find name: " 
 			<< name <<"  in symbol table: lineno: " << line_no << "\n";
-		print_err(compiler_sem_err, s.str(), line_no
+		print_err(Util::compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
 	} else {
 		se=sym_it1->second;
@@ -566,7 +569,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 		s << "Error: Block Array assignment AbstractExpression: could not find name: " 
 			<< name <<"  in symbol table: lineno: " 
 			<< line_no << "\n";
-		print_err(compiler_sem_err, s.str(), line_no
+		print_err(Util::compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
 	}  else {
 		DataType e_type1=arr_index->type_;
@@ -577,7 +580,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 			if(d1==ERROR_TYPE){
 				std::stringstream s;
 				s << "ERROR: Block Array assignment AbstractExpression Variable: " << name << " being indexed not of Array Type : Error: lineno: " << line_no << "\n";
-				print_err(compiler_sem_err, s.str()
+				print_err(Util::compiler_sem_err, s.str()
 					, line_no, __LINE__, __FILE__);
 			} else {
 				type_ = d1;
@@ -586,7 +589,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type,  string name
 			stringstream s;
 			s <<  "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
 				<< line_no << "\n";
-			print_err(compiler_sem_err, s.str()
+			print_err(Util::compiler_sem_err, s.str()
 					, line_no, __LINE__, __FILE__);
 		}
 	}
@@ -620,7 +623,7 @@ Unary2Expression::Unary2Expression(int l_isem_value)
 		stringstream s;
 		s << "very large integer unhandleable type most probably line_no: "
 			<< line_no << "\n";
-		print_err(compiler_sem_err, s.str(), line_no
+		print_err(Util::compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
 	}
 }
@@ -695,7 +698,7 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop , XtccSet& l_rd
 		default:
 			type_ = ERROR_TYPE;
 			string err_msg = "Binary2Expression:: lhs operator for oper_in can only be NAME or NAME[INDEX]";
-			print_err(compiler_internal_error, err_msg
+			print_err(Util::compiler_internal_error, err_msg
 					, line_no, __LINE__, __FILE__);
 			type_=ERROR_TYPE;
 			
@@ -706,7 +709,7 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop , XtccSet& l_rd
 	default: {
 			type_ = ERROR_TYPE;
 			string err_msg = "Binary2Expression:: operator in exprOperatorType_ can only be oper_in";
-			print_err(compiler_internal_error, err_msg
+			print_err(Util::compiler_internal_error, err_msg
 					, line_no, __LINE__, __FILE__);
 			type_=ERROR_TYPE;
 		}

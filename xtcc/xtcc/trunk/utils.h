@@ -9,6 +9,9 @@ namespace Statement{
 	struct FunctionParameter;
 }
 
+namespace Util
+{
+
 using std::map;
 using std::string;
 enum compiler_err_category{compiler_syntax_err, compiler_sem_err
@@ -24,4 +27,13 @@ int check_func_decl_with_func_defn(Statement::FunctionParameter* & v_list
 		, int & index, string func_name);
 bool 	void_check( DataType & type1, DataType & type2, DataType& result_type);
 DataType lcm_type(DataType d1, DataType d2);
+int check_parameters(Expression::AbstractExpression* e, Statement::FunctionParameter* v);
+bool skip_func_type_check(const char * fname);
+map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
+bool check_type_compat(DataType typ1, DataType typ2);
+int lookup_func(string func_name_index);
+
+} /* close namespace Util */
+
+
 #endif // xtcc_utils_h

@@ -38,12 +38,17 @@
 //#include "tree.h"
 #include "debug_mem.h"
 
-using namespace std;
+//using namespace std;
+using std::vector;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::stringstream;
 
 extern int line_no;
 extern int no_errors;
-extern ofstream debug_log_file;
-extern vector<mem_addr_tab> mem_addr;
+extern std::ofstream debug_log_file;
+extern std::vector<mem_addr_tab> mem_addr;
 extern Scope* active_scope;
 
 
@@ -112,7 +117,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 	if ( sym_tab.find(name) == sym_tab.end() ){
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt, e);
 		if(is_of_noun_type(e->type_)){
-			if (check_type_compat(dt,e->type_)){
+			if (Util::check_type_compat(dt,e->type_)){
 				string s(name);
 				sym_tab[s] = se;
 				st_ptr->type_=dt;
@@ -123,7 +128,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 					<< human_readable_type(dt)
 					<< " in decl cannot handle type of expression on rhs of variable: " 
 					<< human_readable_type(e->type_) << endl;
-				print_err(compiler_sem_err, s.str(), line_no
+				print_err(Util::compiler_sem_err, s.str(), line_no
 						, __LINE__, __FILE__);
 				st_ptr->type_=ERROR_TYPE;
 			}
@@ -131,7 +136,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 			stringstream s;
 			s << "Error in expression on rhs of variable :" 
 				<< name << endl;
-			print_err(compiler_sem_err, s.str(), line_no
+			print_err(Util::compiler_sem_err, s.str(), line_no
 					, __LINE__, __FILE__);
 			st_ptr->type_=ERROR_TYPE;
 		}
@@ -139,7 +144,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 		stringstream s;
 		s << "variable " << name 
 			<< " already present in symbol table" << endl;
-		print_err(compiler_sem_err, s.str(), line_no
+		print_err(Util::compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
 		st_ptr->type_=ERROR_TYPE;
 	}
@@ -154,7 +159,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 		stringstream s;
 		s << "only INT8_ARR_TYPE: can be assigned a string expression" 
 			<< endl;
-		print_err(compiler_sem_err, s.str(), line_no
+		print_err(Util::compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
 
 	}
@@ -186,7 +191,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 		stringstream s;
 		s << " IDENTIFIER: " << name 
 			<< "  already present in symbol table" << endl;
-		print_err(compiler_sem_err, s.str()
+		print_err(Util::compiler_sem_err, s.str()
 				, line_no, __LINE__, __FILE__);
 		st_ptr->type_=ERROR_TYPE;
 		++no_errors;
@@ -213,7 +218,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, Xtcc
 		stringstream s;
 		s << " IDENTIFIER: " << name 
 			<< "  already present in symbol table" << endl;
-		print_err(compiler_sem_err, s.str(), line_no
+		print_err(Util::compiler_sem_err, s.str(), line_no
 				, __LINE__, __FILE__);
 		st_ptr->type_=ERROR_TYPE;
 	}

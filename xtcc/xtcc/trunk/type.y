@@ -37,7 +37,6 @@
 #include "named_attributes.h"
 #include "const_defs.h"
 #include "symtab.h"
-//#include "tree.h"
 #include "debug_mem.h"
 #include "utils.h"
 #include "expr.h"
@@ -79,9 +78,8 @@
 	template<class T> T* trav_chain(T* & elem1);
 
 	int flag_cmpd_stmt_is_a_func_body=-1;
-	int lookup_func(string func_name_index);
+	//int lookup_func(string func_name_index);
 	vector<Table::table*>	table_list;
-	//using Table::ax;
 	map <string, Table::ax*> ax_map;
 
 	int no_count_ax_elems=0;
@@ -278,7 +276,7 @@ xtcc_type: VOID_T
 func_defn:	
 	xtcc_type NAME '(' decl_comma_list ')' {
 		string func_name_index($2);
-		flag_cmpd_stmt_is_a_func_body=lookup_func(func_name_index);
+		flag_cmpd_stmt_is_a_func_body=Util::lookup_func(func_name_index);
 		if(flag_cmpd_stmt_is_a_func_body==-1){
 			++ no_errors;
 			cerr << "Function name not found in list of declared functions: "
@@ -453,7 +451,7 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	}
 	|	FieldStatement
 	|	error ';' {
-		print_err(compiler_sem_err, "statement missing ';' around line_no: ", 
+		Util::print_err(Util::compiler_sem_err, "statement missing ';' around line_no: ", 
 			line_no, __LINE__, __FILE__);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -557,8 +555,7 @@ open_curly:	'{' {
 			// reset the flag
 			flag_cmpd_stmt_is_a_func_body=-1;
 		} else {
-			$$->scope_
-				= new Scope();
+			$$->scope_= new Scope();
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
@@ -710,9 +707,9 @@ expression: expression '+' expression {
 		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=$1;
 		bool found=false;
-		int index=search_for_func(search_for);
+		int index=Util::search_for_func(search_for);
 		if(index!=-1) found=true;
-		bool skip_type_check=skip_func_type_check(search_for.c_str());
+		bool skip_type_check=Util::skip_func_type_check(search_for.c_str());
 		if( skip_type_check==false  && found==false ) {
 			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
 			cerr << "function : " << search_for << " used without decl" << endl;
@@ -727,7 +724,7 @@ expression: expression '+' expression {
 			Statement::FunctionParameter* fparam=func_info_table[index]->paramList_;
 			bool match=false;
 			if(skip_type_check==false){
-				match=check_parameters(e_ptr, fparam);
+				match=Util::check_parameters(e_ptr, fparam);
 			}
 			if(match || skip_type_check){
 				//$$=new Unary2Expression(oper_func_call, my_type, $3, index, line_no);
@@ -776,7 +773,7 @@ range_list: range
 
 range: 	INUMBER '-' INUMBER {
 		if($3<=$1){
-			print_err(compiler_sem_err, "2nd number in range <= 1st number",
+			print_err(Util::compiler_sem_err, "2nd number in range <= 1st number",
 					line_no, __LINE__, __FILE__  );
 
 		} else {
@@ -847,8 +844,6 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 		free($2);
 	}
 	|	AX NAME ';' COND_START expression ';' ttl_ax_stmt_list count_ax_stmt_list {
-		//using Table::basic_print_ax_stmt;
-		//using Table::basic_count_ax_stmt;
 		Table::basic_print_ax_stmt * ttl_stmt_ptr= trav_chain($7);
 		Table::basic_count_ax_stmt * count_stmt_ptr= trav_chain($8);
 		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, $5);
@@ -880,7 +875,7 @@ attributes:     ATTRIBUTE_LIST NAME '=' {
 				line_no, attr_list_name, attribute_list);
 		$$=n_attr_stmt;
 		if(active_scope_list.size()!=1){
-			print_err(compiler_sem_err, " named_attribute_list found on Scope level higher than 0 ", 
+			Util::print_err(Util::compiler_sem_err, " named_attribute_list found on Scope level higher than 0 ", 
 						line_no, __LINE__, __FILE__);
 		}
 		//named_attributes_list.push_back(attr_list);

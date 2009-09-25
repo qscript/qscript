@@ -28,6 +28,8 @@ extern vector <Scope*> active_scope_list;
 extern Scope* active_scope;
 extern vector <Statement::FunctionInformation*> func_info_table;
 
+namespace Util {
+
 void print_err(compiler_err_category cmp_err, string err_msg, 
 	int line_no, int compiler_line_no, string compiler_file_name);
 
@@ -307,3 +309,4 @@ DataType arr_deref_type(DataType d1){
 	return ERROR_TYPE;
 }
 
+} /* close namespace Util */

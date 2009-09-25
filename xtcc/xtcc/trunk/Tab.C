@@ -45,6 +45,8 @@ namespace Table {
 	using ::debug_log_file;
 	using ::no_errors;
 	using ::line_no;
+	using Util::find_in_symtab;
+	using Util::print_err;
 /*
 vector<internal_table*> itbl_vec(0);
 void print_banner(int side, internal_table* & itbl_ptr, fstream& tab_);
@@ -479,16 +481,16 @@ extern Scope* active_scope;
 fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_stub_list): basic_count_ax_stmt(ltype,"",0),
 	stub_list(l_stub_list) {
 	// NAME Has to be of array type, Int32 
-	map<string,SymbolTableEntry*>::iterator sym_it=::find_in_symtab(field_name);
+	map<string,SymbolTableEntry*>::iterator sym_it=find_in_symtab(field_name);
 	if(sym_it==::active_scope->sym_tab.end()){
 		string err_msg = "Error parsing bit statement : could not find array:" + field_name + " in symbol table";
-		print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+		print_err(Util::compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 	} else {
 		symp = sym_it->second;
 		if(!is_of_int32_arr_type(symp->type_)){
 			string err_msg = "Error parsing bit statement : array should be of int32 type:" 
 				+ field_name + " in symbol table";
-			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
+			print_err(Util::compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 		}
 	}
 	cout << "fld_ax_stmt constructor: verifying copying of vector was correct" << endl;

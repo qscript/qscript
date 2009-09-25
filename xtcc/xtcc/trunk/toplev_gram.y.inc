@@ -37,7 +37,8 @@
 #include "named_attributes.h"
 #include "const_defs.h"
 #include "symtab.h"
-#include "tree.h"
+#include "debug_mem.h"
+#include "utils.h"
 #include "expr.h"
 #include "stmt.h"
 #include "Tab.h"
@@ -55,8 +56,8 @@
 	extern int line_no;
 	extern char * yytext;
 	bool check_type_compat(DataType typ1, DataType typ2);
-	vector <FunctionInformation*> func_info_table;
-	int check_parameters(struct AbstractExpression* e, struct FunctionParameter* v);
+	vector <Statement::FunctionInformation*> func_info_table;
+	int check_parameters(struct Expression::AbstractExpression* e, struct Statement::FunctionParameter* v);
 	vector <Scope*> active_scope_list;
 	Scope* active_scope;
 	map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
@@ -65,21 +66,21 @@
 	//void	add_func_params_to_cmpd_sc(struct Scope * & scope_, struct FunctionParameter * & v_list, string & fname);
 	int search_for_func(string& search_for);
 	int check_func_decl_with_func_defn(struct FunctionParameter*& v_list, int & index, string func_name);
-	struct AbstractStatement* make_func_defn_stmt( struct Scope *& scope_,
+	struct Statement::AbstractStatement* make_func_defn_stmt( struct Scope *& scope_,
 		struct FunctionParameter * & v_list,
-		struct AbstractStatement* & funcBody_,
+		struct Statement::AbstractStatement* & funcBody_,
 		string search_for,
 		DataType returnType_
 		);
-	struct AbstractStatement * tree_root=0;
+	struct Statement::AbstractStatement * tree_root=0;
 	bool 	void_check( DataType & type1, DataType & type2, DataType& result_type);
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
 
 	int flag_cmpd_stmt_is_a_func_body=-1;
-	int lookup_func(string func_name_index);
-	vector<table*>	table_list;
-	map <string, ax*> ax_map;
+	//int lookup_func(string func_name_index);
+	vector<Table::table*>	table_list;
+	map <string, Table::ax*> ax_map;
 
 	int no_count_ax_elems=0;
 	int no_tot_ax_elems=0;
@@ -88,11 +89,12 @@
 	int rec_len;
 	bool flag_next_stmt_start_of_block=false;
 	//struct AbstractStatement* start_of_blk=0;
-	vector <AbstractStatement*> blk_heads;
+	vector <Statement::AbstractStatement*> blk_heads;
+	using Table::stub;
 	vector <stub*> stub_list;
 	vector<bool> blk_start_flag;
         vector <string> attribute_list;
-	vector <named_attribute_list> named_attributes_list;
+	vector <Statement::named_attribute_list> named_attributes_list;
 
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
@@ -105,6 +107,9 @@
 	vector<mem_addr_tab>  mem_addr;
 
 	void flex_finish();
+	using std::cout;
+	using std::cerr;
+	using std::endl;
 
 %}
 
@@ -113,19 +118,19 @@
 	int ival ;
 	struct symtab *symbolTableEntry_;
 	char * name;
-	struct AbstractExpression * expr;
-	struct AbstractStatement * stmt;
-	struct CompoundStatement * c_stmt;
+	struct Expression::AbstractExpression * expr;
+	struct Statement::AbstractStatement * stmt;
+	struct Statement::CompoundStatement * c_stmt;
 	int column_no;
 	int code_list;
 	char text_buf[MY_STR_MAX];
-	struct FunctionParameter * v_list;
+	struct Statement::FunctionParameter * v_list;
 	DataType dt;
-	struct ax * ax;
-	struct stub * stub;
-	struct table * tbl;
-	class basic_print_ax_stmt * print_stmt;
-	class basic_count_ax_stmt * count_stmt;
+	struct Table::ax * ax;
+	struct Table::stub * stub;
+	struct Table::table * tbl;
+	Table::basic_print_ax_stmt * print_stmt;
+	Table::basic_count_ax_stmt * count_stmt;
 };
 
 %token CONVERT
@@ -257,7 +262,7 @@ xtcc_type: VOID_T
 func_defn:	
 	xtcc_type NAME '(' decl_comma_list ')' {
 		string func_name_index($2);
-		flag_cmpd_stmt_is_a_func_body=lookup_func(func_name_index);
+		flag_cmpd_stmt_is_a_func_body=Util::lookup_func(func_name_index);
 		if(flag_cmpd_stmt_is_a_func_body==-1){
 			++ no_errors;
 			cerr << "Function name not found in list of declared functions: "
@@ -265,18 +270,18 @@ func_defn:
 				<< "line_no: " << line_no  << endl;
 		}
 	} compound_stmt {
-		struct CompoundStatement* c_stmt= $7;
+		struct Statement::CompoundStatement* c_stmt= $7;
 		if(c_stmt==0){
 			cerr << "INTERNAL COMPILER ERROR: c_stmt==0" << endl;
 		} else {
 			//cout << "funcBody_: is valid " << endl;
 		}
 		struct Scope *scope_=c_stmt->scope_;
-		struct FunctionParameter * v_list=trav_chain($4);
-		struct AbstractStatement* funcBody_=$7;
+		struct Statement::FunctionParameter * v_list=trav_chain($4);
+		struct Statement::AbstractStatement* funcBody_=$7;
 		string search_for=$2;
 		DataType returnType_=$1;
-		$$=new FunctionStatement(FUNC_DEFN, line_no, scope_, v_list, funcBody_, search_for, returnType_);
+		$$=new Statement::FunctionStatement(FUNC_DEFN, line_no, scope_, v_list, funcBody_, search_for, returnType_);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -324,9 +329,9 @@ decl:	xtcc_type NAME ';' {
 
 func_decl:	xtcc_type NAME '(' decl_comma_list ')' ';'{
 		char *name=$2;
-		struct FunctionParameter* v_list=trav_chain($4);
+		struct Statement::FunctionParameter* v_list=trav_chain($4);
 		DataType returnType_=$1;
-		$$=new FunctionDeclarationStatement( FUNC_TYPE, line_no, name,  v_list, returnType_);
+		$$=new Statement::FunctionDeclarationStatement( FUNC_TYPE, line_no, name,  v_list, returnType_);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -346,7 +351,7 @@ decl_comma_list: var_decl	{
 
 
 var_decl:	xtcc_type NAME 	{
-		$$=new FunctionParameter($1, $2);
+		$$=new Statement::FunctionParameter($1, $2);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -355,7 +360,7 @@ var_decl:	xtcc_type NAME 	{
 	| xtcc_type NAME '[' INUMBER ']'  {
 		/* Neil - I need to fix this */
 		DataType dt=DataType(INT8_ARR_TYPE+($1-INT8_TYPE));
-		$$=new FunctionParameter(dt, $2, $4);
+		$$=new Statement::FunctionParameter(dt, $2, $4);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -363,7 +368,7 @@ var_decl:	xtcc_type NAME 	{
 	}
 	|	xtcc_type '&' NAME {
 		DataType dt=DataType(INT8_REF_TYPE+($1-INT8_TYPE));
-		$$=new FunctionParameter(dt, $3);
+		$$=new Statement::FunctionParameter(dt, $3);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -394,18 +399,18 @@ statement_list: statement {
 	;
 
 statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} statement {
-		$$ = new struct ForStatement(FOR_STMT, line_no, $3, $5, $7, $10);
+		$$ = new struct Statement::ForStatement(FOR_STMT, line_no, $3, $5, $7, $10);
 		--in_a_loop;
 	}
 	| if_stmt
 	| expression ';' { 
 		if($1->isvalid()){
-			$$ = new ExpressionStatement(TEXPR_STMT, line_no, $1);
+			$$ = new Statement::ExpressionStatement(TEXPR_STMT, line_no, $1);
 			if(XTCC_DEBUG_MEM_USAGE){
 				mem_log($$, __LINE__, __FILE__, line_no);
 			}
 		} else {
-			$$ = new ExpressionStatement(ERROR_TYPE, line_no, $1);
+			$$ = new Statement::ExpressionStatement(ERROR_TYPE, line_no, $1);
 			if(XTCC_DEBUG_MEM_USAGE){
 				mem_log($$, __LINE__, __FILE__, line_no);
 			}
@@ -419,45 +424,45 @@ statement: FOR '(' expression ';' expression ';' expression ')' { ++in_a_loop;} 
 	}
 	|	ListStatement
 	|	BREAK ';'{
-		$$=new BreakStatement(BREAK_STMT, line_no, in_a_loop);
+		$$=new Statement::BreakStatement(BREAK_STMT, line_no, in_a_loop);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| 	CONTINUE ';' {
-		$$=new ContinueStatement(CONTINUE_STMT, line_no, in_a_loop);
+		$$=new Statement::ContinueStatement(CONTINUE_STMT, line_no, in_a_loop);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	FieldStatement
 	|	error ';' {
-		print_err(compiler_sem_err, "statement missing ';' around line_no: ", 
+		Util::print_err(Util::compiler_sem_err, "statement missing ';' around line_no: ", 
 			line_no, __LINE__, __FILE__);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-		$$ = new struct ErrorStatement(line_no);
+		$$ = new struct Statement::ErrorStatement(line_no);
 		yyerrok;
 	}
 	;
 
 ListStatement:	 LISTA NAME TEXT ';'{
-		$$=new ListStatement(LISTA_BASIC_TYPE_STMT, $2, $3);
+		$$=new Statement::ListStatement(LISTA_BASIC_TYPE_STMT, $2, $3);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($2);
 	}
 	| LISTA NAME '[' expression ']' TEXT ';'{
-		$$=new ListStatement( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($6), $4);
+		$$=new Statement::ListStatement( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($6), $4);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		free($2);
 	}
 	| LISTA NAME '[' expression ',' expression ']' TEXT ';'{
-		$$=new ListStatement( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($8), $4, $6);
+		$$=new Statement::ListStatement( LISTA_BASIC_ARRTYPE_STMT_1INDEX, $2, string($8), $4, $6);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -466,13 +471,13 @@ ListStatement:	 LISTA NAME TEXT ';'{
 	;
 
 if_stmt: IF '(' expression ')' statement{
-		$$=new IfStatement(IFE_STMT,if_line_no,$3,$5,0);
+		$$=new Statement::IfStatement(IFE_STMT,if_line_no,$3,$5,0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| IF '(' expression ')' statement ELSE statement{
-		$$=new IfStatement(IFE_STMT, if_line_no,$3,$5,$7);
+		$$=new Statement::IfStatement(IFE_STMT, if_line_no,$3,$5,$7);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -480,10 +485,10 @@ if_stmt: IF '(' expression ')' statement{
 	;
 
 FieldStatement:	FLD NAME '=' NAME '(' expression ',' expression ')' ':' INUMBER ';'{
-		AbstractExpression* start_col=$6;
-		AbstractExpression* end_col=$8;
+		Expression::AbstractExpression* start_col=$6;
+		Expression::AbstractExpression* end_col=$8;
 		int width=$11;
-		$$ = new FieldStatement($2, $4, start_col, end_col, width);
+		$$ = new Statement::FieldStatement($2, $4, start_col, end_col, width);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -499,12 +504,12 @@ compound_stmt: open_curly statement_list '}'	{
 			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
 				<< endl;
 			++no_errors;
-			$$=new struct CompoundStatement(ERROR_TYPE, line_no, 0);
+			$$=new struct Statement::CompoundStatement(ERROR_TYPE, line_no, 0);
 			void *ptr=$$;
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else { active_scope = active_scope_list[tmp]; }
-		struct AbstractStatement* head_of_this_chain=blk_heads.back();
+		struct Statement::AbstractStatement* head_of_this_chain=blk_heads.back();
 		if(blk_start_flag.size() > 0){
 			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
 		}
@@ -527,7 +532,7 @@ compound_stmt: open_curly statement_list '}'	{
 
 open_curly:	'{' {
 		++nest_lev;
-		$$ = new CompoundStatement(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
+		$$ = new Statement::CompoundStatement(CMPD_STMT, line_no, flag_cmpd_stmt_is_a_func_body);
 		void *ptr=$$;
 		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 		mem_addr.push_back(m1);
@@ -561,7 +566,7 @@ range_list: range
 
 range: 	INUMBER '-' INUMBER {
 		if($3<=$1){
-			print_err(compiler_sem_err, "2nd number in range <= 1st number",
+			print_err(Util::compiler_sem_err, "2nd number in range <= 1st number",
 					line_no, __LINE__, __FILE__  );
 
 		} else {
@@ -587,7 +592,7 @@ tab_list: tab_defn	{
 
 tab_defn:
 	TAB NAME NAME';'	{
-		$$=new table($2,$3, line_no);
+		$$=new Table::table($2,$3, line_no);
 		table_list.push_back($$);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -595,7 +600,7 @@ tab_defn:
 		free($2); free($3);
 	}
 	| TAB NAME NAME';'COND_START expression';'{
-		$$=new table($2,$3, line_no, $6);
+		$$=new Table::table($2,$3, line_no, $6);
 		table_list.push_back($$);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -616,10 +621,12 @@ ax_list:	ax_defn	{
 	;
 
 ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
-		basic_print_ax_stmt  * ttl_stmt_ptr= trav_chain($4);
-		basic_count_ax_stmt * count_stmt_ptr= trav_chain($5);
+		using Table::basic_print_ax_stmt;
+		using Table::basic_count_ax_stmt;
+		Table::basic_print_ax_stmt  * ttl_stmt_ptr= trav_chain($4);
+		Table::basic_count_ax_stmt * count_stmt_ptr= trav_chain($5);
 
-		$$ = new ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, 0);
+		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, 0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -630,9 +637,9 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 		free($2);
 	}
 	|	AX NAME ';' COND_START expression ';' ttl_ax_stmt_list count_ax_stmt_list {
-		basic_print_ax_stmt * ttl_stmt_ptr= trav_chain($7);
-		basic_count_ax_stmt * count_stmt_ptr= trav_chain($8);
-		$$ = new ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, $5);
+		Table::basic_print_ax_stmt * ttl_stmt_ptr= trav_chain($7);
+		Table::basic_count_ax_stmt * count_stmt_ptr= trav_chain($8);
+		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, $5);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -657,11 +664,11 @@ attributes:     ATTRIBUTE_LIST NAME '=' {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		//$$=0;
 		string attr_list_name=$2;
-		struct named_attribute_list * n_attr_stmt= new named_attribute_list(NAMED_ATTRIBUTE_TYPE,
+		struct Statement::named_attribute_list * n_attr_stmt= new Statement::named_attribute_list(NAMED_ATTRIBUTE_TYPE,
 				line_no, attr_list_name, attribute_list);
 		$$=n_attr_stmt;
 		if(active_scope_list.size()!=1){
-			print_err(compiler_sem_err, " named_attribute_list found on Scope level higher than 0 ", 
+			Util::print_err(Util::compiler_sem_err, " named_attribute_list found on Scope level higher than 0 ", 
 						line_no, __LINE__, __FILE__);
 		}
 		//named_attributes_list.push_back(attr_list);
@@ -691,6 +698,7 @@ stub_list: stub
 	;
 	
 stub:	TEXT '=' INUMBER';' {
+		using Table::stub;
 		$$=new stub($1, $3);
 		stub_list.push_back($$);
 		++ no_count_ax_elems;
@@ -705,7 +713,8 @@ ttl_ax_stmt_list: ttl_ax_stmt { $$=$1; }
 	;
 
 ttl_ax_stmt: 	TTL ';' TEXT ';'	{
-		$$ = new ttl_ax_stmt (txt_axstmt,$3);
+		using Table::ttl_ax_stmt;
+		$$ = new ttl_ax_stmt (Table::txt_axstmt,$3);
 		++no_tot_ax_elems;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -722,25 +731,28 @@ count_ax_stmt_list: 	count_ax_stmt	{
 	;
 
 count_ax_stmt: TOT ';' TEXT ';' {
+		using Table::tot_ax_stmt;
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
-		$$ = new tot_ax_stmt (tot_axstmt,$3, 0);
+		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, 0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| TOT ';' TEXT ';' COND_START expression ';'	{
+		using Table::tot_ax_stmt;
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
-		$$ = new tot_ax_stmt (tot_axstmt,$3, $6);
+		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, $6);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	|	CNT ';'	TEXT ';' COND_START expression ';' 	{
+		using Table::count_ax_stmt;
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
-		$$ = new count_ax_stmt (cnt_axstmt,$3, $6);
+		$$ = new count_ax_stmt (Table::cnt_axstmt,$3, $6);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -749,9 +761,10 @@ count_ax_stmt: TOT ';' TEXT ';' {
 	;
 
 bit_list: BIT NAME ';' stub_list';' {
+		using Table::fld_ax_stmt;
 		//stub * stub_ptr = trav_chain($4);
 	 	//$$ = new fld_ax_stmt ($2, stub_ptr);
-	 	$$ = new fld_ax_stmt (fld_axstmt, $2, stub_list);
+	 	$$ = new fld_ax_stmt (Table::fld_axstmt, $2, stub_list);
 		stub_list.resize(0);
 	}
 	;
