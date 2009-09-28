@@ -41,12 +41,38 @@ extern int no_errors;
 extern int line_no;
 extern Scope* active_scope;
 namespace Table {
-	using ::mem_addr;
-	using ::debug_log_file;
-	using ::no_errors;
-	using ::line_no;
-	using Util::find_in_symtab;
-	using Util::print_err;
+using ::mem_addr;
+using ::debug_log_file;
+using ::no_errors;
+using ::line_no;
+using Util::find_in_symtab;
+using Util::print_err;
+
+AbstractPrintableAxisStatement::AbstractPrintableAxisStatement(axstmt_type ltype ,string s)
+	: axtype(ltype), prev_(0), next_(0)
+	  , text(s)
+{}
+
+AbstractPrintableAxisStatement::~AbstractPrintableAxisStatement(){
+	if(next_) {
+		delete next_;
+		next_=0;
+	}
+}
+
+
+void TitleStatement::print(fstream& f){
+	f << text << endl ;
+}
+
+string TitleStatement::ax_text(){
+	return text;
+}
+
+TitleStatement::TitleStatement(axstmt_type ltype,string s): 
+	AbstractPrintableAxisStatement(ltype,s) 
+{}
+
 /*
 vector<internal_table*> itbl_vec(0);
 void print_banner(int side, internal_table* & itbl_ptr, fstream& tab_);
@@ -100,8 +126,8 @@ internal_table::internal_table(CMAPITER & map_iter_s, CMAPITER & map_iter_b,
 		//ax_stmt * ax_stmt_ptr = new ax_stmt;
 		//ax_stmt_ptr= ax_stmt_iter;
 		//side.push_back(ax_stmt_ptr);
-		if(basic_count_ax_stmt* bcaxs_ptr=
-			dynamic_cast<basic_count_ax_stmt*> (ax_stmt_iter) ){
+		if(AbstractCountableAxisStatement* bcaxs_ptr=
+			dynamic_cast<AbstractCountableAxisStatement*> (ax_stmt_iter) ){
 			side.push_back(bcaxs_ptr);
 		}
 		ax_stmt_iter=ax_stmt_iter->prev_ax_stmt;
@@ -116,8 +142,8 @@ internal_table::internal_table(CMAPITER & map_iter_s, CMAPITER & map_iter_b,
 		//ax_stmt * ax_stmt_ptr = new ax_stmt;
 		//ax_stmt_ptr= ax_stmt_iter;
 		//banner.push_back(ax_stmt_ptr);
-		if(basic_count_ax_stmt* bcaxs_ptr=
-			dynamic_cast<basic_count_ax_stmt*> (ax_stmt_iter) ){
+		if(AbstractCountableAxisStatement* bcaxs_ptr=
+			dynamic_cast<AbstractCountableAxisStatement*> (ax_stmt_iter) ){
 			banner.push_back(bcaxs_ptr);
 		}
 		ax_stmt_iter=ax_stmt_iter->prev_ax_stmt;
@@ -256,7 +282,7 @@ int check_tables (vector<table*>& table_list){
 		chk_rpt << "Checking axis: " <<
 			table_list[itbl_ptr->index]->side <<endl;
 		for(register unsigned  int j=0; j<itbl_ptr->side.size(); j++){
-			basic_count_ax_stmt* bcaxs_ptr = itbl_ptr->side[j];
+			AbstractCountableAxisStatement* bcaxs_ptr = itbl_ptr->side[j];
 			if ( mr_expr* mr_ptr = dynamic_cast<mr_expr*>
 					(bcaxs_ptr->condn)){
 				check_count(itbl_ptr, mr_ptr, j, chk_rpt);
@@ -383,16 +409,22 @@ void print_banner(int side, internal_table* & itbl_ptr, fstream& tab_){
 }
 */
 
+AbstractCountableAxisStatement::AbstractCountableAxisStatement(axstmt_type ltype,string txt
+		, struct Expression::AbstractExpression* c)
+	: axtype(ltype),
+	prev_(0), next_(0),
+	text(txt), condn(c), count(0)
+	{}
 
-basic_count_ax_stmt::~basic_count_ax_stmt() {
+AbstractCountableAxisStatement::~AbstractCountableAxisStatement() {
 	if (condn) {
 		delete condn; condn=0;
 	}
-	debug_log_file << "deleting ~basic_count_ax_stmt()" << endl;
+	debug_log_file << "deleting ~AbstractCountableAxisStatement()" << endl;
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			debug_log_file << "basic_count_ax_stmt::~basic_count_ax_stmt setting mem_addr: " << this << "=0" << endl;
+			debug_log_file << "AbstractCountableAxisStatement::~AbstractCountableAxisStatement setting mem_addr: " << this << "=0" << endl;
 			break;
 		}
 	}
@@ -402,7 +434,7 @@ basic_count_ax_stmt::~basic_count_ax_stmt() {
 	}
 }
 
-ttl_ax_stmt::~ttl_ax_stmt(){
+TitleStatement::~TitleStatement(){
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
@@ -410,6 +442,38 @@ ttl_ax_stmt::~ttl_ax_stmt(){
 			break;
 		}
 	}
+}
+
+void count_ax_stmt::print(fstream& f){
+	f << "CNT: " << text ;
+	f << "\n";
+}
+
+void count_ax_stmt::generate_code(FILE * f, unsigned int index)
+{
+	ostringstream code_expr1, code_bef_expr1;
+	condn->PrintExpressionCode(code_bef_expr1, code_expr1);
+	fprintf(f, "%s", code_bef_expr1.str().c_str());
+	fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+	fprintf(f, " ){\n");
+	fprintf(f, "\t\tflag[%d]=true;\n", index);
+	fprintf(f, "\t}\n");
+}
+
+count_ax_stmt::count_ax_stmt(axstmt_type ltype,string txt, struct Expression::AbstractExpression* c)
+	: AbstractCountableAxisStatement(ltype,txt,c) 
+{}
+
+string count_ax_stmt::ax_text()
+{
+	return text;
+}
+
+void count_ax_stmt::print_axis_constructor_text(FILE * f
+		, unsigned int start_index)
+{
+	fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+			, start_index, ax_text().c_str());
 }
 
 count_ax_stmt::~count_ax_stmt(){
@@ -423,7 +487,42 @@ count_ax_stmt::~count_ax_stmt(){
 	}
 }
 
-tot_ax_stmt::~tot_ax_stmt(){
+tot_ax_stmt::tot_ax_stmt(axstmt_type ltype, string txt
+			, struct Expression::AbstractExpression* c)
+	: AbstractCountableAxisStatement(ltype,txt,c) 
+{}
+
+void tot_ax_stmt::print(fstream& f)
+{
+	f << "TOT: " << text;
+	f << "\n";
+}
+
+string tot_ax_stmt::ax_text()
+{
+	return text;
+}
+
+void tot_ax_stmt::generate_code(FILE * f, unsigned int index){
+	ostringstream code_expr1, code_bef_expr1;
+	condn->PrintExpressionCode(code_bef_expr1, code_expr1);
+	fprintf(f, "%s", code_bef_expr1.str().c_str());
+	fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+	fprintf(f, " ){\n");
+	fprintf(f, "\t\tflag[%d]=true;\n", index);
+	fprintf(f, "\t}\n");
+}
+
+
+void tot_ax_stmt::print_axis_constructor_text(FILE * f
+		, unsigned int start_index)
+{
+	fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+			, start_index, ax_text().c_str());
+}
+
+tot_ax_stmt::~tot_ax_stmt()
+{
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
@@ -433,13 +532,58 @@ tot_ax_stmt::~tot_ax_stmt(){
 	}
 }
 
-ax::~ax(){
-	//basic_ax_stmt* bax_ptr=ax_stmt_start;
-	//basic_count_ax_stmt* count_ptr=count_ax_stmt_start;
-	//basic_print_ax_stmt* print_ptr=ttl_ax_stmt_start;
+// -------------------------------------------
+inc_ax_stmt::inc_ax_stmt(axstmt_type ltype, string txt
+		, Expression::AbstractExpression* p_condition
+		, Expression::AbstractExpression* p_incrementExpression)
+	: AbstractCountableAxisStatement(ltype,txt,p_condition)
+	  , incrementExpression_(p_incrementExpression)
+{}
 
+void inc_ax_stmt::print(fstream& f)
+{
+	f << "INC: " << text ;
+	f << "\n";
+}
 
+string inc_ax_stmt::ax_text()
+{
+	return text;
+}
 
+void inc_ax_stmt::generate_code(FILE * f, unsigned int index)
+{
+	ostringstream code_expr1, code_bef_expr1;
+	condn->PrintExpressionCode(code_bef_expr1, code_expr1);
+	fprintf(f, "%s", code_bef_expr1.str().c_str());
+	fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+	fprintf(f, " ){\n");
+	fprintf(f, "\t\tflag[%d]=true;\n", index);
+	fprintf(f, "\t}\n");
+}
+
+void inc_ax_stmt::print_axis_constructor_text(FILE * f
+		, unsigned int start_index)
+{
+	fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+			, start_index, ax_text().c_str());
+}
+
+inc_ax_stmt::~inc_ax_stmt()
+{
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "inc_ax_stmt::~inc_ax_stmt setting mem_addr: " << this << "=0" << endl;
+			break;
+		}
+	}
+}
+
+// -------------------------------------------
+
+ax::~ax()
+{
 	if(count_ax_stmt_start){
 		delete count_ax_stmt_start; count_ax_stmt_start=0;
 	}
@@ -458,7 +602,9 @@ ax::~ax(){
 		}
 	}
 }
-table::~table(){
+
+table::~table()
+{
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
@@ -478,8 +624,10 @@ stub::stub(string l_text, int l_code):text(l_text), code(l_code), prev_(0), next
 extern vector<Scope*> active_scope_list;
 extern Scope* active_scope;
 //fld_ax_stmt::fld_ax_stmt(string field_name, struct stub * l_stub_list): stub_list(l_stub_list)
-fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_stub_list): basic_count_ax_stmt(ltype,"",0),
-	stub_list(l_stub_list) {
+fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_stub_list)
+	: AbstractCountableAxisStatement(ltype,"",0)
+	  , stub_list(l_stub_list)
+{
 	// NAME Has to be of array type, Int32 
 	map<string,SymbolTableEntry*>::iterator sym_it=find_in_symtab(field_name);
 	if(sym_it==::active_scope->sym_tab.end()){
@@ -500,4 +648,5 @@ fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_s
 	}
 	cout << endl;
 }
+
 } /* close namespace Table */

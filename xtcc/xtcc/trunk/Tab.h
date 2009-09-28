@@ -49,7 +49,7 @@ using std::endl;
 
 int yyparse();
 
-enum axstmt_type { ax_uninit,txt_axstmt, tot_axstmt, cnt_axstmt, fld_axstmt };
+enum axstmt_type { ax_uninit,txt_axstmt, tot_axstmt, cnt_axstmt, fld_axstmt, inc_axstmt };
 
 struct table{
 	string side;
@@ -85,128 +85,84 @@ class basic_ax_stmt	{
 
 #include <cstdio>
 using namespace std;
-class basic_print_ax_stmt {
+class AbstractPrintableAxisStatement {
 	public:
 	axstmt_type axtype;
-	basic_print_ax_stmt * prev_;
-	basic_print_ax_stmt * next_;
+	AbstractPrintableAxisStatement * prev_;
+	AbstractPrintableAxisStatement * next_;
 	string text;
-	basic_print_ax_stmt(axstmt_type ltype ,string s): 
-		axtype(ltype), 
-		prev_(0), next_(0),
-		text(s){}
-	virtual void print(fstream& f){
-		f << text << endl ;
-	}
-	virtual string ax_text(){
-		return text;
-	}
-	virtual ~basic_print_ax_stmt(){
-		if(next_) {
-			delete next_;
-			next_=0;
-		}
-	}
+	AbstractPrintableAxisStatement(axstmt_type ltype ,string s);
+	virtual void print(fstream& f)=0;
+	virtual string ax_text()=0;
+	virtual ~AbstractPrintableAxisStatement();
 };
 
-class ttl_ax_stmt: public basic_print_ax_stmt{
+class TitleStatement: public AbstractPrintableAxisStatement{
 	public:
-	ttl_ax_stmt(axstmt_type ltype,string s): basic_print_ax_stmt(ltype,s) {}
-	void print(fstream& f){
-		basic_print_ax_stmt::print(f);
-	}
-	string ax_text(){
-		return text;
-	}
-	~ttl_ax_stmt();
+	TitleStatement(axstmt_type ltype,string s);
+	void print(fstream& f);
+	string ax_text();
+	~TitleStatement();
 };
 
 
 
-class basic_count_ax_stmt {
+class AbstractCountableAxisStatement {
 	public:
 	axstmt_type axtype;
-	basic_count_ax_stmt * prev_;
-	basic_count_ax_stmt * next_;
+	AbstractCountableAxisStatement * prev_;
+	AbstractCountableAxisStatement * next_;
 	string text;
 	struct Expression::AbstractExpression* condn;
 	int count;
-	basic_count_ax_stmt(axstmt_type ltype,string txt
-			, struct Expression::AbstractExpression* c): 
-		axtype(ltype),
-		prev_(0), next_(0),
-		text(txt), condn(c), count(0){}
-	virtual void print(fstream& f){
-		f << "basic_count_ax_stmt::print(): Should not be called\n";
-	}
-	virtual string ax_text(){
-		return text;
-	}
+	AbstractCountableAxisStatement(axstmt_type ltype,string txt
+			, struct Expression::AbstractExpression* c); 
+	virtual void print(fstream& f)=0;
+	virtual string ax_text()=0;
 	virtual void generate_code(FILE * f, unsigned int index)=0;
 	virtual void print_axis_constructor_text(FILE *  f, unsigned int start_index)=0;
-	virtual ~basic_count_ax_stmt() ;
+	virtual ~AbstractCountableAxisStatement() ;
 };
 
-class count_ax_stmt: public basic_count_ax_stmt{
+class count_ax_stmt: public AbstractCountableAxisStatement{
 	public:
-	count_ax_stmt(axstmt_type ltype,string txt, struct Expression::AbstractExpression* c): basic_count_ax_stmt(ltype,txt,c) {}
-	virtual void print(fstream& f){
-		f << "CNT: " << text ;
-		f << "\n";
-		
-	}
-	virtual void generate_code(FILE * f, unsigned int index)
-	{
-		//fprintf(f, "count_ax_stmt :: generate_code() not yet implemented\n");
-		ostringstream code_expr1, code_bef_expr1;
-		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-		fprintf(f, "%s", code_bef_expr1.str().c_str());
-		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-		//condn->PrintExpressionCode(f);
-		fprintf(f, " ){\n");
-		fprintf(f, "\t\tflag[%d]=true;\n", index);
-		fprintf(f, "\t}\n");
-
-	}
+	count_ax_stmt(axstmt_type ltype,string txt, struct Expression::AbstractExpression* c);
+	virtual void print(fstream& f);
+	virtual void generate_code(FILE * f, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
-			, unsigned int start_index)
-	{
-		fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
-				, start_index, ax_text().c_str());
-	}
+			, unsigned int start_index);
+	virtual string ax_text();
 	~count_ax_stmt();
 };
 
-class tot_ax_stmt: public basic_count_ax_stmt
+class tot_ax_stmt: public AbstractCountableAxisStatement
 {
 	public:
 	tot_ax_stmt(axstmt_type ltype, string txt
-			, struct Expression::AbstractExpression* c)
-		: basic_count_ax_stmt(ltype,txt,c) {}
-	virtual void print(fstream& f)
-	{
-		f << "TOT: " << text;
-		f << "\n";
-	}
-	virtual void generate_code(FILE * f, unsigned int index){
-		//fprintf(f, "tot_ax_stmt :: generate_code() not yet implemented\n");
-		ostringstream code_expr1, code_bef_expr1;
-		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-		fprintf(f, "%s", code_bef_expr1.str().c_str());
-		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-		//fprintf(f, "\tif (");
-		//condn->PrintExpressionCode(f);
-		fprintf(f, " ){\n");
-		fprintf(f, "\t\tflag[%d]=true;\n", index);
-		fprintf(f, "\t}\n");
-	}
+			, struct Expression::AbstractExpression* c);
+	
+	virtual void print(fstream& f);
+	virtual string ax_text();
+	virtual void generate_code(FILE * f, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
-			, unsigned int start_index)
-	{
-		fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
-				, start_index, ax_text().c_str());
-	}
+			, unsigned int start_index);
 	~tot_ax_stmt();
+};
+
+class inc_ax_stmt: public AbstractCountableAxisStatement
+{
+	public:
+	Expression::AbstractExpression * incrementExpression_;
+	inc_ax_stmt(axstmt_type ltype, string txt
+			, Expression::AbstractExpression* p_condition
+			, Expression::AbstractExpression* p_incrementExpression);
+		
+	virtual void print(fstream& f);
+	virtual string ax_text();
+	virtual void generate_code(FILE * f, unsigned int index);
+	virtual void print_axis_constructor_text(FILE * f
+			, unsigned int start_index);
+	~inc_ax_stmt();
 };
 
 struct stub {
@@ -218,7 +174,7 @@ struct stub {
 
 #include <string>
 using std::string;
-class fld_ax_stmt : public basic_count_ax_stmt {
+class fld_ax_stmt : public AbstractCountableAxisStatement {
 	public:
 	struct SymbolTableEntry* symp;
 	//struct stub* stub_list;
@@ -247,21 +203,30 @@ class fld_ax_stmt : public basic_count_ax_stmt {
 		cout << "exited print_axis_constructor_text in fld_ax_stmt" 
 			<< endl;
 	}
+	virtual string ax_text(){
+		return text;
+	}
+	virtual void print(fstream& f){
+		f << "FLD: " << text ;
+		f << "\n";
+		
+	}
 };
 
 
-class ax	{
+class ax
+{
 	public:
 	//basic_ax_stmt * ax_stmt_start;
-	basic_print_ax_stmt * ttl_ax_stmt_start;
-	basic_count_ax_stmt * count_ax_stmt_start;
-	//vector <basic_count_ax_stmt*> bas_cnt_ax_stmt_list;
+	AbstractPrintableAxisStatement * ttl_ax_stmt_start;
+	AbstractCountableAxisStatement * count_ax_stmt_start;
+	//vector <AbstractCountableAxisStatement*> bas_cnt_ax_stmt_list;
 	int no_count_ax_elems;	
 	int no_tot_ax_elems;	
 	vector <bool> condn_flags;
 	Expression::AbstractExpression* filter;
 	//fld_ax_stmt * fld_stmt;
-	ax(basic_print_ax_stmt * ttl_s,	basic_count_ax_stmt* cnt_ax_s
+	ax(AbstractPrintableAxisStatement * ttl_s,	AbstractCountableAxisStatement* cnt_ax_s
 			, int l_no_count_ax_elems, int l_no_tot_ax_elems
 			, Expression::AbstractExpression* f=0)
 		: ttl_ax_stmt_start(ttl_s),  count_ax_stmt_start(cnt_ax_s)
@@ -285,8 +250,8 @@ void construct_internal_table(map<string, ax*>& ax_map
 		, vector<table*>& table_list);
 
 struct internal_table{
-	vector<basic_count_ax_stmt*> side;
-	vector<basic_count_ax_stmt*> banner;
+	vector<AbstractCountableAxisStatement*> side;
+	vector<AbstractCountableAxisStatement*> banner;
 	vector< vector<int> >tbl_counter;
 	vector< vector<float> > tbl_perc;
 	ax* side_ax, *ban_ax;

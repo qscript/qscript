@@ -125,6 +125,10 @@ cnt	{
 	return CNT;
 }
 
+inc	{
+	return INC;
+}
+
 ttl	{
 	return TTL;
 }

@@ -44,45 +44,46 @@
      AX = 260,
      CNT = 261,
      TTL = 262,
-     FOR = 263,
-     FLD = 264,
-     BIT = 265,
-     TEXT = 266,
-     NAME = 267,
-     DEFINELIST = 268,
-     FNUMBER = 269,
-     INUMBER = 270,
-     CODELIST = 271,
-     LISTA = 272,
-     IF = 273,
-     ELSE = 274,
-     IN = 275,
-     VOID_T = 276,
-     INT8_T = 277,
-     INT16_T = 278,
-     INT32_T = 279,
-     FLOAT_T = 280,
-     DOUBLE_T = 281,
-     ATTRIBUTE_LIST = 282,
-     AXSTART = 283,
-     TABSTART = 284,
-     ED_START = 285,
-     DATA_STRUCT = 286,
-     REC_LEN = 287,
-     ED_END = 288,
-     TAB = 289,
-     COND_START = 290,
-     CONTINUE = 291,
-     BREAK = 292,
-     LOGOR = 293,
-     LOGAND = 294,
-     NOEQ = 295,
-     ISEQ = 296,
-     GEQ = 297,
-     LEQ = 298,
-     NOT = 299,
-     UMINUS = 300,
-     FUNC_CALL = 301
+     INC = 263,
+     FOR = 264,
+     FLD = 265,
+     BIT = 266,
+     TEXT = 267,
+     NAME = 268,
+     DEFINELIST = 269,
+     FNUMBER = 270,
+     INUMBER = 271,
+     CODELIST = 272,
+     LISTA = 273,
+     IF = 274,
+     ELSE = 275,
+     IN = 276,
+     VOID_T = 277,
+     INT8_T = 278,
+     INT16_T = 279,
+     INT32_T = 280,
+     FLOAT_T = 281,
+     DOUBLE_T = 282,
+     ATTRIBUTE_LIST = 283,
+     AXSTART = 284,
+     TABSTART = 285,
+     ED_START = 286,
+     DATA_STRUCT = 287,
+     REC_LEN = 288,
+     ED_END = 289,
+     TAB = 290,
+     COND_START = 291,
+     CONTINUE = 292,
+     BREAK = 293,
+     LOGOR = 294,
+     LOGAND = 295,
+     NOEQ = 296,
+     ISEQ = 297,
+     GEQ = 298,
+     LEQ = 299,
+     NOT = 300,
+     UMINUS = 301,
+     FUNC_CALL = 302
    };
 #endif
 /* Tokens.  */
@@ -91,45 +92,46 @@
 #define AX 260
 #define CNT 261
 #define TTL 262
-#define FOR 263
-#define FLD 264
-#define BIT 265
-#define TEXT 266
-#define NAME 267
-#define DEFINELIST 268
-#define FNUMBER 269
-#define INUMBER 270
-#define CODELIST 271
-#define LISTA 272
-#define IF 273
-#define ELSE 274
-#define IN 275
-#define VOID_T 276
-#define INT8_T 277
-#define INT16_T 278
-#define INT32_T 279
-#define FLOAT_T 280
-#define DOUBLE_T 281
-#define ATTRIBUTE_LIST 282
-#define AXSTART 283
-#define TABSTART 284
-#define ED_START 285
-#define DATA_STRUCT 286
-#define REC_LEN 287
-#define ED_END 288
-#define TAB 289
-#define COND_START 290
-#define CONTINUE 291
-#define BREAK 292
-#define LOGOR 293
-#define LOGAND 294
-#define NOEQ 295
-#define ISEQ 296
-#define GEQ 297
-#define LEQ 298
-#define NOT 299
-#define UMINUS 300
-#define FUNC_CALL 301
+#define INC 263
+#define FOR 264
+#define FLD 265
+#define BIT 266
+#define TEXT 267
+#define NAME 268
+#define DEFINELIST 269
+#define FNUMBER 270
+#define INUMBER 271
+#define CODELIST 272
+#define LISTA 273
+#define IF 274
+#define ELSE 275
+#define IN 276
+#define VOID_T 277
+#define INT8_T 278
+#define INT16_T 279
+#define INT32_T 280
+#define FLOAT_T 281
+#define DOUBLE_T 282
+#define ATTRIBUTE_LIST 283
+#define AXSTART 284
+#define TABSTART 285
+#define ED_START 286
+#define DATA_STRUCT 287
+#define REC_LEN 288
+#define ED_END 289
+#define TAB 290
+#define COND_START 291
+#define CONTINUE 292
+#define BREAK 293
+#define LOGOR 294
+#define LOGAND 295
+#define NOEQ 296
+#define ISEQ 297
+#define GEQ 298
+#define LEQ 299
+#define NOT 300
+#define UMINUS 301
+#define FUNC_CALL 302
 
 
 
@@ -153,11 +155,11 @@ typedef union YYSTYPE
 	struct Table::ax * ax;
 	struct Table::stub * stub;
 	struct Table::table * tbl;
-	Table::basic_print_ax_stmt * print_stmt;
-	Table::basic_count_ax_stmt * count_stmt;
+	Table::AbstractPrintableAxisStatement * print_stmt;
+	Table::AbstractCountableAxisStatement * count_stmt;
 }
 /* Line 1489 of yacc.c.  */
-#line 161 "type.h"
+#line 163 "type.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

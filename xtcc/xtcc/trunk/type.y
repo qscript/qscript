@@ -129,12 +129,12 @@
 	struct Table::ax * ax;
 	struct Table::stub * stub;
 	struct Table::table * tbl;
-	Table::basic_print_ax_stmt * print_stmt;
-	Table::basic_count_ax_stmt * count_stmt;
+	Table::AbstractPrintableAxisStatement * print_stmt;
+	Table::AbstractCountableAxisStatement * count_stmt;
 };
 
 %token CONVERT
-%token	TOT AX ';' CNT '{' '}' TTL
+%token	TOT AX ';' CNT '{' '}' TTL INC
 %type <dt> xtcc_type
 %type <tbl> tab_list
 %type <tbl> tab_defn
@@ -828,10 +828,10 @@ ax_list:	ax_defn	{
 	;
 
 ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
-		using Table::basic_print_ax_stmt;
-		using Table::basic_count_ax_stmt;
-		Table::basic_print_ax_stmt  * ttl_stmt_ptr= trav_chain($4);
-		Table::basic_count_ax_stmt * count_stmt_ptr= trav_chain($5);
+		using Table::AbstractPrintableAxisStatement;
+		using Table::AbstractCountableAxisStatement;
+		Table::AbstractPrintableAxisStatement  * ttl_stmt_ptr= trav_chain($4);
+		Table::AbstractCountableAxisStatement * count_stmt_ptr= trav_chain($5);
 
 		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, 0);
 		if(XTCC_DEBUG_MEM_USAGE){
@@ -844,8 +844,8 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 		free($2);
 	}
 	|	AX NAME ';' COND_START expression ';' ttl_ax_stmt_list count_ax_stmt_list {
-		Table::basic_print_ax_stmt * ttl_stmt_ptr= trav_chain($7);
-		Table::basic_count_ax_stmt * count_stmt_ptr= trav_chain($8);
+		Table::AbstractPrintableAxisStatement * ttl_stmt_ptr= trav_chain($7);
+		Table::AbstractCountableAxisStatement * count_stmt_ptr= trav_chain($8);
 		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, $5);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -920,8 +920,7 @@ ttl_ax_stmt_list: ttl_ax_stmt { $$=$1; }
 	;
 
 ttl_ax_stmt: 	TTL ';' TEXT ';'	{
-		using Table::ttl_ax_stmt;
-		$$ = new ttl_ax_stmt (Table::txt_axstmt,$3);
+		$$ = new Table::TitleStatement (Table::txt_axstmt,$3);
 		++no_tot_ax_elems;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -965,6 +964,13 @@ count_ax_stmt: TOT ';' TEXT ';' {
 		}
 	}
 	| bit_list
+	| INC ';' TEXT ';' expression ';'COND_START expression ';' {
+		// Need to generate the correct code for the statment below
+		// hack added so that we can compile
+		++no_count_ax_elems;	
+		++no_tot_ax_elems;
+		$$ = new Table::inc_ax_stmt (Table::inc_axstmt,$3, $8, $5);
+	}
 	;
 
 bit_list: BIT NAME ';' stub_list';' {

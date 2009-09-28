@@ -365,7 +365,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 				) ;
 
 		int my_counter=0;
-		for(basic_print_ax_stmt* ax_stmt_iter=it->second->ttl_ax_stmt_start; 
+		for(AbstractPrintableAxisStatement* ax_stmt_iter=it->second->ttl_ax_stmt_start; 
 				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next_,
 				++my_counter){
 			fprintf(op, "\t\tttl_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
@@ -379,7 +379,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 			*/
 		}
 		my_counter=0;
-		for( basic_count_ax_stmt* ax_stmt_iter=it->second->count_ax_stmt_start; 
+		for( AbstractCountableAxisStatement* ax_stmt_iter=it->second->count_ax_stmt_start; 
 				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next_,
 				++my_counter){
 			//fprintf(op, "\tcount_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
@@ -404,7 +404,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 		*/
 		fprintf(op, "\t}\n");
 		fprintf(op, "\tvoid compute(){\n\t\tflag.reset();\n");
-		basic_count_ax_stmt* iter=it->second->count_ax_stmt_start;
+		AbstractCountableAxisStatement* iter=it->second->count_ax_stmt_start;
 		int counter=0;
 		while(iter){
 			iter->generate_code(op, counter);
@@ -414,7 +414,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 		/*
 		while(iter){
 			if(iter->axtype>=tot_axstmt){
-				basic_count_ax_stmt * bc=dynamic_cast<basic_count_ax_stmt *> (iter);
+				AbstractCountableAxisStatement * bc=dynamic_cast<AbstractCountableAxisStatement *> (iter);
 					
 				if(bc->condn){
 					fprintf(op, "\tif (");
