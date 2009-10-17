@@ -178,6 +178,12 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		cerr << "parsing tables section failed:" << endl;
 		exit(rval);
 	}
+	if(no_errors >0 ){
+		cerr << "Error(s) in the tabulation section: " << no_errors << endl;
+		exit(1);
+	} else {
+		cout << "Successfully parsed tabulation section" << endl;
+	}
 
 	fname = string(work_dir)+ ("/my_axes.C");
 	FILE * axes_op=fopen(fname.c_str(), "w");	
@@ -187,12 +193,18 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		cerr << "Unable to open file for output of axes classes" << endl;
 		exit(1);
 	}
-	if(yyparse()){
+	if(int rval=yyparse()){
 		cerr << "parsing axes section failed:" << endl;
+		exit(rval);
+	} 
+
+	if(no_errors >0 ){
+		cerr << "Errors in axes section: " << no_errors << endl;
 		exit(1);
 	} else {
-		cout <<  "successfully parsed axes section: " << endl;
+		cout << "Successfully parsed axes section" << endl;
 	}
+	
 	flex_finish();
 	print_table_code(table_op, tab_drv_func, tab_summ_func);
 	print_axis_code(axes_op, axes_drv_func);

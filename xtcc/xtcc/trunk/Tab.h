@@ -121,6 +121,7 @@ class AbstractCountableAxisStatement {
 	virtual string ax_text()=0;
 	virtual void generate_code(FILE * f, unsigned int index)=0;
 	virtual void print_axis_constructor_text(FILE *  f, unsigned int start_index)=0;
+	virtual bool CustomCountExpression();
 	virtual ~AbstractCountableAxisStatement() ;
 };
 
@@ -162,6 +163,8 @@ class inc_ax_stmt: public AbstractCountableAxisStatement
 	virtual void generate_code(FILE * f, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
 			, unsigned int start_index);
+	virtual bool CustomCountExpression();
+	void PrintIncrExpression(FILE* op);
 	~inc_ax_stmt();
 };
 

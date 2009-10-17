@@ -22,7 +22,8 @@ int32_t edit_data()
 	int8_t mychar;
 	mychar=c[4];
 	a=c[4]; // this data will automatically converted to type int8_t
-	global_val=c[4];
+	//global_val=c[4];
+	global_val = 5;
 	printf("mychar: %c", mychar);
 	mychar=c[5];
 	b=c[5];
@@ -150,6 +151,8 @@ cnt; " from 221 to 249"; c= first_4byte_int>=220 && first_4byte_int < 250;
 cnt; " from 250 to 289"; c= first_4byte_int>=250 && first_4byte_int < 290;
 cnt; " from 290 to 369"; c= first_4byte_int>=290 && first_4byte_int < 370;
 cnt; " from 370 to 500"; c= first_4byte_int>=370 && first_4byte_int < 501;
+inc; "inc test"; global_val; c= first_4byte_int >= 201 && first_4byte_int <220;
+//inc; "inc test"; ser_no; c= first_4byte_int >= 201 && first_4byte_int <220;
 
 
 ax q5; 

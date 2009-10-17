@@ -777,10 +777,8 @@ string get_temp_name();
 void Binary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
 		, ostringstream & code_expr)
 {
-	fprintf(stderr, "Binary2Expression::PrintExpressionCode()\n");
 	//fflush(fptr);
 	string struct_name = get_temp_name();
-	fprintf(stderr, "Binary2Expression::PrintExpressionCode(): after get_temp_name()\n");
 	code_bef_expr << "\tstruct " <<  struct_name.c_str() << "{\n" ;
 	code_bef_expr << "\t\tconst int size_ran_indiv;\n";
 	code_bef_expr << "\t\tconst int size_start_end;\n";
@@ -791,7 +789,6 @@ void Binary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
 		<< "), size_start_end(" <<  xs->range.size()
 		<< "),\n";								       
 	code_bef_expr << "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n";
-	fprintf(stderr, "Binary2Expression::PrintExpressionCode(): printed constructor");
 	for(int i=0; i< xs->range.size() ; ++i){
 		code_bef_expr << "\t\t\tran_start_end[" << i 
 			<< "]=pair<int,int>(" 

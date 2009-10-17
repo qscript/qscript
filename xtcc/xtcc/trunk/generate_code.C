@@ -83,17 +83,60 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 
 			int rows=map_iter_s->second->no_count_ax_elems;
 			int cols=map_iter_b->second->no_count_ax_elems;
+			AbstractCountableAxisStatement* side_stmt=map_iter_s->second->count_ax_stmt_start;
 			for(int i=0; i<rows; ++i){
+				cout << "generate_code: i: " << i << endl;
+				AbstractCountableAxisStatement* banner_stmt=map_iter_b->second->count_ax_stmt_start;
 				for(int j=0; j<cols; ++j){
+					cout << "generate_code: j: " << j << endl;
 					fprintf(op, "\t\tif(");
 					fprintf(op, "ax_%s.flag[%d]", map_iter_s->first.c_str(), i);
 					fprintf(op, " && " );
 					fprintf(op, "ax_%s.flag[%d]){\n", map_iter_b->first.c_str(), j);
-					//fprintf(op, "\t\t\t++counter[i*cols+j];\n",
-					fprintf(op, "\t\t\t++counter[%d*cols+%d];\n",
-							i, j);
+					if(!banner_stmt || ! side_stmt){
+						// handles the case of fld_stmt
+						fprintf(op, "\t\t\t++counter[%d*cols+%d];\n",
+								i, j);
+					} else if(side_stmt->CustomCountExpression()==false
+						&& banner_stmt->CustomCountExpression()==false){
+						fprintf(op, "\t\t\t++counter[%d*cols+%d];\n",
+								i, j);
+					} else if(side_stmt->CustomCountExpression()==true
+						&& banner_stmt->CustomCountExpression()==false){
+						cout << "side is inc_axstmt" << endl;
+						fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
+								i, j);
+						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
+						inc_st_ptr->PrintIncrExpression(op);
+						fprintf(op, ";\n");
+					} else if ( side_stmt->CustomCountExpression()==false
+						&& banner_stmt->CustomCountExpression()==true){
+						cout << "banner is inc_axstmt" << endl;
+						fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
+								i, j);
+						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(banner_stmt);
+						inc_st_ptr->PrintIncrExpression(op);
+						fprintf(op, ";\n");
+					} else if(side_stmt==banner_stmt && side_stmt->CustomCountExpression()==true){
+						cout << "  axis by axis -> diagonal table" << endl;
+						// axis by axis -> diagonal table
+						fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
+								i, j);
+						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
+						inc_st_ptr->PrintIncrExpression(op);
+						fprintf(op, ";\n");
+					} else {
+						print_err(Util::compiler_sem_err, "Error: trying to tabulate inc axis statement with inc axis statement"
+							, line_no, __LINE__, __FILE__);
+					}
+					// handles the case of fld_stmt
+					if(banner_stmt)
+						banner_stmt=banner_stmt->next_;
 					fprintf(op, "\t\t}\n");
 				}
+				// handles the case of fld_stmt
+				if(side_stmt)
+					side_stmt=side_stmt->next_;
 			}
 			fprintf(op, "\t} \n");
 
