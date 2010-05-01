@@ -192,9 +192,7 @@ int32_t my_32int=600*700;
 					return false;
 				}
 			}
-			if(!val_exists){
-				return false;
-			}
+			return true;
 		}
 	} temp_1;
 bool temp_2 = temp_1.contains_subset(q1->input_data);

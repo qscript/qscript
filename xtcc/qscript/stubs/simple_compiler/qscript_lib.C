@@ -1,5 +1,6 @@
 #include "qscript_lib.h"
 #include <sstream>
+#include <cstdio>
 
 // check_if_reg_file_exists: concats jno and ser_no separated by _
 // and checks if this exists as a regular file 
