@@ -1,5 +1,5 @@
 /*
- *  xtcc/xtcc/qscript/stubs/simple_compiler/AbstractStatement.C
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/stmt.C
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
@@ -21,6 +21,21 @@
 
 extern vector<mem_addr_tab> mem_addr;
 extern int if_line_no;
+
+AbstractQuestion* AbstractStatement::IsAQuestionStatement()
+{
+	return 0;
+}
+
+void AbstractStatement::GetQuestionNames(vector<string> &question_list,
+		AbstractStatement * endStatement)
+{
+	if(this==endStatement)
+		return;
+	if(next_){
+		next_->GetQuestionNames(question_list, endStatement);
+	}
+}
 
 //extern ofstream debug_log_file;
 using qscript_parser::debug_log_file;
@@ -124,24 +139,155 @@ IfStatement::IfStatement( DataType dtype, int lline_number
 	}
 }
 
+	struct IfStatementStackElement 
+	{
+		int nestLevel_;
+		IfStatement * ifStatementPtr_;
+		IfStatementStackElement(int nest_level, IfStatement
+				* if_stmt_ptr):
+			nestLevel_(nest_level), ifStatementPtr_(if_stmt_ptr)
+		{}
+	};
 
 void IfStatement::GenerateCode(ostringstream & quest_defns
 		, ostringstream& program_code)
 {
+	cerr << "ENTER: IfStatement::GenerateCode()" << endl;
+	static vector<IfStatementStackElement*> ifStatementStack;
+	static int if_nest_level =0;
+	bool if_nest_level_was_increased=false;
+	//++if_nest_level;
+	if( ifStatementStack.size()>0){
+		if(this==ifStatementStack[ifStatementStack.size()-1]
+				->ifStatementPtr_->elseBody_){
+			program_code <<
+				"// if statement at same level of nesting"
+				" as previous if i.e. part of the else if"
+				" clause: if_nest_level: " 
+				<< if_nest_level
+				<< endl;
+		} else {
+			++if_nest_level;
+			if_nest_level_was_increased=true;
+			cout << "if at a deeper if_nest_level: " 
+				<< if_nest_level << endl;
+		}
+	} else {
+		++if_nest_level;
+		if_nest_level_was_increased=true;
+	}
 	ostringstream code_bef_expr, code_expr;
 	code_expr << "if (";
 	ifCondition_->PrintExpressionCode(code_bef_expr, code_expr);
-	code_expr << ")";
+	code_expr << ") {";
+	//code_expr << ") ";
+	//CompoundStatement * if_body_is_a_cmpd_stmt = dynamic_cast<CompoundStatement*> (ifBody_);
+	//if( if_body_is_a_cmpd_stmt  ){
+	//} else {
+	//	code_expr << " { " << endl;
+	//}
 	program_code << code_bef_expr.str();
 	program_code << code_expr.str();
 	ifBody_->GenerateCode(quest_defns, program_code);
-	if(elseBody_){
-		program_code << " else " << endl;
-		elseBody_->GenerateCode(quest_defns, program_code);
+	vector<string> question_list_else_body;
+	program_code << "// ifStatementStack.size(): "
+		<< ifStatementStack.size() << endl;
+	if(ifStatementStack.size() > 0 ){
+		// one change to be done here
+		/*
+		ifStatementStack[ifStatementStack.size()-1]->ifStatementPtr_
+			->GetQuestionNames
+			(question_list_else_body, this);
+		*/
+		cerr << "IfStatement::GenerateCode(): ifStatementStack.size>0 :Before LOOP" << endl;
+		for(int i=0; i<ifStatementStack.size(); ++i){
+			if(ifStatementStack[i]->nestLevel_==if_nest_level){
+				ifStatementStack[i]->ifStatementPtr_
+					->GetQuestionNames
+					(question_list_else_body, this);
+				break;
+			}
+		}
+		cerr << "IfStatement::GenerateCode(): ifStatementStack.size>0 " << endl;
 	}
+	if(elseBody_)
+		elseBody_->GetQuestionNames(question_list_else_body, 0);
+	for(int i=0; i<question_list_else_body.size(); ++i){
+		program_code << "// " << question_list_else_body[i] << endl;
+	}
+	program_code << " }" << endl;
+	//if( if_body_is_a_cmpd_stmt  ){
+	//} else {
+	//	program_code << " } " << endl;
+	//}
+
+	if(elseBody_){
+		program_code << " else {" << endl;
+
+		IfStatement * elseIfStatement = dynamic_cast<IfStatement*>
+						(elseBody_);
+		if(elseIfStatement){
+			IfStatementStackElement *  stk_el=
+				new IfStatementStackElement (if_nest_level,
+					this);
+
+			program_code << 
+				"// pushing onto ifStatementStack \n";
+
+			ifStatementStack.push_back(stk_el);
+		}
+		elseBody_->GenerateCode(quest_defns, program_code);
+		vector<string> question_list_if_body;
+
+		for(int i=0; i<ifStatementStack.size(); ++i){
+			if(ifStatementStack[i]->nestLevel_==if_nest_level){
+				ifStatementStack[i]->ifStatementPtr_
+					->GetQuestionNames
+					(question_list_if_body, this);
+				break;
+			}
+		}
+		ifBody_->GetQuestionNames(question_list_if_body, 0);
+		program_code << "// end of ifBody_->GetQuestionNames \n";
+		if(elseIfStatement){
+			//elseIfStatement->elseBody_->GetQuestionNames
+			//	(question_list_if_body, 0);
+			program_code << " // elseIfStatement exists \n";
+		} else {
+			program_code << " // elseIfStatement DOES NOT exists \n";
+			program_code << "/* question_list_if_body.size(): " 
+				<< question_list_if_body.size() << " */ \n";
+			for(int i=0; i<question_list_if_body.size(); ++i){
+				program_code << "// " 
+					<< question_list_if_body[i] << endl;
+			}
+			program_code << "// **************** \n";
+		}
+			
+		if(elseIfStatement){
+			IfStatementStackElement * stk_el = 
+				ifStatementStack.back();
+			delete stk_el;
+			ifStatementStack.pop_back();
+		}
+		program_code << "}" << endl;
+		//if( else_body_is_a_cmpd_stmt  ){
+		//} else {
+		//	program_code << " } " << endl;
+		//}
+	} 
+
+	if(if_nest_level_was_increased){
+		--if_nest_level;
+		if_nest_level_was_increased=false;
+	}
+
+	program_code << " /* finished generating code IfStatement */ " << endl;
 	if(next_) 
 		next_->GenerateCode(quest_defns, program_code);
+	cerr << "EXIT: IfStatement::GenerateCode()" << endl;
 }
+
 
 
 IfStatement:: ~IfStatement()

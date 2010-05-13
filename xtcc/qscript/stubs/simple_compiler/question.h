@@ -14,6 +14,7 @@
 #define qscript_question_h
 #include <iosfwd>
 //#include <fstream>
+#include <iostream>
 #include "stmt.h"
 
 using std::ostringstream;
@@ -58,6 +59,9 @@ struct AbstractQuestion: public AbstractStatement
 			, ostringstream& program_code);
 	void PrintEvalArrayQuestion(ostringstream & quest_defns
 			, ostringstream& program_code);
+	virtual AbstractQuestion * IsAQuestionStatement()=0;
+	virtual void GetQuestionNames(vector<string> & question_list,
+			AbstractStatement * endStatement)=0;
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
@@ -99,6 +103,20 @@ struct RangeQuestion: public AbstractQuestion
 	virtual bool IsValid(int value);
 	void eval();
 	void WriteDataToDisk(ofstream& data_file);
+	AbstractQuestion*  IsAQuestionStatement(){
+		return this;
+	}
+	void  GetQuestionNames(vector<string> & question_list,
+			AbstractStatement* endStatement)
+	{
+		std::cout << "RangeQuestion::GetQuestionNames" << std::endl;
+		if(this==endStatement)
+			return;
+		question_list.push_back(questionName_);
+		if(next_){
+			next_->GetQuestionNames(question_list,endStatement);
+		}
+	}
 	~RangeQuestion();
 	private:
 		RangeQuestion& operator=(const RangeQuestion&);
@@ -156,6 +174,20 @@ class NamedStubQuestion: public AbstractQuestion
 	virtual bool IsValid(int value);
 	void eval();
 	void WriteDataToDisk(ofstream& data_file);
+	AbstractQuestion* IsAQuestionStatement(){
+		return this;
+	}
+	void  GetQuestionNames(vector<string> & question_list,
+			AbstractStatement* endStatement)
+	{
+		std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
+		if(this==endStatement)
+			return;
+		question_list.push_back(questionName_);
+		if(next_){
+			next_->GetQuestionNames(question_list, endStatement);
+		}
+	}
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
 		NamedStubQuestion (const NamedStubQuestion&);

@@ -965,7 +965,10 @@ void Binary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
 	code_bef_expr << "\t\t\t\t\treturn false;\n";
 	code_bef_expr << "\t\t\t\t}\n";
 	code_bef_expr << "\t\t\t}\n";
-	code_bef_expr << "\t\t\treturn true;\n";
+	code_bef_expr << "\t\t\t/*if(!val_exists){\n";
+	code_bef_expr << "\t\t\t\treturn false;\n";
+	code_bef_expr << "\t\t\t}*/\n";
+	code_bef_expr << "\t\treturn true;\n";
 	code_bef_expr << "\t\t}\n";
 	string struct_name1 = get_temp_name();
 	code_bef_expr << "\t} " <<  struct_name1.c_str() <<";\n";

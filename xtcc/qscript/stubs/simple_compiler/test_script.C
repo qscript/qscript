@@ -46,88 +46,85 @@ public:
 };
 
 int main(){
-vector <stub_pair> age;
-
-age.push_back( stub_pair("15 to 21", 1));
-age.push_back( stub_pair("22 to 30", 2));
-age.push_back( stub_pair("31 to 40", 3));
-age.push_back( stub_pair("41 to 59", 4));
-vector <stub_pair> csd_brand_list;
-
-csd_brand_list.push_back( stub_pair("Goqe", 1));
-csd_brand_list.push_back( stub_pair("Bebzi", 2));
-csd_brand_list.push_back( stub_pair("Oogla", 3));
-csd_brand_list.push_back( stub_pair("Zingmoo", 4));
-csd_brand_list.push_back( stub_pair("Thunder", 5));
-csd_brand_list.push_back( stub_pair("Zoinks", 6));
 XtccSet xs_0;
 xs_0.indiv.insert(1);
 xs_0.indiv.insert(2);
 xs_0.indiv.insert(3);
 xs_0.indiv.insert(4);
-RangeQuestion * q1 = new RangeQuestion(QUESTION_TYPE, 16,string( "q1"),string(" Q1. This is question 1"),spn,0,INT32_TYPE,xs_0/* 0*/);
+RangeQuestion * q1 = new RangeQuestion(QUESTION_TYPE, 4,string( "q1"),string(" Q1. "),spn,0,INT32_TYPE,xs_0/* 0*/);
 question_list.push_back(q1);
 XtccSet xs_1;
-xs_1.indiv.insert(1);
-xs_1.indiv.insert(2);
-xs_1.range.push_back(pair<int,int>(5,8));
-RangeQuestion * q2 = new RangeQuestion(QUESTION_TYPE, 23,string( "q2"),string(" Q2. This is question 2"),mpn,5,INT32_TYPE,xs_1/* 0*/);
+xs_1.indiv.insert(5);
+xs_1.indiv.insert(6);
+RangeQuestion * q2 = new RangeQuestion(QUESTION_TYPE, 7,string( "q2"),string(" Q2. "),spn,0,INT32_TYPE,xs_1/* 0*/);
 question_list.push_back(q2);
-// NamedStubQuestion::GenerateCode() : to be implemented
-NamedStubQuestion * q3 = new NamedStubQuestion(QUESTION_TYPE, 24,string( "q3"),string(" Q3. Respondents age"),spn,5,INT32_TYPE,&age/* 0*/);
-question_list.push_back(q3);
-// NamedStubQuestion::GenerateCode() : to be implemented
-NamedStubQuestion * q4 = new NamedStubQuestion(QUESTION_TYPE, 29,string( "q4"),string(" Q4. When you think of Soft Drinks and CSDs in particular, which CSD's come to mind first?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
-question_list.push_back(q4);
-// NamedStubQuestion::GenerateCode() : to be implemented
-NamedStubQuestion * q4_2 = new NamedStubQuestion(QUESTION_TYPE, 33,string( "q4_2"),string(" Q4.2 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
-question_list.push_back(q4_2);
-// NamedStubQuestion::GenerateCode() : to be implemented
-NamedStubQuestion * q4_3 = new NamedStubQuestion(QUESTION_TYPE, 36,string( "q4_3"),string(" Q4.3 Which other brands come to mind ?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
-question_list.push_back(q4_3);
-// NamedStubQuestion::GenerateCode() : to be implemented
-NamedStubQuestion * q4_5 = new NamedStubQuestion(QUESTION_TYPE, 44,string( "q4_5"),string(" Q4.5 Which brand do you consume most often?"),spn,5,INT32_TYPE,&csd_brand_list/* 0*/);
-question_list.push_back(q4_5);
-vector<int> list_q17_array_bounds(3);
-list_q17_array_bounds[0]=2;
-list_q17_array_bounds[1]=3;
-list_q17_array_bounds[2]=4;
-ArrayQuestion q17_list(list_q17_array_bounds);
-DummyArrayQuestion* dum_q17= new DummyArrayQuestion("q17",list_q17_array_bounds);
-question_list.push_back( dum_q17);
-for(int i=0;i<2; ++i){
-vector<int> stack_of_loop_indices; 
-stack_of_loop_indices.push_back(i);
-for(int j=0;j<3; ++j){
-stack_of_loop_indices.push_back(j);
-for(int k=0;k<4; ++k){
-stack_of_loop_indices.push_back(k);
-// NamedStubQuestion::GenerateCode() : to be implemented
-NamedStubQuestion * q17 = new NamedStubQuestion(QUESTION_TYPE, 56,string( "q17"),string(" Q17. Respondents age"),spn,5,INT32_TYPE,&age, stack_of_loop_indices /* 3*/);
-question_list.push_back(q17);
-q17_list.questionList.push_back(q17);
-stack_of_loop_indices.pop_back();
-}
-stack_of_loop_indices.pop_back();
-}
-stack_of_loop_indices.pop_back();
-}
-vector<int> list_q15_array_bounds(1);
-list_q15_array_bounds[0]=5;
-ArrayQuestion q15_list(list_q15_array_bounds);
-DummyArrayQuestion* dum_q15= new DummyArrayQuestion("q15",list_q15_array_bounds);
-question_list.push_back( dum_q15);
-for(int i=0;i<5; ++i){
-vector<int> stack_of_loop_indices;
-stack_of_loop_indices.push_back(i);
 XtccSet xs_2;
-xs_2.indiv.insert(99);
-xs_2.range.push_back(pair<int,int>(1,15));
-RangeQuestion * q15 = new RangeQuestion(QUESTION_TYPE, 62,string( "q15"),string(" q15"),mpn,5,INT32_TYPE,xs_2, stack_of_loop_indices /* 1*/);
-question_list.push_back(q15);
-q15_list.questionList.push_back(q15);
-stack_of_loop_indices.pop_back();
-}
+xs_2.indiv.insert(5);
+xs_2.indiv.insert(6);
+RangeQuestion * q3 = new RangeQuestion(QUESTION_TYPE, 9,string( "q3"),string(" Q3. "),spn,0,INT32_TYPE,xs_2/* 0*/);
+question_list.push_back(q3);
+XtccSet xs_3;
+xs_3.indiv.insert(1);
+xs_3.indiv.insert(2);
+xs_3.indiv.insert(3);
+xs_3.indiv.insert(4);
+RangeQuestion * q4 = new RangeQuestion(QUESTION_TYPE, 11,string( "q4"),string(" Q4. "),spn,0,INT32_TYPE,xs_3/* 0*/);
+question_list.push_back(q4);
+XtccSet xs_4;
+xs_4.indiv.insert(7);
+xs_4.indiv.insert(8);
+RangeQuestion * q5 = new RangeQuestion(QUESTION_TYPE, 13,string( "q5"),string(" Q5. "),spn,0,INT32_TYPE,xs_4/* 0*/);
+question_list.push_back(q5);
+XtccSet xs_5;
+xs_5.indiv.insert(7);
+xs_5.indiv.insert(8);
+RangeQuestion * q6 = new RangeQuestion(QUESTION_TYPE, 14,string( "q6"),string(" Q6. "),spn,0,INT32_TYPE,xs_5/* 0*/);
+question_list.push_back(q6);
+XtccSet xs_6;
+xs_6.indiv.insert(9);
+xs_6.indiv.insert(10);
+RangeQuestion * q5_1 = new RangeQuestion(QUESTION_TYPE, 16,string( "q5_1"),string(" Q5_1 "),spn,0,INT32_TYPE,xs_6/* 0*/);
+question_list.push_back(q5_1);
+XtccSet xs_7;
+xs_7.indiv.insert(11);
+xs_7.indiv.insert(12);
+RangeQuestion * q5_2 = new RangeQuestion(QUESTION_TYPE, 17,string( "q5_2"),string(" Q5_2 "),spn,0,INT32_TYPE,xs_7/* 0*/);
+question_list.push_back(q5_2);
+XtccSet xs_8;
+xs_8.indiv.insert(13);
+xs_8.indiv.insert(14);
+RangeQuestion * q5_3 = new RangeQuestion(QUESTION_TYPE, 19,string( "q5_3"),string(" Q5_3 "),spn,0,INT32_TYPE,xs_8/* 0*/);
+question_list.push_back(q5_3);
+XtccSet xs_9;
+xs_9.indiv.insert(15);
+xs_9.indiv.insert(16);
+RangeQuestion * q5_4 = new RangeQuestion(QUESTION_TYPE, 20,string( "q5_4"),string(" Q5_4 "),spn,0,INT32_TYPE,xs_9/* 0*/);
+question_list.push_back(q5_4);
+XtccSet xs_10;
+xs_10.indiv.insert(7);
+xs_10.indiv.insert(8);
+RangeQuestion * q7 = new RangeQuestion(QUESTION_TYPE, 23,string( "q7"),string(" Q7. "),spn,0,INT32_TYPE,xs_10/* 0*/);
+question_list.push_back(q7);
+XtccSet xs_11;
+xs_11.indiv.insert(7);
+xs_11.indiv.insert(8);
+RangeQuestion * q8 = new RangeQuestion(QUESTION_TYPE, 24,string( "q8"),string(" Q8. "),spn,0,INT32_TYPE,xs_11/* 0*/);
+question_list.push_back(q8);
+XtccSet xs_12;
+xs_12.indiv.insert(7);
+xs_12.indiv.insert(8);
+RangeQuestion * q9 = new RangeQuestion(QUESTION_TYPE, 26,string( "q9"),string(" Q9. "),spn,0,INT32_TYPE,xs_12/* 0*/);
+question_list.push_back(q9);
+XtccSet xs_13;
+xs_13.indiv.insert(7);
+xs_13.indiv.insert(8);
+RangeQuestion * q10 = new RangeQuestion(QUESTION_TYPE, 27,string( "q10"),string(" Q10. "),spn,0,INT32_TYPE,xs_13/* 0*/);
+question_list.push_back(q10);
+XtccSet xs_14;
+xs_14.indiv.insert(1);
+xs_14.indiv.insert(3);
+RangeQuestion * q11 = new RangeQuestion(QUESTION_TYPE, 29,string( "q11"),string(" Q11 "),spn,0,INT32_TYPE,xs_14/* 0*/);
+question_list.push_back(q11);
 
 	int ser_no;
 	cout << "Enter Serial No (0) to exit: " << flush;
@@ -153,13 +150,6 @@ lab_q1:
 if ( back_jump==true ) {
 }
 		q1->eval();
- // DeclarationStatement::GenerateCode 
-int8_t var1=5*12;
- // DeclarationStatement::GenerateCode 
-int8_t var2=7*var1;
- // DeclarationStatement::GenerateCode 
-int32_t my_32int=600*700;
-(12.5*13.3)-8+7*(12%7);
 	struct temp_0{
 		const int size_ran_indiv;
 		const int size_start_end;
@@ -192,69 +182,48 @@ int32_t my_32int=600*700;
 					return false;
 				}
 			}
+<<<<<<< .mine
+			/*if(!val_exists){
+				return false;
+			}*/
+		return true;
+=======
 			return true;
+>>>>>>> .r197
 		}
 	} temp_1;
 bool temp_2 = temp_1.contains_subset(q1->input_data);
-if (temp_2 ){
-int32_t temp_3=5;
-if ( q1->IsValid(temp_3)) {
-q1->input_data.clear();
-q1->input_data.insert(temp_3) ; 
-} else {cerr << "runtime error - value assigned to AbstractQuestion: " << "q1" << " is not in allowed range: " <<temp_3 << endl; 
-}
-;
-lab_q2:
+if (temp_2 ) {lab_q2:
 // QUESTION_TYPE - will think of this later 
 
-vector_int32_t.push_back(my_32int);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
-
 if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
 // QUESTION_TYPE - will think of this later 
 
 }
 		q2->eval();
+// ifStatementStack.size(): 0
+// q3
+ }
+ else {
 lab_q3:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
 
-vector_int32_t.push_back(my_32int);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
-
 if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
 
 }
 		q3->eval();
+// end of ifBody_->GetQuestionNames 
+ // elseIfStatement DOES NOT exists 
+/* question_list_if_body.size(): 1 */ 
+// q2
+// **************** 
 }
+ /* finished generating code IfStatement */ 
 lab_q4:
 // QUESTION_TYPE - will think of this later 
 
@@ -262,22 +231,7 @@ lab_q4:
 
 // QUESTION_TYPE - will think of this later 
 
-vector_int32_t.push_back(my_32int);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
-
 if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -286,19 +240,47 @@ vector_int32_t.pop_back();
 
 }
 		q4->eval();
-/*StubManipStatement::GenerateCode()q4:csd_brand_list*/
-{
-set<int>::iterator set_iter = q4->input_data.begin();
-for( ; set_iter!= q4->input_data.end(); ++set_iter){
-	for(int i=0; i< csd_brand_list.size(); ++i){
-		if(csd_brand_list[i].code==*set_iter ) {
-			csd_brand_list[i].mask=false; 
+	struct temp_3{
+		const int size_ran_indiv;
+		const int size_start_end;
+		vector<int> ran_indiv;
+		vector< pair<int,int> > ran_start_end;
+		temp_3(): size_ran_indiv(2), size_start_end(0),
+			ran_indiv(size_ran_indiv), ran_start_end(size_start_end){
+			ran_indiv[0]=1;
+			ran_indiv[1]=2;
 		}
-	}
-}
-
-}
-lab_q4_2:
+		bool exists(int key){
+			for(int i=0; i<size_start_end; ++i){
+				if(key >=ran_start_end[i].first && key <=ran_start_end[i].second){
+					return true;
+				}
+			}
+			for(int i=0; i< size_ran_indiv; ++i){
+				if(key==ran_indiv[i]){
+					return true;
+				}
+			}
+			return false;
+		}
+		bool contains_subset(set<int> & set_data){
+			bool val_exists = false;
+			for(	set<int>::iterator it=set_data.begin();
+				it!=set_data.end(); ++it){
+					val_exists=exists(*it);
+				if(!val_exists){
+					return false;
+				}
+			}
+			/*if(!val_exists){
+				return false;
+			}*/
+		return true;
+		}
+	} temp_4;
+bool temp_5 = temp_4.contains_subset(q4->input_data);
+if (temp_5 ) {{
+lab_q5:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -306,23 +288,8 @@ lab_q4_2:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
-
-vector_int32_t.push_back(my_32int);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
 
 if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -332,20 +299,8 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q4_2->eval();
-/*StubManipStatement::GenerateCode()q4_2:csd_brand_list*/
-{
-set<int>::iterator set_iter = q4_2->input_data.begin();
-for( ; set_iter!= q4_2->input_data.end(); ++set_iter){
-	for(int i=0; i< csd_brand_list.size(); ++i){
-		if(csd_brand_list[i].code==*set_iter ) {
-			csd_brand_list[i].mask=false; 
-		}
-	}
-}
-
-}
-lab_q4_3:
+		q5->eval();
+lab_q6:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -355,23 +310,8 @@ lab_q4_3:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
-
-vector_int32_t.push_back(my_32int);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
 
 if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -383,51 +323,47 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q4_3->eval();
-/*StubManipStatement::GenerateCode():csd_brand_list*/
-{
-for(int i=0; i< csd_brand_list.size(); ++i){
-csd_brand_list[i].mask=false; 
-}
-
-}
-/*StubManipStatement::GenerateCode()q4:csd_brand_list*/
-{
-set<int>::iterator set_iter = q4->input_data.begin();
-for( ; set_iter!= q4->input_data.end(); ++set_iter){
-	for(int i=0; i< csd_brand_list.size(); ++i){
-		if(csd_brand_list[i].code==*set_iter ) {
-			csd_brand_list[i].mask=true; 
+		q6->eval();
+	struct temp_6{
+		const int size_ran_indiv;
+		const int size_start_end;
+		vector<int> ran_indiv;
+		vector< pair<int,int> > ran_start_end;
+		temp_6(): size_ran_indiv(1), size_start_end(0),
+			ran_indiv(size_ran_indiv), ran_start_end(size_start_end){
+			ran_indiv[0]=7;
 		}
-	}
-}
-
-}
-/*StubManipStatement::GenerateCode()q4_2:csd_brand_list*/
-{
-set<int>::iterator set_iter = q4_2->input_data.begin();
-for( ; set_iter!= q4_2->input_data.end(); ++set_iter){
-	for(int i=0; i< csd_brand_list.size(); ++i){
-		if(csd_brand_list[i].code==*set_iter ) {
-			csd_brand_list[i].mask=true; 
+		bool exists(int key){
+			for(int i=0; i<size_start_end; ++i){
+				if(key >=ran_start_end[i].first && key <=ran_start_end[i].second){
+					return true;
+				}
+			}
+			for(int i=0; i< size_ran_indiv; ++i){
+				if(key==ran_indiv[i]){
+					return true;
+				}
+			}
+			return false;
 		}
-	}
-}
-
-}
-/*StubManipStatement::GenerateCode()q4_3:csd_brand_list*/
-{
-set<int>::iterator set_iter = q4_3->input_data.begin();
-for( ; set_iter!= q4_3->input_data.end(); ++set_iter){
-	for(int i=0; i< csd_brand_list.size(); ++i){
-		if(csd_brand_list[i].code==*set_iter ) {
-			csd_brand_list[i].mask=true; 
+		bool contains_subset(set<int> & set_data){
+			bool val_exists = false;
+			for(	set<int>::iterator it=set_data.begin();
+				it!=set_data.end(); ++it){
+					val_exists=exists(*it);
+				if(!val_exists){
+					return false;
+				}
+			}
+			/*if(!val_exists){
+				return false;
+			}*/
+		return true;
 		}
-	}
-}
-
-}
-lab_q4_5:
+	} temp_7;
+bool temp_8 = temp_7.contains_subset(q5->input_data);
+if (temp_8 ) {{
+lab_q5_1:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -439,23 +375,8 @@ lab_q4_5:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
-
-vector_int32_t.push_back(my_32int);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
 
 if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -469,19 +390,8 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q4_5->eval();
- // DeclarationStatement::GenerateCode 
-int32_t i=0;
- // DeclarationStatement::GenerateCode 
-int32_t j=0;
- // DeclarationStatement::GenerateCode 
-int32_t k=0;
- // DeclarationStatement::GenerateCode 
-int32_t var=10;
-for (i  = 0;i<2;i  = i+1){
-for (j  = 0;j<3;j  = j+1){
-for (k  = 0;k<4;k  = k+1){
-lab_q17:
+		q5_1->eval();
+lab_q5_2:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -495,43 +405,8 @@ lab_q17:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
-
-vector_int32_t.push_back(i);
-
-vector_int32_t.push_back(j);
-
-vector_int32_t.push_back(k);
-
-vector_int32_t.push_back(my_32int);
-
-vector_int32_t.push_back(var);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
 
 if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
-
-var=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-k=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-j=vector_int32_t.back();
-vector_int32_t.pop_back();
-
-i=vector_int32_t.back();
-vector_int32_t.pop_back();
-
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -547,12 +422,55 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q17_list.questionList[i*3*4+j*4+k]->eval();
+		q5_2->eval();
 }
-}
-}
-for (i  = 0;i<5;i  = i+1){
-lab_q15:
+// ifStatementStack.size(): 0
+// q5_3
+// q5_4
+ }
+ else {
+// pushing onto ifStatementStack 
+// if statement at same level of nesting as previous if i.e. part of the else if clause: if_nest_level: 2
+	struct temp_9{
+		const int size_ran_indiv;
+		const int size_start_end;
+		vector<int> ran_indiv;
+		vector< pair<int,int> > ran_start_end;
+		temp_9(): size_ran_indiv(1), size_start_end(0),
+			ran_indiv(size_ran_indiv), ran_start_end(size_start_end){
+			ran_indiv[0]=8;
+		}
+		bool exists(int key){
+			for(int i=0; i<size_start_end; ++i){
+				if(key >=ran_start_end[i].first && key <=ran_start_end[i].second){
+					return true;
+				}
+			}
+			for(int i=0; i< size_ran_indiv; ++i){
+				if(key==ran_indiv[i]){
+					return true;
+				}
+			}
+			return false;
+		}
+		bool contains_subset(set<int> & set_data){
+			bool val_exists = false;
+			for(	set<int>::iterator it=set_data.begin();
+				it!=set_data.end(); ++it){
+					val_exists=exists(*it);
+				if(!val_exists){
+					return false;
+				}
+			}
+			/*if(!val_exists){
+				return false;
+			}*/
+		return true;
+		}
+	} temp_10;
+bool temp_11 = temp_10.contains_subset(q5->input_data);
+if (temp_11 ) {{
+lab_q5_3:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
@@ -568,42 +486,47 @@ lab_q15:
 // QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
-
-vector_int32_t.push_back(i);
-
-vector_int32_t.push_back(j);
-
-vector_int32_t.push_back(k);
-
-vector_int32_t.push_back(my_32int);
-
-vector_int32_t.push_back(var);
-
-vector_int8_t.push_back(var1);
-
-vector_int8_t.push_back(var2);
 
 if ( back_jump==true ) {
-var2=vector_int8_t.back();
-vector_int8_t.pop_back();
+// QUESTION_TYPE - will think of this later 
 
-var1=vector_int8_t.back();
-vector_int8_t.pop_back();
+// QUESTION_TYPE - will think of this later 
 
-var=vector_int32_t.back();
-vector_int32_t.pop_back();
+// QUESTION_TYPE - will think of this later 
 
-my_32int=vector_int32_t.back();
-vector_int32_t.pop_back();
+// QUESTION_TYPE - will think of this later 
 
-k=vector_int32_t.back();
-vector_int32_t.pop_back();
+// QUESTION_TYPE - will think of this later 
 
-j=vector_int32_t.back();
-vector_int32_t.pop_back();
+// QUESTION_TYPE - will think of this later 
 
-i=vector_int32_t.back();
-vector_int32_t.pop_back();
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q5_3->eval();
+lab_q5_4:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+if ( back_jump==true ) {
+// QUESTION_TYPE - will think of this later 
 
 // QUESTION_TYPE - will think of this later 
 
@@ -622,8 +545,420 @@ vector_int32_t.pop_back();
 // QUESTION_TYPE - will think of this later 
 
 }
-		q15_list.questionList[i]->eval();
+		q5_4->eval();
 }
+// ifStatementStack.size(): 1
+// q5_1
+// q5_2
+ }
+ /* finished generating code IfStatement */ 
+// end of ifBody_->GetQuestionNames 
+ // elseIfStatement exists 
+}
+ /* finished generating code IfStatement */ 
+}
+// ifStatementStack.size(): 0
+// q7
+// q8
+// q9
+// q10
+// q11
+ }
+ else {
+// pushing onto ifStatementStack 
+// if statement at same level of nesting as previous if i.e. part of the else if clause: if_nest_level: 1
+	struct temp_12{
+		const int size_ran_indiv;
+		const int size_start_end;
+		vector<int> ran_indiv;
+		vector< pair<int,int> > ran_start_end;
+		temp_12(): size_ran_indiv(1), size_start_end(0),
+			ran_indiv(size_ran_indiv), ran_start_end(size_start_end){
+			ran_indiv[0]=3;
+		}
+		bool exists(int key){
+			for(int i=0; i<size_start_end; ++i){
+				if(key >=ran_start_end[i].first && key <=ran_start_end[i].second){
+					return true;
+				}
+			}
+			for(int i=0; i< size_ran_indiv; ++i){
+				if(key==ran_indiv[i]){
+					return true;
+				}
+			}
+			return false;
+		}
+		bool contains_subset(set<int> & set_data){
+			bool val_exists = false;
+			for(	set<int>::iterator it=set_data.begin();
+				it!=set_data.end(); ++it){
+					val_exists=exists(*it);
+				if(!val_exists){
+					return false;
+				}
+			}
+			/*if(!val_exists){
+				return false;
+			}*/
+		return true;
+		}
+	} temp_13;
+bool temp_14 = temp_13.contains_subset(q4->input_data);
+if (temp_14 ) {{
+lab_q7:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+if ( back_jump==true ) {
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q7->eval();
+lab_q8:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+if ( back_jump==true ) {
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q8->eval();
+}
+// ifStatementStack.size(): 1
+// q5
+// q6
+// q5_1
+// q5_2
+// q5_3
+// q5_4
+// q9
+// q10
+// q11
+ }
+ else {
+// pushing onto ifStatementStack 
+// if statement at same level of nesting as previous if i.e. part of the else if clause: if_nest_level: 1
+	struct temp_15{
+		const int size_ran_indiv;
+		const int size_start_end;
+		vector<int> ran_indiv;
+		vector< pair<int,int> > ran_start_end;
+		temp_15(): size_ran_indiv(1), size_start_end(0),
+			ran_indiv(size_ran_indiv), ran_start_end(size_start_end){
+			ran_indiv[0]=4;
+		}
+		bool exists(int key){
+			for(int i=0; i<size_start_end; ++i){
+				if(key >=ran_start_end[i].first && key <=ran_start_end[i].second){
+					return true;
+				}
+			}
+			for(int i=0; i< size_ran_indiv; ++i){
+				if(key==ran_indiv[i]){
+					return true;
+				}
+			}
+			return false;
+		}
+		bool contains_subset(set<int> & set_data){
+			bool val_exists = false;
+			for(	set<int>::iterator it=set_data.begin();
+				it!=set_data.end(); ++it){
+					val_exists=exists(*it);
+				if(!val_exists){
+					return false;
+				}
+			}
+			/*if(!val_exists){
+				return false;
+			}*/
+		return true;
+		}
+	} temp_16;
+bool temp_17 = temp_16.contains_subset(q4->input_data);
+if (temp_17 ) {{
+lab_q9:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+if ( back_jump==true ) {
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q9->eval();
+lab_q10:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+if ( back_jump==true ) {
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q10->eval();
+}
+// ifStatementStack.size(): 2
+// q5
+// q6
+// q5_1
+// q5_2
+// q5_3
+// q5_4
+// q7
+// q8
+// q11
+ }
+ else {
+{
+lab_q11:
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+if ( back_jump==true ) {
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+// QUESTION_TYPE - will think of this later 
+
+}
+		q11->eval();
+}
+// end of ifBody_->GetQuestionNames 
+ // elseIfStatement DOES NOT exists 
+/* question_list_if_body.size(): 10 */ 
+// q5
+// q6
+// q5_1
+// q5_2
+// q5_3
+// q5_4
+// q7
+// q8
+// q9
+// q10
+// **************** 
+}
+ /* finished generating code IfStatement */ 
+// end of ifBody_->GetQuestionNames 
+ // elseIfStatement exists 
+}
+ /* finished generating code IfStatement */ 
+// end of ifBody_->GetQuestionNames 
+ // elseIfStatement exists 
+}
+ /* finished generating code IfStatement */ 
 }
 
 		write_data_to_disk(question_list, jno, ser_no);

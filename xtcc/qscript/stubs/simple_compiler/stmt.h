@@ -1,5 +1,6 @@
 /*
  *  xtcc/xtcc/qscript/stubs/simple_compiler/AbstractStatement.h
+
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
@@ -22,6 +23,8 @@
 //#include "common.h"
 using std::string;
 using std::ostringstream;
+
+struct AbstractQuestion;
 
 //!AbstractStatement  Pure virtual base class - all statement classes inherit from this class except for class FunctionInformation
 /*!
@@ -50,6 +53,9 @@ struct AbstractStatement
 	virtual void GenerateCode(ostringstream& quest_defns
 			, ostringstream& program_code)=0;
 	virtual ~AbstractStatement();
+	virtual AbstractQuestion* IsAQuestionStatement();
+	virtual void GetQuestionNames(vector<string> & question_list,
+			AbstractStatement * endStatement);
 	private:
 		AbstractStatement& operator=(const AbstractStatement&);
 		AbstractStatement (const AbstractStatement&);
@@ -253,6 +259,15 @@ struct CompoundStatement: public AbstractStatement
 	void GenerateCode(ostringstream & quest_defns
 			, ostringstream& program_code);
 	virtual ~CompoundStatement();
+	void GetQuestionNames(vector<string> & question_list,
+			AbstractStatement * endStatement)
+	{
+		if(endStatement==this){
+			return;
+		}
+		compoundBody_->GetQuestionNames(question_list,
+				endStatement);
+	}
 	private:
 	CompoundStatement& operator=(const CompoundStatement&);	
 	CompoundStatement(const CompoundStatement&);	
@@ -296,6 +311,15 @@ struct IfStatement : public AbstractStatement
 	void GenerateCode(ostringstream & quest_defns
 			, ostringstream& program_code);
 	virtual ~IfStatement();
+	void GetQuestionNames(vector<string> & question_list,
+			AbstractStatement* endStatement)
+	{
+		if(endStatement==this)
+			return;
+		ifBody_->GetQuestionNames(question_list, endStatement);
+		if( elseBody_)
+			elseBody_->GetQuestionNames(question_list, endStatement);
+	}
 	private:
 	IfStatement& operator=(const IfStatement&);	
 	IfStatement(const IfStatement&);	
