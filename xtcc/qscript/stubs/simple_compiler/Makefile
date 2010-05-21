@@ -90,23 +90,12 @@ DIST_ARCHIVES = $(distdir).tar.gz
 GZIP_ENV = --best
 distuninstallcheck_listfiles = find . -type f -print
 distcleancheck_listfiles = find . -type f -print
-<<<<<<< .mine
 ACLOCAL = ${SHELL} /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run aclocal-1.11
-=======
-ACLOCAL = ${SHELL} /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run aclocal-1.11
->>>>>>> .r197
 ALLOCA = 
-<<<<<<< .mine
 AMTAR = ${SHELL} /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run tar
 AUTOCONF = ${SHELL} /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run autoconf
 AUTOHEADER = ${SHELL} /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run autoheader
 AUTOMAKE = ${SHELL} /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run automake-1.11
-=======
-AMTAR = ${SHELL} /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run tar
-AUTOCONF = ${SHELL} /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run autoconf
-AUTOHEADER = ${SHELL} /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run automake-1.11
->>>>>>> .r197
 AWK = gawk
 CC = $(CXX)
 CCDEPMODE = depmode=gcc3
@@ -137,11 +126,7 @@ LEX_OUTPUT_ROOT = lex.yy
 LIBOBJS = 
 LIBS = -lreadline 
 LTLIBOBJS = 
-<<<<<<< .mine
 MAKEINFO = ${SHELL} /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run makeinfo
-=======
-MAKEINFO = ${SHELL} /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/missing --run makeinfo
->>>>>>> .r197
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = qscript
@@ -158,17 +143,10 @@ STRIP =
 VERSION = 0.03
 YACC = bison -y
 YFLAGS = 
-<<<<<<< .mine
 abs_builddir = /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
 abs_srcdir = /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
 abs_top_builddir = /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
 abs_top_srcdir = /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
-=======
-abs_builddir = /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
-abs_srcdir = /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
-abs_top_builddir = /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
-abs_top_srcdir = /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
->>>>>>> .r197
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__include = include
@@ -188,11 +166,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-<<<<<<< .mine
 install_sh = ${SHELL} /media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/install-sh
-=======
-install_sh = ${SHELL} /home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler/install-sh
->>>>>>> .r197
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -215,18 +189,7 @@ top_srcdir = .
 AM_CXXFLAGS = -Wall -Weffc++ -frepo -g
 AM_YFLAGS = -d -v
 qscript_SOURCES = q.y lex.l  debug_mem.C expr.C main.C named_range.C qscript_parser.C question.C scope.C stmt.C stmt_common.C symtab.C utils.C xtcc_set.C const_defs.h debug_mem.h expr.h named_attributes.h named_range.h qscript_lib.h qscript_parser.h question_disk_data.h question.h scope.h stmt.h stub_pair.h symtab.h utils.h xtcc_set.h data_entry.y scan_data.l 
-#data_entry.c data_entry.h: data_entry.y 
-#	bison -d -p scan_data $<
-#	mv data_entry.tab.h data_entry.h
-#	mv data_entry.tab.c data_entry.c
-
-#scan_data.c: scan_data.l
-
-#scan_data.c: scan_data.l data_entry.y
-#	flex $<
-#	mv lex.scan_data.c scan_data.c
-#	flex $<
-BUILT_SOURCES = q.h q.c lex.c
+BUILT_SOURCES = q.h q.c lex.c scan_data.c 
 EXTRA_DIST = inp QScriptMakefile qscript_lib.C qscript_lib.h qscript_data.y qscript_data.l
 #dist_pkgdata_DATA=stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h docs/manual.texi docs/qscript_doc.html
 #AUTOMAKE_OPTIONS = dejagnu
@@ -725,6 +688,17 @@ uninstall-am: uninstall-binPROGRAMS
 
 
 lex.c: q.y
+data_entry.c data_entry.h: data_entry.y 
+	bison -d -p scan_data $<
+	mv data_entry.tab.h data_entry.h
+	mv data_entry.tab.c data_entry.c
+
+#scan_data.c: scan_data.l
+#scan_data.c: data_entry.y scan_data.l
+
+scan_data.c: scan_data.l data_entry.y
+	flex $<
+	mv lex.scan_data.c scan_data.c
 
 .phony: clean
 clean:

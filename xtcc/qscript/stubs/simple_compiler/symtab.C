@@ -173,23 +173,25 @@ bool is_of_int32_arr_type(DataType dt){
 	return (dt == INT32_ARR_TYPE);
 }
 
-void SymbolTableEntry::print_push_stack(string & str){
+//void SymbolTableEntry::print_push_stack(string & str)
+void SymbolTableEntry::print_push_stack(const string &stack_name, string & str)
+{
 	stringstream s("NONE");
 	switch(type_){
 	case INT8_TYPE:
-		s << "vector_int8_t.push_back(" << name_ << ");\n";
+		s << stack_name << "_stack_int8_t.push_back(" << name_ << ");\n";
 		break;
 	case INT16_TYPE:	
-		s << "vector_int16_t.push_back(" << name_ << ");\n";
+		s << stack_name << "_stack_int16_t.push_back(" << name_ << ");\n";
 		break;
 	case INT32_TYPE:	
-		s << "vector_int32_t.push_back(" << name_ << ");\n";
+		s << stack_name << "_stack_int32_t.push_back(" << name_ << ");\n";
 		break;
 	case FLOAT_TYPE:
-		s << "vector_float.push_back(" << name_ << ");\n";
+		s << stack_name << "_stack_float.push_back(" << name_ << ");\n";
 		break;
 	case DOUBLE_TYPE:
-		s << "vector_double.push_back(" << name_ << ");\n";
+		s << stack_name << "_stack_double.push_back(" << name_ << ");\n";
 		break;
 	case QUESTION_TYPE:
 		s << "// QUESTION_TYPE - will think of this later " << endl;
@@ -204,28 +206,29 @@ void SymbolTableEntry::print_push_stack(string & str){
 }
 
 
-void SymbolTableEntry::print_pop_stack(string & str){
+void SymbolTableEntry::print_pop_stack(const string &stack_name, string & str)
+{
 	stringstream s("NONE");
 	switch(type_){
 	case INT8_TYPE:
-		s << name_ << "=vector_int8_t.back();\n";
-		s << "vector_int8_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_stack_int8_t.back();\n";
+		s << stack_name << "_stack_int8_t.pop_back();\n";
 		break;
 	case INT16_TYPE:	
-		s << name_ << "=vector_int16_t.back();\n";
-		s << "vector_int16_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_stack_int16_t.back();\n";
+		s << stack_name << "_stack_int16_t.pop_back();\n";
 		break;
 	case INT32_TYPE:	
-		s << name_ << "=vector_int32_t.back();\n";
-		s << "vector_int32_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_stack_int32_t.back();\n";
+		s << stack_name << "_stack_int32_t.pop_back();\n";
 		break;
 	case FLOAT_TYPE:
-		s << name_ << "=vector_float_t.back();\n";
-		s << "vector_float_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_stack_float_t.back();\n";
+		s << stack_name << "_stack_float_t.pop_back();\n";
 		break;
 	case DOUBLE_TYPE:
-		s << name_ << "=vector_double_t.back();\n";
-		s << "vector_double_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_stack_double_t.back();\n";
+		s << stack_name << "_stack_double_t.pop_back();\n";
 		break;
 	case QUESTION_TYPE:
 		s << "// QUESTION_TYPE - will think of this later " << endl;

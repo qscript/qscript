@@ -9,8 +9,10 @@
 %{
 #include <limits.h>
 #include <vector>
+#include "user_navigation.h"
 using namespace std;
 	vector<int> data;
+	UserNavigation user_navigation=NOT_SET;
 #include <iostream>
 //#define yylex scan_datalex
 	int scan_datalex();
@@ -23,6 +25,9 @@ using namespace std;
 
 %token <ival> NUMBER
 %token HYPHEN
+%token NAVIGATE_NEXT_TOK
+%token NAVIGATE_PREVIOUS_TOK
+%token JUMP_TO_QUESTION_TOK
  //%token END_OF_DATA
 
 
@@ -32,6 +37,7 @@ using namespace std;
 prog:	datalist /*END_OF_DATA*/ {
 		cout << "GOT END_OF_DATA" << endl;
 	}
+	| navigation
 	;
 
 datalist: data
@@ -48,6 +54,18 @@ data: NUMBER	{
 		}
 	}
 	;
+
+navigation:	JUMP_TO_QUESTION_TOK {
+			user_navigation=JUMP_TO_QUESTION;
+		}
+	| NAVIGATE_PREVIOUS_TOK{
+			user_navigation=NAVIGATE_PREVIOUS;
+		}
+	| NAVIGATE_NEXT_TOK{
+			user_navigation=NAVIGATE_NEXT;
+		}
+	;
+
 %%
 
 	void scan_dataerror(char *s){

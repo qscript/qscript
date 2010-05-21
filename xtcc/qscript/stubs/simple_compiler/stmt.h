@@ -24,7 +24,6 @@
 using std::string;
 using std::ostringstream;
 
-struct AbstractQuestion;
 
 //!AbstractStatement  Pure virtual base class - all statement classes inherit from this class except for class FunctionInformation
 /*!
@@ -34,6 +33,8 @@ struct AbstractQuestion;
   It also contains line and filename information 
   about the statement being parsed
 */
+
+struct AbstractQuestion;
 
 struct AbstractStatement 
 {

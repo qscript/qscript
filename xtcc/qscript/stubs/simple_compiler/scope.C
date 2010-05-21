@@ -264,7 +264,7 @@ Scope::~Scope() {
 }
 
 string human_readable_type(DataType dt);
-void Scope::print_scope(vector<string> &push_stack, vector<string>& pop_stack){
+void Scope::print_scope(const string & stack_name, vector<string> &push_stack, vector<string>& pop_stack){
 	map<string,SymbolTableEntry*>::iterator it;
 	for(it=SymbolTable.begin(); it!=SymbolTable.end(); ++it){
 		SymbolTableEntry * sym_ptr=  it->second;
@@ -273,9 +273,9 @@ void Scope::print_scope(vector<string> &push_stack, vector<string>& pop_stack){
 		s += " " + human_readable_type(sym_ptr->type_);
 		*/
 		string s("NONE");
-		sym_ptr->print_push_stack(s);
+		sym_ptr->print_push_stack(stack_name, s);
 		push_stack.push_back(s);
-		sym_ptr->print_pop_stack(s);
+		sym_ptr->print_pop_stack(stack_name, s);
 		pop_stack.push_back(s);
 	}
 }

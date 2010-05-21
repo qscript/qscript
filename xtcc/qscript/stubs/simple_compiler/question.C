@@ -14,6 +14,7 @@
 #include "named_range.h"
 #include "scope.h"
 #include "qscript_parser.h"
+#include "user_navigation.h"
 
 using std::cout;
 using std::endl;
@@ -31,6 +32,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt)
 	, for_bounds_stack(l_for_bounds_stack)
+	, isAnswered_(false), isModified_(false)
 {
 }
 
@@ -43,6 +45,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, questionText_(l_text), q_type(l_q_type) 
 	, no_mpn(l_no_mpn), dt(l_dt)
 	, for_bounds_stack(0)
+	, isAnswered_(false), isModified_(false)
 {
 }
 
@@ -56,6 +59,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 	, questionText_(l_text), q_type(l_q_type) 
 	, no_mpn(l_no_mpn), dt(l_dt) , for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
+	, isAnswered_(false), isModified_(false)
 {
 	//for(int i=0; i<l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
@@ -106,6 +110,7 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 int scan_datalex();
 int scan_dataparse();
 extern vector<int> data;
+extern UserNavigation user_navigation;
 
 bool RangeQuestion::IsValid(int value)
 {
@@ -142,6 +147,14 @@ void RangeQuestion::eval()
 		invalid_code=false;
 		read_data(prompt.c_str());
 		cout << "data.size(): " << data.size() << endl;
+		if(data.size()==0 && 
+			(user_navigation == NAVIGATE_PREVIOUS 
+			 || user_navigation == NAVIGATE_NEXT
+			 || user_navigation == JUMP_TO_QUESTION) ){
+			return;
+		}
+
+			
 		for(unsigned int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
 			if (!IsValid(data[i])){
@@ -172,6 +185,7 @@ void RangeQuestion::eval()
 				cout << "storing: " << data[i] 
 					<< " into input_data" << endl;
 			}
+			isAnswered_=true;
 		}
 	} while (invalid_code==true);
 	
@@ -316,8 +330,28 @@ void RangeQuestion::GenerateCodeSingleQuestion( ostringstream & quest_defns
 		<< ");\n";
 
 	if(for_bounds_stack.size()==0){
-		program_code << "\t\t" << questionName_.c_str() 
+		program_code << "if (!" 
+			<< questionName_.c_str() << "->isAnswered_ ||" << endl
+			<< "stopAtNextQuestion ||" << endl
+			<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
+		program_code << "label_eval_" << questionName_.c_str() << ":\n"
+			<< "\t\t" 
+			<< questionName_.c_str() 
 			<< "->eval();\n" ;
+		// hard coded for now
+		program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
+			AbstractQuestion * target_question = ComputePreviousQuestion(" << questionName_.c_str() << ");\n\
+			if(target_question==0)\n\
+			goto label_eval_" << questionName_.c_str() << ";\n\
+			else {\n\
+			jumpToQuestion = target_question->questionName_;\n\
+			user_navigation=NOT_SET;\n\
+			goto start_of_questions;\n}\n}\n" ;
+		program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
+			jumpToQuestion = \"q4\";\n\
+			user_navigation=NOT_SET;\n\
+			goto start_of_questions;\n}\n";
+		program_code << "}" << endl;
 	} else {
 		AbstractQuestion::PrintEvalArrayQuestion(
 				quest_defns, program_code);
@@ -667,6 +701,14 @@ void AbstractQuestion::PrintSetupBackJump(ostringstream & quest_defns
 		, ostringstream& program_code)
 {
 	using qscript_parser::map_of_active_vars_for_questions;
+	// --- THIS IS NEW CODE
+	quest_defns << "vector <int8_t> " << questionName_ << "_stack_int8_t;\n";
+	quest_defns << "vector <int16_t> " << questionName_ << "_stack_int16_t;\n";
+	quest_defns << "vector <int32_t> " << questionName_ << "_stack_int32_t;\n";
+	quest_defns << "vector <float> " << questionName_ << "_stack_float_t;\n";
+	quest_defns << "vector <double> " << questionName_ << "_stack_double_t;\n";
+	// end of THIS IS NEW CODE
+
 
 	program_code << "lab_" << questionName_ << ":" << endl;
 
@@ -676,15 +718,17 @@ void AbstractQuestion::PrintSetupBackJump(ostringstream & quest_defns
 		map_of_active_vars_for_questions[q_push_name];
 	vector<string> active_pop_vars_for_this_question = 
 		map_of_active_vars_for_questions[q_pop_name];
-	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i)
-	{
-		program_code << active_push_vars_for_this_question[i] << endl;
-	}
+
 	program_code << "if ( back_jump==true ) {" << endl;
 	for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
 		program_code << active_pop_vars_for_this_question[i] << endl;
 	}
 	program_code << "}" << endl;
+
+	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i)
+	{
+		program_code << active_push_vars_for_this_question[i] << endl;
+	}
 }
 
 

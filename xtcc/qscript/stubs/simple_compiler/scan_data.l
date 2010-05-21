@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include "data_entry.h"
+#include "user_navigation.h"
 #include <readline/readline.h>
 	using namespace std;
 
@@ -38,9 +39,17 @@
 	}*/
 
 . 	{
-	cerr << "ERROR: running ECHO rule" << endl;
-	ECHO;
-	return yytext[0];
+		if(yytext[0] == 'n'){
+			return NAVIGATE_NEXT_TOK;
+		} else if (yytext[0]=='p'){
+			return NAVIGATE_PREVIOUS_TOK;
+		} else if (yytext[0]=='j'){
+			return JUMP_TO_QUESTION_TOK;
+		} else  {
+			cerr << "ERROR: running ECHO rule" << endl;
+			ECHO;
+			return yytext[0];
+		}
 	}
 	
 
@@ -115,15 +124,24 @@ void read_question_data(){
 #include <vector>
 	using std::vector;
 	extern  vector<int> data;
+	extern  UserNavigation user_navigation;
 	void scan_dataerror(char *s);
 
 	void read_data( const char * prompt);
-		void read_data( const char * prompt){
+	void read_data( const char * prompt)
+	{
+		data.clear();
+top:
 		char * line=readline(prompt);
 		//printf("readline: %s\n", line);
 		cout << "readline: " << line << endl;
 		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
-		scan_dataparse();
+		if(scan_dataparse()){
+			cout << "there was an error in parsing the data" << endl;
+			yy_delete_buffer(s_data);
+			data.clear();
+			goto top;
+		}
 		cout << "read: " << endl;
 		for(int i=0; i<data.size(); ++i){
 			cout << data[i] << "," ;

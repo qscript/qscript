@@ -113,8 +113,8 @@ struct SymbolTableEntry {
 		return type_;
 	}
 	~SymbolTableEntry();
-	void print_push_stack(string & str);
-	void print_pop_stack(string & str);
+	void print_push_stack(const string & stack_name, string & str);
+	void print_pop_stack(const string & stack_name, string & str);
 	private:
 		SymbolTableEntry& operator=(const SymbolTableEntry&);
 		SymbolTableEntry (const SymbolTableEntry&);

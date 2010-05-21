@@ -32,6 +32,8 @@ struct AbstractQuestion: public AbstractStatement
 	//AbstractExpression * arr_sz;
 	vector<AbstractExpression*> for_bounds_stack;
 	vector<int> loop_index_values;
+	bool isAnswered_;
+	bool isModified_;
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*>& l_for_bounds_stack

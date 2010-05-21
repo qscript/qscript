@@ -213,7 +213,9 @@ void IfStatement::GenerateCode(ostringstream & quest_defns
 	if(elseBody_)
 		elseBody_->GetQuestionNames(question_list_else_body, 0);
 	for(int i=0; i<question_list_else_body.size(); ++i){
-		program_code << "// " << question_list_else_body[i] << endl;
+		program_code <<  question_list_else_body[i] 
+			<< "->isAnswered_=false;"
+			<< endl;
 	}
 	program_code << " }" << endl;
 	//if( if_body_is_a_cmpd_stmt  ){
@@ -258,12 +260,13 @@ void IfStatement::GenerateCode(ostringstream & quest_defns
 			program_code << "/* question_list_if_body.size(): " 
 				<< question_list_if_body.size() << " */ \n";
 			for(int i=0; i<question_list_if_body.size(); ++i){
-				program_code << "// " 
-					<< question_list_if_body[i] << endl;
+				program_code <<  question_list_if_body[i] 
+					<< "->isAnswered_=false;"
+					<< endl;
 			}
 			program_code << "// **************** \n";
 		}
-			
+		
 		if(elseIfStatement){
 			IfStatementStackElement * stk_el = 
 				ifStatementStack.back();

@@ -84,6 +84,7 @@ using std::string;
 void print_header(FILE* script);
 void print_array_question_class(FILE* script);
 void print_close(FILE* script, ostringstream & program_code);
+void print_navigation_support_functions(FILE * script);
 void GenerateCode(){
 	string script_name("test_script.C");
 	FILE * script = fopen(script_name.c_str(), "w");
@@ -112,6 +113,8 @@ void print_header(FILE* script){
 	fprintf(script, "#include \"symtab.h\"\n");
 	fprintf(script, "#include \"qscript_lib.h\"\n");
 	fprintf(script, "#include \"question_disk_data.h\"\n");
+	fprintf(script, "#include \"user_navigation.h\"\n");
+
 
 	fprintf(script, "#include \"debug_mem.h\"\n");
 	fprintf(script, "fstream debug_log_file(\"xtcc_debug.log\", ios_base::out|ios_base::trunc);\n");
@@ -119,10 +122,13 @@ void print_header(FILE* script){
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "extern vector<int> data;\n");
+	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
 	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
 	fprintf(script, "void merge_disk_data_into_questions();\n");
+	fprintf(script, "bool stopAtNextQuestion;\n");
+	fprintf(script, "string jumpToQuestion;\n");
 
 
 	//fprintf(script, "\tnoun_list_type noun_list[]= {\n");
@@ -143,6 +149,7 @@ void print_header(FILE* script){
 	fprintf(script, "vector <double> vector_double_t;\n");
 	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int ser_no);\n");
+	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
 	print_array_question_class(script);
 
 
@@ -179,6 +186,7 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\tstring jno=\"j_1001\";\n");
 	fprintf(script, "\twhile(ser_no!=0){\n");
 	fprintf(script, "%s\n", file_exists_check_code());
+	fprintf(script, "\tstart_of_questions:\n");
 	fprintf(script, "%s\n", program_code.str().c_str());
 	/*
 	fprintf(script, "\t\t\tstringstream fname_str;\n");
@@ -203,8 +211,35 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\n\t} /* close while */\n");
 	fprintf(script, "\n} /* close main */\n");
 	fprintf(script, "%s\n", write_data_to_disk_code());
+	print_navigation_support_functions(script);
 }
 
+void print_navigation_support_functions(FILE * script)
+{
+	fprintf(script, "// The first question before this question that is answered\n");
+	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q)\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	int current_question_index=-1;\n");
+	fprintf(script, "	for(int i=0; i<question_list.size(); ++i){\n");
+	fprintf(script, "		if(question_list[i]==q){\n");
+	fprintf(script, "			current_question_index=i;\n");
+	fprintf(script, "			break;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	if(current_question_index==-1){\n");
+	fprintf(script, "		cerr << \"internal compiler error at runtime ... filename: \" \n");
+	fprintf(script, "			<< __FILE__ \n");
+	fprintf(script, "			<< \"line no: \" << __LINE__\n");
+	fprintf(script, "			<< endl;\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	for(int i=current_question_index-1; i>=0; --i){\n");
+	fprintf(script, "		if(question_list[i]->isAnswered_){\n");
+	fprintf(script, "			return question_list[i];\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	return 0;\n");
+	fprintf(script, "}\n");
+}
 
 	bool skip_func_type_check(const char * fname){
 		const char * skip_func_type_check_list[] = {"printf" };

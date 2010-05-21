@@ -1,9 +1,9 @@
 
-CC=g++ -Wall -c
+CC=g++ -g -Wall -c
 LIBS=-lreadline
 OBJS = test_script.o xtcc_set.o lex.scan_data.o data_entry.tab.o question.o stmt_common.o qscript_lib.o qscript_data.tab.o lex.read_disk_data.o qscript_parser.o expr.o utils.o symtab.o stmt.o scope.o question_disk_data.o
 test_script:  $(OBJS)
-	g++ -o $@ $(OBJS) $(LIBS)
+	g++ -g -o $@ $(OBJS) $(LIBS)
 
 test_script.o: test_script.C
 	$(CC) -c $<

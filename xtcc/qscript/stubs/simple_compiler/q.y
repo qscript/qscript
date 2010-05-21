@@ -803,7 +803,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	vector<string> active_pop_vars;
 	for(unsigned int i=0; i< active_scope_list.size(); ++i){
 		Scope* sc_ptr= active_scope_list[i];
-		sc_ptr->print_scope(active_push_vars, active_pop_vars);
+		sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
 	}
 	string q_push_name = name + "_push";
 	string q_pop_name = name + "_pop";
@@ -869,7 +869,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	vector<string> active_pop_vars;
 	for(unsigned int i=0; i< active_scope_list.size(); ++i){
 		Scope* sc_ptr= active_scope_list[i];
-		sc_ptr->print_scope(active_push_vars, active_pop_vars);
+		sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
 	}
 	string q_push_name = name + "_push";
 	string q_pop_name = name + "_pop";

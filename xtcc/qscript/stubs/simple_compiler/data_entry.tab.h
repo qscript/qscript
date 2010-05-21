@@ -40,7 +40,10 @@
       know about them.  */
    enum yytokentype {
      NUMBER = 258,
-     HYPHEN = 259
+     HYPHEN = 259,
+     NAVIGATE_NEXT_TOK = 260,
+     NAVIGATE_PREVIOUS_TOK = 261,
+     JUMP_TO_QUESTION_TOK = 262
    };
 #endif
 
@@ -51,14 +54,14 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 20 "data_entry.y"
+#line 22 "data_entry.y"
 
 	int ival;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 62 "data_entry.tab.h"
+#line 65 "data_entry.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
