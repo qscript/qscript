@@ -345,12 +345,12 @@ void RangeQuestion::GenerateCodeSingleQuestion( ostringstream & quest_defns
 			goto label_eval_" << questionName_.c_str() << ";\n\
 			else {\n\
 			jumpToQuestion = target_question->questionName_;\n\
+			cout << \"target question: \" << jumpToQuestion;\n\
 			user_navigation=NOT_SET;\n\
 			goto start_of_questions;\n}\n}\n" ;
 		program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
-			jumpToQuestion = \"q4\";\n\
-			user_navigation=NOT_SET;\n\
-			goto start_of_questions;\n}\n";
+			stopAtNextQuestion=true;\n\
+			user_navigation=NOT_SET;\n}\n";
 		program_code << "}" << endl;
 	} else {
 		AbstractQuestion::PrintEvalArrayQuestion(

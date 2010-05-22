@@ -188,7 +188,7 @@ void IfStatement::GenerateCode(ostringstream & quest_defns
 	//}
 	program_code << code_bef_expr.str();
 	program_code << code_expr.str();
-	ifBody_->GenerateCode(quest_defns, program_code);
+	//ifBody_->GenerateCode(quest_defns, program_code);
 	vector<string> question_list_else_body;
 	program_code << "// ifStatementStack.size(): "
 		<< ifStatementStack.size() << endl;
@@ -217,6 +217,7 @@ void IfStatement::GenerateCode(ostringstream & quest_defns
 			<< "->isAnswered_=false;"
 			<< endl;
 	}
+	ifBody_->GenerateCode(quest_defns, program_code);
 	program_code << " }" << endl;
 	//if( if_body_is_a_cmpd_stmt  ){
 	//} else {
@@ -238,7 +239,7 @@ void IfStatement::GenerateCode(ostringstream & quest_defns
 
 			ifStatementStack.push_back(stk_el);
 		}
-		elseBody_->GenerateCode(quest_defns, program_code);
+		//elseBody_->GenerateCode(quest_defns, program_code);
 		vector<string> question_list_if_body;
 
 		for(int i=0; i<ifStatementStack.size(); ++i){
@@ -266,6 +267,7 @@ void IfStatement::GenerateCode(ostringstream & quest_defns
 			}
 			program_code << "// **************** \n";
 		}
+		elseBody_->GenerateCode(quest_defns, program_code);
 		
 		if(elseIfStatement){
 			IfStatementStackElement * stk_el = 
