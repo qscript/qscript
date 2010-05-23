@@ -64,6 +64,8 @@ struct AbstractQuestion: public AbstractStatement
 	virtual AbstractQuestion * IsAQuestionStatement()=0;
 	virtual void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement)=0;
+	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
+	virtual void GetDataFromUser();
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);

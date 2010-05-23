@@ -16,6 +16,12 @@
 #include "qscript_parser.h"
 #include "user_navigation.h"
 
+#include <sstream>
+int scan_datalex();
+int scan_dataparse();
+extern vector<int> data;
+extern UserNavigation user_navigation;
+
 using std::cout;
 using std::endl;
 using std::cerr;
@@ -67,6 +73,88 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 }
 
 
+void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
+{
+	program_code << "if (!" 
+		<< questionName_.c_str() << "->isAnswered_ ||" << endl
+		<< "stopAtNextQuestion ||" << endl
+		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
+	program_code << "label_eval_" << questionName_.c_str() << ":\n"
+		<< "\t\t" 
+		<< questionName_.c_str() 
+		<< "->eval();\n" ;
+	// hard coded for now
+	program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
+		AbstractQuestion * target_question = ComputePreviousQuestion(" << questionName_.c_str() << ");\n\
+		if(target_question==0)\n\
+		goto label_eval_" << questionName_.c_str() << ";\n\
+		else {\n\
+		jumpToQuestion = target_question->questionName_;\n\
+		cout << \"target question: \" << jumpToQuestion;\n\
+		user_navigation=NOT_SET;\n\
+		goto start_of_questions;\n}\n}\n" ;
+	program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
+		stopAtNextQuestion=true;\n\
+		user_navigation=NOT_SET;\n}\n";
+	program_code << "}" << endl;
+}
+
+
+void AbstractQuestion::GetDataFromUser()
+{
+
+	bool invalid_code=false;
+	string prompt="before do: Enter Data:";
+	do{
+		invalid_code=true;
+		read_data(prompt.c_str());
+		cout << "data.size(): " << data.size() << endl;
+		if(data.size()==0 && 
+			(user_navigation == NAVIGATE_PREVIOUS 
+			 || user_navigation == NAVIGATE_NEXT
+			 || user_navigation == JUMP_TO_QUESTION) ){
+			return;
+		}
+
+			
+		for(unsigned int i=0; i<data.size(); ++i){
+			cout << "Testing data exists: " << data[i] << endl;
+			invalid_code = !IsValid(data[i]);
+			if (invalid_code==true){
+				prompt = "Input contained some invalid data\nRe-enter Data\n";
+				data.clear();
+				break;
+			}
+		}
+		if(invalid_code)
+			continue;
+		if(q_type==spn && data.size()>1) {
+			prompt="Single coded AbstractQuestion - please enter only 1 code:" ;
+			invalid_code=true;
+			data.clear();
+		} else if (q_type==mpn && data.size() > no_mpn){
+			prompt="Multi coded AbstractQuestion codes exceed no of max codes:  " ;
+			invalid_code=true;
+			data.clear();
+		} else {
+			invalid_code=false;
+		}
+
+		if(invalid_code==false){
+			input_data.erase(input_data.begin(), input_data.end());
+			for(unsigned int i=0; i<data.size(); ++i){
+				input_data.insert(data[i]);
+				cout << "storing: " << data[i] 
+					<< " into input_data" << endl;
+			}
+			isAnswered_=true;
+		}
+	} while (invalid_code==true);
+	
+	data.clear();
+}
+
+
 RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
@@ -106,12 +194,6 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 }
 
 
-#include <sstream>
-int scan_datalex();
-int scan_dataparse();
-extern vector<int> data;
-extern UserNavigation user_navigation;
-
 bool RangeQuestion::IsValid(int value)
 {
 	return (r_data->exists(value))? true: false;
@@ -141,10 +223,11 @@ void RangeQuestion::eval()
 		}
 		cout << endl;
 	}
+	/*
 	bool invalid_code=false;
 	string prompt="before do: Enter Data:";
 	do{
-		invalid_code=false;
+		invalid_code=true;
 		read_data(prompt.c_str());
 		cout << "data.size(): " << data.size() << endl;
 		if(data.size()==0 && 
@@ -157,8 +240,8 @@ void RangeQuestion::eval()
 			
 		for(unsigned int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
-			if (!IsValid(data[i])){
-				invalid_code=true;
+			invalid_code = !IsValid(data[i]);
+			if (invalid_code==true){
 				prompt = "Input contained some invalid data\nRe-enter Data\n";
 				data.clear();
 				break;
@@ -190,6 +273,8 @@ void RangeQuestion::eval()
 	} while (invalid_code==true);
 	
 	data.clear();
+	*/
+	AbstractQuestion::GetDataFromUser();
 }
 
 void RangeQuestion::WriteDataToDisk(ofstream& data_file)
@@ -241,12 +326,22 @@ void NamedStubQuestion::eval()
 		}
 		cout << endl;
 	}
+
+	/*
 	bool invalid_code=false;
 	string prompt="before do: Enter Data:";
 	do{
 		invalid_code=true;
 		read_data(prompt.c_str());
 		cout << "data.size(): " << data.size() << endl;
+		if(data.size()==0 && 
+			(user_navigation == NAVIGATE_PREVIOUS 
+			 || user_navigation == NAVIGATE_NEXT
+			 || user_navigation == JUMP_TO_QUESTION) ){
+			return;
+		}
+
+
 		for(unsigned int i=0; i<data.size(); ++i){
 			cout << "Testing data exists: " << data[i] << endl;
 			invalid_code=!IsValid(data[i]);
@@ -277,10 +372,13 @@ void NamedStubQuestion::eval()
 				cout << "storing: " << data[i] 
 					<< " into input_data" << endl;
 			}
+			isAnswered_=true;
 		}
 	} while (invalid_code==true);
 	
 	data.clear();
+	*/
+	AbstractQuestion::GetDataFromUser();
 	
 }
 
@@ -330,29 +428,8 @@ void RangeQuestion::GenerateCodeSingleQuestion( ostringstream & quest_defns
 		<< ");\n";
 
 	if(for_bounds_stack.size()==0){
-		program_code << "if (!" 
-			<< questionName_.c_str() << "->isAnswered_ ||" << endl
-			<< "stopAtNextQuestion ||" << endl
-			<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
-		program_code << "label_eval_" << questionName_.c_str() << ":\n"
-			<< "\t\t" 
-			<< questionName_.c_str() 
-			<< "->eval();\n" ;
-		// hard coded for now
-		program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
-			AbstractQuestion * target_question = ComputePreviousQuestion(" << questionName_.c_str() << ");\n\
-			if(target_question==0)\n\
-			goto label_eval_" << questionName_.c_str() << ";\n\
-			else {\n\
-			jumpToQuestion = target_question->questionName_;\n\
-			cout << \"target question: \" << jumpToQuestion;\n\
-			user_navigation=NOT_SET;\n\
-			goto start_of_questions;\n}\n}\n" ;
-		program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
-			stopAtNextQuestion=true;\n\
-			user_navigation=NOT_SET;\n}\n";
-		program_code << "}" << endl;
-	} else {
+		AbstractQuestion::PrintEvalAndNavigateCode(program_code);
+	}else {
 		AbstractQuestion::PrintEvalArrayQuestion(
 				quest_defns, program_code);
 	}
@@ -474,7 +551,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(
 	//program_code << "\t\t" << questionName_.c_str() << "->eval();\n" ;
 
 	if(for_bounds_stack.size()==0){
-		program_code << "\t\t" << questionName_.c_str() << "->eval();\n" ;
+		AbstractQuestion::PrintEvalAndNavigateCode(program_code);
 	}  else {
 		AbstractQuestion::PrintEvalArrayQuestion(
 				quest_defns, program_code);
