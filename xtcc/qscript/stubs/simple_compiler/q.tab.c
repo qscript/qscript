@@ -1,24 +1,23 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
    Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
+   
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -29,7 +28,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -47,7 +46,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.3"
+#define YYBISON_VERSION "2.4.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -55,9 +54,74 @@
 /* Pure parsers.  */
 #define YYPURE 0
 
+/* Push parsers.  */
+#define YYPUSH 0
+
+/* Pull parsers.  */
+#define YYPULL 1
+
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
+
+
+/* Copy the first part of user declarations.  */
+
+/* Line 189 of yacc.c  */
+#line 7 "q.y"
+
+
+//#include "common.h"
+
+#include <limits.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <cstdlib>
+
+//#include "tree.h"
+#include "debug_mem.h"
+#include "symtab.h"
+#include "scope.h"
+#include "stmt.h"
+#include "expr.h"
+#include "named_attributes.h"
+#include "named_range.h"
+
+#include "qscript_parser.h"
+
+	//using qscript_parser::yyerror;
+	//using qscript_parser::yylex;
+	//using qscript_parser::yywrap;
+	extern int yylex();
+	extern void yyerror(const char * s);
+	using std::cout;
+	using std::cerr;
+	using std::endl;
+
+
+/* Line 189 of yacc.c  */
+#line 107 "q.tab.c"
+
+/* Enabling traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 0
+#endif
+
+/* Enabling verbose error messages.  */
+#ifdef YYERROR_VERBOSE
+# undef YYERROR_VERBOSE
+# define YYERROR_VERBOSE 1
+#else
+# define YYERROR_VERBOSE 0
+#endif
+
+/* Enabling the token table.  */
+#ifndef YYTOKEN_TABLE
+# define YYTOKEN_TABLE 0
+#endif
 
 
 /* Tokens.  */
@@ -96,128 +160,51 @@
      ELSE = 285,
      STUBS_LIST = 286,
      SETDEL = 287,
-     SETADD = 288
+     SETADD = 288,
+     UNSET = 289,
+     SETALL = 290
    };
 #endif
-/* Tokens.  */
-#define INUMBER 258
-#define FNUMBER 259
-#define NAME 260
-#define TEXT 261
-#define SP 262
-#define MP 263
-#define VOID_T 264
-#define INT8_T 265
-#define INT16_T 266
-#define INT32_T 267
-#define FLOAT_T 268
-#define DOUBLE_T 269
-#define STRING_T 270
-#define IN 271
-#define FOR 272
-#define CONST 273
-#define LOGOR 274
-#define LOGAND 275
-#define NOEQ 276
-#define ISEQ 277
-#define GEQ 278
-#define LEQ 279
-#define NOT 280
-#define UMINUS 281
-#define COUNT 282
-#define FUNC_CALL 283
-#define IF 284
-#define ELSE 285
-#define STUBS_LIST 286
-#define SETDEL 287
-#define SETADD 288
 
 
-
-
-/* Copy the first part of user declarations.  */
-#line 7 "q.y"
-
-
-//#include "common.h"
-
-#include <limits.h>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <vector>
-
-//#include "tree.h"
-#include "debug_mem.h"
-#include "symtab.h"
-#include "scope.h"
-#include "stmt.h"
-#include "expr.h"
-#include "named_attributes.h"
-#include "named_range.h"
-
-#include "qscript_parser.h"
-
-	//using qscript_parser::yyerror;
-	//using qscript_parser::yylex;
-	//using qscript_parser::yywrap;
-	extern int yylex();
-	extern void yyerror(const char * s);
-	using std::cout;
-	using std::cerr;
-	using std::endl;
-
-
-/* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
-
-/* Enabling verbose error messages.  */
-#ifdef YYERROR_VERBOSE
-# undef YYERROR_VERBOSE
-# define YYERROR_VERBOSE 1
-#else
-# define YYERROR_VERBOSE 0
-#endif
-
-/* Enabling the token table.  */
-#ifndef YYTOKEN_TABLE
-# define YYTOKEN_TABLE 0
-#endif
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 40 "q.y"
 {
+
+/* Line 214 of yacc.c  */
+#line 41 "q.y"
+
 	type_qualifier type_qual;
 	int ival;
 	double dval;
 	char name[MY_STR_MAX];
 	char text_buf[MY_STR_MAX];
-	datatype dt;
-	struct stmt * stmt;
-	struct expr * expr;
-	//class question* ques;
-	struct cmpd_stmt * c_stmt;
+	DataType dt;
+	struct AbstractStatement * stmt;
+	struct AbstractExpression * expr;
+	//class AbstractQuestion* ques;
+	struct CompoundStatement * c_stmt;
+	struct FunctionParameter * v_list;
 
-}
-/* Line 187 of yacc.c.  */
-#line 208 "q.tab.c"
-	YYSTYPE;
+
+
+
+
+/* Line 214 of yacc.c  */
+#line 196 "q.tab.c"
+} YYSTYPE;
+# define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
 #endif
-
 
 
 /* Copy the second part of user declarations.  */
 
 
-/* Line 216 of yacc.c.  */
-#line 221 "q.tab.c"
+/* Line 264 of yacc.c  */
+#line 208 "q.tab.c"
 
 #ifdef short
 # undef short
@@ -292,14 +279,14 @@ typedef short int yytype_int16;
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static int
-YYID (int i)
+YYID (int yyi)
 #else
 static int
-YYID (i)
-    int i;
+YYID (yyi)
+    int yyi;
 #endif
 {
-  return i;
+  return yyi;
 }
 #endif
 
@@ -380,9 +367,9 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  yytype_int16 yyss;
-  YYSTYPE yyvs;
-  };
+  yytype_int16 yyss_alloc;
+  YYSTYPE yyvs_alloc;
+};
 
 /* The size of the maximum gap between one aligned stack and the next.  */
 # define YYSTACK_GAP_MAXIMUM (sizeof (union yyalloc) - 1)
@@ -416,12 +403,12 @@ union yyalloc
    elements in the stack, and YYPTR gives the new location of the
    stack.  Advance YYPTR to a properly aligned location for the next
    stack.  */
-# define YYSTACK_RELOCATE(Stack)					\
+# define YYSTACK_RELOCATE(Stack_alloc, Stack)				\
     do									\
       {									\
 	YYSIZE_T yynewbytes;						\
-	YYCOPY (&yyptr->Stack, Stack, yysize);				\
-	Stack = &yyptr->Stack;						\
+	YYCOPY (&yyptr->Stack_alloc, Stack, yysize);			\
+	Stack = &yyptr->Stack_alloc;					\
 	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
 	yyptr += yynewbytes / sizeof (*yyptr);				\
       }									\
@@ -430,22 +417,22 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  5
+#define YYFINAL  14
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   485
+#define YYLAST   534
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  50
+#define YYNTOKENS  53
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  24
+#define YYNNTS  28
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  72
+#define YYNRULES  84
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  153
+#define YYNSTATES  188
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   288
+#define YYMAXUTOK   290
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -456,16 +443,16 @@ static const yytype_uint8 yytranslate[] =
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,    37,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,    37,    49,     2,
       20,    21,    35,    34,    24,    33,     2,    36,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    47,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    50,
       29,    22,    30,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,    18,     2,    19,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    49,     2,    48,     2,     2,     2,     2,
+       2,     2,     2,    52,     2,    51,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -481,67 +468,75 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    23,    25,    26,    27,    28,    31,    32,
-      38,    39,    40,    41,    42,    43,    44,    45,    46
+      38,    39,    40,    41,    42,    43,    44,    45,    46,    47,
+      48
 };
 
 #if YYDEBUG
 /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
    YYRHS.  */
-static const yytype_uint8 yyprhs[] =
+static const yytype_uint16 yyprhs[] =
 {
-       0,     0,     3,     5,     7,    10,    12,    14,    16,    18,
-      20,    22,    24,    26,    30,    37,    43,    50,    52,    54,
-      56,    58,    60,    62,    64,    66,    67,    78,    82,    84,
-      90,    98,   101,   108,   115,   119,   123,   127,   131,   135,
-     138,   142,   146,   150,   154,   158,   162,   166,   170,   174,
-     177,   179,   181,   183,   188,   195,   200,   202,   206,   210,
-     212,   216,   218,   223,   227,   229,   233,   237,   239,   240,
-     247,   250,   254
+       0,     0,     3,     5,     7,     8,    16,    18,    22,    25,
+      31,    35,    36,    38,    41,    43,    45,    47,    49,    51,
+      53,    55,    57,    61,    68,    74,    81,    83,    85,    87,
+      89,    91,    93,    95,    97,    98,   109,   113,   115,   121,
+     129,   132,   139,   146,   150,   154,   158,   162,   166,   169,
+     173,   177,   181,   185,   189,   193,   197,   201,   205,   208,
+     210,   212,   214,   219,   226,   231,   233,   237,   241,   243,
+     247,   249,   254,   258,   260,   264,   268,   270,   271,   278,
+     281,   285,   293,   301,   307
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      51,     0,    -1,    59,    -1,    56,    -1,    52,    56,    -1,
-       9,    -1,    10,    -1,    11,    -1,    12,    -1,    13,    -1,
-      14,    -1,    15,    -1,    23,    -1,    53,     5,    47,    -1,
-      54,    53,     5,    22,    64,    47,    -1,    53,     5,    22,
-      64,    47,    -1,    53,     5,    18,    64,    19,    47,    -1,
-      63,    -1,    62,    -1,    55,    -1,    70,    -1,    59,    -1,
-      61,    -1,    57,    -1,    73,    -1,    -1,    17,    20,    64,
-      47,    64,    47,    64,    21,    58,    59,    -1,    60,    52,
-      48,    -1,    49,    -1,    42,    20,    64,    21,    56,    -1,
-      42,    20,    64,    21,    56,    43,    56,    -1,    64,    47,
-      -1,     5,     6,    66,    53,    67,    47,    -1,     5,     6,
-      66,    53,     5,    47,    -1,    64,    34,    64,    -1,    64,
-      33,    64,    -1,    64,    35,    64,    -1,    64,    36,    64,
-      -1,    64,    37,    64,    -1,    33,    64,    -1,    64,    29,
-      64,    -1,    64,    30,    64,    -1,    64,    32,    64,    -1,
-      64,    31,    64,    -1,    64,    28,    64,    -1,    64,    27,
-      64,    -1,    64,    25,    64,    -1,    64,    26,    64,    -1,
-      64,    22,    64,    -1,    38,    64,    -1,     3,    -1,     4,
-      -1,     5,    -1,     5,    18,    64,    19,    -1,     5,    18,
-      64,    24,    64,    19,    -1,     5,    20,    65,    21,    -1,
-       6,    -1,    20,    64,    21,    -1,    64,    16,    67,    -1,
-      64,    -1,    65,    24,    64,    -1,     7,    -1,     8,    20,
-       3,    21,    -1,    20,    68,    21,    -1,    69,    -1,    68,
-      24,    69,    -1,     3,    33,     3,    -1,     3,    -1,    -1,
-      44,     5,    71,    22,    72,    47,    -1,     6,     3,    -1,
-      72,     6,     3,    -1,    45,    20,     5,    24,     5,    21,
-      47,    -1
+      54,     0,    -1,    66,    -1,    55,    -1,    -1,    60,     5,
+      20,    57,    21,    56,    66,    -1,    58,    -1,    57,    24,
+      58,    -1,    60,     5,    -1,    60,     5,    18,     3,    19,
+      -1,    60,    49,     5,    -1,    -1,    63,    -1,    59,    63,
+      -1,     9,    -1,    10,    -1,    11,    -1,    12,    -1,    13,
+      -1,    14,    -1,    15,    -1,    23,    -1,    60,     5,    50,
+      -1,    61,    60,     5,    22,    71,    50,    -1,    60,     5,
+      22,    71,    50,    -1,    60,     5,    18,    71,    19,    50,
+      -1,    70,    -1,    69,    -1,    62,    -1,    77,    -1,    66,
+      -1,    68,    -1,    64,    -1,    80,    -1,    -1,    17,    20,
+      71,    50,    71,    50,    71,    21,    65,    66,    -1,    67,
+      59,    51,    -1,    52,    -1,    42,    20,    71,    21,    63,
+      -1,    42,    20,    71,    21,    63,    43,    63,    -1,    71,
+      50,    -1,     5,     6,    73,    60,    74,    50,    -1,     5,
+       6,    73,    60,     5,    50,    -1,    71,    34,    71,    -1,
+      71,    33,    71,    -1,    71,    35,    71,    -1,    71,    36,
+      71,    -1,    71,    37,    71,    -1,    33,    71,    -1,    71,
+      29,    71,    -1,    71,    30,    71,    -1,    71,    32,    71,
+      -1,    71,    31,    71,    -1,    71,    28,    71,    -1,    71,
+      27,    71,    -1,    71,    25,    71,    -1,    71,    26,    71,
+      -1,    71,    22,    71,    -1,    38,    71,    -1,     3,    -1,
+       4,    -1,     5,    -1,     5,    18,    71,    19,    -1,     5,
+      18,    71,    24,    71,    19,    -1,     5,    20,    72,    21,
+      -1,     6,    -1,    20,    71,    21,    -1,    71,    16,    74,
+      -1,    71,    -1,    72,    24,    71,    -1,     7,    -1,     8,
+      20,     3,    21,    -1,    20,    75,    21,    -1,    76,    -1,
+      75,    24,    76,    -1,     3,    33,     3,    -1,     3,    -1,
+      -1,    44,     5,    78,    22,    79,    50,    -1,     6,     3,
+      -1,    79,     6,     3,    -1,    45,    20,     5,    24,     5,
+      21,    50,    -1,    46,    20,     5,    24,     5,    21,    50,
+      -1,    47,    20,     5,    21,    50,    -1,    48,    20,     5,
+      21,    50,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   121,   121,   130,   141,   149,   150,   151,   152,   153,
-     154,   155,   158,   163,   168,   170,   174,   185,   186,   187,
-     188,   189,   192,   193,   194,   198,   198,   213,   264,   304,
-     314,   326,   357,   426,   507,   516,   525,   534,   543,   552,
-     561,   570,   579,   588,   597,   606,   615,   624,   635,   644,
-     653,   662,   670,   678,   687,   696,   748,   755,   762,   780,
-     781,   786,   787,   790,   794,   795,   798,   808,   813,   813,
-     831,   838,   849
+       0,   129,   129,   136,   142,   142,   176,   180,   186,   193,
+     202,   211,   219,   228,   236,   237,   238,   239,   240,   241,
+     242,   245,   250,   255,   257,   261,   272,   273,   274,   275,
+     276,   279,   280,   281,   285,   285,   300,   305,   313,   323,
+     335,   355,   359,   367,   376,   385,   394,   403,   412,   421,
+     430,   439,   448,   457,   466,   475,   484,   495,   504,   513,
+     522,   530,   538,   547,   556,   611,   618,   625,   643,   644,
+     649,   650,   655,   659,   660,   663,   675,   680,   680,   699,
+     706,   717,   721,   725,   728
 };
 #endif
 
@@ -555,12 +550,13 @@ static const char *const yytname[] =
   "DOUBLE_T", "STRING_T", "IN", "FOR", "'['", "']'", "'('", "')'", "'='",
   "CONST", "','", "LOGOR", "LOGAND", "NOEQ", "ISEQ", "'<'", "'>'", "GEQ",
   "LEQ", "'-'", "'+'", "'*'", "'/'", "'%'", "NOT", "UMINUS", "COUNT",
-  "FUNC_CALL", "IF", "ELSE", "STUBS_LIST", "SETDEL", "SETADD", "';'",
-  "'}'", "'{'", "$accept", "prog", "stmt_list", "datatype", "type_qual",
-  "decl_stmt", "stmt", "for_loop_stmt", "@1", "cmpd_stmt", "open_curly",
-  "if_stmt", "expr_stmt", "question", "expression", "expr_list", "qtype",
-  "range_allowed_values", "range_list", "range", "stubs", "@2",
-  "stub_list", "stub_manip_stmts", 0
+  "FUNC_CALL", "IF", "ELSE", "STUBS_LIST", "SETDEL", "SETADD", "UNSET",
+  "SETALL", "'&'", "';'", "'}'", "'{'", "$accept", "prog", "func_defn",
+  "$@1", "decl_comma_list", "var_decl", "stmt_list", "datatype",
+  "type_qual", "decl_stmt", "stmt", "for_loop_stmt", "$@2", "cmpd_stmt",
+  "open_curly", "if_stmt", "expr_stmt", "question", "expression",
+  "expr_list", "qtype", "range_allowed_values", "range_list", "range",
+  "stubs", "$@3", "stub_list", "stub_manip_stmts", 0
 };
 #endif
 
@@ -573,34 +569,37 @@ static const yytype_uint16 yytoknum[] =
      265,   266,   267,   268,   269,   270,   271,   272,    91,    93,
       40,    41,    61,   273,    44,   274,   275,   276,   277,    60,
       62,   278,   279,    45,    43,    42,    47,    37,   280,   281,
-     282,   283,   284,   285,   286,   287,   288,    59,   125,   123
+     282,   283,   284,   285,   286,   287,   288,   289,   290,    38,
+      59,   125,   123
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    50,    51,    52,    52,    53,    53,    53,    53,    53,
-      53,    53,    54,    55,    55,    55,    55,    56,    56,    56,
-      56,    56,    56,    56,    56,    58,    57,    59,    60,    61,
-      61,    62,    63,    63,    64,    64,    64,    64,    64,    64,
-      64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
-      64,    64,    64,    64,    64,    64,    64,    64,    64,    65,
-      65,    66,    66,    67,    68,    68,    69,    69,    71,    70,
-      72,    72,    73
+       0,    53,    54,    54,    56,    55,    57,    57,    58,    58,
+      58,    58,    59,    59,    60,    60,    60,    60,    60,    60,
+      60,    61,    62,    62,    62,    62,    63,    63,    63,    63,
+      63,    63,    63,    63,    65,    64,    66,    67,    68,    68,
+      69,    70,    70,    71,    71,    71,    71,    71,    71,    71,
+      71,    71,    71,    71,    71,    71,    71,    71,    71,    71,
+      71,    71,    71,    71,    71,    71,    71,    71,    72,    72,
+      73,    73,    74,    75,    75,    76,    76,    78,    77,    79,
+      79,    80,    80,    80,    80
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     1,     1,     1,     1,     1,
-       1,     1,     1,     3,     6,     5,     6,     1,     1,     1,
-       1,     1,     1,     1,     1,     0,    10,     3,     1,     5,
-       7,     2,     6,     6,     3,     3,     3,     3,     3,     2,
-       3,     3,     3,     3,     3,     3,     3,     3,     3,     2,
-       1,     1,     1,     4,     6,     4,     1,     3,     3,     1,
-       3,     1,     4,     3,     1,     3,     3,     1,     0,     6,
-       2,     3,     7
+       0,     2,     1,     1,     0,     7,     1,     3,     2,     5,
+       3,     0,     1,     2,     1,     1,     1,     1,     1,     1,
+       1,     1,     3,     6,     5,     6,     1,     1,     1,     1,
+       1,     1,     1,     1,     0,    10,     3,     1,     5,     7,
+       2,     6,     6,     3,     3,     3,     3,     3,     2,     3,
+       3,     3,     3,     3,     3,     3,     3,     3,     2,     1,
+       1,     1,     4,     6,     4,     1,     3,     3,     1,     3,
+       1,     4,     3,     1,     3,     3,     1,     0,     6,     2,
+       3,     7,     7,     5,     5
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -608,61 +607,67 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,    28,     0,     2,     0,     1,    50,    51,    52,    56,
-       5,     6,     7,     8,     9,    10,    11,     0,     0,    12,
-       0,     0,     0,     0,     0,     0,     0,     0,    19,     3,
-      23,    21,    22,    18,    17,     0,    20,    24,     0,     0,
-       0,     0,    52,     0,    39,    49,     0,    68,     0,    27,
-       4,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,    31,    61,
-       0,     0,     0,    59,     0,     0,    57,     0,     0,     0,
-       0,     0,    13,     0,     0,    58,    48,    46,    47,    45,
-      44,    40,    41,    43,    42,    35,    34,    36,    37,    38,
-       0,     0,    53,     0,    55,     0,     0,     0,     0,     0,
-       0,     0,     0,    67,     0,    64,     0,     0,     0,     0,
-      60,     0,    29,     0,     0,     0,     0,    15,     0,     0,
-      63,     0,    62,    33,    32,    54,     0,     0,    70,     0,
-      69,     0,    16,    14,    66,    65,     0,    30,    71,    72,
-      25,     0,    26
+       0,    14,    15,    16,    17,    18,    19,    20,    37,     0,
+       3,     0,     2,     0,     1,     0,    59,    60,    61,    65,
+       0,     0,    21,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,    28,    12,    32,    30,    31,    27,
+      26,     0,    29,    33,    11,     0,     0,     0,     0,    61,
+       0,    48,    58,     0,    77,     0,     0,     0,     0,    36,
+      13,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,    40,     0,
+       6,     0,    70,     0,     0,     0,    68,     0,     0,    66,
+       0,     0,     0,     0,     0,     0,     0,     0,    22,     0,
+       0,    67,    57,    55,    56,    54,    53,    49,    50,    52,
+      51,    44,    43,    45,    46,    47,     4,    11,     8,     0,
+       0,     0,    62,     0,    64,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,    76,     0,    73,     0,
+       7,     0,    10,     0,     0,     0,     0,    69,     0,    38,
+       0,     0,     0,     0,    83,    84,     0,    24,     0,     0,
+      72,     0,     5,     0,    71,    42,    41,    63,     0,     0,
+      79,     0,    78,     0,     0,    25,    23,    75,    74,     9,
+       0,    39,    80,    81,    82,    34,     0,    35
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
-      -1,     2,    25,    26,    27,    28,    29,    30,   151,    31,
-       4,    32,    33,    34,    35,    74,    71,    85,   114,   115,
-      36,    78,   124,    37
+      -1,     9,    10,   139,    79,    80,    31,    32,    33,    34,
+      35,    36,   186,    37,    13,    38,    39,    40,    41,    87,
+      84,   101,   137,   138,    42,    91,   151,    43
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -42
+#define YYPACT_NINF -30
 static const yytype_int16 yypact[] =
 {
-     -41,   -42,    10,   -42,   135,   -42,   -42,   -42,    12,   -42,
-     -42,   -42,   -42,   -42,   -42,   -42,   -42,    -4,   156,   -42,
-     156,   156,    11,    15,    13,    87,    48,   425,   -42,   -42,
-     -42,   -42,   -42,   -42,   -42,    40,   -42,   -42,    28,   156,
-     156,   156,     1,   285,    38,    38,   156,   -42,    50,   -42,
-     -42,   -13,    52,    39,   156,   156,   156,   156,   156,   156,
-     156,   156,   156,   156,   156,   156,   156,   156,   -42,   -42,
-      63,   425,   263,   395,    -9,   170,   -42,   307,    36,    61,
-     156,   156,   -42,    72,    57,   -42,   395,   417,   439,   448,
-     448,    45,    45,    45,    45,   -10,   -10,    38,    38,    38,
-     100,     8,   -42,   156,   -42,   156,   156,   135,    99,   101,
-     329,   193,   156,    75,    -7,   -42,    88,    64,    65,   351,
-     395,   216,    70,   112,     5,    95,    71,   -42,   239,   114,
-     -42,    57,   -42,   -42,   -42,   -42,   156,   135,   -42,   118,
-     -42,    76,   -42,   -42,   -42,   -42,   373,   -42,   -42,   -42,
-     -42,   -41,   -42
+      26,   -30,   -30,   -30,   -30,   -30,   -30,   -30,   -30,    13,
+     -30,    14,   -30,   146,   -30,    -4,   -30,   -30,     2,   -30,
+      -2,   167,   -30,   167,   167,     9,    29,    23,    40,    52,
+      55,    79,    74,    53,   -30,   -30,   -30,   -30,   -30,   -30,
+     -30,   181,   -30,   -30,    53,    16,   167,   167,   167,   -13,
+     334,    64,    64,   167,   -30,    76,    81,    82,    90,   -30,
+     -30,    -8,    92,    80,   167,   167,   167,   167,   167,   167,
+     167,   167,   167,   167,   167,   167,   167,   167,   -30,   -12,
+     -30,    10,   -30,    84,    53,   312,   444,    49,   207,   -30,
+     356,    85,    77,    86,    87,    93,   167,   167,   -30,    89,
+     110,   -30,   444,   466,   488,   497,   497,   100,   100,   100,
+     100,    -5,    -5,    64,    64,    64,   -30,    53,   101,   113,
+     117,     1,   -30,   167,   -30,   167,   167,   146,   116,   123,
+     124,    88,    91,   378,   233,   167,    99,    50,   -30,    94,
+     -30,   140,   -30,   126,    95,   103,   400,   444,   259,   111,
+     141,    11,   143,   144,   -30,   -30,   112,   -30,   285,   164,
+     -30,   110,   -30,   149,   -30,   -30,   -30,   -30,   167,   146,
+     -30,   171,   -30,   125,   127,   -30,   -30,   -30,   -30,   -30,
+     422,   -30,   -30,   -30,   -30,   -30,    94,   -30
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -42,   -42,   -42,   -20,   -42,   -42,   -23,   -42,   -42,     0,
-     -42,   -42,   -42,   -42,   -17,   -42,   -42,    21,   -42,    -5,
-     -42,   -42,   -42,   -42
+     -30,   -30,   -30,   -30,   -30,    59,   -30,    25,   -30,   -30,
+     -29,   -30,   -30,     0,   -30,   -30,   -30,   -30,   -20,   -30,
+     -30,    57,   -30,    19,   -30,   -30,   -30,   -30
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -672,130 +677,143 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       3,    43,    50,    44,    45,    80,    53,    52,     1,    81,
-       5,   139,   104,   117,   130,   105,    41,   131,    38,    39,
-      47,    40,    72,    73,    75,    65,    66,    67,    84,    77,
-      39,    46,    40,    48,    82,    69,    70,    86,    87,    88,
-      89,    90,    91,    92,    93,    94,    95,    96,    97,    98,
-      99,   101,   140,    51,    53,    79,    53,    83,   108,    84,
-     113,    53,    54,   110,   111,    55,    56,    57,    58,    59,
-      60,    61,    62,    63,    64,    65,    66,    67,    63,    64,
-      65,    66,    67,   100,   122,   109,   119,    68,   120,   121,
-       6,     7,     8,     9,   112,   128,    10,    11,    12,    13,
-      14,    15,    16,   116,    17,   123,   125,    18,   129,   132,
-      19,   133,   134,   137,   147,   138,   141,   144,   142,   146,
-      20,   148,   118,   149,     0,    21,   145,     0,     0,    22,
-       0,    23,    24,     0,     0,    49,     1,     0,     6,     7,
-       8,     9,     0,     0,    10,    11,    12,    13,    14,    15,
-      16,   152,    17,     0,     0,    18,     0,     0,    19,     6,
-       7,    42,     9,     0,     0,     0,     0,     0,    20,     0,
-       0,     0,     0,    21,     0,     0,    18,    22,     0,    23,
-      24,     0,     0,     0,     1,     0,    53,     0,     0,    20,
-       0,     0,    54,     0,    21,    55,    56,    57,    58,    59,
-      60,    61,    62,    63,    64,    65,    66,    67,     0,    53,
-       0,     0,     0,     0,     0,    54,     0,   106,    55,    56,
-      57,    58,    59,    60,    61,    62,    63,    64,    65,    66,
-      67,     0,    53,     0,     0,     0,     0,     0,    54,     0,
-     127,    55,    56,    57,    58,    59,    60,    61,    62,    63,
-      64,    65,    66,    67,     0,    53,     0,     0,     0,     0,
-       0,    54,     0,   136,    55,    56,    57,    58,    59,    60,
-      61,    62,    63,    64,    65,    66,    67,     0,     0,    53,
-       0,     0,   102,     0,     0,    54,   143,   103,    55,    56,
-      57,    58,    59,    60,    61,    62,    63,    64,    65,    66,
-      67,    53,     0,     0,     0,     0,    76,    54,     0,     0,
-      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
-      65,    66,    67,    53,     0,     0,     0,     0,   107,    54,
-       0,     0,    55,    56,    57,    58,    59,    60,    61,    62,
-      63,    64,    65,    66,    67,    53,     0,     0,   126,     0,
-       0,    54,     0,     0,    55,    56,    57,    58,    59,    60,
-      61,    62,    63,    64,    65,    66,    67,    53,     0,     0,
-     135,     0,     0,    54,     0,     0,    55,    56,    57,    58,
-      59,    60,    61,    62,    63,    64,    65,    66,    67,    53,
-       0,     0,     0,     0,   150,    54,     0,     0,    55,    56,
-      57,    58,    59,    60,    61,    62,    63,    64,    65,    66,
-      67,    53,     0,     0,     0,     0,     0,    54,     0,     0,
-      55,    56,    57,    58,    59,    60,    61,    62,    63,    64,
-      65,    66,    67,    53,    10,    11,    12,    13,    14,    15,
-      16,     0,     0,    56,    57,    58,    59,    60,    61,    62,
-      63,    64,    65,    66,    67,    53,     0,     0,     0,     0,
-       0,     0,     0,     0,    53,     0,    57,    58,    59,    60,
-      61,    62,    63,    64,    65,    66,    67,    59,    60,    61,
-      62,    63,    64,    65,    66,    67
+      12,    50,    60,    51,    52,    46,   144,    47,    45,   116,
+      96,    63,   117,    14,    97,   118,    44,   171,    48,    15,
+      46,   100,    47,    82,    83,    11,    85,    86,    88,    53,
+      75,    76,    77,    90,    54,     1,     2,     3,     4,     5,
+       6,     7,    98,    55,   102,   103,   104,   105,   106,   107,
+     108,   109,   110,   111,   112,   113,   114,   115,    62,   119,
+      56,   172,     1,     2,     3,     4,     5,     6,     7,    81,
+     124,   160,    57,   125,   161,    58,   133,   134,     8,    61,
+      63,    92,    16,    17,    18,    19,    93,    94,     1,     2,
+       3,     4,     5,     6,     7,    95,    20,    99,   149,    21,
+     100,   129,    22,   146,   120,   147,   148,   128,   131,   121,
+     130,   135,    23,   136,   132,   158,    63,    24,   142,   141,
+     143,    25,   150,    26,    27,    28,    29,    30,   152,   153,
+      59,     8,   159,    73,    74,    75,    76,    77,   154,   162,
+     181,   155,    81,   163,   170,   165,     8,   164,   180,    16,
+      17,    18,    19,   166,   169,     1,     2,     3,     4,     5,
+       6,     7,   175,    20,   173,   174,    21,   177,   179,    22,
+      16,    17,    49,    19,   182,   183,   140,   184,   145,    23,
+     178,     0,     0,     0,    24,     0,   187,    21,    25,     0,
+      26,    27,    28,    29,    30,     0,     0,    63,     8,     0,
+      23,     0,     0,    64,     0,    24,    65,    66,    67,    68,
+      69,    70,    71,    72,    73,    74,    75,    76,    77,     0,
+       0,     0,     0,    63,     0,     0,     0,     0,     0,    64,
+       0,    78,    65,    66,    67,    68,    69,    70,    71,    72,
+      73,    74,    75,    76,    77,     0,     0,     0,     0,    63,
+       0,     0,     0,     0,     0,    64,     0,   126,    65,    66,
+      67,    68,    69,    70,    71,    72,    73,    74,    75,    76,
+      77,     0,     0,     0,     0,    63,     0,     0,     0,     0,
+       0,    64,     0,   157,    65,    66,    67,    68,    69,    70,
+      71,    72,    73,    74,    75,    76,    77,     0,     0,     0,
+       0,    63,     0,     0,     0,     0,     0,    64,     0,   168,
+      65,    66,    67,    68,    69,    70,    71,    72,    73,    74,
+      75,    76,    77,     0,     0,     0,     0,     0,    63,     0,
+       0,   122,     0,     0,    64,   176,   123,    65,    66,    67,
+      68,    69,    70,    71,    72,    73,    74,    75,    76,    77,
+      63,     0,     0,     0,     0,    89,    64,     0,     0,    65,
+      66,    67,    68,    69,    70,    71,    72,    73,    74,    75,
+      76,    77,    63,     0,     0,     0,     0,   127,    64,     0,
+       0,    65,    66,    67,    68,    69,    70,    71,    72,    73,
+      74,    75,    76,    77,    63,     0,     0,   156,     0,     0,
+      64,     0,     0,    65,    66,    67,    68,    69,    70,    71,
+      72,    73,    74,    75,    76,    77,    63,     0,     0,   167,
+       0,     0,    64,     0,     0,    65,    66,    67,    68,    69,
+      70,    71,    72,    73,    74,    75,    76,    77,    63,     0,
+       0,     0,     0,   185,    64,     0,     0,    65,    66,    67,
+      68,    69,    70,    71,    72,    73,    74,    75,    76,    77,
+      63,     0,     0,     0,     0,     0,    64,     0,     0,    65,
+      66,    67,    68,    69,    70,    71,    72,    73,    74,    75,
+      76,    77,    63,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,    66,    67,    68,    69,    70,    71,    72,    73,
+      74,    75,    76,    77,    63,     0,     0,     0,     0,     0,
+       0,     0,     0,    63,     0,    67,    68,    69,    70,    71,
+      72,    73,    74,    75,    76,    77,    69,    70,    71,    72,
+      73,    74,    75,    76,    77
 };
 
 static const yytype_int16 yycheck[] =
 {
-       0,    18,    25,    20,    21,    18,    16,    27,    49,    22,
-       0,     6,    21,     5,    21,    24,    20,    24,     6,    18,
-       5,    20,    39,    40,    41,    35,    36,    37,    20,    46,
-      18,    20,    20,    20,    47,     7,     8,    54,    55,    56,
-      57,    58,    59,    60,    61,    62,    63,    64,    65,    66,
-      67,    71,    47,     5,    16,     5,    16,     5,    22,    20,
-       3,    16,    22,    80,    81,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    33,    34,
-      35,    36,    37,    20,   107,    24,   103,    47,   105,   106,
-       3,     4,     5,     6,    22,   112,     9,    10,    11,    12,
-      13,    14,    15,     3,    17,     6,     5,    20,    33,    21,
-      23,    47,    47,    43,   137,     3,    21,     3,    47,   136,
-      33,     3,   101,    47,    -1,    38,   131,    -1,    -1,    42,
-      -1,    44,    45,    -1,    -1,    48,    49,    -1,     3,     4,
-       5,     6,    -1,    -1,     9,    10,    11,    12,    13,    14,
-      15,   151,    17,    -1,    -1,    20,    -1,    -1,    23,     3,
-       4,     5,     6,    -1,    -1,    -1,    -1,    -1,    33,    -1,
-      -1,    -1,    -1,    38,    -1,    -1,    20,    42,    -1,    44,
-      45,    -1,    -1,    -1,    49,    -1,    16,    -1,    -1,    33,
-      -1,    -1,    22,    -1,    38,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    -1,    16,
-      -1,    -1,    -1,    -1,    -1,    22,    -1,    47,    25,    26,
+       0,    21,    31,    23,    24,    18,     5,    20,     6,    21,
+      18,    16,    24,     0,    22,     5,    20,     6,    20,     5,
+      18,    20,    20,     7,     8,     0,    46,    47,    48,    20,
+      35,    36,    37,    53,     5,     9,    10,    11,    12,    13,
+      14,    15,    50,    20,    64,    65,    66,    67,    68,    69,
+      70,    71,    72,    73,    74,    75,    76,    77,    33,    49,
+      20,    50,     9,    10,    11,    12,    13,    14,    15,    44,
+      21,    21,    20,    24,    24,    20,    96,    97,    52,     5,
+      16,     5,     3,     4,     5,     6,     5,     5,     9,    10,
+      11,    12,    13,    14,    15,     5,    17,     5,   127,    20,
+      20,    24,    23,   123,    20,   125,   126,    22,    21,    84,
+      24,    22,    33,     3,    21,   135,    16,    38,     5,    18,
+       3,    42,     6,    44,    45,    46,    47,    48,     5,     5,
+      51,    52,    33,    33,    34,    35,    36,    37,    50,   139,
+     169,    50,   117,     3,     3,    50,    52,    21,   168,     3,
+       4,     5,     6,    50,    43,     9,    10,    11,    12,    13,
+      14,    15,    50,    17,    21,    21,    20,     3,    19,    23,
+       3,     4,     5,     6,     3,    50,   117,    50,   121,    33,
+     161,    -1,    -1,    -1,    38,    -1,   186,    20,    42,    -1,
+      44,    45,    46,    47,    48,    -1,    -1,    16,    52,    -1,
+      33,    -1,    -1,    22,    -1,    38,    25,    26,    27,    28,
+      29,    30,    31,    32,    33,    34,    35,    36,    37,    -1,
+      -1,    -1,    -1,    16,    -1,    -1,    -1,    -1,    -1,    22,
+      -1,    50,    25,    26,    27,    28,    29,    30,    31,    32,
+      33,    34,    35,    36,    37,    -1,    -1,    -1,    -1,    16,
+      -1,    -1,    -1,    -1,    -1,    22,    -1,    50,    25,    26,
       27,    28,    29,    30,    31,    32,    33,    34,    35,    36,
-      37,    -1,    16,    -1,    -1,    -1,    -1,    -1,    22,    -1,
-      47,    25,    26,    27,    28,    29,    30,    31,    32,    33,
-      34,    35,    36,    37,    -1,    16,    -1,    -1,    -1,    -1,
-      -1,    22,    -1,    47,    25,    26,    27,    28,    29,    30,
-      31,    32,    33,    34,    35,    36,    37,    -1,    -1,    16,
-      -1,    -1,    19,    -1,    -1,    22,    47,    24,    25,    26,
-      27,    28,    29,    30,    31,    32,    33,    34,    35,    36,
-      37,    16,    -1,    -1,    -1,    -1,    21,    22,    -1,    -1,
+      37,    -1,    -1,    -1,    -1,    16,    -1,    -1,    -1,    -1,
+      -1,    22,    -1,    50,    25,    26,    27,    28,    29,    30,
+      31,    32,    33,    34,    35,    36,    37,    -1,    -1,    -1,
+      -1,    16,    -1,    -1,    -1,    -1,    -1,    22,    -1,    50,
       25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    16,    -1,    -1,    -1,    -1,    21,    22,
-      -1,    -1,    25,    26,    27,    28,    29,    30,    31,    32,
-      33,    34,    35,    36,    37,    16,    -1,    -1,    19,    -1,
-      -1,    22,    -1,    -1,    25,    26,    27,    28,    29,    30,
-      31,    32,    33,    34,    35,    36,    37,    16,    -1,    -1,
-      19,    -1,    -1,    22,    -1,    -1,    25,    26,    27,    28,
-      29,    30,    31,    32,    33,    34,    35,    36,    37,    16,
-      -1,    -1,    -1,    -1,    21,    22,    -1,    -1,    25,    26,
-      27,    28,    29,    30,    31,    32,    33,    34,    35,    36,
-      37,    16,    -1,    -1,    -1,    -1,    -1,    22,    -1,    -1,
-      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
-      35,    36,    37,    16,     9,    10,    11,    12,    13,    14,
-      15,    -1,    -1,    26,    27,    28,    29,    30,    31,    32,
-      33,    34,    35,    36,    37,    16,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    16,    -1,    27,    28,    29,    30,
-      31,    32,    33,    34,    35,    36,    37,    29,    30,    31,
-      32,    33,    34,    35,    36,    37
+      35,    36,    37,    -1,    -1,    -1,    -1,    -1,    16,    -1,
+      -1,    19,    -1,    -1,    22,    50,    24,    25,    26,    27,
+      28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
+      16,    -1,    -1,    -1,    -1,    21,    22,    -1,    -1,    25,
+      26,    27,    28,    29,    30,    31,    32,    33,    34,    35,
+      36,    37,    16,    -1,    -1,    -1,    -1,    21,    22,    -1,
+      -1,    25,    26,    27,    28,    29,    30,    31,    32,    33,
+      34,    35,    36,    37,    16,    -1,    -1,    19,    -1,    -1,
+      22,    -1,    -1,    25,    26,    27,    28,    29,    30,    31,
+      32,    33,    34,    35,    36,    37,    16,    -1,    -1,    19,
+      -1,    -1,    22,    -1,    -1,    25,    26,    27,    28,    29,
+      30,    31,    32,    33,    34,    35,    36,    37,    16,    -1,
+      -1,    -1,    -1,    21,    22,    -1,    -1,    25,    26,    27,
+      28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
+      16,    -1,    -1,    -1,    -1,    -1,    22,    -1,    -1,    25,
+      26,    27,    28,    29,    30,    31,    32,    33,    34,    35,
+      36,    37,    16,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    26,    27,    28,    29,    30,    31,    32,    33,
+      34,    35,    36,    37,    16,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    16,    -1,    27,    28,    29,    30,    31,
+      32,    33,    34,    35,    36,    37,    29,    30,    31,    32,
+      33,    34,    35,    36,    37
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    49,    51,    59,    60,     0,     3,     4,     5,     6,
-       9,    10,    11,    12,    13,    14,    15,    17,    20,    23,
-      33,    38,    42,    44,    45,    52,    53,    54,    55,    56,
-      57,    59,    61,    62,    63,    64,    70,    73,     6,    18,
-      20,    20,     5,    64,    64,    64,    20,     5,    20,    48,
-      56,     5,    53,    16,    22,    25,    26,    27,    28,    29,
-      30,    31,    32,    33,    34,    35,    36,    37,    47,     7,
-       8,    66,    64,    64,    65,    64,    21,    64,    71,     5,
-      18,    22,    47,     5,    20,    67,    64,    64,    64,    64,
-      64,    64,    64,    64,    64,    64,    64,    64,    64,    64,
-      20,    53,    19,    24,    21,    24,    47,    21,    22,    24,
-      64,    64,    22,     3,    68,    69,     3,     5,    67,    64,
-      64,    64,    56,     6,    72,     5,    19,    47,    64,    33,
-      21,    24,    21,    47,    47,    19,    47,    43,     3,     6,
-      47,    21,    47,    47,     3,    69,    64,    56,     3,    47,
-      21,    58,    59
+       0,     9,    10,    11,    12,    13,    14,    15,    52,    54,
+      55,    60,    66,    67,     0,     5,     3,     4,     5,     6,
+      17,    20,    23,    33,    38,    42,    44,    45,    46,    47,
+      48,    59,    60,    61,    62,    63,    64,    66,    68,    69,
+      70,    71,    77,    80,    20,     6,    18,    20,    20,     5,
+      71,    71,    71,    20,     5,    20,    20,    20,    20,    51,
+      63,     5,    60,    16,    22,    25,    26,    27,    28,    29,
+      30,    31,    32,    33,    34,    35,    36,    37,    50,    57,
+      58,    60,     7,     8,    73,    71,    71,    72,    71,    21,
+      71,    78,     5,     5,     5,     5,    18,    22,    50,     5,
+      20,    74,    71,    71,    71,    71,    71,    71,    71,    71,
+      71,    71,    71,    71,    71,    71,    21,    24,     5,    49,
+      20,    60,    19,    24,    21,    24,    50,    21,    22,    24,
+      24,    21,    21,    71,    71,    22,     3,    75,    76,    56,
+      58,    18,     5,     3,     5,    74,    71,    71,    71,    63,
+       6,    79,     5,     5,    50,    50,    19,    50,    71,    33,
+      21,    24,    66,     3,    21,    50,    50,    19,    50,    43,
+       3,     6,    50,    21,    21,    50,    50,     3,    76,    19,
+      71,    63,     3,    50,    50,    21,    65,    66
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -980,17 +998,20 @@ yy_symbol_print (yyoutput, yytype, yyvaluep)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_stack_print (yytype_int16 *bottom, yytype_int16 *top)
+yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
 #else
 static void
-yy_stack_print (bottom, top)
-    yytype_int16 *bottom;
-    yytype_int16 *top;
+yy_stack_print (yybottom, yytop)
+    yytype_int16 *yybottom;
+    yytype_int16 *yytop;
 #endif
 {
   YYFPRINTF (stderr, "Stack now");
-  for (; bottom <= top; ++bottom)
-    YYFPRINTF (stderr, " %d", *bottom);
+  for (; yybottom <= yytop; yybottom++)
+    {
+      int yybot = *yybottom;
+      YYFPRINTF (stderr, " %d", yybot);
+    }
   YYFPRINTF (stderr, "\n");
 }
 
@@ -1024,11 +1045,11 @@ yy_reduce_print (yyvsp, yyrule)
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
-      fprintf (stderr, "   $%d = ", yyi + 1);
+      YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
 		       		       );
-      fprintf (stderr, "\n");
+      YYFPRINTF (stderr, "\n");
     }
 }
 
@@ -1308,10 +1329,8 @@ yydestruct (yymsg, yytype, yyvaluep)
 	break;
     }
 }
-
 
 /* Prevent warnings from -Wmissing-prototypes.  */
-
 #ifdef YYPARSE_PARAM
 #if defined __STDC__ || defined __cplusplus
 int yyparse (void *YYPARSE_PARAM);
@@ -1327,11 +1346,10 @@ int yyparse ();
 #endif /* ! YYPARSE_PARAM */
 
 
-
-/* The look-ahead symbol.  */
+/* The lookahead symbol.  */
 int yychar;
 
-/* The semantic value of the look-ahead symbol.  */
+/* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
 
 /* Number of syntax errors so far.  */
@@ -1339,9 +1357,9 @@ int yynerrs;
 
 
 
-/*----------.
-| yyparse.  |
-`----------*/
+/*-------------------------.
+| yyparse or yypush_parse.  |
+`-------------------------*/
 
 #ifdef YYPARSE_PARAM
 #if (defined __STDC__ || defined __C99__FUNC__ \
@@ -1365,14 +1383,39 @@ yyparse ()
 #endif
 #endif
 {
-  
-  int yystate;
+
+
+    int yystate;
+    /* Number of tokens to shift before error messages enabled.  */
+    int yyerrstatus;
+
+    /* The stacks and their tools:
+       `yyss': related to states.
+       `yyvs': related to semantic values.
+
+       Refer to the stacks thru separate pointers, to allow yyoverflow
+       to reallocate them elsewhere.  */
+
+    /* The state stack.  */
+    yytype_int16 yyssa[YYINITDEPTH];
+    yytype_int16 *yyss;
+    yytype_int16 *yyssp;
+
+    /* The semantic value stack.  */
+    YYSTYPE yyvsa[YYINITDEPTH];
+    YYSTYPE *yyvs;
+    YYSTYPE *yyvsp;
+
+    YYSIZE_T yystacksize;
+
   int yyn;
   int yyresult;
-  /* Number of tokens to shift before error messages enabled.  */
-  int yyerrstatus;
-  /* Look-ahead token as an internal (translated) token number.  */
-  int yytoken = 0;
+  /* Lookahead token as an internal (translated) token number.  */
+  int yytoken;
+  /* The variables used to return semantic value and location from the
+     action routines.  */
+  YYSTYPE yyval;
+
 #if YYERROR_VERBOSE
   /* Buffer for error messages, and its allocated size.  */
   char yymsgbuf[128];
@@ -1380,51 +1423,28 @@ yyparse ()
   YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
-  /* Three stacks and their tools:
-     `yyss': related to states,
-     `yyvs': related to semantic values,
-     `yyls': related to locations.
-
-     Refer to the stacks thru separate pointers, to allow yyoverflow
-     to reallocate them elsewhere.  */
-
-  /* The state stack.  */
-  yytype_int16 yyssa[YYINITDEPTH];
-  yytype_int16 *yyss = yyssa;
-  yytype_int16 *yyssp;
-
-  /* The semantic value stack.  */
-  YYSTYPE yyvsa[YYINITDEPTH];
-  YYSTYPE *yyvs = yyvsa;
-  YYSTYPE *yyvsp;
-
-
-
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
-
-  YYSIZE_T yystacksize = YYINITDEPTH;
-
-  /* The variables used to return semantic value and location from the
-     action routines.  */
-  YYSTYPE yyval;
-
 
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
+
+  yytoken = 0;
+  yyss = yyssa;
+  yyvs = yyvsa;
+  yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
 
   yystate = 0;
   yyerrstatus = 0;
   yynerrs = 0;
-  yychar = YYEMPTY;		/* Cause a token to be read.  */
+  yychar = YYEMPTY; /* Cause a token to be read.  */
 
   /* Initialize stack pointers.
      Waste one element of value and location stack
      so that they stay on the same level as the state stack.
      The wasted elements are never initialized.  */
-
   yyssp = yyss;
   yyvsp = yyvs;
 
@@ -1454,7 +1474,6 @@ yyparse ()
 	YYSTYPE *yyvs1 = yyvs;
 	yytype_int16 *yyss1 = yyss;
 
-
 	/* Each stack pointer address is followed by the size of the
 	   data in use in that stack, in bytes.  This used to be a
 	   conditional around just the two extra args, but that might
@@ -1462,7 +1481,6 @@ yyparse ()
 	yyoverflow (YY_("memory exhausted"),
 		    &yyss1, yysize * sizeof (*yyssp),
 		    &yyvs1, yysize * sizeof (*yyvsp),
-
 		    &yystacksize);
 
 	yyss = yyss1;
@@ -1485,9 +1503,8 @@ yyparse ()
 	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
 	if (! yyptr)
 	  goto yyexhaustedlab;
-	YYSTACK_RELOCATE (yyss);
-	YYSTACK_RELOCATE (yyvs);
-
+	YYSTACK_RELOCATE (yyss_alloc, yyss);
+	YYSTACK_RELOCATE (yyvs_alloc, yyvs);
 #  undef YYSTACK_RELOCATE
 	if (yyss1 != yyssa)
 	  YYSTACK_FREE (yyss1);
@@ -1498,7 +1515,6 @@ yyparse ()
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
 
-
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
 		  (unsigned long int) yystacksize));
 
@@ -1508,6 +1524,9 @@ yyparse ()
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
 
+  if (yystate == YYFINAL)
+    YYACCEPT;
+
   goto yybackup;
 
 /*-----------.
@@ -1516,16 +1535,16 @@ yyparse ()
 yybackup:
 
   /* Do appropriate processing given the current state.  Read a
-     look-ahead token if we need one and don't already have one.  */
+     lookahead token if we need one and don't already have one.  */
 
-  /* First try to decide what to do without reference to look-ahead token.  */
+  /* First try to decide what to do without reference to lookahead token.  */
   yyn = yypact[yystate];
   if (yyn == YYPACT_NINF)
     goto yydefault;
 
-  /* Not known => get a look-ahead token if don't already have one.  */
+  /* Not known => get a lookahead token if don't already have one.  */
 
-  /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
+  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
@@ -1557,20 +1576,16 @@ yybackup:
       goto yyreduce;
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
   /* Count tokens shifted since error; after three, turn off error
      status.  */
   if (yyerrstatus)
     yyerrstatus--;
 
-  /* Shift the look-ahead token.  */
+  /* Shift the lookahead token.  */
   YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
 
-  /* Discard the shifted token unless it is eof.  */
-  if (yychar != YYEOF)
-    yychar = YYEMPTY;
+  /* Discard the shifted token.  */
+  yychar = YYEMPTY;
 
   yystate = yyn;
   *++yyvsp = yylval;
@@ -1610,24 +1625,151 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 121 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 129 "q.y"
     {
 	qscript_parser::tree_root=(yyvsp[(1) - (1)].c_stmt);
-		while(qscript_parser::tree_root->prev) {
+		while(qscript_parser::tree_root->prev_) {
 			cerr << "This should never appear: climbing up the tree" << endl;
-			qscript_parser::tree_root=qscript_parser::tree_root->prev;
+			qscript_parser::tree_root=qscript_parser::tree_root->prev_;
 		}
 	;}
     break;
 
   case 3:
-#line 130 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 136 "q.y"
+    {
+		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
+	;}
+    break;
+
+  case 4:
+
+/* Line 1455 of yacc.c  */
+#line 142 "q.y"
+    {
+		string func_name_index((yyvsp[(2) - (5)].name));
+		flag_cmpd_stmt_is_a_func_body=Util::lookup_func(func_name_index);
+		if(flag_cmpd_stmt_is_a_func_body==-1){
+			++ no_errors;
+			cerr << "Function name not found in list of declared functions: "
+				<< "You will see another error on this same function name: " << func_name_index
+				<< "line_no: " << line_no  << endl;
+		}
+	;}
+    break;
+
+  case 5:
+
+/* Line 1455 of yacc.c  */
+#line 151 "q.y"
+    {
+		struct Statement::CompoundStatement* c_stmt= (yyvsp[(7) - (7)].c_stmt);
+		if(c_stmt==0){
+			cerr << "INTERNAL COMPILER ERROR: c_stmt==0" << endl;
+		} else {
+			//cout << "funcBody_: is valid " << endl;
+		}
+		struct Scope *scope_=c_stmt->scope_;
+		struct Statement::FunctionParameter * v_list=trav_chain((yyvsp[(4) - (7)].v_list));
+		struct Statement::AbstractStatement* funcBody_=(yyvsp[(7) - (7)].c_stmt);
+		string search_for=(yyvsp[(2) - (7)].name);
+		DataType returnType_=(yyvsp[(1) - (7)].dt);
+		(yyval.stmt)=new Statement::FunctionStatement(FUNC_DEFN, line_no, scope_, v_list, funcBody_, search_for, returnType_);
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
+		}
+		// Note that the declaration already has a parameter list
+		// the constructor uses the parameter list - name and type to verify everything
+		// but doesnt need the parameter list any more - so we should delete it 
+		// - took me a while to figure out this memory leak
+		delete v_list;
+		free((yyvsp[(2) - (7)].name));
+	;}
+    break;
+
+  case 6:
+
+/* Line 1455 of yacc.c  */
+#line 176 "q.y"
+    {
+		 (yyval.v_list)=(yyvsp[(1) - (1)].v_list);
+		 //cout << "got decl_comma_list : " << endl;
+	;}
+    break;
+
+  case 7:
+
+/* Line 1455 of yacc.c  */
+#line 180 "q.y"
+    {
+		(yyval.v_list)=link_chain((yyvsp[(1) - (3)].v_list),(yyvsp[(3) - (3)].v_list));
+		//cout << "chaining var_decl : " << endl;
+	;}
+    break;
+
+  case 8:
+
+/* Line 1455 of yacc.c  */
+#line 186 "q.y"
+    {
+		(yyval.v_list)=new Statement::FunctionParameter((yyvsp[(1) - (2)].dt), (yyvsp[(2) - (2)].name));
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.v_list), __LINE__, __FILE__, line_no);
+		}
+		free((yyvsp[(2) - (2)].name));
+	;}
+    break;
+
+  case 9:
+
+/* Line 1455 of yacc.c  */
+#line 193 "q.y"
+    {
+		/* Neil - I need to fix this */
+		DataType dt=DataType(INT8_ARR_TYPE+((yyvsp[(1) - (5)].dt)-INT8_TYPE));
+		(yyval.v_list)=new Statement::FunctionParameter(dt, (yyvsp[(2) - (5)].name), (yyvsp[(4) - (5)].ival));
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.v_list), __LINE__, __FILE__, line_no);
+		}
+		free((yyvsp[(2) - (5)].name));
+	;}
+    break;
+
+  case 10:
+
+/* Line 1455 of yacc.c  */
+#line 202 "q.y"
+    {
+		DataType dt=DataType(INT8_REF_TYPE+((yyvsp[(1) - (3)].dt)-INT8_TYPE));
+		(yyval.v_list)=new Statement::FunctionParameter(dt, (yyvsp[(3) - (3)].name));
+		if(XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.v_list), __LINE__, __FILE__, line_no);
+		}
+		free((yyvsp[(3) - (3)].name));
+	;}
+    break;
+
+  case 11:
+
+/* Line 1455 of yacc.c  */
+#line 211 "q.y"
+    {
+		(yyval.v_list)=0;
+		;}
+    break;
+
+  case 12:
+
+/* Line 1455 of yacc.c  */
+#line 219 "q.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 		if(qscript_parser::flag_next_stmt_start_of_block){
 			qscript_parser::blk_heads.push_back((yyvsp[(1) - (1)].stmt));
-			//cout << "blk_heads.size(): " << blk_heads.size() << endl;
-			//start_of_blk=$1;
 			qscript_parser::flag_next_stmt_start_of_block=false;
 			qscript_parser::blk_start_flag.pop_back();
 		}
@@ -1635,24 +1777,30 @@ yyreduce:
 	;}
     break;
 
-  case 4:
-#line 141 "q.y"
+  case 13:
+
+/* Line 1455 of yacc.c  */
+#line 228 "q.y"
     {
-		(yyvsp[(1) - (2)].stmt)->next=(yyvsp[(2) - (2)].stmt);
-		(yyvsp[(2) - (2)].stmt)->prev=(yyvsp[(1) - (2)].stmt);
+		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
+		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
 		(yyval.stmt)=(yyvsp[(2) - (2)].stmt);
 	;}
     break;
 
-  case 12:
-#line 158 "q.y"
+  case 21:
+
+/* Line 1455 of yacc.c  */
+#line 245 "q.y"
     {
 		   (yyval.type_qual) = CONST_QUAL;
 	;}
     break;
 
-  case 13:
-#line 163 "q.y"
+  case 22:
+
+/* Line 1455 of yacc.c  */
+#line 250 "q.y"
     {
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (3)].name), (yyvsp[(1) - (3)].dt)/*, line_no*/);
 		//free($2);
@@ -1660,52 +1808,64 @@ yyreduce:
 	;}
     break;
 
-  case 14:
-#line 168 "q.y"
+  case 23:
+
+/* Line 1455 of yacc.c  */
+#line 255 "q.y"
     {
 	;}
     break;
 
-  case 15:
-#line 170 "q.y"
+  case 24:
+
+/* Line 1455 of yacc.c  */
+#line 257 "q.y"
     {
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (5)].name), (yyvsp[(1) - (5)].dt), (yyvsp[(4) - (5)].expr));
 		// -- why am i not freeing this?
 	;}
     break;
 
-  case 16:
-#line 174 "q.y"
+  case 25:
+
+/* Line 1455 of yacc.c  */
+#line 261 "q.y"
     {
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
-		datatype dt=datatype(INT8_ARR_TYPE+((yyvsp[(1) - (6)].dt)-INT8_TYPE));
+		DataType dt=DataType(INT8_ARR_TYPE+((yyvsp[(1) - (6)].dt)-INT8_TYPE));
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (6)].name), dt, (yyvsp[(4) - (6)].expr)/*, line_no*/);
 		free((yyvsp[(2) - (6)].name));
 	;}
     break;
 
-  case 21:
-#line 189 "q.y"
+  case 30:
+
+/* Line 1455 of yacc.c  */
+#line 276 "q.y"
     {
 		(yyval.stmt) = (yyvsp[(1) - (1)].c_stmt);
 	;}
     break;
 
-  case 25:
-#line 198 "q.y"
+  case 34:
+
+/* Line 1455 of yacc.c  */
+#line 285 "q.y"
     {
-		++qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		++qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.push_back((yyvsp[(5) - (8)].expr));
 	;}
     break;
 
-  case 26:
-#line 201 "q.y"
+  case 35:
+
+/* Line 1455 of yacc.c  */
+#line 288 "q.y"
     {
 		using qscript_parser::line_no;
-		(yyval.stmt) = new for_stmt(FOR_STMT, line_no, (yyvsp[(3) - (10)].expr), (yyvsp[(5) - (10)].expr), (yyvsp[(7) - (10)].expr), (yyvsp[(10) - (10)].c_stmt));
+		(yyval.stmt) = new ForStatement(FOR_STMT, line_no, (yyvsp[(3) - (10)].expr), (yyvsp[(5) - (10)].expr), (yyvsp[(7) - (10)].expr), (yyvsp[(10) - (10)].c_stmt));
 
-		--qscript_parser::flag_cmpd_stmt_is_a_for_body;
+		--qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.pop_back();
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
@@ -1713,424 +1873,107 @@ yyreduce:
 	;}
     break;
 
-  case 27:
-#line 213 "q.y"
+  case 36:
+
+/* Line 1455 of yacc.c  */
+#line 300 "q.y"
     {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::blk_start_flag;
-		using qscript_parser::blk_heads;
-		using qscript_parser::mem_addr;
-		using qscript_parser::flag_next_stmt_start_of_block;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-
-		active_scope_list.pop_back();
-		int tmp=active_scope_list.size()-1;
-		if(tmp==-1) { 
-			active_scope = 0;
-			cerr << "Error: active_scope = NULL: should not happen: line_no:" << line_no
-				<< endl;
-			++no_errors;
-			(yyval.c_stmt)=new struct cmpd_stmt(ERROR_TYPE, line_no, 0, 0);
-			void *ptr=(yyval.c_stmt);
-			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-			mem_addr.push_back(m1);
-		} else { 
-			active_scope = active_scope_list[tmp]; 
-		}
-		struct stmt* head_of_this_chain=blk_heads.back();
-		if(blk_start_flag.size() > 0){
-			flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
-		}
-		if(  head_of_this_chain==0){
-			cerr << "Error in compiler : cmpd_bdy:  " << __FILE__ << __LINE__ << endl;
-			++no_errors;
-		} else {
-			(yyvsp[(1) - (3)].c_stmt)->cmpd_bdy = head_of_this_chain;
-			blk_heads.pop_back();
-		}
-
-		//! update the counter of enlosing cmpd_stmt with 
-		//! the number of questions in this cmpd_stmt being popped of
-		//! right now
-		if(stack_cmpd_stmt.size()>1){
-			cmpd_stmt * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
-			stack_cmpd_stmt.pop_back();
-			cmpd_stmt * current  = stack_cmpd_stmt.back();
-			current->counter_contains_questions+= 
-				(popped_off_cmpd_stmt_ptr->counter_contains_questions);
-		} 
-		(yyval.c_stmt)=(yyvsp[(1) - (3)].c_stmt);
+		(yyval.c_stmt) = qscript_parser::ProcessCompoundStatement((yyvsp[(1) - (3)].c_stmt), (yyvsp[(2) - (3)].stmt));
 	;}
     break;
 
-  case 28:
-#line 264 "q.y"
-    {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::blk_start_flag;
-		using qscript_parser::blk_heads;
-		using qscript_parser::mem_addr;
-		using qscript_parser::flag_next_stmt_start_of_block;
-		using qscript_parser::flag_cmpd_stmt_is_a_func_body;
-		using qscript_parser::flag_cmpd_stmt_is_a_for_body;
-		using qscript_parser::func_info_table;
-		using qscript_parser::nest_lev;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
+  case 37:
 
-		++nest_lev;
-		cmpd_stmt * cmpd_stmt_ptr= new cmpd_stmt(CMPD_STMT, 
-				line_no, flag_cmpd_stmt_is_a_func_body,
-				flag_cmpd_stmt_is_a_for_body);
-		(yyval.c_stmt) = cmpd_stmt_ptr;
-		stack_cmpd_stmt.push_back(cmpd_stmt_ptr);
-		void *ptr=(yyval.c_stmt);
-		mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
-		mem_addr.push_back(m1);
-		if(flag_cmpd_stmt_is_a_func_body>=0){
-			(yyval.c_stmt)->sc=func_info_table[qscript_parser::flag_cmpd_stmt_is_a_func_body]->func_scope;
-			// reset the flag
-			qscript_parser::flag_cmpd_stmt_is_a_func_body=-1;
-		} else {
-			(yyval.c_stmt)->sc= new scope();
-		}
-		qscript_parser::flag_next_stmt_start_of_block=true;
-		qscript_parser::blk_start_flag.push_back(flag_next_stmt_start_of_block);
-		qscript_parser::active_scope_list.push_back((yyval.c_stmt)->sc);
-		qscript_parser::active_scope = (yyval.c_stmt)->sc;
+/* Line 1455 of yacc.c  */
+#line 305 "q.y"
+    {
+		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
+		(yyval.c_stmt)=cmpdStmt;
 	;}
     break;
 
-  case 29:
-#line 304 "q.y"
+  case 38:
+
+/* Line 1455 of yacc.c  */
+#line 313 "q.y"
     {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		using qscript_parser::XTCC_DEBUG_MEM_USAGE;
-		(yyval.stmt)=new if_stmt(IFE_STMT,if_line_no,(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].stmt),0);
+		(yyval.stmt)=new IfStatement(IFE_STMT,if_line_no,(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].stmt),0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
-  case 30:
-#line 314 "q.y"
+  case 39:
+
+/* Line 1455 of yacc.c  */
+#line 323 "q.y"
     {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.stmt)=new if_stmt(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
+		(yyval.stmt)=new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, qscript_parser::line_no);
 		}
 	;}
     break;
 
-  case 31:
-#line 327 "q.y"
-    {
-		using qscript_parser::if_line_no;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		if((yyvsp[(1) - (2)].expr)->isvalid()){
-			(yyval.stmt) = new expr_stmt(TEXPR_STMT, line_no, (yyvsp[(1) - (2)].expr));
-			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
-			}
-		} else {
-			(yyval.stmt) = new expr_stmt(ERROR_TYPE, line_no, (yyvsp[(1) - (2)].expr));
-			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
-			}
-		}
-	;}
-    break;
-
-  case 32:
-#line 357 "q.y"
-    {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::mem_addr;
-		using qscript_parser::map_of_active_vars_for_questions;
-		using qscript_parser::question_list;
-		using qscript_parser::xs;
-		using qscript_parser::q_type;
-		using qscript_parser::no_mpn;
-		using qscript_parser::if_line_no;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-
-		string name((yyvsp[(1) - (6)].name));
-		string q_text((yyvsp[(2) - (6)].text_buf));
-		datatype dt=(yyvsp[(4) - (6)].dt);
-		// This is preparatory work
-		// for jumping between questions
-		// store
-		vector<string> active_push_vars;
-		vector<string> active_pop_vars;
-		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_push_vars, active_pop_vars);
-		}
-		string q_push_name = name + "_push";
-		string q_pop_name = name + "_pop";
-		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
-		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
-		
-		expr * arr_sz=0;
-		range_question * q=0;
-		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
-			cout << "flag_cmpd_stmt_is_a_for_body: " 
-				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
-			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
-			q= new range_question(QUESTION_TYPE, line_no, 
-				name, q_text, q_type, no_mpn, dt, xs
-				//, arr_sz
-				,qscript_parser::for_loop_max_counter_stack
-				);
-			//ostringstream s1, s2;
-			//arr_sz->print_expr(s1, s2);
-			//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
-		} else {
-			q= new range_question(QUESTION_TYPE, line_no, 
-				name, q_text, q_type, no_mpn, dt, xs);
-		}
-		if(stack_cmpd_stmt.size()==0){
-			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
-					"... exiting",
-					line_no, __LINE__, __FILE__  );
-			exit(1);
-		}
-		cmpd_stmt * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counter_contains_questions);
-		(yyval.stmt)=q;
-		question_list.push_back(q);
-		xs.reset();
-		// questions always get pushed in scope level 0 as they
-		// are global variables - no matter what the level of nesting
-		active_scope_list[0]->insert((yyvsp[(1) - (6)].name), QUESTION_TYPE);
-		// I need to modify the insert in scope to
-		// take a 3rd parameter which is a question *
-		// and store that into the symbol table
-		// I should be able to retrieve that 
-		// question* pointer later 
-	;}
-    break;
-
-  case 33:
-#line 426 "q.y"
-    {
-		using qscript_parser::active_scope;
-		using qscript_parser::active_scope_list;
-		using qscript_parser::stack_cmpd_stmt;
-		using qscript_parser::mem_addr;
-		using qscript_parser::map_of_active_vars_for_questions;
-		using qscript_parser::named_stubs_list;
-		using qscript_parser::question_list;
-		using qscript_parser::q_type;
-		using qscript_parser::no_mpn;
-		using qscript_parser::if_line_no;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		string name=(yyvsp[(1) - (6)].name);
-		string q_txt=(yyvsp[(2) - (6)].text_buf);
-		datatype dt=(yyvsp[(4) - (6)].dt);
-		string attribute_list_name=(yyvsp[(5) - (6)].name);
-
-		// This is preparatory work
-		// for jumping between questions
-		// store
-		vector<string> active_push_vars;
-		vector<string> active_pop_vars;
-		for(unsigned int i=0; i< active_scope_list.size(); ++i){
-			scope* sc_ptr= active_scope_list[i];
-			sc_ptr->print_scope(active_push_vars, active_pop_vars);
-		}
-		string q_push_name = name + "_push";
-		string q_pop_name = name + "_pop";
-		map_of_active_vars_for_questions[q_push_name] = active_push_vars;
-		map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
-
-		bool found=false;
-		struct named_range* nr_ptr = 0;
-		for(unsigned int i=0; i<named_stubs_list.size(); ++i){
-			nr_ptr = named_stubs_list[i];
-			if(nr_ptr->name==attribute_list_name){
-				found=true; break;
-			}
-		}
-		if(!found){
-			print_err(compiler_sem_err, string("named_stubs_list ") 
-				+ attribute_list_name + string(" not found \n"), line_no,
-				__LINE__, __FILE__);
-		}
-		
-		expr * arr_sz=0;
-		named_stub_question* q=0;
-		if(qscript_parser::flag_cmpd_stmt_is_a_for_body){
-			cout << "flag_cmpd_stmt_is_a_for_body: " 
-				<< qscript_parser::flag_cmpd_stmt_is_a_for_body << endl;
-			arr_sz = qscript_parser::recurse_for_index(qscript_parser::for_loop_max_counter_stack.size()-1);
-			q=new named_stub_question(QUESTION_TYPE, 
-				line_no, name, q_txt, 
-				q_type, no_mpn, dt, 
-				nr_ptr
-				//, arr_sz
-				,qscript_parser::for_loop_max_counter_stack
-				);
-		} else {
-			q=new named_stub_question(QUESTION_TYPE, 
-				line_no, name, q_txt, 
-				q_type, no_mpn, dt, 
-				nr_ptr);
-		}
-		question_list.push_back(q);
-		(yyval.stmt)=q;
-		active_scope_list[0]->insert((yyvsp[(1) - (6)].name), QUESTION_TYPE);
-		if(stack_cmpd_stmt.size()==0){
-			print_err(compiler_internal_error, "compound statement stack is 0 when parsing a question"
-					"... exiting",
-					line_no, __LINE__, __FILE__  );
-			exit(1);
-		}
-		cmpd_stmt * cmpd_stmt_ptr=stack_cmpd_stmt.back();
-		++(cmpd_stmt_ptr->counter_contains_questions);
-	;}
-    break;
-
-  case 34:
-#line 507 "q.y"
-    {
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		using qscript_parser::mem_addr;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
-	;}
-    break;
-
-  case 35:
-#line 516 "q.y"
-    {
-		using qscript_parser::mem_addr;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
-	;}
-    break;
-
-  case 36:
-#line 525 "q.y"
-    {
-		using qscript_parser::mem_addr;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
-	;}
-    break;
-
-  case 37:
-#line 534 "q.y"
-    {
-		using qscript_parser::mem_addr;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
-	;}
-    break;
-
-  case 38:
-#line 543 "q.y"
-    {
-		using qscript_parser::mem_addr;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
-	;}
-    break;
-
-  case 39:
-#line 552 "q.y"
-    {
-		using qscript_parser::mem_addr;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_umin);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
-	;}
-    break;
-
   case 40:
-#line 561 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 336 "q.y"
     {
-		using qscript_parser::mem_addr;
+		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		if((yyvsp[(1) - (2)].expr)->IsValid()){
+			(yyval.stmt) = new ExpressionStatement(TEXPR_STMT, line_no, (yyvsp[(1) - (2)].expr));
+			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
+			}
+		} else {
+			(yyval.stmt) = new ExpressionStatement(ERROR_TYPE, line_no, (yyvsp[(1) - (2)].expr));
+			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
+			}
 		}
 	;}
     break;
 
   case 41:
-#line 570 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 355 "q.y"
     {
-		using qscript_parser::mem_addr;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
+		(yyval.stmt) = qscript_parser::ProcessRangeQuestion((yyvsp[(1) - (6)].name), (yyvsp[(2) - (6)].text_buf), (yyvsp[(4) - (6)].dt));
+		cout << "parsed range question : " << (yyvsp[(1) - (6)].name) << endl;
 	;}
     break;
 
   case 42:
-#line 579 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 359 "q.y"
     {
-		using qscript_parser::mem_addr;
-		using qscript_parser::line_no;
-		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
+		(yyval.stmt) = qscript_parser::ProcessNamedQuestion((yyvsp[(1) - (6)].name), (yyvsp[(2) - (6)].text_buf), (yyvsp[(4) - (6)].dt), (yyvsp[(5) - (6)].name));
+		cout << "parsed named question : " << (yyvsp[(1) - (6)].name) << endl;
 	;}
     break;
 
   case 43:
-#line 588 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 367 "q.y"
     {
-		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
+		using qscript_parser::mem_addr;
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_plus);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2138,12 +1981,14 @@ yyreduce:
     break;
 
   case 44:
-#line 597 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 376 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_minus);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2151,12 +1996,14 @@ yyreduce:
     break;
 
   case 45:
-#line 606 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 385 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mult);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2164,12 +2011,14 @@ yyreduce:
     break;
 
   case 46:
-#line 615 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 394 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_div);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2177,27 +2026,29 @@ yyreduce:
     break;
 
   case 47:
-#line 624 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 403 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		cout << "LOGAND expr: " << endl;
-		(yyval.expr)=new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_mod);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-		cout << "after LOGAND expr : " << endl;
 	;}
     break;
 
   case 48:
-#line 635 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 412 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr) = new bin_expr((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
+		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (2)].expr), oper_umin);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2205,12 +2056,14 @@ yyreduce:
     break;
 
   case 49:
-#line 644 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 421 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr) = new un_expr((yyvsp[(2) - (2)].expr), oper_not);
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_lt);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2218,12 +2071,14 @@ yyreduce:
     break;
 
   case 50:
-#line 653 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 430 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].ival));
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_gt);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2231,11 +2086,14 @@ yyreduce:
     break;
 
   case 51:
-#line 662 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 439 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
-		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].dval));
+		using qscript_parser::no_errors;
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_le);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2243,11 +2101,14 @@ yyreduce:
     break;
 
   case 52:
-#line 670 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 448 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
-		(yyval.expr) = new un2_expr((yyvsp[(1) - (1)].name), oper_name );
+		using qscript_parser::no_errors;
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_ge);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2255,11 +2116,148 @@ yyreduce:
     break;
 
   case 53:
-#line 678 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 457 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_iseq);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+	;}
+    break;
+
+  case 54:
+
+/* Line 1455 of yacc.c  */
+#line 466 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_isneq);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+	;}
+    break;
+
+  case 55:
+
+/* Line 1455 of yacc.c  */
+#line 475 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_or);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+	;}
+    break;
+
+  case 56:
+
+/* Line 1455 of yacc.c  */
+#line 484 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		cout << "LOGAND expr: " << endl;
+		(yyval.expr)=new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_and);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+		cout << "after LOGAND expr : " << endl;
+	;}
+    break;
+
+  case 57:
+
+/* Line 1455 of yacc.c  */
+#line 495 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		(yyval.expr) = new BinaryExpression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), oper_assgn);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+	;}
+    break;
+
+  case 58:
+
+/* Line 1455 of yacc.c  */
+#line 504 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (2)].expr), oper_not);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+	;}
+    break;
+
+  case 59:
+
+/* Line 1455 of yacc.c  */
+#line 513 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		using qscript_parser::no_errors;
+		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].ival));
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+	;}
+    break;
+
+  case 60:
+
+/* Line 1455 of yacc.c  */
+#line 522 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].dval));
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+	;}
+    break;
+
+  case 61:
+
+/* Line 1455 of yacc.c  */
+#line 530 "q.y"
+    {
+		using qscript_parser::mem_addr;
+		using qscript_parser::line_no;
+		(yyval.expr) = new Unary2Expression((yyvsp[(1) - (1)].name), oper_name );
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
+		}
+	;}
+    break;
+
+  case 62:
+
+/* Line 1455 of yacc.c  */
+#line 538 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
-		(yyval.expr) = new un2_expr(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
+		(yyval.expr) = new Unary2Expression(oper_arrderef, /*nametype,  se,*/ (yyvsp[(1) - (4)].name),(yyvsp[(3) - (4)].expr));
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2267,12 +2265,14 @@ yyreduce:
 	;}
     break;
 
-  case 54:
-#line 687 "q.y"
+  case 63:
+
+/* Line 1455 of yacc.c  */
+#line 547 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
-		(yyval.expr) = new un2_expr(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
+		(yyval.expr) = new Unary2Expression(oper_blk_arr_assgn, (yyvsp[(1) - (6)].name),(yyvsp[(3) - (6)].expr),(yyvsp[(5) - (6)].expr));
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
@@ -2280,8 +2280,10 @@ yyreduce:
 	;}
     break;
 
-  case 55:
-#line 696 "q.y"
+  case 64:
+
+/* Line 1455 of yacc.c  */
+#line 556 "q.y"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::named_stubs_list;
@@ -2303,30 +2305,33 @@ yyreduce:
 		if(index!=-1) found=true;
 		bool skip_type_check=skip_func_type_check(search_for.c_str());
 		if( skip_type_check==false  && found==false ) {
-			cerr << "ERROR: function call Error on line_no: " << line_no << endl;
-			cerr << "function : " << search_for << " used without decl" << endl;
+			cerr << "ERROR: function call Error on line_no: " 
+				<< line_no << endl;
+			cerr << "function : " << search_for 
+				<< " used without decl" << endl;
 			++ no_errors;
-			(yyval.expr)=new un2_expr(ERROR_TYPE);
+			(yyval.expr)=new Unary2Expression(ERROR_TYPE);
 			void *ptr=(yyval.expr);
 			mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 			mem_addr.push_back(m1);
 		} else {
-			datatype my_type=func_info_table[index]->return_type;
-			expr* e_ptr=trav_chain((yyvsp[(3) - (4)].expr));
-			var_list* fparam=func_info_table[index]->param_list;
+			DataType my_type=func_info_table[index]->returnType_;
+			AbstractExpression* e_ptr=trav_chain((yyvsp[(3) - (4)].expr));
+			VariableList* fparam=
+				func_info_table[index]->parameterList_;
 			bool match=false;
 			if(skip_type_check==false){
 				match=check_parameters(e_ptr, fparam);
 			}
 			if(match || skip_type_check){
-				//$$=new un2_expr(oper_func_call, my_type, $3, index, line_no);
-				//$$=new un2_expr(oper_func_call, my_type, e_ptr, index, line_no);
-				(yyval.expr)=new un2_expr(oper_func_call, my_type, e_ptr, index);
+				//$$=new Unary2Expression(oper_func_call, my_type, $3, index, line_no);
+				//$$=new Unary2Expression(oper_func_call, my_type, e_ptr, index, line_no);
+				(yyval.expr)=new Unary2Expression(oper_func_call, my_type, e_ptr, index);
 				void *ptr=(yyval.expr);
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
 			} else {
-				(yyval.expr)=new un2_expr(ERROR_TYPE);
+				(yyval.expr)=new Unary2Expression(ERROR_TYPE);
 				void *ptr=(yyval.expr);
 				mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 				mem_addr.push_back(m1);
@@ -2336,88 +2341,114 @@ yyreduce:
 	;}
     break;
 
-  case 56:
-#line 748 "q.y"
+  case 65:
+
+/* Line 1455 of yacc.c  */
+#line 611 "q.y"
     {
 		using qscript_parser::line_no;
-		(yyval.expr) = new un2_expr(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
+		(yyval.expr) = new Unary2Expression(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
-    break;
-
-  case 57:
-#line 755 "q.y"
-    { 
-		using qscript_parser::line_no;
-		(yyval.expr) = new un_expr((yyvsp[(2) - (3)].expr), oper_parexp );
-		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
-		}
-	;}
-    break;
-
-  case 58:
-#line 762 "q.y"
-    {
-		using qscript_parser::xs;
-		using qscript_parser::line_no;
-		(yyval.expr) = new bin2_expr((yyvsp[(1) - (3)].expr), xs, oper_in);
-		xs.reset();
-	;}
-    break;
-
-  case 59:
-#line 780 "q.y"
-    { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
-    break;
-
-  case 60:
-#line 781 "q.y"
-    {
-		(yyval.expr)=qscript_parser::link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
-	;}
-    break;
-
-  case 61:
-#line 786 "q.y"
-    { qscript_parser::q_type = spn; ;}
-    break;
-
-  case 62:
-#line 787 "q.y"
-    { qscript_parser::q_type = mpn; qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival); ;}
-    break;
-
-  case 63:
-#line 790 "q.y"
-    { ;}
     break;
 
   case 66:
-#line 798 "q.y"
-    {
-		using qscript_parser::line_no;
-		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
-			print_err(compiler_sem_err, "2nd number in range <= 1st number",
-					line_no, __LINE__, __FILE__  );
 
-		} else {
-			qscript_parser::xs.range.push_back( pair<int,int>((yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival)));
+/* Line 1455 of yacc.c  */
+#line 618 "q.y"
+    { 
+		using qscript_parser::line_no;
+		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (3)].expr), oper_parexp );
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 	;}
     break;
 
   case 67:
-#line 808 "q.y"
+
+/* Line 1455 of yacc.c  */
+#line 625 "q.y"
+    {
+		using qscript_parser::xs;
+		using qscript_parser::line_no;
+		(yyval.expr) = new Binary2Expression((yyvsp[(1) - (3)].expr), xs, oper_in);
+		xs.reset();
+	;}
+    break;
+
+  case 68:
+
+/* Line 1455 of yacc.c  */
+#line 643 "q.y"
+    { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
+    break;
+
+  case 69:
+
+/* Line 1455 of yacc.c  */
+#line 644 "q.y"
+    {
+		(yyval.expr)=qscript_parser::link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
+	;}
+    break;
+
+  case 70:
+
+/* Line 1455 of yacc.c  */
+#line 649 "q.y"
+    { qscript_parser::q_type = spn; ;}
+    break;
+
+  case 71:
+
+/* Line 1455 of yacc.c  */
+#line 650 "q.y"
+    { qscript_parser::q_type = mpn; 
+		qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival); 
+	;}
+    break;
+
+  case 72:
+
+/* Line 1455 of yacc.c  */
+#line 655 "q.y"
+    { ;}
+    break;
+
+  case 75:
+
+/* Line 1455 of yacc.c  */
+#line 663 "q.y"
+    {
+		using qscript_parser::line_no;
+		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
+			print_err(compiler_sem_err
+					, "2nd number in range <= 1st number",
+					line_no, __LINE__, __FILE__  );
+
+		} else {
+			qscript_parser::
+				xs.range.push_back( pair<int,int>((yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival)));
+		}
+	;}
+    break;
+
+  case 76:
+
+/* Line 1455 of yacc.c  */
+#line 675 "q.y"
     {
 		qscript_parser::xs.indiv.insert((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
-  case 68:
-#line 813 "q.y"
+  case 77:
+
+/* Line 1455 of yacc.c  */
+#line 680 "q.y"
     {
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
@@ -2425,23 +2456,28 @@ yyreduce:
 	;}
     break;
 
-  case 69:
-#line 817 "q.y"
+  case 78:
+
+/* Line 1455 of yacc.c  */
+#line 684 "q.y"
     {
 		using qscript_parser::line_no;
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=(yyvsp[(2) - (6)].name);
-		struct named_range* nr_ptr= new named_range(NAMED_RANGE, line_no, stub_name,stub_list);
+		struct named_range* nr_ptr= new named_range(NAMED_RANGE
+				, line_no, stub_name,stub_list);
 		named_stubs_list.push_back(nr_ptr);
 		//$$=0;
 		(yyval.stmt) = nr_ptr;
 	;}
     break;
 
-  case 70:
-#line 831 "q.y"
+  case 79:
+
+/* Line 1455 of yacc.c  */
+#line 699 "q.y"
     {
 		using qscript_parser::stub_list;
 		string s1=(yyvsp[(1) - (2)].text_buf);
@@ -2451,8 +2487,10 @@ yyreduce:
 	;}
     break;
 
-  case 71:
-#line 838 "q.y"
+  case 80:
+
+/* Line 1455 of yacc.c  */
+#line 706 "q.y"
     {
 		using qscript_parser::stub_list;
 		string s1=(yyvsp[(2) - (3)].text_buf);
@@ -2463,16 +2501,48 @@ yyreduce:
 	;}
     break;
 
-  case 72:
-#line 849 "q.y"
+  case 81:
+
+/* Line 1455 of yacc.c  */
+#line 717 "q.y"
     {
-		(yyval.stmt) = qscript_parser::setup_setdel_stmt( (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
+		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
+				, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
+	;}
+    break;
+
+  case 82:
+
+/* Line 1455 of yacc.c  */
+#line 721 "q.y"
+    {
+		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
+				, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
+	;}
+    break;
+
+  case 83:
+
+/* Line 1455 of yacc.c  */
+#line 725 "q.y"
+    {
+		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, (yyvsp[(3) - (5)].name));
+	;}
+    break;
+
+  case 84:
+
+/* Line 1455 of yacc.c  */
+#line 728 "q.y"
+    {
+		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_SET_ALL, (yyvsp[(3) - (5)].name));
 	;}
     break;
 
 
-/* Line 1267 of yacc.c.  */
-#line 2476 "q.tab.c"
+
+/* Line 1455 of yacc.c  */
+#line 2546 "q.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2482,7 +2552,6 @@ yyreduce:
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
-
 
   /* Now `shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
@@ -2548,7 +2617,7 @@ yyerrlab:
 
   if (yyerrstatus == 3)
     {
-      /* If just tried and failed to reuse look-ahead token after an
+      /* If just tried and failed to reuse lookahead token after an
 	 error, discard it.  */
 
       if (yychar <= YYEOF)
@@ -2565,7 +2634,7 @@ yyerrlab:
 	}
     }
 
-  /* Else will try to reuse look-ahead token after shifting the error
+  /* Else will try to reuse lookahead token after shifting the error
      token.  */
   goto yyerrlab1;
 
@@ -2622,9 +2691,6 @@ yyerrlab1:
       YY_STACK_PRINT (yyss, yyssp);
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
   *++yyvsp = yylval;
 
 
@@ -2649,7 +2715,7 @@ yyabortlab:
   yyresult = 1;
   goto yyreturn;
 
-#ifndef yyoverflow
+#if !defined(yyoverflow) || YYERROR_VERBOSE
 /*-------------------------------------------------.
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
@@ -2660,7 +2726,7 @@ yyexhaustedlab:
 #endif
 
 yyreturn:
-  if (yychar != YYEOF && yychar != YYEMPTY)
+  if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
 		 yytoken, &yylval);
   /* Do not reclaim the symbols of the rule which action triggered
@@ -2686,7 +2752,9 @@ yyreturn:
 }
 
 
-#line 861 "q.y"
+
+/* Line 1675 of yacc.c  */
+#line 736 "q.y"
 
 
 
@@ -2698,8 +2766,8 @@ namespace qscript_parser {
 
 template<class T> T* link_chain(T* &elem1, T* &elem2){
 	if(elem1 && elem2){
-		elem2->prev=elem1;
-		elem1->next=elem2;
+		elem2->prev_=elem1;
+		elem1->next_=elem2;
 		return elem2;
 	}
 	else if(elem1){
@@ -2712,7 +2780,7 @@ template<class T> T* link_chain(T* &elem1, T* &elem2){
 
 template<class T> T* trav_chain(T* & elem1){
 	if(elem1){
-		while (elem1->prev) elem1=elem1->prev;
+		while (elem1->prev_) elem1=elem1->prev_;
 		return elem1;
 	} else return 0;
 }
@@ -2721,43 +2789,244 @@ template<class T> T* trav_chain(T* & elem1){
 //! is determined by the nesting level of the question inside the
 //! for loop and the maximum bound of the loop index - it is a multiplication
 //! of all the maximum counters in the enclosing for loops
-expr * recurse_for_index(int stack_index){
+AbstractExpression * recurse_for_index(int stack_index){
 	//cerr << "entered: recurse_for_index: stack_index: " << stack_index << endl;
 	if(stack_index==0){
-		bin_expr * test_expr = dynamic_cast<bin_expr*>(for_loop_max_counter_stack[0]);
+		BinaryExpression * test_expr = 
+			dynamic_cast<BinaryExpression*>(
+					for_loop_max_counter_stack[0]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return 0;
-		} else if(test_expr->r_op->is_integral_expr() 
-				&& test_expr->r_op->is_const()) {
-			return test_expr->r_op;
+		} else if(test_expr->rightOperand_->IsIntegralExpression() 
+				&& test_expr->rightOperand_->IsConst()) {
+			return test_expr->rightOperand_;
 		} else {
 			print_err(compiler_sem_err, 
 				" test expr not integer and const",
 				qscript_parser::line_no, __LINE__, __FILE__);
-			return test_expr->r_op;
+			return test_expr->rightOperand_;
 		}
 	} else {
-		bin_expr * test_expr = dynamic_cast<bin_expr*>(for_loop_max_counter_stack[stack_index]);
+		BinaryExpression * test_expr = 
+			dynamic_cast<BinaryExpression*>(
+				for_loop_max_counter_stack[stack_index]);
 		if(test_expr==0){
 			print_err(compiler_sem_err, 
 				" test expr should be a binary expression ",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return 0;
-		} else if(test_expr->r_op->is_integral_expr() 
-				&& test_expr->r_op->is_const()) {
-			return new bin_expr(test_expr->r_op,
+		} else if(test_expr->rightOperand_->IsIntegralExpression() 
+				&& test_expr->rightOperand_->IsConst()) {
+			return new BinaryExpression(test_expr->rightOperand_,
 				recurse_for_index(stack_index-1), oper_mult);
 		} else {
 			print_err(compiler_sem_err, 
 				" test expr not integer and const",
 				qscript_parser::line_no, __LINE__, __FILE__);
-			return test_expr->r_op;
+			return test_expr->rightOperand_;
 		}
 	}
 }
 
+CompoundStatement* ProcessOpenCurly()
+{
+	++nest_lev;
+	CompoundStatement * cmpdStmt= new CompoundStatement(CMPD_STMT, 
+			line_no, flagIsAFunctionBody_,
+			flagIsAForBody_);
+	stack_cmpd_stmt.push_back(cmpdStmt);
+	void *ptr=cmpdStmt;
+	mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
+	mem_addr.push_back(m1);
+	if(flagIsAFunctionBody_>=0){
+		cmpdStmt->scope_=func_info_table[
+			qscript_parser::flagIsAFunctionBody_]->functionScope_;
+		// reset the flag
+		qscript_parser::flagIsAFunctionBody_=-1;
+	} else {
+		cmpdStmt->scope_= new Scope();
+	}
+	flag_next_stmt_start_of_block=true;
+	blk_start_flag.push_back(flag_next_stmt_start_of_block);
+	active_scope_list.push_back(cmpdStmt->scope_);
+	active_scope = cmpdStmt->scope_;
+	return cmpdStmt;
+}
+
+CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
+		AbstractStatement *stmt)
+{
+
+	active_scope_list.pop_back();
+	int tmp=active_scope_list.size()-1;
+	if(tmp==-1) { 
+		active_scope = 0;
+		print_err(compiler_internal_error
+			, "Error: active_scope == 0 in ProcessCompoundStatement"
+			": should never happen :... exiting",
+				line_no, __LINE__, __FILE__  );
+		exit(1);
+	} else { 
+		active_scope = active_scope_list[tmp]; 
+	}
+	struct AbstractStatement* head_of_this_chain=blk_heads.back();
+	if(blk_start_flag.size() > 0){
+		flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
+	}
+	if(  head_of_this_chain==0){
+		//cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
+		//++no_errors;
+		print_err(compiler_internal_error
+			, "Error: head_of_this_chain == 0 in "
+			"ProcessCompoundStatement : should never happen :"
+			"... exiting"
+			, line_no, __LINE__, __FILE__  );
+		exit(1);
+	} else {
+		cmpdStmt->compoundBody_ = head_of_this_chain;
+		blk_heads.pop_back();
+	}
+
+	//! update the counter of enlosing CompoundStatement with 
+	//! the number of questions in this CompoundStatement being popped of
+	//! right now
+	if(stack_cmpd_stmt.size()>1){
+		CompoundStatement * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
+		stack_cmpd_stmt.pop_back();
+		CompoundStatement * current  = stack_cmpd_stmt.back();
+		current->counterContainsQuestions_+= 
+			(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
+	} 
+	//$$=$1;
+	return cmpdStmt;
+}
+
+AbstractStatement * ProcessRangeQuestion(const string &name
+		, const string & q_text, const DataType& dt )
+{
+
+	vector<string> active_push_vars;
+	vector<string> active_pop_vars;
+	for(unsigned int i=0; i< active_scope_list.size(); ++i){
+		Scope* sc_ptr= active_scope_list[i];
+		sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
+	}
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+	
+	AbstractExpression * arr_sz=0;
+	RangeQuestion * q=0;
+	if(qscript_parser::flagIsAForBody_){
+		cout << "flagIsAForBody_: " 
+			<< qscript_parser::flagIsAForBody_ << endl;
+		arr_sz = qscript_parser::recurse_for_index(
+			qscript_parser::for_loop_max_counter_stack.size()-1);
+		q= new RangeQuestion(QUESTION_TYPE, line_no, 
+			name, q_text, q_type, no_mpn, dt, xs
+			//, arr_sz
+			,qscript_parser::for_loop_max_counter_stack
+			);
+		//ostringstream s1, s2;
+		//arr_sz->print_expr(s1, s2);
+		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
+	} else {
+		q= new RangeQuestion(QUESTION_TYPE, line_no, 
+			name, q_text, q_type, no_mpn, dt, xs);
+	}
+	if(stack_cmpd_stmt.size()==0){
+		print_err(compiler_internal_error
+			, "compound statement stack is 0 when parsing"
+			"a question... exiting",
+				line_no, __LINE__, __FILE__  );
+		exit(1);
+	}
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	//$$=q;
+
+	question_list.push_back(q);
+	cout << "question_list: questions are " << endl;
+	for(int i=0; i<question_list.size(); ++i){
+		cout << question_list[i]->questionName_ << endl;
+	}
+	xs.reset();
+	// questions always get pushed in Scope level 0 as they
+	// are global variables - no matter what the level of nesting
+	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
+	// I need to modify the insert in Scope to
+	// take a 3rd parameter which is a AbstractQuestion *
+	// and store that into the symbol table
+	// I should be able to retrieve that 
+	// AbstractQuestion* pointer later 
+	return q;
+}
+
+AbstractStatement * ProcessNamedQuestion(const string &name
+			, const string & q_txt , const DataType& dt 
+			, const string & attribute_list_name )
+{
+
+	// This is preparatory work
+	// for jumping between questions
+	// store
+	vector<string> active_push_vars;
+	vector<string> active_pop_vars;
+	for(unsigned int i=0; i< active_scope_list.size(); ++i){
+		Scope* sc_ptr= active_scope_list[i];
+		sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
+	}
+	string q_push_name = name + "_push";
+	string q_pop_name = name + "_pop";
+	map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+
+	bool found=false;
+	struct named_range* nr_ptr = 0;
+	for(unsigned int i=0; i<named_stubs_list.size(); ++i){
+		nr_ptr = named_stubs_list[i];
+		if(nr_ptr->name==attribute_list_name){
+			found=true; break;
+		}
+	}
+	if(!found){
+		print_err(compiler_sem_err, string("named_stubs_list ") 
+			+ attribute_list_name + string(" not found \n"), line_no,
+			__LINE__, __FILE__);
+	}
+	
+	AbstractExpression * arr_sz=0;
+	NamedStubQuestion* q=0;
+	if(qscript_parser::flagIsAForBody_){
+		cout << "flagIsAForBody_: " 
+			<< qscript_parser::flagIsAForBody_ << endl;
+		arr_sz = qscript_parser::recurse_for_index(
+			qscript_parser::for_loop_max_counter_stack.size()-1);
+		q=new NamedStubQuestion(QUESTION_TYPE, line_no
+				, name, q_txt, q_type, no_mpn, dt , nr_ptr
+				,qscript_parser::for_loop_max_counter_stack);
+	} else {
+		q=new NamedStubQuestion(QUESTION_TYPE, 
+			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr);
+	}
+	question_list.push_back(q);
+	//$$=q;
+	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
+	if(stack_cmpd_stmt.size()==0){
+		print_err(compiler_internal_error, "compound statement stack "
+			"is 0 when parsing a AbstractQuestion... exiting"
+			, line_no, __LINE__, __FILE__  );
+		exit(1);
+	}
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	return q;
+}
+
+// Close namespace
 }
 

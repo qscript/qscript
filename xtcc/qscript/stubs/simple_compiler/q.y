@@ -35,6 +35,10 @@
 	using std::cout;
 	using std::cerr;
 	using std::endl;
+	int flag_cmpd_stmt_is_a_func_body=-1;
+	vector </*Statement::*/FunctionInformation*> func_info_table;
+
+
 %}
 
 
@@ -49,6 +53,8 @@
 	struct AbstractExpression * expr;
 	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
+	struct FunctionParameter * v_list;
+
 
 }
 
@@ -90,12 +96,14 @@
 %nonassoc IN COUNT
 %nonassoc FUNC_CALL
 
+%type <stmt> prog
 %type <type_qual> type_qual
 %type <stmt> question
 %type <stmt> stmt
 %type <stmt> expr_stmt
 %type <stmt> stmt_list
 %type <stmt> decl_stmt
+%type <stmt> func_defn
  /*%type <stmt> attributes	*/
 %type <stmt> stubs	
 %type <c_stmt> cmpd_stmt	
@@ -103,6 +111,8 @@
 %type <stmt> if_stmt	
 %type <stmt> for_loop_stmt	
 %type <stmt> stub_manip_stmts	
+%type <v_list> var_decl	
+%type <v_list> decl_comma_list	
 
 %token IF ELSE
 
@@ -127,7 +137,87 @@ prog: cmpd_stmt {
 			qscript_parser::tree_root=qscript_parser::tree_root->prev_;
 		}
 	}
+	| func_defn {
+		$$=$1;
+	}
 	;
+
+func_defn:	
+	datatype NAME '(' decl_comma_list ')' {
+		string func_name_index($2);
+		flag_cmpd_stmt_is_a_func_body=lookup_func(func_name_index);
+		if(flag_cmpd_stmt_is_a_func_body==-1){
+			ostringstream err_mesg;
+			err_mesg << "Function name : " << func_name_index <<  "not found in list of declared functions: "
+				<< "You will see another error on this same function name: " << func_name_index;
+			print_err(compiler_sem_err
+					, err_mesg.str().c_str(),
+					qscript_parser::line_no, __LINE__, __FILE__  );
+		}
+	} cmpd_stmt {
+		struct /* Statement:: */ CompoundStatement* c_stmt= $7;
+		if(c_stmt==0){
+			cerr << "INTERNAL COMPILER ERROR: c_stmt==0" << endl;
+		} else {
+			//cout << "funcBody_: is valid " << endl;
+		}
+		struct Scope *scope_=c_stmt->scope_;
+		struct /*Statement::*/ FunctionParameter * v_list=qscript_parser::trav_chain($4);
+		struct /*Statement::*/ AbstractStatement* funcBody_=$7;
+		string search_for=$2;
+		DataType returnType_=$1;
+		$$=new /*Statement::*/ FunctionStatement(FUNC_DEFN, qscript_parser::line_no, scope_, v_list, funcBody_, search_for, returnType_);
+		// Note that the declaration already has a parameter list
+		// the constructor uses the parameter list - name and type to verify everything
+		// but doesnt need the parameter list any more - so we should delete it 
+		// - took me a while to figure out this memory leak
+		delete v_list;
+		free($2);
+	}
+	;
+
+decl_comma_list: var_decl	{
+		 $$=$1;
+		 //cout << "got decl_comma_list : " << endl;
+	}
+	| decl_comma_list ',' var_decl {
+		$$=qscript_parser::link_chain($1,$3);
+		//cout << "chaining var_decl : " << endl;
+	}
+	;
+
+var_decl:	datatype NAME 	{
+		$$=new FunctionParameter($1, $2);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, qscript_parser::line_no);
+		}
+		free($2);
+	}
+	| datatype NAME '[' INUMBER ']'  {
+		/* Neil - I need to fix this */
+		DataType dt=DataType(INT8_ARR_TYPE+($1-INT8_TYPE));
+		$$=new FunctionParameter(dt, $2, $4);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, qscript_parser::line_no);
+		}
+		free($2);
+	}
+	|	datatype '&' NAME {
+		DataType dt=DataType(INT8_REF_TYPE+($1-INT8_TYPE));
+		$$=new FunctionParameter(dt, $3);
+		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			mem_log($$, __LINE__, __FILE__, qscript_parser::line_no);
+		}
+		free($3);
+	}
+	|	/* empty */
+		{
+		$$=0;
+		}
+	;
+
+
+
 
 stmt_list: stmt {
 		$$=$1;
@@ -499,7 +589,7 @@ expression: expression '+' expression {
 		} else {
 			DataType my_type=func_info_table[index]->returnType_;
 			AbstractExpression* e_ptr=trav_chain($3);
-			VariableList* fparam=
+			FunctionParameter* fparam=
 				func_info_table[index]->parameterList_;
 			bool match=false;
 			if(skip_type_check==false){
@@ -519,7 +609,8 @@ expression: expression '+' expression {
 				mem_addr.push_back(m1);
 			}
 		}
-		free($1);
+		cerr << "NxD: need to fix this below - $1 seems to be used somewhere and freeing it kills the program" << endl;
+		//free($1);
 	}
 	|	TEXT {
 		using qscript_parser::line_no;

@@ -25,7 +25,7 @@ namespace qscript_parser {
 	AbstractExpression * recurse_for_index(int stack_index);
 
 
-	ofstream debug_log_file("xtcc_debug.log", std::ios_base::out|std::ios_base::trunc);
+	ofstream debug_log_file("qscript_debug.log", std::ios_base::out|std::ios_base::trunc);
 	using std::string;
 	//void print_err(compiler_err_category cmp_err, 
 	//	string err_msg, int line_no, 

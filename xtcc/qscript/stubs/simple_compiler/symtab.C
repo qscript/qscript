@@ -179,19 +179,19 @@ void SymbolTableEntry::print_push_stack(const string &stack_name, string & str)
 	stringstream s("NONE");
 	switch(type_){
 	case INT8_TYPE:
-		s << stack_name << "_stack_int8_t.push_back(" << name_ << ");\n";
+		s << stack_name << "_scope_int8_t[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case INT16_TYPE:	
-		s << stack_name << "_stack_int16_t.push_back(" << name_ << ");\n";
+		s << stack_name << "_scope_int16_t[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case INT32_TYPE:	
-		s << stack_name << "_stack_int32_t.push_back(" << name_ << ");\n";
+		s << stack_name << "_scope_int32_t[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case FLOAT_TYPE:
-		s << stack_name << "_stack_float.push_back(" << name_ << ");\n";
+		s << stack_name << "_scope_float[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case DOUBLE_TYPE:
-		s << stack_name << "_stack_double.push_back(" << name_ << ");\n";
+		s << stack_name << "_scope_double[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case QUESTION_TYPE:
 		s << "// QUESTION_TYPE - will think of this later " << endl;
@@ -211,30 +211,25 @@ void SymbolTableEntry::print_pop_stack(const string &stack_name, string & str)
 	stringstream s("NONE");
 	switch(type_){
 	case INT8_TYPE:
-		s << name_ << "=" << stack_name << "_stack_int8_t.back();\n";
-		s << stack_name << "_stack_int8_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_scope_int8_t[\"" << name_ << "\"];" << endl;
 		break;
 	case INT16_TYPE:	
-		s << name_ << "=" << stack_name << "_stack_int16_t.back();\n";
-		s << stack_name << "_stack_int16_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_scope_int16_t[\"" << name_ << "\"];" << endl;
 		break;
 	case INT32_TYPE:	
-		s << name_ << "=" << stack_name << "_stack_int32_t.back();\n";
-		s << stack_name << "_stack_int32_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_scope_int32_t[\"" << name_ << "\"];" << endl;
 		break;
 	case FLOAT_TYPE:
-		s << name_ << "=" << stack_name << "_stack_float_t.back();\n";
-		s << stack_name << "_stack_float_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_scope_float_t[\"" << name_ << "\"];" << endl;
 		break;
 	case DOUBLE_TYPE:
-		s << name_ << "=" << stack_name << "_stack_double_t.back();\n";
-		s << stack_name << "_stack_double_t.pop_back();\n";
+		s << name_ << "=" << stack_name << "_scope_double_t[\"" << name_ << "\"];" << endl;
 		break;
 	case QUESTION_TYPE:
 		s << "// QUESTION_TYPE - will think of this later " << endl;
 		break;
 	default: {
-			string err_msg = "unhandled type in print_pop_stack";
+			string err_msg = "unhandled type in print_pop_stack\"";
 			s << err_msg;
 			print_err(compiler_sem_err, err_msg, line_no, __LINE__, __FILE__);
 		}

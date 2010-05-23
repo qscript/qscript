@@ -93,61 +93,6 @@ struct ExpressionStatement: public AbstractStatement
 };
 
 
-//!FunctionInformation : parsed function declarations and definitions become object instanstiations of this class
-/*!
-  Important notes for the FunctionInformation class:
-
-  <p>
-  When a function declaration is parsed all the variables
-  which are function parameters become should available in the Scope of this 
-  function. 
-
-  On the other hand the function body (which is a compound statement)
-  will appear at a later stage, i.e. the declaration of the function. 
-
-  The implementation of compound statements is that each compound statement contains
-  a Scope variable of its own. Hence to bring the function parameter 
-  declarations into the Scope of the compound statement the following is done:
-
-  <p>1. FunctionInformation has a Scope called functionScope_ - this Scope is allocated 
-     at the time of declaration of the function. This declaration is then
-     stored in the func_info_table vector array
-  <p>2. The grammar has a inline rule when detecting a function
-  	definition - it sets the variable : flagIsAForBody_
-	to the index of the function in the func_info_table vector array
-	or -1 on failure. This grammar rule can be seen 
-	by searching for the pattern ^FunctionInformation in the "type.y" grammar
-	file in the xtcc compiler sources. The simple compiler in qscript
-	does not use functions as yet
-  <p>3. When a compound body is being parsed (the ^open_curly rule in
-  	type.y in the xtcc compiler - it checks if flagIsAFunctionBody_
-	has been set and if so loads the Scope from the function declaration
-	found in the  func_info_table array - by using the variable 
-	flagIsAFunctionBody_ - to index into the func_info_table
-
-	Note that flagIsAFunctionBody_ is initialized to -1 as the 1st function 
-	will be in index 0 of func_info_table vector.
-	Also lookup_func searches the func_info_table for the function name and returns -1 on failure
-	this is naturally compatible with the initial value of flagIsAFunctionBody_
-	if the flag is not set -> we need to allocate a new Scope - else we will crash
-  
-*/
-
-struct FunctionInformation
-{
-	string functionName_;
-	struct VariableList * parameterList_;
-	DataType returnType_;
-	struct AbstractStatement * functionBody_;
-	struct Scope * functionScope_;
-	FunctionInformation(string name, VariableList* elist
-			, DataType myreturn_type); 
-	void print(FILE * fptr);
-	~FunctionInformation();
-private:
-	FunctionInformation& operator=(const FunctionInformation&);
-	FunctionInformation(const FunctionInformation&);
-};
 
 //! DeclarationStatement  parsed variable declarations become object instanstiations of this class
 struct DeclarationStatement: public AbstractStatement
@@ -368,5 +313,129 @@ struct StubManipStatement: public AbstractStatement
 		StubManipStatement& operator=(const StubManipStatement&);
 		StubManipStatement(const StubManipStatement&);
 };
+
+struct FunctionArgument 
+{
+	struct expr* e;
+	char * text;
+	struct FunctionArgument * prev_;
+	struct FunctionArgument * next_;
+};
+
+
+struct FunctionParameter 
+{
+	DataType var_type;
+	string var_name;
+	int arr_len;
+	struct FunctionParameter * prev_, *next_;
+	FunctionParameter(DataType type, char * name);
+	FunctionParameter(DataType type, char * name, int len); 
+
+	//void print(FILE * edit_out);
+	void print(ostringstream & program_code);
+
+	~FunctionParameter();
+	private:
+		FunctionParameter& operator=(const FunctionParameter&);
+		FunctionParameter(const FunctionParameter&);
+	
+};
+
+struct FunctionDeclarationStatement: public AbstractStatement
+{
+	struct FunctionInformation * funcInfo_;
+
+	FunctionDeclarationStatement( DataType dtype
+			, int lline_number, char * & name
+			, FunctionParameter* & v_list, DataType returnType_);
+	//void GenerateCode(FILE * & fptr);
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code);
+	~FunctionDeclarationStatement();
+	private:
+	FunctionDeclarationStatement& operator=
+		(const FunctionDeclarationStatement&);	
+	FunctionDeclarationStatement(const FunctionDeclarationStatement&);	
+};
+
+struct FunctionStatement: public AbstractStatement
+{
+	struct FunctionInformation * funcInfo_;
+	struct AbstractStatement *functionBody_;
+	DataType returnType_;
+
+	FunctionStatement ( DataType dtype, int lline_number
+			, struct Scope * &scope_
+			, struct FunctionParameter * & v_list
+			, struct AbstractStatement* & lfunc_body
+			, string func_name
+			, DataType lreturn_type
+		);
+	//void GenerateCode(FILE * & fptr);
+	void GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code);
+	~FunctionStatement();
+	private:
+	FunctionStatement& operator=(const FunctionStatement&);	
+	FunctionStatement(const FunctionStatement&);	
+};
+
+//!FunctionInformation : parsed function declarations and definitions become object instanstiations of this class
+/*!
+  Important notes for the FunctionInformation class:
+
+  <p>
+  When a function declaration is parsed all the variables
+  which are function parameters become should available in the Scope of this 
+  function. 
+
+  On the other hand the function body (which is a compound statement)
+  will appear at a later stage, i.e. the declaration of the function. 
+
+  The implementation of compound statements is that each compound statement contains
+  a Scope variable of its own. Hence to bring the function parameter 
+  declarations into the Scope of the compound statement the following is done:
+
+  <p>1. FunctionInformation has a Scope called functionScope_ - this Scope is allocated 
+     at the time of declaration of the function. This declaration is then
+     stored in the func_info_table vector array
+  <p>2. The grammar has a inline rule when detecting a function
+  	definition - it sets the variable : flagIsAForBody_
+	to the index of the function in the func_info_table vector array
+	or -1 on failure. This grammar rule can be seen 
+	by searching for the pattern ^FunctionInformation in the "type.y" grammar
+	file in the xtcc compiler sources. The simple compiler in qscript
+	does not use functions as yet
+  <p>3. When a compound body is being parsed (the ^open_curly rule in
+  	type.y in the xtcc compiler - it checks if flagIsAFunctionBody_
+	has been set and if so loads the Scope from the function declaration
+	found in the  func_info_table array - by using the variable 
+	flagIsAFunctionBody_ - to index into the func_info_table
+
+	Note that flagIsAFunctionBody_ is initialized to -1 as the 1st function 
+	will be in index 0 of func_info_table vector.
+	Also lookup_func searches the func_info_table for the function name and returns -1 on failure
+	this is naturally compatible with the initial value of flagIsAFunctionBody_
+	if the flag is not set -> we need to allocate a new Scope - else we will crash
+  
+*/
+
+struct FunctionInformation
+{
+	string functionName_;
+	struct FunctionParameter * parameterList_;
+	DataType returnType_;
+	struct AbstractStatement * functionBody_;
+	struct Scope * functionScope_;
+	FunctionInformation(string name, FunctionParameter* elist
+			, DataType myreturn_type); 
+	void print(ostringstream & program_code);
+	~FunctionInformation();
+private:
+	FunctionInformation& operator=(const FunctionInformation&);
+	FunctionInformation(const FunctionInformation&);
+};
+
 
 #endif /* stmt_h */

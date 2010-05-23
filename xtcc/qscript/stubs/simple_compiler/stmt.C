@@ -19,8 +19,12 @@
 #include "qscript_parser.h"
 
 
-extern vector<mem_addr_tab> mem_addr;
+//extern vector<mem_addr_tab> mem_addr;
+using qscript_parser::mem_addr;
 extern int if_line_no;
+using qscript_parser:: active_scope;
+extern vector </*Statement::*/FunctionInformation*> func_info_table;
+
 
 AbstractQuestion* AbstractStatement::IsAQuestionStatement()
 {
@@ -600,3 +604,260 @@ void StubManipStatement::GenerateCode(ostringstream& quest_defns
 
 StubManipStatement::~StubManipStatement()
 { }
+
+
+
+FunctionParameter::FunctionParameter(DataType type, char * name): 
+	var_type(type), var_name(name), arr_len(-1), prev_(NULL), next_(NULL)
+{
+	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
+		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
+		stringstream s;
+		s << "SEMANTIC error: only INT8_TYPE ... DOUBLE_TYPE is allowed in decl: "  << var_name<< endl;
+		print_err(/*Util:: */compiler_sem_err, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
+		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
+	}
+	//cout << "constructing FunctionParameter: " << var_name << endl;
+}
+
+FunctionParameter::~FunctionParameter()
+{
+	debug_log_file << "deleting ~FunctionParameter: var_name:" << var_name << endl;
+	if (next_) { delete next_; next_=0; }
+	debug_log_file << "end deleting ~FunctionParameter " << endl;
+}
+
+
+void FunctionParameter::print(ostringstream & program_code)
+{
+	struct FunctionParameter * vl_ptr=this;
+	while(vl_ptr){
+		if(vl_ptr->var_type>=INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
+			//fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
+			program_code << noun_list[vl_ptr->var_type].sym << " " << vl_ptr->var_name.c_str();
+		} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
+			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
+			//fprintf(edit_out, "%s %s[%d]", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
+			program_code <<  noun_list[tdt].sym <<  " "  <<  vl_ptr->var_name.c_str() << "[" <<  arr_len << "]" <<  vl_ptr->var_type;
+		} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
+			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
+			//fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
+			program_code << noun_list[tdt].sym  << " & " << vl_ptr->var_name.c_str();
+		} else {
+			//fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
+			
+			stringstream s;
+			s << "INTERNAL ERROR Unknown data type : ";
+			print_err(compiler_code_generation_error, s.str()
+					, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+		vl_ptr=vl_ptr->next_;
+		if(vl_ptr) {
+			//fprintf(edit_out, ",");
+			program_code << ", ";
+		}
+	}
+}
+
+FunctionParameter::FunctionParameter(DataType type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev_(NULL), next_(NULL)
+{
+	if(!is_of_arr_type(type)){
+		cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
+		cerr << "NEED TO LINK  BACK TO ERROR: FIX ME" << endl;
+	}
+	cout << "constructing FunctionParameter: " << var_name << endl;
+}
+
+FunctionDeclarationStatement::FunctionDeclarationStatement( DataType dtype
+		, int lline_number, char * & name
+		, FunctionParameter* & v_list, DataType returnType_)
+	: AbstractStatement(dtype, lline_number), funcInfo_(0)
+{
+	//cout << "load_func_into_symbol_table : " << "name: " << name << endl;
+	if ( active_scope->SymbolTable.find(name) == active_scope->SymbolTable.end() ){
+		//cout << "got func_decl" << endl;
+		DataType myreturn_type=returnType_;
+		FunctionInformation* fi=new FunctionInformation(name
+				, v_list, myreturn_type);
+		func_info_table.push_back(fi);
+		type_=FUNC_TYPE;
+		SymbolTableEntry* se=new SymbolTableEntry(name, FUNC_TYPE);
+				/*
+		if(! se) {
+			cerr << "memory allocation error: I will eventually crash :-(" 
+				<< endl;
+		}
+		*/
+		se->name_ = name;
+		string s(name);
+		active_scope->SymbolTable[s] = se;
+		se->type_=FUNC_TYPE;
+		funcInfo_=fi;
+		//free(name);
+	} else {
+		stringstream s;
+		s << "Function  Name : " 
+			<< name << " already present in symbol table." << endl;
+		print_err(compiler_sem_err, s.str()
+				, qscript_parser::line_no, __LINE__, __FILE__);
+		type_=ERROR_TYPE;
+		free(name);
+	}
+}
+
+void FunctionDeclarationStatement::GenerateCode(ostringstream & quest_defns
+			, ostringstream& program_code)
+{
+	//fflush(fptr);
+	//if(fptr){
+		funcInfo_->print(program_code);
+		if(next_) next_->GenerateCode(quest_defns, program_code);
+	//}
+}
+
+FunctionDeclarationStatement::~FunctionDeclarationStatement()
+{
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file 
+				<< "FunctionDeclarationStatement::~FunctionDeclarationStatement setting mem_addr: " 
+				<< this<< "=0" << endl;
+			break;
+		}
+	}
+	debug_log_file << "deleting FunctionDeclarationStatement: name: "  
+		<< funcInfo_->functionName_ << endl;
+	if (funcInfo_) { delete funcInfo_; funcInfo_=0; }
+}
+
+FunctionStatement:: FunctionStatement ( DataType dtype, int lline_number
+		, Scope * &scope_, FunctionParameter * & v_list
+		, AbstractStatement* & lfunc_body
+		, string func_name, DataType lreturn_type
+		) 
+	: AbstractStatement(dtype, lline_number), funcInfo_(0)
+	  , functionBody_(lfunc_body), returnType_(lreturn_type)
+{
+	int index=search_for_func(func_name);
+	if(index==-1){
+		ostringstream err_msg;
+		err_msg << "function defn without decl: " 
+			<< func_name << " lline_number: " 
+			<< lline_number << endl;
+		print_err(compiler_sem_err, err_msg.str() , qscript_parser::line_no, __LINE__, __FILE__);
+		type_=ERROR_TYPE;
+	} else if(/*Util::*/check_func_decl_with_func_defn(v_list, index, func_name)){
+		if(returnType_==func_info_table[index]->returnType_){
+			type_=FUNC_DEFN;
+			funcInfo_=func_info_table[index];
+		} else {
+			stringstream s;
+			s << "func defn, decl parameter return_types did not match: function name: " << func_name;
+			print_err(/*Util::*/compiler_sem_err, s.str(), qscript_parser::line_no
+					, __LINE__, __FILE__);
+			type_=ERROR_TYPE;
+		}
+	} else {
+		stringstream s;
+		s << "func defn, decl parameter return_types did not match: function name: " << func_name;
+		print_err(/*Util::*/compiler_sem_err, s.str(), qscript_parser::line_no
+				, __LINE__, __FILE__);
+		type_=ERROR_TYPE;
+	}
+}
+
+void FunctionStatement::GenerateCode(ostringstream & quest_defns, ostringstream & program_code)
+{
+	if(funcInfo_->returnType_ >= VOID_TYPE 
+			&& funcInfo_->returnType_<=DOUBLE_TYPE){
+		//fprintf(fptr,"%s ", noun_list[funcInfo_->returnType_].sym);
+		program_code << noun_list[funcInfo_->returnType_].sym;
+	} else {
+		//fprintf(fptr, "Unxpected return type for function: file: %s, line:%d\n",
+		//		__FILE__, __LINE__ );
+		ostringstream err_msg;
+		err_msg << " Unxpected return type for function  " ;
+			
+			
+		print_err(compiler_code_generation_error, err_msg.str().c_str(),
+				qscript_parser::line_no, __LINE__, __FILE__);
+	}
+	
+	if(funcInfo_->functionName_==string("printf")){
+		//fprintf(fptr, "fprintf(xtcc_stdout,");
+		program_code << "fprintf(xtcc_stdout,";
+	} else {
+		//fprintf(fptr, "%s/* comment */\n"
+		//		, funcInfo_->functionName_.c_str());
+		//fprintf(fptr, "(");
+		program_code << funcInfo_->functionName_.c_str() << "(";
+	}
+	FunctionParameter* v_ptr=funcInfo_->parameterList_;
+	v_ptr->print(program_code);
+	//fprintf(fptr, ")");
+	program_code << ")";
+	if(functionBody_) functionBody_->GenerateCode(quest_defns, program_code);
+	if(next_) next_->GenerateCode(quest_defns, program_code);
+}
+
+
+FunctionStatement::~FunctionStatement()
+{
+	for (unsigned int i=0; i< mem_addr.size(); ++i){
+		if(this==mem_addr[i].mem_ptr){
+			mem_addr[i].mem_ptr=0;
+			debug_log_file << "FunctionStatement::~FunctionStatement: setting mem_addr=0" << endl;
+			break;
+		}
+	}
+	debug_log_file << "deleting FunctionStatement" << endl;
+	if(functionBody_) {
+		delete functionBody_;
+		functionBody_=0;
+	}
+}
+
+FunctionInformation::FunctionInformation(string name, struct FunctionParameter* elist
+		, DataType myreturn_type)
+	: functionName_(name), parameterList_ (elist), returnType_(myreturn_type)
+	  , functionBody_(0), functionScope_(0)
+{
+	functionScope_=new Scope();
+	struct FunctionParameter* decl_list=elist;
+	while(decl_list){
+		struct SymbolTableEntry* se=new struct SymbolTableEntry(strdup(decl_list->var_name.c_str()),
+				decl_list->var_type);
+		//se->name_ = strdup(decl_list->var_name.c_str());
+		//se->type_=decl_list->var_type;
+		functionScope_->SymbolTable[decl_list->var_name] = se;
+		decl_list=decl_list->next_;
+	}
+}
+
+void FunctionInformation::print(ostringstream & program_code)
+{
+	if(returnType_ >=VOID_TYPE && returnType_ <=DOUBLE_TYPE){
+		//fprintf(fptr, "%s ", noun_list[returnType_].sym );
+		program_code << noun_list[returnType_].sym ;
+	} else {
+		//fprintf(fptr, "Unexpected return type for function\n");
+		ostringstream s;
+		s << "Unexpected return type for function\n";
+		print_err(/*Util:: */compiler_sem_err, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
+	}
+	//fprintf(fptr, "%s(", functionName_.c_str());
+	program_code << functionName_.c_str() << "(";
+	if (parameterList_) parameterList_->print(program_code);
+	//fprintf(fptr, ");\n" );
+	program_code << ");\n";
+}
+
+FunctionInformation::~FunctionInformation()
+{
+	if(parameterList_) { delete parameterList_; parameterList_=0; }
+	//if(functionBody_) { delete functionBody_; functionBody_=0; }
+	// functionScope_ was created by in the constructor - so we delete it
+	if(functionScope_) { delete functionScope_; functionScope_=0; }
+}
+

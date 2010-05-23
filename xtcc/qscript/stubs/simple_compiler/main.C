@@ -20,8 +20,12 @@ using  std::cout;
 	extern void yyrestart ( FILE *input_file );
 	extern int yyparse();
 	extern void GenerateCode();
+	//extern vector </*Statement::*/FunctionInformation*> func_info_table;
+	using qscript_parser::func_info_table;
 
-int main(int argc, char* argv[]){
+
+int main(int argc, char* argv[])
+{
 	using qscript_parser::active_scope_list;
 	using qscript_parser::active_scope;
 	using qscript_parser::no_errors;
@@ -62,6 +66,13 @@ int main(int argc, char* argv[]){
 	}
 	active_scope=new Scope();
 	active_scope_list.push_back(active_scope);
+
+	string printf_name="printf";
+	/*Statement:: */FunctionParameter* v_list=0;
+	DataType myreturn_type=INT8_TYPE;
+	/*Statement::*/FunctionInformation* fi=new /*Statement::*/FunctionInformation(printf_name, v_list, myreturn_type);
+	func_info_table.push_back(fi);
+
 
 	FILE * yyin = fopen(fname.c_str(), "r");
 	if(!yyin){

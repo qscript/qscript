@@ -91,6 +91,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		else {\n\
 		jumpToQuestion = target_question->questionName_;\n\
 		cout << \"target question: \" << jumpToQuestion;\n\
+		back_jump=true;\n\
 		user_navigation=NOT_SET;\n\
 		goto start_of_questions;\n}\n}\n" ;
 	program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
@@ -779,11 +780,11 @@ void AbstractQuestion::PrintSetupBackJump(ostringstream & quest_defns
 {
 	using qscript_parser::map_of_active_vars_for_questions;
 	// --- THIS IS NEW CODE
-	quest_defns << "vector <int8_t> " << questionName_ << "_stack_int8_t;\n";
-	quest_defns << "vector <int16_t> " << questionName_ << "_stack_int16_t;\n";
-	quest_defns << "vector <int32_t> " << questionName_ << "_stack_int32_t;\n";
-	quest_defns << "vector <float> " << questionName_ << "_stack_float_t;\n";
-	quest_defns << "vector <double> " << questionName_ << "_stack_double_t;\n";
+	quest_defns << "map <string,int8_t> " << questionName_ << "_scope_int8_t;\n";
+	quest_defns << "map <string,int16_t> " << questionName_ << "_scope_int16_t;\n";
+	quest_defns << "map <string,int32_t> " << questionName_ << "_scope_int32_t;\n";
+	quest_defns << "map <string,float> " << questionName_ << "_scope_float_t;\n";
+	quest_defns << "map <string,double> " << questionName_ << "_scope_double_t;\n";
 	// end of THIS IS NEW CODE
 
 
@@ -796,10 +797,11 @@ void AbstractQuestion::PrintSetupBackJump(ostringstream & quest_defns
 	vector<string> active_pop_vars_for_this_question = 
 		map_of_active_vars_for_questions[q_pop_name];
 
-	program_code << "if ( back_jump==true ) {" << endl;
+	program_code << "if ( back_jump==true  && " << questionName_ <<  "->isAnswered_==true ) {" << endl;
 	for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
 		program_code << active_pop_vars_for_this_question[i] << endl;
 	}
+	program_code << "if ( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump=false;\n}\n";
 	program_code << "}" << endl;
 
 	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i)
