@@ -253,13 +253,14 @@ type_qual: CONST {
 decl_stmt: datatype NAME ';' {
 		$$ = qscript_parser::active_scope->insert($2, $1/*, line_no*/);
 		//free($2);
-		// -- why am i not freeing this?
+		cerr <<  "-- why am i not freeing this?: FILE: " << __FILE__ << ", line:" << __LINE__ << endl;
 	}
 	| type_qual datatype NAME '=' expression ';' {
 	}
 	| datatype NAME '=' expression ';'{
 		$$ = qscript_parser::active_scope->insert($2, $1, $4);
-		// -- why am i not freeing this?
+		//free($2);
+		cerr <<  "-- why am i not freeing this?: FILE: " << __FILE__ << ", line:" << __LINE__ << endl;
 	}
 	| datatype NAME '[' expression ']' ';'{
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
@@ -609,7 +610,7 @@ expression: expression '+' expression {
 				mem_addr.push_back(m1);
 			}
 		}
-		cerr << "NxD: need to fix this below - $1 seems to be used somewhere and freeing it kills the program" << endl;
+		cerr << "NxD: need to fix this below - $1 seems to be used somewhere and freeing it kills the program FILE: " << __FILE__ << ", line:" << __LINE__ << endl;
 		//free($1);
 	}
 	|	TEXT {

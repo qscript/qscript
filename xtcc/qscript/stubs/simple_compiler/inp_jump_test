@@ -1,6 +1,8 @@
 {
 	int32_t i1=1;
 	int32_t i2=2;
+	int32_t i3;
+	i3=10;
 
 	q1 "Q1" sp int32_t (1,2,3,4);
 	if(q1 in (1) ){

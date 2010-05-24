@@ -66,11 +66,13 @@ stmt* sym_tab::insert(string name, DataType dt){
 */
 #include <fstream>
 using std::endl;
-SymbolTableEntry::~SymbolTableEntry(){
+SymbolTableEntry::~SymbolTableEntry()
+{
 	debug_log_file<< "deleting SymbolTableEntry: name_: " << name_ << std::endl;
 	if(name_&& created_by_me) { free( name_); name_=0; }
 	if(text_) { delete text_; text_=0; }
 	if(e) { delete e; e=0; }
+	if(xs) { delete xs; xs=0; }
 	debug_log_file << "FINISHED deleting SymbolTableEntry" << std::endl;
 }
 

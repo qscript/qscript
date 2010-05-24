@@ -116,6 +116,8 @@ void print_header(FILE* script){
 	fprintf(script, "#include \"user_navigation.h\"\n");
 
 
+	fprintf(script, "string xtcc_stdout_fname(\"xtcc_stdout.log\");\n");
+	fprintf(script, "FILE * xtcc_stdout=0;\n");
 	fprintf(script, "#include \"debug_mem.h\"\n");
 	fprintf(script, "fstream debug_log_file(\"xtcc_debug.log\", ios_base::out|ios_base::trunc);\n");
 
@@ -154,6 +156,7 @@ void print_header(FILE* script){
 
 
 	fprintf(script, "int main(){\n");
+	fprintf(script, "xtcc_stdout=fopen(xtcc_stdout_fname.c_str(), \"w\");\n");
 	/*
 	map<string, vector<string> > ::iterator iter;
 	for(iter=map_of_active_push_vars_for_questions.begin();

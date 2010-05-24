@@ -138,6 +138,7 @@ bool UnaryExpression::IsIntegralExpression()
 //void UnaryExpression::PrintExpressionCode (FILE * edit_out)
 void UnaryExpression::PrintExpressionCode (ostringstream& code_bef_expr, ostringstream & code_expr)
 {
+	code_expr << "/* UnaryExpression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
 		case oper_umin:{
 			code_expr <<  "- ";
@@ -162,6 +163,7 @@ void UnaryExpression::PrintExpressionCode (ostringstream& code_bef_expr, ostring
 			code_expr <<  " un handled operator\n" ;
 
 	}
+	code_expr << "/* UnaryExpression::PrintExpressionCode EXIT */" << endl;
 }
 
 bool UnaryExpression::IsConst()
@@ -363,7 +365,9 @@ bool Unary2Expression::IsIntegralExpression(){
 	}
 }
 
-void Unary2Expression::PrintExpressionCode(ostringstream& code_bef_expr, ostringstream & code_expr){
+void Unary2Expression::PrintExpressionCode(ostringstream& code_bef_expr, ostringstream & code_expr)
+{
+	//code_expr << "/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
 		case oper_name:{
 			code_expr <<  symbolTableEntry_->name_;
@@ -405,7 +409,7 @@ void Unary2Expression::PrintExpressionCode(ostringstream& code_bef_expr, ostring
 		}
 		break;
 		case oper_text_expr:{
-			code_expr << text;
+			code_expr << "\"" <<text << "\"";
 		}
 		break;
 		case oper_blk_arr_assgn: {
@@ -419,6 +423,7 @@ void Unary2Expression::PrintExpressionCode(ostringstream& code_bef_expr, ostring
 			print_err(compiler_internal_error, "unhandled AbstractExpression operator\n", 
 						line_no, __LINE__, __FILE__);
 	}
+	//code_expr << "/* Unary2Expression::PrintExpressionCode EXIT */" << endl;
 }
 
 void BinaryExpression::PrintExpressionCode(ostringstream& code_bef_expr, ostringstream & code_expr)

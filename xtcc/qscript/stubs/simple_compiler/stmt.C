@@ -23,7 +23,8 @@
 using qscript_parser::mem_addr;
 extern int if_line_no;
 using qscript_parser:: active_scope;
-extern vector </*Statement::*/FunctionInformation*> func_info_table;
+//extern vector </*Statement::*/FunctionInformation*> func_info_table;
+using qscript_parser::func_info_table;
 
 
 AbstractQuestion* AbstractStatement::IsAQuestionStatement()
@@ -81,7 +82,7 @@ ExpressionStatement::~ExpressionStatement()
 void DeclarationStatement::GenerateCode(ostringstream & quest_defns, 
 		ostringstream& program_code)
 {
-	program_code << " // DeclarationStatement::GenerateCode " << endl;
+	//program_code << " // DeclarationStatement::GenerateCode " << endl;
 	ostringstream code_expr1, code_bef_expr1;
 	if( symbolTableEntry_->e){
 		symbolTableEntry_->e->PrintExpressionCode(code_bef_expr1
@@ -630,18 +631,23 @@ FunctionParameter::~FunctionParameter()
 
 void FunctionParameter::print(ostringstream & program_code)
 {
+	program_code << " /* FunctionParameter::print */ " << endl;
+	cerr << " /* FunctionParameter::print */ " << endl;
 	struct FunctionParameter * vl_ptr=this;
 	while(vl_ptr){
 		if(vl_ptr->var_type>=INT8_TYPE && vl_ptr->var_type<=DOUBLE_TYPE){
 			//fprintf(edit_out, "%s %s", noun_list[vl_ptr->var_type].sym,vl_ptr->var_name.c_str());
+			program_code << " /* FunctionParameter :: print : NOUN */ ";
 			program_code << noun_list[vl_ptr->var_type].sym << " " << vl_ptr->var_name.c_str();
 		} else if (vl_ptr->var_type>=INT8_ARR_TYPE&&vl_ptr->var_type<=DOUBLE_ARR_TYPE){
 			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_ARR_TYPE);
 			//fprintf(edit_out, "%s %s[%d]", noun_list[tdt].sym, vl_ptr->var_name.c_str(), arr_len, vl_ptr->var_type);
+			program_code << " /* FunctionParameter :: print : ARRAY TYPE */ ";
 			program_code <<  noun_list[tdt].sym <<  " "  <<  vl_ptr->var_name.c_str() << "[" <<  arr_len << "]" <<  vl_ptr->var_type;
 		} else if (vl_ptr->var_type>=INT8_REF_TYPE&&vl_ptr->var_type<=DOUBLE_REF_TYPE){
 			DataType tdt=DataType(INT8_TYPE + vl_ptr->var_type-INT8_REF_TYPE);
 			//fprintf(edit_out, "%s & %s", noun_list[tdt].sym, vl_ptr->var_name.c_str());
+			program_code << " /* FunctionParameter :: print : REF TYPE */ ";
 			program_code << noun_list[tdt].sym  << " & " << vl_ptr->var_name.c_str();
 		} else {
 			//fprintf(edit_out, "INTERNAL ERROR:Unknown data type: file: %s, line: %d\n", __FILE__, __LINE__);
@@ -769,6 +775,7 @@ FunctionStatement:: FunctionStatement ( DataType dtype, int lline_number
 
 void FunctionStatement::GenerateCode(ostringstream & quest_defns, ostringstream & program_code)
 {
+	program_code << "//FunctionStatement::GenerateCode()" << endl;
 	if(funcInfo_->returnType_ >= VOID_TYPE 
 			&& funcInfo_->returnType_<=DOUBLE_TYPE){
 		//fprintf(fptr,"%s ", noun_list[funcInfo_->returnType_].sym);
@@ -786,13 +793,14 @@ void FunctionStatement::GenerateCode(ostringstream & quest_defns, ostringstream 
 	
 	if(funcInfo_->functionName_==string("printf")){
 		//fprintf(fptr, "fprintf(xtcc_stdout,");
-		program_code << "fprintf(xtcc_stdout,";
+		program_code << "/* FunctionStatement::GenerateCode*/ fprintf(xtcc_stdout,";
 	} else {
 		//fprintf(fptr, "%s/* comment */\n"
 		//		, funcInfo_->functionName_.c_str());
 		//fprintf(fptr, "(");
 		program_code << funcInfo_->functionName_.c_str() << "(";
 	}
+	program_code << " /* FunctionStatement::GenerateCode */" << endl;
 	FunctionParameter* v_ptr=funcInfo_->parameterList_;
 	v_ptr->print(program_code);
 	//fprintf(fptr, ")");
