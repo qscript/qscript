@@ -125,6 +125,10 @@ int main(int argc, char* argv[])
 	}
 	catch(...){ std::cout << "error while generating configuration file\n"; }
 ////////////////////////////////
+	if(qscript_parser::tree_root) {
+		delete qscript_parser::tree_root;
+	}
+
 	
 	return no_errors;
 }

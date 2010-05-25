@@ -588,7 +588,8 @@ Unary2Expression::~Unary2Expression()
 	if(exprOperatorType_==oper_func_call){
 		//cout << "line_no: " << line_no << endl;
 	}
-	if(text) { free( text) ; text=0; }
+	cerr << "need to check the free later: __FILE__ " << __FILE__ << ", line:" << __LINE__ << endl;
+	//if(text) { free( text) ; text=0; }
 	if(operand_) { delete operand_; operand_=0; }
 	if(operand2_) { delete operand2_; operand2_=0;}
 }
