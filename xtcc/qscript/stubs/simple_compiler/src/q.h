@@ -74,41 +74,6 @@
      SETALL = 290
    };
 #endif
-/* Tokens.  */
-#define INUMBER 258
-#define FNUMBER 259
-#define NAME 260
-#define TEXT 261
-#define SP 262
-#define MP 263
-#define VOID_T 264
-#define INT8_T 265
-#define INT16_T 266
-#define INT32_T 267
-#define FLOAT_T 268
-#define DOUBLE_T 269
-#define STRING_T 270
-#define IN 271
-#define FOR 272
-#define CONST 273
-#define LOGOR 274
-#define LOGAND 275
-#define NOEQ 276
-#define ISEQ 277
-#define GEQ 278
-#define LEQ 279
-#define NOT 280
-#define UMINUS 281
-#define COUNT 282
-#define FUNC_CALL 283
-#define IF 284
-#define ELSE 285
-#define STUBS_LIST 286
-#define SETDEL 287
-#define SETADD 288
-#define UNSET 289
-#define SETALL 290
-
 
 
 
@@ -117,7 +82,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 45 "q.ypp"
+#line 45 "src/q.ypp"
 
 	type_qualifier type_qual;
 	int ival;
@@ -136,7 +101,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 140 "q.h"
+#line 105 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

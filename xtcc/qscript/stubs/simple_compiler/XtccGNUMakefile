@@ -1,0 +1,79 @@
+CC = $(CXX)
+CFLAGS = -c -g -I src -Wall -Weffc++
+CXX_LINK_FLAGS = -g
+CXX_LINK_LIBS = -lreadline
+SOURCE_DIR=src
+BUILD_DIR=make-build-dir
+CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
+EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp
+CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
+OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(CPP_SOURCES))
+OBJECTS := $(OBJECTS:.cpp=.o)
+DEPENDENCIES = $(OBJECTS:.o=.dep)
+
+YACC_SOURCES = $(wildcard $(SOURCE_DIR)/*.ypp)
+YACC_OUTPUTS  = $(YACC_SOURCES:.ypp=.cpp)
+YACC_OUTPUTS += $(YACC_SOURCES:.ypp=.h)
+
+YACC_OBJECTS = $(YACC_SOURCES)
+YACC_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(YACC_OBJECTS))
+YACC_OBJECTS := $(YACC_OBJECTS:.ypp=.o)
+OBJECTS += $(YACC_OBJECTS)
+
+LEX_SOURCES = $(wildcard $(SOURCE_DIR)/*.l)
+EXCLUDE_FILE=src/read_disk_data.l
+LEX_SOURCES := $(filter-out $(EXCLUDE_FILE),$(LEX_SOURCES))
+LEX_OBJECTS = $(LEX_SOURCES)
+LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
+LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
+OBJECTS += $(LEX_OBJECTS)
+OBJECTS := $(sort $(OBJECTS) )
+
+
+#dummy:
+#	echo "CPP sources: $(CPP_SOURCES)" 
+#	echo "YACC sources: $(YACC_SOURCES)" 
+#	echo "LEX sources: $(LEX_SOURCES)" 
+#	echo "OBJS $(OBJECTS)"
+#	echo "DEPS $(DEPENDENCIES)"
+#	echo "YACC OUTPUTS $(YACC_OUTPUTS)"
+#	echo "YACC OBJECTS $(YACC_OBJECTS)"
+#	echo "LEX OBJECTS $(LEX_OBJECTS)"
+
+$(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
+	echo "cpp sources: $(CPP_SOURCES)" 
+	echo "yacc sources: $(YACC_SOURCES)" 
+	echo "lex sources: $(LEX_SOURCES)" 
+	$(CC) $(CXX_LINK_FLAGS) $(CXX_LINK_LIBS) -o $@ $(OBJECTS) 
+
+yacc_deps: $(YACC_OUTPUTS)
+
+$(SOURCE_DIR)/data_entry.cpp: YFLAGS = -p scan_data
+
+$(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.h: $(SOURCE_DIR)/%.ypp
+	bison $(YFLAGS) -d $< -o $@
+#	echo $(SOURCE_DIR)/$(*F).hpp 
+	mv $(SOURCE_DIR)/$(*F).hpp $(SOURCE_DIR)/$(*F).h
+
+lex_deps: $(LEX_OUTPUTS)
+
+$(SOURCE_DIR)/%.cpp : $(SOURCE_DIR)/%.l
+	flex -o $@ $<
+
+$(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
+	@set -e; rm -f $@; \
+		$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
+		rm -f $@.$$$$
+
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
+	$(CC) $(CFLAGS) -o $@ $<
+	echo "dir of target: $(@D), filename of target $(@F)"
+
+.PHONY: clean
+
+clean:
+	rm $(BUILD_DIR)/*
+
+include $(DEPENDENCIES)
