@@ -23,7 +23,7 @@ scan_data.c: scan_data.l data_entry.y
 	mv lex.scan_data.c scan_data.c
 
 
-BUILT_SOURCES=q.h q.c lex.c scan_data.c scan_data.h
+BUILT_SOURCES=q.h q.c lex.c scan_data.c data_entry.h
 EXTRA_DIST= inp QScriptMakefile qscript_lib.C qscript_lib.h qscript_data.y qscript_data.l
 #dist_pkgdata_DATA=stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h docs/manual.texi docs/qscript_doc.html
 #AUTOMAKE_OPTIONS = dejagnu
