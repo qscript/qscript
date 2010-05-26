@@ -47,7 +47,7 @@ question_disk_data.o: question_disk_data.C question_disk_data.h
 	$(CC) $<
 
 
-lex.read_disk_data.c: qscript_data.l
+lex.read_disk_data.c: read_disk_data.l
 	flex $<
 	
 qscript_data.tab.o: qscript_data.tab.c qscript_data.tab.h
