@@ -14,7 +14,7 @@ stmt.o: stmt.C stmt.h
 expr.o: expr.C expr.h 
 	$(CC) -c $<	
 
-data_entry.cpp data_entry.h: data_entry.y	
+data_entry.cpp data_entry.h: data_entry.ypp
 	bison -d -p scan_data $< -o $@
 	mv data_entry.hpp data_entry.h
 	

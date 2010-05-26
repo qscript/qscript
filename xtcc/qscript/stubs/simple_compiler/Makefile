@@ -37,8 +37,8 @@ subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
-	data_entry.c data_entry.h depcomp install-sh lex.c missing q.c \
-	q.h scan_data.c ylwrap
+	data_entry.cpp data_entry.h depcomp install-sh lex.c missing \
+	q.cpp q.h scan_data.c ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -188,8 +188,9 @@ top_builddir = .
 top_srcdir = .
 AM_CXXFLAGS = -Wall -Weffc++ -frepo -g
 AM_YFLAGS = -d -v
-qscript_SOURCES = q.y lex.l  debug_mem.C expr.C main.C named_range.C qscript_parser.C question.C scope.C stmt.C stmt_common.C symtab.C utils.C xtcc_set.C const_defs.h debug_mem.h expr.h named_attributes.h named_range.h qscript_lib.h qscript_parser.h question_disk_data.h question.h scope.h stmt.h stub_pair.h symtab.h utils.h xtcc_set.h data_entry.y scan_data.l user_navigation.h
-BUILT_SOURCES = q.h q.c lex.c scan_data.c data_entry.h
+qscript_SOURCES = q.ypp lex.l  debug_mem.C expr.C main.C named_range.C qscript_parser.C question.C scope.C stmt.C stmt_common.C symtab.C utils.C xtcc_set.C const_defs.h debug_mem.h expr.h named_attributes.h named_range.h qscript_lib.h qscript_parser.h question_disk_data.h question.h scope.h stmt.h stub_pair.h symtab.h utils.h xtcc_set.h data_entry.ypp scan_data.l user_navigation.h
+#mv lex.scan_data.c scan_data.c
+BUILT_SOURCES = q.h q.cpp lex.c scan_data.cpp data_entry.h data_entry.cpp
 EXTRA_DIST = inp QScriptMakefile qscript_lib.C qscript_lib.h qscript_data.y qscript_data.l
 #dist_pkgdata_DATA=stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h docs/manual.texi docs/qscript_doc.html
 #AUTOMAKE_OPTIONS = dejagnu
@@ -199,7 +200,7 @@ all: $(BUILT_SOURCES) config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .C .c .l .o .obj .y
+.SUFFIXES: .C .c .cpp .l .o .obj .ypp
 am--refresh:
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -288,15 +289,15 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-q.h: q.c
+q.h: q.cpp
 	@if test ! -f $@; then \
-	  rm -f q.c; \
-	  $(MAKE) $(AM_MAKEFLAGS) q.c; \
+	  rm -f q.cpp; \
+	  $(MAKE) $(AM_MAKEFLAGS) q.cpp; \
 	else :; fi
-data_entry.h: data_entry.c
+data_entry.h: data_entry.cpp
 	@if test ! -f $@; then \
-	  rm -f data_entry.c; \
-	  $(MAKE) $(AM_MAKEFLAGS) data_entry.c; \
+	  rm -f data_entry.cpp; \
+	  $(MAKE) $(AM_MAKEFLAGS) data_entry.cpp; \
 	else :; fi
 qscript$(EXEEXT): $(qscript_OBJECTS) $(qscript_DEPENDENCIES) 
 	@rm -f qscript$(EXEEXT)
@@ -353,10 +354,24 @@ include ./$(DEPDIR)/xtcc_set.Po
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(COMPILE) -c `$(CYGPATH_W) '$<'`
 
+.cpp.o:
+	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+#	source='$<' object='$@' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+#	source='$<' object='$@' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
 .l.c:
 	$(am__skiplex) $(SHELL) $(YLWRAP) $< $(LEX_OUTPUT_ROOT).c $@ -- $(LEXCOMPILE)
 
-.y.c:
+.ypp.cpp:
 	$(am__skipyacc) $(SHELL) $(YLWRAP) $< y.tab.c $@ y.tab.h $*.h y.output $*.output -- $(YACCCOMPILE)
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
@@ -591,10 +606,10 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-	-rm -f data_entry.c
+	-rm -f data_entry.cpp
 	-rm -f data_entry.h
 	-rm -f lex.c
-	-rm -f q.c
+	-rm -f q.cpp
 	-rm -f q.h
 	-rm -f scan_data.c
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
@@ -687,23 +702,24 @@ uninstall-am: uninstall-binPROGRAMS
 	uninstall-am uninstall-binPROGRAMS
 
 
-q.h q.c: q.y
-	bison -d q.y -o q.c
+#q.cpp q.h : q.y
+#	bison -d q.y -o q.cpp
+#	mv q.hpp q.h
 
-lex.c: q.y
-	flex -o lex.c lex.l
+lex.cpp: q.y
+	flex -o $@ $<
 
-data_entry.c data_entry.h: data_entry.y 
-	bison -d -p scan_data $<
-	mv data_entry.tab.h data_entry.h
-	mv data_entry.tab.c data_entry.c
+data_entry.cpp: AM_YFLAGS = -p scan_data -d 
+data_entry.cpp data_entry.h: data_entry.ypp
+	echo $@
+	bison -d -p scan_data $< -o $@
+#mv data_entry.hpp data_entry.h
 
 #scan_data.c: scan_data.l
 #scan_data.c: data_entry.y scan_data.l
 
-scan_data.c: scan_data.l data_entry.y
-	flex $<
-	mv lex.scan_data.c scan_data.c
+scan_data.cpp: scan_data.l data_entry.ypp
+	flex -o $@ $< 
 
 .phony: clean
 clean:

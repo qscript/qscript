@@ -76,7 +76,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 189 of yacc.c  */
-#line 9 "data_entry.y"
+#line 9 "data_entry.ypp"
 
 #include <limits.h>
 #include <vector>
@@ -133,7 +133,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 22 "data_entry.y"
+#line 22 "data_entry.ypp"
 
 	int ival;
 
@@ -1340,7 +1340,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 37 "data_entry.y"
+#line 37 "data_entry.ypp"
     {
 		cout << "GOT END_OF_DATA" << endl;
 	;}
@@ -1349,7 +1349,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 47 "data_entry.y"
+#line 47 "data_entry.ypp"
     {
 	      data.push_back((yyvsp[(1) - (1)].ival));
 	;}
@@ -1358,7 +1358,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 50 "data_entry.y"
+#line 50 "data_entry.ypp"
     {
 		data.push_back((yyvsp[(1) - (3)].ival));
 		for(int i=data[data.size()-1]+1; i<=(yyvsp[(3) - (3)].ival); ++i){
@@ -1370,7 +1370,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 58 "data_entry.y"
+#line 58 "data_entry.ypp"
     {
 			user_navigation=JUMP_TO_QUESTION;
 		;}
@@ -1379,7 +1379,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 61 "data_entry.y"
+#line 61 "data_entry.ypp"
     {
 			user_navigation=NAVIGATE_PREVIOUS;
 		;}
@@ -1388,7 +1388,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 64 "data_entry.y"
+#line 64 "data_entry.ypp"
     {
 			user_navigation=NAVIGATE_NEXT;
 		;}
@@ -1609,7 +1609,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 69 "data_entry.y"
+#line 69 "data_entry.ypp"
 
 
 	void scan_dataerror(char *s){

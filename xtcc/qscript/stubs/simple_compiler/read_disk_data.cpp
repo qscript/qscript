@@ -492,7 +492,7 @@ char *read_disk_datatext;
 #line 2 "read_disk_data.l"
 
 #include "const_defs.h"
-#include "qscript_data.tab.h"
+#include "qscript_data.h"
 #include <iostream>
 #include <cstdlib>
 	using namespace std;
