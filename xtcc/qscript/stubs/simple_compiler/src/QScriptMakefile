@@ -53,11 +53,11 @@ question_disk_data.o: question_disk_data.C question_disk_data.h
 read_disk_data.cpp: read_disk_data.l
 	flex -o $@ $< 
 	
-qscript_data.o: qscript_data.cpp qscript_data.tab.h
+qscript_data.o: qscript_data.cpp qscript_data.h
 	$(CC) $<
 	
 
-read_disk_data.o: read_disk_data.cpp qscript_data.tab.h
+read_disk_data.o: read_disk_data.cpp qscript_data.h
 	$(CC) $<
 
 qscript_parser.o: qscript_parser.C qscript_parser.h

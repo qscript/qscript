@@ -2,9 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(qscript, 0.03, nxd_in@yahoo.com)
+AC_INIT([qscript], [0.03], nxd_in@yahoo.com)
 AM_INIT_AUTOMAKE	
-AC_CONFIG_SRCDIR([const_defs.h])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
@@ -40,6 +39,9 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_STAT
 AC_CHECK_FUNCS([memset strdup])
+AC_CONFIG_FILES([
+		Makefile
+		src/Makefile
+		])
 
-AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
