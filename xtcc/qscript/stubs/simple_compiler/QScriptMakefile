@@ -1,7 +1,7 @@
 
 CC=g++ -g -Wall -c
 LIBS=-lreadline
-OBJS = test_script.o xtcc_set.o lex.scan_data.o data_entry.tab.o question.o stmt_common.o qscript_lib.o qscript_data.tab.o lex.read_disk_data.o qscript_parser.o expr.o utils.o symtab.o stmt.o scope.o question_disk_data.o
+OBJS = test_script.o xtcc_set.o scan_data.o data_entry.o question.o stmt_common.o qscript_lib.o qscript_data.o read_disk_data.o qscript_parser.o expr.o utils.o symtab.o stmt.o scope.o question_disk_data.o
 test_script:  $(OBJS)
 	g++ -g -o $@ $(OBJS) $(LIBS)
 
@@ -14,20 +14,21 @@ stmt.o: stmt.C stmt.h
 expr.o: expr.C expr.h 
 	$(CC) -c $<	
 
-data_entry.tab.c data_entry.tab.h: data_entry.y	
-	bison -d -p scan_data $<
+data_entry.cpp data_entry.h: data_entry.y	
+	bison -d -p scan_data $< -o $@
+	mv data_entry.hpp data_entry.h
 	
 utils.o: utils.C utils.h
 	$(CC) -c $<	
 
-lex.scan_data.c: scan_data.l
-	flex $<
+scan_data.cpp: scan_data.l
+	flex -o $@ $<
 
 
-lex.scan_data.o: lex.scan_data.c data_entry.tab.h
+scan_data.o: scan_data.cpp data_entry.h
 	$(CC) $<
 
-data_entry.tab.o: data_entry.tab.c
+data_entry.o: data_entry.cpp
 	$(CC) $<
 
 xtcc_set.o: xtcc_set.C xtcc_set.h
@@ -40,21 +41,23 @@ question.o: question.C question.h
 qscript_lib.o: qscript_lib.C
 	$(CC) $<
 
-qscript_data.tab.c qscript_data.tab.h: qscript_data.y question_disk_data.h
-	bison -d -p read_disk_data $<
+qscript_data.cpp qscript_data.h: qscript_data.y question_disk_data.h
+	echo $@
+	bison -d -p read_disk_data $< -o $@
+	mv qscript_data.hpp qscript_data.h
 
 question_disk_data.o: question_disk_data.C question_disk_data.h
 	$(CC) $<
 
 
-lex.read_disk_data.c: read_disk_data.l
-	flex $<
+read_disk_data.cpp: read_disk_data.l
+	flex -o $@ $< 
 	
-qscript_data.tab.o: qscript_data.tab.c qscript_data.tab.h
+qscript_data.o: qscript_data.cpp qscript_data.tab.h
 	$(CC) $<
 	
 
-lex.read_disk_data.o: lex.read_disk_data.c qscript_data.tab.h
+read_disk_data.o: read_disk_data.cpp qscript_data.tab.h
 	$(CC) $<
 
 qscript_parser.o: qscript_parser.C qscript_parser.h

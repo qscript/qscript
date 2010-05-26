@@ -94,7 +94,7 @@
 
 
 /* Line 189 of yacc.c  */
-#line 98 "qscript_data.tab.c"
+#line 98 "qscript_data.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -146,7 +146,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 150 "qscript_data.tab.c"
+#line 150 "qscript_data.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -158,7 +158,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 162 "qscript_data.tab.c"
+#line 162 "qscript_data.cpp"
 
 #ifdef short
 # undef short
@@ -1470,7 +1470,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1474 "qscript_data.tab.c"
+#line 1474 "qscript_data.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
