@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.6)
 project (qscript)
-
+#set SOURCE = src
 ## find_package(BISON)
 ## find_package(FLEX)
 
@@ -26,11 +26,11 @@ ADD_CUSTOM_COMMAND(
 # Create custom command for bison/yacc (note the DEPENDS)
 ADD_CUSTOM_COMMAND(
 #TARGET qscriptParser 
-	SOURCE ${qscript_SOURCE_DIR}/q.y
+	SOURCE ${qscript_SOURCE_DIR}/q.ypp
 	COMMENT "building q.C right now"
-	COMMAND bison -d ${qscript_SOURCE_DIR}/q.y -o ${qscript_BINARY_DIR}/q.cxx
+	COMMAND bison -d ${qscript_SOURCE_DIR}/q.ypp -o ${qscript_BINARY_DIR}/q.cxx
 	COMMAND mv ${qscript_BINARY_DIR}/q.hxx ${qscript_BINARY_DIR}/q.h 
-	DEPENDS ${qscript_SOURCE_DIR}/q.y
+	DEPENDS ${qscript_SOURCE_DIR}/q.ypp
 	OUTPUT ${qscript_BINARY_DIR}/q.cxx ${qscript_BINARY_DIR}/q.h 
 	)
 
@@ -45,17 +45,17 @@ ADD_CUSTOM_COMMAND(
 # Create custom command for bison/yacc (note the DEPENDS)
 ADD_CUSTOM_COMMAND(
 #TARGET dataEntryParser 
-	SOURCE ${qscript_SOURCE_DIR}/data_entry.y
-	COMMAND bison -p scan_data -d ${qscript_SOURCE_DIR}/data_entry.y -o ${qscript_BINARY_DIR}/data_entry.cxx
+	SOURCE ${qscript_SOURCE_DIR}/data_entry.ypp
+	COMMAND bison -p scan_data -d ${qscript_SOURCE_DIR}/data_entry.ypp -o ${qscript_BINARY_DIR}/data_entry.cxx
 	COMMAND mv ${qscript_BINARY_DIR}/data_entry.hxx ${qscript_BINARY_DIR}/data_entry.h 
 	OUTPUT ${qscript_BINARY_DIR}/data_entry.cxx ${qscript_BINARY_DIR}/data_entry.h 
 	)
 
 INCLUDE_DIRECTORIES(${qscript_SOURCE_DIR})
-add_executable (qscript debug_mem.C expr.C main.C 
-		named_range.C qscript_lib.h qscript_parser.C 
-		question.C scope.C stmt.C 
-		stmt_common.C symtab.C utils.C xtcc_set.C q.y lex.l scan_data.l data_entry.y 
+add_executable (qscript debug_mem.cpp expr.cpp main.cpp 
+		named_range.cpp qscript_lib.h qscript_parser.cpp 
+		question.cpp scope.cpp stmt.cpp 
+		stmt_common.cpp symtab.cpp utils.cpp xtcc_set.cpp q.ypp lex.l scan_data.l data_entry.ypp
 		question_disk_data.h 
 		${qscript_BINARY_DIR}/data_entry.cxx ${qscript_BINARY_DIR}/data_entry.h
 		${qscript_BINARY_DIR}/q.cxx ${qscript_BINARY_DIR}/q.h 
