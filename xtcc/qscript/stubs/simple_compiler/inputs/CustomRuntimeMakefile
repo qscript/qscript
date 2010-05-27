@@ -1,0 +1,15 @@
+# You will need to modify the variable below
+QSCRIPT_HOME=/media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
+# if you have setup everything under ../INSTALL_CUSTOM.readme the you will not need to change
+#the variables below
+# when running the generated exe you will need to use
+# LD_LIBRARY_PATH=$(QSCRIPT_RUNTIME) ./test_script
+
+QSCRIPT_RUNTIME=$(QSCRIPT_HOME)/lib
+QSCRIPT_INCLUDE_DIR=$(QSCRIPT_HOME)/include
+
+test_script: test_script.o
+	$(CXX) -o $@ -L$(QSCRIPT_RUNTIME) test_script.o -lqscript_runtime -lreadline
+
+test_script.o: test_script.C
+	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -c $<

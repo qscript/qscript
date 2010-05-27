@@ -15,6 +15,7 @@ the base of the QScript installation
 |-- bin
 |-- docs
 |-- inputs
+|-- include
 |-- lib
 |-- make-build-dir
 |   |-- runtime_lib
@@ -33,3 +34,19 @@ the base of the QScript installation
 8) We currently create a library libqscript_runtime which
 	is used to link the generated questionnaire to the runtime and
 	can then be run by the user
+9) When running the generated programs you need to specify LD_LIBRARY_PATH=$(QSCRIPT_HOME)/lib
+	where $(QSCRIPT_HOME) is the top of the tree of the qscript compiler installation - 
+	where the CustomQscriptMakefile resides
+
+10) All the *.h files are copied to the QSCRIPT_HOME/include directory.
+
+11) typical example in trying out one of the inputs in the 
+	$(QSCRIPT_HOME)/inputs directory - based on my setup
+
+	1. $ export QSCRIPT_HOME=/media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
+	2. $ export PATH=$PATH:$QSCRIPT_HOME/bin
+	3. $ cd inputs
+	4. $ qscript -f inp_jump_test -> test_script.C generated
+	5. $ make -f CustomRuntimeMakefile -> test_script.C compiled and linked with qscript_runtime library stored in $QSCRIPT_HOME/lib ->generates test_script
+	6. $ LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./test_script -> program runs
+	
