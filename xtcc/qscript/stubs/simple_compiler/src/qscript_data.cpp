@@ -76,7 +76,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 189 of yacc.c  */
-#line 2 "qscript_data.y"
+#line 2 "src/qscript_data.ypp"
 
 #include <iostream>
 	using namespace std;
@@ -94,7 +94,7 @@
 
 
 /* Line 189 of yacc.c  */
-#line 98 "qscript_data.cpp"
+#line 98 "src/qscript_data.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -137,7 +137,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 19 "qscript_data.y"
+#line 19 "src/qscript_data.ypp"
 
 	int ival;
 	double dval;
@@ -146,7 +146,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 150 "qscript_data.cpp"
+#line 150 "src/qscript_data.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -158,7 +158,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 162 "qscript_data.cpp"
+#line 162 "src/qscript_data.cpp"
 
 #ifdef short
 # undef short
@@ -1355,7 +1355,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 32 "qscript_data.y"
+#line 32 "src/qscript_data.ypp"
     {
 	cout << "got question_list: parsed to program: " << endl;
 	return no_errors;
@@ -1365,7 +1365,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 42 "qscript_data.y"
+#line 42 "src/qscript_data.ypp"
     {
 		//cout << "data<int>[]: ";
 		for(int i=0; i<data.size(); ++i){
@@ -1384,7 +1384,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 55 "qscript_data.y"
+#line 55 "src/qscript_data.ypp"
     {
 		//cout << "got empty question" << endl;
 		string qno((yyvsp[(1) - (3)].name));
@@ -1397,7 +1397,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 62 "qscript_data.y"
+#line 62 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (5)].name));
 		QuestionExists q_eq(qno);
@@ -1421,7 +1421,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 80 "qscript_data.y"
+#line 80 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
@@ -1434,7 +1434,7 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 89 "qscript_data.y"
+#line 89 "src/qscript_data.ypp"
     {
 		    data.push_back((yyvsp[(1) - (1)].ival));
 	;}
@@ -1443,7 +1443,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 92 "qscript_data.y"
+#line 92 "src/qscript_data.ypp"
     {
 		    data.push_back((yyvsp[(2) - (2)].ival));
 	;}
@@ -1452,7 +1452,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 97 "qscript_data.y"
+#line 97 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(2) - (2)].ival));
 	;}
@@ -1461,7 +1461,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 100 "qscript_data.y"
+#line 100 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(3) - (3)].ival));
 	;}
@@ -1470,7 +1470,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1474 "qscript_data.cpp"
+#line 1474 "src/qscript_data.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1682,7 +1682,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 105 "qscript_data.y"
+#line 105 "src/qscript_data.ypp"
 
 
 /*

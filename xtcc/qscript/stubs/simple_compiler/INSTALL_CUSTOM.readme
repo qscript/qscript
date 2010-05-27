@@ -1,0 +1,35 @@
+There is a new makefile called CustomQscriptMakefile
+
+This was done because I wanted an out of source build and I could not 
+configure automake to do things the way I wanted. The automake script
+will do an in-source build. However I will lay out how I would like the
+final structure to be.
+
+1) make-build-dir is the directory used to create binaries
+2) the CustomQscriptMakefile will create binaries in this folder using
+the pattern matching rules feature in GNU make 
+3) Below is the directory structure of the tree the top-level being
+the base of the QScript installation
+
+.
+|-- bin
+|-- docs
+|-- inputs
+|-- lib
+|-- make-build-dir
+|   |-- runtime_lib
+|-- resources
+|-- src
+
+4) src - The source code currently resides in the src directory
+5) lib - any libraries which are created will be stored here
+6) bin - any binaries created should be stored here
+7) there is a target local_install in the CustomQscriptMakefile 
+	which will copy the libraries and the binaries to their
+	respective folders
+	i.e.
+	make -f CustomQscriptMakefile local_install
+
+8) We currently create a library libqscript_runtime which
+	is used to link the generated questionnaire to the runtime and
+	can then be run by the user

@@ -1,5 +1,6 @@
 CC = $(CXX)
 CFLAGS = -c -g -I src -Wall -Weffc++
+CXX_SHARED_LIB_FLAGS = -fPIC
 CXX_LINK_FLAGS = -g
 CXX_LINK_LIBS = -lreadline
 SOURCE_DIR=src
@@ -12,6 +13,8 @@ OBJECTS := $(OBJECTS:.cpp=.o)
 DEPENDENCIES = $(OBJECTS:.o=.dep)
 
 YACC_SOURCES = $(wildcard $(SOURCE_DIR)/*.ypp)
+EXCLUDE_FILE = src/qscript_data.ypp
+YACC_SOURCES := $(filter-out $(EXCLUDE_FILE),$(YACC_SOURCES) )
 YACC_OUTPUTS  = $(YACC_SOURCES:.ypp=.cpp)
 YACC_OUTPUTS += $(YACC_SOURCES:.ypp=.h)
 
@@ -50,6 +53,8 @@ yacc_deps: $(YACC_OUTPUTS)
 
 $(SOURCE_DIR)/data_entry.cpp: YFLAGS = -p scan_data
 
+$(SOURCE_DIR)/qscript_data.cpp: YFLAGS = -p read_disk_data
+
 $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.h: $(SOURCE_DIR)/%.ypp
 	bison $(YFLAGS) -d $< -o $@
 #	echo $(SOURCE_DIR)/$(*F).hpp 
@@ -66,6 +71,26 @@ $(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
 		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
 		rm -f $@.$$$$
 
+RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
+		$(SOURCE_DIR)/data_entry.cpp $(SOURCE_DIR)/question.cpp \
+		$(SOURCE_DIR)/stmt_common.cpp $(SOURCE_DIR)/qscript_lib.cpp \
+		$(SOURCE_DIR)/qscript_data.cpp $(SOURCE_DIR)/read_disk_data.cpp \
+		$(SOURCE_DIR)/qscript_parser.cpp $(SOURCE_DIR)/expr.cpp \
+		$(SOURCE_DIR)/utils.cpp $(SOURCE_DIR)/symtab.cpp \
+		$(SOURCE_DIR)/stmt.cpp $(SOURCE_DIR)/scope.cpp \
+		$(SOURCE_DIR)/question_disk_data.cpp
+
+RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
+RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)
+
+runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
+	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
+	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
+	$(CXX) -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
+
+
+$(BUILD_DIR)/runtime_lib/%.o: $(SOURCE_DIR)/%.cpp
+	$(CC) $(CFLAGS) $(CXX_SHARED_LIB_FLAGS) -o $@ $<
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 	$(CC) $(CFLAGS) -o $@ $<
@@ -75,5 +100,9 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 
 clean:
 	rm $(BUILD_DIR)/*
+
+local_install: $(BUILD_DIR)/qscript runtime_lib
+	cp $(BUILD_DIR)/qscript bin
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib
 
 include $(DEPENDENCIES)

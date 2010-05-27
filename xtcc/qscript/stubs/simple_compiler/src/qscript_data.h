@@ -55,7 +55,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 19 "qscript_data.y"
+#line 19 "src/qscript_data.ypp"
 
 	int ival;
 	double dval;
@@ -64,7 +64,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 68 "qscript_data.hpp"
+#line 68 "src/qscript_data.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
