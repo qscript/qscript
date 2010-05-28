@@ -104,13 +104,6 @@ clean:
 local_install: $(BUILD_DIR)/qscript runtime_lib
 	cp $(BUILD_DIR)/qscript bin
 	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib
-	cp ${SOURCE_DIR}/stmt.h include
-	cp ${SOURCE_DIR}/xtcc_set.h include
-	cp ${SOURCE_DIR}/stub_pair.h include
-	cp ${SOURCE_DIR}/symtab.h include
-	cp ${SOURCE_DIR}/qscript_lib.h include
-	cp ${SOURCE_DIR}/question_disk_data.h include
-	cp ${SOURCE_DIR}/user_navigation.h include
-	cp ${SOURCE_DIR}/debug_mem.h include
+	cp ${SOURCE_DIR}/*.h include
 
 include $(DEPENDENCIES)
