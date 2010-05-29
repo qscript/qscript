@@ -85,6 +85,7 @@ void print_header(FILE* script);
 void print_array_question_class(FILE* script);
 void print_close(FILE* script, ostringstream & program_code);
 void print_navigation_support_functions(FILE * script);
+void print_reset_questionnaire(FILE * script);
 void GenerateCode(){
 	string script_name("test_script.C");
 	FILE * script = fopen(script_name.c_str(), "w");
@@ -152,6 +153,7 @@ void print_header(FILE* script){
 	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int ser_no);\n");
 	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
+	fprintf(script, "void reset_questionnaire();\n");
 	print_array_question_class(script);
 
 
@@ -185,6 +187,7 @@ void print_close(FILE* script, ostringstream & program_code){
 
 	fprintf(script, "\tint ser_no;\n");
 	fprintf(script, "\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
+	fprintf(script, "\treset_questionnaire();\n");
 	fprintf(script, "\tcin >> ser_no;\n");
 	fprintf(script, "\tstring jno=\"j_1001\";\n");
 	fprintf(script, "\twhile(ser_no!=0){\n");
@@ -208,6 +211,7 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\n");
 	*/
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
+	fprintf(script, "\t\treset_questionnaire();\n");
 
 	fprintf(script,	"\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
 	fprintf(script, "\tcin >> ser_no;\n");
@@ -215,6 +219,7 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\n} /* close main */\n");
 	fprintf(script, "%s\n", write_data_to_disk_code());
 	print_navigation_support_functions(script);
+	print_reset_questionnaire(script);
 }
 
 void print_navigation_support_functions(FILE * script)
@@ -242,6 +247,16 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "	}\n");
 	fprintf(script, "	return 0;\n");
 	fprintf(script, "}\n");
+}
+
+void print_reset_questionnaire(FILE * script)
+{
+	fprintf(script, "void reset_questionnaire(){\n");
+	fprintf(script, "for(int i=0; i< question_list.size(); ++i){\n");
+	fprintf(script, "\tquestion_list[i]->isAnswered_=false;\n");
+	fprintf(script, "\t}\n");
+	fprintf(script, "}\n");
+
 }
 
 	bool skip_func_type_check(const char * fname){
@@ -446,6 +461,8 @@ const char * write_data_to_disk_code(){
 	"\t		question_list[i]->input_data.clear();\n"
 	"\t		*/\n"
 	"\t	}\n"
+	"\t	data_file.flush();\n"
+	"\t	data_file.close();\n"
 	"\t	//fclose(fptr);\n"
 	"\t}\n"
 	"\n";

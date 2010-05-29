@@ -56,7 +56,8 @@ $(SOURCE_DIR)/data_entry.cpp: YFLAGS = -p scan_data
 $(SOURCE_DIR)/qscript_data.cpp: YFLAGS = -p read_disk_data
 
 $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.h: $(SOURCE_DIR)/%.ypp
-	bison $(YFLAGS) -d $< -o $@
+	echo "building parser from ypp target : $@"
+	bison $(YFLAGS) -d $< -o $(SOURCE_DIR)/$(@F)
 #	echo $(SOURCE_DIR)/$(*F).hpp 
 	mv $(SOURCE_DIR)/$(*F).hpp $(SOURCE_DIR)/$(*F).h
 
@@ -104,6 +105,9 @@ clean:
 local_install: $(BUILD_DIR)/qscript runtime_lib
 	cp $(BUILD_DIR)/qscript bin
 	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so.1
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so.1
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so
 	cp ${SOURCE_DIR}/*.h include
 
 include $(DEPENDENCIES)

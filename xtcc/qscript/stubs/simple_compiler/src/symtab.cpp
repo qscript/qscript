@@ -196,7 +196,7 @@ void SymbolTableEntry::print_push_stack(const string &stack_name, string & str)
 		s << stack_name << "_scope_double[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case QUESTION_TYPE:
-		s << "// QUESTION_TYPE - will think of this later " << endl;
+		s << "// " << name_ <<  " QUESTION_TYPE - will think of this later " << endl;
 		break;
 	default: {
 			string err_msg = "unhandled type in print_push_stack";

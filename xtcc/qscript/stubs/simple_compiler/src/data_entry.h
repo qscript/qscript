@@ -54,14 +54,14 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 22 "data_entry.ypp"
+#line 22 "src/data_entry.ypp"
 
 	int ival;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 65 "data_entry.hpp"
+#line 65 "src/data_entry.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
