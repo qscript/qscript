@@ -112,8 +112,8 @@ FLEX_TARGET(qscriptLexer lex.l ${CMAKE_CURRENT_BINARY_DIR}/lex.cpp )
 ADD_FLEX_BISON_DEPENDENCY( qscriptLexer qscriptParser )
 
 
-BISON_TARGET(dataEntryParser data_entry.ypp ${CMAKE_CURRENT_BINARY_DIR}/data_entry.cpp COMPILE_FLAGS -d -p scan_data )
-FLEX_TARGET(dataEntryLexer scan_data.l ${CMAKE_CURRENT_BINARY_DIR}/scan_data.cpp )
+BISON_TARGET(dataEntryParser data_entry.ypp ${CMAKE_CURRENT_BINARY_DIR}/data_entry.cpp COMPILE_FLAGS "-d -p scan_data" )
+FLEX_TARGET(dataEntryLexer scan_data.l ${CMAKE_CURRENT_BINARY_DIR}/scan_data.cpp COMPILE_FLAGS --prefix=scan_data )
 ADD_FLEX_BISON_DEPENDENCY( dataEntryLexer dataEntryParser )
 
 INCLUDE_DIRECTORIES(${qscript_SOURCE_DIR})

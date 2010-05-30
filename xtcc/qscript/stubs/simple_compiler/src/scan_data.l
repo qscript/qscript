@@ -7,7 +7,7 @@
 %{
 #include <string>
 #include <iostream>
-#include "data_entry.h"
+#include "data_entry.hpp"
 #include "user_navigation.h"
 #include <readline/readline.h>
 	using namespace std;

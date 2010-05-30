@@ -13,7 +13,7 @@
 #include "const_defs.h"
 //#include "common.h"
 #include "symtab.h"
-#include "q.h"
+#include "q.hpp"
 
 namespace qscript_parser {
 	//void yyerror(const char * s);

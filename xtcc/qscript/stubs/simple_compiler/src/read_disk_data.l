@@ -1,7 +1,7 @@
 %{
 
 #include "const_defs.h"
-#include "qscript_data.h"
+#include "qscript_data.hpp"
 #include <iostream>
 #include <cstdlib>
 	using namespace std;

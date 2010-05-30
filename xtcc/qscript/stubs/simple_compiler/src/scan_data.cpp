@@ -1,6 +1,6 @@
-#line 2 "scan_data.cpp"
+#line 2 "src/scan_data.cpp"
 
-#line 4 "scan_data.cpp"
+#line 4 "src/scan_data.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -481,17 +481,17 @@ int scan_data_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *scan_datatext;
-#line 1 "scan_data.l"
+#line 1 "src/scan_data.l"
 /*
  *  xtcc/xtcc/qscript/stubs/simple_compiler/try1.l
  *
  * tokenizer for the data entry command line - this file should be named better 
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
-#line 8 "scan_data.l"
+#line 8 "src/scan_data.l"
 #include <string>
 #include <iostream>
-#include "data_entry.h"
+#include "data_entry.hpp"
 #include "user_navigation.h"
 #include <readline/readline.h>
 	using namespace std;
@@ -499,7 +499,7 @@ char *scan_datatext;
 	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
 	int scan_datalex();
 	int scan_dataparse();
-#line 503 "scan_data.cpp"
+#line 503 "src/scan_data.cpp"
 
 #define INITIAL 0
 
@@ -686,9 +686,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 24 "scan_data.l"
+#line 24 "src/scan_data.l"
 
-#line 692 "scan_data.cpp"
+#line 692 "src/scan_data.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -769,12 +769,12 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 25 "scan_data.l"
+#line 25 "src/scan_data.l"
 ;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 27 "scan_data.l"
+#line 27 "src/scan_data.l"
 {
 	scan_datalval.ival = atoi(scan_datatext);
 	return NUMBER;
@@ -782,7 +782,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 32 "scan_data.l"
+#line 32 "src/scan_data.l"
 {
 	return HYPHEN;
 }
@@ -793,7 +793,7 @@ YY_RULE_SETUP
 	}*/
 case 4:
 YY_RULE_SETUP
-#line 41 "scan_data.l"
+#line 41 "src/scan_data.l"
 {
 		if(scan_datatext[0] == 'n'){
 			return NAVIGATE_NEXT_TOK;
@@ -810,10 +810,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 56 "scan_data.l"
+#line 56 "src/scan_data.l"
 ECHO;
 	YY_BREAK
-#line 817 "scan_data.cpp"
+#line 817 "src/scan_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1808,7 +1808,7 @@ void scan_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 56 "scan_data.l"
+#line 56 "src/scan_data.l"
 
 
 

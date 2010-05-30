@@ -16,7 +16,7 @@ YACC_SOURCES = $(wildcard $(SOURCE_DIR)/*.ypp)
 EXCLUDE_FILE = src/qscript_data.ypp
 YACC_SOURCES := $(filter-out $(EXCLUDE_FILE),$(YACC_SOURCES) )
 YACC_OUTPUTS  = $(YACC_SOURCES:.ypp=.cpp)
-YACC_OUTPUTS += $(YACC_SOURCES:.ypp=.h)
+YACC_OUTPUTS += $(YACC_SOURCES:.ypp=.hpp)
 
 YACC_OBJECTS = $(YACC_SOURCES)
 YACC_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(YACC_OBJECTS))
@@ -52,16 +52,23 @@ $(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
 yacc_deps: $(YACC_OUTPUTS)
 
 $(SOURCE_DIR)/data_entry.cpp: YFLAGS = -p scan_data
+$(SOURCE_DIR)/data_entry.hpp: YFLAGS = -p scan_data
 
 $(SOURCE_DIR)/qscript_data.cpp: YFLAGS = -p read_disk_data
+$(SOURCE_DIR)/qscript_data.hpp: YFLAGS = -p read_disk_data
 
-$(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.h: $(SOURCE_DIR)/%.ypp
-	echo "building parser from ypp target : $@"
-	bison $(YFLAGS) -d $< -o $(SOURCE_DIR)/$(@F)
+$(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.hpp: $(SOURCE_DIR)/%.ypp
+	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
+	bison $(YFLAGS) -d $< -o $(basename $@).cpp
+#bison $(YFLAGS) -d $< -o $(SOURCE_DIR)/$(@F)
 #	echo $(SOURCE_DIR)/$(*F).hpp 
-	mv $(SOURCE_DIR)/$(*F).hpp $(SOURCE_DIR)/$(*F).h
+#	mv $(SOURCE_DIR)/$(*F).hpp $(SOURCE_DIR)/$(*F).h
 
 lex_deps: $(LEX_OUTPUTS)
+
+$(SOURCE_DIR)/lex.cpp: $(SOURCE_DIR)/q.hpp
+$(SOURCE_DIR)/scan_data.cpp: $(SOURCE_DIR)/data_entry.hpp
+$(SOURCE_DIR)/read_disk_data.cpp: $(SOURCE_DIR)/qscript_data.hpp
 
 $(SOURCE_DIR)/%.cpp : $(SOURCE_DIR)/%.l
 	flex -o $@ $<
