@@ -1,3 +1,4 @@
+
 CC = $(CXX)
 CFLAGS = -c -g -I src -Wall -Weffc++
 CXX_SHARED_LIB_FLAGS = -fPIC
@@ -31,6 +32,9 @@ LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
 LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
 OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
+
+QSCRIPT_MAJOR_VERSION_NUMBER=0
+QSCRIPT_MINOR_VERSION_NUMBER=4
 
 
 #dummy:
@@ -94,7 +98,7 @@ RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)
 runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
 	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
 	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
-	$(CXX) -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
+	$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
 
 
 $(BUILD_DIR)/runtime_lib/%.o: $(SOURCE_DIR)/%.cpp
@@ -104,10 +108,22 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 	$(CC) $(CFLAGS) -o $@ $<
 	echo "dir of target: $(@D), filename of target $(@F)"
 
+RELEASE_DIR=qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER)
+release: clean
+	-if [ -d $(RELEASE_DIR) ] ; then rm -rf $(RELEASE_DIR) ; fi
+	-if [ -f $(RELEASE_DIR).tar ] ; then rm -f $(RELEASE_DIR).tar ; fi
+	mkdir -p $(RELEASE_DIR)/bin $(RELEASE_DIR)/lib $(RELEASE_DIR)/src $(RELEASE_DIR)/make-build-dir/runtime_lib \
+		$(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include
+	cp   src/* $(RELEASE_DIR)/src 
+	cp -R cmake $(RELEASE_DIR)
+	cp CustomQScriptMakefile CMakeLists.txt COPYING README INSTALL_CUSTOM.readme $(RELEASE_DIR)
+	cp inputs/* $(RELEASE_DIR)/inputs
+	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
+
 .PHONY: clean
 
 clean:
-	rm $(BUILD_DIR)/*
+	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/* include/*
 
 local_install: $(BUILD_DIR)/qscript runtime_lib
 	cp $(BUILD_DIR)/qscript bin

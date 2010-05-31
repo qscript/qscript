@@ -32,6 +32,7 @@ int main(int argc, char* argv[])
 	int opterr=1, c;
 	string fname;
 	int fname_flag=0;
+	bool exit_flag=false;
 	
 	while( (c=getopt(argc, argv, "f:"))!=-1 ){
 		char ch=optopt;
@@ -58,6 +59,23 @@ int main(int argc, char* argv[])
 			break;
 		}
 	}
+	char * QSCRIPT_HOME=getenv("QSCRIPT_HOME");
+	if(!QSCRIPT_HOME){
+		cout << "Please set environment variable QSCRIPT_HOME to the top-level directory that qscript is installed in" << endl 
+			<< "If qscript was installed in /home/unixuser/qscript/, in UNIX - bash " << endl
+			<< "you would do this as (assume $ as shell prompt):" << endl 
+			<< "$export QSCRIPT_HOME=/home/unix_user/qscript" << endl;
+		exit_flag=true;
+	}
+	if(exit_flag){
+		exit(1);
+	}
+
+
+
+
+
+
 	if(!fname_flag){
 		cout << "usage: " 
 			<< endl
@@ -126,6 +144,7 @@ int main(int argc, char* argv[])
 	catch(...){ std::cout << "error while generating configuration file\n"; }
 ////////////////////////////////
 	if(qscript_parser::tree_root) {
+		cerr << "deleting qscript_parser::tree_root" << endl;
 		delete qscript_parser::tree_root;
 	}
 

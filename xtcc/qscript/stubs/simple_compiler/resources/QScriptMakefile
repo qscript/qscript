@@ -1,0 +1,71 @@
+
+CC=g++ -g -Wall -c
+LIBS=-lreadline
+OBJS = test_script.o xtcc_set.o scan_data.o data_entry.o question.o stmt_common.o qscript_lib.o qscript_data.o read_disk_data.o qscript_parser.o expr.o utils.o symtab.o stmt.o scope.o question_disk_data.o
+test_script:  $(OBJS)
+	g++ -g -o $@ $(OBJS) $(LIBS)
+
+test_script.o: test_script.C
+	$(CC) -c $<
+
+stmt.o: stmt.C stmt.h 
+	$(CC) -c $<	
+
+expr.o: expr.C expr.h 
+	$(CC) -c $<	
+
+data_entry.cpp data_entry.h: data_entry.ypp
+	bison -d -p scan_data $< -o $@
+	mv data_entry.hpp data_entry.h
+	
+utils.o: utils.C utils.h
+	$(CC) -c $<	
+
+scan_data.cpp: scan_data.l
+	flex -o $@ $<
+
+
+scan_data.o: scan_data.cpp data_entry.h
+	$(CC) $<
+
+data_entry.o: data_entry.cpp
+	$(CC) $<
+
+xtcc_set.o: xtcc_set.C xtcc_set.h
+	$(CC) $<
+
+
+question.o: question.C question.h
+	$(CC) $<
+
+qscript_lib.o: qscript_lib.C
+	$(CC) $<
+
+qscript_data.cpp qscript_data.h: qscript_data.y question_disk_data.h
+	echo $@
+	bison -d -p read_disk_data $< -o $@
+	mv qscript_data.hpp qscript_data.h
+
+question_disk_data.o: question_disk_data.C question_disk_data.h
+	$(CC) $<
+
+
+read_disk_data.cpp: read_disk_data.l
+	flex -o $@ $< 
+	
+qscript_data.o: qscript_data.cpp qscript_data.h
+	$(CC) $<
+	
+
+read_disk_data.o: read_disk_data.cpp qscript_data.h
+	$(CC) $<
+
+qscript_parser.o: qscript_parser.C qscript_parser.h
+	$(CC) $<
+
+symtab.o: symtab.C symtab.h
+	$(CC) $<
+
+scope.o: scope.C scope.h
+	$(CC) $<
+

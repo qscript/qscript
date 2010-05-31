@@ -23,8 +23,10 @@ extern int if_line_no;
 using std::cout;
 using std::endl;
 void read_data(const char * prompt);
-AbstractStatement::~AbstractStatement(){ 
-using qscript_parser::debug_log_file;
+AbstractStatement::~AbstractStatement()
+{
+	using qscript_parser::debug_log_file;
+	std::cerr << "AbstractStatement::~AbstractStatement()\n" << std::endl;
 	if (next_  ) {
 		delete next_; next_=0;
 	} 

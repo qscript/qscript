@@ -26,7 +26,6 @@ using qscript_parser:: active_scope;
 //extern vector </*Statement::*/FunctionInformation*> func_info_table;
 using qscript_parser::func_info_table;
 
-
 AbstractQuestion* AbstractStatement::IsAQuestionStatement()
 {
 	return 0;

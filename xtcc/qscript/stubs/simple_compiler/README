@@ -1,8 +1,6 @@
 This software is released under GNU GPL V2. Please see file COPYING for license
 
-
-Updated on 27-May-2010 -> please read notes in INSTALL_CUSTOM.readme 
-This file is to be updated with all the changes made.
+Updated on 27-May-2010 
 
 Project website: http://xtcc.sourceforge.net .
 
@@ -11,10 +9,9 @@ data for Market Research related projects.  When finished it will support
 Pen and Paper, CATI and Web studies.
 
 This is a demo of the qscript compiler. Given an input file, 
-it creates a data entry program called test_script.c 
+it creates a data entry program called test_script.C
 The input data entry program should then be compiled to generate 
 the final binary.  These steps are listed below
-
 
 This version of qscript can read a serial number from disk and 
 allow you to review the data
@@ -23,30 +20,20 @@ allow you to review the data
 and should be included with the distribution
 
 
+BUILD ENVIRONMENT
 
-Step 1:
-	make
-		-> ouput will be simple_compiler
-Step 2:
-	simple_compiler -f inp	
-		-> ouput will be test_script.c
+	You can build this project using the Custom Makefile
+	1) CustomQScriptMakefile or
+	2) cmake
 
-Step 3:
-	make -f QScriptMakefile
-		-> ouput will be test_script ( a binary)
+	using cmake requires an out-of-source build
 
-		step 3 uses test_script.c and re-uses certain *.o files 
-		created in step 1 of the compiler
-		to create "test_script" which can be executed
+	Please read the file INSTALL_CUSTOM.readme for instructions on how to build
 
-	
-Step 4: 
-	./test_script
 
-		-> run the above command to see the data entry program in action
-
-Please let me know your feedback, you can email me at: NxD_in@yahoo.com
+Please let me know your feedback
 
 
 Bests,
 Neil Xavier D'Souza
+NxD_in at yahoo dot com
