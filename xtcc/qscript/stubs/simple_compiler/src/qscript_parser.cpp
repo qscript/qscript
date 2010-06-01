@@ -158,6 +158,7 @@ void print_header(FILE* script){
 
 
 	fprintf(script, "int main(){\n");
+	fprintf(script, "AbstractQuestion * last_question_answered=0;\n");
 	fprintf(script, "xtcc_stdout=fopen(xtcc_stdout_fname.c_str(), \"w\");\n");
 	/*
 	map<string, vector<string> > ::iterator iter;
@@ -210,8 +211,20 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\tfclose(fptr);\n");
 	fprintf(script, "\n");
 	*/
+	fprintf(script, "\tcout << \"End of Questionnaire: (s to save, p = previous question, j = question jump list)\" << endl;\n"); 
+	fprintf(script, "\tchar end_of_question_navigation;\n");
+	fprintf(script, "\tcin >> end_of_question_navigation;\n");
+	fprintf(script, "\tif(end_of_question_navigation=='s'){\n");
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
 	fprintf(script, "\t\treset_questionnaire();\n");
+	fprintf(script, "\t} else if (end_of_question_navigation=='p'){\n");
+	fprintf(script, "\t\tAbstractQuestion * target_question = ComputePreviousQuestion(last_question_answered);\n" );
+	fprintf(script,	"\t\t\tjumpToQuestion = target_question->questionName_;\n");
+	fprintf(script, "\t\t\tcout << \"target question: \" << jumpToQuestion;\n");
+	fprintf(script, "\t\t\tback_jump=true;\n");
+	fprintf(script, "\t\t\tuser_navigation=NOT_SET;\n");
+	fprintf(script, "\t\t\tgoto start_of_questions;\n");
+	fprintf(script, "\t}\n");
 
 	fprintf(script,	"\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
 	fprintf(script, "\tcin >> ser_no;\n");

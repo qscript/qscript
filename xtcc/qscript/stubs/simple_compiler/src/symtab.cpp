@@ -190,13 +190,13 @@ void SymbolTableEntry::print_push_stack(const string &stack_name, string & str)
 		s << stack_name << "_scope_int32_t[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case FLOAT_TYPE:
-		s << stack_name << "_scope_float[\"" << name_ << "\"]=" << name_  << ";\n";
+		s << stack_name << "_scope_float_t[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case DOUBLE_TYPE:
-		s << stack_name << "_scope_double[\"" << name_ << "\"]=" << name_  << ";\n";
+		s << stack_name << "_scope_double_t[\"" << name_ << "\"]=" << name_  << ";\n";
 		break;
 	case QUESTION_TYPE:
-		s << "// " << name_ <<  " QUESTION_TYPE - will think of this later " << endl;
+		s << "" << name_ << "_scope_question_t"<<  "[\"" << stack_name << "\"]=" << name_ << "->input_data;\n" << endl;
 		break;
 	default: {
 			string err_msg = "unhandled type in print_push_stack";
@@ -228,7 +228,8 @@ void SymbolTableEntry::print_pop_stack(const string &stack_name, string & str)
 		s << name_ << "=" << stack_name << "_scope_double_t[\"" << name_ << "\"];" << endl;
 		break;
 	case QUESTION_TYPE:
-		s << "// QUESTION_TYPE - will think of this later " << endl;
+		//s << "// QUESTION_TYPE - will think of this later " << endl;
+		s << "" << name_ << "->input_data=" << name_ << "_scope_question_t"<<  "[\"" << stack_name << "\"];" << endl;
 		break;
 	default: {
 			string err_msg = "unhandled type in print_pop_stack\"";

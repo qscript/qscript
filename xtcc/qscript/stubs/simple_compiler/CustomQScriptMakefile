@@ -116,7 +116,7 @@ release: clean
 		$(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include
 	cp   src/* $(RELEASE_DIR)/src 
 	cp -R cmake $(RELEASE_DIR)
-	cp CustomQScriptMakefile CMakeLists.txt COPYING README INSTALL_CUSTOM.readme $(RELEASE_DIR)
+	cp CustomQScriptMakefile CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
 	cp inputs/* $(RELEASE_DIR)/inputs
 	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
 

@@ -98,7 +98,10 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
 		stopAtNextQuestion=true;\n\
 		user_navigation=NOT_SET;\n}\n";
-	program_code << "}" << endl;
+	program_code << " else { " << endl
+		<< "last_question_answered = " << questionName_ << ";\n"
+		<< "}\n"
+		<< "}\n";
 }
 
 
@@ -131,11 +134,11 @@ void AbstractQuestion::GetDataFromUser()
 		if(invalid_code)
 			continue;
 		if(q_type==spn && data.size()>1) {
-			prompt="Single coded AbstractQuestion - please enter only 1 code:" ;
+			prompt="Single coded Question - please enter only 1 code:" ;
 			invalid_code=true;
 			data.clear();
 		} else if (q_type==mpn && data.size() > no_mpn){
-			prompt="Multi coded AbstractQuestion codes exceed no of max codes:  " ;
+			prompt="Multi coded Question, no values exceed max allowed:  " ;
 			invalid_code=true;
 			data.clear();
 		} else {
@@ -786,6 +789,7 @@ void AbstractQuestion::PrintSetupBackJump(ostringstream & quest_defns
 	quest_defns << "map <string,int32_t> " << questionName_ << "_scope_int32_t;\n";
 	quest_defns << "map <string,float> " << questionName_ << "_scope_float_t;\n";
 	quest_defns << "map <string,double> " << questionName_ << "_scope_double_t;\n";
+	quest_defns << "map <string,set<int> > " << questionName_ << "_scope_question_t;\n";
 	// end of THIS IS NEW CODE
 
 
