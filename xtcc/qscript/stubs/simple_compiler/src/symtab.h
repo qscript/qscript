@@ -107,6 +107,11 @@ struct SymbolTableEntry {
 		name_(strdup(lname)), text_(0), dval(0), type_(ldt), n_elms(-1), created_by_me(true), e(le), xs(0),
 		type_qual(l_tq)
 	{ }
+
+	SymbolTableEntry(const char * lname, DataType ldt, int arr_sz, char * text):
+		name_(strdup(lname)), text_(strdup(text)), dval(0), type_(ldt), n_elms(arr_sz), created_by_me(true), e(0), xs(0),
+		type_qual(NO_QUAL)
+	{ }
 	//! constructor for a variable which is a named set
 	SymbolTableEntry(const char * lname, DataType ldt, XtccSet * xs);
 	inline DataType get_type(){

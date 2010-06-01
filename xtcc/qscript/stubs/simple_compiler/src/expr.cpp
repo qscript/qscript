@@ -589,7 +589,15 @@ Unary2Expression::~Unary2Expression()
 		//cout << "line_no: " << line_no << endl;
 	}
 	cerr << "need to check the free later: __FILE__ " << __FILE__ << ", line:" << __LINE__ << endl;
-	//if(text) { free( text) ; text=0; }
+	if(text) { free( text) ; text=0; }
+	/*
+	if(text) { 
+		//free( text) ; text=0; 
+		//debug_log_file << "Unary2Expression::~Unary2Expression text:"
+		//	<< text << endl;
+
+	}
+	*/
 	if(operand_) { delete operand_; operand_=0; }
 	if(operand2_) { delete operand2_; operand2_=0;}
 	//if (text ) { delete text; text=0; }
@@ -704,11 +712,12 @@ map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
 Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 	: AbstractExpression(le_type, INT8_TYPE), symbolTableEntry_(0)
 	, intSemanticValue_(0), doubleSemanticValue_(0)
-	, func_index_in_table(-1), text(ltxt), column_no(-1)
+	, func_index_in_table(-1), text(0), column_no(-1)
 	, operand_(0), operand2_(0) 
 {
 	if(exprOperatorType_==oper_text_expr){
 		type_=STRING_TYPE;
+		text = ltxt;
 	} else if(exprOperatorType_==oper_name){
 		map<string,SymbolTableEntry*>::iterator sym_it = 
 			find_in_symtab(ltxt);

@@ -182,7 +182,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpress
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /*int line_no, */ char *text){
+AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /*int line_no, */ char *text)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	if(dt!=INT8_ARR_TYPE){
 		stringstream s;
@@ -205,10 +206,10 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /
 		exit(1);
 	}
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
-		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
-		se->n_elms=arr_size;
-		if(text)
-			se->text_=strdup(text);
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt, arr_size, text);
+		//se->n_elms=arr_size;
+		//if(text)
+		//	se->text_=strdup(text);
 		string s(name);
 		SymbolTable[s] = se;
 		st_ptr->type_=dt;

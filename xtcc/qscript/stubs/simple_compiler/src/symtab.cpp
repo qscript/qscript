@@ -69,8 +69,14 @@ using std::endl;
 SymbolTableEntry::~SymbolTableEntry()
 {
 	debug_log_file<< "deleting SymbolTableEntry: name_: " << name_ << std::endl;
-	if(name_&& created_by_me) { free( name_); name_=0; }
-	if(text_) { delete text_; text_=0; }
+	if(name_&& created_by_me) { 
+		debug_log_file << "freeing name_: " << name_  << endl; 
+		free( name_); name_=0; 
+	}
+	if(text_ && created_by_me) { 
+		debug_log_file << "freeing text_: " << text_  << endl;
+		free( text_); text_=0; 
+	}
 	if(e) { delete e; e=0; }
 	if(xs) { delete xs; xs=0; }
 	debug_log_file << "FINISHED deleting SymbolTableEntry" << std::endl;

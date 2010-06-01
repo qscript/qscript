@@ -381,7 +381,7 @@ struct FunctionStatement: public AbstractStatement
 	FunctionStatement(const FunctionStatement&);	
 };
 
-//!FunctionInformation : parsed function declarations and definitions become object instanstiations of this class
+//!FunctionInformation : parsed function declarations and definitions become object instantiations of this class
 /*!
   Important notes for the FunctionInformation class:
 

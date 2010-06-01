@@ -148,6 +148,7 @@ int main(int argc, char* argv[])
 		delete qscript_parser::tree_root;
 		if (active_scope_list[0]) {
 				delete active_scope_list[0]; active_scope_list[0]=0;
+				delete fi; fi=0;
 			}
 
 	}
