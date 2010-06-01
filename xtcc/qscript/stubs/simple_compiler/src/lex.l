@@ -144,6 +144,12 @@ setall		{ return SETALL; }
 		printf("no_errors: %d\n", no_errors);
 	}
 
+	void clean_lex()
+	{
+		yy_delete_buffer(YY_CURRENT_BUFFER);
+	}
+
+
 int yywrap(){
 	return 1;
 }

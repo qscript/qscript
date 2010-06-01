@@ -23,6 +23,8 @@ using  std::cout;
 	//extern vector </*Statement::*/FunctionInformation*> func_info_table;
 	using qscript_parser::func_info_table;
 
+	void clean_lex();
+
 
 int main(int argc, char* argv[])
 {
@@ -147,9 +149,11 @@ int main(int argc, char* argv[])
 		cerr << "deleting qscript_parser::tree_root" << endl;
 		delete qscript_parser::tree_root;
 		if (active_scope_list[0]) {
-				delete active_scope_list[0]; active_scope_list[0]=0;
-				delete fi; fi=0;
-			}
+			delete active_scope_list[0]; active_scope_list[0]=0;
+		}
+		delete fi; fi=0;
+		//yy_delete_buffer(YY_CURRENT_BUFFER);
+		clean_lex();
 
 	}
 
