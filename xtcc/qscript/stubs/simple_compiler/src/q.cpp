@@ -2962,6 +2962,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	xs.reset();
 	// questions always get pushed in Scope level 0 as they
 	// are global variables - no matter what the level of nesting
+	cerr << " here i am not catching the DeclarationStatement returned below: so its a memory leak: " << __LINE__ << __FILE__ << endl;
 	active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
 	// I need to modify the insert in Scope to
 	// take a 3rd parameter which is a AbstractQuestion *

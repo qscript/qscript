@@ -146,6 +146,10 @@ int main(int argc, char* argv[])
 	if(qscript_parser::tree_root) {
 		cerr << "deleting qscript_parser::tree_root" << endl;
 		delete qscript_parser::tree_root;
+		if (active_scope_list[0]) {
+				delete active_scope_list[0]; active_scope_list[0]=0;
+			}
+
 	}
 
 	

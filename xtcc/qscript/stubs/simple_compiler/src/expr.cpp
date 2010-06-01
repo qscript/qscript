@@ -592,6 +592,7 @@ Unary2Expression::~Unary2Expression()
 	//if(text) { free( text) ; text=0; }
 	if(operand_) { delete operand_; operand_=0; }
 	if(operand2_) { delete operand2_; operand2_=0;}
+	//if (text ) { delete text; text=0; }
 }
 
 BinaryExpression::BinaryExpression(AbstractExpression* llop
@@ -1043,6 +1044,12 @@ Binary2Expression::~Binary2Expression()
 			debug_log_file << "Binary2Expression::~Binary2Expression setting mem_addr: " << this  <<"=0" << endl;
 			break;
 		}
+	}
+	if(leftOperand_){
+		delete leftOperand_; leftOperand_=0;
+	}
+	if(xs){
+		delete xs; xs=0;
 	}
 }
 
