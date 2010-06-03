@@ -29,17 +29,24 @@ using namespace std;
 //extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
 
+	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 		, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*> & l_for_bounds_stack
+		, CompoundStatement * l_enclosing_scope 
 	): 
 	AbstractStatement(l_type, l_no)
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt)
 	, for_bounds_stack(l_for_bounds_stack)
 	, isAnswered_(false), isModified_(false)
+	, enclosingCompoundStatement_(l_enclosing_scope)
 {
+	if(enclosingCompoundStatement_==0){
+		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
+			, qscript_parser::line_no, __LINE__, __FILE__  );
+	}
 }
 
 
@@ -52,10 +59,34 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, no_mpn(l_no_mpn), dt(l_dt)
 	, for_bounds_stack(0)
 	, isAnswered_(false), isModified_(false)
+	//, enclosingCompoundStatement_(qscript_parser::stack_cmpd_stmt.back())
+	, enclosingCompoundStatement_(0)
 {
+	//if(enclosingCompoundStatement_==0){
+	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
+	//		, qscript_parser::line_no, __LINE__, __FILE__  );
+	//}
 }
 
+AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
+		, string l_name, string l_text
+		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+		, CompoundStatement * l_enclosing_scope
+	): 
+	AbstractStatement(l_type, l_no), questionName_(l_name)
+	, questionText_(l_text), q_type(l_q_type) 
+	, no_mpn(l_no_mpn), dt(l_dt)
+	, for_bounds_stack(0)
+	, isAnswered_(false), isModified_(false)
+	, enclosingCompoundStatement_(l_enclosing_scope)
+{
+	if(enclosingCompoundStatement_==0){
+		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
+			, qscript_parser::line_no, __LINE__, __FILE__  );
+	}
+}
 
+// this is only called from the runtime
 AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 		, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
@@ -66,6 +97,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 	, no_mpn(l_no_mpn), dt(l_dt) , for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
 	, isAnswered_(false), isModified_(false)
+	, enclosingCompoundStatement_(0) // this is only used in the compile time environment
 {
 	//for(int i=0; i<l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
@@ -159,20 +191,23 @@ void AbstractQuestion::GetDataFromUser()
 	data.clear();
 }
 
-
+//! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 	XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
+	, CompoundStatement * l_enclosing_scope 
 	): 
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 		, l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
+		, l_enclosing_scope
 		)
 {
 	r_data = new XtccSet(l_r_data);
 }
 
+	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
 	, string l_name, string l_q_text
 	, QuestionType l_q_type, int l_no_mpn
@@ -185,6 +220,21 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
 	r_data = new XtccSet(l_r_data);
 }
 
+	//! this is only called in the compile time environment
+RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
+	, string l_name, string l_q_text
+	, QuestionType l_q_type, int l_no_mpn
+	, DataType l_dt , XtccSet& l_r_data
+	, CompoundStatement * l_enclosing_scope
+	): 
+	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope
+		)
+{
+	r_data = new XtccSet(l_r_data);
+}
+
+	//! this is only called from the runtime environment
 RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
@@ -390,7 +440,7 @@ void NamedStubQuestion::eval()
 void RangeQuestion::GenerateCodeSingleQuestion( ostringstream & quest_defns
 		, ostringstream& program_code)
 {
-	AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
+	//AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
 	
 	static int xtcc_set_counter=0;
 	const int BUF_SIZE=100;
@@ -449,10 +499,12 @@ void RangeQuestion::GenerateCode( ostringstream & quest_defns
 		, ostringstream& program_code)
 {
 	if(for_bounds_stack.size()==0){
+		AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
 		GenerateCodeSingleQuestion(quest_defns, program_code);
 	} else {
 		//quest_defns << "vector <AbstractQuestion*> " << questionName_ << "_list;" << endl;
 		//----------------------------------------
+		AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
 		string temp_array_bounds_name = "list_" + questionName_ + "_array_bounds";
 		quest_defns << "vector<int> " << temp_array_bounds_name 
 			<< "(" << for_bounds_stack.size() << ")"
@@ -503,6 +555,8 @@ void RangeQuestion::GenerateCode( ostringstream & quest_defns
 				lhs->PrintExpressionCode(quest_defns, quest_defns);
 				quest_defns << ");\n";
 			} else {
+				cerr << "NxD self comment: Am I checking this at parsing stage?: line"  
+					<< __LINE__ << ", file: " << __FILE__ << endl;
 				for_bounds_stack[i]->PrintExpressionCode(quest_defns, quest_defns);
 				print_err(compiler_sem_err
 					, "for loop index condition is not a binary expression" 
@@ -533,7 +587,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(
 		ostringstream & quest_defns
 		, ostringstream& program_code)
 {
-	AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
+	//AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
 
 	string q_type_str;
 	print_q_type(q_type_str);
@@ -568,9 +622,11 @@ void NamedStubQuestion::GenerateCode( ostringstream & quest_defns,
 		ostringstream& program_code)
 {
 	if(for_bounds_stack.size()==0){
+		AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
 		GenerateCodeSingleQuestion(quest_defns, program_code);
 	}  else {
 		//----------------------------------------
+		AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
 		string temp_array_bounds_name = "list_" + questionName_ + "_array_bounds";
 		quest_defns << "vector<int> " << temp_array_bounds_name 
 			<< "(" << for_bounds_stack.size() << ")"
@@ -653,11 +709,12 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 	named_range* l_nr_ptr
 	//, AbstractExpression* l_arr_sz
 	, vector<AbstractExpression*>& l_for_bounds_stack
+	, CompoundStatement * l_enclosing_scope 
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
 		//, l_arr_sz
-		, l_for_bounds_stack
+		, l_for_bounds_stack, l_enclosing_scope
 		), 
 	//named_list(l_named_list)
 	nr_ptr(l_nr_ptr), stub_ptr(0)
@@ -668,26 +725,27 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 	named_range* l_nr_ptr
+	, CompoundStatement * l_enclosing_scope 
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope
 		), 
 	nr_ptr(l_nr_ptr), stub_ptr(0)
 {
 }
 
-NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
-	string l_name, string l_q_text,
-	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-	vector<stub_pair>* l_stub_ptr
-	, vector<AbstractExpression*>& l_for_bounds_stack
-	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt
-		, l_for_bounds_stack), 
-	nr_ptr(0), stub_ptr(l_stub_ptr)
-{
-}
+//NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
+//	string l_name, string l_q_text,
+//	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
+//	vector<stub_pair>* l_stub_ptr
+//	, vector<AbstractExpression*>& l_for_bounds_stack
+//	):
+//	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
+//		l_q_type, l_no_mpn, l_dt
+//		, l_for_bounds_stack), 
+//	nr_ptr(0), stub_ptr(l_stub_ptr)
+//{
+//}
 
 NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
@@ -701,6 +759,7 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 {
 }
 
+//! only called in the runtime environment
 NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number
 	, string l_name, string l_q_text
 	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
@@ -840,7 +899,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(ostringstream & quest_defns
 		}
 		for(int j=i+1; j<for_bounds_stack.size(); j++){
 			// quest_defns is passed twice
-			// becaues we want the AbstractExpression to appear in the for
+			// because we want the AbstractExpression to appear in the for
 			// loop in the questions section of the code
 			BinaryExpression * bin_expr_ptr2 = dynamic_cast<BinaryExpression*>(for_bounds_stack[j]);
 			if(bin_expr_ptr2){
@@ -853,7 +912,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(ostringstream & quest_defns
 			} else {
 				for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 				print_err(compiler_sem_err
-					, "for loop index condition is not a binary expression" 
+					, "for loop index condition is not a binary expression. This error should have been caught at compile time" 
 					, 0, __LINE__, __FILE__);
 			}
 		}
@@ -867,6 +926,25 @@ void AbstractQuestion::PrintEvalArrayQuestion(ostringstream & quest_defns
 	delete[] string_stream_vec;
 	// ---------------------------------
 	program_code << "]->eval();\n" ;
+
+	program_code << "\n\t/*\n";
+	program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
+		AbstractQuestion * target_question = ComputePreviousQuestion(" << questionName_.c_str() << ");\n\
+		if(target_question==0)\n\
+		goto label_eval_" << questionName_.c_str() << ";\n\
+		else {\n\
+		jumpToQuestion = target_question->questionName_;\n\
+		cout << \"target question: \" << jumpToQuestion;\n\
+		back_jump=true;\n\
+		user_navigation=NOT_SET;\n\
+		goto start_of_questions;\n}\n}\n" ;
+	program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
+		stopAtNextQuestion=true;\n\
+		user_navigation=NOT_SET;\n}\n";
+	program_code << " else { " << endl
+		<< "last_question_answered = " << questionName_ << ";\n"
+		<< "}\n";
+	program_code << "*/\n";
 }
 
 RangeQuestion::~RangeQuestion()

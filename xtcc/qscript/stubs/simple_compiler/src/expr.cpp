@@ -34,6 +34,7 @@
 #include "scope.h"
 #include "named_range.h"
 #include "qscript_parser.h"
+#include "question.h"
 AbstractQuestion* find_in_question_list(string name);
 using std::string;
 using std::stringstream;

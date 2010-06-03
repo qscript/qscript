@@ -114,6 +114,7 @@ void print_header(FILE* script){
 	fprintf(script, "#include \"symtab.h\"\n");
 	fprintf(script, "#include \"qscript_lib.h\"\n");
 	fprintf(script, "#include \"question_disk_data.h\"\n");
+	fprintf(script, "#include \"question.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
 
 

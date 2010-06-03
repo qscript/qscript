@@ -4,6 +4,7 @@
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
+#include "question.h"
 #include "named_attributes.h"
 #include "named_range.h"
 #include "qscript_parser.h"
@@ -25,9 +26,11 @@ using  std::cout;
 
 	void clean_lex();
 
+	void InitStatement();
 
 int main(int argc, char* argv[])
 {
+	InitStatement();
 	using qscript_parser::active_scope_list;
 	using qscript_parser::active_scope;
 	using qscript_parser::no_errors;

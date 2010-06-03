@@ -82,7 +82,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 45 "src/q.ypp"
+#line 46 "src/q.ypp"
 
 	type_qualifier type_qual;
 	int ival;

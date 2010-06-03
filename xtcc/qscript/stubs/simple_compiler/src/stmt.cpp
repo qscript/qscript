@@ -25,11 +25,14 @@ extern int if_line_no;
 using qscript_parser:: active_scope;
 //extern vector </*Statement::*/FunctionInformation*> func_info_table;
 using qscript_parser::func_info_table;
-
-AbstractQuestion* AbstractStatement::IsAQuestionStatement()
+int CompoundStatement::counter_;
+void InitStatement()
 {
-	return 0;
+	CompoundStatement::counter_=0;
 }
+
+
+//AbstractQuestion* AbstractStatement::IsAQuestionStatement() { return 0; }
 
 void AbstractStatement::GetQuestionNames(vector<string> &question_list,
 		AbstractStatement * endStatement)
@@ -329,8 +332,10 @@ CompoundStatement::CompoundStatement(DataType dtype, int lline_number,
 	compoundBody_(0), scope_(0), 
 	flagIsAFunctionBody_(l_flag_cmpd_stmt_is_a_func_body),
 	flagIsAForBody_(l_flag_cmpd_stmt_is_a_for_body),
-	counterContainsQuestions_(0)
-{}
+	counterContainsQuestions_(0), compoundStatementNumber_(0)
+{	
+	//compoundStatementNumber_=CompoundStatement::counter_++;
+}
 
 
 void CompoundStatement::GenerateCode(ostringstream & quest_defns, 

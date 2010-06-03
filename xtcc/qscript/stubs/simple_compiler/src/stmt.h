@@ -54,7 +54,7 @@ struct AbstractStatement
 	virtual void GenerateCode(ostringstream& quest_defns
 			, ostringstream& program_code)=0;
 	virtual ~AbstractStatement();
-	virtual AbstractQuestion* IsAQuestionStatement();
+	//virtual AbstractQuestion* IsAQuestionStatement();
 	virtual void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement);
 	private:
@@ -65,7 +65,7 @@ struct AbstractStatement
 //#include "named_range.h"
 
 struct named_range;
-#include "question.h"
+//#include "question.h"
 
 
 //!ExpressionStatement Parsed expressions statements become object instanstiations of this class
@@ -172,6 +172,7 @@ struct DeclarationStatement: public AbstractStatement
 
 struct CompoundStatement: public AbstractStatement
 {
+	static int counter_;
 	//! pointer to the first chain of statements
 	//! in the CompoundStatement 
 	struct AbstractStatement* compoundBody_;
@@ -198,6 +199,7 @@ struct CompoundStatement: public AbstractStatement
 	//! this counter variable is set in the ^AbstractQuestion rule in 
 	//! q.y in an inline action in the grammar
 	int counterContainsQuestions_;
+	int compoundStatementNumber_;
 	public:
 	CompoundStatement(DataType dtype, int lline_number
 			, int l_flag_cmpd_stmt_is_a_func_body 
@@ -214,6 +216,7 @@ struct CompoundStatement: public AbstractStatement
 		compoundBody_->GetQuestionNames(question_list,
 				endStatement);
 	}
+	//static void Init();
 	private:
 	CompoundStatement& operator=(const CompoundStatement&);	
 	CompoundStatement(const CompoundStatement&);	

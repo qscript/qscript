@@ -34,15 +34,24 @@ struct AbstractQuestion: public AbstractStatement
 	vector<int> loop_index_values;
 	bool isAnswered_;
 	bool isModified_;
+	CompoundStatement * enclosingCompoundStatement_;
+	//! this is only called in the compile time environment
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*>& l_for_bounds_stack
+		, CompoundStatement * l_enclosing_scope
 		);
 
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt 
 		);
+	//! this is only called in the compile time environment
+	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
+		, QuestionType l_q_type, int l_no_mpn, DataType l_dt 
+		, CompoundStatement * l_enclosing_scope
+		);
 
+	//! this is only called in the runtime environment
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn , DataType l_dt
 		, const vector<int>& l_loop_index_values
@@ -61,7 +70,7 @@ struct AbstractQuestion: public AbstractStatement
 			, ostringstream& program_code);
 	void PrintEvalArrayQuestion(ostringstream & quest_defns
 			, ostringstream& program_code);
-	virtual AbstractQuestion * IsAQuestionStatement()=0;
+	//virtual AbstractQuestion * IsAQuestionStatement()=0;
 	virtual void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement)=0;
 	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
@@ -83,17 +92,28 @@ struct RangeQuestion: public AbstractQuestion
 {
 	XtccSet * r_data;
 	vector <int> stack_loop_index_values;
+	//! this is only called in the compile time environment
 	RangeQuestion(DataType this_stmt_type, int line_number,
 		string l_name, string l_q_text,
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		XtccSet& l_r_data
 		, vector<AbstractExpression*>& l_for_bounds_stack
+		, CompoundStatement * l_enclosing_scope 
 		);
+	//! this is only called in the runtime environment
 	RangeQuestion(DataType this_stmt_type, int line_number,
 		string l_name, string l_q_text,
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		XtccSet& l_r_data
 		);
+
+	//! this is only called in the compile time environment
+	RangeQuestion(DataType this_stmt_type, int line_number,
+		string l_name, string l_q_text,
+		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
+		XtccSet& l_r_data, CompoundStatement * l_enclosing_scope
+		);
+	//! this is only called in the runtime environment
 	RangeQuestion(DataType this_stmt_type, int line_number,
 		string l_name, string l_q_text,
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
@@ -107,9 +127,9 @@ struct RangeQuestion: public AbstractQuestion
 	virtual bool IsValid(int value);
 	void eval();
 	void WriteDataToDisk(ofstream& data_file);
-	AbstractQuestion*  IsAQuestionStatement(){
-		return this;
-	}
+	//AbstractQuestion*  IsAQuestionStatement(){
+	//	return this;
+	//}
 	void  GetQuestionNames(vector<string> & question_list,
 			AbstractStatement* endStatement)
 	{
@@ -146,11 +166,13 @@ class NamedStubQuestion: public AbstractQuestion
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		named_range * l_nr_ptr 
 		, vector<AbstractExpression*>& l_for_bounds_stack
+		, CompoundStatement * l_enclosing_scope
 		);
 	NamedStubQuestion(DataType this_stmt_type, int line_number, 
 		string l_name, string l_q_text,
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		named_range * l_nr_ptr 
+		, CompoundStatement * l_enclosing_scope
 		);
 
 	NamedStubQuestion(DataType this_stmt_type, int line_number, 
@@ -164,6 +186,7 @@ class NamedStubQuestion: public AbstractQuestion
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		vector<stub_pair> * l_stub_ptr
 		);
+	//! only called in the runtime environment
 	NamedStubQuestion(DataType this_stmt_type, int line_number
 		, string l_name, string l_q_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
@@ -178,9 +201,9 @@ class NamedStubQuestion: public AbstractQuestion
 	virtual bool IsValid(int value);
 	void eval();
 	void WriteDataToDisk(ofstream& data_file);
-	AbstractQuestion* IsAQuestionStatement(){
-		return this;
-	}
+	//AbstractQuestion* IsAQuestionStatement(){
+	//	return this;
+	//}
 	void  GetQuestionNames(vector<string> & question_list,
 			AbstractStatement* endStatement)
 	{
@@ -213,6 +236,15 @@ class DummyArrayQuestion: public AbstractQuestion{
 			, ostringstream& program_code){}
 	void GenerateCodeSingleQuestion(ostringstream & quest_defns
 			, ostringstream& program_code){}
+	void  GetQuestionNames(vector<string> & question_list,
+			AbstractStatement* endStatement)
+	{
+		if(this==endStatement)
+			return;
+		if(next_){
+			next_->GetQuestionNames(question_list, endStatement);
+		}
+	}
 	private:
 		DummyArrayQuestion& operator=(const DummyArrayQuestion&);
 		DummyArrayQuestion (const DummyArrayQuestion&);

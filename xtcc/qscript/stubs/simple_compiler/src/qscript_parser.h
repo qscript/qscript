@@ -16,6 +16,7 @@
 #include "const_defs.h"
 #include "xtcc_set.h"
 #include "utils.h"
+#include "question.h"
 
 using std::ofstream;
 using std::vector;
