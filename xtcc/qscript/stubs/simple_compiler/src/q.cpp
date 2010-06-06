@@ -85,8 +85,8 @@
 #include "debug_mem.h"
 #include "symtab.h"
 #include "scope.h"
-#include "stmt.h"
 #include "expr.h"
+#include "stmt.h"
 #include "named_attributes.h"
 #include "named_range.h"
 #include "question.h"
@@ -2842,7 +2842,7 @@ CompoundStatement* ProcessOpenCurly()
 	++nest_lev;
 	CompoundStatement * cmpdStmt= new CompoundStatement(CMPD_STMT, 
 			line_no, flagIsAFunctionBody_,
-			flagIsAForBody_);
+			flagIsAForBody_, for_loop_max_counter_stack);
 	stack_cmpd_stmt.push_back(cmpdStmt);
 	void *ptr=cmpdStmt;
 	mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);

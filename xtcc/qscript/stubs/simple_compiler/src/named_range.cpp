@@ -15,22 +15,19 @@ using std::string;
 named_range::~named_range(){
 }
 
-void named_range::GenerateCode (ostringstream & quest_defns, ostringstream& program_code){
-	//std::cout << "named_range:: GenerateCode()" << endl;
+void named_range::GenerateCode (StatementCompiledCode & code){
 
-	quest_defns << "vector <stub_pair> " << name 
+	code.quest_defns << "vector <stub_pair> " << name 
 		//<< "(" << stubs.size() << ");"  
 		<< ";" << endl << endl;
 
 	for(int i=0; i<stubs.size(); ++i){
-		//quest_defns << name << ";//named_range " << endl;
-		quest_defns << name << ".push_back( stub_pair(\"" << stubs[i].stub_text 
+		code.quest_defns << name << ".push_back( stub_pair(\"" << stubs[i].stub_text 
 			<< "\", " << stubs[i].code << "));" 
 			<< endl;
 	}
-	//quest_defns << "};" << endl;
 	if(next_){
-		next_->GenerateCode(quest_defns, program_code);
+		next_->GenerateCode(code);
 	}
 }
 

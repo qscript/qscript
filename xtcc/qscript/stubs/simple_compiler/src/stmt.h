@@ -21,6 +21,7 @@
 #include "stub_pair.h"
 #include "scope.h"
 //#include "common.h"
+#include "compiled_code.h"
 using std::string;
 using std::ostringstream;
 
@@ -51,8 +52,9 @@ struct AbstractStatement
 	//! Compiler generated code is written to both the streams.
 	//! The code to the quest_defns stream appears before code written to  
 	//! the program_code stream in the generated compiled code
-	virtual void GenerateCode(ostringstream& quest_defns
-			, ostringstream& program_code)=0;
+	//virtual void GenerateCode(ostringstream& quest_defns
+	//		, ostringstream& program_code)=0;
+	virtual void GenerateCode(StatementCompiledCode & code)=0;
 	virtual ~AbstractStatement();
 	//virtual AbstractQuestion* IsAQuestionStatement();
 	virtual void GetQuestionNames(vector<string> & question_list,
@@ -84,8 +86,9 @@ struct ExpressionStatement: public AbstractStatement
 			, struct AbstractExpression* e)
 		: AbstractStatement(l_type, l_line_number), expression_(e) 
 	{}
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
+	//void GenerateCode(ostringstream & quest_defns
+	//		, ostringstream& program_code);
+	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~ExpressionStatement();
 	private:
 	ExpressionStatement& operator=(const ExpressionStatement&);	
@@ -102,8 +105,9 @@ struct DeclarationStatement: public AbstractStatement
 		:AbstractStatement(dtype, lline_number), symbolTableEntry_(0) 
 	{}
 	~DeclarationStatement();
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
+	//void GenerateCode(ostringstream & quest_defns
+	//		, ostringstream& program_code);
+	virtual void GenerateCode(StatementCompiledCode & code);
 	private:
 	DeclarationStatement& operator=(const DeclarationStatement&);	
 	DeclarationStatement(const DeclarationStatement&);	
@@ -200,12 +204,17 @@ struct CompoundStatement: public AbstractStatement
 	//! q.y in an inline action in the grammar
 	int counterContainsQuestions_;
 	int compoundStatementNumber_;
+	bool flagGeneratedQuestionDefinitions_;
+	vector<AbstractExpression*> for_bounds_stack;
 	public:
 	CompoundStatement(DataType dtype, int lline_number
 			, int l_flag_cmpd_stmt_is_a_func_body 
-			, int l_flag_cmpd_stmt_is_a_for_body);
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
+			, int l_flag_cmpd_stmt_is_a_for_body
+			, vector<AbstractExpression*>& l_for_bounds_stack
+			);
+	//void GenerateCode(ostringstream & quest_defns
+	//		, ostringstream& program_code);
+	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~CompoundStatement();
 	void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement)
@@ -216,6 +225,8 @@ struct CompoundStatement: public AbstractStatement
 		compoundBody_->GetQuestionNames(question_list,
 				endStatement);
 	}
+	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
+	void GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code);
 	//static void Init();
 	private:
 	CompoundStatement& operator=(const CompoundStatement&);	
@@ -237,8 +248,9 @@ struct ForStatement: public AbstractStatement
 			, AbstractExpression* l_test 
 			, AbstractExpression* l_incr
 			, CompoundStatement * lfor_body);
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
+//	void GenerateCode(ostringstream & quest_defns
+//			, ostringstream& program_code);
+	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~ForStatement();
 	private:
 	ForStatement& operator=(const ForStatement&);	
@@ -257,8 +269,9 @@ struct IfStatement : public AbstractStatement
 			, AbstractExpression * lcondition
 			, AbstractStatement * lif_body
 			, AbstractStatement * lelse_body=0);
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
+//	void GenerateCode(ostringstream & quest_defns
+//			, ostringstream& program_code);
+	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~IfStatement();
 	void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement* endStatement)
@@ -309,8 +322,9 @@ struct StubManipStatement: public AbstractStatement
 			, string l_named_stub, string l_question_name);
 	StubManipStatement( DataType dtype, int lline_number
 			, string l_named_stub);
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
+//	void GenerateCode(ostringstream & quest_defns
+//			, ostringstream& program_code);
+	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~StubManipStatement();
 	private:
 		StubManipStatement& operator=(const StubManipStatement&);
@@ -353,8 +367,9 @@ struct FunctionDeclarationStatement: public AbstractStatement
 			, int lline_number, char * & name
 			, FunctionParameter* & v_list, DataType returnType_);
 	//void GenerateCode(FILE * & fptr);
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
+//	void GenerateCode(ostringstream & quest_defns
+//			, ostringstream& program_code);
+	virtual void GenerateCode(StatementCompiledCode & code);
 	~FunctionDeclarationStatement();
 	private:
 	FunctionDeclarationStatement& operator=
@@ -376,8 +391,9 @@ struct FunctionStatement: public AbstractStatement
 			, DataType lreturn_type
 		);
 	//void GenerateCode(FILE * & fptr);
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
+//	void GenerateCode(ostringstream & quest_defns
+//			, ostringstream& program_code);
+	virtual void GenerateCode(StatementCompiledCode & code);
 	~FunctionStatement();
 	private:
 	FunctionStatement& operator=(const FunctionStatement&);	

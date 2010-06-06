@@ -31,6 +31,7 @@
 //#include "tree.h"
 #include "symtab.h"
 #include <iosfwd>
+#include "compiled_code.h"
 //#include <sstream>
 using std::ostringstream;
 
@@ -62,17 +63,13 @@ struct AbstractExpression
 	ExpressionOperatorType exprOperatorType_;
 	DataType type_;
 	struct AbstractExpression * next_, *prev_;
-	AbstractExpression(ExpressionOperatorType le_type)
-		:exprOperatorType_(le_type), type_(ERROR_TYPE)
-		 , next_(0), prev_(0) 
-	{}
-	AbstractExpression(ExpressionOperatorType le_type, DataType ldt)
-		:exprOperatorType_(le_type), type_(ldt), next_(0), prev_(0) 
-	{}
+	AbstractExpression(ExpressionOperatorType le_type);
+	AbstractExpression(ExpressionOperatorType le_type, DataType ldt);
 	//virtual void PrintExpressionCode(FILE * edit_out)=0;
 	//! Pure virtual function. Generates the code for a particular expression.
-	virtual void PrintExpressionCode(ostringstream& code_bef_expr
-			, ostringstream & code_expr)=0;
+//	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+//			, ostringstream & code_expr)=0;
+	virtual void PrintExpressionCode(ExpressionCompiledCode & code)=0;
 
 	virtual int IsValid();
 	//! pure virtual function will tell us if an AbstractExpression can appear on the 
@@ -104,8 +101,9 @@ struct UnaryExpression : public AbstractExpression
 	UnaryExpression( AbstractExpression * l_operand=0
 			, ExpressionOperatorType le_type=oper_err);
 	bool IsLValue(){ return false; }
-	virtual void PrintExpressionCode(ostringstream& code_bef_expr
-			, ostringstream & code_expr);
+//	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+//			, ostringstream & code_expr);
+	virtual void PrintExpressionCode(ExpressionCompiledCode & code);
 	virtual ~UnaryExpression();
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
@@ -135,12 +133,15 @@ struct Binary2Expression: public AbstractExpression
 	bool IsLValue(){ return false; }
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
-	virtual void PrintExpressionCode(ostringstream& code_bef_expr
-			, ostringstream & code_expr);
+//	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+//			, ostringstream & code_expr);
+	virtual void PrintExpressionCode(ExpressionCompiledCode & code);
 	~Binary2Expression();
+
 	private:
 		Binary2Expression& operator=(const Binary2Expression&);
 		Binary2Expression (const Binary2Expression&);
+		void PrintTemporaryStruct(ExpressionCompiledCode &code);
 };
 
 //! BinaryExpression holds expressions operated on by binary operators. For example a +b , a-b etc
@@ -152,10 +153,10 @@ struct BinaryExpression: public AbstractExpression
 	BinaryExpression(AbstractExpression* llop, AbstractExpression* lrop
 			,ExpressionOperatorType letype);
 	bool IsLValue(){ return false; }
-	void print_oper_assgn(ostringstream& code_bef_expr
-			, ostringstream & code_expr);
-	virtual void PrintExpressionCode(ostringstream& code_bef_expr
-			, ostringstream & code_expr);
+	void print_oper_assgn(ExpressionCompiledCode &code);
+//	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+//			, ostringstream & code_expr);
+	virtual void PrintExpressionCode(ExpressionCompiledCode & code);
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
 	~BinaryExpression();
@@ -206,11 +207,10 @@ struct Unary2Expression : public AbstractExpression
 			, AbstractExpression* arr_index2);
 	Unary2Expression(char* ltxt, ExpressionOperatorType le_type); 
 	~Unary2Expression();
-	friend void BinaryExpression::print_oper_assgn(
-			ostringstream& code_bef_expr
-			, ostringstream & code_expr);
-	virtual void PrintExpressionCode(ostringstream& code_bef_expr
-			, ostringstream & code_expr);
+	friend void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code);
+//	virtual void PrintExpressionCode(ostringstream& code_bef_expr
+//			, ostringstream & code_expr);
+	virtual void PrintExpressionCode(ExpressionCompiledCode & code);
 	private:
 		Unary2Expression& operator=(const Unary2Expression&);
 		Unary2Expression (const Unary2Expression&);

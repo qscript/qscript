@@ -54,6 +54,16 @@ using qscript_parser::no_errors;
 using std::cout;
 using std::cerr;
 using std::endl;
+
+AbstractExpression::AbstractExpression(ExpressionOperatorType le_type)
+		:exprOperatorType_(le_type), type_(ERROR_TYPE)
+		 , next_(0), prev_(0) 
+{}
+
+AbstractExpression::AbstractExpression(ExpressionOperatorType le_type, DataType ldt)
+		:exprOperatorType_(le_type), type_(ldt), next_(0), prev_(0) 
+	{}
+
 AbstractExpression::~AbstractExpression()
 {
 	debug_log_file << "deleting AbstractExpression::~AbstractExpression(): base destructor for AbstractExpression" << endl;
@@ -137,34 +147,35 @@ bool UnaryExpression::IsIntegralExpression()
 
 
 //void UnaryExpression::PrintExpressionCode (FILE * edit_out)
-void UnaryExpression::PrintExpressionCode (ostringstream& code_bef_expr, ostringstream & code_expr)
+//void UnaryExpression::PrintExpressionCode (ostringstream& code_bef_expr, ostringstream & code_expr)
+void UnaryExpression::PrintExpressionCode (ExpressionCompiledCode& code)
 {
-	code_expr << "/* UnaryExpression::PrintExpressionCode ENTER */" << endl;
+	//code.code_expr << "/* UnaryExpression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
 		case oper_umin:{
-			code_expr <<  "- ";
-			operand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code.code_expr <<  "- ";
+			operand_->PrintExpressionCode(code);
 		}
 		break;
 
 		case oper_not:{
 			//fprintf(edit_out, "! ");
-			code_expr <<  "! ";
-			operand_->PrintExpressionCode(code_bef_expr, code_expr);
+			code.code_expr <<  "! ";
+			operand_->PrintExpressionCode(code);
 		}
 		break;
 
 		case oper_parexp:{
-			code_expr <<  "(";
-			operand_->PrintExpressionCode(code_bef_expr, code_expr);
-			code_expr <<  ")";
+			code.code_expr <<  "(";
+			operand_->PrintExpressionCode(code);
+			code.code_expr <<  ")";
 			}
 		break;
 		default:
-			code_expr <<  " un handled operator\n" ;
+			code.code_expr <<  " un handled operator\n" ;
 
 	}
-	code_expr << "/* UnaryExpression::PrintExpressionCode EXIT */" << endl;
+	//code.code_expr << "/* UnaryExpression::PrintExpressionCode EXIT */" << endl;
 }
 
 bool UnaryExpression::IsConst()
@@ -190,9 +201,9 @@ bool BinaryExpression::IsIntegralExpression()
 }
 
 string human_readable_type(DataType dt);
-void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
-		, ostringstream & code_expr)
+void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 {
+	//code.code_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
 	if(rightOperand_->exprOperatorType_ == oper_blk_arr_assgn &&
 		( leftOperand_->exprOperatorType_==oper_name
 		  ||leftOperand_->exprOperatorType_==oper_arrderef)){
@@ -200,12 +211,12 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 			static_cast<Unary2Expression*> (rightOperand_);
 		Unary2Expression* lhs = 
 			static_cast<Unary2Expression*> (leftOperand_);
-		code_expr << "/* DATA CONVERSION */\n";
-		code_expr << "{int tmp1=";
-		blk_e->operand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << ";\nint tmp2=";
-		blk_e->operand2_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << ";\n";
+		code.code_expr << "/* DATA CONVERSION */\n";
+		code.code_expr << "{int tmp1=";
+		blk_e->operand_->PrintExpressionCode(code);
+		code.code_expr << ";\nint tmp2=";
+		blk_e->operand2_->PrintExpressionCode(code);
+		code.code_expr << ";\n";
 		switch(lhs->get_symp_ptr()->type_){
 			case INT8_TYPE:
 			case INT16_TYPE:
@@ -224,37 +235,37 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 			case DOUBLE_REF_TYPE:
 			case BOOL_TYPE:	{	
 				if(leftOperand_->type_==FLOAT_TYPE) {
-					code_expr << "if(tmp2-tmp1==sizeof(float)-1){\n";
-					code_expr << "\tchar buff[sizeof(float)];int i,j;\n";
-					code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
-					code_expr << "\t\tbuff[j]=" <<  blk_e->symbolTableEntry_->name_ << "[i];\n";
-					code_expr << "\t}\n";
-					code_expr << "\tvoid * v_ptr = buff;\n";
-					code_expr << "\tfloat *f_ptr = static_cast<float *>(v_ptr);\n";
+					code.code_expr << "if(tmp2-tmp1==sizeof(float)-1){\n";
+					code.code_expr << "\tchar buff[sizeof(float)];int i,j;\n";
+					code.code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
+					code.code_expr << "\t\tbuff[j]=" <<  blk_e->symbolTableEntry_->name_ << "[i];\n";
+					code.code_expr << "\t}\n";
+					code.code_expr << "\tvoid * v_ptr = buff;\n";
+					code.code_expr << "\tfloat *f_ptr = static_cast<float *>(v_ptr);\n";
 					
-					code_expr << "\t" ;
-					lhs->PrintExpressionCode(code_bef_expr, code_expr);
-					code_expr << "=*f_ptr;\n";
-					code_expr << "}else { cerr << \"runtime error: line_no : AbstractExpression out of bounds\" << " 
+					code.code_expr << "\t" ;
+					lhs->PrintExpressionCode(code);
+					code.code_expr << "=*f_ptr;\n";
+					code.code_expr << "}else { cerr << \"runtime error: line_no : AbstractExpression out of bounds\" << " 
 						<< line_no  <<";}\n}\n";
 				} else if (leftOperand_->type_==INT32_TYPE){
-					code_expr << "if(tmp2-tmp1==sizeof(int)-1){\n";
-					code_expr << "\tchar buff[sizeof(int)];int i,j;\n";
-					code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
-					code_expr << "\t\tbuff[j]=" << blk_e->symbolTableEntry_->name_ << "[i];\n";
-					code_expr << "\t}\n";
-					code_expr << "\tvoid * v_ptr = buff;\n";
-					code_expr << "\tint *i_ptr = static_cast<int *>(v_ptr);\n";
-					code_expr << "\t" ;
-					lhs->PrintExpressionCode(code_bef_expr, code_expr);
-					code_expr << "=*i_ptr;\n" ;
-					code_expr << "}else { \n\tcerr << \"runtime error: line_no : AbstractExpression out of bounds\" <<"
+					code.code_expr << "if(tmp2-tmp1==sizeof(int)-1){\n";
+					code.code_expr << "\tchar buff[sizeof(int)];int i,j;\n";
+					code.code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
+					code.code_expr << "\t\tbuff[j]=" << blk_e->symbolTableEntry_->name_ << "[i];\n";
+					code.code_expr << "\t}\n";
+					code.code_expr << "\tvoid * v_ptr = buff;\n";
+					code.code_expr << "\tint *i_ptr = static_cast<int *>(v_ptr);\n";
+					code.code_expr << "\t" ;
+					lhs->PrintExpressionCode(code);
+					code.code_expr << "=*i_ptr;\n" ;
+					code.code_expr << "}else { \n\tcerr << \"runtime error: line_no : AbstractExpression out of bounds\" <<"
 						<< line_no << " ;}\n}\n";
 				} else {
 					std::stringstream s;
 					s << "Error in code generation file: ";
 					print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
-					code_expr <<  "error\n";
+					code.code_expr <<  "error\n";
 				}
 			}
 			break;
@@ -263,22 +274,21 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 				std::stringstream s;
 				s << "ASSIGNING to question_type named variable to be programmed  : ";
 				print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
-				code_expr <<  "error\n";
+				code.code_expr <<  "error\n";
 			}
 			break;
 			default:{
 				std::stringstream s;
 				s << "Un handled DataType for BinaryExpression";
 				print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
-				code_expr <<  "error\n";
+				code.code_expr <<  "error\n";
 			}
-				
 		}
 	} else if (rightOperand_->exprOperatorType_ == oper_blk_arr_assgn && leftOperand_->exprOperatorType_==oper_blk_arr_assgn){
 		std::stringstream s;
 		s << "unhandled case LHS. Error in code generation file: ";
 		print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
-		code_expr <<  "error\n";
+		code.code_expr <<  "error\n";
 	}else {
 		if(leftOperand_->type_==QUESTION_TYPE){
 			Unary2Expression* lhs= 
@@ -288,36 +298,36 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 			string cpp_data_type=human_readable_type(q->dt);
 			string tmp_name = get_temp_name();
 			
-			code_expr << cpp_data_type << " " << tmp_name << "=";
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << ";" << endl;
-			code_expr << "if ( " 
+			code.code_expr << cpp_data_type << " " << tmp_name << "=";
+			rightOperand_->PrintExpressionCode(code);
+			code.code_expr << ";" << endl;
+			code.code_expr << "if ( " 
 				<< q->questionName_ << "->IsValid("<<  tmp_name
 				<<  ")) {" << endl; 
-			code_expr << q->questionName_ 
+			code.code_expr << q->questionName_ 
 				<< "->input_data.clear();" << endl;
-			code_expr << q->questionName_ << "->input_data.insert(";
+			code.code_expr << q->questionName_ << "->input_data.insert(";
 			//rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-			code_expr << tmp_name ;
-			code_expr << ") ; " << endl ;
-			code_expr << "} else {";
-			code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
+			code.code_expr << tmp_name ;
+			code.code_expr << ") ; " << endl ;
+			code.code_expr << "} else {";
+			code.code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
 				<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
-			code_expr << "}" << endl;
+			code.code_expr << "}" << endl;
 			cerr << "WARNING : line: " << __LINE__ 
 				<< ", file: " << __FILE__
 				<< " put range check on allowed codes" 
 				<< endl;
 
 		} else {
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << "  = ";
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			//code.code_expr << " /* print_oper_assgn BEGIN */";
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << "  = ";
+			rightOperand_->PrintExpressionCode(code);
+			//code.code_expr << " /* print_oper_assgn END */";
 		}
 	}
+	//code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
 }
 
 bool Unary2Expression::IsConst(){
@@ -366,27 +376,27 @@ bool Unary2Expression::IsIntegralExpression(){
 	}
 }
 
-void Unary2Expression::PrintExpressionCode(ostringstream& code_bef_expr, ostringstream & code_expr)
+void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 {
-	//code_expr << "/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
+	//code.code_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
 		case oper_name:{
-			code_expr <<  symbolTableEntry_->name_;
+			code.code_expr << symbolTableEntry_->name_;
 		}
 		break;
 		case oper_arrderef:{
-			code_expr <<   symbolTableEntry_->name_ << "[";
-			operand_->PrintExpressionCode(code_expr, code_expr);
-			code_expr <<  "]";
+			code.code_expr <<  symbolTableEntry_->name_ << "[";
+			operand_->PrintExpressionCode(code);
+			code.code_expr << "]";
 			}
 		break;
 
 		case oper_num:{
-			code_expr <<   intSemanticValue_;
+			code.code_expr <<  intSemanticValue_;
 		}
 		break;
 		case oper_float:{
-			code_expr <<   doubleSemanticValue_;
+			code.code_expr <<  doubleSemanticValue_;
 		}
 		break;
 		case oper_func_call:{
@@ -394,170 +404,146 @@ void Unary2Expression::PrintExpressionCode(ostringstream& code_bef_expr, ostring
 			//cout << "/* oper_func_call */" << endl;
 			//cout << "func_index_in_table: " << func_info_table[e->func_index_in_table]->functionName_ << endl;
 			if(func_info_table[func_index_in_table]->functionName_==string("printf")){
-				code_expr <<  "fprintf(xtcc_stdout,";
+				code.code_expr << "fprintf(xtcc_stdout,";
 			} else {
-				code_expr << func_info_table[func_index_in_table]->functionName_.c_str() << "(";
+				code.code_expr <<func_info_table[func_index_in_table]->functionName_.c_str() << "(";
 			}
 			struct AbstractExpression* e_ptr=operand_;
 			while(e_ptr){
-				e_ptr->PrintExpressionCode(code_bef_expr, code_expr);
+				e_ptr->PrintExpressionCode(code);
 				if(e_ptr->next_){
-					code_expr <<  ", ";
+					code.code_expr << ", ";
 				} 
 				e_ptr=e_ptr->next_;
 			}
-			code_expr <<  ")";
+			code.code_expr << ")";
 		}
 		break;
 		case oper_text_expr:{
-			code_expr << "\"" <<text << "\"";
+			code.code_expr <<"\"" <<text << "\"";
 		}
 		break;
 		case oper_blk_arr_assgn: {
-			code_expr << "This case should not occur\n";
+			code.code_expr <<"This case should not occur\n";
 			print_err(compiler_internal_error, "This case should not occur\n", 
 						line_no, __LINE__, __FILE__);
 		}
 		break;
 		default:
-			code_expr << "unhandled AbstractExpression operator\n";
+			code.code_expr <<"unhandled AbstractExpression operator\n";
 			print_err(compiler_internal_error, "unhandled AbstractExpression operator\n", 
 						line_no, __LINE__, __FILE__);
 	}
-	//code_expr << "/* Unary2Expression::PrintExpressionCode EXIT */" << endl;
+	//code.code_expr <<"/* Unary2Expression::PrintExpressionCode EXIT */" << endl;
 }
 
-void BinaryExpression::PrintExpressionCode(ostringstream& code_bef_expr, ostringstream & code_expr)
+//void BinaryExpression::PrintExpressionCode(ostringstream& code_bef_expr, ostringstream & code_expr)
+void BinaryExpression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
+	//code.code_expr << "/* ENTER BinaryExpression::PrintExpressionCode */" << endl;
 	switch(exprOperatorType_){
 		char oper_buf[3];
 		case oper_plus:{
 			sprintf(oper_buf, "%s" , "+");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_minus:{
 			sprintf(oper_buf, "%s" , "-");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_mult:{
 			sprintf(oper_buf, "%s" , "*");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_div:{
 			sprintf(oper_buf, "%s" , "/");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_mod:{
 			sprintf(oper_buf, "%s" , "%");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	      
 		case oper_lt:{
 			sprintf(oper_buf, "%s" , "<");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_gt:{
 			sprintf(oper_buf, "%s" , ">");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_le:{
 			sprintf(oper_buf, "%s" , "<=");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_ge:{
 			sprintf(oper_buf, "%s" , ">=");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_iseq:{
 			sprintf(oper_buf, "%s" , "==");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_isneq: {
 			sprintf(oper_buf, "%s" , "!=");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;	       
 		case oper_assgn:
-			//print_oper_assgn(edit_out);		
-			print_oper_assgn(code_bef_expr, code_expr);		
+			print_oper_assgn(code);		
 		break;
 		case oper_or:{
 			sprintf(oper_buf, "%s" , "||");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;
 		case oper_and:{
 			sprintf(oper_buf, "%s" , "&&");
-			leftOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
-			code_expr << oper_buf;
-			rightOperand_->PrintExpressionCode(code_bef_expr
-					, code_expr);
+			leftOperand_->PrintExpressionCode(code);
+			code.code_expr << oper_buf;
+			rightOperand_->PrintExpressionCode(code);
 			}
 		break;
 		default:
-			code_expr << " unhandled operator type_ in AbstractExpression  ";
+			code.code_expr << " unhandled operator type_ in AbstractExpression  ";
 			print_err(compiler_sem_err
 					, " unhandled operator type_ in AbstractExpression  ", 
 						line_no, __LINE__, __FILE__);
 	}
+	//code.code_expr << "/* EXIT BinaryExpression::PrintExpressionCode */" << endl;
 }
 
 BinaryExpression::~BinaryExpression()
@@ -927,25 +913,22 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 	}
 }
 
-
-
-void Binary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
-		, ostringstream & code_expr)
+void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 {
 	string struct_name = get_temp_name();
-	code_bef_expr << "\tstruct " <<  struct_name.c_str() << "{\n" ;
-	code_bef_expr << "\t\tconst int size_ran_indiv;\n";
-	code_bef_expr << "\t\tconst int size_start_end;\n";
-	code_bef_expr << "\t\tvector<int> ran_indiv;\n";
-	code_bef_expr << "\t\tvector< pair<int,int> > ran_start_end;\n";
-	code_bef_expr << "\t\t" << struct_name.c_str() 
+	code.code_bef_expr << "\tstruct " <<  struct_name.c_str() << "{\n" ;
+	code.code_bef_expr << "\t\tconst int size_ran_indiv;\n";
+	code.code_bef_expr << "\t\tconst int size_start_end;\n";
+	code.code_bef_expr << "\t\tvector<int> ran_indiv;\n";
+	code.code_bef_expr << "\t\tvector< pair<int,int> > ran_start_end;\n";
+	code.code_bef_expr << "\t\t" << struct_name.c_str() 
 		<< "(): size_ran_indiv(" << xs->indiv.size() //r_data->icount 
 		<< "), size_start_end(" <<  xs->range.size() //r_data->rcount << "),\n";
 		<< "),\n";								       
-	code_bef_expr << "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n";
+	code.code_bef_expr << "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n";
 	//fprintf(stderr, "Binary2Expression::PrintExpressionCode(): printed constructor");
 	for(int i=0; i< xs->range.size() ; ++i){
-		code_bef_expr << "\t\t\tran_start_end[" << i 
+		code.code_bef_expr << "\t\t\tran_start_end[" << i 
 			<< "]=pair<int,int>(" 
 			<< xs->range[i].first 
 			<< "," << xs->range[i].second << ");\n";
@@ -954,42 +937,47 @@ void Binary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
 	int k=0;
 	for(set<int>::iterator iter=xs->indiv.begin(); 
 		iter!=xs->indiv.end(); ++iter, ++k){
-		code_bef_expr << "\t\t\tran_indiv[" 
+		code.code_bef_expr << "\t\t\tran_indiv[" 
 			<< k << "]=" << *iter <<";\n";
 	}
-	code_bef_expr <<  "\t\t}\n";
+	code.code_bef_expr <<  "\t\t}\n";
 
-	code_bef_expr << "\t\tbool exists(int key){\n";
-	code_bef_expr << "\t\t\tfor(int i=0; i<size_start_end; ++i){\n";
-	code_bef_expr << "\t\t\t\tif(key >=ran_start_end[i].first && key <=ran_start_end[i].second){\n";
-	code_bef_expr << "\t\t\t\t\treturn true;\n";
-	code_bef_expr << "\t\t\t\t}\n";
-	code_bef_expr << "\t\t\t}\n";
-	code_bef_expr << "\t\t\tfor(int i=0; i< size_ran_indiv; ++i){\n";
-	code_bef_expr << "\t\t\t\tif(key==ran_indiv[i]){\n";
-	code_bef_expr << "\t\t\t\t\treturn true;\n";
-	code_bef_expr << "\t\t\t\t}\n";
-	code_bef_expr << "\t\t\t}\n";
-	code_bef_expr << "\t\t\treturn false;\n";
-	code_bef_expr << "\t\t}\n";
+	code.code_bef_expr << "\t\tbool exists(int key){\n";
+	code.code_bef_expr << "\t\t\tfor(int i=0; i<size_start_end; ++i){\n";
+	code.code_bef_expr << "\t\t\t\tif(key >=ran_start_end[i].first && key <=ran_start_end[i].second){\n";
+	code.code_bef_expr << "\t\t\t\t\treturn true;\n";
+	code.code_bef_expr << "\t\t\t\t}\n";
+	code.code_bef_expr << "\t\t\t}\n";
+	code.code_bef_expr << "\t\t\tfor(int i=0; i< size_ran_indiv; ++i){\n";
+	code.code_bef_expr << "\t\t\t\tif(key==ran_indiv[i]){\n";
+	code.code_bef_expr << "\t\t\t\t\treturn true;\n";
+	code.code_bef_expr << "\t\t\t\t}\n";
+	code.code_bef_expr << "\t\t\t}\n";
+	code.code_bef_expr << "\t\t\treturn false;\n";
+	code.code_bef_expr << "\t\t}\n";
 
-	code_bef_expr << "\t\tbool contains_subset(set<int> & set_data){\n";
-	code_bef_expr << "\t\t\tbool val_exists = false;\n";
-	code_bef_expr << "\t\t\tfor(\tset<int>::iterator it=set_data.begin();\n";
-	code_bef_expr << "\t\t\t\tit!=set_data.end(); ++it){\n";
-	code_bef_expr << "\t\t\t\t\tval_exists=exists(*it);\n";
-	code_bef_expr << "\t\t\t\tif(!val_exists){\n";
-	code_bef_expr << "\t\t\t\t\treturn false;\n";
-	code_bef_expr << "\t\t\t\t}\n";
-	code_bef_expr << "\t\t\t}\n";
-	code_bef_expr << "\t\t\t/*if(!val_exists){\n";
-	code_bef_expr << "\t\t\t\treturn false;\n";
-	code_bef_expr << "\t\t\t}*/\n";
-	code_bef_expr << "\t\treturn true;\n";
-	code_bef_expr << "\t\t}\n";
+	code.code_bef_expr << "\t\tbool contains_subset(set<int> & set_data){\n";
+	code.code_bef_expr << "\t\t\tbool val_exists = false;\n";
+	code.code_bef_expr << "\t\t\tfor(\tset<int>::iterator it=set_data.begin();\n";
+	code.code_bef_expr << "\t\t\t\tit!=set_data.end(); ++it){\n";
+	code.code_bef_expr << "\t\t\t\t\tval_exists=exists(*it);\n";
+	code.code_bef_expr << "\t\t\t\tif(!val_exists){\n";
+	code.code_bef_expr << "\t\t\t\t\treturn false;\n";
+	code.code_bef_expr << "\t\t\t\t}\n";
+	code.code_bef_expr << "\t\t\t}\n";
+	code.code_bef_expr << "\t\t\t/*if(!val_exists){\n";
+	code.code_bef_expr << "\t\t\t\treturn false;\n";
+	code.code_bef_expr << "\t\t\t}*/\n";
+	code.code_bef_expr << "\t\treturn true;\n";
+	code.code_bef_expr << "\t\t}\n";
+}
+
+void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
+{
+	//code.code_expr << "/* ENTER Binary2Expression::PrintExpressionCode */" << endl;
+	PrintTemporaryStruct(code);
 	string struct_name1 = get_temp_name();
-	code_bef_expr << "\t} " <<  struct_name1.c_str() <<";\n";
-	
+	code.code_bef_expr << "\t} " <<  struct_name1 <<";\n";
 	switch(leftOperand_->get_symp_ptr()->type_){
 		case INT8_TYPE:
 		case INT16_TYPE:
@@ -1008,30 +996,31 @@ void Binary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
 		case DOUBLE_REF_TYPE:
 		case BOOL_TYPE:{	
 			string test_bool_var_name=get_temp_name();
-			code_bef_expr <<  "bool " 
+			code.code_bef_expr <<  "bool " 
 				<<  test_bool_var_name.c_str()
 				<< " = " << struct_name1.c_str()
 				<< ".exists(";
 			//<< name.c_str() << ");\n";
-			ostringstream code_bef_expr1_discard, code_expr1;
+			//ostringstream code_bef_expr1_discard, code_expr1;
+			ExpressionCompiledCode expr1_code;
 			leftOperand_->PrintExpressionCode(
-					code_bef_expr1_discard, code_expr1);
-			code_bef_expr << code_expr1.str() << ");\n";
-			code_expr << test_bool_var_name.c_str() << " " ;
+					expr1_code);
+			code.code_bef_expr << expr1_code.code_expr.str() << ");\n";
+			code.code_expr << test_bool_var_name.c_str() << " " ;
 		}
 		break;
 		case QUESTION_TYPE:{
 			string test_bool_var_name=get_temp_name();
-			code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
+			code.code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
 				<< " = " << struct_name1.c_str()
 				<< ".contains_subset(";
-			ostringstream code_bef_expr1_discard, code_expr1;
-			leftOperand_->PrintExpressionCode(
-					code_bef_expr1_discard, code_expr1);
-			code_bef_expr << code_expr1.str() 
+			//ostringstream code_bef_expr1_discard, code_expr1;
+			ExpressionCompiledCode expr1_code;
+			leftOperand_->PrintExpressionCode(expr1_code);
+			code.code_bef_expr << expr1_code.code_expr.str()
 				<< "->input_data"
 				<< ");\n";
-			code_expr << test_bool_var_name.c_str() << " " ;
+			code.code_expr << test_bool_var_name.c_str() << " " ;
 		}
 		break;	
 		default: {
@@ -1042,6 +1031,7 @@ void Binary2Expression::PrintExpressionCode(ostringstream& code_bef_expr
 					, line_no, __LINE__, __FILE__);
 		 }
 	}
+	//code.code_expr << "/* EXIT Binary2Expression::PrintExpressionCode */" << endl;
 }
 
 

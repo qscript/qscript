@@ -16,6 +16,7 @@
 //#include <fstream>
 #include <iostream>
 #include "stmt.h"
+#include "compiled_code.h"
 
 using std::ostringstream;
 using std::ofstream;
@@ -56,25 +57,25 @@ struct AbstractQuestion: public AbstractStatement
 		, QuestionType l_q_type, int l_no_mpn , DataType l_dt
 		, const vector<int>& l_loop_index_values
 		);
-	virtual void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code)=0;
-	virtual void GenerateCodeSingleQuestion(ostringstream & quest_defns
-			, ostringstream& program_code)=0;
+//	virtual void GenerateCode(ostringstream & quest_defns
+//			, ostringstream& program_code)=0;
+	virtual void GenerateCode(StatementCompiledCode &code)=0;
+	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code)=0;
 	virtual void eval()=0;
 	virtual bool IsValid(int value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 	void init_arr(int n, AbstractQuestion* q);
 	virtual void WriteDataToDisk(ofstream & data_file)=0;
-	void PrintSetupBackJump(ostringstream & quest_defns
-			, ostringstream& program_code);
-	void PrintEvalArrayQuestion(ostringstream & quest_defns
-			, ostringstream& program_code);
+	void PrintSetupBackJump(StatementCompiledCode &code);
+	void PrintEvalArrayQuestion(StatementCompiledCode &code);
 	//virtual AbstractQuestion * IsAQuestionStatement()=0;
 	virtual void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement)=0;
 	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
 	virtual void GetDataFromUser();
+	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
+	virtual void PrintQuestionArrayInitialisation(StatementCompiledCode & code);
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
@@ -120,10 +121,8 @@ struct RangeQuestion: public AbstractQuestion
 		XtccSet& l_r_data, const vector<int> & l_loop_index_values
 		);
 
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
-	void GenerateCodeSingleQuestion(ostringstream & quest_defns
-			, ostringstream& program_code);
+	void GenerateCode(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
 	virtual bool IsValid(int value);
 	void eval();
 	void WriteDataToDisk(ofstream& data_file);
@@ -194,10 +193,8 @@ class NamedStubQuestion: public AbstractQuestion
 		, const vector<int> & l_loop_index_values
 		);
 
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code);
-	void GenerateCodeSingleQuestion(ostringstream & quest_defns
-			, ostringstream& program_code);
+	void GenerateCode(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
 	virtual bool IsValid(int value);
 	void eval();
 	void WriteDataToDisk(ofstream& data_file);
@@ -232,10 +229,8 @@ class DummyArrayQuestion: public AbstractQuestion{
 	void WriteDataToDisk(ofstream& data_file);
 	void eval(){}
 	bool IsValid(int value){ return false;}
-	void GenerateCode(ostringstream & quest_defns
-			, ostringstream& program_code){}
-	void GenerateCodeSingleQuestion(ostringstream & quest_defns
-			, ostringstream& program_code){}
+	void GenerateCode(StatementCompiledCode &code){}
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code){}
 	void  GetQuestionNames(vector<string> & question_list,
 			AbstractStatement* endStatement)
 	{

@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
+#include "compiled_code.h"
 namespace qscript_parser {
 	using std::cerr;
 	using std::cout;
@@ -93,11 +94,14 @@ void GenerateCode(){
 		cerr << "unable to open output file to dump script data: " << script_name << endl;
 		exit(1);
 	}
-	ostringstream quest_defns, program_code;
+	//ostringstream quest_defns, program_code;
+	StatementCompiledCode code;
+
 	print_header(script);
-	tree_root->GenerateCode(quest_defns, program_code);
-	fprintf(script, "%s\n", quest_defns.str().c_str());
-	print_close(script, program_code);
+	tree_root->GenerateCode(code);
+	fprintf(script, "%s\n", code.quest_defns.str().c_str());
+	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
+	print_close(script, code.program_code);
 }
 
 void print_header(FILE* script){

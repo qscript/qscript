@@ -14,7 +14,7 @@ struct named_range: public AbstractStatement{
 	string name;
 	vector <stub_pair> stubs;
 	//named_range(): name(""), stubs(){}
-	void GenerateCode(ostringstream & quest_defns, ostringstream& program_code);
+	void GenerateCode(StatementCompiledCode & code);
 	named_range(DataType l_type, int l_line_number, 
 		string l_name, vector <stub_pair>& l_stubs ):
 		AbstractStatement(l_type, l_line_number),
