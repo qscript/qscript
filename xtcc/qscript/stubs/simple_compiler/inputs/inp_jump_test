@@ -5,7 +5,7 @@
 	i3=10;
 	printf("before q1 i1:%d , i2:%d, i3:%d\n", i1, i2, i3);
 
-	q1 "Q1" sp int32_t (1,2,3,4);
+	q1 "Q1. Which brands of tea are you aware of" sp int32_t (1,2,3,4);
 	if(q1 in (1) ){
 		i1=10;
 	} else {

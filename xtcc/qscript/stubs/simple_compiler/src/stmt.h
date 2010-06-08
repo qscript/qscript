@@ -261,10 +261,10 @@ struct ForStatement: public AbstractStatement
 struct IfStatement : public AbstractStatement
 {
 	protected:
+	public:
 	struct AbstractExpression * ifCondition_;
 	struct AbstractStatement * ifBody_;
 	struct AbstractStatement * elseBody_;
-	public:
 	IfStatement( DataType dtype, int lline_number
 			, AbstractExpression * lcondition
 			, AbstractStatement * lif_body
