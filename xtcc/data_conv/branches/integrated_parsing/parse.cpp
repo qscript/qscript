@@ -10,6 +10,7 @@ void InitStatement();
 
 AbstractType * get_type(DataType dt)
 {
+	//printf("parse.cpp :: get_type(dt=%d)\n",dt);
 	switch(dt)
 	{
 		case INT8_TYPE  : return &INT8  ; case INT16_TYPE : return &INT16;
@@ -23,13 +24,16 @@ void visit(RecordMap &rm, AbstractStatement *stmt)
 	if(!stmt) return;
 	if(AbstractQuestion *q = dynamic_cast<AbstractQuestion*>(stmt))
 	{
+		//printf("parse.cpp :: visit() :: q->questionName_ == %s; q->dt == %d\n",q->questionName_.c_str(),q->dt);
+		
 		//os << question[i]->questionName_ << ' ' << text(question[i]->dt);
 		//if(question[i]->q_type==mpn) os << ' ' << question[i]->no_mpn; else os << " 1";
-		if(RangeQuestion *q = dynamic_cast<RangeQuestion*>(q))
-			rm.add_field(q->questionName_,get_type(q->dt),"");
-		else if(NamedStubQuestion *q = dynamic_cast<NamedStubQuestion*>(q))
-			rm.add_field(q->questionName_,get_type(q->dt),q->nr_ptr->name);
-		else if(DummyArrayQuestion *q = dynamic_cast<DummyArrayQuestion*>(q))
+		
+		if(RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q))
+			rm.add_field(rq->questionName_,get_type(rq->dt),"");
+		else if(NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q))
+			rm.add_field(nq->questionName_,get_type(nq->dt),nq->nr_ptr->name);
+		else if(DummyArrayQuestion *dq = dynamic_cast<DummyArrayQuestion*>(q))
 			throw std::string("parse: DummyArrayQuestion not handled yet");
 		else throw std::string("parse: unknown question type");
 	}
@@ -46,6 +50,7 @@ void visit(RecordMap &rm, AbstractStatement *stmt)
 	visit(rm,stmt->next_);
 }
 
+//#include <cstdlib>
 
 RecordMap::RecordMap(AbstractFormat &F, const std::string &source_file) : format(F)
 {
@@ -53,5 +58,6 @@ RecordMap::RecordMap(AbstractFormat &F, const std::string &source_file) : format
 	InitStatement(); qscript_parser::active_scope_list.push_back(new Scope()); yyrestart(f);
 	if(yyparse() || qscript_parser::no_errors) throw std::string("parse: errors while yyparse()");
 	fclose(f); visit(*this,qscript_parser::tree_root);
+	//exit(1); //parse test only
 }
 

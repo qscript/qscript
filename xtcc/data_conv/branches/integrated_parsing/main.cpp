@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 		{
 			DEBUG(0) std::cout << "it->string()='" << it->string() << "'\n";
 			std::ifstream df; df.open(it->string().c_str()); char buffer[rec_map.byte_length()];
-			for(std::string name,value; df>>std::ws, std::getline(df,name,':'), df>>value;)
+			for(std::string name,value; df>>std::ws, std::getline(df,name,':'), std::getline(df,value,'\n'), df;)
 			{
 				DEBUG(0) std::cout << "name='" << name << "' value='" << value << "'\n";
 				rec_map.parse(name,value,buffer);

@@ -12,15 +12,19 @@ template<typename T> class Type : public AbstractType
 		
 		void parse(const std::string &s, void *buffer, AbstractFormat &F)
 		{
-			std::stringstream ss(s); ss.exceptions(std::ios::failbit | std::ios::badbit);
-			T x; ss >> x; *(T*)buffer = F(x);
+			std::stringstream ss(s); //ss.exceptions(std::ios::failbit | std::ios::badbit);
+			T x; ss >> x;
+			if(!ss) x = -1; //throw "Type::parse: couldn't parse \""+s+'\"';
+			*(T*)buffer = (x);
 		}
 };
 
 template<> void Type<char>::parse(const std::string &s, void *buffer, AbstractFormat &F)
 {
-	std::stringstream ss(s); ss.exceptions(std::ios::failbit | std::ios::badbit);
-	int x; ss >> x; *(char*)buffer = F((char)x);
+	std::stringstream ss(s); //ss.exceptions(std::ios::failbit | std::ios::badbit);
+	int x; ss >> x;
+	if(!ss) x = -1; //throw "Type::parse: couldn't parse \""+s+'\"';
+	*(char*)buffer = F((char)x);
 }
 
 
