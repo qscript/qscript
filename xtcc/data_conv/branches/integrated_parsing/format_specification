@@ -1,0 +1,43 @@
+	string			= 1*<char>
+	digit			= <'0'-'9'>
+	int				= 1*digit
+	signed-int		= ['-'] int
+	real			= signed-int ['.' int] ['e' signed-int]
+	# real contains signed-int; signed-int contains int
+	
+### input file *.dat {input} 
+	
+	single-answer	= real
+	question-name	= string
+	answer			= question-name ':' *single-answer '\n'
+	input			= *answer <EOF>
+
+### output file *.out {output}
+	
+	signature		= "xtcc"
+	version			= "0.0.0.0"
+	char-sample 	= "xtcc"
+	short-sample 	= <short 0x4142>
+	long-sample 	= <long 0x43444546>
+	float-sample	= <float 3297809.75>
+	double-sample	= <double 7.10524632318153195520e20>
+	header			= signature '\n' version '\n' char-sample '\n' short-sample '\n' long-sample '\n'
+					  float-sample '\n' double-sample '\n'
+	
+	range-value		= ' ' int ' ' <"> string <">
+	range-name		= string
+	range			= range-name " =" *range-value '\n'
+	stubinfo		= "STUBINFORMATION\n" *range "ENDSTUBINFORMATION\n"
+	
+	type			= "INT8" | "INT16" | "INT32" | "FLOAT" | "DOUBLE"
+	question-name	= string
+	first-byte		= int
+	last-byte		= int
+	question		= question-name ' ' type ' ' first-byte ' ' last-byte '\n'
+	record-map		= *question '\0'
+	
+	record			= <size of record><char>
+	data			= *record
+	
+	output			= header stubinfo record-map data <EOF>
+
