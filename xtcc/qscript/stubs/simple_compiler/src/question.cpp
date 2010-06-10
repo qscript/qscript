@@ -30,6 +30,7 @@ using namespace std;
 void read_data(const char * prompt);
 string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack);
 extern vector<string> consolidated_for_loop_index_stack;
+int GetTempMapKeyNumber();
 
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
@@ -179,9 +180,6 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 				, "for loop index condition is not a binary expression" 
 				, 0, __LINE__, __FILE__);
 		}
-		// quest_defns is passed twice
-		// becaues we want the AbstractExpression to appear in the for
-		// loop in the questions section of the code
 	}
 }
 
@@ -1071,33 +1069,47 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		//{
 		//	code.program_code << active_push_vars_for_this_question[i] << endl;
 		//}
-		code.program_code << "if ( back_jump==true  && " << questionName_ <<  "->isAnswered_==true ) {" << endl;
+		//s << "if ( back_jump==true  && " << questionName_ <<  "->isAnswered_==true ) {\n" << endl;
 		ostringstream &s(code.program_code);
+		s << "if ( back_jump==true  && " << questionName_ <<  "_list.questionList["
+			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< "]->isAnswered_==true ) {" << endl;
+		int temp_map_key_no=GetTempMapKeyNumber();
+		s << "ostringstream map_key_" << temp_map_key_no << ";\n";
 		for(int i=0; i<activeVarInfo_.size(); ++i){
 			ostringstream map_key;
-			map_key << activeVarInfo_[i]->name_ << "_" << consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1];
+			map_key<< "map_key_" << temp_map_key_no ;
+			//map_key << activeVarInfo_[i]->name_ << "_" 
+			//	<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			//	<< "\n";
+			s << map_key.str() << "<< \"" << activeVarInfo_[i]->name_ << "\" << \"_\" << " 
+				<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+				<< ";\n";
 			switch(activeVarInfo_[i]->type_){
 			case INT8_TYPE:
-				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int8_t[\"" << map_key.str() << "\"];" << endl;
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int8_t[" << map_key.str() << ".str()" <<"];" << endl;
 				break;
 			case INT16_TYPE:	
-				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int16_t[\"" << map_key.str() << "\"];" << endl;
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int16_t[" << map_key.str() << ".str()" << "];" << endl;
 				break;
 			case INT32_TYPE:	
-				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int32_t[\"" << map_key.str() << "\"];" << endl;
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int32_t[" << map_key.str() << ".str()" << "];" << endl;
 				break;
 			case FLOAT_TYPE:
-				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_float_t[\"" << map_key.str() << "\"];" << endl;
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_float_t[" << map_key.str() << ".str()" << "];" << endl;
 				break;
 			case DOUBLE_TYPE:
-				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_double_t[\"" << map_key.str() << "\"];" << endl;
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_double_t[" << map_key.str() << ".str()" << "];" << endl;
 				break;
 			case QUESTION_TYPE:
-				//s << "// QUESTION_TYPE - will think of this later " << endl;
+				s << map_key.str() << ".str(\"\");" << map_key.str() << ".clear();\n";
+				s << map_key.str() << "<< \"" << questionName_ << "\" << \"_\" << " 
+					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+				<< ";\n";
 				s << "" << activeVarInfo_[i]->name_ << "->input_data=" << activeVarInfo_[i]->name_ 
-					<< "_scope_question_t"<<  "[\"" 
-					<< questionName_ << "_" 
-					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1] << "\"];" << endl;
+					<< "_scope_question_t"<<  "[" 
+					<< map_key.str() << ".str()"
+					<< "];" << endl;
 				break;
 			default: {
 					string err_msg = "unhandled type in print_pop_stack\"";
@@ -1105,7 +1117,16 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 					print_err(compiler_sem_err, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
 				}
 			}
+			s << map_key.str() << ".str(\"\");" << map_key.str() << ".clear();\n";
 		}
+		s << "if ( jumpToQuestion == \"" << questionName_ 
+			<< "\" && jumpToIndex==" 
+			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< "){\n" 
+			<< "back_jump=false;\n" 
+			<< "jumpToIndex=-1;\n"
+			<< "}\n";
+		s << "}" << endl;
 	}
 
 }
@@ -1237,4 +1258,10 @@ void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
 		data_file << " "<< array_bounds[i];
 	}
 	data_file << endl;
+}
+
+int GetTempMapKeyNumber()
+{
+	static int temp_map_key_number;
+	return temp_map_key_number++;
 }

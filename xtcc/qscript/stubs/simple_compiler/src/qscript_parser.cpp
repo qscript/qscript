@@ -137,6 +137,7 @@ void print_header(FILE* script){
 	fprintf(script, "void merge_disk_data_into_questions();\n");
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
+	fprintf(script, "int jumpToIndex;\n");
 
 
 	//fprintf(script, "\tnoun_list_type noun_list[]= {\n");
