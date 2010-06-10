@@ -37,6 +37,8 @@
 //#include "defs.h"
 //#include <sstream>
 #include <vector>
+#include "datatype.h"
+#include "symtab.h"
 
 struct AbstractStatement;
 struct AbstractExpression;
@@ -46,7 +48,6 @@ using std::map;
 
 	struct Scope;
 
-#include "symtab.h"
 
 struct Scope
 {
@@ -59,6 +60,7 @@ struct Scope
 	AbstractStatement* insert(const char * name, DataType dt, int arr_size, /*int line_no,*/ char *text);
 	AbstractStatement* insert(const char * name, DataType dt, XtccSet *lxs);
 	void print_scope(const string & stack_name, vector<string> &push_stack, vector<string>& pop_stack);
+	void print_scope(vector<ActiveVariableInfo*> & output_info);
 	~Scope();
 };
 

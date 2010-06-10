@@ -28,6 +28,8 @@ using std::cerr;
 using namespace std;
 //extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
+string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack);
+extern vector<string> consolidated_for_loop_index_stack;
 
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
@@ -35,6 +37,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*> & l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope 
+		, vector<ActiveVariableInfo* > l_av_info
 	): 
 	AbstractStatement(l_type, l_no)
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
@@ -42,6 +45,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, for_bounds_stack(l_for_bounds_stack)
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(l_enclosing_scope)
+	, activeVarInfo_(l_av_info)
 {
 	if(enclosingCompoundStatement_==0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -68,10 +72,12 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	//}
 }
 
+	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 		, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
 	): 
 	AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type) 
@@ -79,6 +85,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, for_bounds_stack(0)
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(l_enclosing_scope)
+	, activeVarInfo_(l_av_info)
 {
 	if(enclosingCompoundStatement_==0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -278,10 +285,11 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 	XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope 
+	, vector<ActiveVariableInfo* > l_av_info
 	): 
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 		, l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
-		, l_enclosing_scope
+		, l_enclosing_scope, l_av_info
 		)
 {
 	r_data = new XtccSet(l_r_data);
@@ -306,9 +314,10 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
 	, QuestionType l_q_type, int l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, CompoundStatement * l_enclosing_scope
+	, vector<ActiveVariableInfo* > l_av_info
 	): 
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_enclosing_scope
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info
 		)
 {
 	r_data = new XtccSet(l_r_data);
@@ -809,6 +818,7 @@ void NamedStubQuestion::GenerateCode( StatementCompiledCode &code)
 
 }
 
+	//! this is only called in the compile time environment
 NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
@@ -817,25 +827,28 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 	//, AbstractExpression* l_arr_sz
 	, vector<AbstractExpression*>& l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope 
+	, vector<ActiveVariableInfo* > l_av_info
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
 		//, l_arr_sz
-		, l_for_bounds_stack, l_enclosing_scope
+		, l_for_bounds_stack, l_enclosing_scope, l_av_info
 		), 
 	//named_list(l_named_list)
 	nr_ptr(l_nr_ptr), stub_ptr(0)
 {
 }
 
+	//! this is only called in the compile time environment
 NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 	string l_name, string l_q_text,
 	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 	named_range* l_nr_ptr
 	, CompoundStatement * l_enclosing_scope 
+	, vector<ActiveVariableInfo* > l_av_info
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_enclosing_scope
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info
 		), 
 	nr_ptr(l_nr_ptr), stub_ptr(0)
 {
@@ -958,35 +971,153 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 	// end of THIS IS NEW CODE
 
 
+	code.program_code << "/* AbstractQuestion::PrintSetupBackJump() */\n";
 	code.program_code << "lab_" << questionName_ << ":" << endl;
 
-	string q_push_name = questionName_ + "_push";
-	string q_pop_name = questionName_ + "_pop";
-	vector<string> active_push_vars_for_this_question = 
-		map_of_active_vars_for_questions[q_push_name];
-	vector<string> active_pop_vars_for_this_question = 
-		map_of_active_vars_for_questions[q_pop_name];
+	//string q_push_name = questionName_ + "_push";
+	//string q_pop_name = questionName_ + "_pop";
+	//vector<string> active_push_vars_for_this_question = 
+	//	map_of_active_vars_for_questions[q_push_name];
+	//vector<string> active_pop_vars_for_this_question = 
+	//	map_of_active_vars_for_questions[q_pop_name];
 
-	code.program_code << "if ( back_jump==true  && " << questionName_ <<  "->isAnswered_==true ) {" << endl;
-	for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
-		code.program_code << active_pop_vars_for_this_question[i] << endl;
-	}
-	code.program_code << "if ( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump=false;\n}\n";
-	code.program_code << "}" << endl;
+	if(for_bounds_stack.size()==0){
+		code.program_code << "if ( back_jump==true  && " << questionName_ <<  "->isAnswered_==true ) {" << endl;
+		//for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
+		//	code.program_code << active_pop_vars_for_this_question[i] << endl;
+		//}
+		ostringstream &s(code.program_code);
+		for(int i=0; i<activeVarInfo_.size(); ++i){
+			switch(activeVarInfo_[i]->type_){
+			case INT8_TYPE:
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int8_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+				break;
+			case INT16_TYPE:	
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int16_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+				break;
+			case INT32_TYPE:	
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int32_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+				break;
+			case FLOAT_TYPE:
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_float_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+				break;
+			case DOUBLE_TYPE:
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_double_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+				break;
+			case QUESTION_TYPE:
+				//s << "// QUESTION_TYPE - will think of this later " << endl;
+				s << "" << activeVarInfo_[i]->name_ << "->input_data=" << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"];" << endl;
+				break;
+			default: {
+					string err_msg = "unhandled type in print_pop_stack\"";
+					s << err_msg;
+					print_err(compiler_sem_err, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+				}
+			}
+		}
+		code.program_code << "if ( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump=false;\n}\n";
+		code.program_code << "}" << endl;
 
-	for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i)
-	{
-		code.program_code << active_push_vars_for_this_question[i] << endl;
+		//for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i)
+		//{
+		//	code.program_code << active_push_vars_for_this_question[i] << endl;
+		//}
+
+		for(int i=0; i<activeVarInfo_.size(); ++i){
+			switch(activeVarInfo_[i]->type_){
+			case INT8_TYPE:
+				s << questionName_ << "_scope_int8_t[\"" << activeVarInfo_[i]->name_ << "\"]="<< activeVarInfo_[i]->name_ << endl;
+				break;
+			case INT16_TYPE:	
+				s << questionName_ << "_scope_int16_t[\"" << activeVarInfo_[i]->name_ << "\"]=" << activeVarInfo_[i]->name_ << endl;
+				break;
+			case INT32_TYPE:	
+				s << questionName_ << "_scope_int32_t[\"" << activeVarInfo_[i]->name_ << "\"]=" << activeVarInfo_[i]->name_ << endl;
+				break;
+			case FLOAT_TYPE:
+				s << questionName_ << "_scope_float_t[\"" << activeVarInfo_[i]->name_ << "\"]=" << activeVarInfo_[i]->name_ << endl;
+				break;
+			case DOUBLE_TYPE:
+				s << questionName_ << "_scope_double_t[\"" << activeVarInfo_[i]->name_ << "\"]=" << activeVarInfo_[i]->name_ << endl;
+				break;
+			case QUESTION_TYPE:
+				//s << "// QUESTION_TYPE - will think of this later " << endl;
+				s << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"]=" << "" << activeVarInfo_[i]->name_ << "->input_data;" << endl;
+				break;
+			default: {
+					string err_msg = "unhandled type in print_pop_stack\"";
+					s << err_msg;
+					print_err(compiler_sem_err, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+				}
+			}
+		}
+	} else {
+		// Handle Array Question here
+
+		//code.program_code << "if ( back_jump==true  && " << questionName_ <<  "_list.questionList["
+		//	<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+		//	<< "]->isAnswered_==true ) {" << endl;
+		//for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
+		//	code.program_code << active_pop_vars_for_this_question[i] << endl;
+		//}
+		//code.program_code << "if ( jumpToQuestion == \"" << questionName_ << "\""
+		//	<< " && " << questionName_ << "_JumpToIndex == " 
+		//	<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+		//	<< ")\n{ back_jump=false;\n" 
+		//	<< questionName_ << "_JumpToIndex=-1;\n"
+		//	<< "}\n";
+		//code.program_code << "}" << endl;
+		//for(unsigned int i=0; i< active_push_vars_for_this_question.size(); ++i)
+		//{
+		//	code.program_code << active_push_vars_for_this_question[i] << endl;
+		//}
+		code.program_code << "if ( back_jump==true  && " << questionName_ <<  "->isAnswered_==true ) {" << endl;
+		ostringstream &s(code.program_code);
+		for(int i=0; i<activeVarInfo_.size(); ++i){
+			ostringstream map_key;
+			map_key << activeVarInfo_[i]->name_ << "_" << consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1];
+			switch(activeVarInfo_[i]->type_){
+			case INT8_TYPE:
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int8_t[\"" << map_key.str() << "\"];" << endl;
+				break;
+			case INT16_TYPE:	
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int16_t[\"" << map_key.str() << "\"];" << endl;
+				break;
+			case INT32_TYPE:	
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int32_t[\"" << map_key.str() << "\"];" << endl;
+				break;
+			case FLOAT_TYPE:
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_float_t[\"" << map_key.str() << "\"];" << endl;
+				break;
+			case DOUBLE_TYPE:
+				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_double_t[\"" << map_key.str() << "\"];" << endl;
+				break;
+			case QUESTION_TYPE:
+				//s << "// QUESTION_TYPE - will think of this later " << endl;
+				s << "" << activeVarInfo_[i]->name_ << "->input_data=" << activeVarInfo_[i]->name_ 
+					<< "_scope_question_t"<<  "[\"" 
+					<< questionName_ << "_" 
+					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1] << "\"];" << endl;
+				break;
+			default: {
+					string err_msg = "unhandled type in print_pop_stack\"";
+					s << err_msg;
+					print_err(compiler_sem_err, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+				}
+			}
+		}
 	}
+
 }
 
 
+extern vector<string> consolidated_for_loop_index_stack;
 void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 {
-	code.program_code << "\t\t" << questionName_.c_str() << "_list.questionList[";
 	// ----------------------------------
 	//ostringstream * string_stream_vec=
 	//	new ostringstream[for_bounds_stack.size()];
+	/*
 	ExpressionCompiledCode * expr_code_arr = 
 		new ExpressionCompiledCode[for_bounds_stack.size()];
 	for(int i=0; i< for_bounds_stack.size(); ++i){
@@ -1030,6 +1161,30 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			}
 		}
 	}
+	*/
+	code.program_code << "\n/*\n";
+	code.program_code << "if (!"
+			<< questionName_.c_str() << "_list.questionList[";
+	/*
+	for(unsigned int i=0; i<for_bounds_stack.size(); ++i) {
+		code.program_code << expr_code_arr[i].code_bef_expr.str()
+			<< expr_code_arr[i].code_expr.str();
+		if(i <for_bounds_stack.size()-1 ){
+			code.program_code << "+";
+		}
+	}
+	*/
+	string consolidated_for_loop_index=PrintConsolidatedForLoopIndex(for_bounds_stack);
+	code.program_code << consolidated_for_loop_index;
+	code.program_code << "]->isAnswered_||stopAtNextQuestion||\n" 
+		<< "(jumpToQuestion == \"" << questionName_ << "\""
+		<< " && " << questionName_ << "_JumpToIndex ==  " 
+		<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+		<< ") )";
+	code.program_code << "\n*/\n";
+		// ---------------------------
+	code.program_code << "\t\t" << questionName_.c_str() << "_list.questionList[";
+	/*
 	for(unsigned int i=0; i<for_bounds_stack.size(); ++i) {
 		//code.program_code << string_stream_vec[i].str();
 		code.program_code << expr_code_arr[i].code_bef_expr.str()
@@ -1038,9 +1193,11 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			code.program_code << "+";
 		}
 	}
+	*/
 	//delete[] string_stream_vec;
-	delete[] expr_code_arr;
+	//delete[] expr_code_arr;
 	// ---------------------------------
+	code.program_code << consolidated_for_loop_index;
 	code.program_code << "]->eval();\n" ;
 
 	code.program_code << "\n\t/*\n";

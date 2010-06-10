@@ -280,3 +280,12 @@ void Scope::print_scope(const string & stack_name, vector<string> &push_stack, v
 		pop_stack.push_back(s);
 	}
 }
+
+void Scope::print_scope(vector<ActiveVariableInfo*> & output_info)
+{
+	map<string,SymbolTableEntry*>::iterator it;
+	for(it=SymbolTable.begin(); it!=SymbolTable.end(); ++it){
+		SymbolTableEntry * sym_ptr=  it->second;
+		output_info.push_back( sym_ptr->GetVarInfo());
+	}
+}

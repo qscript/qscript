@@ -8,6 +8,7 @@
 #include <vector>
 #include <cstdlib>
 #include "debug_mem.h"
+#include "datatype.h"
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
@@ -17,6 +18,7 @@
 #include "xtcc_set.h"
 #include "utils.h"
 #include "question.h"
+#include "active_var_info.h"
 
 using std::ofstream;
 using std::vector;
@@ -98,6 +100,10 @@ namespace qscript_parser {
 	AbstractStatement * ProcessNamedQuestion(const string &name
 			, const string & q_txt , const DataType& dt 
 			, const string & named_stub_list );
+
+
+	void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
+		vector <ActiveVariableInfo*> & output_info);
 }
 
 #endif /* qscript_parser_h */

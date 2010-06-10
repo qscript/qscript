@@ -888,20 +888,29 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 	return cmpdStmt;
 }
 
+// NxD: 10-Jun-2010
+// Need to make changes here - create a new struct to store variable name and type
+// and dump the entire scope into the map
+// later the question::GenerateCode will
+// decide by looking if it is an array question or a simple
+// question and generate the appropriate save restore scope code
 AbstractStatement * ProcessRangeQuestion(const string &name
 		, const string & q_text, const DataType& dt )
 {
 
-	vector<string> active_push_vars;
-	vector<string> active_pop_vars;
-	for(unsigned int i=0; i< active_scope_list.size(); ++i){
-		Scope* sc_ptr= active_scope_list[i];
-		sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
-	}
-	string q_push_name = name + "_push";
-	string q_pop_name = name + "_pop";
-	map_of_active_vars_for_questions[q_push_name] = active_push_vars;
-	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+	//vector<string> active_push_vars;
+	//vector<string> active_pop_vars;
+	//for(unsigned int i=0; i< active_scope_list.size(); ++i){
+	//	Scope* sc_ptr= active_scope_list[i];
+	//	sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
+	//}
+	//string q_push_name = name + "_push";
+	//string q_pop_name = name + "_pop";
+	//map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+	//map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+	vector <ActiveVariableInfo* > av_info;
+	PrintActiveVariablesAtScope(active_scope_list, av_info);
+
 	
 	AbstractExpression * arr_sz=0;
 	RangeQuestion * q=0;
@@ -922,14 +931,14 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 			name, q_text, q_type, no_mpn, dt, xs
 			//, arr_sz
 			,qscript_parser::for_loop_max_counter_stack
-			, cmpd_stmt_ptr
+			, cmpd_stmt_ptr, av_info
 			);
 		//ostringstream s1, s2;
 		//arr_sz->print_expr(s1, s2);
 		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
 	} else {
 		q= new RangeQuestion(QUESTION_TYPE, line_no, 
-			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr);
+			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr, av_info);
 	}
 	++(cmpd_stmt_ptr->counterContainsQuestions_);
 	//$$=q;
@@ -960,16 +969,18 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	// This is preparatory work
 	// for jumping between questions
 	// store
-	vector<string> active_push_vars;
-	vector<string> active_pop_vars;
-	for(unsigned int i=0; i< active_scope_list.size(); ++i){
-		Scope* sc_ptr= active_scope_list[i];
-		sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
-	}
-	string q_push_name = name + "_push";
-	string q_pop_name = name + "_pop";
-	map_of_active_vars_for_questions[q_push_name] = active_push_vars;
-	map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+	//vector<string> active_push_vars;
+	//vector<string> active_pop_vars;
+	//for(unsigned int i=0; i< active_scope_list.size(); ++i){
+	//	Scope* sc_ptr= active_scope_list[i];
+	//	sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
+	//}
+	//string q_push_name = name + "_push";
+	//string q_pop_name = name + "_pop";
+	//map_of_active_vars_for_questions[q_push_name] = active_push_vars;
+	//map_of_active_vars_for_questions[q_pop_name] = active_pop_vars;
+	vector <ActiveVariableInfo* > av_info;
+	PrintActiveVariablesAtScope(active_scope_list, av_info);
 
 	bool found=false;
 	struct named_range* nr_ptr = 0;
@@ -1002,11 +1013,11 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 		q=new NamedStubQuestion(QUESTION_TYPE, line_no
 				, name, q_txt, q_type, no_mpn, dt , nr_ptr
 				,qscript_parser::for_loop_max_counter_stack
-				, cmpd_stmt_ptr);
+				, cmpd_stmt_ptr, av_info);
 	} else {
 		q=new NamedStubQuestion(QUESTION_TYPE, 
 			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr
-			, cmpd_stmt_ptr);
+			, cmpd_stmt_ptr, av_info);
 	}
 	question_list.push_back(q);
 	//$$=q;

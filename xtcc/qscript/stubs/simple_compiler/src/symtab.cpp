@@ -245,3 +245,8 @@ void SymbolTableEntry::print_pop_stack(const string &stack_name, string & str)
 	}
 	str = s.str();
 }
+
+ActiveVariableInfo * SymbolTableEntry::GetVarInfo()
+{
+	return new ActiveVariableInfo(name_, type_);
+}

@@ -507,5 +507,16 @@ void print_array_question_class(FILE* script)
 
 }
 
+void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
+		vector <ActiveVariableInfo*> & output_info)
+{
+	for(unsigned int i=0; i< active_scope_list.size(); ++i){
+		Scope* sc_ptr= active_scope_list[i];
+		sc_ptr->print_scope(output_info);
+		//sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
+	}
+}
+
+
 /* end of namespace */
 }

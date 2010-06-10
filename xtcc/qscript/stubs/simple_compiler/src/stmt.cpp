@@ -26,6 +26,7 @@ using qscript_parser:: active_scope;
 //extern vector </*Statement::*/FunctionInformation*> func_info_table;
 using qscript_parser::func_info_table;
 int CompoundStatement::counter_;
+string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack);
 void InitStatement()
 {
 	CompoundStatement::counter_=0;
@@ -307,6 +308,8 @@ IfStatement:: ~IfStatement()
 //  - if the CompoundStatement is part of a function body
 // the the variables 
 
+vector<string> consolidated_for_loop_index_stack;
+
 CompoundStatement::CompoundStatement(DataType dtype, int lline_number
 	, int l_flag_cmpd_stmt_is_a_func_body
 	, int l_flag_cmpd_stmt_is_a_for_body
@@ -320,7 +323,7 @@ CompoundStatement::CompoundStatement(DataType dtype, int lline_number
 	, flagGeneratedQuestionDefinitions_(false)
 	, for_bounds_stack(l_for_bounds_stack)
 {	
-	//compoundStatementNumber_=CompoundStatement::counter_++;
+	compoundStatementNumber_=CompoundStatement::counter_++;
 }
 
 void CompoundStatement::GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code)
@@ -370,6 +373,63 @@ void CompoundStatement::GenerateQuestionArrayInitLoopClose(StatementCompiledCode
 	}
 }
 
+string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack)
+{
+	ExpressionCompiledCode * expr_code_arr = 
+		new ExpressionCompiledCode[for_bounds_stack.size()];
+	for(int i=0; i< for_bounds_stack.size(); ++i){
+		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
+		if(bin_expr_ptr){
+			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+			AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+			//lhs->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]); 
+			lhs->PrintExpressionCode(expr_code_arr[i]); 
+			if(i<for_bounds_stack.size()-1) {
+				//string_stream_vec[i] << "*" ;
+				expr_code_arr[i].code_expr << "*";
+			}
+		} else {
+			//for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
+			for_bounds_stack[i]->PrintExpressionCode(expr_code_arr[i]);
+			print_err(compiler_sem_err
+				, "for loop index condition is not a binary expression" 
+				, 0, __LINE__, __FILE__);
+		}
+		for(int j=i+1; j<for_bounds_stack.size(); j++){
+			// quest_defns is passed twice
+			// because we want the AbstractExpression to appear in the for
+			// loop in the questions section of the code
+			BinaryExpression * bin_expr_ptr2 = dynamic_cast<BinaryExpression*>(for_bounds_stack[j]);
+			if(bin_expr_ptr2){
+				AbstractExpression * rhs = bin_expr_ptr2->rightOperand_;
+				//rhs->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
+				rhs->PrintExpressionCode(expr_code_arr[i]);
+				if(j<for_bounds_stack.size()-1) {
+					//string_stream_vec[i] << "*" ;
+					expr_code_arr[i].code_expr << "*" ;
+				}
+
+			} else {
+				//for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
+				for_bounds_stack[i]->PrintExpressionCode(expr_code_arr[i]);
+				print_err(compiler_sem_err
+					, "for loop index condition is not a binary expression. This error should have been caught at compile time" 
+					, 0, __LINE__, __FILE__);
+			}
+		}
+	}
+	ostringstream consolidated_for_loop_index;
+	for(unsigned int i=0; i<for_bounds_stack.size(); ++i) {
+		consolidated_for_loop_index << expr_code_arr[i].code_bef_expr.str()
+			<< expr_code_arr[i].code_expr.str();
+		if(i <for_bounds_stack.size()-1 ){
+			consolidated_for_loop_index << "+";
+		}
+	}
+	delete[] expr_code_arr;
+	return consolidated_for_loop_index.str();
+}
+
 void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 {
 	code.quest_defns << "//CompoundStatement::GenerateCode()\n"
@@ -388,7 +448,7 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		code.quest_defns << "//CompoundStatement::GenerateCode()\n"
 			<< "// Generating array declarations\n";
 		if(compoundBody_){
-			AbstractStatement * stmt_ptr = compoundBody_;
+			//AbstractStatement * stmt_ptr = compoundBody_;
 			//while(stmt_ptr){
 			//	AbstractQuestion * q 
 			//		= dynamic_cast<AbstractQuestion*>(stmt_ptr);
@@ -402,6 +462,15 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		flagGeneratedQuestionDefinitions_=true;
 	}
 	code.program_code << "{" << endl;
+	if( flagIsAForBody_ && counterContainsQuestions_){
+		ostringstream consolidated_loop_counter;
+		consolidated_loop_counter << "consolidated_for_loop_index_" << compoundStatementNumber_;
+		consolidated_for_loop_index_stack.push_back(consolidated_loop_counter.str());
+		code.program_code << "int " << consolidated_loop_counter.str()
+			<< "=";
+		code.program_code << PrintConsolidatedForLoopIndex(for_bounds_stack);
+		code.program_code << ";\n";
+	}
 	if (compoundBody_) 
 		compoundBody_->GenerateCode(code);
 	GenerateQuestionArrayInitLoopClose(code);

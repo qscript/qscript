@@ -36,11 +36,13 @@ struct AbstractQuestion: public AbstractStatement
 	bool isAnswered_;
 	bool isModified_;
 	CompoundStatement * enclosingCompoundStatement_;
+	vector <ActiveVariableInfo*> activeVarInfo_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
 		);
 
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
@@ -50,6 +52,7 @@ struct AbstractQuestion: public AbstractStatement
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt 
 		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
 		);
 
 	//! this is only called in the runtime environment
@@ -100,6 +103,7 @@ struct RangeQuestion: public AbstractQuestion
 		XtccSet& l_r_data
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope 
+		, vector<ActiveVariableInfo* > l_av_info
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(DataType this_stmt_type, int line_number,
@@ -113,6 +117,7 @@ struct RangeQuestion: public AbstractQuestion
 		string l_name, string l_q_text,
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		XtccSet& l_r_data, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(DataType this_stmt_type, int line_number,
@@ -160,18 +165,22 @@ class NamedStubQuestion: public AbstractQuestion
 	string named_list;
 	named_range * nr_ptr;
 	vector<stub_pair> * stub_ptr;
+	//! this is only called in the compile time environment
 	NamedStubQuestion(DataType this_stmt_type, int line_number, 
 		string l_name, string l_q_text,
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		named_range * l_nr_ptr 
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
 		);
+	//! this is only called in the compile time environment
 	NamedStubQuestion(DataType this_stmt_type, int line_number, 
 		string l_name, string l_q_text,
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		named_range * l_nr_ptr 
 		, CompoundStatement * l_enclosing_scope
+		, vector<ActiveVariableInfo* > l_av_info
 		);
 
 	NamedStubQuestion(DataType this_stmt_type, int line_number, 
