@@ -71,6 +71,10 @@ struct AbstractQuestion: public AbstractStatement
 	void init_arr(int n, AbstractQuestion* q);
 	virtual void WriteDataToDisk(ofstream & data_file)=0;
 	void PrintSetupBackJump(StatementCompiledCode &code);
+	void SetupSimpleQuestionSave(StatementCompiledCode &code);
+	void SetupSimpleQuestionRestore(StatementCompiledCode &code);
+	void SetupArrayQuestionSave(StatementCompiledCode &code);
+	void SetupArrayQuestionRestore(StatementCompiledCode &code);
 	void PrintEvalArrayQuestion(StatementCompiledCode &code);
 	//virtual AbstractQuestion * IsAQuestionStatement()=0;
 	virtual void GetQuestionNames(vector<string> & question_list,

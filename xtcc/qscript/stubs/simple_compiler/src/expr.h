@@ -174,6 +174,7 @@ struct BinaryExpression: public AbstractExpression
 struct Unary2Expression : public AbstractExpression
 {
 	protected:
+	public:
 	struct SymbolTableEntry * symbolTableEntry_;
 	int intSemanticValue_;
 	double doubleSemanticValue_;
@@ -182,7 +183,6 @@ struct Unary2Expression : public AbstractExpression
 	int column_no;
 	AbstractExpression* operand_;
 	AbstractExpression* operand2_;
-	public:
 	// This is a hack - I have to fix this by putting line number in the base class
 	bool IsLValue();
 	virtual bool IsConst();

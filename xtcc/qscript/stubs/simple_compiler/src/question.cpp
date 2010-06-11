@@ -31,6 +31,9 @@ void read_data(const char * prompt);
 string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack);
 extern vector<string> consolidated_for_loop_index_stack;
 int GetTempMapKeyNumber();
+string GetRestoreVariableName(ActiveVariableInfo * av_info);
+string PrintRestoreArrayQuestion(ActiveVariableInfo * av_info, AbstractQuestion * quest_loc);
+string GetRestoreVariableContainerName(ActiveVariableInfo * av_info, string & questionName_);
 
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
@@ -969,7 +972,8 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 	// end of THIS IS NEW CODE
 
 
-	code.program_code << "/* AbstractQuestion::PrintSetupBackJump() */\n";
+	code.program_code << "/* AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():" 
+		<< for_bounds_stack.size() << " */\n";
 	code.program_code << "lab_" << questionName_ << ":" << endl;
 
 	//string q_push_name = questionName_ + "_push";
@@ -986,6 +990,8 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		//}
 		ostringstream &s(code.program_code);
 		// the code below should be extracted to a method: NxD 11-Jun-2010
+		SetupSimpleQuestionRestore(code);
+		/*
 		for(int i=0; i<activeVarInfo_.size(); ++i){
 			switch(activeVarInfo_[i]->type_){
 			case INT8_TYPE:
@@ -1020,6 +1026,7 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 				}
 			}
 		}
+		*/
 		code.program_code << "if ( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump=false;\n}\n";
 		code.program_code << "}" << endl;
 
@@ -1028,6 +1035,7 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		//	code.program_code << active_push_vars_for_this_question[i] << endl;
 		//}
 
+		/*
 		for(int i=0; i<activeVarInfo_.size(); ++i){
 			switch(activeVarInfo_[i]->type_){
 			case INT8_TYPE:
@@ -1056,6 +1064,8 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 				}
 			}
 		}
+		*/
+		SetupSimpleQuestionSave(code);
 	} else {
 		// Handle Array Question here
 
@@ -1340,4 +1350,252 @@ int GetTempMapKeyNumber()
 {
 	static int temp_map_key_number;
 	return temp_map_key_number++;
+}
+
+// ----------------------------------------
+void AbstractQuestion::SetupSimpleQuestionRestore(StatementCompiledCode & code)
+{
+	ostringstream &s(code.program_code);
+	s << "/* AbstractQuestion::SetupSimpleQuestionRestore */\n";
+	for(int i=0; i<activeVarInfo_.size(); ++i){
+		/*
+		switch(activeVarInfo_[i]->type_){
+		case INT8_TYPE:
+			s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int8_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+			break;
+		case INT16_TYPE:	
+			s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int16_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+			break;
+		case INT32_TYPE:	
+			s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_int32_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+			break;
+		case FLOAT_TYPE:
+			s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_float_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+			break;
+		case DOUBLE_TYPE:
+			s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_double_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
+			break;
+		case QUESTION_TYPE:
+			s << activeVarInfo_[i]->name_ << "->input_data=" << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"];" << endl;
+			break;
+		case QUESTION_ARR_TYPE:
+			s << activeVarInfo_[i]->name_  
+				<<  "_list.questionList["
+				<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+				<< "]"
+				<< "->input_data=" << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"];" << endl;
+			break;
+		default: {
+				string err_msg = "unhandled type in print_pop_stack\"";
+				s << err_msg;
+				print_err(compiler_sem_err, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		}
+		*/
+
+		switch(activeVarInfo_[i]->type_){
+		case INT8_TYPE:
+		case INT16_TYPE:	
+		case INT32_TYPE:	
+		case FLOAT_TYPE:
+		case DOUBLE_TYPE:
+		case QUESTION_TYPE:
+			s << GetRestoreVariableName(activeVarInfo_[i]) 
+				<< "=" 
+				<< GetRestoreVariableContainerName(activeVarInfo_[i], questionName_)
+				<< ";\n" ;
+			break;
+		case QUESTION_ARR_TYPE:
+			s << PrintRestoreArrayQuestion(activeVarInfo_[i], this);
+			break;
+		default:
+			string err_msg = "unhandled type in SetupSimpleQuestionRestore()";
+			s << err_msg;
+			print_err(compiler_internal_error, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	}
+}
+
+string GetRestoreVariableName(ActiveVariableInfo * av_info)
+{
+	ostringstream s;
+	switch(av_info->type_){
+	case INT8_TYPE:
+		s << av_info->name_ ;
+		break;
+	case INT16_TYPE:	
+		s << av_info->name_ ;
+		break;
+	case INT32_TYPE:	
+		s << av_info->name_ ;
+		break;
+	case FLOAT_TYPE:
+		s << av_info->name_ ;
+		break;
+	case DOUBLE_TYPE:
+		s << av_info->name_ ;
+		break;
+	case QUESTION_TYPE:
+		s << av_info->name_ << "->input_data";
+		break;
+	case QUESTION_ARR_TYPE:
+		s << av_info->name_  
+			<<  "_list.questionList["
+			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< "]"
+			<< "->input_data" ;
+		break;
+	default: {
+			string err_msg = "unhandled type in print_pop_stack\"";
+			s << err_msg;
+			print_err(compiler_sem_err, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	}
+	return s.str();
+}
+
+string GetRestoreVariableContainerName(ActiveVariableInfo * av_info, string & questionName_)
+{
+	ostringstream s;
+	switch(av_info->type_){
+	case INT8_TYPE:
+		s << questionName_ << "_scope_int8_t[\"" << av_info->name_ << "\"]" ;
+		break;
+	case INT16_TYPE:	
+		s << questionName_ << "_scope_int16_t[\"" << av_info->name_ << "\"]";
+		break;
+	case INT32_TYPE:	
+		s << questionName_ << "_scope_int32_t[\"" << av_info->name_ << "\"]";
+		break;
+	case FLOAT_TYPE:
+		s << questionName_ << "_scope_float_t[\"" << av_info->name_ << "\"]";
+		break;
+	case DOUBLE_TYPE:
+		s << questionName_ << "_scope_double_t[\"" << av_info->name_ << "\"]";
+		break;
+	case QUESTION_TYPE:
+		s << av_info->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"]" ;
+		break;
+		/*
+	case QUESTION_ARR_TYPE:
+		s << av_info->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"]" << endl;
+		break;
+		*/
+	default: {
+			string err_msg = "unhandled type in print_pop_stack";
+			s << err_msg;
+			print_err(compiler_sem_err, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	}
+	return s.str();
+}
+
+string PrintRestoreArrayQuestion(ActiveVariableInfo * av_info
+		, AbstractQuestion * quest_loc)
+{
+	ostringstream s;
+	s << "/* PrintRestoreArrayQuestion */\n";
+	AbstractQuestion * restore_array_quest = 0;
+	for(int i=0; i< qscript_parser::question_list.size(); ++i){
+		if( qscript_parser::question_list[i]->questionName_
+			== av_info->name_){
+			restore_array_quest=qscript_parser::question_list[i];
+			break;
+		}
+	}
+	if(restore_array_quest==0){
+		string err_msg = "Could not find " + av_info->name_ + " in question list while generating restore array code"
+			+ " PrintRestoreArrayQuestion ";
+		print_err(compiler_internal_error, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+	}
+	int quest_arr_sz = 1;
+	for(int i=0; i<restore_array_quest->for_bounds_stack.size(); ++i){
+		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
+				restore_array_quest->for_bounds_stack[i]);
+		if(bin_expr_ptr){
+			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+			Unary2Expression * arr_bounds = dynamic_cast<Unary2Expression*>
+				(rhs);
+			if(arr_bounds && arr_bounds->exprOperatorType_==oper_num){
+				quest_arr_sz *= arr_bounds->intSemanticValue_;
+			} else {
+				print_err(compiler_sem_err
+				, "invalid bounds for for-loop array question" 
+				, 0, __LINE__, __FILE__);
+			}
+		} else {
+			print_err(compiler_sem_err
+				, "for loop index condition is not a binary expression" 
+				, 0, __LINE__, __FILE__);
+		}
+	}
+	for(int i=0; i<quest_arr_sz; ++i){
+		s << restore_array_quest->questionName_ 
+			<< "_list.questionList[" << i
+			<< "]->input_data="
+			<< restore_array_quest->questionName_ 
+			<< "_scope_question_t[ \""
+			<< restore_array_quest->questionName_ << "_" 
+			<< i << "\"" << "];\n";
+	}
+
+	return s.str();
+
+}
+
+void AbstractQuestion::SetupSimpleQuestionSave(StatementCompiledCode &code)
+{
+	ostringstream &s(code.program_code);
+	s << "/* AbstractQuestion::SetupSimpleQuestionSave */\n";
+	for(int i=0; i<activeVarInfo_.size(); ++i){
+		/*
+		switch(activeVarInfo_[i]->type_){
+		case INT8_TYPE:
+			s << questionName_ << "_scope_int8_t[\"" << activeVarInfo_[i]->name_ << "\"]="<< activeVarInfo_[i]->name_ << ";" << endl;
+			break;
+		case INT16_TYPE:	
+			s << questionName_ << "_scope_int16_t[\"" << activeVarInfo_[i]->name_ << "\"]=" << activeVarInfo_[i]->name_ << ";" << endl;
+			break;
+		case INT32_TYPE:	
+			s << questionName_ << "_scope_int32_t[\"" << activeVarInfo_[i]->name_ << "\"]=" << activeVarInfo_[i]->name_  << ";"<< endl;
+			break;
+		case FLOAT_TYPE:
+			s << questionName_ << "_scope_float_t[\"" << activeVarInfo_[i]->name_ << "\"]=" << activeVarInfo_[i]->name_ << ";" << endl;
+			break;
+		case DOUBLE_TYPE:
+			s << questionName_ << "_scope_double_t[\"" << activeVarInfo_[i]->name_ << "\"]=" << activeVarInfo_[i]->name_ << ";" << endl;
+			break;
+		case QUESTION_TYPE:
+			//s << "// QUESTION_TYPE - will think of this later " << endl;
+			s << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"]=" << "" << activeVarInfo_[i]->name_ << "->input_data;" << endl;
+			break;
+		default: {
+				string err_msg = "unhandled type in print_pop_stack\"";
+				s << err_msg;
+				print_err(compiler_sem_err, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		}
+		*/
+		switch(activeVarInfo_[i]->type_){
+		case INT8_TYPE:
+		case INT16_TYPE:	
+		case INT32_TYPE:	
+		case FLOAT_TYPE:
+		case DOUBLE_TYPE:
+		case QUESTION_TYPE:
+			s << GetRestoreVariableContainerName(activeVarInfo_[i], questionName_)
+				<< "=" 
+				<< GetRestoreVariableName(activeVarInfo_[i])
+				<< ";\n"
+				;
+			break;
+		case QUESTION_ARR_TYPE:
+			s << PrintRestoreArrayQuestion(activeVarInfo_[i], this);
+			break;
+		default:
+			string err_msg = "unhandled type in SetupSimpleQuestionRestore()";
+			s << err_msg;
+			print_err(compiler_internal_error, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	}
 }
