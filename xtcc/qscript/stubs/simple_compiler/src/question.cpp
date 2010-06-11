@@ -985,6 +985,7 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		//	code.program_code << active_pop_vars_for_this_question[i] << endl;
 		//}
 		ostringstream &s(code.program_code);
+		// the code below should be extracted to a method: NxD 11-Jun-2010
 		for(int i=0; i<activeVarInfo_.size(); ++i){
 			switch(activeVarInfo_[i]->type_){
 			case INT8_TYPE:
@@ -1003,8 +1004,14 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 				s << activeVarInfo_[i]->name_ << "=" << questionName_ << "_scope_double_t[\"" << activeVarInfo_[i]->name_ << "\"];" << endl;
 				break;
 			case QUESTION_TYPE:
-				//s << "// QUESTION_TYPE - will think of this later " << endl;
-				s << "" << activeVarInfo_[i]->name_ << "->input_data=" << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"];" << endl;
+				s << activeVarInfo_[i]->name_ << "->input_data=" << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"];" << endl;
+				break;
+			case QUESTION_ARR_TYPE:
+				s << activeVarInfo_[i]->name_  
+					<<  "_list.questionList["
+					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+					<< "]"
+					<< "->input_data=" << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"];" << endl;
 				break;
 			default: {
 					string err_msg = "unhandled type in print_pop_stack\"";
@@ -1071,7 +1078,8 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		//}
 		//s << "if ( back_jump==true  && " << questionName_ <<  "->isAnswered_==true ) {\n" << endl;
 		ostringstream &s(code.program_code);
-		s << "if ( back_jump==true  && " << questionName_ <<  "_list.questionList["
+		s << "if ( back_jump==true  && " << questionName_ 
+			<<  "_list.questionList["
 			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
 			<< "]->isAnswered_==true ) {" << endl;
 		int temp_map_key_no=GetTempMapKeyNumber();
@@ -1107,6 +1115,20 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
 				<< ";\n";
 				s << "" << activeVarInfo_[i]->name_ << "->input_data=" << activeVarInfo_[i]->name_ 
+					<< "_scope_question_t"<<  "[" 
+					<< map_key.str() << ".str()"
+					<< "];" << endl;
+				break;
+			case QUESTION_ARR_TYPE:
+				s << map_key.str() << ".str(\"\");" << map_key.str() << ".clear();\n";
+				s << map_key.str() << "<< \"" << questionName_ << "\" << \"_\" << " 
+					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+				<< ";\n";
+				s << activeVarInfo_[i]->name_  
+					<<  "_list.questionList["
+					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+					<< "]"
+					<< "->input_data=" << activeVarInfo_[i]->name_ 
 					<< "_scope_question_t"<<  "[" 
 					<< map_key.str() << ".str()"
 					<< "];" << endl;
@@ -1152,8 +1174,21 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 				s << questionName_ << "_scope_double_t[" << map_key.str()  << ".str()"<< "]=" << activeVarInfo_[i]->name_ << ";" << endl;
 				break;
 			case QUESTION_TYPE:
-				//s << "// QUESTION_TYPE - will think of this later " << endl;
 				s << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"]=" << "" << activeVarInfo_[i]->name_ << "->input_data;" << endl;
+				break;
+			case QUESTION_ARR_TYPE:
+				s << map_key.str() << ".str(\"\");" << map_key.str() << ".clear();\n";
+				s << map_key.str() << "<< \"" << questionName_ << "\" << \"_\" << " 
+					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+				<< ";\n";
+				s << activeVarInfo_[i]->name_ << "_scope_question_t"<<  "[" 
+					<< map_key.str() << ".str()"
+					<< "]=" 
+					<< activeVarInfo_[i]->name_  
+					<<  "_list.questionList["
+					<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+					<< "]"
+					<< "->input_data;" << endl ; 
 				break;
 			default: {
 					string err_msg = "unhandled type in print_pop_stack\"";
