@@ -59,6 +59,7 @@ struct AbstractStatement
 	//virtual AbstractQuestion* IsAQuestionStatement();
 	virtual void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement);
+	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list);
 	private:
 		AbstractStatement& operator=(const AbstractStatement&);
 		AbstractStatement (const AbstractStatement&);
@@ -206,6 +207,7 @@ struct CompoundStatement: public AbstractStatement
 	int compoundStatementNumber_;
 	bool flagGeneratedQuestionDefinitions_;
 	vector<AbstractExpression*> for_bounds_stack;
+	vector<AbstractQuestion*> questionsInBlock_;
 	public:
 	CompoundStatement(DataType dtype, int lline_number
 			, int l_flag_cmpd_stmt_is_a_func_body 
@@ -225,6 +227,7 @@ struct CompoundStatement: public AbstractStatement
 		compoundBody_->GetQuestionNames(question_list,
 				endStatement);
 	}
+	void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list);
 	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
 	void GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code);
 	//static void Init();
@@ -251,6 +254,7 @@ struct ForStatement: public AbstractStatement
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list);
 	virtual ~ForStatement();
 	private:
 	ForStatement& operator=(const ForStatement&);	

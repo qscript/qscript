@@ -107,9 +107,6 @@ DataType convert_ref_type(DataType dt){
 string human_readable_type(DataType dt){
 	string s="UNKNOWN TYPE";
 	switch(dt){
-		case STRING_TYPE:
-			s="string";
-		break;
 		case VOID_TYPE:
 			s= "void";
 		break;	
@@ -160,8 +157,75 @@ string human_readable_type(DataType dt){
 		break;	
 		case QUESTION_TYPE:
 			s="QUESTION_TYPE";
+			break;
+		case QUESTION_ARR_TYPE:
+			s="QUESTION_ARR_TYPE";
+			break;
+		case BOOL_TYPE:
+			s="BOOL_TYPE";
+			break;
+		case  ERROR_TYPE:
+			s=" ERROR_TYPE";
+			break;
+		case TEXPR_STMT:
+			s="TEXPR_STMT";
+			break;
+		case  CMPD_STMT:
+			s="CMPD_STMT";
+			break;
+		case  IFE_STMT:
+			s="IFE_STMT";
+			break;
+		case  DECL_STMT:
+			s="DECL_STMT";
+			break;
+		case  FUNC_TYPE:
+			s="FUNC_TYPE";
+			break;
+		case  FUNC_DEFN:
+			s="FUNC_DEFN";
+			break;
+		case  FOR_STMT:
+			s="FOR_STMT";
+			break;
+		case BREAK_STMT:
+			s="BREAK_STMT";
+			break;
+		case  CONTINUE_STMT:
+			s="CONTINUE_STMT";
+			break;
+		case  RANGE_DECL_STMT:
+			s="RANGE_DECL_STMT";
+			break;
+		case STRING_TYPE:
+			s="STRING_TYPE";
+			break;
+		case  STRING_ARR_TYPE:
+			s="STRING_ARR_TYPE";
+			break;
+		case  NAMED_ATTRIBUTE_TYPE:
+			s="NAMED_ATTRIBUTE_TYPE";
+			break;
+		case  NAMED_RANGE:
+			s="NAMED_RANGE";
+			break;
+		case UNNAMED_RANGE:
+			s="UNNAMED_RANGE";
+			break;
+		case  STUB_MANIP_ADD:
+			s=" STUB_MANIP_ADD";
+			break;
+		case  STUB_MANIP_DEL:
+			s=" STUB_MANIP_DEL";
+			break;
+		case  STUB_MANIP_UNSET_ALL:
+			s=" STUB_MANIP_UNSET_ALL";
+			break;
+		case  STUB_MANIP_SET_ALL:
+			s=" STUB_MANIP_SET_ALL";
+			break;
 		default:
-		;
+			s="fix: human_readable_type: unhandled";
 	}
 	return s;
 }

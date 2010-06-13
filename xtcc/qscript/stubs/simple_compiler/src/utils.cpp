@@ -161,6 +161,9 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 		case compiler_internal_error:
 			cerr << "compiler internal error: " ;
 		break;	
+		case compiler_code_generation_error:
+			cerr << "compiler code generation error: " ;
+		break;	
 		default:
 			cerr << "internal compiler error - error code category missing in switch statement: compiler file: " 
 				<< __FILE__ << " compiler src code lineno: " << __LINE__ << endl;

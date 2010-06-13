@@ -26,6 +26,11 @@ using qscript_parser:: active_scope;
 //extern vector </*Statement::*/FunctionInformation*> func_info_table;
 using qscript_parser::func_info_table;
 int CompoundStatement::counter_;
+using qscript_parser::debug_log_file;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::stringstream;
 string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack);
 void InitStatement()
 {
@@ -45,12 +50,17 @@ void AbstractStatement::GetQuestionNames(vector<string> &question_list,
 	}
 }
 
+void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list)
+{
+	cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
+	cerr << human_readable_type(type_) << endl;
+	if(next_){
+		next_->GetQuestionsInBlock(question_list);
+	}
+	cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
+}
+
 //extern ofstream debug_log_file;
-using qscript_parser::debug_log_file;
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::stringstream;
 void read_data(const char * prompt);
 void ExpressionStatement::GenerateCode(StatementCompiledCode &code)
 {
@@ -326,6 +336,16 @@ CompoundStatement::CompoundStatement(DataType dtype, int lline_number
 	compoundStatementNumber_=CompoundStatement::counter_++;
 }
 
+
+void CompoundStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list)
+{
+	cerr << "ENTER: CompoundStatement::GetQuestionsInBlock" << endl;
+	if(compoundBody_){
+		compoundBody_->GetQuestionsInBlock(question_list);
+	}
+	cerr << "EXIT: CompoundStatement::GetQuestionsInBlock" << endl;
+}
+
 void CompoundStatement::GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code)
 {
 	for(int i=0; i< for_bounds_stack.size(); ++i){
@@ -471,8 +491,10 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		code.program_code << PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << ";\n";
 	}
-	if (compoundBody_) 
+	if (compoundBody_){ 
+		compoundBody_->GetQuestionsInBlock(questionsInBlock_);
 		compoundBody_->GenerateCode(code);
+	}
 	GenerateQuestionArrayInitLoopClose(code);
 	code.program_code << "}" << endl;
 	if(next_) 
@@ -566,6 +588,15 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 	forBody_->GenerateCode(code);
 	if(next_) 
 		next_->GenerateCode(code);
+}
+
+void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list)
+{
+	cerr << "ENTER: ForStatement::GetQuestionsInBlock" << endl;
+	if(forBody_){
+		forBody_->GetQuestionsInBlock(question_list);
+	}
+	cerr << "EXIT: ForStatement::GetQuestionsInBlock" << endl;
 }
 
 
