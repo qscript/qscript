@@ -1555,7 +1555,10 @@ string PrintSaveArrayQuestion(ActiveVariableInfo * av_info
 		, AbstractQuestion * quest_loc)
 {
 	ostringstream s;
-	s << "/* ENTER PrintSaveArrayQuestion */\n";
+	s << "/* ENTER PrintSaveArrayQuestion " 
+		<< av_info->name_ 
+		<< " at location: " << quest_loc->questionName_
+		<< "*/\n";
 	if (quest_loc->enclosingCompoundStatement_){
 		vector<AbstractQuestion*> & questions_in_block = 
 			quest_loc->enclosingCompoundStatement_->questionsInBlock_;
@@ -1635,6 +1638,15 @@ string PrintSaveArrayQuestion(ActiveVariableInfo * av_info
 			<< save_array_quest->questionName_ 
 			<< "*/"
 			<< endl;
+		s << "/*"
+			<< " find where my for_bounds_stack"
+			<< " and other question for_bounds_stack match"
+			<< " then from that point on in other question find bounds"
+			<< " and multiply with current consolidated_for_loop_index"
+			<< " and save all these to the question scope map"
+			<< endl;
+
+
 
 	} else if (IsAtADeeperNestLevelInTheSameBlock(quest_loc, save_array_quest)){
 		s << "/*" 
@@ -1643,6 +1655,19 @@ string PrintSaveArrayQuestion(ActiveVariableInfo * av_info
 			<< save_array_quest->questionName_ 
 			<< "*/"
 			<< endl;
+		s << "for (int xtcc_i=0; xtcc_i < "
+			<< PrintConsolidatedForLoopIndex(save_array_quest->for_bounds_stack)
+			<< "; ++xtcc_i){\n"
+			<< "ostringstream map_key;\n"
+			<< "map_key << \"" << quest_loc->questionName_ << "\"" 
+			<< " << " 
+			<< "\"_\" << xtcc_i << \"$\" << " << consolidated_for_loop_index_stack.back()
+			<< ";" << endl
+			<< save_array_quest->questionName_ << "_scope_question_t["
+			<< "map_key.str()" << "]="
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i];\n" 
+			<< endl;
+		s << "}\n";
 	} else {
 		print_err(compiler_code_generation_error
 		, "unhandled case in compiler ... exiting code generation" 
