@@ -50,12 +50,13 @@ void AbstractStatement::GetQuestionNames(vector<string> &question_list,
 	}
 }
 
-void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list)
+void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
+		AbstractStatement * stop_at)
 {
 	cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
 	cerr << human_readable_type(type_) << endl;
-	if(next_){
-		next_->GetQuestionsInBlock(question_list);
+	if(next_ && next_!=stop_at){
+		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
 	cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
 }
@@ -337,11 +338,15 @@ CompoundStatement::CompoundStatement(DataType dtype, int lline_number
 }
 
 
-void CompoundStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list)
+void CompoundStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
+		AbstractStatement * stop_at)
 {
 	cerr << "ENTER: CompoundStatement::GetQuestionsInBlock" << endl;
 	if(compoundBody_){
-		compoundBody_->GetQuestionsInBlock(question_list);
+		compoundBody_->GetQuestionsInBlock(question_list, stop_at);
+	}
+	if(next_ && next_!=stop_at){
+		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
 	cerr << "EXIT: CompoundStatement::GetQuestionsInBlock" << endl;
 }
@@ -492,7 +497,7 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		code.program_code << ";\n";
 	}
 	if (compoundBody_){ 
-		compoundBody_->GetQuestionsInBlock(questionsInBlock_);
+		compoundBody_->GetQuestionsInBlock(questionsInBlock_, this);
 		compoundBody_->GenerateCode(code);
 	}
 	GenerateQuestionArrayInitLoopClose(code);
@@ -590,11 +595,15 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 		next_->GenerateCode(code);
 }
 
-void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list)
+void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
+		AbstractStatement * stop_at)
 {
 	cerr << "ENTER: ForStatement::GetQuestionsInBlock" << endl;
 	if(forBody_){
-		forBody_->GetQuestionsInBlock(question_list);
+		forBody_->GetQuestionsInBlock(question_list, stop_at);
+	}
+	if(next_ && next_!=stop_at){
+		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
 	cerr << "EXIT: ForStatement::GetQuestionsInBlock" << endl;
 }

@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <algorithm>
 
 #include "question.h"
 #include "named_range.h"
@@ -1863,8 +1864,8 @@ void AbstractQuestion::PrintSaveMyPreviousIterationsData(StatementCompiledCode &
 void AbstractQuestion::SetupArrayQuestionSave(StatementCompiledCode &code)
 {
 	ostringstream &s(code.program_code);
-	s << "/* AbstractQuestion::SetupArrayQuestionSave */\n";
-	PrintSaveMyPreviousIterationsData(code); 
+	s << "/* ENTER AbstractQuestion::SetupArrayQuestionSave */\n";
+	PrintSaveMyPreviousIterationsData(code);
 	/*
 		int temp_map_key_no=GetTempMapKeyNumber();
 		s << "ostringstream map_key_" << temp_map_key_no << ";\n";
@@ -1947,6 +1948,8 @@ void AbstractQuestion::SetupArrayQuestionSave(StatementCompiledCode &code)
 			print_err(compiler_internal_error, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
 		}
 	}
+	SaveQuestionsInMyBlockThatAreAfterMe(code);
+	s << "/* EXIT AbstractQuestion::SetupArrayQuestionSave */\n";
 }
 
 string GetRestoreVariableContainerNameArray(ActiveVariableInfo * av_info, string & questionName_, string map_key)
@@ -2022,4 +2025,100 @@ bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion *
 	cerr << "q2->QuestionIsInMyBlock(q1):" << q2->QuestionIsInMyBlock(q1)
 		<< endl;
 	return (!q1->QuestionIsInMyBlock(q2)) && (q2->QuestionIsInMyBlock(q1));
+}
+
+
+void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code)
+{
+	ostringstream &s(code.program_code);
+	s << "/* ENTER AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe */" << endl;
+	vector<AbstractQuestion*> & questions_in_block= enclosingCompoundStatement_->questionsInBlock_;
+	cerr << "/* questions in my block ("
+		<< questionName_ << "):";
+	for(int i=0; i<questions_in_block.size(); ++i){
+		cerr << questions_in_block[i]->questionName_ << ",";
+	}
+	cerr << endl;
+	vector<AbstractQuestion*>::iterator my_loc = 
+		find(questions_in_block.begin(), questions_in_block.end(), this); 
+	if(my_loc==questions_in_block.end()){
+		ostringstream err_msg;
+		err_msg << "unable to find self in block ... exiting\n";
+		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		exit(1);
+	}
+	if(my_loc+1==questions_in_block.end()){
+		s << "/* I=" << questionName_ << " is the last question in in block "
+			<< " nothing to do */"<< endl;
+	} else {
+		for( vector<AbstractQuestion*>::iterator it = my_loc+1;
+				it!=questions_in_block.end(); ++it){
+			AbstractQuestion *quest_loc=this, *save_array_quest=*it;
+
+			if(IsInTheSameScopeAndLevel(quest_loc, save_array_quest)){
+				s << "/*" 
+					<< quest_loc->questionName_ << " and "
+					<< save_array_quest->questionName_ 
+					<< " :are at the same scope and level */"
+					<< endl;
+			} else if (NotInTheSameBlock(quest_loc, save_array_quest)){
+				s << "/*" 
+					<< quest_loc->questionName_ << " and "
+					<< save_array_quest->questionName_ 
+					<< " :belong to different blocks "
+					<< "*/"
+					<< endl;
+			} else if (IsAtAHigherNestLevelInTheSameBlock(quest_loc, save_array_quest)){
+				s << "/*" 
+					<< quest_loc->questionName_ 
+					<< " is at a higher nest level than "
+					<< save_array_quest->questionName_ 
+					<< "*/"
+					<< endl;
+
+			} else if (IsAtADeeperNestLevelInTheSameBlock(quest_loc, save_array_quest)){
+				s << "/*" 
+					<< quest_loc->questionName_ 
+					<< " is at a deeper nest level than "
+					<< save_array_quest->questionName_ 
+					<< "*/"
+					<< endl;
+			} else {
+				print_err(compiler_code_generation_error
+				, "unhandled case in compiler ... exiting code generation" 
+				, 0, __LINE__, __FILE__);
+				cerr << "quest_loc->questionName_:" 
+					<< quest_loc->questionName_
+					<< ", save_array_quest->questionName_" 
+					<< save_array_quest->questionName_ 
+					<< endl;
+				{
+					vector<AbstractQuestion*> & questions_in_block = 
+						quest_loc->enclosingCompoundStatement_->questionsInBlock_;
+					cerr << "/* questionsInBlock_: quest_loc "
+						<< quest_loc->questionName_ << ":";
+					for(int i=0; i<questions_in_block.size(); ++i){
+						cerr << questions_in_block[i]->questionName_ << " ";
+					}
+					cerr << " */\n"; 
+				}
+				{
+					vector<AbstractQuestion*> & questions_in_block = 
+						save_array_quest->enclosingCompoundStatement_->questionsInBlock_;
+					cerr << "/* questionsInBlock_: save_array_quest "
+						<< save_array_quest->questionName_ << ":";
+					for(int i=0; i<questions_in_block.size(); ++i){
+						cerr << questions_in_block[i]->questionName_ << " ";
+					}
+					cerr << " */\n"; 
+				}
+				
+				exit(1);
+			}
+		}
+	}
+
+
+
+	s << "/* EXIT AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe */" << endl;
 }

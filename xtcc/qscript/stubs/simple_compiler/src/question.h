@@ -79,12 +79,13 @@ struct AbstractQuestion: public AbstractStatement
 	//virtual AbstractQuestion * IsAQuestionStatement()=0;
 	virtual void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement)=0;
-	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list)
+	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
+			AbstractStatement * stop_at)
 	{
 		std::cerr << "ENTER AbstractQuestion::GetQuestionsInBlock()" << std::endl;
 		question_list.push_back(this);
-		if(next_){
-			next_->GetQuestionsInBlock(question_list);
+		if(next_ && next_!=stop_at){
+			next_->GetQuestionsInBlock(question_list, stop_at);
 		}
 		std::cerr << "EXIT AbstractQuestion::GetQuestionsInBlock()" << std::endl;
 	}
@@ -98,6 +99,7 @@ struct AbstractQuestion: public AbstractStatement
 	friend bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
 	friend bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
 	bool QuestionIsInMyBlock(AbstractQuestion *q);
+	void SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
