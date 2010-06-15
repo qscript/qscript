@@ -10,6 +10,7 @@ namespace qscript_parser {
 	using std::endl;
 	using std::stringstream;
 	vector<AbstractExpression*> for_loop_max_counter_stack;
+	vector<CompoundStatement*> compound_body_stack;
 	Scope* active_scope;
 	vector <Scope*> active_scope_list;
 	int nest_lev=0;

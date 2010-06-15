@@ -25,6 +25,7 @@ using std::vector;
 namespace qscript_parser {
 	//! This is a pointer to the most active Scope on the active_scope_list stack
 	extern vector<AbstractExpression*> for_loop_max_counter_stack;
+	//extern vector<CompoundStatement*> compound_body_stack;
 	extern Scope* active_scope;
 	//! maintains the Scope levels in the files being parsed. The active_scope_list is treated like a stack
 	extern vector <Scope*> active_scope_list;

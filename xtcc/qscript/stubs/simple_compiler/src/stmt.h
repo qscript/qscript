@@ -213,6 +213,7 @@ struct CompoundStatement: public AbstractStatement
 	bool flagGeneratedQuestionDefinitions_;
 	vector<AbstractExpression*> for_bounds_stack;
 	vector<AbstractQuestion*> questionsInBlock_;
+	vector<CompoundStatement*> nestedCompoundStatementStack_;
 	public:
 	CompoundStatement(DataType dtype, int lline_number
 			, int l_flag_cmpd_stmt_is_a_func_body 

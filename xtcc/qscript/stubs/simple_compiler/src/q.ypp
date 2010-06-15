@@ -309,6 +309,8 @@ cmpd_stmt: open_curly stmt_list '}' {
 
 open_curly:	'{' {
 		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
+		//qscript_parser::compound_body_stack.push_back(cmpdStmt);
+		//cmpdStmt->nestedCompoundStatementStack_=qscript_parser::compound_body_stack;
 		$$=cmpdStmt;
 	}
 	;
@@ -822,6 +824,7 @@ CompoundStatement* ProcessOpenCurly()
 			line_no, flagIsAFunctionBody_,
 			flagIsAForBody_, for_loop_max_counter_stack);
 	stack_cmpd_stmt.push_back(cmpdStmt);
+	cmpdStmt->nestedCompoundStatementStack_=stack_cmpd_stmt;
 	void *ptr=cmpdStmt;
 	mem_addr_tab m1(ptr, line_no, __FILE__, __LINE__);
 	mem_addr.push_back(m1);

@@ -398,7 +398,8 @@ void CompoundStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question
 
 void CompoundStatement::GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code)
 {
-	for(int i=0; i< for_bounds_stack.size(); ++i){
+	code.array_quest_init_area << "/* ENTER CompoundStatement::GenerateQuestionArrayInitLoopOpen */\n";
+	for(int i=for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
 		code.array_quest_init_area << "for(int ";
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 		if(bin_expr_ptr){
@@ -433,11 +434,12 @@ void CompoundStatement::GenerateQuestionArrayInitLoopOpen(StatementCompiledCode 
 				, 0, __LINE__, __FILE__);
 		}
 	}
+	code.array_quest_init_area << "/* EXIT CompoundStatement::GenerateQuestionArrayInitLoopOpen */\n";
 }
 
 void CompoundStatement::GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code)
 {
-	for(int i=0; i< for_bounds_stack.size(); ++i){
+	for(int i=for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
 		code.array_quest_init_area << "stack_of_loop_indices.pop_back();\n";
 		code.array_quest_init_area << "}" << endl;
 	}
