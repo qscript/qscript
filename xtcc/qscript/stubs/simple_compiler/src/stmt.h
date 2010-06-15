@@ -48,6 +48,10 @@ struct AbstractStatement
 	AbstractStatement(DataType l_type, int l_line_no): 
 		prev_(0), next_(0), type_(l_type), lineNo_(l_line_no) 
 	{}
+	//! GenerateConsolidatedForLoopIndexes() - has to be called before GenerateCode
+	//! sets up the loop indices in various compound bodies for later use
+	//! by GenerateCode
+	virtual void GenerateConsolidatedForLoopIndexes();
 	//! GenerateCode(): Pure virtual functions takes 2 streams as parameters.
 	//! Compiler generated code is written to both the streams.
 	//! The code to the quest_defns stream appears before code written to  
@@ -215,6 +219,7 @@ struct CompoundStatement: public AbstractStatement
 			, int l_flag_cmpd_stmt_is_a_for_body
 			, vector<AbstractExpression*>& l_for_bounds_stack
 			);
+	vector<string> ConsolidatedForLoopIndexStack_;
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
@@ -232,6 +237,7 @@ struct CompoundStatement: public AbstractStatement
 			AbstractStatement * stop_at);
 	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
 	void GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code);
+	void GenerateConsolidatedForLoopIndexes();
 	//static void Init();
 	private:
 	CompoundStatement& operator=(const CompoundStatement&);	
@@ -253,6 +259,7 @@ struct ForStatement: public AbstractStatement
 			, AbstractExpression* l_test 
 			, AbstractExpression* l_incr
 			, CompoundStatement * lfor_body);
+	void GenerateConsolidatedForLoopIndexes();
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
@@ -278,6 +285,7 @@ struct IfStatement : public AbstractStatement
 			, AbstractStatement * lelse_body=0);
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
+	void GenerateConsolidatedForLoopIndexes();
 	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~IfStatement();
 	void GetQuestionNames(vector<string> & question_list,

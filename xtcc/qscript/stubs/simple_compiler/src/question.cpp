@@ -35,7 +35,9 @@ int GetTempMapKeyNumber();
 string GetRestoreVariableName(ActiveVariableInfo * av_info);
 string PrintRestoreArrayQuestion(ActiveVariableInfo * av_info, AbstractQuestion * quest_loc);
 string GetRestoreVariableContainerName(ActiveVariableInfo * av_info, string & questionName_);
-string GetRestoreVariableContainerNameArray(ActiveVariableInfo * av_info, string & questionName_, string map_key);
+string GetRestoreVariableContainerNameArray(ActiveVariableInfo * av_info
+		, string & questionName_, string map_key);
+extern vector<string> consolidated_for_loop_index_stack;
 
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
@@ -131,7 +133,8 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "->eval();\n" ;
 	// hard coded for now
 	program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
-		AbstractQuestion * target_question = ComputePreviousQuestion(" << questionName_.c_str() << ");\n\
+		AbstractQuestion * target_question = ComputePreviousQuestion(" 
+		<< questionName_.c_str() << ");\n\
 		if(target_question==0)\n\
 		goto label_eval_" << questionName_.c_str() << ";\n\
 		else {\n\
@@ -1092,7 +1095,8 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		ostringstream &s(code.program_code);
 		s << "if ( back_jump==true  && " << questionName_ 
 			<<  "_list.questionList["
-			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]->isAnswered_==true ) {" << endl;
 		/*
 		int temp_map_key_no=GetTempMapKeyNumber();
@@ -1158,7 +1162,8 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		SetupArrayQuestionRestore(code);
 		s << "if ( jumpToQuestion == \"" << questionName_ 
 			<< "\" && jumpToIndex==" 
-			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "){\n" 
 			<< "back_jump=false;\n" 
 			<< "jumpToIndex=-1;\n"
@@ -1219,7 +1224,6 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 }
 
 
-extern vector<string> consolidated_for_loop_index_stack;
 void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 {
 	// ----------------------------------
@@ -1287,7 +1291,8 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	code.program_code << "]->isAnswered_||stopAtNextQuestion||\n" 
 		<< "(jumpToQuestion == \"" << questionName_ << "\""
 		<< " && " << "jumpToIndex ==  " 
-		<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+		//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< ") ) {\n";
 	//code.program_code << "\n*/\n";
 		// ---------------------------
@@ -1312,7 +1317,8 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	code.program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
 		AbstractQuestion * target_question = ComputePreviousQuestion(" 
 			<< questionName_.c_str()  << "_list.questionList[" 
-			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]"
 			<< ");\n\
 		if(target_question==0)\n\
@@ -1328,7 +1334,8 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		user_navigation=NOT_SET;\n}\n";
 	code.program_code << " else { " << endl
 		<< "last_question_answered = " << questionName_ << "_list.questionList["
-		<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+		//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< "]" << ";\n"
 		<< "}\n"
 		<< "}\n";
@@ -1447,11 +1454,15 @@ string GetRestoreVariableName(ActiveVariableInfo * av_info)
 		s << av_info->name_ << "->input_data";
 		break;
 	case QUESTION_ARR_TYPE:
+		/*
 		s << av_info->name_  
 			<<  "_list.questionList["
-			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]"
 			<< "->input_data" ;
+			*/
+		s << "/* GetRestoreVariableName::QUESTION_ARR_TYPE not yet handled */\n";
 		break;
 	default: {
 			string err_msg = "unhandled type in print_pop_stack\"";
@@ -1679,7 +1690,9 @@ string PrintSaveArrayQuestion(ActiveVariableInfo * av_info
 			<< "ostringstream map_key;\n"
 			<< "map_key << \"" << quest_loc->questionName_ << "\"" 
 			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " << consolidated_for_loop_index_stack.back()
+			<< "\"_\" << xtcc_i << \"$\" << " 
+			//<< consolidated_for_loop_index_stack.back()
+			<< quest_loc->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "]="
@@ -1699,7 +1712,8 @@ string PrintSaveArrayQuestion(ActiveVariableInfo * av_info
 			<< "ostringstream map_key;\n"
 			<< "map_key << \"" << quest_loc->questionName_ << "\"" 
 			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " << consolidated_for_loop_index_stack.back()
+			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< save_array_quest->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "]="
@@ -1870,7 +1884,8 @@ void AbstractQuestion::SetupArrayQuestionRestore(StatementCompiledCode &code)
 		ostringstream map_key;
 		map_key<< "map_key_" << temp_map_key_no ;
 		s << map_key.str() << "<< \"" << activeVarInfo_[i]->name_ << "\" << \"_\" << " 
-			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";\n";
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
@@ -1902,13 +1917,15 @@ void AbstractQuestion::PrintSaveMyPreviousIterationsData(StatementCompiledCode &
 	ostringstream &s(code.program_code);
 	s << "/* ENTER:AbstractQuestion::PrintSaveMyPreviousIterationsData */" << endl;
 	s << "for(int xtcc_i=0; xtcc_i<" 
-		<< consolidated_for_loop_index_stack.back() << "-1"
+		//<< consolidated_for_loop_index_stack.back() << "-1"
+		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 		<< ";++xtcc_i){\n";
 	s << "ostringstream temp_map_key1, temp_map_key2;\n";
 	s << "temp_map_key1 << " << questionName_ << " << \"_\" << " 
 		<< "xtcc_i" 
 		<< " << \"$\" << " 
-		<< consolidated_for_loop_index_stack.back() 
+		//<< consolidated_for_loop_index_stack.back() 
+		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 		<< ";\n"
 		<< endl;
 	s << "temp_map_key2 << " << questionName_ << " << \"_\" << " 
@@ -1985,7 +2002,8 @@ void AbstractQuestion::SetupArrayQuestionSave(StatementCompiledCode &code)
 		ostringstream map_key;
 		map_key<< "map_key_" << temp_map_key_no ;
 		s << map_key.str() << "<< \"" << activeVarInfo_[i]->name_ << "\" << \"_\" << " 
-			<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 			<< ";\n";
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:

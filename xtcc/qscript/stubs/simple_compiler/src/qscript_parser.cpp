@@ -87,7 +87,9 @@ void print_array_question_class(FILE* script);
 void print_close(FILE* script, ostringstream & program_code);
 void print_navigation_support_functions(FILE * script);
 void print_reset_questionnaire(FILE * script);
-void GenerateCode(){
+
+void GenerateCode()
+{
 	string script_name("test_script.C");
 	FILE * script = fopen(script_name.c_str(), "w");
 	if(!script){
@@ -98,6 +100,7 @@ void GenerateCode(){
 	StatementCompiledCode code;
 
 	print_header(script);
+	tree_root->GenerateConsolidatedForLoopIndexes();
 	tree_root->GenerateCode(code);
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());

@@ -61,6 +61,15 @@ void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question
 	cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
 }
 
+void AbstractStatement::GenerateConsolidatedForLoopIndexes()
+{
+	cout << "ENTER AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	if(next_){
+		next_->GenerateConsolidatedForLoopIndexes();
+	}
+	cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+}
+
 //extern ofstream debug_log_file;
 void read_data(const char * prompt);
 void ExpressionStatement::GenerateCode(StatementCompiledCode &code)
@@ -294,6 +303,20 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	cerr << "EXIT: IfStatement::GenerateCode()" << endl;
 }
 
+void IfStatement::GenerateConsolidatedForLoopIndexes()
+{
+	cout << "ENTER IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	if(ifBody_){
+		ifBody_->GenerateConsolidatedForLoopIndexes();
+	} 
+	if(elseBody_){
+		elseBody_->GenerateConsolidatedForLoopIndexes();
+	}
+	if(next_){
+		next_->GenerateConsolidatedForLoopIndexes();
+	}
+	cout << "EXIT IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+}
 
 
 IfStatement:: ~IfStatement()
@@ -337,6 +360,28 @@ CompoundStatement::CompoundStatement(DataType dtype, int lline_number
 	compoundStatementNumber_=CompoundStatement::counter_++;
 }
 
+void CompoundStatement::GenerateConsolidatedForLoopIndexes()
+{
+	cout << "ENTER CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	if( flagIsAForBody_ && counterContainsQuestions_){
+		ostringstream consolidated_loop_counter;
+		consolidated_loop_counter << "consolidated_for_loop_index_" << compoundStatementNumber_;
+		cout << "generated " << consolidated_loop_counter.str() << endl;
+		consolidated_for_loop_index_stack.push_back(consolidated_loop_counter.str());
+	}
+	ConsolidatedForLoopIndexStack_ = consolidated_for_loop_index_stack;
+	if(compoundBody_){
+		compoundBody_->GenerateConsolidatedForLoopIndexes();
+	}
+	if(flagIsAForBody_ && counterContainsQuestions_){
+		cout << "popping off " << consolidated_for_loop_index_stack.back() << endl;
+		consolidated_for_loop_index_stack.pop_back();
+	}
+	cout << "EXIT CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	if(next_){
+		next_->GenerateConsolidatedForLoopIndexes();
+	}
+}
 
 void CompoundStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
 		AbstractStatement * stop_at)
@@ -488,10 +533,7 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	code.program_code << "{" << endl;
 	if( flagIsAForBody_ && counterContainsQuestions_){
-		ostringstream consolidated_loop_counter;
-		consolidated_loop_counter << "consolidated_for_loop_index_" << compoundStatementNumber_;
-		consolidated_for_loop_index_stack.push_back(consolidated_loop_counter.str());
-		code.program_code << "int " << consolidated_loop_counter.str()
+		code.program_code << "int " << ConsolidatedForLoopIndexStack_.back()
 			<< "=";
 		code.program_code << PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << ";\n";
@@ -593,6 +635,18 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 	forBody_->GenerateCode(code);
 	if(next_) 
 		next_->GenerateCode(code);
+}
+
+void ForStatement::GenerateConsolidatedForLoopIndexes()
+{
+	cout << "ENTER AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	if(forBody_){
+		forBody_->GenerateConsolidatedForLoopIndexes();
+	}
+	if(next_){
+		next_->GenerateConsolidatedForLoopIndexes();
+	}
+	cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 }
 
 void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
