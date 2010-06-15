@@ -1639,15 +1639,53 @@ string PrintSaveArrayQuestion(ActiveVariableInfo * av_info
 			<< "*/"
 			<< endl;
 		s << "/*"
-			<< " find where my for_bounds_stack"
-			<< " and other question for_bounds_stack match"
-			<< " then from that point on in other question find bounds"
-			<< " and multiply with current consolidated_for_loop_index"
-			<< " and save all these to the question scope map"
+			<< " find where my for_bounds_stack\n"
+			<< " and other question for_bounds_stack match\n"
+			<< " then from that point on in other question find bounds\n"
+			<< " and multiply with current consolidated_for_loop_index\n"
+			<< " and save all these to the question scope map\n"
+			<< "*/\n"
 			<< endl;
-
-
-
+		s << "for(xtcc_i=0; xtcc_i<";
+		vector <AbstractExpression * > e_stack;
+		int i1=0;
+		for(i1=0; i1<save_array_quest->for_bounds_stack.size()
+				&& save_array_quest->for_bounds_stack[i1]
+					== quest_loc->for_bounds_stack[i1]
+				; ++i1){
+			e_stack.push_back(save_array_quest->for_bounds_stack[i1]);
+		}
+		s << PrintConsolidatedForLoopIndex(e_stack) 
+			<< "*";
+		for(; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
+					save_array_quest->for_bounds_stack[i1]);
+			if(bin_expr_ptr){
+				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				ExpressionCompiledCode expr_code;
+				rhs->PrintExpressionCode(expr_code); 
+				s << expr_code.code_bef_expr.str() /* should be empty */
+					<< expr_code.code_expr.str();
+				if(i1<save_array_quest->for_bounds_stack.size()-1) {
+					s << "*";
+				}
+			} else {
+				print_err(compiler_code_generation_error
+					, "for loop index condition is not a binary expression" 
+					, 0, __LINE__, __FILE__);
+			}
+		}
+		s << ";++xtcc_i){\n"
+			<< "ostringstream map_key;\n"
+			<< "map_key << \"" << quest_loc->questionName_ << "\"" 
+			<< " << " 
+			<< "\"_\" << xtcc_i << \"$\" << " << consolidated_for_loop_index_stack.back()
+			<< ";" << endl
+			<< save_array_quest->questionName_ << "_scope_question_t["
+			<< "map_key.str()" << "]="
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i];\n" 
+			<< endl;
+		s << "}\n";
 	} else if (IsAtADeeperNestLevelInTheSameBlock(quest_loc, save_array_quest)){
 		s << "/*" 
 			<< quest_loc->questionName_ 
