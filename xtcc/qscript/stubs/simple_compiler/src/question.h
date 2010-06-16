@@ -94,7 +94,9 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
 	virtual void PrintQuestionArrayInitialisation(StatementCompiledCode & code);
 	string PrintSaveArrayQuestion(ActiveVariableInfo * av_info);
+	string PrintRestoreArrayQuestion(ActiveVariableInfo * av_info);
 	void PrintSaveMyPreviousIterationsData(StatementCompiledCode &code);
+	void PrintRestoreMyPreviousIterationsData(StatementCompiledCode &code);
 	friend bool IsInTheSameScopeAndLevel(AbstractQuestion *q1, AbstractQuestion * q2);
 	friend bool NotInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
 	friend bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
