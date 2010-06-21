@@ -103,6 +103,7 @@ struct AbstractQuestion: public AbstractStatement
 	friend bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
 	bool QuestionIsInMyBlock(AbstractQuestion *q);
 	void SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
+	void RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
