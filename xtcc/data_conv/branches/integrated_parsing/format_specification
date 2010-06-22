@@ -1,43 +1,45 @@
-	string			= 1*<char>
-	digit			= <'0'-'9'>
-	int				= 1*digit
-	signed-int		= ['-'] int
-	real			= signed-int ['.' int] ['e' signed-int]
-	# real contains signed-int; signed-int contains int
+; data converter input & output specification in ABNF notation
+	NULL			= %x00
+	BYTE			= %x00-FF
+	string			= 1*CHAR
+	int				= 1*DIGIT
+	signed-int		= ["-"] int
+	real			= signed-int ["." int] ["e" signed-int]
+	; real contains signed-int; signed-int contains int
 	
-### input file *.dat {input} 
+; input file *.dat {input} 
 	
-	single-answer	= real
+	input			= *answer
+	answer			= question-name ":" single-answer LF
 	question-name	= string
-	answer			= question-name ':' *single-answer '\n'
-	input			= *answer <EOF>
-
-### output file *.out {output}
+	single-answer	= real SP
 	
+
+; output file *.out {output}
+	
+	output			= header stubinfo record-map data
+	
+	header			= signature LF version LF char-sample LF short-sample LF long-sample LF float-sample LF double-sample LF
 	signature		= "xtcc"
 	version			= "0.0.0.0"
-	char-sample 	= "xtcc"
-	short-sample 	= <short 0x4142>
-	long-sample 	= <long 0x43444546>
-	float-sample	= <float 3297809.75>
-	double-sample	= <double 7.10524632318153195520e20>
-	header			= signature '\n' version '\n' char-sample '\n' short-sample '\n' long-sample '\n'
-					  float-sample '\n' double-sample '\n'
+	char-sample 	= 4BYTE ; "xtcc"
+	short-sample 	= 2BYTE ; short 0x4142
+	long-sample 	= 4BYTE ; long 0x43444546
+	float-sample	= 4BYTE ; float 3297809.75
+	double-sample	= 8BYTE ; double 7.10524632318153195520e20
 	
-	range-value		= ' ' int ' ' <"> string <">
+	stubinfo		= "STUBINFORMATION" LF *range "ENDSTUBINFORMATION" LF
+	range			= range-name " =" *range-value LF
 	range-name		= string
-	range			= range-name " =" *range-value '\n'
-	stubinfo		= "STUBINFORMATION\n" *range "ENDSTUBINFORMATION\n"
+	range-value		= SP int SP DQUOTE string DQUOTE
 	
-	type			= "INT8" | "INT16" | "INT32" | "FLOAT" | "DOUBLE"
+	record-map		= *question NULL
+	question		= question-name SP type SP first-byte SP last-byte SP [range-name] LF
 	question-name	= string
+	type			= "INT8" \ "INT16" \ "INT32" \ "FLOAT" \ "DOUBLE"
 	first-byte		= int
 	last-byte		= int
-	question		= question-name ' ' type ' ' first-byte ' ' last-byte '\n'
-	record-map		= *question '\0'
 	
-	record			= <size of record><char>
 	data			= *record
+	record			= <size of record>BYTE
 	
-	output			= header stubinfo record-map data <EOF>
-

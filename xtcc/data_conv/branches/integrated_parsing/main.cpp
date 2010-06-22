@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 		RecordMap rec_map(*AbstractFormat::get(argv[1]),argv[2]);
 		
 		//gather aswers from the data files and save answer to the output file
-		std::ofstream of; of.exceptions(exc_flags); of.open(argv[4]);
+		std::ofstream of; of.exceptions(exc_flags); of.open(argv[4],std::ios::out|std::ios::binary);
 		rec_map.write_header(of); rec_map.write_stubinfo(of); rec_map.write_filemap(of);
 		for(boost::filesystem::directory_iterator it(argv[3]),end; it!=end; ++it)
 		{

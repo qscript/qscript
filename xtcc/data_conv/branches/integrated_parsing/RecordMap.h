@@ -63,7 +63,10 @@ class RecordMap
 			std::string name,tag; AbstractType *type; int byte_pos;
 			
 			friend std::ostream & operator<<(std::ostream &os, Field &f)
-			{ return os << f.name << " " << f.type->token << " " << f.byte_pos << " " << f.byte_pos+f.type->size()-1 << f.tag; }
+			{
+				return os << f.name << ' ' << f.type->token << ' ' << f.byte_pos << ' '
+					<< f.byte_pos+f.type->size()-1 << ' ' << f.tag;
+			}
 		};
 	
 		std::vector<Field> fields;
