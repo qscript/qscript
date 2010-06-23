@@ -1292,9 +1292,10 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< ") ) {\n";
+	code.program_code << "label_eval_" << questionName_ << ":\n";
 	//code.program_code << "\n*/\n";
 		// ---------------------------
-	code.program_code << "\t\t" << questionName_.c_str() << "_list.questionList[";
+	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
 	/*
 	for(unsigned int i=0; i<for_bounds_stack.size(); ++i) {
 		//code.program_code << string_stream_vec[i].str();
@@ -1589,9 +1590,10 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			<< "\"_\" << xtcc_i << \"$\" << " 
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
-			<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]=" 
+			<< restore_array_quest->questionName_ 
+			<< "_list.questionList[xtcc_i]->input_data=" 
 			<< restore_array_quest->questionName_ << "_scope_question_t["
-			<< "map_key.str()" << "]\n"
+			<< "map_key.str()" << "];\n"
 			<< endl;
 		s << "}\n";
 
@@ -1630,7 +1632,8 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			//<< consolidated_for_loop_index_stack.back()
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
-			<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]=" 
+			<< restore_array_quest->questionName_ 
+			<< "_list.questionList[xtcc_i]->input_data=" 
 			<< restore_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "];\n"
 			<< endl;
@@ -1687,7 +1690,8 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			//<< consolidated_for_loop_index_stack.back()
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
-			<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]=" 
+			<< restore_array_quest->questionName_ 
+			<< "_list.questionList[xtcc_i]->input_data=" 
 			<< restore_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "];\n"
 			<< endl;
@@ -1708,7 +1712,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			<< "\"_\" << xtcc_i << \"$\" << " 
 			<< restore_array_quest->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
-			<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]=" 
+			<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data=" 
 			<< restore_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "];\n"
 			<< endl;
@@ -1836,7 +1840,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "]="
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i];\n" 
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n" 
 			<< endl;
 		s << "}\n";
 
@@ -1876,7 +1880,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "]="
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i];\n" 
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n" 
 			<< endl;
 		s << "}\n";
 	} else if (IsAtAHigherNestLevelInTheSameBlock(this, save_array_quest)){
@@ -1933,7 +1937,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "]="
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i];\n" 
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n" 
 			<< endl;
 		s << "}\n";
 	} else if (IsAtADeeperNestLevelInTheSameBlock(this, save_array_quest)){
@@ -1954,7 +1958,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "]="
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i];\n" 
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n" 
 			<< endl;
 		s << "}\n";
 	} else {
@@ -2126,6 +2130,9 @@ void AbstractQuestion::SetupArrayQuestionRestore(StatementCompiledCode &code)
 		case FLOAT_TYPE:
 		case DOUBLE_TYPE:
 		case QUESTION_TYPE:{
+
+			s << "/* here */\n";
+				
 			ostringstream map_key;
 			map_key<< "map_key_" << temp_map_key_no ;
 			s << map_key.str() << "<< \"" << activeVarInfo_[i]->name_ << "\" << \"_\" << " 
@@ -2136,6 +2143,7 @@ void AbstractQuestion::SetupArrayQuestionRestore(StatementCompiledCode &code)
 				<< GetRestoreVariableContainerNameArray(activeVarInfo_[i]
 						, questionName_, map_key.str())
 				<< ";\n" ;
+			s << "/* FINISH here */\n";
 			}
 			break;
 		case QUESTION_ARR_TYPE:
@@ -2159,20 +2167,20 @@ void AbstractQuestion::PrintSaveMyPreviousIterationsData(StatementCompiledCode &
 		//<< consolidated_for_loop_index_stack.back() << "-1"
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 		<< ";++xtcc_i){\n";
-	s << "ostringstream temp_map_key1, temp_map_key2;\n";
-	s << "temp_map_key1 << " << questionName_ << " << \"_\" << " 
+	s << "ostringstream temp_map_key;\n";
+	s << "temp_map_key << \"" << questionName_ << "\" << \"_\" << " 
 		<< "xtcc_i" 
 		<< " << \"$\" << " 
 		//<< consolidated_for_loop_index_stack.back() 
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() 
 		<< ";\n"
 		<< endl;
-	s << "temp_map_key2 << " << questionName_ << " << \"_\" << " 
-		<< "xtcc_i" 
-		<< ";\n";
+	//s << "temp_map_key2 << " << questionName_ << " << \"_\" << " 
+	//	<< "xtcc_i" 
+	//	<< ";\n";
 	s << questionName_ << "_scope_question_t[ temp_map_key.str()"
 		<< "]="
-		<< questionName_ << "_list.questionName_[xtcc_i];\n"
+		<< questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
 		;
 	s << "}\n";
 		
@@ -2290,7 +2298,7 @@ string GetRestoreVariableContainerNameArray(ActiveVariableInfo * av_info, string
 		s << questionName_ << "_scope_double_t[" << map_key << ".str()" << "]";
 		break;
 	case QUESTION_TYPE:
-		s << av_info->name_ << "_scope_question_t"<<  "[" << questionName_ << "]" ;
+		s << av_info->name_ << "_scope_question_t"<<  "[" << map_key << ".str()" << "]" ;
 		break;
 		/*
 	case QUESTION_ARR_TYPE:
@@ -2408,9 +2416,10 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< "\"_\" << xtcc_i << \"$\" << " 
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
-					<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]=" 
 					<< save_array_quest->questionName_ << "_scope_question_t["
-					<< "map_key.str()" << "];\n"
+					<< "map_key.str()" << "]="
+					<< save_array_quest->questionName_ 
+					<< "_list.questionList[xtcc_i]->input_data;\n"
 					<< endl;
 				s << "}\n";
 
@@ -2450,6 +2459,8 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< ";" << endl
 					<< save_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "]="
+					<< save_array_quest->questionName_ 
+					<< "_list.questionList[xtcc_i]->input_data;\n"
 					<< endl;
 				s << "}\n";
 			} else if (IsAtAHigherNestLevelInTheSameBlock(quest_loc, save_array_quest)){
@@ -2508,6 +2519,8 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< ";" << endl
 					<< save_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "]="
+					<< save_array_quest->questionName_ 
+					<< "_list.questionList[xtcc_i]->input_data;\n"
 					<< endl;
 				s << "}\n";
 
@@ -2531,7 +2544,8 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< ";" << endl
 					<< save_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "]="
-					<< save_array_quest->questionName_ << "_list.questionList[xtcc_i];\n" 
+					<< save_array_quest->questionName_ 
+					<< "_list.questionList[xtcc_i]->input_data;\n" 
 					<< endl;
 				s << "}\n";
 
@@ -2637,7 +2651,8 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< "\"_\" << xtcc_i << \"$\" << " 
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
-					<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]="
+					<< restore_array_quest->questionName_ 
+					<< "_list.questionList[xtcc_i]->input_data="
 					<< restore_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "];\n"
 					<< endl;
@@ -2704,7 +2719,8 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					//<< consolidated_for_loop_index_stack.back()
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
-					<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]="
+					<< restore_array_quest->questionName_ 
+					<< "_list.questionList[xtcc_i]->input_data="
 					<< restore_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "];\n"
 					<< endl;
@@ -2728,7 +2744,8 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< "\"_\" << xtcc_i << \"$\" << " 
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
-					<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]="
+					<< restore_array_quest->questionName_ 
+					<< "_list.questionList[xtcc_i]->input_data="
 					<< restore_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "];\n"
 					<< endl;
@@ -2782,18 +2799,18 @@ void AbstractQuestion::PrintRestoreMyPreviousIterationsData(StatementCompiledCod
 		//<< consolidated_for_loop_index_stack.back() << "-1"
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 		<< ";++xtcc_i){\n";
-	s << "ostringstream temp_map_key1, temp_map_key2;\n";
-	s << "temp_map_key1 << " << questionName_ << " << \"_\" << " 
+	s << "ostringstream temp_map_key;\n";
+	s << "temp_map_key << \"" << questionName_ << "\" << \"_\" << " 
 		<< "xtcc_i" 
 		<< " << \"$\" << " 
 		//<< consolidated_for_loop_index_stack.back() 
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() 
 		<< ";\n"
 		<< endl;
-	s << "temp_map_key2 << " << questionName_ << " << \"_\" << " 
-		<< "xtcc_i" 
-		<< ";\n";
-	s << questionName_ << "_list.questionName_[xtcc_i]="
+	//s << "temp_map_key2 << \"" << questionName_ << "\" << \"_\" << " 
+	//	<< "xtcc_i" 
+	//	<< ";\n";
+	s << questionName_ << "_list.questionList[xtcc_i]->input_data="
 		<< questionName_ << "_scope_question_t[ temp_map_key.str()"
 		<< "];\n"
 		;
