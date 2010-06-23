@@ -163,6 +163,7 @@ void print_header(FILE* script){
 	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int ser_no);\n");
 	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
+	fprintf(script, "int ComputeJumpToIndex(AbstractQuestion * q);\n");
 	fprintf(script, "void reset_questionnaire();\n");
 	print_array_question_class(script);
 
@@ -270,6 +271,19 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "	}\n");
 	fprintf(script, "	return 0;\n");
 	fprintf(script, "}\n");
+
+	fprintf(script,"int ComputeJumpToIndex(AbstractQuestion * q)\n");
+	fprintf(script,"{\n");
+	fprintf(script,"	int index=0;\n");
+	fprintf(script,"	for(int i=0; i<q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"		int tmp1=q->loop_index_values[i];\n");
+	fprintf(script,"		for(int j=i+1; j<q->dummyArrayQuestion_->array_bounds.size(); ++j){\n");
+	fprintf(script,"			tmp1 *=q->dummyArrayQuestion_->array_bounds[j];\n");
+	fprintf(script,"		}\n");
+	fprintf(script,"		index+=tmp1;\n");
+	fprintf(script,"	}\n");
+	fprintf(script,"	return index;\n");
+	fprintf(script,"}\n");
 }
 
 void print_reset_questionnaire(FILE * script)

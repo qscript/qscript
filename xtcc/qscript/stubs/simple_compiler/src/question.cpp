@@ -53,6 +53,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(l_enclosing_scope)
 	, activeVarInfo_(l_av_info)
+	, dummyArrayQuestion_(0)
 {
 	if(enclosingCompoundStatement_==0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -72,6 +73,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, isAnswered_(false), isModified_(false)
 	//, enclosingCompoundStatement_(qscript_parser::stack_cmpd_stmt.back())
 	, enclosingCompoundStatement_(0)
+	, dummyArrayQuestion_(0)
 {
 	//if(enclosingCompoundStatement_==0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -93,6 +95,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(l_enclosing_scope)
 	, activeVarInfo_(l_av_info)
+	, dummyArrayQuestion_(0)
 {
 	if(enclosingCompoundStatement_==0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -105,6 +108,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 		, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, const vector<int>& l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
 	): 
 	AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type) 
@@ -112,6 +116,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 	, loop_index_values(l_loop_index_values)
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(0) // this is only used in the compile time environment
+	, dummyArrayQuestion_(l_dummy_array)
 {
 	//for(int i=0; i<l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
@@ -334,9 +339,10 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 	XtccSet& l_r_data
 	, const vector<int> & l_loop_index_values
+	, DummyArrayQuestion * l_dummy_array
 	): 
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_loop_index_values
+		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
 		)
 {
 	r_data = new XtccSet(l_r_data);
@@ -567,10 +573,12 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
 		<< datatype_str.c_str() << ","
-		<< xtcc_set_name 
-		<<  ( (for_bounds_stack.size() > 0 ) ? ", stack_of_loop_indices " : "" )
-		<< "/* " << for_bounds_stack.size() << "*/"
-		<< ");\n";
+		<< xtcc_set_name;
+	if(for_bounds_stack.size() >0 ){
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+	quest_decl << ");\n";
 	quest_decl << "question_list.push_back(" << questionName_.c_str() 
 		<< ");\n";
 
@@ -707,10 +715,12 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
 		<< datatype_str.c_str() << ",&"
-		<< nr_ptr->name  
-		<<  ( (for_bounds_stack.size() > 0 ) ? ", stack_of_loop_indices " : "" )
-		<< "/* " << for_bounds_stack.size() << "*/"
-		<< ");\n";
+		<< nr_ptr->name ;
+	if(for_bounds_stack.size() >0 ){
+		quest_decl << ", stack_of_loop_indices "
+			<< ", dum_" << questionName_;
+	}
+	quest_decl << ");\n";
 	quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
 
 	if(for_bounds_stack.size()==0){
@@ -890,9 +900,10 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number
 	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 	, vector<stub_pair>* l_stub_ptr
 	, const vector<int> & l_loop_index_values
+	, DummyArrayQuestion * l_dummy_array
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_loop_index_values
+		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
 		), 
 	nr_ptr(0), stub_ptr(l_stub_ptr)
 {
@@ -907,7 +918,7 @@ void AbstractQuestion::print_q_type(string &s)
 	} else if(q_type==mpn){
 		s="mpn";
 	} else {
-		sprintf(buff, " internal compiler error: update AbstractQuestion::print_q_type: %d, %s", 
+		sprintf(buff, " internal compiler error: update AbstractQuestion::print_q_type: %d, %s\n", 
 			__LINE__, __FILE__);
 		s=buff;
 	}
@@ -1324,6 +1335,9 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		goto label_eval_" << questionName_.c_str() << ";\n\
 		else {\n\
 		jumpToQuestion = target_question->questionName_;\n\
+		if(target_question->type_==QUESTION_ARR_TYPE){\n\
+			jumpToIndex = ComputeJumpToIndex(target_question);\n\
+		}\n\
 		cout << \"target question: \" << jumpToQuestion;\n\
 		back_jump=true;\n\
 		user_navigation=NOT_SET;\n\

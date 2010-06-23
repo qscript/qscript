@@ -21,6 +21,7 @@
 using std::ostringstream;
 using std::ofstream;
 struct named_range;
+struct DummyArrayQuestion;
 //! The AbstractQuestion pure virtual base class - inherits from AbstractStatement
 struct AbstractQuestion: public AbstractStatement 
 {
@@ -37,6 +38,7 @@ struct AbstractQuestion: public AbstractStatement
 	bool isModified_;
 	CompoundStatement * enclosingCompoundStatement_;
 	vector <ActiveVariableInfo*> activeVarInfo_;
+	DummyArrayQuestion * dummyArrayQuestion_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
@@ -59,6 +61,7 @@ struct AbstractQuestion: public AbstractStatement
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn , DataType l_dt
 		, const vector<int>& l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
 		);
 //	virtual void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code)=0;
@@ -149,6 +152,7 @@ struct RangeQuestion: public AbstractQuestion
 		string l_name, string l_q_text,
 		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
 		XtccSet& l_r_data, const vector<int> & l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
@@ -225,6 +229,7 @@ class NamedStubQuestion: public AbstractQuestion
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, vector<stub_pair> * l_stub_ptr 
 		, const vector<int> & l_loop_index_values
+		, DummyArrayQuestion * l_dummy_array
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
@@ -252,8 +257,8 @@ class NamedStubQuestion: public AbstractQuestion
 };
 
 class DummyArrayQuestion: public AbstractQuestion{
-	vector<int> array_bounds;
 	public:
+	vector<int> array_bounds;
 
 	DummyArrayQuestion(string l_qno, vector<int> l_array_bounds)
 		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, "", spn 
