@@ -289,6 +289,8 @@ DataType arr_deref_type(DataType d1){
 		return DataType(INT8_TYPE+d1-INT8_ARR_TYPE);
 	} else if(d1==STRING_ARR_TYPE){
 		return STRING_TYPE;
+	} else if(d1==QUESTION_ARR_TYPE){
+		return QUESTION_TYPE;
 	}
 	cerr << "Type Error: lineno: trying to access array with non-integer index" << line_no << "\n";
 	++no_errors;

@@ -1183,7 +1183,9 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 		}
 	}
 	if(save_array_quest==0){
-		string err_msg = "Could not find " + av_info->name_ + " in question list while generating restore array code"
+		string err_msg = "Could not find " 
+			+ av_info->name_ 
+			+ " in question list while generating restore array code"
 			+ " PrintSaveArrayQuestion... exiting\n";
 		print_err(compiler_internal_error, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
 		exit(1);

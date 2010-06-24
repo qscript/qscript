@@ -203,131 +203,84 @@ bool BinaryExpression::IsIntegralExpression()
 string human_readable_type(DataType dt);
 void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 {
-	//code.code_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
-	if(rightOperand_->exprOperatorType_ == oper_blk_arr_assgn &&
-		( leftOperand_->exprOperatorType_==oper_name
-		  ||leftOperand_->exprOperatorType_==oper_arrderef)){
-		Unary2Expression* blk_e = 
-			static_cast<Unary2Expression*> (rightOperand_);
-		Unary2Expression* lhs = 
-			static_cast<Unary2Expression*> (leftOperand_);
-		code.code_expr << "/* DATA CONVERSION */\n";
-		code.code_expr << "{int tmp1=";
-		blk_e->operand_->PrintExpressionCode(code);
-		code.code_expr << ";\nint tmp2=";
-		blk_e->operand2_->PrintExpressionCode(code);
-		code.code_expr << ";\n";
-		switch(lhs->get_symp_ptr()->type_){
-			case INT8_TYPE:
-			case INT16_TYPE:
-			case INT32_TYPE:
-			case FLOAT_TYPE:
-			case DOUBLE_TYPE:
-			case INT8_ARR_TYPE:
-			case INT16_ARR_TYPE:
-			case INT32_ARR_TYPE:
-			case FLOAT_ARR_TYPE:
-			case DOUBLE_ARR_TYPE:
-			case INT8_REF_TYPE:
-			case INT16_REF_TYPE:
-			case INT32_REF_TYPE:
-			case FLOAT_REF_TYPE:
-			case DOUBLE_REF_TYPE:
-			case BOOL_TYPE:	{	
-				if(leftOperand_->type_==FLOAT_TYPE) {
-					code.code_expr << "if(tmp2-tmp1==sizeof(float)-1){\n";
-					code.code_expr << "\tchar buff[sizeof(float)];int i,j;\n";
-					code.code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
-					code.code_expr << "\t\tbuff[j]=" <<  blk_e->symbolTableEntry_->name_ << "[i];\n";
-					code.code_expr << "\t}\n";
-					code.code_expr << "\tvoid * v_ptr = buff;\n";
-					code.code_expr << "\tfloat *f_ptr = static_cast<float *>(v_ptr);\n";
-					
-					code.code_expr << "\t" ;
-					lhs->PrintExpressionCode(code);
-					code.code_expr << "=*f_ptr;\n";
-					code.code_expr << "}else { cerr << \"runtime error: line_no : AbstractExpression out of bounds\" << " 
-						<< line_no  <<";}\n}\n";
-				} else if (leftOperand_->type_==INT32_TYPE){
-					code.code_expr << "if(tmp2-tmp1==sizeof(int)-1){\n";
-					code.code_expr << "\tchar buff[sizeof(int)];int i,j;\n";
-					code.code_expr << "\tfor(i=tmp1,j=0;i<=tmp2;++i,++j){\n";
-					code.code_expr << "\t\tbuff[j]=" << blk_e->symbolTableEntry_->name_ << "[i];\n";
-					code.code_expr << "\t}\n";
-					code.code_expr << "\tvoid * v_ptr = buff;\n";
-					code.code_expr << "\tint *i_ptr = static_cast<int *>(v_ptr);\n";
-					code.code_expr << "\t" ;
-					lhs->PrintExpressionCode(code);
-					code.code_expr << "=*i_ptr;\n" ;
-					code.code_expr << "}else { \n\tcerr << \"runtime error: line_no : AbstractExpression out of bounds\" <<"
-						<< line_no << " ;}\n}\n";
-				} else {
-					std::stringstream s;
-					s << "Error in code generation file: ";
-					print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
-					code.code_expr <<  "error\n";
-				}
-			}
-			break;
+	code.code_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
+	if(leftOperand_->exprOperatorType_==oper_arrderef
+			&& leftOperand_->type_==QUESTION_TYPE){
+		Unary2Expression* lhs= 
+			static_cast<Unary2Expression*>(leftOperand_);
+		const SymbolTableEntry * symp = lhs->get_symp_ptr();
+		AbstractQuestion* q = find_in_question_list(symp->name_);
+		string cpp_data_type=human_readable_type(q->dt);
+		string tmp_name = get_temp_name();
+		
+		code.code_expr << cpp_data_type << " " << tmp_name << "=";
+		rightOperand_->PrintExpressionCode(code);
+		code.code_expr << ";" << endl;
+		code.code_expr << "if ( " 
+			<< q->questionName_ << "_list.questionList[";
+		lhs->operand_->PrintExpressionCode(code) ;
+		code.code_expr	<< "]"
+			<< "->IsValid("<<  tmp_name
+			<<  ")) {" << endl; 
+		code.code_expr << q->questionName_ << "_list.questionList[";
+		lhs->operand_->PrintExpressionCode(code) ;
+		code.code_expr << "]"
+			<< "->input_data.clear();" << endl;
+		code.code_expr << q->questionName_  << "_list.questionList[";
+		lhs->operand_->PrintExpressionCode(code) ;
+		code.code_expr << "]"
 
-			case QUESTION_TYPE:{
-				std::stringstream s;
-				s << "ASSIGNING to question_type named variable to be programmed  : ";
-				print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
-				code.code_expr <<  "error\n";
-			}
-			break;
-			default:{
-				std::stringstream s;
-				s << "Un handled DataType for BinaryExpression";
-				print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
-				code.code_expr <<  "error\n";
-			}
-		}
-	} else if (rightOperand_->exprOperatorType_ == oper_blk_arr_assgn && leftOperand_->exprOperatorType_==oper_blk_arr_assgn){
-		std::stringstream s;
-		s << "unhandled case LHS. Error in code generation file: ";
-		print_err(compiler_internal_error, s.str(), line_no, __LINE__, __FILE__);
-		code.code_expr <<  "error\n";
-	}else {
-		if(leftOperand_->type_==QUESTION_TYPE){
-			Unary2Expression* lhs= 
-				static_cast<Unary2Expression*>(leftOperand_);
-			const SymbolTableEntry * symp = lhs->get_symp_ptr();
-			AbstractQuestion* q = find_in_question_list(symp->name_);
-			string cpp_data_type=human_readable_type(q->dt);
-			string tmp_name = get_temp_name();
-			
-			code.code_expr << cpp_data_type << " " << tmp_name << "=";
-			rightOperand_->PrintExpressionCode(code);
-			code.code_expr << ";" << endl;
-			code.code_expr << "if ( " 
-				<< q->questionName_ << "->IsValid("<<  tmp_name
-				<<  ")) {" << endl; 
-			code.code_expr << q->questionName_ 
-				<< "->input_data.clear();" << endl;
-			code.code_expr << q->questionName_ << "->input_data.insert(";
-			//rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
-			code.code_expr << tmp_name ;
-			code.code_expr << ") ; " << endl ;
-			code.code_expr << "} else {";
-			code.code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
-				<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
-			code.code_expr << "}" << endl;
-			cerr << "WARNING : line: " << __LINE__ 
-				<< ", file: " << __FILE__
-				<< " put range check on allowed codes" 
-				<< endl;
+			<< "->input_data.insert(";
+		//rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+		code.code_expr << tmp_name ;
+		code.code_expr << ") ; " << endl ;
+		code.code_expr << "} else {";
+		code.code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
+			<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
+		code.code_expr << "}" << endl;
+		cerr << "WARNING : line: " << __LINE__ 
+			<< ", file: " << __FILE__
+			<< " put range check on allowed codes" 
+			<< endl;
 
-		} else {
-			//code.code_expr << " /* print_oper_assgn BEGIN */";
-			leftOperand_->PrintExpressionCode(code);
-			code.code_expr << "  = ";
-			rightOperand_->PrintExpressionCode(code);
-			//code.code_expr << " /* print_oper_assgn END */";
-		}
+	} else if(leftOperand_->exprOperatorType_==oper_name
+			&& leftOperand_->type_==QUESTION_TYPE){
+		Unary2Expression* lhs= 
+			static_cast<Unary2Expression*>(leftOperand_);
+		const SymbolTableEntry * symp = lhs->get_symp_ptr();
+		AbstractQuestion* q = find_in_question_list(symp->name_);
+		string cpp_data_type=human_readable_type(q->dt);
+		string tmp_name = get_temp_name();
+		
+		code.code_expr << cpp_data_type << " " << tmp_name << "=";
+		rightOperand_->PrintExpressionCode(code);
+		code.code_expr << ";" << endl;
+		code.code_expr << "if ( " 
+			<< q->questionName_ << "->IsValid("<<  tmp_name
+			<<  ")) {" << endl; 
+		code.code_expr << q->questionName_ 
+			<< "->input_data.clear();" << endl;
+		code.code_expr << q->questionName_ << "->input_data.insert(";
+		//rightOperand_->PrintExpressionCode(code_bef_expr, code_expr);
+		code.code_expr << tmp_name ;
+		code.code_expr << ") ; " << endl ;
+		code.code_expr << "} else {";
+		code.code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
+			<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
+		code.code_expr << "}" << endl;
+		cerr << "WARNING : line: " << __LINE__ 
+			<< ", file: " << __FILE__
+			<< " put range check on allowed codes" 
+			<< endl;
+
+	} else {
+		//code.code_expr << " /* print_oper_assgn BEGIN */";
+		leftOperand_->PrintExpressionCode(code);
+		code.code_expr << "  = ";
+		rightOperand_->PrintExpressionCode(code);
+		//code.code_expr << " /* print_oper_assgn END */";
 	}
-	//code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
+	code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
 }
 
 bool Unary2Expression::IsConst(){
@@ -594,6 +547,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 		, AbstractExpression* lrop,ExpressionOperatorType letype)
 	: AbstractExpression(letype), leftOperand_(llop), rightOperand_(lrop)
 {
+	cerr << "ENTER BinaryExpression::BinaryExpression: " << endl;
 	if (exprOperatorType_!=oper_assgn && 
 		(leftOperand_->exprOperatorType_==oper_blk_arr_assgn
 		 	||rightOperand_->exprOperatorType_==oper_blk_arr_assgn))
@@ -624,6 +578,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			++no_errors;
 		}
 		if(typ1==QUESTION_TYPE){
+			cerr << " lhs is of QUESTION_TYPE " << endl;
 			Unary2Expression* lhs
 				= static_cast<Unary2Expression*>(leftOperand_);
 			const SymbolTableEntry * symp = lhs->get_symp_ptr();
@@ -686,13 +641,15 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			print_err(compiler_internal_error, " INTERNAL ERROR: default case of BinaryExpression", line_no, __LINE__, __FILE__);
 			;
 	}
+	cerr << "EXIT BinaryExpression::BinaryExpression: " << endl;
 }
 
 Unary2Expression::Unary2Expression( struct SymbolTableEntry * lsymp)
 	: AbstractExpression(oper_name,lsymp->type_)
 	, symbolTableEntry_(lsymp), intSemanticValue_(0)
 	, doubleSemanticValue_(0), func_index_in_table(-1)
-	, text(0), operand_(0), operand2_(0), column_no(-1) {
+	, text(0), operand_(0), operand2_(0), column_no(-1) 
+{
 }
 
 map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
@@ -730,6 +687,12 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 	, doubleSemanticValue_(0), func_index_in_table(-1), text(0)
 	, column_no(-1), operand_(arr_index),  operand2_(0)
 {
+	cerr << "ENTER Unary2Expression::Unary2Expression :name" << name 
+		<< " with arr_index" << endl;
+		
+	if(le_type==oper_arrderef){
+		cerr << " arr_deref_type " << endl;
+	}
 	using qscript_parser::active_scope;
 	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(name);
 	if(sym_it==active_scope->SymbolTable.end() ){
