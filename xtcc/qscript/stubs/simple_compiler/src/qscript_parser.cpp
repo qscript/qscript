@@ -274,6 +274,11 @@ void print_navigation_support_functions(FILE * script)
 
 	fprintf(script,"int ComputeJumpToIndex(AbstractQuestion * q)\n");
 	fprintf(script,"{\n");
+	fprintf(script,"	cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
+	fprintf(script,"	for(int i=0; i<q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"		cout << q->loop_index_values[i] << \" \";\n");
+	fprintf(script,"	}\n");
+	fprintf(script,"	cout << endl;\n");
 	fprintf(script,"	int index=0;\n");
 	fprintf(script,"	for(int i=0; i<q->loop_index_values.size(); ++i){\n");
 	fprintf(script,"		int tmp1=q->loop_index_values[i];\n");
@@ -282,6 +287,7 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script,"		}\n");
 	fprintf(script,"		index+=tmp1;\n");
 	fprintf(script,"	}\n");
+	fprintf(script,"	cout << \"EXIT ComputeJumpToIndex: returning : \" << index << endl;\n");
 	fprintf(script,"	return index;\n");
 	fprintf(script,"}\n");
 }
@@ -472,7 +478,8 @@ AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 	return st_ptr;
 }
 
-const char * write_data_to_disk_code(){
+const char * write_data_to_disk_code()
+{
 	const char * write_data_disk_code = 
 	"\tvoid write_data_to_disk(const vector<AbstractQuestion*>& q_vec\n"
 	"\t	, string jno\n"

@@ -454,14 +454,12 @@ string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stac
 		if(bin_expr_ptr){
 			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 			AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
-			//lhs->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]); 
 			lhs->PrintExpressionCode(expr_code_arr[i]); 
 			if(i<for_bounds_stack.size()-1) {
 				//string_stream_vec[i] << "*" ;
 				expr_code_arr[i].code_expr << "*";
 			}
 		} else {
-			//for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 			for_bounds_stack[i]->PrintExpressionCode(expr_code_arr[i]);
 			print_err(compiler_sem_err
 				, "for loop index condition is not a binary expression" 
@@ -474,15 +472,12 @@ string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stac
 			BinaryExpression * bin_expr_ptr2 = dynamic_cast<BinaryExpression*>(for_bounds_stack[j]);
 			if(bin_expr_ptr2){
 				AbstractExpression * rhs = bin_expr_ptr2->rightOperand_;
-				//rhs->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 				rhs->PrintExpressionCode(expr_code_arr[i]);
 				if(j<for_bounds_stack.size()-1) {
-					//string_stream_vec[i] << "*" ;
 					expr_code_arr[i].code_expr << "*" ;
 				}
 
 			} else {
-				//for_bounds_stack[i]->PrintExpressionCode(string_stream_vec[i], string_stream_vec[i]);
 				for_bounds_stack[i]->PrintExpressionCode(expr_code_arr[i]);
 				print_err(compiler_sem_err
 					, "for loop index condition is not a binary expression. This error should have been caught at compile time" 
@@ -520,15 +515,6 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		code.quest_defns << "//CompoundStatement::GenerateCode()\n"
 			<< "// Generating array declarations\n";
 		if(compoundBody_){
-			//AbstractStatement * stmt_ptr = compoundBody_;
-			//while(stmt_ptr){
-			//	AbstractQuestion * q 
-			//		= dynamic_cast<AbstractQuestion*>(stmt_ptr);
-			//	if(q){
-			//		q->PrintArrayDeclarations(code.quest_defns);
-			//	}
-			//	stmt_ptr=stmt_ptr->next_;
-			//}
 			GenerateQuestionArrayInitLoopOpen(code);
 		}
 		flagGeneratedQuestionDefinitions_=true;

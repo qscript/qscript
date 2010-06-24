@@ -2952,7 +2952,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 			<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
-		q= new RangeQuestion(QUESTION_TYPE, line_no, 
+		q= new RangeQuestion(QUESTION_ARR_TYPE, line_no, 
 			name, q_text, q_type, no_mpn, dt, xs
 			//, arr_sz
 			,qscript_parser::for_loop_max_counter_stack
@@ -3036,7 +3036,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 			<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
-		q=new NamedStubQuestion(QUESTION_TYPE, line_no
+		q=new NamedStubQuestion(QUESTION_ARR_TYPE, line_no
 				, name, q_txt, q_type, no_mpn, dt , nr_ptr
 				,qscript_parser::for_loop_max_counter_stack
 				, cmpd_stmt_ptr, av_info);
