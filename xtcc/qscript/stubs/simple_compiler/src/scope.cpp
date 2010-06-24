@@ -36,6 +36,7 @@
 #include "stmt.h"
 #include "expr.h"
 #include "scope.h"
+#include "question.h"
 //using namespace std;
 using std::cerr;
 using std::endl;
@@ -55,11 +56,6 @@ using qscript_parser::mem_addr;
 AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
-	if(st_ptr){
-	} else {
-		cerr << "Memory allocation failed : line_no" << line_no << endl;
-		exit(1);
-	}
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
 		//se->name = strdup(name.c_str());
@@ -76,15 +72,30 @@ AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/
 	return st_ptr;
 }
 
+AbstractStatement* Scope::insert(const char * name, DataType dt
+		, AbstractQuestion * l_q
+		/*, int line_no*/){
+	// we have to handle a case here where symbol is a function name: - this is not allowed
+	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
+	if ( SymbolTable.find(name) == SymbolTable.end() ){
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt, l_q);
+		//se->name = strdup(name.c_str());
+		//se->type_=dt;
+		string s(name);
+		SymbolTable[s] = se;
+		st_ptr->type_=dt;
+		st_ptr->symbolTableEntry_=se;
+	} else {
+		cerr << "ERROR: " << name << " already present in symbol table" << endl;
+		st_ptr->type_=ERROR_TYPE;
+		++no_errors;
+	}
+	return st_ptr;
+}
 
 AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size/*, int line_no*/){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
-	if(st_ptr){
-	} else {
-		cerr << "Memory allocation failed : line_no" << line_no << endl;
-		exit(1);
-	}
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
 		se->n_elms=arr_size;
@@ -104,11 +115,6 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size/*,
 AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpression *e){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
-	if(st_ptr){
-	} else {
-		cerr << "Memory allocation failed : line_no" << line_no << endl;
-		exit(1);
-	}
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt, e);
 		if(is_of_noun_type(e->type_)){
@@ -145,11 +151,6 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpress
 AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpression *e, type_qualifier tq){
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
-	if(st_ptr){
-	} else {
-		cerr << "Memory allocation failed : line_no" << line_no << endl;
-		exit(1);
-	}
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt, e, tq);
 		if(is_of_noun_type(e->type_)){
@@ -200,11 +201,6 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /
 		++no_errors;
 	}
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
-	if(st_ptr){
-	} else {
-		cerr << "Memory allocation failed : line_no" << line_no << endl;
-		exit(1);
-	}
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt, arr_size, text);
 		//se->n_elms=arr_size;
@@ -226,11 +222,6 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /
 
 AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs){
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
-	if(st_ptr){
-	} else {
-		cerr << "Memory allocation failed : line_no" << line_no << endl;
-		exit(1);
-	}
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		XtccSet * xs=new XtccSet(*lxs);
 		SymbolTableEntry* se=new SymbolTableEntry(name, dt, xs);

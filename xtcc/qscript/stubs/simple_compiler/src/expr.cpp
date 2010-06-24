@@ -624,8 +624,21 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 		case oper_and :	
 			if(void_check(leftOperand_->type_
 				, rightOperand_->type_, type_)/*true*/){
-				type_=lcm_type(leftOperand_->type_
-						, rightOperand_->type_);
+				DataType l_op_type=leftOperand_->type_;
+				if(leftOperand_->exprOperatorType_==oper_name
+					&& leftOperand_->type_==QUESTION_TYPE) {
+					Unary2Expression * un2expr = dynamic_cast<Unary2Expression*>
+						(leftOperand_);
+					l_op_type=un2expr->symbolTableEntry_->question_->dt;
+				}
+				DataType r_op_type=rightOperand_->type_;
+				if(rightOperand_->exprOperatorType_==oper_name
+					&& rightOperand_->type_==QUESTION_TYPE) {
+					Unary2Expression * un2expr = dynamic_cast<Unary2Expression*>
+						(rightOperand_);
+					r_op_type=un2expr->symbolTableEntry_->question_->dt;
+				}
+				type_=lcm_type(l_op_type, r_op_type);
 			}
 			if(exprOperatorType_==oper_mod 
 				&& !( is_of_int_type(leftOperand_->type_) 

@@ -2935,14 +2935,14 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 			,qscript_parser::for_loop_max_counter_stack
 			, cmpd_stmt_ptr, av_info
 			);
-		active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE);
+		active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q);
 		//ostringstream s1, s2;
 		//arr_sz->print_expr(s1, s2);
 		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
 	} else {
 		q= new RangeQuestion(QUESTION_TYPE, line_no, 
 			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr, av_info);
-		active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
+		active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q);
 	}
 	++(cmpd_stmt_ptr->counterContainsQuestions_);
 	//$$=q;
@@ -3017,12 +3017,12 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 				, name, q_txt, q_type, no_mpn, dt , nr_ptr
 				,qscript_parser::for_loop_max_counter_stack
 				, cmpd_stmt_ptr, av_info);
-		active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE);
+		active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q);
 	} else {
 		q=new NamedStubQuestion(QUESTION_TYPE, 
 			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr
 			, cmpd_stmt_ptr, av_info);
-		active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE);
+		active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q);
 	}
 	question_list.push_back(q);
 	//$$=q;

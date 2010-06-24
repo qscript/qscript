@@ -87,7 +87,9 @@ bool is_of_int_type(DataType dt){
 	return (dt >= INT8_TYPE && dt <=INT32_TYPE);
 }
 bool is_of_noun_type(DataType dt){
-	return (dt >= INT8_TYPE && dt <=DOUBLE_TYPE);
+	return (dt >= INT8_TYPE && dt <=DOUBLE_TYPE)
+		|| (dt==QUESTION_TYPE)
+		;
 }
 bool is_of_noun_ref_type(DataType dt){
 	return (dt >= INT8_REF_TYPE && dt <=DOUBLE_REF_TYPE);
