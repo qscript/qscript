@@ -1,0 +1,14 @@
+*** pdf_export prototype ***
+* author: Grzegorz Prusak
+
+1. Description
+	In the final version pdf_export will be generating complete questionares in pdf format out of qscript scripts.
+	In this prototype version pdf_export generates LaTeX file, which has to be subsequently processed with LateX.
+	Only NamedStubQuestion type of question is handled, the rest is ignored.
+
+2. Executing pdf_export:
+	$ LD_LIBRARY_PATH=./lib/ ./pdf_export <input_script_file> <output_LaTeX_file>
+
+3. Generating pdf file out of tex file:
+	$ latex -output-format=pdf <LaTeX_file>
+
