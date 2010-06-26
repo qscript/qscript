@@ -725,6 +725,16 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 		} else {
 			symbolTableEntry_ = sym_it->second;
 			type_ = symbolTableEntry_->type_;
+			if(type_==QUESTION_TYPE||
+			   type_==QUESTION_ARR_TYPE){
+				if(symbolTableEntry_->question_->q_type!=spn){
+					stringstream s;
+					s << "Usage of Questions in Expressions only allowed for SPN question_type" << endl;
+					print_err(compiler_sem_err, s.str(), 
+						line_no, __LINE__, __FILE__);
+				}
+				   
+			}
 		}
 	}
 }
