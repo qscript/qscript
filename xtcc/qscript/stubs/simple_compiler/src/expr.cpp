@@ -203,7 +203,7 @@ bool BinaryExpression::IsIntegralExpression()
 string human_readable_type(DataType dt);
 void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 {
-	code.code_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
+	//code.code_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
 	if(leftOperand_->exprOperatorType_==oper_arrderef
 			&& leftOperand_->type_==QUESTION_TYPE){
 		Unary2Expression* lhs= 
@@ -237,8 +237,8 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		code.code_expr << "} else {";
 		code.code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
 			<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
-		code.code_expr << "}" << endl;
-		cerr << "WARNING : line: " << __LINE__ 
+		code.code_expr << "}\n" << endl;
+		cerr << "INTERNAL COMPILER WARNING : line: " << __LINE__ 
 			<< ", file: " << __FILE__
 			<< " put range check on allowed codes" 
 			<< endl;
@@ -267,7 +267,7 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		code.code_expr << "} else {";
 		code.code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
 			<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
-		code.code_expr << "}" << endl;
+		code.code_expr << "}\n" << endl;
 		cerr << "WARNING : line: " << __LINE__ 
 			<< ", file: " << __FILE__
 			<< " put range check on allowed codes" 
@@ -280,7 +280,7 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		rightOperand_->PrintExpressionCode(code);
 		//code.code_expr << " /* print_oper_assgn END */";
 	}
-	code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
+	//code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
 }
 
 bool Unary2Expression::IsConst(){
@@ -333,11 +333,44 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 {
 	//code.code_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
-		case oper_name:{
+		case oper_name:{			
+			if(type_==QUESTION_TYPE){
+				AbstractQuestion * q = symbolTableEntry_->question_;
+				if(q->type_==QUESTION_TYPE){
+					code.code_bef_expr
+						<< "if (!" << q->questionName_
+							   << "->isAnswered_) {\n"
+							   << "cerr << \"runtime error using unanswered question in expression: \" << \""
+						   << q->questionName_
+							   << "\" << endl;\n}\n";
+							
+					cerr << "code_bef_expr: "
+					     << code.code_bef_expr.str() << endl;
+				} 
+			}
 			code.code_expr << symbolTableEntry_->name_;
 		}
 		break;
 		case oper_arrderef:{
+			code.code_expr << "/* came here */" << endl;
+			if(type_==QUESTION_TYPE){
+				AbstractQuestion * q = symbolTableEntry_->question_;
+				if (q->type_==QUESTION_ARR_TYPE){
+					code.code_bef_expr
+						<< "if (!"
+						<< q->questionName_
+						<< "_list.questionList[";
+					ExpressionCompiledCode code1;
+					operand_->PrintExpressionCode(code1);
+					code.code_bef_expr << code1.code_bef_expr.str()
+							   << code1.code_expr.str();
+					code.code_bef_expr
+						<< "]->isAnswered_) {\n"
+						<< "cerr << \"runtime error using unanswered question in expression: \" << \""
+						<< q->questionName_
+						<< "\" << endl;\n}\n";
+				}
+			}
 			code.code_expr <<  symbolTableEntry_->name_ << "[";
 			operand_->PrintExpressionCode(code);
 			code.code_expr << "]";
@@ -394,6 +427,7 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 void BinaryExpression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
 	//code.code_expr << "/* ENTER BinaryExpression::PrintExpressionCode */" << endl;
+	
 	switch(exprOperatorType_){
 		char oper_buf[3];
 		case oper_plus:{
@@ -603,7 +637,8 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			s << "oper_assgn error: operand_ data types on lhs and rhs should be compatible, ";
 			string lhs_hr_type = human_readable_type(typ1);
 			string rhs_hr_type = human_readable_type(typ2);
-			s << "\tlhs type: " << lhs_hr_type << ", rhs type: " << rhs_hr_type << endl;
+			s << "\tlhs type: " << lhs_hr_type
+			  << ", rhs type: " << rhs_hr_type << endl;
 			print_err(compiler_sem_err, s.str(), 
 				line_no, __LINE__, __FILE__);
 		}
@@ -625,14 +660,16 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			if(void_check(leftOperand_->type_
 				, rightOperand_->type_, type_)/*true*/){
 				DataType l_op_type=leftOperand_->type_;
-				if(leftOperand_->exprOperatorType_==oper_name
+				if( (leftOperand_->exprOperatorType_==oper_name
+				     || leftOperand_->exprOperatorType_==oper_arrderef)
 					&& leftOperand_->type_==QUESTION_TYPE) {
 					Unary2Expression * un2expr = dynamic_cast<Unary2Expression*>
 						(leftOperand_);
 					l_op_type=un2expr->symbolTableEntry_->question_->dt;
 				}
 				DataType r_op_type=rightOperand_->type_;
-				if(rightOperand_->exprOperatorType_==oper_name
+				if( (rightOperand_->exprOperatorType_==oper_name
+				     || rightOperand_->exprOperatorType_==oper_arrderef)
 					&& rightOperand_->type_==QUESTION_TYPE) {
 					Unary2Expression * un2expr = dynamic_cast<Unary2Expression*>
 						(rightOperand_);

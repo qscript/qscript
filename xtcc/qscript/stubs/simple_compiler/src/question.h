@@ -270,7 +270,7 @@ class DummyArrayQuestion: public AbstractQuestion{
 	bool IsValid(int value){ return false;}
 	void GenerateCode(StatementCompiledCode &code){}
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code){}
-	void  GetQuestionNames(vector<string> & question_list,
+	void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement* endStatement)
 	{
 		if(this==endStatement)

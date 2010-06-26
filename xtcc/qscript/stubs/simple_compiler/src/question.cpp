@@ -33,7 +33,8 @@ string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stac
 extern vector<string> consolidated_for_loop_index_stack;
 int GetTempMapKeyNumber();
 string GetRestoreVariableName(ActiveVariableInfo * av_info);
-string GetRestoreVariableContainerName(ActiveVariableInfo * av_info, string & questionName_);
+string GetRestoreVariableContainerName(ActiveVariableInfo * av_info
+				       , string & questionName_);
 string GetRestoreVariableContainerNameArray(ActiveVariableInfo * av_info
 		, string & questionName_, string map_key);
 extern vector<string> consolidated_for_loop_index_stack;
@@ -666,7 +667,7 @@ void AbstractQuestion::print_q_type(string &s)
 
 
 void AbstractQuestion::print_data_type(string &s)
-{
+{	
 	if(dt==	VOID_TYPE){
 		s="VOID_TYPE";
 	} else if(dt==INT8_TYPE){
@@ -1666,7 +1667,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 							save_array_quest->for_bounds_stack[i1]);
 					if(bin_expr_ptr){
 						AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
-						ExpressionCompiledCode expr_code;
+ 						ExpressionCompiledCode expr_code;
 						rhs->PrintExpressionCode(expr_code); 
 						s << expr_code.code_bef_expr.str() /* should be empty */
 							<< expr_code.code_expr.str();

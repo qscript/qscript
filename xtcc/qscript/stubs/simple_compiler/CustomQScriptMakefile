@@ -146,7 +146,7 @@ release: clean
 	cp inputs/* $(RELEASE_DIR)/inputs
 	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
 
-.PHONY: clean
+.PHONY: clean tags
 
 clean:
 	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/*
@@ -162,5 +162,8 @@ local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so.1
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so
 	cp ${SOURCE_DIR}/*.h include
+
+tags:
+	cd src; ctags -R --extra=+f+q --fields=afikKlmnsSzt; cd ..;
 
 include $(DEPENDENCIES)
