@@ -53,21 +53,21 @@ void AbstractStatement::GetQuestionNames(vector<string> &question_list,
 void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
 		AbstractStatement * stop_at)
 {
-	cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
+	//cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
 	cerr << human_readable_type(type_) << endl;
 	if(next_ && next_!=stop_at){
 		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
-	cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
+	//cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
 }
 
 void AbstractStatement::GenerateConsolidatedForLoopIndexes()
 {
-	cout << "ENTER AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	//cout << "ENTER AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 	if(next_){
 		next_->GenerateConsolidatedForLoopIndexes();
 	}
-	cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	//cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 }
 
 //extern ofstream debug_log_file;
@@ -105,7 +105,7 @@ ExpressionStatement::~ExpressionStatement()
 
 void DeclarationStatement::GenerateCode(StatementCompiledCode &code)
 {
-	//program_code << " // DeclarationStatement::GenerateCode " << endl;
+	cout << " // DeclarationStatement::GenerateCode " << endl;
 	//ostringstream code_expr1, code_bef_expr1;
 	ExpressionCompiledCode expr_code;
 	if( symbolTableEntry_->e){
@@ -179,7 +179,7 @@ IfStatement::IfStatement( DataType dtype, int lline_number
 
 void IfStatement::GenerateCode(StatementCompiledCode &code)
 {
-	cerr << "ENTER: IfStatement::GenerateCode()" << endl;
+	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
 	static vector<IfStatementStackElement*> ifStatementStack;
 	static int if_nest_level =0;
 	bool if_nest_level_was_increased=false;
@@ -300,12 +300,12 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	code.program_code << " /* finished generating code IfStatement */ " << endl;
 	if(next_) 
 		next_->GenerateCode(code);
-	cerr << "EXIT: IfStatement::GenerateCode()" << endl;
+	//cerr << "EXIT: IfStatement::GenerateCode()" << endl;
 }
 
 void IfStatement::GenerateConsolidatedForLoopIndexes()
 {
-	cout << "ENTER IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	//cout << "ENTER IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 	if(ifBody_){
 		ifBody_->GenerateConsolidatedForLoopIndexes();
 	} 
@@ -315,7 +315,7 @@ void IfStatement::GenerateConsolidatedForLoopIndexes()
 	if(next_){
 		next_->GenerateConsolidatedForLoopIndexes();
 	}
-	cout << "EXIT IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	//cout << "EXIT IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 }
 
 
@@ -362,11 +362,11 @@ CompoundStatement::CompoundStatement(DataType dtype, int lline_number
 
 void CompoundStatement::GenerateConsolidatedForLoopIndexes()
 {
-	cout << "ENTER CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	//cout << "ENTER CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 	if( flagIsAForBody_ && counterContainsQuestions_){
 		ostringstream consolidated_loop_counter;
 		consolidated_loop_counter << "consolidated_for_loop_index_" << compoundStatementNumber_;
-		cout << "generated " << consolidated_loop_counter.str() << endl;
+		//cout << "generated " << consolidated_loop_counter.str() << endl;
 		consolidated_for_loop_index_stack.push_back(consolidated_loop_counter.str());
 	}
 	ConsolidatedForLoopIndexStack_ = consolidated_for_loop_index_stack;
@@ -374,10 +374,10 @@ void CompoundStatement::GenerateConsolidatedForLoopIndexes()
 		compoundBody_->GenerateConsolidatedForLoopIndexes();
 	}
 	if(flagIsAForBody_ && counterContainsQuestions_){
-		cout << "popping off " << consolidated_for_loop_index_stack.back() << endl;
+		//cout << "popping off " << consolidated_for_loop_index_stack.back() << endl;
 		consolidated_for_loop_index_stack.pop_back();
 	}
-	cout << "EXIT CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	//cout << "EXIT CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 	if(next_){
 		next_->GenerateConsolidatedForLoopIndexes();
 	}
@@ -386,14 +386,14 @@ void CompoundStatement::GenerateConsolidatedForLoopIndexes()
 void CompoundStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
 		AbstractStatement * stop_at)
 {
-	cerr << "ENTER: CompoundStatement::GetQuestionsInBlock" << endl;
+	//cerr << "ENTER: CompoundStatement::GetQuestionsInBlock" << endl;
 	if(compoundBody_){
 		compoundBody_->GetQuestionsInBlock(question_list, stop_at);
 	}
 	if(next_ && next_!=stop_at){
 		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
-	cerr << "EXIT: CompoundStatement::GetQuestionsInBlock" << endl;
+	//cerr << "EXIT: CompoundStatement::GetQuestionsInBlock" << endl;
 }
 
 void CompoundStatement::GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code)
@@ -627,27 +627,27 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 
 void ForStatement::GenerateConsolidatedForLoopIndexes()
 {
-	cout << "ENTER AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	//cout << "ENTER AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 	if(forBody_){
 		forBody_->GenerateConsolidatedForLoopIndexes();
 	}
 	if(next_){
 		next_->GenerateConsolidatedForLoopIndexes();
 	}
-	cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
+	//cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 }
 
 void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
 		AbstractStatement * stop_at)
 {
-	cerr << "ENTER: ForStatement::GetQuestionsInBlock" << endl;
+	//cerr << "ENTER: ForStatement::GetQuestionsInBlock" << endl;
 	if(forBody_){
 		forBody_->GetQuestionsInBlock(question_list, stop_at);
 	}
 	if(next_ && next_!=stop_at){
 		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
-	cerr << "EXIT: ForStatement::GetQuestionsInBlock" << endl;
+	//cerr << "EXIT: ForStatement::GetQuestionsInBlock" << endl;
 }
 
 

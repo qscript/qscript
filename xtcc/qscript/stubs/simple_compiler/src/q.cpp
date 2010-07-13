@@ -1951,7 +1951,7 @@ yyreduce:
 #line 362 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::ProcessRangeQuestion((yyvsp[(1) - (6)].name), (yyvsp[(2) - (6)].text_buf), (yyvsp[(4) - (6)].dt));
-		cout << "parsed range question : " << (yyvsp[(1) - (6)].name) << endl;
+		//cout << "parsed range question : " << $1 << endl;
 	;}
     break;
 
@@ -1961,7 +1961,7 @@ yyreduce:
 #line 366 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::ProcessNamedQuestion((yyvsp[(1) - (6)].name), (yyvsp[(2) - (6)].text_buf), (yyvsp[(4) - (6)].dt), (yyvsp[(5) - (6)].name));
-		cout << "parsed named question : " << (yyvsp[(1) - (6)].name) << endl;
+		//cout << "parsed named question : " << $1 << endl;
 	;}
     break;
 
@@ -2925,8 +2925,8 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	}
 	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
 	if(qscript_parser::flagIsAForBody_){
-		cout << "flagIsAForBody_: " 
-			<< qscript_parser::flagIsAForBody_ << endl;
+		//cout << "flagIsAForBody_: " 
+		//	<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
 		q= new RangeQuestion(QUESTION_ARR_TYPE, line_no, 
@@ -2948,10 +2948,12 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	//$$=q;
 
 	question_list.push_back(q);
+	/*
 	cout << "question_list: questions are " << endl;
 	for(int i=0; i<question_list.size(); ++i){
 		cout << question_list[i]->questionName_ << endl;
 	}
+	*/
 	xs.reset();
 	// questions always get pushed in Scope level 0 as they
 	// are global variables - no matter what the level of nesting
@@ -3009,8 +3011,8 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	AbstractExpression * arr_sz=0;
 	NamedStubQuestion* q=0;
 	if(qscript_parser::flagIsAForBody_){
-		cout << "flagIsAForBody_: " 
-			<< qscript_parser::flagIsAForBody_ << endl;
+		//cout << "flagIsAForBody_: " 
+		//	<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
 		q=new NamedStubQuestion(QUESTION_ARR_TYPE, line_no

@@ -205,6 +205,10 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\twhile(ser_no!=0){\n");
 	fprintf(script, "%s\n", file_exists_check_code());
 	fprintf(script, "\tstart_of_questions:\n");
+
+	fprintf(script, "\tif(back_jump==true){\n");
+	fprintf(script, "\tcout << \"have reached start_of_questions with back_jump\" << endl;\n");
+	fprintf(script, "\t}\n");
 	fprintf(script, "%s\n", program_code.str().c_str());
 	/*
 	fprintf(script, "\t\t\tstringstream fname_str;\n");

@@ -562,26 +562,22 @@ Unary2Expression::~Unary2Expression()
 	if(exprOperatorType_==oper_func_call){
 		//cout << "line_no: " << line_no << endl;
 	}
-	cerr << "need to check the free later: __FILE__ " << __FILE__ << ", line:" << __LINE__ << endl;
-	if(text) { free( text) ; text=0; }
-	/*
+	//if(text) { free( text) ; text=0; }
 	if(text) { 
-		//free( text) ; text=0; 
-		//debug_log_file << "Unary2Expression::~Unary2Expression text:"
-		//	<< text << endl;
+		free( text) ; text=0; 
+		debug_log_file << "Unary2Expression::~Unary2Expression text:"
+			<< text << endl;
 
 	}
-	*/
 	if(operand_) { delete operand_; operand_=0; }
 	if(operand2_) { delete operand2_; operand2_=0;}
-	//if (text ) { delete text; text=0; }
 }
 
 BinaryExpression::BinaryExpression(AbstractExpression* llop
 		, AbstractExpression* lrop,ExpressionOperatorType letype)
 	: AbstractExpression(letype), leftOperand_(llop), rightOperand_(lrop)
 {
-	cerr << "ENTER BinaryExpression::BinaryExpression: " << endl;
+	//cerr << "ENTER BinaryExpression::BinaryExpression: " << endl;
 	if (exprOperatorType_!=oper_assgn && 
 		(leftOperand_->exprOperatorType_==oper_blk_arr_assgn
 		 	||rightOperand_->exprOperatorType_==oper_blk_arr_assgn))
@@ -691,7 +687,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			print_err(compiler_internal_error, " INTERNAL ERROR: default case of BinaryExpression", line_no, __LINE__, __FILE__);
 			;
 	}
-	cerr << "EXIT BinaryExpression::BinaryExpression: " << endl;
+	//cerr << "EXIT BinaryExpression::BinaryExpression: " << endl;
 }
 
 Unary2Expression::Unary2Expression( struct SymbolTableEntry * lsymp)

@@ -83,15 +83,7 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement)=0;
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
-			AbstractStatement * stop_at)
-	{
-		std::cerr << "ENTER AbstractQuestion::GetQuestionsInBlock()" << std::endl;
-		question_list.push_back(this);
-		if(next_ && next_!=stop_at){
-			next_->GetQuestionsInBlock(question_list, stop_at);
-		}
-		std::cerr << "EXIT AbstractQuestion::GetQuestionsInBlock()" << std::endl;
-	}
+			AbstractStatement * stop_at);
 	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
 	virtual void GetDataFromUser();
 	virtual void PrintArrayDeclarations(ostringstream & quest_defns);

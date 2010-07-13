@@ -125,6 +125,18 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 }
 
 
+void AbstractQuestion::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
+		AbstractStatement * stop_at)
+{
+	//std::cerr << "ENTER AbstractQuestion::GetQuestionsInBlock()" << std::endl;
+	question_list.push_back(this);
+	if(next_ && next_!=stop_at){
+		next_->GetQuestionsInBlock(question_list, stop_at);
+	}
+	//std::cerr << "EXIT AbstractQuestion::GetQuestionsInBlock()" << std::endl;
+}
+
+
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
 	program_code << "if (!" 
@@ -752,13 +764,6 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]->isAnswered_==true ) {" << endl;
 		SetupArrayQuestionRestore(code);
-		s << "if ( jumpToQuestion == \"" << questionName_ 
-			<< "\" && jumpToIndex==" 
-			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-			<< "){\n" 
-			<< "back_jump=false;\n" 
-			<< "jumpToIndex=-1;\n"
-			<< "}\n";
 		s << "}" << endl;
 		SetupArrayQuestionSave(code);
 	}
@@ -769,6 +774,10 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 {
 	// ----------------------------------
+	code.program_code << "cout << \"jumpToQuestion = \" << jumpToQuestion << endl;" 
+		<< endl;
+	code.program_code << "cout << \"jumpToIndex = \" << jumpToIndex << endl;" 
+		<< endl;
 	code.program_code << "if (!"
 			<< questionName_.c_str() << "_list.questionList[";
 	string consolidated_for_loop_index=PrintConsolidatedForLoopIndex(for_bounds_stack);
@@ -779,6 +788,14 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< ") ) {\n";
 	code.program_code << "label_eval_" << questionName_ << ":\n";
+	code.program_code << "if ( jumpToQuestion == \"" << questionName_ 
+		<< "\" && jumpToIndex==" 
+		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+		<< "){\n" 
+		<< "back_jump=false;\n" 
+		<< "jumpToIndex=-1;\n"
+		<< "}\n";
+
 	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
@@ -1575,12 +1592,12 @@ bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion *
 
 bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion *q2)
 {
-	cerr << "IsAtADeeperNestLevelInTheSameBlock(q1=" << q1->questionName_
-		<< ", q2=" << q2->questionName_ << endl;
-	cerr << "(q1->QuestionIsInMyBlock(q2)):" << (q1->QuestionIsInMyBlock(q2))
-		<< endl;
-	cerr << "q2->QuestionIsInMyBlock(q1):" << q2->QuestionIsInMyBlock(q1)
-		<< endl;
+	//cerr << "IsAtADeeperNestLevelInTheSameBlock(q1=" << q1->questionName_
+	//	<< ", q2=" << q2->questionName_ << endl;
+	//cerr << "(q1->QuestionIsInMyBlock(q2)):" << (q1->QuestionIsInMyBlock(q2))
+	//	<< endl;
+	//cerr << "q2->QuestionIsInMyBlock(q1):" << q2->QuestionIsInMyBlock(q1)
+	//	<< endl;
 	return (!q1->QuestionIsInMyBlock(q2)) && (q2->QuestionIsInMyBlock(q1));
 }
 
