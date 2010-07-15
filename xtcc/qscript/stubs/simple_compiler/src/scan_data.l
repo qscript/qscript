@@ -45,6 +45,8 @@
 			return NAVIGATE_PREVIOUS_TOK;
 		} else if (yytext[0]=='j'){
 			return JUMP_TO_QUESTION_TOK;
+		} else if (yytext[0] =='s') {
+			return SAVE_DATA_TOK;
 		} else  {
 			cerr << "ERROR: running ECHO rule" << endl;
 			ECHO;

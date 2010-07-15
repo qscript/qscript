@@ -99,6 +99,8 @@ struct AbstractQuestion: public AbstractStatement
 	bool QuestionIsInMyBlock(AbstractQuestion *q);
 	void SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
 	void RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
+	void PrintUserNavigation(ostringstream & program_code);
+	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);

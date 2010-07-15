@@ -801,6 +801,8 @@ YY_RULE_SETUP
 			return NAVIGATE_PREVIOUS_TOK;
 		} else if (scan_datatext[0]=='j'){
 			return JUMP_TO_QUESTION_TOK;
+		} else if (scan_datatext[0] =='s') {
+			return SAVE_DATA_TOK;
 		} else  {
 			cerr << "ERROR: running ECHO rule" << endl;
 			ECHO;
@@ -810,10 +812,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 56 "src/scan_data.l"
+#line 58 "src/scan_data.l"
 ECHO;
 	YY_BREAK
-#line 817 "src/scan_data.cpp"
+#line 819 "src/scan_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1808,7 +1810,7 @@ void scan_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 56 "src/scan_data.l"
+#line 58 "src/scan_data.l"
 
 
 

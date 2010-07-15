@@ -28,6 +28,7 @@ using namespace std;
 %token NAVIGATE_NEXT_TOK
 %token NAVIGATE_PREVIOUS_TOK
 %token JUMP_TO_QUESTION_TOK
+%token SAVE_DATA_TOK
  //%token END_OF_DATA
 
 
@@ -64,6 +65,9 @@ navigation:	JUMP_TO_QUESTION_TOK {
 	| NAVIGATE_NEXT_TOK{
 			user_navigation=NAVIGATE_NEXT;
 		}
+	| SAVE_DATA_TOK {
+		user_navigation = SAVE_DATA;
+	}
 	;
 
 %%

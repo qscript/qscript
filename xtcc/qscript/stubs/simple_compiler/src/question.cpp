@@ -136,18 +136,8 @@ void AbstractQuestion::GetQuestionsInBlock(vector<AbstractQuestion*> & question_
 	//std::cerr << "EXIT AbstractQuestion::GetQuestionsInBlock()" << std::endl;
 }
 
-
-void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
+void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 {
-	program_code << "if (!" 
-		<< questionName_.c_str() << "->isAnswered_ ||" << endl
-		<< "stopAtNextQuestion ||" << endl
-		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
-	program_code << "if (stopAtNextQuestion ) {\n\tstopAtNextQuestion=false;\n}\n";
-	program_code << "label_eval_" << questionName_.c_str() << ":\n"
-		<< "\t\t" 
-		<< questionName_.c_str() 
-		<< "->eval();\n" ;
 	// hard coded for now
 	program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
 		AbstractQuestion * target_question = ComputePreviousQuestion(" 
@@ -156,6 +146,9 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		goto label_eval_" << questionName_.c_str() << ";\n\
 		else {\n\
 		jumpToQuestion = target_question->questionName_;\n\
+		if(target_question->type_==QUESTION_ARR_TYPE){\n\
+			jumpToIndex = ComputeJumpToIndex(target_question);\n\
+		}\n\
 		cout << \"target question: \" << jumpToQuestion;\n\
 		cout << \"target question Index: \" << jumpToIndex;\n\
 		back_jump=true;\n\
@@ -171,10 +164,67 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		user_navigation=NOT_SET;\n\
 		goto start_of_questions;\n\
 		}\n";
+	program_code << "else if (user_navigation==SAVE_DATA){\n\
+		write_data_to_disk(question_list, jno, ser_no);\n\
+		}";
 	program_code << " else { " << endl
 		<< "last_question_answered = " << questionName_ << ";\n"
-		<< "}\n"
 		<< "}\n";
+}
+
+void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_code)
+{
+	program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
+		AbstractQuestion * target_question = ComputePreviousQuestion(" 
+			<< questionName_.c_str()  << "_list.questionList[" 
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+			<< "]"
+			<< ");\n\
+		if(target_question==0)\n\
+		goto label_eval_" << questionName_.c_str() << ";\n\
+		else {\n\
+		jumpToQuestion = target_question->questionName_;\n\
+		if(target_question->type_==QUESTION_ARR_TYPE){\n\
+			jumpToIndex = ComputeJumpToIndex(target_question);\n\
+		}\n\
+		cout << \"target question: \" << jumpToQuestion;\n\
+		cout << \"target question Index: \" << jumpToIndex;\n\
+		back_jump=true;\n\
+		user_navigation=NOT_SET;\n\
+		goto start_of_questions;\n}\n}\n" ;
+	program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
+		stopAtNextQuestion=true;\n\
+		user_navigation=NOT_SET;\n}\n";
+	program_code << "else if (user_navigation==JUMP_TO_QUESTION){\n\
+		DisplayActiveQuestions();\n\
+		GetUserResponse(jumpToQuestion, jumpToIndex);\n\
+		user_navigation=NOT_SET;\n\
+		goto start_of_questions;\n\
+		}\n";
+	program_code << "else if (user_navigation==SAVE_DATA){\n\
+		write_data_to_disk(question_list, jno, ser_no);\n\
+		}";
+	program_code << " else { " << endl
+		<< "last_question_answered = " << questionName_ << "_list.questionList["
+		//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
+		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+		<< "]" << ";\n"
+		<< "}\n";
+}
+
+void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
+{
+	program_code << "if (!" 
+		<< questionName_.c_str() << "->isAnswered_ ||" << endl
+		<< "stopAtNextQuestion ||" << endl
+		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
+	program_code << "if (stopAtNextQuestion ) {\n\tstopAtNextQuestion=false;\n}\n";
+	program_code << "label_eval_" << questionName_.c_str() << ":\n"
+		<< "\t\t" 
+		<< questionName_.c_str() 
+		<< "->eval();\n" ;
+	PrintUserNavigation(program_code);
+	program_code <<  "}\n";
 }
 
 void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & code)
@@ -807,42 +857,9 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
 	code.program_code << "]->eval();\n" ;
+	PrintUserNavigationArrayQuestion(code.program_code);
 
-	code.program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
-		AbstractQuestion * target_question = ComputePreviousQuestion(" 
-			<< questionName_.c_str()  << "_list.questionList[" 
-			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-			<< "]"
-			<< ");\n\
-		if(target_question==0)\n\
-		goto label_eval_" << questionName_.c_str() << ";\n\
-		else {\n\
-		jumpToQuestion = target_question->questionName_;\n\
-		if(target_question->type_==QUESTION_ARR_TYPE){\n\
-			jumpToIndex = ComputeJumpToIndex(target_question);\n\
-		}\n\
-		cout << \"target question: \" << jumpToQuestion;\n\
-		cout << \"target question Index: \" << jumpToIndex;\n\
-		back_jump=true;\n\
-		user_navigation=NOT_SET;\n\
-		goto start_of_questions;\n}\n}\n" ;
-	code.program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
-		stopAtNextQuestion=true;\n\
-		user_navigation=NOT_SET;\n}\n";
-	code.program_code << "else if (user_navigation==JUMP_TO_QUESTION){\n\
-		DisplayActiveQuestions();\n\
-		GetUserResponse(jumpToQuestion, jumpToIndex);\n\
-		user_navigation=NOT_SET;\n\
-		goto start_of_questions;\n\
-		}\n";
-		
-	code.program_code << " else { " << endl
-		<< "last_question_answered = " << questionName_ << "_list.questionList["
-		//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
-		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-		<< "]" << ";\n"
-		<< "}\n"
-		<< "}\n";
+	code.program_code << "}\n";
 	//code.program_code << "*/\n";
 }
 
