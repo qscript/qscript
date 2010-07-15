@@ -88,6 +88,8 @@ void print_array_question_class(FILE* script);
 void print_close(FILE* script, ostringstream & program_code);
 void print_navigation_support_functions(FILE * script);
 void print_reset_questionnaire(FILE * script);
+void PrintDisplayActiveQuestions(FILE *script);
+void PrintGetUserResponse(FILE *script);
 
 void GenerateCode()
 {
@@ -165,6 +167,8 @@ void print_header(FILE* script){
 	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
 	fprintf(script, "int ComputeJumpToIndex(AbstractQuestion * q);\n");
 	fprintf(script, "void reset_questionnaire();\n");
+	fprintf(script, "void DisplayActiveQuestions();\n");
+	fprintf(script, "void GetUserResponse(string& qno, int &qindex);\n");
 	print_array_question_class(script);
 
 
@@ -248,6 +252,8 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "%s\n", write_data_to_disk_code());
 	print_navigation_support_functions(script);
 	print_reset_questionnaire(script);
+	PrintDisplayActiveQuestions(script);
+	PrintGetUserResponse(script);
 }
 
 void print_navigation_support_functions(FILE * script)
@@ -304,6 +310,24 @@ void print_reset_questionnaire(FILE * script)
 	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
 
+}
+
+
+void PrintDisplayActiveQuestions(FILE *script)
+{
+	fprintf(script, "void DisplayActiveQuestions()\n{\n\
+			\tfor(int i=0; i<question_list.size(); ++i){\n\
+			\t\tif(question_list[i]->isAnswered_)\n\
+			\t\t\tcout << question_list[i]->questionName_ << \" \";\n\
+			\t}\
+			\tcout << endl;\n\
+			\n}\n");
+}
+
+void PrintGetUserResponse(FILE *script)
+{
+	fprintf(script, "void GetUserResponse(string & qno, int & qindex)\n{\n\
+			cin >> qno;\nqindex=0;\n}\n");
 }
 
 	bool skip_func_type_check(const char * fname){

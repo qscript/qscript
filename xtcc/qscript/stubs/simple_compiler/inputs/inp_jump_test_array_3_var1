@@ -1,4 +1,4 @@
-inp_jump_test_array_3{
+inp_jump_test_array_3_var1 {
 	int32_t i=0;
 	int32_t i1=10;
 	for(i=0; i<3; i=i+1){
@@ -9,6 +9,12 @@ inp_jump_test_array_3{
 			q4 "Q2." sp int32_t (1,2,3,4);
 		}
 	}
+	q3[0]=4;
+	q3[1]=4;
+	q3[2]=4;
+	q3[3]=4;
+	q3[4]=4;
+	q3[5]=4;
 
 	for(i=0; i<3; i=i+1){
 		q5 "Q5." sp int32_t (1,2,3,4);

@@ -1,4 +1,4 @@
-{
+inp_jump_test_array_22{
 	int32_t i=0;
 	int32_t j=0;
 	int32_t k=0;

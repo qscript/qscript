@@ -163,7 +163,14 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		goto start_of_questions;\n}\n}\n" ;
 	program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
 		stopAtNextQuestion=true;\n\
-		user_navigation=NOT_SET;\n}\n";
+		user_navigation=NOT_SET;\n\
+		}\n";
+	program_code << "else if (user_navigation==JUMP_TO_QUESTION){\n\
+		DisplayActiveQuestions();\n\
+		GetUserResponse(jumpToQuestion, jumpToIndex);\n\
+		user_navigation=NOT_SET;\n\
+		goto start_of_questions;\n\
+		}\n";
 	program_code << " else { " << endl
 		<< "last_question_answered = " << questionName_ << ";\n"
 		<< "}\n"
@@ -822,6 +829,13 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	code.program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
 		stopAtNextQuestion=true;\n\
 		user_navigation=NOT_SET;\n}\n";
+	code.program_code << "else if (user_navigation==JUMP_TO_QUESTION){\n\
+		DisplayActiveQuestions();\n\
+		GetUserResponse(jumpToQuestion, jumpToIndex);\n\
+		user_navigation=NOT_SET;\n\
+		goto start_of_questions;\n\
+		}\n";
+		
 	code.program_code << " else { " << endl
 		<< "last_question_answered = " << questionName_ << "_list.questionList["
 		//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]

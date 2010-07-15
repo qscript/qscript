@@ -1,4 +1,4 @@
-{
+inp_quest_assgn{
 	q1 "Q1" sp int32_t (1,2,3,4);
 	q1=2;
 }

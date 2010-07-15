@@ -149,7 +149,7 @@ release: clean
 .PHONY: clean tags
 
 clean:
-	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/*
+	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/* $(BUILD_DIR)/compiletime_lib/*
 
 local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/qscript bin

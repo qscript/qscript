@@ -255,7 +255,7 @@ Scope::~Scope() {
 	debug_log_file << "end deleting Scope" << endl;
 }
 
-string human_readable_type(DataType dt);
+//string human_readable_type(DataType dt);
 void Scope::print_scope(const string & stack_name, vector<string> &push_stack, vector<string>& pop_stack){
 	map<string,SymbolTableEntry*>::iterator it;
 	for(it=SymbolTable.begin(); it!=SymbolTable.end(); ++it){

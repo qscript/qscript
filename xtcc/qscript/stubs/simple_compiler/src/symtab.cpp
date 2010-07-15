@@ -27,11 +27,14 @@
 #include <sstream>
 #include <string>
 #include <cstdlib>
+#include <iostream>
 #include "qscript_parser.h"
 #include "symtab.h"
 #include "expr.h"
 //using namespace std;
 using std::stringstream;
+using std::cout;
+using std::endl;
 
 using qscript_parser::line_no;
 //extern int line_no;
@@ -106,7 +109,9 @@ DataType convert_ref_type(DataType dt){
 		return dt;
 }
 
-string human_readable_type(DataType dt){
+string human_readable_type(DataType dt)
+{
+	cout << "ENTER human_readable_type" << endl;
 	string s="UNKNOWN TYPE";
 	switch(dt){
 		case VOID_TYPE:
@@ -229,6 +234,7 @@ string human_readable_type(DataType dt){
 		default:
 			s="fix: human_readable_type: unhandled";
 	}
+	cout << "EXIT human_readable_type" << endl;
 	return s;
 }
 

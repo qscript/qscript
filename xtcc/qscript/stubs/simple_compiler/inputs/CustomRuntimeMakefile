@@ -13,3 +13,9 @@ test_script: test_script.o
 
 test_script.o: test_script.C
 	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -g -c $<
+
+#test_script: test_script_bcpp.o
+#	$(CXX) -g -o $@ -L$(QSCRIPT_RUNTIME) test_script_bcpp.o -lqscript_runtime -lreadline
+#
+#test_script_bcpp.o: test_script_bcpp.C
+#	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -g -c $<

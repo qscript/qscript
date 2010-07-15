@@ -54,7 +54,7 @@ void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question
 		AbstractStatement * stop_at)
 {
 	//cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
-	cerr << human_readable_type(type_) << endl;
+	//cerr << human_readable_type(type_) << endl;
 	if(next_ && next_!=stop_at){
 		next_->GetQuestionsInBlock(question_list, stop_at);
 	}

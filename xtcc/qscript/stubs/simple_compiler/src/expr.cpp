@@ -608,7 +608,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			++no_errors;
 		}
 		if(typ1==QUESTION_TYPE){
-			cerr << " lhs is of QUESTION_TYPE " << endl;
+			//cerr << " lhs is of QUESTION_TYPE " << endl;
 			Unary2Expression* lhs
 				= static_cast<Unary2Expression*>(leftOperand_);
 			const SymbolTableEntry * symp = lhs->get_symp_ptr();
@@ -743,12 +743,12 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 	, doubleSemanticValue_(0), func_index_in_table(-1), text(0)
 	, column_no(-1), operand_(arr_index),  operand2_(0)
 {
-	cerr << "ENTER Unary2Expression::Unary2Expression :name" << name 
-		<< " with arr_index" << endl;
+	//cerr << "ENTER Unary2Expression::Unary2Expression :name" << name 
+	//	<< " with arr_index" << endl;
 		
-	if(le_type==oper_arrderef){
-		cerr << " arr_deref_type " << endl;
-	}
+	//if(le_type==oper_arrderef){
+	//	cerr << " arr_deref_type " << endl;
+	//}
 	using qscript_parser::active_scope;
 	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(name);
 	if(sym_it==active_scope->SymbolTable.end() ){

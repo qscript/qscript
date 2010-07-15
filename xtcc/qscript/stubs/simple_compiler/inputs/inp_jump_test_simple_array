@@ -1,4 +1,4 @@
-{
+inp_jump_test_simple_array{
 	int32_t i=0;
 	int32_t i1=10;
 	for(i=0; i<3; i=i+1){

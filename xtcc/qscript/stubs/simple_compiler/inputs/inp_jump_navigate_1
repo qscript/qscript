@@ -1,4 +1,4 @@
-{
+inp_jump_navigate_1 {
 	{
 		q1 "q1" sp int32_t (1,2,3,4);
 	}

@@ -1,4 +1,4 @@
-{
+inp {
 	stubs age = "15 to 21" 1
 		"22 to 30" 2
 		"31 to 40" 3
