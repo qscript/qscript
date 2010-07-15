@@ -578,8 +578,7 @@ void RangeQuestion::GenerateCode( StatementCompiledCode & code )
 		PrintArrayDeclarations(code.quest_defns);
 		
 		GenerateCodeSingleQuestion(code);
-		code.array_quest_init_area << questionName_ << "_list"
-			<< ".questionList.push_back(" << questionName_ << ");"
+		code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
 	}
 	if(next_){
@@ -641,12 +640,8 @@ void NamedStubQuestion::GenerateCode( StatementCompiledCode &code)
 		AbstractQuestion::PrintSetupBackJump(code);
 		PrintArrayDeclarations(code.quest_defns);
 		GenerateCodeSingleQuestion(code);
-		code.quest_defns << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+		code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
-		for(int i=0; i< for_bounds_stack.size(); ++i){
-			code.quest_defns << "stack_of_loop_indices.pop_back();\n";
-			code.quest_defns << "}" << endl;
-		}
 	}
 
 	if(next_){
