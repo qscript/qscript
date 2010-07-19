@@ -270,6 +270,7 @@ struct ForStatement: public AbstractStatement
 	private:
 	ForStatement& operator=(const ForStatement&);	
 	ForStatement(const ForStatement&);	
+	void DoExtraForLoopChecks();
 };
 
 //! IfStatement if statements in the language become object instantiations of this class

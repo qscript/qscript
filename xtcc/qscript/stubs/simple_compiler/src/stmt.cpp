@@ -17,6 +17,7 @@
 #include "question.h"
 #include "named_range.h"
 #include "qscript_parser.h"
+#include "symtab.h"
 
 
 //extern vector<mem_addr_tab> mem_addr;
@@ -592,18 +593,180 @@ ForStatement::ForStatement( DataType dtype, int lline_number
 	// testExpression_->e_type should be <, >, <=, >=, == or !=
 
 	if(forBody_->counterContainsQuestions_){
-		BinaryExpression * test_expr 
-			= dynamic_cast<BinaryExpression*>(testExpression_);
-		if(test_expr==0){
+		// NxD - put strong checks here on loop initialization, condition and test expression
+		DoExtraForLoopChecks();
+	}
+}
+
+//! This is Called when a for statement contains
+//! questions. We then apply stronger checks on the for loop
+//! 1. The form of the for loop should be 
+//!	var=0; var<const_expression; var=var+1
+//! 2. The same variable should not be used in another for loop
+//!	in the same nesting hierarchy
+//! 3. The variable should be marked as readonly
+void ForStatement::DoExtraForLoopChecks()
+{
+
+	if(initializationExpression_==0){
+		print_err(compiler_sem_err, 
+			"initializationExpression_ should not be 0 when the for body contains a question"
+		, qscript_parser::line_no, __LINE__, __FILE__);
+	}
+	if(testExpression_==0){
+		print_err(compiler_sem_err, 
+			"testExpression_ should not be 0 when the for body contains a question"
+		, qscript_parser::line_no, __LINE__, __FILE__);
+	}
+	if(incrementExpression_==0){
+		print_err(compiler_sem_err, 
+			"incrementExpression_ should not be 0 when the for body contains a question"
+		, qscript_parser::line_no, __LINE__, __FILE__);
+	}
+	if(initializationExpression_==0 || testExpression_==0 
+			|| incrementExpression_==0){
+		return;
+	}
+	string init_var_name, test_var_name, inc_var_name;
+	BinaryExpression * init_expr 
+		= dynamic_cast<BinaryExpression*>(initializationExpression_);
+	if(init_expr==0){
+		print_err(compiler_sem_err, 
+			"init_expr expr should be a binary expression ",
+			qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		Unary2Expression * init_var = dynamic_cast<Unary2Expression*> (
+				init_expr->leftOperand_);
+		if(init_var==0){
 			print_err(compiler_sem_err, 
-				" testExpression_ expr should be a binary expression ",
+				"init_expr should be of the form var=0",
 				qscript_parser::line_no, __LINE__, __FILE__);
-		} else if(!(test_expr->rightOperand_->IsIntegralExpression() 
-				&& test_expr->rightOperand_->IsConst())) {
+		} else if (init_var->exprOperatorType_!=oper_name){
 			print_err(compiler_sem_err, 
-				"If the for loop contains questions, then the counter of the for loop should be an integer and a constant expression"
-			, qscript_parser::line_no, __LINE__, __FILE__);
+				"init_expr should be of the form var=0",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else  {
+			init_var_name = init_var->symbolTableEntry_->name_;
 		}
+		Unary2Expression * init_value = dynamic_cast<Unary2Expression*> (
+				init_expr->rightOperand_);
+		if(init_value==0){
+			print_err(compiler_sem_err, 
+				"init_expr should be of the form var=0",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			if(is_of_int_type(init_value->type_)){
+				if(init_value->intSemanticValue_==0){
+				} else {
+					print_err(compiler_sem_err, 
+						"init_expr should be of the form var=0",
+						qscript_parser::line_no, __LINE__, __FILE__);
+				}
+			} else {
+				print_err(compiler_sem_err, 
+					"init_expr should be of the form var=0",
+					qscript_parser::line_no, __LINE__, __FILE__);
+			}
+					
+		}
+
+	}
+	BinaryExpression * inc_expr 
+		= dynamic_cast<BinaryExpression*>(incrementExpression_);
+	if(inc_expr==0){
+		print_err(compiler_sem_err, 
+			"incrementExpression_ expr should be a binary expression ",
+			qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		Unary2Expression * inc_var = dynamic_cast<Unary2Expression*> (
+				inc_expr->leftOperand_);
+		if(inc_var==0){
+			print_err(compiler_sem_err, 
+				"init_expr should be of the form var=0",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else if (inc_var->exprOperatorType_!=oper_name){
+			print_err(compiler_sem_err, 
+				"init_expr should be of the form var=0",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else  {
+			inc_var_name = inc_var->symbolTableEntry_->name_;
+		}
+		BinaryExpression * rhs_inc_expr = dynamic_cast<BinaryExpression*>
+				(inc_expr->rightOperand_);
+		if(rhs_inc_expr==0){
+			print_err(compiler_sem_err, 
+				"inc_expr should be of the form var=var+1",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else if (rhs_inc_expr->exprOperatorType_!=oper_plus) {
+			print_err(compiler_sem_err, 
+				"inc_expr should be of the form var=var+1",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else  {
+			Unary2Expression * rhs_inc_expr_left_component = 
+				dynamic_cast<Unary2Expression*> (rhs_inc_expr->leftOperand_);
+			if(rhs_inc_expr_left_component->exprOperatorType_!=oper_name){
+				print_err(compiler_sem_err, 
+					"inc_expr should be of the form var=var+1",
+					qscript_parser::line_no, __LINE__, __FILE__);
+			}
+			if(string(rhs_inc_expr_left_component->symbolTableEntry_->name_)
+					!=inc_var_name){
+				print_err(compiler_sem_err, 
+					"inc_expr does not consistently use inc variable : should be of the form var=var+1",
+					qscript_parser::line_no, __LINE__, __FILE__);
+			}
+			Unary2Expression * rhs_inc_expr_right_component = 
+				dynamic_cast<Unary2Expression*> (rhs_inc_expr->rightOperand_);
+			if( rhs_inc_expr_right_component==0){
+				print_err(compiler_sem_err, 
+					"inc_expr should be of the form var=var+1",
+					qscript_parser::line_no, __LINE__, __FILE__);
+			} else if(rhs_inc_expr_right_component->exprOperatorType_!=oper_num){
+				print_err(compiler_sem_err, 
+					"inc_expr should be of the form var=var+1",
+					qscript_parser::line_no, __LINE__, __FILE__);
+			} else if(rhs_inc_expr_right_component->intSemanticValue_!=1){
+				print_err(compiler_sem_err, 
+					"inc_expr should be of the form var=var+1",
+					qscript_parser::line_no, __LINE__, __FILE__);
+			} else {
+				// valid inc expression
+			}
+		}
+		
+	}
+
+	BinaryExpression * test_expr 
+		= dynamic_cast<BinaryExpression*>(testExpression_);
+	if(test_expr==0){
+		print_err(compiler_sem_err, 
+			" testExpression_ expr should be a binary expression ",
+			qscript_parser::line_no, __LINE__, __FILE__);
+	} else if(!(test_expr->rightOperand_->IsIntegralExpression() 
+			&& test_expr->rightOperand_->IsConst())) {
+		print_err(compiler_sem_err, 
+			"If the for loop contains questions, then the counter of the for loop should be an integer and a constant expression"
+		, qscript_parser::line_no, __LINE__, __FILE__);
+	} else  if(test_expr->exprOperatorType_!=oper_lt){
+			print_err(compiler_sem_err, 
+				"test_expr should be of the form var< const_integral_expression",
+				qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		Unary2Expression * test_var = dynamic_cast<Unary2Expression*> (
+				test_expr->leftOperand_);
+		if(test_var->exprOperatorType_!=oper_name){
+			print_err(compiler_sem_err, 
+				"test_expr should be of the form var< const_integral_expression",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			test_var_name = test_var->symbolTableEntry_->name_;
+		}
+	}
+	if(! (init_var_name==test_var_name &&
+			test_var_name==inc_var_name)){
+		print_err(compiler_sem_err, 
+			"init_var_name should be same as test_var_name should be same as inc_var_name ",
+			qscript_parser::line_no, __LINE__, __FILE__);
 	}
 }
 
