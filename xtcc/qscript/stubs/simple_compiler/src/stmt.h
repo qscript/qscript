@@ -271,6 +271,8 @@ struct ForStatement: public AbstractStatement
 	ForStatement& operator=(const ForStatement&);	
 	ForStatement(const ForStatement&);	
 	void DoExtraForLoopChecks();
+	void CheckForIndexUsageConsistency();
+	void CheckNestedIndexUsage();
 };
 
 //! IfStatement if statements in the language become object instantiations of this class

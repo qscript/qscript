@@ -607,6 +607,69 @@ ForStatement::ForStatement( DataType dtype, int lline_number
 //! 3. The variable should be marked as readonly
 void ForStatement::DoExtraForLoopChecks()
 {
+	CheckForIndexUsageConsistency();
+	CheckNestedIndexUsage();
+}
+
+void ForStatement::CheckNestedIndexUsage()
+{
+	string init_var_name;
+	BinaryExpression * init_expr 
+		= dynamic_cast<BinaryExpression*>(initializationExpression_);
+	if(init_expr==0){
+		print_err(compiler_sem_err, 
+			"init_expr expr should be a binary expression ",
+			qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		Unary2Expression * init_var = dynamic_cast<Unary2Expression*> (
+				init_expr->leftOperand_);
+		if(init_var==0){
+			print_err(compiler_sem_err, 
+				"init_expr should be of the form var=0",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else if (init_var->exprOperatorType_!=oper_name){
+			print_err(compiler_sem_err, 
+				"init_expr should be of the form var=0",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else  {
+			init_var_name = init_var->symbolTableEntry_->name_;
+		}
+	}
+	using qscript_parser::for_loop_max_counter_stack;
+	cout << "CheckNestedIndexUsage: on variable: " << init_var_name << ", " 
+		<< "for_loop_max_counter_stack.size(): " 
+		<< for_loop_max_counter_stack.size()  << endl;
+	for(int i=0; i<for_loop_max_counter_stack.size()-1; ++i){
+		BinaryExpression * prev_test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[i]);
+		if(prev_test_expr==0){
+			print_err(compiler_sem_err, 
+				"For loop containing questions should be of the form for(var=0; var<const_expr; var=var+1)",
+				qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			Unary2Expression * prev_init_var = dynamic_cast<Unary2Expression*> (
+					prev_test_expr->leftOperand_);
+			if(prev_init_var==0){
+				print_err(compiler_sem_err, 
+					"init_expr should be of the form var=0",
+					qscript_parser::line_no, __LINE__, __FILE__);
+			} else if (prev_init_var->exprOperatorType_!=oper_name){
+				print_err(compiler_sem_err, 
+					"init_expr should be of the form var=0",
+					qscript_parser::line_no, __LINE__, __FILE__);
+			} else  {
+				if(init_var_name == prev_init_var->symbolTableEntry_->name_){
+					string err_msg = "for loop variable " + init_var_name + " has been re-used at a deeper nest level";
+					print_err(compiler_sem_err, 
+						err_msg.c_str(),
+						qscript_parser::line_no, __LINE__, __FILE__);
+				}
+			}
+		}
+	}
+}
+
+void ForStatement::CheckForIndexUsageConsistency()
+{
 
 	if(initializationExpression_==0){
 		print_err(compiler_sem_err, 
@@ -669,8 +732,8 @@ void ForStatement::DoExtraForLoopChecks()
 			}
 					
 		}
-
 	}
+
 	BinaryExpression * inc_expr 
 		= dynamic_cast<BinaryExpression*>(incrementExpression_);
 	if(inc_expr==0){
