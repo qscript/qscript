@@ -150,7 +150,7 @@ bool UnaryExpression::IsIntegralExpression()
 //void UnaryExpression::PrintExpressionCode (ostringstream& code_bef_expr, ostringstream & code_expr)
 void UnaryExpression::PrintExpressionCode (ExpressionCompiledCode& code)
 {
-	//code.code_expr << "/* UnaryExpression::PrintExpressionCode ENTER */" << endl;
+	code.code_expr << "/* UnaryExpression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
 		case oper_umin:{
 			code.code_expr <<  "- ";
@@ -175,7 +175,7 @@ void UnaryExpression::PrintExpressionCode (ExpressionCompiledCode& code)
 			code.code_expr <<  " un handled operator\n" ;
 
 	}
-	//code.code_expr << "/* UnaryExpression::PrintExpressionCode EXIT */" << endl;
+	code.code_expr << "/* UnaryExpression::PrintExpressionCode EXIT */" << endl;
 }
 
 bool UnaryExpression::IsConst()
@@ -203,7 +203,7 @@ bool BinaryExpression::IsIntegralExpression()
 string human_readable_type(DataType dt);
 void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 {
-	//code.code_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
+	code.code_bef_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
 	if(leftOperand_->exprOperatorType_==oper_arrderef
 			&& leftOperand_->type_==QUESTION_TYPE){
 		Unary2Expression* lhs= 
@@ -274,13 +274,13 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 			<< endl;
 
 	} else {
-		//code.code_expr << " /* print_oper_assgn BEGIN */";
+		code.code_bef_expr << " /* print_oper_assgn lhs is not a (QUESTION_TYPE or QUESTION_ARR_TYPE) */";
 		leftOperand_->PrintExpressionCode(code);
-		code.code_expr << "  = ";
+		code.code_expr << " = ";
 		rightOperand_->PrintExpressionCode(code);
-		//code.code_expr << " /* print_oper_assgn END */";
+		code.code_expr << " /* print_oper_assgn END */";
 	}
-	//code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
+	code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
 }
 
 bool Unary2Expression::IsConst(){
@@ -331,9 +331,10 @@ bool Unary2Expression::IsIntegralExpression(){
 
 void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 {
-	//code.code_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
+	code.code_bef_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
-		case oper_name:{			
+		case oper_name:{
+			code.code_bef_expr << " /* case  oper_name */ \n";
 			if(type_==QUESTION_TYPE){
 				AbstractQuestion * q = symbolTableEntry_->question_;
 				if(q->type_==QUESTION_TYPE){
@@ -346,9 +347,15 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 							
 					cerr << "code_bef_expr: "
 					     << code.code_bef_expr.str() << endl;
-				} 
+					string temp_name = get_temp_name();
+					code.code_bef_expr << temp_name 
+					     << "=" << symbolTableEntry_->name_ << "->input_data.begin();\n";
+					code.code_expr << temp_name;
+				}
+			} else {
+				code.code_expr << symbolTableEntry_->name_;
 			}
-			code.code_expr << symbolTableEntry_->name_;
+
 		}
 		break;
 		case oper_arrderef:{
@@ -420,13 +427,13 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			print_err(compiler_internal_error, "unhandled AbstractExpression operator\n", 
 						line_no, __LINE__, __FILE__);
 	}
-	//code.code_expr <<"/* Unary2Expression::PrintExpressionCode EXIT */" << endl;
+	code.code_expr <<"/* Unary2Expression::PrintExpressionCode EXIT */" << endl;
 }
 
 //void BinaryExpression::PrintExpressionCode(ostringstream& code_bef_expr, ostringstream & code_expr)
 void BinaryExpression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
-	//code.code_expr << "/* ENTER BinaryExpression::PrintExpressionCode */" << endl;
+	code.code_bef_expr << "/* ENTER BinaryExpression::PrintExpressionCode */" << endl;
 	
 	switch(exprOperatorType_){
 		char oper_buf[3];
@@ -445,6 +452,7 @@ void BinaryExpression::PrintExpressionCode(ExpressionCompiledCode &code)
 			}
 		break;	       
 		case oper_mult:{
+			code.code_expr << " /* Enter oper_mult */ " << endl;
 			sprintf(oper_buf, "%s" , "*");
 			leftOperand_->PrintExpressionCode(code);
 			code.code_expr << oper_buf;
@@ -530,7 +538,7 @@ void BinaryExpression::PrintExpressionCode(ExpressionCompiledCode &code)
 					, " unhandled operator type_ in AbstractExpression  ", 
 						line_no, __LINE__, __FILE__);
 	}
-	//code.code_expr << "/* EXIT BinaryExpression::PrintExpressionCode */" << endl;
+	code.code_expr << "/* EXIT BinaryExpression::PrintExpressionCode */" << endl;
 }
 
 BinaryExpression::~BinaryExpression()
@@ -993,7 +1001,7 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 
 void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
-	//code.code_expr << "/* ENTER Binary2Expression::PrintExpressionCode */" << endl;
+	code.code_expr << "/* ENTER Binary2Expression::PrintExpressionCode */" << endl;
 	PrintTemporaryStruct(code);
 	string struct_name1 = get_temp_name();
 	code.code_bef_expr << "\t} " <<  struct_name1 <<";\n";
@@ -1050,7 +1058,7 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 					, line_no, __LINE__, __FILE__);
 		 }
 	}
-	//code.code_expr << "/* EXIT Binary2Expression::PrintExpressionCode */" << endl;
+	code.code_expr << "/* EXIT Binary2Expression::PrintExpressionCode */" << endl;
 }
 
 

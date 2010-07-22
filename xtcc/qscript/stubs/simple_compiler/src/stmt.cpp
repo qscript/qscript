@@ -75,11 +75,12 @@ void AbstractStatement::GenerateConsolidatedForLoopIndexes()
 void read_data(const char * prompt);
 void ExpressionStatement::GenerateCode(StatementCompiledCode &code)
 {
-	code.program_code << "/* ExpressionStatement::GenerateCode */" << endl;
+	code.program_code << "/* ENTER ExpressionStatement::GenerateCode */" << endl;
 	ExpressionCompiledCode expr_code;
 	expression_->PrintExpressionCode(expr_code);
 	code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str() << ";" << endl;
 	if(next_){
+		code.program_code << "/* EXIT ExpressionStatement::GenerateCode */" << endl;
 		next_->GenerateCode(code);
 	}
 }
