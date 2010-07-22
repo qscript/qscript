@@ -11,63 +11,74 @@ void yyrestart(FILE *);
 void InitStatement();
 
 #define REP(i,n) for(int i=0; i<(n); ++i)
+#define FOR(i,p,k) for(int i=(p); i<=(k); ++i)
 
 #define exc_flags std::ios::failbit | std::ios::badbit
 
-std::string safe(const std::string &s)
+class Document
 {
-	std::string res; REP(i,s.size()) switch(s[i])
-	{ case'~':case'#':case'$':case'%':case'^':case'&':case'_':case'\\':case'{':case'}': res+='\\'; default: res+=s[i]; }
-	return res;
-}
-
-std::ostream & operator<<(std::ostream &os, NamedStubQuestion &nq)
-{
-	os << "\\noindent\n\\begin{tabular}{p{2cm}p{12cm}}\n\\bfseries{" << safe(nq.questionName_)
-		<< "} & \\bfseries{" << safe(nq.questionText_) << "}\\\\\n& \\begin{tabular}{|p{8cm}|p{2cm}|}\n""\\hline\n";
-	std::vector<stub_pair> &vsp = nq.nr_ptr->stubs;
-	REP(i,vsp.size()){ os << safe(vsp[i].stub_text) << " & " << vsp[i].code << " \\\\\n"; }
-	os << "\\hline\n\\end{tabular}\\\\\n\\end{tabular}\\\\\n";
-	return os;
-}
-
-void visit(std::ostream &os, AbstractStatement *stmt)
-{
-	if(!stmt) return;
-	if(AbstractQuestion *q = dynamic_cast<AbstractQuestion*>(stmt))
-	{
-		if(RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q))
+	public:
+		void parse(const std::string &source_file)
 		{
-			
-		}	
-		else if(NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q)) os << *nq;
-		else if(DummyArrayQuestion *dq = dynamic_cast<DummyArrayQuestion*>(q))
-			throw std::string("parse: DummyArrayQuestion not handled yet");
-		else throw std::string("parse: unknown question type");
-	}
-	else if(CompoundStatement *cs = dynamic_cast<CompoundStatement*>(stmt)) visit(os,cs->compoundBody_);
-	else if(ForStatement *fs = dynamic_cast<ForStatement*>(stmt)) visit(os,fs->forBody_);
-	else if(FunctionStatement *fs = dynamic_cast<FunctionStatement*>(stmt)) visit(os,fs->functionBody_);
-	else if(IfStatement *is = dynamic_cast<IfStatement*>(stmt)){ visit(os,is->ifBody_); visit(os,is->elseBody_); }
-	visit(os,stmt->next_);
-}
+			FILE *f = fopen(source_file.c_str(),"r"); if(!f) throw "parse: cannot open file \""+source_file+"\""; 
+			InitStatement(); qscript_parser::active_scope_list.push_back(new Scope()); yyrestart(f);
+			if(yyparse() || qscript_parser::no_errors) throw std::string("parse: errors while yyparse()");
+			fclose(f); qv.clear(); visit(qscript_parser::tree_root);
+		}
 
-const char *tex_begin = "\\documentclass[12pt]{article}\n\\begin{document}\n";
-const char *tex_end = "\\end{document}\n";
+		friend std::ostream & operator<<(std::ostream &os, Document &d)
+		{
+			const char *tex_begin = "\\documentclass[8pt,twocolumn]{article}\n\\begin{document}\n";
+			const char *tex_end = "\\end{document}\n";
+			os << tex_begin;
+			REP(i,d.qv.size()){ int j=i; while(j<d.qv.size() && d.qv[j]->nr_ptr==d.qv[i]->nr_ptr) j++; d.package(os,i,j); i = j-1; }	
+			return os << tex_end;
+		}
 
-void tex_document(std::ostream &os, const std::string &source_file)
-{
-	FILE *f = fopen(source_file.c_str(),"r"); if(!f) throw "parse: cannot open file \""+source_file+"\""; 
-	InitStatement(); qscript_parser::active_scope_list.push_back(new Scope()); yyrestart(f);
-	if(yyparse() || qscript_parser::no_errors) throw std::string("parse: errors while yyparse()");
-	fclose(f);
-	os << tex_begin; visit(os,qscript_parser::tree_root); os << tex_end;
-}
+	private:
+		std::vector<NamedStubQuestion*> qv;
+		
+		void package(std::ostream &os, int i, int j)
+		{
+			os << "\\noindent\n\\begin{tabular}{p{1cm}p{6cm}}\n";
+			FOR(k,i,j-1) os << "\\bfseries{" << safe(qv[k]->questionName_) << "} & \\bfseries{" << safe(qv[k]->questionText_) << "}\\\\\n";
+			os << "\\end{tabular}\n\\noindent\n\\begin{tabular}{|p{1.5cm}|"; FOR(k,i,j-1) os << "p{.7cm}|"; os << "}\n\\hline\n";
+			FOR(k,i,j-1) os << " & " << safe(qv[k]->questionName_); os << "\\\\\n\\hline\n";
+			std::vector<stub_pair> &vsp = qv[i]->nr_ptr->stubs;
+			REP(x,vsp.size()){ os << safe(vsp[x].stub_text); FOR(k,i,j-1) os << " & " << vsp[x].code; os << " \\\\\n"; }
+			os << "\\hline\n\\end{tabular}\\\\\n";
+		}
+
+		static std::string safe(const std::string &s)
+		{
+			std::string res; REP(i,s.size()) switch(s[i])
+			{ case'~':case'#':case'$':case'%':case'^':case'&':case'_':case'\\':case'{':case'}': res+='\\'; default: res+=s[i]; }
+			return res;
+		}
+		
+		void visit(AbstractStatement *stmt)
+		{
+			if(!stmt) return;
+			if(AbstractQuestion *q = dynamic_cast<AbstractQuestion*>(stmt))
+			{
+				if(RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q));
+				else if(NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q)) qv.push_back(nq);
+				else if(DummyArrayQuestion *dq = dynamic_cast<DummyArrayQuestion*>(q))
+					throw std::string("parse: DummyArrayQuestion not handled yet");
+				else throw std::string("parse: unknown question type");
+			}
+			else if(CompoundStatement *cs = dynamic_cast<CompoundStatement*>(stmt)) visit(cs->compoundBody_);
+			else if(ForStatement *fs = dynamic_cast<ForStatement*>(stmt)) visit(fs->forBody_);
+			else if(FunctionStatement *fs = dynamic_cast<FunctionStatement*>(stmt)) visit(fs->functionBody_);
+			else if(IfStatement *is = dynamic_cast<IfStatement*>(stmt)){ visit(is->ifBody_); visit(is->elseBody_); }
+			visit(stmt->next_);
+		}
+};
 
 int main(int argc, char **argv)
 {
 	if(argc<3){ std::cout << "usage: " << argv[0] << " input_script_file output_TeX_file\n"; exit(EXIT_FAILURE); }
-	try { std::ofstream of; of.exceptions(exc_flags); of.open(argv[2]); tex_document(of,argv[1]); }
+	try { std::ofstream of; of.exceptions(exc_flags); of.open(argv[2]); Document doc; doc.parse(argv[1]); of << doc; }
 	catch(const std::ios::failure &e){ std::cout << "IO error: " << e.what() << "\n"; }
 	catch(const std::string &s){ std::cout << "error: " << s; }
 	
