@@ -1,0 +1,13 @@
+set test "qscript detection of programmer error in loop"
+#set timeout 5
+global QSCRIPT
+#wait
+#spawn $XTCC test-inputs/expr-add-mult sample2.dat
+spawn $QSCRIPT -f inputs/inp_for_err1 
+#wait
+expect {
+	-re "init_var_name should be same as test_var_name should be same as inc_var_name" { pass $test }
+	default { send_user "failed\n" }
+#timeout { send_user "failed\n" } 
+}
+

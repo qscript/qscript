@@ -1,0 +1,13 @@
+set test "qscript detection of programmer error in loop"
+#set timeout 5
+global QSCRIPT
+#wait
+#spawn $XTCC test-inputs/expr-add-mult sample2.dat
+spawn $QSCRIPT -f inputs/inp_for_err3
+#wait
+expect {
+	-re "for loop variable i1 has been re-used at a deeper nest level" { pass $test }
+	default { send_user "failed\n" }
+#timeout { send_user "failed\n" } 
+}
+

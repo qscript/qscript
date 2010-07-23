@@ -1,0 +1,14 @@
+
+set test "qscript detection of programmer error in loop"
+#set timeout 5
+global QSCRIPT
+#wait
+#spawn $XTCC test-inputs/expr-add-mult sample2.dat
+spawn $QSCRIPT -f inputs/inp_for_err5
+#wait
+expect {
+	-re "If the for loop contains questions, then the counter of the for loop should be an integer and a constant expression" { pass $test }
+	default { send_user "failed\n" }
+#timeout { send_user "failed\n" } 
+}
+
