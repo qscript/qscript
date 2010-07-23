@@ -34,7 +34,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=4
+QSCRIPT_MINOR_VERSION_NUMBER=5
 
 
 #dummy:
@@ -142,11 +142,20 @@ release: clean
 	-if [ -d $(RELEASE_DIR) ] ; then rm -rf $(RELEASE_DIR) ; fi
 	-if [ -f $(RELEASE_DIR).tar ] ; then rm -f $(RELEASE_DIR).tar ; fi
 	mkdir -p $(RELEASE_DIR)/bin $(RELEASE_DIR)/lib $(RELEASE_DIR)/src $(RELEASE_DIR)/make-build-dir/runtime_lib \
+		$(RELEASE_DIR)/make-build-dir/compiletime_lib  \
+		$(RELEASE_DIR)/testsuite/qscript.test $(RELEASE_DIR)/testsuite/config \
 		$(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include
 	cp   src/* $(RELEASE_DIR)/src 
 	cp -R cmake $(RELEASE_DIR)
+	cp -R testsuite $(RELEASE_DIR)
 	cp CustomQScriptMakefile CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
+	-rm inputs/test_script
+	-rm inputs/test_script_bcpp.[Co]
+	-rm inputs/*.dat
+	-rm inputs/tags
+	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op
 	cp inputs/* $(RELEASE_DIR)/inputs
+	cp bin/qscript.sh $(RELEASE_DIR)/bin
 	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
 
 .PHONY: clean tags
