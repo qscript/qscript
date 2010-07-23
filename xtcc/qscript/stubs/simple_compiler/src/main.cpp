@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 			exit(1);
 			break;
 		default:
-			cerr << "usage: " << endl
+			cerr << "Usage: " 
 				<< argv[0] << " -f <input-file>\n" <<   endl ;
 			exit(0);
 		}
@@ -82,9 +82,8 @@ int main(int argc, char* argv[])
 
 
 	if(!fname_flag){
-		cout << "usage: " 
-			<< endl
-			<< argv[0] << " -f <input-file> "  << endl << endl;
+		cout << "Usage: " 
+			<< argv[0] << " -f <input-file> "  << endl;
 		exit(0);
 	}
 	active_scope=new Scope();

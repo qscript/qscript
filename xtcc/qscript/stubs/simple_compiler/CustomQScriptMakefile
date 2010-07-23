@@ -135,6 +135,9 @@ $(BUILD_DIR)/compiletime_lib/%.o: $(SOURCE_DIR)/%.cpp
 
 RELEASE_DIR=qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER)
 
+check:
+	runtest --tool qscript QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
+
 release: clean
 	-if [ -d $(RELEASE_DIR) ] ; then rm -rf $(RELEASE_DIR) ; fi
 	-if [ -f $(RELEASE_DIR).tar ] ; then rm -f $(RELEASE_DIR).tar ; fi

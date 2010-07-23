@@ -345,8 +345,6 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 						   << q->questionName_
 							   << "\" << endl;\n}\n";
 							
-					cerr << "code_bef_expr: "
-					     << code.code_bef_expr.str() << endl;
 					string temp_name = get_temp_name();
 					code.code_bef_expr << temp_name 
 					     << "=" << symbolTableEntry_->name_ << "->input_data.begin();\n";
@@ -359,7 +357,6 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 		}
 		break;
 		case oper_arrderef:{
-			code.code_expr << "/* came here */" << endl;
 			if(type_==QUESTION_TYPE){
 				AbstractQuestion * q = symbolTableEntry_->question_;
 				if (q->type_==QUESTION_ARR_TYPE){
