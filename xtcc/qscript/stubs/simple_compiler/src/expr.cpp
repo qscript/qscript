@@ -401,7 +401,7 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			//cout << "/* oper_func_call */" << endl;
 			//cout << "func_index_in_table: " << func_info_table[e->func_index_in_table]->functionName_ << endl;
 			if(func_info_table[func_index_in_table]->functionName_==string("printf")){
-				code.code_expr << "fprintf(xtcc_stdout,";
+				code.code_expr << "fprintf(qscript_stdout,";
 			} else {
 				code.code_expr <<func_info_table[func_index_in_table]->functionName_.c_str() << "(";
 			}

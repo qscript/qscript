@@ -75,6 +75,8 @@ namespace qscript_parser {
 	
 	int yywrap();
 
+	string project_name;
+
 }
 
 namespace qscript_parser{
@@ -108,6 +110,7 @@ void GenerateCode()
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
 	print_close(script, code.program_code);
+	fflush(script);
 }
 
 void print_header(FILE* script){
@@ -128,10 +131,10 @@ void print_header(FILE* script){
 	fprintf(script, "#include \"user_navigation.h\"\n");
 
 
-	fprintf(script, "string xtcc_stdout_fname(\"xtcc_stdout.log\");\n");
-	fprintf(script, "FILE * xtcc_stdout=0;\n");
+	fprintf(script, "string qscript_stdout_fname(\"qscript_stdout.log\");\n");
+	fprintf(script, "FILE * qscript_stdout=0;\n");
 	fprintf(script, "#include \"debug_mem.h\"\n");
-	fprintf(script, "fstream debug_log_file(\"xtcc_debug.log\", ios_base::out|ios_base::trunc);\n");
+	fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
@@ -174,7 +177,7 @@ void print_header(FILE* script){
 
 	fprintf(script, "int main(){\n");
 	fprintf(script, "AbstractQuestion * last_question_answered=0;\n");
-	fprintf(script, "xtcc_stdout=fopen(xtcc_stdout_fname.c_str(), \"w\");\n");
+	fprintf(script, "qscript_stdout=fopen(qscript_stdout_fname.c_str(), \"w\");\n");
 	/*
 	map<string, vector<string> > ::iterator iter;
 	for(iter=map_of_active_push_vars_for_questions.begin();
@@ -205,7 +208,7 @@ void print_close(FILE* script, ostringstream & program_code){
 	fprintf(script, "\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
 	fprintf(script, "\treset_questionnaire();\n");
 	fprintf(script, "\tcin >> ser_no;\n");
-	fprintf(script, "\tstring jno=\"j_1001\";\n");
+	fprintf(script, "\tstring jno=\"%s\";\n", project_name.c_str());
 	fprintf(script, "\twhile(ser_no!=0){\n");
 	fprintf(script, "%s\n", file_exists_check_code());
 	fprintf(script, "\tstart_of_questions:\n");
@@ -568,6 +571,45 @@ void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
 		Scope* sc_ptr= active_scope_list[i];
 		sc_ptr->print_scope(output_info);
 		//sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
+	}
+}
+
+void CompileGeneratedCode()
+{
+	/*
+# You will need to modify the variable below
+#QSCRIPT_HOME=/media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
+# if you have setup everything under ../INSTALL_CUSTOM.readme the you will not need to change
+#the variables below
+# when running the generated exe you will need to use
+# LD_LIBRARY_PATH=$(QSCRIPT_RUNTIME) ./test_script
+
+QSCRIPT_RUNTIME=$(QSCRIPT_HOME)/lib
+QSCRIPT_INCLUDE_DIR=$(QSCRIPT_HOME)/include
+
+test_script: test_script.o
+	$(CXX) -g -o $@ -L$(QSCRIPT_RUNTIME) test_script.o -lqscript_runtime -lreadline
+
+test_script.o: test_script.C
+	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -g -c $<
+	*/
+	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
+	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
+	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
+		
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string cpp_compile_command = string ("g++ -g -o test_script -L") + QSCRIPT_RUNTIME 
+					+ string(" -I") + QSCRIPT_INCLUDE_DIR
+					+ string(" test_script.C -lqscript_runtime -lreadline");
+	cout << "cpp_compile_command: " << cpp_compile_command << endl;
+	//int ret_val=0;
+	int ret_val = system(cpp_compile_command.c_str());
+	if(ret_val!=0){
+		cerr << "Failed in compiling generated code : test_script.C ";
+	} else {
+		cout << "Generated test_script executable. You can run it by shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./test_script"
+			<< endl;
 	}
 }
 

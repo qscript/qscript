@@ -132,7 +132,8 @@
 
 
 prog: NAME cmpd_stmt {
-	qscript_parser::tree_root=$2;
+		qscript_parser::project_name = $1;
+		qscript_parser::tree_root=$2;
 		while(qscript_parser::tree_root->prev_) {
 			cerr << "This should never appear: climbing up the tree" << endl;
 			qscript_parser::tree_root=qscript_parser::tree_root->prev_;

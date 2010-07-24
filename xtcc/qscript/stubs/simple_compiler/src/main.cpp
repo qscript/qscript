@@ -107,6 +107,7 @@ int main(int argc, char* argv[])
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode();
+		qscript_parser::CompileGeneratedCode();
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
@@ -149,7 +150,7 @@ int main(int argc, char* argv[])
 	catch(...){ std::cout << "error while generating configuration file\n"; }
 ////////////////////////////////
 	if(qscript_parser::tree_root) {
-		cerr << "deleting qscript_parser::tree_root" << endl;
+		//cerr << "deleting qscript_parser::tree_root" << endl;
 		delete qscript_parser::tree_root;
 		if (active_scope_list[0]) {
 			delete active_scope_list[0]; active_scope_list[0]=0;

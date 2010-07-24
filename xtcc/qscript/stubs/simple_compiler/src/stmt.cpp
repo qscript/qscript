@@ -1225,7 +1225,7 @@ void FunctionStatement::GenerateCode(StatementCompiledCode & code)
 	}
 	
 	if(funcInfo_->functionName_==string("printf")){
-		code.program_code << "/* FunctionStatement::GenerateCode*/ fprintf(xtcc_stdout,";
+		code.program_code << "/* FunctionStatement::GenerateCode*/ fprintf(qscript_stdout,";
 	} else {
 		code.program_code << funcInfo_->functionName_.c_str() << "(";
 	}
