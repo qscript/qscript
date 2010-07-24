@@ -92,7 +92,7 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 		$(SOURCE_DIR)/stmt.cpp $(SOURCE_DIR)/scope.cpp \
 		$(SOURCE_DIR)/question_disk_data.cpp \
 		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
-		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp
+		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp
 
 RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
 RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)
@@ -104,7 +104,7 @@ COMPILETIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp
 		$(SOURCE_DIR)/utils.cpp $(SOURCE_DIR)/symtab.cpp \
 		$(SOURCE_DIR)/stmt.cpp $(SOURCE_DIR)/scope.cpp \
 		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
-		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp
+		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp
 
 COMPILETIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/compiletime_lib,$(COMPILETIME_LIB_SOURCES) )
 COMPILETIME_LIB_OBJECTS := $(COMPILETIME_LIB_OBJECTS:.cpp=.o)
@@ -136,7 +136,10 @@ $(BUILD_DIR)/compiletime_lib/%.o: $(SOURCE_DIR)/%.cpp
 RELEASE_DIR=qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER)
 
 check:
-	runtest --tool qscript QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
+	#LD_PRELOAD=$(QSCRIPT_HOME)/lib/libqscript_runtime.so runtest --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
+	# you can manually run a test by below - however you need to set LD_PRELOAD before that 
+	# runtest -v -v -v  --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite printf-1.exp
+	LD_LIBRARY_PATH=$(QSCRIPT_HOME)/lib runtest --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
 
 release: clean
 	-if [ -d $(RELEASE_DIR) ] ; then rm -rf $(RELEASE_DIR) ; fi

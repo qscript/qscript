@@ -1,0 +1,50 @@
+set test "qscript printf test"
+set timeout 5
+global QSCRIPT
+global QSCRIPT_HOME
+global counter
+set counter 0
+if { $counter == 0 } {
+	spawn rm qscript_stdout.log
+	wait
+}
+spawn $QSCRIPT -f inputs/inp_printf 
+wait
+#spawn LD_LIBRARY_PATH=$QSCRIPT_HOME/lib inputs/inp_printf.exe
+
+spawn inputs/inp_printf.exe
+#spawn cat inputs/qscript_stdout.log
+if { $counter == 0 } {
+	send_user "counter = $counter\n"
+	expect {
+#-re "inp_printf.exe: error while loading shared libraries: libqscript_runtime.so.1: cannot open shared object file: No such file or directory"
+#		{ pass $test }
+# use : LD_PRELOAD=$QSCRIPT_HOME/lib/libqscript_runtime.so 
+#	to circumvent this problem
+#	-re "nter" 
+#-re "Enter Serial No (0) to exit:" 
+		-re "Enter Serial No .0. to exit:" { 	send "1\r" ;  exp_continue;}
+		-re "End of Questionnaire: .s to save, p = previous question, j = question jump list." { send "s\r";incr counter;
+			send_user "counter = $counter\n"; 
+			}
+#-re "hello,World" { pass $test }
+		default { send_user "failed\n" }
+		timeout { send_user "failed\n" } 
+	}
+}
+if {$counter == 1} {
+	send_user "counter== $counter, reached here \n";
+	 
+	expect { 
+		-re "Enter Serial No .0. to exit:" { 
+#send_user "got 2nd Enter Serial... finishing up"; 
+			send "0\r";
+			exp_continue;
+		}
+	}
+	spawn cat qscript_stdout.log
+	expect { 
+		-re "hello,World" { pass $test; }
+		default { send_user "failed\n"; }
+	}
+}

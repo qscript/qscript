@@ -1,0 +1,15 @@
+
+
+set test "qscript detection of programmer error in loop"
+#set timeout 5
+global QSCRIPT
+#wait
+#spawn $XTCC test-inputs/expr-add-mult sample2.dat
+spawn $QSCRIPT -f inputs/inp_quest_expr_2 
+#wait
+expect {
+	-re "Usage of Questions in Expressions only allowed for SPN question_type" { pass $test }
+	default { send_user "failed\n" }
+#timeout { send_user "failed\n" } 
+}
+
