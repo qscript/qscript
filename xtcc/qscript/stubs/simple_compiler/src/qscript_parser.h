@@ -73,8 +73,8 @@ namespace qscript_parser {
 	extern struct AbstractStatement* tree_root;
 	extern string project_name;
 	extern vector <AbstractQuestion*> question_list;
-	extern void GenerateCode();
-	extern void CompileGeneratedCode();
+	extern void GenerateCode(const string & src_file_name);
+	extern void CompileGeneratedCode(const string & src_file_name);
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
 	extern const bool XTCC_DEBUG_MEM_USAGE;

@@ -77,11 +77,6 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
-
-
-
-
-
 	if(!fname_flag){
 		cout << "Usage: " 
 			<< argv[0] << " -f <input-file> "  << endl;
@@ -106,8 +101,8 @@ int main(int argc, char* argv[])
 	if( !yyparse() && !no_errors){
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
-		qscript_parser::GenerateCode();
-		qscript_parser::CompileGeneratedCode();
+		qscript_parser::GenerateCode(fname);
+		qscript_parser::CompileGeneratedCode(fname);
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}

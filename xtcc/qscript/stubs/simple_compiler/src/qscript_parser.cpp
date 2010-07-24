@@ -58,7 +58,6 @@ namespace qscript_parser {
 
 	struct AbstractStatement* tree_root=0;
 	vector <AbstractQuestion*> question_list;
-	void GenerateCode();
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);
 	const bool XTCC_DEBUG_MEM_USAGE=true;
@@ -93,12 +92,25 @@ void print_reset_questionnaire(FILE * script);
 void PrintDisplayActiveQuestions(FILE *script);
 void PrintGetUserResponse(FILE *script);
 
-void GenerateCode()
+string ExtractBaseFileName(const string & fname)
 {
-	string script_name("test_script.C");
-	FILE * script = fopen(script_name.c_str(), "w");
+	string output_file_name = fname;
+	int dot_pos = fname.find_last_of('.');
+	if(!(dot_pos==string::npos)){
+		output_file_name = fname.substr(0, dot_pos);
+	}
+	return output_file_name;
+}
+
+void GenerateCode(const string & src_file_name)
+{
+	cerr << "ENTER qscript_parser::GenerateCode" << endl;
+	string output_file_name = ExtractBaseFileName(src_file_name);
+	output_file_name += ".C";
+	//string script_name("test_script.C");
+	FILE * script = fopen(output_file_name.c_str(), "w");
 	if(!script){
-		cerr << "unable to open output file to dump script data: " << script_name << endl;
+		cerr << "unable to open output file : " << output_file_name << endl;
 		exit(1);
 	}
 	//ostringstream quest_defns, program_code;
@@ -111,6 +123,7 @@ void GenerateCode()
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
 	print_close(script, code.program_code);
 	fflush(script);
+	cerr << "EXIT qscript_parser::GenerateCode" << endl;
 }
 
 void print_header(FILE* script){
@@ -574,8 +587,10 @@ void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
 	}
 }
 
-void CompileGeneratedCode()
+void CompileGeneratedCode(const string & src_file_name )
 {
+	cerr << "ENTER qscript_parser::CompileGeneratedCode" << endl;
+		
 	/*
 # You will need to modify the variable below
 #QSCRIPT_HOME=/media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
@@ -593,22 +608,29 @@ test_script: test_script.o
 test_script.o: test_script.C
 	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -g -c $<
 	*/
+	string executable_file_name = ExtractBaseFileName(src_file_name);
+	cout << "executable_file_name: " << executable_file_name << endl;
+	string intermediate_file_name = executable_file_name + ".C";
+	executable_file_name += ".exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
 	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
 		
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
-	string cpp_compile_command = string ("g++ -g -o test_script -L") + QSCRIPT_RUNTIME 
+	string cpp_compile_command = string ("g++ -g -o ")  
+				+ executable_file_name +  string(" -L") + QSCRIPT_RUNTIME
 					+ string(" -I") + QSCRIPT_INCLUDE_DIR
-					+ string(" test_script.C -lqscript_runtime -lreadline");
+					+ string(" ") + intermediate_file_name
+					+ string(" -lqscript_runtime -lreadline");
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int ret_val=0;
 	int ret_val = system(cpp_compile_command.c_str());
 	if(ret_val!=0){
 		cerr << "Failed in compiling generated code : test_script.C ";
 	} else {
-		cout << "Generated test_script executable. You can run it by shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./test_script"
+		cout << "Generated executable. You can run it by\n shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./"
+			 <<  executable_file_name
 			<< endl;
 	}
 }
