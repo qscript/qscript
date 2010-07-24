@@ -35,6 +35,7 @@
 #include "named_range.h"
 #include "qscript_parser.h"
 #include "question.h"
+#include "qscript_debug.h" 
 AbstractQuestion* find_in_question_list(string name);
 using std::string;
 using std::stringstream;
@@ -150,7 +151,9 @@ bool UnaryExpression::IsIntegralExpression()
 //void UnaryExpression::PrintExpressionCode (ostringstream& code_bef_expr, ostringstream & code_expr)
 void UnaryExpression::PrintExpressionCode (ExpressionCompiledCode& code)
 {
-	code.code_expr << "/* UnaryExpression::PrintExpressionCode ENTER */" << endl;
+	if (qscript_debug::DEBUG_UnaryExpression) {
+		code.code_expr << "/* UnaryExpression::PrintExpressionCode ENTER */" << endl;
+	}
 	switch(exprOperatorType_){
 		case oper_umin:{
 			code.code_expr <<  "- ";
@@ -175,7 +178,8 @@ void UnaryExpression::PrintExpressionCode (ExpressionCompiledCode& code)
 			code.code_expr <<  " un handled operator\n" ;
 
 	}
-	code.code_expr << "/* UnaryExpression::PrintExpressionCode EXIT */" << endl;
+	if(qscript_debug::DEBUG_UnaryExpression)
+		code.code_expr << "/* UnaryExpression::PrintExpressionCode EXIT */" << endl;
 }
 
 bool UnaryExpression::IsConst()
@@ -203,7 +207,8 @@ bool BinaryExpression::IsIntegralExpression()
 string human_readable_type(DataType dt);
 void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 {
-	code.code_bef_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
+	if(qscript_debug::DEBUG_BinaryExpression)
+		code.code_bef_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
 	if(leftOperand_->exprOperatorType_==oper_arrderef
 			&& leftOperand_->type_==QUESTION_TYPE){
 		Unary2Expression* lhs= 
@@ -280,7 +285,8 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		rightOperand_->PrintExpressionCode(code);
 		code.code_expr << " /* print_oper_assgn END */";
 	}
-	code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
+	if(qscript_debug::DEBUG_BinaryExpression)
+		code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
 }
 
 bool Unary2Expression::IsConst(){
@@ -331,7 +337,8 @@ bool Unary2Expression::IsIntegralExpression(){
 
 void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 {
-	code.code_bef_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
+	if(qscript_debug::DEBUG_Unary2Expression)
+		code.code_bef_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
 		case oper_name:{
 			code.code_bef_expr << " /* case  oper_name */ \n";
@@ -424,13 +431,15 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			print_err(compiler_internal_error, "unhandled AbstractExpression operator\n", 
 						line_no, __LINE__, __FILE__);
 	}
-	code.code_expr <<"/* Unary2Expression::PrintExpressionCode EXIT */" << endl;
+	if(qscript_debug::DEBUG_Unary2Expression)
+		code.code_expr <<"/* Unary2Expression::PrintExpressionCode EXIT */" << endl;
 }
 
 //void BinaryExpression::PrintExpressionCode(ostringstream& code_bef_expr, ostringstream & code_expr)
 void BinaryExpression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
-	code.code_bef_expr << "/* ENTER BinaryExpression::PrintExpressionCode */" << endl;
+	if(qscript_debug::DEBUG_BinaryExpression)
+		code.code_bef_expr << "/* ENTER BinaryExpression::PrintExpressionCode */" << endl;
 	
 	switch(exprOperatorType_){
 		char oper_buf[3];
@@ -535,7 +544,8 @@ void BinaryExpression::PrintExpressionCode(ExpressionCompiledCode &code)
 					, " unhandled operator type_ in AbstractExpression  ", 
 						line_no, __LINE__, __FILE__);
 	}
-	code.code_expr << "/* EXIT BinaryExpression::PrintExpressionCode */" << endl;
+	if(qscript_debug::DEBUG_BinaryExpression)
+		code.code_expr << "/* EXIT BinaryExpression::PrintExpressionCode */" << endl;
 }
 
 BinaryExpression::~BinaryExpression()
@@ -939,6 +949,8 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 
 void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 {
+	if(qscript_debug::DEBUG_Binary2Expression)
+		code.code_bef_expr << " /* ENTER Binary2Expression::PrintTemporaryStruct */ " << endl;
 	string struct_name = get_temp_name();
 	code.code_bef_expr << "\tstruct " <<  struct_name.c_str() << "{\n" ;
 	code.code_bef_expr << "\t\tconst int size_ran_indiv;\n";
@@ -994,14 +1006,21 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 	code.code_bef_expr << "\t\t\t}*/\n";
 	code.code_bef_expr << "\t\treturn true;\n";
 	code.code_bef_expr << "\t\t}\n";
+
+	code.code_bef_expr << "\t} ";
+
+	if(qscript_debug::DEBUG_Binary2Expression)
+		code.code_bef_expr << " /* EXIT Binary2Expression::PrintTemporaryStruct */ " << endl;
 }
 
 void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
-	code.code_expr << "/* ENTER Binary2Expression::PrintExpressionCode */" << endl;
+	if(qscript_debug::DEBUG_Binary2Expression)
+		code.code_bef_expr << "/* ENTER Binary2Expression::PrintExpressionCode */" << endl;
 	PrintTemporaryStruct(code);
+	//code.code_bef_expr << "\t} " 
 	string struct_name1 = get_temp_name();
-	code.code_bef_expr << "\t} " <<  struct_name1 <<";\n";
+	code.code_bef_expr <<  struct_name1 <<";\n";
 	switch(leftOperand_->get_symp_ptr()->type_){
 		case INT8_TYPE:
 		case INT16_TYPE:
@@ -1039,9 +1058,12 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 				<< " = " << struct_name1.c_str()
 				<< ".contains_subset(";
 			//ostringstream code_bef_expr1_discard, code_expr1;
-			ExpressionCompiledCode expr1_code;
-			leftOperand_->PrintExpressionCode(expr1_code);
-			code.code_bef_expr << expr1_code.code_expr.str()
+			//ExpressionCompiledCode expr1_code;
+			//leftOperand_->PrintExpressionCode(expr1_code);
+			code.code_bef_expr 
+				//<< expr1_code.code_bef_expr.str() 
+				//<< expr1_code.code_expr.str()
+				<< leftOperand_->get_symp_ptr()->name_
 				<< "->input_data"
 				<< ");\n";
 			code.code_expr << test_bool_var_name.c_str() << " " ;
@@ -1055,7 +1077,8 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 					, line_no, __LINE__, __FILE__);
 		 }
 	}
-	code.code_expr << "/* EXIT Binary2Expression::PrintExpressionCode */" << endl;
+	if(qscript_debug::DEBUG_Binary2Expression)
+		code.code_expr << "/* EXIT Binary2Expression::PrintExpressionCode */" << endl;
 }
 
 

@@ -9,6 +9,7 @@
 #include "named_range.h"
 #include "qscript_parser.h"
 #include "scope.h"
+#include "qscript_debug.h"
 
 
 #include <fstream>
