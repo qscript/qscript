@@ -97,6 +97,9 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
 RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)
 
+RUNTIME_STATIC_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_static_lib,$(RUNTIME_LIB_SOURCES) )
+RUNTIME_STATIC_LIB_OBJECTS := $(RUNTIME_STATIC_LIB_OBJECTS:.cpp=.o)
+
 COMPILETIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 		$(SOURCE_DIR)/data_entry.cpp $(SOURCE_DIR)/question.cpp \
 		$(SOURCE_DIR)/stmt_common.cpp \
@@ -115,6 +118,13 @@ runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
 	$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
 
 
+runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
+	echo "RUNTIME_LIB_SOURCES $(RUNTIME_STATIC_LIB_OBJECTS)"
+	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_STATIC_LIB_OBJECTS)"
+#$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
+	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a $(RUNTIME_STATIC_LIB_OBJECTS)
+
+
 compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
 	echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
 	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
@@ -127,6 +137,8 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 $(BUILD_DIR)/runtime_lib/%.o: $(SOURCE_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(CXX_SHARED_LIB_FLAGS) -o $@ $<
 
+$(BUILD_DIR)/runtime_static_lib/%.o: $(SOURCE_DIR)/%.cpp
+	$(CC) $(CFLAGS) -o $@ $<
 
 $(BUILD_DIR)/compiletime_lib/%.o: $(SOURCE_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(CXX_SHARED_LIB_FLAGS) -o $@ $<
