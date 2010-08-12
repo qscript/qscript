@@ -379,17 +379,16 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "			WINDOW * &  stub_list_window,\n");
 	fprintf(script, "			WINDOW * & data_entry_window)\n");
 
-	fprintf(script, "if(has_colors() == FALSE)\n");
-	fprintf(script, "{	endwin();\n");
-	fprintf(script, "	printf("Your terminal does not support color\n");\n");
-	fprintf(script, "	exit(1);\n");
-	fprintf(script, "}\n");
-	fprintf(script, "start_color();	\n");
-
 
 
 
 	fprintf(script, "{\n");
+	fprintf(script, "if(has_colors() == FALSE)\n");
+	fprintf(script, "{	endwin();\n");
+	fprintf(script, "	printf(\"Your terminal does not support color\\n\");\n");
+	fprintf(script, "	exit(1);\n");
+	fprintf(script, "}\n");
+	fprintf(script, "start_color();	\n");
 	fprintf(script, "	int maxX, maxY;\n");
 	fprintf(script, "	getmaxyx(stdscr, maxY, maxX);\n");
 	fprintf(script, "\n");
