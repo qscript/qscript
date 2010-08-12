@@ -413,7 +413,7 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 				} 
 				e_ptr=e_ptr->next_;
 			}
-			code.code_expr << ")";
+			code.code_expr << ");fflush(qscript_stdout)";
 		}
 		break;
 		case oper_text_expr:{

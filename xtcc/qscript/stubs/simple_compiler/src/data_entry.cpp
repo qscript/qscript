@@ -1345,7 +1345,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 38 "src/data_entry.ypp"
     {
-		cout << "GOT END_OF_DATA" << endl;
+		//cout << "GOT END_OF_DATA" << endl;
 	;}
     break;
 

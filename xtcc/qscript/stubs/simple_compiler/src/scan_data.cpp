@@ -494,12 +494,14 @@ char *scan_datatext;
 #include "data_entry.hpp"
 #include "user_navigation.h"
 #include <readline/readline.h>
+#include "qscript_readline.h"
+
 	using namespace std;
 
 	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
 	int scan_datalex();
 	int scan_dataparse();
-#line 503 "src/scan_data.cpp"
+#line 505 "src/scan_data.cpp"
 
 #define INITIAL 0
 
@@ -686,9 +688,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 24 "src/scan_data.l"
+#line 26 "src/scan_data.l"
 
-#line 692 "src/scan_data.cpp"
+#line 694 "src/scan_data.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -769,12 +771,12 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 25 "src/scan_data.l"
+#line 27 "src/scan_data.l"
 ;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 27 "src/scan_data.l"
+#line 29 "src/scan_data.l"
 {
 	scan_datalval.ival = atoi(scan_datatext);
 	return NUMBER;
@@ -782,7 +784,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 32 "src/scan_data.l"
+#line 34 "src/scan_data.l"
 {
 	return HYPHEN;
 }
@@ -793,7 +795,7 @@ YY_RULE_SETUP
 	}*/
 case 4:
 YY_RULE_SETUP
-#line 41 "src/scan_data.l"
+#line 43 "src/scan_data.l"
 {
 		if(scan_datatext[0] == 'n'){
 			return NAVIGATE_NEXT_TOK;
@@ -812,10 +814,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 58 "src/scan_data.l"
+#line 60 "src/scan_data.l"
 ECHO;
 	YY_BREAK
-#line 819 "src/scan_data.cpp"
+#line 821 "src/scan_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1810,7 +1812,7 @@ void scan_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 58 "src/scan_data.l"
+#line 60 "src/scan_data.l"
 
 
 
@@ -1898,7 +1900,10 @@ top:
 		if(scan_dataparse()){
 			cout << "there was an error in parsing the data" << endl;
 			scan_data_delete_buffer(s_data);
+			free(line);
+			line=0;
 			data.clear();
+			scan_data_delete_buffer(s_data);
 			goto top;
 		}
 		cout << "read: " << endl;
@@ -1909,6 +1914,28 @@ top:
 		scan_data_delete_buffer(s_data);
 		free(line);
 		line=0;
+	}
+
+	void read_data_from_window(WINDOW * data_entry_window, char * prompt);
+	void read_data_from_window(WINDOW * data_entry_window, char * prompt)
+	{
+		data.clear();
+top:
+		char * line=qscript_readline(data_entry_window, prompt);
+		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
+		if(scan_dataparse()){
+			cout << "there was an error in parsing the data" << endl;
+			scan_data_delete_buffer(s_data);
+			data.clear();
+			scan_data_delete_buffer(s_data);
+			delete[] line;
+			goto top;
+		}
+		for(int i=0; i<data.size(); ++i){
+			cout << data[i] << "," ;
+		}
+		scan_data_delete_buffer(s_data);
+		delete[] line;
 	}
 
 

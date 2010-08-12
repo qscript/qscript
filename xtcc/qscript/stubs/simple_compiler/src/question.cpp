@@ -29,6 +29,7 @@ using std::cerr;
 using namespace std;
 //extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
+void read_data_from_window(WINDOW * data_entry_window, char * prompt);
 string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack);
 extern vector<string> consolidated_for_loop_index_stack;
 int GetTempMapKeyNumber();
@@ -222,7 +223,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t" 
 		<< questionName_.c_str() 
-		<< "->eval();\n" ;
+		<< "->eval(question_window, stub_list_window, data_entry_window);\n" ;
 	PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }
@@ -266,58 +267,146 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 	}
 }
 
-void AbstractQuestion::GetDataFromUser()
+bool AbstractQuestion::VerifyData(string & err_mesg)
+{
+	bool invalid_code=true;
+	for(unsigned int i=0; i<data.size(); ++i){
+		//cout << "Testing data exists: " << data[i] << endl;
+		invalid_code = !IsValid(data[i]);
+		if (invalid_code==true){
+			err_mesg = "Input contained some invalid data\nRe-enter Data\n";
+			data.clear();
+			break;
+		}
+	}
+	if(invalid_code)
+		goto end;
+	if(q_type==spn && data.size()>1) {
+		err_mesg="Single coded Question - please enter only 1 code:" ;
+		invalid_code=true;
+		data.clear();
+	} else if (q_type==mpn && data.size() > no_mpn){
+		err_mesg="Multi coded Question, no values exceed max allowed:  " ;
+		invalid_code=true;
+		data.clear();
+	} else {
+		invalid_code=false;
+	}
+end:
+	return invalid_code;
+}
+
+void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 {
 
-	bool invalid_code=false;
-	string prompt="before do: Enter Data:";
-	do{
-		invalid_code=true;
-		read_data(prompt.c_str());
-		cout << "data.size(): " << data.size() << endl;
-		if(data.size()==0 && 
-			(user_navigation == NAVIGATE_PREVIOUS 
-			 || user_navigation == NAVIGATE_NEXT
-			 || user_navigation == JUMP_TO_QUESTION) ){
-			return;
-		}
-
-			
-		for(unsigned int i=0; i<data.size(); ++i){
-			cout << "Testing data exists: " << data[i] << endl;
-			invalid_code = !IsValid(data[i]);
-			if (invalid_code==true){
-				prompt = "Input contained some invalid data\nRe-enter Data\n";
-				data.clear();
-				break;
+	if(data_entry_window==0){
+		bool invalid_code=false;
+		string prompt="Enter Data:";
+		do{
+			invalid_code=true;
+			read_data(prompt.c_str());
+			//cout << "data.size(): " << data.size() << endl;
+			if(data.size()==0 && 
+				(user_navigation == NAVIGATE_PREVIOUS 
+				 || user_navigation == NAVIGATE_NEXT
+				 || user_navigation == JUMP_TO_QUESTION) ){
+				return;
 			}
-		}
-		if(invalid_code)
-			continue;
-		if(q_type==spn && data.size()>1) {
-			prompt="Single coded Question - please enter only 1 code:" ;
-			invalid_code=true;
-			data.clear();
-		} else if (q_type==mpn && data.size() > no_mpn){
-			prompt="Multi coded Question, no values exceed max allowed:  " ;
-			invalid_code=true;
-			data.clear();
-		} else {
-			invalid_code=false;
-		}
 
-		if(invalid_code==false){
-			input_data.erase(input_data.begin(), input_data.end());
+			/*	
 			for(unsigned int i=0; i<data.size(); ++i){
-				input_data.insert(data[i]);
-				cout << "storing: " << data[i] 
-					<< " into input_data" << endl;
+				cout << "Testing data exists: " << data[i] << endl;
+				invalid_code = !IsValid(data[i]);
+				if (invalid_code==true){
+					prompt = "Input contained some invalid data\nRe-enter Data\n";
+					data.clear();
+					break;
+				}
 			}
-			isAnswered_=true;
-		}
-	} while (invalid_code==true);
-	
-	data.clear();
+			if(invalid_code)
+				continue;
+			if(q_type==spn && data.size()>1) {
+				prompt="Single coded Question - please enter only 1 code:" ;
+				invalid_code=true;
+				data.clear();
+			} else if (q_type==mpn && data.size() > no_mpn){
+				prompt="Multi coded Question, no values exceed max allowed:  " ;
+				invalid_code=true;
+				data.clear();
+			} else {
+				invalid_code=false;
+			}
+			*/
+			string err_mesg;
+			invalid_code = VerifyData(err_mesg);
+
+
+			if(invalid_code==false){
+				input_data.erase(input_data.begin(), input_data.end());
+				for(unsigned int i=0; i<data.size(); ++i){
+					input_data.insert(data[i]);
+					//cout 	<< "storing: " << data[i] 
+					//	<< " into input_data" << endl;
+				}
+				isAnswered_=true;
+			}
+		} while (invalid_code==true);
+		
+		data.clear();
+	} else {
+		bool invalid_code=false;
+		do{
+			invalid_code=true;
+			read_data_from_window(data_entry_window, 0 );
+			// cout << "data.size(): " << data.size() << endl;
+			if(data.size()==0 && 
+				(user_navigation == NAVIGATE_PREVIOUS 
+				 || user_navigation == NAVIGATE_NEXT
+				 || user_navigation == JUMP_TO_QUESTION) ){
+				return;
+			}
+
+			/*	
+			for(unsigned int i=0; i<data.size(); ++i){
+				cout << "Testing data exists: " << data[i] << endl;
+				invalid_code = !IsValid(data[i]);
+				if (invalid_code==true){
+					prompt = "Input contained some invalid data\nRe-enter Data\n";
+					data.clear();
+					break;
+				}
+			}
+			if(invalid_code)
+				continue;
+			if(q_type==spn && data.size()>1) {
+				prompt="Single coded Question - please enter only 1 code:" ;
+				invalid_code=true;
+				data.clear();
+			} else if (q_type==mpn && data.size() > no_mpn){
+				prompt="Multi coded Question, no values exceed max allowed:  " ;
+				invalid_code=true;
+				data.clear();
+			} else {
+				invalid_code=false;
+			}
+			*/
+			string err_mesg;
+			invalid_code = VerifyData(err_mesg);
+
+
+			if(invalid_code==false){
+				input_data.erase(input_data.begin(), input_data.end());
+				for(unsigned int i=0; i<data.size(); ++i){
+					input_data.insert(data[i]);
+					//cout << "storing: " << data[i] 
+					//	<< " into input_data" << endl;
+				}
+				isAnswered_=true;
+			}
+		} while (invalid_code==true);
+		
+		data.clear();
+	}
 }
 
 void AbstractQuestion::PrintArrayDeclarations(ostringstream & quest_defns)
@@ -425,31 +514,75 @@ bool RangeQuestion::IsValid(int value)
 	return (r_data->exists(value))? true: false;
 }
 
-void RangeQuestion::eval()
+//void RangeQuestion::eval()
+void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	cout << questionName_ << "." << questionText_ << endl << endl;
-	for(	set<int>::iterator it=r_data->indiv.begin(); 
-			it!=r_data->indiv.end(); ++it){
-		cout << *it << endl;
-	}
-	for(int i=0; i<r_data->range.size(); ++i){
-		for(int j=r_data->range[i].first; j<=r_data->range[i].second
-				;++j){  
-			cout << j << endl; 
+	if(question_window ==0 || stub_list_window ==0 || data_entry_window ==0 ){
+		cout << questionName_ << "." << questionText_ << endl << endl;
+		for(	set<int>::iterator it=r_data->indiv.begin(); 
+				it!=r_data->indiv.end(); ++it){
+			cout << *it << endl;
 		}
-	}
-
-
-	if(input_data.begin()!=input_data.end()){
-		cout << "Current data values: ";
-
-		for(set<int>::iterator iter=input_data.begin();
-			iter!=input_data.end(); ++iter){
-			cout << *iter << " ";
+		for(int i=0; i<r_data->range.size(); ++i){
+			for(int j=r_data->range[i].first; j<=r_data->range[i].second
+					;++j){  
+				cout << j << endl; 
+			}
 		}
-		cout << endl;
+
+
+		if(input_data.begin()!=input_data.end()){
+			cout << "Current data values: ";
+
+			for(set<int>::iterator iter=input_data.begin();
+				iter!=input_data.end(); ++iter){
+				cout << *iter << " ";
+			}
+			cout << endl;
+		}
+		AbstractQuestion::GetDataFromUser(data_entry_window);
+	} else {
+		wclear(question_window);
+		box(question_window, 0, 0);
+		wclear(stub_list_window);
+		box(stub_list_window, 0, 0);
+		wclear(data_entry_window);
+		box(data_entry_window, 0, 0);
+		mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
+		wrefresh(question_window);
+		int maxWinX, maxWinY;
+		getmaxyx(data_entry_window, maxWinY, maxWinX);
+		int currXpos=1, currYpos=1;
+		for(	set<int>::iterator it=r_data->indiv.begin(); 
+				it!=r_data->indiv.end(); ++it){
+			stringstream s;
+			s << *it;
+			int len = s.str().length();
+			mvwprintw(stub_list_window, currYpos, currXpos, "%s ", s.str().c_str());
+			if(currXpos+len +1 /* 1 for the trailing space below */ >= maxWinX){
+				currXpos=1, ++currYpos;
+			} else { 
+				currXpos+= len + 1;
+			}
+		}
+
+		for(int i=0; i<r_data->range.size(); ++i){
+			for(int j=r_data->range[i].first; j<=r_data->range[i].second
+					;++j){  
+				stringstream s;
+				s << j;
+				int len = s.str().length();
+				mvwprintw(stub_list_window, currYpos, currXpos, "%s ", s.str().c_str());
+				if(currXpos+len +1 /* 1 for the trailing space below */ >= maxWinX){
+					currXpos=1, ++currYpos;
+				} else { 
+					currXpos+= len +1;
+				}
+			}
+		}
+		wrefresh(stub_list_window);
+		AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
-	AbstractQuestion::GetDataFromUser();
 }
 
 void RangeQuestion::WriteDataToDisk(ofstream& data_file)
@@ -482,27 +615,53 @@ bool NamedStubQuestion::IsValid(int value)
 	return false;
 }
 
-void NamedStubQuestion::eval()
+//void NamedStubQuestion::eval()
+void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	cout << questionName_ << "." << questionText_ << endl << endl;
-	vector<stub_pair> vec= *stub_ptr;
-	for(unsigned int i=0; i< vec.size(); ++i){
-		if( vec[i].mask)
-			cout << vec[i].stub_text << ": " << vec[i].code << endl;
-	}
-
-
-	if(input_data.begin()!=input_data.end()){
-		cout << "Current data values: ";
-		
-		for(set<int>::iterator iter=input_data.begin();
-			iter!=input_data.end(); ++iter){
-			cout << *iter << " ";
+	if(question_window ==0 || stub_list_window ==0 || data_entry_window ==0 ){
+		cout << questionName_ << "." << questionText_ << endl << endl;
+		vector<stub_pair> vec= *stub_ptr;
+		for(unsigned int i=0; i< vec.size(); ++i){
+			if( vec[i].mask)
+				cout << vec[i].stub_text << ": " << vec[i].code << endl;
 		}
-		cout << endl;
-	}
 
-	AbstractQuestion::GetDataFromUser();
+		if(input_data.begin()!=input_data.end()){
+			cout << "Current data values: ";
+			
+			for(set<int>::iterator iter=input_data.begin();
+				iter!=input_data.end(); ++iter){
+				cout << *iter << " ";
+			}
+			cout << endl;
+		}
+
+		AbstractQuestion::GetDataFromUser(data_entry_window);
+	} else {
+		wclear(question_window);
+		box(question_window, 0, 0);
+		wclear(stub_list_window);
+		box(stub_list_window, 0, 0);
+		wclear(data_entry_window);
+		box(data_entry_window, 0, 0);
+		mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
+		wrefresh(question_window);
+		//int maxWinX, maxWinY;
+		//getmaxyx(data_entry_window, maxWinY, maxWinX);
+		int currXpos=1, currYpos=1;
+
+		vector<stub_pair> & vec= *stub_ptr;
+		for(unsigned int i=0; i< vec.size(); ++i){
+			if( vec[i].mask) {
+				//cout << vec[i].stub_text << ": " << vec[i].code << endl;
+				mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
+				++currYpos;
+			}
+		}
+
+		wrefresh(stub_list_window);
+		AbstractQuestion::GetDataFromUser(data_entry_window);
+	}
 	
 }
 
@@ -851,7 +1010,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->eval();\n" ;
+	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n" ;
 	PrintUserNavigationArrayQuestion(code.program_code);
 
 	code.program_code << "}\n";

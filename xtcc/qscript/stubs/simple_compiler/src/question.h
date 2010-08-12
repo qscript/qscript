@@ -15,8 +15,10 @@
 #include <iosfwd>
 //#include <fstream>
 #include <iostream>
+#include <string>
 #include "stmt.h"
 #include "compiled_code.h"
+#include "curses_namespace.h"
 
 using std::ostringstream;
 using std::ofstream;
@@ -67,7 +69,7 @@ struct AbstractQuestion: public AbstractStatement
 //			, ostringstream& program_code)=0;
 	virtual void GenerateCode(StatementCompiledCode &code)=0;
 	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code)=0;
-	virtual void eval()=0;
+	virtual void eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)=0;
 	virtual bool IsValid(int value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
@@ -85,7 +87,9 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
 			AbstractStatement * stop_at);
 	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
-	virtual void GetDataFromUser();
+	virtual void GetDataFromUser(WINDOW * data_entry_window);
+
+	virtual bool VerifyData(string & err_mesg);
 	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
 	virtual void PrintQuestionArrayInitialisation(StatementCompiledCode & code);
 	string PrintSaveArrayQuestion(ActiveVariableInfo * av_info);
@@ -152,7 +156,8 @@ struct RangeQuestion: public AbstractQuestion
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
 	virtual bool IsValid(int value);
-	void eval();
+	//void eval();
+	void eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window);
 	void WriteDataToDisk(ofstream& data_file);
 	//AbstractQuestion*  IsAQuestionStatement(){
 	//	return this;
@@ -229,7 +234,8 @@ class NamedStubQuestion: public AbstractQuestion
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
 	virtual bool IsValid(int value);
-	void eval();
+	//void eval();
+	void eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window);
 	void WriteDataToDisk(ofstream& data_file);
 	//AbstractQuestion* IsAQuestionStatement(){
 	//	return this;
@@ -260,7 +266,10 @@ class DummyArrayQuestion: public AbstractQuestion{
 		  array_bounds(l_array_bounds)
 	{ }
 	void WriteDataToDisk(ofstream& data_file);
-	void eval(){}
+	//void eval(){}
+	void eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)
+	{}
+
 	bool IsValid(int value){ return false;}
 	void GenerateCode(StatementCompiledCode &code){}
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code){}

@@ -1357,7 +1357,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 32 "src/qscript_data.ypp"
     {
-	cout << "got question_list: parsed to program: " << endl;
+	//cout << "got question_list: parsed to program: " << endl;
 	return no_errors;
 	;}
     break;
@@ -1371,7 +1371,7 @@ yyreduce:
 		for(int i=0; i<data.size(); ++i){
 			cout << data[i] << " ";
 		}
-		cout << "data.capacity(): " << data.capacity() << endl;
+		//cout << "data.capacity(): " << data.capacity() << endl;
 		cout <<endl;
 		//cout << "got question" << endl;
 		string qno((yyvsp[(1) - (4)].name));
@@ -1409,12 +1409,12 @@ yyreduce:
 		} else {
 			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
 			//qdd_list.push_back(qdd);
-			cout << "Array question found but bounds not set in data file - this is an error in the data file" 
+			cerr << "Array question found but bounds not set in data file - this is an error in the data file" 
 				<< endl;
 		}
 		array_index_list.clear();
 		data.clear();
-		cout << " Got array question: " << qno << endl;
+		//cout << " Got array question: " << qno << endl;
 	;}
     break;
 
@@ -1427,7 +1427,7 @@ yyreduce:
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
 		qdd_list.push_back(qdd);
 		data.clear();
-		cout << " Got bounds for: " << qno << endl;
+		//cout << " Got bounds for: " << qno << endl;
 	;}
     break;
 

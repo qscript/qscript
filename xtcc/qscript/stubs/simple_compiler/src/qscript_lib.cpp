@@ -50,18 +50,25 @@ int load_data(string jno, int ser_no){
 // and looking up the vector that way
 #include "question.h"
 extern vector <AbstractQuestion*> question_list;
-void merge_disk_data_into_questions(){
-	cout << "merge_disk_data_into_questions: " << endl;
+void merge_disk_data_into_questions(FILE * qscript_stdout)
+{
+	//cout << "merge_disk_data_into_questions: " << endl;
 	for (int i=0; i< question_list.size(); ++i){
 		bool found=false;
 		AbstractQuestion* q= question_list[i];
 		question_disk_data * q_disk=0;
-		cout << "searching for : |" << q->questionName_  << "|" << endl;
-		cout << "qdd_list:" ;
+		//cout << "searching for : |" << q->questionName_  << "|" << endl;
+		//cout << "qdd_list:" ;
+		fprintf(qscript_stdout, "searching for : |%s|\n", q->questionName_.c_str());
+		fflush(qscript_stdout);
 		for(int j=0; j< qdd_list.size(); ++j){
-			cout << "|" <<qdd_list[j]->qno << "|" << " ";
+			//cout << "|" <<qdd_list[j]->qno << "|" << " ";
+			fprintf(qscript_stdout, "|%s| ", qdd_list[j]->qno.c_str() ) ;
+			fflush(qscript_stdout);
 			if(q->questionName_ == qdd_list[j]->qno) {
-				cout << "found in qdd_list[" << j << "]" << qdd_list[j]->qno << endl;
+				//cout << "found in qdd_list[" << j << "]" << qdd_list[j]->qno << endl;
+				fprintf(qscript_stdout, "found in qdd_list[%d]:%s\n",  j,  qdd_list[j]->qno.c_str());
+				fflush(qscript_stdout);
 				q_disk=qdd_list[j];
 				found=true;
 				break;

@@ -36,7 +36,7 @@ using namespace std;
 %%
 
 prog:	datalist /*END_OF_DATA*/ {
-		cout << "GOT END_OF_DATA" << endl;
+		//cout << "GOT END_OF_DATA" << endl;
 	}
 	| navigation
 	;

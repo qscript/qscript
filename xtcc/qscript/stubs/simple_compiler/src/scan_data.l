@@ -10,6 +10,8 @@
 #include "data_entry.hpp"
 #include "user_navigation.h"
 #include <readline/readline.h>
+#include "qscript_readline.h"
+
 	using namespace std;
 
 	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
@@ -141,7 +143,10 @@ top:
 		if(scan_dataparse()){
 			cout << "there was an error in parsing the data" << endl;
 			yy_delete_buffer(s_data);
+			free(line);
+			line=0;
 			data.clear();
+			yy_delete_buffer(s_data);
 			goto top;
 		}
 		cout << "read: " << endl;
@@ -152,5 +157,27 @@ top:
 		yy_delete_buffer(s_data);
 		free(line);
 		line=0;
+	}
+
+	void read_data_from_window(WINDOW * data_entry_window, char * prompt);
+	void read_data_from_window(WINDOW * data_entry_window, char * prompt)
+	{
+		data.clear();
+top:
+		char * line=qscript_readline(data_entry_window, prompt);
+		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
+		if(scan_dataparse()){
+			cout << "there was an error in parsing the data" << endl;
+			yy_delete_buffer(s_data);
+			data.clear();
+			yy_delete_buffer(s_data);
+			delete[] line;
+			goto top;
+		}
+		for(int i=0; i<data.size(); ++i){
+			cout << data[i] << "," ;
+		}
+		yy_delete_buffer(s_data);
+		delete[] line;
 	}
 
