@@ -85,6 +85,8 @@ int main(int argc, char* argv[])
 	if(!fname_flag){
 		cout << "Usage: " 
 			<< argv[0] << " -f <input-file> "  << endl;
+		cout << "Options: " << endl;
+		cout << " -n            - creates an ncurses executable " << endl;
 		exit(0);
 	}
 	active_scope=new Scope();
