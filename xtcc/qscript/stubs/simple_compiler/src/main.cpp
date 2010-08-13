@@ -38,11 +38,16 @@ int main(int argc, char* argv[])
 	int opterr=1, c;
 	string fname;
 	int fname_flag=0;
+	bool ncurses_flag=false;
 	bool exit_flag=false;
 	
-	while( (c=getopt(argc, argv, "f:"))!=-1 ){
+	while( (c=getopt(argc, argv, "nf:"))!=-1 ){
 		char ch=optopt;
 		switch(c){
+		case 'n':
+			ncurses_flag=true;
+			break;
+			;
 		case 'f':
 			fname=optarg;
 			fname_flag=1;
@@ -101,7 +106,7 @@ int main(int argc, char* argv[])
 	if( !yyparse() && !no_errors){
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
-		qscript_parser::GenerateCode(fname);
+		qscript_parser::GenerateCode(fname, ncurses_flag);
 		qscript_parser::CompileGeneratedCode(fname);
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;

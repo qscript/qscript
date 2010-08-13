@@ -136,17 +136,20 @@ void read_question_data(){
 	{
 		data.clear();
 top:
-		char * line=readline(prompt);
+		//char * line=readline(prompt);
+		//const int BUF_MAX=1023;
+		//char buffer[BUF_MAX];
+		string buffer;
+		//fgets(buffer, BUF_MAX, stdin);
+		cout.flush();
+		getline(cin, buffer);
 		//printf("readline: %s\n", line);
-		cout << "readline: " << line << endl;
-		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
+		cout << "buffer: " << buffer << endl;
+		YY_BUFFER_STATE s_data =  scan_data_scan_string(buffer.c_str());
 		if(scan_dataparse()){
 			cout << "there was an error in parsing the data" << endl;
 			yy_delete_buffer(s_data);
-			free(line);
-			line=0;
 			data.clear();
-			yy_delete_buffer(s_data);
 			goto top;
 		}
 		cout << "read: " << endl;
@@ -155,8 +158,6 @@ top:
 		}
 		cout << endl;
 		yy_delete_buffer(s_data);
-		free(line);
-		line=0;
 	}
 
 	void read_data_from_window(WINDOW * data_entry_window, char * prompt);

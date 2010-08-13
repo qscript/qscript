@@ -84,9 +84,9 @@ using std::string;
 
 #include <sstream>
 
-void print_header(FILE* script);
+void print_header(FILE* script, bool ncurses_flag);
 void print_array_question_class(FILE* script);
-void print_close(FILE* script, ostringstream & program_code);
+void print_close(FILE* script, ostringstream & program_code, bool  ncurses_flag);
 void print_navigation_support_functions(FILE * script);
 void print_reset_questionnaire(FILE * script);
 void PrintDisplayActiveQuestions(FILE *script);
@@ -105,7 +105,7 @@ string ExtractBaseFileName(const string & fname)
 	return output_file_name;
 }
 
-void GenerateCode(const string & src_file_name)
+void GenerateCode(const string & src_file_name, bool ncurses_flag)
 {
 	cerr << "ENTER qscript_parser::GenerateCode" << endl;
 	string output_file_name = ExtractBaseFileName(src_file_name);
@@ -119,17 +119,17 @@ void GenerateCode(const string & src_file_name)
 	//ostringstream quest_defns, program_code;
 	StatementCompiledCode code;
 
-	print_header(script);
+	print_header(script, ncurses_flag);
 	tree_root->GenerateConsolidatedForLoopIndexes();
 	tree_root->GenerateCode(code);
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
-	print_close(script, code.program_code);
+	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
 	cerr << "EXIT qscript_parser::GenerateCode" << endl;
 }
 
-void print_header(FILE* script){
+void print_header(FILE* script, bool ncurses_flag){
 	fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
 	fprintf(script, "#include <string>\n");
@@ -137,7 +137,8 @@ void print_header(FILE* script){
 	fprintf(script, "#include <fstream>\n");
 	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include <cstdlib>\n");
-	fprintf(script, "#include <ncurses.h>\n");
+	if(ncurses_flag)
+		fprintf(script, "#include <ncurses.h>\n");
 	fprintf(script, "#include <signal.h>\n");
 	fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
@@ -200,21 +201,24 @@ void print_header(FILE* script){
 
 
 	fprintf(script, "int main(){\n");
-	fprintf(script, "bool using_ncurses=true;\n");
+	fprintf(script, "bool using_ncurses=%s;\n", (ncurses_flag ) ?  "true": "false");
 	fprintf(script, "AbstractQuestion * last_question_answered=0;\n");
 	fprintf(script, "qscript_stdout=fopen(qscript_stdout_fname.c_str(), \"w\");\n");
-
-	fprintf(script, "	initscr();\n");
+	if (ncurses_flag)
+		fprintf(script, "	initscr();\n");
 	fprintf(script, "	using namespace std;\n");
 	fprintf(script, "	WINDOW 	* question_window=0,\n");
 	fprintf(script, "		* stub_list_window=0,\n");
 	fprintf(script, "		* data_entry_window=0;\n");
-	fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window);\n");
+	if (ncurses_flag)
+		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window);\n");
+	if (ncurses_flag) {
+		fprintf(script, "	if(question_window==0 || stub_list_window==0 || data_entry_window==0){\n");
+		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
+		fprintf(script, "		return 1;\n");
+		fprintf(script, "	}\n");
+	}
 	fprintf(script, "	SetupSignalHandler();\n");
-	fprintf(script, "	if(question_window==0 || stub_list_window==0 || data_entry_window==0){\n");
-	fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
-	fprintf(script, "		return 1;\n");
-	fprintf(script, "	}\n");
 
 	/*
 	map<string, vector<string> > ::iterator iter;
@@ -240,14 +244,19 @@ void print_header(FILE* script){
 const char * file_exists_check_code();
 const char * write_data_to_disk_code();
 
-void print_close(FILE* script, ostringstream & program_code)
+void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
+	//fprintf(script, "\treset_questionnaire();\n");
 	fprintf(script, "\tint ser_no;\n");
-	//fprintf(script, "\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
-	fprintf(script, "\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
-	fprintf(script, "\treset_questionnaire();\n");
-	//fprintf(script, "\tcin >> ser_no;\n");
-	fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+	if(ncurses_flag) {
+		fprintf(script, "\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
+		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+	} else	{
+		fprintf(script, "\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
+		fprintf(script, "\tchar  newl; cin >> ser_no;cin.get(newl);\n");
+	}
+	//fprintf(script, "\treset_questionnaire();\n");
+
 	//fprintf(script, "\twgetch(data_entry_window);\n");
 	fprintf(script, "\tstring jno=\"%s\";\n", project_name.c_str());
 	fprintf(script, "\twhile(ser_no!=0){\n");
@@ -276,14 +285,14 @@ void print_close(FILE* script, ostringstream & program_code)
 	fprintf(script, "\n");
 	*/
 	fprintf(script, "\tchar end_of_question_navigation;\n");
-	fprintf(script, "if (data_entry_window==0){\n");
-	fprintf(script, "\tcout << \"End of Questionnaire: (s to save, p = previous question, j = question jump list)\" << endl;\n"); 
-	fprintf(script, "\tcin >> end_of_question_navigation;\n");
-	fprintf(script, "} else {\n");
-	fprintf(script, "\twclear(data_entry_window);\n");
-	fprintf(script, "\tmvwprintw(data_entry_window, 1, 1,\"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)\" ); \n");
-	fprintf(script, "\tmvwscanw(data_entry_window, 1, 75, \"%%c\", & end_of_question_navigation);\n");
-	fprintf(script, "}\n");
+	if(ncurses_flag) {
+		fprintf(script, "\twclear(data_entry_window);\n");
+		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1,\"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)\" ); \n");
+		fprintf(script, "\tmvwscanw(data_entry_window, 1, 75, \"%%c\", & end_of_question_navigation);\n");
+	} else {
+		fprintf(script, "\tcout << \"End of Questionnaire: (s to save, p = previous question, j = question jump list)\" << endl;\n"); 
+		fprintf(script, "\tcin >> end_of_question_navigation;\n");
+	}
 	fprintf(script, "\tif(end_of_question_navigation=='s'){\n");
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
 	fprintf(script, "\t\treset_questionnaire();\n");
@@ -297,22 +306,25 @@ void print_close(FILE* script, ostringstream & program_code)
 	fprintf(script, "\t}\n");
 
 	//fprintf(script,	"\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
-	fprintf(script,	"\tfprintf(qscript_stdout, \"Enter Serial No (0) to exit: \");fflush(qscript_stdout);\n");
-	fprintf(script, "if (data_entry_window==0){\n");
-	fprintf(script, "\tcin >> ser_no;\n");
-	fprintf(script, "} else {\n");
-	fprintf(script, "\twclear(data_entry_window);\n");
-	fprintf(script, "\tmvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \"); \n");
-	fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-	fprintf(script, "}\n");
+	if( ncurses_flag) {
+		fprintf(script, "\twclear(data_entry_window);\n");
+		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \"); \n");
+		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+	} else {
+		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
+		fprintf(script, "\tcin >> ser_no;cin.get(newl);\n");
+	}
 	fprintf(script, "\n\t} /* close while */\n");
+	if(ncurses_flag)
+		fprintf(script, "\tendwin();\n");
 	fprintf(script, "\n} /* close main */\n");
 	fprintf(script, "%s\n", write_data_to_disk_code());
 	print_navigation_support_functions(script);
 	print_reset_questionnaire(script);
 	PrintDisplayActiveQuestions(script);
 	PrintGetUserResponse(script);
-	PrintSetupNCurses(script);
+	if(ncurses_flag)
+		PrintSetupNCurses(script);
 	PrintSignalHandler(script);
 	PrintSetupSignalHandler(script);
 }
@@ -378,27 +390,39 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n");
 	fprintf(script, "			WINDOW * &  stub_list_window,\n");
 	fprintf(script, "			WINDOW * & data_entry_window)\n");
-
-
-
-
 	fprintf(script, "{\n");
-	fprintf(script, "if(has_colors() == FALSE)\n");
-	fprintf(script, "{	endwin();\n");
-	fprintf(script, "	printf(\"Your terminal does not support color\\n\");\n");
-	fprintf(script, "	exit(1);\n");
-	fprintf(script, "}\n");
-	fprintf(script, "start_color();	\n");
+	fprintf(script, "	if(has_colors() == FALSE)\n");
+	fprintf(script, "	{	endwin();\n");
+	fprintf(script, "		printf(\"Your terminal does not support color\\n\");\n");
+	fprintf(script, "		exit(1);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	start_color();\n");
+	fprintf(script, "	chtype space=' ';");
+	fprintf(script, "	init_pair(1, COLOR_RED, COLOR_WHITE);\n");
+	fprintf(script, "	init_pair(2, COLOR_GREEN, COLOR_WHITE);\n");
+	//fprintf(script, "	init_pair(3, COLOR_BLUE, COLOR_WHITE);\n");
+	fprintf(script, "	init_pair(3, COLOR_MAGENTA, COLOR_YELLOW);\n");
+
+
+
+
+
+
 	fprintf(script, "	int maxX, maxY;\n");
 	fprintf(script, "	getmaxyx(stdscr, maxY, maxX);\n");
 	fprintf(script, "\n");
 	fprintf(script, "\n");
 	fprintf(script, "	int DATA_ENTRY_WINDOW_HEIGHT=4, DATA_ENTRY_WINDOW_WIDTH=maxX;\n");
 	fprintf(script, "\n");
-	fprintf(script, "        int starty = maxY-4;\n");
-	fprintf(script, "        int startx = 0;\n");
+	fprintf(script, "       int starty = maxY-4;\n");
+	fprintf(script, "       int startx = 0;\n");
 	fprintf(script, "	data_entry_window = create_newwin(DATA_ENTRY_WINDOW_HEIGHT\n");
 	fprintf(script, "			, DATA_ENTRY_WINDOW_WIDTH, starty, startx);\n");
+	fprintf(script, "	wcolor_set(data_entry_window, COLOR_PAIR(1), 0);\n");
+	fprintf(script, "	wattron(data_entry_window, COLOR_PAIR(1));\n");
+	fprintf(script, "	wbkgd(data_entry_window, space | COLOR_PAIR(1));\n");
+	fprintf(script, "	wattrset(data_entry_window, COLOR_PAIR(1));\n");
+
 	fprintf(script, "       wrefresh(data_entry_window);\n");
 	//fprintf(script, "	mvwprintw(data_entry_window, 1, 1, "data_entry_window: height: %d, width, %d"\n");
 	//fprintf(script, "			, DATA_ENTRY_WINDOW_HEIGHT , DATA_ENTRY_WINDOW_WIDTH);\n");
@@ -412,6 +436,9 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "	starty = maxY - DATA_ENTRY_WINDOW_HEIGHT - STUB_LIST_WINDOW_HEIGHT;\n");
 	fprintf(script, "	stub_list_window = create_newwin(STUB_LIST_WINDOW_HEIGHT\n");
 	fprintf(script, "			, STUB_LIST_WINDOW_WIDTH, starty, startx);\n");
+	fprintf(script, "	wcolor_set(stub_list_window, 2, 0);\n");
+	fprintf(script, "	wbkgd(stub_list_window, space | COLOR_PAIR(2));\n");
+	fprintf(script, "	wattron(stub_list_window, COLOR_PAIR(2));\n");
 	fprintf(script, "\n");
 	//fprintf(script, "	mvwprintw(stub_list_window, 2, 1, "stub_list_window: height: %d, width, %d"\n");
 	//fprintf(script, "			, STUB_LIST_WINDOW_HEIGHT , STUB_LIST_WINDOW_WIDTH);\n");
@@ -422,6 +449,9 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "	starty=0;\n");
 	fprintf(script, "	question_window = create_newwin(QUESTION_WINDOW_HEIGHT\n");
 	fprintf(script, "			, QUESTION_WINDOW_WIDTH, starty, startx);\n");
+	fprintf(script, "	wbkgd(question_window, space | COLOR_PAIR(3));\n");
+	fprintf(script, "	wcolor_set(question_window, 3, 0);\n");
+	fprintf(script, "	wattron(question_window, COLOR_PAIR(3));\n");
 	//fprintf(script, "	mvwprintw(question_window, 1, 1, "question_window: height: %d, width, %d"\n");
 	//fprintf(script, "			, QUESTION_WINDOW_HEIGHT , QUESTION_WINDOW_WIDTH);\n");
 	fprintf(script, "	wrefresh(question_window);\n");
@@ -771,7 +801,7 @@ test_script.o: test_script.C
 				+ executable_file_name +  string(" -L") + QSCRIPT_RUNTIME
 					+ string(" -I") + QSCRIPT_INCLUDE_DIR
 					+ string(" ") + intermediate_file_name
-					+ string(" -lqscript_runtime -lreadline");
+					+ string(" -lqscript_runtime -lncurses ");
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int ret_val=0;
 	int ret_val = system(cpp_compile_command.c_str());
