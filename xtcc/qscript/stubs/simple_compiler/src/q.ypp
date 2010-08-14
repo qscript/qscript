@@ -660,12 +660,13 @@ range: 	INUMBER '-' INUMBER {
 					line_no, __LINE__, __FILE__  );
 
 		} else {
-			qscript_parser::
-				xs.range.push_back( pair<int,int>($1,$3));
+			//qscript_parser:: xs.range.push_back( pair<int,int>($1,$3));
+			qscript_parser:: xs.add_range ( $1,$3);
 		}
 	}
 	|	INUMBER {
-		qscript_parser::xs.indiv.insert($1);
+		//qscript_parser::xs.indiv.insert($1);
+		qscript_parser::xs.add_indiv($1);
 	}
 	;
 

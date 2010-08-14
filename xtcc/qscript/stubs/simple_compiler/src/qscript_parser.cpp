@@ -400,8 +400,8 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "	chtype space=' ';");
 	fprintf(script, "	init_pair(1, COLOR_RED, COLOR_WHITE);\n");
 	fprintf(script, "	init_pair(2, COLOR_GREEN, COLOR_WHITE);\n");
-	//fprintf(script, "	init_pair(3, COLOR_BLUE, COLOR_WHITE);\n");
-	fprintf(script, "	init_pair(3, COLOR_MAGENTA, COLOR_YELLOW);\n");
+	fprintf(script, "	init_pair(3, COLOR_BLUE, COLOR_WHITE);\n");
+	//fprintf(script, "	init_pair(3, COLOR_MAGENTA, COLOR_YELLOW);\n");
 
 
 
