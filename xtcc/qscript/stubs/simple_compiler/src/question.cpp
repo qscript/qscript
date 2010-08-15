@@ -517,19 +517,24 @@ bool RangeQuestion::IsValid(int value)
 //void RangeQuestion::eval()
 void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	if(question_window ==0 || stub_list_window ==0 || data_entry_window ==0 ){
-		cout << questionName_ << "." << questionText_ << endl << endl;
+	if(displayData_.begin()==displayData_.end()){
 		for(	set<int>::iterator it=r_data->indiv.begin(); 
 				it!=r_data->indiv.end(); ++it){
-			cout << *it << endl;
-		}
-		for(int i=0; i<r_data->range.size(); ++i){
-			for(int j=r_data->range[i].first; j<=r_data->range[i].second
-					;++j){  
-				cout << j << endl; 
+			displayData_.insert(*it);
+			for(int i=0; i<r_data->range.size(); ++i){
+				for(int j=r_data->range[i].first; j<=r_data->range[i].second
+						;++j){  
+					displayData_.insert(j);
+				}
 			}
 		}
-
+	}
+	if(question_window ==0 || stub_list_window ==0 || data_entry_window ==0 ){
+		cout << questionName_ << "." << questionText_ << endl << endl;
+		for(	set<int>::iterator it=displayData_.begin(); 
+				it!=displayData_.end(); ++it){
+			cout << *it << endl;
+		}
 
 		if(input_data.begin()!=input_data.end()){
 			cout << "Current data values: ";
@@ -553,8 +558,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses:
 		int maxWinX, maxWinY;
 		getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int currXpos=1, currYpos=1;
-		for(	set<int>::iterator it=r_data->indiv.begin(); 
-				it!=r_data->indiv.end(); ++it){
+		for(	set<int>::iterator it=displayData_.begin(); 
+				it!=displayData_.end(); ++it){
 			stringstream s;
 			s << *it;
 			int len = s.str().length();
@@ -566,20 +571,6 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses:
 			}
 		}
 
-		for(int i=0; i<r_data->range.size(); ++i){
-			for(int j=r_data->range[i].first; j<=r_data->range[i].second
-					;++j){  
-				stringstream s;
-				s << j;
-				int len = s.str().length();
-				mvwprintw(stub_list_window, currYpos, currXpos, "%s ", s.str().c_str());
-				if(currXpos+len +1 /* 1 for the trailing space below */ >= maxWinX){
-					currXpos=1, ++currYpos;
-				} else { 
-					currXpos+= len +1;
-				}
-			}
-		}
 		wrefresh(stub_list_window);
 		AbstractQuestion::GetDataFromUser(data_entry_window);
 	}

@@ -56,6 +56,7 @@ void XtccSet::add_range(int n1, int n2)
 	}
 
 	if(range.size()==0){
+		cerr << "range.size()==0 pushing back: "  << n1 << "-" << n2 << endl;
 		range.push_back( pair<int,int>(n1, n2));
 		return;
 	}
@@ -98,8 +99,6 @@ void XtccSet::add_range(int n1, int n2)
 		} else if ( 	(n1 < range[i].first && n2 < range[i].first)
 			    ||	(n1 > range[i].second && n2 > range[i].second)){
 			// this is the allowed case
-			cerr << "push_back " << n1 << "," << n2 << endl;
-			range.push_back( pair<int,int>(n1, n2));
 		} else {
 			stringstream err_msg;
 			err_msg << "internal compiler programming error contact author";
@@ -108,6 +107,8 @@ void XtccSet::add_range(int n1, int n2)
 					, __LINE__, __FILE__ );
 		}
 	}
+
+	range.push_back( pair<int,int>(n1, n2));
 }
 
 void XtccSet::add_indiv(int n1)
