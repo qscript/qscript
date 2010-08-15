@@ -446,7 +446,7 @@ static const yytype_int8 yyrhs[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    32,    32,    38,    39,    42,    55,    62,    80,    89,
-      92,    97,   100
+      93,    99,   102
 };
 #endif
 
@@ -1368,11 +1368,11 @@ yyreduce:
 #line 42 "src/qscript_data.ypp"
     {
 		//cout << "data<int>[]: ";
-		for(int i=0; i<data.size(); ++i){
-			cout << data[i] << " ";
-		}
+		// for(int i=0; i<data.size(); ++i){
+		// 	cout << data[i] << " ";
+		// }
 		//cout << "data.capacity(): " << data.capacity() << endl;
-		cout <<endl;
+		// cout <<endl;
 		//cout << "got question" << endl;
 		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd = new question_disk_data(qno, data);
@@ -1437,14 +1437,16 @@ yyreduce:
 #line 89 "src/qscript_data.ypp"
     {
 		    data.push_back((yyvsp[(1) - (1)].ival));
+		    //cout << "INUMBER: " << $1 << endl;
 	;}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 92 "src/qscript_data.ypp"
+#line 93 "src/qscript_data.ypp"
     {
+		    //cout << "INUMBER: " << $2 << endl;
 		    data.push_back((yyvsp[(2) - (2)].ival));
 	;}
     break;
@@ -1452,7 +1454,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 97 "src/qscript_data.ypp"
+#line 99 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(2) - (2)].ival));
 	;}
@@ -1461,7 +1463,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 100 "src/qscript_data.ypp"
+#line 102 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(3) - (3)].ival));
 	;}
@@ -1470,7 +1472,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1474 "src/qscript_data.cpp"
+#line 1476 "src/qscript_data.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1682,7 +1684,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 105 "src/qscript_data.ypp"
+#line 107 "src/qscript_data.ypp"
 
 
 /*

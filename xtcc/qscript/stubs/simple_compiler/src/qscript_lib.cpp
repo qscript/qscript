@@ -29,19 +29,33 @@ int read_disk_datalex();
 extern FILE* read_disk_datain;
 void read_disk_data_init();
 extern vector <question_disk_data*> qdd_list;
-int load_data(string jno, int ser_no){
+
+int load_data(string jno, int ser_no)
+{
 	stringstream s;
+	qdd_list.clear();
 	s << jno << "_" << ser_no << ".dat";
 	read_disk_datain = fopen(s.str().c_str(), "rb");
 	read_disk_data_init();
 	if(read_disk_datain){
+		fflush(read_disk_datain);
 		if(!read_disk_dataparse()){
-			return 1;
+			//return 1;
 		} else {
 			cerr << "input datafile found had errors" << endl;
 			return 0;
 		}
 	}
+	fclose(read_disk_datain);
+	//cerr << "finished loading data - here is the summary" << endl;
+	//for(int i=0; i<qdd_list.size(); ++i){
+	//	cerr << qdd_list[i]->qno;
+	//	for(int j=0; j<qdd_list[i]->data.size(); ++j){
+	//		cerr << " " << qdd_list[i]->data[j];
+	//	}
+	//	cerr << endl;
+	//}
+	return 1;
 }
 // this is inefficient and will later be replaced
 // but right now i want to see this working
@@ -77,6 +91,7 @@ void merge_disk_data_into_questions(FILE * qscript_stdout)
 		if(found){
 			q->input_data.erase(q->input_data.begin(), q->input_data.end());
 			for(int k=0; k<q_disk->data.size(); ++k){
+				//cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
 				q->input_data.insert(q_disk->data[k]);
 			}
 			found=false;

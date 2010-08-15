@@ -23,6 +23,11 @@ struct question_disk_data{
 	question_disk_data(string & l_qno, vector<int> & l_data):
 		qno(l_qno), data(l_data)
 	{
+		//cerr << "question_disk_data::question_disk_data()" <<endl;
+		//cerr << "data:";
+		//for(int i=0; i<data.size(); ++i){
+		//	cerr << " " << data[i] << ",";
+		//}
 		//cerr << "question_disk_data::question_disk_data: data.size(): " << data.size()	
 		//	<< ", l_data.size(): " << l_data.size() << endl;
 	}

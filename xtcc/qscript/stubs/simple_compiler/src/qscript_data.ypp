@@ -41,11 +41,11 @@ question_list: question
 
 question: NAME COLON numberlist NEWL {
 		//cout << "data<int>[]: ";
-		for(int i=0; i<data.size(); ++i){
-			cout << data[i] << " ";
-		}
+		// for(int i=0; i<data.size(); ++i){
+		// 	cout << data[i] << " ";
+		// }
 		//cout << "data.capacity(): " << data.capacity() << endl;
-		cout <<endl;
+		// cout <<endl;
 		//cout << "got question" << endl;
 		string qno($1);
 		question_disk_data * qdd = new question_disk_data(qno, data);
@@ -88,8 +88,10 @@ question: NAME COLON numberlist NEWL {
 
 numberlist: INUMBER {
 		    data.push_back($1);
+		    //cout << "INUMBER: " << $1 << endl;
 	}
 	|	numberlist INUMBER {
+		    //cout << "INUMBER: " << $2 << endl;
 		    data.push_back($2);
 	}
 	;

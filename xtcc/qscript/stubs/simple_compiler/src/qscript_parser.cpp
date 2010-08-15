@@ -685,7 +685,7 @@ const char * write_data_to_disk_code()
 	"\t\n"
 	"\t	std::ofstream data_file;\n"
 	"\t	data_file.exceptions(std::ios::failbit | std::ios::badbit);\n"
-	"\t	data_file.open(fname_str.str().c_str());\n"
+	"\t	data_file.open(fname_str.str().c_str(), ios_base::ate);\n"
 	"\t\n"
 	"\t	for (int i=0; i<question_list.size(); ++i){\n"
 	"\t		question_list[i]->WriteDataToDisk(data_file);\n"
