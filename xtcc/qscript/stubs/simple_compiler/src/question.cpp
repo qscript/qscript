@@ -563,7 +563,18 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses:
 			stringstream s;
 			s << *it;
 			int len = s.str().length();
-			mvwprintw(stub_list_window, currYpos, currXpos, "%s ", s.str().c_str());
+			set<int>::iterator found= input_data.find(*it);
+			if(found!=input_data.end()){
+				// is an input value
+				//YELLOW
+					wattroff(stub_list_window, COLOR_PAIR(2));
+					wattron(stub_list_window, COLOR_PAIR(4));
+					mvwprintw(stub_list_window, currYpos, currXpos, "%s ", s.str().c_str());
+					wattroff(stub_list_window, COLOR_PAIR(4));
+					wattron(stub_list_window, COLOR_PAIR(2));
+			} else {
+				mvwprintw(stub_list_window, currYpos, currXpos, "%s ", s.str().c_str());
+			}
 			if(currXpos+len +1 /* 1 for the trailing space below */ >= maxWinX){
 				currXpos=1, ++currYpos;
 			} else { 
