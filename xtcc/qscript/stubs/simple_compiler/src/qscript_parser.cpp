@@ -568,10 +568,11 @@ int check_parameters(AbstractExpression* e, VariableList* v){
 }
 
 
-const char * file_exists_check_code(){
+const char * file_exists_check_code()
+{
 	const char * file_check_code =  
 	"\tint exists=check_if_reg_file_exists(jno, ser_no);\n"
-	"\tif(exists){\n"
+	"\tif(exists==1){\n"
 	"\t	load_data(jno,ser_no);\n"
 	"\t	merge_disk_data_into_questions(qscript_stdout);\n"
 	/*
@@ -585,6 +586,10 @@ const char * file_exists_check_code(){
 	"\t	}\n"
 	*/
 	"\t}\n";
+	cerr << "fix me : add code for `if file is invalid` case "
+		<< __func__ << "FILE: " << __FILE__ 
+		<< ", line: " << __LINE__ << endl;
+
 	return file_check_code;
 }
 
