@@ -9,7 +9,7 @@
 #include <iostream>
 #include "data_entry.hpp"
 #include "user_navigation.h"
-#include <readline/readline.h>
+//#include <readline/readline.h>
 #include "qscript_readline.h"
 
 	using namespace std;
