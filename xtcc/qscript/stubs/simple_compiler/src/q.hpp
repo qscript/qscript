@@ -43,7 +43,7 @@
      FNUMBER = 259,
      NAME = 260,
      TEXT = 261,
-     SP = 262,
+     SINGLE_CODED = 262,
      MP = 263,
      VOID_T = 264,
      INT8_T = 265,

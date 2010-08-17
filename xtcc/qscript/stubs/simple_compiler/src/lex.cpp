@@ -1018,7 +1018,7 @@ YY_RULE_SETUP
 case 33:
 YY_RULE_SETUP
 #line 91 "src/lex.l"
-{return SP;}
+{return SINGLE_CODED;}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP

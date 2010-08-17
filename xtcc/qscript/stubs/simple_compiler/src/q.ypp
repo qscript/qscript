@@ -63,7 +63,7 @@
 %token <dval> FNUMBER
 %token <name> NAME
 %token <text_buf> TEXT
-%token SP
+%token SINGLE_CODED
 %token MP
 %token <dt> VOID_T
 %token <dt> INT8_T
@@ -638,7 +638,7 @@ expr_list: expression { $$=$1; }
 	}
 	;
 
-qtype: SP { qscript_parser::q_type = spn; }
+qtype: SINGLE_CODED { qscript_parser::q_type = spn; }
 	| MP '(' INUMBER ')' { qscript_parser::q_type = mpn; 
 		qscript_parser::no_mpn = $3; 
 	}

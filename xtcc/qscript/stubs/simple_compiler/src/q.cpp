@@ -139,7 +139,7 @@
      FNUMBER = 259,
      NAME = 260,
      TEXT = 261,
-     SP = 262,
+     SINGLE_CODED = 262,
      MP = 263,
      VOID_T = 264,
      INT8_T = 265,
@@ -550,17 +550,17 @@ static const yytype_uint16 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "INUMBER", "FNUMBER", "NAME", "TEXT",
-  "SP", "MP", "VOID_T", "INT8_T", "INT16_T", "INT32_T", "FLOAT_T",
-  "DOUBLE_T", "STRING_T", "IN", "FOR", "'['", "']'", "'('", "')'", "'='",
-  "CONST", "','", "LOGOR", "LOGAND", "NOEQ", "ISEQ", "'<'", "'>'", "GEQ",
-  "LEQ", "'-'", "'+'", "'*'", "'/'", "'%'", "NOT", "UMINUS", "COUNT",
-  "FUNC_CALL", "IF", "ELSE", "STUBS_LIST", "SETDEL", "SETADD", "UNSET",
-  "SETALL", "'&'", "';'", "'}'", "'{'", "$accept", "prog", "func_defn",
-  "$@1", "decl_comma_list", "var_decl", "stmt_list", "datatype",
-  "type_qual", "decl_stmt", "stmt", "for_loop_stmt", "$@2", "cmpd_stmt",
-  "open_curly", "if_stmt", "expr_stmt", "question", "expression",
-  "expr_list", "qtype", "range_allowed_values", "range_list", "range",
-  "stubs", "$@3", "stub_list", "stub_manip_stmts", 0
+  "SINGLE_CODED", "MP", "VOID_T", "INT8_T", "INT16_T", "INT32_T",
+  "FLOAT_T", "DOUBLE_T", "STRING_T", "IN", "FOR", "'['", "']'", "'('",
+  "')'", "'='", "CONST", "','", "LOGOR", "LOGAND", "NOEQ", "ISEQ", "'<'",
+  "'>'", "GEQ", "LEQ", "'-'", "'+'", "'*'", "'/'", "'%'", "NOT", "UMINUS",
+  "COUNT", "FUNC_CALL", "IF", "ELSE", "STUBS_LIST", "SETDEL", "SETADD",
+  "UNSET", "SETALL", "'&'", "';'", "'}'", "'{'", "$accept", "prog",
+  "func_defn", "$@1", "decl_comma_list", "var_decl", "stmt_list",
+  "datatype", "type_qual", "decl_stmt", "stmt", "for_loop_stmt", "$@2",
+  "cmpd_stmt", "open_curly", "if_stmt", "expr_stmt", "question",
+  "expression", "expr_list", "qtype", "range_allowed_values", "range_list",
+  "range", "stubs", "$@3", "stub_list", "stub_manip_stmts", 0
 };
 #endif
 
