@@ -1,0 +1,202 @@
+
+CC = $(CXX)
+CFLAGS = -c -g -I src -Wall -Weffc++
+CXX_SHARED_LIB_FLAGS = -fPIC
+CXX_LINK_FLAGS = -g
+#CXX_LINK_LIBS = -lreadline
+CXX_LINK_LIBS = -lpdcurses
+SOURCE_DIR=src
+BUILD_DIR=make-build-dir
+CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
+EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp
+CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
+OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(CPP_SOURCES))
+OBJECTS := $(OBJECTS:.cpp=.o)
+DEPENDENCIES = $(OBJECTS:.o=.dep)
+#Windows specific include dirs for curses
+# I have installed pdcurses into the dirs below
+WIN_INCLUDE_DIR = c:\usr\include
+WIN_LIB_DIR = c:\usr\lib
+
+YACC_SOURCES = $(wildcard $(SOURCE_DIR)/*.ypp)
+EXCLUDE_FILE = src/qscript_data.ypp
+YACC_SOURCES := $(filter-out $(EXCLUDE_FILE),$(YACC_SOURCES) )
+YACC_OUTPUTS  = $(YACC_SOURCES:.ypp=.cpp)
+YACC_OUTPUTS += $(YACC_SOURCES:.ypp=.hpp)
+
+YACC_OBJECTS = $(YACC_SOURCES)
+YACC_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(YACC_OBJECTS))
+YACC_OBJECTS := $(YACC_OBJECTS:.ypp=.o)
+OBJECTS += $(YACC_OBJECTS)
+
+LEX_SOURCES = $(wildcard $(SOURCE_DIR)/*.l)
+EXCLUDE_FILE=src/read_disk_data.l
+LEX_SOURCES := $(filter-out $(EXCLUDE_FILE),$(LEX_SOURCES))
+LEX_OBJECTS = $(LEX_SOURCES)
+LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
+LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
+OBJECTS += $(LEX_OBJECTS)
+OBJECTS := $(sort $(OBJECTS) )
+
+QSCRIPT_MAJOR_VERSION_NUMBER=0
+QSCRIPT_MINOR_VERSION_NUMBER=5
+
+
+#dummy:
+#	echo "CPP sources: $(CPP_SOURCES)" 
+#	echo "YACC sources: $(YACC_SOURCES)" 
+#	echo "LEX sources: $(LEX_SOURCES)" 
+#	echo "OBJS $(OBJECTS)"
+#	echo "DEPS $(DEPENDENCIES)"
+#	echo "YACC OUTPUTS $(YACC_OUTPUTS)"
+#	echo "YACC OBJECTS $(YACC_OBJECTS)"
+#	echo "LEX OBJECTS $(LEX_OBJECTS)"
+
+$(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
+	echo "cpp sources: $(CPP_SOURCES)" 
+	echo "yacc sources: $(YACC_SOURCES)" 
+	echo "lex sources: $(LEX_SOURCES)" 
+	$(CC) $(CXX_LINK_FLAGS) -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
+
+yacc_deps: $(YACC_OUTPUTS)
+
+$(SOURCE_DIR)/data_entry.cpp: YFLAGS = -p scan_data
+$(SOURCE_DIR)/data_entry.hpp: YFLAGS = -p scan_data
+
+$(SOURCE_DIR)/qscript_data.cpp: YFLAGS = -p read_disk_data
+$(SOURCE_DIR)/qscript_data.hpp: YFLAGS = -p read_disk_data
+
+$(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.hpp: $(SOURCE_DIR)/%.ypp
+	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
+	bison $(YFLAGS) -d $< -o $(basename $@).cpp
+#bison $(YFLAGS) -d $< -o $(SOURCE_DIR)/$(@F)
+#	echo $(SOURCE_DIR)/$(*F).hpp 
+#	mv $(SOURCE_DIR)/$(*F).hpp $(SOURCE_DIR)/$(*F).h
+
+lex_deps: $(LEX_OUTPUTS)
+
+$(SOURCE_DIR)/lex.cpp: $(SOURCE_DIR)/q.hpp
+$(SOURCE_DIR)/scan_data.cpp: $(SOURCE_DIR)/data_entry.hpp
+$(SOURCE_DIR)/read_disk_data.cpp: $(SOURCE_DIR)/qscript_data.hpp
+
+$(SOURCE_DIR)/%.cpp : $(SOURCE_DIR)/%.l
+	flex -o$@ $<
+
+$(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
+	@set -e; rm -f $@; \
+		$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
+		rm -f $@.$$$$
+
+RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
+		$(SOURCE_DIR)/data_entry.cpp $(SOURCE_DIR)/question.cpp \
+		$(SOURCE_DIR)/stmt_common.cpp $(SOURCE_DIR)/qscript_lib.cpp \
+		$(SOURCE_DIR)/qscript_data.cpp $(SOURCE_DIR)/read_disk_data.cpp \
+		$(SOURCE_DIR)/qscript_parser.cpp $(SOURCE_DIR)/expr.cpp \
+		$(SOURCE_DIR)/utils.cpp $(SOURCE_DIR)/symtab.cpp \
+		$(SOURCE_DIR)/stmt.cpp $(SOURCE_DIR)/scope.cpp \
+		$(SOURCE_DIR)/question_disk_data.cpp \
+		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
+		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp \
+		$(SOURCE_DIR)/qscript_readline.cpp
+
+RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
+RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)
+
+RUNTIME_STATIC_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_static_lib,$(RUNTIME_LIB_SOURCES) )
+RUNTIME_STATIC_LIB_OBJECTS := $(RUNTIME_STATIC_LIB_OBJECTS:.cpp=.o)
+
+COMPILETIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
+		$(SOURCE_DIR)/data_entry.cpp $(SOURCE_DIR)/question.cpp \
+		$(SOURCE_DIR)/stmt_common.cpp \
+		$(SOURCE_DIR)/qscript_parser.cpp $(SOURCE_DIR)/expr.cpp \
+		$(SOURCE_DIR)/utils.cpp $(SOURCE_DIR)/symtab.cpp \
+		$(SOURCE_DIR)/stmt.cpp $(SOURCE_DIR)/scope.cpp \
+		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
+		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp
+
+COMPILETIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/compiletime_lib,$(COMPILETIME_LIB_SOURCES) )
+COMPILETIME_LIB_OBJECTS := $(COMPILETIME_LIB_OBJECTS:.cpp=.o)
+
+runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
+	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
+	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
+	$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
+
+
+runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
+	echo "RUNTIME_LIB_SOURCES $(RUNTIME_STATIC_LIB_OBJECTS)"
+	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_STATIC_LIB_OBJECTS)"
+#$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
+	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a $(RUNTIME_STATIC_LIB_OBJECTS)
+
+
+compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
+	echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
+	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
+	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
+	$(CC) -I $(WIN_INCLUDE_DIR) $(CFLAGS) -o $@ $<
+	echo "dir of target: $(@D), filename of target $(@F)"
+
+$(BUILD_DIR)/runtime_lib/%.o: $(SOURCE_DIR)/%.cpp
+	$(CC) -I $(WIN_INCLUDE_DIR) $(CFLAGS) $(CXX_SHARED_LIB_FLAGS) -o $@ $<
+
+$(BUILD_DIR)/runtime_static_lib/%.o: $(SOURCE_DIR)/%.cpp
+	$(CC) -I $(WIN_INCLUDE_DIR) $(CFLAGS) -o $@ $<
+
+$(BUILD_DIR)/compiletime_lib/%.o: $(SOURCE_DIR)/%.cpp
+	$(CC) -I $(WIN_INCLUDE_DIR) $(CFLAGS) $(CXX_SHARED_LIB_FLAGS) -o $@ $<
+
+
+
+RELEASE_DIR=qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER)
+
+check:
+	#LD_PRELOAD=$(QSCRIPT_HOME)/lib/libqscript_runtime.so runtest --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
+	# you can manually run a test by below - however you need to set LD_PRELOAD before that 
+	# runtest -v -v -v  --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite printf-1.exp
+	LD_LIBRARY_PATH=$(QSCRIPT_HOME)/lib runtest --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
+
+release: clean
+	-if [ -d $(RELEASE_DIR) ] ; then rm -rf $(RELEASE_DIR) ; fi
+	-if [ -f $(RELEASE_DIR).tar ] ; then rm -f $(RELEASE_DIR).tar ; fi
+	mkdir -p $(RELEASE_DIR)/bin $(RELEASE_DIR)/lib $(RELEASE_DIR)/src $(RELEASE_DIR)/make-build-dir/runtime_lib \
+		$(RELEASE_DIR)/make-build-dir/compiletime_lib  \
+		$(RELEASE_DIR)/testsuite/qscript.test $(RELEASE_DIR)/testsuite/config \
+		$(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include
+	cp   src/* $(RELEASE_DIR)/src 
+	cp -R cmake $(RELEASE_DIR)
+	cp -R testsuite $(RELEASE_DIR)
+	cp CustomQScriptMakefile CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
+	-rm inputs/test_script
+	-rm inputs/test_script_bcpp.[Co]
+	-rm inputs/*.dat
+	-rm inputs/tags
+	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op
+	cp inputs/* $(RELEASE_DIR)/inputs
+	cp bin/qscript.sh $(RELEASE_DIR)/bin
+	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
+
+.PHONY: clean tags
+
+clean:
+	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/* $(BUILD_DIR)/compiletime_lib/*
+
+local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
+	cp $(BUILD_DIR)/qscript bin
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so.1
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so.1
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so
+	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib
+	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so.1
+	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so.1
+	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so
+	cp ${SOURCE_DIR}/*.h include
+
+tags:
+	cd src; ctags -R --extra=+f+q --fields=afikKlmnsSzt; cd ..;
+
+-include $(DEPENDENCIES)
