@@ -1,0 +1,13 @@
+OBJS = qscript_conf_lex.o qscript_conf.o config_parser.o
+
+qscript_config_parser: $(OBJS)
+	$(CXX) -o $@ $(OBJS)
+
+%.o: %.cpp
+	$(CXX) -c $<
+
+qscript_conf_lex.cpp: qscript_conf_lex.l qscript_conf.ypp
+	flex -o$@ $<
+
+qscript_conf.cpp: qscript_conf.ypp
+	bison -p qscript_conf -d $< -o $(basename $@).cpp

@@ -1,0 +1,73 @@
+
+%{
+#include "const_defs.h"
+#include "config_parser.h"
+	void qscript_conferror(const char * s);
+	int qscript_conflex();
+%}
+
+%union {
+	int ival;
+	char name[MY_STR_MAX];
+	char text_buf[MY_STR_MAX];
+}
+
+%token <name> NAME
+%token <ival> INUMBER
+%token <text_buf> TEXT
+%token NCURSES_INCLUDE_DIR
+%token NCURSES_LIB_DIR
+%token NCURSES_LINK_LIBRARY_NAME
+%token PLATFORM
+
+
+%%
+
+config_file: statement_list
+	;
+
+statement_list: statement
+	| statement_list statement
+	;
+
+statement: 
+		NCURSES_INCLUDE_DIR '=' TEXT ';' {
+			config_file_parser::NCURSES_INCLUDE_DIR = $3;
+	}
+	| 	NCURSES_LIB_DIR '=' TEXT ';' {
+			config_file_parser::NCURSES_LIB_DIR = $3;
+	}
+	|	NCURSES_LINK_LIBRARY_NAME '=' TEXT ';' {
+			config_file_parser::NCURSES_LINK_LIBRARY_NAME = $3;
+	}
+	|	PLATFORM '=' TEXT ';' {
+			config_file_parser::PLATFORM = $3;
+	}
+	;
+
+%%
+
+#if 0
+#include <iostream>
+#include <cstdio>
+
+extern FILE* qscript_confin;
+int main()
+{
+	using namespace std;
+	qscript_confin = fopen ("qscript.config", "rb");
+	if(!qscript_confin){
+		cout << "unable to open qscript.config for reading ... exiting\n";
+	}
+	if(!qscript_confparse()){
+	} else {
+		cerr << "there were errors in parsing the configuration file;\n";
+	}
+	cout << "qscript.config: values are : " << endl
+		<< "NCURSES_INCLUDE_DIR: " << config_file_parser::NCURSES_INCLUDE_DIR << endl
+		<< "NCURSES_LIB_DIR: " << config_file_parser::NCURSES_LIB_DIR << endl
+		<< "NCURSES_LINK_LIBRARY_NAME: " << config_file_parser::NCURSES_LINK_LIBRARY_NAME << endl
+		<< "PLATFORM: " << config_file_parser::PLATFORM << endl
+		<< endl;
+}
+#endif /* 0 */
