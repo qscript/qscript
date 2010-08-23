@@ -3,9 +3,13 @@
 #include "const_defs.h"
 #include "qscript_conf.hpp"
 #include "config_parser.h"
+// not reqd except for debugging - remove later
+#include <iostream>
 %}
 
 %option prefix="qscript_conf"
+%option noyywrap
+%option never-interactive
 
 %x comment
 
@@ -24,7 +28,10 @@
 [ \t]+	; /* ignore */
 \n	{ ++config_file_parser::line_no; }
 
-NCURSES_INCLUDE_DIR	{ return NCURSES_INCLUDE_DIR; }
+NCURSES_INCLUDE_DIR	{ 
+	//std::cerr << "returning NCURSES_INCLUDE_DIR" << std::endl; 
+	return NCURSES_INCLUDE_DIR; 
+	}
 NCURSES_LIB_DIR	{ return NCURSES_LIB_DIR; }
 NCURSES_LINK_LIBRARY_NAME  { return NCURSES_LINK_LIBRARY_NAME; }
 PLATFORM { return PLATFORM; }
@@ -46,7 +53,9 @@ PLATFORM { return PLATFORM; }
 	return TEXT;
 }
 
-.	return qscript_conftext[0];
+.	{ //std::cerr << "returning " << qscript_conftext[0] << std::endl; 
+	return qscript_conftext[0]; 
+}
 
 %%
 
@@ -60,7 +69,9 @@ void qscript_conferror(const char * s)
 		printf("no_errors: %d\n", config_file_parser::no_errors);
 }
 
+/*
 int qscript_confwrap()
 {
 	return 1;
 }
+*/

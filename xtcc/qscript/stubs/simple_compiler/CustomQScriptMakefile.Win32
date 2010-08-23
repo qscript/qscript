@@ -66,6 +66,9 @@ $(SOURCE_DIR)/data_entry.hpp: YFLAGS = -p scan_data
 $(SOURCE_DIR)/qscript_data.cpp: YFLAGS = -p read_disk_data
 $(SOURCE_DIR)/qscript_data.hpp: YFLAGS = -p read_disk_data
 
+$(SOURCE_DIR)/qscript_conf.cpp: YFLAGS = -p qscript_conf
+$(SOURCE_DIR)/qscript_conf.hpp: YFLAGS = -p qscript_conf
+
 $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.hpp: $(SOURCE_DIR)/%.ypp
 	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
 	bison $(YFLAGS) -d $< -o $(basename $@).cpp
@@ -98,7 +101,8 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 		$(SOURCE_DIR)/question_disk_data.cpp \
 		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
 		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp \
-		$(SOURCE_DIR)/qscript_readline.cpp
+		$(SOURCE_DIR)/qscript_readline.cpp $(SOURCE_DIR)/config_parser.cpp \
+		$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp
 
 RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
 RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)

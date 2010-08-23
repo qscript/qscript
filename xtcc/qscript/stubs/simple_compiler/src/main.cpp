@@ -78,6 +78,9 @@ int main(int argc, char* argv[])
 			<< "$export QSCRIPT_HOME=/home/unix_user/qscript" << endl;
 		exit_flag=true;
 	}
+	if(!qscript_parser::ReadQScriptConfig()){
+		exit_flag=true;
+	}
 	if(exit_flag){
 		exit(1);
 	}
@@ -99,7 +102,7 @@ int main(int argc, char* argv[])
 	func_info_table.push_back(fi);
 
 
-	FILE * yyin = fopen(fname.c_str(), "r");
+	FILE * yyin = fopen(fname.c_str(), "rb");
 	if(!yyin){
 		cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
 		exit(1);

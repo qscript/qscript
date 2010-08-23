@@ -30,7 +30,7 @@ void XtccSet::reset()
 {
 	using std::endl;
 	using std::cerr;
-	cerr << "XtccSet::reset() called" << endl;
+	//cerr << "XtccSet::reset() called" << endl;
 	range.clear();
 	indiv.clear();
 }
@@ -40,8 +40,8 @@ void XtccSet::add_range(int n1, int n2)
 	using std::endl;
 	using std::stringstream;
 	using std::cerr;
-	cerr << "XtccSet::add_range: n1=" << n1 << ", n2=" << n2 << endl;
-	cerr << "range.size(): " << range.size() << endl;
+	//cerr << "XtccSet::add_range: n1=" << n1 << ", n2=" << n2 << endl;
+	//cerr << "range.size(): " << range.size() << endl;
 
 	for(	set<int>::iterator it=indiv.begin(); it!=indiv.end(); ++it){
 		int v = *it;
@@ -56,7 +56,7 @@ void XtccSet::add_range(int n1, int n2)
 	}
 
 	if(range.size()==0){
-		cerr << "range.size()==0 pushing back: "  << n1 << "-" << n2 << endl;
+		//cerr << "range.size()==0 pushing back: "  << n1 << "-" << n2 << endl;
 		range.push_back( pair<int,int>(n1, n2));
 		return;
 	}
@@ -116,7 +116,7 @@ void XtccSet::add_indiv(int n1)
 	using std::stringstream;
 	using std::cerr;
 	using std::endl;
-	cerr << "XtccSet::add_indiv" << endl;
+	//cerr << "XtccSet::add_indiv" << endl;
 	if(exists(n1)){
 		stringstream err_msg;
 		err_msg << "individual element : " << n1 << " is already contained in range and is redundant: " ;

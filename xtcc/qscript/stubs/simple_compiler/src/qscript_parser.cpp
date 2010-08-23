@@ -1,9 +1,12 @@
 #include "qscript_parser.h"
+#include "config_parser.h"
 
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
 #include "compiled_code.h"
+extern int qscript_confparse();
+extern void qscript_confrestart ( FILE *input_file );
 namespace qscript_parser {
 	using std::cerr;
 	using std::cout;
@@ -769,6 +772,36 @@ void PrintSetupSignalHandler(FILE * script)
 	fprintf(script, "		exit(1);\n");
 	fprintf(script, "	}\n");
 	fprintf(script, "}\n\n");
+}
+
+// Returns 0 on failure, 1 on success
+int ReadQScriptConfig()
+{
+	//cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
+	using namespace std;
+	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string QSCRIPT_CONFIG = QSCRIPT_HOME + "/config/qscript.config";
+	FILE * qscript_confin = fopen (QSCRIPT_CONFIG.c_str(), "rb");
+	qscript_confrestart(qscript_confin);
+	if(!qscript_confin){
+		//cout << "unable to open " <<  QSCRIPT_CONFIG <<" for reading ... exiting\n";
+		return 0;
+	}
+	//cerr << "opened : " << QSCRIPT_CONFIG << endl;
+	
+	if(!qscript_confparse()){
+		//cout << "Successfully parsed " << QSCRIPT_CONFIG << endl;
+	} else {
+		cerr << "there were errors in parsing configuration file" << QSCRIPT_CONFIG << endl;
+		return 0;
+	}
+	cout << "qscript.config: values are : " << endl
+		<< "NCURSES_INCLUDE_DIR: " << config_file_parser::NCURSES_INCLUDE_DIR << endl
+		<< "NCURSES_LIB_DIR: " << config_file_parser::NCURSES_LIB_DIR << endl
+		<< "NCURSES_LINK_LIBRARY_NAME: " << config_file_parser::NCURSES_LINK_LIBRARY_NAME << endl
+		<< "PLATFORM: " << config_file_parser::PLATFORM << endl
+		<< endl;
+	return 1;
 }
 
 void CompileGeneratedCode(const string & src_file_name )
