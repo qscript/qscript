@@ -4,6 +4,7 @@
 #include "qscript_data.hpp"
 #include <iostream>
 #include <cstdlib>
+#include <cstring>
 	using namespace std;
 	void read_disk_dataerror(const char * s);
 	int line_no;

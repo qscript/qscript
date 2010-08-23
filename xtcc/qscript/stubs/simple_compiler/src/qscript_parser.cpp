@@ -141,7 +141,7 @@ void print_header(FILE* script, bool ncurses_flag){
 	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include <cstdlib>\n");
 	if(ncurses_flag)
-		fprintf(script, "#include <ncurses.h>\n");
+		fprintf(script, "#include <curses.h>\n");
 	fprintf(script, "#include <signal.h>\n");
 	fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
@@ -851,6 +851,62 @@ test_script.o: test_script.C
 			<< endl;
 	}
 }
+
+void CompileGeneratedCodeStatic(const string & src_file_name )
+{
+	cerr << "ENTER qscript_parser::CompileGeneratedCodeStatic" << endl;
+		
+	/*
+# You will need to modify the variable below
+#QSCRIPT_HOME=/media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
+# if you have setup everything under ../INSTALL_CUSTOM.readme the you will not need to change
+#the variables below
+# when running the generated exe you will need to use
+# LD_LIBRARY_PATH=$(QSCRIPT_RUNTIME) ./test_script
+
+QSCRIPT_RUNTIME=$(QSCRIPT_HOME)/lib
+QSCRIPT_INCLUDE_DIR=$(QSCRIPT_HOME)/include
+
+test_script: test_script.o
+	$(CXX) -g -o $@ -L$(QSCRIPT_RUNTIME) test_script.o -lqscript_runtime -lreadline
+
+test_script.o: test_script.C
+	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -g -c $<
+	*/
+	string executable_file_name = ExtractBaseFileName(src_file_name);
+	cout << "executable_file_name: " << executable_file_name << endl;
+	string intermediate_file_name = executable_file_name + ".C";
+	executable_file_name += ".exe";
+	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
+	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
+	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
+	string QSCRIPT_CURSES_INCLUDE_DIR = "c:/usr/include ";
+	cout << "QSCRIPT_CURSES_INCLUDE_DIR: " << QSCRIPT_CURSES_INCLUDE_DIR << endl;
+	string QSCRIPT_CURSES_LIB_DIR = "c:/usr/lib ";
+	cout << "QSCRIPT_CURSES_LIB_DIR: " << QSCRIPT_CURSES_LIB_DIR << endl;
+		
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string cpp_compile_command = string ("c:\\MinGW\\bin\\g++ -static -g -o ")  
+				+ executable_file_name 
+				+ string(" -L") + QSCRIPT_RUNTIME
+				+ string(" -L") + QSCRIPT_CURSES_LIB_DIR
+				+ string(" -I") + QSCRIPT_INCLUDE_DIR
+				+ string(" -I") + QSCRIPT_CURSES_INCLUDE_DIR
+				+ string(" ") + intermediate_file_name
+				+ string(" -lqscript_runtime -lpdcurses ");
+	cout << "cpp_compile_command: " << cpp_compile_command << endl;
+	//int ret_val=0;
+	int ret_val = system(cpp_compile_command.c_str());
+	if(ret_val!=0){
+		cerr << "Failed in compiling generated code : test_script.C ";
+	} else {
+		cout << "Generated executable. You can run it by\n shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./"
+			 <<  executable_file_name
+			<< endl;
+	}
+}
+
 
 
 /* end of namespace */

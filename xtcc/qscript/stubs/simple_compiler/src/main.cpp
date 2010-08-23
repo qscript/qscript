@@ -39,15 +39,18 @@ int main(int argc, char* argv[])
 	string fname;
 	int fname_flag=0;
 	bool ncurses_flag=false;
+	bool static_binary_flag=false;
 	bool exit_flag=false;
 	
-	while( (c=getopt(argc, argv, "nf:"))!=-1 ){
+	while( (c=getopt(argc, argv, "snf:"))!=-1 ){
 		char ch=optopt;
 		switch(c){
 		case 'n':
 			ncurses_flag=true;
 			break;
-			;
+		case 's':
+			static_binary_flag=true;
+			break;
 		case 'f':
 			fname=optarg;
 			fname_flag=1;
@@ -90,6 +93,7 @@ int main(int argc, char* argv[])
 			<< argv[0] << " -f <input-file> "  << endl;
 		cout << "Options: " << endl;
 		cout << " -n            - creates an ncurses executable " << endl;
+		cout << " -s            - creates an static executable - for windows only " << endl;
 		exit(0);
 	}
 	active_scope=new Scope();
@@ -112,7 +116,10 @@ int main(int argc, char* argv[])
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode(fname, ncurses_flag);
-		qscript_parser::CompileGeneratedCode(fname);
+		if(static_binary_flag)
+			qscript_parser::CompileGeneratedCodeStatic(fname);
+		else 
+			qscript_parser::CompileGeneratedCode(fname);
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
