@@ -804,6 +804,8 @@ int ReadQScriptConfig()
 	return 1;
 }
 
+// ReadQScriptConfig would have already been called
+// before this function is invoked - we work on that assumuption
 void CompileGeneratedCode(const string & src_file_name )
 {
 	cerr << "ENTER qscript_parser::CompileGeneratedCode" << endl;
@@ -826,7 +828,6 @@ test_script.o: test_script.C
 	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -g -c $<
 	*/
 	string executable_file_name = ExtractBaseFileName(src_file_name);
-	cout << "executable_file_name: " << executable_file_name << endl;
 	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += ".exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
@@ -836,10 +837,14 @@ test_script.o: test_script.C
 		
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
 	string cpp_compile_command = string ("g++ -g -o ")  
-				+ executable_file_name +  string(" -L") + QSCRIPT_RUNTIME
-					+ string(" -I") + QSCRIPT_INCLUDE_DIR
-					+ string(" ") + intermediate_file_name
-					+ string(" -lqscript_runtime -lncurses ");
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string(" -lqscript_runtime ")
+			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int ret_val=0;
 	int ret_val = system(cpp_compile_command.c_str());
