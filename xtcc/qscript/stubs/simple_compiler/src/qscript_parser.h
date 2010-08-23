@@ -74,7 +74,7 @@ namespace qscript_parser {
 	extern string project_name;
 	extern vector <AbstractQuestion*> question_list;
 	extern void GenerateCode(const string & src_file_name, bool ncurses_flag);
--       extern int ReadQScriptConfig();
+	extern int ReadQScriptConfig();
 	extern void CompileGeneratedCode(const string & src_file_name);
 	extern void CompileGeneratedCodeStatic(const string & src_file_name );
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
