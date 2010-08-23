@@ -1,0 +1,10 @@
+inp2_err {
+
+	int32_t i=0;
+
+	// expected error
+	for(i=0; i!=1.5; i=i+1){
+		q6 "q6" mp(5) int32_t(1-15,99);
+	}
+
+}
