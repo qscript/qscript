@@ -89,7 +89,8 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
 	virtual void GetDataFromUser(WINDOW * data_entry_window);
 
-	virtual bool VerifyData(string & err_mesg);
+	virtual bool VerifyData(string & err_mesg, string & re_arranged_buffer
+			, int &pos_1st_invalid_data);
 	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
 	virtual void PrintQuestionArrayInitialisation(StatementCompiledCode & code);
 	string PrintSaveArrayQuestion(ActiveVariableInfo * av_info);

@@ -10,14 +10,15 @@
 #include <string>
 #include <cstdlib>
 #include <algorithm>
+#include <sstream>
 
 #include "question.h"
 #include "named_range.h"
 #include "scope.h"
 #include "qscript_parser.h"
 #include "user_navigation.h"
+#include "qscript_readline.h"
 
-#include <sstream>
 int scan_datalex();
 int scan_dataparse();
 extern vector<int> data;
@@ -29,7 +30,7 @@ using std::cerr;
 using namespace std;
 //extern map<string, vector<string> > map_of_active_vars_for_questions;
 void read_data(const char * prompt);
-void read_data_from_window(WINDOW * data_entry_window, char * prompt);
+//void read_data_from_window(WINDOW * data_entry_window, char * prompt, );
 string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack);
 extern vector<string> consolidated_for_loop_index_stack;
 int GetTempMapKeyNumber();
@@ -267,20 +268,29 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 	}
 }
 
-bool AbstractQuestion::VerifyData(string & err_mesg)
+// re_arranged_buffer will contain the data like this: valid_data invalid_data
+bool AbstractQuestion::VerifyData(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data)
 {
-	bool invalid_code=true;
+	bool invalid_code, has_invalid_data_flag=false;
+	stringstream valid_data, invalid_data;
 	for(unsigned int i=0; i<data.size(); ++i){
 		//cout << "Testing data exists: " << data[i] << endl;
 		invalid_code = !IsValid(data[i]);
 		if (invalid_code==true){
-			err_mesg = "Input contained some invalid data\nRe-enter Data\n";
-			data.clear();
-			break;
+			if(!has_invalid_data_flag)
+				has_invalid_data_flag=true;
+			invalid_data << data[i] << " ";
+		} else {
+			valid_data << data[i] << " ";
 		}
 	}
-	if(invalid_code)
+	if(has_invalid_data_flag) {
+		err_mesg = "Input contained some invalid data.. " + invalid_data.str() +  " Re-enter Data\n";
+		pos_1st_invalid_data = valid_data.str().length(); // it already has a space appended to it
+		re_arranged_buffer = valid_data.str() + invalid_data.str();
+		invalid_code=true;
 		goto end;
+	}
 	if(q_type==spn && data.size()>1) {
 		err_mesg="Single coded Question - please enter only 1 code:" ;
 		invalid_code=true;
@@ -299,11 +309,12 @@ end:
 void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 {
 
+	string err_mesg, re_arranged_buffer;
+	int pos_1st_invalid_data;
 	if(data_entry_window==0){
 		bool invalid_code=false;
 		string prompt="Enter Data:";
 		do{
-			invalid_code=true;
 			read_data(prompt.c_str());
 			//cout << "data.size(): " << data.size() << endl;
 			if(data.size()==0 && 
@@ -337,9 +348,9 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 				invalid_code=false;
 			}
 			*/
-			string err_mesg;
-			invalid_code = VerifyData(err_mesg);
 
+			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
+			prompt = err_mesg;
 
 			if(invalid_code==false){
 				input_data.erase(input_data.begin(), input_data.end());
@@ -356,8 +367,9 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 	} else {
 		bool invalid_code=false;
 		do{
-			invalid_code=true;
-			read_data_from_window(data_entry_window, 0 );
+			read_data_from_window(data_entry_window, err_mesg.c_str()
+				, (!invalid_code), re_arranged_buffer
+				, pos_1st_invalid_data);
 			// cout << "data.size(): " << data.size() << endl;
 			if(data.size()==0 && 
 				(user_navigation == NAVIGATE_PREVIOUS 
@@ -390,8 +402,7 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 				invalid_code=false;
 			}
 			*/
-			string err_mesg;
-			invalid_code = VerifyData(err_mesg);
+			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
 
 
 			if(invalid_code==false){

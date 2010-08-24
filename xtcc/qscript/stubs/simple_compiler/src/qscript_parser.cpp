@@ -415,9 +415,9 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "	getmaxyx(stdscr, maxY, maxX);\n");
 	fprintf(script, "\n");
 	fprintf(script, "\n");
-	fprintf(script, "	int DATA_ENTRY_WINDOW_HEIGHT=4, DATA_ENTRY_WINDOW_WIDTH=maxX;\n");
+	fprintf(script, "	int DATA_ENTRY_WINDOW_HEIGHT=5, DATA_ENTRY_WINDOW_WIDTH=maxX;\n");
 	fprintf(script, "\n");
-	fprintf(script, "       int starty = maxY-4;\n");
+	fprintf(script, "       int starty = maxY-DATA_ENTRY_WINDOW_HEIGHT;\n");
 	fprintf(script, "       int startx = 0;\n");
 	fprintf(script, "	data_entry_window = create_newwin(DATA_ENTRY_WINDOW_HEIGHT\n");
 	fprintf(script, "			, DATA_ENTRY_WINDOW_WIDTH, starty, startx);\n");

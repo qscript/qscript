@@ -131,7 +131,6 @@ void read_question_data(){
 	extern  UserNavigation user_navigation;
 	void scan_dataerror(char *s);
 
-	void read_data( const char * prompt);
 	void read_data( const char * prompt)
 	{
 		data.clear();
@@ -152,33 +151,36 @@ top:
 			data.clear();
 			goto top;
 		}
-		cout << "read: " << endl;
-		for(int i=0; i<data.size(); ++i){
-			cout << data[i] << "," ;
-		}
+		//cout << "read: " << endl;
+		//for(int i=0; i<data.size(); ++i){
+		//	cout << data[i] << "," ;
+		//}
 		cout << endl;
 		yy_delete_buffer(s_data);
 	}
 
-	void read_data_from_window(WINDOW * data_entry_window, char * prompt);
-	void read_data_from_window(WINDOW * data_entry_window, char * prompt)
+	void read_data_from_window(WINDOW * data_entry_window, const char * prompt
+		, bool clear_buffer_flag, string & re_arranged_buffer, int & pos_1st_invalid_data)
 	{
 		data.clear();
 top:
-		char * line=qscript_readline(data_entry_window, prompt);
+		//cerr << "clear_buffer_flag: " << clear_buffer_flag;
+		char * line=qscript_readline(data_entry_window, prompt
+			, clear_buffer_flag, re_arranged_buffer, pos_1st_invalid_data);
 		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
 		if(scan_dataparse()){
-			cout << "there was an error in parsing the data" << endl;
-			yy_delete_buffer(s_data);
+			//cout << "there was an error in parsing the data" << endl;
 			data.clear();
 			yy_delete_buffer(s_data);
-			delete[] line;
+			//delete[] line;
+			clear_buffer_flag=false;
+			//cerr << "reset clear_buffer_flag: " << clear_buffer_flag;
 			goto top;
 		}
-		for(int i=0; i<data.size(); ++i){
-			cout << data[i] << "," ;
-		}
+		//for(int i=0; i<data.size(); ++i){
+		//	cout << data[i] << "," ;
+		//}
 		yy_delete_buffer(s_data);
-		delete[] line;
+		//delete[] line;
 	}
 

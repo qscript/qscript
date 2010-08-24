@@ -1,18 +1,36 @@
 #include "qscript_readline.h"
 #include <cctype>
 #include <cstring>
+#include <string>
 
-char * qscript_readline(WINDOW * data_entry_window, char * prompt)
+using std::string;
+char * qscript_readline(WINDOW * data_entry_window, const char * prompt
+	, bool clear_buffer_flag, string & re_arranged_buffer, int &pos_1st_invalid_data)
 {
 	const int MAX_BUFF=1023;
-	//char buffer[MAX_BUFF];
-	char * buffer= new char [MAX_BUFF]; // we will die if this fails - I keep putting code like : ptr = new .. ; if(!ptr)
+	static char buffer[MAX_BUFF];
+	static int insertionPoint=0;
+	static int lastBufPointer=0;
+	//char * buffer= new char [MAX_BUFF]; // we will die if this fails - I keep putting code like : ptr = new .. ; if(!ptr)
 	// and should stop this habit as it does not work like this in the new c++ std
 	wmove(data_entry_window, 1, 1); 
-	memset(buffer, 0, MAX_BUFF);
+	if(clear_buffer_flag) {
+		memset(buffer, 0, MAX_BUFF);
+		insertionPoint=0;
+		lastBufPointer=0;
+	} else {
+		strcpy(buffer, re_arranged_buffer.c_str());
+		insertionPoint = pos_1st_invalid_data;
+		lastBufPointer = re_arranged_buffer.length()-1;
+		mvwprintw(data_entry_window,1,1, "%s", buffer);
+	}
+	mvwprintw(data_entry_window, 2,1, "buffer: %s\n", buffer);
+	mvwprintw(data_entry_window, 3, 41, "insertionPoint: %d, lastBufPointer: %d\n"
+			, insertionPoint, lastBufPointer);
+	mvwprintw(data_entry_window, 3,1, "%s" , prompt);
+	wmove(data_entry_window, 1, lastBufPointer);
+	wrefresh(data_entry_window);
 	int curX, curY;
-	int insertionPoint=0;
-	int lastBufPointer=0;
 	while(1){
 		//c=mvwgetch(data_entry_window,1,1);
 		int c=wgetch(data_entry_window);
@@ -31,8 +49,7 @@ char * qscript_readline(WINDOW * data_entry_window, char * prompt)
 				buffer[insertionPoint++]=ch;
 			}
 
-			mvprintw(0,0, "buffer: %s\n", buffer);
-
+			//mvprintw(0,0, "buffer: %s\n", buffer);
 			//waddch(data_entry_window, ch);
 			//addch(ch);
 		} else switch(c) {
@@ -68,21 +85,22 @@ char * qscript_readline(WINDOW * data_entry_window, char * prompt)
 				}
 			break;
 			case KEY_DC:
-				mvprintw(0,0, "buffer: got KEY_DC\n" );
+				//mvprintw(0,0, "buffer: got KEY_DC\n" );
 
 			break;
 				
 			default:
-				mvprintw(0,0, "unknown key: %d\n", c );
+				//mvprintw(0,0, "unknown key: %d\n", c );
 			break;
 		}
-		mvprintw(0,0, "buffer: %s\n", buffer);
-		mvprintw(1,0, "insertionPoint: %d, lastBufPointer: %d\n"
+		mvwprintw(data_entry_window, 2,1, "buffer: %s\n", buffer);
+		mvwprintw(data_entry_window, 3,1, "insertionPoint: %d, lastBufPointer: %d\n"
 				, insertionPoint, lastBufPointer);
 		for(int i=lastBufPointer-1; i<lastBufPointer+10; ++i){
 			mvwaddch(data_entry_window, curY, i,  ' ');
 		}
 		wclear(data_entry_window);
+		box(data_entry_window, 0, 0);
 		mvwprintw(data_entry_window,1,1, "%s", buffer);
 		wmove(data_entry_window, curY, insertionPoint+1);
 		wrefresh(data_entry_window);
