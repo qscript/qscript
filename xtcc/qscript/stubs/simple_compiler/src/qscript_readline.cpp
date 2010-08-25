@@ -127,7 +127,7 @@ char * NCursesReadline::ReadLine()
 	mvwprintw(dataEntryWindow_, 3, 41, "insertionPoint_: %d, lastBufPointer_: %d\n"
 			, insertionPoint_, lastBufPointer_);
 	//mvwprintw(dataEntryWindow_, 3,1, "%s" , prompt);
-	wmove(dataEntryWindow_, 1, lastBufPointer_);
+	wmove(dataEntryWindow_, 1, insertionPoint_);
 	wrefresh(dataEntryWindow_);
 	int curX, curY;
 	while(1){
@@ -174,6 +174,7 @@ char * NCursesReadline::ReadLine()
 				insertionPoint_=lastBufPointer_;
 			break;
 			case KEY_BACKSPACE:
+			/*
 				if(insertionPoint_>=1){
 					for(int i=insertionPoint_; i<=lastBufPointer_; ++i){
 						buffer_[i-1]=buffer_[i];
@@ -183,6 +184,8 @@ char * NCursesReadline::ReadLine()
 					if(insertionPoint_>lastBufPointer_)
 						insertionPoint_=lastBufPointer_;
 				}
+			*/
+				DoBackSpace();
 			break;
 			case KEY_DC:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_DC" );
@@ -207,7 +210,7 @@ char * NCursesReadline::ReadLine()
 		box(dataEntryWindow_, 0, 0);
 		mvwprintw(dataEntryWindow_,1,1, "%s", buffer_);
 		mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c );
-		wmove(dataEntryWindow_, curY, insertionPoint_+1);
+		wmove(dataEntryWindow_, curY, 1+insertionPoint_);// since our X origin is at 1
 		wrefresh(dataEntryWindow_);
 	}
 }
@@ -241,11 +244,24 @@ void NCursesReadline::DoDelete()
 	if(insertionPoint_==lastBufPointer_) {
 		// nothing to do
 	} else if(insertionPoint_>=1){
-		for(int i=insertionPoint_+1; i<=lastBufPointer_; ++i){
+		for(int i=insertionPoint_; i<=lastBufPointer_; ++i){
 			buffer_[i]=buffer_[i+1];
 		}
 		buffer_[--lastBufPointer_]=0; 
 		if(lastBufPointer_<insertionPoint_)
 			lastBufPointer_=insertionPoint_;
+	}
+}
+
+void NCursesReadline::DoBackSpace()
+{
+	if(insertionPoint_>=1){
+		for(int i=insertionPoint_; i<=lastBufPointer_; ++i){
+			buffer_[i-1]=buffer_[i];
+		}
+		buffer_[--lastBufPointer_]=0; 
+		--insertionPoint_;
+		if(insertionPoint_>lastBufPointer_)
+			insertionPoint_=lastBufPointer_;
 	}
 }
