@@ -5,18 +5,21 @@
 
 class NCursesReadline
 {
-	const int MAX_BUFF;
-	char * buffer_;
-	int insertionPoint_, lastBufPointer_;
+	//const int MAX_BUFF;
+	//char * buffer_;
+	std::string buffer_;
+	int insertionPoint_;
+		//, lastBufPointer_;
 	WINDOW * dataEntryWindow_;
 	public:
 	// We expect an already allocated window to be passed to us
 	NCursesReadline(WINDOW * l_data_entry_window);
-	char * ReadLine();
+	const char * ReadLine();
 	int SetBuffer(const std::string & re_arranged_buffer, int l_new_insertionPoint);
 	void DoDelete();
 	void DoBackSpace();
 	void Reset();
+	void EraseLine(int line_no);
 };
 
 

@@ -199,7 +199,7 @@ top:
 		//cerr << "clear_buffer_flag: " << clear_buffer_flag;
 		// NOTE: so long as the ncurses_readline is static the pointer 
 		// returned will be valid
-		char * line=ncurses_readline.ReadLine();
+		const char * line=ncurses_readline.ReadLine();
 		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
 		if(scan_dataparse()){
 			//cout << "there was an error in parsing the data" << endl;
