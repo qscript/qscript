@@ -162,6 +162,7 @@ top:
 	void read_data_from_window(WINDOW * data_entry_window, const char * prompt
 		, bool clear_buffer_flag, string & re_arranged_buffer, int & pos_1st_invalid_data)
 	{
+		/*
 		data.clear();
 top:
 		//cerr << "clear_buffer_flag: " << clear_buffer_flag;
@@ -182,5 +183,36 @@ top:
 		//}
 		yy_delete_buffer(s_data);
 		//delete[] line;
+		*/
+
+		static NCursesReadline ncurses_readline(data_entry_window);
+		data.clear();
+		if(clear_buffer_flag)
+		{
+			ncurses_readline.Reset();
+		} else {
+			ncurses_readline.SetBuffer(re_arranged_buffer
+					, pos_1st_invalid_data );
+		}
+
+top:
+		//cerr << "clear_buffer_flag: " << clear_buffer_flag;
+		// NOTE: so long as the ncurses_readline is static the pointer 
+		// returned will be valid
+		char * line=ncurses_readline.ReadLine();
+		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
+		if(scan_dataparse()){
+			//cout << "there was an error in parsing the data" << endl;
+			data.clear();
+			yy_delete_buffer(s_data);
+			//delete[] line;
+			clear_buffer_flag=false;
+			//cerr << "reset clear_buffer_flag: " << clear_buffer_flag;
+			goto top;
+		}
+		//for(int i=0; i<data.size(); ++i){
+		//	cout << data[i] << "," ;
+		//}
+		yy_delete_buffer(s_data);
 	}
 

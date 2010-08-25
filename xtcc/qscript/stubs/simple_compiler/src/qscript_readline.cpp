@@ -4,6 +4,8 @@
 #include <string>
 
 using std::string;
+
+/*
 char * qscript_readline(WINDOW * data_entry_window, const char * prompt
 	, bool clear_buffer_flag, string & re_arranged_buffer, int &pos_1st_invalid_data)
 {
@@ -89,6 +91,9 @@ char * qscript_readline(WINDOW * data_entry_window, const char * prompt
 
 			break;
 				
+			case KEY_SLEFT:
+				do_shiftleft();
+			break;
 			default:
 				//mvprintw(0,0, "unknown key: %d\n", c );
 			break;
@@ -105,4 +110,122 @@ char * qscript_readline(WINDOW * data_entry_window, const char * prompt
 		wmove(data_entry_window, curY, insertionPoint+1);
 		wrefresh(data_entry_window);
 	}
+}
+*/
+
+NCursesReadline::NCursesReadline(WINDOW * l_data_entry_window)
+	: MAX_BUFF(1023), buffer_(new char[MAX_BUFF])
+	 , insertionPoint_(0) , lastBufPointer_(0)
+	 , dataEntryWindow_(l_data_entry_window)
+{ }
+
+char * NCursesReadline::ReadLine()
+{
+	wmove(dataEntryWindow_, 1, 1); 
+	mvwprintw(dataEntryWindow_,1,1, "%s", buffer_);
+	//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer);
+	mvwprintw(dataEntryWindow_, 3, 41, "insertionPoint_: %d, lastBufPointer_: %d\n"
+			, insertionPoint_, lastBufPointer_);
+	//mvwprintw(dataEntryWindow_, 3,1, "%s" , prompt);
+	wmove(dataEntryWindow_, 1, lastBufPointer_);
+	wrefresh(dataEntryWindow_);
+	int curX, curY;
+	while(1){
+		//c=mvwgetch(dataEntryWindow_,1,1);
+		int c=wgetch(dataEntryWindow_);
+		//mvprintw(0,0, "got char: %d\n", c);
+		getyx(dataEntryWindow_, curY, curX);
+
+		if(isprint(c)){
+			char ch=static_cast<char>(c);
+			if(insertionPoint_==lastBufPointer_){
+				buffer_[lastBufPointer_++]=ch; insertionPoint_++;
+			} else {
+				for(int i=lastBufPointer_; i>=insertionPoint_; --i){
+					buffer_[i]=buffer_[i-1];
+				}
+				++lastBufPointer_;
+				buffer_[insertionPoint_++]=ch;
+			}
+
+			//mvprintw(0,0, "buffer_: %s\n", buffer);
+			//waddch(dataEntryWindow_, ch);
+			//addch(ch);
+		} else switch(c) {
+			case 10:
+			case 13:
+			case KEY_ENTER:
+				return buffer_;
+			case KEY_LEFT:
+				if(insertionPoint_>0){
+					--insertionPoint_;
+				}
+			break;
+			case KEY_RIGHT:
+				if(insertionPoint_<lastBufPointer_){
+					++insertionPoint_;
+				}
+			break;
+			case KEY_HOME:
+				insertionPoint_=0;
+			break;
+			case KEY_END:
+				insertionPoint_=lastBufPointer_;
+			break;
+			case KEY_BACKSPACE:
+				if(insertionPoint_>=1){
+					for(int i=insertionPoint_; i<=lastBufPointer_; ++i){
+						buffer_[i-1]=buffer_[i];
+					}
+					buffer_[--lastBufPointer_]=0; 
+					--insertionPoint_;
+					if(insertionPoint_>lastBufPointer_)
+						insertionPoint_=lastBufPointer_;
+				}
+			break;
+			case KEY_DC:
+				//mvprintw(0,0, "buffer_: got KEY_DC\n" );
+
+			break;
+				
+			//case KEY_SLEFT:
+			//	do_shiftleft();
+			//break;
+			default:
+				//mvprintw(0,0, "unknown key: %d\n", c );
+			break;
+		}
+		//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer_);
+		mvwprintw(dataEntryWindow_, 3,1, "insertionPoint_: %d, lastBufPointer_: %d\n"
+				, insertionPoint_, lastBufPointer_);
+		for(int i=lastBufPointer_-1; i<lastBufPointer_+10; ++i){
+			mvwaddch(dataEntryWindow_, curY, i,  ' ');
+		}
+		wclear(dataEntryWindow_);
+		box(dataEntryWindow_, 0, 0);
+		mvwprintw(dataEntryWindow_,1,1, "%s", buffer_);
+		wmove(dataEntryWindow_, curY, insertionPoint_+1);
+		wrefresh(dataEntryWindow_);
+	}
+}
+
+// returns 1 on success 0 on failure
+// are throwing exceptions a better option?
+int NCursesReadline::SetBuffer(const string & re_arranged_buffer
+		, int l_new_insertionPoint)
+{
+	if(re_arranged_buffer.length() >= MAX_BUFF-1)
+	{
+		//cerr << " re_arranged_buffer too large for internal buffer"
+		return 0;
+	}
+	strcpy(buffer_, re_arranged_buffer.c_str());
+	insertionPoint_ = l_new_insertionPoint;
+	lastBufPointer_ = re_arranged_buffer.length();
+}
+
+void NCursesReadline::Reset()
+{
+	insertionPoint_=0; lastBufPointer_;
+	memset(buffer_, 0, MAX_BUFF);
 }
