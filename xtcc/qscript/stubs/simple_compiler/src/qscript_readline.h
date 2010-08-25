@@ -14,6 +14,7 @@ class NCursesReadline
 	NCursesReadline(WINDOW * l_data_entry_window);
 	char * ReadLine();
 	int SetBuffer(const std::string & re_arranged_buffer, int l_new_insertionPoint);
+	void DoDelete();
 	void Reset();
 };
 

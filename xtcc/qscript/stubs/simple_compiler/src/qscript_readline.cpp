@@ -157,6 +157,7 @@ char * NCursesReadline::ReadLine()
 			case KEY_ENTER:
 				return buffer_;
 			case KEY_LEFT:
+				mvwprintw(dataEntryWindow_,2,50, "got KEY_LEFT" );
 				if(insertionPoint_>0){
 					--insertionPoint_;
 				}
@@ -184,8 +185,8 @@ char * NCursesReadline::ReadLine()
 				}
 			break;
 			case KEY_DC:
-				//mvprintw(0,0, "buffer_: got KEY_DC\n" );
-
+				mvwprintw(dataEntryWindow_,2,50, "got KEY_DC" );
+				DoDelete();
 			break;
 				
 			//case KEY_SLEFT:
@@ -193,6 +194,7 @@ char * NCursesReadline::ReadLine()
 			//break;
 			default:
 				//mvprintw(0,0, "unknown key: %d\n", c );
+				mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c );
 			break;
 		}
 		//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer_);
@@ -201,9 +203,10 @@ char * NCursesReadline::ReadLine()
 		for(int i=lastBufPointer_-1; i<lastBufPointer_+10; ++i){
 			mvwaddch(dataEntryWindow_, curY, i,  ' ');
 		}
-		wclear(dataEntryWindow_);
+		//wclear(dataEntryWindow_);
 		box(dataEntryWindow_, 0, 0);
 		mvwprintw(dataEntryWindow_,1,1, "%s", buffer_);
+		mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c );
 		wmove(dataEntryWindow_, curY, insertionPoint_+1);
 		wrefresh(dataEntryWindow_);
 	}
@@ -220,12 +223,29 @@ int NCursesReadline::SetBuffer(const string & re_arranged_buffer
 		return 0;
 	}
 	strcpy(buffer_, re_arranged_buffer.c_str());
-	insertionPoint_ = l_new_insertionPoint;
+	if(l_new_insertionPoint < re_arranged_buffer.length()){
+		insertionPoint_ = l_new_insertionPoint;
+	} else { insertionPoint_ =0; }
 	lastBufPointer_ = re_arranged_buffer.length();
 }
 
 void NCursesReadline::Reset()
 {
-	insertionPoint_=0; lastBufPointer_;
+	insertionPoint_=0; lastBufPointer_=0;
 	memset(buffer_, 0, MAX_BUFF);
+}
+
+void NCursesReadline::DoDelete()
+{
+
+	if(insertionPoint_==lastBufPointer_) {
+		// nothing to do
+	} else if(insertionPoint_>=1){
+		for(int i=insertionPoint_+1; i<=lastBufPointer_; ++i){
+			buffer_[i]=buffer_[i+1];
+		}
+		buffer_[--lastBufPointer_]=0; 
+		if(lastBufPointer_<insertionPoint_)
+			lastBufPointer_=insertionPoint_;
+	}
 }
