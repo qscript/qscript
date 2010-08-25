@@ -1,0 +1,14 @@
+include
+make-build-dir
+bin
+inputs/*.C
+*.log
+*.swp
+lib
+*.dat
+aclocal.m4
+autom4te.cache
+configure.tmp
+err
+a.cfg
+Makefile.in
