@@ -20,6 +20,8 @@ class NCursesReadline
 	void DoBackSpace();
 	void Reset();
 	void EraseLine(int line_no);
+	void DoShiftLeft();
+	void DoShiftRight();
 };
 
 

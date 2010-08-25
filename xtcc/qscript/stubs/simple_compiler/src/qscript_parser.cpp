@@ -394,6 +394,11 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "			WINDOW * &  stub_list_window,\n");
 	fprintf(script, "			WINDOW * & data_entry_window)\n");
 	fprintf(script, "{\n");
+	fprintf(script, "	initscr();\n");
+	fprintf(script, "       cbreak();\n");
+	fprintf(script, "       noecho();\n");
+	fprintf(script, "       nonl();\n");
+	fprintf(script, "       intrflush(stdscr, FALSE);\n");
 	fprintf(script, "	if(has_colors() == FALSE)\n");
 	fprintf(script, "	{	endwin();\n");
 	fprintf(script, "		printf(\"Your terminal does not support color\\n\");\n");
@@ -429,7 +434,7 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "       wrefresh(data_entry_window);\n");
 	//fprintf(script, "	mvwprintw(data_entry_window, 1, 1, "data_entry_window: height: %d, width, %d"\n");
 	//fprintf(script, "			, DATA_ENTRY_WINDOW_HEIGHT , DATA_ENTRY_WINDOW_WIDTH);\n");
-	fprintf(script, "        keypad(data_entry_window, TRUE);\n");
+	fprintf(script, "       keypad(data_entry_window, TRUE);\n");
 	fprintf(script, "	// Divide the rest of the screen between the question window\n");
 	fprintf(script, "	//  and the stub window in the ration 1:2\n");
 	fprintf(script, "	int height_left = maxY - DATA_ENTRY_WINDOW_HEIGHT;\n");
@@ -459,7 +464,6 @@ void PrintSetupNCurses(FILE * script)
 	//fprintf(script, "			, QUESTION_WINDOW_HEIGHT , QUESTION_WINDOW_WIDTH);\n");
 	fprintf(script, "	wrefresh(question_window);\n");
 	fprintf(script, "\n");
-	fprintf(script, "       cbreak();\n");
 	fprintf(script, "	wmove(data_entry_window, 1,1);\n");
 	//fprintf(script, "	wgetch(data_entry_window);\n");
 	fprintf(script, "}\n");

@@ -27,7 +27,7 @@ const char * NCursesReadline::ReadLine()
 		//mvprintw(0,0, "got char: %d\n", c);
 		getyx(dataEntryWindow_, curY, curX);
 
-		if(isprint(c)){
+		if(isascii(c) && isprint(c)){
 			char ch=static_cast<char>(c);
 			if(insertionPoint_==buffer_.length()){
 				buffer_.append(1, ch);
@@ -35,6 +35,7 @@ const char * NCursesReadline::ReadLine()
 			} else {
 				buffer_.insert(insertionPoint_++, 1, ch);
 			}
+			mvwprintw(dataEntryWindow_,2,75, "got PRINTABLE CHAR %d", c );
 
 		} else switch(c) {
 			case 10:
@@ -66,9 +67,12 @@ const char * NCursesReadline::ReadLine()
 				DoDelete();
 			break;
 				
-			//case KEY_SLEFT:
-			//	do_shiftleft();
-			//break;
+			case KEY_SLEFT:
+				DoShiftLeft();
+			break;
+			case KEY_SRIGHT:
+				DoShiftRight();
+			break;
 			default:
 				//mvprintw(0,0, "unknown key: %d\n", c );
 				mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c );
@@ -134,5 +138,58 @@ void NCursesReadline::DoBackSpace()
 	if(insertionPoint_>=1){
 		buffer_.erase(insertionPoint_-1, 1);
 		--insertionPoint_;
+	}
+}
+
+void NCursesReadline::DoShiftLeft()
+{
+	if(insertionPoint_>0){
+		//string::size_type found;
+		//do {
+		//	found = buffer_.rfind(' ', insertionPoint_);
+		//} while (found == insertionPoint_);
+		int i1 = insertionPoint_-1;
+		int idx=0;
+		int count_blank_spaces=0;
+		while(buffer_[i1]==' ' && i1>0){
+			mvwprintw(dataEntryWindow_,2,90+idx, "." );
+			count_blank_spaces++;
+			--i1;
+		}
+		if(count_blank_spaces>1){
+			insertionPoint_=i1;
+			return;
+		}
+		string::size_type found = buffer_.rfind(' ', i1);
+		if(found!=string::npos){
+			insertionPoint_ = found;
+		}
+	}
+}
+
+
+void NCursesReadline::DoShiftRight()
+{
+	if(insertionPoint_<buffer_.length()){
+		//string::size_type found;
+		//do {
+		//	found = buffer_.rfind(' ', insertionPoint_);
+		//} while (found == insertionPoint_);
+		int i1 = insertionPoint_+1;
+		int idx=0;
+		int count_blank_spaces=0;
+		while(buffer_[i1]==' ' && i1>0){
+			mvwprintw(dataEntryWindow_,2,90+idx, "." );
+			count_blank_spaces++;
+			++i1;
+		}
+		if(count_blank_spaces>1){
+			insertionPoint_=i1;
+			return;
+		}
+		string::size_type found = buffer_.find(' ', i1);
+		if(found!=string::npos){
+			insertionPoint_ = found;
+		}
 	}
 }
