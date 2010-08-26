@@ -15,13 +15,16 @@ class NCursesReadline
 	// We expect an already allocated window to be passed to us
 	NCursesReadline(WINDOW * l_data_entry_window);
 	const char * ReadLine();
-	int SetBuffer(const std::string & re_arranged_buffer, int l_new_insertionPoint);
+	void SetBuffer(const std::string & re_arranged_buffer, int l_new_insertionPoint);
 	void DoDelete();
 	void DoBackSpace();
 	void Reset();
 	void EraseLine(int line_no);
 	void DoShiftLeft();
 	void DoShiftRight();
+	private:
+		NCursesReadline& operator=(const NCursesReadline&);
+		NCursesReadline (const NCursesReadline&);
 };
 
 

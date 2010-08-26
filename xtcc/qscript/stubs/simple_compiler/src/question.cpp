@@ -236,7 +236,7 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 		code.quest_defns << "for(int ";
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 		if(bin_expr_ptr){
-			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+			//AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 			AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
 			ExpressionCompiledCode expr_code1;
 			lhs->PrintExpressionCode(expr_code1);
@@ -473,9 +473,8 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 		, l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
 		, l_enclosing_scope, l_av_info
 		)
-{
-	r_data = new XtccSet(l_r_data);
-}
+	, r_data ( new XtccSet(l_r_data)), displayData_() 
+{ }
 
 	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
@@ -486,9 +485,8 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
 		)
-{
-	r_data = new XtccSet(l_r_data);
-}
+	, r_data (new XtccSet(l_r_data)), displayData_()
+{ }
 
 	//! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
@@ -501,9 +499,8 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info
 		)
-{
-	r_data = new XtccSet(l_r_data);
-}
+	, r_data ( new XtccSet(l_r_data)), displayData_()
+{ }
 
 	//! this is only called from the runtime environment
 RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
@@ -516,9 +513,8 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
 		)
-{
-	r_data = new XtccSet(l_r_data);
-}
+	, r_data ( new XtccSet(l_r_data)), displayData_()
+{ }
 
 
 bool RangeQuestion::IsValid(int value)
@@ -838,9 +834,10 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 		l_q_type, l_no_mpn, l_dt
 		//, l_arr_sz
 		, l_for_bounds_stack, l_enclosing_scope, l_av_info
-		), 
+		)
 	//named_list(l_named_list)
-	nr_ptr(l_nr_ptr), stub_ptr(0)
+	, named_list()
+	, nr_ptr(l_nr_ptr), stub_ptr(0)
 {
 }
 
@@ -854,8 +851,9 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info
-		), 
-	nr_ptr(l_nr_ptr), stub_ptr(0)
+		)
+	, named_list()
+	, nr_ptr(l_nr_ptr), stub_ptr(0)
 {
 }
 
@@ -866,8 +864,9 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
-		), 
-	nr_ptr(0), stub_ptr(l_stub_ptr)
+		) 
+	, named_list()
+	, nr_ptr(0), stub_ptr(l_stub_ptr)
 {
 }
 
@@ -881,8 +880,9 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
-		), 
-	nr_ptr(0), stub_ptr(l_stub_ptr)
+		)
+	, named_list()
+	, nr_ptr(0), stub_ptr(l_stub_ptr)
 {
 }
 
@@ -972,7 +972,7 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		//for(int i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
 		//	code.program_code << active_pop_vars_for_this_question[i] << endl;
 		//}
-		ostringstream &s(code.program_code);
+		// ostringstream &s(code.program_code);
 		// the code below should be extracted to a method: NxD 11-Jun-2010
 		SetupSimpleQuestionRestore(code);
 		code.program_code << "if ( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump=false;\n}\n";

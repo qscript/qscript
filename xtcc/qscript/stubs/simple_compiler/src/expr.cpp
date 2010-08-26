@@ -709,7 +709,7 @@ Unary2Expression::Unary2Expression( struct SymbolTableEntry * lsymp)
 	: AbstractExpression(oper_name,lsymp->type_)
 	, symbolTableEntry_(lsymp), intSemanticValue_(0)
 	, doubleSemanticValue_(0), func_index_in_table(-1)
-	, text(0), operand_(0), operand2_(0), column_no(-1) 
+	, text(0), column_no(-1), operand_(0), operand2_(0)
 {
 }
 

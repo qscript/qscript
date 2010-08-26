@@ -351,13 +351,14 @@ CompoundStatement::CompoundStatement(DataType dtype, int lline_number
 	, int l_flag_cmpd_stmt_is_a_for_body
 	, vector<AbstractExpression*>& l_for_bounds_stack
 	): 
-	AbstractStatement(dtype, lline_number), 
-	compoundBody_(0), scope_(0), 
-	flagIsAFunctionBody_(l_flag_cmpd_stmt_is_a_func_body),
-	flagIsAForBody_(l_flag_cmpd_stmt_is_a_for_body),
-	counterContainsQuestions_(0), compoundStatementNumber_(0)
+	AbstractStatement(dtype, lline_number)
+	, compoundBody_(0), scope_(0)
+	, flagIsAFunctionBody_(l_flag_cmpd_stmt_is_a_func_body)
+	, flagIsAForBody_(l_flag_cmpd_stmt_is_a_for_body)
+	, counterContainsQuestions_(0), compoundStatementNumber_(0)
 	, flagGeneratedQuestionDefinitions_(false)
-	, for_bounds_stack(l_for_bounds_stack)
+	, for_bounds_stack(l_for_bounds_stack), questionsInBlock_(0)
+	, nestedCompoundStatementStack_(0), ConsolidatedForLoopIndexStack_(0)
 {	
 	compoundStatementNumber_=CompoundStatement::counter_++;
 }
@@ -405,7 +406,7 @@ void CompoundStatement::GenerateQuestionArrayInitLoopOpen(StatementCompiledCode 
 		code.array_quest_init_area << "for(int ";
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 		if(bin_expr_ptr){
-			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+			//AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 			AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
 			ExpressionCompiledCode expr_code1;
 			lhs->PrintExpressionCode(expr_code1);
@@ -454,7 +455,7 @@ string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stac
 	for(int i=0; i< for_bounds_stack.size(); ++i){
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 		if(bin_expr_ptr){
-			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+			//AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 			AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
 			lhs->PrintExpressionCode(expr_code_arr[i]); 
 			if(i<for_bounds_stack.size()-1) {
@@ -972,15 +973,15 @@ VariableList::VariableList(DataType type, char * name, int len)
 StubManipStatement::StubManipStatement( DataType dtype, int lline_number
 		, string l_named_stub, string l_question_name
 	)
-	: AbstractStatement(dtype, lline_number), 
-	namedStub_(l_named_stub), questionName_(l_question_name)
+	: AbstractStatement(dtype, lline_number) 
+	, questionName_(l_question_name), namedStub_(l_named_stub)
 {
 }
 
 StubManipStatement::StubManipStatement( DataType dtype, int lline_number
 		, string l_named_stub)
-	: AbstractStatement(dtype, lline_number), 
-	namedStub_(l_named_stub)
+	: AbstractStatement(dtype, lline_number)
+	  , questionName_(), namedStub_(l_named_stub)
 {
 }
 

@@ -214,13 +214,13 @@ struct CompoundStatement: public AbstractStatement
 	vector<AbstractExpression*> for_bounds_stack;
 	vector<AbstractQuestion*> questionsInBlock_;
 	vector<CompoundStatement*> nestedCompoundStatementStack_;
+	vector<string> ConsolidatedForLoopIndexStack_;
 	public:
 	CompoundStatement(DataType dtype, int lline_number
 			, int l_flag_cmpd_stmt_is_a_func_body 
 			, int l_flag_cmpd_stmt_is_a_for_body
 			, vector<AbstractExpression*>& l_for_bounds_stack
 			);
-	vector<string> ConsolidatedForLoopIndexStack_;
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);

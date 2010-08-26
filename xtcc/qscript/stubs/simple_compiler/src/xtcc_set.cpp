@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iostream>
 
-XtccSet::XtccSet(): range(0)
+XtccSet::XtccSet(): range(0), indiv()
 { }
 
 XtccSet::XtccSet(DataType dt, string name, XtccSet& xs)

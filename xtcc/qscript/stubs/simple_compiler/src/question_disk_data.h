@@ -7,13 +7,14 @@
 #include <algorithm>
 using namespace std;
 
-struct question_disk_data{
+struct question_disk_data
+{
 	string qno;
 	vector <int> data;
 	vector <int> array_bounds;
 
 	question_disk_data(string & l_qno, vector<int> & l_bounds, vector<int> & ):
-		qno(l_qno), array_bounds(l_bounds)
+		qno(l_qno), data(0), array_bounds(l_bounds)
 	{
 		//cerr << "question_disk_data::question_disk_data: bounds: " 
 		//	<< array_bounds.size()	
@@ -21,7 +22,7 @@ struct question_disk_data{
 	}
 
 	question_disk_data(string & l_qno, vector<int> & l_data):
-		qno(l_qno), data(l_data)
+		qno(l_qno), data(l_data), array_bounds(0)
 	{
 		//cerr << "question_disk_data::question_disk_data()" <<endl;
 		//cerr << "data:";
@@ -33,7 +34,7 @@ struct question_disk_data{
 	}
 
 	question_disk_data(string & l_qno):
-		qno(l_qno)
+		qno(l_qno), data(0), array_bounds(0)
 	{
 		//cerr << "question_disk_data: (string& l_qno) " << endl;
 	}

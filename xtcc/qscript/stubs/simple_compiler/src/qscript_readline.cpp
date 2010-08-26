@@ -12,9 +12,9 @@
 using std::string;
 
 NCursesReadline::NCursesReadline(WINDOW * l_data_entry_window)
-	: insertionPoint_(0) //, lastBufPointer_(0)
+	: buffer_(), insertionPoint_(0) //, lastBufPointer_(0)
 	 , dataEntryWindow_(l_data_entry_window)
-{ buffer_.reserve(4095); }
+	{ buffer_.reserve(4095); }
 
 const char * NCursesReadline::ReadLine()
 {
@@ -115,7 +115,7 @@ void NCursesReadline::EraseLine(int line_no)
 
 // returns 1 on success 0 on failure
 // are throwing exceptions a better option?
-int NCursesReadline::SetBuffer(const string & re_arranged_buffer
+void NCursesReadline::SetBuffer(const string & re_arranged_buffer
 		, int l_new_insertionPoint)
 {
 	buffer_=re_arranged_buffer;
