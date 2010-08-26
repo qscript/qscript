@@ -233,7 +233,9 @@ void print_header(FILE* script, bool ncurses_flag){
 		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
 		fprintf(script, "		return 1;\n");
 		fprintf(script, "	}\n");
-		fprintf(script, "	define_some_pd_curses_keys();\n");
+		if(config_file_parser::PLATFORM=="LINUX"|| config_file_parser::PLATFORM=="UNIX"){
+			fprintf(script, "	define_some_pd_curses_keys();\n");
+		}
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
 

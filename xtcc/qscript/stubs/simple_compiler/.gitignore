@@ -12,3 +12,5 @@ configure.tmp
 err
 a.cfg
 Makefile.in
+inputs/*.h
+*.sum
