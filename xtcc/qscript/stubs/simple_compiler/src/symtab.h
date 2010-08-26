@@ -64,10 +64,10 @@ struct XtccSet;
 struct SymbolTableEntry {
 	char *name_;
 	char *text_;
-	union {
+	//union {
 		double dval;
 		int ival;
-	};
+	//}; finally got fed up of the warnings i got from the compiler
 	DataType type_;
 	int n_elms;
 	bool created_by_me;
@@ -79,30 +79,35 @@ struct SymbolTableEntry {
 	AbstractQuestion * question_;
 	//! constructor for variable declaration without initialisation
 	SymbolTableEntry(const char * lname, DataType ldt):
-		name_(strdup(lname)), text_(0), dval(0), type_(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
+		name_(strdup(lname)), text_(0), dval(0), ival(0)
+		, type_(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
 		, type_qual(NO_QUAL), question_(0)
 	{ }
 	//! constructor for variable declaration and initialisation with an expression
 	SymbolTableEntry(const char * lname, DataType ldt, AbstractExpression* le):
-		name_(strdup(lname)), text_(0), dval(0), type_(ldt), n_elms(-1), created_by_me(true), e(le), xs(0)
+		name_(strdup(lname)), text_(0), dval(0), ival(0)
+		, type_(ldt), n_elms(-1), created_by_me(true), e(le), xs(0)
 		, type_qual(NO_QUAL), question_(0)
 	{ }
 	//! constructor for const qualified variable declaration and initialisation with an expression
 	SymbolTableEntry(const char * lname, DataType ldt, AbstractExpression* le, type_qualifier l_tq):
-		name_(strdup(lname)), text_(0), dval(0), type_(ldt), n_elms(-1), created_by_me(true), e(le), xs(0),
+		name_(strdup(lname)), text_(0), dval(0), ival(0)
+		, type_(ldt), n_elms(-1), created_by_me(true), e(le), xs(0),
 		type_qual(l_tq), question_(0)
 	{ }
 
 	SymbolTableEntry(const char * lname, DataType ldt, int arr_sz, char * text):
-		name_(strdup(lname)), text_(strdup(text)), dval(0), type_(ldt)
-		, n_elms(arr_sz), created_by_me(true), e(0), xs(0), type_qual(NO_QUAL)
+		name_(strdup(lname)), text_(strdup(text)), dval(0), ival(0)
+		, type_(ldt) , n_elms(arr_sz), created_by_me(true)
+		, e(0), xs(0), type_qual(NO_QUAL)
 		, question_(0)
 	{ }
 	//! constructor for a variable which is a named set
 	SymbolTableEntry(const char * lname, DataType ldt, XtccSet * xs);
 	//! constructor for question SymbolTableEntry
 	SymbolTableEntry(const char * lname, DataType ldt, AbstractQuestion * l_q):
-		name_(strdup(lname)), text_(0), dval(0), type_(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
+		name_(strdup(lname)), text_(0), dval(0), ival(0)
+		, type_(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
 		, type_qual(NO_QUAL), question_(l_q)
 	{ }
 	inline DataType get_type(){

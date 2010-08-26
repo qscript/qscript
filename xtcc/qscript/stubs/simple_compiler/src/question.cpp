@@ -51,8 +51,8 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	): 
 	AbstractStatement(l_type, l_no)
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
-	, no_mpn(l_no_mpn), dt(l_dt)
-	, for_bounds_stack(l_for_bounds_stack)
+	, no_mpn(l_no_mpn), dt(l_dt), input_data()
+	, for_bounds_stack(l_for_bounds_stack), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(l_enclosing_scope)
 	, activeVarInfo_(l_av_info)
@@ -71,11 +71,10 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	): 
 	AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type) 
-	, no_mpn(l_no_mpn), dt(l_dt)
-	, for_bounds_stack(0)
+	, no_mpn(l_no_mpn), dt(l_dt), input_data()
+	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
-	//, enclosingCompoundStatement_(qscript_parser::stack_cmpd_stmt.back())
-	, enclosingCompoundStatement_(0)
+	, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0)
 {
 	//if(enclosingCompoundStatement_==0){
@@ -93,8 +92,8 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	): 
 	AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type) 
-	, no_mpn(l_no_mpn), dt(l_dt)
-	, for_bounds_stack(0)
+	, no_mpn(l_no_mpn), dt(l_dt), input_data()
+	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(l_enclosing_scope)
 	, activeVarInfo_(l_av_info)
@@ -115,10 +114,12 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 	): 
 	AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type) 
-	, no_mpn(l_no_mpn), dt(l_dt) , for_bounds_stack(0)
+	, no_mpn(l_no_mpn), dt(l_dt), input_data()
+	, for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(0) // this is only used in the compile time environment
+	, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array)
 {
 	//for(int i=0; i<l_loop_index_values.size(); ++i){

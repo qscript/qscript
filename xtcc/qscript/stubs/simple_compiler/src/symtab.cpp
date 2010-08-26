@@ -240,8 +240,12 @@ string human_readable_type(DataType dt)
 
 
 
-SymbolTableEntry::SymbolTableEntry(const char * lname, DataType ldt, XtccSet * lxs):name_(strdup(lname)), dval(0), type_(ldt), n_elms(-1), created_by_me(true), e(0)  { 
-	xs = new XtccSet(*lxs);
+SymbolTableEntry::SymbolTableEntry(const char * lname, DataType ldt, XtccSet * lxs)
+	:name_(strdup(lname)), text_(0), dval(0), ival(0)
+	 , type_(ldt), n_elms(-1), created_by_me(true), e(0)
+	 , xs ( new XtccSet(*lxs)), type_qual(NO_QUAL), question_(0)
+{ 
+
 }
 
 			

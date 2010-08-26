@@ -122,7 +122,7 @@ struct AbstractQuestion: public AbstractStatement
 struct RangeQuestion: public AbstractQuestion 
 {
 	XtccSet * r_data;
-	vector <int> stack_loop_index_values;
+	//vector <int> stack_loop_index_values;
 	set<int> displayData_;
 	//! this is only called in the compile time environment
 	RangeQuestion(DataType this_stmt_type, int line_number,

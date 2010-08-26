@@ -53,7 +53,8 @@ using std::map;
 struct Scope
 {
 	map<string,SymbolTableEntry*> SymbolTable;
-	Scope()	{ }
+	Scope():SymbolTable(){ }
+	 
 	AbstractStatement* insert(const char * name, DataType dt/*, int line_no*/);
 	AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
 	AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e, type_qualifier tq);
