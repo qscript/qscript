@@ -240,8 +240,11 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		code.code_expr << tmp_name ;
 		code.code_expr << ") ; " << endl ;
 		code.code_expr << "} else {";
-		code.code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
-			<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
+		code.code_expr << "cerr << \"runtime error - value assigned to Question: \" << \"" 
+			<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" 
+			<< tmp_name << " << \" ... exiting \" << endl; " << endl
+			<< "exit(1);"  << endl
+			<< endl;
 		code.code_expr << "}\n" << endl;
 		cerr << "INTERNAL COMPILER WARNING : line: " << __LINE__ 
 			<< ", file: " << __FILE__
@@ -270,8 +273,11 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		code.code_expr << tmp_name ;
 		code.code_expr << ") ; " << endl ;
 		code.code_expr << "} else {";
-		code.code_expr << "cerr << \"runtime error - value assigned to AbstractQuestion: \" << \"" 
-			<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" << tmp_name << " << endl; " << endl;
+		code.code_expr << "cerr << \"runtime error - value assigned to Question: \" << \"" 
+			<< q->questionName_ << "\"" << " << \" is not in allowed range: \" <<" 
+			<< tmp_name << " << \" ... exiting \" << endl; " << endl
+			<< "exit(1);" << endl
+			<< endl;
 		code.code_expr << "}\n" << endl;
 		cerr << "WARNING : line: " << __LINE__ 
 			<< ", file: " << __FILE__
