@@ -3,6 +3,12 @@
 #include <cstring>
 #include <string>
 
+#define CTL_LEFT 	0x1bb
+#define CTL_RIGHT 	0x1bc
+#define CTL_DEL 	0x1bc
+#define ALT_DEL 	0x20f
+#define SHF_DC 		0x21a
+
 using std::string;
 
 NCursesReadline::NCursesReadline(WINDOW * l_data_entry_window)
@@ -59,6 +65,8 @@ const char * NCursesReadline::ReadLine()
 			case KEY_END:
 				insertionPoint_=buffer_.length();
 			break;
+			case 8: // ctrl-H (which is backspace) in pdcurses
+			case SHF_DC:
 			case KEY_BACKSPACE:
 				DoBackSpace();
 			break;

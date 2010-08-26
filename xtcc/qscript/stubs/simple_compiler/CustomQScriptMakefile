@@ -1,6 +1,6 @@
 
 CC = $(CXX)
-CFLAGS = -c -g -I src -Wall -Weffc++
+CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
 CXX_SHARED_LIB_FLAGS = -fPIC
 CXX_LINK_FLAGS = -g
 #CXX_LINK_LIBS = -lreadline

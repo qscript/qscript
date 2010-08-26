@@ -97,6 +97,8 @@ void PrintGetUserResponse(FILE *script);
 void PrintSetupNCurses(FILE * script);
 void PrintSignalHandler(FILE * script);
 void PrintSetupSignalHandler(FILE * script);
+void PrintDefineSomePDCursesKeys(FILE * script);
+void PrintPDCursesKeysHeader(FILE * script);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -151,6 +153,17 @@ void print_header(FILE* script, bool ncurses_flag){
 	fprintf(script, "#include \"question_disk_data.h\"\n");
 	fprintf(script, "#include \"question.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
+	if(config_file_parser::PLATFORM == "LINUX"){
+		FILE * simple_pd_curses_keys_h = fopen ("a_few_pd_curses_keys.h", "wb");
+		if(!simple_pd_curses_keys_h){
+			fprintf(stderr, "unable to open file a_few_pd_curses_keys.h for writing ...\
+					exiting \n");
+			exit(1);
+		}
+		PrintPDCursesKeysHeader(simple_pd_curses_keys_h);
+		fclose(simple_pd_curses_keys_h);
+		fprintf(script, "#include \"a_few_pd_curses_keys.h\"\n");
+	}
 
 
 	fprintf(script, "string qscript_stdout_fname(\"qscript_stdout.log\");\n");
@@ -194,6 +207,7 @@ void print_header(FILE* script, bool ncurses_flag){
 	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n");
 	fprintf(script, "			WINDOW * &  stub_list_window,\n");
 	fprintf(script, "			WINDOW * & data_entry_window);\n");
+	fprintf(script, "void define_some_pd_curses_keys();\n");
 	fprintf(script, "void SetupSignalHandler();\n");
 	fprintf(script, "static void sig_usr(int signo);\n");
 	fprintf(script, "int ComputeJumpToIndex(AbstractQuestion * q);\n");
@@ -213,13 +227,13 @@ void print_header(FILE* script, bool ncurses_flag){
 	fprintf(script, "	WINDOW 	* question_window=0,\n");
 	fprintf(script, "		* stub_list_window=0,\n");
 	fprintf(script, "		* data_entry_window=0;\n");
-	if (ncurses_flag)
-		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window);\n");
 	if (ncurses_flag) {
+		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window);\n");
 		fprintf(script, "	if(question_window==0 || stub_list_window==0 || data_entry_window==0){\n");
 		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
 		fprintf(script, "		return 1;\n");
 		fprintf(script, "	}\n");
+		fprintf(script, "	define_some_pd_curses_keys();\n");
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
 
@@ -326,8 +340,13 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	print_reset_questionnaire(script);
 	PrintDisplayActiveQuestions(script);
 	PrintGetUserResponse(script);
-	if(ncurses_flag)
+	if(ncurses_flag){
 		PrintSetupNCurses(script);
+		if (config_file_parser::PLATFORM=="LINUX"){
+			PrintDefineSomePDCursesKeys(script);
+		}
+
+	}
 	PrintSignalHandler(script);
 	PrintSetupSignalHandler(script);
 }
@@ -466,6 +485,7 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "\n");
 	fprintf(script, "	wmove(data_entry_window, 1,1);\n");
 	//fprintf(script, "	wgetch(data_entry_window);\n");
+	fprintf(script, "	define_some_pd_curses_keys();\n");
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 	fprintf(script, "\n");
@@ -805,6 +825,16 @@ int ReadQScriptConfig()
 		<< "NCURSES_LINK_LIBRARY_NAME: " << config_file_parser::NCURSES_LINK_LIBRARY_NAME << endl
 		<< "PLATFORM: " << config_file_parser::PLATFORM << endl
 		<< endl;
+	if(config_file_parser::PLATFORM == "WINDOWS"
+			|| config_file_parser::PLATFORM=="LINUX"
+			|| config_file_parser::PLATFORM=="UNIX"
+			){
+	} else {
+		cerr << "Unknown platform ... please set it to one of\
+			LINUX, UNIX, WINDOWS ... exiting\n";
+		exit(1);
+	}
+
 	return 1;
 }
 
@@ -916,6 +946,69 @@ test_script.o: test_script.C
 	}
 }
 
+void PrintDefineSomePDCursesKeys(FILE * script)
+{
+	fprintf(script, "void define_some_pd_curses_keys()\n");
+	fprintf(script, "{\n\
+			string ctrl_left_arrow;\n\
+			ctrl_left_arrow.append(1, 27);\n\
+			ctrl_left_arrow.append(1, 91);\n\
+			ctrl_left_arrow.append(1, 49);\n\
+			ctrl_left_arrow.append(1, 59);\n\
+			ctrl_left_arrow.append(1, 51);\n\
+			ctrl_left_arrow.append(1, 68);\n\
+			\n\
+			string ctrl_right_arrow;\n\
+			ctrl_right_arrow.append(1, 27);\n\
+			ctrl_right_arrow.append(1, 91);\n\
+			ctrl_right_arrow.append(1, 49);\n\
+			ctrl_right_arrow.append(1, 59);\n\
+			ctrl_right_arrow.append(1, 51);\n\
+			ctrl_right_arrow.append(1, 67);\n\
+			string ctl_del;\n\
+			ctl_del.append(1, 27);\n\
+			ctl_del.append(1, 91);\n\
+			ctl_del.append(1, 51);\n\
+			ctl_del.append(1, 59);\n\
+			ctl_del.append(1, 53);\n\
+			ctl_del.append(1, 126);\n\
+			string alt_del;\n\
+			alt_del.append(1, 27);\n\
+			alt_del.append(1, 91);\n\
+			alt_del.append(1, 51);\n\
+			alt_del.append(1, 59);\n\
+			alt_del.append(1, 51);\n\
+			alt_del.append(1, 126);\n\
+			\n\
+			string shift_del;\n\
+			shift_del.append(1, 27);\n\
+			shift_del.append(1, 91);\n\
+			shift_del.append(1, 51);\n\
+			shift_del.append(1, 59);\n\
+			shift_del.append(1, 50);\n\
+			shift_del.append(1, 126);\n\
+			define_key(ctrl_left_arrow.c_str(), CTL_LEFT);\n\
+			define_key(ctrl_right_arrow.c_str(), CTL_RIGHT);\n\
+			define_key(ctl_del.c_str(), CTL_DEL);\n\
+			define_key(alt_del.c_str(), ALT_DEL);\n\
+			define_key(shift_del.c_str(), SHF_DC);\n\
+		}\n");
+}
+
+void PrintPDCursesKeysHeader(FILE * script)
+{
+	fprintf(script, "\
+			#ifndef a_few_pd_curses_keys_h\n\
+			#define a_few_pd_curses_keys_h\n\
+			#define CTL_LEFT 	0x1bb\n\
+			#define CTL_RIGHT 	0x1bc\n\
+			#define CTL_DEL 	0x1bc\n\
+			#define ALT_DEL 	0x20f\n\
+			#undef KEY_SDC /* redefined as per PD curses below */\n\
+			#define SHF_DC 		0x21a\n\
+			#endif /* a_few_pd_curses_keys_h */\n\
+			");
+}
 
 
 /* end of namespace */
