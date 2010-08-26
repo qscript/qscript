@@ -221,8 +221,6 @@ void print_header(FILE* script, bool ncurses_flag){
 	fprintf(script, "bool using_ncurses=%s;\n", (ncurses_flag ) ?  "true": "false");
 	fprintf(script, "AbstractQuestion * last_question_answered=0;\n");
 	fprintf(script, "qscript_stdout=fopen(qscript_stdout_fname.c_str(), \"w\");\n");
-	if (ncurses_flag)
-		fprintf(script, "	initscr();\n");
 	fprintf(script, "	using namespace std;\n");
 	fprintf(script, "	WINDOW 	* question_window=0,\n");
 	fprintf(script, "		* stub_list_window=0,\n");
@@ -233,9 +231,6 @@ void print_header(FILE* script, bool ncurses_flag){
 		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
 		fprintf(script, "		return 1;\n");
 		fprintf(script, "	}\n");
-		if(config_file_parser::PLATFORM=="LINUX"|| config_file_parser::PLATFORM=="UNIX"){
-			fprintf(script, "	define_some_pd_curses_keys();\n");
-		}
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
 
@@ -487,7 +482,9 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "\n");
 	fprintf(script, "	wmove(data_entry_window, 1,1);\n");
 	//fprintf(script, "	wgetch(data_entry_window);\n");
-	fprintf(script, "	define_some_pd_curses_keys();\n");
+	if(config_file_parser::PLATFORM=="LINUX"|| config_file_parser::PLATFORM=="UNIX"){
+		fprintf(script, "	define_some_pd_curses_keys();\n");
+	}
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 	fprintf(script, "\n");
