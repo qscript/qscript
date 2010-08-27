@@ -18,6 +18,8 @@ class NCursesReadline
 	void SetBuffer(const std::string & re_arranged_buffer, int l_new_insertionPoint);
 	void DoDelete();
 	void DoBackSpace();
+	void DoDeleteWordForward();
+	void DoDeleteWordBackWard();
 	void Reset();
 	void EraseLine(int line_no);
 	void DoShiftLeft();
