@@ -2,7 +2,11 @@ set test "qscript noargs-help-test"
 global QSCRIPT
 spawn $QSCRIPT 
 expect {
-#-re "^Usage: qscript -f <input-file>.*" { pass $test }
-	-re "^Usage: .*qscript -f <input-file>" { pass $test }
-	default { send_user "failed" }
+#-re "^Usage: .*/qscript -f <input-file>.*" { pass $test }
+	-re "^Usage: .*qscript -f <input-file>" { exp_continue; }
+	-re "^Options:" { exp_continue; }
+	-re "^Options:" { exp_continue; }
+	-re " -n            - creates an ncurses executable " { exp_continue; }
+	-re " -s            - creates an static executable - for windows only " { pass $test; }
+	default { send_user "failed"; }
 }

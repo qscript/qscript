@@ -1,0 +1,3 @@
+inp_printf {
+	printf("hello,World\n");
+}
