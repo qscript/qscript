@@ -1,6 +1,7 @@
 #include "qscript_lib.h"
 #include <sstream>
 #include <cstdio>
+#include <cstdlib>
 
 // check_if_reg_file_exists: concats jno and ser_no separated by _
 // and checks if this exists as a regular file 
@@ -19,6 +20,10 @@ int check_if_reg_file_exists(string jno, int ser_no){
 			return 1;
 		} else 
 			return 0;
+	} else {
+		fprintf(stderr, "Undocumented return value of stat function : should be -1 or 0 only\
+				... exiting: line: %d, file: %s\n", __LINE__, __FILE__);
+		exit(1);
 	}
 }
 
