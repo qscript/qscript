@@ -1,0 +1,8 @@
+
+inp_oper_to_string
+{		
+	q1 "Q1. Question " mp (5) int32_t (1,2,5-8, 11-14);
+	//q1 "Q1. Question " sp int32_t (1,2,5-8);
+	printf("q1: %s\n", to_string(q1));
+}
+

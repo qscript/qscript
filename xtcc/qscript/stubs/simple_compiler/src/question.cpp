@@ -56,7 +56,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(l_enclosing_scope)
 	, activeVarInfo_(l_av_info)
-	, dummyArrayQuestion_(0)
+	, dummyArrayQuestion_(0), currentResponse_()
 {
 	if(enclosingCompoundStatement_==0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -75,7 +75,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(0), activeVarInfo_(0)
-	, dummyArrayQuestion_(0)
+	, dummyArrayQuestion_(0), currentResponse_()
 {
 	//if(enclosingCompoundStatement_==0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -97,7 +97,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(l_enclosing_scope)
 	, activeVarInfo_(l_av_info)
-	, dummyArrayQuestion_(0)
+	, dummyArrayQuestion_(0), currentResponse_()
 {
 	if(enclosingCompoundStatement_==0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -120,7 +120,7 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(0) // this is only used in the compile time environment
 	, activeVarInfo_(0)
-	, dummyArrayQuestion_(l_dummy_array)
+	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
 {
 	//for(int i=0; i<l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
@@ -228,6 +228,17 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "->eval(question_window, stub_list_window, data_entry_window);\n" ;
 	PrintUserNavigation(program_code);
 	program_code <<  "}\n";
+}
+
+const char *  AbstractQuestion::CurrentResponseToCharString()
+{
+	stringstream s;
+	for(set<int>::iterator iter=input_data.begin();
+		iter!=input_data.end(); ++iter){
+		s << *iter << ",";
+	}
+	currentResponse_ = s.str();
+	return currentResponse_.c_str();
 }
 
 void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & code)
@@ -521,6 +532,8 @@ bool RangeQuestion::IsValid(int value)
 {
 	return (r_data->exists(value))? true: false;
 }
+
+
 
 //void RangeQuestion::eval()
 void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)

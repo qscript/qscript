@@ -139,7 +139,7 @@ compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 	$(CC) $(CFLAGS) -o $@ $<
-	echo "dir of target: $(@D), filename of target $(@F)"
+#echo "dir of target: $(@D), filename of target $(@F)"
 
 $(BUILD_DIR)/runtime_lib/%.o: $(SOURCE_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(CXX_SHARED_LIB_FLAGS) -o $@ $<

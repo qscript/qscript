@@ -426,6 +426,14 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			code.code_expr <<"\"" <<text << "\"";
 		}
 		break;
+		case oper_to_string: {
+			// the Constructor takes care that only
+			// questions are allowed as paramters for
+			// oper_to_string
+			AbstractQuestion * q = symbolTableEntry_->question_;
+			code.code_expr << q->questionName_ << "->CurrentResponseToCharString() ";
+		}
+		break;
 		case oper_blk_arr_assgn: {
 			code.code_expr <<"This case should not occur\n";
 			print_err(compiler_internal_error, "This case should not occur\n", 
@@ -433,8 +441,8 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 		}
 		break;
 		default:
-			code.code_expr <<"unhandled AbstractExpression operator\n";
-			print_err(compiler_internal_error, "unhandled AbstractExpression operator\n", 
+			code.code_expr <<"unhandled AbstractExpression operator: " << __PRETTY_FUNCTION__;
+			print_err(compiler_internal_error, code.code_expr.str().c_str(), 
 						line_no, __LINE__, __FILE__);
 	}
 	if(qscript_debug::DEBUG_Unary2Expression)
@@ -726,10 +734,12 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 	, func_index_in_table(-1), text(0), column_no(-1)
 	, operand_(0), operand2_(0) 
 {
+	cerr << __PRETTY_FUNCTION__ << endl;
 	if(exprOperatorType_==oper_text_expr){
 		type_=STRING_TYPE;
 		text = ltxt;
-	} else if(exprOperatorType_==oper_name){
+	} else if(exprOperatorType_==oper_name
+			|| exprOperatorType_ == oper_to_string ){
 		map<string,SymbolTableEntry*>::iterator sym_it = 
 			find_in_symtab(ltxt);
 		using qscript_parser::active_scope;
@@ -742,17 +752,48 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 		} else {
 			symbolTableEntry_ = sym_it->second;
 			type_ = symbolTableEntry_->type_;
-			if(type_==QUESTION_TYPE||
-			   type_==QUESTION_ARR_TYPE){
+			if(exprOperatorType_==oper_name && 
+					(type_==QUESTION_TYPE
+					 || type_==QUESTION_ARR_TYPE)){
 				if(symbolTableEntry_->question_->q_type!=spn){
 					stringstream s;
 					s << "Usage of Questions in Expressions only allowed for SPN question_type" << endl;
 					print_err(compiler_sem_err, s.str(), 
 						line_no, __LINE__, __FILE__);
+				} else {
+					type_ = symbolTableEntry_->type_;
 				}
-				   
+			} else if(exprOperatorType_ == oper_name) {
+				// a normal named variable which is not a question
+				type_ = symbolTableEntry_->type_;
+			}  else if (exprOperatorType_ == oper_to_string){
+				if(type_ == QUESTION_TYPE 
+					|| type_ == QUESTION_ARR_TYPE){
+					type_=STRING_TYPE;
+				} else {
+					stringstream s;
+					s << "Currently oper_to_string is only allowed for question variables" << endl;
+					print_err(compiler_sem_err, s.str(), 
+						line_no, __LINE__, __FILE__);
+					type_=ERROR_TYPE;
+				}
+			} else {
+				stringstream s;
+				s << "Unhandled case in FILE: " << __FILE__ 
+					<< " LINE: " << __LINE__ 
+					<< " function: " << __PRETTY_FUNCTION__ 
+					<< endl;
+				print_err(compiler_sem_err, s.str(), 
+					line_no, __LINE__, __FILE__);
 			}
 		}
+	} else {
+		stringstream err_mesg;
+		err_mesg << "Constructor Unary2Expression(char* ltxt, ExpressionOperatorType le_type)\
+			in FILE: " << __FILE__ << ", LINE: " << __LINE__ 
+			<< " only handles exprOperatorType_: oper_text_expr, oper_name, oper_to_string"
+			<< " ... if it is supposed to handle other exprOperatorType_(s) please fix this";
+		print_err(compiler_sem_err, err_mesg.str(), line_no, __LINE__, __FILE__);
 	}
 }
 

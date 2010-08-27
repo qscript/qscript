@@ -42,36 +42,37 @@
      INUMBER = 258,
      FNUMBER = 259,
      NAME = 260,
-     TEXT = 261,
-     SINGLE_CODED = 262,
-     MP = 263,
-     VOID_T = 264,
-     INT8_T = 265,
-     INT16_T = 266,
-     INT32_T = 267,
-     FLOAT_T = 268,
-     DOUBLE_T = 269,
-     STRING_T = 270,
-     IN = 271,
-     FOR = 272,
-     CONST = 273,
-     LOGOR = 274,
-     LOGAND = 275,
-     NOEQ = 276,
-     ISEQ = 277,
-     GEQ = 278,
-     LEQ = 279,
-     NOT = 280,
-     UMINUS = 281,
-     COUNT = 282,
-     FUNC_CALL = 283,
-     IF = 284,
-     ELSE = 285,
-     STUBS_LIST = 286,
-     SETDEL = 287,
-     SETADD = 288,
-     UNSET = 289,
-     SETALL = 290
+     TOSTRING = 261,
+     TEXT = 262,
+     SINGLE_CODED = 263,
+     MP = 264,
+     VOID_T = 265,
+     INT8_T = 266,
+     INT16_T = 267,
+     INT32_T = 268,
+     FLOAT_T = 269,
+     DOUBLE_T = 270,
+     STRING_T = 271,
+     IN = 272,
+     FOR = 273,
+     CONST = 274,
+     LOGOR = 275,
+     LOGAND = 276,
+     NOEQ = 277,
+     ISEQ = 278,
+     GEQ = 279,
+     LEQ = 280,
+     NOT = 281,
+     UMINUS = 282,
+     COUNT = 283,
+     FUNC_CALL = 284,
+     IF = 285,
+     ELSE = 286,
+     STUBS_LIST = 287,
+     SETDEL = 288,
+     SETADD = 289,
+     UNSET = 290,
+     SETALL = 291
    };
 #endif
 
@@ -101,7 +102,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 105 "src/q.hpp"
+#line 106 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -48,7 +48,7 @@ enum ExpressionOperatorType
 	, oper_arr2deref, oper_func_call, oper_text_expr
 	, oper_float, oper_assgn , oper_not, oper_mod
 	, oper_blk_arr_assgn, oper_in, oper_q_expr_in
-	, oper_q_expr_arr_in, oper_err
+	, oper_q_expr_arr_in, oper_to_string, oper_err
 	};
 
 //! helper function when debugging
