@@ -49,9 +49,9 @@ QSCRIPT_MINOR_VERSION_NUMBER=5
 #	echo "LEX OBJECTS $(LEX_OBJECTS)"
 
 $(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
-	echo "cpp sources: $(CPP_SOURCES)" 
-	echo "yacc sources: $(YACC_SOURCES)" 
-	echo "lex sources: $(LEX_SOURCES)" 
+#echo "cpp sources: $(CPP_SOURCES)" 
+#	echo "yacc sources: $(YACC_SOURCES)" 
+#	echo "lex sources: $(LEX_SOURCES)" 
 	$(CC) $(CXX_LINK_FLAGS) -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
 
 yacc_deps: $(YACC_OUTPUTS)
@@ -120,21 +120,21 @@ COMPILETIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/compiletime_lib,$(C
 COMPILETIME_LIB_OBJECTS := $(COMPILETIME_LIB_OBJECTS:.cpp=.o)
 
 runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
-	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
-	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
+#	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
+#	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
 	$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
 
 
 runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
-	echo "RUNTIME_LIB_SOURCES $(RUNTIME_STATIC_LIB_OBJECTS)"
-	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_STATIC_LIB_OBJECTS)"
+#	echo "RUNTIME_LIB_SOURCES $(RUNTIME_STATIC_LIB_OBJECTS)"
+#	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_STATIC_LIB_OBJECTS)"
 #$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
 	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a $(RUNTIME_STATIC_LIB_OBJECTS)
 
 
 compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
-	echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
-	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
+#echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
+#	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
 	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;

@@ -74,10 +74,12 @@ const char * NCursesReadline::ReadLine()
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_DC" );
 				DoDelete();
 			break;
-				
+
+			case CTL_LEFT:
 			case KEY_SLEFT:
 				DoShiftLeft();
 			break;
+			case CTL_RIGHT:
 			case KEY_SRIGHT:
 				DoShiftRight();
 			break;

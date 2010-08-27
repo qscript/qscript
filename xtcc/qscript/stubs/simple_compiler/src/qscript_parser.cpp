@@ -954,7 +954,7 @@ void PrintDefineSomePDCursesKeys(FILE * script)
 			ctrl_left_arrow.append(1, 91);\n\
 			ctrl_left_arrow.append(1, 49);\n\
 			ctrl_left_arrow.append(1, 59);\n\
-			ctrl_left_arrow.append(1, 51);\n\
+			ctrl_left_arrow.append(1, 53);\n\
 			ctrl_left_arrow.append(1, 68);\n\
 			\n\
 			string ctrl_right_arrow;\n\
@@ -962,7 +962,7 @@ void PrintDefineSomePDCursesKeys(FILE * script)
 			ctrl_right_arrow.append(1, 91);\n\
 			ctrl_right_arrow.append(1, 49);\n\
 			ctrl_right_arrow.append(1, 59);\n\
-			ctrl_right_arrow.append(1, 51);\n\
+			ctrl_right_arrow.append(1, 53);\n\
 			ctrl_right_arrow.append(1, 67);\n\
 			string ctl_del;\n\
 			ctl_del.append(1, 27);\n\
