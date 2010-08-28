@@ -1,0 +1,2 @@
+nsiqcppstle:
+	nsiqcppstyle .  | sed -f cleanup-nsiqcppstyle-output.sed > nsiqcpp-style-violations.txt

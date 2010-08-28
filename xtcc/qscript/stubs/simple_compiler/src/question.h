@@ -41,6 +41,8 @@ struct AbstractQuestion: public AbstractStatement
 	CompoundStatement * enclosingCompoundStatement_;
 	vector <ActiveVariableInfo*> activeVarInfo_;
 	DummyArrayQuestion * dummyArrayQuestion_;
+	//! this variable should never be used in the compile time environment
+	string currentResponse_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
@@ -81,6 +83,7 @@ struct AbstractQuestion: public AbstractStatement
 	void SetupArrayQuestionSave(StatementCompiledCode &code);
 	void SetupArrayQuestionRestore(StatementCompiledCode &code);
 	void PrintEvalArrayQuestion(StatementCompiledCode &code);
+	const char * CurrentResponseToCharString();
 	//virtual AbstractQuestion * IsAQuestionStatement()=0;
 	virtual void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement * endStatement)=0;

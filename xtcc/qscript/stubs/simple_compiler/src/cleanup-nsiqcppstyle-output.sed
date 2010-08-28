@@ -1,0 +1,12 @@
+/data_entry.cpp/d
+/data_entry.hpp/d
+/qscript_conf.cpp/d
+/qscript_conf.hpp/d
+/qscript_data.cpp/d
+/qscript_data.h/d
+/q.hpp/d
+/q.cpp/d
+/scan_data.cpp/d
+/lex.cpp/d
+/qscript_conf_lex.cpp/d
+/read_disk_data.cpp/d

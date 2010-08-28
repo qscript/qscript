@@ -5,8 +5,8 @@
 
 #define CTL_LEFT 	0x1bb
 #define CTL_RIGHT 	0x1bc
-#define CTL_DEL 	0x1bc
-#define ALT_DEL 	0x20f
+#define CTL_DEL 	0x20f
+#define ALT_DEL 	0x1de
 #define SHF_DC 		0x21a
 
 using std::string;
@@ -74,7 +74,12 @@ const char * NCursesReadline::ReadLine()
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_DC" );
 				DoDelete();
 			break;
-
+			case CTL_DEL:
+				DoDeleteWordForward();
+			break;
+			case ALT_DEL:
+				DoDeleteWordBackWard();
+			break;
 			case CTL_LEFT:
 			case KEY_SLEFT:
 				DoShiftLeft();
@@ -177,7 +182,6 @@ void NCursesReadline::DoShiftLeft()
 	}
 }
 
-
 void NCursesReadline::DoShiftRight()
 {
 	if(insertionPoint_<buffer_.length()){
@@ -200,6 +204,86 @@ void NCursesReadline::DoShiftRight()
 		string::size_type found = buffer_.find(' ', i1);
 		if(found!=string::npos){
 			insertionPoint_ = found;
+		}
+	}
+}
+
+void NCursesReadline::DoDeleteWordBackWard()
+{
+	if(insertionPoint_>0){
+		//string::size_type found;
+		//do {
+		//	found = buffer_.rfind(' ', insertionPoint_);
+		//} while (found == insertionPoint_);
+		int i1 = insertionPoint_-1;
+		int idx=0;
+		int count_blank_spaces=0;
+		int end_mark = insertionPoint_;
+		while(buffer_[i1]==' ' && i1>0){
+			mvwprintw(dataEntryWindow_,2,90+idx, "." );
+			count_blank_spaces++;
+			--i1;
+		}
+		if(count_blank_spaces>1){
+			int start_mark=i1+1;
+			int length = end_mark - start_mark;
+			buffer_.erase(start_mark, length);
+			insertionPoint_=i1;
+			return;
+		}
+		string::size_type found = buffer_.rfind(' ', i1);
+		if(found!=string::npos){
+			insertionPoint_ = found;
+			int start_mark=found;
+			int length = end_mark - start_mark;
+			buffer_.erase(start_mark, length);
+			return;
+		} else {
+			int start_mark=0;
+			int length = end_mark - start_mark;
+			buffer_.erase(start_mark, length);
+			insertionPoint_ = 0;
+			return;
+		}
+	}
+}
+
+void NCursesReadline::DoDeleteWordForward()
+{
+	if(insertionPoint_<buffer_.length()){
+		//string::size_type found;
+		//do {
+		//	found = buffer_.rfind(' ', insertionPoint_);
+		//} while (found == insertionPoint_);
+		int i1 = insertionPoint_+1;
+		int idx=0;
+		int count_blank_spaces=0;
+		int start_mark = insertionPoint_;
+		while(buffer_[i1]==' ' && i1>0){
+			mvwprintw(dataEntryWindow_,2,90+idx, "." );
+			count_blank_spaces++;
+			--i1;
+		}
+		if(count_blank_spaces>1){
+			int end_mark=i1;
+			int length = end_mark - start_mark;
+			buffer_.erase(start_mark, length);
+			// no need to updated insertionPoint_ - it remains as it was
+			return;
+		}
+		string::size_type found = buffer_.find(' ', i1);
+		if(found!=string::npos){
+			int end_mark=found;
+			int length = end_mark - start_mark;
+			buffer_.erase(start_mark, length);
+			// no need to updated insertionPoint_ - it remains as it was
+			return;
+		} else {
+			int end_mark=buffer_.length();
+			int length = end_mark - start_mark;
+			buffer_.erase(start_mark, length);
+			// no need to updated insertionPoint_ - it remains as it was
+			return;
 		}
 	}
 }

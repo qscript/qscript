@@ -95,6 +95,7 @@ setdel		{ return SETDEL; }
 setadd		{ return SETADD; }
 unset		{ return UNSET; }
 setall		{ return SETALL; }
+to_string	{ return TOSTRING; }
 
 
 [0-9]+	{
