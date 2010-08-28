@@ -262,7 +262,7 @@ void NCursesReadline::DoDeleteWordForward()
 		while(buffer_[i1]==' ' && i1>0){
 			mvwprintw(dataEntryWindow_,2,90+idx, "." );
 			count_blank_spaces++;
-			--i1;
+			++i1;
 		}
 		if(count_blank_spaces>1){
 			int end_mark=i1;
