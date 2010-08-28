@@ -1,0 +1,110 @@
+set test "qscript oper_string test"
+set timeout 5
+global QSCRIPT
+global QSCRIPT_HOME
+
+global counter
+set counter 0
+if { $counter == 0 } {
+	spawn rm qscript_stdout.log
+	wait
+}
+spawn $QSCRIPT -f inputs/inp_oper_to_string 
+wait
+#spawn LD_LIBRARY_PATH=$QSCRIPT_HOME/lib inputs/inp_printf.exe
+
+spawn inputs/inp_oper_to_string.exe
+#spawn cat inputs/qscript_stdout.log
+
+#if { $counter == 0 } {
+#	send_user "counter = $counter\n"
+#	expect {
+##-re "inp_printf.exe: error while loading shared libraries: libqscript_runtime.so.1: cannot open shared object file: No such file or directory"
+##		{ pass $test }
+## use : LD_PRELOAD=$QSCRIPT_HOME/lib/libqscript_runtime.so 
+##	to circumvent this problem
+##	-re "nter" 
+##-re "Enter Serial No (0) to exit:" 
+#		-re "^Enter Serial No .0. to exit:" {
+#			send_user "got Serial prompt\n";
+#			send "1\r" ;
+#			exp_continue;
+#		}
+#		-re "q1. Q1. Question" { 
+#			send_user "Got q1\n";
+#			exp_continue; 
+#		}
+#		"\n1" { 
+#			send_user "got code 1\n";
+#			exp_continue;
+##exp_continue; 
+#		}
+#		"\n2" { 
+#			send_user "got code 2\n";
+#			exp_continue;
+##	exp_continue; 
+#		}
+## there are more codes but 14 is the last one
+#		-re "14" { 
+#			send_user "got code 14\n";
+#			send "1 5 14\r"; 
+#			exp_continue; 
+#		}
+#		-re "End of Questionnaire: .s to save, p = previous question, j = question jump list." { 
+#			send_user "Saving response\n";
+#			send "s\r";incr counter;
+#			send_user "counter = $counter\n"; 
+#			}
+##-re "hello,World" { pass $test }
+#		default { send_user "failed\n" }
+#		timeout { send_user "failed\n" } 
+#	}
+#}
+#if { $counter == 0 } {
+	expect {
+		"Enter Serial No (0) to exit:" {
+			send_user "got Serial prompt\n";
+			send "1\r" ;
+		}
+	}
+	expect {
+		"q1. Q1. Question" { 
+			send_user "Got q1\n";
+		}
+	}
+	expect "1\r" { send_user "got 1\n"; }
+	expect "2\r" { send_user "got 2\n"; }
+	expect "5\r" { send_user "got 5\n"; }
+	expect "6\r" { send_user "got 6\n"; }
+	expect "7\r" { send_user "got 7\n"; }
+	expect "8\r" { send_user "got 8\n"; }
+	expect "11\r" { send_user "got 11\n"; }
+	expect "12\r" { send_user "got 12\n"; }
+	expect "13\r" { send_user "got 13\n"; }
+	expect "14\r" { send_user "got 14\n"; }
+	send "1 5 14\r"; 
+	expect -ex "End of Questionnaire: (s to save, p = previous question, j = question jump list)" { 
+			send "s\r";incr counter;
+	}
+#}
+
+#			send_user "got Serial prompt\n";
+
+
+
+
+#if {$counter == 1} {
+	send_user "counter== $counter, reached here \n";
+	 
+	expect { 
+		-ex "Enter Serial No (0) to exit:" { 
+#send_user "got 2nd Enter Serial... finishing up"; 
+			send "0\r";
+		}
+	}
+	spawn cat qscript_stdout.log
+	expect { 
+		-ex "q1: 1,5,14," { pass $test; }
+		default { send_user "failed\n"; }
+	}
+#}
