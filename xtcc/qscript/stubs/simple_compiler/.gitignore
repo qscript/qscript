@@ -2,6 +2,9 @@ include
 make-build-dir
 bin
 inputs/*.C
+inputs/*.h
+src/cpplint-violations.txt
+src/nsiqcpp-style-violations.txt
 *.log
 *.swp
 lib
@@ -14,3 +17,4 @@ a.cfg
 Makefile.in
 inputs/*.h
 *.sum
+config/qscript.config

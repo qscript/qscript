@@ -197,6 +197,14 @@ local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so
 	cp ${SOURCE_DIR}/*.h include
 
+nsiqcppstyle:
+	cd src; make -f Makefile.nsiqcppstyle; cd ..
+#	nsiqcppstyle .  | sed -f cleanup-nsiqcppstyle-output.sed > nsiqcpp-style-violations.txt
+#	cd ..
+
+cpplint:
+	cd src; make -f Makefile.cpplint
+
 tags:
 	cd src; ctags -R --extra=+f+q --fields=afikKlmnsSzt; cd ..;
 
