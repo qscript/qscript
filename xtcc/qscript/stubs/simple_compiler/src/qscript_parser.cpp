@@ -412,7 +412,7 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "{\n");
 	fprintf(script, "	initscr();\n");
 	fprintf(script, "       cbreak();\n");
-	fprintf(script, "       noecho();\n");
+	//fprintf(script, "       noecho();\n");
 	fprintf(script, "       nonl();\n");
 	fprintf(script, "       intrflush(stdscr, FALSE);\n");
 	fprintf(script, "	if(has_colors() == FALSE)\n");
@@ -1001,8 +1001,8 @@ void PrintPDCursesKeysHeader(FILE * script)
 			#define a_few_pd_curses_keys_h\n\
 			#define CTL_LEFT 	0x1bb\n\
 			#define CTL_RIGHT 	0x1bc\n\
-			#define CTL_DEL 	0x1bc\n\
-			#define ALT_DEL 	0x20f\n\
+			#define CTL_DEL 	0x20f\n\
+			#define ALT_DEL 	0x1de\n\
 			#undef KEY_SDC /* redefined as per PD curses below */\n\
 			#define SHF_DC 		0x21a\n\
 			#endif /* a_few_pd_curses_keys_h */\n\
