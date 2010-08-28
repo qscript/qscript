@@ -517,7 +517,11 @@ void PrintDisplayActiveQuestions(FILE *script)
 void PrintGetUserResponse(FILE *script)
 {
 	fprintf(script, "void GetUserResponse(string & qno, int & qindex)\n{\n\
-			cin >> qno;\nqindex=0;\n}\n");
+			char newl;\n\
+			cin >> qno;cin.get(newl);\nqindex=0;\n\
+			cout << \"User input qno:\" << qno \n\
+				<< \", newl: \" << newl << endl;\n\
+			}\n");
 }
 
 	bool skip_func_type_check(const char * fname){

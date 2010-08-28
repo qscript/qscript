@@ -12,13 +12,13 @@ inp_if_else_branches_2 {
 	q4 "Q4. " sp int32_t (1,2,3,4);
 	if(q4 in (1,2)){
 		q5 "Q5. " sp int32_t(7,8);
-		q6 "Q6. " sp int32_t(7,8);
+		q6 "Q6. " sp int32_t(21,22);
 		if(q5 in (7)){
-			q5_1 "Q5_1 " sp int32_t (9,10);
-			q5_2 "Q5_2 " sp int32_t (11,12);
+			q5_1 "Q5_1. " sp int32_t (9,10);
+			q5_2 "Q5_2. " sp int32_t (11,12);
 		} else if(q5 in (8)){
-			q5_3 "Q5_3 " sp int32_t (13,14);
-			q5_4 "Q5_4 " sp int32_t (15,16);
+			q5_3 "Q5_3. " sp int32_t (13,14);
+			q5_4 "Q5_4. " sp int32_t (15,16);
 		}
 	} else if (q4 in (3)) {
 		q7 "Q7. " sp int32_t(7,8);

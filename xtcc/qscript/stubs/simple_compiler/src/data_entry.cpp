@@ -1623,8 +1623,9 @@ yyreturn:
 /* Line 1675 of yacc.c  */
 #line 73 "src/data_entry.ypp"
 
-
+	extern char * scan_datatext;
 	void scan_dataerror(char *s){
-		cout << "error in input: " << s << endl;
+		cout << "error in input: " << s << endl
+			<< "yytext(scan_datatext): " << scan_datatext << endl;
 	}
 

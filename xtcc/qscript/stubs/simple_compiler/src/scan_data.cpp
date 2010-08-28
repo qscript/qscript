@@ -1899,6 +1899,9 @@ top:
 		//fgets(buffer, BUF_MAX, stdin);
 		cout.flush();
 		getline(cin, buffer);
+		if(buffer.length()==0){
+			goto top;
+		}
 		//printf("readline: %s\n", line);
 		cout << "buffer: " << buffer << endl;
 		YY_BUFFER_STATE s_data =  scan_data_scan_string(buffer.c_str());
