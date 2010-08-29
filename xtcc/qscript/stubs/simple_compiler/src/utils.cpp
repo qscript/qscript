@@ -32,7 +32,8 @@ using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg, 
 	int line_no, int compiler_line_no, string compiler_file_name);
 
-bool check_type_compat(DataType typ1, DataType typ2){
+bool check_type_compat(DataType typ1, DataType typ2)
+{
 	//cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
 	DataType td1=typ1;
 	DataType td2=typ2;
@@ -54,7 +55,8 @@ bool check_type_compat(DataType typ1, DataType typ2){
 }
 
 
-map<string, SymbolTableEntry*>::iterator find_in_symtab(string id){
+map<string, SymbolTableEntry*>::iterator find_in_symtab(string id)
+{
 	//bool found=false;
 	int i=active_scope_list.size()-1;
 	map<string,SymbolTableEntry*>::iterator sym_it ; 
@@ -72,7 +74,8 @@ map<string, SymbolTableEntry*>::iterator find_in_symtab(string id){
 }
 
 
-int search_for_func(string& search_for){
+int search_for_func(string& search_for)
+{
 	//cout << "Entered search_for_func: " << endl;
 	unsigned int i=0;
 	
@@ -111,7 +114,8 @@ int check_func_decl_with_func_defn(FunctionParameter* & v_list, int & index, str
 }
 
 
-bool 	void_check( DataType & type1, DataType & type2, DataType& result_type){
+bool 	void_check( DataType & type1, DataType & type2, DataType& result_type)
+{
 	if(type1==VOID_TYPE){
 		print_err(compiler_sem_err, " lhs of binary expr is of type void ", 
 			line_no, __LINE__, __FILE__);
@@ -135,7 +139,8 @@ bool 	void_check( DataType & type1, DataType & type2, DataType& result_type){
 
 
 
-int lookup_func(string func_name_index){
+int lookup_func(string func_name_index)
+{
 	for(register unsigned int i=0; i<func_info_table.size(); ++i){
 		if(func_name_index==func_info_table[i]->functionName_){
 			return i;
@@ -148,7 +153,8 @@ int lookup_func(string func_name_index){
 #include <string>
 using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg, 
-	int line_no, int compiler_line_no, string compiler_file_name){
+	int line_no, int compiler_line_no, string compiler_file_name)
+{
 	++no_errors;
 	cerr << "xtcc " ;
 	switch(cmp_err){
@@ -256,7 +262,8 @@ bool skip_func_type_check(const char * fname)
 	return false;
 }
 
-DataType lcm_type(DataType d1, DataType d2){
+DataType lcm_type(DataType d1, DataType d2)
+{
 	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	DataType td1=d1, td2=d2;
 	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=DataType(INT8_TYPE + d1-INT8_REF_TYPE);
@@ -284,7 +291,8 @@ DataType lcm_type(DataType d1, DataType d2){
 }
 
 
-DataType arr_deref_type(DataType d1){
+DataType arr_deref_type(DataType d1)
+{
 	if(d1>=INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
 		return DataType(INT8_TYPE+d1-INT8_ARR_TYPE);
 	} else if(d1==STRING_ARR_TYPE){

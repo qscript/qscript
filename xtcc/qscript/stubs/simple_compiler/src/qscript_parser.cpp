@@ -134,7 +134,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	cerr << "EXIT qscript_parser::GenerateCode" << endl;
 }
 
-void print_header(FILE* script, bool ncurses_flag){
+void print_header(FILE* script, bool ncurses_flag)
+{
 	fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
 	fprintf(script, "#include <string>\n");
@@ -524,17 +525,19 @@ void PrintGetUserResponse(FILE *script)
 			}\n");
 }
 
-	bool skip_func_type_check(const char * fname){
-		const char * skip_func_type_check_list[] = {"printf" };
-		for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
-			if(!strcmp(fname, skip_func_type_check_list[i])){
-				return true;
-			}
+bool skip_func_type_check(const char * fname)
+{
+	const char * skip_func_type_check_list[] = {"printf" };
+	for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
+		if(!strcmp(fname, skip_func_type_check_list[i])){
+			return true;
 		}
-		return false;
 	}
+	return false;
+}
 
-int check_parameters(AbstractExpression* e, VariableList* v){
+int check_parameters(AbstractExpression* e, VariableList* v)
+{
 	debug_log_file << "check_parameters: called" << endl;
 	AbstractExpression* e_ptr=e;
 	VariableList* fparam=v;
@@ -591,7 +594,7 @@ int check_parameters(AbstractExpression* e, VariableList* v){
 				<< line_no << endl;
 		}
 	}
-	if(!match) {
+	if(!match){
 		cerr << "function parameter type check FAILURE: line_no " << line_no << endl;
 	}
 	return match;
@@ -625,8 +628,9 @@ const char * file_exists_check_code()
 
 
 AbstractStatement* setup_stub_manip_stmt(DataType dt
-		, char* stub_list_name , char * question_name
-	){
+					 , char* stub_list_name
+					 , char * question_name)
+{
 	int index=-1;
 	for(int i=0; i<named_stubs_list.size(); ++i){
 		named_range * nr_ptr = named_stubs_list[i];
@@ -685,7 +689,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 
 
 AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
-		, char* stub_list_name)
+						   , char* stub_list_name)
 {
 	int index=-1;
 	for(int i=0; i<named_stubs_list.size(); ++i){
@@ -762,8 +766,8 @@ void print_array_question_class(FILE* script)
 
 }
 
-void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
-		vector <ActiveVariableInfo*> & output_info)
+void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list
+				  , vector <ActiveVariableInfo*> & output_info)
 {
 	for(unsigned int i=0; i< active_scope_list.size(); ++i){
 		Scope* sc_ptr= active_scope_list[i];

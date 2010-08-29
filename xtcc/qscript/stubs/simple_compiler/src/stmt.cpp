@@ -42,7 +42,7 @@ void InitStatement()
 //AbstractQuestion* AbstractStatement::IsAQuestionStatement() { return 0; }
 
 void AbstractStatement::GetQuestionNames(vector<string> &question_list,
-		AbstractStatement * endStatement)
+					 AbstractStatement * endStatement)
 {
 	if(this==endStatement)
 		return;
@@ -52,7 +52,7 @@ void AbstractStatement::GetQuestionNames(vector<string> &question_list,
 }
 
 void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
-		AbstractStatement * stop_at)
+					    AbstractStatement * stop_at)
 {
 	//cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
 	//cerr << human_readable_type(type_) << endl;
@@ -155,29 +155,29 @@ DeclarationStatement::~DeclarationStatement()
 }
 
 IfStatement::IfStatement( DataType dtype, int lline_number
-		, AbstractExpression * lcondition
-		, AbstractStatement * lif_body
-		, AbstractStatement * lelse_body)
+			  , AbstractExpression * lcondition
+			  , AbstractStatement * lif_body
+			  , AbstractStatement * lelse_body)
 	: AbstractStatement(dtype, lline_number)
-	  , ifCondition_(lcondition), ifBody_(lif_body), elseBody_(lelse_body)
+	, ifCondition_(lcondition), ifBody_(lif_body), elseBody_(lelse_body)
 {
 	if(lcondition->type_==VOID_TYPE || lcondition->type_==ERROR_TYPE){
 		print_err(compiler_sem_err, 
-			"If ifCondition_ expression has Void or Error Type", 
-			qscript_parser::if_line_no, __LINE__, __FILE__);
+			  "If ifCondition_ expression has Void or Error Type", 
+			  qscript_parser::if_line_no, __LINE__, __FILE__);
 	} else {
 	}
 }
 
-	struct IfStatementStackElement 
-	{
-		int nestLevel_;
-		IfStatement * ifStatementPtr_;
-		IfStatementStackElement(int nest_level, IfStatement
+struct IfStatementStackElement 
+{
+	int nestLevel_;
+	IfStatement * ifStatementPtr_;
+	IfStatementStackElement(int nest_level, IfStatement
 				* if_stmt_ptr):
-			nestLevel_(nest_level), ifStatementPtr_(if_stmt_ptr)
+		nestLevel_(nest_level), ifStatementPtr_(if_stmt_ptr)
 		{}
-	};
+};
 
 void IfStatement::GenerateCode(StatementCompiledCode &code)
 {
@@ -346,8 +346,8 @@ IfStatement:: ~IfStatement()
 
 vector<string> consolidated_for_loop_index_stack;
 
-CompoundStatement::CompoundStatement(DataType dtype, int lline_number
-	, int l_flag_cmpd_stmt_is_a_func_body
+CompoundStatement::CompoundStatement(
+	DataType dtype, int lline_number, int l_flag_cmpd_stmt_is_a_func_body
 	, int l_flag_cmpd_stmt_is_a_for_body
 	, vector<AbstractExpression*>& l_for_bounds_stack
 	): 
@@ -386,8 +386,9 @@ void CompoundStatement::GenerateConsolidatedForLoopIndexes()
 	}
 }
 
-void CompoundStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
-		AbstractStatement * stop_at)
+void CompoundStatement::GetQuestionsInBlock(
+	vector<AbstractQuestion*> & question_list
+	, AbstractStatement * stop_at)
 {
 	//cerr << "ENTER: CompoundStatement::GetQuestionsInBlock" << endl;
 	if(compoundBody_){
@@ -399,7 +400,8 @@ void CompoundStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question
 	//cerr << "EXIT: CompoundStatement::GetQuestionsInBlock" << endl;
 }
 
-void CompoundStatement::GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code)
+void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
+	StatementCompiledCode &code)
 {
 	code.array_quest_init_area << "/* ENTER CompoundStatement::GenerateQuestionArrayInitLoopOpen */\n";
 	for(int i=for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
@@ -448,7 +450,8 @@ void CompoundStatement::GenerateQuestionArrayInitLoopClose(StatementCompiledCode
 	}
 }
 
-string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack)
+string PrintConsolidatedForLoopIndex(
+	vector<AbstractExpression*> for_bounds_stack)
 {
 	ExpressionCompiledCode * expr_code_arr = 
 		new ExpressionCompiledCode[for_bounds_stack.size()];
@@ -574,9 +577,11 @@ AbstractQuestion* find_in_question_list(string name)
 }
 
 
-ForStatement::ForStatement( DataType dtype, int lline_number
-		, AbstractExpression * l_init, AbstractExpression * l_test
-		, AbstractExpression* l_incr, CompoundStatement * l_for_body)
+ForStatement::ForStatement(DataType dtype, int lline_number
+			   , AbstractExpression * l_init
+			   , AbstractExpression * l_test
+			   , AbstractExpression* l_incr
+			   , CompoundStatement * l_for_body)
 	: AbstractStatement(dtype, lline_number)
 	, initializationExpression_(l_init)
 	, testExpression_(l_test), incrementExpression_(l_incr)
@@ -865,8 +870,8 @@ void ForStatement::GenerateConsolidatedForLoopIndexes()
 	//cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
 }
 
-void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
-		AbstractStatement * stop_at)
+void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
+				       , AbstractStatement * stop_at)
 {
 	//cerr << "ENTER: ForStatement::GetQuestionsInBlock" << endl;
 	if(forBody_){
@@ -902,7 +907,7 @@ ForStatement:: ~ForStatement()
 
 VariableList::VariableList(DataType type, char * name) 
 	: variableType_(type), variableName_(name)
-	  , arrayLength_(-1), prev_(0), next_(0)
+	, arrayLength_(-1), prev_(0), next_(0)
 {
 	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
 		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
@@ -960,7 +965,7 @@ void VariableList::print(FILE * edit_out)
 
 VariableList::VariableList(DataType type, char * name, int len)
 	: variableType_(type), variableName_(name)
-	  , arrayLength_(len), prev_(0), next_(0)
+	, arrayLength_(len), prev_(0), next_(0)
 {
 	if(!is_of_arr_type(type)){
 		cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << variableName_ << endl;
@@ -971,7 +976,8 @@ VariableList::VariableList(DataType type, char * name, int len)
 
 
 StubManipStatement::StubManipStatement( DataType dtype, int lline_number
-		, string l_named_stub, string l_question_name
+					, string l_named_stub
+					, string l_question_name
 	)
 	: AbstractStatement(dtype, lline_number) 
 	, questionName_(l_question_name), namedStub_(l_named_stub)
@@ -979,9 +985,9 @@ StubManipStatement::StubManipStatement( DataType dtype, int lline_number
 }
 
 StubManipStatement::StubManipStatement( DataType dtype, int lline_number
-		, string l_named_stub)
+					, string l_named_stub)
 	: AbstractStatement(dtype, lline_number)
-	  , questionName_(), namedStub_(l_named_stub)
+	, questionName_(), namedStub_(l_named_stub)
 {
 }
 
@@ -1049,8 +1055,8 @@ StubManipStatement::~StubManipStatement()
 
 
 
-FunctionParameter::FunctionParameter(DataType type, char * name): 
-	var_type(type), var_name(name), arr_len(-1), prev_(NULL), next_(NULL)
+FunctionParameter::FunctionParameter(DataType type, char * name)
+	: var_type(type), var_name(name), arr_len(-1), prev_(NULL), next_(NULL)
 {
 	if (!( (type>=INT8_TYPE&& type<=DOUBLE_TYPE) ||
 		(type>=INT8_REF_TYPE&& type<=DOUBLE_REF_TYPE))){
@@ -1115,9 +1121,9 @@ FunctionParameter::FunctionParameter(DataType type, char * name, int len): var_t
 	cout << "constructing FunctionParameter: " << var_name << endl;
 }
 
-FunctionDeclarationStatement::FunctionDeclarationStatement( DataType dtype
-		, int lline_number, char * & name
-		, FunctionParameter* & v_list, DataType returnType_)
+FunctionDeclarationStatement::FunctionDeclarationStatement(
+	DataType dtype, int lline_number, char * & name
+	, FunctionParameter* & v_list, DataType returnType_)
 	: AbstractStatement(dtype, lline_number), funcInfo_(0)
 {
 	//cout << "load_func_into_symbol_table : " << "name: " << name << endl;

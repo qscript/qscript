@@ -94,7 +94,9 @@ UnaryExpression::~UnaryExpression()
 	for (unsigned int i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
-			debug_log_file << "UnaryExpression::~UnaryExpression setting mem_addr: " << this << "=0" << endl;
+			debug_log_file
+				<< "UnaryExpression::~UnaryExpression setting mem_addr: "
+				<< this << "=0" << endl;
 			break;
 		}
 	}
@@ -103,7 +105,7 @@ UnaryExpression::~UnaryExpression()
 }
 
 UnaryExpression::UnaryExpression( AbstractExpression * l_operand 
-		, ExpressionOperatorType le_type)
+				  , ExpressionOperatorType le_type)
 	: AbstractExpression(le_type), operand_(l_operand)
 {
 	if(operand_->exprOperatorType_==oper_blk_arr_assgn){
@@ -135,8 +137,10 @@ UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 			break;
 			default:
 				++no_errors;
-				print_err(compiler_internal_error, " unknown unary operator applied to AbstractExpression. Internal compiler error ", 
-					line_no, __LINE__, __FILE__);
+				print_err(compiler_internal_error
+					  , " unknown unary operator applied to AbstractExpression."
+					    "Internal compiler error "
+					  ,  line_no, __LINE__, __FILE__);
 		}
 	}
 }
@@ -189,7 +193,8 @@ bool UnaryExpression::IsConst()
 
 
 // will sort this out later
-bool BinaryExpression::IsConst(){
+bool BinaryExpression::IsConst()
+{
 	//cerr << "BinaryExpression::IsConst(): returning: " 
 	//	<< (leftOperand_->IsIntegralExpression() && rightOperand_->IsIntegralExpression() )
 	//	<< endl;
@@ -295,7 +300,8 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";
 }
 
-bool Unary2Expression::IsConst(){
+bool Unary2Expression::IsConst()
+{
 	switch(exprOperatorType_){
 		case oper_num:
 		case oper_float:
@@ -313,7 +319,8 @@ bool Unary2Expression::IsConst(){
 }
 
 
-bool Unary2Expression::IsIntegralExpression(){
+bool Unary2Expression::IsIntegralExpression()
+{
 	//cerr << "Unary2Expression::IsIntegralExpression(): "
 	//		<< exprOperatorType_ << endl;
 	//cerr << "oper_num: " << oper_num << endl;
@@ -603,7 +610,8 @@ Unary2Expression::~Unary2Expression()
 }
 
 BinaryExpression::BinaryExpression(AbstractExpression* llop
-		, AbstractExpression* lrop,ExpressionOperatorType letype)
+				   , AbstractExpression* lrop
+				   , ExpressionOperatorType letype)
 	: AbstractExpression(letype), leftOperand_(llop), rightOperand_(lrop)
 {
 	//cerr << "ENTER BinaryExpression::BinaryExpression: " << endl;
@@ -799,7 +807,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 
 #include <sstream>
 Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
-		, AbstractExpression* arr_index)
+				   , AbstractExpression* arr_index)
 	: AbstractExpression(le_type, ERROR_TYPE), symbolTableEntry_(0) 
 	, intSemanticValue_(0)
 	, doubleSemanticValue_(0), func_index_in_table(-1), text(0)
@@ -842,8 +850,9 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 	}
 }
 
-Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name,
-		AbstractExpression* arr_index, AbstractExpression* arr_index2)
+Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
+				   , AbstractExpression* arr_index
+				   , AbstractExpression* arr_index2)
 	: AbstractExpression(le_type, ERROR_TYPE), symbolTableEntry_(0)
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(-1), text(0) 
@@ -897,7 +906,8 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name,
 	//free($1);
 }
 
-bool Unary2Expression::IsLValue(){ 
+bool Unary2Expression::IsLValue()
+{
 	if(exprOperatorType_==oper_name|| exprOperatorType_==oper_arrderef){
 		return true;
 	} else {
@@ -907,7 +917,7 @@ bool Unary2Expression::IsLValue(){
 
 Unary2Expression::Unary2Expression(int l_isem_value) 
 	: AbstractExpression(oper_num), symbolTableEntry_(0)
-	  , intSemanticValue_(l_isem_value), doubleSemanticValue_(0), func_index_in_table(-1) 
+	, intSemanticValue_(l_isem_value), doubleSemanticValue_(0), func_index_in_table(-1) 
 	, text(0), column_no(-1), operand_(0), operand2_(0)
 {
 	if( intSemanticValue_ >= SCHAR_MIN && intSemanticValue_<=SCHAR_MAX){
@@ -926,8 +936,8 @@ Unary2Expression::Unary2Expression(int l_isem_value)
 
 
 Unary2Expression::Unary2Expression(ExpressionOperatorType le_type
-		, DataType ldt, AbstractExpression* e_list
-		, int lfunc_index_in_table)
+				   , DataType ldt, AbstractExpression* e_list
+				   , int lfunc_index_in_table)
 	: AbstractExpression(le_type, ldt),  symbolTableEntry_(0)
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(lfunc_index_in_table)
@@ -954,12 +964,14 @@ bool Binary2Expression::IsConst()
 	return false;
 }
 
-bool Binary2Expression::IsIntegralExpression(){
+bool Binary2Expression::IsIntegralExpression()
+{
 	return false;
 }
 
 Binary2Expression::Binary2Expression(AbstractExpression* llop
-		, XtccSet& l_rd, ExpressionOperatorType letype)
+				     , XtccSet& l_rd
+				     , ExpressionOperatorType letype)
 	:AbstractExpression(letype), leftOperand_(0), xs(0)
 {
 	//cerr << "Binary2Expression::Binary2Expression" << endl;

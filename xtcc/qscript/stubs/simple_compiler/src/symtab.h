@@ -110,7 +110,8 @@ struct SymbolTableEntry {
 		, type_(ldt), n_elms(-1), created_by_me(true), e(0), xs(0)
 		, type_qual(NO_QUAL), question_(l_q)
 	{ }
-	inline DataType get_type(){
+	inline DataType get_type()
+	{
 		return type_;
 	}
 	~SymbolTableEntry();

@@ -129,7 +129,7 @@ struct Binary2Expression: public AbstractExpression
 	XtccSet *xs;
 	public:
 	Binary2Expression(AbstractExpression* llop
-			, XtccSet& l_rd, ExpressionOperatorType letype);
+			  , XtccSet& l_rd, ExpressionOperatorType letype);
 	bool IsLValue(){ return false; }
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
@@ -151,7 +151,7 @@ struct BinaryExpression: public AbstractExpression
 	AbstractExpression *leftOperand_, *rightOperand_;
 	public:
 	BinaryExpression(AbstractExpression* llop, AbstractExpression* lrop
-			,ExpressionOperatorType letype);
+			 , ExpressionOperatorType letype);
 	bool IsLValue(){ return false; }
 	void print_oper_assgn(ExpressionCompiledCode &code);
 //	virtual void PrintExpressionCode(ostringstream& code_bef_expr

@@ -8,7 +8,8 @@
 // if regular file -> returns 1 
 // 		returns -1 if stat operation failed
 //		returns 0 if not a regular file
-int check_if_reg_file_exists(string jno, int ser_no){
+int check_if_reg_file_exists(string jno, int ser_no)
+{
 	stringstream s;
 	s << jno << "_" << ser_no << ".dat";
 	struct stat file_info;

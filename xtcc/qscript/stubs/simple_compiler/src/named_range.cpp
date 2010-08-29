@@ -12,11 +12,11 @@ using std::endl;
 using std::stringstream;
 using std::string;
 
-named_range::~named_range(){
-}
+named_range::~named_range()
+{ }
 
-void named_range::GenerateCode (StatementCompiledCode & code){
-
+void named_range::GenerateCode (StatementCompiledCode & code)
+{
 	code.quest_defns << "vector <stub_pair> " << name 
 		//<< "(" << stubs.size() << ");"  
 		<< ";" << endl << endl;

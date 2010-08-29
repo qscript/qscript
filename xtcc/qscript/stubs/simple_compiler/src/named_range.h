@@ -10,19 +10,20 @@
 #include "stub_pair.h"
 #include "stmt.h"
 
-struct named_range: public AbstractStatement{
+struct named_range: public AbstractStatement
+{
 	string name;
 	vector <stub_pair> stubs;
 	//named_range(): name(""), stubs(){}
 	void GenerateCode(StatementCompiledCode & code);
-	named_range(DataType l_type, int l_line_number, 
-		string l_name, vector <stub_pair>& l_stubs ):
-		AbstractStatement(l_type, l_line_number),
-		name(l_name), stubs(l_stubs)
+	named_range(DataType l_type, int l_line_number
+		    , string l_name, vector <stub_pair>& l_stubs )
+		: AbstractStatement(l_type, l_line_number)
+		, name(l_name), stubs(l_stubs)
 	{
 		//cout << "named_range: constructor" << endl;
-		}
-		~named_range();
+	}
+	~named_range();
 };
 
 #endif /* xtcc_named_range_h */

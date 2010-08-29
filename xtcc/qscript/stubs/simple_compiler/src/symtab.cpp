@@ -86,23 +86,30 @@ SymbolTableEntry::~SymbolTableEntry()
 }
 
 
-bool is_of_int_type(DataType dt){
+bool is_of_int_type(DataType dt)
+{
 	return (dt >= INT8_TYPE && dt <=INT32_TYPE);
 }
-bool is_of_noun_type(DataType dt){
+
+bool is_of_noun_type(DataType dt)
+{
 	return (dt >= INT8_TYPE && dt <=DOUBLE_TYPE)
 		|| (dt==QUESTION_TYPE)
 		;
 }
-bool is_of_noun_ref_type(DataType dt){
+
+bool is_of_noun_ref_type(DataType dt)
+{
 	return (dt >= INT8_REF_TYPE && dt <=DOUBLE_REF_TYPE);
 }
 
-bool is_of_arr_type(DataType dt){
+bool is_of_arr_type(DataType dt)
+{
 	return (dt >= INT8_ARR_TYPE && dt <=DOUBLE_ARR_TYPE);
 }
 
-DataType convert_ref_type(DataType dt){
+DataType convert_ref_type(DataType dt)
+{
 	if(dt>=INT8_REF_TYPE && dt<=DOUBLE_REF_TYPE) 
 		return DataType(INT8_TYPE + dt-INT8_REF_TYPE);
 	else 
@@ -244,16 +251,16 @@ SymbolTableEntry::SymbolTableEntry(const char * lname, DataType ldt, XtccSet * l
 	:name_(strdup(lname)), text_(0), dval(0), ival(0)
 	 , type_(ldt), n_elms(-1), created_by_me(true), e(0)
 	 , xs ( new XtccSet(*lxs)), type_qual(NO_QUAL), question_(0)
-{ 
-
-}
+	{ }
 
 			
-bool is_of_int_arr_type(DataType dt){
+bool is_of_int_arr_type(DataType dt)
+{
 	return (dt >= INT8_ARR_TYPE && dt <=INT32_ARR_TYPE);
 }
 
-bool is_of_int32_arr_type(DataType dt){
+bool is_of_int32_arr_type(DataType dt)
+{
 	return (dt == INT32_ARR_TYPE);
 }
 

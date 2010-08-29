@@ -44,25 +44,29 @@ struct AbstractQuestion: public AbstractStatement
 	//! this variable should never be used in the compile time environment
 	string currentResponse_;
 	//! this is only called in the compile time environment
-	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
+	AbstractQuestion(
+		DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 
-	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
+	AbstractQuestion(
+		DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt 
 		);
 	//! this is only called in the compile time environment
-	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
+	AbstractQuestion(
+		DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn, DataType l_dt 
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 
 	//! this is only called in the runtime environment
-	AbstractQuestion(DataType l_type,int l_no, string l_name, string l_text
+	AbstractQuestion(
+		DataType l_type,int l_no, string l_name, string l_text
 		, QuestionType l_q_type, int l_no_mpn , DataType l_dt
 		, const vector<int>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
@@ -71,7 +75,9 @@ struct AbstractQuestion: public AbstractStatement
 //			, ostringstream& program_code)=0;
 	virtual void GenerateCode(StatementCompiledCode &code)=0;
 	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code)=0;
-	virtual void eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)=0;
+	virtual void eval(/*qs_ncurses::*/WINDOW * question_window
+			  , /*qs_ncurses::*/WINDOW* stub_list_window
+			  , /*qs_ncurses::*/WINDOW* data_entry_window)=0;
 	virtual bool IsValid(int value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
@@ -85,25 +91,30 @@ struct AbstractQuestion: public AbstractStatement
 	void PrintEvalArrayQuestion(StatementCompiledCode &code);
 	const char * CurrentResponseToCharString();
 	//virtual AbstractQuestion * IsAQuestionStatement()=0;
-	virtual void GetQuestionNames(vector<string> & question_list,
-			AbstractStatement * endStatement)=0;
-	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
-			AbstractStatement * stop_at);
+	virtual void GetQuestionNames(vector<string> & question_list
+				      , AbstractStatement * endStatement)=0;
+	virtual void GetQuestionsInBlock(
+		vector<AbstractQuestion*> & question_list
+		, AbstractStatement * stop_at);
 	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
 	virtual void GetDataFromUser(WINDOW * data_entry_window);
 
 	virtual bool VerifyData(string & err_mesg, string & re_arranged_buffer
-			, int &pos_1st_invalid_data);
+				, int &pos_1st_invalid_data);
 	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
-	virtual void PrintQuestionArrayInitialisation(StatementCompiledCode & code);
+	virtual void PrintQuestionArrayInitialisation(
+		StatementCompiledCode & code);
 	string PrintSaveArrayQuestion(ActiveVariableInfo * av_info);
 	string PrintRestoreArrayQuestion(ActiveVariableInfo * av_info);
 	void PrintSaveMyPreviousIterationsData(StatementCompiledCode &code);
 	void PrintRestoreMyPreviousIterationsData(StatementCompiledCode &code);
-	friend bool IsInTheSameScopeAndLevel(AbstractQuestion *q1, AbstractQuestion * q2);
+	friend bool IsInTheSameScopeAndLevel(AbstractQuestion *q1
+					     , AbstractQuestion * q2);
 	friend bool NotInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
-	friend bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
-	friend bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
+	friend bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1
+						       , AbstractQuestion * q2);
+	friend bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1
+						       , AbstractQuestion * q2);
 	bool QuestionIsInMyBlock(AbstractQuestion *q);
 	void SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
 	void RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
@@ -128,33 +139,35 @@ struct RangeQuestion: public AbstractQuestion
 	//vector <int> stack_loop_index_values;
 	set<int> displayData_;
 	//! this is only called in the compile time environment
-	RangeQuestion(DataType this_stmt_type, int line_number,
-		string l_name, string l_q_text,
-		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-		XtccSet& l_r_data
+	RangeQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, XtccSet& l_r_data
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope 
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 	//! this is only called in the runtime environment
-	RangeQuestion(DataType this_stmt_type, int line_number,
-		string l_name, string l_q_text,
-		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-		XtccSet& l_r_data
+	RangeQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, XtccSet& l_r_data
 		);
 
 	//! this is only called in the compile time environment
-	RangeQuestion(DataType this_stmt_type, int line_number,
-		string l_name, string l_q_text,
-		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-		XtccSet& l_r_data, CompoundStatement * l_enclosing_scope
+	RangeQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, XtccSet& l_r_data
+		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 	//! this is only called in the runtime environment
-	RangeQuestion(DataType this_stmt_type, int line_number,
-		string l_name, string l_q_text,
-		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-		XtccSet& l_r_data, const vector<int> & l_loop_index_values
+	RangeQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, XtccSet& l_r_data
+		, const vector<int> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		);
 
@@ -162,13 +175,15 @@ struct RangeQuestion: public AbstractQuestion
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
 	virtual bool IsValid(int value);
 	//void eval();
-	void eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window);
+	void eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window);
 	void WriteDataToDisk(ofstream& data_file);
 	//AbstractQuestion*  IsAQuestionStatement(){
 	//	return this;
 	//}
 	void  GetQuestionNames(vector<string> & question_list,
-			AbstractStatement* endStatement)
+			       AbstractStatement* endStatement)
 	{
 		std::cout << "RangeQuestion::GetQuestionNames" << std::endl;
 		if(this==endStatement)
@@ -199,39 +214,39 @@ class NamedStubQuestion: public AbstractQuestion
 	named_range * nr_ptr;
 	vector<stub_pair> * stub_ptr;
 	//! this is only called in the compile time environment
-	NamedStubQuestion(DataType this_stmt_type, int line_number, 
-		string l_name, string l_q_text,
-		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-		named_range * l_nr_ptr 
+	NamedStubQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, named_range * l_nr_ptr 
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 	//! this is only called in the compile time environment
-	NamedStubQuestion(DataType this_stmt_type, int line_number, 
-		string l_name, string l_q_text,
-		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-		named_range * l_nr_ptr 
+	NamedStubQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, named_range * l_nr_ptr 
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 
-	NamedStubQuestion(DataType this_stmt_type, int line_number, 
-		string l_name, string l_q_text,
-		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-		vector<stub_pair> * l_stub_ptr
+	NamedStubQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		);
-	NamedStubQuestion(DataType this_stmt_type, int line_number, 
-		string l_name, string l_q_text,
-		QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-		vector<stub_pair> * l_stub_ptr
+	NamedStubQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		);
 	//! only called in the runtime environment
-	NamedStubQuestion(DataType this_stmt_type, int line_number
-		, string l_name, string l_q_text
-		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
-		, vector<stub_pair> * l_stub_ptr 
+	NamedStubQuestion(
+		DataType this_stmt_type, int line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		, DataType l_dt, vector<stub_pair> * l_stub_ptr 
 		, const vector<int> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		);
@@ -240,13 +255,15 @@ class NamedStubQuestion: public AbstractQuestion
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
 	virtual bool IsValid(int value);
 	//void eval();
-	void eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window);
+	void eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window);
 	void WriteDataToDisk(ofstream& data_file);
 	//AbstractQuestion* IsAQuestionStatement(){
 	//	return this;
 	//}
-	void  GetQuestionNames(vector<string> & question_list,
-			AbstractStatement* endStatement)
+	void  GetQuestionNames(vector<string> & question_list
+			       , AbstractStatement* endStatement)
 	{
 		std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
 		if(this==endStatement)
@@ -256,6 +273,7 @@ class NamedStubQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
+	
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
 		NamedStubQuestion (const NamedStubQuestion&);
@@ -266,20 +284,22 @@ class DummyArrayQuestion: public AbstractQuestion{
 	vector<int> array_bounds;
 
 	DummyArrayQuestion(string l_qno, vector<int> l_array_bounds)
-		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, "", spn 
-		, 0, INT32_TYPE ),
-		  array_bounds(l_array_bounds)
+		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, "", spn, 0
+				   , INT32_TYPE )
+		,  array_bounds(l_array_bounds)
 	{ }
 	void WriteDataToDisk(ofstream& data_file);
 	//void eval(){}
-	void eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)
+	void eval(/*qs_ncurses::*/WINDOW * question_window
+		  , /*qs_ncurses::*/WINDOW* stub_list_window
+		  , /*qs_ncurses::*/WINDOW* data_entry_window)
 	{}
 
 	bool IsValid(int value){ return false;}
 	void GenerateCode(StatementCompiledCode &code){}
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code){}
-	void GetQuestionNames(vector<string> & question_list,
-			AbstractStatement* endStatement)
+	void GetQuestionNames(vector<string> & question_list
+			      , AbstractStatement* endStatement)
 	{
 		if(this==endStatement)
 			return;

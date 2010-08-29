@@ -37,17 +37,17 @@ int GetTempMapKeyNumber();
 string GetRestoreVariableName(ActiveVariableInfo * av_info);
 string GetRestoreVariableContainerName(ActiveVariableInfo * av_info
 				       , string & questionName_);
-string GetRestoreVariableContainerNameArray(ActiveVariableInfo * av_info
-		, string & questionName_, string map_key);
+string GetRestoreVariableContainerNameArray(
+	ActiveVariableInfo * av_info, string & questionName_, string map_key);
 extern vector<string> consolidated_for_loop_index_stack;
 
 	//! this is only called in the compile time environment
-AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
-		, string l_name, string l_text
-		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
-		, vector<AbstractExpression*> & l_for_bounds_stack
-		, CompoundStatement * l_enclosing_scope 
-		, vector<ActiveVariableInfo* > l_av_info
+AbstractQuestion::AbstractQuestion(
+	DataType l_type, int l_no, string l_name, string l_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+	, vector<AbstractExpression*> & l_for_bounds_stack
+	, CompoundStatement * l_enclosing_scope 
+	, vector<ActiveVariableInfo* > l_av_info
 	): 
 	AbstractStatement(l_type, l_no)
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
@@ -65,9 +65,9 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 }
 
 
-AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
-		, string l_name, string l_text
-		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+AbstractQuestion::AbstractQuestion(
+	DataType l_type, int l_no, string l_name, string l_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 	): 
 	AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type) 
@@ -84,11 +84,12 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 }
 
 	//! this is only called in the compile time environment
-AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
-		, string l_name, string l_text
-		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
-		, CompoundStatement * l_enclosing_scope
-		, vector<ActiveVariableInfo* > l_av_info
+AbstractQuestion::AbstractQuestion(
+	DataType l_type, int l_no
+	, string l_name, string l_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+	, CompoundStatement * l_enclosing_scope
+	, vector<ActiveVariableInfo* > l_av_info
 	): 
 	AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type) 
@@ -106,11 +107,12 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no
 }
 
 // this is only called from the runtime
-AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
-		, string l_text
-		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
-		, const vector<int>& l_loop_index_values
-		, DummyArrayQuestion * l_dummy_array
+AbstractQuestion::AbstractQuestion(
+	DataType l_type, int l_no, string l_name
+	, string l_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+	, const vector<int>& l_loop_index_values
+	, DummyArrayQuestion * l_dummy_array
 	): 
 	AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type) 
@@ -128,8 +130,8 @@ AbstractQuestion::AbstractQuestion(DataType l_type, int l_no, string l_name
 }
 
 
-void AbstractQuestion::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
-		AbstractStatement * stop_at)
+void AbstractQuestion::GetQuestionsInBlock(
+	vector<AbstractQuestion*> & question_list, AbstractStatement * stop_at)
 {
 	//std::cerr << "ENTER AbstractQuestion::GetQuestionsInBlock()" << std::endl;
 	question_list.push_back(this);
@@ -281,7 +283,9 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 }
 
 // re_arranged_buffer will contain the data like this: valid_data invalid_data
-bool AbstractQuestion::VerifyData(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data)
+bool AbstractQuestion::VerifyData(
+	string & err_mesg, string & re_arranged_buffer
+	, int & pos_1st_invalid_data)
 {
 	bool invalid_code, has_invalid_data_flag=false;
 	stringstream valid_data, invalid_data;
@@ -472,10 +476,10 @@ void AbstractQuestion::PrintArrayDeclarations(ostringstream & quest_defns)
 }
 
 //! this is only called in the compile time environment
-RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
-	string l_name, string l_q_text,
-	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-	XtccSet& l_r_data
+RangeQuestion::RangeQuestion(
+	DataType this_stmt_type, int line_number
+	, string l_name, string l_q_text, QuestionType l_q_type, int l_no_mpn
+	, DataType l_dt, XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope 
 	, vector<ActiveVariableInfo* > l_av_info
@@ -488,9 +492,9 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
 { }
 
 	//! this is only called in the runtime environment
-RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
-	, string l_name, string l_q_text
-	, QuestionType l_q_type, int l_no_mpn
+RangeQuestion::RangeQuestion(
+	DataType this_stmt_type, int line_number
+	, string l_name, string l_q_text, QuestionType l_q_type, int l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	): 
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
@@ -500,9 +504,9 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
 { }
 
 	//! this is only called in the compile time environment
-RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
-	, string l_name, string l_q_text
-	, QuestionType l_q_type, int l_no_mpn
+RangeQuestion::RangeQuestion(
+	DataType this_stmt_type, int line_number
+	, string l_name, string l_q_text, QuestionType l_q_type, int l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
@@ -514,10 +518,10 @@ RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number
 { }
 
 	//! this is only called from the runtime environment
-RangeQuestion::RangeQuestion(DataType this_stmt_type, int line_number,
-	string l_name, string l_q_text,
-	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-	XtccSet& l_r_data
+RangeQuestion::RangeQuestion(
+	DataType this_stmt_type, int line_number
+	, string l_name, string l_q_text, QuestionType l_q_type
+	, int l_no_mpn, DataType l_dt,	XtccSet& l_r_data
 	, const vector<int> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
 	): 
@@ -536,7 +540,9 @@ bool RangeQuestion::IsValid(int value)
 
 
 //void RangeQuestion::eval()
-void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)
+void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
+			 , /*qs_ncurses::*/WINDOW* stub_list_window
+			 , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
 	if(displayData_.begin()==displayData_.end()){
 		for(	set<int>::iterator it=r_data->indiv.begin(); 
@@ -639,7 +645,9 @@ bool NamedStubQuestion::IsValid(int value)
 }
 
 //void NamedStubQuestion::eval()
-void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window, /*qs_ncurses::*/WINDOW* stub_list_window, /*qs_ncurses::*/WINDOW* data_entry_window)
+void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
 	if(question_window ==0 || stub_list_window ==0 || data_entry_window ==0 ){
 		cout << questionName_ << "." << questionText_ << endl << endl;
@@ -833,32 +841,29 @@ void NamedStubQuestion::GenerateCode( StatementCompiledCode &code)
 }
 
 	//! this is only called in the compile time environment
-NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
-	string l_name, string l_q_text,
-	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-	//string& l_named_list): 
-	named_range* l_nr_ptr
-	//, AbstractExpression* l_arr_sz
+NamedStubQuestion::NamedStubQuestion(
+	DataType this_stmt_type, int line_number
+	, string l_name, string l_q_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+	, named_range* l_nr_ptr
 	, vector<AbstractExpression*>& l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope 
 	, vector<ActiveVariableInfo* > l_av_info
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt
-		//, l_arr_sz
-		, l_for_bounds_stack, l_enclosing_scope, l_av_info
-		)
-	//named_list(l_named_list)
+	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+			 , l_q_type, l_no_mpn, l_dt
+			 , l_for_bounds_stack, l_enclosing_scope, l_av_info)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
 {
 }
 
 	//! this is only called in the compile time environment
-NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
-	string l_name, string l_q_text,
-	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-	named_range* l_nr_ptr
+NamedStubQuestion::NamedStubQuestion(
+	DataType this_stmt_type, int line_number
+	, string l_name, string l_q_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+	, named_range* l_nr_ptr
 	, CompoundStatement * l_enclosing_scope 
 	, vector<ActiveVariableInfo* > l_av_info
 	):
@@ -867,24 +872,23 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
-{
-}
+{ }
 
-NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number,
-	string l_name, string l_q_text,
-	QuestionType l_q_type, int l_no_mpn, DataType l_dt,
-	vector<stub_pair>* l_stub_ptr
+NamedStubQuestion::NamedStubQuestion(
+	DataType this_stmt_type, int line_number
+	, string l_name, string l_q_text
+	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+	, vector<stub_pair>* l_stub_ptr
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt
-		) 
+	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+			 ,l_q_type, l_no_mpn, l_dt) 
 	, named_list()
 	, nr_ptr(0), stub_ptr(l_stub_ptr)
-{
-}
+{ }
 
 //! only called in the runtime environment
-NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number
+NamedStubQuestion::NamedStubQuestion(
+	DataType this_stmt_type, int line_number
 	, string l_name, string l_q_text
 	, QuestionType l_q_type, int l_no_mpn, DataType l_dt
 	, vector<stub_pair>* l_stub_ptr
@@ -896,8 +900,7 @@ NamedStubQuestion::NamedStubQuestion(DataType this_stmt_type, int line_number
 		)
 	, named_list()
 	, nr_ptr(0), stub_ptr(l_stub_ptr)
-{
-}
+{ }
 
 void AbstractQuestion::print_q_type(string &s)
 {
@@ -1738,7 +1741,9 @@ void AbstractQuestion::SetupArrayQuestionSave(StatementCompiledCode &code)
 	s << "/* EXIT AbstractQuestion::SetupArrayQuestionSave */\n";
 }
 
-string GetRestoreVariableContainerNameArray(ActiveVariableInfo * av_info, string & questionName_, string map_key)
+string GetRestoreVariableContainerNameArray(
+	ActiveVariableInfo * av_info
+	, string & questionName_, string map_key)
 {
 	ostringstream s;
 	switch(av_info->type_){

@@ -53,7 +53,8 @@ using qscript_parser::debug_log_file;
 using qscript_parser::mem_addr;
 
 
-AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/){
+AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -73,8 +74,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/
 }
 
 AbstractStatement* Scope::insert(const char * name, DataType dt
-		, AbstractQuestion * l_q
-		/*, int line_no*/){
+				 , AbstractQuestion * l_q /*, int line_no*/)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -93,7 +94,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size/*, int line_no*/){
+AbstractStatement* Scope::insert(const char * name, DataType dt
+				 , int arr_size	 /*, int line_no*/)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -112,7 +115,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size/*,
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpression *e){
+AbstractStatement* Scope::insert(const char * name, DataType dt
+				 , AbstractExpression *e)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -148,7 +153,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpress
 }
 
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpression *e, type_qualifier tq){
+AbstractStatement* Scope::insert(const char * name, DataType dt
+				 , AbstractExpression *e, type_qualifier tq)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -183,7 +190,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpress
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /*int line_no, */ char *text)
+AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size
+				 , /*int line_no, */ char *text)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	if(dt!=INT8_ARR_TYPE){
@@ -220,7 +228,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs){
+AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
+{
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		XtccSet * xs=new XtccSet(*lxs);
@@ -238,7 +247,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs){
 	return st_ptr;
 }
 
-Scope::~Scope() {
+Scope::~Scope()
+{
 	debug_log_file <<"deleting Scope" << endl;
 	typedef map<string,SymbolTableEntry*>::iterator it;
 	for(it p=SymbolTable.begin(); p!=SymbolTable.end(); ++p){
@@ -256,7 +266,9 @@ Scope::~Scope() {
 }
 
 //string human_readable_type(DataType dt);
-void Scope::print_scope(const string & stack_name, vector<string> &push_stack, vector<string>& pop_stack){
+void Scope::print_scope(const string & stack_name, vector<string> &push_stack
+			, vector<string>& pop_stack)
+{
 	map<string,SymbolTableEntry*>::iterator it;
 	for(it=SymbolTable.begin(); it!=SymbolTable.end(); ++it){
 		SymbolTableEntry * sym_ptr=  it->second;

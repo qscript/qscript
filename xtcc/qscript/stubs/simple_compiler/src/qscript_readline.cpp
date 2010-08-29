@@ -123,7 +123,7 @@ void NCursesReadline::EraseLine(int line_no)
 // returns 1 on success 0 on failure
 // are throwing exceptions a better option?
 void NCursesReadline::SetBuffer(const string & re_arranged_buffer
-		, int l_new_insertionPoint)
+				, int l_new_insertionPoint)
 {
 	buffer_=re_arranged_buffer;
 

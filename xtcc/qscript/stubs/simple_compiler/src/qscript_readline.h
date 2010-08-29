@@ -15,7 +15,8 @@ class NCursesReadline
 	// We expect an already allocated window to be passed to us
 	NCursesReadline(WINDOW * l_data_entry_window);
 	const char * ReadLine();
-	void SetBuffer(const std::string & re_arranged_buffer, int l_new_insertionPoint);
+	void SetBuffer(const std::string & re_arranged_buffer
+		       , int l_new_insertionPoint);
 	void DoDelete();
 	void DoBackSpace();
 	void DoDeleteWordForward();
@@ -32,7 +33,9 @@ class NCursesReadline
 
 void read_data( const char * prompt);
 void read_data_from_window(WINDOW * data_entry_window, const char * prompt
-	, bool clear_buffer_flag, std::string & re_arranged_buffer, int & pos_1st_invalid_data);
+			   , bool clear_buffer_flag
+			   , std::string & re_arranged_buffer
+			   , int & pos_1st_invalid_data);
 /*
 char * qscript_readline(WINDOW * data_entry_window, const char * prompt
 	, bool clear_buffer_flag, std::string & re_arranged_buffer, int & pos_1st_invalid_data);

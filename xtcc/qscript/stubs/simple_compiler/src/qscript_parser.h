@@ -23,9 +23,10 @@
 using std::ofstream;
 using std::vector;
 namespace qscript_parser {
-	//! This is a pointer to the most active Scope on the active_scope_list stack
+
 	extern vector<AbstractExpression*> for_loop_max_counter_stack;
 	//extern vector<CompoundStatement*> compound_body_stack;
+	//! This is a pointer to the most active Scope on the active_scope_list stack
 	extern Scope* active_scope;
 	//! maintains the Scope levels in the files being parsed. The active_scope_list is treated like a stack
 	extern vector <Scope*> active_scope_list;
@@ -101,10 +102,11 @@ namespace qscript_parser {
 	CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 			AbstractStatement *stmt);
 	AbstractStatement * ProcessRangeQuestion(const string &name
-			, const string & q_text , const DataType& dt );
-	AbstractStatement * ProcessNamedQuestion(const string &name
-			, const string & q_txt , const DataType& dt 
-			, const string & named_stub_list );
+						 , const string & q_text
+						 , const DataType& dt );
+	AbstractStatement * ProcessNamedQuestion(
+		const string &name, const string & q_txt
+		, const DataType& dt, const string & named_stub_list );
 
 
 	void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
