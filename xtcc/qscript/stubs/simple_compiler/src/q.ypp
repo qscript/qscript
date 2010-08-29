@@ -8,6 +8,7 @@
 
 //#include "common.h"
 
+#include <sys/types.h>
 #include <limits.h>
 #include <string>
 #include <iostream>
@@ -31,12 +32,12 @@
 	//using qscript_parser::yyerror;
 	//using qscript_parser::yylex;
 	//using qscript_parser::yywrap;
-	extern int yylex();
+	extern int32_t yylex();
 	extern void yyerror(const char * s);
 	using std::cout;
 	using std::cerr;
 	using std::endl;
-	int flag_cmpd_stmt_is_a_func_body=-1;
+	int32_t flag_cmpd_stmt_is_a_func_body=-1;
 	vector </*Statement::*/FunctionInformation*> func_info_table;
 
 
@@ -45,7 +46,7 @@
 
 %union {
 	type_qualifier type_qual;
-	int ival;
+	int32_t ival;
 	double dval;
 	char name[MY_STR_MAX];
 	char text_buf[MY_STR_MAX];
@@ -564,7 +565,7 @@ expression: expression '+' expression {
 		//cout << "parsing Function call: name: " << $1 << endl;
 		string search_for=$1;
 		bool found=false;
-		int index=search_for_func(search_for);
+		int32_t index=search_for_func(search_for);
 		if(index!=-1) found=true;
 		bool skip_type_check=skip_func_type_check(search_for.c_str());
 		if( skip_type_check==false  && found==false ) {
@@ -663,7 +664,7 @@ range: 	INUMBER '-' INUMBER {
 					line_no, __LINE__, __FILE__  );
 
 		} else {
-			//qscript_parser:: xs.range.push_back( pair<int,int>($1,$3));
+			//qscript_parser:: xs.range.push_back( pair<int32_t,int32_t>($1,$3));
 			qscript_parser:: xs.add_range ( $1,$3);
 		}
 	}
@@ -695,14 +696,14 @@ stubs:     STUBS_LIST NAME {
 stub_list:	TEXT INUMBER {
 		using qscript_parser::stub_list;
 		string s1=$1;
-		int code=$2;
+		int32_t code=$2;
 		struct stub_pair pair1(s1,code);
 		stub_list.push_back(pair1);
 	}
 	| stub_list TEXT INUMBER {
 		using qscript_parser::stub_list;
 		string s1=$2;
-		int code=$3;
+		int32_t code=$3;
 		struct stub_pair pair1(s1,code);
 		stub_list.push_back(pair1);
 		//cout << "chaining stublist" << endl;
@@ -763,7 +764,7 @@ template<class T> T* trav_chain(T* & elem1){
 //! is determined by the nesting level of the question inside the
 //! for loop and the maximum bound of the loop index - it is a multiplication
 //! of all the maximum counters in the enclosing for loops
-AbstractExpression * recurse_for_index(int stack_index){
+AbstractExpression * recurse_for_index(int32_t stack_index){
 	//cerr << "entered: recurse_for_index: stack_index: " << stack_index << endl;
 	if(stack_index==0){
 		BinaryExpression * test_expr = 
@@ -836,7 +837,7 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 {
 
 	active_scope_list.pop_back();
-	int tmp=active_scope_list.size()-1;
+	int32_t tmp=active_scope_list.size()-1;
 	if(tmp==-1) { 
 		active_scope = 0;
 		print_err(compiler_internal_error
@@ -891,7 +892,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 
 	//vector<string> active_push_vars;
 	//vector<string> active_pop_vars;
-	//for(unsigned int i=0; i< active_scope_list.size(); ++i){
+	//for(unsigned int32_t i=0; i< active_scope_list.size(); ++i){
 	//	Scope* sc_ptr= active_scope_list[i];
 	//	sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
 	//}
@@ -939,7 +940,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	question_list.push_back(q);
 	/*
 	cout << "question_list: questions are " << endl;
-	for(int i=0; i<question_list.size(); ++i){
+	for(int32_t i=0; i<question_list.size(); ++i){
 		cout << question_list[i]->questionName_ << endl;
 	}
 	*/
@@ -965,7 +966,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	// store
 	//vector<string> active_push_vars;
 	//vector<string> active_pop_vars;
-	//for(unsigned int i=0; i< active_scope_list.size(); ++i){
+	//for(unsigned int32_t i=0; i< active_scope_list.size(); ++i){
 	//	Scope* sc_ptr= active_scope_list[i];
 	//	sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
 	//}
@@ -978,7 +979,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 
 	bool found=false;
 	struct named_range* nr_ptr = 0;
-	for(unsigned int i=0; i<named_stubs_list.size(); ++i){
+	for(u_int32_t i=0; i<named_stubs_list.size(); ++i){
 		nr_ptr = named_stubs_list[i];
 		if(nr_ptr->name==attribute_list_name){
 			found=true; break;

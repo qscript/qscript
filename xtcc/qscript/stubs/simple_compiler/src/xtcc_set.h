@@ -8,6 +8,7 @@
 #ifndef xtcc_set_h
 #define xtcc_set_h
 
+#include <sys/types.h>
 #include <vector>
 #include <set>
 #include <string>
@@ -23,16 +24,16 @@ using std::set;
 	{ 1, 2-5, 10, 21-40} 
 */
 struct XtccSet {
-	vector < pair<int,int> > range;
-	set<int> indiv;
+	vector < pair<int32_t,int32_t> > range;
+	set<int32_t> indiv;
 	XtccSet(DataType dt, string name, XtccSet& xs1);
 	XtccSet(XtccSet& xs1);
 	XtccSet& operator=(const XtccSet& xs1);
 	XtccSet();
 	void reset();
-	void add_range(int n1, int n2);
-	void add_indiv(int n1);
-	bool exists(int key);
+	void add_range(int32_t n1, int32_t n2);
+	void add_indiv(int32_t n1);
+	bool exists(int32_t key);
 
 };
 

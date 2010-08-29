@@ -83,10 +83,10 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 46 "src/q.ypp"
+#line 47 "src/q.ypp"
 
 	type_qualifier type_qual;
-	int ival;
+	int32_t ival;
 	double dval;
 	char name[MY_STR_MAX];
 	char text_buf[MY_STR_MAX];

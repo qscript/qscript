@@ -68,20 +68,20 @@ spawn inputs/inp_oper_to_string.exe
 		}
 	}
 	expect {
-		"q1. Q1. Question" { 
+		"q1. Q1. Question\r\n" {
 			send_user "Got q1\n";
 		}
 	}
-	expect "1\r" { send_user "got 1\n"; }
-	expect "2\r" { send_user "got 2\n"; }
-	expect "5\r" { send_user "got 5\n"; }
-	expect "6\r" { send_user "got 6\n"; }
-	expect "7\r" { send_user "got 7\n"; }
-	expect "8\r" { send_user "got 8\n"; }
-	expect "11\r" { send_user "got 11\n"; }
-	expect "12\r" { send_user "got 12\n"; }
-	expect "13\r" { send_user "got 13\n"; }
-	expect "14\r" { send_user "got 14\n"; }
+	expect "1\r\n" { send_user "got 1\n"; }
+	expect "2\r\n" { send_user "got 2\n"; }
+	expect "5\r\n" { send_user "got 5\n"; }
+	expect "6\r\n" { send_user "got 6\n"; }
+	expect "7\r\n" { send_user "got 7\n"; }
+	expect "8\r\n" { send_user "got 8\n"; }
+	expect "11\r\n" { send_user "got 11\n"; }
+	expect "12\r\n" { send_user "got 12\n"; }
+	expect "13\r\n" { send_user "got 13\n"; }
+	expect "14\r\n" { send_user "got 14\n"; }
 	send "1 5 14\r"; 
 	expect -ex "End of Questionnaire: (s to save, p = previous question, j = question jump list)" { 
 			send "s\r";incr counter;

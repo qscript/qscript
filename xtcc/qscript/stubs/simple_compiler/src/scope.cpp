@@ -24,6 +24,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <sys/types.h>
 #include <iostream>
 #include <sstream>
 
@@ -42,8 +43,8 @@ using std::cerr;
 using std::endl;
 using std::stringstream;
 
-//extern int line_no;
-//extern int no_errors;
+//extern int32_t line_no;
+//extern int32_t no_errors;
 //extern ofstream debug_log_file;
 //extern vector<mem_addr_tab> mem_addr;
 
@@ -53,7 +54,8 @@ using qscript_parser::debug_log_file;
 using qscript_parser::mem_addr;
 
 
-AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/){
+AbstractStatement* Scope::insert(const char * name, DataType dt/*, int32_t line_no*/)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -73,8 +75,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/
 }
 
 AbstractStatement* Scope::insert(const char * name, DataType dt
-		, AbstractQuestion * l_q
-		/*, int line_no*/){
+				 , AbstractQuestion * l_q /*, int32_t line_no*/)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -93,7 +95,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size/*, int line_no*/){
+AbstractStatement* Scope::insert(const char * name, DataType dt
+				 , int32_t arr_size	 /*, int32_t line_no*/)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -112,7 +116,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size/*,
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpression *e){
+AbstractStatement* Scope::insert(const char * name, DataType dt
+				 , AbstractExpression *e)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -148,7 +154,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpress
 }
 
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpression *e, type_qualifier tq){
+AbstractStatement* Scope::insert(const char * name, DataType dt
+				 , AbstractExpression *e, type_qualifier tq)
+{
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
@@ -183,7 +191,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, AbstractExpress
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /*int line_no, */ char *text)
+AbstractStatement* Scope::insert(const char * name, DataType dt, int32_t arr_size
+				 , /*int32_t line_no, */ char *text)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	if(dt!=INT8_ARR_TYPE){
@@ -192,7 +201,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /
 		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 
 	}
-	int text_len=0;
+	int32_t text_len=0;
 	if(text){
 		text_len=std::strlen(text);
 	}
@@ -220,7 +229,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size, /
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs){
+AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
+{
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		XtccSet * xs=new XtccSet(*lxs);
@@ -238,14 +248,15 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs){
 	return st_ptr;
 }
 
-Scope::~Scope() {
+Scope::~Scope()
+{
 	debug_log_file <<"deleting Scope" << endl;
 	typedef map<string,SymbolTableEntry*>::iterator it;
 	for(it p=SymbolTable.begin(); p!=SymbolTable.end(); ++p){
 		delete p->second;
 		p->second=0;
 	}
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "Scope::~Scope setting mem_addr: " << this << "=0" << endl;
@@ -256,7 +267,9 @@ Scope::~Scope() {
 }
 
 //string human_readable_type(DataType dt);
-void Scope::print_scope(const string & stack_name, vector<string> &push_stack, vector<string>& pop_stack){
+void Scope::print_scope(const string & stack_name, vector<string> &push_stack
+			, vector<string>& pop_stack)
+{
 	map<string,SymbolTableEntry*>::iterator it;
 	for(it=SymbolTable.begin(); it!=SymbolTable.end(); ++it){
 		SymbolTableEntry * sym_ptr=  it->second;

@@ -1,7 +1,8 @@
-#include "qscript_readline.h"
+#include <sys/types.h>
 #include <cctype>
 #include <cstring>
 #include <string>
+#include "qscript_readline.h"
 
 #define CTL_LEFT 	0x1bb
 #define CTL_RIGHT 	0x1bc
@@ -26,10 +27,10 @@ const char * NCursesReadline::ReadLine()
 	//mvwprintw(dataEntryWindow_, 3,1, "%s" , prompt);
 	wmove(dataEntryWindow_, 1, insertionPoint_);
 	wrefresh(dataEntryWindow_);
-	int curX, curY;
+	int32_t curX, curY;
 	while(1){
 		//c=mvwgetch(dataEntryWindow_,1,1);
-		int c=wgetch(dataEntryWindow_);
+		int32_t c=wgetch(dataEntryWindow_);
 		//mvprintw(0,0, "got char: %d\n", c);
 		getyx(dataEntryWindow_, curY, curX);
 
@@ -96,7 +97,7 @@ const char * NCursesReadline::ReadLine()
 		//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer_);
 		mvwprintw(dataEntryWindow_, 3,1, "insertionPoint_: %d, lastBufPointer_: %d\n"
 				, insertionPoint_, buffer_.length());
-		//for(int i=lastBufPointer_-1; i<lastBufPointer_+10; ++i){
+		//for(int32_t i=lastBufPointer_-1; i<lastBufPointer_+10; ++i){
 		//	mvwaddch(dataEntryWindow_, curY, i,  ' ');
 		//}
 		//wclear(dataEntryWindow_);
@@ -109,12 +110,12 @@ const char * NCursesReadline::ReadLine()
 	}
 }
 
-void NCursesReadline::EraseLine(int line_no)
+void NCursesReadline::EraseLine(int32_t line_no)
 {
-	int maxX, maxY;
+	int32_t maxX, maxY;
 	getmaxyx(dataEntryWindow_, maxY,maxX);
 	if(line_no >=0 && line_no <= maxY){
-		for(int i=0; i<buffer_.length()+10; ++i){
+		for(int32_t i=0; i<buffer_.length()+10; ++i){
 			mvwaddch(dataEntryWindow_, line_no, i,  ' ');
 		}
 	}
@@ -123,7 +124,7 @@ void NCursesReadline::EraseLine(int line_no)
 // returns 1 on success 0 on failure
 // are throwing exceptions a better option?
 void NCursesReadline::SetBuffer(const string & re_arranged_buffer
-		, int l_new_insertionPoint)
+				, int32_t l_new_insertionPoint)
 {
 	buffer_=re_arranged_buffer;
 
@@ -163,9 +164,9 @@ void NCursesReadline::DoShiftLeft()
 		//do {
 		//	found = buffer_.rfind(' ', insertionPoint_);
 		//} while (found == insertionPoint_);
-		int i1 = insertionPoint_-1;
-		int idx=0;
-		int count_blank_spaces=0;
+		int32_t i1 = insertionPoint_-1;
+		int32_t idx=0;
+		int32_t count_blank_spaces=0;
 		while(buffer_[i1]==' ' && i1>0){
 			mvwprintw(dataEntryWindow_,2,90+idx, "." );
 			count_blank_spaces++;
@@ -189,9 +190,9 @@ void NCursesReadline::DoShiftRight()
 		//do {
 		//	found = buffer_.rfind(' ', insertionPoint_);
 		//} while (found == insertionPoint_);
-		int i1 = insertionPoint_+1;
-		int idx=0;
-		int count_blank_spaces=0;
+		int32_t i1 = insertionPoint_+1;
+		int32_t idx=0;
+		int32_t count_blank_spaces=0;
 		while(buffer_[i1]==' ' && i1>0){
 			mvwprintw(dataEntryWindow_,2,90+idx, "." );
 			count_blank_spaces++;
@@ -215,18 +216,18 @@ void NCursesReadline::DoDeleteWordBackWard()
 		//do {
 		//	found = buffer_.rfind(' ', insertionPoint_);
 		//} while (found == insertionPoint_);
-		int i1 = insertionPoint_-1;
-		int idx=0;
-		int count_blank_spaces=0;
-		int end_mark = insertionPoint_;
+		int32_t i1 = insertionPoint_-1;
+		int32_t idx=0;
+		int32_t count_blank_spaces=0;
+		int32_t end_mark = insertionPoint_;
 		while(buffer_[i1]==' ' && i1>0){
 			mvwprintw(dataEntryWindow_,2,90+idx, "." );
 			count_blank_spaces++;
 			--i1;
 		}
 		if(count_blank_spaces>1){
-			int start_mark=i1+1;
-			int length = end_mark - start_mark;
+			int32_t start_mark=i1+1;
+			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			insertionPoint_=i1;
 			return;
@@ -234,13 +235,13 @@ void NCursesReadline::DoDeleteWordBackWard()
 		string::size_type found = buffer_.rfind(' ', i1);
 		if(found!=string::npos){
 			insertionPoint_ = found;
-			int start_mark=found;
-			int length = end_mark - start_mark;
+			int32_t start_mark=found;
+			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			return;
 		} else {
-			int start_mark=0;
-			int length = end_mark - start_mark;
+			int32_t start_mark=0;
+			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			insertionPoint_ = 0;
 			return;
@@ -255,32 +256,32 @@ void NCursesReadline::DoDeleteWordForward()
 		//do {
 		//	found = buffer_.rfind(' ', insertionPoint_);
 		//} while (found == insertionPoint_);
-		int i1 = insertionPoint_+1;
-		int idx=0;
-		int count_blank_spaces=0;
-		int start_mark = insertionPoint_;
+		int32_t i1 = insertionPoint_+1;
+		int32_t idx=0;
+		int32_t count_blank_spaces=0;
+		int32_t start_mark = insertionPoint_;
 		while(buffer_[i1]==' ' && i1>0){
 			mvwprintw(dataEntryWindow_,2,90+idx, "." );
 			count_blank_spaces++;
-			--i1;
+			++i1;
 		}
 		if(count_blank_spaces>1){
-			int end_mark=i1;
-			int length = end_mark - start_mark;
+			int32_t end_mark=i1;
+			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			// no need to updated insertionPoint_ - it remains as it was
 			return;
 		}
 		string::size_type found = buffer_.find(' ', i1);
 		if(found!=string::npos){
-			int end_mark=found;
-			int length = end_mark - start_mark;
+			int32_t end_mark=found;
+			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			// no need to updated insertionPoint_ - it remains as it was
 			return;
 		} else {
-			int end_mark=buffer_.length();
-			int length = end_mark - start_mark;
+			int32_t end_mark=buffer_.length();
+			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			// no need to updated insertionPoint_ - it remains as it was
 			return;

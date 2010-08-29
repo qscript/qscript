@@ -1,7 +1,19 @@
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/src/datatype.h
+ *
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
+
+/*! \file
+    \brief Statement Datatypes in the language
+*/
+
+
 #ifndef datatype_h
 #define datatype_h
 	//! DataType enum: This enum is used to mark the type of a statement, the type of a variable and the type of an expression
-	enum DataType {
+	enum DataType
+	{
 		VOID_TYPE, 
 		INT8_TYPE,  INT16_TYPE,  INT32_TYPE, FLOAT_TYPE, DOUBLE_TYPE,
 		INT8_ARR_TYPE, INT16_ARR_TYPE, INT32_ARR_TYPE, FLOAT_ARR_TYPE, DOUBLE_ARR_TYPE,

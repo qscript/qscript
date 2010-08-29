@@ -13,6 +13,7 @@
 
 #ifndef stmt_h
 #define stmt_h
+#include <sys/types.h>
 #include <string>
 //#include <sstream>
 #include <iosfwd>
@@ -43,11 +44,11 @@ struct AbstractStatement
 	struct AbstractStatement * prev_, *next_;
 	//! statement type
 	DataType type_;
-	int lineNo_;
+	int32_t lineNo_;
 	//! Constructor - statement type and line number of the statement in the source code
-	AbstractStatement(DataType l_type, int l_line_no): 
+	AbstractStatement(DataType l_type, int32_t l_line_no): 
 		prev_(0), next_(0), type_(l_type), lineNo_(l_line_no) 
-	{}
+	{ }
 	//! GenerateConsolidatedForLoopIndexes() - has to be called before GenerateCode
 	//! sets up the loop indices in various compound bodies for later use
 	//! by GenerateCode
@@ -62,9 +63,9 @@ struct AbstractStatement
 	virtual ~AbstractStatement();
 	//virtual AbstractQuestion* IsAQuestionStatement();
 	virtual void GetQuestionNames(vector<string> & question_list,
-			AbstractStatement * endStatement);
+				      AbstractStatement * endStatement);
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
-			, AbstractStatement * stop_at);
+					 , AbstractStatement * stop_at);
 	private:
 		AbstractStatement& operator=(const AbstractStatement&);
 		AbstractStatement (const AbstractStatement&);
@@ -88,10 +89,10 @@ struct named_range;
 struct ExpressionStatement: public AbstractStatement
 {
 	struct AbstractExpression* expression_;
-	ExpressionStatement(DataType l_type, int l_line_number 
-			, struct AbstractExpression* e)
+	ExpressionStatement(DataType l_type, int32_t l_line_number 
+			    , struct AbstractExpression* e)
 		: AbstractStatement(l_type, l_line_number), expression_(e) 
-	{}
+	{ }
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
@@ -107,9 +108,9 @@ struct ExpressionStatement: public AbstractStatement
 struct DeclarationStatement: public AbstractStatement
 {
 	struct SymbolTableEntry* symbolTableEntry_;
-	DeclarationStatement( DataType dtype, int lline_number)
-		:AbstractStatement(dtype, lline_number), symbolTableEntry_(0) 
-	{}
+	DeclarationStatement( DataType dtype, int32_t lline_number)
+		: AbstractStatement(dtype, lline_number), symbolTableEntry_(0)
+	{ }
 	~DeclarationStatement();
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
@@ -141,8 +142,8 @@ struct DeclarationStatement: public AbstractStatement
 	we cannot have a variable number of questions being asked to the respondent.
 
 	for example below is not allowed:
-	int v1=v2*v3;
-	for(int i=0; i<v1; i++){
+	int32_t v1=v2*v3;
+	for(int32_t i=0; i<v1; i++){
 		q1 ask "q1" ...
 		q2 ask "q2" ...
 	}
@@ -150,8 +151,8 @@ struct DeclarationStatement: public AbstractStatement
 	of data on the disk
 
 	on the other hand the following is allowed
-	const int n_iters=10;
-	for(int i=0; i<n_iters*5; ++i){
+	const int32_t n_iters=10;
+	for(int32_t i=0; i<n_iters*5; ++i){
 		q1 ask "q1" ...
 		q2 ask "q2" ...
 	}
@@ -182,7 +183,7 @@ struct DeclarationStatement: public AbstractStatement
 
 struct CompoundStatement: public AbstractStatement
 {
-	static int counter_;
+	static int32_t counter_;
 	//! pointer to the first chain of statements
 	//! in the CompoundStatement 
 	struct AbstractStatement* compoundBody_;
@@ -201,32 +202,32 @@ struct CompoundStatement: public AbstractStatement
 	//! The variable is used in the ^open_curly rule when deciding
 	//! if a Scope is to be allocated or pulled from the function 
 	//! declaration
-	int flagIsAFunctionBody_;
+	int32_t flagIsAFunctionBody_;
 	//! this flag variable is set in the ^for_loop_stmt in 
 	//! q.y in an inline action in the grammar
-	int flagIsAForBody_;
+	int32_t flagIsAForBody_;
 
 	//! this counter variable is set in the ^AbstractQuestion rule in 
 	//! q.y in an inline action in the grammar
-	int counterContainsQuestions_;
-	int compoundStatementNumber_;
+	int32_t counterContainsQuestions_;
+	int32_t compoundStatementNumber_;
 	bool flagGeneratedQuestionDefinitions_;
 	vector<AbstractExpression*> for_bounds_stack;
 	vector<AbstractQuestion*> questionsInBlock_;
 	vector<CompoundStatement*> nestedCompoundStatementStack_;
 	vector<string> ConsolidatedForLoopIndexStack_;
 	public:
-	CompoundStatement(DataType dtype, int lline_number
-			, int l_flag_cmpd_stmt_is_a_func_body 
-			, int l_flag_cmpd_stmt_is_a_for_body
-			, vector<AbstractExpression*>& l_for_bounds_stack
-			);
+	CompoundStatement(DataType dtype, int32_t lline_number
+			  , int32_t l_flag_cmpd_stmt_is_a_func_body 
+			  , int32_t l_flag_cmpd_stmt_is_a_for_body
+			  , vector<AbstractExpression*>& l_for_bounds_stack
+		);
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~CompoundStatement();
 	void GetQuestionNames(vector<string> & question_list,
-			AbstractStatement * endStatement)
+			      AbstractStatement * endStatement)
 	{
 		if(endStatement==this){
 			return;
@@ -234,8 +235,8 @@ struct CompoundStatement: public AbstractStatement
 		compoundBody_->GetQuestionNames(question_list,
 				endStatement);
 	}
-	void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
-			AbstractStatement * stop_at);
+	void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
+				 , AbstractStatement * stop_at);
 	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
 	void GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code);
 	void GenerateConsolidatedForLoopIndexes();
@@ -255,17 +256,17 @@ struct ForStatement: public AbstractStatement
 	AbstractExpression * initializationExpression_
 		, * testExpression_, *incrementExpression_;
 	CompoundStatement * forBody_;
-	ForStatement(DataType dtype, int lline_number 
-			, AbstractExpression* l_init
-			, AbstractExpression* l_test 
-			, AbstractExpression* l_incr
-			, CompoundStatement * lfor_body);
+	ForStatement(DataType dtype, int32_t lline_number 
+		     , AbstractExpression* l_init
+		     , AbstractExpression* l_test 
+		     , AbstractExpression* l_incr
+		     , CompoundStatement * lfor_body);
 	void GenerateConsolidatedForLoopIndexes();
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
-	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
-			AbstractStatement* stop_at);
+	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
+					 , AbstractStatement* stop_at);
 	virtual ~ForStatement();
 	private:
 	ForStatement& operator=(const ForStatement&);	
@@ -283,10 +284,10 @@ struct IfStatement : public AbstractStatement
 	struct AbstractExpression * ifCondition_;
 	struct AbstractStatement * ifBody_;
 	struct AbstractStatement * elseBody_;
-	IfStatement( DataType dtype, int lline_number
-			, AbstractExpression * lcondition
-			, AbstractStatement * lif_body
-			, AbstractStatement * lelse_body=0);
+	IfStatement( DataType dtype, int32_t lline_number
+		     , AbstractExpression * lcondition
+		     , AbstractStatement * lif_body
+		     , AbstractStatement * lelse_body=0);
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	void GenerateConsolidatedForLoopIndexes();
@@ -311,10 +312,10 @@ struct VariableList
 {
 	DataType variableType_;
 	string variableName_;
-	int arrayLength_;
+	int32_t arrayLength_;
 	struct VariableList * prev_, *next_;
 	VariableList(DataType type, char * name);
-	VariableList(DataType type, char * name, int len); 
+	VariableList(DataType type, char * name, int32_t len); 
 	void print(FILE * edit_out);
 	~VariableList();
 	private:
@@ -337,10 +338,10 @@ struct StubManipStatement: public AbstractStatement
 {
 	string questionName_;
 	string namedStub_;
-	StubManipStatement( DataType dtype, int lline_number
-			, string l_named_stub, string l_question_name);
-	StubManipStatement( DataType dtype, int lline_number
-			, string l_named_stub);
+	StubManipStatement( DataType dtype, int32_t lline_number
+			    , string l_named_stub, string l_question_name);
+	StubManipStatement( DataType dtype, int32_t lline_number
+			    , string l_named_stub);
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
@@ -363,10 +364,10 @@ struct FunctionParameter
 {
 	DataType var_type;
 	string var_name;
-	int arr_len;
+	int32_t arr_len;
 	struct FunctionParameter * prev_, *next_;
 	FunctionParameter(DataType type, char * name);
-	FunctionParameter(DataType type, char * name, int len); 
+	FunctionParameter(DataType type, char * name, int32_t len); 
 
 	//void print(FILE * edit_out);
 	void print(ostringstream & program_code);
@@ -383,8 +384,9 @@ struct FunctionDeclarationStatement: public AbstractStatement
 	struct FunctionInformation * funcInfo_;
 
 	FunctionDeclarationStatement( DataType dtype
-			, int lline_number, char * & name
-			, FunctionParameter* & v_list, DataType returnType_);
+				      , int32_t lline_number, char * & name
+				      , FunctionParameter* & v_list
+				      , DataType returnType_);
 	//void GenerateCode(FILE * & fptr);
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
@@ -402,13 +404,12 @@ struct FunctionStatement: public AbstractStatement
 	struct AbstractStatement *functionBody_;
 	DataType returnType_;
 
-	FunctionStatement ( DataType dtype, int lline_number
-			, struct Scope * &scope_
-			, struct FunctionParameter * & v_list
-			, struct AbstractStatement* & lfunc_body
-			, string func_name
-			, DataType lreturn_type
-		);
+	FunctionStatement ( DataType dtype, int32_t lline_number
+			    , struct Scope * &scope_
+			    , struct FunctionParameter * & v_list
+			    , struct AbstractStatement* & lfunc_body
+			    , string func_name
+			    , DataType lreturn_type);
 	//void GenerateCode(FILE * & fptr);
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
@@ -467,7 +468,7 @@ struct FunctionInformation
 	struct AbstractStatement * functionBody_;
 	struct Scope * functionScope_;
 	FunctionInformation(string name, FunctionParameter* elist
-			, DataType myreturn_type); 
+			    , DataType myreturn_type); 
 	void print(ostringstream & program_code);
 	~FunctionInformation();
 private:

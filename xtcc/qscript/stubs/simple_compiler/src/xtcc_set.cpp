@@ -3,10 +3,11 @@
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
-#include "xtcc_set.h"
-#include "qscript_parser.h"
 #include <sstream>
 #include <iostream>
+#include <sys/types.h>
+#include "xtcc_set.h"
+#include "qscript_parser.h"
 
 XtccSet::XtccSet(): range(0), indiv()
 { }
@@ -78,8 +79,8 @@ void XtccSet::add_range(int n1, int n2)
 			print_err(compiler_sem_err, err_msg.str().c_str()
 					, qscript_parser::line_no
 					, __LINE__, __FILE__ );
-		} else if (n1 <= range[i].first && 
-				n2 >= range[i].first && n2<=range[i].second) {
+		} else if (n1 <= range[i].first
+			   && n2 >= range[i].first && n2<=range[i].second) {
 			stringstream err_msg;
 			err_msg << "range given: " << n1 << " - " << n2
 				<< " is partially contained in an earlier range:" 
@@ -87,8 +88,8 @@ void XtccSet::add_range(int n1, int n2)
 			print_err(compiler_sem_err, err_msg.str().c_str()
 					, qscript_parser::line_no
 					, __LINE__, __FILE__ );
-		} else if (n2 > range[i].second && 
-				n1 >= range[i].first && n1<=range[i].second) {
+		} else if (n2 > range[i].second
+			   && n1 >= range[i].first && n1<=range[i].second) {
 			stringstream err_msg;
 			err_msg << "range given: " << n1 << " - " << n2
 				<< " is partially contained in an earlier range:" 
@@ -96,7 +97,7 @@ void XtccSet::add_range(int n1, int n2)
 			print_err(compiler_sem_err, err_msg.str().c_str()
 					, qscript_parser::line_no
 					, __LINE__, __FILE__ );
-		} else if ( 	(n1 < range[i].first && n2 < range[i].first)
+		} else if ( (n1 < range[i].first && n2 < range[i].first)
 			    ||	(n1 > range[i].second && n2 > range[i].second)){
 			// this is the allowed case
 		} else {
