@@ -4,6 +4,7 @@
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
 
+#include <inttypes.h>
 #include <sys/types.h>
 #include <string>
 #include <iostream>
@@ -90,7 +91,7 @@ void ExpressionStatement::GenerateCode(StatementCompiledCode &code)
 ExpressionStatement::~ExpressionStatement() 
 {
 	using qscript_parser::mem_addr;
-	for (u_int32_t i=0; i< mem_addr.size(); ++i){
+	for (uint32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "ExpressionStatement::~ExpressionStatement: setting mem_addr: " << this << "=0" << endl;
@@ -144,7 +145,7 @@ void DeclarationStatement::GenerateCode(StatementCompiledCode &code)
 DeclarationStatement::~DeclarationStatement() 
 {
 	using qscript_parser::mem_addr;
-	for (u_int32_t i=0; i< mem_addr.size(); ++i){
+	for (uint32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "DeclarationStatement::~DeclarationStatement: setting mem_addr: " << this << "=0" << endl;
@@ -325,7 +326,7 @@ void IfStatement::GenerateConsolidatedForLoopIndexes()
 IfStatement:: ~IfStatement()
 {
 	using qscript_parser::mem_addr;
-	for (u_int32_t i=0; i< mem_addr.size(); ++i){
+	for (uint32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file 
@@ -493,7 +494,7 @@ string PrintConsolidatedForLoopIndex(
 		}
 	}
 	ostringstream consolidated_for_loop_index;
-	for(u_int32_t i=0; i<for_bounds_stack.size(); ++i) {
+	for(uint32_t i=0; i<for_bounds_stack.size(); ++i) {
 		consolidated_for_loop_index << expr_code_arr[i].code_bef_expr.str()
 			<< expr_code_arr[i].code_expr.str();
 		if(i <for_bounds_stack.size()-1 ){
@@ -548,7 +549,7 @@ CompoundStatement::~CompoundStatement()
 {
 	using qscript_parser::mem_addr;
 	debug_log_file << "deleting CompoundStatement" << endl;
-	for (u_int32_t i=0; i< mem_addr.size(); ++i){
+	for (uint32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "basic_count_ax_stmt::~basic_count_ax_stmt setting mem_addr: " << this << "=0" << endl;
@@ -888,7 +889,7 @@ void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 ForStatement:: ~ForStatement()
 {
 	using qscript_parser::mem_addr;
-	for (u_int32_t i=0; i< mem_addr.size(); ++i){
+	for (uint32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file 
@@ -1165,7 +1166,7 @@ void FunctionDeclarationStatement::GenerateCode(StatementCompiledCode &code)
 
 FunctionDeclarationStatement::~FunctionDeclarationStatement()
 {
-	for (u_int32_t i=0; i< mem_addr.size(); ++i){
+	for (uint32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file 
@@ -1246,7 +1247,7 @@ void FunctionStatement::GenerateCode(StatementCompiledCode & code)
 
 FunctionStatement::~FunctionStatement()
 {
-	for (u_int32_t i=0; i< mem_addr.size(); ++i){
+	for (uint32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "FunctionStatement::~FunctionStatement: setting mem_addr=0" << endl;

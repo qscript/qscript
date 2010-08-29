@@ -3,6 +3,7 @@
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
+#include <inttypes.h>
 #include <sys/types.h>
 #include "utils.h"
 #include "symtab.h"
@@ -274,7 +275,7 @@ int32_t check_parameters(AbstractExpression* e, FunctionParameter* v)
 bool skip_func_type_check(const char * fname)
 {
 	const char * skip_func_type_check_list[] = {"printf" };
-	for (u_int32_t i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
+	for (uint32_t i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
 		if(!strcmp(fname, skip_func_type_check_list[i])){
 			return true;
 		}
