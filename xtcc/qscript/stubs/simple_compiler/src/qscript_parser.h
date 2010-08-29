@@ -4,6 +4,7 @@
 #ifndef qscript_parser_h
 #define qscript_parser_h
 
+#include <inttypes.h>
 #include <sys/types.h>
 #include <fstream>
 #include <vector>
