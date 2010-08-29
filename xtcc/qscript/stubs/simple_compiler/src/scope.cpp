@@ -256,7 +256,7 @@ Scope::~Scope()
 		delete p->second;
 		p->second=0;
 	}
-	for (u_int32_t i=0; i< mem_addr.size(); ++i){
+	for (uint32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "Scope::~Scope setting mem_addr: " << this << "=0" << endl;
