@@ -1,6 +1,7 @@
 #ifndef qscript_debug_h
 #define qscript_debug_h
 
+#include <inttypes.h>
 #include <sys/types.h>
 namespace qscript_debug{
 	extern const int32_t DEBUG_UnaryExpression;
