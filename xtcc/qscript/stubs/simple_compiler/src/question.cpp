@@ -290,7 +290,7 @@ bool AbstractQuestion::VerifyData(
 {
 	bool invalid_code, has_invalid_data_flag=false;
 	stringstream valid_data, invalid_data;
-	for(u_int32_t i=0; i<data.size(); ++i){
+	for(uint32_t i=0; i<data.size(); ++i){
 		//cout << "Testing data exists: " << data[i] << endl;
 		invalid_code = !IsValid(data[i]);
 		if (invalid_code==true){
@@ -371,7 +371,7 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 
 			if(invalid_code==false){
 				input_data.erase(input_data.begin(), input_data.end());
-				for(u_int32_t i=0; i<data.size(); ++i){
+				for(uint32_t i=0; i<data.size(); ++i){
 					input_data.insert(data[i]);
 					//cout 	<< "storing: " << data[i] 
 					//	<< " into input_data" << endl;
@@ -424,7 +424,7 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 
 			if(invalid_code==false){
 				input_data.erase(input_data.begin(), input_data.end());
-				for(u_int32_t i=0; i<data.size(); ++i){
+				for(uint32_t i=0; i<data.size(); ++i){
 					input_data.insert(data[i]);
 					//cout << "storing: " << data[i] 
 					//	<< " into input_data" << endl;
@@ -636,7 +636,7 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 bool NamedStubQuestion::IsValid(int32_t value)
 {
 	vector<stub_pair> & vec= *stub_ptr;
-	for (u_int32_t j=0; j<vec.size(); ++j){
+	for (uint32_t j=0; j<vec.size(); ++j){
 		if(vec[j].code==value && vec[j].mask){
 			return true;
 		}
@@ -652,7 +652,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 	if(question_window ==0 || stub_list_window ==0 || data_entry_window ==0 ){
 		cout << questionName_ << "." << questionText_ << endl << endl;
 		vector<stub_pair> vec= *stub_ptr;
-		for(u_int32_t i=0; i< vec.size(); ++i){
+		for(uint32_t i=0; i< vec.size(); ++i){
 			if( vec[i].mask)
 				cout << vec[i].stub_text << ": " << vec[i].code << endl;
 		}
@@ -682,7 +682,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		int32_t currXpos=1, currYpos=1;
 
 		vector<stub_pair> & vec= *stub_ptr;
-		for(u_int32_t i=0; i< vec.size(); ++i){
+		for(uint32_t i=0; i< vec.size(); ++i){
 			if( vec[i].mask) {
 				//cout << vec[i].stub_text << ": " << vec[i].code << endl;
 				mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
@@ -710,7 +710,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 		code.quest_defns << xtcc_set_name << ".indiv.insert(" << *it 
 			<< ");" << endl;
 	}
-	for(u_int32_t i=0; i<r_data->range.size(); ++i){
+	for(uint32_t i=0; i<r_data->range.size(); ++i){
 		code.quest_defns << xtcc_set_name 
 			<< ".range.push_back(pair<int32_t,int32_t>("
 			<< r_data->range[i].first << "," 

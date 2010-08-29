@@ -530,7 +530,7 @@ void PrintGetUserResponse(FILE *script)
 bool skip_func_type_check(const char * fname)
 {
 	const char * skip_func_type_check_list[] = {"printf" };
-	for (u_int32_t i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
+	for (uint32_t i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
 		if(!strcmp(fname, skip_func_type_check_list[i])){
 			return true;
 		}
@@ -774,7 +774,7 @@ void print_array_question_class(FILE* script)
 void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list
 				  , vector <ActiveVariableInfo*> & output_info)
 {
-	for(u_int32_t i=0; i< active_scope_list.size(); ++i){
+	for(uint32_t i=0; i< active_scope_list.size(); ++i){
 		Scope* sc_ptr= active_scope_list[i];
 		sc_ptr->print_scope(output_info);
 		//sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
