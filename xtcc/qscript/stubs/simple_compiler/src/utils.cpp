@@ -3,6 +3,7 @@
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
+#include <sys/types.h>
 #include "utils.h"
 #include "symtab.h"
 #include "scope.h"
@@ -20,7 +21,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 //extern vector<mem_addr_tab>  mem_addr;
-//extern int rec_len;
+//extern int32_t rec_len;
 //extern struct stmt * tree_root;
 //void flex_finish();
 //extern vector <scope*> active_scope_list;
@@ -30,20 +31,27 @@ using std::endl;
 #include <string>
 using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg, 
-	int line_no, int compiler_line_no, string compiler_file_name);
+	int32_t line_no, int32_t compiler_line_no, string compiler_file_name);
 
 bool check_type_compat(DataType typ1, DataType typ2)
 {
 	//cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
+	cerr << "add test suite for this function, also document parameter order expected"
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function" << __PRETTY_FUNCTION__ << endl;
+		 
 	DataType td1=typ1;
 	DataType td2=typ2;
 	if(td1==STRING_TYPE && td2==STRING_TYPE){
 		return true;
 	}
-	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=DataType(INT8_TYPE + typ1-INT8_REF_TYPE);
-	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2=DataType(INT8_TYPE + typ2-INT8_REF_TYPE);
+	if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE)
+		td1=DataType(INT8_TYPE + typ1-INT8_REF_TYPE);
+	if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE)
+		td2=DataType(INT8_TYPE + typ2-INT8_REF_TYPE);
 	if((td1>=INT8_TYPE&&td1<=DOUBLE_TYPE) &&
-			td2>=INT8_TYPE&&td2<=DOUBLE_TYPE){
+	   (td2>=INT8_TYPE&&td2<=DOUBLE_TYPE)){
 		if(td1>=td2){
 			return true;
 		} else {
@@ -58,7 +66,7 @@ bool check_type_compat(DataType typ1, DataType typ2)
 map<string, SymbolTableEntry*>::iterator find_in_symtab(string id)
 {
 	//bool found=false;
-	int i=active_scope_list.size()-1;
+	int32_t i=active_scope_list.size()-1;
 	map<string,SymbolTableEntry*>::iterator sym_it ; 
 	for(;i>-1;--i){
 		sym_it = active_scope_list[i]->SymbolTable.find(id);
@@ -74,10 +82,10 @@ map<string, SymbolTableEntry*>::iterator find_in_symtab(string id)
 }
 
 
-int search_for_func(string& search_for)
+int32_t search_for_func(string& search_for)
 {
 	//cout << "Entered search_for_func: " << endl;
-	unsigned int i=0;
+	int32_t i=0;
 	
 	for (i=0;i<func_info_table.size();++i){
 		if(search_for==func_info_table[i]->functionName_){
@@ -90,7 +98,7 @@ int search_for_func(string& search_for)
 }
 
 
-int check_func_decl_with_func_defn(FunctionParameter* & v_list, int & index, string func_name)
+int32_t check_func_decl_with_func_defn(FunctionParameter* & v_list, int32_t & index, string func_name)
 {
 	FunctionParameter* defn_ptr=v_list;
 	FunctionParameter* decl_ptr=func_info_table[index]->parameterList_;
@@ -98,7 +106,7 @@ int check_func_decl_with_func_defn(FunctionParameter* & v_list, int & index, str
 	while(defn_ptr&&decl_ptr){
 		// I may put a check on the length of the array - but it is not necessary for now I think
 		if((defn_ptr->var_type==decl_ptr->var_type)&&
-			(defn_ptr->var_name==decl_ptr->var_name)){
+		   (defn_ptr->var_name==decl_ptr->var_name)){
 		} else {
 			++no_errors;
 			return 0;
@@ -139,9 +147,9 @@ bool 	void_check( DataType & type1, DataType & type2, DataType& result_type)
 
 
 
-int lookup_func(string func_name_index)
+int32_t lookup_func(string func_name_index)
 {
-	for(register unsigned int i=0; i<func_info_table.size(); ++i){
+	for(int32_t i=0; i<func_info_table.size(); ++i){
 		if(func_name_index==func_info_table[i]->functionName_){
 			return i;
 		}
@@ -153,7 +161,7 @@ int lookup_func(string func_name_index)
 #include <string>
 using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg, 
-	int line_no, int compiler_line_no, string compiler_file_name)
+	int32_t line_no, int32_t compiler_line_no, string compiler_file_name)
 {
 	++no_errors;
 	cerr << "xtcc " ;
@@ -187,8 +195,20 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 			{	"double", DOUBLE_TYPE}
 		};
 
-int check_parameters(AbstractExpression* e, FunctionParameter* v)
+int32_t check_parameters(AbstractExpression* e, FunctionParameter* v)
 {
+	cerr << "add test suite for this function "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function" << __PRETTY_FUNCTION__ << endl;
+	
+	cerr << "FIX ME : does not report errors using print_err  "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function" << __PRETTY_FUNCTION__ << endl;
+
+
+	
 	//debug_log_file << "check_parameters: called" << endl;
 	AbstractExpression* e_ptr=e;
 	FunctionParameter* fparam=v;
@@ -198,13 +218,13 @@ int check_parameters(AbstractExpression* e, FunctionParameter* v)
 	   in a function as in C++
 	   */
 
-	int chk_param_counter=1;
+	int32_t chk_param_counter=1;
 	while (e_ptr && fparam) {
 		//e_ptr->print();
 		DataType etype=e_ptr->type_, fptype=fparam->var_type; 
-		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE) && 
-			((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)||
-			 (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
+		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE)
+		   && ((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)
+		       || (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
 			DataType tdt=fptype;
 				/* the code below makes a INT8_REF_TYPE -> INT8_TYPE
 				   			a INT8_REF_TYPE -> INT8_TYPE
@@ -236,7 +256,7 @@ int check_parameters(AbstractExpression* e, FunctionParameter* v)
 		chk_param_counter=chk_param_counter+1;
 	}
 	if(match==true){
-		if(e_ptr==0&& fparam==0){
+		if(e_ptr==0 && fparam==0){
 			match=true;
 		} else {
 			match=false;
@@ -254,7 +274,7 @@ int check_parameters(AbstractExpression* e, FunctionParameter* v)
 bool skip_func_type_check(const char * fname)
 {
 	const char * skip_func_type_check_list[] = {"printf" };
-	for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
+	for (u_int32_t i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
 		if(!strcmp(fname, skip_func_type_check_list[i])){
 			return true;
 		}
@@ -264,6 +284,11 @@ bool skip_func_type_check(const char * fname)
 
 DataType lcm_type(DataType d1, DataType d2)
 {
+	cerr << "FIXME document this function, add test suite for this function "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function" << __PRETTY_FUNCTION__ << endl;
+
 	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	DataType td1=d1, td2=d2;
 	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1=DataType(INT8_TYPE + d1-INT8_REF_TYPE);
@@ -276,8 +301,7 @@ DataType lcm_type(DataType d1, DataType d2)
 	}
 	td1=convert_ref_type(td1);
 	td2=convert_ref_type(td2);
-	if(/*(td1>=INT8_TYPE && td1<=DOUBLE_TYPE)*/ is_of_noun_type(td1)&&
-		/*(td2>=INT8_TYPE && td2<=DOUBLE_TYPE)*/ is_of_noun_type(td2)){
+	if( is_of_noun_type(td1) && is_of_noun_type(td2)){
 		if(td1>td2) { return td1;
 		} else {
 			return td2;
@@ -293,6 +317,11 @@ DataType lcm_type(DataType d1, DataType d2)
 
 DataType arr_deref_type(DataType d1)
 {
+	cerr << "FIXME document this function, add test suite for this function "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function" << __PRETTY_FUNCTION__ << endl;
+
 	if(d1>=INT8_ARR_TYPE && d1<=DOUBLE_ARR_TYPE){
 		return DataType(INT8_TYPE+d1-INT8_ARR_TYPE);
 	} else if(d1==STRING_ARR_TYPE){

@@ -1,11 +1,13 @@
-#include "qscript_parser.h"
-#include "config_parser.h"
 
+#include <sys/types.h>
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
 #include "compiled_code.h"
-extern int qscript_confparse();
+#include "qscript_parser.h"
+#include "config_parser.h"
+
+extern int32_t qscript_confparse();
 extern void qscript_confrestart ( FILE *input_file );
 namespace qscript_parser {
 	using std::cerr;
@@ -16,26 +18,26 @@ namespace qscript_parser {
 	vector<CompoundStatement*> compound_body_stack;
 	Scope* active_scope;
 	vector <Scope*> active_scope_list;
-	int nest_lev=0;
-	int flagIsAFunctionBody_=-1;
-	int flagIsAForBody_=0;
+	int32_t nest_lev=0;
+	int32_t flagIsAFunctionBody_=-1;
+	int32_t flagIsAForBody_=0;
 	bool flag_next_stmt_start_of_block=false;
 	vector<bool> blk_start_flag;
 	vector <AbstractStatement*> blk_heads;
-	//const int DEFAULT_STACK_SIZE=20;
+	//const int32_t DEFAULT_STACK_SIZE=20;
 	vector<CompoundStatement*> stack_cmpd_stmt;
 	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
 
-	AbstractExpression * recurse_for_index(int stack_index);
+	AbstractExpression * recurse_for_index(int32_t stack_index);
 
 
 	ofstream debug_log_file("qscript_debug.log", std::ios_base::out|std::ios_base::trunc);
 	using std::string;
 	//void print_err(compiler_err_category cmp_err, 
-	//	string err_msg, int line_no, 
-	//	int compiler_line_no, string compiler_file_name);
-	int line_no;
+	//	string err_msg, int32_t line_no, 
+	//	int32_t compiler_line_no, string compiler_file_name);
+	int32_t line_no;
 	extern noun_list_type noun_list[];
 
 	/*
@@ -53,11 +55,11 @@ namespace qscript_parser {
 	QuestionType q_type;
 #include "const_defs.h"
 #include "xtcc_set.h"
-	int no_mpn=0;
+	int32_t no_mpn=0;
 	XtccSet xs;
-	int yylex();
+	int32_t yylex();
 	void yyerror(const char * s);
-	int no_errors;
+	int32_t no_errors;
 
 	struct AbstractStatement* tree_root=0;
 	vector <AbstractQuestion*> question_list;
@@ -67,15 +69,15 @@ namespace qscript_parser {
 	bool skip_func_type_check(const char * fname);
 	vector<mem_addr_tab>  mem_addr;
 	vector <FunctionInformation*> func_info_table;
-	int check_parameters(struct AbstractExpression* e, struct VariableList* v);
+	int32_t check_parameters(struct AbstractExpression* e, struct VariableList* v);
 
         vector <string> attribute_list;
 	vector <named_range*> named_stubs_list;
 	vector <named_attribute_list> named_attributes_list;
         vector <stub_pair> stub_list;
-	int if_line_no=-1;
+	int32_t if_line_no=-1;
 	
-	int yywrap();
+	int32_t yywrap();
 
 	string project_name;
 
@@ -103,7 +105,7 @@ void PrintPDCursesKeysHeader(FILE * script);
 string ExtractBaseFileName(const string & fname)
 {
 	string output_file_name = fname;
-	int dot_pos = fname.find_last_of('.');
+	int32_t dot_pos = fname.find_last_of('.');
 	if(!(dot_pos==string::npos)){
 		output_file_name = fname.substr(0, dot_pos);
 	}
@@ -174,7 +176,7 @@ void print_header(FILE* script, bool ncurses_flag)
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
-	fprintf(script, "extern vector<int> data;\n");
+	fprintf(script, "extern vector<int32_t> data;\n");
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
@@ -182,7 +184,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout);\n");
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
-	fprintf(script, "int jumpToIndex;\n");
+	fprintf(script, "int32_t jumpToIndex;\n");
 
 
 	//fprintf(script, "\tnoun_list_type noun_list[]= {\n");
@@ -194,7 +196,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	//fprintf(script, "\t\t\t{\t\"double\", DOUBLE_TYPE}\n");
 	//fprintf(script, "\t\t};\n");
 	fprintf(script, "\n");
-	fprintf(script, "int check_if_reg_file_exists(string jno, int ser_no);\n");
+	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
 	fprintf(script, "vector <int8_t> vector_int8_t;\n");
 	fprintf(script, "vector <int16_t> vector_int16_t;\n");
@@ -202,23 +204,23 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "vector <float> vector_float_t;\n");
 	fprintf(script, "vector <double> vector_double_t;\n");
 	fprintf(script, "bool back_jump=false;// no need for this but state the intent\n");
-	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int ser_no);\n");
+	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);\n");
 	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
-	fprintf(script, "WINDOW *create_newwin(int height, int width, int starty, int startx);\n");
+	fprintf(script, "WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx);\n");
 	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n");
 	fprintf(script, "			WINDOW * &  stub_list_window,\n");
 	fprintf(script, "			WINDOW * & data_entry_window);\n");
 	fprintf(script, "void define_some_pd_curses_keys();\n");
 	fprintf(script, "void SetupSignalHandler();\n");
-	fprintf(script, "static void sig_usr(int signo);\n");
-	fprintf(script, "int ComputeJumpToIndex(AbstractQuestion * q);\n");
+	fprintf(script, "static void sig_usr(int32_t signo);\n");
+	fprintf(script, "int32_t ComputeJumpToIndex(AbstractQuestion * q);\n");
 	fprintf(script, "void reset_questionnaire();\n");
 	fprintf(script, "void DisplayActiveQuestions();\n");
-	fprintf(script, "void GetUserResponse(string& qno, int &qindex);\n");
+	fprintf(script, "void GetUserResponse(string& qno, int32_t &qindex);\n");
 	print_array_question_class(script);
 
 
-	fprintf(script, "int main(){\n");
+	fprintf(script, "int32_t main(){\n");
 	fprintf(script, "bool using_ncurses=%s;\n", (ncurses_flag ) ?  "true": "false");
 	fprintf(script, "AbstractQuestion * last_question_answered=0;\n");
 	fprintf(script, "qscript_stdout=fopen(qscript_stdout_fname.c_str(), \"w\");\n");
@@ -245,7 +247,7 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf(script, "vector <string> active_push_vars_%s;\n",
 			q_name.c_str());
 		vector<string>& v=iter->second;
-		for(unsigned int i=0; i<v.size(); ++i){
+		for(unsigned int32_t i=0; i<v.size(); ++i){
 			fprintf(script, "active_push_vars_%s.push_back(%s);\n",
 				q_name.c_str(), v[i].c_str());
 		}
@@ -287,9 +289,9 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "\t\t\tstringstream fname_str;\n");
 	fprintf(script, "\t\t\tfname_str << jno << \"_\" << ser_no << \".dat\";\n");
 	fprintf(script, "\t\t\tFILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n");
-	fprintf(script, "\tfor (int i=0; i<question_list.size(); ++i){\n");
+	fprintf(script, "\tfor (int32_t i=0; i<question_list.size(); ++i){\n");
 	fprintf(script, "\t\tfprintf(fptr, \"%%s: \", question_list[i]->name_.c_str());\n");
-	fprintf(script, "\t\tfor( set<int>::iterator iter=question_list[i]->input_data.begin();\n");
+	fprintf(script, "\t\tfor( set<int32_t>::iterator iter=question_list[i]->input_data.begin();\n");
 	fprintf(script, "\t\t\t\titer!=question_list[i]->input_data.end(); ++iter){\n");
 	fprintf(script, "\t\t\tfprintf(fptr, \"%%d \", *iter);\n");
 	fprintf(script, "\t\t}\n");
@@ -354,8 +356,8 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "// The first question before this question that is answered\n");
 	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q)\n");
 	fprintf(script, "{\n");
-	fprintf(script, "	int current_question_index=-1;\n");
-	fprintf(script, "	for(int i=0; i<question_list.size(); ++i){\n");
+	fprintf(script, "	int32_t current_question_index=-1;\n");
+	fprintf(script, "	for(int32_t i=0; i<question_list.size(); ++i){\n");
 	fprintf(script, "		if(question_list[i]==q){\n");
 	fprintf(script, "			current_question_index=i;\n");
 	fprintf(script, "			break;\n");
@@ -367,7 +369,7 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "			<< \"line no: \" << __LINE__\n");
 	fprintf(script, "			<< endl;\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	for(int i=current_question_index-1; i>=0; --i){\n");
+	fprintf(script, "	for(int32_t i=current_question_index-1; i>=0; --i){\n");
 	fprintf(script, "		if(question_list[i]->isAnswered_){\n");
 	fprintf(script, "			return question_list[i];\n");
 	fprintf(script, "		}\n");
@@ -375,17 +377,17 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "	return 0;\n");
 	fprintf(script, "}\n");
 
-	fprintf(script,"int ComputeJumpToIndex(AbstractQuestion * q)\n");
+	fprintf(script,"int32_t ComputeJumpToIndex(AbstractQuestion * q)\n");
 	fprintf(script,"{\n");
 	fprintf(script,"	cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
-	fprintf(script,"	for(int i=0; i<q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"	for(int32_t i=0; i<q->loop_index_values.size(); ++i){\n");
 	fprintf(script,"		cout << q->loop_index_values[i] << \" \";\n");
 	fprintf(script,"	}\n");
 	fprintf(script,"	cout << endl;\n");
-	fprintf(script,"	int index=0;\n");
-	fprintf(script,"	for(int i=0; i<q->loop_index_values.size(); ++i){\n");
-	fprintf(script,"		int tmp1=q->loop_index_values[i];\n");
-	fprintf(script,"		for(int j=i+1; j<q->dummyArrayQuestion_->array_bounds.size(); ++j){\n");
+	fprintf(script,"	int32_t index=0;\n");
+	fprintf(script,"	for(int32_t i=0; i<q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"		int32_t tmp1=q->loop_index_values[i];\n");
+	fprintf(script,"		for(int32_t j=i+1; j<q->dummyArrayQuestion_->array_bounds.size(); ++j){\n");
 	fprintf(script,"			tmp1 *=q->dummyArrayQuestion_->array_bounds[j];\n");
 	fprintf(script,"		}\n");
 	fprintf(script,"		index+=tmp1;\n");
@@ -398,7 +400,7 @@ void print_navigation_support_functions(FILE * script)
 void print_reset_questionnaire(FILE * script)
 {
 	fprintf(script, "void reset_questionnaire(){\n");
-	fprintf(script, "for(int i=0; i< question_list.size(); ++i){\n");
+	fprintf(script, "for(int32_t i=0; i< question_list.size(); ++i){\n");
 	fprintf(script, "\tquestion_list[i]->isAnswered_=false;\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
@@ -433,14 +435,14 @@ void PrintSetupNCurses(FILE * script)
 
 
 
-	fprintf(script, "	int maxX, maxY;\n");
+	fprintf(script, "	int32_t maxX, maxY;\n");
 	fprintf(script, "	getmaxyx(stdscr, maxY, maxX);\n");
 	fprintf(script, "\n");
 	fprintf(script, "\n");
-	fprintf(script, "	int DATA_ENTRY_WINDOW_HEIGHT=5, DATA_ENTRY_WINDOW_WIDTH=maxX;\n");
+	fprintf(script, "	int32_t DATA_ENTRY_WINDOW_HEIGHT=5, DATA_ENTRY_WINDOW_WIDTH=maxX;\n");
 	fprintf(script, "\n");
-	fprintf(script, "       int starty = maxY-DATA_ENTRY_WINDOW_HEIGHT;\n");
-	fprintf(script, "       int startx = 0;\n");
+	fprintf(script, "       int32_t starty = maxY-DATA_ENTRY_WINDOW_HEIGHT;\n");
+	fprintf(script, "       int32_t startx = 0;\n");
 	fprintf(script, "	data_entry_window = create_newwin(DATA_ENTRY_WINDOW_HEIGHT\n");
 	fprintf(script, "			, DATA_ENTRY_WINDOW_WIDTH, starty, startx);\n");
 	fprintf(script, "	wcolor_set(data_entry_window, COLOR_PAIR(1), 0);\n");
@@ -454,8 +456,8 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "       keypad(data_entry_window, TRUE);\n");
 	fprintf(script, "	// Divide the rest of the screen between the question window\n");
 	fprintf(script, "	//  and the stub window in the ration 1:2\n");
-	fprintf(script, "	int height_left = maxY - DATA_ENTRY_WINDOW_HEIGHT;\n");
-	fprintf(script, "	int STUB_LIST_WINDOW_HEIGHT= (height_left / 3)*2, STUB_LIST_WINDOW_WIDTH=maxX;\n");
+	fprintf(script, "	int32_t height_left = maxY - DATA_ENTRY_WINDOW_HEIGHT;\n");
+	fprintf(script, "	int32_t STUB_LIST_WINDOW_HEIGHT= (height_left / 3)*2, STUB_LIST_WINDOW_WIDTH=maxX;\n");
 	//fprintf(script, "	mvwprintw(data_entry_window, 2, 1, "stub_list_window: height: %d, width, %d"\n");
 	//fprintf(script, "			, STUB_LIST_WINDOW_HEIGHT , STUB_LIST_WINDOW_WIDTH);\n");
 	fprintf(script, "	starty = maxY - DATA_ENTRY_WINDOW_HEIGHT - STUB_LIST_WINDOW_HEIGHT;\n");
@@ -470,7 +472,7 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "	wrefresh(stub_list_window);\n");
 	fprintf(script, "\n");
 	fprintf(script, "\n");
-	fprintf(script, "	int QUESTION_WINDOW_HEIGHT=(height_left%%3) + (height_left/3), QUESTION_WINDOW_WIDTH=maxX;\n");
+	fprintf(script, "	int32_t QUESTION_WINDOW_HEIGHT=(height_left%%3) + (height_left/3), QUESTION_WINDOW_WIDTH=maxX;\n");
 	fprintf(script, "	starty=0;\n");
 	fprintf(script, "	question_window = create_newwin(QUESTION_WINDOW_HEIGHT\n");
 	fprintf(script, "			, QUESTION_WINDOW_WIDTH, starty, startx);\n");
@@ -490,7 +492,7 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "\n");
 	fprintf(script, "\n");
 	fprintf(script, "\n");
-	fprintf(script, "WINDOW *create_newwin(int height, int width, int starty, int startx)\n");
+	fprintf(script, "WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx)\n");
 	fprintf(script, "{       WINDOW *local_win;\n");
 	fprintf(script, "\n");
 	fprintf(script, "        local_win = newwin(height, width, starty, startx);\n");
@@ -507,7 +509,7 @@ void PrintSetupNCurses(FILE * script)
 void PrintDisplayActiveQuestions(FILE *script)
 {
 	fprintf(script, "void DisplayActiveQuestions()\n{\n\
-			\tfor(int i=0; i<question_list.size(); ++i){\n\
+			\tfor(int32_t i=0; i<question_list.size(); ++i){\n\
 			\t\tif(question_list[i]->isAnswered_)\n\
 			\t\t\tcout << question_list[i]->questionName_ << \" \";\n\
 			\t}\
@@ -517,7 +519,7 @@ void PrintDisplayActiveQuestions(FILE *script)
 
 void PrintGetUserResponse(FILE *script)
 {
-	fprintf(script, "void GetUserResponse(string & qno, int & qindex)\n{\n\
+	fprintf(script, "void GetUserResponse(string & qno, int32_t & qindex)\n{\n\
 			char newl;\n\
 			cin >> qno;cin.get(newl);\nqindex=0;\n\
 			cout << \"User input qno:\" << qno \n\
@@ -528,7 +530,7 @@ void PrintGetUserResponse(FILE *script)
 bool skip_func_type_check(const char * fname)
 {
 	const char * skip_func_type_check_list[] = {"printf" };
-	for (unsigned int i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
+	for (u_int32_t i=0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
 		if(!strcmp(fname, skip_func_type_check_list[i])){
 			return true;
 		}
@@ -536,7 +538,7 @@ bool skip_func_type_check(const char * fname)
 	return false;
 }
 
-int check_parameters(AbstractExpression* e, VariableList* v)
+int32_t check_parameters(AbstractExpression* e, VariableList* v)
 {
 	debug_log_file << "check_parameters: called" << endl;
 	AbstractExpression* e_ptr=e;
@@ -546,14 +548,17 @@ int check_parameters(AbstractExpression* e, VariableList* v)
 	   Only in function parameter list - the object is to allow modifying of variables
 	   in a function as in C++
 	   */
-
-	int chk_param_counter=1;
+	cerr << "Fix this function DOES NOT REPORT ERRORS using print_err"
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+	int32_t chk_param_counter=1;
 	while (e_ptr && fparam) {
 		//e_ptr->print();
 		DataType etype=e_ptr->type_, fptype=fparam->variableType_; 
-		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE) && 
-			((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)||
-			 (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
+		if((etype>=INT8_TYPE && etype<=DOUBLE_TYPE)
+		   && ((fptype>=INT8_TYPE && fptype<=DOUBLE_TYPE)
+		       || (fptype>=INT8_REF_TYPE && fptype<=DOUBLE_REF_TYPE))){
 			DataType tdt=fptype;
 				/* the code below makes a INT8_REF_TYPE -> INT8_TYPE
 				   			a INT8_REF_TYPE -> INT8_TYPE
@@ -565,12 +570,12 @@ int check_parameters(AbstractExpression* e, VariableList* v)
 				debug_log_file << "varname: "<< fparam->variableName_ << " chk_param_counter: " 
 					<< chk_param_counter << " passed " << endl;
 			}
-		} else if ((etype>=INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)&&
-				(fptype>=INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)&&
-				(etype==fptype)){
+		} else if ((etype>=INT8_ARR_TYPE&&etype<=DOUBLE_ARR_TYPE)
+			   && (fptype>=INT8_ARR_TYPE&&fptype<=DOUBLE_ARR_TYPE)
+			   && (etype==fptype)){
 			debug_log_file << "varname: "<< fparam->variableName_ << " chk_param_counter: " 
 					<< chk_param_counter << " passed " << endl;
-		}else {
+		} else {
 			match=false;
 			cerr << "Parameter type mismatch name: " << endl;
 			cerr << fparam->variableName_ << " expected type is " << fparam->variableType_
@@ -585,7 +590,7 @@ int check_parameters(AbstractExpression* e, VariableList* v)
 		chk_param_counter=chk_param_counter+1;
 	}
 	if(match==true){
-		if(e_ptr==0&& fparam==0){
+		if(e_ptr==0 && fparam==0){
 			match=true;
 		} else {
 			match=false;
@@ -609,10 +614,10 @@ const char * file_exists_check_code()
 	"\t	load_data(jno,ser_no);\n"
 	"\t	merge_disk_data_into_questions(qscript_stdout);\n"
 	/*
-	"\t	for(unsigned int i=0; i< qdd_list.size(); ++i){\n"
+	"\t	for(unsigned int32_t i=0; i< qdd_list.size(); ++i){\n"
 	"\t		cout << qdd_list[i]->qno << endl;\n"
 	"\t		cout  << \":\" << qdd_list[i]->data.size() << endl;\n"
-	"\t		for(int j=0; j<qdd_list[i]->data.size(); ++j){\n"
+	"\t		for(int32_t j=0; j<qdd_list[i]->data.size(); ++j){\n"
 	"\t			cout << qdd_list[i]->data[j] << \" \";\n"
 	"\t		}\n"
 	"\t		cout << endl;\n"
@@ -631,8 +636,8 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
 					 , char * question_name)
 {
-	int index=-1;
-	for(int i=0; i<named_stubs_list.size(); ++i){
+	int32_t index=-1;
+	for(int32_t i=0; i<named_stubs_list.size(); ++i){
 		named_range * nr_ptr = named_stubs_list[i];
 		if(nr_ptr->name==stub_list_name){
 			index=i;
@@ -645,8 +650,8 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		print_err(compiler_sem_err, err_text.str(),
 			line_no, __LINE__, __FILE__  );
 	} 
-	int index_question=-1;
-	for(int i=0; i<question_list.size(); ++i){
+	int32_t index_question=-1;
+	for(int32_t i=0; i<question_list.size(); ++i){
 		if(question_list[i]->questionName_ == question_name){
 			index_question=i;
 			break;
@@ -691,8 +696,8 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 						   , char* stub_list_name)
 {
-	int index=-1;
-	for(int i=0; i<named_stubs_list.size(); ++i){
+	int32_t index=-1;
+	for(int32_t i=0; i<named_stubs_list.size(); ++i){
 		named_range * nr_ptr = named_stubs_list[i];
 		if(nr_ptr->name==stub_list_name){
 			index=i;
@@ -716,7 +721,7 @@ const char * write_data_to_disk_code()
 	const char * write_data_disk_code = 
 	"\tvoid write_data_to_disk(const vector<AbstractQuestion*>& q_vec\n"
 	"\t	, string jno\n"
-	"\t	, int ser_no) {\n"
+	"\t	, int32_t ser_no) {\n"
 	"\t	stringstream fname_str;\n"
 	"\t	fname_str << jno << \"_\" << ser_no << \".dat\";\n"
 	"\t	//FILE * fptr = fopen(fname_str.str().c_str(), \"w+b\");\n"
@@ -726,11 +731,11 @@ const char * write_data_to_disk_code()
 	"\t	data_file.exceptions(std::ios::failbit | std::ios::badbit);\n"
 	"\t	data_file.open(fname_str.str().c_str(), ios_base::ate);\n"
 	"\t\n"
-	"\t	for (int i=0; i<question_list.size(); ++i){\n"
+	"\t	for (int32_t i=0; i<question_list.size(); ++i){\n"
 	"\t		question_list[i]->WriteDataToDisk(data_file);\n"
 	"\t		/*\n"
 	"\t		fprintf(fptr, \"%s: \", question_list[i]->name.c_str());\n"
-	"\t		for( set<int>::iterator iter=question_list[i]->input_data.begin();\n"
+	"\t		for( set<int32_t>::iterator iter=question_list[i]->input_data.begin();\n"
 	"\t				iter!=question_list[i]->input_data.end(); ++iter){\n"
 	"\t			fprintf(fptr, \"%d \", *iter);\n"
 	"\t		}\n"
@@ -753,11 +758,11 @@ void print_array_question_class(FILE* script)
 	fprintf(script, "{\n");
 	fprintf(script, "public: \n");
 	fprintf(script, "\tvector<AbstractQuestion*> questionList;\n");
-	fprintf(script, "\tvector<int> arrayBounds;\n");
-	fprintf(script, "\tArrayQuestion(vector<int>& l_arrayBounds): arrayBounds(l_arrayBounds)\n");
+	fprintf(script, "\tvector<int32_t> arrayBounds;\n");
+	fprintf(script, "\tArrayQuestion(vector<int32_t>& l_arrayBounds): arrayBounds(l_arrayBounds)\n");
 	fprintf(script, "\t{\n");
 	fprintf(script, "\t\tint bounds = 1;\n");
-	fprintf(script, "\t\tfor(int i=0; i<arrayBounds.size(); ++i){\n");
+	fprintf(script, "\t\tfor(int32_t i=0; i<arrayBounds.size(); ++i){\n");
 	fprintf(script, "\t\t\tbounds*=arrayBounds[i];\n");
 	fprintf(script, "\t\t}\n");
 	fprintf(script, "\t\tquestionList.reserve(bounds);\n");
@@ -769,7 +774,7 @@ void print_array_question_class(FILE* script)
 void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list
 				  , vector <ActiveVariableInfo*> & output_info)
 {
-	for(unsigned int i=0; i< active_scope_list.size(); ++i){
+	for(u_int32_t i=0; i< active_scope_list.size(); ++i){
 		Scope* sc_ptr= active_scope_list[i];
 		sc_ptr->print_scope(output_info);
 		//sc_ptr->print_scope(name, active_push_vars, active_pop_vars);
@@ -778,7 +783,7 @@ void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list
 
 void PrintSignalHandler(FILE * script)
 {
-	fprintf(script, "static void sig_usr(int signo)\n");
+	fprintf(script, "static void sig_usr(int32_t signo)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	if(signo==SIGSEGV){\n");
 	fprintf(script, "		printf(\"received SIGSEGV\\n\");\n");
@@ -806,7 +811,7 @@ void PrintSetupSignalHandler(FILE * script)
 }
 
 // Returns 0 on failure, 1 on success
-int ReadQScriptConfig()
+int32_t ReadQScriptConfig()
 {
 	//cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
 	using namespace std;
@@ -833,9 +838,9 @@ int ReadQScriptConfig()
 		<< "PLATFORM: " << config_file_parser::PLATFORM << endl
 		<< endl;
 	if(config_file_parser::PLATFORM == "WINDOWS"
-			|| config_file_parser::PLATFORM=="LINUX"
-			|| config_file_parser::PLATFORM=="UNIX"
-			){
+	   || config_file_parser::PLATFORM=="LINUX"
+	   || config_file_parser::PLATFORM=="UNIX"
+		){
 	} else {
 		cerr << "Unknown platform ... please set it to one of\
 			LINUX, UNIX, WINDOWS ... exiting\n";
@@ -887,8 +892,8 @@ test_script.o: test_script.C
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
-	//int ret_val=0;
-	int ret_val = system(cpp_compile_command.c_str());
+	//int32_t ret_val=0;
+	int32_t ret_val = system(cpp_compile_command.c_str());
 	if(ret_val!=0){
 		cerr << "Failed in compiling generated code : test_script.C ";
 	} else {
@@ -942,8 +947,8 @@ test_script.o: test_script.C
 				+ string(" ") + intermediate_file_name
 				+ string(" -lqscript_runtime -lpdcurses ");
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
-	//int ret_val=0;
-	int ret_val = system(cpp_compile_command.c_str());
+	//int32_t ret_val=0;
+	int32_t ret_val = system(cpp_compile_command.c_str());
 	if(ret_val!=0){
 		cerr << "Failed in compiling generated code : test_script.C ";
 	} else {

@@ -6,9 +6,10 @@
 #ifndef xtcc_utils_h
 #define xtcc_utils_h
 
-#include "symtab.h"
+#include <sys/types.h>
 #include <map>
 #include <string>
+#include "symtab.h"
 using std::map;
 using std::string;
 
@@ -22,21 +23,21 @@ enum compiler_err_category
 
 void print_err(compiler_err_category cmp_err
 		, string err_msg
-		, int line_no
-		, int compiler_line_no
+		, int32_t line_no
+		, int32_t compiler_line_no
 		, string compiler_file_name);
 map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
-int search_for_func(string& search_for);
+int32_t search_for_func(string& search_for);
 DataType arr_deref_type(DataType d1);
 bool is_of_int_type(DataType dt);
-int check_func_decl_with_func_defn(FunctionParameter* & v_list
-		, int & index, string func_name);
+int32_t check_func_decl_with_func_defn(FunctionParameter* & v_list
+		, int32_t & index, string func_name);
 bool 	void_check( DataType & type1, DataType & type2, DataType& result_type);
 DataType lcm_type(DataType d1, DataType d2);
-int check_parameters(AbstractExpression* e, FunctionParameter* v);
+int32_t check_parameters(AbstractExpression* e, FunctionParameter* v);
 bool skip_func_type_check(const char * fname);
 bool check_type_compat(DataType typ1, DataType typ2);
-int lookup_func(string func_name_index);
+int32_t lookup_func(string func_name_index);
 
 
 extern noun_list_type noun_list[];

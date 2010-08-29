@@ -24,6 +24,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <sys/types.h>
 #include <vector>
 #include <fstream>
 #include <sstream>
@@ -57,13 +58,13 @@ using std::cerr;
 using std::endl;
 
 AbstractExpression::AbstractExpression(ExpressionOperatorType le_type)
-		:exprOperatorType_(le_type), type_(ERROR_TYPE)
-		 , next_(0), prev_(0) 
-{}
+	:exprOperatorType_(le_type), type_(ERROR_TYPE)
+	, next_(0), prev_(0) 
+{ }
 
 AbstractExpression::AbstractExpression(ExpressionOperatorType le_type, DataType ldt)
-		:exprOperatorType_(le_type), type_(ldt), next_(0), prev_(0) 
-	{}
+	:exprOperatorType_(le_type), type_(ldt), next_(0), prev_(0) 
+{ }
 
 AbstractExpression::~AbstractExpression()
 {
@@ -80,7 +81,7 @@ AbstractExpression::~AbstractExpression()
 	}
 */
 
-int AbstractExpression::IsValid()
+int32_t AbstractExpression::IsValid()
 {
 	//cout << "IsValid called" << endl;
 	if (type_==ERROR_TYPE){
@@ -91,7 +92,7 @@ int AbstractExpression::IsValid()
 UnaryExpression::~UnaryExpression()
 {
 	using qscript_parser::mem_addr;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file
@@ -215,7 +216,7 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 	if(qscript_debug::DEBUG_BinaryExpression)
 		code.code_bef_expr << "/* ENTER BinaryExpression::print_oper_assgn */\n";
 	if(leftOperand_->exprOperatorType_==oper_arrderef
-			&& leftOperand_->type_==QUESTION_TYPE){
+	   && leftOperand_->type_==QUESTION_TYPE){
 		Unary2Expression* lhs= 
 			static_cast<Unary2Expression*>(leftOperand_);
 		const SymbolTableEntry * symp = lhs->get_symp_ptr();
@@ -257,7 +258,7 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 			<< endl;
 
 	} else if(leftOperand_->exprOperatorType_==oper_name
-			&& leftOperand_->type_==QUESTION_TYPE){
+		  && leftOperand_->type_==QUESTION_TYPE){
 		Unary2Expression* lhs= 
 			static_cast<Unary2Expression*>(leftOperand_);
 		const SymbolTableEntry * symp = lhs->get_symp_ptr();
@@ -325,26 +326,26 @@ bool Unary2Expression::IsIntegralExpression()
 	//		<< exprOperatorType_ << endl;
 	//cerr << "oper_num: " << oper_num << endl;
 	switch(exprOperatorType_){
-		case oper_num:
-			//cerr << "Unary2Expression::IsIntegralExpression: returning true" << endl ;
+	case oper_num:
+		//cerr << "Unary2Expression::IsIntegralExpression: returning true" << endl ;
+		return true;
+	case oper_name:
+		switch(symbolTableEntry_->type_){
+		case INT8_TYPE:
+		case INT16_TYPE:
+		case INT32_TYPE:
+		case INT8_ARR_TYPE:
+		case INT16_ARR_TYPE:
+		case INT32_ARR_TYPE:
+		case INT8_REF_TYPE:
+		case INT16_REF_TYPE:
+		case INT32_REF_TYPE:
 			return true;
-		case oper_name:
-			switch(symbolTableEntry_->type_){
-			case INT8_TYPE:
-			case INT16_TYPE:
-			case INT32_TYPE:
-			case INT8_ARR_TYPE:
-			case INT16_ARR_TYPE:
-			case INT32_ARR_TYPE:
-			case INT8_REF_TYPE:
-			case INT16_REF_TYPE:
-			case INT32_REF_TYPE:
-				return true;
-			default:
-				return false;
-			}
 		default:
 			return false;
+		}
+	default:
+		return false;
 	}
 }
 
@@ -572,7 +573,7 @@ void BinaryExpression::PrintExpressionCode(ExpressionCompiledCode &code)
 BinaryExpression::~BinaryExpression()
 {
 	using qscript_parser::mem_addr;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "BinaryExpression::~BinaryExpression setting mem_addr: " << this  <<"=0" << endl;
@@ -587,7 +588,7 @@ BinaryExpression::~BinaryExpression()
 Unary2Expression::~Unary2Expression()
 {
 	using qscript_parser::mem_addr;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			debug_log_file << "Unary2Expression::~Unary2Expression setting mem_addr: " << this << "=0" << endl;
 			mem_addr[i].mem_ptr=0;
@@ -616,8 +617,8 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 {
 	//cerr << "ENTER BinaryExpression::BinaryExpression: " << endl;
 	if (exprOperatorType_!=oper_assgn && 
-		(leftOperand_->exprOperatorType_==oper_blk_arr_assgn
-		 	||rightOperand_->exprOperatorType_==oper_blk_arr_assgn))
+	    (leftOperand_->exprOperatorType_==oper_blk_arr_assgn
+	     ||rightOperand_->exprOperatorType_==oper_blk_arr_assgn))
 	{
 		type_=ERROR_TYPE;
 		++no_errors;
@@ -636,7 +637,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 		DataType typ1=leftOperand_->type_;
 		DataType typ2=rightOperand_->type_;
 		if(!void_check(leftOperand_->type_, rightOperand_->type_
-					, type_)){
+			       , type_)){
 			print_err(compiler_sem_err, 
 				"oper_assgn error: operand_ data types on \
 				lhs and rhs should be of non-VOID type", 
@@ -655,7 +656,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 				stringstream s;
 				s << "Question not found in symbol table after parsing input" << endl;
 				print_err(compiler_internal_error, s.str(), 
-					line_no, __LINE__, __FILE__);
+					  line_no, __LINE__, __FILE__);
 			} else {
 				if(q->q_type!=spn){
 					stringstream s;
@@ -673,7 +674,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			s << "\tlhs type: " << lhs_hr_type
 			  << ", rhs type: " << rhs_hr_type << endl;
 			print_err(compiler_sem_err, s.str(), 
-				line_no, __LINE__, __FILE__);
+				  line_no, __LINE__, __FILE__);
 		}
 	} else 
 	switch(exprOperatorType_){
@@ -691,11 +692,11 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 		case oper_or :	
 		case oper_and :	
 			if(void_check(leftOperand_->type_
-				, rightOperand_->type_, type_)/*true*/){
+				      , rightOperand_->type_, type_)/*true*/){
 				DataType l_op_type=leftOperand_->type_;
 				if( (leftOperand_->exprOperatorType_==oper_name
 				     || leftOperand_->exprOperatorType_==oper_arrderef)
-					&& leftOperand_->type_==QUESTION_TYPE) {
+				    && leftOperand_->type_==QUESTION_TYPE) {
 					Unary2Expression * un2expr = dynamic_cast<Unary2Expression*>
 						(leftOperand_);
 					l_op_type=un2expr->symbolTableEntry_->question_->dt;
@@ -703,7 +704,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 				DataType r_op_type=rightOperand_->type_;
 				if( (rightOperand_->exprOperatorType_==oper_name
 				     || rightOperand_->exprOperatorType_==oper_arrderef)
-					&& rightOperand_->type_==QUESTION_TYPE) {
+				    && rightOperand_->type_==QUESTION_TYPE) {
 					Unary2Expression * un2expr = dynamic_cast<Unary2Expression*>
 						(rightOperand_);
 					r_op_type=un2expr->symbolTableEntry_->question_->dt;
@@ -711,11 +712,11 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 				type_=lcm_type(l_op_type, r_op_type);
 			}
 			if(exprOperatorType_==oper_mod 
-				&& !( is_of_int_type(leftOperand_->type_) 
-					&& is_of_int_type(rightOperand_->type_))){
+			   && !( is_of_int_type(leftOperand_->type_) 
+				 && is_of_int_type(rightOperand_->type_))){
 				print_err(compiler_sem_err, 
-					" operands of %% should be of type int/char only", line_no, __LINE__, __FILE__);
-				//cerr << " operands of %% should be of type int/char only" << endl;
+					" operands of %% should be of type int32_t/char only", line_no, __LINE__, __FILE__);
+				//cerr << " operands of %% should be of type int32_t/char only" << endl;
 				//++no_errors;
 				type_=ERROR_TYPE;
 			}
@@ -747,7 +748,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 		type_=STRING_TYPE;
 		text = ltxt;
 	} else if(exprOperatorType_==oper_name
-			|| exprOperatorType_ == oper_to_string ){
+		  || exprOperatorType_ == oper_to_string ){
 		map<string,SymbolTableEntry*>::iterator sym_it = 
 			find_in_symtab(ltxt);
 		using qscript_parser::active_scope;
@@ -761,8 +762,8 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 			symbolTableEntry_ = sym_it->second;
 			type_ = symbolTableEntry_->type_;
 			if(exprOperatorType_==oper_name && 
-					(type_==QUESTION_TYPE
-					 || type_==QUESTION_ARR_TYPE)){
+			   (type_==QUESTION_TYPE
+			    || type_==QUESTION_ARR_TYPE)){
 				if(symbolTableEntry_->question_->q_type!=spn){
 					stringstream s;
 					s << "Usage of Questions in Expressions only allowed for SPN question_type" << endl;
@@ -776,7 +777,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 				type_ = symbolTableEntry_->type_;
 			}  else if (exprOperatorType_ == oper_to_string){
 				if(type_ == QUESTION_TYPE 
-					|| type_ == QUESTION_ARR_TYPE){
+				   || type_ == QUESTION_ARR_TYPE){
 					type_=STRING_TYPE;
 				} else {
 					stringstream s;
@@ -897,7 +898,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 			}
 		} else {
 			stringstream s;
-			s <<  "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int or char: lineno: " 
+			s <<  "ERROR: NAME  =NAME[EXPR, EXPR] EXPR should be of type int32_t or char: lineno: " 
 				<< line_no << "\n";
 			print_err(compiler_sem_err, s.str()
 					, line_no, __LINE__, __FILE__);
@@ -915,7 +916,7 @@ bool Unary2Expression::IsLValue()
 	}
 }
 
-Unary2Expression::Unary2Expression(int l_isem_value) 
+Unary2Expression::Unary2Expression(int32_t l_isem_value) 
 	: AbstractExpression(oper_num), symbolTableEntry_(0)
 	, intSemanticValue_(l_isem_value), doubleSemanticValue_(0), func_index_in_table(-1) 
 	, text(0), column_no(-1), operand_(0), operand2_(0)
@@ -923,7 +924,7 @@ Unary2Expression::Unary2Expression(int l_isem_value)
 	if( intSemanticValue_ >= SCHAR_MIN && intSemanticValue_<=SCHAR_MAX){
 		type_=INT8_TYPE;
 	} else if (intSemanticValue_>= SHRT_MIN 
-			&& intSemanticValue_ <= SHRT_MAX){
+		   && intSemanticValue_ <= SHRT_MAX){
 		type_=INT16_TYPE;
 	} else if (intSemanticValue_>= INT_MIN && intSemanticValue_ <= INT_MAX){
 		type_=INT32_TYPE;
@@ -937,7 +938,7 @@ Unary2Expression::Unary2Expression(int l_isem_value)
 
 Unary2Expression::Unary2Expression(ExpressionOperatorType le_type
 				   , DataType ldt, AbstractExpression* e_list
-				   , int lfunc_index_in_table)
+				   , int32_t lfunc_index_in_table)
 	: AbstractExpression(le_type, ldt),  symbolTableEntry_(0)
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(lfunc_index_in_table)
@@ -1012,38 +1013,38 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 		code.code_bef_expr << " /* ENTER Binary2Expression::PrintTemporaryStruct */ " << endl;
 	string struct_name = get_temp_name();
 	code.code_bef_expr << "\tstruct " <<  struct_name.c_str() << "{\n" ;
-	code.code_bef_expr << "\t\tconst int size_ran_indiv;\n";
-	code.code_bef_expr << "\t\tconst int size_start_end;\n";
-	code.code_bef_expr << "\t\tvector<int> ran_indiv;\n";
-	code.code_bef_expr << "\t\tvector< pair<int,int> > ran_start_end;\n";
+	code.code_bef_expr << "\t\tconst int32_t size_ran_indiv;\n";
+	code.code_bef_expr << "\t\tconst int32_t size_start_end;\n";
+	code.code_bef_expr << "\t\tvector<int32_t> ran_indiv;\n";
+	code.code_bef_expr << "\t\tvector< pair<int32_t,int32_t> > ran_start_end;\n";
 	code.code_bef_expr << "\t\t" << struct_name.c_str() 
 		<< "(): size_ran_indiv(" << xs->indiv.size() //r_data->icount 
 		<< "), size_start_end(" <<  xs->range.size() //r_data->rcount << "),\n";
 		<< "),\n";								       
 	code.code_bef_expr << "\t\t\tran_indiv(size_ran_indiv), ran_start_end(size_start_end){\n";
 	//fprintf(stderr, "Binary2Expression::PrintExpressionCode(): printed constructor");
-	for(int i=0; i< xs->range.size() ; ++i){
+	for(int32_t i=0; i< xs->range.size() ; ++i){
 		code.code_bef_expr << "\t\t\tran_start_end[" << i 
-			<< "]=pair<int,int>(" 
+			<< "]=pair<int32_t,int32_t>(" 
 			<< xs->range[i].first 
 			<< "," << xs->range[i].second << ");\n";
 	}
 	
-	int k=0;
-	for(set<int>::iterator iter=xs->indiv.begin(); 
+	int32_t k=0;
+	for(set<int32_t>::iterator iter=xs->indiv.begin(); 
 		iter!=xs->indiv.end(); ++iter, ++k){
 		code.code_bef_expr << "\t\t\tran_indiv[" 
 			<< k << "]=" << *iter <<";\n";
 	}
 	code.code_bef_expr <<  "\t\t}\n";
 
-	code.code_bef_expr << "\t\tbool exists(int key){\n";
-	code.code_bef_expr << "\t\t\tfor(int i=0; i<size_start_end; ++i){\n";
+	code.code_bef_expr << "\t\tbool exists(int32_t key){\n";
+	code.code_bef_expr << "\t\t\tfor(int32_t i=0; i<size_start_end; ++i){\n";
 	code.code_bef_expr << "\t\t\t\tif(key >=ran_start_end[i].first && key <=ran_start_end[i].second){\n";
 	code.code_bef_expr << "\t\t\t\t\treturn true;\n";
 	code.code_bef_expr << "\t\t\t\t}\n";
 	code.code_bef_expr << "\t\t\t}\n";
-	code.code_bef_expr << "\t\t\tfor(int i=0; i< size_ran_indiv; ++i){\n";
+	code.code_bef_expr << "\t\t\tfor(int32_t i=0; i< size_ran_indiv; ++i){\n";
 	code.code_bef_expr << "\t\t\t\tif(key==ran_indiv[i]){\n";
 	code.code_bef_expr << "\t\t\t\t\treturn true;\n";
 	code.code_bef_expr << "\t\t\t\t}\n";
@@ -1051,9 +1052,9 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 	code.code_bef_expr << "\t\t\treturn false;\n";
 	code.code_bef_expr << "\t\t}\n";
 
-	code.code_bef_expr << "\t\tbool contains_subset(set<int> & set_data){\n";
+	code.code_bef_expr << "\t\tbool contains_subset(set<int32_t> & set_data){\n";
 	code.code_bef_expr << "\t\t\tbool val_exists = false;\n";
-	code.code_bef_expr << "\t\t\tfor(\tset<int>::iterator it=set_data.begin();\n";
+	code.code_bef_expr << "\t\t\tfor(\tset<int32_t>::iterator it=set_data.begin();\n";
 	code.code_bef_expr << "\t\t\t\tit!=set_data.end(); ++it){\n";
 	code.code_bef_expr << "\t\t\t\t\tval_exists=exists(*it);\n";
 	code.code_bef_expr << "\t\t\t\tif(!val_exists){\n";
@@ -1144,7 +1145,7 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 Binary2Expression::~Binary2Expression()
 {
 	using qscript_parser::mem_addr;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "Binary2Expression::~Binary2Expression setting mem_addr: " << this  <<"=0" << endl;
@@ -1163,29 +1164,29 @@ Binary2Expression::~Binary2Expression()
 string get_temp_name()
 {
 	// about a billion temporaries before we run out
-	const int max_temp=10;
-	static int count=0;
+	const int32_t max_temp=10;
+	static int32_t count=0;
 	char buffer[max_temp];
 	char op_buf[max_temp];
-	int dividend=count;
+	int32_t dividend=count;
 
 	buffer[0]='0'; buffer[1]='\0';
 
-	int j=0;
+	int32_t j=0;
 	do {
-		int rem = dividend%10;
+		int32_t rem = dividend%10;
 		dividend=dividend/10;
 		buffer[j++]='0' + rem;
 	} while(dividend>0);
 	/*
-	for(int i=0 ; dividend/10>0; dividend=dividend/10,++i,++j){
-		//int quot = dividend/10;
-		int rem = dividend%10;
+	for(int32_t i=0 ; dividend/10>0; dividend=dividend/10,++i,++j){
+		//int32_t quot = dividend/10;
+		int32_t rem = dividend%10;
 		buffer[j]='0' + rem;
 	}
 	*/
 	buffer[j]='\0';
-	for(int i=j-1; i>=0; --i){
+	for(int32_t i=j-1; i>=0; --i){
 		op_buf[j-1-i]=buffer[i];
 	}
 	op_buf[j]='\0';

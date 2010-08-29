@@ -12,6 +12,7 @@
 #ifndef XTCC_SYMTAB_H
 #define XTCC_SYMTAB_H
 //#include <iostream>
+#include <sys/types.h>
 #include <limits.h>
 #include <cstring>
 #include "datatype.h"
@@ -19,7 +20,7 @@
 //#include <sstream>
 
 //using std::stringstream;
-	/*!  type_qualifier enum: used to add qualifiers to the definition of a variable. For example: const int BUFSIZE=1024; // Here const is a qualifier
+	/*!  type_qualifier enum: used to add qualifiers to the definition of a variable. For example: const int32_t BUFSIZE=1024; // Here const is a qualifier
 	 */ 
 	enum type_qualifier {
 		NO_QUAL, // used to mark that nothing was specified 
@@ -66,10 +67,10 @@ struct SymbolTableEntry {
 	char *text_;
 	//union {
 		double dval;
-		int ival;
+		int32_t ival;
 	//}; finally got fed up of the warnings i got from the compiler
 	DataType type_;
-	int n_elms;
+	int32_t n_elms;
 	bool created_by_me;
 	//! if the variable declaration is initialised with a value - the expression for that value is held here
 	AbstractExpression * e;
@@ -96,7 +97,7 @@ struct SymbolTableEntry {
 		type_qual(l_tq), question_(0)
 	{ }
 
-	SymbolTableEntry(const char * lname, DataType ldt, int arr_sz, char * text):
+	SymbolTableEntry(const char * lname, DataType ldt, int32_t arr_sz, char * text):
 		name_(strdup(lname)), text_(strdup(text)), dval(0), ival(0)
 		, type_(ldt) , n_elms(arr_sz), created_by_me(true)
 		, e(0), xs(0), type_qual(NO_QUAL)

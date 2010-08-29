@@ -12,6 +12,7 @@
  */
 #ifndef qscript_question_h
 #define qscript_question_h
+#include <sys/types.h>
 #include <iosfwd>
 //#include <fstream>
 #include <iostream>
@@ -30,12 +31,12 @@ struct AbstractQuestion: public AbstractStatement
 	string questionName_;
 	string questionText_;
 	QuestionType q_type;
-	int no_mpn;
+	int32_t no_mpn;
 	DataType dt;
-	set<int> input_data;
+	set<int32_t> input_data;
 	//AbstractExpression * arr_sz;
 	vector<AbstractExpression*> for_bounds_stack;
-	vector<int> loop_index_values;
+	vector<int32_t> loop_index_values;
 	bool isAnswered_;
 	bool isModified_;
 	CompoundStatement * enclosingCompoundStatement_;
@@ -45,30 +46,30 @@ struct AbstractQuestion: public AbstractStatement
 	string currentResponse_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
-		DataType l_type,int l_no, string l_name, string l_text
-		, QuestionType l_q_type, int l_no_mpn, DataType l_dt
+		DataType l_type,int32_t l_no, string l_name, string l_text
+		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 
 	AbstractQuestion(
-		DataType l_type,int l_no, string l_name, string l_text
-		, QuestionType l_q_type, int l_no_mpn, DataType l_dt 
+		DataType l_type,int32_t l_no, string l_name, string l_text
+		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt 
 		);
 	//! this is only called in the compile time environment
 	AbstractQuestion(
-		DataType l_type,int l_no, string l_name, string l_text
-		, QuestionType l_q_type, int l_no_mpn, DataType l_dt 
+		DataType l_type,int32_t l_no, string l_name, string l_text
+		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt 
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 
 	//! this is only called in the runtime environment
 	AbstractQuestion(
-		DataType l_type,int l_no, string l_name, string l_text
-		, QuestionType l_q_type, int l_no_mpn , DataType l_dt
-		, const vector<int>& l_loop_index_values
+		DataType l_type,int32_t l_no, string l_name, string l_text
+		, QuestionType l_q_type, int32_t l_no_mpn , DataType l_dt
+		, const vector<int32_t>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		);
 //	virtual void GenerateCode(ostringstream & quest_defns
@@ -78,10 +79,10 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void eval(/*qs_ncurses::*/WINDOW * question_window
 			  , /*qs_ncurses::*/WINDOW* stub_list_window
 			  , /*qs_ncurses::*/WINDOW* data_entry_window)=0;
-	virtual bool IsValid(int value)=0;
+	virtual bool IsValid(int32_t value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
-	void init_arr(int n, AbstractQuestion* q);
+	void init_arr(int32_t n, AbstractQuestion* q);
 	virtual void WriteDataToDisk(ofstream & data_file)=0;
 	void PrintSetupBackJump(StatementCompiledCode &code);
 	void SetupSimpleQuestionSave(StatementCompiledCode &code);
@@ -100,7 +101,7 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void GetDataFromUser(WINDOW * data_entry_window);
 
 	virtual bool VerifyData(string & err_mesg, string & re_arranged_buffer
-				, int &pos_1st_invalid_data);
+				, int32_t &pos_1st_invalid_data);
 	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
 	virtual void PrintQuestionArrayInitialisation(
 		StatementCompiledCode & code);
@@ -136,12 +137,12 @@ struct AbstractQuestion: public AbstractStatement
 struct RangeQuestion: public AbstractQuestion 
 {
 	XtccSet * r_data;
-	//vector <int> stack_loop_index_values;
-	set<int> displayData_;
+	//vector <int32_t> stack_loop_index_values;
+	set<int32_t> displayData_;
 	//! this is only called in the compile time environment
 	RangeQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope 
@@ -149,31 +150,31 @@ struct RangeQuestion: public AbstractQuestion
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		);
 
 	//! this is only called in the compile time environment
 	RangeQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
-		, const vector<int> & l_loop_index_values
+		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
-	virtual bool IsValid(int value);
+	virtual bool IsValid(int32_t value);
 	//void eval();
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
@@ -215,8 +216,8 @@ class NamedStubQuestion: public AbstractQuestion
 	vector<stub_pair> * stub_ptr;
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr 
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
@@ -224,36 +225,36 @@ class NamedStubQuestion: public AbstractQuestion
 		);
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr 
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 
 	NamedStubQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		);
 	NamedStubQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		);
 	//! only called in the runtime environment
 	NamedStubQuestion(
-		DataType this_stmt_type, int line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int l_no_mpn
+		DataType this_stmt_type, int32_t line_number, string l_name
+		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, vector<stub_pair> * l_stub_ptr 
-		, const vector<int> & l_loop_index_values
+		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
-	virtual bool IsValid(int value);
+	virtual bool IsValid(int32_t value);
 	//void eval();
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
@@ -281,9 +282,9 @@ class NamedStubQuestion: public AbstractQuestion
 
 class DummyArrayQuestion: public AbstractQuestion{
 	public:
-	vector<int> array_bounds;
+	vector<int32_t> array_bounds;
 
-	DummyArrayQuestion(string l_qno, vector<int> l_array_bounds)
+	DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
 		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, "", spn, 0
 				   , INT32_TYPE )
 		,  array_bounds(l_array_bounds)
@@ -295,7 +296,7 @@ class DummyArrayQuestion: public AbstractQuestion{
 		  , /*qs_ncurses::*/WINDOW* data_entry_window)
 	{}
 
-	bool IsValid(int value){ return false;}
+	bool IsValid(int32_t value){ return false;}
 	void GenerateCode(StatementCompiledCode &code){}
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code){}
 	void GetQuestionNames(vector<string> & question_list

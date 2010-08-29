@@ -29,8 +29,9 @@
 #ifndef xtcc_expr_h
 #define xtcc_expr_h
 //#include "tree.h"
-#include "symtab.h"
+#include <sys/types.h>
 #include <iosfwd>
+#include "symtab.h"
 #include "compiled_code.h"
 //#include <sstream>
 using std::ostringstream;
@@ -71,7 +72,7 @@ struct AbstractExpression
 //			, ostringstream & code_expr)=0;
 	virtual void PrintExpressionCode(ExpressionCompiledCode & code)=0;
 
-	virtual int IsValid();
+	virtual int32_t IsValid();
 	//! pure virtual function will tell us if an AbstractExpression can appear on the 
 	//! left side of the assignment operator
 	//! of the 
@@ -176,11 +177,11 @@ struct Unary2Expression : public AbstractExpression
 	protected:
 	public:
 	struct SymbolTableEntry * symbolTableEntry_;
-	int intSemanticValue_;
+	int32_t intSemanticValue_;
 	double doubleSemanticValue_;
-	int func_index_in_table;
+	int32_t func_index_in_table;
 	char * text;
-	int column_no;
+	int32_t column_no;
 	AbstractExpression* operand_;
 	AbstractExpression* operand2_;
 	// This is a hack - I have to fix this by putting line number in the base class
@@ -188,13 +189,13 @@ struct Unary2Expression : public AbstractExpression
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
 	Unary2Expression(ExpressionOperatorType le_type, DataType ldt
-			, AbstractExpression* e_list, int lfunc_index_in_table);
+			, AbstractExpression* e_list, int32_t lfunc_index_in_table);
 	const SymbolTableEntry* get_symp_ptr()
 	{
 		return (const SymbolTableEntry*) symbolTableEntry_;
 	}
 
-	Unary2Expression(int l_isem_value);
+	Unary2Expression(int32_t l_isem_value);
 
 	Unary2Expression(double l_dsem_value);
 

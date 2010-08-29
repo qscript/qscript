@@ -1,3 +1,4 @@
+#include <sys/types.h>
 #include <unistd.h>
 #include <cstdlib>
 #include <string>
@@ -20,7 +21,7 @@ using  std::cout;
 	//extern Scope* active_scope;
 	//extern vector <Scope*> active_scope_list;
 	extern void yyrestart ( FILE *input_file );
-	extern int yyparse();
+	extern int32_t yyparse();
 	extern void GenerateCode();
 	//extern vector </*Statement::*/FunctionInformation*> func_info_table;
 	using qscript_parser::func_info_table;
@@ -29,15 +30,15 @@ using  std::cout;
 
 	void InitStatement();
 
-int main(int argc, char* argv[])
+int32_t main(int32_t argc, char* argv[])
 {
 	InitStatement();
 	using qscript_parser::active_scope_list;
 	using qscript_parser::active_scope;
 	using qscript_parser::no_errors;
-	int opterr=1, c;
+	int32_t opterr=1, c;
 	string fname;
-	int fname_flag=0;
+	int32_t fname_flag=0;
 	bool ncurses_flag=false;
 	bool static_binary_flag=false;
 	bool exit_flag=false;
@@ -133,7 +134,7 @@ int main(int argc, char* argv[])
 		
 		std::vector<AbstractQuestion*> &qv = qscript_parser::question_list;
 		conf << qv.size() << '\n';
-		for(int i=0; i<qv.size(); ++i) 
+		for(int32_t i=0; i<qv.size(); ++i) 
 		{
 			conf << qv[i]->questionName_ << ' ';
 			switch(qv[i]->dt)
@@ -151,11 +152,11 @@ int main(int argc, char* argv[])
 		}
 		
 		std::vector<named_range*> &nsl = qscript_parser::named_stubs_list;
-		for(int i=0; i<nsl.size(); ++i)
+		for(int32_t i=0; i<nsl.size(); ++i)
 		{
 			conf << nsl[i]->name;
 			std::vector<stub_pair> &sv = nsl[i]->stubs;
-			for(int i=0; i<sv.size(); ++i) conf << ' ' << sv[i].code << " \"" << sv[i].stub_text << '\"';
+			for(int32_t i=0; i<sv.size(); ++i) conf << ' ' << sv[i].code << " \"" << sv[i].stub_text << '\"';
 			conf << '\n';
 		}
 	}

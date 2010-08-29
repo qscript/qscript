@@ -7,19 +7,20 @@
  */
 #ifndef xtcc_debug_mem_h
 #define xtcc_debug_mem_h
+#include <sys/types.h>
 #include <string>
 using std::string;
 struct mem_addr_tab
 {
 	void * mem_ptr;
-	int line_number;
+	int32_t line_number;
 	string src_file;
-	int src_file_line_no;
-	mem_addr_tab(void * ptr, int line)
+	int32_t src_file_line_no;
+	mem_addr_tab(void * ptr, int32_t line)
 	: mem_ptr(ptr), line_number(line), src_file(""), src_file_line_no(-1)
 	{ }
-	mem_addr_tab(void * ptr, int line, string l_src_file
-		     , int l_src_file_line_no)
+	mem_addr_tab(void * ptr, int32_t line, string l_src_file
+		     , int32_t l_src_file_line_no)
 	: mem_ptr(ptr), line_number(line), src_file(l_src_file)
 		, src_file_line_no(l_src_file_line_no)
 	{ }
@@ -38,7 +39,7 @@ struct mem_addr_tab
 
 
 };
-void mem_log(void * ptr, int compiler_src_line_no, const char* compiler_src_fname
-	     , int input_prog_line_no);
+void mem_log(void * ptr, int32_t compiler_src_line_no, const char* compiler_src_fname
+	     , int32_t input_prog_line_no);
 
 #endif /* debug_mem_h */

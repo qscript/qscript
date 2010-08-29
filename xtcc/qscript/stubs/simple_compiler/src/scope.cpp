@@ -24,6 +24,7 @@
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <sys/types.h>
 #include <iostream>
 #include <sstream>
 
@@ -42,8 +43,8 @@ using std::cerr;
 using std::endl;
 using std::stringstream;
 
-//extern int line_no;
-//extern int no_errors;
+//extern int32_t line_no;
+//extern int32_t no_errors;
 //extern ofstream debug_log_file;
 //extern vector<mem_addr_tab> mem_addr;
 
@@ -53,7 +54,7 @@ using qscript_parser::debug_log_file;
 using qscript_parser::mem_addr;
 
 
-AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/)
+AbstractStatement* Scope::insert(const char * name, DataType dt/*, int32_t line_no*/)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
@@ -74,7 +75,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt/*, int line_no*/
 }
 
 AbstractStatement* Scope::insert(const char * name, DataType dt
-				 , AbstractQuestion * l_q /*, int line_no*/)
+				 , AbstractQuestion * l_q /*, int32_t line_no*/)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
@@ -95,7 +96,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 }
 
 AbstractStatement* Scope::insert(const char * name, DataType dt
-				 , int arr_size	 /*, int line_no*/)
+				 , int32_t arr_size	 /*, int32_t line_no*/)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	DeclarationStatement * st_ptr=new DeclarationStatement(dt, line_no);
@@ -190,8 +191,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 	return st_ptr;
 }
 
-AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size
-				 , /*int line_no, */ char *text)
+AbstractStatement* Scope::insert(const char * name, DataType dt, int32_t arr_size
+				 , /*int32_t line_no, */ char *text)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	if(dt!=INT8_ARR_TYPE){
@@ -200,7 +201,7 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size
 		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
 
 	}
-	int text_len=0;
+	int32_t text_len=0;
 	if(text){
 		text_len=std::strlen(text);
 	}
@@ -255,7 +256,7 @@ Scope::~Scope()
 		delete p->second;
 		p->second=0;
 	}
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "Scope::~Scope setting mem_addr: " << this << "=0" << endl;

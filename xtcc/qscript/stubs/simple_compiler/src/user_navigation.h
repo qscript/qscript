@@ -1,7 +1,8 @@
 #ifndef user_navigation_h
 #define user_navigation_h
 
-enum UserNavigation {
+enum UserNavigation 
+{
 	NOT_SET,
 	NAVIGATE_PREVIOUS,
 	NAVIGATE_NEXT,

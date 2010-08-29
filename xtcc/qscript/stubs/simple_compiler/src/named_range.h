@@ -6,6 +6,7 @@
 
 #ifndef xtcc_named_range_h
 #define xtcc_named_range_h
+#include <sys/types.h>
 #include <fstream>
 #include "stub_pair.h"
 #include "stmt.h"
@@ -16,7 +17,7 @@ struct named_range: public AbstractStatement
 	vector <stub_pair> stubs;
 	//named_range(): name(""), stubs(){}
 	void GenerateCode(StatementCompiledCode & code);
-	named_range(DataType l_type, int l_line_number
+	named_range(DataType l_type, int32_t l_line_number
 		    , string l_name, vector <stub_pair>& l_stubs )
 		: AbstractStatement(l_type, l_line_number)
 		, name(l_name), stubs(l_stubs)

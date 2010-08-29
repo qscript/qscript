@@ -4,9 +4,10 @@
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
 
-#include "named_range.h"
+#include <sys/types.h>
 #include <iostream>
 #include <sstream>
+#include "named_range.h"
 using std::cout;
 using std::endl;
 using std::stringstream;
@@ -21,7 +22,7 @@ void named_range::GenerateCode (StatementCompiledCode & code)
 		//<< "(" << stubs.size() << ");"  
 		<< ";" << endl << endl;
 
-	for(int i=0; i<stubs.size(); ++i){
+	for(int32_t i=0; i<stubs.size(); ++i){
 		code.quest_defns << name << ".push_back( stub_pair(\"" << stubs[i].stub_text 
 			<< "\", " << stubs[i].code << "));" 
 			<< endl;

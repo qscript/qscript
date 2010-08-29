@@ -4,6 +4,7 @@
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
 
+#include <sys/types.h>
 #include <string>
 #include <iostream>
 #include <cstdio>
@@ -22,11 +23,11 @@
 
 //extern vector<mem_addr_tab> mem_addr;
 using qscript_parser::mem_addr;
-extern int if_line_no;
+extern int32_t if_line_no;
 using qscript_parser:: active_scope;
 //extern vector </*Statement::*/FunctionInformation*> func_info_table;
 using qscript_parser::func_info_table;
-int CompoundStatement::counter_;
+int32_t CompoundStatement::counter_;
 using qscript_parser::debug_log_file;
 using std::cout;
 using std::cerr;
@@ -89,7 +90,7 @@ void ExpressionStatement::GenerateCode(StatementCompiledCode &code)
 ExpressionStatement::~ExpressionStatement() 
 {
 	using qscript_parser::mem_addr;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "ExpressionStatement::~ExpressionStatement: setting mem_addr: " << this << "=0" << endl;
@@ -143,7 +144,7 @@ void DeclarationStatement::GenerateCode(StatementCompiledCode &code)
 DeclarationStatement::~DeclarationStatement() 
 {
 	using qscript_parser::mem_addr;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "DeclarationStatement::~DeclarationStatement: setting mem_addr: " << this << "=0" << endl;
@@ -154,7 +155,7 @@ DeclarationStatement::~DeclarationStatement()
 
 }
 
-IfStatement::IfStatement( DataType dtype, int lline_number
+IfStatement::IfStatement( DataType dtype, int32_t lline_number
 			  , AbstractExpression * lcondition
 			  , AbstractStatement * lif_body
 			  , AbstractStatement * lelse_body)
@@ -171,9 +172,9 @@ IfStatement::IfStatement( DataType dtype, int lline_number
 
 struct IfStatementStackElement 
 {
-	int nestLevel_;
+	int32_t nestLevel_;
 	IfStatement * ifStatementPtr_;
-	IfStatementStackElement(int nest_level, IfStatement
+	IfStatementStackElement(int32_t nest_level, IfStatement
 				* if_stmt_ptr):
 		nestLevel_(nest_level), ifStatementPtr_(if_stmt_ptr)
 		{}
@@ -183,7 +184,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 {
 	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
 	static vector<IfStatementStackElement*> ifStatementStack;
-	static int if_nest_level =0;
+	static int32_t if_nest_level =0;
 	bool if_nest_level_was_increased=false;
 	//++if_nest_level;
 	if( ifStatementStack.size()>0){
@@ -221,7 +222,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			(question_list_else_body, this);
 		*/
 		cerr << "IfStatement::GenerateCode(): ifStatementStack.size>0 :Before LOOP" << endl;
-		for(int i=0; i<ifStatementStack.size(); ++i){
+		for(int32_t i=0; i<ifStatementStack.size(); ++i){
 			if(ifStatementStack[i]->nestLevel_==if_nest_level){
 				ifStatementStack[i]->ifStatementPtr_
 					->GetQuestionNames
@@ -233,7 +234,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	if(elseBody_)
 		elseBody_->GetQuestionNames(question_list_else_body, 0);
-	for(int i=0; i<question_list_else_body.size(); ++i){
+	for(int32_t i=0; i<question_list_else_body.size(); ++i){
 		code.program_code <<  question_list_else_body[i] 
 			<< "->isAnswered_=false;"
 			<< endl;
@@ -258,7 +259,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		}
 		vector<string> question_list_if_body;
 
-		for(int i=0; i<ifStatementStack.size(); ++i){
+		for(int32_t i=0; i<ifStatementStack.size(); ++i){
 			if(ifStatementStack[i]->nestLevel_==if_nest_level){
 				ifStatementStack[i]->ifStatementPtr_
 					->GetQuestionNames
@@ -276,7 +277,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			code.program_code << " // elseIfStatement DOES NOT exists \n";
 			code.program_code << "/* question_list_if_body.size(): " 
 				<< question_list_if_body.size() << " */ \n";
-			for(int i=0; i<question_list_if_body.size(); ++i){
+			for(int32_t i=0; i<question_list_if_body.size(); ++i){
 				code.program_code <<  question_list_if_body[i] 
 					<< "->isAnswered_=false;"
 					<< endl;
@@ -324,7 +325,7 @@ void IfStatement::GenerateConsolidatedForLoopIndexes()
 IfStatement:: ~IfStatement()
 {
 	using qscript_parser::mem_addr;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file 
@@ -347,8 +348,8 @@ IfStatement:: ~IfStatement()
 vector<string> consolidated_for_loop_index_stack;
 
 CompoundStatement::CompoundStatement(
-	DataType dtype, int lline_number, int l_flag_cmpd_stmt_is_a_func_body
-	, int l_flag_cmpd_stmt_is_a_for_body
+	DataType dtype, int32_t lline_number, int32_t l_flag_cmpd_stmt_is_a_func_body
+	, int32_t l_flag_cmpd_stmt_is_a_for_body
 	, vector<AbstractExpression*>& l_for_bounds_stack
 	): 
 	AbstractStatement(dtype, lline_number)
@@ -404,8 +405,8 @@ void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
 	StatementCompiledCode &code)
 {
 	code.array_quest_init_area << "/* ENTER CompoundStatement::GenerateQuestionArrayInitLoopOpen */\n";
-	for(int i=for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
-		code.array_quest_init_area << "for(int ";
+	for(int32_t i=for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
+		code.array_quest_init_area << "for(int32_t ";
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 		if(bin_expr_ptr){
 			//AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
@@ -423,7 +424,7 @@ void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
 			code.array_quest_init_area << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
 			code.array_quest_init_area <<	"){" << endl;
 			if(i==0){
-				code.array_quest_init_area << "vector<int> stack_of_loop_indices;\n";
+				code.array_quest_init_area << "vector<int32_t> stack_of_loop_indices;\n";
 					//<< "(" <<  for_bounds_stack.size() << ");\n";
 			}
 			code.array_quest_init_area << "stack_of_loop_indices.push_back(";
@@ -444,7 +445,7 @@ void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
 
 void CompoundStatement::GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code)
 {
-	for(int i=for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
+	for(int32_t i=for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
 		code.array_quest_init_area << "stack_of_loop_indices.pop_back();\n";
 		code.array_quest_init_area << "}" << endl;
 	}
@@ -455,7 +456,7 @@ string PrintConsolidatedForLoopIndex(
 {
 	ExpressionCompiledCode * expr_code_arr = 
 		new ExpressionCompiledCode[for_bounds_stack.size()];
-	for(int i=0; i< for_bounds_stack.size(); ++i){
+	for(int32_t i=0; i< for_bounds_stack.size(); ++i){
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 		if(bin_expr_ptr){
 			//AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
@@ -471,7 +472,7 @@ string PrintConsolidatedForLoopIndex(
 				, "for loop index condition is not a binary expression" 
 				, 0, __LINE__, __FILE__);
 		}
-		for(int j=i+1; j<for_bounds_stack.size(); j++){
+		for(int32_t j=i+1; j<for_bounds_stack.size(); j++){
 			// quest_defns is passed twice
 			// because we want the AbstractExpression to appear in the for
 			// loop in the questions section of the code
@@ -492,7 +493,7 @@ string PrintConsolidatedForLoopIndex(
 		}
 	}
 	ostringstream consolidated_for_loop_index;
-	for(unsigned int i=0; i<for_bounds_stack.size(); ++i) {
+	for(u_int32_t i=0; i<for_bounds_stack.size(); ++i) {
 		consolidated_for_loop_index << expr_code_arr[i].code_bef_expr.str()
 			<< expr_code_arr[i].code_expr.str();
 		if(i <for_bounds_stack.size()-1 ){
@@ -515,9 +516,9 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		<< endl;
 
 	if(flagGeneratedQuestionDefinitions_==false 
-		//&& qscript_parser::for_loop_max_counter_stack.size()>0
-		&& flagIsAForBody_ 
-		&& counterContainsQuestions_){
+	   //&& qscript_parser::for_loop_max_counter_stack.size()>0
+	   && flagIsAForBody_ 
+	   && counterContainsQuestions_){
 		code.quest_defns << "//CompoundStatement::GenerateCode()\n"
 			<< "// Generating array declarations\n";
 		if(compoundBody_){
@@ -527,7 +528,7 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	code.program_code << "{" << endl;
 	if( flagIsAForBody_ && counterContainsQuestions_){
-		code.program_code << "int " << ConsolidatedForLoopIndexStack_.back()
+		code.program_code << "int32_t " << ConsolidatedForLoopIndexStack_.back()
 			<< "=";
 		code.program_code << PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << ";\n";
@@ -547,7 +548,7 @@ CompoundStatement::~CompoundStatement()
 {
 	using qscript_parser::mem_addr;
 	debug_log_file << "deleting CompoundStatement" << endl;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "basic_count_ax_stmt::~basic_count_ax_stmt setting mem_addr: " << this << "=0" << endl;
@@ -568,7 +569,7 @@ using qscript_parser::question_list;
 AbstractQuestion* find_in_question_list(string name)
 {
 
-	for(int i=0; i<question_list.size(); ++i){
+	for(int32_t i=0; i<question_list.size(); ++i){
 		if(question_list[i]->questionName_==name){
 			return question_list[i];
 		}
@@ -577,7 +578,7 @@ AbstractQuestion* find_in_question_list(string name)
 }
 
 
-ForStatement::ForStatement(DataType dtype, int lline_number
+ForStatement::ForStatement(DataType dtype, int32_t lline_number
 			   , AbstractExpression * l_init
 			   , AbstractExpression * l_test
 			   , AbstractExpression* l_incr
@@ -588,8 +589,8 @@ ForStatement::ForStatement(DataType dtype, int lline_number
 	, forBody_(l_for_body)
 {
 	if(initializationExpression_->type_==VOID_TYPE
-			||testExpression_->type_==VOID_TYPE
-			||incrementExpression_->type_==VOID_TYPE ){
+	   || testExpression_->type_==VOID_TYPE
+	   || incrementExpression_->type_==VOID_TYPE ){
 		print_err(compiler_sem_err, 
 			"For ifCondition_ expression has Void or Error Type", 
 			qscript_parser::line_no, __LINE__, __FILE__);
@@ -646,7 +647,7 @@ void ForStatement::CheckNestedIndexUsage()
 	cout << "CheckNestedIndexUsage: on variable: " << init_var_name << ", " 
 		<< "for_loop_max_counter_stack.size(): " 
 		<< for_loop_max_counter_stack.size()  << endl;
-	for(int i=0; i<for_loop_max_counter_stack.size()-1; ++i){
+	for(int32_t i=0; i<for_loop_max_counter_stack.size()-1; ++i){
 		BinaryExpression * prev_test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[i]);
 		if(prev_test_expr==0){
 			print_err(compiler_sem_err, 
@@ -694,7 +695,7 @@ void ForStatement::CheckForIndexUsageConsistency()
 		, qscript_parser::line_no, __LINE__, __FILE__);
 	}
 	if(initializationExpression_==0 || testExpression_==0 
-			|| incrementExpression_==0){
+	   || incrementExpression_==0){
 		return;
 	}
 	string init_var_name, test_var_name, inc_var_name;
@@ -780,7 +781,7 @@ void ForStatement::CheckForIndexUsageConsistency()
 					qscript_parser::line_no, __LINE__, __FILE__);
 			}
 			if(string(rhs_inc_expr_left_component->symbolTableEntry_->name_)
-					!=inc_var_name){
+			   !=inc_var_name){
 				print_err(compiler_sem_err, 
 					"inc_expr does not consistently use inc variable : should be of the form var=var+1",
 					qscript_parser::line_no, __LINE__, __FILE__);
@@ -813,7 +814,7 @@ void ForStatement::CheckForIndexUsageConsistency()
 			" testExpression_ expr should be a binary expression ",
 			qscript_parser::line_no, __LINE__, __FILE__);
 	} else if(!(test_expr->rightOperand_->IsIntegralExpression() 
-			&& test_expr->rightOperand_->IsConst())) {
+		    && test_expr->rightOperand_->IsConst())) {
 		print_err(compiler_sem_err, 
 			"If the for loop contains questions, then the counter of the for loop should be an integer and a constant expression"
 		, qscript_parser::line_no, __LINE__, __FILE__);
@@ -832,8 +833,8 @@ void ForStatement::CheckForIndexUsageConsistency()
 			test_var_name = test_var->symbolTableEntry_->name_;
 		}
 	}
-	if(! (init_var_name==test_var_name &&
-			test_var_name==inc_var_name)){
+	if(! (init_var_name==test_var_name
+	      && test_var_name==inc_var_name)){
 		print_err(compiler_sem_err, 
 			"init_var_name should be same as test_var_name should be same as inc_var_name ",
 			qscript_parser::line_no, __LINE__, __FILE__);
@@ -887,7 +888,7 @@ void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 ForStatement:: ~ForStatement()
 {
 	using qscript_parser::mem_addr;
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file 
@@ -932,12 +933,12 @@ void VariableList::print(FILE * edit_out)
 	struct VariableList * vl_ptr=this;
 	while(vl_ptr){
 		if(vl_ptr->variableType_>=INT8_TYPE 
-				&& vl_ptr->variableType_<=DOUBLE_TYPE){
+		   && vl_ptr->variableType_<=DOUBLE_TYPE){
 			fprintf(edit_out, "%s %s"
 					, noun_list[vl_ptr->variableType_].sym
 					, vl_ptr->variableName_.c_str());
 		} else if (vl_ptr->variableType_>=INT8_ARR_TYPE
-				&&vl_ptr->variableType_<=DOUBLE_ARR_TYPE){
+			   && vl_ptr->variableType_<=DOUBLE_ARR_TYPE){
 			DataType tdt=DataType(INT8_TYPE 
 					+ vl_ptr->variableType_-INT8_ARR_TYPE);
 			fprintf(edit_out
@@ -947,7 +948,7 @@ void VariableList::print(FILE * edit_out)
 					, arrayLength_
 					, vl_ptr->variableType_);
 		} else if (vl_ptr->variableType_>=INT8_REF_TYPE
-				&&vl_ptr->variableType_<=DOUBLE_REF_TYPE){
+			   && vl_ptr->variableType_<=DOUBLE_REF_TYPE){
 			DataType tdt=DataType(INT8_TYPE 
 					+ vl_ptr->variableType_-INT8_REF_TYPE);
 			fprintf(edit_out, "%s & %s"
@@ -963,7 +964,7 @@ void VariableList::print(FILE * edit_out)
 	}
 }
 
-VariableList::VariableList(DataType type, char * name, int len)
+VariableList::VariableList(DataType type, char * name, int32_t len)
 	: variableType_(type), variableName_(name)
 	, arrayLength_(len), prev_(0), next_(0)
 {
@@ -975,21 +976,19 @@ VariableList::VariableList(DataType type, char * name, int len)
 }
 
 
-StubManipStatement::StubManipStatement( DataType dtype, int lline_number
+StubManipStatement::StubManipStatement( DataType dtype, int32_t lline_number
 					, string l_named_stub
 					, string l_question_name
 	)
 	: AbstractStatement(dtype, lline_number) 
 	, questionName_(l_question_name), namedStub_(l_named_stub)
-{
-}
+{ }
 
-StubManipStatement::StubManipStatement( DataType dtype, int lline_number
+StubManipStatement::StubManipStatement( DataType dtype, int32_t lline_number
 					, string l_named_stub)
 	: AbstractStatement(dtype, lline_number)
 	, questionName_(), namedStub_(l_named_stub)
-{
-}
+{ }
 
 void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 {
@@ -1001,13 +1000,13 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 
 
 	if(type_==STUB_MANIP_DEL || type_==STUB_MANIP_ADD){
-		code.program_code << "set<int>::iterator set_iter = " 
+		code.program_code << "set<int32_t>::iterator set_iter = " 
 			<< questionName_ 
 			<< "->input_data.begin();" << endl;
 		code.program_code << "for( ; set_iter!= " 
 			<< questionName_ 
 			<< "->input_data.end(); ++set_iter){" << endl;
-		code.program_code << "\tfor(int i=0; i< " 
+		code.program_code << "\tfor(int32_t i=0; i< " 
 			<< namedStub_ << ".size(); ++i){" << endl;
 		code.program_code << "\t\tif(" << namedStub_ 
 			<< "[i].code==*set_iter ) {" << endl;
@@ -1022,7 +1021,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 		code.program_code << "\t}" << endl;
 		code.program_code << "}" << endl;
 	} else if (type_==STUB_MANIP_UNSET_ALL || type_==STUB_MANIP_SET_ALL) {
-		code.program_code << "for(int i=0; i< " 
+		code.program_code << "for(int32_t i=0; i< " 
 			<< namedStub_ << ".size(); ++i){" << endl;
 		if(type_==STUB_MANIP_UNSET_ALL){
 			code.program_code << namedStub_ 
@@ -1112,7 +1111,7 @@ void FunctionParameter::print(ostringstream & program_code)
 	}
 }
 
-FunctionParameter::FunctionParameter(DataType type, char * name, int len): var_type(type), var_name(name), arr_len(len), prev_(NULL), next_(NULL)
+FunctionParameter::FunctionParameter(DataType type, char * name, int32_t len): var_type(type), var_name(name), arr_len(len), prev_(NULL), next_(NULL)
 {
 	if(!is_of_arr_type(type)){
 		cerr << "SEMANTIC error: only INT8_ARR_TYPE ... DOUBLE_ARR_TYPE array Types are allowed in decl: " << var_name << endl;
@@ -1122,7 +1121,7 @@ FunctionParameter::FunctionParameter(DataType type, char * name, int len): var_t
 }
 
 FunctionDeclarationStatement::FunctionDeclarationStatement(
-	DataType dtype, int lline_number, char * & name
+	DataType dtype, int32_t lline_number, char * & name
 	, FunctionParameter* & v_list, DataType returnType_)
 	: AbstractStatement(dtype, lline_number), funcInfo_(0)
 {
@@ -1166,7 +1165,7 @@ void FunctionDeclarationStatement::GenerateCode(StatementCompiledCode &code)
 
 FunctionDeclarationStatement::~FunctionDeclarationStatement()
 {
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file 
@@ -1180,7 +1179,7 @@ FunctionDeclarationStatement::~FunctionDeclarationStatement()
 	if (funcInfo_) { delete funcInfo_; funcInfo_=0; }
 }
 
-FunctionStatement:: FunctionStatement ( DataType dtype, int lline_number
+FunctionStatement:: FunctionStatement ( DataType dtype, int32_t lline_number
 		, Scope * &scope_, FunctionParameter * & v_list
 		, AbstractStatement* & lfunc_body
 		, string func_name, DataType lreturn_type
@@ -1188,7 +1187,7 @@ FunctionStatement:: FunctionStatement ( DataType dtype, int lline_number
 	: AbstractStatement(dtype, lline_number), funcInfo_(0)
 	  , functionBody_(lfunc_body), returnType_(lreturn_type)
 {
-	int index=search_for_func(func_name);
+	int32_t index=search_for_func(func_name);
 	if(index==-1){
 		ostringstream err_msg;
 		err_msg << "function defn without decl: " 
@@ -1220,7 +1219,7 @@ void FunctionStatement::GenerateCode(StatementCompiledCode & code)
 {
 	code.program_code << "//FunctionStatement::GenerateCode()" << endl;
 	if(funcInfo_->returnType_ >= VOID_TYPE 
-			&& funcInfo_->returnType_<=DOUBLE_TYPE){
+	   && funcInfo_->returnType_<=DOUBLE_TYPE){
 		code.program_code << noun_list[funcInfo_->returnType_].sym;
 	} else {
 		ostringstream err_msg;
@@ -1247,7 +1246,7 @@ void FunctionStatement::GenerateCode(StatementCompiledCode & code)
 
 FunctionStatement::~FunctionStatement()
 {
-	for (unsigned int i=0; i< mem_addr.size(); ++i){
+	for (u_int32_t i=0; i< mem_addr.size(); ++i){
 		if(this==mem_addr[i].mem_ptr){
 			mem_addr[i].mem_ptr=0;
 			debug_log_file << "FunctionStatement::~FunctionStatement: setting mem_addr=0" << endl;

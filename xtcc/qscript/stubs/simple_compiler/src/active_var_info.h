@@ -2,8 +2,8 @@
 #ifndef active_var_info_h
 #define active_var_info_h
 
-#include "datatype.h"
 #include <string>
+#include "datatype.h"
 
 	//! Structure to store active variable information at a given point in compilation
 	struct ActiveVariableInfo 

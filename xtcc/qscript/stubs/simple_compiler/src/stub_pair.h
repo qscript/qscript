@@ -7,14 +7,16 @@
 
 #define xtcc_stub_pair_h
 
+#include <sys/types.h>
 #include <string>
 using std::string;
-struct	stub_pair{
+struct	stub_pair
+{
 	string stub_text;
-	int code;
+	int32_t code;
 	bool mask;
 	stub_pair():stub_text(""), code(-1), mask(false) {}
-	stub_pair(string l_txt, int l_code)
+	stub_pair(string l_txt, int32_t l_code)
 		: stub_text(l_txt), code(l_code), mask(true) 
 	{}
 };

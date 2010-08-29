@@ -3,21 +3,22 @@
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
-#include "stmt.h"
-#include "expr.h"
-#include "debug_mem.h"
-#include "stmt.h"
+
 #include <string>
 #include <iostream>
 #include <cstdio>
 #include <fstream>
+#include "stmt.h"
+#include "expr.h"
+#include "debug_mem.h"
+#include "stmt.h"
 #include "named_range.h"
 #include "qscript_parser.h"
 
 
 
 extern vector<mem_addr_tab> mem_addr;
-extern int if_line_no;
+extern int32_t if_line_no;
 
 //extern ofstream debug_log_file;
 using std::cout;

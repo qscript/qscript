@@ -1,14 +1,15 @@
 #ifndef QSCRIPT_READLINE_H
 #define QSCRIPT_READLINE_H
+#include <sys/types.h>
 #include <curses.h>
 #include <string>
 
 class NCursesReadline
 {
-	//const int MAX_BUFF;
+	//const int32_t MAX_BUFF;
 	//char * buffer_;
 	std::string buffer_;
-	int insertionPoint_;
+	int32_t insertionPoint_;
 		//, lastBufPointer_;
 	WINDOW * dataEntryWindow_;
 	public:
@@ -16,13 +17,13 @@ class NCursesReadline
 	NCursesReadline(WINDOW * l_data_entry_window);
 	const char * ReadLine();
 	void SetBuffer(const std::string & re_arranged_buffer
-		       , int l_new_insertionPoint);
+		       , int32_t l_new_insertionPoint);
 	void DoDelete();
 	void DoBackSpace();
 	void DoDeleteWordForward();
 	void DoDeleteWordBackWard();
 	void Reset();
-	void EraseLine(int line_no);
+	void EraseLine(int32_t line_no);
 	void DoShiftLeft();
 	void DoShiftRight();
 	private:
@@ -35,9 +36,9 @@ void read_data( const char * prompt);
 void read_data_from_window(WINDOW * data_entry_window, const char * prompt
 			   , bool clear_buffer_flag
 			   , std::string & re_arranged_buffer
-			   , int & pos_1st_invalid_data);
+			   , int32_t & pos_1st_invalid_data);
 /*
 char * qscript_readline(WINDOW * data_entry_window, const char * prompt
-	, bool clear_buffer_flag, std::string & re_arranged_buffer, int & pos_1st_invalid_data);
+	, bool clear_buffer_flag, std::string & re_arranged_buffer, int32_t & pos_1st_invalid_data);
 */
 #endif /* QSCRIPT_READLINE_H */
