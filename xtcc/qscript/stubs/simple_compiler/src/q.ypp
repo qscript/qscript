@@ -8,6 +8,7 @@
 
 //#include "common.h"
 
+#include <inttypes.h>
 #include <sys/types.h>
 #include <limits.h>
 #include <string>
@@ -979,7 +980,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 
 	bool found=false;
 	struct named_range* nr_ptr = 0;
-	for(u_int32_t i=0; i<named_stubs_list.size(); ++i){
+	for(uint32_t i=0; i<named_stubs_list.size(); ++i){
 		nr_ptr = named_stubs_list[i];
 		if(nr_ptr->name==attribute_list_name){
 			found=true; break;
