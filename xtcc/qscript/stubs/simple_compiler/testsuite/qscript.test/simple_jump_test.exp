@@ -1,0 +1,160 @@
+set test "qscript simple_jump_test no question, only variables"
+set timeout 7
+global QSCRIPT
+global QSCRIPT_HOME
+spawn rm qscript_stdout.log
+wait
+spawn $QSCRIPT -f inputs/inp_jump_test
+wait
+
+spawn inputs/inp_jump_test.exe
+expect {
+	"Enter Serial No (0) to exit:" {
+		send_user "got Serial prompt\n";
+		send "1\r" ;
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q1. Q1. \r\n" {
+		send_user "Reached q1\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n5\r\n6\r\n7\r\n8\r\n9\r\n10\r\n11\r\n16\r\n" {
+		send_user "Got stubs for q1\n";
+		send "6\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q2. Q2. \r\n" {
+		send_user "Reached q2\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2\n";
+		send "1\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+
+expect {
+	"q3. Q3. \r\n" {
+		send_user "Reached q3\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"5\r\n6\r\n" {
+		send_user "Got stubs for q3\n";
+		send "j\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect "q1 q2 \r\n";
+send_user "got jump list ... requesting jump to q1\n"
+send "q1\r";
+
+expect {
+	"q1. Q1. \r\n" {
+		send_user "Jumped back to q1\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n5\r\n6\r\n7\r\n8\r\n9\r\n10\r\n11\r\n16\r\n" {
+		send_user "Got stubs for q1\n";
+		send "n\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+
+expect {
+	"q2. Q2. \r\n" {
+		send_user "Reached q2\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2\n";
+		send "n\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+
+expect {
+	"q3. Q3. \r\n" {
+		send_user "Reached q3\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"5\r\n6\r\n" {
+		send_user "Got stubs for q3\n";
+		send "5\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	-re "End of Questionnaire: .s to save, p = previous question, j = question jump list." { 
+		send_user "saving questionnaire\n"; 
+		send "s\r"
+	}
+}
+
+expect {
+	-re "Enter Serial No .0. to exit:" { 	
+		send "0\r" ;  
+	}
+}
+
+spawn cat qscript_stdout.log
+expect { 
+	-re "before q1 i1:1 , i2:2, i3:10" { send_user "got before q1...\n"; }
+}
+
+expect { 
+	-re "after q1 i1:20 , i2:2, i3:10" { send_user "got after q1...\n"; }
+}
+
+expect {
+	-re "after q2: i1:1001 , i2:1002, i3:1003" { send_user "got after q2...\n"; }
+}
+
+expect { 
+	-re "before q1 i1:1 , i2:2, i3:10" { send_user "got before q1...\n"; }
+}
+
+expect {
+	-re "after q1 i1:20 , i2:2, i3:10" { send_user "got after q1...\n"; }
+}
+
+expect {
+	-re "after q2: i1:1001 , i2:1002, i3:1003" { send_user "got after q2\n"; }
+}
+
+expect {
+	-re "after q3: i1:2001 , i2:2002, i3:2003" { 
+		send_user "got after q3\n"; 
+		pass $test;
+	}
+}
+

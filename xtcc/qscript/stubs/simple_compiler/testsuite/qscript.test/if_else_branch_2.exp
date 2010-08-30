@@ -256,13 +256,14 @@ expect {
 
 expect {
 	"15\r\n16\r\n" {
-		send_user "Got stubs for q5_4\n";
+		send_user "Got stubs for q5_4... sending jump 'j'\n";
 		send "j\r";
 	}
 	default { send_user "failed\n"; }
 }
 
-expect "q1 q3 q4 q5 q6 q5_3\r\n";
+expect "q1 q3 q4 q5 q6 q5_3 \r\n";
+send_user "got jump list ... requesting jump to q4\n"
 send "q4\r";
 
 expect {
