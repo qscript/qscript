@@ -19,7 +19,7 @@ NCursesReadline::NCursesReadline(WINDOW * l_data_entry_window)
 
 const char * NCursesReadline::ReadLine()
 {
-	wmove(dataEntryWindow_, 1, 1); 
+	wmove(dataEntryWindow_, 1, 1);
 	mvwprintw(dataEntryWindow_,1,1, "%s", buffer_.c_str());
 	//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer);
 	mvwprintw(dataEntryWindow_, 3, 41, "insertionPoint_: %d, lastBufPointer_: %d\n"
@@ -44,7 +44,7 @@ const char * NCursesReadline::ReadLine()
 			}
 			mvwprintw(dataEntryWindow_,2,75, "got PRINTABLE CHAR %d", c);
 
-		} else switch(c) {
+		} else switch (c) {
 			case 10:
 			case 13:
 			case KEY_ENTER:
@@ -54,50 +54,50 @@ const char * NCursesReadline::ReadLine()
 				if(insertionPoint_>0){
 					--insertionPoint_;
 				}
-			break;
+				break;
 			case KEY_RIGHT:
 				if(insertionPoint_<buffer_.length()){
 					++insertionPoint_;
 				}
-			break;
+				break;
 			case KEY_HOME:
 				insertionPoint_ = 0;
-			break;
+				break;
 			case KEY_END:
 				insertionPoint_ = buffer_.length();
-			break;
+				break;
 			case 8: // ctrl-H (which is backspace) in pdcurses
 			case SHF_DC:
 			case KEY_BACKSPACE:
 				DoBackSpace();
-			break;
+				break;
 			case KEY_DC:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_DC");
 				DoDelete();
-			break;
+				break;
 			case CTL_DEL:
 				DoDeleteWordForward();
-			break;
+				break;
 			case ALT_DEL:
 				DoDeleteWordBackWard();
-			break;
+				break;
 			case CTL_LEFT:
 			case KEY_SLEFT:
 				DoShiftLeft();
-			break;
+				break;
 			case CTL_RIGHT:
 			case KEY_SRIGHT:
 				DoShiftRight();
-			break;
+				break;
 			default:
 				//mvprintw(0,0, "unknown key: %d\n", c);
 				mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c);
-			break;
-		}
+				break;
+			}
 		//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer_);
 		mvwprintw(dataEntryWindow_, 3,1, "insertionPoint_: %d, lastBufPointer_: %d\n"
 				, insertionPoint_, buffer_.length());
-		//for(int32_t i = lastBufPointer_-1; i<lastBufPointer_+10; ++i){
+		//for(int32_t i = lastBufPointer_-1; i < lastBufPointer_+10; ++i){
 		//	mvwaddch(dataEntryWindow_, curY, i,  ' ');
 		//}
 		//wclear(dataEntryWindow_);
@@ -115,7 +115,7 @@ void NCursesReadline::EraseLine(int32_t line_no)
 	int32_t maxX, maxY;
 	getmaxyx(dataEntryWindow_, maxY,maxX);
 	if(line_no  >= 0 && line_no  <=  maxY){
-		for(int32_t i = 0; i<buffer_.length()+10; ++i){
+		for(int32_t i = 0; i < buffer_.length()+10; ++i){
 			mvwaddch(dataEntryWindow_, line_no, i,  ' ');
 		}
 	}
@@ -144,8 +144,8 @@ void NCursesReadline::DoDelete()
 
 	if(insertionPoint_ == buffer_.length()) {
 		// nothing to do
-	} else if(insertionPoint_ >= 0){
-		buffer_.erase(insertionPoint_, 1); 
+	} else if (insertionPoint_ >= 0){
+		buffer_.erase(insertionPoint_, 1);
 	}
 }
 

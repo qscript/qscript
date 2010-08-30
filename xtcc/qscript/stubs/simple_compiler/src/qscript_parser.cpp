@@ -7,7 +7,7 @@
 
 extern int32_t qscript_confparse();
 extern void qscript_confrestart(FILE *input_file);
-namespace qscript_parser 
+namespace qscript_parser
 {
 	using std::cerr;
 	using std::cout;
@@ -246,7 +246,7 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf(script, "vector <string> active_push_vars_%s;\n",
 			q_name.c_str());
 		vector<string>& v = iter->second;
-		for(unsigned int32_t i = 0; i<v.size(); ++i){
+		for(unsigned int32_t i = 0; i < v.size(); ++i){
 			fprintf(script, "active_push_vars_%s.push_back(%s);\n",
 				q_name.c_str(), v[i].c_str());
 		}
@@ -356,7 +356,7 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	int32_t current_question_index = -1;\n");
-	fprintf(script, "	for(int32_t i = 0; i<question_list.size(); ++i){\n");
+	fprintf(script, "	for(int32_t i = 0; i < question_list.size(); ++i){\n");
 	fprintf(script, "		if(question_list[i] == q){\n");
 	fprintf(script, "			current_question_index = i;\n");
 	fprintf(script, "			break;\n");
@@ -379,14 +379,14 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script,"int32_t ComputeJumpToIndex(AbstractQuestion * q)\n");
 	fprintf(script,"{\n");
 	fprintf(script,"	cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
-	fprintf(script,"	for(int32_t i = 0; i<q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"	for(int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
 	fprintf(script,"		cout << q->loop_index_values[i] << \" \";\n");
 	fprintf(script,"	}\n");
 	fprintf(script,"	cout << endl;\n");
 	fprintf(script,"	int32_t index = 0;\n");
-	fprintf(script,"	for(int32_t i = 0; i<q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"	for(int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
 	fprintf(script,"		int32_t tmp1=q->loop_index_values[i];\n");
-	fprintf(script,"		for(int32_t j = i+1; j<q->dummyArrayQuestion_->array_bounds.size(); ++j){\n");
+	fprintf(script,"		for(int32_t j = i+1; j < q->dummyArrayQuestion_->array_bounds.size(); ++j){\n");
 	fprintf(script,"			tmp1 *=q->dummyArrayQuestion_->array_bounds[j];\n");
 	fprintf(script,"		}\n");
 	fprintf(script,"		index+=tmp1;\n");
@@ -529,7 +529,7 @@ void PrintGetUserResponse(FILE *script)
 bool skip_func_type_check(const char * fname)
 {
 	const char * skip_func_type_check_list[] = {"printf" };
-	for(uint32_t i = 0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
+	for(uint32_t i = 0; i < sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
 		if(!strcmp(fname, skip_func_type_check_list[i])){
 			return true;
 		}
@@ -569,7 +569,7 @@ int32_t check_parameters(AbstractExpression* e, VariableList* v)
 				debug_log_file << "varname: "<< fparam->variableName_ << " chk_param_counter: "
 					<< chk_param_counter << " passed " << endl;
 			}
-		} else if((etype >= INT8_ARR_TYPE&&etype <= DOUBLE_ARR_TYPE)
+		} else if ((etype >= INT8_ARR_TYPE&&etype <= DOUBLE_ARR_TYPE)
 			   && (fptype >= INT8_ARR_TYPE&&fptype <= DOUBLE_ARR_TYPE)
 			   && (etype == fptype)){
 			debug_log_file << "varname: "<< fparam->variableName_ << " chk_param_counter: "
@@ -616,7 +616,7 @@ const char * file_exists_check_code()
 	"\t	for(unsigned int32_t i = 0; i< qdd_list.size(); ++i){\n"
 	"\t		cout << qdd_list[i]->qno << endl;\n"
 	"\t		cout  << \":\" << qdd_list[i]->data.size() << endl;\n"
-	"\t		for(int32_t j = 0; j<qdd_list[i]->data.size(); ++j){\n"
+	"\t		for(int32_t j = 0; j < qdd_list[i]->data.size(); ++j){\n"
 	"\t			cout << qdd_list[i]->data[j] << \" \";\n"
 	"\t		}\n"
 	"\t		cout << endl;\n"
@@ -636,7 +636,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char * question_name)
 {
 	int32_t index = -1;
-	for(int32_t i = 0; i<named_stubs_list.size(); ++i){
+	for(int32_t i = 0; i < named_stubs_list.size(); ++i){
 		named_range * nr_ptr = named_stubs_list[i];
 		if(nr_ptr->name == stub_list_name){
 			index = i;
@@ -650,7 +650,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			line_no, __LINE__, __FILE__);
 	}
 	int32_t index_question = -1;
-	for(int32_t i = 0; i<question_list.size(); ++i){
+	for(int32_t i = 0; i < question_list.size(); ++i){
 		if(question_list[i]->questionName_  ==  question_name){
 			index_question = i;
 			break;
@@ -696,7 +696,7 @@ AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 						   , char* stub_list_name)
 {
 	int32_t index = -1;
-	for(int32_t i = 0; i<named_stubs_list.size(); ++i){
+	for(int32_t i = 0; i < named_stubs_list.size(); ++i){
 		named_range * nr_ptr = named_stubs_list[i];
 		if(nr_ptr->name == stub_list_name){
 			index = i;
@@ -730,7 +730,7 @@ const char * write_data_to_disk_code()
 	"\t	data_file.exceptions(std::ios::failbit | std::ios::badbit);\n"
 	"\t	data_file.open(fname_str.str().c_str(), ios_base::ate);\n"
 	"\t\n"
-	"\t	for(int32_t i = 0; i<question_list.size(); ++i){\n"
+	"\t	for(int32_t i = 0; i < question_list.size(); ++i){\n"
 	"\t		question_list[i]->WriteDataToDisk(data_file);\n"
 	"\t		/*\n"
 	"\t		fprintf(fptr, \"%s: \", question_list[i]->name.c_str());\n"

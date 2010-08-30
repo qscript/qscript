@@ -48,9 +48,8 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info
-	):
-	AbstractStatement(l_type, l_no)
+	, vector<ActiveVariableInfo* > l_av_info)
+	: AbstractStatement(l_type, l_no)
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(l_for_bounds_stack), loop_index_values(0)
@@ -68,9 +67,8 @@ AbstractQuestion::AbstractQuestion(
 
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
-	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
-	):
-	AbstractStatement(l_type, l_no), questionName_(l_name)
+	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt)
+	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
@@ -90,9 +88,8 @@ AbstractQuestion::AbstractQuestion(
 	, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info
-	):
-	AbstractStatement(l_type, l_no), questionName_(l_name)
+	, vector<ActiveVariableInfo* > l_av_info)
+	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
@@ -113,9 +110,8 @@ AbstractQuestion::AbstractQuestion(
 	, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, const vector<int32_t>& l_loop_index_values
-	, DummyArrayQuestion * l_dummy_array
-	):
-	AbstractStatement(l_type, l_no), questionName_(l_name)
+	, DummyArrayQuestion * l_dummy_array)
+	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0)
@@ -125,7 +121,7 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
 {
-	//for(int32_t i = 0; i<l_loop_index_values.size(); ++i){
+	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
 	//}
 }
@@ -290,7 +286,7 @@ bool AbstractQuestion::VerifyData(
 {
 	bool invalid_code, has_invalid_data_flag = false;
 	stringstream valid_data, invalid_data;
-	for(uint32_t i = 0; i<data.size(); ++i){
+	for(uint32_t i = 0; i < data.size(); ++i){
 		//cout << "Testing data exists: " << data[i] << endl;
 		invalid_code = !IsValid(data[i]);
 		if(invalid_code == true){
@@ -342,7 +338,7 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 			}
 
 			/*
-			for(unsigned int32_t i = 0; i<data.size(); ++i){
+			for(unsigned int32_t i = 0; i < data.size(); ++i){
 				cout << "Testing data exists: " << data[i] << endl;
 				invalid_code = !IsValid(data[i]);
 				if(invalid_code == true){
@@ -371,14 +367,14 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 
 			if(invalid_code == false){
 				input_data.erase(input_data.begin(), input_data.end());
-				for(uint32_t i = 0; i<data.size(); ++i){
+				for(uint32_t i = 0; i < data.size(); ++i){
 					input_data.insert(data[i]);
 					//cout 	<< "storing: " << data[i]
 					//	<< " into input_data" << endl;
 				}
 				isAnswered_ = true;
 			}
-		} while(invalid_code == true);
+		} while (invalid_code == true);
 
 		data.clear();
 	} else {
@@ -396,7 +392,7 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 			}
 
 			/*
-			for(unsigned int32_t i = 0; i<data.size(); ++i){
+			for(unsigned int32_t i = 0; i < data.size(); ++i){
 				cout << "Testing data exists: " << data[i] << endl;
 				invalid_code = !IsValid(data[i]);
 				if(invalid_code == true){
@@ -424,14 +420,14 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 
 			if(invalid_code == false){
 				input_data.erase(input_data.begin(), input_data.end());
-				for(uint32_t i = 0; i<data.size(); ++i){
+				for(uint32_t i = 0; i < data.size(); ++i){
 					input_data.insert(data[i]);
 					//cout << "storing: " << data[i]
 					//	<< " into input_data" << endl;
 				}
 				isAnswered_ = true;
 			}
-		} while(invalid_code == true);
+		} while (invalid_code == true);
 
 		data.clear();
 	}
@@ -483,11 +479,10 @@ RangeQuestion::RangeQuestion(
 	, DataType l_dt, XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info
-	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
-			 , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
-			 , l_enclosing_scope, l_av_info)
+	, vector<ActiveVariableInfo* > l_av_info)
+	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+			   , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
+			   , l_enclosing_scope, l_av_info)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
@@ -495,11 +490,9 @@ RangeQuestion::RangeQuestion(
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-	, DataType l_dt , XtccSet& l_r_data
-	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt
-		)
+	, DataType l_dt , XtccSet& l_r_data)
+	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+			   , l_q_type, l_no_mpn, l_dt)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
@@ -509,11 +502,10 @@ RangeQuestion::RangeQuestion(
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info
-	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info
-		)
+	, vector<ActiveVariableInfo* > l_av_info)
+	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+			   , l_q_type, l_no_mpn, l_dt
+			   , l_enclosing_scope, l_av_info)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
@@ -548,7 +540,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		for(	set<int32_t>::iterator it = r_data->indiv.begin();
 				it != r_data->indiv.end(); ++it){
 			displayData_.insert(*it);
-			for(int32_t i = 0; i<r_data->range.size(); ++i){
+			for(int32_t i = 0; i < r_data->range.size(); ++i){
 				for(int32_t j = r_data->range[i].first; j <= r_data->range[i].second
 						;++j){
 					displayData_.insert(j);
@@ -636,7 +628,7 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 bool NamedStubQuestion::IsValid(int32_t value)
 {
 	vector<stub_pair> & vec= *stub_ptr;
-	for(uint32_t j = 0; j<vec.size(); ++j){
+	for(uint32_t j = 0; j < vec.size(); ++j){
 		if(vec[j].code == value && vec[j].mask){
 			return true;
 		}
@@ -710,7 +702,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 		code.quest_defns << xtcc_set_name << ".indiv.insert(" << *it
 			<< ");" << endl;
 	}
-	for(uint32_t i = 0; i<r_data->range.size(); ++i){
+	for(uint32_t i = 0; i < r_data->range.size(); ++i){
 		code.quest_defns << xtcc_set_name
 			<< ".range.push_back(pair<int32_t,int32_t>("
 			<< r_data->range[i].first << ","
@@ -922,7 +914,7 @@ void AbstractQuestion::print_q_type(string &s)
 void AbstractQuestion::print_data_type(string &s)
 {
 	cerr << "Is this functionality already duplicated somewhere else?"
-		<< ", line: " << __LINE__ 
+		<< ", line: " << __LINE__
 		<< ", file: " << __FILE__
 		<< ", func: " << __PRETTY_FUNCTION__
 		<< endl;
@@ -1065,7 +1057,7 @@ RangeQuestion::~RangeQuestion()
 void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	data_file << questionName_ << " BOUNDS";
-	for(int32_t i = 0; i<array_bounds.size(); ++i){
+	for(int32_t i = 0; i < array_bounds.size(); ++i){
 		data_file << " "<< array_bounds[i];
 	}
 	data_file << endl;
@@ -1082,7 +1074,7 @@ void AbstractQuestion::SetupSimpleQuestionRestore(StatementCompiledCode & code)
 {
 	ostringstream &s(code.program_code);
 	s << "/* AbstractQuestion::SetupSimpleQuestionRestore */\n";
-	for(int32_t i = 0; i<activeVarInfo_.size(); ++i){
+	for(int32_t i = 0; i < activeVarInfo_.size(); ++i){
 
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
@@ -1188,7 +1180,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 		vector<AbstractQuestion*> & questions_in_block =
 			enclosingCompoundStatement_->questionsInBlock_;
 		s << "/* questionsInBlock_: ";
-		for(int32_t i = 0; i<questions_in_block.size(); ++i){
+		for(int32_t i = 0; i < questions_in_block.size(); ++i){
 			s << questions_in_block[i]->questionName_ << " ";
 		}
 		s << " */\n";
@@ -1217,7 +1209,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			<< restore_array_quest->questionName_
 			<< " :are at the same scope and level */"
 			<< endl;
-		s << "for(int32_t xtcc_i = 0; xtcc_i<";
+		s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 		s << restore_array_quest->enclosingCompoundStatement_
 			->ConsolidatedForLoopIndexStack_.back();
 		s << ";++xtcc_i){\n";
@@ -1242,8 +1234,8 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			<< "*/"
 			<< endl;
 
-		s << "for(int32_t xtcc_i = 0; xtcc_i<";
-		for(int32_t i1 = 0; i1<restore_array_quest->for_bounds_stack.size(); ++i1) {
+		s << "for(int32_t xtcc_i = 0; xtcc_i < ";
+		for(int32_t i1 = 0; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 					restore_array_quest->for_bounds_stack[i1]);
 			if(bin_expr_ptr){
@@ -1290,10 +1282,10 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			<< " and save all these to the question scope map\n"
 			<< "*/\n"
 			<< endl;
-		s << "for(int32_t xtcc_i = 0; xtcc_i<";
+		s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 		vector <AbstractExpression * > e_stack;
 		int32_t i1 = 0;
-		for(i1 = 0; i1<restore_array_quest->for_bounds_stack.size()
+		for(i1 = 0; i1 < restore_array_quest->for_bounds_stack.size()
 				&& restore_array_quest->for_bounds_stack[i1]
 					== for_bounds_stack[i1]
 				; ++i1){
@@ -1301,7 +1293,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 		}
 		s << PrintConsolidatedForLoopIndex(e_stack)
 			<< "*";
-		for(; i1<restore_array_quest->for_bounds_stack.size(); ++i1) {
+		for(; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 					restore_array_quest->for_bounds_stack[i1]);
 			if(bin_expr_ptr){
@@ -1368,7 +1360,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 				enclosingCompoundStatement_->questionsInBlock_;
 			cerr << "/* questionsInBlock_: quest_loc "
 				<< questionName_ << ":";
-			for(int32_t i = 0; i<questions_in_block.size(); ++i){
+			for(int32_t i = 0; i < questions_in_block.size(); ++i){
 				cerr << questions_in_block[i]->questionName_ << " ";
 			}
 			cerr << " */\n";
@@ -1378,7 +1370,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 				restore_array_quest->enclosingCompoundStatement_->questionsInBlock_;
 			cerr << "/* questionsInBlock_: restore_array_quest "
 				<< restore_array_quest->questionName_ << ":";
-			for(int32_t i = 0; i<questions_in_block.size(); ++i){
+			for(int32_t i = 0; i < questions_in_block.size(); ++i){
 				cerr << questions_in_block[i]->questionName_ << " ";
 			}
 			cerr << " */\n";
@@ -1402,7 +1394,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 		vector<AbstractQuestion*> & questions_in_block =
 			enclosingCompoundStatement_->questionsInBlock_;
 		s << "/* questionsInBlock_: ";
-		for(int32_t i = 0; i<questions_in_block.size(); ++i){
+		for(int32_t i = 0; i < questions_in_block.size(); ++i){
 			s << questions_in_block[i]->questionName_ << " ";
 		}
 		s << " */\n";
@@ -1434,7 +1426,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< save_array_quest->questionName_
 			<< " :are at the same scope and level */"
 			<< endl;
-		s << "for(int32_t xtcc_i = 0; xtcc_i<";
+		s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 		s << save_array_quest->enclosingCompoundStatement_
 			->ConsolidatedForLoopIndexStack_.back();
 		s << ";++xtcc_i){\n";
@@ -1457,8 +1449,8 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< " :belong to different blocks "
 			<< "*/"
 			<< endl;
-		s << "for(int32_t xtcc_i = 0; xtcc_i<";
-		for(int32_t i1 = 0; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
+		s << "for(int32_t xtcc_i = 0; xtcc_i < ";
+		for(int32_t i1 = 0; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 					save_array_quest->for_bounds_stack[i1]);
 			if(bin_expr_ptr){
@@ -1504,10 +1496,10 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< " and save all these to the question scope map\n"
 			<< "*/\n"
 			<< endl;
-		s << "for(int32_t xtcc_i = 0; xtcc_i<";
+		s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 		vector <AbstractExpression * > e_stack;
 		int32_t i1 = 0;
-		for(i1 = 0; i1<save_array_quest->for_bounds_stack.size()
+		for(i1 = 0; i1 < save_array_quest->for_bounds_stack.size()
 				&& save_array_quest->for_bounds_stack[i1]
 					 ==  for_bounds_stack[i1]
 				; ++i1){
@@ -1515,7 +1507,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 		}
 		s << PrintConsolidatedForLoopIndex(e_stack)
 			<< "*";
-		for(; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
+		for(; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 					save_array_quest->for_bounds_stack[i1]);
 			if(bin_expr_ptr){
@@ -1581,7 +1573,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 				enclosingCompoundStatement_->questionsInBlock_;
 			cerr << "/* questionsInBlock_: quest_loc "
 				<< questionName_ << ":";
-			for(int32_t i = 0; i<questions_in_block.size(); ++i){
+			for(int32_t i = 0; i < questions_in_block.size(); ++i){
 				cerr << questions_in_block[i]->questionName_ << " ";
 			}
 			cerr << " */\n";
@@ -1591,7 +1583,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 				save_array_quest->enclosingCompoundStatement_->questionsInBlock_;
 			cerr << "/* questionsInBlock_: save_array_quest "
 				<< save_array_quest->questionName_ << ":";
-			for(int32_t i = 0; i<questions_in_block.size(); ++i){
+			for(int32_t i = 0; i < questions_in_block.size(); ++i){
 				cerr << questions_in_block[i]->questionName_ << " ";
 			}
 			cerr << " */\n";
@@ -1609,7 +1601,7 @@ void AbstractQuestion::SetupSimpleQuestionSave(StatementCompiledCode &code)
 {
 	ostringstream &s(code.program_code);
 	s << "/* AbstractQuestion::SetupSimpleQuestionSave */\n";
-	for(int32_t i = 0; i<activeVarInfo_.size(); ++i){
+	for(int32_t i = 0; i < activeVarInfo_.size(); ++i){
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
 		case INT16_TYPE:
@@ -1641,7 +1633,7 @@ void AbstractQuestion::SetupArrayQuestionRestore(StatementCompiledCode &code)
 	PrintRestoreMyPreviousIterationsData(code);
 	int32_t temp_map_key_no = GetTempMapKeyNumber();
 	s << "ostringstream map_key_" << temp_map_key_no << ";\n";
-	for(int32_t i = 0; i<activeVarInfo_.size(); ++i){
+	for(int32_t i = 0; i < activeVarInfo_.size(); ++i){
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
 		case INT16_TYPE:
@@ -1680,7 +1672,7 @@ void AbstractQuestion::PrintSaveMyPreviousIterationsData(StatementCompiledCode &
 {
 	ostringstream &s(code.program_code);
 	s << "/* ENTER:AbstractQuestion::PrintSaveMyPreviousIterationsData */" << endl;
-	s << "for(int32_t xtcc_i = 0; xtcc_i<"
+	s << "for(int32_t xtcc_i = 0; xtcc_i < "
 		//<< consolidated_for_loop_index_stack.back() << "-1"
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 		<< ";++xtcc_i){\n";
@@ -1711,7 +1703,7 @@ void AbstractQuestion::SetupArrayQuestionSave(StatementCompiledCode &code)
 	PrintSaveMyPreviousIterationsData(code);
 	int32_t temp_map_key_no = GetTempMapKeyNumber();
 	s << "ostringstream map_key_" << temp_map_key_no << ";\n";
-	for(int32_t i = 0; i<activeVarInfo_.size(); ++i){
+	for(int32_t i = 0; i < activeVarInfo_.size(); ++i){
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
 		case INT16_TYPE:
@@ -1785,7 +1777,7 @@ bool AbstractQuestion::QuestionIsInMyBlock(AbstractQuestion *q)
 {
 	vector<AbstractQuestion*> & questions_in_block =
 		enclosingCompoundStatement_->questionsInBlock_;
-	for(int32_t i = 0; i<questions_in_block.size(); ++i){
+	for(int32_t i = 0; i < questions_in_block.size(); ++i){
 		if(q == questions_in_block[i]){
 			return true;
 		}
@@ -1826,7 +1818,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 	ostringstream &s(code.program_code);
 	s << "/* ENTER AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe */" << endl;
 	int32_t pos_start_of_for_loop = -1;
-	for(int32_t i = 0; i<enclosingCompoundStatement_->nestedCompoundStatementStack_.size(); ++i){
+	for(int32_t i = 0; i < enclosingCompoundStatement_->nestedCompoundStatementStack_.size(); ++i){
 		if(enclosingCompoundStatement_->nestedCompoundStatementStack_[i]->flagIsAForBody_){
 			pos_start_of_for_loop = i;
 			break;
@@ -1843,7 +1835,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 		nestedCompoundStatementStack_[pos_start_of_for_loop]->questionsInBlock_;
 	s << "/* questions in my block ("
 		<< questionName_ << "):";
-	for(int32_t i = 0; i<questions_in_block.size(); ++i){
+	for(int32_t i = 0; i < questions_in_block.size(); ++i){
 		s << questions_in_block[i]->questionName_ << ",";
 	}
 	s << "*/" << endl;
@@ -1873,7 +1865,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< "xtcc_i\" <= \" or \"<\" and other similar places  "
 					<< __LINE__ << "," << __FILE__
 					<< endl;
-				s << "for(int32_t xtcc_i = 0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				s << save_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back();
 				s << ";++xtcc_i){\n";
@@ -1897,8 +1889,8 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< " :belong to different blocks "
 					<< "*/"
 					<< endl;
-				s << "for(int32_t xtcc_i = 0; xtcc_i<";
-				for(int32_t i1 = 0; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
+				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
+				for(int32_t i1 = 0; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
 					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 							save_array_quest->for_bounds_stack[i1]);
 					if(bin_expr_ptr){
@@ -1945,10 +1937,10 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< " and save all these to the question scope map\n"
 					<< "*/\n"
 					<< endl;
-				s << "for(int32_t xtcc_i = 0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				vector <AbstractExpression * > e_stack;
 				int32_t i1 = 0;
-				for(i1 = 0; i1<save_array_quest->for_bounds_stack.size()
+				for(i1 = 0; i1 < save_array_quest->for_bounds_stack.size()
 						&& save_array_quest->for_bounds_stack[i1]
 							 ==  for_bounds_stack[i1]
 						; ++i1){
@@ -1958,7 +1950,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< PrintConsolidatedForLoopIndex(e_stack)
 					<< ")"
 					<< "*";
-				for(; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
+				for(; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
 					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 							save_array_quest->for_bounds_stack[i1]);
 					if(bin_expr_ptr){
@@ -1998,7 +1990,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< save_array_quest->questionName_
 					<< "*/"
 					<< endl;
-				s << "for(int32_t xtcc_i = 0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				s << save_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back()
 					<< "-1";
@@ -2030,7 +2022,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 						quest_loc->enclosingCompoundStatement_->questionsInBlock_;
 					cerr << "/* questionsInBlock_: quest_loc "
 						<< quest_loc->questionName_ << ":";
-					for(int32_t i = 0; i<questions_in_block.size(); ++i){
+					for(int32_t i = 0; i < questions_in_block.size(); ++i){
 						cerr << questions_in_block[i]->questionName_ << " ";
 					}
 					cerr << " */\n";
@@ -2040,7 +2032,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 						save_array_quest->enclosingCompoundStatement_->questionsInBlock_;
 					cerr << "/* questionsInBlock_: save_array_quest "
 						<< save_array_quest->questionName_ << ":";
-					for(int32_t i = 0; i<questions_in_block.size(); ++i){
+					for(int32_t i = 0; i < questions_in_block.size(); ++i){
 						cerr << questions_in_block[i]->questionName_ << " ";
 					}
 					cerr << " */\n";
@@ -2058,7 +2050,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 	ostringstream &s(code.program_code);
 	s << "/* ENTER AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe */" << endl;
 	int32_t pos_start_of_for_loop = -1;
-	for(int32_t i = 0; i<enclosingCompoundStatement_->nestedCompoundStatementStack_.size(); ++i){
+	for(int32_t i = 0; i < enclosingCompoundStatement_->nestedCompoundStatementStack_.size(); ++i){
 		if(enclosingCompoundStatement_->nestedCompoundStatementStack_[i]->flagIsAForBody_){
 			pos_start_of_for_loop = i;
 			break;
@@ -2075,7 +2067,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 		nestedCompoundStatementStack_[pos_start_of_for_loop]->questionsInBlock_;
 	s << "/* questions in my block ("
 		<< questionName_ << "):";
-	for(int32_t i = 0; i<questions_in_block.size(); ++i){
+	for(int32_t i = 0; i < questions_in_block.size(); ++i){
 		s << questions_in_block[i]->questionName_ << ",";
 	}
 	s << "*/" << endl;
@@ -2104,7 +2096,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< "xtcc_i\" <= \" or \"<\" and other similar places  "
 					<< __LINE__ << "," << __FILE__
 					<< endl;
-				s << "for(int32_t xtcc_i = 0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				s << restore_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back();
 				s << ";++xtcc_i){\n";
@@ -2142,10 +2134,10 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< " and save all these to the question scope map\n"
 					<< "*/\n"
 					<< endl;
-				s << "for(int32_t xtcc_i = 0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				vector <AbstractExpression * > e_stack;
 				int32_t i1 = 0;
-				for(i1 = 0; i1<restore_array_quest->for_bounds_stack.size()
+				for(i1 = 0; i1 < restore_array_quest->for_bounds_stack.size()
 						&& restore_array_quest->for_bounds_stack[i1]
 							== for_bounds_stack[i1]
 						; ++i1){
@@ -2155,7 +2147,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< PrintConsolidatedForLoopIndex(e_stack)
 					<< ")"
 					<< "*";
-				for(; i1<restore_array_quest->for_bounds_stack.size(); ++i1) {
+				for(; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
 					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 							restore_array_quest->for_bounds_stack[i1]);
 					if(bin_expr_ptr){
@@ -2195,7 +2187,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< restore_array_quest->questionName_
 					<< "*/"
 					<< endl;
-				s << "for(int32_t xtcc_i = 0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				s << restore_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back()
 					<< "-1";
@@ -2226,7 +2218,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 						quest_loc->enclosingCompoundStatement_->questionsInBlock_;
 					cerr << "/* questionsInBlock_: quest_loc "
 						<< quest_loc->questionName_ << ":";
-					for(int32_t i = 0; i<questions_in_block.size(); ++i){
+					for(int32_t i = 0; i < questions_in_block.size(); ++i){
 						cerr << questions_in_block[i]->questionName_ << " ";
 					}
 					cerr << " */\n";
@@ -2236,7 +2228,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 						restore_array_quest->enclosingCompoundStatement_->questionsInBlock_;
 					cerr << "/* questionsInBlock_: restore_array_quest "
 						<< restore_array_quest->questionName_ << ":";
-					for(int32_t i = 0; i<questions_in_block.size(); ++i){
+					for(int32_t i = 0; i < questions_in_block.size(); ++i){
 						cerr << questions_in_block[i]->questionName_ << " ";
 					}
 					cerr << " */\n";
@@ -2253,7 +2245,7 @@ void AbstractQuestion::PrintRestoreMyPreviousIterationsData(StatementCompiledCod
 {
 	ostringstream &s(code.program_code);
 	s << "/* ENTER:AbstractQuestion::PrintRestoreMyPreviousIterationsData */" << endl;
-	s << "for(int32_t xtcc_i = 0; xtcc_i<"
+	s << "for(int32_t xtcc_i = 0; xtcc_i < "
 		//<< consolidated_for_loop_index_stack.back() << "-1"
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 		<< ";++xtcc_i){\n";

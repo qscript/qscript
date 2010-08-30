@@ -44,9 +44,9 @@ void XtccSet::add_range(int n1, int n2)
 	//cerr << "XtccSet::add_range: n1=" << n1 << ", n2=" << n2 << endl;
 	//cerr << "range.size(): " << range.size() << endl;
 
-	for(	set<int>::iterator it = indiv.begin(); it!=indiv.end(); ++it){
+	for(set<int>::iterator it = indiv.begin(); it != indiv.end(); ++it){
 		int v = *it;
-		if(v>=n1 && v <= n2){
+		if(v >= n1 && v <= n2){
 			stringstream err_msg;
 			err_msg << "range given: " << n1 << " - " << n2
 				<< " makes the individual entry: "  << v << " redundant";
@@ -56,46 +56,46 @@ void XtccSet::add_range(int n1, int n2)
 		}
 	}
 
-	if(range.size()==0){
+	if(range.size() == 0){
 		//cerr << "range.size()==0 pushing back: "  << n1 << "-" << n2 << endl;
 		range.push_back(pair<int,int>(n1, n2));
 		return;
 	}
 
-	for(int i = 0; i<range.size(); ++i){
+	for(int i = 0; i < range.size(); ++i){
 		if(n1 <= range[i].first && n2 >= range[i].second){
 			stringstream err_msg;
 			err_msg << "range given: " << n1 << " - " << n2
-				<< " completely contains an earlier range:" 
-				<< range[i].first << " - " << range[i].second 
+				<< " completely contains an earlier range:"
+				<< range[i].first << " - " << range[i].second
 				<< " and makes it redundant."
 				<< endl;
-				
+
 			print_err(compiler_sem_err, err_msg.str().c_str()
 					, qscript_parser::line_no
 					, __LINE__, __FILE__);
 		} else if ( n1 >= range[i].first && n2 <= range[i].second){
 			stringstream err_msg;
 			err_msg << "range given: " << n1 << " - " << n2
-				<< " is completely contained in an earlier range:" 
+				<< " is completely contained in an earlier range:"
 				<< range[i].first << " - " << range[i].second << endl;
 			print_err(compiler_sem_err, err_msg.str().c_str()
 					, qscript_parser::line_no
 					, __LINE__, __FILE__);
 		} else if (n1 <= range[i].first
-			   && n2 >= range[i].first && n2<=range[i].second) {
+			   && n2 >= range[i].first && n2 <= range[i].second) {
 			stringstream err_msg;
 			err_msg << "range given: " << n1 << " - " << n2
-				<< " is partially contained in an earlier range:" 
+				<< " is partially contained in an earlier range:"
 				<< range[i].first << " - " << range[i].second << endl;
 			print_err(compiler_sem_err, err_msg.str().c_str()
 					, qscript_parser::line_no
 					, __LINE__, __FILE__);
 		} else if (n2 > range[i].second
-			   && n1 >= range[i].first && n1<=range[i].second) {
+			   && n1 >= range[i].first && n1 <= range[i].second) {
 			stringstream err_msg;
 			err_msg << "range given: " << n1 << " - " << n2
-				<< " is partially contained in an earlier range:" 
+				<< " is partially contained in an earlier range:"
 				<< range[i].first << " - " << range[i].second << endl;
 			print_err(compiler_sem_err, err_msg.str().c_str()
 					, qscript_parser::line_no
@@ -149,7 +149,7 @@ bool XtccSet::exists(int key)
 	}
 	*/
 	set<int>::iterator it = indiv.find(key);
-	if(it!=indiv.end()){
+	if(it != indiv.end()){
 		return true;
 	}
 	return false;

@@ -30,6 +30,6 @@ AbstractStatement::~AbstractStatement()
 	//std::cerr << "AbstractStatement::~AbstractStatement()\n" << std::endl;
 	if (next_  ) {
 		delete next_; next_ = 0;
-	} 
+	}
 	//debug_log_file << "AbstractStatement::~AbstractStatement() base destructor" << endl;
 }

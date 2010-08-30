@@ -94,23 +94,23 @@ bool is_of_int_type(DataType dt)
 
 bool is_of_noun_type(DataType dt)
 {
-	return (dt >= INT8_TYPE && dt <=DOUBLE_TYPE)
-		|| (dt==QUESTION_TYPE);
+	return (dt >= INT8_TYPE && dt <= DOUBLE_TYPE)
+		|| (dt == QUESTION_TYPE);
 }
 
 bool is_of_noun_ref_type(DataType dt)
 {
-	return (dt >= INT8_REF_TYPE && dt <=DOUBLE_REF_TYPE);
+	return (dt >= INT8_REF_TYPE && dt <= DOUBLE_REF_TYPE);
 }
 
 bool is_of_arr_type(DataType dt)
 {
-	return (dt >= INT8_ARR_TYPE && dt <=DOUBLE_ARR_TYPE);
+	return (dt >= INT8_ARR_TYPE && dt <= DOUBLE_ARR_TYPE);
 }
 
 DataType convert_ref_type(DataType dt)
 {
-	if(dt>=INT8_REF_TYPE && dt<=DOUBLE_REF_TYPE)
+	if(dt >= INT8_REF_TYPE && dt <= DOUBLE_REF_TYPE)
 		return DataType(INT8_TYPE + dt-INT8_REF_TYPE);
 	else
 		return dt;
@@ -121,125 +121,125 @@ string human_readable_type(DataType dt)
 	cout << "ENTER human_readable_type" << endl;
 	string s = "UNKNOWN TYPE";
 	switch(dt){
-		case VOID_TYPE:
-			s= "void";
+	case VOID_TYPE:
+		s= "void";
 		break;
-		case INT8_TYPE:
-			s= "int8_t";
+	case INT8_TYPE:
+		s= "int8_t";
 		break;
-		case INT16_TYPE:
-			s = "int16_t";
+	case INT16_TYPE:
+		s = "int16_t";
 		break;
-		case INT32_TYPE:
-			s = "int32_t";
+	case INT32_TYPE:
+		s = "int32_t";
 		break;
-		case FLOAT_TYPE:
-			s = "float";
+	case FLOAT_TYPE:
+		s = "float";
 		break;
-		case DOUBLE_TYPE:
-			s = "double";
+	case DOUBLE_TYPE:
+		s = "double";
 		break;
-		case INT8_ARR_TYPE:
-			s = "INT8_ARR_TYPE";
+	case INT8_ARR_TYPE:
+		s = "INT8_ARR_TYPE";
 		break;
-		case INT16_ARR_TYPE:
-			s= "INT16_ARR_TYPE";
+	case INT16_ARR_TYPE:
+		s= "INT16_ARR_TYPE";
 		break;
-		case INT32_ARR_TYPE:
-			s = "INT32_ARR_TYPE";
+	case INT32_ARR_TYPE:
+		s = "INT32_ARR_TYPE";
 		break;
-		case FLOAT_ARR_TYPE:
-			s = "FLOAT_ARR_TYPE";
+	case FLOAT_ARR_TYPE:
+		s = "FLOAT_ARR_TYPE";
 		break;
-		case DOUBLE_ARR_TYPE:
-			s = "DOUBLE_ARR_TYPE";
+	case DOUBLE_ARR_TYPE:
+		s = "DOUBLE_ARR_TYPE";
 		break;
-		case INT8_REF_TYPE:
-			s = "int8_t &";
+	case INT8_REF_TYPE:
+		s = "int8_t &";
 		break;
-		case INT16_REF_TYPE:
-			s = "int16_type &";
+	case INT16_REF_TYPE:
+		s = "int16_type &";
 		break;
-		case INT32_REF_TYPE:
-			s = "int32_t &";
+	case INT32_REF_TYPE:
+		s = "int32_t &";
 		break;
-		case FLOAT_REF_TYPE:
-			s = "float &";
+	case FLOAT_REF_TYPE:
+		s = "float &";
 		break;
-		case DOUBLE_REF_TYPE:
-			s = "double_t &";
+	case DOUBLE_REF_TYPE:
+		s = "double_t &";
 		break;
-		case QUESTION_TYPE:
-			s = "QUESTION_TYPE";
-			break;
-		case QUESTION_ARR_TYPE:
-			s = "QUESTION_ARR_TYPE";
-			break;
-		case BOOL_TYPE:
-			s = "BOOL_TYPE";
-			break;
-		case  ERROR_TYPE:
-			s = " ERROR_TYPE";
-			break;
-		case TEXPR_STMT:
-			s = "TEXPR_STMT";
-			break;
-		case  CMPD_STMT:
-			s = "CMPD_STMT";
-			break;
-		case  IFE_STMT:
-			s = "IFE_STMT";
-			break;
-		case  DECL_STMT:
-			s = "DECL_STMT";
-			break;
-		case  FUNC_TYPE:
-			s = "FUNC_TYPE";
-			break;
-		case  FUNC_DEFN:
-			s = "FUNC_DEFN";
-			break;
-		case  FOR_STMT:
-			s = "FOR_STMT";
-			break;
-		case BREAK_STMT:
-			s = "BREAK_STMT";
-			break;
-		case  CONTINUE_STMT:
-			s = "CONTINUE_STMT";
-			break;
-		case  RANGE_DECL_STMT:
-			s = "RANGE_DECL_STMT";
-			break;
-		case STRING_TYPE:
-			s = "STRING_TYPE";
-			break;
-		case  STRING_ARR_TYPE:
-			s = "STRING_ARR_TYPE";
-			break;
-		case  NAMED_ATTRIBUTE_TYPE:
-			s = "NAMED_ATTRIBUTE_TYPE";
-			break;
-		case  NAMED_RANGE:
-			s = "NAMED_RANGE";
-			break;
-		case UNNAMED_RANGE:
-			s = "UNNAMED_RANGE";
-			break;
-		case  STUB_MANIP_ADD:
-			s = " STUB_MANIP_ADD";
-			break;
-		case  STUB_MANIP_DEL:
-			s = " STUB_MANIP_DEL";
-			break;
-		case  STUB_MANIP_UNSET_ALL:
-			s = " STUB_MANIP_UNSET_ALL";
-			break;
-		case  STUB_MANIP_SET_ALL:
-			s = " STUB_MANIP_SET_ALL";
-			break;
-		default:
-			s = "fix: human_readable_type: unhandled";
+	case QUESTION_TYPE:
+		s = "QUESTION_TYPE";
+		break;
+	case QUESTION_ARR_TYPE:
+		s = "QUESTION_ARR_TYPE";
+		break;
+	case BOOL_TYPE:
+		s = "BOOL_TYPE";
+		break;
+	case  ERROR_TYPE:
+		s = " ERROR_TYPE";
+		break;
+	case TEXPR_STMT:
+		s = "TEXPR_STMT";
+		break;
+	case  CMPD_STMT:
+		s = "CMPD_STMT";
+		break;
+	case  IFE_STMT:
+		s = "IFE_STMT";
+		break;
+	case  DECL_STMT:
+		s = "DECL_STMT";
+		break;
+	case  FUNC_TYPE:
+		s = "FUNC_TYPE";
+		break;
+	case  FUNC_DEFN:
+		s = "FUNC_DEFN";
+		break;
+	case  FOR_STMT:
+		s = "FOR_STMT";
+		break;
+	case BREAK_STMT:
+		s = "BREAK_STMT";
+		break;
+	case  CONTINUE_STMT:
+		s = "CONTINUE_STMT";
+		break;
+	case  RANGE_DECL_STMT:
+		s = "RANGE_DECL_STMT";
+		break;
+	case STRING_TYPE:
+		s = "STRING_TYPE";
+		break;
+	case  STRING_ARR_TYPE:
+		s = "STRING_ARR_TYPE";
+		break;
+	case  NAMED_ATTRIBUTE_TYPE:
+		s = "NAMED_ATTRIBUTE_TYPE";
+		break;
+	case  NAMED_RANGE:
+		s = "NAMED_RANGE";
+		break;
+	case UNNAMED_RANGE:
+		s = "UNNAMED_RANGE";
+		break;
+	case  STUB_MANIP_ADD:
+		s = " STUB_MANIP_ADD";
+		break;
+	case  STUB_MANIP_DEL:
+		s = " STUB_MANIP_DEL";
+		break;
+	case  STUB_MANIP_UNSET_ALL:
+		s = " STUB_MANIP_UNSET_ALL";
+		break;
+	case  STUB_MANIP_SET_ALL:
+		s = " STUB_MANIP_SET_ALL";
+		break;
+	default:
+		s = "fix: human_readable_type: unhandled";
 	}
 	cout << "EXIT human_readable_type" << endl;
 	return s;

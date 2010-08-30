@@ -175,10 +175,9 @@ struct IfStatementStackElement
 {
 	int32_t nestLevel_;
 	IfStatement * ifStatementPtr_;
-	IfStatementStackElement(int32_t nest_level, IfStatement
-				* if_stmt_ptr):
-		nestLevel_(nest_level), ifStatementPtr_(if_stmt_ptr)
-		{}
+	IfStatementStackElement(int32_t nest_level, IfStatement	* if_stmt_ptr)
+		: nestLevel_(nest_level), ifStatementPtr_(if_stmt_ptr)
+	{ }
 };
 
 void IfStatement::GenerateCode(StatementCompiledCode &code)
@@ -223,7 +222,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			(question_list_else_body, this);
 		*/
 		cerr << "IfStatement::GenerateCode(): ifStatementStack.size>0 :Before LOOP" << endl;
-		for(int32_t i = 0; i<ifStatementStack.size(); ++i){
+		for(int32_t i = 0; i < ifStatementStack.size(); ++i){
 			if (ifStatementStack[i]->nestLevel_ == if_nest_level){
 				ifStatementStack[i]->ifStatementPtr_
 					->GetQuestionNames
@@ -235,7 +234,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	if (elseBody_)
 		elseBody_->GetQuestionNames(question_list_else_body, 0);
-	for(int32_t i = 0; i<question_list_else_body.size(); ++i){
+	for(int32_t i = 0; i < question_list_else_body.size(); ++i){
 		code.program_code <<  question_list_else_body[i]
 			<< "->isAnswered_ = false;"
 			<< endl;
@@ -260,7 +259,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		}
 		vector<string> question_list_if_body;
 
-		for(int32_t i = 0; i<ifStatementStack.size(); ++i){
+		for(int32_t i = 0; i < ifStatementStack.size(); ++i){
 			if (ifStatementStack[i]->nestLevel_ == if_nest_level){
 				ifStatementStack[i]->ifStatementPtr_
 					->GetQuestionNames
@@ -278,7 +277,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			code.program_code << " // elseIfStatement DOES NOT exists \n";
 			code.program_code << "/* question_list_if_body.size(): "
 				<< question_list_if_body.size() << " */ \n";
-			for(int32_t i = 0; i<question_list_if_body.size(); ++i){
+			for(int32_t i = 0; i < question_list_if_body.size(); ++i){
 				code.program_code <<  question_list_if_body[i]
 					<< "->isAnswered_ = false;"
 					<< endl;
@@ -473,7 +472,7 @@ string PrintConsolidatedForLoopIndex(
 				, "for loop index condition is not a binary expression"
 				, 0, __LINE__, __FILE__);
 		}
-		for(int32_t j = i+1; j<for_bounds_stack.size(); j++){
+		for(int32_t j = i+1; j < for_bounds_stack.size(); j++){
 			// quest_defns is passed twice
 			// because we want the AbstractExpression to appear in the for
 			// loop in the questions section of the code
@@ -494,7 +493,7 @@ string PrintConsolidatedForLoopIndex(
 		}
 	}
 	ostringstream consolidated_for_loop_index;
-	for(uint32_t i = 0; i<for_bounds_stack.size(); ++i) {
+	for(uint32_t i = 0; i < for_bounds_stack.size(); ++i) {
 		consolidated_for_loop_index << expr_code_arr[i].code_bef_expr.str()
 			<< expr_code_arr[i].code_expr.str();
 		if (i <for_bounds_stack.size()-1){
@@ -570,7 +569,7 @@ using qscript_parser::question_list;
 AbstractQuestion* find_in_question_list(string name)
 {
 
-	for(int32_t i = 0; i<question_list.size(); ++i){
+	for(int32_t i = 0; i < question_list.size(); ++i){
 		if (question_list[i]->questionName_ == name){
 			return question_list[i];
 		}
@@ -648,11 +647,11 @@ void ForStatement::CheckNestedIndexUsage()
 	cout << "CheckNestedIndexUsage: on variable: " << init_var_name << ", "
 		<< "for_loop_max_counter_stack.size(): "
 		<< for_loop_max_counter_stack.size()  << endl;
-	for(int32_t i = 0; i<for_loop_max_counter_stack.size()-1; ++i){
+	for(int32_t i = 0; i < for_loop_max_counter_stack.size()-1; ++i){
 		BinaryExpression * prev_test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[i]);
 		if (prev_test_expr == 0){
 			print_err(compiler_sem_err,
-				"For loop containing questions should be of the form for(var = 0; var<const_expr; var = var+1)",
+				"For loop containing questions should be of the form for(var = 0; var < const_expr; var = var+1)",
 				qscript_parser::line_no, __LINE__, __FILE__);
 		} else {
 			Unary2Expression * prev_init_var = dynamic_cast<Unary2Expression*> (

@@ -43,7 +43,7 @@ int32_t main(int32_t argc, char* argv[])
 	bool static_binary_flag = false;
 	bool exit_flag = false;
 
-	while( (c = getopt(argc, argv, "snf:"))!=-1 ){
+	while( (c = getopt(argc, argv, "snf:")) != -1 ){
 		char ch = optopt;
 		switch(c){
 		case 'n':
@@ -70,7 +70,7 @@ int32_t main(int32_t argc, char* argv[])
 				<< argv[0] << " -f <input-file>\n" <<   endl;
 			exit(0);
 		}
-		if (fname_flag==1){
+		if (fname_flag == 1){
 			break;
 		}
 	}
@@ -113,7 +113,7 @@ int32_t main(int32_t argc, char* argv[])
 		exit(1);
 	}
 	yyrestart(yyin);
-	if ( !yyparse() && !no_errors){
+	if (!yyparse() && !no_errors){
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode(fname, ncurses_flag);
@@ -134,7 +134,7 @@ int32_t main(int32_t argc, char* argv[])
 
 		std::vector<AbstractQuestion*> &qv = qscript_parser::question_list;
 		conf << qv.size() << '\n';
-		for(int32_t i = 0; i<qv.size(); ++i)
+		for(int32_t i = 0; i < qv.size(); ++i)
 		{
 			conf << qv[i]->questionName_ << ' ';
 			switch(qv[i]->dt)
@@ -152,11 +152,11 @@ int32_t main(int32_t argc, char* argv[])
 		}
 
 		std::vector<named_range*> &nsl = qscript_parser::named_stubs_list;
-		for(int32_t i = 0; i<nsl.size(); ++i)
+		for(int32_t i = 0; i < nsl.size(); ++i)
 		{
 			conf << nsl[i]->name;
 			std::vector<stub_pair> &sv = nsl[i]->stubs;
-			for(int32_t i = 0; i<sv.size(); ++i) conf << ' ' << sv[i].code << " \"" << sv[i].stub_text << '\"';
+			for(int32_t i = 0; i < sv.size(); ++i) conf << ' ' << sv[i].code << " \"" << sv[i].stub_text << '\"';
 			conf << '\n';
 		}
 	}

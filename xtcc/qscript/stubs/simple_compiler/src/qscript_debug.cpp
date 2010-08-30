@@ -1,6 +1,6 @@
 #include "qscript_debug.h"
 
-namespace qscript_debug 
+namespace qscript_debug
 {
 	const int32_t DEBUG_UnaryExpression = 0;
 	const int32_t DEBUG_Unary2Expression = 0;

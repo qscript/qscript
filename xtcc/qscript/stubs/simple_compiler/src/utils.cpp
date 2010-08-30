@@ -45,16 +45,16 @@ bool check_type_compat(DataType typ1, DataType typ2)
 
 	DataType td1 = typ1;
 	DataType td2 = typ2;
-	if(td1 == STRING_TYPE && td2 == STRING_TYPE){
+	if (td1 == STRING_TYPE && td2 == STRING_TYPE){
 		return true;
 	}
-	if(td1 >= INT8_REF_TYPE && td1 <= DOUBLE_REF_TYPE)
+	if (td1 >= INT8_REF_TYPE && td1 <= DOUBLE_REF_TYPE)
 		td1 = DataType(INT8_TYPE + typ1-INT8_REF_TYPE);
-	if(td2 >= INT8_REF_TYPE && td2 <= DOUBLE_REF_TYPE)
+	if (td2 >= INT8_REF_TYPE && td2 <= DOUBLE_REF_TYPE)
 		td2 = DataType(INT8_TYPE + typ2-INT8_REF_TYPE);
-	if((td1 >= INT8_TYPE&&td1 <= DOUBLE_TYPE) &&
-	   (td2 >= INT8_TYPE&&td2 <= DOUBLE_TYPE)){
-		if(td1 >= td2){
+	if ((td1 >= INT8_TYPE && td1 <= DOUBLE_TYPE)
+	    && (td2 >= INT8_TYPE && td2 <= DOUBLE_TYPE)){
+		if (td1 >= td2){
 			return true;
 		} else {
 			return false;
@@ -89,8 +89,8 @@ int32_t search_for_func(string& search_for)
 	//cout << "Entered search_for_func: " << endl;
 	int32_t i = 0;
 
-	for (i = 0;i<func_info_table.size();++i){
-		if(search_for == func_info_table[i]->functionName_){
+	for (i = 0;i < func_info_table.size();++i){
+		if (search_for == func_info_table[i]->functionName_){
 			//cout << "search_for_func(): found: " << search_for << " index: " << i << endl;
 			return i;
 		}
@@ -105,10 +105,10 @@ int32_t check_func_decl_with_func_defn(FunctionParameter* & v_list, int32_t & in
 	FunctionParameter* defn_ptr = v_list;
 	FunctionParameter* decl_ptr = func_info_table[index]->parameterList_;
 
-	while(defn_ptr&&decl_ptr){
+	while(defn_ptr && decl_ptr){
 		// I may put a check on the length of the array - but it is not necessary for now I think
-		if((defn_ptr->var_type == decl_ptr->var_type)&&
-		   (defn_ptr->var_name == decl_ptr->var_name)){
+		if ((defn_ptr->var_type == decl_ptr->var_type)
+		    && (defn_ptr->var_name == decl_ptr->var_name)){
 		} else {
 			++no_errors;
 			return 0;
@@ -116,7 +116,7 @@ int32_t check_func_decl_with_func_defn(FunctionParameter* & v_list, int32_t & in
 		defn_ptr = defn_ptr->next_;
 		decl_ptr = decl_ptr->next_;
 	}
-	if(defn_ptr == decl_ptr && decl_ptr == 0){
+	if (defn_ptr == decl_ptr && decl_ptr == 0){
 		return 1;
 	}else{
 		return 0;
@@ -126,7 +126,7 @@ int32_t check_func_decl_with_func_defn(FunctionParameter* & v_list, int32_t & in
 
 bool 	void_check(DataType & type1, DataType & type2, DataType& result_type)
 {
-	if(type1 == VOID_TYPE){
+	if (type1 == VOID_TYPE){
 		print_err(compiler_sem_err, " lhs of binary expr is of type void ",
 			line_no, __LINE__, __FILE__);
 		result_type = ERROR_TYPE;
@@ -139,7 +139,7 @@ bool 	void_check(DataType & type1, DataType & type2, DataType& result_type)
 		++no_errors;
 		return false;
 	}
-	//if( !(type1 == VOID_TYPE && type2 == VOID_TYPE))
+	//if ( !(type1 == VOID_TYPE && type2 == VOID_TYPE))
 	else {
 		result_type = type1 > type2? type1: type2;
 		return true;
@@ -151,8 +151,8 @@ bool 	void_check(DataType & type1, DataType & type2, DataType& result_type)
 
 int32_t lookup_func(string func_name_index)
 {
-	for(int32_t i = 0; i<func_info_table.size(); ++i){
-		if(func_name_index == func_info_table[i]->functionName_){
+	for(int32_t i = 0; i < func_info_table.size(); ++i){
+		if (func_name_index == func_info_table[i]->functionName_){
 			return i;
 		}
 	}
@@ -168,21 +168,21 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 	++no_errors;
 	cerr << "xtcc ";
 	switch(cmp_err){
-		case compiler_syntax_err:
-			cerr << "syntax error: ";
+	case compiler_syntax_err:
+		cerr << "syntax error: ";
 		break;
-		case compiler_sem_err:
-			cerr << "semantic error: ";
+	case compiler_sem_err:
+		cerr << "semantic error: ";
 		break;
-		case compiler_internal_error:
-			cerr << "compiler internal error: ";
+	case compiler_internal_error:
+		cerr << "compiler internal error: ";
 		break;
-		case compiler_code_generation_error:
-			cerr << "compiler code generation error: ";
+	case compiler_code_generation_error:
+		cerr << "compiler code generation error: ";
 		break;
-		default:
-			cerr << "internal compiler error - error code category missing in switch statement: compiler file: "
-				<< __FILE__ << " compiler src code lineno: " << __LINE__ << endl;
+	default:
+		cerr << "internal compiler error - error code category missing in switch statement: compiler file: "
+		     << __FILE__ << " compiler src code lineno: " << __LINE__ << endl;
 
 	}
 	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: "
@@ -224,26 +224,26 @@ int32_t check_parameters(AbstractExpression* e, FunctionParameter* v)
 	while (e_ptr && fparam) {
 		//e_ptr->print();
 		DataType etype = e_ptr->type_, fptype = fparam->var_type;
-		if((etype >= INT8_TYPE && etype <= DOUBLE_TYPE)
-		   && ((fptype >= INT8_TYPE && fptype <= DOUBLE_TYPE)
-		       || (fptype >= INT8_REF_TYPE && fptype <= DOUBLE_REF_TYPE))){
+		if ((etype >= INT8_TYPE && etype <= DOUBLE_TYPE)
+		    && ((fptype >= INT8_TYPE && fptype <= DOUBLE_TYPE)
+			|| (fptype >= INT8_REF_TYPE && fptype <= DOUBLE_REF_TYPE))){
 			DataType tdt = fptype;
 				/* the code below makes a INT8_REF_TYPE -> INT8_TYPE
 				   			a INT8_REF_TYPE -> INT8_TYPE
 				 thats because we dont care much about references -> C++
 				 does all the hard work. For checking types they are equivalent to us
 				*/
-			if(tdt >= INT8_REF_TYPE) tdt = DataType(INT8_TYPE+tdt-INT8_REF_TYPE);
-			if(etype  <=  tdt) {
+			if (tdt >= INT8_REF_TYPE) tdt = DataType(INT8_TYPE+tdt-INT8_REF_TYPE);
+			if (etype <= tdt) {
 				//debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: "
 				//	<< chk_param_counter << " passed " << endl;
 			}
-		} else if ((etype >= INT8_ARR_TYPE&&etype <= DOUBLE_ARR_TYPE)&&
-				(fptype >= INT8_ARR_TYPE&&fptype <= DOUBLE_ARR_TYPE)&&
-				(etype == fptype)){
+		} else if ((etype >= INT8_ARR_TYPE && etype <= DOUBLE_ARR_TYPE)
+			   && (fptype >= INT8_ARR_TYPE && fptype <= DOUBLE_ARR_TYPE)
+			   && (etype == fptype)){
 			//debug_log_file << "varname: "<< fparam->var_name << " chk_param_counter: "
 			//		<< chk_param_counter << " passed " << endl;
-		}else {
+		} else {
 			match = false;
 			cerr << "Parameter type mismatch name: " << endl;
 			cerr << fparam->var_name << " expected type is " << fparam->var_type
@@ -257,8 +257,8 @@ int32_t check_parameters(AbstractExpression* e, FunctionParameter* v)
 		fparam = fparam->next_;
 		chk_param_counter = chk_param_counter+1;
 	}
-	if(match == true){
-		if(e_ptr == 0 && fparam == 0){
+	if (match == true){
+		if (e_ptr == 0 && fparam == 0){
 			match = true;
 		} else {
 			match = false;
@@ -267,7 +267,7 @@ int32_t check_parameters(AbstractExpression* e, FunctionParameter* v)
 				<< line_no << endl;
 		}
 	}
-	if(!match) {
+	if (!match) {
 		cerr << "function parameter type check FAILURE: line_no " << line_no << endl;
 	}
 	return match;
@@ -276,8 +276,8 @@ int32_t check_parameters(AbstractExpression* e, FunctionParameter* v)
 bool skip_func_type_check(const char * fname)
 {
 	const char * skip_func_type_check_list[] = {"printf" };
-	for (uint32_t i = 0; i<sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
-		if(!strcmp(fname, skip_func_type_check_list[i])){
+	for (uint32_t i = 0; i < sizeof(skip_func_type_check_list)/sizeof(skip_func_type_check_list[0]); ++i){
+		if (!strcmp(fname, skip_func_type_check_list[i])){
 			return true;
 		}
 	}
@@ -293,18 +293,18 @@ DataType lcm_type(DataType d1, DataType d2)
 
 	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	DataType td1 = d1, td2 = d2;
-	//if(td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1 = DataType(INT8_TYPE + d1-INT8_REF_TYPE);
-	//if(td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2 = DataType(INT8_TYPE + d2-INT8_REF_TYPE);
-	if(d1 == STRING_TYPE && d2 == STRING_TYPE){
+	//if (td1>=INT8_REF_TYPE && td1<=DOUBLE_REF_TYPE) td1 = DataType(INT8_TYPE + d1-INT8_REF_TYPE);
+	//if (td2>=INT8_REF_TYPE && td2<=DOUBLE_REF_TYPE) td2 = DataType(INT8_TYPE + d2-INT8_REF_TYPE);
+	if (d1 == STRING_TYPE && d2 == STRING_TYPE){
 		return STRING_TYPE;
 	}
-	if(d1 == BOOL_TYPE && d2 == BOOL_TYPE){
+	if (d1 == BOOL_TYPE && d2 == BOOL_TYPE){
 		return BOOL_TYPE;
 	}
 	td1 = convert_ref_type(td1);
 	td2 = convert_ref_type(td2);
-	if( is_of_noun_type(td1) && is_of_noun_type(td2)){
-		if(td1>td2) { return td1;
+	if ( is_of_noun_type(td1) && is_of_noun_type(td2)){
+		if (td1>td2) { return td1;
 		} else {
 			return td2;
 		}
@@ -324,11 +324,11 @@ DataType arr_deref_type(DataType d1)
 	     << ", file: " << __FILE__
 	     << ", function" << __PRETTY_FUNCTION__ << endl;
 
-	if(d1 >= INT8_ARR_TYPE && d1 <= DOUBLE_ARR_TYPE){
+	if (d1 >= INT8_ARR_TYPE && d1 <= DOUBLE_ARR_TYPE){
 		return DataType(INT8_TYPE+d1-INT8_ARR_TYPE);
-	} else if(d1 == STRING_ARR_TYPE){
+	} else if (d1 == STRING_ARR_TYPE){
 		return STRING_TYPE;
-	} else if(d1 == QUESTION_ARR_TYPE){
+	} else if (d1 == QUESTION_ARR_TYPE){
 		return QUESTION_TYPE;
 	}
 	cerr << "Type Error: lineno: trying to access array with non-integer index" << line_no << "\n";
