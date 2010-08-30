@@ -30,7 +30,7 @@ statement_list: statement
 	| statement_list statement
 	;
 
-statement: 
+statement:
 		NCURSES_INCLUDE_DIR '=' TEXT ';' {
 			config_file_parser::NCURSES_INCLUDE_DIR = $3;
 	}

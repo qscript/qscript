@@ -16,15 +16,15 @@ using std::string;
 named_range::~named_range()
 { }
 
-void named_range::GenerateCode (StatementCompiledCode & code)
+void named_range::GenerateCode(StatementCompiledCode & code)
 {
-	code.quest_defns << "vector <stub_pair> " << name 
-		//<< "(" << stubs.size() << ");"  
+	code.quest_defns << "vector <stub_pair> " << name
+		//<< "(" << stubs.size() << ");"
 		<< ";" << endl << endl;
 
-	for(int32_t i=0; i<stubs.size(); ++i){
-		code.quest_defns << name << ".push_back( stub_pair(\"" << stubs[i].stub_text 
-			<< "\", " << stubs[i].code << "));" 
+	for(int32_t i = 0; i<stubs.size(); ++i){
+		code.quest_defns << name << ".push_back( stub_pair(\"" << stubs[i].stub_text
+			<< "\", " << stubs[i].code << "));"
 			<< endl;
 	}
 	if(next_){

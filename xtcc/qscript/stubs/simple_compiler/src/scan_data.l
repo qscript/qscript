@@ -1,7 +1,7 @@
 /*
  *  xtcc/xtcc/qscript/stubs/simple_compiler/try1.l
  *
- * tokenizer for the data entry command line - this file should be named better 
+ * tokenizer for the data entry command line - this file should be named better
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
 %{
@@ -55,7 +55,7 @@
 			return yytext[0];
 		}
 	}
-	
+
 
 %%
 
@@ -200,7 +200,7 @@ top:
 
 top:
 		//cerr << "clear_buffer_flag: " << clear_buffer_flag;
-		// NOTE: so long as the ncurses_readline is static the pointer 
+		// NOTE: so long as the ncurses_readline is static the pointer
 		// returned will be valid
 		const char * line=ncurses_readline.ReadLine();
 		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);

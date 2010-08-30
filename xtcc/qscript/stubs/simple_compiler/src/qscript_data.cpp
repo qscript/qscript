@@ -84,7 +84,7 @@
 #include "question_disk_data.h"
 #include <vector>
 
-	
+
 	static vector<int> data;
 	static vector<int> array_index_list;
 	vector <question_disk_data*> qdd_list;
@@ -1409,7 +1409,7 @@ yyreduce:
 		} else {
 			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
 			//qdd_list.push_back(qdd);
-			cerr << "Array question found but bounds not set in data file - this is an error in the data file" 
+			cerr << "Array question found but bounds not set in data file - this is an error in the data file"
 				<< endl;
 		}
 		array_index_list.clear();

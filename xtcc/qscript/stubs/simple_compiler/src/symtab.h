@@ -1,4 +1,4 @@
-/*    
+/*
  *  xtcc/xtcc/qscript/stubs/simple_compiler/common.h
  *
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
@@ -21,16 +21,16 @@
 
 //using std::stringstream;
 	/*!  type_qualifier enum: used to add qualifiers to the definition of a variable. For example: const int32_t BUFSIZE=1024; // Here const is a qualifier
-	 */ 
+	 */
 	enum type_qualifier {
-		NO_QUAL, // used to mark that nothing was specified 
+		NO_QUAL, // used to mark that nothing was specified
 		CONST_QUAL
 	};
 	//! QuestionType enum: A question can be single code,
 	//! multicoded or numeric (which I havent yet added to the
 	//! grammar)
 	enum QuestionType { spn, mpn };
-	//! This helper function will evaluate 2 types for  compatibility. 
+	//! This helper function will evaluate 2 types for  compatibility.
 	//!For example an INT8_TYPE and a INT8_ARR_TYPE are not compatible.
 	//! This is used to determine if a type promotion in an expression is
 	//! possible or the compiler should signal a type error

@@ -1,2 +1,10 @@
+LINT_SOURCES= $(wildcard *.cpp)
+LINT_EXCLUDE_FILES=question_disk_data.cpp qscript_data.cpp data_entry.cpp \
+		question_disk_data.h read_disk_data.h q.cpp \
+		qscript_conf.cpp read_disk_data.cpp scan_data.cpp lex.cpp \
+		qscript_conf_lex.cpp
+LINT_SOURCES := $(filter-out $(LINT_EXCLUDE_FILES),$(LINT_SOURCES))
 cpplint:
-	cpplint.py --filter=-whitespace/tab * 2> cpplint-violations.txt
+	-cpplint.py --filter=-whitespace/tab,-readability/streams,-whitespace/comments,-build/include,-runtime/rtti,-whitespace/braces,-whitespace/labels $(LINT_SOURCES) 2> tmp_cpp_lint.txt
+	sort tmp_cpp_lint.txt -t : -k 3 -k 1 -k 2,2n  > cpplint-violations.txt
+	rm tmp_cpp_lint.txt

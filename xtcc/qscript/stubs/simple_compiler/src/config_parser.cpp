@@ -1,6 +1,6 @@
 #include <sys/types.h>
 #include <string>
-namespace config_file_parser 
+namespace config_file_parser
 {
 	using std::string;
 	int32_t line_no;

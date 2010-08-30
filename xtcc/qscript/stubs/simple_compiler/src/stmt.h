@@ -6,7 +6,7 @@
  */
 
 /*! \file
-    \brief The classes for the statements parsed in the input 
+    \brief The classes for the statements parsed in the input
             language "qscript" are contained in this file
 */
 
@@ -31,14 +31,14 @@ using std::ostringstream;
 /*!
   All language statements classes are derived from the AbstractStatement class
   the AbstractStatement class - contains members (
-  AbstractStatement * prev_, *next_ pointers to chain other statements). 
-  It also contains line and filename information 
+  AbstractStatement * prev_, *next_ pointers to chain other statements).
+  It also contains line and filename information
   about the statement being parsed
 */
 
 struct AbstractQuestion;
 
-struct AbstractStatement 
+struct AbstractStatement
 {
 	//! chainers to the previous and next_ statement
 	struct AbstractStatement * prev_, *next_;
@@ -46,8 +46,8 @@ struct AbstractStatement
 	DataType type_;
 	int32_t lineNo_;
 	//! Constructor - statement type and line number of the statement in the source code
-	AbstractStatement(DataType l_type, int32_t l_line_no): 
-		prev_(0), next_(0), type_(l_type), lineNo_(l_line_no) 
+	AbstractStatement(DataType l_type, int32_t l_line_no):
+		prev_(0), next_(0), type_(l_type), lineNo_(l_line_no)
 	{ }
 	//! GenerateConsolidatedForLoopIndexes() - has to be called before GenerateCode
 	//! sets up the loop indices in various compound bodies for later use
@@ -55,7 +55,7 @@ struct AbstractStatement
 	virtual void GenerateConsolidatedForLoopIndexes();
 	//! GenerateCode(): Pure virtual functions takes 2 streams as parameters.
 	//! Compiler generated code is written to both the streams.
-	//! The code to the quest_defns stream appears before code written to  
+	//! The code to the quest_defns stream appears before code written to
 	//! the program_code stream in the generated compiled code
 	//virtual void GenerateCode(ostringstream& quest_defns
 	//		, ostringstream& program_code)=0;
@@ -79,9 +79,9 @@ struct named_range;
 
 //!ExpressionStatement Parsed expressions statements become object instanstiations of this class
 /*!
-  an example of an expression statement is the assignment statement below: 
+  an example of an expression statement is the assignment statement below:
   	a=5*10;
-  This class contains an AbstractExpression* pure virutal base class pointer as a member. 
+  This class contains an AbstractExpression* pure virutal base class pointer as a member.
   The AbstractExpression* expr generates its own
   code through the print_expr(ostringstream& code_bef_expr, ostringstream& code_expr)
   pure virtual function - which is over-ridden in each of the expression classes
@@ -89,17 +89,17 @@ struct named_range;
 struct ExpressionStatement: public AbstractStatement
 {
 	struct AbstractExpression* expression_;
-	ExpressionStatement(DataType l_type, int32_t l_line_number 
+	ExpressionStatement(DataType l_type, int32_t l_line_number
 			    , struct AbstractExpression* e)
-		: AbstractStatement(l_type, l_line_number), expression_(e) 
+		: AbstractStatement(l_type, l_line_number), expression_(e)
 	{ }
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~ExpressionStatement();
 	private:
-	ExpressionStatement& operator=(const ExpressionStatement&);	
-	ExpressionStatement(const ExpressionStatement&);	
+	ExpressionStatement& operator=(const ExpressionStatement&);
+	ExpressionStatement(const ExpressionStatement&);
 };
 
 
@@ -116,27 +116,27 @@ struct DeclarationStatement: public AbstractStatement
 	//		, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
 	private:
-	DeclarationStatement& operator=(const DeclarationStatement&);	
-	DeclarationStatement(const DeclarationStatement&);	
+	DeclarationStatement& operator=(const DeclarationStatement&);
+	DeclarationStatement(const DeclarationStatement&);
 };
 
 //! CompoundStatement parsed compound statements become object instanstiations of this class
 /*!
   important notes for this class(CompoundStatement):
   <p>1. function definitions have a compound statement as the body
-     of the class. The compound Scope is not allocated in the 
-     constructor of the CompoundStatement initialiser list because 
+     of the class. The compound Scope is not allocated in the
+     constructor of the CompoundStatement initialiser list because
      we need to determine if this statement is a part
      of a function definition or a normal compound statement.
-     If the CompoundStatement is a part of a func_defn it will get its Scope 
+     If the CompoundStatement is a part of a func_defn it will get its Scope
      from the declaration of the function which is stored in the
      func_info_table vector array. Otherwise the constructor will
      allocate a Scope for the variable
-  <p>2. The other case for a compound statement is when it is the body of 
+  <p>2. The other case for a compound statement is when it is the body of
      a for loop. There are certain restrictions on the language because
      the questionnaire is stored on disk. Consider the following .
-       
-        We need to create a map file of the questionnaire. 
+
+        We need to create a map file of the questionnaire.
         This means that the map file has to be fixed for each and every single
 	questionnaire. Hence if a "for" loop contains questions in the body
 	we cannot have a variable number of questions being asked to the respondent.
@@ -161,34 +161,34 @@ struct DeclarationStatement: public AbstractStatement
 
 	Hence the compound_stmt needs to determine if it contains questions
 	and if so set a flag. Then when parsing a for statement - and note that
-	a for statement has been forced by the grammar to have only a CompoundStatement 
+	a for statement has been forced by the grammar to have only a CompoundStatement
 	as the body - we check if the CompoundStatement has questions and run additional
 	checks on the testExpression_ index of the for loop to ensure it is an integral value
 	(i.e. countable and determinable)
 
 
 
-	When parsing a compound statement the parser it will push the 
-	cmpd_stmt_ptr object onto the stack named stack_cmpd_stmt. This is 
-	done in the ^open_curly rule in q.y 
+	When parsing a compound statement the parser it will push the
+	cmpd_stmt_ptr object onto the stack named stack_cmpd_stmt. This is
+	done in the ^open_curly rule in q.y
 	Everytime the parser encounters a AbstractQuestion in the body of the CompoundStatement
 	it will increment the counter "counterContainsQuestions_" CompoundStatement
 	member variable by 1. You can see this happening in the ^AbstractQuestion rule
-	in q.y 
+	in q.y
 	This way we can determine if the compound body has a AbstractQuestion. Once this has
 	been determined we put addition restrictions on the loop index of the for
 	statement
 
-*/	
+*/
 
 struct CompoundStatement: public AbstractStatement
 {
 	static int32_t counter_;
 	//! pointer to the first chain of statements
-	//! in the CompoundStatement 
+	//! in the CompoundStatement
 	struct AbstractStatement* compoundBody_;
 	//! The Scope for the CompoundStatement will contain all
-	//! the variables declared in the body of the 
+	//! the variables declared in the body of the
 	//! CompoundStatement. This variable is set in 2 ways.
 	//! 1. If it is the body of a func_defn then
 	//     it is assigned to the Scope variable in the function
@@ -196,18 +196,18 @@ struct CompoundStatement: public AbstractStatement
 	//  2. Otherwise a new Scope object is allocated
 	struct Scope * scope_;
 	//! this flag variable is set in the grammar type.y
-	//! in the xtcc compiler sources and not used in 
+	//! in the xtcc compiler sources and not used in
 	//! the qscript compiler as yet.
 	//! The rule used to set the variable is ^func_defn
 	//! The variable is used in the ^open_curly rule when deciding
-	//! if a Scope is to be allocated or pulled from the function 
+	//! if a Scope is to be allocated or pulled from the function
 	//! declaration
 	int32_t flagIsAFunctionBody_;
-	//! this flag variable is set in the ^for_loop_stmt in 
+	//! this flag variable is set in the ^for_loop_stmt in
 	//! q.y in an inline action in the grammar
 	int32_t flagIsAForBody_;
 
-	//! this counter variable is set in the ^AbstractQuestion rule in 
+	//! this counter variable is set in the ^AbstractQuestion rule in
 	//! q.y in an inline action in the grammar
 	int32_t counterContainsQuestions_;
 	int32_t compoundStatementNumber_;
@@ -218,7 +218,7 @@ struct CompoundStatement: public AbstractStatement
 	vector<string> ConsolidatedForLoopIndexStack_;
 	public:
 	CompoundStatement(DataType dtype, int32_t lline_number
-			  , int32_t l_flag_cmpd_stmt_is_a_func_body 
+			  , int32_t l_flag_cmpd_stmt_is_a_func_body
 			  , int32_t l_flag_cmpd_stmt_is_a_for_body
 			  , vector<AbstractExpression*>& l_for_bounds_stack
 		);
@@ -242,13 +242,13 @@ struct CompoundStatement: public AbstractStatement
 	void GenerateConsolidatedForLoopIndexes();
 	//static void Init();
 	private:
-	CompoundStatement& operator=(const CompoundStatement&);	
-	CompoundStatement(const CompoundStatement&);	
+	CompoundStatement& operator=(const CompoundStatement&);
+	CompoundStatement(const CompoundStatement&);
 };
 
 //! ForStatement: A parsed for statement in the language becomes an object instanstiation of this class
 /*! Refer to point 2. in the documentation for CompoundStatement about for loop index
-    restrictions when you have a AbstractQuestion statement in the body 
+    restrictions when you have a AbstractQuestion statement in the body
     of a for statement
  */
 struct ForStatement: public AbstractStatement
@@ -256,9 +256,9 @@ struct ForStatement: public AbstractStatement
 	AbstractExpression * initializationExpression_
 		, * testExpression_, *incrementExpression_;
 	CompoundStatement * forBody_;
-	ForStatement(DataType dtype, int32_t lline_number 
+	ForStatement(DataType dtype, int32_t lline_number
 		     , AbstractExpression* l_init
-		     , AbstractExpression* l_test 
+		     , AbstractExpression* l_test
 		     , AbstractExpression* l_incr
 		     , CompoundStatement * lfor_body);
 	void GenerateConsolidatedForLoopIndexes();
@@ -269,8 +269,8 @@ struct ForStatement: public AbstractStatement
 					 , AbstractStatement* stop_at);
 	virtual ~ForStatement();
 	private:
-	ForStatement& operator=(const ForStatement&);	
-	ForStatement(const ForStatement&);	
+	ForStatement& operator=(const ForStatement&);
+	ForStatement(const ForStatement&);
 	void DoExtraForLoopChecks();
 	void CheckForIndexUsageConsistency();
 	void CheckNestedIndexUsage();
@@ -303,19 +303,19 @@ struct IfStatement : public AbstractStatement
 			elseBody_->GetQuestionNames(question_list, endStatement);
 	}
 	private:
-	IfStatement& operator=(const IfStatement&);	
-	IfStatement(const IfStatement&);	
+	IfStatement& operator=(const IfStatement&);
+	IfStatement(const IfStatement&);
 };
 
 using std::string;
-struct VariableList 
+struct VariableList
 {
 	DataType variableType_;
 	string variableName_;
 	int32_t arrayLength_;
 	struct VariableList * prev_, *next_;
 	VariableList(DataType type, char * name);
-	VariableList(DataType type, char * name, int32_t len); 
+	VariableList(DataType type, char * name, int32_t len);
 	void print(FILE * edit_out);
 	~VariableList();
 	private:
@@ -323,7 +323,7 @@ struct VariableList
 		VariableList(const VariableList&);
 };
 
-struct Parameter 
+struct Parameter
 {
 	struct AbstractExpression* e;
 	char * text;
@@ -334,7 +334,7 @@ struct Parameter
 struct AbstractQuestion;
 AbstractQuestion* find_in_question_list(string name);
 
-struct StubManipStatement: public AbstractStatement 
+struct StubManipStatement: public AbstractStatement
 {
 	string questionName_;
 	string namedStub_;
@@ -351,7 +351,7 @@ struct StubManipStatement: public AbstractStatement
 		StubManipStatement(const StubManipStatement&);
 };
 
-struct FunctionArgument 
+struct FunctionArgument
 {
 	struct expr* e;
 	char * text;
@@ -360,14 +360,14 @@ struct FunctionArgument
 };
 
 
-struct FunctionParameter 
+struct FunctionParameter
 {
 	DataType var_type;
 	string var_name;
 	int32_t arr_len;
 	struct FunctionParameter * prev_, *next_;
 	FunctionParameter(DataType type, char * name);
-	FunctionParameter(DataType type, char * name, int32_t len); 
+	FunctionParameter(DataType type, char * name, int32_t len);
 
 	//void print(FILE * edit_out);
 	void print(ostringstream & program_code);
@@ -376,7 +376,7 @@ struct FunctionParameter
 	private:
 		FunctionParameter& operator=(const FunctionParameter&);
 		FunctionParameter(const FunctionParameter&);
-	
+
 };
 
 struct FunctionDeclarationStatement: public AbstractStatement
@@ -394,8 +394,8 @@ struct FunctionDeclarationStatement: public AbstractStatement
 	~FunctionDeclarationStatement();
 	private:
 	FunctionDeclarationStatement& operator=
-		(const FunctionDeclarationStatement&);	
-	FunctionDeclarationStatement(const FunctionDeclarationStatement&);	
+		(const FunctionDeclarationStatement&);
+	FunctionDeclarationStatement(const FunctionDeclarationStatement&);
 };
 
 struct FunctionStatement: public AbstractStatement
@@ -416,8 +416,8 @@ struct FunctionStatement: public AbstractStatement
 	virtual void GenerateCode(StatementCompiledCode & code);
 	~FunctionStatement();
 	private:
-	FunctionStatement& operator=(const FunctionStatement&);	
-	FunctionStatement(const FunctionStatement&);	
+	FunctionStatement& operator=(const FunctionStatement&);
+	FunctionStatement(const FunctionStatement&);
 };
 
 //!FunctionInformation : parsed function declarations and definitions become object instantiations of this class
@@ -426,38 +426,38 @@ struct FunctionStatement: public AbstractStatement
 
   <p>
   When a function declaration is parsed all the variables
-  which are function parameters become should available in the Scope of this 
-  function. 
+  which are function parameters become should available in the Scope of this
+  function.
 
   On the other hand the function body (which is a compound statement)
-  will appear at a later stage, i.e. the declaration of the function. 
+  will appear at a later stage, i.e. the declaration of the function.
 
   The implementation of compound statements is that each compound statement contains
-  a Scope variable of its own. Hence to bring the function parameter 
+  a Scope variable of its own. Hence to bring the function parameter
   declarations into the Scope of the compound statement the following is done:
 
-  <p>1. FunctionInformation has a Scope called functionScope_ - this Scope is allocated 
+  <p>1. FunctionInformation has a Scope called functionScope_ - this Scope is allocated
      at the time of declaration of the function. This declaration is then
      stored in the func_info_table vector array
   <p>2. The grammar has a inline rule when detecting a function
   	definition - it sets the variable : flagIsAForBody_
 	to the index of the function in the func_info_table vector array
-	or -1 on failure. This grammar rule can be seen 
+	or -1 on failure. This grammar rule can be seen
 	by searching for the pattern ^FunctionInformation in the "type.y" grammar
 	file in the xtcc compiler sources. The simple compiler in qscript
 	does not use functions as yet
   <p>3. When a compound body is being parsed (the ^open_curly rule in
   	type.y in the xtcc compiler - it checks if flagIsAFunctionBody_
 	has been set and if so loads the Scope from the function declaration
-	found in the  func_info_table array - by using the variable 
+	found in the  func_info_table array - by using the variable
 	flagIsAFunctionBody_ - to index into the func_info_table
 
-	Note that flagIsAFunctionBody_ is initialized to -1 as the 1st function 
+	Note that flagIsAFunctionBody_ is initialized to -1 as the 1st function
 	will be in index 0 of func_info_table vector.
 	Also lookup_func searches the func_info_table for the function name and returns -1 on failure
 	this is naturally compatible with the initial value of flagIsAFunctionBody_
 	if the flag is not set -> we need to allocate a new Scope - else we will crash
-  
+
 */
 
 struct FunctionInformation
@@ -468,7 +468,7 @@ struct FunctionInformation
 	struct AbstractStatement * functionBody_;
 	struct Scope * functionScope_;
 	FunctionInformation(string name, FunctionParameter* elist
-			    , DataType myreturn_type); 
+			    , DataType myreturn_type);
 	void print(ostringstream & program_code);
 	~FunctionInformation();
 private:
