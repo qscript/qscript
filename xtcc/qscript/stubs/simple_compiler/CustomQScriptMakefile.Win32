@@ -1,6 +1,6 @@
-CXX = c:\MinGW\bin\g++
+CXX = c:\MinGW\bin\g++ -v
 CC = $(CXX) 
-CFLAGS = -c -g -I c:\MinGW4.5\include -I src -Wall -Weffc++
+CFLAGS = -c -g -I c:\MinGW\include -I src -Wall -Weffc++
 CXX_SHARED_LIB_FLAGS = -pie
 CXX_LINK_FLAGS = -g
 #CXX_LINK_LIBS = -lreadline
@@ -56,7 +56,7 @@ $(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
 	echo "cpp sources: $(CPP_SOURCES)" 
 	echo "yacc sources: $(YACC_SOURCES)" 
 	echo "lex sources: $(LEX_SOURCES)" 
-	$(CC) $(CXX_LINK_FLAGS) -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
+	$(CC) -static -L $(WIN_LIB_DIR) $(CXX_LINK_FLAGS) -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
 
 yacc_deps: $(YACC_OUTPUTS)
 
@@ -203,8 +203,9 @@ release: clean
 
 .PHONY: clean tags
 
+#	-del /q /f $(BUILD_DIR)\*.* $(BUILD_DIR)\runtime_lib\*.* lib\*.* bin\qscript include\*.* $(BUILD_DIR)\compiletime_lib\*.* $(BUILD_DIR)\runtime_static_lib\*.* $(BUILD_DIR)\compiletime_static_lib\*.*
 clean:
-	-del /q /f $(BUILD_DIR)\*.* $(BUILD_DIR)\runtime_lib\*.* lib\*.* bin\qscript include\*.* $(BUILD_DIR)\compiletime_lib\*.* $(BUILD_DIR)\runtime_static_lib\*.* $(BUILD_DIR)\compiletime_static_lib\*.*
+	-rm  $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript.exe include/* $(BUILD_DIR)/compiletime_lib/* $(BUILD_DIR)/runtime_static_lib/* $(BUILD_DIR)/compiletime_static_lib/*
 
 #local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
 #	cp $(BUILD_DIR)/qscript bin
@@ -223,8 +224,8 @@ clean:
 #	copy ${SOURCE_DIR}\*.h include
 local_install: $(BUILD_DIR)/qscript runtime_static_lib compiletime_static_lib
 	cp $(BUILD_DIR)/qscript.exe bin
-	cp $(BUILD_DIR)/runtime_static_lib\libqscript_runtime.a lib
-	cp $(BUILD_DIR)/compiletime_static_lib\libqscript_compiletime.a lib
+	cp $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a lib
+	cp $(BUILD_DIR)/compiletime_static_lib/libqscript_compiletime.a lib
 	cp ${SOURCE_DIR}/*.h include
 
 tags:
