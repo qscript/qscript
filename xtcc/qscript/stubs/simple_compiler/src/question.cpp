@@ -1,7 +1,7 @@
 /*
  *  xtcc/xtcc/qscript/stubs/simple_compiler/question.cpp
  *
- *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
  *  Neil Xavier D'Souza
  */
 #include <sys/types.h>
@@ -47,9 +47,9 @@ AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, vector<AbstractExpression*> & l_for_bounds_stack
-	, CompoundStatement * l_enclosing_scope 
+	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
-	): 
+	):
 	AbstractStatement(l_type, l_no)
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
@@ -59,9 +59,9 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(l_av_info)
 	, dummyArrayQuestion_(0), currentResponse_()
 {
-	if(enclosingCompoundStatement_==0){
+	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
-			, qscript_parser::line_no, __LINE__, __FILE__  );
+			, qscript_parser::line_no, __LINE__, __FILE__);
 	}
 }
 
@@ -69,16 +69,16 @@ AbstractQuestion::AbstractQuestion(
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
-	): 
+	):
 	AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type) 
+	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0), currentResponse_()
 {
-	//if(enclosingCompoundStatement_==0){
+	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 	//		, qscript_parser::line_no, __LINE__, __FILE__  );
 	//}
@@ -91,9 +91,9 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
-	): 
+	):
 	AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type) 
+	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -101,9 +101,9 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(l_av_info)
 	, dummyArrayQuestion_(0), currentResponse_()
 {
-	if(enclosingCompoundStatement_==0){
+	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
-			, qscript_parser::line_no, __LINE__, __FILE__  );
+			, qscript_parser::line_no, __LINE__, __FILE__);
 	}
 }
 
@@ -114,9 +114,9 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, const vector<int32_t>& l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
-	): 
+	):
 	AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type) 
+	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
@@ -125,7 +125,7 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
 {
-	//for(int32_t i=0; i<l_loop_index_values.size(); ++i){
+	//for(int32_t i = 0; i<l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
 	//}
 }
@@ -136,7 +136,7 @@ void AbstractQuestion::GetQuestionsInBlock(
 {
 	//std::cerr << "ENTER AbstractQuestion::GetQuestionsInBlock()" << std::endl;
 	question_list.push_back(this);
-	if(next_ && next_!=stop_at){
+	if(next_ && next_ != stop_at){
 		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
 	//std::cerr << "EXIT AbstractQuestion::GetQuestionsInBlock()" << std::endl;
@@ -145,32 +145,32 @@ void AbstractQuestion::GetQuestionsInBlock(
 void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 {
 	// hard coded for now
-	program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
-		AbstractQuestion * target_question = ComputePreviousQuestion(" 
+	program_code << "if(user_navigation == NAVIGATE_PREVIOUS){\n\
+		AbstractQuestion * target_question = ComputePreviousQuestion("
 		<< questionName_.c_str() << ");\n\
-		if(target_question==0)\n\
+		if(target_question == 0)\n\
 		goto label_eval_" << questionName_.c_str() << ";\n\
 		else {\n\
 		jumpToQuestion = target_question->questionName_;\n\
-		if(target_question->type_==QUESTION_ARR_TYPE){\n\
+		if(target_question->type_ == QUESTION_ARR_TYPE){\n\
 			jumpToIndex = ComputeJumpToIndex(target_question);\n\
 		}\n\
 		cout << \"target question: \" << jumpToQuestion;\n\
 		cout << \"target question Index: \" << jumpToIndex;\n\
-		back_jump=true;\n\
-		user_navigation=NOT_SET;\n\
-		goto start_of_questions;\n}\n}\n" ;
-	program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
-		stopAtNextQuestion=true;\n\
-		user_navigation=NOT_SET;\n\
+		back_jump = true;\n\
+		user_navigation = NOT_SET;\n\
+		goto start_of_questions;\n}\n}\n";
+	program_code << "else if (user_navigation == NAVIGATE_NEXT){\n\
+		stopAtNextQuestion = true;\n\
+		user_navigation = NOT_SET;\n\
 		}\n";
-	program_code << "else if (user_navigation==JUMP_TO_QUESTION){\n\
+	program_code << "else if (user_navigation == JUMP_TO_QUESTION){\n\
 		DisplayActiveQuestions();\n\
 		GetUserResponse(jumpToQuestion, jumpToIndex);\n\
-		user_navigation=NOT_SET;\n\
+		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n\
 		}\n";
-	program_code << "else if (user_navigation==SAVE_DATA){\n\
+	program_code << "else if (user_navigation == SAVE_DATA){\n\
 		write_data_to_disk(question_list, jno, ser_no);\n\
 		}";
 	program_code << " else { " << endl
@@ -180,34 +180,34 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 
 void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_code)
 {
-	program_code << "if (user_navigation==NAVIGATE_PREVIOUS){\n\
-		AbstractQuestion * target_question = ComputePreviousQuestion(" 
-			<< questionName_.c_str()  << "_list.questionList[" 
+	program_code << "if(user_navigation == NAVIGATE_PREVIOUS){\n\
+		AbstractQuestion * target_question = ComputePreviousQuestion("
+			<< questionName_.c_str()  << "_list.questionList["
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]"
 			<< ");\n\
-		if(target_question==0)\n\
+		if(target_question == 0)\n\
 		goto label_eval_" << questionName_.c_str() << ";\n\
 		else {\n\
 		jumpToQuestion = target_question->questionName_;\n\
-		if(target_question->type_==QUESTION_ARR_TYPE){\n\
+		if(target_question->type_ == QUESTION_ARR_TYPE){\n\
 			jumpToIndex = ComputeJumpToIndex(target_question);\n\
 		}\n\
 		cout << \"target question: \" << jumpToQuestion;\n\
 		cout << \"target question Index: \" << jumpToIndex;\n\
-		back_jump=true;\n\
-		user_navigation=NOT_SET;\n\
-		goto start_of_questions;\n}\n}\n" ;
-	program_code << "else if (user_navigation==NAVIGATE_NEXT){\n\
-		stopAtNextQuestion=true;\n\
-		user_navigation=NOT_SET;\n}\n";
-	program_code << "else if (user_navigation==JUMP_TO_QUESTION){\n\
+		back_jump = true;\n\
+		user_navigation = NOT_SET;\n\
+		goto start_of_questions;\n}\n}\n";
+	program_code << "else if (user_navigation == NAVIGATE_NEXT){\n\
+		stopAtNextQuestion = true;\n\
+		user_navigation = NOT_SET;\n}\n";
+	program_code << "else if (user_navigation == JUMP_TO_QUESTION){\n\
 		DisplayActiveQuestions();\n\
 		GetUserResponse(jumpToQuestion, jumpToIndex);\n\
-		user_navigation=NOT_SET;\n\
+		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n\
 		}\n";
-	program_code << "else if (user_navigation==SAVE_DATA){\n\
+	program_code << "else if (user_navigation == SAVE_DATA){\n\
 		write_data_to_disk(question_list, jno, ser_no);\n\
 		}";
 	program_code << " else { " << endl
@@ -220,15 +220,15 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
-	program_code << "if (!" 
+	program_code << "if(!"
 		<< questionName_.c_str() << "->isAnswered_ ||" << endl
 		<< "stopAtNextQuestion ||" << endl
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
-	program_code << "if (stopAtNextQuestion ) {\n\tstopAtNextQuestion=false;\n}\n";
+	program_code << "if(stopAtNextQuestion ) {\n\tstopAtNextQuestion = false;\n}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
-		<< "\t\t" 
-		<< questionName_.c_str() 
-		<< "->eval(question_window, stub_list_window, data_entry_window);\n" ;
+		<< "\t\t"
+		<< questionName_.c_str()
+		<< "->eval(question_window, stub_list_window, data_entry_window);\n";
 	PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }
@@ -236,8 +236,8 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 const char *  AbstractQuestion::CurrentResponseToCharString()
 {
 	stringstream s;
-	for(set<int32_t>::iterator iter=input_data.begin();
-		iter!=input_data.end(); ++iter){
+	for(set<int32_t>::iterator iter = input_data.begin();
+		iter != input_data.end(); ++iter){
 		s << *iter << ",";
 	}
 	currentResponse_ = s.str();
@@ -246,7 +246,7 @@ const char *  AbstractQuestion::CurrentResponseToCharString()
 
 void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & code)
 {
-	for(int32_t i=0; i< for_bounds_stack.size(); ++i){
+	for(int32_t i = 0; i< for_bounds_stack.size(); ++i){
 		code.quest_defns << "for(int32_t ";
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 		if(bin_expr_ptr){
@@ -255,7 +255,7 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 			ExpressionCompiledCode expr_code1;
 			lhs->PrintExpressionCode(expr_code1);
 			code.quest_defns << expr_code1.code_bef_expr.str() << expr_code1.code_expr.str();
-			code.quest_defns << "=0;";
+			code.quest_defns << " = 0;";
 			ExpressionCompiledCode expr_code2;
 			for_bounds_stack[i]->PrintExpressionCode(expr_code2);
 			code.quest_defns << expr_code2.code_bef_expr.str() << expr_code2.code_expr.str();
@@ -264,7 +264,7 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 			lhs->PrintExpressionCode(expr_code3);
 			code.quest_defns << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
 			code.quest_defns <<	"){" << endl;
-			if(i==0){
+			if(i == 0){
 				code.quest_defns << "vector<int32_t> stack_of_loop_indices;\n";
 					//<< "(" <<  for_bounds_stack.size() << ");\n";
 			}
@@ -277,7 +277,7 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 			for_bounds_stack[i]->PrintExpressionCode(expr_code);
 			code.quest_defns << expr_code.code_bef_expr.str() << expr_code.code_expr.str();
 			print_err(compiler_sem_err
-				, "for loop index condition is not a binary expression" 
+				, "for loop index condition is not a binary expression"
 				, 0, __LINE__, __FILE__);
 		}
 	}
@@ -288,14 +288,14 @@ bool AbstractQuestion::VerifyData(
 	string & err_mesg, string & re_arranged_buffer
 	, int32_t & pos_1st_invalid_data)
 {
-	bool invalid_code, has_invalid_data_flag=false;
+	bool invalid_code, has_invalid_data_flag = false;
 	stringstream valid_data, invalid_data;
-	for(uint32_t i=0; i<data.size(); ++i){
+	for(uint32_t i = 0; i<data.size(); ++i){
 		//cout << "Testing data exists: " << data[i] << endl;
 		invalid_code = !IsValid(data[i]);
-		if (invalid_code==true){
+		if(invalid_code == true){
 			if(!has_invalid_data_flag)
-				has_invalid_data_flag=true;
+				has_invalid_data_flag = true;
 			invalid_data << data[i] << " ";
 		} else {
 			valid_data << data[i] << " ";
@@ -305,19 +305,19 @@ bool AbstractQuestion::VerifyData(
 		err_mesg = "Input contained some invalid data.. " + invalid_data.str() +  " Re-enter Data\n";
 		pos_1st_invalid_data = valid_data.str().length(); // it already has a space appended to it
 		re_arranged_buffer = valid_data.str() + invalid_data.str();
-		invalid_code=true;
+		invalid_code = true;
 		goto end;
 	}
-	if(q_type==spn && data.size()>1) {
-		err_mesg="Single coded Question - please enter only 1 code:" ;
-		invalid_code=true;
+	if(q_type == spn && data.size()>1) {
+		err_mesg = "Single coded Question - please enter only 1 code:";
+		invalid_code = true;
 		data.clear();
-	} else if (q_type==mpn && data.size() > no_mpn){
-		err_mesg="Multi coded Question, no values exceed max allowed:  " ;
-		invalid_code=true;
+	} else if (q_type == mpn && data.size() > no_mpn){
+		err_mesg = "Multi coded Question, no values exceed max allowed:  ";
+		invalid_code = true;
 		data.clear();
 	} else {
-		invalid_code=false;
+		invalid_code = false;
 	}
 end:
 	return invalid_code;
@@ -328,24 +328,24 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 
 	string err_mesg, re_arranged_buffer;
 	int32_t pos_1st_invalid_data;
-	if(data_entry_window==0){
-		bool invalid_code=false;
-		string prompt="Enter Data:";
+	if(data_entry_window == 0){
+		bool invalid_code = false;
+		string prompt = "Enter Data:";
 		do{
 			read_data(prompt.c_str());
 			//cout << "data.size(): " << data.size() << endl;
-			if(data.size()==0
-			   && (user_navigation == NAVIGATE_PREVIOUS 
+			if(data.size() == 0
+			   && (user_navigation == NAVIGATE_PREVIOUS
 			       || user_navigation == NAVIGATE_NEXT
 			       || user_navigation == JUMP_TO_QUESTION) ){
 				return;
 			}
 
-			/*	
-			for(unsigned int32_t i=0; i<data.size(); ++i){
+			/*
+			for(unsigned int32_t i = 0; i<data.size(); ++i){
 				cout << "Testing data exists: " << data[i] << endl;
 				invalid_code = !IsValid(data[i]);
-				if (invalid_code==true){
+				if(invalid_code == true){
 					prompt = "Input contained some invalid data\nRe-enter Data\n";
 					data.clear();
 					break;
@@ -353,53 +353,53 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 			}
 			if(invalid_code)
 				continue;
-			if(q_type==spn && data.size()>1) {
-				prompt="Single coded Question - please enter only 1 code:" ;
-				invalid_code=true;
+			if(q_type == spn && data.size()>1) {
+				prompt = "Single coded Question - please enter only 1 code:";
+				invalid_code = true;
 				data.clear();
-			} else if (q_type==mpn && data.size() > no_mpn){
-				prompt="Multi coded Question, no values exceed max allowed:  " ;
-				invalid_code=true;
+			} else if (q_type == mpn && data.size() > no_mpn){
+				prompt = "Multi coded Question, no values exceed max allowed:  ";
+				invalid_code = true;
 				data.clear();
 			} else {
-				invalid_code=false;
+				invalid_code = false;
 			}
 			*/
 
 			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
 			prompt = err_mesg;
 
-			if(invalid_code==false){
+			if(invalid_code == false){
 				input_data.erase(input_data.begin(), input_data.end());
-				for(uint32_t i=0; i<data.size(); ++i){
+				for(uint32_t i = 0; i<data.size(); ++i){
 					input_data.insert(data[i]);
-					//cout 	<< "storing: " << data[i] 
+					//cout 	<< "storing: " << data[i]
 					//	<< " into input_data" << endl;
 				}
-				isAnswered_=true;
+				isAnswered_ = true;
 			}
-		} while (invalid_code==true);
-		
+		} while(invalid_code == true);
+
 		data.clear();
 	} else {
-		bool invalid_code=false;
+		bool invalid_code = false;
 		do{
 			read_data_from_window(data_entry_window, err_mesg.c_str()
 					      , (!invalid_code), re_arranged_buffer
 					      , pos_1st_invalid_data);
 			// cout << "data.size(): " << data.size() << endl;
-			if(data.size()==0 && 
-			   (user_navigation == NAVIGATE_PREVIOUS 
+			if(data.size() == 0 &&
+			   (user_navigation == NAVIGATE_PREVIOUS
 			    || user_navigation == NAVIGATE_NEXT
 			    || user_navigation == JUMP_TO_QUESTION) ){
 				return;
 			}
 
-			/*	
-			for(unsigned int32_t i=0; i<data.size(); ++i){
+			/*
+			for(unsigned int32_t i = 0; i<data.size(); ++i){
 				cout << "Testing data exists: " << data[i] << endl;
 				invalid_code = !IsValid(data[i]);
-				if (invalid_code==true){
+				if(invalid_code == true){
 					prompt = "Input contained some invalid data\nRe-enter Data\n";
 					data.clear();
 					break;
@@ -407,32 +407,32 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 			}
 			if(invalid_code)
 				continue;
-			if(q_type==spn && data.size()>1) {
-				prompt="Single coded Question - please enter only 1 code:" ;
-				invalid_code=true;
+			if(q_type == spn && data.size()>1) {
+				prompt = "Single coded Question - please enter only 1 code:";
+				invalid_code = true;
 				data.clear();
-			} else if (q_type==mpn && data.size() > no_mpn){
-				prompt="Multi coded Question, no values exceed max allowed:  " ;
-				invalid_code=true;
+			} else if (q_type == mpn && data.size() > no_mpn){
+				prompt = "Multi coded Question, no values exceed max allowed:  ";
+				invalid_code = true;
 				data.clear();
 			} else {
-				invalid_code=false;
+				invalid_code = false;
 			}
 			*/
 			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
 
 
-			if(invalid_code==false){
+			if(invalid_code == false){
 				input_data.erase(input_data.begin(), input_data.end());
-				for(uint32_t i=0; i<data.size(); ++i){
+				for(uint32_t i = 0; i<data.size(); ++i){
 					input_data.insert(data[i]);
-					//cout << "storing: " << data[i] 
+					//cout << "storing: " << data[i]
 					//	<< " into input_data" << endl;
 				}
-				isAnswered_=true;
+				isAnswered_ = true;
 			}
-		} while (invalid_code==true);
-		
+		} while(invalid_code == true);
+
 		data.clear();
 	}
 }
@@ -440,10 +440,10 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 void AbstractQuestion::PrintArrayDeclarations(ostringstream & quest_defns)
 {
 	string temp_array_bounds_name = "list_" + questionName_ + "_array_bounds";
-	quest_defns << "vector<int32_t> " << temp_array_bounds_name 
+	quest_defns << "vector<int32_t> " << temp_array_bounds_name
 		<< "(" << for_bounds_stack.size() << ")"
 		<< ";" << endl;
-	for(int32_t i=0; i< for_bounds_stack.size(); ++i){
+	for(int32_t i = 0; i< for_bounds_stack.size(); ++i){
 		ostringstream array_bounds;
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
 		if(bin_expr_ptr){
@@ -452,8 +452,8 @@ void AbstractQuestion::PrintArrayDeclarations(ostringstream & quest_defns)
 			rhs->PrintExpressionCode(expr_code);
 			array_bounds << expr_code.code_bef_expr.str() << expr_code.code_expr.str();
 			//int32_t bounds = atoi(array_bounds.str().c_str());
-			quest_defns << temp_array_bounds_name 
-				<< "[" << i << "]=" << array_bounds.str() << ";\n";
+			quest_defns << temp_array_bounds_name
+				<< "[" << i << "] = " << array_bounds.str() << ";\n";
 			array_bounds.clear();
 
 		} else {
@@ -462,17 +462,17 @@ void AbstractQuestion::PrintArrayDeclarations(ostringstream & quest_defns)
 			array_bounds << expr_code.code_bef_expr.str()
 				<< expr_code.code_expr.str();
 			print_err(compiler_sem_err
-				, "for loop index condition is not a binary expression" 
+				, "for loop index condition is not a binary expression"
 				, 0, __LINE__, __FILE__);
 		}
 	}
 	//----------------------------------------
-	quest_defns << "ArrayQuestion " << questionName_ << "_list(" 
+	quest_defns << "ArrayQuestion " << questionName_ << "_list("
 		<< temp_array_bounds_name <<");" << endl;
-	quest_defns << "DummyArrayQuestion* dum_" << questionName_ 
+	quest_defns << "DummyArrayQuestion* dum_" << questionName_
 		<< "= new DummyArrayQuestion(\""  << questionName_ << "\","
 		<< temp_array_bounds_name <<");" << endl;
-	quest_defns << "question_list.push_back( dum_" << questionName_ << ");" 
+	quest_defns << "question_list.push_back( dum_" << questionName_ << ");"
 		<< endl;
 }
 
@@ -482,13 +482,13 @@ RangeQuestion::RangeQuestion(
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt, XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
-	, CompoundStatement * l_enclosing_scope 
+	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
-	): 
+	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			 , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
 			 , l_enclosing_scope, l_av_info)
-	, r_data ( new XtccSet(l_r_data)), displayData_() 
+	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
 	//! this is only called in the runtime environment
@@ -496,11 +496,11 @@ RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
-	): 
+	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt
 		)
-	, r_data (new XtccSet(l_r_data)), displayData_()
+	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
 	//! this is only called in the compile time environment
@@ -510,11 +510,11 @@ RangeQuestion::RangeQuestion(
 	, DataType l_dt , XtccSet& l_r_data
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
-	): 
+	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info
 		)
-	, r_data ( new XtccSet(l_r_data)), displayData_()
+	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
 	//! this is only called from the runtime environment
@@ -524,11 +524,11 @@ RangeQuestion::RangeQuestion(
 	, int32_t l_no_mpn, DataType l_dt,	XtccSet& l_r_data
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
-	): 
+	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
 		)
-	, r_data ( new XtccSet(l_r_data)), displayData_()
+	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
 
@@ -544,30 +544,30 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
 			 , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	if(displayData_.begin()==displayData_.end()){
-		for(	set<int32_t>::iterator it=r_data->indiv.begin(); 
-				it!=r_data->indiv.end(); ++it){
+	if(displayData_.begin() == displayData_.end()){
+		for(	set<int32_t>::iterator it = r_data->indiv.begin();
+				it != r_data->indiv.end(); ++it){
 			displayData_.insert(*it);
-			for(int32_t i=0; i<r_data->range.size(); ++i){
-				for(int32_t j=r_data->range[i].first; j<=r_data->range[i].second
-						;++j){  
+			for(int32_t i = 0; i<r_data->range.size(); ++i){
+				for(int32_t j = r_data->range[i].first; j <= r_data->range[i].second
+						;++j){
 					displayData_.insert(j);
 				}
 			}
 		}
 	}
-	if(question_window ==0 || stub_list_window ==0 || data_entry_window ==0 ){
+	if(question_window ==0 || stub_list_window  == 0 || data_entry_window  == 0 ){
 		cout << questionName_ << "." << questionText_ << endl << endl;
-		for(	set<int32_t>::iterator it=displayData_.begin(); 
-				it!=displayData_.end(); ++it){
+		for(	set<int32_t>::iterator it = displayData_.begin();
+				it != displayData_.end(); ++it){
 			cout << *it << endl;
 		}
 
-		if(input_data.begin()!=input_data.end()){
+		if(input_data.begin() != input_data.end()){
 			cout << "Current data values: ";
 
-			for(set<int32_t>::iterator iter=input_data.begin();
-				iter!=input_data.end(); ++iter){
+			for(set<int32_t>::iterator iter = input_data.begin();
+				iter != input_data.end(); ++iter){
 				cout << *iter << " ";
 			}
 			cout << endl;
@@ -584,14 +584,14 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		wrefresh(question_window);
 		int32_t maxWinX, maxWinY;
 		getmaxyx(data_entry_window, maxWinY, maxWinX);
-		int32_t currXpos=1, currYpos=1;
-		for(	set<int32_t>::iterator it=displayData_.begin(); 
-				it!=displayData_.end(); ++it){
+		int32_t currXpos = 1, currYpos = 1;
+		for(	set<int32_t>::iterator it = displayData_.begin();
+				it != displayData_.end(); ++it){
 			stringstream s;
 			s << *it;
 			int32_t len = s.str().length();
 			set<int32_t>::iterator found= input_data.find(*it);
-			if(found!=input_data.end()){
+			if(found != input_data.end()){
 				// is an input value
 				//YELLOW
 					wattroff(stub_list_window, COLOR_PAIR(2));
@@ -603,8 +603,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				mvwprintw(stub_list_window, currYpos, currXpos, "%s ", s.str().c_str());
 			}
 			if(currXpos+len +1 /* 1 for the trailing space below */ >= maxWinX){
-				currXpos=1, ++currYpos;
-			} else { 
+				currXpos = 1, ++currYpos;
+			} else {
 				currXpos+= len + 1;
 			}
 		}
@@ -618,15 +618,15 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	if(loop_index_values.size()>0){
 		data_file << questionName_;
-		for(int32_t i=0; i< loop_index_values.size(); ++i){
+		for(int32_t i = 0; i< loop_index_values.size(); ++i){
 			data_file << "$" << loop_index_values[i];
 		}
 	} else {
-		data_file << questionName_ ;
+		data_file << questionName_;
 	}
-	data_file << ":" ;
-	for( set<int32_t>::iterator iter=input_data.begin();
-			iter!=input_data.end(); ++iter){
+	data_file << ":";
+	for( set<int32_t>::iterator iter = input_data.begin();
+			iter != input_data.end(); ++iter){
 		data_file << *iter << " ";
 	}
 	data_file << endl;
@@ -636,8 +636,8 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 bool NamedStubQuestion::IsValid(int32_t value)
 {
 	vector<stub_pair> & vec= *stub_ptr;
-	for (uint32_t j=0; j<vec.size(); ++j){
-		if(vec[j].code==value && vec[j].mask){
+	for(uint32_t j = 0; j<vec.size(); ++j){
+		if(vec[j].code == value && vec[j].mask){
 			return true;
 		}
 	}
@@ -649,19 +649,19 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	if(question_window ==0 || stub_list_window ==0 || data_entry_window ==0 ){
+	if(question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0 ){
 		cout << questionName_ << "." << questionText_ << endl << endl;
 		vector<stub_pair> vec= *stub_ptr;
-		for(uint32_t i=0; i< vec.size(); ++i){
+		for(uint32_t i = 0; i< vec.size(); ++i){
 			if( vec[i].mask)
 				cout << vec[i].stub_text << ": " << vec[i].code << endl;
 		}
 
-		if(input_data.begin()!=input_data.end()){
+		if(input_data.begin() != input_data.end()){
 			cout << "Current data values: ";
-			
-			for(set<int32_t>::iterator iter=input_data.begin();
-				iter!=input_data.end(); ++iter){
+
+			for(set<int32_t>::iterator iter = input_data.begin();
+				iter != input_data.end(); ++iter){
 				cout << *iter << " ";
 			}
 			cout << endl;
@@ -679,10 +679,10 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		wrefresh(question_window);
 		//int32_t maxWinX, maxWinY;
 		//getmaxyx(data_entry_window, maxWinY, maxWinX);
-		int32_t currXpos=1, currYpos=1;
+		int32_t currXpos = 1, currYpos = 1;
 
 		vector<stub_pair> & vec= *stub_ptr;
-		for(uint32_t i=0; i< vec.size(); ++i){
+		for(uint32_t i = 0; i< vec.size(); ++i){
 			if( vec[i].mask) {
 				//cout << vec[i].stub_text << ": " << vec[i].code << endl;
 				mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
@@ -693,27 +693,27 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		wrefresh(stub_list_window);
 		AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
-	
+
 }
 
 void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 {
 	//AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
-	
-	static int32_t xtcc_set_counter=0;
-	const int32_t BUF_SIZE=100;
+
+	static int32_t xtcc_set_counter = 0;
+	const int32_t BUF_SIZE = 100;
 	char xtcc_set_name[BUF_SIZE];
 	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
 	code.quest_defns  << "XtccSet " << xtcc_set_name << ";" << endl;
-	for(	set<int32_t>::iterator it=r_data->indiv.begin(); 
-			it!=r_data->indiv.end(); ++it){
-		code.quest_defns << xtcc_set_name << ".indiv.insert(" << *it 
+	for(	set<int32_t>::iterator it = r_data->indiv.begin();
+			it != r_data->indiv.end(); ++it){
+		code.quest_defns << xtcc_set_name << ".indiv.insert(" << *it
 			<< ");" << endl;
 	}
-	for(uint32_t i=0; i<r_data->range.size(); ++i){
-		code.quest_defns << xtcc_set_name 
+	for(uint32_t i = 0; i<r_data->range.size(); ++i){
+		code.quest_defns << xtcc_set_name
 			<< ".range.push_back(pair<int32_t,int32_t>("
-			<< r_data->range[i].first << "," 
+			<< r_data->range[i].first << ","
 			<< r_data->range[i].second
 			<< "));" << endl;
 	}
@@ -724,11 +724,11 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 	print_data_type(datatype_str);
 
 	ostringstream quest_decl;
-	quest_decl << "RangeQuestion * " << questionName_.c_str() 
+	quest_decl << "RangeQuestion * " << questionName_.c_str()
 		<< " = new RangeQuestion("
-		<< (( type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
-		<< lineNo_ << "," 
-		<< "string( \"" << questionName_.c_str() << "\")" << "," 
+		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< "string( \"" << questionName_.c_str() << "\")" << ","
 		<< "string(\" " << questionText_.c_str() << "\")" << ","
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
@@ -739,34 +739,34 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 			<< ", dum_" << questionName_;
 	}
 	quest_decl << ");\n";
-	quest_decl << "question_list.push_back(" << questionName_.c_str() 
+	quest_decl << "question_list.push_back(" << questionName_.c_str()
 		<< ");\n";
 
-	if(for_bounds_stack.size()==0){
+	if(for_bounds_stack.size() == 0){
 		code.quest_defns << quest_decl.str();
 	} else {
 		code.array_quest_init_area << quest_decl.str();
 	}
 
-	if(for_bounds_stack.size()==0){
+	if(for_bounds_stack.size() == 0){
 		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
 	}else {
-		AbstractQuestion::PrintEvalArrayQuestion( code);
+		AbstractQuestion::PrintEvalArrayQuestion(code);
 	}
 
 }
 
 
 
-void RangeQuestion::GenerateCode( StatementCompiledCode & code )
+void RangeQuestion::GenerateCode(StatementCompiledCode & code )
 {
-	if(for_bounds_stack.size()==0){
+	if(for_bounds_stack.size() == 0){
 		AbstractQuestion::PrintSetupBackJump(code);
 		GenerateCodeSingleQuestion(code);
 	} else {
 		AbstractQuestion::PrintSetupBackJump(code);
 		PrintArrayDeclarations(code.quest_defns);
-		
+
 		GenerateCodeSingleQuestion(code);
 		code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
@@ -788,16 +788,16 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 	print_data_type(datatype_str);
 
 	ostringstream quest_decl;
-	quest_decl << "NamedStubQuestion * " << questionName_.c_str() 
+	quest_decl << "NamedStubQuestion * " << questionName_.c_str()
 		<< " = new NamedStubQuestion("
-		<< (( type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
-		<< lineNo_ << "," 
-		<< "string( \"" << questionName_.c_str() << "\")" << "," 
+		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< lineNo_ << ","
+		<< "string( \"" << questionName_.c_str() << "\")" << ","
 		<< "string(\" " << questionText_.c_str() << "\")" << ","
 		<< q_type_str.c_str() << ","
 		<< no_mpn << ","
 		<< datatype_str.c_str() << ",&"
-		<< nr_ptr->name ;
+		<< nr_ptr->name;
 	if(for_bounds_stack.size() >0 ){
 		quest_decl << ", stack_of_loop_indices "
 			<< ", dum_" << questionName_;
@@ -805,14 +805,14 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 	quest_decl << ");\n";
 	quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
 
-	if(for_bounds_stack.size()==0){
+	if(for_bounds_stack.size() == 0){
 		code.quest_defns << quest_decl.str();
 	} else {
 		code.array_quest_init_area << quest_decl.str();
 	}
-	//program_code << "\t\t" << questionName_.c_str() << "->eval();\n" ;
+	//program_code << "\t\t" << questionName_.c_str() << "->eval();\n";
 
-	if(for_bounds_stack.size()==0){
+	if(for_bounds_stack.size() == 0){
 		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
 	}  else {
 		AbstractQuestion::PrintEvalArrayQuestion(code);
@@ -820,9 +820,9 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 
 }
 
-void NamedStubQuestion::GenerateCode( StatementCompiledCode &code)
+void NamedStubQuestion::GenerateCode(StatementCompiledCode &code)
 {
-	if(for_bounds_stack.size()==0){
+	if(for_bounds_stack.size() == 0){
 		AbstractQuestion::PrintSetupBackJump(code);
 		GenerateCodeSingleQuestion(code);
 	}  else {
@@ -836,7 +836,7 @@ void NamedStubQuestion::GenerateCode( StatementCompiledCode &code)
 
 	if(next_){
 		next_->GenerateCode(code);
-	} 
+	}
 
 }
 
@@ -847,7 +847,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, named_range* l_nr_ptr
 	, vector<AbstractExpression*>& l_for_bounds_stack
-	, CompoundStatement * l_enclosing_scope 
+	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
@@ -864,7 +864,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, string l_name, string l_q_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, named_range* l_nr_ptr
-	, CompoundStatement * l_enclosing_scope 
+	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
@@ -881,7 +881,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, vector<stub_pair>* l_stub_ptr
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
-			 ,l_q_type, l_no_mpn, l_dt) 
+			 ,l_q_type, l_no_mpn, l_dt)
 	, named_list()
 	, nr_ptr(0), stub_ptr(l_stub_ptr)
 { }
@@ -904,45 +904,50 @@ NamedStubQuestion::NamedStubQuestion(
 
 void AbstractQuestion::print_q_type(string &s)
 {
-	const int32_t BUF_SIZE=200;
+	const int32_t BUF_SIZE = 200;
 	char buff[BUF_SIZE];
-	if(q_type==spn){
-		s="spn";
-	} else if(q_type==mpn){
-		s="mpn";
+	if(q_type == spn){
+		s = "spn";
+	} else if (q_type == mpn){
+		s = "mpn";
 	} else {
-		sprintf(buff, " internal compiler error: update AbstractQuestion::print_q_type: %d, %s\n", 
+		sprintf(buff, " internal compiler error: update AbstractQuestion::print_q_type: %d, %s\n",
 			__LINE__, __FILE__);
-		s=buff;
+		s = buff;
 	}
 }
 
 
 
 void AbstractQuestion::print_data_type(string &s)
-{	
-	if(dt==	VOID_TYPE){
-		s="VOID_TYPE";
-	} else if(dt==INT8_TYPE){
-		s="INT8_TYPE";
-	} else if(dt== INT16_TYPE) {
-		s="INT16_TYPE";
-	} else if(dt==  INT32_TYPE){
-		s="INT32_TYPE";
-	} else if(dt== FLOAT_TYPE){
-		s="FLOAT_TYPE";
-	} else if (dt== DOUBLE_TYPE){
-		s="DOUBLE_TYPE";
-	} else if (dt== BOOL_TYPE){
-		s="BOOL_TYPE";
-	} else if (dt== STRING_TYPE){
-		s="STRING_TYPE";
+{
+	cerr << "Is this functionality already duplicated somewhere else?"
+		<< ", line: " << __LINE__ 
+		<< ", file: " << __FILE__
+		<< ", func: " << __PRETTY_FUNCTION__
+		<< endl;
+	if(dt == VOID_TYPE){
+		s = "VOID_TYPE";
+	} else if (dt == INT8_TYPE){
+		s = "INT8_TYPE";
+	} else if (dt ==  INT16_TYPE) {
+		s = "INT16_TYPE";
+	} else if (dt ==   INT32_TYPE){
+		s = "INT32_TYPE";
+	} else if (dt ==  FLOAT_TYPE){
+		s = "FLOAT_TYPE";
+	} else if (dt ==  DOUBLE_TYPE){
+		s = "DOUBLE_TYPE";
+	} else if (dt ==  BOOL_TYPE){
+		s = "BOOL_TYPE";
+	} else if (dt ==  STRING_TYPE){
+		s = "STRING_TYPE";
 	} else {
-		const int32_t BUF_SIZE=200;
+		const int32_t BUF_SIZE = 200;
 		char buff[BUF_SIZE];
-		sprintf(buff, " internal compiler error: update AbstractQuestion::print_data_type : %d, %s", 
+		sprintf(buff, " internal compiler error: update AbstractQuestion::print_data_type : %d, %s",
 			__LINE__, __FILE__);
-		s=buff;
+		s = buff;
 	}
 }
 
@@ -952,15 +957,15 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 	if(loop_index_values.size()>0){
 
 		data_file << questionName_;
-		for(int32_t i=0; i< loop_index_values.size(); ++i){
+		for(int32_t i = 0; i< loop_index_values.size(); ++i){
 			data_file << "$" << loop_index_values[i];
 		}
 	} else  {
-		data_file << questionName_ ;
+		data_file << questionName_;
 	}
-	data_file << ":" ;
-	for( set<int32_t>::iterator iter=input_data.begin();
-			iter!=input_data.end(); ++iter){
+	data_file << ":";
+	for( set<int32_t>::iterator iter = input_data.begin();
+			iter != input_data.end(); ++iter){
 		data_file << *iter << " ";
 	}
 	data_file << endl;
@@ -970,7 +975,7 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 {
 	using qscript_parser::map_of_active_vars_for_questions;
-	code.program_code << "/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():" 
+	code.program_code << "/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():"
 		<< for_bounds_stack.size() << " */\n";
 	code.quest_defns << "map <string,int8_t> " << questionName_ << "_scope_int8_t;\n";
 	code.quest_defns << "map <string,int16_t> " << questionName_ << "_scope_int16_t;\n";
@@ -983,15 +988,15 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 	code.program_code << "lab_" << questionName_ << ":" << endl;
 
 
-	if(for_bounds_stack.size()==0){
-		code.program_code << "if ( back_jump==true  && " << questionName_ <<  "->isAnswered_==true ) {" << endl;
-		//for(int32_t i=active_pop_vars_for_this_question.size()-1; i>=0; --i){
+	if(for_bounds_stack.size() == 0){
+		code.program_code << "if( back_jump == true  && " << questionName_ <<  "->isAnswered_ == true ) {" << endl;
+		//for(int32_t i = active_pop_vars_for_this_question.size()-1; i>=0; --i){
 		//	code.program_code << active_pop_vars_for_this_question[i] << endl;
 		//}
 		// ostringstream &s(code.program_code);
 		// the code below should be extracted to a method: NxD 11-Jun-2010
 		SetupSimpleQuestionRestore(code);
-		code.program_code << "if ( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump=false;\n}\n";
+		code.program_code << "if( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump = false;\n}\n";
 		code.program_code << "}" << endl;
 
 
@@ -1000,10 +1005,10 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		// Handle Array Question here
 
 		ostringstream &s(code.program_code);
-		s << "if ( back_jump==true  && " << questionName_ 
+		s << "if( back_jump == true  && " << questionName_
 			<<  "_list.questionList["
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-			<< "]->isAnswered_==true ) {" << endl;
+			<< "]->isAnswered_ == true ) {" << endl;
 		SetupArrayQuestionRestore(code);
 		s << "}" << endl;
 		SetupArrayQuestionSave(code);
@@ -1015,32 +1020,32 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 {
 	// ----------------------------------
-	code.program_code << "cout << \"jumpToQuestion = \" << jumpToQuestion << endl;" 
+	code.program_code << "cout << \"jumpToQuestion = \" << jumpToQuestion << endl;"
 		<< endl;
-	code.program_code << "cout << \"jumpToIndex = \" << jumpToIndex << endl;" 
+	code.program_code << "cout << \"jumpToIndex = \" << jumpToIndex << endl;"
 		<< endl;
-	code.program_code << "if (!"
+	code.program_code << "if(!"
 			<< questionName_.c_str() << "_list.questionList[";
-	string consolidated_for_loop_index=PrintConsolidatedForLoopIndex(for_bounds_stack);
+	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->isAnswered_||stopAtNextQuestion||\n" 
+	code.program_code << "]->isAnswered_||stopAtNextQuestion||\n"
 		<< "(jumpToQuestion == \"" << questionName_ << "\""
-		<< " && " << "jumpToIndex ==  " 
+		<< " && " << "jumpToIndex ==  "
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< ") ) {\n";
 	code.program_code << "label_eval_" << questionName_ << ":\n";
-	code.program_code << "if ( jumpToQuestion == \"" << questionName_ 
-		<< "\" && jumpToIndex==" 
+	code.program_code << "if( jumpToQuestion == \"" << questionName_
+		<< "\" && jumpToIndex == "
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-		<< "){\n" 
-		<< "back_jump=false;\n" 
-		<< "jumpToIndex=-1;\n"
+		<< "){\n"
+		<< "back_jump = false;\n"
+		<< "jumpToIndex = -1;\n"
 		<< "}\n";
 
 	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n" ;
+	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n";
 	PrintUserNavigationArrayQuestion(code.program_code);
 
 	code.program_code << "}\n";
@@ -1049,7 +1054,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 
 RangeQuestion::~RangeQuestion()
 {
-	delete r_data ; r_data=0;
+	delete r_data ; r_data = 0;
 }
 
 
@@ -1059,8 +1064,8 @@ RangeQuestion::~RangeQuestion()
 
 void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
 {
-	data_file << questionName_ << " BOUNDS" ;
-	for(int32_t i=0; i<array_bounds.size(); ++i){
+	data_file << questionName_ << " BOUNDS";
+	for(int32_t i = 0; i<array_bounds.size(); ++i){
 		data_file << " "<< array_bounds[i];
 	}
 	data_file << endl;
@@ -1077,19 +1082,19 @@ void AbstractQuestion::SetupSimpleQuestionRestore(StatementCompiledCode & code)
 {
 	ostringstream &s(code.program_code);
 	s << "/* AbstractQuestion::SetupSimpleQuestionRestore */\n";
-	for(int32_t i=0; i<activeVarInfo_.size(); ++i){
+	for(int32_t i = 0; i<activeVarInfo_.size(); ++i){
 
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
-		case INT16_TYPE:	
-		case INT32_TYPE:	
+		case INT16_TYPE:
+		case INT32_TYPE:
 		case FLOAT_TYPE:
 		case DOUBLE_TYPE:
 		case QUESTION_TYPE:
-			s << GetRestoreVariableName(activeVarInfo_[i]) 
-				<< "=" 
+			s << GetRestoreVariableName(activeVarInfo_[i])
+				<< " = "
 				<< GetRestoreVariableContainerName(activeVarInfo_[i], questionName_)
-				<< ";\n" ;
+				<< ";\n";
 			break;
 		case QUESTION_ARR_TYPE:
 			s << PrintRestoreArrayQuestion(activeVarInfo_[i]);
@@ -1107,19 +1112,19 @@ string GetRestoreVariableName(ActiveVariableInfo * av_info)
 	ostringstream s;
 	switch(av_info->type_){
 	case INT8_TYPE:
-		s << av_info->name_ ;
+		s << av_info->name_;
 		break;
-	case INT16_TYPE:	
-		s << av_info->name_ ;
+	case INT16_TYPE:
+		s << av_info->name_;
 		break;
-	case INT32_TYPE:	
-		s << av_info->name_ ;
+	case INT32_TYPE:
+		s << av_info->name_;
 		break;
 	case FLOAT_TYPE:
-		s << av_info->name_ ;
+		s << av_info->name_;
 		break;
 	case DOUBLE_TYPE:
-		s << av_info->name_ ;
+		s << av_info->name_;
 		break;
 	case QUESTION_TYPE:
 		s << av_info->name_ << "->input_data";
@@ -1141,12 +1146,12 @@ string GetRestoreVariableContainerName(ActiveVariableInfo * av_info, string & qu
 	ostringstream s;
 	switch(av_info->type_){
 	case INT8_TYPE:
-		s << questionName_ << "_scope_int8_t[\"" << av_info->name_ << "\"]" ;
+		s << questionName_ << "_scope_int8_t[\"" << av_info->name_ << "\"]";
 		break;
-	case INT16_TYPE:	
+	case INT16_TYPE:
 		s << questionName_ << "_scope_int16_t[\"" << av_info->name_ << "\"]";
 		break;
-	case INT32_TYPE:	
+	case INT32_TYPE:
 		s << questionName_ << "_scope_int32_t[\"" << av_info->name_ << "\"]";
 		break;
 	case FLOAT_TYPE:
@@ -1156,7 +1161,7 @@ string GetRestoreVariableContainerName(ActiveVariableInfo * av_info, string & qu
 		s << questionName_ << "_scope_double_t[\"" << av_info->name_ << "\"]";
 		break;
 	case QUESTION_TYPE:
-		s << av_info->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"]" ;
+		s << av_info->name_ << "_scope_question_t"<<  "[\"" << questionName_ << "\"]";
 		break;
 		/*
 	case QUESTION_ARR_TYPE:
@@ -1176,75 +1181,75 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 {
 	ostringstream s;
 	s << "/* ENTER AbstractQuestion::PrintRestoreArrayQuestion "
-		<< av_info->name_ 
+		<< av_info->name_
 		<< " at location: " << questionName_
 		<< " */\n";
-	if (enclosingCompoundStatement_){
-		vector<AbstractQuestion*> & questions_in_block = 
+	if(enclosingCompoundStatement_){
+		vector<AbstractQuestion*> & questions_in_block =
 			enclosingCompoundStatement_->questionsInBlock_;
 		s << "/* questionsInBlock_: ";
-		for(int32_t i=0; i<questions_in_block.size(); ++i){
+		for(int32_t i = 0; i<questions_in_block.size(); ++i){
 			s << questions_in_block[i]->questionName_ << " ";
 		}
-		s << " */\n"; 
+		s << " */\n";
 	} else {
-		ostringstream err_msg ;
-		err_msg << " enclosingCompoundStatement_== 0 ... exiting \n";
+		ostringstream err_msg;
+		err_msg << " enclosingCompoundStatement_ ==  0 ... exiting \n";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
 	}
 
 	AbstractQuestion * restore_array_quest = 0;
-	for(int32_t i=0; i< qscript_parser::question_list.size(); ++i){
+	for(int32_t i = 0; i< qscript_parser::question_list.size(); ++i){
 		if( qscript_parser::question_list[i]->questionName_
 			== av_info->name_){
-			restore_array_quest=qscript_parser::question_list[i];
+			restore_array_quest = qscript_parser::question_list[i];
 			break;
 		}
 	}
-	if(restore_array_quest==0){
+	if(restore_array_quest == 0){
 		string err_msg = "Could not find " + av_info->name_ + " in question list while generating restore array code"
 			+ " PrintRestoreArrayQuestion ";
 		print_err(compiler_internal_error, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
 	}
 	if(IsInTheSameScopeAndLevel(this, restore_array_quest)) {
-		s << "/*" 
+		s << "/*"
 			<< questionName_ << " and "
-			<< restore_array_quest->questionName_ 
+			<< restore_array_quest->questionName_
 			<< " :are at the same scope and level */"
 			<< endl;
-		s << "for(int32_t xtcc_i=0; xtcc_i<";
+		s << "for(int32_t xtcc_i = 0; xtcc_i<";
 		s << restore_array_quest->enclosingCompoundStatement_
 			->ConsolidatedForLoopIndexStack_.back();
 		s << ";++xtcc_i){\n";
 		s<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\"" 
-			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< "map_key << \"" << questionName_ << "\""
+			<< " << "
+			<< "\"_\" << xtcc_i << \"$\" << "
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
-			<< restore_array_quest->questionName_ 
-			<< "_list.questionList[xtcc_i]->input_data=" 
+			<< restore_array_quest->questionName_
+			<< "_list.questionList[xtcc_i]->input_data = "
 			<< restore_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "];\n"
 			<< endl;
 		s << "}\n";
 
 	} else if (NotInTheSameBlock(this, restore_array_quest)){
-		s << "/*" 
+		s << "/*"
 			<< questionName_ << " and "
-			<< restore_array_quest->questionName_ 
+			<< restore_array_quest->questionName_
 			<< " :belong to different blocks "
 			<< "*/"
 			<< endl;
 
-		s << "for(int32_t xtcc_i=0; xtcc_i<";
-		for(int32_t i1=0; i1<restore_array_quest->for_bounds_stack.size(); ++i1) {
+		s << "for(int32_t xtcc_i = 0; xtcc_i<";
+		for(int32_t i1 = 0; i1<restore_array_quest->for_bounds_stack.size(); ++i1) {
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 					restore_array_quest->for_bounds_stack[i1]);
 			if(bin_expr_ptr){
 				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 				ExpressionCompiledCode expr_code;
-				rhs->PrintExpressionCode(expr_code); 
+				rhs->PrintExpressionCode(expr_code);
 				s << expr_code.code_bef_expr.str() /* should be empty */
 					<< expr_code.code_expr.str();
 				if(i1<restore_array_quest->for_bounds_stack.size()-1) {
@@ -1252,29 +1257,29 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 				}
 			} else {
 				print_err(compiler_code_generation_error
-					, "for loop index condition is not a binary expression" 
+					, "for loop index condition is not a binary expression"
 					, 0, __LINE__, __FILE__);
 			}
 		}
 		s << ";++xtcc_i){\n"
 			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\"" 
-			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< "map_key << \"" << questionName_ << "\""
+			<< " << "
+			<< "\"_\" << xtcc_i << \"$\" << "
 			//<< consolidated_for_loop_index_stack.back()
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
-			<< restore_array_quest->questionName_ 
-			<< "_list.questionList[xtcc_i]->input_data=" 
+			<< restore_array_quest->questionName_
+			<< "_list.questionList[xtcc_i]->input_data = "
 			<< restore_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "];\n"
 			<< endl;
 		s << "}\n";
 	} else if (IsAtAHigherNestLevelInTheSameBlock(this, restore_array_quest)){
-		s << "/*" 
-			<< questionName_ 
+		s << "/*"
+			<< questionName_
 			<< " is at a higher nest level than "
-			<< restore_array_quest->questionName_ 
+			<< restore_array_quest->questionName_
 			<< "*/"
 			<< endl;
 		s << "/*"
@@ -1285,16 +1290,16 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			<< " and save all these to the question scope map\n"
 			<< "*/\n"
 			<< endl;
-		s << "for(int32_t xtcc_i=0; xtcc_i<";
+		s << "for(int32_t xtcc_i = 0; xtcc_i<";
 		vector <AbstractExpression * > e_stack;
-		int32_t i1=0;
-		for(i1=0; i1<restore_array_quest->for_bounds_stack.size()
+		int32_t i1 = 0;
+		for(i1 = 0; i1<restore_array_quest->for_bounds_stack.size()
 				&& restore_array_quest->for_bounds_stack[i1]
 					== for_bounds_stack[i1]
 				; ++i1){
 			e_stack.push_back(restore_array_quest->for_bounds_stack[i1]);
 		}
-		s << PrintConsolidatedForLoopIndex(e_stack) 
+		s << PrintConsolidatedForLoopIndex(e_stack)
 			<< "*";
 		for(; i1<restore_array_quest->for_bounds_stack.size(); ++i1) {
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
@@ -1302,7 +1307,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			if(bin_expr_ptr){
 				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 				ExpressionCompiledCode expr_code;
-				rhs->PrintExpressionCode(expr_code); 
+				rhs->PrintExpressionCode(expr_code);
 				s << expr_code.code_bef_expr.str() /* should be empty */
 					<< expr_code.code_expr.str();
 				if(i1<restore_array_quest->for_bounds_stack.size()-1) {
@@ -1310,75 +1315,75 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 				}
 			} else {
 				print_err(compiler_code_generation_error
-					, "for loop index condition is not a binary expression" 
+					, "for loop index condition is not a binary expression"
 					, 0, __LINE__, __FILE__);
 			}
 		}
 		s << ";++xtcc_i){\n"
 			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\"" 
-			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< "map_key << \"" << questionName_ << "\""
+			<< " << "
+			<< "\"_\" << xtcc_i << \"$\" << "
 			//<< consolidated_for_loop_index_stack.back()
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
-			<< restore_array_quest->questionName_ 
-			<< "_list.questionList[xtcc_i]->input_data=" 
+			<< restore_array_quest->questionName_
+			<< "_list.questionList[xtcc_i]->input_data = "
 			<< restore_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "];\n"
 			<< endl;
 		s << "}\n";
 	} else if (IsAtADeeperNestLevelInTheSameBlock(this, restore_array_quest)){
-		s << "/*" 
-			<< questionName_ 
+		s << "/*"
+			<< questionName_
 			<< " is at a deeper nest level than "
-			<< restore_array_quest->questionName_ 
+			<< restore_array_quest->questionName_
 			<< "*/"
 			<< endl;
-		s << "for (int32_t xtcc_i=0; xtcc_i < "
+		s << "for(int32_t xtcc_i = 0; xtcc_i < "
 			<< PrintConsolidatedForLoopIndex(restore_array_quest->for_bounds_stack)
 			<< "; ++xtcc_i){\n"
 			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\"" 
-			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< "map_key << \"" << questionName_ << "\""
+			<< " << "
+			<< "\"_\" << xtcc_i << \"$\" << "
 			<< restore_array_quest->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
-			<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data=" 
+			<< restore_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data = "
 			<< restore_array_quest->questionName_ << "_scope_question_t["
 			<< "map_key.str()" << "];\n"
 			<< endl;
 		s << "}\n";
 	} else {
 		print_err(compiler_code_generation_error
-		, "unhandled case in compiler ... exiting code generation" 
+		, "unhandled case in compiler ... exiting code generation"
 		, 0, __LINE__, __FILE__);
-		cerr << "questionName_:" 
+		cerr << "questionName_:"
 			<< questionName_
-			<< ", restore_array_quest->questionName_" 
-			<< restore_array_quest->questionName_ 
+			<< ", restore_array_quest->questionName_"
+			<< restore_array_quest->questionName_
 			<< endl;
 		{
-			vector<AbstractQuestion*> & questions_in_block = 
+			vector<AbstractQuestion*> & questions_in_block =
 				enclosingCompoundStatement_->questionsInBlock_;
 			cerr << "/* questionsInBlock_: quest_loc "
 				<< questionName_ << ":";
-			for(int32_t i=0; i<questions_in_block.size(); ++i){
+			for(int32_t i = 0; i<questions_in_block.size(); ++i){
 				cerr << questions_in_block[i]->questionName_ << " ";
 			}
-			cerr << " */\n"; 
+			cerr << " */\n";
 		}
 		{
-			vector<AbstractQuestion*> & questions_in_block = 
+			vector<AbstractQuestion*> & questions_in_block =
 				restore_array_quest->enclosingCompoundStatement_->questionsInBlock_;
 			cerr << "/* questionsInBlock_: restore_array_quest "
 				<< restore_array_quest->questionName_ << ":";
-			for(int32_t i=0; i<questions_in_block.size(); ++i){
+			for(int32_t i = 0; i<questions_in_block.size(); ++i){
 				cerr << questions_in_block[i]->questionName_ << " ";
 			}
-			cerr << " */\n"; 
+			cerr << " */\n";
 		}
-		
+
 		exit(1);
 	}
 
@@ -1389,77 +1394,77 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 {
 	ostringstream s;
-	s << "/* ENTER PrintSaveArrayQuestion " 
-		<< av_info->name_ 
+	s << "/* ENTER PrintSaveArrayQuestion "
+		<< av_info->name_
 		<< " at location: " << questionName_
 		<< "*/\n";
-	if (enclosingCompoundStatement_){
-		vector<AbstractQuestion*> & questions_in_block = 
+	if(enclosingCompoundStatement_){
+		vector<AbstractQuestion*> & questions_in_block =
 			enclosingCompoundStatement_->questionsInBlock_;
 		s << "/* questionsInBlock_: ";
-		for(int32_t i=0; i<questions_in_block.size(); ++i){
+		for(int32_t i = 0; i<questions_in_block.size(); ++i){
 			s << questions_in_block[i]->questionName_ << " ";
 		}
-		s << " */\n"; 
+		s << " */\n";
 	} else {
-		ostringstream err_msg ;
-		err_msg << " enclosingCompoundStatement_== 0 ... exiting \n";
+		ostringstream err_msg;
+		err_msg << " enclosingCompoundStatement_ ==  0 ... exiting \n";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
 	}
 
 	AbstractQuestion * save_array_quest = 0;
-	for(int32_t i=0; i< qscript_parser::question_list.size(); ++i){
+	for(int32_t i = 0; i< qscript_parser::question_list.size(); ++i){
 		if( qscript_parser::question_list[i]->questionName_
 			== av_info->name_){
-			save_array_quest=qscript_parser::question_list[i];
+			save_array_quest = qscript_parser::question_list[i];
 			break;
 		}
 	}
-	if(save_array_quest==0){
-		string err_msg = "Could not find " 
-			+ av_info->name_ 
+	if(save_array_quest == 0){
+		string err_msg = "Could not find "
+			+ av_info->name_
 			+ " in question list while generating restore array code"
 			+ " PrintSaveArrayQuestion... exiting\n";
 		print_err(compiler_internal_error, err_msg, qscript_parser::line_no, __LINE__, __FILE__);
 		exit(1);
 	}
 	if(IsInTheSameScopeAndLevel(this, save_array_quest)){
-		s << "/*" 
+		s << "/*"
 			<< questionName_ << " and "
-			<< save_array_quest->questionName_ 
+			<< save_array_quest->questionName_
 			<< " :are at the same scope and level */"
 			<< endl;
-		s << "for(int32_t xtcc_i=0; xtcc_i<";
+		s << "for(int32_t xtcc_i = 0; xtcc_i<";
 		s << save_array_quest->enclosingCompoundStatement_
 			->ConsolidatedForLoopIndexStack_.back();
 		s << ";++xtcc_i){\n";
 		s<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\"" 
-			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< "map_key << \"" << questionName_ << "\""
+			<< " << "
+			<< "\"_\" << xtcc_i << \"$\" << "
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
-			<< "map_key.str()" << "]="
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n" 
+			<< "map_key.str()" << "] = "
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
 			<< endl;
 		s << "}\n";
 
 	} else if (NotInTheSameBlock(this, save_array_quest)){
-		s << "/*" 
+		s << "/*"
 			<< questionName_ << " and "
-			<< save_array_quest->questionName_ 
+			<< save_array_quest->questionName_
 			<< " :belong to different blocks "
 			<< "*/"
 			<< endl;
-		s << "for(int32_t xtcc_i=0; xtcc_i<";
-		for(int32_t i1=0; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
+		s << "for(int32_t xtcc_i = 0; xtcc_i<";
+		for(int32_t i1 = 0; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 					save_array_quest->for_bounds_stack[i1]);
 			if(bin_expr_ptr){
 				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 				ExpressionCompiledCode expr_code;
-				rhs->PrintExpressionCode(expr_code); 
+				rhs->PrintExpressionCode(expr_code);
 				s << expr_code.code_bef_expr.str() /* should be empty */
 					<< expr_code.code_expr.str();
 				if(i1<save_array_quest->for_bounds_stack.size()-1) {
@@ -1467,28 +1472,28 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 				}
 			} else {
 				print_err(compiler_code_generation_error
-					, "for loop index condition is not a binary expression" 
+					, "for loop index condition is not a binary expression"
 					, 0, __LINE__, __FILE__);
 			}
 		}
 		s << ";++xtcc_i){\n"
 			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\"" 
-			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< "map_key << \"" << questionName_ << "\""
+			<< " << "
+			<< "\"_\" << xtcc_i << \"$\" << "
 			//<< consolidated_for_loop_index_stack.back()
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
-			<< "map_key.str()" << "]="
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n" 
+			<< "map_key.str()" << "] = "
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
 			<< endl;
 		s << "}\n";
 	} else if (IsAtAHigherNestLevelInTheSameBlock(this, save_array_quest)){
-		s << "/*" 
-			<< questionName_ 
+		s << "/*"
+			<< questionName_
 			<< " is at a higher nest level than "
-			<< save_array_quest->questionName_ 
+			<< save_array_quest->questionName_
 			<< "*/"
 			<< endl;
 		s << "/*"
@@ -1499,16 +1504,16 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< " and save all these to the question scope map\n"
 			<< "*/\n"
 			<< endl;
-		s << "for(int32_t xtcc_i=0; xtcc_i<";
+		s << "for(int32_t xtcc_i = 0; xtcc_i<";
 		vector <AbstractExpression * > e_stack;
-		int32_t i1=0;
-		for(i1=0; i1<save_array_quest->for_bounds_stack.size()
+		int32_t i1 = 0;
+		for(i1 = 0; i1<save_array_quest->for_bounds_stack.size()
 				&& save_array_quest->for_bounds_stack[i1]
-					== for_bounds_stack[i1]
+					 ==  for_bounds_stack[i1]
 				; ++i1){
 			e_stack.push_back(save_array_quest->for_bounds_stack[i1]);
 		}
-		s << PrintConsolidatedForLoopIndex(e_stack) 
+		s << PrintConsolidatedForLoopIndex(e_stack)
 			<< "*";
 		for(; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
 			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
@@ -1516,7 +1521,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			if(bin_expr_ptr){
 				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 				ExpressionCompiledCode expr_code;
-				rhs->PrintExpressionCode(expr_code); 
+				rhs->PrintExpressionCode(expr_code);
 				s << expr_code.code_bef_expr.str() /* should be empty */
 					<< expr_code.code_expr.str();
 				if(i1<save_array_quest->for_bounds_stack.size()-1) {
@@ -1524,74 +1529,74 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 				}
 			} else {
 				print_err(compiler_code_generation_error
-					, "for loop index condition is not a binary expression" 
+					, "for loop index condition is not a binary expression"
 					, 0, __LINE__, __FILE__);
 			}
 		}
 		s << ";++xtcc_i){\n"
 			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\"" 
-			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< "map_key << \"" << questionName_ << "\""
+			<< " << "
+			<< "\"_\" << xtcc_i << \"$\" << "
 			//<< consolidated_for_loop_index_stack.back()
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
-			<< "map_key.str()" << "]="
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n" 
+			<< "map_key.str()" << "] = "
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
 			<< endl;
 		s << "}\n";
 	} else if (IsAtADeeperNestLevelInTheSameBlock(this, save_array_quest)){
-		s << "/*" 
-			<< questionName_ 
+		s << "/*"
+			<< questionName_
 			<< " is at a deeper nest level than "
-			<< save_array_quest->questionName_ 
+			<< save_array_quest->questionName_
 			<< "*/"
 			<< endl;
-		s << "for (int32_t xtcc_i=0; xtcc_i < "
+		s << "for(int32_t xtcc_i = 0; xtcc_i < "
 			<< PrintConsolidatedForLoopIndex(save_array_quest->for_bounds_stack)
 			<< "; ++xtcc_i){\n"
 			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\"" 
-			<< " << " 
-			<< "\"_\" << xtcc_i << \"$\" << " 
+			<< "map_key << \"" << questionName_ << "\""
+			<< " << "
+			<< "\"_\" << xtcc_i << \"$\" << "
 			<< save_array_quest->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< ";" << endl
 			<< save_array_quest->questionName_ << "_scope_question_t["
-			<< "map_key.str()" << "]="
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n" 
+			<< "map_key.str()" << "] = "
+			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
 			<< endl;
 		s << "}\n";
 	} else {
 		print_err(compiler_code_generation_error
-		, "unhandled case in compiler ... exiting code generation" 
+		, "unhandled case in compiler ... exiting code generation"
 		, 0, __LINE__, __FILE__);
-		cerr << "questionName_:" 
+		cerr << "questionName_:"
 			<< questionName_
-			<< ", save_array_quest->questionName_" 
-			<< save_array_quest->questionName_ 
+			<< ", save_array_quest->questionName_"
+			<< save_array_quest->questionName_
 			<< endl;
 		{
-			vector<AbstractQuestion*> & questions_in_block = 
+			vector<AbstractQuestion*> & questions_in_block =
 				enclosingCompoundStatement_->questionsInBlock_;
 			cerr << "/* questionsInBlock_: quest_loc "
 				<< questionName_ << ":";
-			for(int32_t i=0; i<questions_in_block.size(); ++i){
+			for(int32_t i = 0; i<questions_in_block.size(); ++i){
 				cerr << questions_in_block[i]->questionName_ << " ";
 			}
-			cerr << " */\n"; 
+			cerr << " */\n";
 		}
 		{
-			vector<AbstractQuestion*> & questions_in_block = 
+			vector<AbstractQuestion*> & questions_in_block =
 				save_array_quest->enclosingCompoundStatement_->questionsInBlock_;
 			cerr << "/* questionsInBlock_: save_array_quest "
 				<< save_array_quest->questionName_ << ":";
-			for(int32_t i=0; i<questions_in_block.size(); ++i){
+			for(int32_t i = 0; i<questions_in_block.size(); ++i){
 				cerr << questions_in_block[i]->questionName_ << " ";
 			}
-			cerr << " */\n"; 
+			cerr << " */\n";
 		}
-		
+
 		exit(1);
 	}
 
@@ -1604,19 +1609,18 @@ void AbstractQuestion::SetupSimpleQuestionSave(StatementCompiledCode &code)
 {
 	ostringstream &s(code.program_code);
 	s << "/* AbstractQuestion::SetupSimpleQuestionSave */\n";
-	for(int32_t i=0; i<activeVarInfo_.size(); ++i){
+	for(int32_t i = 0; i<activeVarInfo_.size(); ++i){
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
-		case INT16_TYPE:	
-		case INT32_TYPE:	
+		case INT16_TYPE:
+		case INT32_TYPE:
 		case FLOAT_TYPE:
 		case DOUBLE_TYPE:
 		case QUESTION_TYPE:
 			s << GetRestoreVariableContainerName(activeVarInfo_[i], questionName_)
-				<< "=" 
+				<< " = "
 				<< GetRestoreVariableName(activeVarInfo_[i])
-				<< ";\n"
-				;
+				<< ";\n";
 			break;
 		case QUESTION_ARR_TYPE:
 			s << PrintSaveArrayQuestion(activeVarInfo_[i]);
@@ -1635,28 +1639,28 @@ void AbstractQuestion::SetupArrayQuestionRestore(StatementCompiledCode &code)
 	ostringstream &s(code.program_code);
 	s << "/* ENTER AbstractQuestion::SetupArrayQuestionRestore */\n";
 	PrintRestoreMyPreviousIterationsData(code);
-	int32_t temp_map_key_no=GetTempMapKeyNumber();
+	int32_t temp_map_key_no = GetTempMapKeyNumber();
 	s << "ostringstream map_key_" << temp_map_key_no << ";\n";
-	for(int32_t i=0; i<activeVarInfo_.size(); ++i){
+	for(int32_t i = 0; i<activeVarInfo_.size(); ++i){
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
-		case INT16_TYPE:	
-		case INT32_TYPE:	
+		case INT16_TYPE:
+		case INT32_TYPE:
 		case FLOAT_TYPE:
 		case DOUBLE_TYPE:
 		case QUESTION_TYPE:{
 
-				
+
 			ostringstream map_key;
-			map_key<< "map_key_" << temp_map_key_no ;
-			s << map_key.str() << "<< \"" << activeVarInfo_[i]->name_ << "\" << \"_\" << " 
+			map_key<< "map_key_" << temp_map_key_no;
+			s << map_key.str() << "<< \"" << activeVarInfo_[i]->name_ << "\" << \"_\" << "
 				<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 				<< ";\n";
-			s << GetRestoreVariableName(activeVarInfo_[i]) 
-				<< "=" 
+			s << GetRestoreVariableName(activeVarInfo_[i])
+				<< " = "
 				<< GetRestoreVariableContainerNameArray(activeVarInfo_[i]
 						, questionName_, map_key.str())
-				<< ";\n" ;
+				<< ";\n";
 			}
 			break;
 		case QUESTION_ARR_TYPE:
@@ -1676,27 +1680,26 @@ void AbstractQuestion::PrintSaveMyPreviousIterationsData(StatementCompiledCode &
 {
 	ostringstream &s(code.program_code);
 	s << "/* ENTER:AbstractQuestion::PrintSaveMyPreviousIterationsData */" << endl;
-	s << "for(int32_t xtcc_i=0; xtcc_i<" 
+	s << "for(int32_t xtcc_i = 0; xtcc_i<"
 		//<< consolidated_for_loop_index_stack.back() << "-1"
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 		<< ";++xtcc_i){\n";
 	s << "ostringstream temp_map_key;\n";
-	s << "temp_map_key << \"" << questionName_ << "\" << \"_\" << " 
-		<< "xtcc_i" 
-		<< " << \"$\" << " 
-		//<< consolidated_for_loop_index_stack.back() 
-		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() 
+	s << "temp_map_key << \"" << questionName_ << "\" << \"_\" << "
+		<< "xtcc_i"
+		<< " << \"$\" << "
+		//<< consolidated_for_loop_index_stack.back()
+		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< ";\n"
 		<< endl;
-	//s << "temp_map_key2 << " << questionName_ << " << \"_\" << " 
-	//	<< "xtcc_i" 
+	//s << "temp_map_key2 << " << questionName_ << " << \"_\" << "
+	//	<< "xtcc_i"
 	//	<< ";\n";
 	s << questionName_ << "_scope_question_t[ temp_map_key.str()"
-		<< "]="
-		<< questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
-		;
+		<< "] = "
+		<< questionName_ << "_list.questionList[xtcc_i]->input_data;\n";
 	s << "}\n";
-		
+
 	s << "/* EXIT:AbstractQuestion::PrintSaveMyPreviousIterationsData */" << endl;
 }
 
@@ -1706,26 +1709,25 @@ void AbstractQuestion::SetupArrayQuestionSave(StatementCompiledCode &code)
 	ostringstream &s(code.program_code);
 	s << "/* ENTER AbstractQuestion::SetupArrayQuestionSave */\n";
 	PrintSaveMyPreviousIterationsData(code);
-	int32_t temp_map_key_no=GetTempMapKeyNumber();
+	int32_t temp_map_key_no = GetTempMapKeyNumber();
 	s << "ostringstream map_key_" << temp_map_key_no << ";\n";
-	for(int32_t i=0; i<activeVarInfo_.size(); ++i){
+	for(int32_t i = 0; i<activeVarInfo_.size(); ++i){
 		switch(activeVarInfo_[i]->type_){
 		case INT8_TYPE:
-		case INT16_TYPE:	
-		case INT32_TYPE:	
+		case INT16_TYPE:
+		case INT32_TYPE:
 		case FLOAT_TYPE:
 		case DOUBLE_TYPE:
 		case QUESTION_TYPE:{
 			ostringstream map_key;
-			map_key<< "map_key_" << temp_map_key_no ;
-			s << map_key.str() << "<< \"" << activeVarInfo_[i]->name_ << "\" << \"_\" << " 
-				<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() 
+			map_key<< "map_key_" << temp_map_key_no;
+			s << map_key.str() << "<< \"" << activeVarInfo_[i]->name_ << "\" << \"_\" << "
+				<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 				<< ";\n";
 			s << GetRestoreVariableContainerNameArray(activeVarInfo_[i], questionName_, map_key.str())
-				<< "=" 
+				<< " = "
 				<< GetRestoreVariableName(activeVarInfo_[i])
-				<< ";\n"
-				;
+				<< ";\n";
 			}
 			break;
 		case QUESTION_ARR_TYPE:
@@ -1748,12 +1750,12 @@ string GetRestoreVariableContainerNameArray(
 	ostringstream s;
 	switch(av_info->type_){
 	case INT8_TYPE:
-		s << questionName_ << "_scope_int8_t[" << map_key << ".str()" << "]" ;
+		s << questionName_ << "_scope_int8_t[" << map_key << ".str()" << "]";
 		break;
-	case INT16_TYPE:	
+	case INT16_TYPE:
 		s << questionName_ << "_scope_int16_t[" << map_key << ".str()" << "]";
 		break;
-	case INT32_TYPE:	
+	case INT32_TYPE:
 		s << questionName_ << "_scope_int32_t[" << map_key << ".str()" << "]";
 		break;
 	case FLOAT_TYPE:
@@ -1763,7 +1765,7 @@ string GetRestoreVariableContainerNameArray(
 		s << questionName_ << "_scope_double_t[" << map_key << ".str()" << "]";
 		break;
 	case QUESTION_TYPE:
-		s << av_info->name_ << "_scope_question_t"<<  "[" << map_key << ".str()" << "]" ;
+		s << av_info->name_ << "_scope_question_t"<<  "[" << map_key << ".str()" << "]";
 		break;
 		/*
 	case QUESTION_ARR_TYPE:
@@ -1781,10 +1783,10 @@ string GetRestoreVariableContainerNameArray(
 
 bool AbstractQuestion::QuestionIsInMyBlock(AbstractQuestion *q)
 {
-	vector<AbstractQuestion*> & questions_in_block = 
+	vector<AbstractQuestion*> & questions_in_block =
 		enclosingCompoundStatement_->questionsInBlock_;
-	for(int32_t i=0; i<questions_in_block.size(); ++i){
-		if(q==questions_in_block[i]){
+	for(int32_t i = 0; i<questions_in_block.size(); ++i){
+		if(q == questions_in_block[i]){
 			return true;
 		}
 	}
@@ -1799,7 +1801,7 @@ bool IsInTheSameScopeAndLevel(AbstractQuestion *q1, AbstractQuestion * q2)
 
 bool NotInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2)
 {
-	return (!q1->QuestionIsInMyBlock(q2)) && (!q2->QuestionIsInMyBlock(q1));
+	return(!q1->QuestionIsInMyBlock(q2)) && (!q2->QuestionIsInMyBlock(q1));
 }
 
 bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion *q2)
@@ -1809,8 +1811,8 @@ bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion *
 
 bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1, AbstractQuestion *q2)
 {
-	//cerr << "IsAtADeeperNestLevelInTheSameBlock(q1=" << q1->questionName_
-	//	<< ", q2=" << q2->questionName_ << endl;
+	//cerr << "IsAtADeeperNestLevelInTheSameBlock(q1 = " << q1->questionName_
+	//	<< ", q2 = " << q2->questionName_ << endl;
 	//cerr << "(q1->QuestionIsInMyBlock(q2)):" << (q1->QuestionIsInMyBlock(q2))
 	//	<< endl;
 	//cerr << "q2->QuestionIsInMyBlock(q1):" << q2->QuestionIsInMyBlock(q1)
@@ -1823,15 +1825,15 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 {
 	ostringstream &s(code.program_code);
 	s << "/* ENTER AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe */" << endl;
-	int32_t pos_start_of_for_loop=-1;
-	for(int32_t i=0; i<enclosingCompoundStatement_->nestedCompoundStatementStack_.size(); ++i){
+	int32_t pos_start_of_for_loop = -1;
+	for(int32_t i = 0; i<enclosingCompoundStatement_->nestedCompoundStatementStack_.size(); ++i){
 		if(enclosingCompoundStatement_->nestedCompoundStatementStack_[i]->flagIsAForBody_){
-			pos_start_of_for_loop=i;
+			pos_start_of_for_loop = i;
 			break;
 		}
 	}
 
-	if(pos_start_of_for_loop==-1){
+	if(pos_start_of_for_loop == -1){
 		ostringstream err_msg;
 		err_msg << "Compiler internal error: cant find start of for loop in nestedCompoundStatementStack_";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
@@ -1841,68 +1843,68 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 		nestedCompoundStatementStack_[pos_start_of_for_loop]->questionsInBlock_;
 	s << "/* questions in my block ("
 		<< questionName_ << "):";
-	for(int32_t i=0; i<questions_in_block.size(); ++i){
+	for(int32_t i = 0; i<questions_in_block.size(); ++i){
 		s << questions_in_block[i]->questionName_ << ",";
 	}
 	s << "*/" << endl;
-	vector<AbstractQuestion*>::iterator my_loc = 
-		find(questions_in_block.begin(), questions_in_block.end(), this); 
-	if(my_loc==questions_in_block.end()){
+	vector<AbstractQuestion*>::iterator my_loc =
+		find(questions_in_block.begin(), questions_in_block.end(), this);
+	if(my_loc == questions_in_block.end()){
 		ostringstream err_msg;
 		err_msg << "unable to find self in block ... exiting\n";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
 		exit(1);
 	}
-	if(my_loc+1==questions_in_block.end()){
-		s << "/* I=" << questionName_ << " is the last question in in block "
+	if(my_loc+1 == questions_in_block.end()){
+		s << "/* I = " << questionName_ << " is the last question in in block "
 			<< " nothing to do */"<< endl;
 	} else {
 		for( vector<AbstractQuestion*>::iterator it = my_loc+1;
-				it!=questions_in_block.end(); ++it){
-			AbstractQuestion *quest_loc=this, *save_array_quest=*it;
+				it != questions_in_block.end(); ++it){
+			AbstractQuestion *quest_loc = this, *save_array_quest = *it;
 
 			if(IsInTheSameScopeAndLevel(quest_loc, save_array_quest)){
-				s << "/*" 
+				s << "/*"
 					<< quest_loc->questionName_ << " and "
-					<< save_array_quest->questionName_ 
+					<< save_array_quest->questionName_
 					<< " :are at the same scope and level */"
 					<< endl;
 				cerr << "Need to revisit this to check if condition should be "
-					<< "xtcc_i\"<=\" or \"<\" and other similar places  " 
-					<< __LINE__ << "," << __FILE__ 
+					<< "xtcc_i\" <= \" or \"<\" and other similar places  "
+					<< __LINE__ << "," << __FILE__
 					<< endl;
-				s << "for(int32_t xtcc_i=0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i<";
 				s << save_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back();
 				s << ";++xtcc_i){\n";
 				s<< "ostringstream map_key;\n"
-					<< "map_key << \"" << questionName_ << "\"" 
-					<< " << " 
-					<< "\"_\" << xtcc_i << \"$\" << " 
+					<< "map_key << \"" << questionName_ << "\""
+					<< " << "
+					<< "\"_\" << xtcc_i << \"$\" << "
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
 					<< save_array_quest->questionName_ << "_scope_question_t["
-					<< "map_key.str()" << "]="
-					<< save_array_quest->questionName_ 
+					<< "map_key.str()" << "] = "
+					<< save_array_quest->questionName_
 					<< "_list.questionList[xtcc_i]->input_data;\n"
 					<< endl;
 				s << "}\n";
 
 			} else if (NotInTheSameBlock(quest_loc, save_array_quest)){
-				s << "/*" 
+				s << "/*"
 					<< quest_loc->questionName_ << " and "
-					<< save_array_quest->questionName_ 
+					<< save_array_quest->questionName_
 					<< " :belong to different blocks "
 					<< "*/"
 					<< endl;
-				s << "for(int32_t xtcc_i=0; xtcc_i<";
-				for(int32_t i1=0; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
+				s << "for(int32_t xtcc_i = 0; xtcc_i<";
+				for(int32_t i1 = 0; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
 					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 							save_array_quest->for_bounds_stack[i1]);
 					if(bin_expr_ptr){
 						AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
- 						ExpressionCompiledCode expr_code;
-						rhs->PrintExpressionCode(expr_code); 
+						ExpressionCompiledCode expr_code;
+						rhs->PrintExpressionCode(expr_code);
 						s << expr_code.code_bef_expr.str() /* should be empty */
 							<< expr_code.code_expr.str();
 						if(i1<save_array_quest->for_bounds_stack.size()-1) {
@@ -1910,29 +1912,29 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 						}
 					} else {
 						print_err(compiler_code_generation_error
-							, "for loop index condition is not a binary expression" 
+							, "for loop index condition is not a binary expression"
 							, 0, __LINE__, __FILE__);
 					}
 				}
 				s << ";++xtcc_i){\n"
 					<< "ostringstream map_key;\n"
-					<< "map_key << \"" << questionName_ << "\"" 
-					<< " << " 
-					<< "\"_\" << xtcc_i << \"$\" << " 
+					<< "map_key << \"" << questionName_ << "\""
+					<< " << "
+					<< "\"_\" << xtcc_i << \"$\" << "
 					//<< consolidated_for_loop_index_stack.back()
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
 					<< save_array_quest->questionName_ << "_scope_question_t["
-					<< "map_key.str()" << "]="
-					<< save_array_quest->questionName_ 
+					<< "map_key.str()" << "] = "
+					<< save_array_quest->questionName_
 					<< "_list.questionList[xtcc_i]->input_data;\n"
 					<< endl;
 				s << "}\n";
 			} else if (IsAtAHigherNestLevelInTheSameBlock(quest_loc, save_array_quest)){
-				s << "/*" 
-					<< quest_loc->questionName_ 
+				s << "/*"
+					<< quest_loc->questionName_
 					<< " is at a higher nest level than "
-					<< save_array_quest->questionName_ 
+					<< save_array_quest->questionName_
 					<< "*/"
 					<< endl;
 				s << "/*"
@@ -1943,17 +1945,17 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< " and save all these to the question scope map\n"
 					<< "*/\n"
 					<< endl;
-				s << "for(int32_t xtcc_i=0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i<";
 				vector <AbstractExpression * > e_stack;
-				int32_t i1=0;
-				for(i1=0; i1<save_array_quest->for_bounds_stack.size()
+				int32_t i1 = 0;
+				for(i1 = 0; i1<save_array_quest->for_bounds_stack.size()
 						&& save_array_quest->for_bounds_stack[i1]
-							== for_bounds_stack[i1]
+							 ==  for_bounds_stack[i1]
 						; ++i1){
 					e_stack.push_back(save_array_quest->for_bounds_stack[i1]);
 				}
 				s 	<< "("
-					<< PrintConsolidatedForLoopIndex(e_stack) 
+					<< PrintConsolidatedForLoopIndex(e_stack)
 					<< ")"
 					<< "*";
 				for(; i1<save_array_quest->for_bounds_stack.size(); ++i1) {
@@ -1962,7 +1964,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					if(bin_expr_ptr){
 						AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 						ExpressionCompiledCode expr_code;
-						rhs->PrintExpressionCode(expr_code); 
+						rhs->PrintExpressionCode(expr_code);
 						s << expr_code.code_bef_expr.str() /* should be empty */
 							<< expr_code.code_expr.str();
 						if(i1<save_array_quest->for_bounds_stack.size()-1) {
@@ -1970,80 +1972,80 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 						}
 					} else {
 						print_err(compiler_code_generation_error
-							, "for loop index condition is not a binary expression" 
+							, "for loop index condition is not a binary expression"
 							, 0, __LINE__, __FILE__);
 					}
 				}
 				s << ";++xtcc_i){\n"
 					<< "ostringstream map_key;\n"
-					<< "map_key << \"" << questionName_ << "\"" 
-					<< " << " 
-					<< "\"_\" << xtcc_i << \"$\" << " 
+					<< "map_key << \"" << questionName_ << "\""
+					<< " << "
+					<< "\"_\" << xtcc_i << \"$\" << "
 					//<< consolidated_for_loop_index_stack.back()
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
 					<< save_array_quest->questionName_ << "_scope_question_t["
-					<< "map_key.str()" << "]="
-					<< save_array_quest->questionName_ 
+					<< "map_key.str()" << "] = "
+					<< save_array_quest->questionName_
 					<< "_list.questionList[xtcc_i]->input_data;\n"
 					<< endl;
 				s << "}\n";
 
 			} else if (IsAtADeeperNestLevelInTheSameBlock(quest_loc, save_array_quest)){
-				s << "/*" 
-					<< quest_loc->questionName_ 
+				s << "/*"
+					<< quest_loc->questionName_
 					<< " is at a deeper nest level than "
-					<< save_array_quest->questionName_ 
+					<< save_array_quest->questionName_
 					<< "*/"
 					<< endl;
-				s << "for(int32_t xtcc_i=0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i<";
 				s << save_array_quest->enclosingCompoundStatement_
-					->ConsolidatedForLoopIndexStack_.back() 
+					->ConsolidatedForLoopIndexStack_.back()
 					<< "-1";
 				s << ";++xtcc_i){\n";
 				s<< "ostringstream map_key;\n"
-					<< "map_key << \"" << questionName_ << "\"" 
-					<< " << " 
-					<< "\"_\" << xtcc_i << \"$\" << " 
+					<< "map_key << \"" << questionName_ << "\""
+					<< " << "
+					<< "\"_\" << xtcc_i << \"$\" << "
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
 					<< save_array_quest->questionName_ << "_scope_question_t["
-					<< "map_key.str()" << "]="
-					<< save_array_quest->questionName_ 
-					<< "_list.questionList[xtcc_i]->input_data;\n" 
+					<< "map_key.str()" << "] = "
+					<< save_array_quest->questionName_
+					<< "_list.questionList[xtcc_i]->input_data;\n"
 					<< endl;
 				s << "}\n";
 
 			} else {
 				print_err(compiler_code_generation_error
-				, "unhandled case in compiler ... exiting code generation" 
+				, "unhandled case in compiler ... exiting code generation"
 				, 0, __LINE__, __FILE__);
-				cerr << "quest_loc->questionName_:" 
+				cerr << "quest_loc->questionName_:"
 					<< quest_loc->questionName_
-					<< ", save_array_quest->questionName_" 
-					<< save_array_quest->questionName_ 
+					<< ", save_array_quest->questionName_"
+					<< save_array_quest->questionName_
 					<< endl;
 				{
-					vector<AbstractQuestion*> & questions_in_block = 
+					vector<AbstractQuestion*> & questions_in_block =
 						quest_loc->enclosingCompoundStatement_->questionsInBlock_;
 					cerr << "/* questionsInBlock_: quest_loc "
 						<< quest_loc->questionName_ << ":";
-					for(int32_t i=0; i<questions_in_block.size(); ++i){
+					for(int32_t i = 0; i<questions_in_block.size(); ++i){
 						cerr << questions_in_block[i]->questionName_ << " ";
 					}
-					cerr << " */\n"; 
+					cerr << " */\n";
 				}
 				{
-					vector<AbstractQuestion*> & questions_in_block = 
+					vector<AbstractQuestion*> & questions_in_block =
 						save_array_quest->enclosingCompoundStatement_->questionsInBlock_;
 					cerr << "/* questionsInBlock_: save_array_quest "
 						<< save_array_quest->questionName_ << ":";
-					for(int32_t i=0; i<questions_in_block.size(); ++i){
+					for(int32_t i = 0; i<questions_in_block.size(); ++i){
 						cerr << questions_in_block[i]->questionName_ << " ";
 					}
-					cerr << " */\n"; 
+					cerr << " */\n";
 				}
-				
+
 				exit(1);
 			}
 		}
@@ -2055,15 +2057,15 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 {
 	ostringstream &s(code.program_code);
 	s << "/* ENTER AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe */" << endl;
-	int32_t pos_start_of_for_loop=-1;
-	for(int32_t i=0; i<enclosingCompoundStatement_->nestedCompoundStatementStack_.size(); ++i){
+	int32_t pos_start_of_for_loop = -1;
+	for(int32_t i = 0; i<enclosingCompoundStatement_->nestedCompoundStatementStack_.size(); ++i){
 		if(enclosingCompoundStatement_->nestedCompoundStatementStack_[i]->flagIsAForBody_){
-			pos_start_of_for_loop=i;
+			pos_start_of_for_loop = i;
 			break;
 		}
 	}
 
-	if(pos_start_of_for_loop==-1){
+	if(pos_start_of_for_loop == -1){
 		ostringstream err_msg;
 		err_msg << "Compiler internal error: cant find start of for loop in nestedCompoundStatementStack_";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
@@ -2073,63 +2075,63 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 		nestedCompoundStatementStack_[pos_start_of_for_loop]->questionsInBlock_;
 	s << "/* questions in my block ("
 		<< questionName_ << "):";
-	for(int32_t i=0; i<questions_in_block.size(); ++i){
+	for(int32_t i = 0; i<questions_in_block.size(); ++i){
 		s << questions_in_block[i]->questionName_ << ",";
 	}
 	s << "*/" << endl;
-	vector<AbstractQuestion*>::iterator my_loc = 
-		find(questions_in_block.begin(), questions_in_block.end(), this); 
-	if(my_loc==questions_in_block.end()){
+	vector<AbstractQuestion*>::iterator my_loc =
+		find(questions_in_block.begin(), questions_in_block.end(), this);
+	if(my_loc == questions_in_block.end()){
 		ostringstream err_msg;
 		err_msg << "unable to find self in block ... exiting\n";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
 		exit(1);
 	}
-	if(my_loc+1==questions_in_block.end()){
-		s << "/* I=" << questionName_ << " is the last question in in block "
+	if(my_loc+1 == questions_in_block.end()){
+		s << "/* I = " << questionName_ << " is the last question in in block "
 			<< " nothing to do */"<< endl;
 	} else {
 		for( vector<AbstractQuestion*>::iterator it = my_loc+1;
-				it!=questions_in_block.end(); ++it){
-			AbstractQuestion *quest_loc=this, *restore_array_quest=*it;
+				it != questions_in_block.end(); ++it){
+			AbstractQuestion *quest_loc = this, *restore_array_quest = *it;
 			if(IsInTheSameScopeAndLevel(quest_loc, restore_array_quest)){
-				s << "/*" 
+				s << "/*"
 					<< quest_loc->questionName_ << " and "
-					<< restore_array_quest->questionName_ 
+					<< restore_array_quest->questionName_
 					<< " :are at the same scope and level */"
 					<< endl;
 				cerr << "Need to revisit this to check if condition should be "
-					<< "xtcc_i\"<=\" or \"<\" and other similar places  " 
-					<< __LINE__ << "," << __FILE__ 
+					<< "xtcc_i\" <= \" or \"<\" and other similar places  "
+					<< __LINE__ << "," << __FILE__
 					<< endl;
-				s << "for(int32_t xtcc_i=0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i<";
 				s << restore_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back();
 				s << ";++xtcc_i){\n";
 				s<< "ostringstream map_key;\n"
-					<< "map_key << \"" << questionName_ << "\"" 
-					<< " << " 
-					<< "\"_\" << xtcc_i << \"$\" << " 
+					<< "map_key << \"" << questionName_ << "\""
+					<< " << "
+					<< "\"_\" << xtcc_i << \"$\" << "
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
-					<< restore_array_quest->questionName_ 
-					<< "_list.questionList[xtcc_i]->input_data="
+					<< restore_array_quest->questionName_
+					<< "_list.questionList[xtcc_i]->input_data = "
 					<< restore_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "];\n"
 					<< endl;
 				s << "}\n";
 			} else if (NotInTheSameBlock(quest_loc, restore_array_quest)){
-				s << "/*" 
+				s << "/*"
 					<< quest_loc->questionName_ << " and "
-					<< restore_array_quest->questionName_ 
+					<< restore_array_quest->questionName_
 					<< " :belong to different blocks "
 					<< "*/"
 					<< endl;
 			} else if (IsAtAHigherNestLevelInTheSameBlock(quest_loc, restore_array_quest)){
-				s << "/*" 
-					<< quest_loc->questionName_ 
+				s << "/*"
+					<< quest_loc->questionName_
 					<< " is at a higher nest level than "
-					<< restore_array_quest->questionName_ 
+					<< restore_array_quest->questionName_
 					<< "*/"
 					<< endl;
 				s << "/*"
@@ -2140,17 +2142,17 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< " and save all these to the question scope map\n"
 					<< "*/\n"
 					<< endl;
-				s << "for(int32_t xtcc_i=0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i<";
 				vector <AbstractExpression * > e_stack;
-				int32_t i1=0;
-				for(i1=0; i1<restore_array_quest->for_bounds_stack.size()
+				int32_t i1 = 0;
+				for(i1 = 0; i1<restore_array_quest->for_bounds_stack.size()
 						&& restore_array_quest->for_bounds_stack[i1]
 							== for_bounds_stack[i1]
 						; ++i1){
 					e_stack.push_back(restore_array_quest->for_bounds_stack[i1]);
 				}
 				s 	<< "("
-					<< PrintConsolidatedForLoopIndex(e_stack) 
+					<< PrintConsolidatedForLoopIndex(e_stack)
 					<< ")"
 					<< "*";
 				for(; i1<restore_array_quest->for_bounds_stack.size(); ++i1) {
@@ -2159,7 +2161,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					if(bin_expr_ptr){
 						AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 						ExpressionCompiledCode expr_code;
-						rhs->PrintExpressionCode(expr_code); 
+						rhs->PrintExpressionCode(expr_code);
 						s << expr_code.code_bef_expr.str() /* should be empty */
 							<< expr_code.code_expr.str();
 						if(i1<restore_array_quest->for_bounds_stack.size()-1) {
@@ -2167,77 +2169,77 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 						}
 					} else {
 						print_err(compiler_code_generation_error
-							, "for loop index condition is not a binary expression" 
+							, "for loop index condition is not a binary expression"
 							, 0, __LINE__, __FILE__);
 					}
 				}
 				s << ";++xtcc_i){\n"
 					<< "ostringstream map_key;\n"
-					<< "map_key << \"" << questionName_ << "\"" 
-					<< " << " 
-					<< "\"_\" << xtcc_i << \"$\" << " 
+					<< "map_key << \"" << questionName_ << "\""
+					<< " << "
+					<< "\"_\" << xtcc_i << \"$\" << "
 					//<< consolidated_for_loop_index_stack.back()
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
-					<< restore_array_quest->questionName_ 
-					<< "_list.questionList[xtcc_i]->input_data="
+					<< restore_array_quest->questionName_
+					<< "_list.questionList[xtcc_i]->input_data = "
 					<< restore_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "];\n"
 					<< endl;
 				s << "}\n";
 
 			} else if (IsAtADeeperNestLevelInTheSameBlock(quest_loc, restore_array_quest)){
-				s << "/*" 
-					<< quest_loc->questionName_ 
+				s << "/*"
+					<< quest_loc->questionName_
 					<< " is at a deeper nest level than "
-					<< restore_array_quest->questionName_ 
+					<< restore_array_quest->questionName_
 					<< "*/"
 					<< endl;
-				s << "for(int32_t xtcc_i=0; xtcc_i<";
+				s << "for(int32_t xtcc_i = 0; xtcc_i<";
 				s << restore_array_quest->enclosingCompoundStatement_
-					->ConsolidatedForLoopIndexStack_.back() 
+					->ConsolidatedForLoopIndexStack_.back()
 					<< "-1";
 				s << ";++xtcc_i){\n";
 				s<< "ostringstream map_key;\n"
-					<< "map_key << \"" << questionName_ << "\"" 
-					<< " << " 
-					<< "\"_\" << xtcc_i << \"$\" << " 
+					<< "map_key << \"" << questionName_ << "\""
+					<< " << "
+					<< "\"_\" << xtcc_i << \"$\" << "
 					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 					<< ";" << endl
-					<< restore_array_quest->questionName_ 
-					<< "_list.questionList[xtcc_i]->input_data="
+					<< restore_array_quest->questionName_
+					<< "_list.questionList[xtcc_i]->input_data = "
 					<< restore_array_quest->questionName_ << "_scope_question_t["
 					<< "map_key.str()" << "];\n"
 					<< endl;
 				s << "}\n";
 			} else {
 				print_err(compiler_code_generation_error
-				, "unhandled case in compiler ... exiting code generation" 
+				, "unhandled case in compiler ... exiting code generation"
 				, 0, __LINE__, __FILE__);
-				cerr << "quest_loc->questionName_:" 
+				cerr << "quest_loc->questionName_:"
 					<< quest_loc->questionName_
-					<< ", restore_array_quest->questionName_" 
-					<< restore_array_quest->questionName_ 
+					<< ", restore_array_quest->questionName_"
+					<< restore_array_quest->questionName_
 					<< endl;
 				{
-					vector<AbstractQuestion*> & questions_in_block = 
+					vector<AbstractQuestion*> & questions_in_block =
 						quest_loc->enclosingCompoundStatement_->questionsInBlock_;
 					cerr << "/* questionsInBlock_: quest_loc "
 						<< quest_loc->questionName_ << ":";
-					for(int32_t i=0; i<questions_in_block.size(); ++i){
+					for(int32_t i = 0; i<questions_in_block.size(); ++i){
 						cerr << questions_in_block[i]->questionName_ << " ";
 					}
-					cerr << " */\n"; 
+					cerr << " */\n";
 				}
 				{
-					vector<AbstractQuestion*> & questions_in_block = 
+					vector<AbstractQuestion*> & questions_in_block =
 						restore_array_quest->enclosingCompoundStatement_->questionsInBlock_;
 					cerr << "/* questionsInBlock_: restore_array_quest "
 						<< restore_array_quest->questionName_ << ":";
-					for(int32_t i=0; i<questions_in_block.size(); ++i){
+					for(int32_t i = 0; i<questions_in_block.size(); ++i){
 						cerr << questions_in_block[i]->questionName_ << " ";
 					}
-					cerr << " */\n"; 
+					cerr << " */\n";
 				}
 				exit(1);
 			}
@@ -2251,26 +2253,25 @@ void AbstractQuestion::PrintRestoreMyPreviousIterationsData(StatementCompiledCod
 {
 	ostringstream &s(code.program_code);
 	s << "/* ENTER:AbstractQuestion::PrintRestoreMyPreviousIterationsData */" << endl;
-	s << "for(int32_t xtcc_i=0; xtcc_i<" 
+	s << "for(int32_t xtcc_i = 0; xtcc_i<"
 		//<< consolidated_for_loop_index_stack.back() << "-1"
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() << "-1"
 		<< ";++xtcc_i){\n";
 	s << "ostringstream temp_map_key;\n";
-	s << "temp_map_key << \"" << questionName_ << "\" << \"_\" << " 
-		<< "xtcc_i" 
-		<< " << \"$\" << " 
-		//<< consolidated_for_loop_index_stack.back() 
-		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back() 
+	s << "temp_map_key << \"" << questionName_ << "\" << \"_\" << "
+		<< "xtcc_i"
+		<< " << \"$\" << "
+		//<< consolidated_for_loop_index_stack.back()
+		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< ";\n"
 		<< endl;
-	//s << "temp_map_key2 << \"" << questionName_ << "\" << \"_\" << " 
-	//	<< "xtcc_i" 
+	//s << "temp_map_key2 << \"" << questionName_ << "\" << \"_\" << "
+	//	<< "xtcc_i"
 	//	<< ";\n";
-	s << questionName_ << "_list.questionList[xtcc_i]->input_data="
+	s << questionName_ << "_list.questionList[xtcc_i]->input_data = "
 		<< questionName_ << "_scope_question_t[ temp_map_key.str()"
-		<< "];\n"
-		;
+		<< "];\n";
 	s << "}\n";
-		
+
 	s << "/* EXIT:AbstractQuestion::PrintRestoreMyPreviousIterationsData */" << endl;
 }

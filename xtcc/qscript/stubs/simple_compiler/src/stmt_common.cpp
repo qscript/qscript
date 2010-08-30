@@ -29,7 +29,7 @@ AbstractStatement::~AbstractStatement()
 	using qscript_parser::debug_log_file;
 	//std::cerr << "AbstractStatement::~AbstractStatement()\n" << std::endl;
 	if (next_  ) {
-		delete next_; next_=0;
+		delete next_; next_ = 0;
 	} 
 	//debug_log_file << "AbstractStatement::~AbstractStatement() base destructor" << endl;
 }

@@ -29,20 +29,20 @@ const char * NCursesReadline::ReadLine()
 	wrefresh(dataEntryWindow_);
 	int32_t curX, curY;
 	while(1){
-		//c=mvwgetch(dataEntryWindow_,1,1);
-		int32_t c=wgetch(dataEntryWindow_);
+		//c = mvwgetch(dataEntryWindow_,1,1);
+		int32_t c = wgetch(dataEntryWindow_);
 		//mvprintw(0,0, "got char: %d\n", c);
 		getyx(dataEntryWindow_, curY, curX);
 
 		if(isascii(c) && isprint(c)){
-			char ch=static_cast<char>(c);
-			if(insertionPoint_==buffer_.length()){
+			char ch = static_cast<char>(c);
+			if(insertionPoint_ == buffer_.length()){
 				buffer_.append(1, ch);
 				++insertionPoint_;
 			} else {
 				buffer_.insert(insertionPoint_++, 1, ch);
 			}
-			mvwprintw(dataEntryWindow_,2,75, "got PRINTABLE CHAR %d", c );
+			mvwprintw(dataEntryWindow_,2,75, "got PRINTABLE CHAR %d", c);
 
 		} else switch(c) {
 			case 10:
@@ -50,7 +50,7 @@ const char * NCursesReadline::ReadLine()
 			case KEY_ENTER:
 				return buffer_.c_str();
 			case KEY_LEFT:
-				mvwprintw(dataEntryWindow_,2,50, "got KEY_LEFT" );
+				mvwprintw(dataEntryWindow_,2,50, "got KEY_LEFT");
 				if(insertionPoint_>0){
 					--insertionPoint_;
 				}
@@ -61,10 +61,10 @@ const char * NCursesReadline::ReadLine()
 				}
 			break;
 			case KEY_HOME:
-				insertionPoint_=0;
+				insertionPoint_ = 0;
 			break;
 			case KEY_END:
-				insertionPoint_=buffer_.length();
+				insertionPoint_ = buffer_.length();
 			break;
 			case 8: // ctrl-H (which is backspace) in pdcurses
 			case SHF_DC:
@@ -72,7 +72,7 @@ const char * NCursesReadline::ReadLine()
 				DoBackSpace();
 			break;
 			case KEY_DC:
-				mvwprintw(dataEntryWindow_,2,50, "got KEY_DC" );
+				mvwprintw(dataEntryWindow_,2,50, "got KEY_DC");
 				DoDelete();
 			break;
 			case CTL_DEL:
@@ -90,21 +90,21 @@ const char * NCursesReadline::ReadLine()
 				DoShiftRight();
 			break;
 			default:
-				//mvprintw(0,0, "unknown key: %d\n", c );
-				mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c );
+				//mvprintw(0,0, "unknown key: %d\n", c);
+				mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c);
 			break;
 		}
 		//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer_);
 		mvwprintw(dataEntryWindow_, 3,1, "insertionPoint_: %d, lastBufPointer_: %d\n"
 				, insertionPoint_, buffer_.length());
-		//for(int32_t i=lastBufPointer_-1; i<lastBufPointer_+10; ++i){
+		//for(int32_t i = lastBufPointer_-1; i<lastBufPointer_+10; ++i){
 		//	mvwaddch(dataEntryWindow_, curY, i,  ' ');
 		//}
 		//wclear(dataEntryWindow_);
 		EraseLine(curY);
 		box(dataEntryWindow_, 0, 0);
 		mvwprintw(dataEntryWindow_,1,1, "%s", buffer_.c_str());
-		mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c );
+		mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c);
 		wmove(dataEntryWindow_, curY, 1+insertionPoint_);// since our X origin is at 1
 		wrefresh(dataEntryWindow_);
 	}
@@ -114,8 +114,8 @@ void NCursesReadline::EraseLine(int32_t line_no)
 {
 	int32_t maxX, maxY;
 	getmaxyx(dataEntryWindow_, maxY,maxX);
-	if(line_no >=0 && line_no <= maxY){
-		for(int32_t i=0; i<buffer_.length()+10; ++i){
+	if(line_no  >= 0 && line_no  <=  maxY){
+		for(int32_t i = 0; i<buffer_.length()+10; ++i){
 			mvwaddch(dataEntryWindow_, line_no, i,  ' ');
 		}
 	}
@@ -126,7 +126,7 @@ void NCursesReadline::EraseLine(int32_t line_no)
 void NCursesReadline::SetBuffer(const string & re_arranged_buffer
 				, int32_t l_new_insertionPoint)
 {
-	buffer_=re_arranged_buffer;
+	buffer_ = re_arranged_buffer;
 
 	if(l_new_insertionPoint < re_arranged_buffer.length()){
 		insertionPoint_ = l_new_insertionPoint;
@@ -135,23 +135,23 @@ void NCursesReadline::SetBuffer(const string & re_arranged_buffer
 
 void NCursesReadline::Reset()
 {
-	insertionPoint_=0;
+	insertionPoint_ = 0;
 	buffer_.clear();
 }
 
 void NCursesReadline::DoDelete()
 {
 
-	if(insertionPoint_==buffer_.length()) {
+	if(insertionPoint_ == buffer_.length()) {
 		// nothing to do
-	} else if(insertionPoint_>=0){
+	} else if(insertionPoint_ >= 0){
 		buffer_.erase(insertionPoint_, 1); 
 	}
 }
 
 void NCursesReadline::DoBackSpace()
 {
-	if(insertionPoint_>=1){
+	if(insertionPoint_ >= 1){
 		buffer_.erase(insertionPoint_-1, 1);
 		--insertionPoint_;
 	}
@@ -165,19 +165,19 @@ void NCursesReadline::DoShiftLeft()
 		//	found = buffer_.rfind(' ', insertionPoint_);
 		//} while (found == insertionPoint_);
 		int32_t i1 = insertionPoint_-1;
-		int32_t idx=0;
-		int32_t count_blank_spaces=0;
-		while(buffer_[i1]==' ' && i1>0){
-			mvwprintw(dataEntryWindow_,2,90+idx, "." );
+		int32_t idx = 0;
+		int32_t count_blank_spaces = 0;
+		while(buffer_[i1] == ' ' && i1>0){
+			mvwprintw(dataEntryWindow_,2,90+idx, ".");
 			count_blank_spaces++;
 			--i1;
 		}
 		if(count_blank_spaces>1){
-			insertionPoint_=i1;
+			insertionPoint_ = i1;
 			return;
 		}
 		string::size_type found = buffer_.rfind(' ', i1);
-		if(found!=string::npos){
+		if(found != string::npos){
 			insertionPoint_ = found;
 		}
 	}
@@ -191,19 +191,19 @@ void NCursesReadline::DoShiftRight()
 		//	found = buffer_.rfind(' ', insertionPoint_);
 		//} while (found == insertionPoint_);
 		int32_t i1 = insertionPoint_+1;
-		int32_t idx=0;
-		int32_t count_blank_spaces=0;
-		while(buffer_[i1]==' ' && i1>0){
-			mvwprintw(dataEntryWindow_,2,90+idx, "." );
+		int32_t idx = 0;
+		int32_t count_blank_spaces = 0;
+		while(buffer_[i1] == ' ' && i1>0){
+			mvwprintw(dataEntryWindow_,2,90+idx, ".");
 			count_blank_spaces++;
 			++i1;
 		}
 		if(count_blank_spaces>1){
-			insertionPoint_=i1;
+			insertionPoint_ = i1;
 			return;
 		}
 		string::size_type found = buffer_.find(' ', i1);
-		if(found!=string::npos){
+		if(found != string::npos){
 			insertionPoint_ = found;
 		}
 	}
@@ -217,30 +217,30 @@ void NCursesReadline::DoDeleteWordBackWard()
 		//	found = buffer_.rfind(' ', insertionPoint_);
 		//} while (found == insertionPoint_);
 		int32_t i1 = insertionPoint_-1;
-		int32_t idx=0;
-		int32_t count_blank_spaces=0;
+		int32_t idx = 0;
+		int32_t count_blank_spaces = 0;
 		int32_t end_mark = insertionPoint_;
-		while(buffer_[i1]==' ' && i1>0){
-			mvwprintw(dataEntryWindow_,2,90+idx, "." );
+		while(buffer_[i1] == ' ' && i1>0){
+			mvwprintw(dataEntryWindow_,2,90+idx, ".");
 			count_blank_spaces++;
 			--i1;
 		}
 		if(count_blank_spaces>1){
-			int32_t start_mark=i1+1;
+			int32_t start_mark = i1+1;
 			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
-			insertionPoint_=i1;
+			insertionPoint_ = i1;
 			return;
 		}
 		string::size_type found = buffer_.rfind(' ', i1);
-		if(found!=string::npos){
+		if(found != string::npos){
 			insertionPoint_ = found;
-			int32_t start_mark=found;
+			int32_t start_mark = found;
 			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			return;
 		} else {
-			int32_t start_mark=0;
+			int32_t start_mark = 0;
 			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			insertionPoint_ = 0;
@@ -257,30 +257,30 @@ void NCursesReadline::DoDeleteWordForward()
 		//	found = buffer_.rfind(' ', insertionPoint_);
 		//} while (found == insertionPoint_);
 		int32_t i1 = insertionPoint_+1;
-		int32_t idx=0;
-		int32_t count_blank_spaces=0;
+		int32_t idx = 0;
+		int32_t count_blank_spaces = 0;
 		int32_t start_mark = insertionPoint_;
-		while(buffer_[i1]==' ' && i1>0){
-			mvwprintw(dataEntryWindow_,2,90+idx, "." );
+		while(buffer_[i1] == ' ' && i1>0){
+			mvwprintw(dataEntryWindow_,2,90+idx, ".");
 			count_blank_spaces++;
 			++i1;
 		}
 		if(count_blank_spaces>1){
-			int32_t end_mark=i1;
+			int32_t end_mark = i1;
 			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			// no need to updated insertionPoint_ - it remains as it was
 			return;
 		}
 		string::size_type found = buffer_.find(' ', i1);
-		if(found!=string::npos){
-			int32_t end_mark=found;
+		if(found != string::npos){
+			int32_t end_mark = found;
 			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			// no need to updated insertionPoint_ - it remains as it was
 			return;
 		} else {
-			int32_t end_mark=buffer_.length();
+			int32_t end_mark = buffer_.length();
 			int32_t length = end_mark - start_mark;
 			buffer_.erase(start_mark, length);
 			// no need to updated insertionPoint_ - it remains as it was

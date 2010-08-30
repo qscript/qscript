@@ -1,5 +1,5 @@
-/*!\file  
-   \brief The classes for the expressions allowed in the qscript grammar 
+/*!\file
+   \brief The classes for the expressions allowed in the qscript grammar
    are contained in this file
  *
  * expression for xtcc grammar
@@ -22,7 +22,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; see the file COPYING.  If not, write to
- * The Free Software Foundation, 
+ * The Free Software Foundation,
  * 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
@@ -38,10 +38,10 @@ using std::ostringstream;
 
 
 //! every expression has an operator type - which is one of those below
-/*! the user of this enum ExpressionOperatorType should not depend on the order in which 
+/*! the user of this enum ExpressionOperatorType should not depend on the order in which
     the elements are defined
 */
-enum ExpressionOperatorType 
+enum ExpressionOperatorType
 { 	oper_plus, oper_minus, oper_mult, oper_div
 	, oper_and, oper_or, oper_lt, oper_gt
 	, oper_le, oper_ge, oper_isneq, oper_iseq, oper_parexp
@@ -59,7 +59,7 @@ string human_readable_expr_type( ExpressionOperatorType e_type);
 //!AbstractExpression  Pure virtual base class - all expression classes inherit from this class
 /*!
  */
-struct AbstractExpression 
+struct AbstractExpression
 {
 	ExpressionOperatorType exprOperatorType_;
 	DataType type_;
@@ -73,9 +73,9 @@ struct AbstractExpression
 	virtual void PrintExpressionCode(ExpressionCompiledCode & code)=0;
 
 	virtual int32_t IsValid();
-	//! pure virtual function will tell us if an AbstractExpression can appear on the 
+	//! pure virtual function will tell us if an AbstractExpression can appear on the
 	//! left side of the assignment operator
-	//! of the 
+	//! of the
 	virtual bool IsLValue()=0;
 	// ! determines if an expression is a constant value
 	virtual bool IsConst()=0;
@@ -88,7 +88,7 @@ struct AbstractExpression
 };
 
 
-//! holds Unary expressions of the form '-' expression, ! expression,  and '(' expression ')'. 
+//! holds Unary expressions of the form '-' expression, ! expression,  and '(' expression ')'.
 /*! Note that these are expressions constructed
     out of an operator and another expression - there is no additional
     data involved which is what differentiates these from the Unary2Expression
@@ -122,7 +122,7 @@ struct UnaryExpression : public AbstractExpression
 #include "xtcc_set.h"
 struct Unary2Expression;
 
-//! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set 
+//! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set
 struct Binary2Expression: public AbstractExpression
 {
 	protected:
@@ -199,14 +199,14 @@ struct Unary2Expression : public AbstractExpression
 
 	Unary2Expression(double l_dsem_value);
 
-	Unary2Expression( struct SymbolTableEntry * lsymp); 
+	Unary2Expression( struct SymbolTableEntry * lsymp);
 	Unary2Expression(DataType d);
 	Unary2Expression(ExpressionOperatorType le_type,  string name
 			, AbstractExpression* arr_index);
 	Unary2Expression(ExpressionOperatorType le_type,  string name
 			, AbstractExpression* arr_index
 			, AbstractExpression* arr_index2);
-	Unary2Expression(char* ltxt, ExpressionOperatorType le_type); 
+	Unary2Expression(char* ltxt, ExpressionOperatorType le_type);
 	~Unary2Expression();
 	friend void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code);
 //	virtual void PrintExpressionCode(ostringstream& code_bef_expr

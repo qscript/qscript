@@ -1688,7 +1688,7 @@ yyreduce:
 		(yyval.stmt)=new /*Statement::*/ FunctionStatement(FUNC_DEFN, qscript_parser::line_no, scope_, v_list, funcBody_, search_for, returnType_);
 		// Note that the declaration already has a parameter list
 		// the constructor uses the parameter list - name and type to verify everything
-		// but doesnt need the parameter list any more - so we should delete it 
+		// but doesnt need the parameter list any more - so we should delete it
 		// - took me a while to figure out this memory leak
 		delete v_list;
 		free((yyvsp[(2) - (7)].name));
@@ -2291,9 +2291,9 @@ yyreduce:
 		if(index!=-1) found=true;
 		bool skip_type_check=skip_func_type_check(search_for.c_str());
 		if( skip_type_check==false  && found==false ) {
-			cerr << "ERROR: function call Error on line_no: " 
+			cerr << "ERROR: function call Error on line_no: "
 				<< line_no << endl;
-			cerr << "function : " << search_for 
+			cerr << "function : " << search_for
 				<< " used without decl" << endl;
 			++ no_errors;
 			(yyval.expr)=new Unary2Expression(ERROR_TYPE);
@@ -2343,7 +2343,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 613 "src/q.ypp"
-    { 
+    {
 		using qscript_parser::line_no;
 		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (3)].expr), oper_parexp );
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
@@ -2400,8 +2400,8 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 647 "src/q.ypp"
-    { qscript_parser::q_type = mpn; 
-		qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival); 
+    { qscript_parser::q_type = mpn;
+		qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival);
 	;}
     break;
 
@@ -2787,38 +2787,38 @@ template<class T> T* trav_chain(T* & elem1){
 AbstractExpression * recurse_for_index(int32_t stack_index){
 	//cerr << "entered: recurse_for_index: stack_index: " << stack_index << endl;
 	if(stack_index==0){
-		BinaryExpression * test_expr = 
+		BinaryExpression * test_expr =
 			dynamic_cast<BinaryExpression*>(
 					for_loop_max_counter_stack[0]);
 		if(test_expr==0){
-			print_err(compiler_sem_err, 
+			print_err(compiler_sem_err,
 				" test expr should be a binary expression ",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return 0;
-		} else if(test_expr->rightOperand_->IsIntegralExpression() 
+		} else if(test_expr->rightOperand_->IsIntegralExpression()
 				&& test_expr->rightOperand_->IsConst()) {
 			return test_expr->rightOperand_;
 		} else {
-			print_err(compiler_sem_err, 
+			print_err(compiler_sem_err,
 				" test expr not integer and const",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return test_expr->rightOperand_;
 		}
 	} else {
-		BinaryExpression * test_expr = 
+		BinaryExpression * test_expr =
 			dynamic_cast<BinaryExpression*>(
 				for_loop_max_counter_stack[stack_index]);
 		if(test_expr==0){
-			print_err(compiler_sem_err, 
+			print_err(compiler_sem_err,
 				" test expr should be a binary expression ",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return 0;
-		} else if(test_expr->rightOperand_->IsIntegralExpression() 
+		} else if(test_expr->rightOperand_->IsIntegralExpression()
 				&& test_expr->rightOperand_->IsConst()) {
 			return new BinaryExpression(test_expr->rightOperand_,
 				recurse_for_index(stack_index-1), oper_mult);
 		} else {
-			print_err(compiler_sem_err, 
+			print_err(compiler_sem_err,
 				" test expr not integer and const",
 				qscript_parser::line_no, __LINE__, __FILE__);
 			return test_expr->rightOperand_;
@@ -2829,7 +2829,7 @@ AbstractExpression * recurse_for_index(int32_t stack_index){
 CompoundStatement* ProcessOpenCurly()
 {
 	++nest_lev;
-	CompoundStatement * cmpdStmt= new CompoundStatement(CMPD_STMT, 
+	CompoundStatement * cmpdStmt= new CompoundStatement(CMPD_STMT,
 			line_no, flagIsAFunctionBody_,
 			flagIsAForBody_, for_loop_max_counter_stack);
 	stack_cmpd_stmt.push_back(cmpdStmt);
@@ -2858,15 +2858,15 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 
 	active_scope_list.pop_back();
 	int32_t tmp=active_scope_list.size()-1;
-	if(tmp==-1) { 
+	if(tmp==-1) {
 		active_scope = 0;
 		print_err(compiler_internal_error
 			, "Error: active_scope == 0 in ProcessCompoundStatement"
 			": should never happen :... exiting",
 				line_no, __LINE__, __FILE__  );
 		exit(1);
-	} else { 
-		active_scope = active_scope_list[tmp]; 
+	} else {
+		active_scope = active_scope_list[tmp];
 	}
 	struct AbstractStatement* head_of_this_chain=blk_heads.back();
 	if(blk_start_flag.size() > 0){
@@ -2886,16 +2886,16 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 		blk_heads.pop_back();
 	}
 
-	//! update the counter of enlosing CompoundStatement with 
+	//! update the counter of enlosing CompoundStatement with
 	//! the number of questions in this CompoundStatement being popped of
 	//! right now
 	if(stack_cmpd_stmt.size()>1){
 		CompoundStatement * popped_off_cmpd_stmt_ptr=stack_cmpd_stmt.back();
 		stack_cmpd_stmt.pop_back();
 		CompoundStatement * current  = stack_cmpd_stmt.back();
-		current->counterContainsQuestions_+= 
+		current->counterContainsQuestions_+=
 			(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
-	} 
+	}
 	//$$=$1;
 	return cmpdStmt;
 }
@@ -2923,7 +2923,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	vector <ActiveVariableInfo* > av_info;
 	PrintActiveVariablesAtScope(active_scope_list, av_info);
 
-	
+
 	AbstractExpression * arr_sz=0;
 	RangeQuestion * q=0;
 	if(stack_cmpd_stmt.size()==0){
@@ -2935,11 +2935,11 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	}
 	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
 	if(qscript_parser::flagIsAForBody_){
-		//cout << "flagIsAForBody_: " 
+		//cout << "flagIsAForBody_: "
 		//	<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
-		q= new RangeQuestion(QUESTION_ARR_TYPE, line_no, 
+		q= new RangeQuestion(QUESTION_ARR_TYPE, line_no,
 			name, q_text, q_type, no_mpn, dt, xs
 			//, arr_sz
 			,qscript_parser::for_loop_max_counter_stack
@@ -2950,7 +2950,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 		//arr_sz->print_expr(s1, s2);
 		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
 	} else {
-		q= new RangeQuestion(QUESTION_TYPE, line_no, 
+		q= new RangeQuestion(QUESTION_TYPE, line_no,
 			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr, av_info);
 		active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q);
 	}
@@ -2971,13 +2971,13 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	// I need to modify the insert in Scope to
 	// take a 3rd parameter which is a AbstractQuestion *
 	// and store that into the symbol table
-	// I should be able to retrieve that 
-	// AbstractQuestion* pointer later 
+	// I should be able to retrieve that
+	// AbstractQuestion* pointer later
 	return q;
 }
 
 AbstractStatement * ProcessNamedQuestion(const string &name
-			, const string & q_txt , const DataType& dt 
+			, const string & q_txt , const DataType& dt
 			, const string & attribute_list_name )
 {
 
@@ -3006,11 +3006,11 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 		}
 	}
 	if(!found){
-		print_err(compiler_sem_err, string("named_stubs_list ") 
+		print_err(compiler_sem_err, string("named_stubs_list ")
 			+ attribute_list_name + string(" not found \n"), line_no,
 			__LINE__, __FILE__);
 	}
-	
+
 	if(stack_cmpd_stmt.size()==0){
 		print_err(compiler_internal_error, "compound statement stack "
 			"is 0 when parsing a AbstractQuestion... exiting"
@@ -3021,7 +3021,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	AbstractExpression * arr_sz=0;
 	NamedStubQuestion* q=0;
 	if(qscript_parser::flagIsAForBody_){
-		//cout << "flagIsAForBody_: " 
+		//cout << "flagIsAForBody_: "
 		//	<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
@@ -3031,7 +3031,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 				, cmpd_stmt_ptr, av_info);
 		active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q);
 	} else {
-		q=new NamedStubQuestion(QUESTION_TYPE, 
+		q=new NamedStubQuestion(QUESTION_TYPE,
 			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr
 			, cmpd_stmt_ptr, av_info);
 		active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q);

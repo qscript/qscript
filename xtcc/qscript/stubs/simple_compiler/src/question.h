@@ -1,13 +1,13 @@
 /*! \file
     \brief The "AbstractQuestion" statement classes of the qscript language
-           are contained in this file. The AbstractQuestion classes are 
+           are contained in this file. The AbstractQuestion classes are
 	   required in the runtime as well as compile environment.
 	   Hence they have been factored out to speed up compilation
 	   and prevent unnecessary code from entering the runtime binary
 
  *  xtcc/xtcc/qscript/stubs/simple_compiler/AbstractQuestion.h
  *
- *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
  *	Neil Xavier D'Souza
  */
 #ifndef qscript_question_h
@@ -26,7 +26,7 @@ using std::ofstream;
 struct named_range;
 struct DummyArrayQuestion;
 //! The AbstractQuestion pure virtual base class - inherits from AbstractStatement
-struct AbstractQuestion: public AbstractStatement 
+struct AbstractQuestion: public AbstractStatement
 {
 	string questionName_;
 	string questionText_;
@@ -55,12 +55,12 @@ struct AbstractQuestion: public AbstractStatement
 
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
-		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt 
+		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		);
 	//! this is only called in the compile time environment
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
-		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt 
+		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
@@ -134,7 +134,7 @@ struct AbstractQuestion: public AbstractStatement
 	numbers -> (1,2,5-8)
 		q2 "Q2. This is AbstractQuestion 2" mp (5) int32_t (1,2,5-8);
 */
-struct RangeQuestion: public AbstractQuestion 
+struct RangeQuestion: public AbstractQuestion
 {
 	XtccSet * r_data;
 	//vector <int32_t> stack_loop_index_values;
@@ -145,7 +145,7 @@ struct RangeQuestion: public AbstractQuestion
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, vector<AbstractExpression*>& l_for_bounds_stack
-		, CompoundStatement * l_enclosing_scope 
+		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
 	//! this is only called in the runtime environment
@@ -206,9 +206,9 @@ struct RangeQuestion: public AbstractQuestion
   	Below is an example of a NamedStubQuestion - the allowed codes are a
 	predefined name like "age" below
 
-		q3 "Q3. Respondents age" sp int32_t age; 
+		q3 "Q3. Respondents age" sp int32_t age;
 */
-class NamedStubQuestion: public AbstractQuestion 
+class NamedStubQuestion: public AbstractQuestion
 {
 	public:
 	string named_list;
@@ -218,7 +218,7 @@ class NamedStubQuestion: public AbstractQuestion
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, named_range * l_nr_ptr 
+		, DataType l_dt, named_range * l_nr_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
@@ -227,7 +227,7 @@ class NamedStubQuestion: public AbstractQuestion
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, named_range * l_nr_ptr 
+		, DataType l_dt, named_range * l_nr_ptr
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		);
@@ -247,7 +247,7 @@ class NamedStubQuestion: public AbstractQuestion
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, vector<stub_pair> * l_stub_ptr 
+		, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		);
@@ -274,7 +274,7 @@ class NamedStubQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
-	
+
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
 		NamedStubQuestion (const NamedStubQuestion&);
