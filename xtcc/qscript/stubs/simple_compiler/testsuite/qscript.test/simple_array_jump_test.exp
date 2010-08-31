@@ -1,0 +1,246 @@
+set test "qscript simple_jump_test no question, only variables"
+set timeout 1
+global QSCRIPT
+global QSCRIPT_HOME
+spawn rm qscript_stdout.log
+wait
+spawn $QSCRIPT -f inputs/inp_jump_test_simple_array
+wait
+
+spawn inputs/inp_jump_test_simple_array.exe
+expect {
+	"Enter Serial No (0) to exit:" {
+		send_user "got Serial prompt\n";
+		send "1\r" ;
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q1.1. Q1. \r\n" {
+		send_user "Reached q1\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q1.1\n";
+		send "1\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+
+expect {
+	"q2.1. Q2. \r\n" {
+		send_user "Reached q2.1\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2.1\n";
+		send "2\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q1.2. Q1. \r\n" {
+		send_user "Reached q1.2\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q1.2\n";
+		send "3\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q2.2. Q2. \r\n" {
+		send_user "Reached q2.2\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2.2\n";
+		send "3\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q1.3. Q1. \r\n" {
+		send_user "Reached q1.3\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q1.3\n";
+		send "p\r";
+	}
+	default { send_user "failed\n"; }
+}
+# From this point on go backward to 
+# check that the back jumps work
+expect {
+	"q2.2. Q2. \r\n" {
+		send_user "Jumped back to q2.2\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2.2\n";
+		send "p\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q1.2. Q1. \r\n" {
+		send_user "Jumped back to q1.2\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q1.2\n";
+		send "p\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q2.1. Q2. \r\n" {
+		send_user "Jumped back to q2.1\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2.1\n";
+		send "p\r";
+	}
+	default { send_user "failed\n"; }
+}
+# Reached the start of the questionnaire - now go next 
+# till we reach the  unanswered questions
+# answer them - save and quit
+expect {
+	"q1.1. Q1. \r\n" {
+		send_user "Reached q1\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q1.1\n";
+		send "n\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q2.1. Q2. \r\n" {
+		send_user "Reached q2.1\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2.1\n";
+		send "n\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q1.2. Q1. \r\n" {
+		send_user "Reached q1.2\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q1.2\n";
+		send "n\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q2.2. Q2. \r\n" {
+		send_user "Reached q2.2\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2.2\n";
+		send "n\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q1.3. Q1. \r\n" {
+		send_user "Reached q1.3\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q1.3\n";
+		send "3\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"q2.3. Q2. \r\n" {
+		send_user "Reached q2.3\n";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	"1\r\n2\r\n3\r\n4\r\n" {
+		send_user "Got stubs for q2.3\n";
+		send "4\r";
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	-re "End of Questionnaire: .s to save, p = previous question, j = question jump list." { 
+		send_user "saving questionnaire\n"; 
+		send "s\r"
+	}
+	default { send_user "failed\n"; }
+}
+
+expect {
+	-re "Enter Serial No .0. to exit:" {
+		send "0\r"; pass $test;
+	}
+	default { send_user "failed\n"; }
+}
