@@ -549,7 +549,13 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 	}
 	if(question_window ==0 || stub_list_window  == 0 || data_entry_window  == 0 ){
-		cout << questionName_ << "." << questionText_ << endl << endl;
+		cout << questionName_ << ".";
+		if(loop_index_values.size()>0){
+			for(uint32_t i=0; i<loop_index_values.size(); ++i){
+				cout << loop_index_values[i]+1 << ".";
+			}
+		}
+		cout << questionText_ << endl << endl;
 		for(	set<int32_t>::iterator it = displayData_.begin();
 				it != displayData_.end(); ++it){
 			cout << *it << endl;
@@ -642,7 +648,15 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
 	if(question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0 ){
-		cout << questionName_ << "." << questionText_ << endl << endl;
+		cout << questionName_ << ".";
+		if(loop_index_values.size()>0){
+			for(uint32_t i=0; i<loop_index_values.size(); ++i){
+				cout << loop_index_values[i]+1 << ".";
+			}
+		}
+		cout << questionText_ << endl << endl;
+
+		//cout << questionName_ << "." << questionText_ << endl << endl;
 		vector<stub_pair> vec= *stub_ptr;
 		for(uint32_t i = 0; i< vec.size(); ++i){
 			if( vec[i].mask)
