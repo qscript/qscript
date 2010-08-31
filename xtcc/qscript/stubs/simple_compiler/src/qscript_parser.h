@@ -43,6 +43,7 @@ namespace qscript_parser
 	extern vector<CompoundStatement*> stack_cmpd_stmt;
 	extern vector<string> stack_of_active_push_vars;
 	extern map<string, vector<string> > map_of_active_vars_for_questions;
+	extern vector<AbstractStatement*> delete_manually_in_cleanup;
 
 
 	AbstractExpression * recurse_for_index(int32_t stack_index);
@@ -54,18 +55,6 @@ namespace qscript_parser
 	//	int32_t compiler_line_no, string compiler_file_name);
 	extern int32_t line_no;
 	extern noun_list_type noun_list[];
-
-	/*
-	noun_list_type noun_list[]= {
-			{	"void"	, VOID_TYPE},
-			{	"int8_t" ,INT8_TYPE},
-			{	"int16_t" ,INT16_TYPE},
-			{	"int32_t" ,INT32_TYPE},
-			{	"float", FLOAT_TYPE},
-			{	"double", DOUBLE_TYPE}
-		};
-	*/	
-
 
 	extern QuestionType q_type;
 	extern int32_t no_mpn;

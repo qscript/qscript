@@ -20,6 +20,7 @@
 #include "stmt.h"
 #include "compiled_code.h"
 #include "curses_namespace.h"
+#include "qscript_debug.h"
 
 using std::ostringstream;
 using std::ofstream;
@@ -72,6 +73,7 @@ struct AbstractQuestion: public AbstractStatement
 		, const vector<int32_t>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		);
+	virtual ~AbstractQuestion();
 //	virtual void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code)=0;
 	virtual void GenerateCode(StatementCompiledCode &code)=0;
@@ -186,7 +188,10 @@ struct RangeQuestion: public AbstractQuestion
 	void  GetQuestionNames(vector<string> & question_list,
 			       AbstractStatement* endStatement)
 	{
-		std::cout << "RangeQuestion::GetQuestionNames" << std::endl;
+		if (qscript_debug::DEBUG_RangeQuestion) {
+			std::cout << "RangeQuestion::GetQuestionNames"
+				  << std::endl;
+		}
 		if(this==endStatement)
 			return;
 		question_list.push_back(questionName_);

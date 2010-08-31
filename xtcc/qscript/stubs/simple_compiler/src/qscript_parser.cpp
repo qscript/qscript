@@ -4,6 +4,7 @@
 #include "compiled_code.h"
 #include "qscript_parser.h"
 #include "config_parser.h"
+#include "qscript_debug.h"
 
 extern int32_t qscript_confparse();
 extern void qscript_confrestart(FILE *input_file);
@@ -29,6 +30,7 @@ namespace qscript_parser
 	map<string, vector<string> > map_of_active_vars_for_questions;
 
 	AbstractExpression * recurse_for_index(int32_t stack_index);
+	vector<AbstractStatement*> delete_manually_in_cleanup;
 
 
 	ofstream debug_log_file("qscript_debug.log", std::ios_base::out|std::ios_base::trunc);
@@ -38,18 +40,6 @@ namespace qscript_parser
 	//	int32_t compiler_line_no, string compiler_file_name);
 	int32_t line_no;
 	extern noun_list_type noun_list[];
-
-	/*
-	noun_list_type noun_list[]= {
-			{	"void"	, VOID_TYPE},
-			{	"int8_t" ,INT8_TYPE},
-			{	"int16_t" ,INT16_TYPE},
-			{	"int32_t" ,INT32_TYPE},
-			{	"float", FLOAT_TYPE},
-			{	"double", DOUBLE_TYPE}
-		};
-	*/
-
 
 	QuestionType q_type;
 #include "const_defs.h"
@@ -113,7 +103,8 @@ string ExtractBaseFileName(const string & fname)
 
 void GenerateCode(const string & src_file_name, bool ncurses_flag)
 {
-	cerr << "ENTER qscript_parser::GenerateCode" << endl;
+	if(qscript_debug::DEBUG_qscript_parser)
+		cerr << "ENTER qscript_parser::GenerateCode" << endl;
 	string output_file_name = ExtractBaseFileName(src_file_name);
 	output_file_name += ".C";
 	//string script_name("test_script.C");
@@ -132,7 +123,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
 	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
-	cerr << "EXIT qscript_parser::GenerateCode" << endl;
+	if(qscript_debug::DEBUG_qscript_parser)
+		cerr << "EXIT qscript_parser::GenerateCode" << endl;
 }
 
 void print_header(FILE* script, bool ncurses_flag)
@@ -184,16 +176,6 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
-
-
-	//fprintf(script, "\tnoun_list_type noun_list[]= {\n");
-	//fprintf(script, "\t\t\t{\t\"void\"\t, VOID_TYPE},\n");
-	//fprintf(script, "\t\t\t{\t\"int8_t\" ,INT8_TYPE},\n");
-	//fprintf(script, "\t\t\t{\t\"int16_t\" ,INT16_TYPE},\n");
-	//fprintf(script, "\t\t\t{\t\"int32_t\" ,INT32_TYPE},\n");
-	//fprintf(script, "\t\t\t{\t\"float\", FLOAT_TYPE},\n");
-	//fprintf(script, "\t\t\t{\t\"double\", DOUBLE_TYPE}\n");
-	//fprintf(script, "\t\t};\n");
 	fprintf(script, "\n");
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
@@ -853,7 +835,8 @@ int32_t ReadQScriptConfig()
 // before this function is invoked - we work on that assumuption
 void CompileGeneratedCode(const string & src_file_name)
 {
-	cerr << "ENTER qscript_parser::CompileGeneratedCode" << endl;
+	if(qscript_debug::DEBUG_qscript_parser)
+		cerr << "ENTER qscript_parser::CompileGeneratedCode" << endl;
 
 	/*
 # You will need to modify the variable below

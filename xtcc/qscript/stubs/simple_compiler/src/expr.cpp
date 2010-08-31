@@ -745,7 +745,8 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 	, func_index_in_table(-1), text(0), column_no(-1)
 	, operand_(0), operand2_(0)
 {
-	cerr << __PRETTY_FUNCTION__ << endl;
+	if(qscript_debug::DEBUG_Unary2Expression)
+		cerr << __PRETTY_FUNCTION__ << endl;
 	if (exprOperatorType_ == oper_text_expr){
 		type_ = STRING_TYPE;
 		text = ltxt;

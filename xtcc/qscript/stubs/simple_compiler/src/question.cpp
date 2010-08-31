@@ -126,6 +126,14 @@ AbstractQuestion::AbstractQuestion(
 	//}
 }
 
+AbstractQuestion::~AbstractQuestion()
+{
+	for (int i=0; i<activeVarInfo_.size(); ++i) {
+		delete activeVarInfo_[i];
+		activeVarInfo_[i]=0;
+	}
+}
+
 
 void AbstractQuestion::GetQuestionsInBlock(
 	vector<AbstractQuestion*> & question_list, AbstractStatement * stop_at)

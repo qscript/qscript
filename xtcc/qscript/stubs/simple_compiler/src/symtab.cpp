@@ -118,7 +118,7 @@ DataType convert_ref_type(DataType dt)
 
 string human_readable_type(DataType dt)
 {
-	cout << "ENTER human_readable_type" << endl;
+	//cout << "ENTER human_readable_type" << endl;
 	string s = "UNKNOWN TYPE";
 	switch(dt){
 	case VOID_TYPE:
@@ -241,7 +241,7 @@ string human_readable_type(DataType dt)
 	default:
 		s = "fix: human_readable_type: unhandled";
 	}
-	cout << "EXIT human_readable_type" << endl;
+	//cout << "EXIT human_readable_type" << endl;
 	return s;
 }
 

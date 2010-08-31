@@ -20,6 +20,7 @@
 #include "named_range.h"
 #include "qscript_parser.h"
 #include "symtab.h"
+#include "qscript_debug.h"
 
 
 //extern vector<mem_addr_tab> mem_addr;
@@ -109,7 +110,8 @@ ExpressionStatement::~ExpressionStatement()
 
 void DeclarationStatement::GenerateCode(StatementCompiledCode &code)
 {
-	cout << " // DeclarationStatement::GenerateCode " << endl;
+	if (qscript_debug::DEBUG_DeclarationStatement)
+		cout << " // DeclarationStatement::GenerateCode " << endl;
 	//ostringstream code_expr1, code_bef_expr1;
 	ExpressionCompiledCode expr_code;
 	if (symbolTableEntry_->e){
@@ -215,13 +217,6 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	code.program_code << "// ifStatementStack.size(): "
 		<< ifStatementStack.size() << endl;
 	if (ifStatementStack.size() > 0){
-		// one change to be done here
-		/*
-		ifStatementStack[ifStatementStack.size()-1]->ifStatementPtr_
-			->GetQuestionNames
-			(question_list_else_body, this);
-		*/
-		cerr << "IfStatement::GenerateCode(): ifStatementStack.size>0 :Before LOOP" << endl;
 		for(int32_t i = 0; i < ifStatementStack.size(); ++i){
 			if (ifStatementStack[i]->nestLevel_ == if_nest_level){
 				ifStatementStack[i]->ifStatementPtr_
@@ -230,7 +225,6 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 				break;
 			}
 		}
-		cerr << "IfStatement::GenerateCode(): ifStatementStack.size>0 " << endl;
 	}
 	if (elseBody_)
 		elseBody_->GetQuestionNames(question_list_else_body, 0);
@@ -589,8 +583,8 @@ ForStatement::ForStatement(DataType dtype, int32_t lline_number
 	, forBody_(l_for_body)
 {
 	if (initializationExpression_->type_ == VOID_TYPE
-	   || testExpression_->type_ == VOID_TYPE
-	   || incrementExpression_->type_ == VOID_TYPE){
+	    || testExpression_->type_ == VOID_TYPE
+	    || incrementExpression_->type_ == VOID_TYPE){
 		print_err(compiler_sem_err,
 			"For ifCondition_ expression has Void or Error Type",
 			qscript_parser::line_no, __LINE__, __FILE__);

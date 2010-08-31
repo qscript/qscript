@@ -38,6 +38,7 @@
 #include "expr.h"
 #include "scope.h"
 #include "question.h"
+#include "qscript_debug.h"
 //using namespace std;
 using std::cerr;
 using std::endl;
@@ -77,9 +78,12 @@ AbstractStatement* Scope::insert(const char * name, DataType dt/*, int32_t line_
 AbstractStatement* Scope::insert(const char * name, DataType dt
 				 , AbstractQuestion * l_q /*, int32_t line_no*/)
 {
-	// we have to handle a case here where symbol is a function name: - this is not allowed
+	if (qscript_debug::MAINTAINER_MESSAGES) {
+		cerr << "we have to handle the case here where symbol is a function name: - this is not allowed"
+		     << endl;
+	}
 	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
-	if ( SymbolTable.find(name) == SymbolTable.end() ){
+	if (SymbolTable.find(name) == SymbolTable.end()) {
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, l_q);
 		//se->name = strdup(name.c_str());
 		//se->type_ = dt;

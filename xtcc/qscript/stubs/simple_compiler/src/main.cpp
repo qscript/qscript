@@ -171,7 +171,11 @@ int32_t main(int32_t argc, char* argv[])
 		delete fi; fi = 0;
 		//yy_delete_buffer(YY_CURRENT_BUFFER);
 		clean_lex();
-
+		for(int i=0; i<qscript_parser::
+			    delete_manually_in_cleanup.size(); ++i){
+			delete qscript_parser::delete_manually_in_cleanup[i];
+			qscript_parser::delete_manually_in_cleanup[i]=0;
+		}
 	}
 
 
