@@ -935,11 +935,13 @@ void AbstractQuestion::print_q_type(string &s)
 
 void AbstractQuestion::print_data_type(string &s)
 {
-	cerr << "Is this functionality already duplicated somewhere else?"
-		<< ", line: " << __LINE__
-		<< ", file: " << __FILE__
-		<< ", func: " << __PRETTY_FUNCTION__
+	if(qscript_debug::MAINTAINER_MESSAGES){
+		cerr << "Is this functionality already duplicated somewhere else?"
+			<< ", line: " << __LINE__
+			<< ", file: " << __FILE__
+			<< ", func: " << __PRETTY_FUNCTION__
 		<< endl;
+	}
 	if(dt == VOID_TYPE){
 		s = "VOID_TYPE";
 	} else if (dt == INT8_TYPE){

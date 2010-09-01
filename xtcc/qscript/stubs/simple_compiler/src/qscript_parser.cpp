@@ -605,9 +605,11 @@ const char * file_exists_check_code()
 	"\t	}\n"
 	*/
 	"\t}\n";
-	cerr << "fix me : add code for `if file is invalid` case "
-		<< __func__ << "FILE: " << __FILE__
-		<< ", line: " << __LINE__ << endl;
+	if (qscript_debug::MAINTAINER_MESSAGES){
+		cerr << "fix me : add code for `if file is invalid` case "
+			<< __func__ << "FILE: " << __FILE__
+			<< ", line: " << __LINE__ << endl;
+	}
 
 	return file_check_code;
 }

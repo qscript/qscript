@@ -38,10 +38,12 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 bool check_type_compat(DataType typ1, DataType typ2)
 {
 	//cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
-	cerr << "add test suite for this function, also document parameter order expected"
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function" << __PRETTY_FUNCTION__ << endl;
+	if(qscript_debug_h::qscript_debug::MAINTAINER_MESSAGES) {
+		cerr << "add test suite for this function, also document parameter order expected"
+		     << ", line: " << __LINE__
+		     << ", file: " << __FILE__
+		     << ", function" << __PRETTY_FUNCTION__ << endl;
+	}
 
 	DataType td1 = typ1;
 	DataType td2 = typ2;
@@ -207,7 +209,7 @@ int32_t check_parameters(AbstractExpression* e, FunctionParameter* v)
 	cerr << "FIX ME : does not report errors using print_err  "
 	     << ", line: " << __LINE__
 	     << ", file: " << __FILE__
-	     << ", function" << __PRETTY_FUNCTION__ << endl;
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
 
 
 
@@ -286,10 +288,12 @@ bool skip_func_type_check(const char * fname)
 
 DataType lcm_type(DataType d1, DataType d2)
 {
-	cerr << "FIXME document this function, add test suite for this function "
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function" << __PRETTY_FUNCTION__ << endl;
+	if(qscript_debug_h::qscript_debug::MAINTAINER_MESSAGES) {
+		cerr << "FIXME document this function, add test suite for this function "
+		     << ", line: " << __LINE__
+		     << ", file: " << __FILE__
+		     << ", function: " << __PRETTY_FUNCTION__ << endl;
+	}
 
 	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
 	DataType td1 = d1, td2 = d2;
