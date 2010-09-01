@@ -1,0 +1,56 @@
+set test "qscript xtcc-set-err"
+set timeout 1
+global QSCRIPT
+global QSCRIPT_HOME
+wait
+spawn $QSCRIPT -f inputs/inp_xtcc_set
+wait
+expect {
+	"individual element : 1 is already contained in range and is redundant: , compiler line_no: 130, compiler_file_name: src/xtcc_set.cpp" {
+		send_user "detected redundant element\n";
+	}
+	default { send_user "failed\n"; }
+}
+expect {
+	"range given: 1 - 2 makes the individual entry: 1 redundant, compiler line_no: 55, compiler_file_name: src/xtcc_set.cpp" {
+		send_user "detected redundant element\n";
+	}
+	default { send_user "failed\n"; }
+}
+expect {
+	"range given: 2 - 3 is completely contained in an earlier range:1 - 3" {
+		send_user "detected redundant element\n";
+	}
+	default { send_user "failed\n"; }
+}
+expect {
+	"range given: 1 - 4 completely contains an earlier range:1 - 2 and makes it redundant." {
+		send_user "detected redundant element\n";
+	}
+	default { send_user "failed\n"; }
+}
+expect {
+	"range given: 2 - 3 is completely contained in an earlier range:1 - 4" {
+		send_user "detected redundant element\n";
+	}
+	default { send_user "failed\n"; }
+}
+expect {
+	"range given: 2 - 5 is partially contained in an earlier range:1 - 4" {
+		send_user "detected redundant element\n";
+	}
+	default { send_user "failed\n"; }
+}
+expect {
+	"range given: 1 - 4 is partially contained in an earlier range:3 - 5" {
+		send_user "detected redundant element\n";
+	}
+	default { send_user "failed\n"; }
+}
+expect {
+	"range given: 1 - 6 completely contains an earlier range:3 - 5 and makes it redundant." {
+		send_user "detected redundant element\n";
+	}
+	default { send_user "failed\n"; }
+}
+pass $test;
