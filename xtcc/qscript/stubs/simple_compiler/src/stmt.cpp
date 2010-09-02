@@ -1297,3 +1297,14 @@ FunctionInformation::~FunctionInformation()
 	if (functionScope_) { delete functionScope_; functionScope_ = 0; }
 }
 
+ErrorStatement::ErrorStatement( int lline_number)
+	: AbstractStatement(ERROR_TYPE, lline_number)
+{}
+
+
+void ErrorStatement::GenerateCode(StatementCompiledCode & code)
+{
+	code.program_code << "error" << endl;
+	cerr << __PRETTY_FUNCTION__ << " should never be called\n";
+}
+

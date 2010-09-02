@@ -283,6 +283,20 @@ stmt:	question
 	| if_stmt
 	| for_loop_stmt
 	| stub_manip_stmts
+	|	error ';' {
+		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
+		std::stringstream err_msg;
+		err_msg << "continuing parsing"
+			<< " file: " << qscript_parser::lex_location.fileName_
+			<< " with errors around"
+			<< " line: " << qscript_parser::lex_location.lineNo_
+			<< " column: " << qscript_parser::lex_location.columnNo_ << std::endl;
+		print_err(compiler_syntax_err
+			, err_msg.str()
+			, qscript_parser::lex_location.lineNo_, __LINE__, __FILE__);
+		yyerrok;
+		$$ = new ErrorStatement(qscript_parser::line_no);
+	}
 	;
 
 for_loop_stmt:

@@ -14,13 +14,17 @@
 //#include "common.h"
 #include "symtab.h"
 #include "q.hpp"
+#include "lex_location.h"
 
 namespace qscript_parser {
 	//void yyerror(const char * s);
 	extern int line_no;
 	extern int no_errors;
 	extern int if_line_no;
-	using namespace std;
+	//using namespace std;
+	//using qscript_parser::lex_location;
+	extern struct LexLocation lex_location;
+	extern bool show_lex_error_context ;
 
 }
 
@@ -32,117 +36,353 @@ namespace qscript_parser {
 %%
 
 
-"/*"         BEGIN(comment);
-<comment>[^*\n]*        /* eat anything that's not a '*' */
-<comment>"*"+[^*/\n]*   /* eat up '*'s not followed by '/'s */
-<comment>\n             ++qscript_parser::line_no;
-<comment>"*"+"/"        BEGIN(INITIAL);
+"/*"		{
+			qscript_parser::lex_location.IncrementColumn(yyleng);
+			BEGIN(comment);
+		}
+
+<comment>[^*\n]*	{
+				qscript_parser::lex_location.IncrementColumn(yyleng);
+			}
+
+<comment>"*"+[^*/\n]*   {
+				qscript_parser::lex_location.IncrementColumn(yyleng);
+			}
+
+<comment>\n	{ 
+		++qscript_parser::line_no;
+		qscript_parser::lex_location.IncrementLine(1);
+		qscript_parser::lex_location.ResetColumn();
+	}
+
+<comment>"*"+"/" { 
+			qscript_parser::lex_location.IncrementColumn(yyleng);
+			BEGIN(INITIAL);
+		}
+
 \/\/.*	{
 	// ignore Comment
 }
 
+[\t]+	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(8*yyleng);
+	}
 
-[ \t]+	; /* ignore */
+[ ]+	{ /* ignore */
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+			
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+	}
 
-\n	{ ++qscript_parser::line_no; } 
+\n	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.ResetCurrentDisplayLine();
+		++qscript_parser::line_no;
+		qscript_parser::lex_location.IncrementLine(1);
+		qscript_parser::lex_location.ResetColumn();
+	} 
 
 ";"	{
-	return ';';
-}
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return ';';
+	}
 
-"("	{ return '('; }
-")"	{ return ')'; }
+"("	{ 
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return '('; 
+	}
 
-"<=" {return LEQ;}
-">=" {return GEQ;}
-"==" {return ISEQ;}
-"!=" {return NOEQ;}
+")"	{	
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return ')'; 
+	}
 
-"&&" 	{ return LOGAND; }
-"||"	{ return LOGOR; }
-"!"	{ return NOT; }
-"{"	{ return '{'; }
-"}"	{ return '}'; }
+"<="	{ 
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return LEQ; 
+	}
+
+">="	{	
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return GEQ;
+	}
+
+"=="	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return ISEQ;
+	}
+
+"!="	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return NOEQ;
+	}
+
+"&&" 	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return LOGAND;
+	}
+
+"||"	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return LOGOR;
+	}
+
+"!"	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return NOT;
+	}
+
+"{"	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return '{';
+	}
+
+"}"	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return '}';
+	}
 
 
 
 if	{
-	qscript_parser::if_line_no = qscript_parser::line_no;
-	return IF;
-}
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		qscript_parser::if_line_no = qscript_parser::line_no;
+		return IF;
+	}
 
-else 	{ return ELSE; }
+else 	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return ELSE; 
+	}
 
-in 		{ return IN; }
+in 	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return IN;
+	}
 
-for		{ return FOR; }
+for	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return FOR;
+	}
 
 
-stubs		{ return STUBS_LIST; }
+stubs	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return STUBS_LIST;
+	}
 
+void	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.dt=VOID_TYPE; return VOID_T; 
+	}
 
-void		{ yylval.dt=VOID_TYPE; return VOID_T; }
-int8_t		{ yylval.dt=INT8_TYPE; return INT8_T; }
-int16_t		{ yylval.dt=INT16_TYPE;	return INT16_T; }
-int32_t		{ yylval.dt=INT32_TYPE;	return INT32_T; }
-float		{ yylval.dt=FLOAT_TYPE; return FLOAT_T; }
-double 		{ yylval.dt=DOUBLE_TYPE; return DOUBLE_T; }
-string 		{ yylval.dt=STRING_TYPE; return STRING_T; }
-sp 		{return SINGLE_CODED;}
-mp 		{ return MP;}
-const 		{ return CONST; }
-setdel		{ return SETDEL; }
-setadd		{ return SETADD; }
-unset		{ return UNSET; }
-setall		{ return SETALL; }
-to_string	{ return TOSTRING; }
+int8_t	{ 
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.dt=INT8_TYPE; return INT8_T; 
+	}
+
+int16_t	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.dt=INT16_TYPE;	return INT16_T; 
+	}
+
+int32_t		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.dt=INT32_TYPE;	return INT32_T;
+	}
+
+float		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.dt=FLOAT_TYPE; return FLOAT_T;
+	}
+
+double 		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.dt=DOUBLE_TYPE; return DOUBLE_T;
+	}
+
+string 		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.dt=STRING_TYPE; return STRING_T;
+	}
+
+sp 		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return SINGLE_CODED;
+	}
+
+mp 		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return MP;
+	}
+
+const 		{
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return CONST;
+	}
+
+setdel		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return SETDEL;
+	}
+
+setadd		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return SETADD;
+	}
+
+unset		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return UNSET;
+	}
+
+setall		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return SETALL;
+	}
+
+to_string	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return TOSTRING;
+	}
 
 
 [0-9]+	{
-	yylval.ival = atoi(yytext);
-	return INUMBER;
-}
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.ival = atoi(yytext);
+		return INUMBER;
+	}
 
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
-	yylval.dval = atof(yytext);
-	return FNUMBER;
-}
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		yylval.dval = atof(yytext);
+		return FNUMBER;
+	}
 
 [_A-Za-z][A-Za-z0-9_]*	{
-	if(yyleng < MY_STR_MAX) {
-		strcpy(yylval.name,yytext);
-		return NAME;
-	} else {
-		printf("TEXT TOKEN too long... exiting lexer\n");
-		exit(1);
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		if(yyleng < MY_STR_MAX) {
+			strcpy(yylval.name,yytext);
+			return NAME;
+		} else {
+			printf("TEXT TOKEN too long... exiting lexer\n");
+			exit(1);
+		}
 	}
-
-}
 
 \"[^\"]*\"      {
-	int len_text=strlen(yytext);
-	yytext[len_text-1]='\0';
-	if(yyleng < MY_STR_MAX-1) {
-		strcpy(yylval.text_buf, yytext+1);
-	} else {
-		printf("TEXT TOKEN too long... exiting lexer\n");
-		exit(1);
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		int len_text=strlen(yytext);
+		yytext[len_text-1]='\0';
+		if(yyleng < MY_STR_MAX-1) {
+			strcpy(yylval.text_buf, yytext+1);
+		} else {
+			printf("TEXT TOKEN too long... exiting lexer\n");
+			exit(1);
+		}
+		return TEXT;
 	}
-	return TEXT;
-}
 
-.	return yytext[0];
+.	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		return yytext[0];
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+	}
 
 
 %%
+	using qscript_parser::lex_location;
 
 	void yyerror(const char * s);
-	void yyerror(const char * s){
+	void yyerror(const char * s)
+	{
+		fprintf(stderr, "reached here: %s\n", __PRETTY_FUNCTION__);
 		using qscript_parser::no_errors;
 		using qscript_parser::line_no;
 		++no_errors;
-	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext  );
-		printf("no_errors: %d\n", no_errors);
+	 	//printf("%s: line: %d: yytext: %s\n", s, line_no, yytext);
+	 	printf("line: %d: \n", line_no);
+		printf ("lexical error: line: %d, column: %d\n"
+			, lex_location.lineNo_
+			, lex_location.columnNo_);
+		printf ("%s\n", lex_location.currentLine_.str().c_str());
+		printf ("%*s\n%*s\ntoken: %s\n", lex_location.columnNo_, "^"
+				    , lex_location.columnNo_, s, yytext);
 	}
 
 	void clean_lex()
@@ -154,4 +394,5 @@ to_string	{ return TOSTRING; }
 int yywrap(){
 	return 1;
 }
+
 

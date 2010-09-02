@@ -757,7 +757,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 		using qscript_parser::active_scope;
 		if (sym_it == active_scope->SymbolTable.end()){
 			string err_msg = "Error: could not find:"
-				+ string(text) + "  in symbol table  ";
+				+ string(ltxt) + "  in symbol table  ";
 			print_err(compiler_sem_err, err_msg
 					, line_no, __LINE__, __FILE__);
 			type_ = ERROR_TYPE;

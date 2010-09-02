@@ -69,6 +69,9 @@ namespace qscript_parser
 	int32_t yywrap();
 
 	string project_name;
+	bool show_lex_error_context = true;
+	string fname;
+	struct LexLocation lex_location;
 
 }
 

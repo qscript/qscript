@@ -37,7 +37,7 @@ int32_t main(int32_t argc, char* argv[])
 	using qscript_parser::active_scope;
 	using qscript_parser::no_errors;
 	int32_t opterr = 1, c;
-	string fname;
+	using qscript_parser::fname;
 	int32_t fname_flag = 0;
 	bool ncurses_flag = false;
 	bool static_binary_flag = false;
@@ -113,6 +113,9 @@ int32_t main(int32_t argc, char* argv[])
 		exit(1);
 	}
 	yyrestart(yyin);
+	qscript_parser::lex_location.SetFileName(qscript_parser::fname);
+	qscript_parser::lex_location.ResetLine();
+	qscript_parser::lex_location.ResetColumn();
 	if (!yyparse() && !no_errors){
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();

@@ -21,6 +21,7 @@
 #include "utils.h"
 #include "question.h"
 #include "active_var_info.h"
+#include "lex_location.h"
 
 using std::ofstream;
 using std::vector;
@@ -103,6 +104,12 @@ namespace qscript_parser
 
 	void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
 		vector <ActiveVariableInfo*> & output_info);
+
+
+	extern bool show_lex_error_context ;
+	extern string fname;
+	extern struct LexLocation lex_location;
+
 }
 
 #endif /* qscript_parser_h */

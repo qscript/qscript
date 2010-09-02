@@ -477,4 +477,13 @@ private:
 };
 
 
+struct ErrorStatement: public AbstractStatement
+{
+	ErrorStatement( int lline_number);
+	void GenerateCode(StatementCompiledCode & code);
+	private:
+	ErrorStatement& operator=(const ErrorStatement&);
+	ErrorStatement(const ErrorStatement&);
+};
+
 #endif /* stmt_h */
