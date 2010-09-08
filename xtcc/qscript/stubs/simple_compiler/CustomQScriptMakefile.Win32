@@ -1,7 +1,7 @@
-CXX = c:\MinGW\bin\g++ -v
+CXX = g++
 CC = $(CXX) 
-CFLAGS = -c -g -I c:\MinGW\include -I src -Wall -Weffc++
-CXX_SHARED_LIB_FLAGS = -pie
+CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
+CXX_SHARED_LIB_FLAGS = -fPIC
 CXX_LINK_FLAGS = -g
 #CXX_LINK_LIBS = -lreadline
 CXX_LINK_LIBS = -lpdcurses

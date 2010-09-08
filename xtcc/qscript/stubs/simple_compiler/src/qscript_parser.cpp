@@ -912,6 +912,7 @@ test_script.o: test_script.C
 	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -g -c $<
 	*/
 	string executable_file_name = ExtractBaseFileName(src_file_name);
+	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += ".exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
 	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
