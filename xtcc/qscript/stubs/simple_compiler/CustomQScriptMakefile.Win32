@@ -126,10 +126,10 @@ COMPILETIME_STATIC_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/compiletime_
 COMPILETIME_STATIC_LIB_OBJECTS := $(COMPILETIME_STATIC_LIB_OBJECTS:.cpp=.o)
 #ld -g --unresolved-symbols=ignore-in-shared-libs -shared --allow-shlib-undefined -soname libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
 #$(CXX) -L$(WIN_LIB_DIR) -g -shared -Wl--allow-shlib-undefined,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS) $(CXX_LINK_LIBS)
-#runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
+runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
 #	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
 #	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
-#	$(CXX) -L$(WIN_LIB_DIR) -g -shared -Wl,--allow-shlib-undefined -Wl,--unresolved-symbols,ignore-in-shared-libs -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS) $(CXX_LINK_LIBS)
+	$(CXX) -L$(WIN_LIB_DIR) -g -shared -Wl,--allow-shlib-undefined -Wl,--unresolved-symbols,ignore-in-shared-libs -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS) $(CXX_LINK_LIBS)
 
 # --unresolved-symbols=<method>
 #                              How to handle unresolved symbols.  <method> is:
@@ -144,10 +144,10 @@ runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
 	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a $(RUNTIME_STATIC_LIB_OBJECTS)
 
 
-#compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
+compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
 #	echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
 #	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
-#	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
+	$(CXX) -L$(WIN_LIB_DIR) -g -shared -Wl,--allow-shlib-undefined -Wl,--unresolved-symbols,ignore-in-shared-libs -Wl,-soname,libqscript_compiletime.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
 
 
 compiletime_static_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_STATIC_LIB_OBJECTS)
@@ -222,7 +222,7 @@ clean:
 #	copy $(BUILD_DIR)\runtime_static_lib\libqscript_runtime.a lib
 #	copy $(BUILD_DIR)\compiletime_static_lib\libqscript_compiletime.a lib
 #	copy ${SOURCE_DIR}\*.h include
-local_install: $(BUILD_DIR)/qscript runtime_static_lib compiletime_static_lib
+local_install: $(BUILD_DIR)/qscript runtime_static_lib compiletime_static_lib runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/qscript.exe bin
 	cp $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a lib
 	cp $(BUILD_DIR)/compiletime_static_lib/libqscript_compiletime.a lib
