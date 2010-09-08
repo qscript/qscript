@@ -35,7 +35,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=6
+QSCRIPT_MINOR_VERSION_NUMBER=7
 
 
 #dummy:
@@ -176,7 +176,7 @@ release: clean
 	sed -f suppress-maintainer-messages.sed src/qscript_debug.cpp > $(RELEASE_DIR)/src/qscript_debug.cpp
 	cp -R cmake $(RELEASE_DIR)
 	cp -R testsuite $(RELEASE_DIR)
-	cp CustomQScriptMakefile CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
+	cp CustomQScriptMakefile CustomQScriptMakefile.Win32 CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
 	-rm inputs/test_script
 	-rm inputs/test_script_bcpp.[Co]
 	-rm inputs/*.dat

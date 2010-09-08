@@ -912,18 +912,12 @@ test_script.o: test_script.C
 	$(CXX) -I$(QSCRIPT_INCLUDE_DIR) -g -c $<
 	*/
 	string executable_file_name = ExtractBaseFileName(src_file_name);
-	cout << "executable_file_name: " << executable_file_name << endl;
-	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += ".exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
 	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
-	string QSCRIPT_CURSES_INCLUDE_DIR = "c:/usr/include ";
-	cout << "QSCRIPT_CURSES_INCLUDE_DIR: " << QSCRIPT_CURSES_INCLUDE_DIR << endl;
-	string QSCRIPT_CURSES_LIB_DIR = "c:/usr/lib ";
-	cout << "QSCRIPT_CURSES_LIB_DIR: " << QSCRIPT_CURSES_LIB_DIR << endl;
-
+	/*
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
 	string cpp_compile_command = string("c:\\MinGW\\bin\\g++ -static -g -o ")
 				+ executable_file_name
@@ -933,6 +927,18 @@ test_script.o: test_script.C
 				+ string(" -I") + QSCRIPT_CURSES_INCLUDE_DIR
 				+ string(" ") + intermediate_file_name
 				+ string(" -lqscript_runtime -lpdcurses ");
+	*/
+
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string cpp_compile_command = string("g++ -static -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string(" -lqscript_runtime ")
+			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
 	int32_t ret_val = system(cpp_compile_command.c_str());
