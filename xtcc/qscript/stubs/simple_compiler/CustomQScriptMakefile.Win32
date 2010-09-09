@@ -223,7 +223,7 @@ clean:
 #	copy $(BUILD_DIR)\runtime_static_lib\libqscript_runtime.a lib
 #	copy $(BUILD_DIR)\compiletime_static_lib\libqscript_compiletime.a lib
 #	copy ${SOURCE_DIR}\*.h include
-local_install: $(BUILD_DIR)/qscript runtime_static_lib compiletime_static_lib runtime_lib compiletime_lib
+local_install: $(BUILD_DIR)/qscript runtime_static_lib compiletime_static_lib 
 	cp $(BUILD_DIR)/qscript.exe bin
 	cp $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a lib
 	cp $(BUILD_DIR)/compiletime_static_lib/libqscript_compiletime.a lib
