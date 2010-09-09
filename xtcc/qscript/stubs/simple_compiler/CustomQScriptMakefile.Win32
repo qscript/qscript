@@ -14,7 +14,8 @@ OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(CPP_SOURCES))
 OBJECTS := $(OBJECTS:.cpp=.o)
 DEPENDENCIES = $(OBJECTS:.o=.dep)
 #Windows specific include dirs for curses
-# I have installed pdcurses into the dirs below
+# I have installed pdcurses into the dirs below. Adjust the variables to reflect
+# the directories you have installed the include files and the libraries to
 WIN_INCLUDE_DIR = c:\usr\include
 WIN_LIB_DIR = c:\usr\lib
 
