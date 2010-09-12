@@ -1,10 +1,12 @@
 
 %{
+#include <iostream>
+#include <cstdio>
+#include <cstring>
 #include "const_defs.h"
 #include "qscript_conf.hpp"
 #include "config_parser.h"
 // not reqd except for debugging - remove later
-#include <iostream>
 %}
 
 %option prefix="qscript_conf"
@@ -25,7 +27,7 @@
 	// ignore Comment
 }
 
-[ \t]+	; /* ignore */
+[ \t\r]+	; /* ignore */
 \n	{ ++config_file_parser::line_no; }
 
 NCURSES_INCLUDE_DIR	{ 
@@ -47,7 +49,7 @@ PLATFORM { return PLATFORM; }
 	if(yyleng < MY_STR_MAX-1) {
 		strcpy(qscript_conflval.text_buf, qscript_conftext+1);
 	} else {
-		printf("TEXT TOKEN too long... exiting lexer\n");
+		std::cerr << "TEXT TOKEN too long... exiting lexer\n" << std::endl;
 		exit(1);
 	}
 	return TEXT;
@@ -59,7 +61,6 @@ PLATFORM { return PLATFORM; }
 
 %%
 
-#include <cstdio>
 void qscript_conferror(const char * s)
 {
 	++config_file_parser::no_errors;

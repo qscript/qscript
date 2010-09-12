@@ -1860,7 +1860,7 @@ yyreduce:
 		err_msg << "continuing parsing"
 			<< " file: " << qscript_parser::lex_location.fileName_
 			<< " with errors around"
-			<< " line: " << qscript_parser::lex_location.lineNo_ 
+			<< " line: " << qscript_parser::lex_location.lineNo_
 			<< " column: " << qscript_parser::lex_location.columnNo_ << std::endl;
 		print_err(compiler_syntax_err
 			, err_msg.str()

@@ -415,7 +415,7 @@ static yyconst flex_int16_t yy_accept[78] =
 static yyconst flex_int32_t yy_ec[256] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    2,    3,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        1,    1,    2,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    2,    1,    4,    5,    1,    1,    1,    1,    1,
         1,    6,    1,    1,    1,    1,    7,    8,    8,    8,
@@ -529,13 +529,15 @@ int qscript_conf_flex_debug = 0;
 char *qscript_conftext;
 #line 1 "src/qscript_conf_lex.l"
 #line 3 "src/qscript_conf_lex.l"
+#include <iostream>
+#include <cstdio>
+#include <cstring>
 #include "const_defs.h"
 #include "qscript_conf.hpp"
 #include "config_parser.h"
 // not reqd except for debugging - remove later
-#include <iostream>
 
-#line 539 "src/qscript_conf_lex.cpp"
+#line 541 "src/qscript_conf_lex.cpp"
 
 #define INITIAL 0
 #define comment 1
@@ -723,10 +725,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 16 "src/qscript_conf_lex.l"
+#line 18 "src/qscript_conf_lex.l"
 
 
-#line 730 "src/qscript_conf_lex.cpp"
+#line 732 "src/qscript_conf_lex.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -807,56 +809,56 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 18 "src/qscript_conf_lex.l"
+#line 20 "src/qscript_conf_lex.l"
 ; // ingore comment - single line
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 19 "src/qscript_conf_lex.l"
+#line 21 "src/qscript_conf_lex.l"
 BEGIN(comment);
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 20 "src/qscript_conf_lex.l"
+#line 22 "src/qscript_conf_lex.l"
 /* eat anything that's not a '*' */
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 21 "src/qscript_conf_lex.l"
+#line 23 "src/qscript_conf_lex.l"
 /* eat up '*'s not followed by '/'s */
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 22 "src/qscript_conf_lex.l"
+#line 24 "src/qscript_conf_lex.l"
 ++config_file_parser::line_no;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 23 "src/qscript_conf_lex.l"
+#line 25 "src/qscript_conf_lex.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 24 "src/qscript_conf_lex.l"
+#line 26 "src/qscript_conf_lex.l"
 {
 	// ignore Comment
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 28 "src/qscript_conf_lex.l"
+#line 30 "src/qscript_conf_lex.l"
 ; /* ignore */
 	YY_BREAK
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 29 "src/qscript_conf_lex.l"
+#line 31 "src/qscript_conf_lex.l"
 { ++config_file_parser::line_no; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 31 "src/qscript_conf_lex.l"
+#line 33 "src/qscript_conf_lex.l"
 { 
 	//std::cerr << "returning NCURSES_INCLUDE_DIR" << std::endl; 
 	return NCURSES_INCLUDE_DIR; 
@@ -864,22 +866,22 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 35 "src/qscript_conf_lex.l"
+#line 37 "src/qscript_conf_lex.l"
 { return NCURSES_LIB_DIR; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 36 "src/qscript_conf_lex.l"
+#line 38 "src/qscript_conf_lex.l"
 { return NCURSES_LINK_LIBRARY_NAME; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 37 "src/qscript_conf_lex.l"
+#line 39 "src/qscript_conf_lex.l"
 { return PLATFORM; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 39 "src/qscript_conf_lex.l"
+#line 41 "src/qscript_conf_lex.l"
 {
 	qscript_conflval.ival = atoi(qscript_conftext);
 	return INUMBER;
@@ -888,14 +890,14 @@ YY_RULE_SETUP
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 44 "src/qscript_conf_lex.l"
+#line 46 "src/qscript_conf_lex.l"
 {
 	int len_text=strlen(qscript_conftext);
 	qscript_conftext[len_text-1]='\0';
 	if(qscript_confleng < MY_STR_MAX-1) {
 		strcpy(qscript_conflval.text_buf, qscript_conftext+1);
 	} else {
-		printf("TEXT TOKEN too long... exiting lexer\n");
+		std::cerr << "TEXT TOKEN too long... exiting lexer\n" << std::endl;
 		exit(1);
 	}
 	return TEXT;
@@ -903,17 +905,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 56 "src/qscript_conf_lex.l"
+#line 58 "src/qscript_conf_lex.l"
 { //std::cerr << "returning " << qscript_conftext[0] << std::endl; 
 	return qscript_conftext[0]; 
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 60 "src/qscript_conf_lex.l"
+#line 62 "src/qscript_conf_lex.l"
 ECHO;
 	YY_BREAK
-#line 917 "src/qscript_conf_lex.cpp"
+#line 919 "src/qscript_conf_lex.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -1909,11 +1911,10 @@ void qscript_conffree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 60 "src/qscript_conf_lex.l"
+#line 62 "src/qscript_conf_lex.l"
 
 
 
-#include <cstdio>
 void qscript_conferror(const char * s)
 {
 	++config_file_parser::no_errors;
