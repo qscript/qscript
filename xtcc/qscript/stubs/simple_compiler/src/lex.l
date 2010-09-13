@@ -70,7 +70,7 @@ namespace qscript_parser {
 		qscript_parser::lex_location.IncrementColumn(8*yyleng);
 	}
 
-[ ]+	{ /* ignore */
+[ \r]+	{ /* ignore */
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
 			
