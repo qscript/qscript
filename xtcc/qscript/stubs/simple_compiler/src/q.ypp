@@ -78,6 +78,7 @@
 %type <dt> datatype
 %token IN
 %token FOR
+%token GOTO
 
 
 %token '['
@@ -108,6 +109,7 @@
 %type <stmt> stmt_list
 %type <stmt> decl_stmt
 %type <stmt> func_defn
+%type <stmt> goto_stmt
  /*%type <stmt> attributes	*/
 %type <stmt> stubs
 %type <c_stmt> cmpd_stmt
@@ -283,6 +285,7 @@ stmt:	question
 	| if_stmt
 	| for_loop_stmt
 	| stub_manip_stmts
+	| goto_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
 		std::stringstream err_msg;
@@ -370,6 +373,10 @@ expr_stmt:	expression ';'
 		}
 	}
 	;
+
+goto_stmt: GOTO NAME ';' {
+		$$ = new GotoStatement(GOTO_STMT, qscript_parser::line_no, $2);
+	}
 
 
 question: NAME TEXT qtype datatype range_allowed_values ';' {

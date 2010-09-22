@@ -1308,3 +1308,30 @@ void ErrorStatement::GenerateCode(StatementCompiledCode & code)
 	cerr << __PRETTY_FUNCTION__ << " should never be called\n";
 }
 
+GotoStatement::GotoStatement(DataType l_type, int32_t l_line_number
+			     , string l_gotoLabel)
+	: AbstractStatement(l_type, l_line_number)
+	, gotoLabel_(l_gotoLabel) 
+{
+	if (find_in_question_list(gotoLabel_)){
+		// I think this check ensures that we never do a forward jump
+		// I need to verify this
+	} else {
+		print_err(compiler_sem_err,
+			  "goto target must be a question name",
+			  qscript_parser::line_no, __LINE__, __FILE__);
+	}
+}
+
+void GotoStatement::GenerateCode(StatementCompiledCode & code)
+{
+	code.program_code << "/*GotoStatement::GenerateCode() */ "
+		<< endl;
+	code.program_code << "jumpToQuestion = \"" << gotoLabel_ << "\";\n\
+			goto start_of_questions;\n";
+	if (next_) {
+		code.program_code << "/* EXIT GotoStatement::GenerateCode */" << endl;
+
+		next_->GenerateCode(code);
+	}
+}

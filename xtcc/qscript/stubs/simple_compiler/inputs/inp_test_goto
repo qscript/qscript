@@ -1,0 +1,7 @@
+test_goto {
+	
+	q1 "q1 " sp int8_t (1-4);
+	if( q1 in (2-3) ){
+		goto q1;
+	}
+}

@@ -1,0 +1,7 @@
+inp_syntax_err {
+	int32 a;
+	int32_t i;
+	foor(i=0; i<10; ++i){
+	}
+}
+

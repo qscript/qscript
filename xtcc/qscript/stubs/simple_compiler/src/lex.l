@@ -170,6 +170,11 @@ namespace qscript_parser {
 		return '}';
 	}
 
+goto	{
+		return GOTO;
+	}
+
+
 
 
 if	{

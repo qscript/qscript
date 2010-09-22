@@ -486,4 +486,13 @@ struct ErrorStatement: public AbstractStatement
 	ErrorStatement(const ErrorStatement&);
 };
 
+struct GotoStatement: public AbstractStatement
+{
+	string gotoLabel_;
+	GotoStatement(DataType l_type, int32_t l_line_number
+		      , string l_gotoLabel);
+	void GenerateCode(StatementCompiledCode & code);
+};
+
+
 #endif /* stmt_h */
