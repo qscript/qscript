@@ -2,4 +2,5 @@ inp_quest_expr{
 	q1 "Q1" sp int32_t (1,2,3,4);
 	int32_t v1=0;
 	v1=q1*2;
+	printf("v1: %d\n", v1);
 }

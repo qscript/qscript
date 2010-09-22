@@ -370,8 +370,9 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 					<< "\" << endl;\n}\n";
 
 				string temp_name = get_temp_name();
-				code.code_bef_expr << temp_name
-						   << " = " << symbolTableEntry_->name_ << "->input_data.begin();\n";
+				code.code_bef_expr << "int32_t " << temp_name
+						   << " = *" << symbolTableEntry_->name_ 
+						   << "->input_data.begin();\n";
 				code.code_expr << temp_name;
 			}
 		} else {
