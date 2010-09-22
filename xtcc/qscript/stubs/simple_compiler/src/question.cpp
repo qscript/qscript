@@ -548,11 +548,11 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		for(	set<int32_t>::iterator it = r_data->indiv.begin();
 				it != r_data->indiv.end(); ++it){
 			displayData_.insert(*it);
-			for(int32_t i = 0; i < r_data->range.size(); ++i){
-				for(int32_t j = r_data->range[i].first; j <= r_data->range[i].second
-						;++j){
-					displayData_.insert(j);
-				}
+		}
+		for(int32_t i = 0; i < r_data->range.size(); ++i){
+			for(int32_t j = r_data->range[i].first; j <= r_data->range[i].second
+					;++j){
+				displayData_.insert(j);
 			}
 		}
 	}
