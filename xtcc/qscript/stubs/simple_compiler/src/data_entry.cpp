@@ -1625,7 +1625,7 @@ yyreturn:
 
 	extern char * scan_datatext;
 	void scan_dataerror(char *s){
-		cout << "error in input: " << s << endl
-			<< "yytext(scan_datatext): " << scan_datatext << endl;
+		//cout << "error in input: " << s << endl
+		//	<< "yytext(scan_datatext): " << scan_datatext << endl;
 	}
 

@@ -50,8 +50,8 @@
 		} else if (yytext[0] =='s') {
 			return SAVE_DATA_TOK;
 		} else  {
-			cerr << "ERROR: running ECHO rule" << endl;
-			ECHO;
+			// cerr << "ERROR: running ECHO rule" << endl;
+			//ECHO;
 			return yytext[0];
 		}
 	}
@@ -211,6 +211,11 @@ top:
 			//delete[] line;
 			clear_buffer_flag=false;
 			//cerr << "reset clear_buffer_flag: " << clear_buffer_flag;
+			wattroff(data_entry_window, COLOR_PAIR(1));
+			wattron(data_entry_window, COLOR_PAIR(5));
+			mvwprintw(data_entry_window, 3, 1, "invalid text, re-enter");
+			wattroff(data_entry_window, COLOR_PAIR(5));
+			wattron(data_entry_window, COLOR_PAIR(1));
 			goto top;
 		}
 		//for(int i=0; i<data.size(); ++i){

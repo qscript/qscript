@@ -413,6 +413,7 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "	init_pair(2, COLOR_GREEN, COLOR_WHITE);\n");
 	fprintf(script, "	init_pair(3, COLOR_BLUE, COLOR_WHITE);\n");
 	fprintf(script, "	init_pair(4, COLOR_MAGENTA, COLOR_CYAN);\n");
+	fprintf(script, "	init_pair(5, COLOR_WHITE, COLOR_RED);\n");
 
 
 

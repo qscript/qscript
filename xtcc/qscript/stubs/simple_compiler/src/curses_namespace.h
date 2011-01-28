@@ -1,4 +1,4 @@
 //namespace qs_ncurses {
 //#include <cstdio>
-#include <curses.h>
+#include <ncursesw/curses.h>
 //}
