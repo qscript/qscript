@@ -631,9 +631,11 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 		data_file << questionName_;
 	}
 	data_file << ":";
-	for( set<int32_t>::iterator iter = input_data.begin();
-			iter != input_data.end(); ++iter){
-		data_file << *iter << " ";
+	if (isAnswered_) {
+		for( set<int32_t>::iterator iter = input_data.begin();
+				iter != input_data.end(); ++iter){
+			data_file << *iter << " ";
+		}
 	}
 	data_file << endl;
 	input_data.clear();
@@ -980,9 +982,11 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 		data_file << questionName_;
 	}
 	data_file << ":";
-	for( set<int32_t>::iterator iter = input_data.begin();
-			iter != input_data.end(); ++iter){
-		data_file << *iter << " ";
+	if (isAnswered_) {
+		for( set<int32_t>::iterator iter = input_data.begin();
+				iter != input_data.end(); ++iter){
+			data_file << *iter << " ";
+		}
 	}
 	data_file << endl;
 	input_data.clear();
