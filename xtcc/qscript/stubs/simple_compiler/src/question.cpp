@@ -48,7 +48,7 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info)
+	, vector<ActiveVariableInfo* > l_av_info, QuestionAttributes  l_question_attributes)
 	: AbstractStatement(l_type, l_no)
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
@@ -57,6 +57,8 @@ AbstractQuestion::AbstractQuestion(
 	, enclosingCompoundStatement_(l_enclosing_scope)
 	, activeVarInfo_(l_av_info)
 	, dummyArrayQuestion_(0), currentResponse_()
+	, question_attributes(l_question_attributes)
+
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -67,7 +69,9 @@ AbstractQuestion::AbstractQuestion(
 
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
-	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt)
+	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
+	, QuestionAttributes  l_question_attributes
+	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
@@ -75,6 +79,7 @@ AbstractQuestion::AbstractQuestion(
 	, isAnswered_(false), isModified_(false)
 	, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0), currentResponse_()
+	, question_attributes(l_question_attributes)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -88,7 +93,9 @@ AbstractQuestion::AbstractQuestion(
 	, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info)
+	, vector<ActiveVariableInfo* > l_av_info
+	, QuestionAttributes  l_question_attributes
+	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
@@ -97,6 +104,7 @@ AbstractQuestion::AbstractQuestion(
 	, enclosingCompoundStatement_(l_enclosing_scope)
 	, activeVarInfo_(l_av_info)
 	, dummyArrayQuestion_(0), currentResponse_()
+	, question_attributes(l_question_attributes)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -110,7 +118,9 @@ AbstractQuestion::AbstractQuestion(
 	, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, const vector<int32_t>& l_loop_index_values
-	, DummyArrayQuestion * l_dummy_array)
+	, DummyArrayQuestion * l_dummy_array
+	, QuestionAttributes  l_question_attributes
+	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
@@ -120,6 +130,7 @@ AbstractQuestion::AbstractQuestion(
 	, enclosingCompoundStatement_(0) // this is only used in the compile time environment
 	, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
+	, question_attributes(l_question_attributes)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
@@ -234,8 +245,9 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	program_code << "if(stopAtNextQuestion ) {\n\tstopAtNextQuestion = false;\n}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
+		<< "if ( " << questionName_ << "->question_attributes.hidden_==false) {\n"
 		<< questionName_.c_str()
-		<< "->eval(question_window, stub_list_window, data_entry_window);\n";
+		<< "->eval(question_window, stub_list_window, data_entry_window);\n\t}\n";
 	PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }
@@ -490,10 +502,12 @@ RangeQuestion::RangeQuestion(
 	, DataType l_dt, XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info)
+	, vector<ActiveVariableInfo* > l_av_info
+	, QuestionAttributes  l_question_attributes
+	)
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
-			   , l_enclosing_scope, l_av_info)
+			   , l_enclosing_scope, l_av_info, l_question_attributes)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
@@ -501,9 +515,11 @@ RangeQuestion::RangeQuestion(
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-	, DataType l_dt , XtccSet& l_r_data)
+	, DataType l_dt , XtccSet& l_r_data
+	, QuestionAttributes  l_question_attributes
+	)
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
-			   , l_q_type, l_no_mpn, l_dt)
+			   , l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
@@ -513,10 +529,12 @@ RangeQuestion::RangeQuestion(
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info)
+	, vector<ActiveVariableInfo* > l_av_info
+	, QuestionAttributes  l_question_attributes
+	)
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt
-			   , l_enclosing_scope, l_av_info)
+			   , l_enclosing_scope, l_av_info, l_question_attributes)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
@@ -527,9 +545,11 @@ RangeQuestion::RangeQuestion(
 	, int32_t l_no_mpn, DataType l_dt,	XtccSet& l_r_data
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
+	, QuestionAttributes  l_question_attributes
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
+		, l_question_attributes
 		)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
@@ -768,6 +788,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 		quest_decl << ", stack_of_loop_indices "
 			<< ", dum_" << questionName_;
 	}
+	quest_decl << "," << question_attributes.Print();
 	quest_decl << ");\n";
 	quest_decl << "question_list.push_back(" << questionName_.c_str()
 		<< ");\n";
@@ -832,6 +853,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 		quest_decl << ", stack_of_loop_indices "
 			<< ", dum_" << questionName_;
 	}
+	quest_decl << "," << question_attributes.Print();
 	quest_decl << ");\n";
 	quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
 
@@ -879,10 +901,11 @@ NamedStubQuestion::NamedStubQuestion(
 	, vector<AbstractExpression*>& l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
+	, QuestionAttributes  l_question_attributes
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			 , l_q_type, l_no_mpn, l_dt
-			 , l_for_bounds_stack, l_enclosing_scope, l_av_info)
+			 , l_for_bounds_stack, l_enclosing_scope, l_av_info, l_question_attributes)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
 {
@@ -896,9 +919,10 @@ NamedStubQuestion::NamedStubQuestion(
 	, named_range* l_nr_ptr
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
+	, QuestionAttributes  l_question_attributes
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, l_question_attributes
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
@@ -909,9 +933,10 @@ NamedStubQuestion::NamedStubQuestion(
 	, string l_name, string l_q_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, vector<stub_pair>* l_stub_ptr
+	, QuestionAttributes  l_question_attributes
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
-			 ,l_q_type, l_no_mpn, l_dt)
+			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, named_list()
 	, nr_ptr(0), stub_ptr(l_stub_ptr)
 { }
@@ -924,9 +949,10 @@ NamedStubQuestion::NamedStubQuestion(
 	, vector<stub_pair>* l_stub_ptr
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
+	, QuestionAttributes  l_question_attributes
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
+		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes
 		)
 	, named_list()
 	, nr_ptr(0), stub_ptr(l_stub_ptr)
@@ -1076,10 +1102,12 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "jumpToIndex = -1;\n"
 		<< "}\n";
 
+	code.program_code	<< "if ( " << questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index << "] ->question_attributes.hidden_==false) {\n";
 	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n";
+	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n\t}\n";
 	PrintUserNavigationArrayQuestion(code.program_code);
 
 	code.program_code << "}\n";
@@ -2308,4 +2336,17 @@ void AbstractQuestion::PrintRestoreMyPreviousIterationsData(StatementCompiledCod
 	s << "}\n";
 
 	s << "/* EXIT:AbstractQuestion::PrintRestoreMyPreviousIterationsData */" << endl;
+}
+
+string QuestionAttributes::Print()
+{
+	stringstream s;
+	s << " QuestionAttributes(";
+	if (hidden_ == false ) {
+		s << "false ";
+	} else {
+		s << "true ";
+	}
+	s << ")";
+	return s.str();
 }

@@ -40,6 +40,7 @@
 	using std::endl;
 	int32_t flag_cmpd_stmt_is_a_func_body=-1;
 	vector </*Statement::*/FunctionInformation*> func_info_table;
+	QuestionAttributes question_attributes;
 
 
 %}
@@ -79,6 +80,7 @@
 %token IN
 %token FOR
 %token GOTO
+%token HIDDEN
 
 
 %token '['
@@ -100,6 +102,7 @@
 %nonassoc UMINUS
 %nonassoc IN COUNT
 %nonassoc FUNC_CALL
+
 
 %type <stmt> prog
 %type <type_qual> type_qual
@@ -379,16 +382,31 @@ goto_stmt: GOTO NAME ';' {
 	}
 
 
-question: NAME TEXT qtype datatype range_allowed_values ';' {
+question: NAME TEXT qtype datatype range_allowed_values attribute_list';' {
 		$$ = qscript_parser::ProcessRangeQuestion($1, $2, $4);
 		//cout << "parsed range question : " << $1 << endl;
+		question_attributes.Reset();
 	}
-	| NAME TEXT qtype datatype NAME ';' {
+	| NAME TEXT qtype datatype NAME attribute_list';' {
 		$$ = qscript_parser::ProcessNamedQuestion($1, $2, $4, $5);
 		//cout << "parsed named question : " << $1 << endl;
+		question_attributes.Reset();
 	}
 	;
 
+attribute_list:	/* empty */
+	| ':' attributes
+	;
+
+
+attributes: attribute
+	| attributes attribute
+	;
+
+attribute: HIDDEN {
+		question_attributes.hidden_ = true;
+	}
+	;
 
 
 expression: expression '+' expression {
@@ -948,7 +966,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 			name, q_text, q_type, no_mpn, dt, xs
 			//, arr_sz
 			, qscript_parser::for_loop_max_counter_stack
-			, cmpd_stmt_ptr, av_info
+			, cmpd_stmt_ptr, av_info, question_attributes
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q));
@@ -957,7 +975,9 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
 	} else {
 		q= new RangeQuestion(QUESTION_TYPE, line_no,
-			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr, av_info);
+			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr, av_info
+			, question_attributes
+			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q));
 	}
@@ -1035,13 +1055,13 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 		q=new NamedStubQuestion(QUESTION_ARR_TYPE, line_no
 				, name, q_txt, q_type, no_mpn, dt , nr_ptr
 				,qscript_parser::for_loop_max_counter_stack
-				, cmpd_stmt_ptr, av_info);
+				, cmpd_stmt_ptr, av_info, question_attributes);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q));
 	} else {
 		q=new NamedStubQuestion(QUESTION_TYPE,
 			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr
-			, cmpd_stmt_ptr, av_info);
+			, cmpd_stmt_ptr, av_info, question_attributes);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 				active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q));
 	}

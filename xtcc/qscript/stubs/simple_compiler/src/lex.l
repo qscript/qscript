@@ -170,6 +170,13 @@ namespace qscript_parser {
 		return '}';
 	}
 
+":"	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return ':';
+}
+
 goto	{
 		return GOTO;
 	}
@@ -316,6 +323,13 @@ to_string	{
 		qscript_parser::lex_location.IncrementColumn(yyleng);
 		return TOSTRING;
 	}
+
+hide 	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+	return HIDDEN;
+}
 
 
 [0-9]+	{

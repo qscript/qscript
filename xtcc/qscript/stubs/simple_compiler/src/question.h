@@ -26,6 +26,22 @@ using std::ostringstream;
 using std::ofstream;
 struct named_range;
 struct DummyArrayQuestion;
+
+
+struct QuestionAttributes
+{
+	bool hidden_;
+	void Reset() 
+	{ hidden_ = false; }
+	QuestionAttributes()
+		: hidden_(false)
+	{ }
+	QuestionAttributes(bool l_isHidden)
+		: hidden_(l_isHidden)
+	{ }
+	string Print();
+};
+
 //! The AbstractQuestion pure virtual base class - inherits from AbstractStatement
 struct AbstractQuestion: public AbstractStatement
 {
@@ -45,6 +61,7 @@ struct AbstractQuestion: public AbstractStatement
 	DummyArrayQuestion * dummyArrayQuestion_;
 	//! this variable should never be used in the compile time environment
 	string currentResponse_;
+	QuestionAttributes question_attributes;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
@@ -52,11 +69,13 @@ struct AbstractQuestion: public AbstractStatement
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
 		);
 
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
+		, QuestionAttributes  l_question_attributes
 		);
 	//! this is only called in the compile time environment
 	AbstractQuestion(
@@ -64,6 +83,7 @@ struct AbstractQuestion: public AbstractStatement
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
 		);
 
 	//! this is only called in the runtime environment
@@ -72,6 +92,7 @@ struct AbstractQuestion: public AbstractStatement
 		, QuestionType l_q_type, int32_t l_no_mpn , DataType l_dt
 		, const vector<int32_t>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
 		);
 	virtual ~AbstractQuestion();
 //	virtual void GenerateCode(ostringstream & quest_defns
@@ -149,12 +170,14 @@ struct RangeQuestion: public AbstractQuestion
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
+		, QuestionAttributes  l_question_attributes
 		);
 
 	//! this is only called in the compile time environment
@@ -164,6 +187,7 @@ struct RangeQuestion: public AbstractQuestion
 		, DataType l_dt, XtccSet& l_r_data
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
@@ -172,6 +196,7 @@ struct RangeQuestion: public AbstractQuestion
 		, DataType l_dt, XtccSet& l_r_data
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
@@ -227,6 +252,7 @@ class NamedStubQuestion: public AbstractQuestion
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
 		);
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
@@ -235,6 +261,7 @@ class NamedStubQuestion: public AbstractQuestion
 		, DataType l_dt, named_range * l_nr_ptr
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
+		, QuestionAttributes  l_question_attributes
 		);
 
 	NamedStubQuestion(
@@ -242,11 +269,13 @@ class NamedStubQuestion: public AbstractQuestion
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
+		, QuestionAttributes  l_question_attributes
 		);
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		, QuestionAttributes  l_question_attributes
 		);
 	//! only called in the runtime environment
 	NamedStubQuestion(
@@ -255,6 +284,7 @@ class NamedStubQuestion: public AbstractQuestion
 		, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
+		, QuestionAttributes  l_question_attributes
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
@@ -291,7 +321,7 @@ class DummyArrayQuestion: public AbstractQuestion{
 
 	DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
 		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, "", spn, 0
-				   , INT32_TYPE )
+				   , INT32_TYPE, QuestionAttributes(true) )
 		,  array_bounds(l_array_bounds)
 	{ }
 	void WriteDataToDisk(ofstream& data_file);
