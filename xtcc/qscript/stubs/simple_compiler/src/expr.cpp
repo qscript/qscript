@@ -975,9 +975,45 @@ bool Binary2Expression::IsIntegralExpression()
 }
 
 Binary2Expression::Binary2Expression(AbstractExpression* llop
+				     , string name
+				     , ExpressionOperatorType letype)
+	:AbstractExpression(letype), leftOperand_(0), xs(0),
+				leftOperand2_(0), rhsQuestion_(0)
+{
+	switch(exprOperatorType_){
+		case oper_in: {
+			leftOperand2_=llop;
+			AbstractQuestion* q = find_in_question_list(name);
+			if (q == 0) {
+				stringstream err_msg ;
+				err_msg <<  "could not find NAME: " << name << " in the question symbol table";
+				print_err(compiler_sem_err, err_msg.str(),
+					line_no, __LINE__, __FILE__);
+				type_ = ERROR_TYPE;
+			}  else {
+				rhsQuestion_ = q;
+			}
+
+
+			type_ = BOOL_TYPE;
+		}
+		break;
+		default: {
+			leftOperand_ = 0;
+			type_ = ERROR_TYPE;
+			string err_msg = "Binary2Expression:: operator in exprOperatorType_ can only be oper_in";
+			print_err(compiler_sem_err, err_msg
+					, line_no, __LINE__, __FILE__);
+			type_ = ERROR_TYPE;
+		}
+	}
+}
+
+Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , XtccSet& l_rd
 				     , ExpressionOperatorType letype)
-	:AbstractExpression(letype), leftOperand_(0), xs(0)
+	:AbstractExpression(letype), leftOperand_(0), xs(0),
+				leftOperand2_(0), rhsQuestion_(0)
 {
 	//cerr << "Binary2Expression::Binary2Expression" << endl;
 	switch(exprOperatorType_){
@@ -1081,65 +1117,77 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_bef_expr << "/* ENTER Binary2Expression::PrintExpressionCode */" << endl;
-	PrintTemporaryStruct(code);
-	//code.code_bef_expr << "\t} "
-	string struct_name1 = get_temp_name();
-	code.code_bef_expr <<  struct_name1 <<";\n";
-	switch(leftOperand_->get_symp_ptr()->type_){
-	case INT8_TYPE:
-	case INT16_TYPE:
-	case INT32_TYPE:
-	case FLOAT_TYPE:
-	case DOUBLE_TYPE:
-	case INT8_ARR_TYPE:
-	case INT16_ARR_TYPE:
-	case INT32_ARR_TYPE:
-	case FLOAT_ARR_TYPE:
-	case DOUBLE_ARR_TYPE:
-	case INT8_REF_TYPE:
-	case INT16_REF_TYPE:
-	case INT32_REF_TYPE:
-	case FLOAT_REF_TYPE:
-	case DOUBLE_REF_TYPE:
-	case BOOL_TYPE:{
-		string test_bool_var_name = get_temp_name();
-		code.code_bef_expr <<  "bool "
-				   <<  test_bool_var_name.c_str()
-				   << " = " << struct_name1.c_str()
-				   << ".exists(";
-		//<< name.c_str() << ");\n";
-		//ostringstream code_bef_expr1_discard, code_expr1;
-		ExpressionCompiledCode expr1_code;
-		leftOperand_->PrintExpressionCode(
-			expr1_code);
-		code.code_bef_expr << expr1_code.code_expr.str() << ");\n";
-		code.code_expr << test_bool_var_name.c_str() << " ";
-	}
-		break;
-	case QUESTION_TYPE:{
-		string test_bool_var_name = get_temp_name();
-		code.code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
-				   << " = " << struct_name1.c_str()
-				   << ".contains_subset(";
-		//ostringstream code_bef_expr1_discard, code_expr1;
-		//ExpressionCompiledCode expr1_code;
-		//leftOperand_->PrintExpressionCode(expr1_code);
-		code.code_bef_expr
-			//<< expr1_code.code_bef_expr.str()
-			//<< expr1_code.code_expr.str()
-			<< leftOperand_->get_symp_ptr()->name_
-			<< "->input_data"
-			<< ");\n";
-		code.code_expr << test_bool_var_name.c_str() << " ";
-	}
-		break;
-	default: {
-		std::stringstream s;
-		s << "file: " << __FILE__
-		  << ", line: " << __LINE__ << endl;
-		print_err(compiler_internal_error, s.str()
-			  , line_no, __LINE__, __FILE__);
-	} // note this closes the default label
+
+	if (leftOperand_ != 0) {
+		PrintTemporaryStruct(code);
+		//code.code_bef_expr << "\t} "
+		string struct_name1 = get_temp_name();
+		code.code_bef_expr <<  struct_name1 <<";\n";
+		switch(leftOperand_->get_symp_ptr()->type_){
+		case INT8_TYPE:
+		case INT16_TYPE:
+		case INT32_TYPE:
+		case FLOAT_TYPE:
+		case DOUBLE_TYPE:
+		case INT8_ARR_TYPE:
+		case INT16_ARR_TYPE:
+		case INT32_ARR_TYPE:
+		case FLOAT_ARR_TYPE:
+		case DOUBLE_ARR_TYPE:
+		case INT8_REF_TYPE:
+		case INT16_REF_TYPE:
+		case INT32_REF_TYPE:
+		case FLOAT_REF_TYPE:
+		case DOUBLE_REF_TYPE:
+		case BOOL_TYPE:{
+			string test_bool_var_name = get_temp_name();
+			code.code_bef_expr <<  "bool "
+					   <<  test_bool_var_name.c_str()
+					   << " = " << struct_name1.c_str()
+					   << ".exists(";
+			//<< name.c_str() << ");\n";
+			//ostringstream code_bef_expr1_discard, code_expr1;
+			ExpressionCompiledCode expr1_code;
+			leftOperand_->PrintExpressionCode(
+				expr1_code);
+			code.code_bef_expr << expr1_code.code_expr.str() << ");\n";
+			code.code_expr << test_bool_var_name.c_str() << " ";
+		}
+			break;
+		case QUESTION_TYPE:{
+			string test_bool_var_name = get_temp_name();
+			code.code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
+					   << " = " << struct_name1.c_str()
+					   << ".contains_subset(";
+			//ostringstream code_bef_expr1_discard, code_expr1;
+			//ExpressionCompiledCode expr1_code;
+			//leftOperand_->PrintExpressionCode(expr1_code);
+			code.code_bef_expr
+				//<< expr1_code.code_bef_expr.str()
+				//<< expr1_code.code_expr.str()
+				<< leftOperand_->get_symp_ptr()->name_
+				<< "->input_data"
+				<< ");\n";
+			code.code_expr << test_bool_var_name.c_str() << " ";
+		}
+			break;
+		default: {
+			std::stringstream s;
+			s << "file: " << __FILE__
+			  << ", line: " << __LINE__ << endl;
+			print_err(compiler_internal_error, s.str()
+				  , line_no, __LINE__, __FILE__);
+		} // note this closes the default label
+		}
+	} else /* if leftOperand2_ !=0 */{
+		code.code_expr  << "/* " << __PRETTY_FUNCTION__ 
+			<< ", " << __LINE__ 
+			<< ", " << __FILE__ 
+			<< "   ";
+		code.code_expr << " */" << endl;
+		code.code_expr << rhsQuestion_->questionName_ << "->input_data.find(";
+		leftOperand2_->PrintExpressionCode(code);
+		code.code_expr << ") != " << rhsQuestion_->questionName_ << "->input_data.end()";
 	}
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_expr << "/* EXIT Binary2Expression::PrintExpressionCode */" << endl;

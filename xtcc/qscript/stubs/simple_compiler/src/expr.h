@@ -121,16 +121,23 @@ struct UnaryExpression : public AbstractExpression
 
 #include "xtcc_set.h"
 struct Unary2Expression;
+class AbstractQuestion;
 
 //! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set
 struct Binary2Expression: public AbstractExpression
 {
 	protected:
 	Unary2Expression * leftOperand_;
+	AbstractExpression * leftOperand2_;
 	XtccSet *xs;
+	AbstractQuestion * rhsQuestion_;
 	public:
 	Binary2Expression(AbstractExpression* llop
 			  , XtccSet& l_rd, ExpressionOperatorType letype);
+
+	Binary2Expression(AbstractExpression* llop
+					     , string name
+					     , ExpressionOperatorType letype);
 	bool IsLValue(){ return false; }
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
