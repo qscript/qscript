@@ -164,8 +164,11 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 		back_jump = true;\n\
 		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n}\n}\n";
-	program_code << "else if (user_navigation == NAVIGATE_NEXT){\n\
-		stopAtNextQuestion = true;\n\
+	program_code << "else if (user_navigation == NAVIGATE_NEXT){\n";
+	program_code << "\tif (" << questionName_ << "->isAnswered_==false) {\n"
+			<< "\t\tgoto label_eval_" << questionName_ << ";\n"
+			<< "\t}\n";
+	program_code << "	stopAtNextQuestion = true;\n\
 		user_navigation = NOT_SET;\n\
 		}\n";
 	program_code << "else if (user_navigation == JUMP_TO_QUESTION){\n\
@@ -701,7 +704,18 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		for(uint32_t i = 0; i< vec.size(); ++i){
 			if( vec[i].mask) {
 				//cout << vec[i].stub_text << ": " << vec[i].code << endl;
-				mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
+				//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
+				mvwprintw(stub_list_window, currYpos, currXpos, "%s: ", vec[i].stub_text.c_str());
+				set<int32_t>::iterator found= input_data.find(vec[i].code);
+				if (found != input_data.end() ){
+					wattroff(stub_list_window, COLOR_PAIR(2));
+					wattron(stub_list_window, COLOR_PAIR(4));
+					mvwprintw(stub_list_window, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
+					wattroff(stub_list_window, COLOR_PAIR(4));
+					wattron(stub_list_window, COLOR_PAIR(2));
+				} else {
+					mvwprintw(stub_list_window, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
+				}
 				++currYpos;
 			}
 		}

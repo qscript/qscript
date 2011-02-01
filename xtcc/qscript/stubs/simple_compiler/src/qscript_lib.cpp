@@ -98,9 +98,12 @@ void merge_disk_data_into_questions(FILE * qscript_stdout)
 		}
 		if (found){
 			q->input_data.erase(q->input_data.begin(), q->input_data.end());
-			for(int32_t k = 0; k<q_disk->data.size(); ++k){
-				//cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
-				q->input_data.insert(q_disk->data[k]);
+			if (q_disk->data.size() > 0) {
+				for(int32_t k = 0; k<q_disk->data.size(); ++k){
+					//cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
+					q->input_data.insert(q_disk->data[k]);
+				}
+				q->isAnswered_ = true;
 			}
 			found = false;
 		}
