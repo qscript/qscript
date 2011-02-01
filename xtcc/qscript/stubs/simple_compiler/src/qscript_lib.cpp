@@ -72,6 +72,7 @@ int32_t load_data(string jno, int32_t ser_no)
 // and looking up the vector that way
 #include "question.h"
 extern vector <AbstractQuestion*> question_list;
+extern AbstractQuestion * last_question_answered;
 void merge_disk_data_into_questions(FILE * qscript_stdout)
 {
 	//cout << "merge_disk_data_into_questions: " << endl;
@@ -104,6 +105,7 @@ void merge_disk_data_into_questions(FILE * qscript_stdout)
 					q->input_data.insert(q_disk->data[k]);
 				}
 				q->isAnswered_ = true;
+				last_question_answered = q;
 			}
 			found = false;
 		}

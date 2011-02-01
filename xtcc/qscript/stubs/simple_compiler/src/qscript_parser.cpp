@@ -204,9 +204,10 @@ void print_header(FILE* script, bool ncurses_flag)
 	print_array_question_class(script);
 
 
+	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
 	fprintf(script, "int32_t main(){\n");
 	fprintf(script, "bool using_ncurses = %s;\n", (ncurses_flag) ?  "true": "false");
-	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
+	//fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
 	fprintf(script, "qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
 	fprintf(script, "	using namespace std;\n");
 	fprintf(script, "	WINDOW 	* question_window = 0,\n");
