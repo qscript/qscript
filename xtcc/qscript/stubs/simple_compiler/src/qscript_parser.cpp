@@ -625,59 +625,107 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char * question_name)
 {
 	int32_t index = -1;
+	bool question_stub = false, range_stub=false;
+	NamedStubQuestion * lhs_question = 0, * rhs_question=0;
+	named_range * lhs_stub = 0;
 	for(int32_t i = 0; i < named_stubs_list.size(); ++i){
 		named_range * nr_ptr = named_stubs_list[i];
 		if(nr_ptr->name == stub_list_name){
 			index = i;
+			range_stub = true;
+			lhs_stub = nr_ptr;
 			break;
 		}
 	}
+	// at this point lhs_stub is valid
+	for(int32_t i = 0; i < question_list.size(); ++i){
+		if(question_list[i]->questionName_  ==  stub_list_name){
+			index = i;
+			question_stub = true;
+			lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
+			if (!lhs_question) {
+				stringstream err_text;
+				err_text << "Question : " << stub_list_name <<
+					"is not a named stub Question";
+				print_err(compiler_sem_err, err_text.str(),
+					line_no, __LINE__, __FILE__);
+				return new ErrorStatement(line_no);
+			}
+			break;
+		}
+	}
+
 	if(index == -1){
 		stringstream err_text;
 		err_text << "named stub list does not exist: " << stub_list_name;
 		print_err(compiler_sem_err, err_text.str(),
-			line_no, __LINE__, __FILE__);
+				line_no, __LINE__, __FILE__);
+		return new ErrorStatement(line_no);
 	}
+	// at this point 
+	// 	1. if lhs_question is not null it is valid and 
+	// 	2. we need not do any more checks on the 1st argument 
+
+
 	int32_t index_question = -1;
 	for(int32_t i = 0; i < question_list.size(); ++i){
 		if(question_list[i]->questionName_  ==  question_name){
 			index_question = i;
+			rhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
+			if (!rhs_question) {
+				stringstream err_text;
+				err_text << "Question : " << question_name <<
+					"is not a named stub Question";
+				print_err(compiler_sem_err, err_text.str(),
+					line_no, __LINE__, __FILE__);
+				return new ErrorStatement(line_no);
+			}
 			break;
 		}
 	}
+	// 	At this point if rhs_question is not null it is a named stub question
 	if(index_question == -1){
 		stringstream err_text;
-		err_text << "AbstractQuestion does not exist: " << question_name;
+		err_text << "Question does not exist: " << question_name;
 		print_err(compiler_sem_err, err_text.str(),
 			line_no, __LINE__, __FILE__);
-	} else {
-		if(index_question >= 0 && index >= 0){
-			NamedStubQuestion * q_ptr=
-				dynamic_cast<NamedStubQuestion*>(question_list[index_question]);
-			if(q_ptr){
-				if(!(q_ptr->nr_ptr->name == stub_list_name) ){
-					stringstream err_text;
-					err_text << "AbstractQuestion: " << question_name
-						<< " named range: " << q_ptr->nr_ptr->name
-						<< " and named stub is : " << stub_list_name
-						<< endl;
+		return new ErrorStatement(line_no);
+	} 
+	// At this point 2nd argument  is valid
 
-					print_err(compiler_sem_err, err_text.str(),
-						line_no, __LINE__, __FILE__);
-				}
-			} else {
-				stringstream err_text;
-				err_text << "AbstractQuestion : " << question_name <<
-					"is not a named range AbstractQuestion";
-				print_err(compiler_sem_err, err_text.str(),
-					line_no, __LINE__, __FILE__);
-			}
+	if (range_stub == true) {
+		if(!(rhs_question->nr_ptr->name == stub_list_name) ){
+			stringstream err_text;
+			err_text << "Question: " << question_name
+				<< " named range: " << rhs_question->nr_ptr->name
+				<< " and named stub is : " << stub_list_name
+				<< " do not match"
+				<< endl;
+			print_err(compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+			return new ErrorStatement(line_no);
 		}
+		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+			line_no, lhs_stub, rhs_question);
+		return st_ptr;
+	} else if (question_stub == true) {
+		if(!(rhs_question->nr_ptr->name == lhs_question->nr_ptr->name) ){
+			stringstream err_text;
+			err_text << "1st arg Question: " << lhs_question->questionName_
+				<< " named range: " << lhs_question->nr_ptr->name
+				<< " and : " 
+				<< " 2nd arg Question: " << rhs_question->questionName_
+				<< " named range: " << rhs_question->nr_ptr->name
+				<< " do not match" << endl;
+			print_err(compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+			return new ErrorStatement(line_no);
+		}
+		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+			line_no, lhs_question, rhs_question);
+		return st_ptr;
 	}
-	struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-		line_no, stub_list_name, question_name);
-
-	return st_ptr;
+	return new ErrorStatement(line_no);
 }
 
 

@@ -971,6 +971,25 @@ VariableList::VariableList(DataType type, char * name, int32_t len)
 
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+				       , named_range * l_named_range
+				       , AbstractQuestion * l_question
+	)
+	: AbstractStatement(dtype, lline_number)
+	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
+	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
+{ }
+
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+				       , AbstractQuestion * l_question_lhs
+				       , AbstractQuestion * l_question_rhs
+	)
+	: AbstractStatement(dtype, lline_number)
+	  , questionName_(l_question_rhs->questionName_), namedStub_()
+	  , namedRange_(0), lhs_(l_question_lhs), rhs_(l_question_rhs)
+{ }
+
+// This constructor is deprecated and should be deleted at a later stage
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , string l_named_stub
 				       , string l_question_name
 	)
@@ -994,22 +1013,24 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 
 
 	if (type_ == STUB_MANIP_DEL || type_ == STUB_MANIP_ADD){
-		code.program_code << "set<int32_t>::iterator set_iter = "
-			<< questionName_
-			<< "->input_data.begin();" << endl;
-		code.program_code << "for( ; set_iter!= "
-			<< questionName_
-			<< "->input_data.end(); ++set_iter){" << endl;
-		code.program_code << "\tfor(int32_t i = 0; i< "
-			<< namedStub_ << ".size(); ++i){" << endl;
-		code.program_code << "\t\tif (" << namedStub_
-			<< "[i].code == *set_iter) {" << endl;
-		if (type_ == STUB_MANIP_DEL){
-			code.program_code << "\t\t\t"
-				<< namedStub_ << "[i].mask = false; " << endl;
-		} else if (type_ == STUB_MANIP_ADD) {
-			code.program_code << "\t\t\t"
-				<< namedStub_ << "[i].mask = true; " << endl;
+		if (namedRange_ && rhs_) {
+			code.program_code << "set<int32_t>::iterator set_iter = "
+				<< questionName_
+				<< "->input_data.begin();" << endl;
+			code.program_code << "for( ; set_iter!= "
+				<< questionName_
+				<< "->input_data.end(); ++set_iter){" << endl;
+			code.program_code << "\tfor(int32_t i = 0; i< "
+				<< namedStub_ << ".size(); ++i){" << endl;
+			code.program_code << "\t\tif (" << namedStub_
+				<< "[i].code == *set_iter) {" << endl;
+			if (type_ == STUB_MANIP_DEL){
+				code.program_code << "\t\t\t"
+					<< namedStub_ << "[i].mask = false; " << endl;
+			} else if (type_ == STUB_MANIP_ADD) {
+				code.program_code << "\t\t\t"
+					<< namedStub_ << "[i].mask = true; " << endl;
+			}
 		}
 		code.program_code << "\t\t}" << endl;
 		code.program_code << "\t}" << endl;

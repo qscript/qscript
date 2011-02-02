@@ -334,14 +334,25 @@ struct Parameter
 struct AbstractQuestion;
 AbstractQuestion* find_in_question_list(string name);
 
+struct named_range;
 struct StubManipStatement: public AbstractStatement
 {
 	string questionName_;
 	string namedStub_;
+	named_range * namedRange_;
+	AbstractQuestion * lhs_;
+	AbstractQuestion * rhs_;
 	StubManipStatement( DataType dtype, int32_t lline_number
 			    , string l_named_stub, string l_question_name);
 	StubManipStatement( DataType dtype, int32_t lline_number
 			    , string l_named_stub);
+
+	StubManipStatement(DataType dtype, int32_t lline_number
+				       , named_range * l_named_range
+				       , AbstractQuestion * l_question);
+	StubManipStatement(DataType dtype, int32_t lline_number
+				       , AbstractQuestion * l_question_lhs
+				       , AbstractQuestion * l_question_rhs);
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
