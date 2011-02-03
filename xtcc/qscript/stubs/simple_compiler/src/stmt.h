@@ -302,6 +302,8 @@ struct IfStatement : public AbstractStatement
 		if( elseBody_)
 			elseBody_->GetQuestionNames(question_list, endStatement);
 	}
+	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
+					 , AbstractStatement* stop_at);
 	private:
 	IfStatement& operator=(const IfStatement&);
 	IfStatement(const IfStatement&);

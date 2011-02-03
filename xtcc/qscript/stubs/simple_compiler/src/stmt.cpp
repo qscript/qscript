@@ -57,12 +57,12 @@ void AbstractStatement::GetQuestionNames(vector<string> &question_list,
 void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
 					    AbstractStatement * stop_at)
 {
-	//cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
+	cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
 	//cerr << human_readable_type(type_) << endl;
 	if (next_ && next_ != stop_at){
 		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
-	//cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
+	cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
 }
 
 void AbstractStatement::GenerateConsolidatedForLoopIndexes()
@@ -170,6 +170,19 @@ IfStatement::IfStatement(DataType dtype, int32_t lline_number
 			  "If ifCondition_ expression has Void or Error Type",
 			  qscript_parser::if_line_no, __LINE__, __FILE__);
 	} else {
+	}
+}
+
+void IfStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
+		,AbstractStatement* stop_at)
+{
+	if(stop_at==this)
+		return;
+	ifBody_->GetQuestionsInBlock(question_list, stop_at);
+	if( elseBody_)
+		elseBody_->GetQuestionsInBlock(question_list, stop_at);
+	if (next_ && next_ != stop_at){
+		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
 }
 

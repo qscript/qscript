@@ -1324,19 +1324,24 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 					, 0, __LINE__, __FILE__);
 			}
 		}
-		s << ";++xtcc_i){\n"
-			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\""
-			<< " << "
-			<< "\"_\" << xtcc_i << \"$\" << "
-			//<< consolidated_for_loop_index_stack.back()
-			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-			<< ";" << endl
-			<< restore_array_quest->questionName_
-			<< "_list.questionList[xtcc_i]->input_data = "
-			<< restore_array_quest->questionName_ << "_scope_question_t["
-			<< "map_key.str()" << "];\n"
+		s << ";++xtcc_i){\n";
+		s 	<< "ostringstream map_key;\n";
+		s	<< "map_key << \"" << questionName_ << "\"";
+		s	<< " << ";
+		s	<< "\"_\" << xtcc_i << \"$\" << ";
+			//delete later
+
+		cerr 	<< "enclosingCompoundStatement_: " << enclosingCompoundStatement_ 
+			<< "questionName_ : " << questionName_ 
 			<< endl;
+			//end delete later
+		s	<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back();
+		s	<< ";" << endl;
+		s	<< restore_array_quest->questionName_;
+		s	<< "_list.questionList[xtcc_i]->input_data = ";
+		s	<< restore_array_quest->questionName_ << "_scope_question_t[";
+		s	<< "map_key.str()" << "];\n";
+		s	<< endl;
 		s << "}\n";
 	} else if (IsAtAHigherNestLevelInTheSameBlock(this, restore_array_quest)){
 		s << "/*"
@@ -1914,7 +1919,11 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 		find(questions_in_block.begin(), questions_in_block.end(), this);
 	if(my_loc == questions_in_block.end()){
 		ostringstream err_msg;
-		err_msg << "unable to find self in block ... exiting\n";
+		err_msg << "unable to find self: " << questionName_
+			<< "in block: " 
+			<< " code generated here is\n" 
+			<< s.str()
+			<< "\n... exiting\n";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
 		exit(1);
 	}
@@ -2146,7 +2155,11 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 		find(questions_in_block.begin(), questions_in_block.end(), this);
 	if(my_loc == questions_in_block.end()){
 		ostringstream err_msg;
-		err_msg << "unable to find self in block ... exiting\n";
+		err_msg << "unable to find self : " << questionName_
+			<< " in block "
+			<< " code generated here is\n" 
+			<< s.str()
+			<< "\n... exiting\n";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
 		exit(1);
 	}
