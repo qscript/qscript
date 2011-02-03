@@ -42,10 +42,14 @@ int32_t main(int32_t argc, char* argv[])
 	bool ncurses_flag = false;
 	bool static_binary_flag = false;
 	bool exit_flag = false;
+	bool compile_to_cpp_only_flag = false;
 
-	while( (c = getopt(argc, argv, "snf:")) != -1 ){
+	while( (c = getopt(argc, argv, "csnf:")) != -1 ){
 		char ch = optopt;
 		switch(c){
+		case 'c':
+			compile_to_cpp_only_flag = true;
+			break;
 		case 'n':
 			ncurses_flag = true;
 			break;
@@ -95,6 +99,7 @@ int32_t main(int32_t argc, char* argv[])
 		cout << "Options: " << endl;
 		cout << " -n            - creates an ncurses executable " << endl;
 		cout << " -s            - creates an static executable - for windows only " << endl;
+		cout << " -c            - compile to c++ only - dont invoke c++ compiler" << endl;
 		exit(0);
 	}
 	active_scope = new Scope();
@@ -120,10 +125,14 @@ int32_t main(int32_t argc, char* argv[])
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode(fname, ncurses_flag);
-		if (static_binary_flag)
-			qscript_parser::CompileGeneratedCodeStatic(fname);
-		else
-			qscript_parser::CompileGeneratedCode(fname);
+		cout << "code generated " << endl;
+		if (compile_to_cpp_only_flag) {
+		} else {
+			if (static_binary_flag)
+				qscript_parser::CompileGeneratedCodeStatic(fname);
+			else
+				qscript_parser::CompileGeneratedCode(fname);
+		}
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}

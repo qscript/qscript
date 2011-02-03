@@ -216,6 +216,7 @@ struct CompoundStatement: public AbstractStatement
 	vector<AbstractQuestion*> questionsInBlock_;
 	vector<CompoundStatement*> nestedCompoundStatementStack_;
 	vector<string> ConsolidatedForLoopIndexStack_;
+	int32_t flagIsAIfBody_;
 	public:
 	CompoundStatement(DataType dtype, int32_t lline_number
 			  , int32_t l_flag_cmpd_stmt_is_a_func_body

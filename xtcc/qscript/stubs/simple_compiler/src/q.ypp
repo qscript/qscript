@@ -341,7 +341,12 @@ if_stmt:  IF '(' expression ')' stmt {
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		using qscript_parser::XTCC_DEBUG_MEM_USAGE;
-		$$=new IfStatement(IFE_STMT,if_line_no,$3,$5,0);
+		CompoundStatement * cmpd_stmt = dynamic_cast<CompoundStatement*>($5);
+		if (cmpd_stmt!=0) {
+			cmpd_stmt->flagIsAIfBody_ = 1;
+			$$=new IfStatement(IFE_STMT,if_line_no,$3,cmpd_stmt,0);
+		} else 
+			$$=new IfStatement(IFE_STMT,if_line_no,$3,$5,0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -350,7 +355,23 @@ if_stmt:  IF '(' expression ')' stmt {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		$$=new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,$5,$7);
+		CompoundStatement * cmpd_stmt_if_body = dynamic_cast<CompoundStatement*>($5);
+		if (cmpd_stmt_if_body) {
+			cmpd_stmt_if_body->flagIsAIfBody_ = 1;
+		}
+		CompoundStatement * cmpd_stmt_else_body = dynamic_cast<CompoundStatement*>($7);
+		if (cmpd_stmt_else_body) {
+			cmpd_stmt_else_body->flagIsAIfBody_ = 1;
+		}
+		if (cmpd_stmt_if_body==0 && cmpd_stmt_else_body==0)
+			$$=new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,$5,$7);
+		else if (cmpd_stmt_if_body != 0 && cmpd_stmt_else_body !=0 ) 
+			$$=new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,cmpd_stmt_if_body,cmpd_stmt_else_body);
+		else if (cmpd_stmt_else_body !=0 && cmpd_stmt_if_body==0) 
+			$$=new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,$5,cmpd_stmt_else_body);
+		else 
+			$$=new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,cmpd_stmt_if_body,$7);
+
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, qscript_parser::line_no);
 		}

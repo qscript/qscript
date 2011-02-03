@@ -1354,10 +1354,10 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			<< "*/"
 			<< endl;
 
-		cerr 	<< "restore_array_quest: " << restore_array_quest
-			<< " restore_array_quest->for_bounds_stack: " << & (restore_array_quest->for_bounds_stack)
-			<< " for_bounds_stack.size(): " << for_bounds_stack.size() << " "
-			<< endl;
+		// cerr 	<< "restore_array_quest: " << restore_array_quest
+		// 	<< " restore_array_quest->for_bounds_stack: " << & (restore_array_quest->for_bounds_stack)
+		// 	<< " for_bounds_stack.size(): " << for_bounds_stack.size() << " "
+		// 	<< endl;
 		if (for_bounds_stack.size() > 0 && restore_array_quest->for_bounds_stack.size() > 0) {
 			s << "/*"
 				<< " find where my for_bounds_stack\n"

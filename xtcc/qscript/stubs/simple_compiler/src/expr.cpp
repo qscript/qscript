@@ -358,7 +358,7 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 		code.code_bef_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
 	switch(exprOperatorType_){
 	case oper_name:{
-		code.code_bef_expr << " /* case  oper_name */ \n";
+		//code.code_bef_expr << " /* case  oper_name */ \n";
 		if (type_ == QUESTION_TYPE){
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_TYPE){

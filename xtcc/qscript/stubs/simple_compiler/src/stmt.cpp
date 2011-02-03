@@ -198,6 +198,11 @@ struct IfStatementStackElement
 void IfStatement::GenerateCode(StatementCompiledCode &code)
 {
 	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
+	code.array_quest_init_area << "/* ENTER " << __PRETTY_FUNCTION__ << ", "
+			<< __FILE__ << ", " << __LINE__ 
+			<< " source lineNo_: " << lineNo_
+			<< " */\n";
+		
 	static vector<IfStatementStackElement*> ifStatementStack;
 	static int32_t if_nest_level =0;
 	bool if_nest_level_was_increased = false;
@@ -308,6 +313,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	}
 
 	code.program_code << " /* finished generating code IfStatement */ " << endl;
+	code.array_quest_init_area << "/* EXIT " << __PRETTY_FUNCTION__ << ", "
+			<< __FILE__ << ", " << __LINE__ << ", source line no:" << lineNo_ << " */\n";
 	if (next_)
 		next_->GenerateCode(code);
 	//cerr << "EXIT: IfStatement::GenerateCode()" << endl;
@@ -367,6 +374,7 @@ CompoundStatement::CompoundStatement(
 	, flagGeneratedQuestionDefinitions_(false)
 	, for_bounds_stack(l_for_bounds_stack), questionsInBlock_(0)
 	, nestedCompoundStatementStack_(0), ConsolidatedForLoopIndexStack_(0)
+	, flagIsAIfBody_(0)
 {
 	compoundStatementNumber_ = CompoundStatement::counter_++;
 }
@@ -411,7 +419,8 @@ void CompoundStatement::GetQuestionsInBlock(
 void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
 	StatementCompiledCode &code)
 {
-	code.array_quest_init_area << "/* ENTER CompoundStatement::GenerateQuestionArrayInitLoopOpen */\n";
+	code.array_quest_init_area << "/* ENTER CompoundStatement::GenerateQuestionArrayInitLoopOpen " 
+		<< "source line no: " << lineNo_ <<  "*/\n";
 	for(int32_t i = for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
 		code.array_quest_init_area << "for(int32_t ";
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
@@ -520,6 +529,7 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		<< 	qscript_parser::for_loop_max_counter_stack.size()
 		<< ", counterContainsQuestions_: " << counterContainsQuestions_
 		<< ", flagIsAForBody_: " << flagIsAForBody_
+		<< ", source lineNo_: " << lineNo_
 		<< endl;
 
 	if (flagGeneratedQuestionDefinitions_ == false
@@ -528,8 +538,14 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	   && counterContainsQuestions_){
 		code.quest_defns << "//CompoundStatement::GenerateCode()\n"
 			<< "// Generating array declarations\n";
-		if (compoundBody_){
+		if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_){
+			code.array_quest_init_area << "/* invoking GenerateQuestionArrayInitLoopOpen: "
+				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+				<< " */\n";
 			GenerateQuestionArrayInitLoopOpen(code);
+			code.array_quest_init_area << "/* finished call to GenerateQuestionArrayInitLoopOpen: "
+				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+				<< " */\n";
 		}
 		flagGeneratedQuestionDefinitions_ = true;
 	}
@@ -544,7 +560,9 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		compoundBody_->GetQuestionsInBlock(questionsInBlock_, this);
 		compoundBody_->GenerateCode(code);
 	}
-	GenerateQuestionArrayInitLoopClose(code);
+	if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_){
+		GenerateQuestionArrayInitLoopClose(code);
+	}
 	code.program_code << "}" << endl;
 	if (next_)
 		next_->GenerateCode(code);
@@ -850,6 +868,8 @@ void ForStatement::CheckForIndexUsageConsistency()
 
 void ForStatement::GenerateCode(StatementCompiledCode &code)
 {
+	code.array_quest_init_area << "/* " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
+		<< "*/\n";
 	ExpressionCompiledCode expr_code;
 	expr_code.code_expr << "for (";
 	initializationExpression_->PrintExpressionCode(expr_code);
