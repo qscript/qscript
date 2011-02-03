@@ -1031,10 +1031,24 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				code.program_code << "\t\t\t"
 					<< namedStub_ << "[i].mask = true; " << endl;
 			}
+			code.program_code << "\t\t}" << endl;
+			code.program_code << "\t}" << endl;
+			code.program_code << "}" << endl;
+		} else if (lhs_ && rhs_) {
+			code.program_code << "set<int32_t>::iterator set_iter = "
+				<< rhs_->questionName_
+				<< "->input_data.begin();" << endl;
+			code.program_code << "for( ; set_iter!= "
+				<< rhs_->questionName_
+				<< "->input_data.end(); ++set_iter){" << endl;
+			code.program_code << lhs_->questionName_ << "->input_data.insert(*set_iter);\n";
+			code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
+			code.program_code << "\t}" << endl;
+		} else {
+			stringstream s;
+			s << " incorrect setup of StubManipStatement: ";
+			print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 		}
-		code.program_code << "\t\t}" << endl;
-		code.program_code << "\t}" << endl;
-		code.program_code << "}" << endl;
 	} else if (type_ == STUB_MANIP_UNSET_ALL || type_ == STUB_MANIP_SET_ALL) {
 		code.program_code << "for(int32_t i = 0; i< "
 			<< namedStub_ << ".size(); ++i){" << endl;

@@ -242,7 +242,8 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< questionName_.c_str() << "->isAnswered_ ||" << endl
 		<< "stopAtNextQuestion ||" << endl
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
-	program_code << "if(stopAtNextQuestion ) {\n\tstopAtNextQuestion = false;\n}\n";
+	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
+		<< " ) {\n\tstopAtNextQuestion = false;\n}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
 		<< "if ( " << questionName_ << "->question_attributes.hidden_==false) {\n"
