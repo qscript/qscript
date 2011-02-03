@@ -128,6 +128,8 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
 	virtual void PrintQuestionArrayInitialisation(
 		StatementCompiledCode & code);
+	std::string PrintCodeSaveArrayQuestionNotInTheSameBlock(AbstractQuestion * save_array_quest);
+	std::string PrintCodeRestoreArrayQuestionNotInTheSameBlock(AbstractQuestion * restore_array_quest);
 	string PrintSaveArrayQuestion(ActiveVariableInfo * av_info);
 	string PrintRestoreArrayQuestion(ActiveVariableInfo * av_info);
 	void PrintSaveMyPreviousIterationsData(StatementCompiledCode &code);

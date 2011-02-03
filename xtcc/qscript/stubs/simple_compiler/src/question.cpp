@@ -1298,6 +1298,8 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 		s << "}\n";
 
 	} else if (NotInTheSameBlock(this, restore_array_quest)){
+		s << PrintCodeRestoreArrayQuestionNotInTheSameBlock(restore_array_quest);
+#if 0
 		s << "/*"
 			<< questionName_ << " and "
 			<< restore_array_quest->questionName_
@@ -1343,6 +1345,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 		s	<< "map_key.str()" << "];\n";
 		s	<< endl;
 		s << "}\n";
+#endif /* 0 */
 	} else if (IsAtAHigherNestLevelInTheSameBlock(this, restore_array_quest)){
 		s << "/*"
 			<< questionName_
@@ -1350,57 +1353,68 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			<< restore_array_quest->questionName_
 			<< "*/"
 			<< endl;
-		s << "/*"
-			<< " find where my for_bounds_stack\n"
-			<< " and other question for_bounds_stack DONT match\n"
-			<< " then from that point on in other question find bounds\n"
-			<< " and multiply with current consolidated_for_loop_index\n"
-			<< " and save all these to the question scope map\n"
-			<< "*/\n"
+
+		cerr 	<< "restore_array_quest: " << restore_array_quest
+			<< " restore_array_quest->for_bounds_stack: " << & (restore_array_quest->for_bounds_stack)
+			<< " for_bounds_stack.size(): " << for_bounds_stack.size() << " "
 			<< endl;
-		s << "for(int32_t xtcc_i = 0; xtcc_i < ";
-		vector <AbstractExpression * > e_stack;
-		int32_t i1 = 0;
-		for(i1 = 0; i1 < restore_array_quest->for_bounds_stack.size()
-				&& restore_array_quest->for_bounds_stack[i1]
-					== for_bounds_stack[i1]
-				; ++i1){
-			e_stack.push_back(restore_array_quest->for_bounds_stack[i1]);
-		}
-		s << PrintConsolidatedForLoopIndex(e_stack)
-			<< "*";
-		for(; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
-			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
-					restore_array_quest->for_bounds_stack[i1]);
-			if(bin_expr_ptr){
-				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
-				ExpressionCompiledCode expr_code;
-				rhs->PrintExpressionCode(expr_code);
-				s << expr_code.code_bef_expr.str() /* should be empty */
-					<< expr_code.code_expr.str();
-				if(i1<restore_array_quest->for_bounds_stack.size()-1) {
-					s << "*";
-				}
-			} else {
-				print_err(compiler_code_generation_error
-					, "for loop index condition is not a binary expression"
-					, 0, __LINE__, __FILE__);
+		if (for_bounds_stack.size() > 0 && restore_array_quest->for_bounds_stack.size() > 0) {
+			s << "/*"
+				<< " find where my for_bounds_stack\n"
+				<< " and other question for_bounds_stack DONT match\n"
+				<< " then from that point on in other question find bounds\n"
+				<< " and multiply with current consolidated_for_loop_index\n"
+				<< " and save all these to the question scope map\n"
+				<< "*/\n"
+				<< endl;
+			s << "for(int32_t xtcc_i = 0; xtcc_i < ";
+			vector <AbstractExpression * > e_stack;
+			int32_t i1 = 0;
+			for(i1 = 0; i1 < restore_array_quest->for_bounds_stack.size()
+					&& i1 < for_bounds_stack.size()
+					&& restore_array_quest->for_bounds_stack[i1]
+						== for_bounds_stack[i1]
+					; ++i1){
+				e_stack.push_back(restore_array_quest->for_bounds_stack[i1]);
 			}
+			s << PrintConsolidatedForLoopIndex(e_stack)
+				<< "*";
+			for(; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
+				BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
+						restore_array_quest->for_bounds_stack[i1]);
+				if(bin_expr_ptr){
+					AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+					ExpressionCompiledCode expr_code;
+					rhs->PrintExpressionCode(expr_code);
+					s << expr_code.code_bef_expr.str() /* should be empty */
+						<< expr_code.code_expr.str();
+					if(i1<restore_array_quest->for_bounds_stack.size()-1) {
+						s << "*";
+					}
+				} else {
+					print_err(compiler_code_generation_error
+						, "for loop index condition is not a binary expression"
+						, 0, __LINE__, __FILE__);
+				}
+			}
+			s 	<< ";++xtcc_i){\n";
+			s	<< "ostringstream map_key;\n";
+			s	<< "map_key << \"" << questionName_ << "\"";
+			s	<< " << ";
+			s	<< "\"_\" << xtcc_i << \"$\" << ";
+				//<< consolidated_for_loop_index_stack.back()
+			s	<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back();
+			s	<< ";" << endl;
+			s	<< restore_array_quest->questionName_;
+			s	<< "_list.questionList[xtcc_i]->input_data = ";
+			s	<< restore_array_quest->questionName_ << "_scope_question_t[";
+			s	<< "map_key.str()" << "];\n";
+			s	<< endl;
+			s 	<< "}\n";
+		} else {
+			s << "/* treat as if the question is outside our block */\n";
+			s << PrintCodeRestoreArrayQuestionNotInTheSameBlock(restore_array_quest);
 		}
-		s << ";++xtcc_i){\n"
-			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\""
-			<< " << "
-			<< "\"_\" << xtcc_i << \"$\" << "
-			//<< consolidated_for_loop_index_stack.back()
-			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-			<< ";" << endl
-			<< restore_array_quest->questionName_
-			<< "_list.questionList[xtcc_i]->input_data = "
-			<< restore_array_quest->questionName_ << "_scope_question_t["
-			<< "map_key.str()" << "];\n"
-			<< endl;
-		s << "}\n";
 	} else if (IsAtADeeperNestLevelInTheSameBlock(this, restore_array_quest)){
 		s << "/*"
 			<< questionName_
@@ -1519,6 +1533,8 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 		s << "}\n";
 
 	} else if (NotInTheSameBlock(this, save_array_quest)){
+		s << PrintCodeSaveArrayQuestionNotInTheSameBlock(save_array_quest);
+#if 0 
 		s << "/*"
 			<< questionName_ << " and "
 			<< save_array_quest->questionName_
@@ -1557,6 +1573,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
 			<< endl;
 		s << "}\n";
+#endif /* 0 */
 	} else if (IsAtAHigherNestLevelInTheSameBlock(this, save_array_quest)){
 		s << "/*"
 			<< questionName_
@@ -1564,56 +1581,63 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 			<< save_array_quest->questionName_
 			<< "*/"
 			<< endl;
-		s << "/*"
-			<< " find where my for_bounds_stack\n"
-			<< " and other question for_bounds_stack DONT match\n"
-			<< " then from that point on in other question find bounds\n"
-			<< " and multiply with current consolidated_for_loop_index\n"
-			<< " and save all these to the question scope map\n"
-			<< "*/\n"
-			<< endl;
-		s << "for(int32_t xtcc_i = 0; xtcc_i < ";
-		vector <AbstractExpression * > e_stack;
-		int32_t i1 = 0;
-		for(i1 = 0; i1 < save_array_quest->for_bounds_stack.size()
-				&& save_array_quest->for_bounds_stack[i1]
-					 ==  for_bounds_stack[i1]
-				; ++i1){
-			e_stack.push_back(save_array_quest->for_bounds_stack[i1]);
-		}
-		s << PrintConsolidatedForLoopIndex(e_stack)
-			<< "*";
-		for(; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
-			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
-					save_array_quest->for_bounds_stack[i1]);
-			if(bin_expr_ptr){
-				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
-				ExpressionCompiledCode expr_code;
-				rhs->PrintExpressionCode(expr_code);
-				s << expr_code.code_bef_expr.str() /* should be empty */
-					<< expr_code.code_expr.str();
-				if(i1<save_array_quest->for_bounds_stack.size()-1) {
-					s << "*";
-				}
-			} else {
-				print_err(compiler_code_generation_error
-					, "for loop index condition is not a binary expression"
-					, 0, __LINE__, __FILE__);
+
+		if (save_array_quest->for_bounds_stack.size() > 0 && for_bounds_stack.size() > 0 ) {
+
+			s << "/*"
+				<< " find where my for_bounds_stack\n"
+				<< " and other question for_bounds_stack DONT match\n"
+				<< " then from that point on in other question find bounds\n"
+				<< " and multiply with current consolidated_for_loop_index\n"
+				<< " and save all these to the question scope map\n"
+				<< "*/\n"
+				<< endl;
+			s << "for(int32_t xtcc_i = 0; xtcc_i < ";
+			vector <AbstractExpression * > e_stack;
+			int32_t i1 = 0;
+			for(i1 = 0; i1 < save_array_quest->for_bounds_stack.size()
+					&& save_array_quest->for_bounds_stack[i1]
+						 ==  for_bounds_stack[i1]
+					; ++i1){
+				e_stack.push_back(save_array_quest->for_bounds_stack[i1]);
 			}
+			s << PrintConsolidatedForLoopIndex(e_stack)
+				<< "*";
+			for(; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
+				BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
+						save_array_quest->for_bounds_stack[i1]);
+				if(bin_expr_ptr){
+					AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+					ExpressionCompiledCode expr_code;
+					rhs->PrintExpressionCode(expr_code);
+					s << expr_code.code_bef_expr.str() /* should be empty */
+						<< expr_code.code_expr.str();
+					if(i1<save_array_quest->for_bounds_stack.size()-1) {
+						s << "*";
+					}
+				} else {
+					print_err(compiler_code_generation_error
+						, "for loop index condition is not a binary expression"
+						, 0, __LINE__, __FILE__);
+				}
+			}
+			s << ";++xtcc_i){\n"
+				<< "ostringstream map_key;\n"
+				<< "map_key << \"" << questionName_ << "\""
+				<< " << "
+				<< "\"_\" << xtcc_i << \"$\" << "
+				//<< consolidated_for_loop_index_stack.back()
+				<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+				<< ";" << endl
+				<< save_array_quest->questionName_ << "_scope_question_t["
+				<< "map_key.str()" << "] = "
+				<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
+				<< endl;
+			s << "}\n";
+		} else if (for_bounds_stack.size() == 0) {
+			s << "/* treat as if the question is outside our block */\n";
+			s << PrintCodeSaveArrayQuestionNotInTheSameBlock(save_array_quest);
 		}
-		s << ";++xtcc_i){\n"
-			<< "ostringstream map_key;\n"
-			<< "map_key << \"" << questionName_ << "\""
-			<< " << "
-			<< "\"_\" << xtcc_i << \"$\" << "
-			//<< consolidated_for_loop_index_stack.back()
-			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-			<< ";" << endl
-			<< save_array_quest->questionName_ << "_scope_question_t["
-			<< "map_key.str()" << "] = "
-			<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
-			<< endl;
-		s << "}\n";
 	} else if (IsAtADeeperNestLevelInTheSameBlock(this, save_array_quest)){
 		s << "/*"
 			<< questionName_
@@ -2362,5 +2386,105 @@ string QuestionAttributes::Print()
 		s << "true ";
 	}
 	s << ")";
+	return s.str();
+}
+
+std::string AbstractQuestion::PrintCodeSaveArrayQuestionNotInTheSameBlock(AbstractQuestion * save_array_quest)
+{
+	stringstream s;
+	s << "/*"
+		<< questionName_ << " and "
+		<< save_array_quest->questionName_
+		<< " :belong to different blocks "
+		<< "*/"
+		<< endl;
+	s << "for(int32_t xtcc_i = 0; xtcc_i < ";
+	for(int32_t i1 = 0; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
+		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
+				save_array_quest->for_bounds_stack[i1]);
+		if(bin_expr_ptr){
+			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+			ExpressionCompiledCode expr_code;
+			rhs->PrintExpressionCode(expr_code);
+			s << expr_code.code_bef_expr.str() /* should be empty */
+				<< expr_code.code_expr.str();
+			if(i1<save_array_quest->for_bounds_stack.size()-1) {
+				s << "*";
+			}
+		} else {
+			print_err(compiler_code_generation_error
+				, "for loop index condition is not a binary expression"
+				, 0, __LINE__, __FILE__);
+		}
+	}
+	s << ";++xtcc_i){\n"
+		<< "ostringstream map_key;\n"
+		<< "map_key << \"" << questionName_ << "\""
+		<< " << "
+		<< "\"_\" << xtcc_i ";
+	if (enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.size()>0) {
+		s	<< "<< \"$\" << " << enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+			<< ";" << endl;
+	} else {
+		s	<< ";\n";
+	}
+	s	<< save_array_quest->questionName_ << "_scope_question_t["
+		<< "map_key.str()" << "] = "
+		<< save_array_quest->questionName_ << "_list.questionList[xtcc_i]->input_data;\n"
+		<< endl;
+	s << "}\n";
+	return s.str();
+}
+
+std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(AbstractQuestion * restore_array_quest)
+{
+	stringstream s;
+	s << "/*"
+		<< questionName_ << " and "
+		<< restore_array_quest->questionName_
+		<< " :belong to different blocks "
+		<< "*/"
+		<< endl;
+
+	s << "for(int32_t xtcc_i = 0; xtcc_i < ";
+	for(int32_t i1 = 0; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
+		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
+				restore_array_quest->for_bounds_stack[i1]);
+		if(bin_expr_ptr){
+			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+			ExpressionCompiledCode expr_code;
+			rhs->PrintExpressionCode(expr_code);
+			s << expr_code.code_bef_expr.str() /* should be empty */
+				<< expr_code.code_expr.str();
+			if(i1<restore_array_quest->for_bounds_stack.size()-1) {
+				s << "*";
+			}
+		} else {
+			print_err(compiler_code_generation_error
+				, "for loop index condition is not a binary expression"
+				, 0, __LINE__, __FILE__);
+		}
+	}
+	s << ";++xtcc_i){\n";
+	s 	<< "ostringstream map_key;\n";
+	s	<< "map_key << \"" << questionName_ << "\"";
+	s	<< " << ";
+	s	<< "\"_\" << xtcc_i "; 
+		//delete later
+	if (enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.size()>0) {
+		s	<< "<< \"$\" << " << enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+			<< ";" << endl;
+	} else {
+		s	<< ";\n";
+	}
+
+	// s	<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back();
+	// s	<< ";" << endl;
+	s	<< restore_array_quest->questionName_;
+	s	<< "_list.questionList[xtcc_i]->input_data = ";
+	s	<< restore_array_quest->questionName_ << "_scope_question_t[";
+	s	<< "map_key.str()" << "];\n";
+	s	<< endl;
+	s << "}\n";
 	return s.str();
 }
