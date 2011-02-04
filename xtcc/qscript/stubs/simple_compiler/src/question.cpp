@@ -775,6 +775,15 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 	print_data_type(datatype_str);
 
 	ostringstream quest_decl;
+#if 0
+	quest_decl << "stringstream " << questionName_ << "_str;\n";
+	quest_decl << questionName_ << "_str " 
+			<< "<< \"" << questionName_ << "\" ";
+	if (for_bounds_stack.size() > 0 ) {
+
+	}
+#endif /* 0 */
+
 	quest_decl << "RangeQuestion * " << questionName_.c_str()
 		<< " = new RangeQuestion("
 		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )

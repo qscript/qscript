@@ -6,7 +6,9 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <map>
 using namespace std;
+
 
 struct question_disk_data
 {
@@ -42,6 +44,16 @@ struct question_disk_data
 
 	void set_array_data(vector<int32_t> l_array_index_list, vector<int32_t> & l_data);
 
+};
+
+struct QuestionDiskDataMap
+{
+	vector <question_disk_data*> question_list;
+	map<string, map<int32_t, vector<int32_t> > > array_question_map;
+	void set_array_data(string qno, vector<int32_t> & l_array_index_list, vector<int32_t> & data, vector <int32_t> & array_bounds);
+	QuestionDiskDataMap()
+		:question_list(), array_question_map()
+		{}
 };
 
 class QuestionExists

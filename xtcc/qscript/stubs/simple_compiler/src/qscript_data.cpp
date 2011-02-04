@@ -88,13 +88,14 @@
 	static vector<int> data;
 	static vector<int> array_index_list;
 	vector <question_disk_data*> qdd_list;
+	QuestionDiskDataMap question_disk_data_map;
 	int read_disk_datalex();
 	int no_errors;
 	void read_disk_dataerror(const char * s);
 
 
 /* Line 189 of yacc.c  */
-#line 98 "src/qscript_data.cpp"
+#line 99 "src/qscript_data.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -137,7 +138,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 19 "src/qscript_data.ypp"
+#line 20 "src/qscript_data.ypp"
 
 	int ival;
 	double dval;
@@ -146,7 +147,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 150 "src/qscript_data.cpp"
+#line 151 "src/qscript_data.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -158,7 +159,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 162 "src/qscript_data.cpp"
+#line 163 "src/qscript_data.cpp"
 
 #ifdef short
 # undef short
@@ -373,16 +374,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   20
+#define YYLAST   22
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  9
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  12
+#define YYNRULES  13
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  24
+#define YYNSTATES  25
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -429,7 +430,7 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     5,     7,    10,    15,    19,    25,    30,
-      32,    35,    38
+      35,    37,    40,    43
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
@@ -437,16 +438,16 @@ static const yytype_int8 yyrhs[] =
 {
       10,     0,    -1,    11,    -1,    12,    -1,    11,    12,    -1,
        3,     4,    13,     8,    -1,     3,     4,     8,    -1,     3,
-      14,     4,    13,     8,    -1,     3,     6,    13,     8,    -1,
-       7,    -1,    13,     7,    -1,     5,     7,    -1,    14,     5,
-       7,    -1
+      14,     4,    13,     8,    -1,     3,    14,     4,     8,    -1,
+       3,     6,    13,     8,    -1,     7,    -1,    13,     7,    -1,
+       5,     7,    -1,    14,     5,     7,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    32,    32,    38,    39,    42,    55,    62,    80,    89,
-      93,    99,   102
+       0,    33,    33,    39,    40,    43,    57,    64,    83,   102,
+     113,   117,   123,   126
 };
 #endif
 
@@ -473,15 +474,15 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,     9,    10,    11,    11,    12,    12,    12,    12,    13,
-      13,    14,    14
+       0,     9,    10,    11,    11,    12,    12,    12,    12,    12,
+      13,    13,    14,    14
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     4,     3,     5,     4,     1,
-       2,     2,     3
+       0,     2,     1,     1,     2,     4,     3,     5,     4,     4,
+       1,     2,     2,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -490,8 +491,8 @@ static const yytype_uint8 yyr2[] =
 static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,     2,     3,     0,     0,     0,     0,     1,
-       4,     9,     6,     0,    11,     0,     0,     0,    10,     5,
-       8,     0,    12,     7
+       4,    10,     6,     0,    12,     0,     0,     0,    11,     5,
+       9,     8,     0,    13,     7
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
@@ -505,15 +506,15 @@ static const yytype_int8 yydefgoto[] =
 #define YYPACT_NINF -8
 static const yytype_int8 yypact[] =
 {
-       1,    -3,    10,     1,    -8,    -2,    11,    12,     3,    -8,
-      -8,    -8,    -8,     4,    -8,     6,    12,    13,    -8,    -8,
-      -8,     8,    -8,    -8
+       1,    -3,    19,     1,    -8,    -2,    13,    14,     3,    -8,
+      -8,    -8,    -8,     4,    -8,     6,     8,    15,    -8,    -8,
+      -8,    -8,    10,    -8,    -8
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -8,    -8,    -8,    14,    -7,    -8
+      -8,    -8,    -8,     7,    -7,    -8
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -523,16 +524,16 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      15,     5,     6,     7,     1,    11,    12,    16,    17,    21,
-       9,    18,    19,    18,    20,    18,    23,    10,    14,    11,
-      22
+      15,     5,     6,     7,     1,    11,    12,    16,    17,    22,
+      10,    18,    19,    18,    20,    11,    21,    18,    24,     9,
+      14,    11,    23
 };
 
 static const yytype_uint8 yycheck[] =
 {
        7,     4,     5,     6,     3,     7,     8,     4,     5,    16,
-       0,     7,     8,     7,     8,     7,     8,     3,     7,     7,
-       7
+       3,     7,     8,     7,     8,     7,     8,     7,     8,     0,
+       7,     7,     7
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -541,7 +542,7 @@ static const yytype_uint8 yystos[] =
 {
        0,     3,    10,    11,    12,     4,     5,     6,    14,     0,
       12,     7,     8,    13,     7,    13,     4,     5,     7,     8,
-       8,    13,     7,     8
+       8,     8,    13,     7,     8
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1355,7 +1356,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 32 "src/qscript_data.ypp"
+#line 33 "src/qscript_data.ypp"
     {
 	//cout << "got question_list: parsed to program: " << endl;
 	return no_errors;
@@ -1365,7 +1366,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 42 "src/qscript_data.ypp"
+#line 43 "src/qscript_data.ypp"
     {
 		//cout << "data<int>[]: ";
 		// for(int i=0; i<data.size(); ++i){
@@ -1377,6 +1378,7 @@ yyreduce:
 		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd = new question_disk_data(qno, data);
 		qdd_list.push_back(qdd);
+		question_disk_data_map.question_list.push_back(qdd);
 		data.clear();
 	;}
     break;
@@ -1384,7 +1386,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 55 "src/qscript_data.ypp"
+#line 57 "src/qscript_data.ypp"
     {
 		//cout << "got empty question" << endl;
 		string qno((yyvsp[(1) - (3)].name));
@@ -1397,7 +1399,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 62 "src/qscript_data.ypp"
+#line 64 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (5)].name));
 		QuestionExists q_eq(qno);
@@ -1406,6 +1408,7 @@ yyreduce:
 		if(it!=qdd_list.end()){
 			question_disk_data * qdd = *it;
 			qdd->set_array_data(array_index_list, data);
+			question_disk_data_map.set_array_data(qno, array_index_list, data, qdd->array_bounds);
 		} else {
 			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
 			//qdd_list.push_back(qdd);
@@ -1421,49 +1424,76 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 80 "src/qscript_data.ypp"
+#line 83 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (4)].name));
-		question_disk_data * qdd = new question_disk_data(qno, data, data);
-		qdd_list.push_back(qdd);
+		QuestionExists q_eq(qno);
+		vector<question_disk_data*> ::iterator it = find_if(qdd_list.begin(),
+				qdd_list.end(), q_eq);
+		if(it!=qdd_list.end()){
+			question_disk_data * qdd = *it;
+			qdd->set_array_data(array_index_list, data);
+			question_disk_data_map.set_array_data(qno, array_index_list, data, qdd->array_bounds);
+		} else {
+			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
+			//qdd_list.push_back(qdd);
+			cerr << "Array question found but bounds not set in data file - this is an error in the data file"
+				<< endl;
+		}
+		array_index_list.clear();
 		data.clear();
-		//cout << " Got bounds for: " << qno << endl;
+		//cout << " Got array question: " << qno << endl;
 	;}
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 89 "src/qscript_data.ypp"
+#line 102 "src/qscript_data.ypp"
     {
-		    data.push_back((yyvsp[(1) - (1)].ival));
-		    //cout << "INUMBER: " << $1 << endl;
+		string qno((yyvsp[(1) - (4)].name));
+		question_disk_data * qdd = new question_disk_data(qno, data, data);
+		qdd_list.push_back(qdd);
+		// data will be empty because we reset it - the index has to go into the map
+		// otherwise we will dump core at some point
+		data.clear();
+		//cout << " Got bounds for: " << qno << endl;
 	;}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 93 "src/qscript_data.ypp"
+#line 113 "src/qscript_data.ypp"
     {
-		    //cout << "INUMBER: " << $2 << endl;
-		    data.push_back((yyvsp[(2) - (2)].ival));
+		    data.push_back((yyvsp[(1) - (1)].ival));
+		    //cout << "INUMBER: " << $1 << endl;
 	;}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 99 "src/qscript_data.ypp"
+#line 117 "src/qscript_data.ypp"
     {
-		array_index_list.push_back((yyvsp[(2) - (2)].ival));
+		    //cout << "INUMBER: " << $2 << endl;
+		    data.push_back((yyvsp[(2) - (2)].ival));
 	;}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 102 "src/qscript_data.ypp"
+#line 123 "src/qscript_data.ypp"
+    {
+		array_index_list.push_back((yyvsp[(2) - (2)].ival));
+	;}
+    break;
+
+  case 13:
+
+/* Line 1455 of yacc.c  */
+#line 126 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(3) - (3)].ival));
 	;}
@@ -1472,7 +1502,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1476 "src/qscript_data.cpp"
+#line 1506 "src/qscript_data.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1684,7 +1714,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 107 "src/qscript_data.ypp"
+#line 131 "src/qscript_data.ypp"
 
 
 /*

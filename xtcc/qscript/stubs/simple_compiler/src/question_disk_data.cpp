@@ -36,3 +36,22 @@ void question_disk_data::set_array_data(vector<int32_t> l_array_index_list, vect
 	}
 }
 
+void QuestionDiskDataMap::set_array_data(string qno, vector<int32_t> & l_array_index_list, vector<int32_t> & data, vector <int32_t> & array_bounds)
+{
+	if(l_array_index_list.size()!=array_bounds.size()){
+		cout << "array_index_list.size() != array_bounds.size()" << endl;
+	}
+	vector<int32_t> v(l_array_index_list.size());
+	int32_t index=0;
+	for(int32_t i=0; i<l_array_index_list.size(); ++i){
+		v[i] += l_array_index_list[i];
+		for(int32_t j=i+1; j<array_bounds .size(); ++j){
+			v[i]=v[i]*array_bounds[j];
+		}
+		index+=v[i];
+	}
+	//vector <int32_t> & array_question_data = array_question_map[qno];
+	map<int, vector<int32_t> > & array_question_data = array_question_map[qno];
+	array_question_data[index] = data;
+	
+}

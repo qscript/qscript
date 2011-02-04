@@ -322,7 +322,7 @@ class DummyArrayQuestion: public AbstractQuestion{
 	vector<int32_t> array_bounds;
 
 	DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
-		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, "", spn, 0
+		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, string(l_qno + "_dummy"), spn, 0
 				   , INT32_TYPE, QuestionAttributes(true) )
 		,  array_bounds(l_array_bounds)
 	{ }

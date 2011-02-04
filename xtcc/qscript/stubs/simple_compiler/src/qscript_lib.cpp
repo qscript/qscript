@@ -37,6 +37,7 @@ int32_t read_disk_datalex();
 extern FILE* read_disk_datain;
 void read_disk_data_init();
 extern vector <question_disk_data*> qdd_list;
+extern QuestionDiskDataMap question_disk_data_map;
 
 int32_t load_data(string jno, int32_t ser_no)
 {
@@ -76,13 +77,22 @@ extern AbstractQuestion * last_question_answered;
 void merge_disk_data_into_questions(FILE * qscript_stdout)
 {
 	//cout << "merge_disk_data_into_questions: " << endl;
+	cout << "ENTER: " 
+		<< __PRETTY_FUNCTION__ 
+		<< __FILE__ << ", " << __LINE__ << ", " 
+		<< endl;
 	for (int32_t i = 0; i< question_list.size(); ++i){
+		if (question_list[i]->loop_index_values.size() > 0) {
+			cout << "have reached the 1st array question - exiting the " << __PRETTY_FUNCTION__
+				<< endl;
+			break;
+		}
 		bool found = false;
 		AbstractQuestion* q= question_list[i];
 		question_disk_data * q_disk = 0;
 		//cout << "searching for : |" << q->questionName_  << "|" << endl;
 		//cout << "qdd_list:" ;
-		fprintf(qscript_stdout, "searching for : |%s|\n", q->questionName_.c_str());
+		fprintf(qscript_stdout, "searching for : |%s|, text: |%s|\n", q->questionName_.c_str(), q->questionText_.c_str());
 		fflush(qscript_stdout);
 		for(int32_t j = 0; j< qdd_list.size(); ++j){
 			//cout << "|" <<qdd_list[j]->qno << "|" << " ";
@@ -98,14 +108,64 @@ void merge_disk_data_into_questions(FILE * qscript_stdout)
 			}
 		}
 		if (found){
-			q->input_data.erase(q->input_data.begin(), q->input_data.end());
-			if (q_disk->data.size() > 0) {
-				for(int32_t k = 0; k<q_disk->data.size(); ++k){
-					//cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
-					q->input_data.insert(q_disk->data[k]);
+			DummyArrayQuestion * dum_q = dynamic_cast<DummyArrayQuestion*>(q);
+			if (dum_q) {
+				cout << q->questionName_ << " is a DummyArrayQuestion: Text: " 
+					<< q->questionText_
+					<< endl;
+				int32_t max_bound =1;
+				cout << "array bounds are: " ;
+				for (int32_t k=0; k< dum_q->array_bounds.size(); ++k) {
+					cout << dum_q->array_bounds[k] << " ";
+					max_bound *=  dum_q->array_bounds[k];
 				}
-				q->isAnswered_ = true;
-				last_question_answered = q;
+				cout << "max_bound: " << max_bound << endl;
+				map<int, vector<int32_t> > & array_question_data = question_disk_data_map.array_question_map[q->questionName_];
+				int array_start_point = -1;
+				for(int k=i+1; k<question_list.size(); ++k) {
+					if (question_list[k]->questionName_ == q->questionName_) {
+						array_start_point = k;
+						break;
+					}
+				}
+				if (array_start_point == -1) {
+					cout << "this can never be: " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+				}
+				for(int k=0; k<max_bound; ++k) {
+					if (array_question_data.find(k) != array_question_data.end()) {
+						AbstractQuestion * q1=question_list[array_start_point+k];
+						cout << "Loading data for question: " << q1->questionName_;
+						for (int l=0; l<q1->loop_index_values.size(); ++l) {
+							cout << "$" << q1->loop_index_values[l];
+						}
+
+						cout << ", k=" << k << endl;
+
+						vector<int32_t> q_data = array_question_data[k];
+						q1->input_data.erase(q1->input_data.begin(), q1->input_data.end());
+						if (q_data.size() > 0) {
+							for(int32_t l = 0; l<q_data.size(); ++l){
+								//cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
+								cout << "inserting " << q_data[l] << " into " 
+									<< q1->questionName_ << endl;
+								q1->input_data.insert(q_data[l]);
+							}
+							q1->isAnswered_ = true;
+							last_question_answered = q1;
+						}
+					}
+				}
+			} else {
+				cout << "loading data for non-array question: " << q->questionName_ << endl;
+				q->input_data.erase(q->input_data.begin(), q->input_data.end());
+				if (q_disk->data.size() > 0) {
+					for(int32_t k = 0; k<q_disk->data.size(); ++k){
+						//cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
+						q->input_data.insert(q_disk->data[k]);
+					}
+					q->isAnswered_ = true;
+					last_question_answered = q;
+				}
 			}
 			found = false;
 		}
