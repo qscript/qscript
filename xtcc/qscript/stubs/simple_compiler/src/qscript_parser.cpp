@@ -299,8 +299,15 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
 	fprintf(script, "\t\treset_questionnaire();\n");
 	fprintf(script, "\t} else if (end_of_question_navigation == 'p'){\n");
+	fprintf(script, "\t\tcout << \"last_question_answered: \" << last_question_answered << endl << \", question name: \" << last_question_answered->questionName_ << endl;\n");
 	fprintf(script, "\t\tAbstractQuestion * target_question = ComputePreviousQuestion(last_question_answered);\n");
+	fprintf(script, "\t\tif(target_question->type_ == QUESTION_ARR_TYPE)\n");
+	fprintf(script,	"\t\t\t{\n");
+	fprintf(script, "\t\t\t\tjumpToIndex = ComputeJumpToIndex(target_question);\n");
+	fprintf(script, "\t\t\t}\n");
+	fprintf(script, "\t\tcout << \"ComputePreviousQuestion returned target_question: \" << target_question->questionName_;\n");
 	fprintf(script,	"\t\tjumpToQuestion = target_question->questionName_;\n");
+
 	fprintf(script, "\t\tcout << \"target question: \" << jumpToQuestion;\n");
 	fprintf(script, "\t\tback_jump = true;\n");
 	fprintf(script, "\t\tuser_navigation = NOT_SET;\n");
@@ -359,7 +366,9 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "			return question_list[i];\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	return 0;\n");
+	fprintf(script, "// If we reach here just return the 1st question and hope for the best\n");
+	fprintf(script, "// This will not work if there is a condition on the 1st question - because of which it should never have been taken\n");
+	fprintf(script, "	return question_list[0];\n");
 	fprintf(script, "}\n");
 
 	fprintf(script,"int32_t ComputeJumpToIndex(AbstractQuestion * q)\n");

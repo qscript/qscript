@@ -188,9 +188,12 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n\
 		}\n";
-	program_code << "else if (user_navigation == SAVE_DATA){\n\
-		write_data_to_disk(question_list, jno, ser_no);\n\
-		}";
+	program_code << "else if (user_navigation == SAVE_DATA){\n";
+	program_code <<	"\twrite_data_to_disk(question_list, jno, ser_no);\n";
+	program_code << "\t\tif (" << questionName_ << "->isAnswered_==false) {\n"
+			<< "\t\t\tgoto label_eval_" << questionName_ << ";\n"
+			<< "\t\t}\n";
+	program_code << "\t}";
 	program_code << " else { " << endl
 		<< "last_question_answered = " << questionName_ << ";\n"
 		<< "}\n";
@@ -225,9 +228,16 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n\
 		}\n";
-	program_code << "else if (user_navigation == SAVE_DATA){\n\
-		write_data_to_disk(question_list, jno, ser_no);\n\
-		}";
+	program_code << "else if (user_navigation == SAVE_DATA){\n";
+	program_code << "\twrite_data_to_disk(question_list, jno, ser_no);\n";
+	program_code << "\tcout << \"saved partial data\\n\";\n";
+	program_code << "\t\tif (" << questionName_ << "_list.questionList["
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+			<< "]->isAnswered_==false) {\n"
+			<< "\t\tcout << \"question has not been answered ... jumping back\\n\";\n"
+			<< "\t\t\tgoto label_eval_" << questionName_ << ";\n"
+			<< "\t\t}\n";
+	program_code << "}\n";
 	program_code << " else { " << endl
 		<< "last_question_answered = " << questionName_ << "_list.questionList["
 		//<< consolidated_for_loop_index_stack[consolidated_for_loop_index_stack.size()-1]
@@ -354,10 +364,18 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 		do{
 			read_data(prompt.c_str());
 			//cout << "data.size(): " << data.size() << endl;
+			cerr << "fix me:  the code below needs to be abstracted out - else it will be duplicated every where and every time I addd a new user navigation we will have a bug "
+				<< endl;
 			if(data.size() == 0
-			   && (user_navigation == NAVIGATE_PREVIOUS
+			   && /* the code below needs to be abstracted out - 
+				 else it will be duplicated every where
+				 and every time I addd a new user navigation 
+				 we will have a bug */
+			   (user_navigation == NAVIGATE_PREVIOUS
 			       || user_navigation == NAVIGATE_NEXT
-			       || user_navigation == JUMP_TO_QUESTION) ){
+			       || user_navigation == JUMP_TO_QUESTION
+			       || user_navigation == SAVE_DATA
+			       ) ){
 				return;
 			}
 
@@ -408,10 +426,14 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 					      , (!invalid_code), re_arranged_buffer
 					      , pos_1st_invalid_data);
 			// cout << "data.size(): " << data.size() << endl;
+			cerr << "fix me:  the code below (user_navigation == NAVIGATE_PREVIOUS || ... ) needs to be abstracted out - else it will be duplicated every where and every time I addd a new user navigation we will have a bug "
+				<< endl;
 			if(data.size() == 0 &&
 			   (user_navigation == NAVIGATE_PREVIOUS
 			    || user_navigation == NAVIGATE_NEXT
-			    || user_navigation == JUMP_TO_QUESTION) ){
+			    || user_navigation == JUMP_TO_QUESTION
+			    || user_navigation == SAVE_DATA
+			    ) ){
 				return;
 			}
 
