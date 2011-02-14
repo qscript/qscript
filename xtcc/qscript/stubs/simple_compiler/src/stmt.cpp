@@ -1010,6 +1010,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
+	  , xtccSet_()
 { }
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
@@ -1019,6 +1020,28 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(l_question_rhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(l_question_rhs)
+	  , xtccSet_()
+{ }
+
+
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+				       , named_range * l_named_range
+				       , XtccSet & xs
+	)
+	: AbstractStatement(dtype, lline_number)
+	  , questionName_(), namedStub_(l_named_range->name)
+	  , namedRange_(l_named_range), lhs_(0), rhs_(0)
+	  , xtccSet_(xs)
+{ }
+
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+				       , AbstractQuestion * l_question_lhs
+				       , XtccSet & xs
+	)
+	: AbstractStatement(dtype, lline_number)
+	  , questionName_(l_question_lhs->questionName_), namedStub_()
+	  , namedRange_(0), lhs_(l_question_lhs), rhs_(0)
+	  , xtccSet_(xs)
 { }
 
 // This constructor is deprecated and should be deleted at a later stage
@@ -1028,6 +1051,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	)
 	: AbstractStatement(dtype, lline_number)
 	, questionName_(l_question_name), namedStub_(l_named_stub)
+	, xtccSet_()
 { }
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
@@ -1077,6 +1101,35 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << lhs_->questionName_ << "->input_data.insert(*set_iter);\n";
 			code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
 			code.program_code << "\t}" << endl;
+		} else if (lhs_ == 0 && rhs_ == 0 && namedRange_) {
+			code.program_code << "{\n";
+			// ===================
+			code.program_code << "for (int32_t xtcc_i1=0; xtcc_i1< xtccSet_.indiv.size(); ++xtcc_i1) {;\n"
+				<< "for (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".size(); ++xtcc_i2) {\n"
+				<< "if (xtccSet_.indiv[xtcc_i1] == namedRange_->stubs[xtcc_i2].code) {\n"
+				<< "namedRange_->stubs[xtcc_i2].mask = true;\n"
+				<< "}\n"
+				<< "}\n"
+				<< "}\n"
+
+				<< "for(int32_t xtcc_i1 = 0; xtcc_i1 < xtccSet_.range.size(); ++xtcc_i1) {\n"
+				<< "for(int32_t set_member = xtccSet_.range[xtcc_i1].first; set_member <= xtccSet_.range[xtcc_i1].second\n"
+				<< ";++set_member) {\n"
+				<< "for (int32_t xtcc_i2=0; xtcc_i2<namedRange_->stubs.size(); ++xtcc_i2) {\n"
+				<< "if (set_member == namedRange_->stubs[xtcc_i2].code) {\n"
+				<< "namedRange_->stubs[xtcc_i2].mask = true;\n"
+				<< "}\n"
+				<< "}\n"
+				<< "}\n"
+				<< "}\n";
+			code.program_code << "}\n";
+
+			// ==================
+		} else if (lhs_ && rhs_ == 0 && namedRange_ == 0) {
+			code.program_code << "/* not yet programmed : "
+				<< __FILE__ << ", " << __LINE__ << ", "
+				<< __PRETTY_FUNCTION__ << " */" << endl;
+				
 		} else {
 			stringstream s;
 			s << " incorrect setup of StubManipStatement: ";

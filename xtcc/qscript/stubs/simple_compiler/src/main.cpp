@@ -125,6 +125,16 @@ int32_t main(int32_t argc, char* argv[])
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode(fname, ncurses_flag);
+		std::stringstream bcpp_command;
+		bcpp_command << "bcpp " << fname << ".C" << " > " << fname << "_bcpp.C";
+		if (int32_t ret_val = system(bcpp_command.str().c_str())) {
+			if (ret_val == 0) {
+				cout << "successfully ran bcpp to generate indented source" << endl;
+			} else {
+				cout << "error  running bcpp - maybe its not installed or not present in the PATH" << endl;
+			}
+		}
+				
 		cout << "code generated " << endl;
 		if (compile_to_cpp_only_flag) {
 		} else {

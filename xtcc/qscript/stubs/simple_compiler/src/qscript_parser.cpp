@@ -5,6 +5,7 @@
 #include "qscript_parser.h"
 #include "config_parser.h"
 #include "qscript_debug.h"
+#include "TempSetNameGenerator.h"
 
 extern int32_t qscript_confparse();
 extern void qscript_confrestart(FILE *input_file);
@@ -72,6 +73,7 @@ namespace qscript_parser
 	bool show_lex_error_context = true;
 	string fname;
 	struct LexLocation lex_location;
+	TempSetNameGenerator temp_set_name_generator;
 
 }
 
@@ -150,6 +152,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"question_disk_data.h\"\n");
 	fprintf(script, "#include \"question.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
+	fprintf(script, "#include \"TempSetNameGenerator.h\"\n");
 	if(config_file_parser::PLATFORM == "LINUX"){
 		FILE * simple_pd_curses_keys_h = fopen("a_few_pd_curses_keys.h", "wb");
 		if(!simple_pd_curses_keys_h){
@@ -671,9 +674,9 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				line_no, __LINE__, __FILE__);
 		return new ErrorStatement(line_no);
 	}
-	// at this point 
-	// 	1. if lhs_question is not null it is valid and 
-	// 	2. we need not do any more checks on the 1st argument 
+	// at this point
+	// 	1. if lhs_question is not null it is valid and
+	// 	2. we need not do any more checks on the 1st argument
 
 
 	int32_t index_question = -1;
@@ -759,6 +762,67 @@ AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 		line_no, stub_list_name);
 
 	return st_ptr;
+}
+
+AbstractStatement* setup_stub_manip_stmt(DataType dt
+					 , char* stub_list_name
+					 , XtccSet & l_xs)
+{
+	stringstream warn_mesg;
+	warn_mesg << " The code below is common in the setup_stub_manip_stmt functions and should be factored out";
+	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< warn_mesg.str() << endl;
+	int32_t index = -1;
+	bool question_stub = false, range_stub=false;
+	NamedStubQuestion * lhs_question = 0;
+	named_range * lhs_stub = 0;
+	for (int32_t i = 0; i < named_stubs_list.size(); ++i) {
+		named_range * nr_ptr = named_stubs_list[i];
+		if(nr_ptr->name == stub_list_name){
+			index = i;
+			range_stub = true;
+			lhs_stub = nr_ptr;
+			break;
+		}
+	}
+	// at this point lhs_stub is valid
+	for (int32_t i = 0; i < question_list.size(); ++i) {
+		if(question_list[i]->questionName_  ==  stub_list_name){
+			index = i;
+			question_stub = true;
+			lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
+			if (!lhs_question) {
+				stringstream err_text;
+				err_text << "Question : " << stub_list_name <<
+					"is not a named stub Question";
+				print_err(compiler_sem_err, err_text.str(),
+					line_no, __LINE__, __FILE__);
+				return new ErrorStatement(line_no);
+			}
+			break;
+		}
+	}
+
+	if(index == -1){
+		stringstream err_text;
+		err_text << "named stub list does not exist: " << stub_list_name;
+		print_err(compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+		return new ErrorStatement(line_no);
+	}
+	// at this point
+	// 	1. if lhs_question is not null it is valid and
+	// 	2. we need not do any more checks on the 1st argument
+	if (range_stub == true) {
+		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+						line_no, lhs_stub, l_xs);
+		return st_ptr;
+	} else if (question_stub == true) {
+		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+						line_no, lhs_question, l_xs);
+		return st_ptr;
+	}
+	return new ErrorStatement(line_no);
 }
 
 const char * write_data_to_disk_code()

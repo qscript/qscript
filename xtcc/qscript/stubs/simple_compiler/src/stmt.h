@@ -345,6 +345,7 @@ struct StubManipStatement: public AbstractStatement
 	named_range * namedRange_;
 	AbstractQuestion * lhs_;
 	AbstractQuestion * rhs_;
+	XtccSet xtccSet_;
 	StubManipStatement( DataType dtype, int32_t lline_number
 			    , string l_named_stub, string l_question_name);
 	StubManipStatement( DataType dtype, int32_t lline_number
@@ -356,6 +357,13 @@ struct StubManipStatement: public AbstractStatement
 	StubManipStatement(DataType dtype, int32_t lline_number
 				       , AbstractQuestion * l_question_lhs
 				       , AbstractQuestion * l_question_rhs);
+
+	StubManipStatement(DataType dtype, int32_t lline_number
+			       , named_range * l_named_range
+			       , XtccSet & xs);
+	StubManipStatement(DataType dtype, int32_t lline_number
+			       , AbstractQuestion * l_question_lhs
+			       , XtccSet & xs);
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);

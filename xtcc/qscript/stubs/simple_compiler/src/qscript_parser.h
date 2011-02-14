@@ -22,6 +22,7 @@
 #include "question.h"
 #include "active_var_info.h"
 #include "lex_location.h"
+#include "TempSetNameGenerator.h"
 
 using std::ofstream;
 using std::vector;
@@ -88,6 +89,9 @@ namespace qscript_parser
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
 			, char* stub_list_name, char * question_name);
+
+	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
+			 , char* stub_list_name , XtccSet & l_xs);
 	extern AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 			, char* stub_list_name);
 
@@ -109,6 +113,8 @@ namespace qscript_parser
 	extern bool show_lex_error_context ;
 	extern string fname;
 	extern struct LexLocation lex_location;
+
+	extern TempSetNameGenerator temp_set_name_generator;
 
 }
 

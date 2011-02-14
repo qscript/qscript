@@ -36,7 +36,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=8
+QSCRIPT_MINOR_VERSION_NUMBER=10
 
 
 #dummy:
@@ -100,7 +100,8 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
 		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp \
 		$(SOURCE_DIR)/qscript_readline.cpp $(SOURCE_DIR)/config_parser.cpp \
-		$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp
+		$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp \
+		$(SOURCE_DIR)/TempSetNameGenerator.cpp
 
 RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
 RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)

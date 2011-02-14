@@ -46,6 +46,8 @@ using std::string;
 using std::stringstream;
 string get_temp_name();
 
+void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet *& xs);
+
 //extern Scope* active_scope;
 //extern ofstream debug_log_file;
 //using namespace std;
@@ -1049,6 +1051,10 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 
 void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 {
+	stringstream mesg;
+	mesg << " shouldnt i be using an XtccSet here directly - it looks like im doing the same work 2ice and if i used the set the generated code would be smaller\n";
+	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ 
+		<< " " << mesg.str();
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_bef_expr << " /* ENTER Binary2Expression::PrintTemporaryStruct */ " << endl;
 	string struct_name = get_temp_name();
@@ -1113,16 +1119,42 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 		code.code_bef_expr << " /* EXIT Binary2Expression::PrintTemporaryStruct */ " << endl;
 }
 
+void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet * & xs)
+{
+	stringstream temp_code;
+	string set_name = qscript_parser::temp_set_name_generator.GetNewTempXtccSetName();
+	temp_code << "XtccSet " << set_name << ";\n";
+
+	//fprintf(stderr, "Binary2Expression::PrintExpressionCode(): printed constructor");
+	for(int32_t i = 0; i< xs->range.size() ; ++i){
+		temp_code << set_name << ".add_range("
+			<< xs->range[i].first
+			<< ", " << xs->range[i].second << ");\n";
+	}
+
+	{
+		int32_t k = 0;
+		for(set<int32_t>::iterator iter = xs->indiv.begin();
+			iter != xs->indiv.end(); ++iter, ++k){
+			temp_code << set_name << ".add_indiv(" 
+				 << *iter << ");\n";
+		}
+	}
+	code.code_bef_expr << temp_code.str();
+
+}
+
 void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_bef_expr << "/* ENTER Binary2Expression::PrintExpressionCode */" << endl;
 
 	if (leftOperand_ != 0) {
-		PrintTemporaryStruct(code);
+		//PrintTemporaryStruct(code);
 		//code.code_bef_expr << "\t} "
-		string struct_name1 = get_temp_name();
-		code.code_bef_expr <<  struct_name1 <<";\n";
+		//string struct_name1 = get_temp_name();
+		//code.code_bef_expr <<  struct_name1 <<";\n";
+		PrintTemporaryXtccSet(code, xs);
 		switch(leftOperand_->get_symp_ptr()->type_){
 		case INT8_TYPE:
 		case INT16_TYPE:
@@ -1140,10 +1172,11 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 		case FLOAT_REF_TYPE:
 		case DOUBLE_REF_TYPE:
 		case BOOL_TYPE:{
+				/*
 			string test_bool_var_name = get_temp_name();
 			code.code_bef_expr <<  "bool "
-					   <<  test_bool_var_name.c_str()
-					   << " = " << struct_name1.c_str()
+					   <<  test_bool_var_name
+					   << " = " << struct_name1
 					   << ".exists(";
 			//<< name.c_str() << ");\n";
 			//ostringstream code_bef_expr1_discard, code_expr1;
@@ -1152,9 +1185,22 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 				expr1_code);
 			code.code_bef_expr << expr1_code.code_expr.str() << ");\n";
 			code.code_expr << test_bool_var_name.c_str() << " ";
+				*/
+
+
+			string test_bool_var_name1 = get_temp_name();
+			code.code_bef_expr <<  "bool " <<  test_bool_var_name1
+				<< " = " << qscript_parser::
+					temp_set_name_generator.GetCurrentTempXtccSetName()
+				<< ".exists(";
+			ExpressionCompiledCode expr2_code;
+			leftOperand_->PrintExpressionCode(expr2_code);
+			code.code_bef_expr << expr2_code.code_expr.str() << ");\n";
+			code.code_expr << test_bool_var_name1 << " ";
 		}
 			break;
 		case QUESTION_TYPE:{
+				/*
 			string test_bool_var_name = get_temp_name();
 			code.code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
 					   << " = " << struct_name1.c_str()
@@ -1169,6 +1215,25 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 				<< "->input_data"
 				<< ");\n";
 			code.code_expr << test_bool_var_name.c_str() << " ";
+				*/
+
+			string test_bool_var_name2 = get_temp_name();
+			code.code_bef_expr <<  "bool " <<  test_bool_var_name2.c_str()
+					   << " = " << qscript_parser::
+					   	temp_set_name_generator.GetCurrentTempXtccSetName()
+					   << ".contains_subset(";
+			//ostringstream code_bef_expr1_discard, code_expr1;
+			//ExpressionCompiledCode expr1_code;
+			//leftOperand_->PrintExpressionCode(expr1_code);
+			code.code_bef_expr
+				//<< expr1_code.code_bef_expr.str()
+				//<< expr1_code.code_expr.str()
+				<< leftOperand_->get_symp_ptr()->name_
+				<< "->input_data"
+				<< ");\n";
+			code.code_expr << test_bool_var_name2.c_str() << " ";
+
+
 		}
 			break;
 		default: {
@@ -1248,6 +1313,7 @@ string get_temp_name()
 	string s1 = "temp_"+s;
 	return s1;
 }
+
 
 string human_readable_expr_type(ExpressionOperatorType exprOperatorType_)
 {

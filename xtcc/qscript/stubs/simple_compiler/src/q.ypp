@@ -404,6 +404,7 @@ goto_stmt: GOTO NAME ';' {
 
 
 question: NAME TEXT qtype datatype range_allowed_values attribute_list';' {
+		// Warning : xs is a global variable that is used here
 		$$ = qscript_parser::ProcessRangeQuestion($1, $2, $4);
 		//cout << "parsed range question : " << $1 << endl;
 		question_attributes.Reset();
@@ -782,6 +783,12 @@ stub_manip_stmts:
 	| SETADD '(' NAME ',' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, $3, $5);
+	}
+	| SETADD '(' NAME ',' range_allowed_values ')' ';' {
+		using qscript_parser::xs;
+		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
+				, $3, xs);
+		xs.reset();
 	}
 	| UNSET '(' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, $3);

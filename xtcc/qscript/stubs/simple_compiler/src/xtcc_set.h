@@ -34,6 +34,7 @@ struct XtccSet {
 	void add_range(int32_t n1, int32_t n2);
 	void add_indiv(int32_t n1);
 	bool exists(int32_t key);
+	bool contains_subset(std::set<int32_t> & set_data);
 
 };
 
