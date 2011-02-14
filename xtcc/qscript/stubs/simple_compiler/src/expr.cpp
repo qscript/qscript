@@ -40,13 +40,13 @@
 #include "qscript_parser.h"
 #include "question.h"
 #include "qscript_debug.h"
+#include "code_gen_utils.h"
 
 AbstractQuestion* find_in_question_list(string name);
 using std::string;
 using std::stringstream;
 string get_temp_name();
 
-void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet *& xs);
 
 //extern Scope* active_scope;
 //extern ofstream debug_log_file;
@@ -1119,6 +1119,7 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 		code.code_bef_expr << " /* EXIT Binary2Expression::PrintTemporaryStruct */ " << endl;
 }
 
+#if 0
 void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet * & xs)
 {
 	stringstream temp_code;
@@ -1143,6 +1144,8 @@ void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet * & xs)
 	code.code_bef_expr << temp_code.str();
 
 }
+#endif /* 0 */
+
 
 void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 {

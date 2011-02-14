@@ -21,6 +21,7 @@
 #include "qscript_parser.h"
 #include "symtab.h"
 #include "qscript_debug.h"
+#include "code_gen_utils.h"
 
 
 //extern vector<mem_addr_tab> mem_addr;
@@ -57,12 +58,12 @@ void AbstractStatement::GetQuestionNames(vector<string> &question_list,
 void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list,
 					    AbstractStatement * stop_at)
 {
-	cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
+	//cerr << "ENTER AbstractStatement::GetQuestionsInBlock: ";
 	//cerr << human_readable_type(type_) << endl;
 	if (next_ && next_ != stop_at){
 		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
-	cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
+	//cerr << "Exit AbstractStatement::GetQuestionsInBlock\n";
 }
 
 void AbstractStatement::GenerateConsolidatedForLoopIndexes()
@@ -1063,7 +1064,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 {
 	using qscript_parser::question_list;
-	code.program_code << "/*StubManipStatement::GenerateCode()"
+	code.program_code << "/*StubManipStatement::GenerateCode() BEGIN "
 		<< questionName_ << ":" << namedStub_ << "*/"
 		<< endl;
 	code.program_code << "{" << endl;
@@ -1102,25 +1103,52 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
 			code.program_code << "\t}" << endl;
 		} else if (lhs_ == 0 && rhs_ == 0 && namedRange_) {
+			ExpressionCompiledCode expr_code;
+			PrintTemporaryXtccSet(expr_code, &xtccSet_);
+			code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str();
 			code.program_code << "{\n";
 			// ===================
-			code.program_code << "for (int32_t xtcc_i1=0; xtcc_i1< xtccSet_.indiv.size(); ++xtcc_i1) {;\n"
-				<< "for (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".size(); ++xtcc_i2) {\n"
-				<< "if (xtccSet_.indiv[xtcc_i1] == namedRange_->stubs[xtcc_i2].code) {\n"
-				<< "namedRange_->stubs[xtcc_i2].mask = true;\n"
-				<< "}\n"
-				<< "}\n"
+			code.program_code << "for (set<int32_t>::iterator xtcc_set_iter1="
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentTempXtccSetName()
+				<< ".indiv.begin()"
+				<< "; xtcc_set_iter1 !="
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentTempXtccSetName()
+				<< ".indiv.end(); ++xtcc_set_iter1) {\n"
+				<< "\tfor (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".size(); ++xtcc_i2) {\n"
+				<< "\t\tif ("
+				<< "*xtcc_set_iter1  == " 
+				<< namedStub_
+				<< "[xtcc_i2].code) {\n"
+				<< "\t\t\t" << namedStub_ << "[xtcc_i2].mask = true;\n"
+				<< "\t\t}\n"
+				<< "\t}\n"
 				<< "}\n"
 
-				<< "for(int32_t xtcc_i1 = 0; xtcc_i1 < xtccSet_.range.size(); ++xtcc_i1) {\n"
-				<< "for(int32_t set_member = xtccSet_.range[xtcc_i1].first; set_member <= xtccSet_.range[xtcc_i1].second\n"
-				<< ";++set_member) {\n"
-				<< "for (int32_t xtcc_i2=0; xtcc_i2<namedRange_->stubs.size(); ++xtcc_i2) {\n"
-				<< "if (set_member == namedRange_->stubs[xtcc_i2].code) {\n"
-				<< "namedRange_->stubs[xtcc_i2].mask = true;\n"
-				<< "}\n"
-				<< "}\n"
-				<< "}\n"
+				<< "for(int32_t xtcc_i1 = 0; xtcc_i1 < "
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentTempXtccSetName()
+				<< ".range.size(); ++xtcc_i1) {\n"
+				<< "\tfor(int32_t set_member = "
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentTempXtccSetName()
+				<< ".range[xtcc_i1].first; set_member <= "
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentTempXtccSetName()
+				<< ".range[xtcc_i1].second\n"
+				<< "\t\t\t;++set_member) {\n"
+				<< "\t\tfor (int32_t xtcc_i2=0; xtcc_i2<"
+				<< namedStub_
+				<< ".size(); ++xtcc_i2) {\n"
+				<< "\t\t\tif (set_member == " 
+				<< namedStub_ 
+				<< "[xtcc_i2].code) {\n"
+				<< "\t\t\t\t"
+				<< namedStub_ << "[xtcc_i2].mask = true;\n"
+				<< "\t\t\t}\n"
+				<< "\t\t}\n"
+				<< "\t}\n"
 				<< "}\n";
 			code.program_code << "}\n";
 
@@ -1159,6 +1187,9 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 	code.program_code << endl;
 
 	code.program_code << "}" << endl;
+	code.program_code << "/*StubManipStatement::GenerateCode() END "
+		<< questionName_ << ":" << namedStub_ << "*/"
+		<< endl;
 
 	if (next_)
 		next_->GenerateCode(code);
