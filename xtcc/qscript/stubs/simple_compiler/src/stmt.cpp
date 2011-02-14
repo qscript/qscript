@@ -1154,10 +1154,14 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 
 			// ==================
 		} else if (lhs_ && rhs_ == 0 && namedRange_ == 0) {
-			code.program_code << "/* not yet programmed : "
+			stringstream s;
+			s << "/* not yet programmed : "
 				<< __FILE__ << ", " << __LINE__ << ", "
 				<< __PRETTY_FUNCTION__ << " */" << endl;
-				
+			s << "This should cause an ERROR in the generated code: " 
+				<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+			code.program_code << s.str();
+			print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 		} else {
 			stringstream s;
 			s << " incorrect setup of StubManipStatement: ";
@@ -1166,7 +1170,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 	} else if (type_ == STUB_MANIP_UNSET_ALL || type_ == STUB_MANIP_SET_ALL) {
 		code.program_code << "for(int32_t i = 0; i< "
 			<< namedStub_ << ".size(); ++i){" << endl;
-		if (type_ == STUB_MANIP_UNSET_ALL){
+		if (type_ == STUB_MANIP_UNSET_ALL) {
 			code.program_code << namedStub_
 				<< "[i].mask = false; " << endl;
 		} else if (type_ == STUB_MANIP_SET_ALL) {

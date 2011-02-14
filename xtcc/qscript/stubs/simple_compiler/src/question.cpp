@@ -593,14 +593,19 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 	if(displayData_.begin() == displayData_.end()){
 		for(	set<int32_t>::iterator it = r_data->indiv.begin();
 				it != r_data->indiv.end(); ++it){
-			displayData_.insert(*it);
+			//displayData_.insert(*it);
+			displayData_.push_back(display_data::DisplayDataUnit(*it));
 		}
 		for(int32_t i = 0; i < r_data->range.size(); ++i){
+			/*
 			for(int32_t j = r_data->range[i].first; j <= r_data->range[i].second
 					;++j){
 				displayData_.insert(j);
 			}
+			*/
+			displayData_.push_back(display_data::DisplayDataUnit(r_data->range[i].first, r_data->range[i].second));
 		}
+		std::sort(displayData_.begin(), displayData_.end(), display_data::DisplayDataUnitOrder());
 	}
 	if(question_window ==0 || stub_list_window  == 0 || data_entry_window  == 0 ){
 		cout << questionName_ << ".";
@@ -610,9 +615,17 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 		}
 		cout << questionText_ << endl << endl;
-		for(	set<int32_t>::iterator it = displayData_.begin();
-				it != displayData_.end(); ++it){
-			cout << *it << endl;
+		//for(	set<int32_t>::iterator it = displayData_.begin();
+		//		it != displayData_.end(); ++it)
+		for(	vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
+				it != displayData_.end(); ++it)
+		{
+			//cout << *it << endl;
+			if ( (*it).displayDataType_ == display_data::single_element) {
+				cout << (*it).startOfRangeOrSingle_ << ", ";
+			} else if ( (*it).displayDataType_ == display_data::range_element) {
+				cout << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_ << endl;
+			}
 		}
 
 		if(input_data.begin() != input_data.end()){
@@ -637,6 +650,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		int32_t maxWinX, maxWinY;
 		getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
+#if 0
 		for(	set<int32_t>::iterator it = displayData_.begin();
 				it != displayData_.end(); ++it){
 			stringstream s;
@@ -659,6 +673,24 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			} else {
 				currXpos+= len + 1;
 			}
+		}
+#endif /* 0 */
+		for(	vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
+				it != displayData_.end(); ++it)
+		{
+			//cout << *it << endl;
+			stringstream s;
+
+			if ( (*it).displayDataType_ == display_data::single_element) {
+				s << (*it).startOfRangeOrSingle_ << ",";
+			} else if ( (*it).displayDataType_ == display_data::range_element) {
+				s << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_ << endl;
+			}
+			if (currXpos + s.str().length() > maxWinX) {
+				currXpos =1, ++currYpos;
+			} 
+			mvwprintw(stub_list_window, currYpos, currXpos, "%s", s.str().c_str());
+			currXpos += s.str().length() + 1;
 		}
 
 		wrefresh(stub_list_window);

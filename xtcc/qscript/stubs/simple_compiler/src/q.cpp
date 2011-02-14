@@ -2021,7 +2021,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 406 "src/q.ypp"
     {
-		// Warning : xs is a global variable that is used here 
+		// Warning : xs is a global variable that is used here
 		(yyval.stmt) = qscript_parser::ProcessRangeQuestion((yyvsp[(1) - (7)].name), (yyvsp[(2) - (7)].text_buf), (yyvsp[(4) - (7)].dt));
 		//cout << "parsed range question : " << $1 << endl;
 		question_attributes.Reset();

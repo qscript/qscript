@@ -21,6 +21,7 @@
 #include "compiled_code.h"
 #include "curses_namespace.h"
 #include "qscript_debug.h"
+#include "display_data.h"
 
 using std::ostringstream;
 using std::ofstream;
@@ -163,7 +164,8 @@ struct RangeQuestion: public AbstractQuestion
 {
 	XtccSet * r_data;
 	//vector <int32_t> stack_loop_index_values;
-	set<int32_t> displayData_;
+	//set<int32_t> displayData_;
+	vector<display_data::DisplayDataUnit> displayData_;
 	//! this is only called in the compile time environment
 	RangeQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
