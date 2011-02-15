@@ -81,6 +81,7 @@
 %token FOR
 %token GOTO
 %token HIDDEN
+%token MUTEX
 
 
 %token '['
@@ -409,6 +410,12 @@ question: NAME TEXT qtype datatype range_allowed_values attribute_list';' {
 		//cout << "parsed range question : " << $1 << endl;
 		question_attributes.Reset();
 	}
+	| NAME TEXT qtype datatype range_allowed_values mutex_range attribute_list';' {
+		$$ = qscript_parser::ProcessRangeQuestion($1, $2, $4);
+		//cout << "parsed range question : " << $1 << endl;
+		question_attributes.Reset();
+		qscript_parser::has_mutex_range = false;
+	}
 	| NAME TEXT qtype datatype NAME attribute_list';' {
 		$$ = qscript_parser::ProcessNamedQuestion($1, $2, $4, $5);
 		//cout << "parsed named question : " << $1 << endl;
@@ -713,6 +720,33 @@ qtype: SINGLE_CODED { qscript_parser::q_type = spn; }
 	}
 	;
 
+mutex_range: MUTEX '(' mutex_range_list ')' { 
+		     qscript_parser::has_mutex_range = true;
+	     }
+	;
+
+mutex_range_list: mutex_range
+	| mutex_range_list ',' mutex_range
+	;
+
+
+mutex_range: 	INUMBER '-' INUMBER {
+		using qscript_parser::line_no;
+		if($3<=$1){
+			print_err(compiler_sem_err
+					, "2nd number in range <= 1st number",
+					line_no, __LINE__, __FILE__  );
+
+		} else {
+			qscript_parser:: mutex_range_set.add_range ( $1,$3);
+		}
+	}
+	|	INUMBER {
+		qscript_parser::mutex_range_set.add_indiv($1);
+	}
+	;
+
+
 range_allowed_values:  '(' range_list ')' { }
 	;
 
@@ -758,18 +792,22 @@ stubs:     STUBS_LIST NAME {
 	;
 
 
-stub_list:	TEXT INUMBER {
+stub_list: stub
+	| stub_list stub
+	;
+
+stub:	TEXT INUMBER {
 		using qscript_parser::stub_list;
 		string s1=$1;
 		int32_t code=$2;
 		struct stub_pair pair1(s1,code);
 		stub_list.push_back(pair1);
 	}
-	| stub_list TEXT INUMBER {
+	| TEXT INUMBER MUTEX {
 		using qscript_parser::stub_list;
-		string s1=$2;
-		int32_t code=$3;
-		struct stub_pair pair1(s1,code);
+		string s1=$1;
+		int32_t code=$2;
+		struct stub_pair pair1(s1,code, true);
 		stub_list.push_back(pair1);
 		//cout << "chaining stublist" << endl;
 	}
@@ -994,7 +1032,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 			name, q_text, q_type, no_mpn, dt, xs
 			//, arr_sz
 			, qscript_parser::for_loop_max_counter_stack
-			, cmpd_stmt_ptr, av_info, question_attributes
+			, cmpd_stmt_ptr, av_info, question_attributes, mutex_range_set
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q));
@@ -1004,7 +1042,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	} else {
 		q= new RangeQuestion(QUESTION_TYPE, line_no,
 			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr, av_info
-			, question_attributes
+			, question_attributes, mutex_range_set
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q));
@@ -1020,6 +1058,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	}
 	*/
 	xs.reset();
+	mutex_range_set.reset();
 	// questions always get pushed in Scope level 0 as they
 	// are global variables - no matter what the level of nesting
 	// I need to modify the insert in Scope to

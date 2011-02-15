@@ -61,6 +61,8 @@ namespace qscript_parser
 	extern QuestionType q_type;
 	extern int32_t no_mpn;
 	extern XtccSet xs;
+	extern XtccSet mutex_range_set;
+	extern bool has_mutex_range;
 	extern int32_t yylex();
 	extern void yyerror(const char * s);
 	extern int32_t no_errors;

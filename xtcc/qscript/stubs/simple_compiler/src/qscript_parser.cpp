@@ -47,6 +47,8 @@ namespace qscript_parser
 #include "xtcc_set.h"
 	int32_t no_mpn = 0;
 	XtccSet xs;
+	XtccSet mutex_range_set;
+	bool has_mutex_range = false;
 	int32_t yylex();
 	void yyerror(const char * s);
 	int32_t no_errors;

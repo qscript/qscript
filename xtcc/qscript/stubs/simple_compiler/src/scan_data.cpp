@@ -1897,6 +1897,7 @@ top:
 		//char buffer[BUF_MAX];
 		string buffer;
 		//fgets(buffer, BUF_MAX, stdin);
+		cout << prompt << "> ";
 		cout.flush();
 		getline(cin, buffer);
 		if(buffer.length()==0){

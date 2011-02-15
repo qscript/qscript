@@ -48,8 +48,11 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info, QuestionAttributes  l_question_attributes)
-	: AbstractStatement(l_type, l_no)
+	, vector<ActiveVariableInfo* > l_av_info, QuestionAttributes  l_question_attributes
+	, const XtccSet & p_mutexCodeList
+	)
+	: 
+	AbstractStatement(l_type, l_no)
 	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(l_for_bounds_stack), loop_index_values(0)
@@ -58,7 +61,7 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(l_av_info)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
-
+	, mutexCodeList_(p_mutexCodeList)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -95,6 +98,7 @@ AbstractQuestion::AbstractQuestion(
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
+	, const XtccSet & p_mutexCodeList
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
@@ -105,6 +109,7 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(l_av_info)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
+	, mutexCodeList_(p_mutexCodeList)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -342,10 +347,29 @@ bool AbstractQuestion::VerifyData(
 		err_mesg = "Single coded Question - please enter only 1 code:";
 		invalid_code = true;
 		data.clear();
-	} else if (q_type == mpn && data.size() > no_mpn){
-		err_mesg = "Multi coded Question, no values exceed max allowed:  ";
-		invalid_code = true;
-		data.clear();
+	} else if (q_type == mpn) {
+		cout << "reached here: " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+		if (data.size() > no_mpn){
+			err_mesg = "Multi coded Question, no values exceed max allowed:  ";
+			invalid_code = true;
+			cerr << "should I clear this? - the DE operator has done hard work entering this data"
+				<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+			data.clear();
+		}
+		int count_mutex_data = 0;
+		for(int i=0; i<data.size(); ++i) {
+			if (mutexCodeList_.exists(data[i])){
+				cout << "mutexCodeList_ contains: " << data[i];
+				++count_mutex_data;
+			}
+		}
+		if (data.size()>1 && count_mutex_data >= 1) {
+			err_mesg = "Mutex code entered with other codes";
+			invalid_code = true;
+			cerr << "should I clear this? - the DE operator has done hard work entering this data"
+				<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+			data.clear();
+		}
 	} else {
 		invalid_code = false;
 	}
@@ -527,11 +551,13 @@ RangeQuestion::RangeQuestion(
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
+	, const XtccSet & p_mutexCodeList
 	)
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
-			   , l_enclosing_scope, l_av_info, l_question_attributes)
-	, r_data(new XtccSet(l_r_data)), displayData_()
+			   , l_enclosing_scope, l_av_info, l_question_attributes
+			   , p_mutexCodeList)
+			, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
 	//! this is only called in the runtime environment
@@ -554,10 +580,13 @@ RangeQuestion::RangeQuestion(
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
+	, const XtccSet & p_mutexCodeList
 	)
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt
-			   , l_enclosing_scope, l_av_info, l_question_attributes)
+			   , l_enclosing_scope, l_av_info, l_question_attributes
+			   , p_mutexCodeList
+			   )
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { }
 
@@ -716,6 +745,9 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 		}
 	}
 	data_file << endl;
+	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< " we should not clear the 	input_data here - that should be done only at the end of the questionnaire in the main loop of the generated code.\n"
+		<< " right now if the user presses 's' 2ice - we lose data" << endl;
 	input_data.clear();
 }
 
@@ -810,6 +842,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 	char xtcc_set_name[BUF_SIZE];
 	sprintf(xtcc_set_name, "xs_%d", xtcc_set_counter++);
 	code.quest_defns  << "XtccSet " << xtcc_set_name << ";" << endl;
+	/*
 	for(	set<int32_t>::iterator it = r_data->indiv.begin();
 			it != r_data->indiv.end(); ++it){
 		code.quest_defns << xtcc_set_name << ".indiv.insert(" << *it
@@ -822,6 +855,8 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 			<< r_data->range[i].second
 			<< "));" << endl;
 	}
+	*/
+	code.quest_defns << r_data->print_replicate_code(string(xtcc_set_name));
 	string q_type_str;
 	print_q_type(q_type_str);
 
@@ -854,6 +889,10 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 	}
 	quest_decl << "," << question_attributes.Print();
 	quest_decl << ");\n";
+
+	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
+
 	quest_decl << "question_list.push_back(" << questionName_.c_str()
 		<< ");\n";
 
@@ -920,6 +959,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 	quest_decl << "," << question_attributes.Print();
 	quest_decl << ");\n";
 	quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
 	if(for_bounds_stack.size() == 0){
 		code.quest_defns << quest_decl.str();
@@ -973,6 +1014,11 @@ NamedStubQuestion::NamedStubQuestion(
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
 {
+	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
+		if (nr_ptr->stubs[i].is_mutex) {
+			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
+		}
+	}
 }
 
 	//! this is only called in the compile time environment
@@ -990,7 +1036,13 @@ NamedStubQuestion::NamedStubQuestion(
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
-{ }
+{ 
+	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
+		if (nr_ptr->stubs[i].is_mutex) {
+			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
+		}
+	}
+}
 
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
@@ -1003,7 +1055,8 @@ NamedStubQuestion::NamedStubQuestion(
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, named_list()
 	, nr_ptr(0), stub_ptr(l_stub_ptr)
-{ }
+{ 
+}
 
 //! only called in the runtime environment
 NamedStubQuestion::NamedStubQuestion(

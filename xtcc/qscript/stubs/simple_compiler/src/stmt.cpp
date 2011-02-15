@@ -1046,6 +1046,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 { }
 
 // This constructor is deprecated and should be deleted at a later stage
+#if 0
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , string l_named_stub
 				       , string l_question_name
@@ -1054,11 +1055,13 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	, questionName_(l_question_name), namedStub_(l_named_stub)
 	, xtccSet_()
 { }
+#endif /* 0 */
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , string l_named_stub)
 	: AbstractStatement(dtype, lline_number)
 	, questionName_(), namedStub_(l_named_stub)
+	, namedRange_(0), lhs_(0), rhs_(0), xtccSet_()
 { }
 
 void StubManipStatement::GenerateCode(StatementCompiledCode & code)

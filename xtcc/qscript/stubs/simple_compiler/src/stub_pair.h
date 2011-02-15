@@ -15,9 +15,15 @@ struct	stub_pair
 	string stub_text;
 	int32_t code;
 	bool mask;
-	stub_pair():stub_text(""), code(-1), mask(false) {}
+	bool is_mutex;
+	stub_pair():stub_text(""), code(-1), mask(false), is_mutex(false) {}
 	stub_pair(string l_txt, int32_t l_code)
-		: stub_text(l_txt), code(l_code), mask(true) 
+		: stub_text(l_txt), code(l_code), mask(true),
+		  is_mutex(false)
+	{}
+	stub_pair(string l_txt, int32_t l_code, bool p_mutex)
+		: stub_text(l_txt), code(l_code), mask(true),
+		  is_mutex(p_mutex)
 	{}
 };
 

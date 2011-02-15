@@ -16,7 +16,7 @@ XtccSet::XtccSet(DataType dt, string name, XtccSet& xs)
 	: range(xs.range), indiv(xs.indiv)
 { }
 
-XtccSet::XtccSet(XtccSet& xs1)
+XtccSet::XtccSet(const XtccSet& xs1)
 	: range(xs1.range), indiv(xs1.indiv)
 { }
 
@@ -166,5 +166,27 @@ bool XtccSet::contains_subset(std::set<int32_t> & set_data)
 		}
 	}
 	return true;
+
+}
+
+string XtccSet::print_replicate_code(string set_name)
+{
+	using std::endl;
+	using std::stringstream;
+	stringstream code;
+	//code << "XtccSet " << set_name << ";" << endl;;
+	for(	set<int32_t>::iterator it = indiv.begin();
+			it != indiv.end(); ++it){
+		code << set_name << ".indiv.insert(" << *it
+			<< ");" << endl;
+	}
+	for(uint32_t i = 0; i < range.size(); ++i){
+		code 	<< set_name
+			<< ".range.push_back(pair<int32_t,int32_t>("
+			<< range[i].first << ","
+			<< range[i].second
+			<< "));" << endl;
+	}
+	return code.str();
 
 }

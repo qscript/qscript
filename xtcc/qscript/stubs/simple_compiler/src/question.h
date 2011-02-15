@@ -63,6 +63,7 @@ struct AbstractQuestion: public AbstractStatement
 	//! this variable should never be used in the compile time environment
 	string currentResponse_;
 	QuestionAttributes question_attributes;
+	XtccSet mutexCodeList_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
@@ -71,6 +72,7 @@ struct AbstractQuestion: public AbstractStatement
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
+		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
 
 	AbstractQuestion(
@@ -85,6 +87,7 @@ struct AbstractQuestion: public AbstractStatement
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
+		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
 
 	//! this is only called in the runtime environment
@@ -175,6 +178,7 @@ struct RangeQuestion: public AbstractQuestion
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
+		, const XtccSet & p_mutexCodeList
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
@@ -192,6 +196,7 @@ struct RangeQuestion: public AbstractQuestion
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
+		, const XtccSet & p_mutexCodeList
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(

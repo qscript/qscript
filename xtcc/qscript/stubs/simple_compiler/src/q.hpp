@@ -57,24 +57,25 @@
      FOR = 273,
      GOTO = 274,
      HIDDEN = 275,
-     CONST = 276,
-     LOGOR = 277,
-     LOGAND = 278,
-     NOEQ = 279,
-     ISEQ = 280,
-     GEQ = 281,
-     LEQ = 282,
-     NOT = 283,
-     UMINUS = 284,
-     COUNT = 285,
-     FUNC_CALL = 286,
-     IF = 287,
-     ELSE = 288,
-     STUBS_LIST = 289,
-     SETDEL = 290,
-     SETADD = 291,
-     UNSET = 292,
-     SETALL = 293
+     MUTEX = 276,
+     CONST = 277,
+     LOGOR = 278,
+     LOGAND = 279,
+     NOEQ = 280,
+     ISEQ = 281,
+     GEQ = 282,
+     LEQ = 283,
+     NOT = 284,
+     UMINUS = 285,
+     COUNT = 286,
+     FUNC_CALL = 287,
+     IF = 288,
+     ELSE = 289,
+     STUBS_LIST = 290,
+     SETDEL = 291,
+     SETADD = 292,
+     UNSET = 293,
+     SETALL = 294
    };
 #endif
 
@@ -104,7 +105,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 108 "src/q.hpp"
+#line 109 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

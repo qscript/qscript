@@ -27,7 +27,7 @@ struct XtccSet {
 	vector < pair<int32_t,int32_t> > range;
 	set<int32_t> indiv;
 	XtccSet(DataType dt, string name, XtccSet& xs1);
-	XtccSet(XtccSet& xs1);
+	XtccSet(const XtccSet& xs1);
 	XtccSet& operator=(const XtccSet& xs1);
 	XtccSet();
 	void reset();
@@ -35,7 +35,7 @@ struct XtccSet {
 	void add_indiv(int32_t n1);
 	bool exists(int32_t key);
 	bool contains_subset(std::set<int32_t> & set_data);
-
+	string print_replicate_code(string set_name);
 };
 
 #endif /* xtcc_set_h */
