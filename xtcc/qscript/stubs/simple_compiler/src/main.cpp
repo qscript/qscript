@@ -128,11 +128,9 @@ int32_t main(int32_t argc, char* argv[])
 		std::stringstream bcpp_command;
 		bcpp_command << "bcpp " << fname << ".C" << " > " << fname << "_bcpp.C";
 		if (int32_t ret_val = system(bcpp_command.str().c_str())) {
-			if (ret_val == 0) {
-				cout << "successfully ran bcpp to generate indented source" << endl;
-			} else {
-				cout << "error  running bcpp - maybe its not installed or not present in the PATH" << endl;
-			}
+			cout << "error running bcpp - maybe its not installed or not present in the PATH variable" << endl;
+		} else {
+			// cout << "successfully ran bcpp to generate indented source" << endl;
 		}
 				
 		cout << "code generated " << endl;
@@ -145,6 +143,15 @@ int32_t main(int32_t argc, char* argv[])
 		}
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
+	}
+	{
+
+		using qscript_parser::maintainer_messages;
+		cout << "maintainer_messages: " << endl;
+		for(map<pair<int32_t, int32_t>, string>::iterator it=maintainer_messages.begin();
+				it!=maintainer_messages.end(); ++it) {
+			cout << it->second << endl;
+		}
 	}
 
 ////////////////////////////////

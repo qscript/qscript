@@ -19,18 +19,22 @@
 #include "qscript_parser.h"
 #include "user_navigation.h"
 #include "qscript_readline.h"
+#include "utils.h"
+#include "UserResponse.h"
 
 int32_t scan_datalex();
 int32_t scan_dataparse();
 extern vector<int32_t> data;
 extern UserNavigation user_navigation;
+// extern user_response::UserResponseType the_user_response;
 
 using std::cout;
 using std::endl;
 using std::cerr;
 using namespace std;
 //extern map<string, vector<string> > map_of_active_vars_for_questions;
-void read_data(const char * prompt);
+//void read_data(const char * prompt);
+//user_response::UserResponseType read_data( const char * prompt)
 //void read_data_from_window(WINDOW * data_entry_window, char * prompt, );
 string PrintConsolidatedForLoopIndex(vector<AbstractExpression*> for_bounds_stack);
 extern vector<string> consolidated_for_loop_index_stack;
@@ -181,7 +185,7 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n}\n}\n";
 	program_code << "else if (user_navigation == NAVIGATE_NEXT){\n";
-	program_code << "\tif (" << questionName_ << "->isAnswered_==false) {\n"
+	program_code << "\tif (" << questionName_ << "->isAnswered_==false && " << questionName_ <<  "->question_attributes.isAllowBlank()==false ) {\n"
 			<< "\t\tgoto label_eval_" << questionName_ << ";\n"
 			<< "\t}\n";
 	program_code << "	stopAtNextQuestion = true;\n\
@@ -377,7 +381,7 @@ end:
 	return invalid_code;
 }
 
-void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
+user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 {
 
 	string err_mesg, re_arranged_buffer;
@@ -386,48 +390,26 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 		bool invalid_code = false;
 		string prompt = "Enter Data:";
 		do{
-			read_data(prompt.c_str());
+			user_response::UserResponseType user_resp = read_data(prompt.c_str());
+			if (user_resp == user_response::UserEnteredNavigation) {
+				return user_resp;
+			}
+			/*
 			//cout << "data.size(): " << data.size() << endl;
 			cerr << "fix me:  the code below needs to be abstracted out - else it will be duplicated every where and every time I addd a new user navigation we will have a bug "
 				<< endl;
 			if(data.size() == 0
-			   && /* the code below needs to be abstracted out - 
-				 else it will be duplicated every where
-				 and every time I addd a new user navigation 
-				 we will have a bug */
+			   && 
 			   (user_navigation == NAVIGATE_PREVIOUS
 			       || user_navigation == NAVIGATE_NEXT
 			       || user_navigation == JUMP_TO_QUESTION
 			       || user_navigation == SAVE_DATA
 			       ) ){
-				return;
-			}
-
-			/*
-			for(unsigned int32_t i = 0; i < data.size(); ++i){
-				cout << "Testing data exists: " << data[i] << endl;
-				invalid_code = !IsValid(data[i]);
-				if(invalid_code == true){
-					prompt = "Input contained some invalid data\nRe-enter Data\n";
-					data.clear();
-					break;
-				}
-			}
-			if(invalid_code)
-				continue;
-			if(q_type == spn && data.size()>1) {
-				prompt = "Single coded Question - please enter only 1 code:";
-				invalid_code = true;
-				data.clear();
-			} else if (q_type == mpn && data.size() > no_mpn){
-				prompt = "Multi coded Question, no values exceed max allowed:  ";
-				invalid_code = true;
-				data.clear();
-			} else {
-				invalid_code = false;
+				return user_resp;
 			}
 			*/
-
+			// NxD: 16-Feb-2011
+			// handle User Data response here - blank as well as valid data
 			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
 			prompt = err_mesg;
 
@@ -441,14 +423,20 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 				isAnswered_ = true;
 			}
 		} while (invalid_code == true);
-
+		stringstream mesg;
+		mesg << "is it necessary to clear data here - we are doing it at top of read_data";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
 		data.clear();
+		return user_response::UserEnteredData;
 	} else {
 		bool invalid_code = false;
 		do{
-			read_data_from_window(data_entry_window, err_mesg.c_str()
+			user_response::UserResponseType user_resp 
+				= read_data_from_window(
+						data_entry_window, err_mesg.c_str()
 					      , (!invalid_code), re_arranged_buffer
 					      , pos_1st_invalid_data);
+			/*
 			// cout << "data.size(): " << data.size() << endl;
 			cerr << "fix me:  the code below (user_navigation == NAVIGATE_PREVIOUS || ... ) needs to be abstracted out - else it will be duplicated every where and every time I addd a new user navigation we will have a bug "
 				<< endl;
@@ -460,31 +448,11 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 			    ) ){
 				return;
 			}
-
-			/*
-			for(unsigned int32_t i = 0; i < data.size(); ++i){
-				cout << "Testing data exists: " << data[i] << endl;
-				invalid_code = !IsValid(data[i]);
-				if(invalid_code == true){
-					prompt = "Input contained some invalid data\nRe-enter Data\n";
-					data.clear();
-					break;
-				}
-			}
-			if(invalid_code)
-				continue;
-			if(q_type == spn && data.size()>1) {
-				prompt = "Single coded Question - please enter only 1 code:";
-				invalid_code = true;
-				data.clear();
-			} else if (q_type == mpn && data.size() > no_mpn){
-				prompt = "Multi coded Question, no values exceed max allowed:  ";
-				invalid_code = true;
-				data.clear();
-			} else {
-				invalid_code = false;
-			}
 			*/
+			if (user_resp == user_response::UserEnteredNavigation) {
+				return user_resp;
+			}
+
 			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
 
 
@@ -498,8 +466,11 @@ void AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 				isAnswered_ = true;
 			}
 		} while (invalid_code == true);
-
+		stringstream mesg;
+		mesg << "is it necessary to clear data here - we are doing it at top of read_data";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
 		data.clear();
+		return user_response::UserEnteredData;
 	}
 }
 
@@ -745,10 +716,12 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 		}
 	}
 	data_file << endl;
-	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
-		<< " we should not clear the 	input_data here - that should be done only at the end of the questionnaire in the main loop of the generated code.\n"
-		<< " right now if the user presses 's' 2ice - we lose data" << endl;
-	input_data.clear();
+	stringstream mesg;
+
+	//mesg << "I think this is the wrong place to clear - should be done at the end of main while loop in generated code, when user loads a new serial number"
+	//	<< " right now if the user presses 's' 2ice - we lose data" << endl;
+	//LOG_MAINTAINER_MESSAGE(mesg.str());
+	//input_data.clear();
 }
 
 bool NamedStubQuestion::IsValid(int32_t value)
@@ -1094,28 +1067,34 @@ void AbstractQuestion::print_q_type(string &s)
 
 void AbstractQuestion::print_data_type(string &s)
 {
-	if(qscript_debug::MAINTAINER_MESSAGES){
+	stringstream mesg;
+	mesg << "Is this functionality already duplicated somewhere else?"
+		<< endl;
+	LOG_MAINTAINER_MESSAGE(mesg.str());
+#if 0
+	if (qscript_debug::MAINTAINER_MESSAGES) {
 		cerr << "Is this functionality already duplicated somewhere else?"
 			<< ", line: " << __LINE__
 			<< ", file: " << __FILE__
 			<< ", func: " << __PRETTY_FUNCTION__
 		<< endl;
 	}
-	if(dt == VOID_TYPE){
+#endif /* 0 */
+	if (dt == VOID_TYPE) {
 		s = "VOID_TYPE";
-	} else if (dt == INT8_TYPE){
+	} else if (dt == INT8_TYPE) {
 		s = "INT8_TYPE";
 	} else if (dt ==  INT16_TYPE) {
 		s = "INT16_TYPE";
-	} else if (dt ==   INT32_TYPE){
+	} else if (dt ==   INT32_TYPE) {
 		s = "INT32_TYPE";
-	} else if (dt ==  FLOAT_TYPE){
+	} else if (dt ==  FLOAT_TYPE) {
 		s = "FLOAT_TYPE";
-	} else if (dt ==  DOUBLE_TYPE){
+	} else if (dt ==  DOUBLE_TYPE) {
 		s = "DOUBLE_TYPE";
 	} else if (dt ==  BOOL_TYPE){
 		s = "BOOL_TYPE";
-	} else if (dt ==  STRING_TYPE){
+	} else if (dt ==  STRING_TYPE) {
 		s = "STRING_TYPE";
 	} else {
 		const int32_t BUF_SIZE = 200;
@@ -1146,7 +1125,10 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 		}
 	}
 	data_file << endl;
-	input_data.clear();
+	stringstream mesg;
+	//mesg << "I think this is the wrong place to clear - should be done at the end of main while loop in generated code, when user loads a new serial number";
+	//LOG_MAINTAINER_MESSAGE(mesg.str());
+	//input_data.clear();
 }
 
 void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
@@ -2490,19 +2472,6 @@ void AbstractQuestion::PrintRestoreMyPreviousIterationsData(StatementCompiledCod
 	s << "}\n";
 
 	s << "/* EXIT:AbstractQuestion::PrintRestoreMyPreviousIterationsData */" << endl;
-}
-
-string QuestionAttributes::Print()
-{
-	stringstream s;
-	s << " QuestionAttributes(";
-	if (hidden_ == false ) {
-		s << "false ";
-	} else {
-		s << "true ";
-	}
-	s << ")";
-	return s.str();
 }
 
 std::string AbstractQuestion::PrintCodeSaveArrayQuestionNotInTheSameBlock(AbstractQuestion * save_array_quest)

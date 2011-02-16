@@ -27,6 +27,7 @@
 #include "named_attributes.h"
 #include "named_range.h"
 #include "question.h"
+#include "QuestionAttributes.h"
 
 #include "qscript_parser.h"
 
@@ -81,6 +82,7 @@
 %token FOR
 %token GOTO
 %token HIDDEN
+%token ALLOW_BLANK
 %token MUTEX
 
 
@@ -433,7 +435,10 @@ attributes: attribute
 	;
 
 attribute: HIDDEN {
-		question_attributes.hidden_ = true;
+		question_attributes.setHidden();
+	}
+	| ALLOW_BLANK {
+		question_attributes.setAllowBlank();
 	}
 	;
 

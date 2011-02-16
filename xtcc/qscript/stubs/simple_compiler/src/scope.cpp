@@ -78,10 +78,16 @@ AbstractStatement* Scope::insert(const char * name, DataType dt/*, int32_t line_
 AbstractStatement* Scope::insert(const char * name, DataType dt
 				 , AbstractQuestion * l_q /*, int32_t line_no*/)
 {
+	stringstream mesg;
+	mesg << "we have to handle the case here where symbol is a function name: - this is not allowed"
+		     << endl;
+	LOG_MAINTAINER_MESSAGE(mesg.str());
+	/* - this will now go that the end of main
 	if (qscript_debug::MAINTAINER_MESSAGES) {
 		cerr << "we have to handle the case here where symbol is a function name: - this is not allowed"
 		     << endl;
 	}
+	*/
 	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
 	if (SymbolTable.find(name) == SymbolTable.end()) {
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, l_q);

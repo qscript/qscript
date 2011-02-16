@@ -10,9 +10,11 @@
 #include <limits.h>
 #include <vector>
 #include "user_navigation.h"
+#include "UserResponse.h"
 using namespace std;
 	vector<int> data;
 	UserNavigation user_navigation=NOT_SET;
+	user_response::UserResponseType the_user_response=user_response::NotSet;
 #include <iostream>
 //#define yylex scan_datalex
 	int scan_datalex();
@@ -29,16 +31,23 @@ using namespace std;
 %token NAVIGATE_PREVIOUS_TOK
 %token JUMP_TO_QUESTION_TOK
 %token SAVE_DATA_TOK
+%token CLEAR_DATA
  //%token END_OF_DATA
 
 
 
 %%
 
-prog:	datalist /*END_OF_DATA*/ {
-		//cout << "GOT END_OF_DATA" << endl;
+prog:	datalist  {
+		the_user_response = user_response::UserEnteredData;
 	}
-	| navigation
+	| navigation {
+		the_user_response = user_response::UserEnteredNavigation;
+	}
+	| CLEAR_DATA {
+		data.clear();
+		the_user_response = user_response::UserClearedData;
+	}
 	;
 
 datalist: data

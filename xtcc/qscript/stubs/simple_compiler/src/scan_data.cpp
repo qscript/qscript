@@ -799,12 +799,14 @@ YY_RULE_SETUP
 {
 		if(scan_datatext[0] == 'n'){
 			return NAVIGATE_NEXT_TOK;
-		} else if (scan_datatext[0]=='p'){
+		} else if (scan_datatext[0] == 'p'){
 			return NAVIGATE_PREVIOUS_TOK;
-		} else if (scan_datatext[0]=='j'){
+		} else if (scan_datatext[0] == 'j'){
 			return JUMP_TO_QUESTION_TOK;
-		} else if (scan_datatext[0] =='s') {
+		} else if (scan_datatext[0] == 's') {
 			return SAVE_DATA_TOK;
+		} else if (scan_datatext[0] == 'c') {
+			return CLEAR_DATA;
 		} else  {
 			// cerr << "ERROR: running ECHO rule" << endl;
 			//ECHO;
@@ -814,10 +816,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 60 "src/scan_data.l"
+#line 62 "src/scan_data.l"
 ECHO;
 	YY_BREAK
-#line 821 "src/scan_data.cpp"
+#line 823 "src/scan_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1812,7 +1814,7 @@ void scan_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 60 "src/scan_data.l"
+#line 62 "src/scan_data.l"
 
 
 
@@ -1884,102 +1886,93 @@ void read_question_data(){
 
 #include <vector>
 	using std::vector;
-	extern  vector<int> data;
-	extern  UserNavigation user_navigation;
+	extern vector<int> data;
+	extern UserNavigation user_navigation;
+	extern user_response::UserResponseType the_user_response;
 	void scan_dataerror(char *s);
 
-	void read_data( const char * prompt)
-	{
-		data.clear();
+user_response::UserResponseType read_data( const char * prompt)
+{
+	data.clear();
+	user_navigation = NOT_SET;
 top:
-		//char * line=readline(prompt);
-		//const int BUF_MAX=1023;
-		//char buffer[BUF_MAX];
-		string buffer;
-		//fgets(buffer, BUF_MAX, stdin);
-		cout << prompt << "> ";
-		cout.flush();
-		getline(cin, buffer);
-		if(buffer.length()==0){
-			goto top;
-		}
-		//printf("readline: %s\n", line);
-		cout << "buffer: " << buffer << endl;
-		YY_BUFFER_STATE s_data =  scan_data_scan_string(buffer.c_str());
-		if(scan_dataparse()){
-			cout << "there was an error in parsing the data" << endl;
-			scan_data_delete_buffer(s_data);
-			data.clear();
-			goto top;
-		}
-		//cout << "read: " << endl;
-		//for(int i=0; i<data.size(); ++i){
-		//	cout << data[i] << "," ;
-		//}
-		cout << endl;
+	string buffer;
+	cout << prompt << "> ";
+	cout.flush();
+	getline(cin, buffer);
+	if(buffer.length()==0){
+		cout << "Empty line ... re-enter" << endl;
+		goto top;
+	}
+	cout << "buffer: " << buffer << endl;
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(buffer.c_str());
+	if(scan_dataparse()){
+		cout << "there was an error in parsing the data" << endl;
 		scan_data_delete_buffer(s_data);
+		data.clear();
+		goto top;
+	}
+	cout << endl;
+	scan_data_delete_buffer(s_data);
+	/*
+	user_response::UserResponseType resp = (user_navigation == NOT_SET) 
+		? user_response::UserEnteredData:user_response::UserEnteredNavigation;
+	if (user_navigation == NOT_SET) {
+		if (data.size() == 0) {
+			return user_response::UserClearedData;
+		} else {
+			return user_response::UserEnteredData;
+		}
+	} else {
+		return user_response::UserEnteredNavigation;
+	}
+	return resp;
+	*/
+	return the_user_response;
+}
+
+user_response::UserResponseType read_data_from_window(WINDOW * data_entry_window,
+		const char * prompt, bool clear_buffer_flag, string & re_arranged_buffer,
+		int & pos_1st_invalid_data)
+{
+	static NCursesReadline ncurses_readline(data_entry_window);
+	data.clear();
+	if(clear_buffer_flag)
+	{
+		ncurses_readline.Reset();
+	} else {
+		ncurses_readline.SetBuffer(re_arranged_buffer
+				, pos_1st_invalid_data );
 	}
 
-	void read_data_from_window(WINDOW * data_entry_window, const char * prompt
-		, bool clear_buffer_flag, string & re_arranged_buffer, int & pos_1st_invalid_data)
-	{
-		/*
-		data.clear();
 top:
-		//cerr << "clear_buffer_flag: " << clear_buffer_flag;
-		char * line=qscript_readline(data_entry_window, prompt
-			, clear_buffer_flag, re_arranged_buffer, pos_1st_invalid_data);
-		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
-		if(scan_dataparse()){
-			//cout << "there was an error in parsing the data" << endl;
-			data.clear();
-			scan_data_delete_buffer(s_data);
-			//delete[] line;
-			clear_buffer_flag=false;
-			//cerr << "reset clear_buffer_flag: " << clear_buffer_flag;
-			goto top;
-		}
-		//for(int i=0; i<data.size(); ++i){
-		//	cout << data[i] << "," ;
-		//}
+	//cerr << "clear_buffer_flag: " << clear_buffer_flag;
+	// NOTE: so long as the ncurses_readline is static the pointer
+	// returned will be valid
+	const char * line=ncurses_readline.ReadLine();
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
+	if(scan_dataparse()){
+		//cout << "there was an error in parsing the data" << endl;
+		data.clear();
 		scan_data_delete_buffer(s_data);
 		//delete[] line;
-		*/
-
-		static NCursesReadline ncurses_readline(data_entry_window);
-		data.clear();
-		if(clear_buffer_flag)
-		{
-			ncurses_readline.Reset();
-		} else {
-			ncurses_readline.SetBuffer(re_arranged_buffer
-					, pos_1st_invalid_data );
-		}
-
-top:
-		//cerr << "clear_buffer_flag: " << clear_buffer_flag;
-		// NOTE: so long as the ncurses_readline is static the pointer
-		// returned will be valid
-		const char * line=ncurses_readline.ReadLine();
-		YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
-		if(scan_dataparse()){
-			//cout << "there was an error in parsing the data" << endl;
-			data.clear();
-			scan_data_delete_buffer(s_data);
-			//delete[] line;
-			clear_buffer_flag=false;
-			//cerr << "reset clear_buffer_flag: " << clear_buffer_flag;
-			wattroff(data_entry_window, COLOR_PAIR(1));
-			wattron(data_entry_window, COLOR_PAIR(5));
-			mvwprintw(data_entry_window, 3, 1, "invalid text, re-enter");
-			wattroff(data_entry_window, COLOR_PAIR(5));
-			wattron(data_entry_window, COLOR_PAIR(1));
-			goto top;
-		}
-		//for(int i=0; i<data.size(); ++i){
-		//	cout << data[i] << "," ;
-		//}
-		scan_data_delete_buffer(s_data);
+		clear_buffer_flag=false;
+		//cerr << "reset clear_buffer_flag: " << clear_buffer_flag;
+		wattroff(data_entry_window, COLOR_PAIR(1));
+		wattron(data_entry_window, COLOR_PAIR(5));
+		mvwprintw(data_entry_window, 3, 1, "invalid text, re-enter");
+		wattroff(data_entry_window, COLOR_PAIR(5));
+		wattron(data_entry_window, COLOR_PAIR(1));
+		goto top;
 	}
+	//for(int i=0; i<data.size(); ++i){
+	//	cout << data[i] << "," ;
+	//}
+	scan_data_delete_buffer(s_data);
+	// user_response::UserResponseType resp = (user_navigation == NOT_SET) 
+	// 	? user_response::UserEnteredData:user_response::UserEnteredNavigation;
+	// return resp;
+	return the_user_response;
+}
 
 

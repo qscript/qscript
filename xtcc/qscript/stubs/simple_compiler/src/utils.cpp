@@ -340,3 +340,53 @@ DataType arr_deref_type(DataType d1)
 	return ERROR_TYPE;
 }
 
+// http://www.cse.yorku.ca/~oz/hash.html
+// hash algo copied from here
+static unsigned long sdbm_hash(const char *str)
+{
+	unsigned long hash = 0;
+	int c;
+
+	while (c = *str++)
+	    hash = c + (hash << 6) + (hash << 16) - hash;
+
+	return hash;
+}
+
+// http://www.cse.yorku.ca/~oz/hash.html
+// hash algo copied from here
+unsigned long djb_hash(const char *str)
+{
+	unsigned long hash = 5381;
+	int c;
+
+	while (c = *str++)
+	    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+	return hash;
+}
+
+/* for those who are reading the source and want to understand the logic
+ * the maintainer messages are cluttering up the stdout of the compiler.
+ * Im storing them in a map so they will appear only once - less clutter
+ * I initially thought of using and sha1 has func but i think that is an overkill
+ * and will require an end user to install a crypt library just for maintainer messages.
+ * A quick google gave me some web pages and this web page i trust - just blindly
+ * Im using 2 hashes - just in case 2 strings hash to the same code. There is still a finite
+ * probability that they could be the same for both functions but I think the chance is 
+ * much smaller - im willing to risk it */
+
+void log_maintainer_message(int line, string file, string func_name, string mesg)
+{
+	std::stringstream s;
+	s 	<< "line: " << line 
+		<< ", file: " << file 
+		<< ", func: " << func_name << mesg;
+	int sdbm_hash_code = sdbm_hash(s.str().c_str());
+	int djb_hash_code = djb_hash(s.str().c_str());
+	std::pair<int,int> hashed_pair(sdbm_hash_code, djb_hash_code);
+	using qscript_parser::maintainer_messages;
+	if (maintainer_messages.find(hashed_pair)==maintainer_messages.end()) {
+		maintainer_messages[hashed_pair] = s.str();
+	}
+}

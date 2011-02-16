@@ -10,6 +10,7 @@
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
  *	Neil Xavier D'Souza
  */
+
 #ifndef qscript_question_h
 #define qscript_question_h
 #include <sys/types.h>
@@ -22,26 +23,14 @@
 #include "curses_namespace.h"
 #include "qscript_debug.h"
 #include "display_data.h"
+#include "QuestionAttributes.h"
+#include "UserResponse.h"
 
 using std::ostringstream;
 using std::ofstream;
 struct named_range;
 struct DummyArrayQuestion;
 
-
-struct QuestionAttributes
-{
-	bool hidden_;
-	void Reset() 
-	{ hidden_ = false; }
-	QuestionAttributes()
-		: hidden_(false)
-	{ }
-	QuestionAttributes(bool l_isHidden)
-		: hidden_(l_isHidden)
-	{ }
-	string Print();
-};
 
 //! The AbstractQuestion pure virtual base class - inherits from AbstractStatement
 struct AbstractQuestion: public AbstractStatement
@@ -125,7 +114,7 @@ struct AbstractQuestion: public AbstractStatement
 		vector<AbstractQuestion*> & question_list
 		, AbstractStatement * stop_at);
 	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
-	virtual void GetDataFromUser(WINDOW * data_entry_window);
+	virtual user_response::UserResponseType GetDataFromUser(WINDOW * data_entry_window);
 
 	virtual bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data);
@@ -330,7 +319,7 @@ class DummyArrayQuestion: public AbstractQuestion{
 
 	DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
 		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, string(l_qno + "_dummy"), spn, 0
-				   , INT32_TYPE, QuestionAttributes(true) )
+				   , INT32_TYPE, QuestionAttributes(true, true) )
 		,  array_bounds(l_array_bounds)
 	{ }
 	void WriteDataToDisk(ofstream& data_file);

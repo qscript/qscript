@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <curses.h>
 #include <string>
+#include "UserResponse.h"
 
 class NCursesReadline
 {
@@ -32,11 +33,16 @@ class NCursesReadline
 };
 
 
-void read_data( const char * prompt);
-void read_data_from_window(WINDOW * data_entry_window, const char * prompt
-			   , bool clear_buffer_flag
-			   , std::string & re_arranged_buffer
-			   , int32_t & pos_1st_invalid_data);
+//void read_data( const char * prompt);
+///void read_data_from_window(WINDOW * data_entry_window, const char * prompt
+///			   , bool clear_buffer_flag
+///			   , std::string & re_arranged_buffer
+///			   , int32_t & pos_1st_invalid_data);
+
+user_response::UserResponseType read_data( const char * prompt);
+user_response::UserResponseType read_data_from_window(WINDOW * data_entry_window,
+		const char * prompt, bool clear_buffer_flag, std::string & re_arranged_buffer,
+		int & pos_1st_invalid_data);
 /*
 char * qscript_readline(WINDOW * data_entry_window, const char * prompt
 	, bool clear_buffer_flag, std::string & re_arranged_buffer, int32_t & pos_1st_invalid_data);

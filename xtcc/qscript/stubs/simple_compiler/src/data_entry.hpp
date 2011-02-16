@@ -44,7 +44,8 @@
      NAVIGATE_NEXT_TOK = 260,
      NAVIGATE_PREVIOUS_TOK = 261,
      JUMP_TO_QUESTION_TOK = 262,
-     SAVE_DATA_TOK = 263
+     SAVE_DATA_TOK = 263,
+     CLEAR_DATA = 264
    };
 #endif
 
@@ -55,14 +56,14 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 22 "src/data_entry.ypp"
+#line 24 "src/data_entry.ypp"
 
 	int ival;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 66 "src/data_entry.hpp"
+#line 67 "src/data_entry.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

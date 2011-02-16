@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <fstream>
 #include <vector>
+#include <map>
 #include <cstdlib>
 #include "debug_mem.h"
 #include "datatype.h"
@@ -63,6 +64,7 @@ namespace qscript_parser
 	extern XtccSet xs;
 	extern XtccSet mutex_range_set;
 	extern bool has_mutex_range;
+	extern map<std::pair<int, int>, string > maintainer_messages;
 	extern int32_t yylex();
 	extern void yyerror(const char * s);
 	extern int32_t no_errors;

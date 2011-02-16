@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
+#include <utility>
 #include "compiled_code.h"
 #include "qscript_parser.h"
 #include "config_parser.h"
@@ -29,6 +30,7 @@ namespace qscript_parser
 	vector<CompoundStatement*> stack_cmpd_stmt;
 	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
+	map<std::pair<int, int>, string > maintainer_messages;
 
 	AbstractExpression * recurse_for_index(int32_t stack_index);
 	vector<AbstractStatement*> delete_manually_in_cleanup;
@@ -155,6 +157,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"question.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
 	fprintf(script, "#include \"TempSetNameGenerator.h\"\n");
+	fprintf(script, "#include \"QuestionAttributes.h\"\n");
 	if(config_file_parser::PLATFORM == "LINUX"){
 		FILE * simple_pd_curses_keys_h = fopen("a_few_pd_curses_keys.h", "wb");
 		if(!simple_pd_curses_keys_h){
@@ -292,17 +295,17 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "\n");
 	*/
 	fprintf(script, "\tchar end_of_question_navigation;\n");
+	fprintf(script, "label_end_of_qnre_navigation:\n");
 	if(ncurses_flag) {
 		fprintf(script, "\twclear(data_entry_window);\n");
 		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1,\"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)\"); \n");
 		fprintf(script, "\tmvwscanw(data_entry_window, 1, 75, \"%%c\", & end_of_question_navigation);\n");
 	} else {
-		fprintf(script, "\tcout << \"End of Questionnaire: (s to save, p = previous question, j = question jump list)\" << endl;\n");
+		fprintf(script, "\tcout << \"End of Questionnaire: (s to save, p = previous question, j = question jump list, q = quit without saving - all newly entered data will be lost)\" << endl;\n");
 		fprintf(script, "\tcin >> end_of_question_navigation;\n");
 	}
 	fprintf(script, "\tif(end_of_question_navigation == 's'){\n");
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
-	fprintf(script, "\t\treset_questionnaire();\n");
 	fprintf(script, "\t} else if (end_of_question_navigation == 'p'){\n");
 	fprintf(script, "\t\tcout << \"last_question_answered: \" << last_question_answered << endl << \", question name: \" << last_question_answered->questionName_ << endl;\n");
 	fprintf(script, "\t\tAbstractQuestion * target_question = ComputePreviousQuestion(last_question_answered);\n");
@@ -317,16 +320,31 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "\t\tback_jump = true;\n");
 	fprintf(script, "\t\tuser_navigation = NOT_SET;\n");
 	fprintf(script, "\t\tgoto start_of_questions;\n");
-	fprintf(script, "\t}\n");
+	fprintf(script, "\t}");
+	fprintf(script, "\telse if (end_of_question_navigation == 'j') {\n"
+			"\t\tDisplayActiveQuestions();\n"
+			"\t\tGetUserResponse(jumpToQuestion, jumpToIndex);\n"
+			"\t\tuser_navigation = NOT_SET;\n"
+			"\t\tgoto start_of_questions;\n}");
+	fprintf(script, "\telse if (end_of_question_navigation == 'q') {\n"
+		 	"\t\treset_questionnaire();\n"
+			"}");
+	fprintf(script, " else {\n"
+			"\t\tgoto label_end_of_qnre_navigation;\n"
+			"\t}\n"
+			);
+
 
 	//fprintf(script,	"\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
 	if( ncurses_flag) {
 		fprintf(script, "\twclear(data_entry_window);\n");
 		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \"); \n");
 		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+		fprintf(script, "\treset_questionnaire();\n");
 	} else {
 		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
 		fprintf(script, "\tcin >> ser_no;cin.get(newl);\n");
+		fprintf(script, "\treset_questionnaire();\n");
 	}
 	fprintf(script, "\n\t} /* close while */\n");
 	if(ncurses_flag)
@@ -401,6 +419,7 @@ void print_reset_questionnaire(FILE * script)
 	fprintf(script, "void reset_questionnaire(){\n");
 	fprintf(script, "for(int32_t i = 0; i< question_list.size(); ++i){\n");
 	fprintf(script, "\tquestion_list[i]->isAnswered_ = false;\n");
+	fprintf(script, "\tquestion_list[i]->input_data.clear();\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
 
