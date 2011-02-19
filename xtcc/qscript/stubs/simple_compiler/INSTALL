@@ -1,5 +1,11 @@
+$ cd /media/sda3/home/nxd/test/
+$ tar xvzf qscript-0.11.tar.gz
+
 Building qscript requires the following directory structure where qscript-0.11
 is the top level directory:
+
+The directory structure is already in the tarball, but documented here
+in case something goes wrong
 
 /media/sda3/home/nxd/test/qscript-0.11
 |-- bin
@@ -28,17 +34,17 @@ The following command will build the compiler, but you need the following
 
 1. Command to build the compiler
 
-	make -f CustomQScriptMakefile local_install
+	qscript-0.11$ make -f CustomQScriptMakefile local_install
 
 2. Ensure that the bin directory contains "qscript"
 
 3. Test the compiler
-	$export QSCRIPT_HOME=`pwd`
-	$cd input
-	$../bin/qscript -n -f inp_jump_test
+	qscript-0.11$ export QSCRIPT_HOME=`pwd`
+	qscript-0.11$ cd inputs
+	qscript-0.11/inputs$ ../bin/qscript -n -f inp_jump_test
 
 	compiler should generate inp_jump_test.C, inp_jump_test.exe
 
 4.	Execute the generated file
-	$LD_LIBARARY_PATH=$QSCRIPT_HOME/lib inp_jump_test.exe
+	qscript-0.11/inputs$ LD_LIBARARY_PATH=$QSCRIPT_HOME/lib inp_jump_test.exe
 

@@ -1,0 +1,34 @@
+inp_hidden_blank {
+
+	stubs brand_list = 
+	"Brand 1" 1
+	"Brand 2" 2
+	"Brand 3" 3
+	"Brand 4" 4
+	"Brand 5" 5;
+	setall(brand_list);
+
+	q1_1 "Q1.1 Which brands are you aware of - unaided TOM" sp int32_t brand_list;
+
+	setdel(brand_list, q1_1);
+	q1_2 "Q1.2 Which brands are you aware of - unaided other mentions" mp(5) int32_t brand_list: allow_blank;
+
+	setdel(brand_list, q1_2);
+	q1_3 "Q1. Which brands are you aware of - aided" mp(5) int32_t brand_list;
+
+	
+	q_tot_aw "Total awareness of brands" mp(5) int32_t brand_list: hide;
+	setadd(q_tot_aw, q1_1);
+	setadd(q_tot_aw, q1_2);
+	setadd(q_tot_aw, q1_3);
+
+
+	unset(brand_list);
+	setadd(brand_list, q1_1);
+	setadd(brand_list, q1_2);
+	setadd(brand_list, q1_3);
+	q2_1 "Which brands do you use" mp(4) int32_t brand_list;
+
+	q2_2 "Which brands do you use most often" mp(4) int32_t brand_list: allow_blank;
+
+}

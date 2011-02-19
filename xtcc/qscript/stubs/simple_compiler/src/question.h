@@ -118,6 +118,7 @@ struct AbstractQuestion: public AbstractStatement
 
 	virtual bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data);
+	virtual bool VerifyResponse(user_response::UserResponseType user_resp);
 	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
 	virtual void PrintQuestionArrayInitialisation(
 		StatementCompiledCode & code);

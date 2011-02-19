@@ -3,6 +3,8 @@
 #include <cstring>
 #include <string>
 #include "qscript_readline.h"
+#include "user_navigation.h"
+#include "UserResponse.h"
 
 #define CTL_LEFT 	0x1bb
 #define CTL_RIGHT 	0x1bc
@@ -11,6 +13,8 @@
 #define SHF_DC 		0x21a
 
 using std::string;
+extern user_response::UserResponseType the_user_response;
+extern UserNavigation user_navigation;
 
 NCursesReadline::NCursesReadline(WINDOW * l_data_entry_window)
 	: buffer_(), insertionPoint_(0) //, lastBufPointer_(0)
@@ -49,6 +53,21 @@ const char * NCursesReadline::ReadLine()
 			case 13:
 			case KEY_ENTER:
 				return buffer_.c_str();
+			case 16: /* Ctrl P */
+				the_user_response = user_response::UserEnteredNavigation;
+				user_navigation = NAVIGATE_PREVIOUS;
+				return buffer_.c_str();
+			case 14:
+				the_user_response = user_response::UserEnteredNavigation;
+				user_navigation = NAVIGATE_NEXT;
+				return buffer_.c_str();
+			case 11:
+				the_user_response = user_response::UserClearedData;
+				user_navigation = NOT_SET;
+				buffer_.clear();
+				insertionPoint_ = 0;
+				// return buffer_.c_str();
+				break;
 			case KEY_LEFT:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_LEFT");
 				if(insertionPoint_>0){
@@ -121,8 +140,6 @@ void NCursesReadline::EraseLine(int32_t line_no)
 	}
 }
 
-// returns 1 on success 0 on failure
-// are throwing exceptions a better option?
 void NCursesReadline::SetBuffer(const string & re_arranged_buffer
 				, int32_t l_new_insertionPoint)
 {

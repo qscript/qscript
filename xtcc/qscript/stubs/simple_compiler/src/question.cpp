@@ -327,7 +327,7 @@ bool AbstractQuestion::VerifyData(
 	string & err_mesg, string & re_arranged_buffer
 	, int32_t & pos_1st_invalid_data)
 {
-	bool invalid_code, has_invalid_data_flag = false;
+	bool invalid_code=false, has_invalid_data_flag = false;
 	stringstream valid_data, invalid_data;
 	for(uint32_t i = 0; i < data.size(); ++i){
 		//cout << "Testing data exists: " << data[i] << endl;
@@ -340,6 +340,13 @@ bool AbstractQuestion::VerifyData(
 			valid_data << data[i] << " ";
 		}
 	}
+
+	if (data.size() == 0 && question_attributes.isAllowBlank() == false) {
+		err_mesg = " question cannot be blank";
+		invalid_code = true;
+		goto end;
+	}
+
 	if(has_invalid_data_flag) {
 		err_mesg = "Input contained some invalid data.. " + invalid_data.str() +  " Re-enter Data\n";
 		pos_1st_invalid_data = valid_data.str().length(); // it already has a space appended to it
@@ -378,38 +385,34 @@ bool AbstractQuestion::VerifyData(
 		invalid_code = false;
 	}
 end:
+	// cout << __PRETTY_FUNCTION__ << " returned invalid_code: |" << invalid_code 
+	// 	<< "|" << endl;
 	return invalid_code;
 }
 
 user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 {
+	cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
 
 	string err_mesg, re_arranged_buffer;
 	int32_t pos_1st_invalid_data;
-	if(data_entry_window == 0){
+	if (data_entry_window == 0) {
 		bool invalid_code = false;
 		string prompt = "Enter Data:";
-		do{
+		do {
+ask_again:
 			user_response::UserResponseType user_resp = read_data(prompt.c_str());
-			if (user_resp == user_response::UserEnteredNavigation) {
-				return user_resp;
+			bool valid_response = AbstractQuestion::VerifyResponse(user_resp);
+			if (!valid_response) {
+				goto ask_again;
 			}
-			/*
-			//cout << "data.size(): " << data.size() << endl;
-			cerr << "fix me:  the code below needs to be abstracted out - else it will be duplicated every where and every time I addd a new user navigation we will have a bug "
-				<< endl;
-			if(data.size() == 0
-			   && 
-			   (user_navigation == NAVIGATE_PREVIOUS
-			       || user_navigation == NAVIGATE_NEXT
-			       || user_navigation == JUMP_TO_QUESTION
-			       || user_navigation == SAVE_DATA
-			       ) ){
-				return user_resp;
-			}
-			*/
 			// NxD: 16-Feb-2011
 			// handle User Data response here - blank as well as valid data
+			if (user_resp == user_response::UserClearedData) {
+				input_data.erase(input_data.begin(), input_data.end());
+				isAnswered_ = false;
+				goto ask_again;
+			}
 			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
 			prompt = err_mesg;
 
@@ -430,33 +433,33 @@ user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * data_
 		return user_response::UserEnteredData;
 	} else {
 		bool invalid_code = false;
-		do{
+		stringstream current_data_str;
+		for (set<int32_t>::iterator inp_data_iter = input_data.begin();
+				inp_data_iter != input_data.end(); ++inp_data_iter) {
+			current_data_str << *inp_data_iter << " ";
+		}
+		re_arranged_buffer = current_data_str.str();
+		pos_1st_invalid_data = re_arranged_buffer.length() - 1;
+		do {
+label_ask_again:
 			user_response::UserResponseType user_resp 
 				= read_data_from_window(
 						data_entry_window, err_mesg.c_str()
-					      , (!invalid_code), re_arranged_buffer
+					      //, (!invalid_code), re_arranged_buffer
+					      , false, re_arranged_buffer
 					      , pos_1st_invalid_data);
-			/*
-			// cout << "data.size(): " << data.size() << endl;
-			cerr << "fix me:  the code below (user_navigation == NAVIGATE_PREVIOUS || ... ) needs to be abstracted out - else it will be duplicated every where and every time I addd a new user navigation we will have a bug "
-				<< endl;
-			if(data.size() == 0 &&
-			   (user_navigation == NAVIGATE_PREVIOUS
-			    || user_navigation == NAVIGATE_NEXT
-			    || user_navigation == JUMP_TO_QUESTION
-			    || user_navigation == SAVE_DATA
-			    ) ){
-				return;
-			}
-			*/
-			if (user_resp == user_response::UserEnteredNavigation) {
-				return user_resp;
+			// if (user_resp == user_response::UserEnteredNavigation) {
+			// 	return user_resp;
+			// }
+			bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+			if (!valid_input) {
+				goto label_ask_again;
 			}
 
 			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
 
 
-			if(invalid_code == false){
+			if (invalid_code == false) {
 				input_data.erase(input_data.begin(), input_data.end());
 				for(uint32_t i = 0; i < data.size(); ++i){
 					input_data.insert(data[i]);
@@ -637,7 +640,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 			cout << endl;
 		}
-		AbstractQuestion::GetDataFromUser(data_entry_window);
+
+		//AbstractQuestion::GetDataFromUser(data_entry_window);
 	} else {
 		wclear(question_window);
 		box(question_window, 0, 0);
@@ -694,8 +698,30 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 
 		wrefresh(stub_list_window);
-		AbstractQuestion::GetDataFromUser(data_entry_window);
+		//AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
+
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+
+/*
+get_data_again:
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+	stringstream mesg; mesg << "user_resp: " << user_resp;
+	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< mesg.str() << endl;
+	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
+		// valid response if blanks are allowed but dont do isAnswered_ = true 
+		// because otherwise when visiting the questionnaire it will skip this 
+		// question and data entry will have an off by 1 error everytime they 
+		// are reviewing this question - since blank is a valid answer
+	} else if (user_resp == user_response::UserEnteredData) {
+	} else if (user_resp == user_response::UserEnteredNavigation
+			&& user_navigation == NAVIGATE_PREVIOUS) {
+	} else {
+		goto get_data_again;
+	}
+	*/
+
 }
 
 void RangeQuestion::WriteDataToDisk(ofstream& data_file)
@@ -766,7 +792,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			cout << endl;
 		}
 
-		AbstractQuestion::GetDataFromUser(data_entry_window);
+		//user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+
 	} else {
 		wclear(question_window);
 		box(question_window, 0, 0);
@@ -801,8 +828,28 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 
 		wrefresh(stub_list_window);
-		AbstractQuestion::GetDataFromUser(data_entry_window);
+		// AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+
+	/*
+get_data_again:
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+	stringstream mesg; mesg << "user_resp: " << user_resp;
+	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< mesg.str() << endl;
+	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
+		// valid response if blanks are allowed but dont do isAnswered_ = true 
+		// because otherwise when visiting the questionnaire it will skip this 
+		// question and data entry will have an off by 1 error everytime they 
+		// are reviewing this question - since blank is a valid answer
+	} else if (user_resp == user_response::UserEnteredData) {
+	} else if (user_resp == user_response::UserEnteredNavigation
+		&& user_navigation == NAVIGATE_PREVIOUS) {
+	} else {
+		goto get_data_again;
+	}
+	*/
 
 }
 
@@ -2572,4 +2619,34 @@ std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(Abs
 	s	<< endl;
 	s << "}\n";
 	return s.str();
+}
+
+bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
+{
+	stringstream mesg; mesg << "user_resp: " << user_resp;
+	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+	// 	<< mesg.str() << endl;
+	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
+		// valid response if blanks are allowed but dont do isAnswered_ = true 
+		// because otherwise when visiting the questionnaire it will skip this 
+		// question and data entry will have an off by 1 error everytime they 
+		// are reviewing this question - since blank is a valid answer
+		return true;
+	} else if (user_resp == user_response::UserEnteredData) {
+		return true;
+	} else if (user_resp == user_response::UserEnteredNavigation
+			&& user_navigation == NAVIGATE_PREVIOUS) {
+		return true;
+	} else if (user_resp == user_response::UserEnteredNavigation
+			&& user_navigation == NAVIGATE_NEXT
+			&& question_attributes.isAllowBlank() == false
+			&& isAnswered_ == true) {
+		return true;
+	} else if (user_resp == user_response::UserEnteredNavigation
+			&& user_navigation == NAVIGATE_NEXT
+			&& question_attributes.isAllowBlank() == true) {
+		return true;
+	} else {
+		return false;
+	}
 }

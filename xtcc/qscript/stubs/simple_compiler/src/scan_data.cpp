@@ -1937,8 +1937,7 @@ user_response::UserResponseType read_data_from_window(WINDOW * data_entry_window
 {
 	static NCursesReadline ncurses_readline(data_entry_window);
 	data.clear();
-	if(clear_buffer_flag)
-	{
+	if (clear_buffer_flag) {
 		ncurses_readline.Reset();
 	} else {
 		ncurses_readline.SetBuffer(re_arranged_buffer
@@ -1950,8 +1949,25 @@ top:
 	// NOTE: so long as the ncurses_readline is static the pointer
 	// returned will be valid
 	const char * line=ncurses_readline.ReadLine();
+	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+	// 	<< ", " << line << endl;
+
+	string s(line);
+	if (s.length()==0) {
+		if ( (user_navigation == NAVIGATE_NEXT || user_navigation == NAVIGATE_PREVIOUS)
+				&& the_user_response==user_response::UserEnteredNavigation) {
+		//cout << "Empty line ... re-enter" << endl;
+			return the_user_response;
+		} else if (user_navigation == NOT_SET) {
+			user_navigation = NAVIGATE_NEXT; // treat as if visit next question
+			the_user_response == user_response::UserEnteredNavigation;
+			return the_user_response;
+		} else {
+			goto top;
+		}
+	}
 	YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
-	if(scan_dataparse()){
+	if (scan_dataparse()) {
 		//cout << "there was an error in parsing the data" << endl;
 		data.clear();
 		scan_data_delete_buffer(s_data);
