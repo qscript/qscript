@@ -72,7 +72,7 @@ $(SOURCE_DIR)/qscript_conf.hpp: YFLAGS = -p qscript_conf
 
 $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.hpp: $(SOURCE_DIR)/%.ypp
 	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
-	bison $(YFLAGS) -d $< -o $(basename $@).cpp
+	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
 #bison $(YFLAGS) -d $< -o $(SOURCE_DIR)/$(@F)
 #	echo $(SOURCE_DIR)/$(*F).hpp 
 #	mv $(SOURCE_DIR)/$(*F).hpp $(SOURCE_DIR)/$(*F).h
@@ -103,7 +103,9 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
 		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp \
 		$(SOURCE_DIR)/qscript_readline.cpp $(SOURCE_DIR)/config_parser.cpp \
-		$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp
+		$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp \
+		$(SOURCE_DIR)/TempSetNameGenerator.cpp $(SOURCE_DIR)/code_gen_utils.cpp \
+		$(SOURCE_DIR)/QuestionAttributes.cpp
 
 RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
 RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)
