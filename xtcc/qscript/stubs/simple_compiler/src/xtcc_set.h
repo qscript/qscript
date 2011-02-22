@@ -28,6 +28,7 @@ struct XtccSet {
 	set<int32_t> indiv;
 	XtccSet(DataType dt, string name, XtccSet& xs1);
 	XtccSet(const XtccSet& xs1);
+	XtccSet(XtccSet & xs1);
 	XtccSet& operator=(const XtccSet& xs1);
 	XtccSet();
 	void reset();

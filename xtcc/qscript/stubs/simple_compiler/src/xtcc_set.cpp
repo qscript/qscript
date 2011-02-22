@@ -20,6 +20,10 @@ XtccSet::XtccSet(const XtccSet& xs1)
 	: range(xs1.range), indiv(xs1.indiv)
 { }
 
+XtccSet::XtccSet(XtccSet & xs1)
+	: range(xs1.range), indiv(xs1.indiv)
+{ }
+
 XtccSet& XtccSet::operator= (const XtccSet& xs1)
 {
 	range = xs1.range;
