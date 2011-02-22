@@ -217,4 +217,4 @@ cpplint:
 tags:
 	cd src; ctags -R --extra=+f+q --fields=afikKlmnsSzt; cd ..;
 
-include $(DEPENDENCIES)
+-include $(DEPENDENCIES)

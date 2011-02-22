@@ -2,6 +2,8 @@
 #include <cctype>
 #include <cstring>
 #include <string>
+#include <cstdlib>
+#include <iostream>
 #include "qscript_readline.h"
 #include "user_navigation.h"
 #include "UserResponse.h"
@@ -49,6 +51,10 @@ const char * NCursesReadline::ReadLine()
 			mvwprintw(dataEntryWindow_,2,75, "got PRINTABLE CHAR %d", c);
 
 		} else switch (c) {
+			case 24:
+				endwin();
+				std::cout << "exited without saving changes.\n";
+				exit(1);
 			case 10:
 			case 13:
 			case KEY_ENTER:

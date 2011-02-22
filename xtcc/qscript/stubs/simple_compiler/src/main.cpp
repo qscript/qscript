@@ -11,6 +11,7 @@
 #include "qscript_parser.h"
 #include "scope.h"
 #include "qscript_debug.h"
+#include "LatexDoc.h"
 
 
 #include <fstream>
@@ -121,7 +122,7 @@ int32_t main(int32_t argc, char* argv[])
 	qscript_parser::lex_location.SetFileName(qscript_parser::fname);
 	qscript_parser::lex_location.ResetLine();
 	qscript_parser::lex_location.ResetColumn();
-	if (!yyparse() && !no_errors){
+	if (!yyparse() && !no_errors) {
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode(fname, ncurses_flag);
@@ -131,6 +132,18 @@ int32_t main(int32_t argc, char* argv[])
 			cout << "error running bcpp - maybe its not installed or not present in the PATH variable" << endl;
 		} else {
 			// cout << "successfully ran bcpp to generate indented source" << endl;
+		}
+
+		{
+			// Generate LatexDoc
+			LatexDocument doc;
+			doc.visit(qscript_parser::tree_root);
+			std::stringstream latex_fname; 
+			latex_fname << fname << ".latex";
+			//std::fstream latex_file(latex_fname.str().c_str(), exc_flags);
+			std::ofstream latex_file; latex_file.exceptions(exc_flags); latex_file.open(latex_fname.str().c_str());
+			if (latex_file)
+				latex_file << doc;
 		}
 				
 		cout << "code generated " << endl;

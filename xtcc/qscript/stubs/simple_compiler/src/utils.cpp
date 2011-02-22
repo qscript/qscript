@@ -38,12 +38,20 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 bool check_type_compat(DataType typ1, DataType typ2)
 {
 	//cout << "check_type_compat: line_no: I have to convert the below code into a function:"  << line_no << endl;
+	std::stringstream mesg;
+	mesg << "add test suite for this function, also document parameter order expected"
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function" << __PRETTY_FUNCTION__ << endl;
+	LOG_MAINTAINER_MESSAGE(mesg.str());
+	/*
 	if(qscript_debug_h::qscript_debug::MAINTAINER_MESSAGES) {
 		cerr << "add test suite for this function, also document parameter order expected"
 		     << ", line: " << __LINE__
 		     << ", file: " << __FILE__
 		     << ", function" << __PRETTY_FUNCTION__ << endl;
 	}
+	*/
 
 	DataType td1 = typ1;
 	DataType td2 = typ2;
