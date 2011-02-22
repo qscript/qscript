@@ -23,14 +23,8 @@ class LatexDocument
 		void parse(const std::string &source_file);
 
 
-		friend std::ostream & operator<<(std::ostream &os, LatexDocument &d)
-		{
-			const char *tex_begin = "\\documentclass[8pt,twocolumn]{article}\n\\begin{document}\n";
-			const char *tex_end = "\\end{document}\n";
-			os << tex_begin;
-			REP(i,d.qv.size()){ int j=i; while(j<d.qv.size() && d.qv[j]->nr_ptr==d.qv[i]->nr_ptr) j++; d.package(os,i,j); i = j-1; }	
-			return os << tex_end;
-		}
+		friend std::ostream & operator<<(std::ostream &os, LatexDocument &d);
+
 	LatexDocument(): qv()
 	{ }
 

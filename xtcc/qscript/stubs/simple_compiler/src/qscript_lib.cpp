@@ -77,14 +77,14 @@ extern AbstractQuestion * last_question_answered;
 void merge_disk_data_into_questions(FILE * qscript_stdout)
 {
 	//cout << "merge_disk_data_into_questions: " << endl;
-	cout << "ENTER: " 
-		<< __PRETTY_FUNCTION__ 
-		<< __FILE__ << ", " << __LINE__ << ", " 
-		<< endl;
-	for (int32_t i = 0; i< question_list.size(); ++i){
+	//cout << "ENTER: " 
+	//	<< __PRETTY_FUNCTION__ 
+	//	<< __FILE__ << ", " << __LINE__ << ", " 
+	//	<< endl;
+	for (int32_t i = 0; i< question_list.size(); ++i) {
 		if (question_list[i]->loop_index_values.size() > 0) {
-			cout << "have reached the 1st array question - exiting the " << __PRETTY_FUNCTION__
-				<< endl;
+			//cout << "have reached the 1st array question - exiting the " << __PRETTY_FUNCTION__
+			//	<< endl;
 			break;
 		}
 		bool found = false;
@@ -94,7 +94,7 @@ void merge_disk_data_into_questions(FILE * qscript_stdout)
 		//cout << "qdd_list:" ;
 		fprintf(qscript_stdout, "searching for : |%s|, text: |%s|\n", q->questionName_.c_str(), q->questionText_.c_str());
 		fflush(qscript_stdout);
-		for(int32_t j = 0; j< qdd_list.size(); ++j){
+		for (int32_t j = 0; j< qdd_list.size(); ++j) {
 			//cout << "|" <<qdd_list[j]->qno << "|" << " ";
 			fprintf(qscript_stdout, "|%s| ", qdd_list[j]->qno.c_str() );
 			fflush(qscript_stdout);
@@ -107,19 +107,19 @@ void merge_disk_data_into_questions(FILE * qscript_stdout)
 				break;
 			}
 		}
-		if (found){
+		if (found) {
 			DummyArrayQuestion * dum_q = dynamic_cast<DummyArrayQuestion*>(q);
 			if (dum_q) {
-				cout << q->questionName_ << " is a DummyArrayQuestion: Text: " 
-					<< q->questionText_
-					<< endl;
+				//cout << q->questionName_ << " is a DummyArrayQuestion: Text: " 
+				//	<< q->questionText_
+				//	<< endl;
 				int32_t max_bound =1;
-				cout << "array bounds are: " ;
+				//cout << "array bounds are: " ;
 				for (int32_t k=0; k< dum_q->array_bounds.size(); ++k) {
-					cout << dum_q->array_bounds[k] << " ";
+					//cout << dum_q->array_bounds[k] << " ";
 					max_bound *=  dum_q->array_bounds[k];
 				}
-				cout << "max_bound: " << max_bound << endl;
+				//cout << "max_bound: " << max_bound << endl;
 				map<int, vector<int32_t> > & array_question_data = question_disk_data_map.array_question_map[q->questionName_];
 				int array_start_point = -1;
 				for(int k=i+1; k<question_list.size(); ++k) {
@@ -130,24 +130,26 @@ void merge_disk_data_into_questions(FILE * qscript_stdout)
 				}
 				if (array_start_point == -1) {
 					cout << "this can never be: " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+					cout << "exiting";
+					exit(1);
 				}
-				for(int k=0; k<max_bound; ++k) {
+				for (int k=0; k<max_bound; ++k) {
 					if (array_question_data.find(k) != array_question_data.end()) {
 						AbstractQuestion * q1=question_list[array_start_point+k];
-						cout << "Loading data for question: " << q1->questionName_;
+						//cout << "Loading data for question: " << q1->questionName_;
 						for (int l=0; l<q1->loop_index_values.size(); ++l) {
-							cout << "$" << q1->loop_index_values[l];
+							// cout << "$" << q1->loop_index_values[l];
 						}
 
-						cout << ", k=" << k << endl;
+						//cout << ", k=" << k << endl;
 
 						vector<int32_t> q_data = array_question_data[k];
 						q1->input_data.erase(q1->input_data.begin(), q1->input_data.end());
 						if (q_data.size() > 0) {
-							for(int32_t l = 0; l<q_data.size(); ++l){
+							for (int32_t l = 0; l<q_data.size(); ++l) {
 								//cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
-								cout << "inserting " << q_data[l] << " into " 
-									<< q1->questionName_ << endl;
+								//cout << "inserting " << q_data[l] << " into " 
+								//	<< q1->questionName_ << endl;
 								q1->input_data.insert(q_data[l]);
 							}
 							q1->isAnswered_ = true;
@@ -156,10 +158,10 @@ void merge_disk_data_into_questions(FILE * qscript_stdout)
 					}
 				}
 			} else {
-				cout << "loading data for non-array question: " << q->questionName_ << endl;
+				// cout << "loading data for non-array question: " << q->questionName_ << endl;
 				q->input_data.erase(q->input_data.begin(), q->input_data.end());
 				if (q_disk->data.size() > 0) {
-					for(int32_t k = 0; k<q_disk->data.size(); ++k){
+					for (int32_t k = 0; k<q_disk->data.size(); ++k) {
 						//cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
 						q->input_data.insert(q_disk->data[k]);
 					}

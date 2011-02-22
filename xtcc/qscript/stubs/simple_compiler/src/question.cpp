@@ -392,7 +392,7 @@ end:
 
 user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 {
-	cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
+	// cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
 
 	string err_mesg, re_arranged_buffer;
 	int32_t pos_1st_invalid_data;
