@@ -41,6 +41,8 @@ using namespace std;
 prog:	datalist  {
 		the_user_response = user_response::UserEnteredData;
 	}
+	;
+	/*
 	| navigation {
 		the_user_response = user_response::UserEnteredNavigation;
 	}
@@ -49,6 +51,7 @@ prog:	datalist  {
 		the_user_response = user_response::UserClearedData;
 	}
 	;
+	*/
 
 datalist: data
 	| datalist data
@@ -65,7 +68,8 @@ data: NUMBER	{
 	}
 	;
 
-navigation:	JUMP_TO_QUESTION_TOK {
+	/*
+	navigation:	JUMP_TO_QUESTION_TOK {
 			user_navigation=JUMP_TO_QUESTION;
 		}
 	| NAVIGATE_PREVIOUS_TOK{
@@ -78,6 +82,7 @@ navigation:	JUMP_TO_QUESTION_TOK {
 		user_navigation = SAVE_DATA;
 	}
 	;
+	*/
 
 %%
 	extern char * scan_datatext;

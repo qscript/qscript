@@ -797,6 +797,7 @@ case 4:
 YY_RULE_SETUP
 #line 43 "src/scan_data.l"
 {
+		/*
 		if(scan_datatext[0] == 'n'){
 			return NAVIGATE_NEXT_TOK;
 		} else if (scan_datatext[0] == 'p'){
@@ -811,15 +812,16 @@ YY_RULE_SETUP
 			// cerr << "ERROR: running ECHO rule" << endl;
 			//ECHO;
 			return scan_datatext[0];
-		}
+		}*/
+		return scan_datatext[0];
 	}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 62 "src/scan_data.l"
+#line 64 "src/scan_data.l"
 ECHO;
 	YY_BREAK
-#line 823 "src/scan_data.cpp"
+#line 825 "src/scan_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1814,7 +1816,7 @@ void scan_datafree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 62 "src/scan_data.l"
+#line 64 "src/scan_data.l"
 
 
 

@@ -119,6 +119,7 @@ namespace qscript_parser
 	extern struct LexLocation lex_location;
 
 	extern TempSetNameGenerator temp_set_name_generator;
+	string ExtractBaseFileName(const string & fname);
 
 }
 

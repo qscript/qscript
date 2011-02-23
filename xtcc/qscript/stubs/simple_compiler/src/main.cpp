@@ -126,25 +126,52 @@ int32_t main(int32_t argc, char* argv[])
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode(fname, ncurses_flag);
-		std::stringstream bcpp_command;
-		bcpp_command << "bcpp " << fname << ".C" << " > " << fname << "_bcpp.C";
-		if (int32_t ret_val = system(bcpp_command.str().c_str())) {
-			cout << "error running bcpp - maybe its not installed or not present in the PATH variable" << endl;
-		} else {
-			// cout << "successfully ran bcpp to generate indented source" << endl;
-		}
-
+#ifndef _WIN32
 		{
-			// Generate LatexDoc
-			LatexDocument doc;
-			doc.visit(qscript_parser::tree_root);
+			std::stringstream bcpp_command;
+			string output_file_name = qscript_parser::ExtractBaseFileName(qscript_parser::fname);
+			bcpp_command << "bcpp " << output_file_name << ".C" << " > " << output_file_name << "_bcpp.C";
+			if (int32_t ret_val = system(bcpp_command.str().c_str())) {
+				cout << "error running bcpp - maybe its not installed or not present in the PATH variable" << endl;
+			} else {
+				// cout << "successfully ran bcpp to generate indented source" << endl;
+			}
+
 			std::stringstream latex_fname; 
-			latex_fname << fname << ".latex";
-			//std::fstream latex_file(latex_fname.str().c_str(), exc_flags);
-			std::ofstream latex_file; latex_file.exceptions(exc_flags); latex_file.open(latex_fname.str().c_str());
-			if (latex_file)
-				latex_file << doc;
+			{
+				// Generate LatexDoc
+				latex_fname << output_file_name << ".latex";
+				LatexDocument doc(latex_fname.str());
+				doc.visit(qscript_parser::tree_root);
+				//doc.latex_file << doc.finish_latex();
+				//std::fstream latex_file(latex_fname.str().c_str(), exc_flags);
+				//std::ofstream latex_file; latex_file.exceptions(exc_flags); latex_file.open(latex_fname.str().c_str());
+				//if (latex_file)
+				//	latex_file << doc;
+			}
+			{
+				using std::cout; 
+				using std::endl; 
+				using std::stringstream; 
+				stringstream latex_command;
+				latex_command << "latex " << latex_fname.str();
+				if (int32_t ret_val = system(latex_command.str().c_str())) {
+					cout << "error running latex - maybe its not installed or not present in the PATH variable. " << endl
+						<< "You can install the TeX/LaTeX system and have qscript automatically generate " << endl
+						<< "beautiful pdf questionnaires. Read more about TeX/LaTeX at http://www.tug.org\n";
+				} else {
+					stringstream dvipdf_command;
+					dvipdf_command << "dvipdf " << output_file_name << ".dvi";
+					if (int32_t ret_val = system(dvipdf_command.str().c_str())) {
+						cout << "error running dvipdf - maybe it is not installed or present in the PATH variable. " << endl
+							<< " please check the latest release of ghostscript " << endl;
+					} else {
+						// successfully ran dvipdf
+					}
+				}
+			}
 		}
+#endif /* _WIN32 */
 				
 		cout << "code generated " << endl;
 		if (compile_to_cpp_only_flag) {
@@ -158,12 +185,13 @@ int32_t main(int32_t argc, char* argv[])
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
 	{
-
-		using qscript_parser::maintainer_messages;
-		cout << "maintainer_messages: " << endl;
-		for(map<pair<int32_t, int32_t>, string>::iterator it=maintainer_messages.begin();
-				it!=maintainer_messages.end(); ++it) {
-			cout << it->second << endl;
+		if (qscript_debug::MAINTAINER_MESSAGES) {
+			using qscript_parser::maintainer_messages;
+			cout << "maintainer_messages: " << endl;
+			for(map<pair<int32_t, int32_t>, string>::iterator it=maintainer_messages.begin();
+					it!=maintainer_messages.end(); ++it) {
+				cout << it->second << endl;
+			}
 		}
 	}
 

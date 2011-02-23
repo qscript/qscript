@@ -41,6 +41,7 @@
 	}*/
 
 . 	{
+		/*
 		if(yytext[0] == 'n'){
 			return NAVIGATE_NEXT_TOK;
 		} else if (yytext[0] == 'p'){
@@ -55,7 +56,8 @@
 			// cerr << "ERROR: running ECHO rule" << endl;
 			//ECHO;
 			return yytext[0];
-		}
+		}*/
+		return yytext[0];
 	}
 
 

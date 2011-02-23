@@ -25,8 +25,16 @@ class LatexDocument
 
 		friend std::ostream & operator<<(std::ostream &os, LatexDocument &d);
 
-	LatexDocument(): qv()
-	{ }
+	LatexDocument(std::string latex_fname): qv(),
+		questionProcessedUpto_(0)
+	{ 
+
+		latex_file.exceptions(exc_flags); 
+		latex_file.open(latex_fname.c_str());
+		latex_file << setup_latex();
+	}
+	~LatexDocument();
+	std::ofstream latex_file; 
 
 	public:
 		std::vector<NamedStubQuestion*> qv;
@@ -36,6 +44,9 @@ class LatexDocument
 		static std::string safe(const std::string &s);
 		
 		void visit(AbstractStatement *stmt);
+		string setup_latex();
+		string finish_latex();
+		int questionProcessedUpto_;
 };
 
 /*

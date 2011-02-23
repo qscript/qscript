@@ -559,6 +559,13 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	if (compoundBody_){
 		compoundBody_->GetQuestionsInBlock(questionsInBlock_, this);
+		code.program_code << "/* compound statement on line no: " 
+			<< lineNo_ << " questionsInBlock_, size:" 
+			<< questionsInBlock_.size() << " ";
+		for (int i=0; i< questionsInBlock_.size(); ++i) {
+			code.program_code << questionsInBlock_[i]->questionName_ << ", ";
+		}
+		code.program_code << " */\n";
 		compoundBody_->GenerateCode(code);
 	}
 	if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_){

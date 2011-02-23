@@ -36,7 +36,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=11
+QSCRIPT_MINOR_VERSION_NUMBER=12
 
 
 #dummy:
@@ -192,7 +192,8 @@ release: clean
 .PHONY: clean tags
 
 clean:
-	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/* $(BUILD_DIR)/compiletime_lib/*
+	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/* $(BUILD_DIR)/compiletime_lib/* \
+		inputs/*.C inputs/*.exe src/tags src/TAGS src/*.output
 
 local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/qscript bin

@@ -369,18 +369,18 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  12
+#define YYFINAL  6
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   10
+#define YYLAST   5
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  10
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  5
+#define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  12
+#define YYNRULES  6
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  15
+#define YYNSTATES  9
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -426,23 +426,20 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     7,     9,    11,    14,    16,    20,
-      22,    24,    26
+       0,     0,     3,     5,     7,    10,    12
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      11,     0,    -1,    12,    -1,    14,    -1,     9,    -1,    13,
-      -1,    12,    13,    -1,     3,    -1,     3,     4,     3,    -1,
-       7,    -1,     6,    -1,     5,    -1,     8,    -1
+      11,     0,    -1,    12,    -1,    13,    -1,    12,    13,    -1,
+       3,    -1,     3,     4,     3,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    41,    41,    44,    47,    53,    54,    57,    60,    68,
-      71,    74,    77
+       0,    41,    41,    56,    57,    60,    63
 };
 #endif
 
@@ -453,7 +450,7 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "NUMBER", "HYPHEN", "NAVIGATE_NEXT_TOK",
   "NAVIGATE_PREVIOUS_TOK", "JUMP_TO_QUESTION_TOK", "SAVE_DATA_TOK",
-  "CLEAR_DATA", "$accept", "prog", "datalist", "data", "navigation", 0
+  "CLEAR_DATA", "$accept", "prog", "datalist", "data", 0
 };
 #endif
 
@@ -469,15 +466,13 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    10,    11,    11,    11,    12,    12,    13,    13,    14,
-      14,    14,    14
+       0,    10,    11,    12,    12,    13,    13
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     1,     1,     2,     1,     3,     1,
-       1,     1,     1
+       0,     2,     1,     1,     2,     1,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -485,14 +480,13 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     7,    11,    10,     9,    12,     4,     0,     2,     5,
-       3,     0,     1,     6,     8
+       0,     5,     0,     2,     3,     0,     1,     4,     6
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     7,     8,     9,    10
+      -1,     2,     3,     4
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -500,14 +494,13 @@ static const yytype_int8 yydefgoto[] =
 #define YYPACT_NINF -4
 static const yytype_int8 yypact[] =
 {
-      -3,     3,    -4,    -4,    -4,    -4,    -4,     1,     5,    -4,
-      -4,     6,    -4,    -4,    -4
+      -3,    -2,     1,    -3,    -4,     0,    -4,    -4,    -4
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -4,    -4,    -4,     2,    -4
+      -4,    -4,    -4,     2
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -517,22 +510,19 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       1,    12,     2,     3,     4,     5,     6,    11,     1,    14,
-      13
+       1,     6,     5,     8,     0,     7
 };
 
-static const yytype_uint8 yycheck[] =
+static const yytype_int8 yycheck[] =
 {
-       3,     0,     5,     6,     7,     8,     9,     4,     3,     3,
-       8
+       3,     0,     4,     3,    -1,     3
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     5,     6,     7,     8,     9,    11,    12,    13,
-      14,     4,     0,    13,     3
+       0,     3,    11,    12,    13,     4,     0,    13,     3
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1352,38 +1342,19 @@ yyreduce:
 	;}
     break;
 
-  case 3:
+  case 5:
 
 /* Line 1455 of yacc.c  */
-#line 44 "src/data_entry.ypp"
-    {
-		the_user_response = user_response::UserEnteredNavigation;
-	;}
-    break;
-
-  case 4:
-
-/* Line 1455 of yacc.c  */
-#line 47 "src/data_entry.ypp"
-    {
-		data.clear();
-		the_user_response = user_response::UserClearedData;
-	;}
-    break;
-
-  case 7:
-
-/* Line 1455 of yacc.c  */
-#line 57 "src/data_entry.ypp"
+#line 60 "src/data_entry.ypp"
     {
 	      data.push_back((yyvsp[(1) - (1)].ival));
 	;}
     break;
 
-  case 8:
+  case 6:
 
 /* Line 1455 of yacc.c  */
-#line 60 "src/data_entry.ypp"
+#line 63 "src/data_entry.ypp"
     {
 		data.push_back((yyvsp[(1) - (3)].ival));
 		for(int i=data[data.size()-1]+1; i<=(yyvsp[(3) - (3)].ival); ++i){
@@ -1392,46 +1363,10 @@ yyreduce:
 	;}
     break;
 
-  case 9:
-
-/* Line 1455 of yacc.c  */
-#line 68 "src/data_entry.ypp"
-    {
-			user_navigation=JUMP_TO_QUESTION;
-		;}
-    break;
-
-  case 10:
-
-/* Line 1455 of yacc.c  */
-#line 71 "src/data_entry.ypp"
-    {
-			user_navigation=NAVIGATE_PREVIOUS;
-		;}
-    break;
-
-  case 11:
-
-/* Line 1455 of yacc.c  */
-#line 74 "src/data_entry.ypp"
-    {
-			user_navigation=NAVIGATE_NEXT;
-		;}
-    break;
-
-  case 12:
-
-/* Line 1455 of yacc.c  */
-#line 77 "src/data_entry.ypp"
-    {
-		user_navigation = SAVE_DATA;
-	;}
-    break;
-
 
 
 /* Line 1455 of yacc.c  */
-#line 1435 "src/data_entry.cpp"
+#line 1370 "src/data_entry.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1643,7 +1578,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 82 "src/data_entry.ypp"
+#line 87 "src/data_entry.ypp"
 
 	extern char * scan_datatext;
 	void scan_dataerror(char *s){

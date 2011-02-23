@@ -350,7 +350,7 @@ DataType arr_deref_type(DataType d1)
 
 // http://www.cse.yorku.ca/~oz/hash.html
 // hash algo copied from here
-static unsigned long sdbm_hash(const char *str)
+unsigned long sdbm_hash(const char *str)
 {
 	unsigned long hash = 0;
 	int c;

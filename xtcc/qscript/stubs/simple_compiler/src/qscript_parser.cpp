@@ -7,6 +7,7 @@
 #include "config_parser.h"
 #include "qscript_debug.h"
 #include "TempSetNameGenerator.h"
+#include "utils.h"
 
 extern int32_t qscript_confparse();
 extern void qscript_confrestart(FILE *input_file);
@@ -307,13 +308,13 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "\tif(end_of_question_navigation == 's'){\n");
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
 	fprintf(script, "\t} else if (end_of_question_navigation == 'p'){\n");
-	fprintf(script, "\t\tcout << \"last_question_answered: \" << last_question_answered << endl << \", question name: \" << last_question_answered->questionName_ << endl;\n");
+	// fprintf(script, "\t\tcout << \"last_question_answered: \" << last_question_answered << endl << \", question name: \" << last_question_answered->questionName_ << endl;\n");
 	fprintf(script, "\t\tAbstractQuestion * target_question = ComputePreviousQuestion(last_question_answered);\n");
 	fprintf(script, "\t\tif(target_question->type_ == QUESTION_ARR_TYPE)\n");
 	fprintf(script,	"\t\t\t{\n");
 	fprintf(script, "\t\t\t\tjumpToIndex = ComputeJumpToIndex(target_question);\n");
 	fprintf(script, "\t\t\t}\n");
-	fprintf(script, "\t\tcout << \"ComputePreviousQuestion returned target_question: \" << target_question->questionName_;\n");
+	// fprintf(script, "\t\tcout << \"ComputePreviousQuestion returned target_question: \" << target_question->questionName_;\n");
 	fprintf(script,	"\t\tjumpToQuestion = target_question->questionName_;\n");
 
 	fprintf(script, "\t\tcout << \"target question: \" << jumpToQuestion;\n");
@@ -791,8 +792,10 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 {
 	stringstream warn_mesg;
 	warn_mesg << " The code below is common in the setup_stub_manip_stmt functions and should be factored out";
-	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
-		<< warn_mesg.str() << endl;
+	//cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+	//	<< warn_mesg.str() << endl;
+
+	LOG_MAINTAINER_MESSAGE(warn_mesg.str());
 	int32_t index = -1;
 	bool question_stub = false, range_stub=false;
 	NamedStubQuestion * lhs_question = 0;

@@ -40,7 +40,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=7
+QSCRIPT_MINOR_VERSION_NUMBER=12
 
 
 #dummy:
@@ -161,7 +161,7 @@ compiletime_static_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_STATIC_LIB_OBJE
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 	$(CC) -I $(WIN_INCLUDE_DIR) $(CFLAGS) -o $@ $<
-	echo "dir of target: $(@D), filename of target $(@F)"
+#echo "dir of target: $(@D), filename of target $(@F)"
 
 $(BUILD_DIR)/runtime_lib/%.o: $(SOURCE_DIR)/%.cpp
 	$(CC) -I $(WIN_INCLUDE_DIR) $(CFLAGS) $(CXX_SHARED_LIB_FLAGS) -o $@ $<

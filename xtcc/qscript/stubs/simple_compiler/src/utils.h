@@ -39,7 +39,7 @@ bool skip_func_type_check(const char * fname);
 bool check_type_compat(DataType typ1, DataType typ2);
 int32_t lookup_func(string func_name_index);
 unsigned long djb_hash(const char *str);
-static unsigned long sdbm_hash(const char *str);
+unsigned long sdbm_hash(const char *str);
 void log_maintainer_message(int line, string file, string func_name, string mesg);
 #define LOG_MAINTAINER_MESSAGE(mesg)	log_maintainer_message(__LINE__, __FILE__, __PRETTY_FUNCTION__, mesg)
 
