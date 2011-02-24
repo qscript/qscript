@@ -1945,6 +1945,11 @@ user_response::UserResponseType read_data_from_window(WINDOW * data_entry_window
 		ncurses_readline.SetBuffer(re_arranged_buffer
 				, pos_1st_invalid_data );
 	}
+	wattroff(data_entry_window, COLOR_PAIR(1));
+	wattron(data_entry_window, COLOR_PAIR(5));
+	mvwprintw(data_entry_window, 3, 1, prompt);
+	wattroff(data_entry_window, COLOR_PAIR(5));
+	wattron(data_entry_window, COLOR_PAIR(1));
 
 top:
 	//cerr << "clear_buffer_flag: " << clear_buffer_flag;

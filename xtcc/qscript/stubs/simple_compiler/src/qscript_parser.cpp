@@ -317,7 +317,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	// fprintf(script, "\t\tcout << \"ComputePreviousQuestion returned target_question: \" << target_question->questionName_;\n");
 	fprintf(script,	"\t\tjumpToQuestion = target_question->questionName_;\n");
 
-	fprintf(script, "\t\tcout << \"target question: \" << jumpToQuestion;\n");
+	fprintf(script, "\t\tif (data_entry_window == 0) cout << \"target question: \" << jumpToQuestion;\n");
 	fprintf(script, "\t\tback_jump = true;\n");
 	fprintf(script, "\t\tuser_navigation = NOT_SET;\n");
 	fprintf(script, "\t\tgoto start_of_questions;\n");

@@ -179,8 +179,8 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 		if(target_question->type_ == QUESTION_ARR_TYPE){\n\
 			jumpToIndex = ComputeJumpToIndex(target_question);\n\
 		}\n\
-		cout << \"target question: \" << jumpToQuestion;\n\
-		cout << \"target question Index: \" << jumpToIndex;\n\
+		if (data_entry_window==0) cout << \"target question: \" << jumpToQuestion;\n\
+		if (data_entry_window==0) cout << \"target question Index: \" << jumpToIndex;\n\
 		back_jump = true;\n\
 		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n}\n}\n";
@@ -223,8 +223,8 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 		if(target_question->type_ == QUESTION_ARR_TYPE){\n\
 			jumpToIndex = ComputeJumpToIndex(target_question);\n\
 		}\n\
-		cout << \"target question: \" << jumpToQuestion;\n\
-		cout << \"target question Index: \" << jumpToIndex;\n\
+		if (data_entry_window==0) cout << \"target question: \" << jumpToQuestion;\n\
+		if (data_entry_window==0) cout << \"target question Index: \" << jumpToIndex;\n\
 		back_jump = true;\n\
 		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n}\n}\n";
@@ -452,6 +452,19 @@ label_ask_again:
 			// 	return user_resp;
 			// }
 			bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+			if (isAnswered_ == false && user_navigation == NAVIGATE_PREVIOUS
+					&& user_resp == user_response::UserEnteredNavigation) {
+				// allow this behaviour - they can go back to the
+				// previous question without answering anything - 
+				// no harm done
+				return user_resp;
+			} else if (isAnswered_ == false && user_navigation == NAVIGATE_NEXT
+					&& user_resp == user_response::UserEnteredNavigation
+					&& question_attributes.isAllowBlank() == false) {
+				err_mesg = "cannot navigate to next question unless this is answered";
+				mvwprintw(data_entry_window, 3, 1, err_mesg.c_str());
+				goto label_ask_again;
+			}
 			if (!valid_input) {
 				goto label_ask_again;
 			}
