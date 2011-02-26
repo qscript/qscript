@@ -403,9 +403,9 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 					<< "\" << endl;\n}\n";
 			}
 		}
-		code.code_expr <<  symbolTableEntry_->name_ << "[";
+		code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
 		operand_->PrintExpressionCode(code);
-		code.code_expr << "]";
+		code.code_expr << "]->input_data.begin())";
 	}
 		break;
 
@@ -839,6 +839,14 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 	} else {
 		SymbolTableEntry* se = sym_it->second;
 		symbolTableEntry_ = se;
+		if (symbolTableEntry_->question_) {
+			if (symbolTableEntry_->question_->q_type != spn) {
+				std::stringstream s;
+				s << "Multi-coded question cannot be used in a array expression" << "\n";
+				print_err(compiler_sem_err, s.str()
+						, line_no, __LINE__, __FILE__);
+			}
+		}
 		DataType l_e_type = arr_index->type_;
 		if (is_of_int_type(l_e_type)){
 			DataType nametype =arr_deref_type(se->type_);
