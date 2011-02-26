@@ -22,6 +22,7 @@
 #include "symtab.h"
 #include "qscript_debug.h"
 #include "code_gen_utils.h"
+#include "utils.h"
 
 
 //extern vector<mem_addr_tab> mem_addr;
@@ -1507,6 +1508,110 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 	if (next_) {
 		code.program_code << "/* EXIT GotoStatement::GenerateCode */" << endl;
 
+		next_->GenerateCode(code);
+	}
+}
+
+ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+				string l_question_name)
+	: AbstractStatement(l_type, l_line_number),
+	  symbolTableEntry_(0)
+{
+
+	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
+	if (sym_it == active_scope->SymbolTable.end()){
+		std::stringstream s;
+		s << "Could not find question " << l_question_name 
+			<<"  in symbol table:  ";
+		print_err(compiler_sem_err, s.str()
+				, qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		symbolTableEntry_ = sym_it->second;
+		if (symbolTableEntry_->question_) {
+			if (!symbolTableEntry_->question_->type_ == QUESTION_TYPE) {
+				std::stringstream s;
+				s << l_question_name  << " must be of QUESTION_TYPE ";
+				print_err(compiler_sem_err, s.str()
+						, qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		} else {
+			std::stringstream s;
+			s << l_question_name  << " must be of QUESTION_TYPE ";
+			print_err(compiler_sem_err, s.str()
+					, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	}
+}
+
+ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			string l_array_question_name,
+			AbstractExpression *arr_index)
+	: AbstractStatement(l_type, l_line_number),
+	  symbolTableEntry_(0), arrIndex_(0)
+{
+
+	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_array_question_name);
+	if (sym_it == active_scope->SymbolTable.end()){
+		std::stringstream s;
+		s << "Could not find question " << l_array_question_name 
+			<<"  in symbol table: ";
+		print_err(compiler_sem_err, s.str()
+				, qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		symbolTableEntry_ = sym_it->second;
+		if (symbolTableEntry_->question_) {
+			if (!symbolTableEntry_->question_->type_ == QUESTION_ARR_TYPE) {
+				std::stringstream s;
+				s << l_array_question_name  << " must be of QUESTION_ARR_TYPE ";
+				print_err(compiler_sem_err, s.str()
+						, qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		} else {
+			std::stringstream s;
+			s << l_array_question_name  << " must be of QUESTION_ARR_TYPE ";
+			print_err(compiler_sem_err, s.str()
+					, qscript_parser::line_no, __LINE__, __FILE__);
+		}
+		DataType l_e_type = arr_index->type_;
+		if (is_of_int_type(l_e_type)){
+			DataType nametype =arr_deref_type(symbolTableEntry_->type_);
+			if (nametype == ERROR_TYPE) {
+				std::stringstream s;
+				s << "ERROR: Array indexing AbstractExpression Variable being indexed not of Array Type " << "\n";
+				print_err(compiler_sem_err, s.str()
+						, qscript_parser::line_no, __LINE__, __FILE__);
+			} else {
+				type_ = nametype;
+				arrIndex_ = arr_index;
+			}
+		} else {
+			stringstream s;
+			s << "ERROR: Array index not of Type Int \b" ;
+			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		}
+	}
+}
+
+void ClearStatement::GenerateCode(StatementCompiledCode & code)
+{
+	if (arrIndex_==0) {
+		code.program_code 
+			<< symbolTableEntry_->question_->questionName_ << "->isAnswered_ = false;\n";
+		code.program_code << "goto start_of_questions;\n";
+	} else {
+		stringstream mesg;
+		mesg << " put runtime check on array access bounds " << endl;
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+		code.program_code << symbolTableEntry_->question_->questionName_
+			<< "_list.questionList[";
+		ExpressionCompiledCode code1;
+		arrIndex_->PrintExpressionCode(code1);
+		code.program_code << code1.code_bef_expr.str()
+				   << code1.code_expr.str();
+		code.program_code << "]->isAnswered_ = false;\n";
+		code.program_code << "goto start_of_questions;\n";
+	}
+	if (next_) {
 		next_->GenerateCode(code);
 	}
 }

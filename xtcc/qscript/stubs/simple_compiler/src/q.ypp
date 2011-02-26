@@ -84,6 +84,7 @@
 %token HIDDEN
 %token ALLOW_BLANK
 %token MUTEX
+%token CLEAR
 
 
 %token '['
@@ -116,6 +117,7 @@
 %type <stmt> decl_stmt
 %type <stmt> func_defn
 %type <stmt> goto_stmt
+%type <stmt> clear_stmt
  /*%type <stmt> attributes	*/
 %type <stmt> stubs
 %type <c_stmt> cmpd_stmt
@@ -292,6 +294,7 @@ stmt:	question
 	| for_loop_stmt
 	| stub_manip_stmts
 	| goto_stmt
+	| clear_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
 		std::stringstream err_msg;
@@ -403,7 +406,18 @@ expr_stmt:	expression ';'
 
 goto_stmt: GOTO NAME ';' {
 		$$ = new GotoStatement(GOTO_STMT, qscript_parser::line_no, $2);
+		// free($2); ? is this required here
 	}
+
+clear_stmt: CLEAR '(' NAME ')' ';' {
+		// free($3); ? is this required here
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3);
+	}
+	| CLEAR '(' NAME '[' expression ']' ')'';' {
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3, $5);
+		// free($3); ? is this required here
+	}
+	;
 
 
 question: NAME TEXT qtype datatype range_allowed_values attribute_list';' {

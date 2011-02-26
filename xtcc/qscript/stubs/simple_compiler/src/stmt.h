@@ -516,5 +516,17 @@ struct GotoStatement: public AbstractStatement
 	void GenerateCode(StatementCompiledCode & code);
 };
 
+struct ClearStatement: public AbstractStatement 
+{
+	ClearStatement(DataType l_type, int32_t l_line_number,
+			string l_question_name);
+	ClearStatement(DataType l_type, int32_t l_line_number,
+			string l_array_question_name,
+			AbstractExpression *e);
+	void GenerateCode(StatementCompiledCode & code);
+	SymbolTableEntry* symbolTableEntry_ ;
+	AbstractExpression * arrIndex_;
+};
+
 
 #endif /* stmt_h */
