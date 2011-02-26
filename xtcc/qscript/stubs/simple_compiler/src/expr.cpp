@@ -114,10 +114,10 @@ UnaryExpression::UnaryExpression(AbstractExpression * l_operand
 				 , ExpressionOperatorType le_type)
 	: AbstractExpression(le_type), operand_(l_operand)
 {
-	if (operand_->exprOperatorType_ == oper_blk_arr_assgn){
+	if (operand_->exprOperatorType_ == oper_blk_arr_assgn) {
 		print_err(compiler_sem_err, "oper_blk_arr_assgn: cannot be used with unary operators : line_no:",
 			line_no, __LINE__, __FILE__);
-	} else if (l_operand->type_ == VOID_TYPE){
+	} else if (l_operand->type_ == VOID_TYPE) {
 		switch(l_operand->exprOperatorType_){
 		case oper_umin:
 		case oper_not:
@@ -136,7 +136,8 @@ UnaryExpression::UnaryExpression(AbstractExpression * l_operand
 			type_ = l_operand->type_;
 			break;
 		case oper_not:
-			type_ = INT8_TYPE;
+			//type_ = INT8_TYPE;
+			type_ = BOOL_TYPE;
 			break;
 		case oper_parexp:
 			type_ = l_operand->type_;
@@ -632,8 +633,8 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 		print_err(compiler_sem_err,
 			"error: oper_blk_arr_assgn: used in binary AbstractExpression ",
 			line_no, __LINE__, __FILE__);
-	} else if (exprOperatorType_  == oper_assgn){
-		if ( (!leftOperand_->IsLValue()) ){
+	} else if (exprOperatorType_  == oper_assgn) {
+		if ( (!leftOperand_->IsLValue()) ) {
 			type_ = ERROR_TYPE;
 			++no_errors;
 			print_err(compiler_sem_err,
@@ -684,7 +685,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 				  line_no, __LINE__, __FILE__);
 		}
 	} else
-		switch(exprOperatorType_){
+		switch(exprOperatorType_) {
 		case oper_plus:
 		case oper_minus:
 		case oper_mult:
@@ -699,7 +700,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 		case oper_or :
 		case oper_and :
 			if (void_check(leftOperand_->type_
-				       , rightOperand_->type_, type_)/*true*/){
+				       , rightOperand_->type_, type_)/*true*/) {
 				DataType l_op_type = leftOperand_->type_;
 				if ( (leftOperand_->exprOperatorType_ == oper_name
 				      || leftOperand_->exprOperatorType_ == oper_arrderef)
@@ -720,7 +721,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 			}
 			if (exprOperatorType_ == oper_mod
 			    && !(is_of_int_type(leftOperand_->type_)
-				 && is_of_int_type(rightOperand_->type_))){
+				 && is_of_int_type(rightOperand_->type_))) {
 				print_err(compiler_sem_err,
 					  " operands of %% should be of type int32_t/char only", line_no, __LINE__, __FILE__);
 				//cerr << " operands of %% should be of type int32_t/char only" << endl;

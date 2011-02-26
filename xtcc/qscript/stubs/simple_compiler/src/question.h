@@ -216,10 +216,18 @@ struct RangeQuestion: public AbstractQuestion
 			std::cout << "RangeQuestion::GetQuestionNames"
 				  << std::endl;
 		}
-		if(this==endStatement)
+		if (this==endStatement)
 			return;
-		question_list.push_back(questionName_);
-		if(next_){
+		if (for_bounds_stack.size() == 0) {
+			question_list.push_back(questionName_);
+		} else {
+			std::stringstream s;
+			s << questionName_  << "_list.questionList["
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+			<< "]";
+			question_list.push_back(s.str());
+		}
+		if (next_) {
 			next_->GetQuestionNames(question_list,endStatement);
 		}
 	}
@@ -301,10 +309,18 @@ class NamedStubQuestion: public AbstractQuestion
 			       , AbstractStatement* endStatement)
 	{
 		std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
-		if(this==endStatement)
+		if (this==endStatement)
 			return;
-		question_list.push_back(questionName_);
-		if(next_){
+		if (for_bounds_stack.size() == 0) {
+			question_list.push_back(questionName_);
+		} else {
+			std::stringstream s;
+			s << questionName_  << "_list.questionList["
+			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+			<< "]";
+			question_list.push_back(s.str());
+		}
+		if (next_) {
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
@@ -336,9 +352,9 @@ class DummyArrayQuestion: public AbstractQuestion{
 	void GetQuestionNames(vector<string> & question_list
 			      , AbstractStatement* endStatement)
 	{
-		if(this==endStatement)
+		if (this==endStatement)
 			return;
-		if(next_){
+		if (next_) {
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}

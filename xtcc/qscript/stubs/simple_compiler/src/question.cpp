@@ -219,7 +219,7 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 			<< "]"
 			<< ");\n\
 		if(target_question == 0)\n\
-		goto label_eval_" << questionName_.c_str() << ";\n\
+		goto label_eval_" << questionName_ << ";\n\
 		else {\n\
 		jumpToQuestion = target_question->questionName_;\n\
 		if(target_question->type_ == QUESTION_ARR_TYPE){\n\
@@ -965,9 +965,9 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 		code.array_quest_init_area << quest_decl.str();
 	}
 
-	if(for_bounds_stack.size() == 0){
+	if (for_bounds_stack.size() == 0) {
 		AbstractQuestion::PrintEvalAndNavigateCode(code.program_code);
-	}else {
+	} else {
 		AbstractQuestion::PrintEvalArrayQuestion(code);
 	}
 

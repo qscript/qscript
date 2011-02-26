@@ -69,7 +69,7 @@ void AbstractStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question
 void AbstractStatement::GenerateConsolidatedForLoopIndexes()
 {
 	//cout << "ENTER AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
-	if (next_){
+	if (next_) {
 		next_->GenerateConsolidatedForLoopIndexes();
 	}
 	//cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
@@ -208,7 +208,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	static int32_t if_nest_level =0;
 	bool if_nest_level_was_increased = false;
 	//++if_nest_level;
-	if (ifStatementStack.size()>0){
+	if (ifStatementStack.size()>0) {
 		if (this == ifStatementStack[ifStatementStack.size()-1]
 				->ifStatementPtr_->elseBody_){
 			code.program_code <<
@@ -235,7 +235,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	vector<string> question_list_else_body;
 	code.program_code << "// ifStatementStack.size(): "
 		<< ifStatementStack.size() << endl;
-	if (ifStatementStack.size() > 0){
+	if (ifStatementStack.size() > 0) {
 		for(int32_t i = 0; i < ifStatementStack.size(); ++i){
 			if (ifStatementStack[i]->nestLevel_ == if_nest_level){
 				ifStatementStack[i]->ifStatementPtr_
@@ -245,9 +245,17 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			}
 		}
 	}
-	if (elseBody_)
+	if (elseBody_) {
 		elseBody_->GetQuestionNames(question_list_else_body, 0);
-	for(int32_t i = 0; i < question_list_else_body.size(); ++i){
+		stringstream mesg;
+		mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+	} else {
+		stringstream mesg;
+		mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+	}
+	for(int32_t i = 0; i < question_list_else_body.size(); ++i) {
 		code.program_code <<  question_list_else_body[i]
 			<< "->isAnswered_ = false;"
 			<< endl;
@@ -255,7 +263,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	ifBody_->GenerateCode(code);
 	code.program_code << " }" << endl;
 
-	if (elseBody_){
+	if (elseBody_) {
 		code.program_code << " else {" << endl;
 
 		IfStatement * elseIfStatement = dynamic_cast<IfStatement*>
@@ -272,8 +280,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		}
 		vector<string> question_list_if_body;
 
-		for(int32_t i = 0; i < ifStatementStack.size(); ++i){
-			if (ifStatementStack[i]->nestLevel_ == if_nest_level){
+		for (int32_t i = 0; i < ifStatementStack.size(); ++i) {
+			if (ifStatementStack[i]->nestLevel_ == if_nest_level) {
 				ifStatementStack[i]->ifStatementPtr_
 					->GetQuestionNames
 					(question_list_if_body, this);
@@ -282,7 +290,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		}
 		ifBody_->GetQuestionNames(question_list_if_body, 0);
 		code.program_code << "// end of ifBody_->GetQuestionNames \n";
-		if (elseIfStatement){
+		if (elseIfStatement) {
 			//elseIfStatement->elseBody_->GetQuestionNames
 			//	(question_list_if_body, 0);
 			code.program_code << " // elseIfStatement exists \n";
@@ -299,7 +307,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		}
 		elseBody_->GenerateCode(code);
 
-		if (elseIfStatement){
+		if (elseIfStatement) {
 			IfStatementStackElement * stk_el =
 				ifStatementStack.back();
 			delete stk_el;
@@ -324,13 +332,13 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 void IfStatement::GenerateConsolidatedForLoopIndexes()
 {
 	//cout << "ENTER IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
-	if (ifBody_){
+	if (ifBody_) {
 		ifBody_->GenerateConsolidatedForLoopIndexes();
 	}
-	if (elseBody_){
+	if (elseBody_) {
 		elseBody_->GenerateConsolidatedForLoopIndexes();
 	}
-	if (next_){
+	if (next_) {
 		next_->GenerateConsolidatedForLoopIndexes();
 	}
 	//cout << "EXIT IfStatement::GenerateConsolidatedForLoopIndexes:" << endl;
@@ -383,22 +391,23 @@ CompoundStatement::CompoundStatement(
 void CompoundStatement::GenerateConsolidatedForLoopIndexes()
 {
 	//cout << "ENTER CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
-	if (flagIsAForBody_ && counterContainsQuestions_){
+	// old code: if (flagIsAForBody_ && counterContainsQuestions_) 
+	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		ostringstream consolidated_loop_counter;
 		consolidated_loop_counter << "consolidated_for_loop_index_" << compoundStatementNumber_;
 		//cout << "generated " << consolidated_loop_counter.str() << endl;
 		consolidated_for_loop_index_stack.push_back(consolidated_loop_counter.str());
 	}
 	ConsolidatedForLoopIndexStack_ = consolidated_for_loop_index_stack;
-	if (compoundBody_){
+	if (compoundBody_) {
 		compoundBody_->GenerateConsolidatedForLoopIndexes();
 	}
-	if (flagIsAForBody_ && counterContainsQuestions_){
+	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		//cout << "popping off " << consolidated_for_loop_index_stack.back() << endl;
 		consolidated_for_loop_index_stack.pop_back();
 	}
 	//cout << "EXIT CompoundStatement::GenerateConsolidatedForLoopIndexes:" << endl;
-	if (next_){
+	if (next_) {
 		next_->GenerateConsolidatedForLoopIndexes();
 	}
 }
@@ -551,7 +560,7 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		flagGeneratedQuestionDefinitions_ = true;
 	}
 	code.program_code << "{" << endl;
-	if (flagIsAForBody_ && counterContainsQuestions_){
+	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_){
 		code.program_code << "int32_t " << ConsolidatedForLoopIndexStack_.back()
 			<< " = ";
 		code.program_code << PrintConsolidatedForLoopIndex(for_bounds_stack);
@@ -897,10 +906,10 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 void ForStatement::GenerateConsolidatedForLoopIndexes()
 {
 	//cout << "ENTER AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
-	if (forBody_){
+	if (forBody_) {
 		forBody_->GenerateConsolidatedForLoopIndexes();
 	}
-	if (next_){
+	if (next_) {
 		next_->GenerateConsolidatedForLoopIndexes();
 	}
 	//cout << "EXIT AbstractStatement::GenerateConsolidatedForLoopIndexes:" << endl;
