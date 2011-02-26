@@ -18,7 +18,7 @@ void question_disk_data::set_array_data(vector<int32_t> l_array_index_list, vect
 		index+=v[i];
 	}
 	//cout << "index computes to: " << index << endl;
-	cout << "question_list.size(): " << question_list.size() << endl;
+	//cout << "question_list.size(): " << question_list.size() << endl;
 	int32_t question_list_index=-1;
 	for (int32_t i=0; i< question_list.size(); ++i){
 		if(question_list[i]->questionName_==qno){
@@ -27,7 +27,7 @@ void question_disk_data::set_array_data(vector<int32_t> l_array_index_list, vect
 		}
 	}
 	if(question_list_index!=-1){
-		cout << "question_list_index: " << question_list_index << endl;
+		//cout << "question_list_index: " << question_list_index << endl;
 		AbstractQuestion* q= 	question_list[question_list_index+index+1];
 		q->input_data.erase(q->input_data.begin(), q->input_data.end());
 		for(int32_t k=0; k<l_data.size(); ++k){

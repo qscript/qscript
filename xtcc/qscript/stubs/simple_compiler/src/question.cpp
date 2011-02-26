@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <sstream>
+#include <panel.h>
 
 #include "question.h"
 #include "named_range.h"
@@ -199,6 +200,7 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 		}\n";
 	program_code << "else if (user_navigation == SAVE_DATA){\n";
 	program_code <<	"\twrite_data_to_disk(question_list, jno, ser_no);\n";
+	program_code << "\t\tif (data_entry_window) mvwprintw(data_entry_window,2,50, \"saved partial data\");\n else \tcout << \"saved partial data\\n\";\n";
 	program_code << "\t\tif (" << questionName_ << "->isAnswered_==false) {\n"
 			<< "\t\t\tgoto label_eval_" << questionName_ << ";\n"
 			<< "\t\t}\n";
@@ -240,6 +242,7 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 	program_code << "else if (user_navigation == SAVE_DATA){\n";
 	program_code << "\twrite_data_to_disk(question_list, jno, ser_no);\n";
 	program_code << "\tcout << \"saved partial data\\n\";\n";
+	program_code << "\t\tif (data_entry_window) mvwprintw(data_entry_window,2,50, \"saved partial data\");\n else \tcout << \"saved partial data\\n\";\n";
 	program_code << "\t\tif (" << questionName_ << "_list.questionList["
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]->isAnswered_==false) {\n"
@@ -662,8 +665,29 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		box(stub_list_window, 0, 0);
 		wclear(data_entry_window);
 		box(data_entry_window, 0, 0);
-		mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
-		wrefresh(question_window);
+		mvwprintw(question_window,1, 1, "%s.", questionName_.c_str());
+		int len_qno = questionName_.length()+2;
+		if(loop_index_values.size()>0){
+			for(uint32_t i=0; i<loop_index_values.size(); ++i){
+				//cout << loop_index_values[i]+1 << ".";
+				mvwprintw(question_window, 1, len_qno, "%d.", loop_index_values[i]+1);
+				if (loop_index_values[i]+1<10) {
+					len_qno += 1;
+				} else if (loop_index_values[i]+1<100) {
+					len_qno += 2;
+				} else if (loop_index_values[i]+1<1000) {
+					len_qno += 3;
+				} else if (loop_index_values[i]+1<10000) {
+					len_qno += 4;
+				}
+				len_qno += 1; // for the "."
+			}
+		}
+		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
+		//wrefresh(question_window);
+		update_panels();
+		doupdate();
+
 		int32_t maxWinX, maxWinY;
 		getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
@@ -710,7 +734,9 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			currXpos += s.str().length() + 1;
 		}
 
-		wrefresh(stub_list_window);
+		//wrefresh(stub_list_window);
+		update_panels();
+		doupdate();
 		//AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
 
@@ -815,7 +841,9 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		wclear(data_entry_window);
 		box(data_entry_window, 0, 0);
 		mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
-		wrefresh(question_window);
+		//wrefresh(question_window);
+		update_panels();
+		doupdate();
 		//int32_t maxWinX, maxWinY;
 		//getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
@@ -840,7 +868,9 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 		}
 
-		wrefresh(stub_list_window);
+		//wrefresh(stub_list_window);
+		update_panels();
+		doupdate();
 		// AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
 	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
@@ -2658,6 +2688,8 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
 	} else if (user_resp == user_response::UserEnteredNavigation
 			&& user_navigation == NAVIGATE_NEXT
 			&& question_attributes.isAllowBlank() == true) {
+		return true;
+	} else if (user_resp == user_response::UserSavedData && user_navigation == SAVE_DATA) {
 		return true;
 	} else {
 		return false;

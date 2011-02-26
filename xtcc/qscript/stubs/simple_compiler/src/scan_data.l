@@ -212,6 +212,9 @@ top:
 			user_navigation = NAVIGATE_NEXT; // treat as if visit next question
 			the_user_response == user_response::UserEnteredNavigation;
 			return the_user_response;
+		} else if (user_navigation == SAVE_DATA &&
+				the_user_response == user_response::UserSavedData) {
+			return the_user_response;
 		} else {
 			goto top;
 		}

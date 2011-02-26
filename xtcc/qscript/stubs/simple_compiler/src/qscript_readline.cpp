@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <iostream>
+#include <panel.h>
 #include "qscript_readline.h"
 #include "user_navigation.h"
 #include "UserResponse.h"
@@ -32,7 +33,9 @@ const char * NCursesReadline::ReadLine()
 			, insertionPoint_, buffer_.length());
 	//mvwprintw(dataEntryWindow_, 3,1, "%s" , prompt);
 	wmove(dataEntryWindow_, 1, insertionPoint_);
-	wrefresh(dataEntryWindow_);
+	//wrefresh(dataEntryWindow_);
+	update_panels();
+	doupdate();
 	int32_t curX, curY;
 	while(1){
 		//c = mvwgetch(dataEntryWindow_,1,1);
@@ -63,9 +66,14 @@ const char * NCursesReadline::ReadLine()
 				the_user_response = user_response::UserEnteredNavigation;
 				user_navigation = NAVIGATE_PREVIOUS;
 				return buffer_.c_str();
-			case 14:
+			case 14: /* Ctrl N */
 				the_user_response = user_response::UserEnteredNavigation;
 				user_navigation = NAVIGATE_NEXT;
+				return buffer_.c_str();
+			case KEY_F(4):
+				user_navigation = SAVE_DATA;
+				the_user_response = user_response::UserSavedData;
+				mvwprintw(dataEntryWindow_,2,50, "Save data requested");
 				return buffer_.c_str();
 			case 11:
 				the_user_response = user_response::UserClearedData;
@@ -131,7 +139,9 @@ const char * NCursesReadline::ReadLine()
 		mvwprintw(dataEntryWindow_,1,1, "%s", buffer_.c_str());
 		mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c);
 		wmove(dataEntryWindow_, curY, 1+insertionPoint_);// since our X origin is at 1
-		wrefresh(dataEntryWindow_);
+		//wrefresh(dataEntryWindow_);
+		update_panels();
+		doupdate();
 	}
 }
 

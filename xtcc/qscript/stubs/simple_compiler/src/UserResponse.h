@@ -7,7 +7,8 @@ enum UserResponseType {
 	NotSet,
 	UserEnteredNavigation,
 	UserEnteredData,
-	UserClearedData
+	UserClearedData,
+	UserSavedData
 };
 
 }

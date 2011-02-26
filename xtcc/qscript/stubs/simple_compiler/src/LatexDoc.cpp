@@ -8,6 +8,7 @@
 #include <iostream>
 //#include "include/qscript_parser.h"
 #include "LatexDoc.h"
+#include "utils.h"
 
 // int yyparse();
 // void yyrestart(FILE *);
@@ -43,6 +44,20 @@ friend std::ostream & operator<<(std::ostream &os, LatexDocument &d)
 void LatexDocument::package(std::ostream &os, int i, int j)
 {
 	// std::cout << "ENTER: " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ << std::endl;
+	using std::stringstream;
+	using std::cout;
+	using std::cerr;
+	using std::endl;
+	if (i>=qv.size()) {
+		stringstream mesg;
+		mesg << "Hack to stop core dump - check this later in LaTeX generation ";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+		cout << ".";
+		return ; 
+	} else {
+		cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << ", " << qv[i]->questionName_
+			<< endl;
+	}
 	os << "\\parbox{8cm} {\n";
 	//os << "\\noindent\n\\begin{tabular}{p{0.7cm}p{6cm}}\n";
 	os << "\\noindent\n\\begin{tabulary}{8cm}{LL}\n";
@@ -175,12 +190,17 @@ void LatexDocument::visit(AbstractStatement *stmt)
 			     (cmpd_stmt_else_cmpd_block && 
 			      	cmpd_stmt_else_cmpd_block->counterContainsQuestions_) )
 			{
-				FOR(i,questionProcessedUpto_,qv.size()-1) {
-					int j=i;
-					while (j<qv.size() && qv[j]->nr_ptr == qv[i]->nr_ptr)
-						++j;
-					//std::cout << "i: " << i << ", j: " << j << std::endl;
-					package(latex_file,i,j); i = j-1;
+				if (qv.size() > 0) {
+					FOR(i,questionProcessedUpto_,qv.size()-1) {
+						int j=i;
+						while (j<qv.size() && qv[j]->nr_ptr == qv[i]->nr_ptr)
+							++j;
+						//std::cout << "i: " << i << ", j: " << j << std::endl;
+						std::cerr << __FILE__ << ", " << __LINE__ << ", "
+							<< __PRETTY_FUNCTION__
+							<< "i: " << i << ", j: " << j << std::endl;
+						package(latex_file,i,j); i = j-1;
+					}
 				}
 			}
 			questionProcessedUpto_ = qv.size() ;
@@ -278,8 +298,13 @@ std::string LatexDocument::finish_latex()
 			int j=i;
 			while (j<qv.size() && qv[j]->nr_ptr == qv[i]->nr_ptr)
 				++j;
-			// std::cout << "i: " << i << ", j: " << j << std::endl;
+			std::cerr << __FILE__ << ", " << __LINE__ << ", "
+				<< __PRETTY_FUNCTION__
+				<< "i: " << i << ", j: " << j << std::endl;
 			package(latex_file,i,j); i = j-1;
+			if (i==qv.size()-1) {
+				break;
+			}
 		}
 	}
 
