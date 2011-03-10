@@ -1,2 +1,14 @@
 *.o
 *.exe
+*.dvi
+*.aux
+*.log
+*.tar.gz
+*~
+*.pdf
+*.latex
+.deps
+a.out
+*.csv
+*.map
+xtcc_work
