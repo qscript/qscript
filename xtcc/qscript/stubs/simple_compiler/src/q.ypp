@@ -733,7 +733,12 @@ expr_list: expression { $$=$1; }
 	}
 	;
 
-qtype: SINGLE_CODED { qscript_parser::q_type = spn; }
+qtype: SINGLE_CODED { 
+	       qscript_parser::q_type = spn; 
+	       // we need this =1 when generating
+	       // code for flat file creation
+		qscript_parser::no_mpn = 1;
+       }
 	| MP '(' INUMBER ')' { qscript_parser::q_type = mpn;
 		qscript_parser::no_mpn = $3;
 	}

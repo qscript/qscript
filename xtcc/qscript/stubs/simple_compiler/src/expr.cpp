@@ -297,11 +297,13 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 			<< endl;
 
 	} else {
-		code.code_bef_expr << " /* print_oper_assgn lhs is not a (QUESTION_TYPE or QUESTION_ARR_TYPE) */";
+		if (qscript_debug::DEBUG_BinaryExpression)
+			code.code_bef_expr << " /* print_oper_assgn lhs is not a (QUESTION_TYPE or QUESTION_ARR_TYPE) */";
 		leftOperand_->PrintExpressionCode(code);
 		code.code_expr << " = ";
 		rightOperand_->PrintExpressionCode(code);
-		code.code_expr << " /* print_oper_assgn END */";
+		if (qscript_debug::DEBUG_BinaryExpression)
+			code.code_expr << " /* print_oper_assgn END */";
 	}
 	if (qscript_debug::DEBUG_BinaryExpression)
 		code.code_expr << "/* EXIT BinaryExpression::print_oper_assgn */\n";

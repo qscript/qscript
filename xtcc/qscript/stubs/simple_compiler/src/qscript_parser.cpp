@@ -90,6 +90,7 @@ using std::string;
 
 void print_header(FILE* script, bool ncurses_flag);
 void print_array_question_class(FILE* script);
+void print_flat_ascii_data_class(FILE *script);
 void print_close(FILE* script, ostringstream & program_code, bool  ncurses_flag);
 void print_navigation_support_functions(FILE * script);
 void print_reset_questionnaire(FILE * script);
@@ -100,6 +101,7 @@ void PrintSignalHandler(FILE * script);
 void PrintSetupSignalHandler(FILE * script);
 void PrintDefineSomePDCursesKeys(FILE * script);
 void PrintPDCursesKeysHeader(FILE * script);
+void PrintProcessOptions(FILE * script);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -124,13 +126,16 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 		exit(1);
 	}
 	//ostringstream quest_defns, program_code;
-	StatementCompiledCode code;
 
 	print_header(script, ncurses_flag);
 	tree_root->GenerateConsolidatedForLoopIndexes();
+	StatementCompiledCode compute_flat_map_code;
+	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
+	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
+	fprintf(script, "/* %s */\n", compute_flat_map_code.program_code.str().c_str());
 	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
 	if(qscript_debug::DEBUG_qscript_parser)
@@ -151,6 +156,8 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf(script, "#include <panel.h>\n");
 	}
 	fprintf(script, "#include <signal.h>\n");
+	fprintf(script, "#include <dirent.h>\n");
+	fprintf(script, "#include <cctype>\n");
 	fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
@@ -190,7 +197,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
-	fprintf(script, "\n");
+	fprintf(script, "bool write_data_file_flag;\n");
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
 	fprintf(script, "vector <int8_t> vector_int8_t;\n");
@@ -216,12 +223,28 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int32_t ComputeJumpToIndex(AbstractQuestion * q);\n");
 	fprintf(script, "void reset_questionnaire();\n");
 	fprintf(script, "void DisplayActiveQuestions();\n");
+	fprintf(script, "string output_data_file_name;\n");
 	fprintf(script, "void GetUserResponse(string& qno, int32_t &qindex);\n");
 	print_array_question_class(script);
+	print_flat_ascii_data_class(script);
+	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
+	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
+	fprintf(script, "\n");
+	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
 
 	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
-	fprintf(script, "int32_t main(){\n");
+	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
+	fprintf(script, "\tprocess_options(argc, argv);\n");
+	fprintf(script, "\tDIR * directory_ptr = 0;\n");
+	fprintf(script, "\tif (write_data_file_flag) {\n");
+	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
+	fprintf(script, "\t	if (! directory_ptr) {\n");
+	fprintf(script, "\t		cout << \" unable to open . (current directory) for reading\\n\";\n");
+	fprintf(script, "\t		exit(1);\n");
+	fprintf(script, "\t	}\n");
+	fprintf(script, "\t}\n");
+
 	fprintf(script, "bool using_ncurses = %s;\n", (ncurses_flag) ?  "true": "false");
 	//fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
 	fprintf(script, "qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
@@ -273,10 +296,12 @@ const char * write_data_to_disk_code();
 void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
 	//fprintf(script, "\treset_questionnaire();\n");
-	fprintf(script, "\tint ser_no;\n");
+	fprintf(script, "\tint ser_no = 0;\n");
 	if(ncurses_flag) {
-		fprintf(script, "\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
-		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+		fprintf(script, "\tif (!write_data_file_flag) {\n");
+		fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
+		fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+		fprintf(script, "\t}\n");
 	} else	{
 		fprintf(script, "\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
 		fprintf(script, "\tchar  newl; cin >> ser_no;cin.get(newl);\n");
@@ -285,7 +310,79 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 
 	//fprintf(script, "\twgetch(data_entry_window);\n");
 	fprintf(script, "\tstring jno = \"%s\";\n", project_name.c_str());
-	fprintf(script, "\twhile(ser_no != 0){\n");
+	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag)){\n");
+
+	fprintf(script, "	if (write_data_file_flag) {\n");
+	fprintf(script, "		struct dirent * directory_entry = readdir(directory_ptr);\n");
+	fprintf(script, "		if (directory_entry == NULL) {\n");
+	fprintf(script, "			// we have read upto the last record in the directory\n");
+	fprintf(script, "			cout << \"finished reading all data files ... exiting\" << endl;\n");
+	fprintf(script, "			exit(1);\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		string dir_entry_name(directory_entry->d_name);\n");
+	fprintf(script, "		int len_entry = dir_entry_name.length();\n");
+	fprintf(script, "		if (	len_entry > 4 &&\n");
+	fprintf(script, "			dir_entry_name[len_entry-1]=='t' &&\n");
+	fprintf(script, "			dir_entry_name[len_entry-2]=='a' &&\n");
+	fprintf(script, "			dir_entry_name[len_entry-3]=='d' &&\n");
+	fprintf(script, "			dir_entry_name[len_entry-4]=='.') {\n");
+	fprintf(script, "			if (dir_entry_name.length() < jno.length()+ 6 /* \"_1.dat\" is the shortest possible datafile name for our study */) {\n");
+	fprintf(script, "				// cannot be our data file\n");
+	fprintf(script, "				continue;\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "			bool not_our_file = false;\n");
+	fprintf(script, "			for (int i=0; i<jno.length(); ++i) {\n");
+	fprintf(script, "				if (! (jno[i] == dir_entry_name[i]) ) {\n");
+	fprintf(script, "					// cannot be our data file\n");
+	fprintf(script, "					not_our_file = true;\n");
+	fprintf(script, "					break;\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "			if (not_our_file) {\n");
+	fprintf(script, "				continue;\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "			// all our data files are expected\n");
+	fprintf(script, "			// to have a \".dat\" ending and '_' after job number\n");
+	fprintf(script, "			// find the \".\"\n");
+	fprintf(script, "			cout << dir_entry_name << endl;\n");
+	fprintf(script, "			if (dir_entry_name[jno.length()] != '_') {\n");
+	fprintf(script, "				not_our_file = true;\n");
+	fprintf(script, "				continue;\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "			stringstream file_ser_no_str;\n");
+	fprintf(script, "			for (int i=jno.length()+1; i<dir_entry_name.length(); ++i) {\n");
+	fprintf(script, "				if (isdigit(dir_entry_name[i])) {\n");
+	fprintf(script, "					file_ser_no_str << dir_entry_name[i];\n");
+	fprintf(script, "				} else {\n");
+	fprintf(script, "					if ( (i + 3 == dir_entry_name.length()) \n");
+	fprintf(script, "						&& dir_entry_name[i] == '.'\n");
+	fprintf(script, "						&& dir_entry_name[i+1] == 'd'\n");
+	fprintf(script, "						&& dir_entry_name[i+2] == 'a'\n");
+	fprintf(script, "						&& dir_entry_name[i+3] == 't') {\n");
+	fprintf(script, "							//its our file \n");
+	fprintf(script, "							break;\n");
+	fprintf(script, "					} else {\n");
+	fprintf(script, "						// it's not our file \n");
+	fprintf(script, "						continue;\n");
+	fprintf(script, "					}\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "			if ( (file_ser_no_str.str())[0] == '0') {\n");
+	fprintf(script, "				// the leading digit of our data file\n");
+	fprintf(script, "				// can never be zero - so its not our file\n");
+	fprintf(script, "				continue;\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "			cout << \"got a data file: \" << dir_entry_name << endl;\n");
+	fprintf(script, "			int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
+	fprintf(script, "			load_data(jno,file_ser_no);\n");
+	fprintf(script, "			merge_disk_data_into_questions(qscript_stdout);\n");
+	fprintf(script, "		} else {\n");
+	fprintf(script, "			// not our data file\n");
+	fprintf(script, "			continue;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+
+
 	fprintf(script, "%s\n", file_exists_check_code());
 	fprintf(script, "\tstart_of_questions:\n");
 
@@ -310,6 +407,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "\tfclose(fptr);\n");
 	fprintf(script, "\n");
 	*/
+	fprintf(script, "\tif (write_data_file_flag) {\n\t} else {\n");
 	fprintf(script, "\tchar end_of_question_navigation;\n");
 	fprintf(script, "label_end_of_qnre_navigation:\n");
 	if(ncurses_flag) {
@@ -356,6 +454,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 		fprintf(script, "\twclear(data_entry_window);\n");
 		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \"); \n");
 		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+		fprintf(script, "\t}\n");
 		fprintf(script, "\treset_questionnaire();\n");
 	} else {
 		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
@@ -380,6 +479,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	}
 	PrintSignalHandler(script);
 	PrintSetupSignalHandler(script);
+	PrintProcessOptions(script);
 }
 
 void print_navigation_support_functions(FILE * script)
@@ -667,21 +767,13 @@ int32_t check_parameters(AbstractExpression* e, VariableList* v)
 const char * file_exists_check_code()
 {
 	const char * file_check_code =
-	"\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
-	"\tif(exists == 1){\n"
-	"\t	load_data(jno,ser_no);\n"
-	"\t	merge_disk_data_into_questions(qscript_stdout);\n"
-	/*
-	"\t	for(unsigned int32_t i = 0; i< qdd_list.size(); ++i){\n"
-	"\t		cout << qdd_list[i]->qno << endl;\n"
-	"\t		cout  << \":\" << qdd_list[i]->data.size() << endl;\n"
-	"\t		for(int32_t j = 0; j < qdd_list[i]->data.size(); ++j){\n"
-	"\t			cout << qdd_list[i]->data[j] << \" \";\n"
-	"\t		}\n"
-	"\t		cout << endl;\n"
-	"\t	}\n"
-	*/
-	"\t}\n";
+	"\tif (write_data_file_flag) {\n"
+	"\t} else {\n"
+	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
+	"\t\tif(exists == 1){\n"
+	"\t\t	load_data(jno,ser_no);\n"
+	"\t\t	merge_disk_data_into_questions(qscript_stdout);\n"
+	"\t\t}\n\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "
 			<< __func__ << "FILE: " << __FILE__
@@ -942,6 +1034,28 @@ void print_array_question_class(FILE* script)
 
 }
 
+
+void print_flat_ascii_data_class(FILE *script)
+{
+
+	fprintf(script, "class AsciiFlatFileQuestionDiskMap\n");
+	fprintf(script, "{\n");
+	fprintf(script, "public:\n");
+	fprintf(script, "	AbstractQuestion *q;\n");
+	fprintf(script, "	int32_t start_pos;\n");
+	fprintf(script, "	int32_t width;\n");
+	fprintf(script, "	int32_t total_length;\n");
+	fprintf(script, "	AsciiFlatFileQuestionDiskMap(AbstractQuestion * p_q, int32_t p_start_pos,\n");
+	fprintf(script, "					int32_t p_width, int32_t p_total_length) \n");
+	fprintf(script, "		:\n");
+	fprintf(script, "		q(p_q), start_pos(p_start_pos), width(p_width), \n");
+	fprintf(script, "		total_length(p_total_length)\n");
+	fprintf(script, "	{ }\n");
+	fprintf(script, "	void write_data(char * output_buffer);\n");
+	fprintf(script, "};\n");
+	fprintf(script, "\n");
+}
+
 void PrintActiveVariablesAtScope(vector <Scope*> & active_scope_list
 				 , vector <ActiveVariableInfo*> & output_info)
 {
@@ -1199,6 +1313,41 @@ void PrintPDCursesKeysHeader(FILE * script)
 			#define SHF_DC 		0x21a\n\
 			#endif /* a_few_pd_curses_keys_h */\n\
 			");
+}
+
+void PrintProcessOptions(FILE * script)
+{
+	fprintf(script, "int process_options(int argc, char * argv[])\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	//int32_t opterr=1, c;\n");
+	fprintf(script, "	extern int32_t optind, opterr, optopt;\n");
+	fprintf(script, "	extern char * optarg;\n");
+	fprintf(script, "	int c;\n");
+	fprintf(script, "	while ( (c = getopt(argc, argv, \"w::\")) != -1) {\n");
+	fprintf(script, "		char ch = optopt;\n");
+	fprintf(script, "		switch (c) {\n");
+	fprintf(script, "		case 'w': {\n");
+	fprintf(script, "			  write_data_file_flag = true;\n");
+	fprintf(script, "			  if (optarg) {\n");
+	fprintf(script, "				  output_data_file_name = optarg;\n");
+	fprintf(script, "			  } else {\n");
+	fprintf(script, "				  output_data_file_name = \"datafile.dat\";\n");
+	fprintf(script, "			  }\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "			  break;\n");
+	fprintf(script, "		case '?' : {\n");
+	fprintf(script, "				   cout << \" invalid option, optopt:\" << optopt << endl;\n");
+	fprintf(script, "				   exit(1);\n");
+	fprintf(script, "			   }\n");
+	fprintf(script, "			  break;\n");
+	fprintf(script, "		default:\n");
+	fprintf(script, "			  cerr << \"invalid options: ch: \" << ch << \", c: \" << c << endl;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	cout << \"output_data_file_name: \" << output_data_file_name << endl;\n");
+	fprintf(script, "	cout << \"write_data_file_flag: \" << write_data_file_flag << endl;\n");
+	fprintf(script, "	//exit(1);\n");
+	fprintf(script, "}\n");
 }
 
 

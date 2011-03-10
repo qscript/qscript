@@ -66,7 +66,7 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(l_av_info)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
-	, mutexCodeList_(p_mutexCodeList)
+	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -88,6 +88,7 @@ AbstractQuestion::AbstractQuestion(
 	, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
+	  , maxCode_(0)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -115,6 +116,7 @@ AbstractQuestion::AbstractQuestion(
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList)
+	  , maxCode_(0)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -141,10 +143,21 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
 	, question_attributes(l_question_attributes)
+	  , maxCode_(0)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
 	//}
+}
+
+int32_t AbstractQuestion::GetMaxCode()
+{
+	if (maxCode_ == 0) {
+		print_err(compiler_internal_error, " maxCode_ == 0 should have been set"
+				, 0, __LINE__, __FILE__);
+		exit(1);
+	}
+	return maxCode_;
 }
 
 AbstractQuestion::~AbstractQuestion()
@@ -273,6 +286,21 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "->eval(question_window, stub_list_window, data_entry_window);\n\t}\n";
 	PrintUserNavigation(program_code);
 	program_code <<  "}\n";
+}
+
+void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
+{
+	if(for_bounds_stack.size() == 0){
+		code.program_code << "\t// " << questionName_ << "\n";
+	}  else {
+		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
+		code.program_code << "\t// " << questionName_ << "_list.questionList[";
+		code.program_code << consolidated_for_loop_index;
+		code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n";
+	}
+	if (next_) {
+		next_->Generate_ComputeFlatFileMap(code);
+	}
 }
 
 const char *  AbstractQuestion::CurrentResponseToCharString()
@@ -502,7 +530,7 @@ void AbstractQuestion::PrintArrayDeclarations(ostringstream & quest_defns)
 	for(int32_t i = 0; i< for_bounds_stack.size(); ++i){
 		ostringstream array_bounds;
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
-		if(bin_expr_ptr){
+		if (bin_expr_ptr) {
 			AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
 			ExpressionCompiledCode expr_code;
 			rhs->PrintExpressionCode(expr_code);
@@ -513,10 +541,6 @@ void AbstractQuestion::PrintArrayDeclarations(ostringstream & quest_defns)
 			array_bounds.clear();
 
 		} else {
-			ExpressionCompiledCode expr_code;
-			for_bounds_stack[i]->PrintExpressionCode(expr_code);
-			array_bounds << expr_code.code_bef_expr.str()
-				<< expr_code.code_expr.str();
 			print_err(compiler_sem_err
 				, "for loop index condition is not a binary expression"
 				, 0, __LINE__, __FILE__);
@@ -548,7 +572,9 @@ RangeQuestion::RangeQuestion(
 			   , l_enclosing_scope, l_av_info, l_question_attributes
 			   , p_mutexCodeList)
 			, r_data(new XtccSet(l_r_data)), displayData_()
-{ }
+{ 
+	maxCode_ = r_data->GetMax();
+}
 
 	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(
@@ -560,7 +586,9 @@ RangeQuestion::RangeQuestion(
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ }
+{ 
+	maxCode_ = r_data->GetMax();
+}
 
 	//! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(
@@ -578,7 +606,9 @@ RangeQuestion::RangeQuestion(
 			   , p_mutexCodeList
 			   )
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ }
+{ 
+	maxCode_ = r_data->GetMax();
+}
 
 	//! this is only called from the runtime environment
 RangeQuestion::RangeQuestion(
@@ -594,7 +624,9 @@ RangeQuestion::RangeQuestion(
 		, l_question_attributes
 		)
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ }
+{ 
+	maxCode_ = r_data->GetMax();
+}
 
 
 bool RangeQuestion::IsValid(int32_t value)
@@ -1081,6 +1113,9 @@ NamedStubQuestion::NamedStubQuestion(
 		if (nr_ptr->stubs[i].is_mutex) {
 			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
 		}
+		if (maxCode_ < nr_ptr->stubs[i].code) {
+			maxCode_ = nr_ptr->stubs[i].code;
+		}
 	}
 }
 
@@ -1104,6 +1139,9 @@ NamedStubQuestion::NamedStubQuestion(
 		if (nr_ptr->stubs[i].is_mutex) {
 			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
 		}
+		if (maxCode_ < nr_ptr->stubs[i].code) {
+			maxCode_ = nr_ptr->stubs[i].code;
+		}
 	}
 }
 
@@ -1119,6 +1157,12 @@ NamedStubQuestion::NamedStubQuestion(
 	, named_list()
 	, nr_ptr(0), stub_ptr(l_stub_ptr)
 { 
+	vector <stub_pair> & v= *stub_ptr;
+	for (int i=0; i<v.size(); ++i) {
+		if (maxCode_ < v[i].code) {
+			maxCode_ = v[i].code;
+		}
+	}
 }
 
 //! only called in the runtime environment
@@ -1136,7 +1180,14 @@ NamedStubQuestion::NamedStubQuestion(
 		)
 	, named_list()
 	, nr_ptr(0), stub_ptr(l_stub_ptr)
-{ }
+{ 
+	vector <stub_pair> & v= *stub_ptr;
+	for (int i=0; i<v.size(); ++i) {
+		if (maxCode_ < v[i].code) {
+			maxCode_ = v[i].code;
+		}
+	}
+}
 
 void AbstractQuestion::print_q_type(string &s)
 {

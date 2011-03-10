@@ -66,6 +66,7 @@ struct AbstractStatement
 				      AbstractStatement * endStatement);
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 					 , AbstractStatement * stop_at);
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	private:
 		AbstractStatement& operator=(const AbstractStatement&);
 		AbstractStatement (const AbstractStatement&);
@@ -241,6 +242,7 @@ struct CompoundStatement: public AbstractStatement
 	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
 	void GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code);
 	void GenerateConsolidatedForLoopIndexes();
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	//static void Init();
 	private:
 	CompoundStatement& operator=(const CompoundStatement&);
@@ -266,6 +268,7 @@ struct ForStatement: public AbstractStatement
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 					 , AbstractStatement* stop_at);
 	virtual ~ForStatement();
@@ -293,6 +296,7 @@ struct IfStatement : public AbstractStatement
 //			, ostringstream& program_code);
 	void GenerateConsolidatedForLoopIndexes();
 	virtual void GenerateCode(StatementCompiledCode & code);
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual ~IfStatement();
 	void GetQuestionNames(vector<string> & question_list,
 			AbstractStatement* endStatement)

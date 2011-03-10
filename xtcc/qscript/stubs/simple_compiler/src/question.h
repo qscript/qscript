@@ -53,6 +53,7 @@ struct AbstractQuestion: public AbstractStatement
 	string currentResponse_;
 	QuestionAttributes question_attributes;
 	XtccSet mutexCodeList_;
+	int maxCode_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
@@ -92,6 +93,7 @@ struct AbstractQuestion: public AbstractStatement
 //			, ostringstream& program_code)=0;
 	virtual void GenerateCode(StatementCompiledCode &code)=0;
 	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code)=0;
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual void eval(/*qs_ncurses::*/WINDOW * question_window
 			  , /*qs_ncurses::*/WINDOW* stub_list_window
 			  , /*qs_ncurses::*/WINDOW* data_entry_window)=0;
@@ -140,6 +142,7 @@ struct AbstractQuestion: public AbstractStatement
 	void RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
 	void PrintUserNavigation(ostringstream & program_code);
 	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
+	int32_t GetMaxCode();
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);

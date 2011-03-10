@@ -194,3 +194,23 @@ string XtccSet::print_replicate_code(string set_name)
 	return code.str();
 
 }
+
+int32_t XtccSet::GetMax()
+{
+	// assume no negative codes are allowed
+	// if this ever changes - this breaks
+	int32_t max_code = 0; 
+	for(	set<int32_t>::iterator it = indiv.begin();
+			it != indiv.end(); ++it) {
+		if (max_code < *it) {
+			max_code = *it;
+		}
+	}
+	for(uint32_t i = 0; i < range.size(); ++i) {
+		if (max_code < range[i].second) {
+			max_code = range[i].second;
+		}
+	}
+	return max_code;
+
+}
