@@ -131,7 +131,12 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_header(script, ncurses_flag);
 	tree_root->GenerateConsolidatedForLoopIndexes();
 	StatementCompiledCode compute_flat_map_code;
+	compute_flat_map_code.program_code << "{\nint current_map_pos = 0;\n";
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
+	compute_flat_map_code.program_code << " for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
+		<< "\tascii_flatfile_question_disk_map[i]->print_map();\n"
+		<< "}\n";
+	compute_flat_map_code.program_code << "}\n";
 	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
@@ -1081,6 +1086,21 @@ void print_flat_ascii_data_class(FILE *script)
 
 	fprintf(script, "	int GetTotalLength() { return total_length; }\n");
 	fprintf(script, "	void write_data(char * output_buffer);\n");
+	fprintf(script, "	void print_map()\n{\n");
+
+	fprintf(script, "	cout << q->questionName_;\n");
+	fprintf(script, "	if (q->loop_index_values.size()) {\n");
+	fprintf(script, "		for (int i=0; i< q->loop_index_values.size(); ++i) {\n");
+	fprintf(script, "			cout << \".\" << q->loop_index_values[i];\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	cout << \",\t\";\n");
+	fprintf(script, "	cout << width << \",\t\";\n");
+	fprintf(script, "	cout << q->no_mpn << \",\t\";\n");
+	fprintf(script, "	cout << start_pos << \",\t\";\n");
+	fprintf(script, "	cout << start_pos + total_length << \"\\n\";\n");
+	fprintf(script, "}\n");
+
 	fprintf(script, "};\n");
 	fprintf(script, "\n");
 }

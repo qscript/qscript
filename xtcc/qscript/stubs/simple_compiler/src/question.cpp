@@ -290,15 +290,18 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 
 void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 {
-	if(for_bounds_stack.size() == 0){
-		code.program_code << "\t// ascii_flatfile_question_disk_map.push_back(new AsciiFlatFileQuestionDiskMap(" << questionName_ << ", current_map_pos);\n";
+	if (for_bounds_stack.size() == 0) {
+		code.program_code << "\tAsciiFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new AsciiFlatFileQuestionDiskMap(" << questionName_ << ", current_map_pos);\n";
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
-		code.program_code << "\t// ascii_flatfile_question_disk_map.push_back(new AsciiFlatFileQuestionDiskMap(" << questionName_ << "_list.questionList[";
-		code.program_code << consolidated_for_loop_index;
-		//consolidated_for_loop_index_stack.back();
-		code.program_code << "], current_map_pos);\n";
+		code.program_code << "\tAsciiFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new AsciiFlatFileQuestionDiskMap(" << questionName_ 
+			<< "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< ", current_map_pos);\n";
 	}
+	code.program_code << "\tcurrent_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
+	code.program_code << "\tascii_flatfile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
 	if (next_) {
 		next_->Generate_ComputeFlatFileMap(code);
 	}
