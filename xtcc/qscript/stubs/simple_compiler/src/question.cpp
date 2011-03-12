@@ -291,12 +291,13 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 {
 	if(for_bounds_stack.size() == 0){
-		code.program_code << "\t// " << questionName_ << "\n";
+		code.program_code << "\t// ascii_flatfile_question_disk_map.push_back(new AsciiFlatFileQuestionDiskMap(" << questionName_ << ", current_map_pos);\n";
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
-		code.program_code << "\t// " << questionName_ << "_list.questionList[";
+		code.program_code << "\t// ascii_flatfile_question_disk_map.push_back(new AsciiFlatFileQuestionDiskMap(" << questionName_ << "_list.questionList[";
 		code.program_code << consolidated_for_loop_index;
-		code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n";
+		//consolidated_for_loop_index_stack.back();
+		code.program_code << "], current_map_pos);\n";
 	}
 	if (next_) {
 		next_->Generate_ComputeFlatFileMap(code);
@@ -1641,8 +1642,8 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 			s	<< "map_key << \"" << questionName_ << "\"";
 			s	<< " << ";
 			s	<< "\"_\" << xtcc_i << \"$\" << ";
-				//<< consolidated_for_loop_index_stack.back()
-			s	<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back();
+					//<< consolidated_for_loop_index_stack.back()
+				s	<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back();
 			s	<< ";" << endl;
 			s	<< restore_array_quest->questionName_;
 			s	<< "_list.questionList[xtcc_i]->input_data = ";

@@ -45,7 +45,7 @@
 AbstractQuestion* find_in_question_list(string name);
 using std::string;
 using std::stringstream;
-string get_temp_name();
+// string get_temp_name();
 
 
 //extern Scope* active_scope;
@@ -228,7 +228,8 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		const SymbolTableEntry * symp = lhs->get_symp_ptr();
 		AbstractQuestion* q = find_in_question_list(symp->name_);
 		string cpp_data_type = human_readable_type(q->dt);
-		string tmp_name = get_temp_name();
+		//string tmp_name = get_temp_name();
+		string tmp_name = qscript_parser::temp_name_generator.GetNewName();
 
 		code.code_expr << cpp_data_type << " " << tmp_name << " = ";
 		rightOperand_->PrintExpressionCode(code);
@@ -270,7 +271,8 @@ void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code)
 		const SymbolTableEntry * symp = lhs->get_symp_ptr();
 		AbstractQuestion* q = find_in_question_list(symp->name_);
 		string cpp_data_type = human_readable_type(q->dt);
-		string tmp_name = get_temp_name();
+		//string tmp_name = get_temp_name();
+		string tmp_name = qscript_parser::temp_name_generator.GetNewName();
 
 		code.code_expr << cpp_data_type << " " << tmp_name << " = ";
 		rightOperand_->PrintExpressionCode(code);
@@ -374,7 +376,8 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 					<< q->questionName_
 					<< "\" << endl;\n}\n";
 
-				string temp_name = get_temp_name();
+				// string temp_name = get_temp_name();
+				string temp_name = qscript_parser::temp_name_generator.GetNewName();
 				code.code_bef_expr << "int32_t " << temp_name
 						   << " = *" << symbolTableEntry_->name_ 
 						   << "->input_data.begin();\n";
@@ -1068,7 +1071,8 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 		<< " " << mesg.str();
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_bef_expr << " /* ENTER Binary2Expression::PrintTemporaryStruct */ " << endl;
-	string struct_name = get_temp_name();
+	//string struct_name = get_temp_name();
+	string struct_name = qscript_parser::temp_name_generator.GetNewName();
 	code.code_bef_expr << "\tstruct " <<  struct_name.c_str() << "{\n";
 	code.code_bef_expr << "\t\tconst int32_t size_ran_indiv;\n";
 	code.code_bef_expr << "\t\tconst int32_t size_start_end;\n";
@@ -1134,7 +1138,7 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet * & xs)
 {
 	stringstream temp_code;
-	string set_name = qscript_parser::temp_set_name_generator.GetNewTempXtccSetName();
+	string set_name = qscript_parser::temp_set_name_generator.GetNewName();
 	temp_code << "XtccSet " << set_name << ";\n";
 
 	//fprintf(stderr, "Binary2Expression::PrintExpressionCode(): printed constructor");
@@ -1202,10 +1206,11 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 				*/
 
 
-			string test_bool_var_name1 = get_temp_name();
+			// string test_bool_var_name1 = get_temp_name();
+			string test_bool_var_name1 = qscript_parser::temp_name_generator.GetNewName();
 			code.code_bef_expr <<  "bool " <<  test_bool_var_name1
 				<< " = " << qscript_parser::
-					temp_set_name_generator.GetCurrentTempXtccSetName()
+					temp_set_name_generator.GetCurrentName()
 				<< ".exists(";
 			ExpressionCompiledCode expr2_code;
 			leftOperand_->PrintExpressionCode(expr2_code);
@@ -1231,10 +1236,11 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 			code.code_expr << test_bool_var_name.c_str() << " ";
 				*/
 
-			string test_bool_var_name2 = get_temp_name();
+			//string test_bool_var_name2 = get_temp_name();
+			string test_bool_var_name2 = qscript_parser::temp_name_generator.GetNewName();
 			code.code_bef_expr <<  "bool " <<  test_bool_var_name2.c_str()
 					   << " = " << qscript_parser::
-					   	temp_set_name_generator.GetCurrentTempXtccSetName()
+					   	temp_set_name_generator.GetCurrentName()
 					   << ".contains_subset(";
 			//ostringstream code_bef_expr1_discard, code_expr1;
 			//ExpressionCompiledCode expr1_code;
@@ -1291,7 +1297,7 @@ Binary2Expression::~Binary2Expression()
 	}
 }
 
-
+#if 0
 string get_temp_name()
 {
 	// about a billion temporaries before we run out
@@ -1327,6 +1333,7 @@ string get_temp_name()
 	string s1 = "temp_"+s;
 	return s1;
 }
+#endif /* 0 */
 
 
 string human_readable_expr_type(ExpressionOperatorType exprOperatorType_)

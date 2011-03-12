@@ -7,7 +7,7 @@ using std::stringstream;
 void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet *  xs)
 {
 	stringstream temp_code;
-	string set_name = qscript_parser::temp_set_name_generator.GetNewTempXtccSetName();
+	string set_name = qscript_parser::temp_set_name_generator.GetNewName();
 	temp_code << "XtccSet " << set_name << ";\n";
 
 	//fprintf(stderr, "Binary2Expression::PrintExpressionCode(): printed constructor");

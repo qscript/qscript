@@ -23,7 +23,7 @@
 #include "question.h"
 #include "active_var_info.h"
 #include "lex_location.h"
-#include "TempSetNameGenerator.h"
+#include "TempNameGenerator.h"
 
 using std::ofstream;
 using std::vector;
@@ -118,7 +118,8 @@ namespace qscript_parser
 	extern string fname;
 	extern struct LexLocation lex_location;
 
-	extern TempSetNameGenerator temp_set_name_generator;
+	extern TempNameGenerator temp_set_name_generator;
+	extern TempNameGenerator temp_name_generator;
 	string ExtractBaseFileName(const string & fname);
 
 }

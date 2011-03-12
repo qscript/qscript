@@ -6,7 +6,7 @@
 #include "qscript_parser.h"
 #include "config_parser.h"
 #include "qscript_debug.h"
-#include "TempSetNameGenerator.h"
+#include "TempNameGenerator.h"
 #include "utils.h"
 
 extern int32_t qscript_confparse();
@@ -78,7 +78,8 @@ namespace qscript_parser
 	bool show_lex_error_context = true;
 	string fname;
 	struct LexLocation lex_location;
-	TempSetNameGenerator temp_set_name_generator;
+	TempNameGenerator temp_set_name_generator("qscript_temp_xtcc_set_");
+	TempNameGenerator temp_name_generator("qscript_temp_");
 
 }
 
@@ -135,7 +136,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	tree_root->GenerateCode(code);
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
-	fprintf(script, "/* %s */\n", compute_flat_map_code.program_code.str().c_str());
+	fprintf(script, "%s\n", compute_flat_map_code.program_code.str().c_str());
 	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
 	if(qscript_debug::DEBUG_qscript_parser)
@@ -166,7 +167,12 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"question_disk_data.h\"\n");
 	fprintf(script, "#include \"question.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
-	fprintf(script, "#include \"TempSetNameGenerator.h\"\n");
+	{
+		stringstream mesg;
+		mesg << "do we need to #include \"TempNameGenerator.h\" in generated code? I have commented it out";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+		//fprintf(script, "#include \"TempNameGenerator.h\"\n");
+	}
 	fprintf(script, "#include \"QuestionAttributes.h\"\n");
 	if(config_file_parser::PLATFORM == "LINUX"){
 		FILE * simple_pd_curses_keys_h = fopen("a_few_pd_curses_keys.h", "wb");
@@ -1045,12 +1051,35 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf(script, "	int32_t start_pos;\n");
 	fprintf(script, "	int32_t width;\n");
 	fprintf(script, "	int32_t total_length;\n");
-	fprintf(script, "	AsciiFlatFileQuestionDiskMap(AbstractQuestion * p_q, int32_t p_start_pos,\n");
-	fprintf(script, "					int32_t p_width, int32_t p_total_length) \n");
+	fprintf(script, "	AsciiFlatFileQuestionDiskMap(AbstractQuestion * p_q, int32_t p_start_pos/*,\n");
+	fprintf(script, "					int32_t p_width, int32_t p_total_length*/) \n");
 	fprintf(script, "		:\n");
-	fprintf(script, "		q(p_q), start_pos(p_start_pos), width(p_width), \n");
-	fprintf(script, "		total_length(p_total_length)\n");
-	fprintf(script, "	{ }\n");
+	fprintf(script, "		q(p_q), start_pos(p_start_pos)/*, width(p_width), \n");
+	fprintf(script, "		total_length(p_total_length)*/\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "		int max_code = q->GetMaxCode();\n");
+	fprintf (script, "		if (max_code < 10) {\n");
+	fprintf (script, "			width = 1;\n");
+	fprintf (script, "		} else if (max_code < 100) {\n");
+	fprintf (script, "			width = 2;\n");
+	fprintf (script, "		} else if (max_code < 1000) {\n");
+	fprintf (script, "			width = 3;\n");
+	fprintf (script, "		} else if (max_code < 10000) {\n");
+	fprintf (script, "			width = 4;\n");
+	fprintf (script, "		} else if (max_code < 100000) {\n");
+	fprintf (script, "			width = 5;\n");
+	fprintf (script, "		} else if (max_code < 1000000) {\n");
+	fprintf (script, "			width = 6;\n");
+	fprintf (script, "		} else if (max_code < 10000000) {\n");
+	fprintf (script, "			width = 7;\n");
+	fprintf (script, "		} else if (max_code < 100000000) {\n");
+	fprintf (script, "			width = 8;\n");
+	fprintf (script, "		} else { cout << \" unhandled case \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		total_length = width * q->no_mpn;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+
+	fprintf(script, "	int GetTotalLength() { return total_length; }\n");
 	fprintf(script, "	void write_data(char * output_buffer);\n");
 	fprintf(script, "};\n");
 	fprintf(script, "\n");

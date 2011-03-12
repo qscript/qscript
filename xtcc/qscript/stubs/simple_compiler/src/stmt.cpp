@@ -207,10 +207,12 @@ struct IfStatementStackElement
 void IfStatement::GenerateCode(StatementCompiledCode &code)
 {
 	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
-	code.array_quest_init_area << "/* ENTER " << __PRETTY_FUNCTION__ << ", "
-			<< __FILE__ << ", " << __LINE__ 
-			<< " source lineNo_: " << lineNo_
-			<< " */\n";
+	if (qscript_debug::DEBUG_IfStatement) {
+		code.array_quest_init_area << "/* ENTER " << __PRETTY_FUNCTION__ << ", "
+				<< __FILE__ << ", " << __LINE__ 
+				<< " source lineNo_: " << lineNo_
+				<< " */\n";
+	}
 		
 	static vector<IfStatementStackElement*> ifStatementStack;
 	static int32_t if_nest_level =0;
@@ -329,9 +331,11 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		if_nest_level_was_increased = false;
 	}
 
-	code.program_code << " /* finished generating code IfStatement */ " << endl;
-	code.array_quest_init_area << "/* EXIT " << __PRETTY_FUNCTION__ << ", "
-			<< __FILE__ << ", " << __LINE__ << ", source line no:" << lineNo_ << " */\n";
+	if (qscript_debug::DEBUG_IfStatement) {
+		code.program_code << " /* finished generating code IfStatement */ " << endl;
+		code.array_quest_init_area << "/* EXIT " << __PRETTY_FUNCTION__ << ", "
+				<< __FILE__ << ", " << __LINE__ << ", source line no:" << lineNo_ << " */\n";
+	}
 	if (next_)
 		next_->GenerateCode(code);
 	//cerr << "EXIT: IfStatement::GenerateCode()" << endl;
@@ -448,8 +452,10 @@ void CompoundStatement::GetQuestionsInBlock(
 void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
 	StatementCompiledCode &code)
 {
-	code.array_quest_init_area << "/* ENTER CompoundStatement::GenerateQuestionArrayInitLoopOpen " 
-		<< "source line no: " << lineNo_ <<  "*/\n";
+	if (qscript_debug::DEBUG_CompoundStatement) {
+		code.array_quest_init_area << "// ENTER " << __PRETTY_FUNCTION__ 
+			<< " source line no: " << lineNo_ <<  "\n";
+	}
 	for(int32_t i = for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
 		code.array_quest_init_area << "for(int32_t ";
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
@@ -485,14 +491,31 @@ void CompoundStatement::GenerateQuestionArrayInitLoopOpen(
 				, 0, __LINE__, __FILE__);
 		}
 	}
-	code.array_quest_init_area << "/* EXIT CompoundStatement::GenerateQuestionArrayInitLoopOpen */\n";
+	if (qscript_debug::DEBUG_CompoundStatement) {
+		code.array_quest_init_area << "// EXIT CompoundStatement::GenerateQuestionArrayInitLoopOpen\n";
+	}
 }
 
 void CompoundStatement::GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code)
 {
 	for(int32_t i = for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
-		code.array_quest_init_area << "stack_of_loop_indices.pop_back();\n";
+		code.array_quest_init_area << "\tstack_of_loop_indices.pop_back();\n";
 		code.array_quest_init_area << "}" << endl;
+	}
+}
+
+void ForStatement::GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code)
+{
+	if (qscript_debug::DEBUG_ForStatement) {
+		code.array_quest_init_area << "// ENTER: " << __PRETTY_FUNCTION__ << endl;
+	}
+	vector<AbstractExpression*> & for_bounds_stack = forBody_->for_bounds_stack;
+	for(int32_t i = for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
+		code.array_quest_init_area << "\tstack_of_loop_indices.pop_back();\n";
+		code.array_quest_init_area << "}" << endl;
+	}
+	if (qscript_debug::DEBUG_ForStatement) {
+		code.array_quest_init_area << "// EXIT: " << __PRETTY_FUNCTION__ << endl;
 	}
 }
 
@@ -564,23 +587,31 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	// probably this block of code should go into
 	// ForStatement along with flagGeneratedQuestionDefinitions_
 	// will git branch and check this idea out
+#if 0
 	if (flagGeneratedQuestionDefinitions_ == false
 	   //&& qscript_parser::for_loop_max_counter_stack.size()>0
 	   && flagIsAForBody_
-	   && counterContainsQuestions_){
-		code.quest_defns << "//CompoundStatement::GenerateCode()\n"
-			<< "// Generating array declarations\n";
-		if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_){
-			code.array_quest_init_area << "/* invoking GenerateQuestionArrayInitLoopOpen: "
-				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
-				<< " */\n";
+	   && counterContainsQuestions_) {
+		if (qscript_debug::DEBUG_CompoundStatement) {
+			code.quest_defns << "//CompoundStatement::GenerateCode()\n"
+				<< "// Generating array declarations\n";
+		}
+		if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_) {
+			if (qscript_debug::DEBUG_CompoundStatement) {
+				code.array_quest_init_area << "/* invoking GenerateQuestionArrayInitLoopOpen: "
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< " */\n";
+			}
 			GenerateQuestionArrayInitLoopOpen(code);
-			code.array_quest_init_area << "/* finished call to GenerateQuestionArrayInitLoopOpen: "
-				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
-				<< " */\n";
+			if (qscript_debug::DEBUG_CompoundStatement) {
+				code.array_quest_init_area << "/* finished call to GenerateQuestionArrayInitLoopOpen: "
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< " */\n";
+			}
 		}
 		flagGeneratedQuestionDefinitions_ = true;
 	}
+#endif /* 0 */
 	code.program_code << "{" << endl;
 	/* Warning - duplicated code block - also present in 
 	 * CompoundStatement::Generate_ComputeFlatFileMap */
@@ -602,9 +633,11 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		code.program_code << " */\n";
 		compoundBody_->GenerateCode(code);
 	}
+#if 0
 	if (compoundBody_ && flagIsAForBody_ && !flagIsAIfBody_){
 		GenerateQuestionArrayInitLoopClose(code);
 	}
+#endif /* 0 */
 	code.program_code << "}" << endl;
 	if (next_)
 		next_->GenerateCode(code);
@@ -612,6 +645,10 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 
 void CompoundStatement::Generate_ComputeFlatFileMap(StatementCompiledCode &code)
 {
+	if (qscript_debug::DEBUG_CompoundStatement) {
+		code.program_code << "// " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+	}
+
 	code.program_code << "{" << endl;
 	/* Warning - duplicated code block - also present in 
 	 * CompoundStatement::GenerateCode */
@@ -626,6 +663,9 @@ void CompoundStatement::Generate_ComputeFlatFileMap(StatementCompiledCode &code)
 		compoundBody_->Generate_ComputeFlatFileMap(code);
 	}
 	code.program_code << "}" << endl;
+	if (qscript_debug::DEBUG_CompoundStatement) {
+		code.program_code << "// EXIT " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+	}
 	if (next_) {
 		next_->Generate_ComputeFlatFileMap(code);
 	}
@@ -931,8 +971,27 @@ void ForStatement::CheckForIndexUsageConsistency()
 
 void ForStatement::GenerateCode(StatementCompiledCode &code)
 {
-	code.array_quest_init_area << "/* " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
-		<< "*/\n";
+	if (qscript_debug::DEBUG_ForStatement) {
+		code.array_quest_init_area << "/* " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
+			<< "*/\n";
+	}
+
+	if (forBody_->counterContainsQuestions_) {
+		if (qscript_debug::DEBUG_ForStatement) {
+			code.quest_defns << "// " << __PRETTY_FUNCTION__ 
+				<< "// Generating array declarations\n";
+			code.array_quest_init_area << "// invoking GenerateQuestionArrayInitLoopOpen: "
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< " \n";
+		}
+		GenerateQuestionArrayInitLoopOpen(code);
+		if (qscript_debug::DEBUG_ForStatement) {
+			code.array_quest_init_area << "// finished call to GenerateQuestionArrayInitLoopOpen: "
+					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+					<< " \n";
+		}
+	}
+
 	ExpressionCompiledCode expr_code;
 	expr_code.code_expr << "for (";
 	initializationExpression_->PrintExpressionCode(expr_code);
@@ -945,31 +1004,39 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 	code.program_code << expr_code.code_bef_expr.str();
 	code.program_code << expr_code.code_expr.str();
 	forBody_->GenerateCode(code);
+
+	if (forBody_->counterContainsQuestions_) {
+		GenerateQuestionArrayInitLoopClose(code);
+	}
+
 	if (next_)
 		next_->GenerateCode(code);
 }
 
 void ForStatement::Generate_ComputeFlatFileMap(StatementCompiledCode &code)
 {
-	code.program_code << "/* " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
-		<< "*/\n";
-	/*
-	ExpressionCompiledCode expr_code;
-	expr_code.code_expr << "for (";
-	initializationExpression_->PrintExpressionCode(expr_code);
-	expr_code.code_expr <<   ";";
-	testExpression_->PrintExpressionCode(expr_code);
-	expr_code.code_expr << ";";
-	incrementExpression_->PrintExpressionCode(expr_code);
-	expr_code.code_expr <<  ") ";
-	*/
+	if (qscript_debug::DEBUG_ForStatement) {
+		code.program_code << "// ENTER " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
+			<< "\n";
+	}
 
-	StatementCompiledCode temp_code;
-	GenerateQuestionArrayInitLoopOpen(temp_code);
+	if (forBody_->counterContainsQuestions_) {
+		StatementCompiledCode temp_code;
+		GenerateQuestionArrayInitLoopOpen(temp_code);
+		code.program_code << temp_code.array_quest_init_area.str();
+	}
 
-	code.program_code << expr_code.code_bef_expr.str();
-	code.program_code << expr_code.code_expr.str();
 	forBody_->Generate_ComputeFlatFileMap(code);
+	if (qscript_debug::DEBUG_ForStatement) {
+		code.program_code << "// EXIT " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
+			<< "\n";
+	}
+
+	if (forBody_->counterContainsQuestions_) {
+		StatementCompiledCode temp_code;
+		GenerateQuestionArrayInitLoopClose(temp_code);
+		code.program_code << temp_code.array_quest_init_area.str();
+	}
 	if (next_)
 		next_->Generate_ComputeFlatFileMap(code);
 }
@@ -1000,47 +1067,53 @@ void ForStatement::GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 }
 
 
-void ForStatement::GenerateQuestionArrayInitLoopOpen(
-	StatementCompiledCode &code)
+void ForStatement::GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code)
 {
-	code.array_quest_init_area << "// " __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
-		<< " source line no: " << lineNo_ <<  "\n";
-	for(int32_t i = for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
-		code.array_quest_init_area << "for(int32_t ";
-		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
-		if (bin_expr_ptr){
-			//AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
-			AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
-			ExpressionCompiledCode expr_code1;
-			lhs->PrintExpressionCode(expr_code1);
-			code.array_quest_init_area << expr_code1.code_bef_expr.str() << expr_code1.code_expr.str();
-			code.array_quest_init_area << " = 0;";
-			ExpressionCompiledCode expr_code2;
-			for_bounds_stack[i]->PrintExpressionCode(expr_code2);
-			code.array_quest_init_area << expr_code2.code_bef_expr.str() << expr_code2.code_expr.str();
-			code.array_quest_init_area << "; ++";
-			ExpressionCompiledCode expr_code3;
-			lhs->PrintExpressionCode(expr_code3);
-			code.array_quest_init_area << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
-			code.array_quest_init_area <<	"){" << endl;
-			if (i == 0){
-				code.array_quest_init_area << "vector<int32_t> stack_of_loop_indices;\n";
-					//<< "(" <<  for_bounds_stack.size() << ");\n";
+	if (qscript_debug::DEBUG_ForStatement) {
+		code.array_quest_init_area << "// " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
+			<< " source line no: " << lineNo_ <<  "\n";
+	}
+	if (forBody_->counterContainsQuestions_) {
+		vector<AbstractExpression*> & for_bounds_stack = forBody_->for_bounds_stack;
+		for(int32_t i = for_bounds_stack.size()-1; i< for_bounds_stack.size(); ++i){
+			code.array_quest_init_area << "for (int32_t ";
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
+			if (bin_expr_ptr){
+				//AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+				ExpressionCompiledCode expr_code1;
+				lhs->PrintExpressionCode(expr_code1);
+				code.array_quest_init_area << expr_code1.code_bef_expr.str() << expr_code1.code_expr.str();
+				code.array_quest_init_area << " = 0;";
+				ExpressionCompiledCode expr_code2;
+				for_bounds_stack[i]->PrintExpressionCode(expr_code2);
+				code.array_quest_init_area << expr_code2.code_bef_expr.str() << expr_code2.code_expr.str();
+				code.array_quest_init_area << "; ++";
+				ExpressionCompiledCode expr_code3;
+				lhs->PrintExpressionCode(expr_code3);
+				code.array_quest_init_area << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
+				code.array_quest_init_area <<	") {" << endl;
+				if (i == 0){
+					code.array_quest_init_area << "vector<int32_t> stack_of_loop_indices;\n";
+						//<< "(" <<  for_bounds_stack.size() << ");\n";
+				}
+				code.array_quest_init_area << "stack_of_loop_indices.push_back(";
+				//lhs->PrintExpressionCode(array_quest_init_area, array_quest_init_area); // note this is already stored in expr_code3
+				code.array_quest_init_area << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
+				code.array_quest_init_area << ");\n";
+			} else {
+				ExpressionCompiledCode expr_code;
+				for_bounds_stack[i]->PrintExpressionCode(expr_code);
+				code.array_quest_init_area << expr_code.code_bef_expr.str() << expr_code.code_expr.str();
+				print_err(compiler_sem_err
+					, "for loop index condition is not a binary expression"
+					, 0, __LINE__, __FILE__);
 			}
-			code.array_quest_init_area << "stack_of_loop_indices.push_back(";
-			//lhs->PrintExpressionCode(array_quest_init_area, array_quest_init_area); // note this is already stored in expr_code3
-			code.array_quest_init_area << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
-			code.array_quest_init_area << ");\n";
-		} else {
-			ExpressionCompiledCode expr_code;
-			for_bounds_stack[i]->PrintExpressionCode(expr_code);
-			code.array_quest_init_area << expr_code.code_bef_expr.str() << expr_code.code_expr.str();
-			print_err(compiler_sem_err
-				, "for loop index condition is not a binary expression"
-				, 0, __LINE__, __FILE__);
 		}
 	}
-	code.array_quest_init_area << "/* EXIT CompoundStatement::GenerateQuestionArrayInitLoopOpen */\n";
+	if (qscript_debug::DEBUG_ForStatement) {
+		code.array_quest_init_area << "// EXIT "  << __PRETTY_FUNCTION__ << " \n";
+	}
 }
 
 
@@ -1244,11 +1317,11 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			// ===================
 			code.program_code << "for (set<int32_t>::iterator xtcc_set_iter1="
 				<< qscript_parser::
-					temp_set_name_generator.GetCurrentTempXtccSetName()
+					temp_set_name_generator.GetCurrentName()
 				<< ".indiv.begin()"
 				<< "; xtcc_set_iter1 !="
 				<< qscript_parser::
-					temp_set_name_generator.GetCurrentTempXtccSetName()
+					temp_set_name_generator.GetCurrentName()
 				<< ".indiv.end(); ++xtcc_set_iter1) {\n"
 				<< "\tfor (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".size(); ++xtcc_i2) {\n"
 				<< "\t\tif ("
@@ -1262,14 +1335,14 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 
 				<< "for(int32_t xtcc_i1 = 0; xtcc_i1 < "
 				<< qscript_parser::
-					temp_set_name_generator.GetCurrentTempXtccSetName()
+					temp_set_name_generator.GetCurrentName()
 				<< ".range.size(); ++xtcc_i1) {\n"
 				<< "\tfor(int32_t set_member = "
 				<< qscript_parser::
-					temp_set_name_generator.GetCurrentTempXtccSetName()
+					temp_set_name_generator.GetCurrentName()
 				<< ".range[xtcc_i1].first; set_member <= "
 				<< qscript_parser::
-					temp_set_name_generator.GetCurrentTempXtccSetName()
+					temp_set_name_generator.GetCurrentName()
 				<< ".range[xtcc_i1].second\n"
 				<< "\t\t\t;++set_member) {\n"
 				<< "\t\tfor (int32_t xtcc_i2=0; xtcc_i2<"

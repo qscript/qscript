@@ -272,6 +272,8 @@ struct ForStatement: public AbstractStatement
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 					 , AbstractStatement* stop_at);
 	virtual ~ForStatement();
+	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
+	void GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code);
 	private:
 	ForStatement& operator=(const ForStatement&);
 	ForStatement(const ForStatement&);

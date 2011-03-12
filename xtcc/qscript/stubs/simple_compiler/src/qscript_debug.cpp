@@ -11,4 +11,7 @@ namespace qscript_debug
 	const int32_t DEBUG_RangeQuestion = 0;
 	const int32_t MAINTAINER_MESSAGES = 1;
 	const int32_t DEBUG_LoadData = 0;
+	const int32_t DEBUG_IfStatement = 0;
+	const int32_t DEBUG_ForStatement = 0;
+	const int32_t DEBUG_CompoundStatement = 0;
 }

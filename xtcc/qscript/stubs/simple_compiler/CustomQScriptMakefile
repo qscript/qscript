@@ -101,7 +101,7 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp \
 		$(SOURCE_DIR)/qscript_readline.cpp $(SOURCE_DIR)/config_parser.cpp \
 		$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp \
-		$(SOURCE_DIR)/TempSetNameGenerator.cpp $(SOURCE_DIR)/code_gen_utils.cpp \
+		$(SOURCE_DIR)/TempNameGenerator.cpp $(SOURCE_DIR)/code_gen_utils.cpp \
 		$(SOURCE_DIR)/QuestionAttributes.cpp
 
 RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
