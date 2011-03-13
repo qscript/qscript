@@ -100,6 +100,8 @@ void PrintGetUserResponse(FILE *script);
 void PrintSetupNCurses(FILE * script);
 void PrintSignalHandler(FILE * script);
 void PrintSetupSignalHandler(FILE * script);
+
+void PrintPrintMapHeader(FILE * script);
 void PrintDefineSomePDCursesKeys(FILE * script);
 void PrintPDCursesKeysHeader(FILE * script);
 void PrintProcessOptions(FILE * script);
@@ -133,8 +135,12 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	StatementCompiledCode compute_flat_map_code;
 	compute_flat_map_code.program_code << "{\nint current_map_pos = 0;\n";
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
+
+	compute_flat_map_code.program_code << "\tstring map_file_name(jno + string(\".map\"));\n";
+	compute_flat_map_code.program_code << "\tfstream map_file(map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << "\t print_map_header(map_file);\n";
 	compute_flat_map_code.program_code << " for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
-		<< "\tascii_flatfile_question_disk_map[i]->print_map();\n"
+		<< "\tascii_flatfile_question_disk_map[i]->print_map(map_file);\n"
 		<< "}\n";
 	compute_flat_map_code.program_code << "}\n";
 	StatementCompiledCode code;
@@ -210,6 +216,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int32_t jumpToIndex;\n");
 	fprintf(script, "bool write_data_file_flag;\n");
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
+	fprintf(script, "void print_map_header(fstream & map_file);");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
 	fprintf(script, "vector <int8_t> vector_int8_t;\n");
 	fprintf(script, "vector <int16_t> vector_int16_t;\n");
@@ -237,6 +244,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "string output_data_file_name;\n");
 	fprintf(script, "void GetUserResponse(string& qno, int32_t &qindex);\n");
 	print_array_question_class(script);
+	fprintf(script, "string jno = \"%s\";\n", project_name.c_str());
 	print_flat_ascii_data_class(script);
 	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
@@ -320,7 +328,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	//fprintf(script, "\treset_questionnaire();\n");
 
 	//fprintf(script, "\twgetch(data_entry_window);\n");
-	fprintf(script, "\tstring jno = \"%s\";\n", project_name.c_str());
+	// fprintf(script, "\tstring jno = \"%s\";\n", project_name.c_str());
 	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag)){\n");
 
 	fprintf(script, "	if (write_data_file_flag) {\n");
@@ -491,6 +499,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	PrintSignalHandler(script);
 	PrintSetupSignalHandler(script);
 	PrintProcessOptions(script);
+	PrintPrintMapHeader(script);
 }
 
 void print_navigation_support_functions(FILE * script)
@@ -1079,26 +1088,25 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf (script, "			width = 7;\n");
 	fprintf (script, "		} else if (max_code < 100000000) {\n");
 	fprintf (script, "			width = 8;\n");
-	fprintf (script, "		} else { cout << \" unhandled case \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 8 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
 	fprintf (script, "		total_length = width * q->no_mpn;\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "\n");
 
 	fprintf(script, "	int GetTotalLength() { return total_length; }\n");
 	fprintf(script, "	void write_data(char * output_buffer);\n");
-	fprintf(script, "	void print_map()\n{\n");
-
-	fprintf(script, "	cout << q->questionName_;\n");
+	fprintf(script, "	void print_map(fstream & map_file)\n{\n");
+	fprintf(script, "	map_file << q->questionName_;\n");
 	fprintf(script, "	if (q->loop_index_values.size()) {\n");
 	fprintf(script, "		for (int i=0; i< q->loop_index_values.size(); ++i) {\n");
-	fprintf(script, "			cout << \".\" << q->loop_index_values[i];\n");
+	fprintf(script, "			map_file << \".\" << q->loop_index_values[i];\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	cout << \",\t\";\n");
-	fprintf(script, "	cout << width << \",\t\";\n");
-	fprintf(script, "	cout << q->no_mpn << \",\t\";\n");
-	fprintf(script, "	cout << start_pos << \",\t\";\n");
-	fprintf(script, "	cout << start_pos + total_length << \"\\n\";\n");
+	fprintf(script, "	map_file << \",\t\t\t\";\n");
+	fprintf(script, "	map_file << width << \",\t\";\n");
+	fprintf(script, "	map_file << q->no_mpn << \",\t\";\n");
+	fprintf(script, "	map_file << start_pos << \",\t\";\n");
+	fprintf(script, "	map_file << start_pos + total_length - 1 << \"\\n\";\n");
 	fprintf(script, "}\n");
 
 	fprintf(script, "};\n");
@@ -1396,6 +1404,13 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	cout << \"output_data_file_name: \" << output_data_file_name << endl;\n");
 	fprintf(script, "	cout << \"write_data_file_flag: \" << write_data_file_flag << endl;\n");
 	fprintf(script, "	//exit(1);\n");
+	fprintf(script, "}\n");
+}
+
+void PrintPrintMapHeader(FILE * script)
+{
+	fprintf(script, "\tvoid print_map_header(fstream & map_file )\n{\n");
+	fprintf(script, "map_file << \"Question No\t\t\t,width,\tno responses,\tstart position,\tend position\\n\";\n");
 	fprintf(script, "}\n");
 }
 
