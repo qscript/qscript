@@ -145,7 +145,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	compute_flat_map_code.program_code << "len_flat_file_output_buffer = current_map_pos+1;\n";
 	compute_flat_map_code.program_code << "flat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
 	compute_flat_map_code.program_code << "memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
-	compute_flat_map_code.program_code << "flat_file_output_buffer[len_flat_file_output_buffer] = 0;\n";
+	compute_flat_map_code.program_code << "flat_file_output_buffer[len_flat_file_output_buffer-1] = 0;\n";
 	compute_flat_map_code.program_code << "string flat_file_name(jno + string(\".dat\"));\n";
 	compute_flat_map_code.program_code << "flat_file.open(flat_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "}\n";
@@ -440,7 +440,8 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
 	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "flat_file << flat_file_output_buffer << endl;");
+	fprintf(script, "	cout << \"output_buffer: \" << flat_file_output_buffer;\n");
+	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
 	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
 
 	fprintf(script, "\t} else {\n");
@@ -1122,15 +1123,23 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf(script, "				int code = *it;\n");
 	fprintf(script, "				stringstream code_str;\n");
 	fprintf(script, "				code_str << code;\n");
+	fprintf(script, "				cout << \"writing code: \" << code << \" to output_buffer: length: \" << code_str.str().length() << \"\\n\";\n");
 	fprintf(script, "				if (code_str.str().length() > width) {\n");
 	fprintf(script, "					cerr << \" internal programming error - width of code exceeds width allocated ... exiting\\n\";\n");
 	fprintf(script, "					exit(1);\n");
 	fprintf(script, "				}\n");
-	fprintf(script, "				int bytes_written = sprintf(ptr, \"%%s\", code_str.str().c_str());\n");
-	fprintf(script, "				if (bytes_written > width) {\n");
-	fprintf(script, "					cerr << \"impossible internal programming error - width of code exceeds width allocated ... exiting\\n\";\n");
-	fprintf(script, "					exit(1);\n");
+	fprintf(script, "				// int bytes_written = snprintf(ptr, code_str.str().length(), \"%%s\", code_str.str().c_str());\n");
+	fprintf(script, "				// int bytes_written = snprintf(ptr, code_str.str().length(), \"%%d\", code);\n");
+
+	fprintf(script, "				for (int i=0; i<code_str.str().length(); ++i) {\n");
+	fprintf(script, "					ptr[i] = (code_str.str())[i];\n");
 	fprintf(script, "				}\n");
+
+	fprintf(script, "				// ptr[bytes_written] = ' ';\n");
+	fprintf(script, "				//if (bytes_written > width) {\n");
+	fprintf(script, "				//	cerr << \"impossible internal programming error - width of code exceeds width allocated ... exiting\\n\";\n");
+	fprintf(script, "				//	exit(1);\n");
+	fprintf(script, "				//}\n");
 	fprintf(script, "				ptr += width;\n");
 	fprintf(script, "				++no_responses_written;\n");
 	fprintf(script, "				if (no_responses_written > q->no_mpn) {\n");
@@ -1150,8 +1159,8 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf(script, "	map_file << \",\t\t\t\";\n");
 	fprintf(script, "	map_file << width << \",\t\";\n");
 	fprintf(script, "	map_file << q->no_mpn << \",\t\";\n");
-	fprintf(script, "	map_file << start_pos << \",\t\";\n");
-	fprintf(script, "	map_file << start_pos + total_length - 1 << \"\\n\";\n");
+	fprintf(script, "	map_file << start_pos+1 << \",\t\";\n");
+	fprintf(script, "	map_file << start_pos + total_length  << \"\\n\";\n");
 	fprintf(script, "}\n");
 
 	fprintf(script, "};\n");

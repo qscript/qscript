@@ -1324,10 +1324,10 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 {
 	// ----------------------------------
-	code.program_code << "cout << \"jumpToQuestion = \" << jumpToQuestion << endl;"
-		<< endl;
-	code.program_code << "cout << \"jumpToIndex = \" << jumpToIndex << endl;"
-		<< endl;
+	code.program_code << " if (data_entry_window == 0) {\n\tcout << \"jumpToQuestion = \" << jumpToQuestion << endl;"
+			<< "\tcout << \"jumpToIndex = \" << jumpToIndex << endl;"
+			<< "}\n"
+			<< endl;
 	code.program_code << "if(!"
 			<< questionName_.c_str() << "_list.questionList[";
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
