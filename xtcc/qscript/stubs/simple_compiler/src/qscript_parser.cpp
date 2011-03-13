@@ -133,7 +133,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_header(script, ncurses_flag);
 	tree_root->GenerateConsolidatedForLoopIndexes();
 	StatementCompiledCode compute_flat_map_code;
-	compute_flat_map_code.program_code << "{\nint current_map_pos = 0;\n";
+	compute_flat_map_code.program_code << "if (write_data_file_flag) {\nint current_map_pos = 0;\n";
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
 
 	compute_flat_map_code.program_code << "\tstring map_file_name(jno + string(\".map\"));\n";
@@ -142,6 +142,12 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	compute_flat_map_code.program_code << " for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
 		<< "\tascii_flatfile_question_disk_map[i]->print_map(map_file);\n"
 		<< "}\n";
+	compute_flat_map_code.program_code << "len_flat_file_output_buffer = current_map_pos+1;\n";
+	compute_flat_map_code.program_code << "flat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
+	compute_flat_map_code.program_code << "memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
+	compute_flat_map_code.program_code << "flat_file_output_buffer[len_flat_file_output_buffer] = 0;\n";
+	compute_flat_map_code.program_code << "string flat_file_name(jno + string(\".dat\"));\n";
+	compute_flat_map_code.program_code << "flat_file.open(flat_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "}\n";
 	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
@@ -202,6 +208,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "FILE * qscript_stdout = 0;\n");
 	fprintf(script, "#include \"debug_mem.h\"\n");
 	fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
+	fprintf(script, "fstream flat_file;\n");
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
@@ -245,6 +252,8 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void GetUserResponse(string& qno, int32_t &qindex);\n");
 	print_array_question_class(script);
 	fprintf(script, "string jno = \"%s\";\n", project_name.c_str());
+	fprintf(script, "char * flat_file_output_buffer = 0;\n");
+	fprintf(script, "int32_t len_flat_file_output_buffer  = 0;\n");
 	print_flat_ascii_data_class(script);
 	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
@@ -426,7 +435,16 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "\tfclose(fptr);\n");
 	fprintf(script, "\n");
 	*/
-	fprintf(script, "\tif (write_data_file_flag) {\n\t} else {\n");
+	fprintf(script, "\tif (write_data_file_flag) {\n\n");
+
+	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "flat_file << flat_file_output_buffer << endl;");
+	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
+
+	fprintf(script, "\t} else {\n");
+
 	fprintf(script, "\tchar end_of_question_navigation;\n");
 	fprintf(script, "label_end_of_qnre_navigation:\n");
 	if(ncurses_flag) {
@@ -1094,7 +1112,34 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf (script, "\n");
 
 	fprintf(script, "	int GetTotalLength() { return total_length; }\n");
-	fprintf(script, "	void write_data(char * output_buffer);\n");
+	fprintf(script, "	void write_data (char * output_buffer)");
+
+	fprintf(script, "		{\n");
+	fprintf(script, "			char * ptr = output_buffer + start_pos;\n");
+	fprintf(script, "			int no_responses_written = 0;\n");
+	fprintf(script, "			for (set<int>::iterator it = q->input_data.begin();\n");
+	fprintf(script, "					it != q->input_data.end(); ++it) {\n");
+	fprintf(script, "				int code = *it;\n");
+	fprintf(script, "				stringstream code_str;\n");
+	fprintf(script, "				code_str << code;\n");
+	fprintf(script, "				if (code_str.str().length() > width) {\n");
+	fprintf(script, "					cerr << \" internal programming error - width of code exceeds width allocated ... exiting\\n\";\n");
+	fprintf(script, "					exit(1);\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "				int bytes_written = sprintf(ptr, \"%%s\", code_str.str().c_str());\n");
+	fprintf(script, "				if (bytes_written > width) {\n");
+	fprintf(script, "					cerr << \"impossible internal programming error - width of code exceeds width allocated ... exiting\\n\";\n");
+	fprintf(script, "					exit(1);\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "				ptr += width;\n");
+	fprintf(script, "				++no_responses_written;\n");
+	fprintf(script, "				if (no_responses_written > q->no_mpn) {\n");
+	fprintf(script, "					cerr << \" no of responses in question : \" << q->questionName_ << \" exceeds no allocated ... exiting\\n\";\n");
+	fprintf(script, "					exit(1);\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "		}\n");
+
 	fprintf(script, "	void print_map(fstream & map_file)\n{\n");
 	fprintf(script, "	map_file << q->questionName_;\n");
 	fprintf(script, "	if (q->loop_index_values.size()) {\n");
