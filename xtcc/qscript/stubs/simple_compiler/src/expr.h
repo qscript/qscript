@@ -96,7 +96,7 @@ struct AbstractExpression
 */
 struct UnaryExpression : public AbstractExpression
 {
-	protected:
+	public:
 	AbstractExpression* operand_;
 	public:
 	UnaryExpression( AbstractExpression * l_operand=0
@@ -126,7 +126,7 @@ class AbstractQuestion;
 //! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set
 struct Binary2Expression: public AbstractExpression
 {
-	protected:
+	public:
 	Unary2Expression * leftOperand_;
 	AbstractExpression * leftOperand2_;
 	XtccSet *xs;

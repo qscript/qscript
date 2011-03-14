@@ -4,6 +4,7 @@ inp_for{
 	int32_t i1=0;
 	int32_t i2=0;
 	int32_t i3=0;
+	column (50);
 
 	for(i1=0; i1<5; i1=i1+1){
 		// Remember that indexes count from 0 - so this will 

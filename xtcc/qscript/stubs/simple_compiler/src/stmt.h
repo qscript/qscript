@@ -520,6 +520,9 @@ struct GotoStatement: public AbstractStatement
 	GotoStatement(DataType l_type, int32_t l_line_number
 		      , string l_gotoLabel);
 	void GenerateCode(StatementCompiledCode & code);
+	private:
+	GotoStatement& operator=(const GotoStatement&);
+	GotoStatement(const GotoStatement&);
 };
 
 struct ClearStatement: public AbstractStatement 
@@ -532,6 +535,25 @@ struct ClearStatement: public AbstractStatement
 	void GenerateCode(StatementCompiledCode & code);
 	SymbolTableEntry* symbolTableEntry_ ;
 	AbstractExpression * arrIndex_;
+	private:
+	ClearStatement& operator=(const ClearStatement&);
+	ClearStatement(const ClearStatement&);
+};
+
+struct ColumnStatement;
+bool RunColumnExpressionChecks(ColumnStatement * col_stmt);
+struct ColumnStatement: public AbstractStatement
+{
+	AbstractExpression * columnExpression_;
+
+	ColumnStatement(DataType l_type, int32_t l_line_number,
+					AbstractExpression * expr);
+	void GenerateCode(StatementCompiledCode & code);
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	friend bool RunColumnExpressionChecks();
+	private:
+	ColumnStatement& operator=(const ColumnStatement&);
+	ColumnStatement(const ColumnStatement&);
 };
 
 

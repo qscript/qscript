@@ -353,6 +353,13 @@ clear	{
 		return CLEAR;
 }
 
+column	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return COLUMN;
+}
+
 
 [0-9]+	{
 		if (qscript_parser::show_lex_error_context)

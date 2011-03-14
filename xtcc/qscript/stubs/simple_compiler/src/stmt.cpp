@@ -1802,3 +1802,52 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+
+
+ColumnStatement::ColumnStatement(DataType l_type, int32_t l_line_number,
+				AbstractExpression * expr)
+	: AbstractStatement(l_type, l_line_number),
+	  columnExpression_(expr)
+{
+	RunColumnExpressionChecks(this);
+}
+
+bool RunColumnExpressionChecks(ColumnStatement * col_stmt)
+{
+	// we want to allow expressions which contain lvalues which are for
+	// loop indices
+	// but for now just allow plain numbers
+	
+	Unary2Expression * un2_expr = dynamic_cast<Unary2Expression*> (col_stmt->columnExpression_);
+	if (un2_expr == 0) {
+		stringstream s;
+		s << " Currently only numbers are allowed as column expressions";
+		print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		if (! (un2_expr->exprOperatorType_== oper_num)) {
+			stringstream s;
+			s << " Currently only numbers are allowed as column expressions";
+			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		} 
+		// else all ok 
+	}
+	
+}
+
+void ColumnStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
+{
+	ExpressionCompiledCode expr_code;
+	columnExpression_->PrintExpressionCode(expr_code);
+	code.program_code << "current_map_pos = ";
+	code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str()
+		<< ";\n";
+	if (next_)
+		next_->Generate_ComputeFlatFileMap(code);
+}
+
+void ColumnStatement::GenerateCode(StatementCompiledCode & code)
+{
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
