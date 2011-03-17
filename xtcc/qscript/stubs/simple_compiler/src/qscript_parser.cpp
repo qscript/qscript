@@ -92,6 +92,7 @@ using std::string;
 void print_header(FILE* script, bool ncurses_flag);
 void print_array_question_class(FILE* script);
 void print_flat_ascii_data_class(FILE *script);
+void print_qtm_data_class(FILE *script);
 void print_close(FILE* script, ostringstream & program_code, bool  ncurses_flag);
 void print_navigation_support_functions(FILE * script);
 void print_reset_questionnaire(FILE * script);
@@ -184,6 +185,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"question_disk_data.h\"\n");
 	fprintf(script, "#include \"question.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
+	fprintf(script, "#include \"qtm_data_file.h\"\n");
 	{
 		stringstream mesg;
 		mesg << "do we need to #include \"TempNameGenerator.h\" in generated code? I have commented it out";
@@ -255,6 +257,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "char * flat_file_output_buffer = 0;\n");
 	fprintf(script, "int32_t len_flat_file_output_buffer  = 0;\n");
 	print_flat_ascii_data_class(script);
+	//print_qtm_data_class(script);
 	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
 	fprintf(script, "\n");
@@ -1085,6 +1088,99 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf(script, "	int32_t width;\n");
 	fprintf(script, "	int32_t total_length;\n");
 	fprintf(script, "	AsciiFlatFileQuestionDiskMap(AbstractQuestion * p_q, int32_t p_start_pos/*,\n");
+	fprintf(script, "					int32_t p_width, int32_t p_total_length*/) \n");
+	fprintf(script, "		:\n");
+	fprintf(script, "		q(p_q), start_pos(p_start_pos)/*, width(p_width), \n");
+	fprintf(script, "		total_length(p_total_length)*/\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "		int max_code = q->GetMaxCode();\n");
+	fprintf (script, "		if (max_code < 10) {\n");
+	fprintf (script, "			width = 1;\n");
+	fprintf (script, "		} else if (max_code < 100) {\n");
+	fprintf (script, "			width = 2;\n");
+	fprintf (script, "		} else if (max_code < 1000) {\n");
+	fprintf (script, "			width = 3;\n");
+	fprintf (script, "		} else if (max_code < 10000) {\n");
+	fprintf (script, "			width = 4;\n");
+	fprintf (script, "		} else if (max_code < 100000) {\n");
+	fprintf (script, "			width = 5;\n");
+	fprintf (script, "		} else if (max_code < 1000000) {\n");
+	fprintf (script, "			width = 6;\n");
+	fprintf (script, "		} else if (max_code < 10000000) {\n");
+	fprintf (script, "			width = 7;\n");
+	fprintf (script, "		} else if (max_code < 100000000) {\n");
+	fprintf (script, "			width = 8;\n");
+	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 8 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		total_length = width * q->no_mpn;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+
+	fprintf(script, "	int GetTotalLength() { return total_length; }\n");
+	fprintf(script, "	void write_data (char * output_buffer)");
+
+	fprintf(script, "		{\n");
+	fprintf(script, "			char * ptr = output_buffer + start_pos;\n");
+	fprintf(script, "			int no_responses_written = 0;\n");
+	fprintf(script, "			for (set<int>::iterator it = q->input_data.begin();\n");
+	fprintf(script, "					it != q->input_data.end(); ++it) {\n");
+	fprintf(script, "				int code = *it;\n");
+	fprintf(script, "				stringstream code_str;\n");
+	fprintf(script, "				code_str << code;\n");
+	fprintf(script, "				cout << \"writing code: \" << code << \" to output_buffer: length: \" << code_str.str().length() << \"\\n\";\n");
+	fprintf(script, "				if (code_str.str().length() > width) {\n");
+	fprintf(script, "					cerr << \" internal programming error - width of code exceeds width allocated ... exiting\\n\";\n");
+	fprintf(script, "					exit(1);\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "				// int bytes_written = snprintf(ptr, code_str.str().length(), \"%%s\", code_str.str().c_str());\n");
+	fprintf(script, "				// int bytes_written = snprintf(ptr, code_str.str().length(), \"%%d\", code);\n");
+
+	fprintf(script, "				for (int i=0; i<code_str.str().length(); ++i) {\n");
+	fprintf(script, "					ptr[i] = (code_str.str())[i];\n");
+	fprintf(script, "				}\n");
+
+	fprintf(script, "				// ptr[bytes_written] = ' ';\n");
+	fprintf(script, "				//if (bytes_written > width) {\n");
+	fprintf(script, "				//	cerr << \"impossible internal programming error - width of code exceeds width allocated ... exiting\\n\";\n");
+	fprintf(script, "				//	exit(1);\n");
+	fprintf(script, "				//}\n");
+	fprintf(script, "				ptr += width;\n");
+	fprintf(script, "				++no_responses_written;\n");
+	fprintf(script, "				if (no_responses_written > q->no_mpn) {\n");
+	fprintf(script, "					cerr << \" no of responses in question : \" << q->questionName_ << \" exceeds no allocated ... exiting\\n\";\n");
+	fprintf(script, "					exit(1);\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "		}\n");
+
+	fprintf(script, "	void print_map(fstream & map_file)\n{\n");
+	fprintf(script, "	map_file << q->questionName_;\n");
+	fprintf(script, "	if (q->loop_index_values.size()) {\n");
+	fprintf(script, "		for (int i=0; i< q->loop_index_values.size(); ++i) {\n");
+	fprintf(script, "			map_file << \".\" << q->loop_index_values[i];\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	map_file << \",\t\t\t\";\n");
+	fprintf(script, "	map_file << width << \",\t\";\n");
+	fprintf(script, "	map_file << q->no_mpn << \",\t\";\n");
+	fprintf(script, "	map_file << start_pos+1 << \",\t\";\n");
+	fprintf(script, "	map_file << start_pos + total_length  << \"\\n\";\n");
+	fprintf(script, "}\n");
+
+	fprintf(script, "};\n");
+	fprintf(script, "\n");
+}
+
+void print_qtm_data_class(FILE *script)
+{
+
+	fprintf(script, "class QtmDataDiskMap\n");
+	fprintf(script, "{\n");
+	fprintf(script, "public:\n");
+	fprintf(script, "	AbstractQuestion *q;\n");
+	fprintf(script, "	int32_t start_pos;\n");
+	fprintf(script, "	int32_t width;\n");
+	fprintf(script, "	int32_t total_length;\n");
+	fprintf(script, "	QtmDataDiskMap(AbstractQuestion * p_q, int32_t p_start_pos/*,\n");
 	fprintf(script, "					int32_t p_width, int32_t p_total_length*/) \n");
 	fprintf(script, "		:\n");
 	fprintf(script, "		q(p_q), start_pos(p_start_pos)/*, width(p_width), \n");
