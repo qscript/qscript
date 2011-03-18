@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 
-namespace qtm_data_file {
+namespace qtm_data_file_ns {
 
 using std::stringstream;
 using std::cout;
@@ -32,9 +32,9 @@ void QtmDataDiskMap::write_data (QtmDataFile & p_qtm_data_file)
 
 
 QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
-		QtmFileCharacteristics & file_xcha)
+		QtmDataFile & p_qtm_data_file )
 	:
-	q(p_q)
+	q(p_q), qtmDataFile_(p_qtm_data_file)
 {
 	int max_code = q->GetMaxCode();
 	if (q->no_mpn == 1) {
@@ -100,7 +100,7 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 		}
 	}
 	*/
-	startPosition_ = file_xcha.UpdateCurrentColumn(width_);
+	startPosition_ = qtmDataFile_.fileXcha_.UpdateCurrentColumn(width_);
 }
 
 int QtmFileCharacteristics::UpdateCurrentColumn(int width_)
@@ -158,9 +158,9 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 	if (qtmFileMode_ == READ_EQ_0) {
 		multiplier_ = 1;
 	} else if (qtmFileMode_ == READ_EQ_1) {
-		multiplier_ = 100;
-	} else if (qtmFileMode_ == READ_EQ_2) {
 		multiplier_ = 1000;
+	} else if (qtmFileMode_ == READ_EQ_2) {
+		multiplier_ = 100;
 	} else {
 		cerr << "error in setting qtmFileMode_ in " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ << endl;
 		cerr << "exiting ...\n";
@@ -189,7 +189,7 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 		exit(1);
 	}
 	currentColumn_ = cardStartAt_;
-	currentCard_ = 0;
+	currentCard_ = 1;
 }
 
 void QtmFileCharacteristics::NextCard()
@@ -209,5 +209,9 @@ int QtmFileCharacteristics::GetCurrentColumnPosition()
 	return currentCard_ * multiplier_
 			+ currentColumn_;
 }
+
+QtmDataFile::QtmDataFile()
+	: fileXcha_(11, 80, true, READ_EQ_2)
+{ }
 
 }

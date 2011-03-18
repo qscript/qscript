@@ -4,20 +4,9 @@
 #include <vector>
 #include <fstream>
 
-namespace qtm_data_file {
+namespace qtm_data_file_ns {
 
 
-
-struct Card 
-{
-	std::vector<char> data_;
-	std::vector<char> multiPunchData_;
-};
-
-struct QtmDataFile
-{
-	std::vector<Card> cardVec_;
-};
 
 enum QtmFileMode 
 {
@@ -37,12 +26,25 @@ struct QtmFileCharacteristics
 	int currentCard_;
 	int currentColumn_;
 	int multiplier_;
-	QtmFileCharacteristics();
+	//QtmFileCharacteristics();
 	void NextCard();
 	int GetCurrentColumnPosition();
 	int UpdateCurrentColumn(int width_);
 	QtmFileCharacteristics(int p_cardStartAt_, int p_cardWrapAroundAt,
 			bool p_dontBreakQuestionsAtBoundary, QtmFileMode p_qtmFileMode);
+};
+
+struct Card 
+{
+	std::vector<char> data_;
+	std::vector<char> multiPunchData_;
+};
+
+struct QtmDataFile
+{
+	std::vector<Card> cardVec_;
+	QtmFileCharacteristics fileXcha_;
+	QtmDataFile();
 };
 
 struct CodeBucket 
@@ -59,8 +61,11 @@ struct QtmDataDiskMap
 		int32_t startPosition_;
 		int32_t width_;
 		int32_t totalLength_;
+		QtmDataFile & qtmDataFile_;
 
-		QtmDataDiskMap(AbstractQuestion * p_q, QtmFileCharacteristics & file_xcha);
+		QtmDataDiskMap(AbstractQuestion * p_q, 
+				/*QtmFileCharacteristics & file_xcha*/
+				QtmDataFile & p_qtm_data_file);
 
 		int GetTotalLength() { return totalLength_; }
 

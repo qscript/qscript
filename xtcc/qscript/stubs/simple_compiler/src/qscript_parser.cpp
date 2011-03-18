@@ -134,7 +134,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_header(script, ncurses_flag);
 	tree_root->GenerateConsolidatedForLoopIndexes();
 	StatementCompiledCode compute_flat_map_code;
-	compute_flat_map_code.program_code << "if (write_data_file_flag) {\nint current_map_pos = 0;\n";
+	compute_flat_map_code.program_code << "if (write_data_file_flag || write_qtm_data_file_flag) {\nint current_map_pos = 0;\n";
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
 
 	compute_flat_map_code.program_code << "\tstring map_file_name(jno + string(\".map\"));\n";
@@ -149,6 +149,24 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	compute_flat_map_code.program_code << "flat_file_output_buffer[len_flat_file_output_buffer-1] = 0;\n";
 	compute_flat_map_code.program_code << "string flat_file_name(jno + string(\".dat\"));\n";
 	compute_flat_map_code.program_code << "flat_file.open(flat_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
+
+	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n";
+
+
+	compute_flat_map_code.program_code << "\tstring qtm_map_file_name(jno + string(\".qmap\"));\n";
+	compute_flat_map_code.program_code << "\tfstream qtm_map_file(qtm_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << "\t print_map_header(qtm_map_file);\n";
+	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+		<< "\t qtm_datafile_question_disk_map[i]->print_map(qtm_map_file);\n"
+		<< "}\n";
+	compute_flat_map_code.program_code << "len_flat_file_output_buffer = current_map_pos+1;\n";
+	compute_flat_map_code.program_code << "flat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
+	compute_flat_map_code.program_code << "memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
+	compute_flat_map_code.program_code << "flat_file_output_buffer[len_flat_file_output_buffer-1] = 0;\n";
+	compute_flat_map_code.program_code << "string qtm_disk_file_name(jno + string(\".qdat\"));\n";
+	compute_flat_map_code.program_code << "qtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
+	compute_flat_map_code.program_code << "\t}\n";
+
 	compute_flat_map_code.program_code << "}\n";
 	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
@@ -211,6 +229,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"debug_mem.h\"\n");
 	fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
 	fprintf(script, "fstream flat_file;\n");
+	fprintf(script, "fstream qtm_disk_file;\n");
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
@@ -224,6 +243,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
 	fprintf(script, "bool write_data_file_flag;\n");
+	fprintf(script, "bool write_qtm_data_file_flag;\n");
+	fprintf(script, "bool card_start_flag;\n");
+	fprintf(script, "bool card_end_flag;\n");
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
 	fprintf(script, "void print_map_header(fstream & map_file);");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
@@ -251,6 +273,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void reset_questionnaire();\n");
 	fprintf(script, "void DisplayActiveQuestions();\n");
 	fprintf(script, "string output_data_file_name;\n");
+	fprintf(script, "string output_qtm_data_file_name;\n");
 	fprintf(script, "void GetUserResponse(string& qno, int32_t &qindex);\n");
 	print_array_question_class(script);
 	fprintf(script, "string jno = \"%s\";\n", project_name.c_str());
@@ -259,6 +282,8 @@ void print_header(FILE* script, bool ncurses_flag)
 	print_flat_ascii_data_class(script);
 	//print_qtm_data_class(script);
 	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
+	fprintf(script, "vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
+	fprintf(script, "qtm_data_file_ns::QtmDataFile qtm_data_file;\n");
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
@@ -1530,9 +1555,10 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	extern int32_t optind, opterr, optopt;\n");
 	fprintf(script, "	extern char * optarg;\n");
 	fprintf(script, "	int c;\n");
-	fprintf(script, "	while ( (c = getopt(argc, argv, \"w::\")) != -1) {\n");
+	fprintf(script, "	while ( (c = getopt(argc, argv, \"w::q::\")) != -1) {\n");
 	fprintf(script, "		char ch = optopt;\n");
 	fprintf(script, "		switch (c) {\n");
+
 	fprintf(script, "		case 'w': {\n");
 	fprintf(script, "			  write_data_file_flag = true;\n");
 	fprintf(script, "			  if (optarg) {\n");
@@ -1541,6 +1567,16 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "				  output_data_file_name = \"datafile.dat\";\n");
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
+
+	fprintf(script, "		case 'q': {\n");
+	fprintf(script, "			  write_qtm_data_file_flag = true;\n");
+	fprintf(script, "			  if (optarg) {\n");
+	fprintf(script, "				  output_qtm_data_file_name = optarg;\n");
+	fprintf(script, "			  } else {\n");
+	fprintf(script, "				  output_qtm_data_file_name = \"qtm_datafile.dat\";\n");
+	fprintf(script, "			  }\n");
+	fprintf(script, "		}\n");
+
 	fprintf(script, "			  break;\n");
 	fprintf(script, "		case '?' : {\n");
 	fprintf(script, "				   cout << \" invalid option, optopt:\" << optopt << endl;\n");
@@ -1553,6 +1589,8 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	}\n");
 	fprintf(script, "	cout << \"output_data_file_name: \" << output_data_file_name << endl;\n");
 	fprintf(script, "	cout << \"write_data_file_flag: \" << write_data_file_flag << endl;\n");
+	fprintf(script, "	cout << \"output_qtm_data_file_name: \" << output_qtm_data_file_name << endl;\n");
+	fprintf(script, "	cout << \"write_qtm_data_file_flag: \" << write_qtm_data_file_flag << endl;\n");
 	fprintf(script, "	//exit(1);\n");
 	fprintf(script, "}\n");
 }
