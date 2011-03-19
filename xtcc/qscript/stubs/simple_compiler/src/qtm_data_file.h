@@ -1,8 +1,9 @@
 #ifndef QSCRIPT_QTM_FILE_H
 #define QSCRIPT_QTM_FILE_H
-#include "question.h"
 #include <vector>
 #include <fstream>
+#include <utility>
+#include "question.h"
 
 namespace qtm_data_file_ns {
 
@@ -44,6 +45,10 @@ struct QtmDataFile
 {
 	std::vector<Card> cardVec_;
 	QtmFileCharacteristics fileXcha_;
+	void write_data (int column, vector<int> & data);
+	void write_record_to_disk(std::fstream & disk_file);
+	bool CheckForValidColumnRef(int column);
+	std::pair<int, int> ConvertToCardColumn (int column);
 	QtmDataFile();
 };
 

@@ -246,6 +246,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
 	fprintf(script, "bool card_start_flag;\n");
 	fprintf(script, "bool card_end_flag;\n");
+	fprintf(script, "int card_start;\n");
+	fprintf(script, "int card_end;\n");
+
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
 	fprintf(script, "void print_map_header(fstream & map_file);");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
@@ -1576,6 +1579,19 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "				  output_qtm_data_file_name = \"qtm_datafile.dat\";\n");
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
+	fprintf (script, "		case 's': {\n");
+	fprintf (script, "			card_start_flag = true;\n");
+	fprintf (script, "			if (optarg) {\n");
+	fprintf (script, "				card_start = atoi(optarg);\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "		case 'e': {\n");
+	fprintf (script, "			card_end_flag = true;\n");
+	fprintf (script, "			if (optarg) {\n");
+	fprintf (script, "				card_end = atoi(optarg);\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+
 
 	fprintf(script, "			  break;\n");
 	fprintf(script, "		case '?' : {\n");

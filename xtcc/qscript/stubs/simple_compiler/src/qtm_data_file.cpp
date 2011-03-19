@@ -1,6 +1,8 @@
-#include "qtm_data_file.h"
 #include <sstream>
 #include <cstdlib>
+#include <algorithm>
+#include "qtm_data_file.h"
+#include "log_mesg.h"
 
 
 namespace qtm_data_file_ns {
@@ -10,13 +12,10 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::fstream;
+using std::pair;
 
 void QtmDataDiskMap::write_data (QtmDataFile & p_qtm_data_file)
 {
-	int noBuckets = width_;
-	for (int i=0; i< noBuckets; ++i) {
-		codeBucketVec_.push_back(CodeBucket());	
-	}
 
 	for (set<int>::iterator it = q->input_data.begin();
 	it != q->input_data.end(); ++it) {
@@ -28,6 +27,24 @@ void QtmDataDiskMap::write_data (QtmDataFile & p_qtm_data_file)
 		code_str << code;
 		cout << "putting code: " << code << " into bucket no: " << bucket_no << "\n";
 	}
+
+	for (int i=0; i<codeBucketVec_.size(); ++i) {
+#if 0	
+		if (codeBucketVec_[i].codeVec_.size() == 0) {
+			// no data 
+		} else if (codeBucketVec_[i].codeVec_.size() == 1) {
+			// single coded column
+		} else /* if (codeBucketVec_[i].codeVec_.size() > 1 */ {
+			// multi coded data
+		}
+#endif /* 0 */
+		if (codeBucketVec_[i].codeVec_.size() == 0) {
+		} else {
+			qtmDataFile_.write_data (startPosition_ + i, codeBucketVec_[i].codeVec_);
+		}
+		
+	}
+
 }
 
 
@@ -101,6 +118,10 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 	}
 	*/
 	startPosition_ = qtmDataFile_.fileXcha_.UpdateCurrentColumn(width_);
+	int noBuckets = width_;
+	for (int i=0; i< noBuckets; ++i) {
+		codeBucketVec_.push_back(CodeBucket());	
+	}
 }
 
 int QtmFileCharacteristics::UpdateCurrentColumn(int width_)
@@ -213,5 +234,82 @@ int QtmFileCharacteristics::GetCurrentColumnPosition()
 QtmDataFile::QtmDataFile()
 	: fileXcha_(11, 80, true, READ_EQ_2)
 { }
+
+// This function cannot be used to write codes '-', '&'
+void QtmDataFile::write_data (int column, vector<int> & data)
+{
+	bool valid_col_ref = CheckForValidColumnRef (column);
+	if (!valid_col_ref) {
+		stringstream s;
+		s << " invalid col reference ... exiting " << endl;
+		LOG_MESSAGE(s.str());
+		exit(1);
+	}
+	if (data.size() == 0) {
+		stringstream warn_str;
+		warn_str << "RUNTIME WARNING we should not be invoked when data.size() == 0 " << endl;
+		cerr << warn_str.str();
+	} else if (data.size() == 1) {
+		pair<int,int> cc = ConvertToCardColumn (column);
+		cardVec_[cc.first].data_[cc.second] == data[data.size()-1] % 10;
+	} else /* if (data.size() > 1 */ {
+		pair<int,int> cc = ConvertToCardColumn (column);
+		cardVec_[cc.first].data_[cc.second] == '*'; // multi punch data
+	}
+}
+
+pair<int, int> QtmDataFile::ConvertToCardColumn (int column) 
+{
+	if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
+		// flat file - single card - column is the actual position
+		return pair<int, int> (0, column);
+	} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
+		return pair<int, int> (column/1000, column%1000);
+	} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
+		return pair<int, int> (column/100, column%100);
+	} else {
+		stringstream error_str;
+		error_str << " fileXcha_.qtmFileMode_ has an unknown value " 
+			<< endl;
+		cerr << LOG_MESSAGE(error_str.str());
+		exit(1);
+	}
+}
+
+bool QtmDataFile::CheckForValidColumnRef (int column)
+{
+	if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
+		// no need to check column references
+	} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
+		if (column < 1000) {
+			stringstream error_str;
+			error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
+			LOG_MESSAGE(error_str.str());
+			exit(1);
+			return false;
+		}
+	} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
+		if (column < 100) {
+			stringstream error_str;
+			error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
+			LOG_MESSAGE(error_str.str());
+			exit(1);
+			return false;
+		}
+	}
+	return true;
+}
+
+void QtmDataFile::write_record_to_disk(std::fstream & disk_file)
+{
+	for (int i=0; i<cardVec_.size(); ++i) {
+		char end_of_data_marker = '';
+		char * the_single_coded_data = new char [cardVec_[i].data_.size()+1];
+		using std::copy;
+		copy (cardVec_[i].data_.begin(), cardVec_[i].data_.end(), the_single_coded_data);
+		disk_file << the_single_coded_data
+			<<  end_of_data_marker ; //<< cardVec_[i].multiPunchData_ << endl;
+	}
+}
 
 }
