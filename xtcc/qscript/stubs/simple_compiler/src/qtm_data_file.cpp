@@ -24,36 +24,38 @@ using std::pair;
 void QtmDataDiskMap::write_data ()
 {
 
-	for (set<int>::iterator it = q->input_data.begin();
-	it != q->input_data.end(); ++it) {
-		int code = *it;
-		int bucket_no = code / 10;
-		codeBucketVec_[bucket_no].codeVec_.push_back(code);
-
-		stringstream code_str;
-		code_str << code;
-		cout << "putting code: " << code << " into bucket no: " << bucket_no << "\n";
-	}
-
-	for (int i=0; i<codeBucketVec_.size(); ++i) {
-#if 0	
-		if (codeBucketVec_[i].codeVec_.size() == 0) {
-			// no data 
-		} else if (codeBucketVec_[i].codeVec_.size() == 1) {
-			// single coded column
-		} else /* if (codeBucketVec_[i].codeVec_.size() > 1 */ {
-			// multi coded data
-		}
-#endif /* 0 */
-		if (codeBucketVec_[i].codeVec_.size() == 0) {
-		} else {
-			qtmDataFile_.write_data (startPosition_ + i, codeBucketVec_[i].codeVec_);
-		}
-		
+	if (q->no_mpn == 1) {
+		write_single_code_data();
+	} else {
+		write_multi_code_data();
 	}
 
 }
 
+void QtmDataDiskMap::write_single_code_data()
+{
+	if (q->input_data.begin() != q->input_data.end())
+		qtmDataFile_.write_single_code_data (startPosition_, width_, *q->input_data.begin());
+}
+
+void QtmDataDiskMap::write_multi_code_data()
+{
+	for (set<int>::iterator it = q->input_data.begin();
+		it != q->input_data.end(); ++it) {
+		int code = *it;
+		int bucket_no = code / 10;
+		codeBucketVec_[bucket_no].codeVec_.push_back(code);
+		stringstream code_str;
+		code_str << code;
+		cout << "putting code: " << code << " into bucket no: " << bucket_no << "\n";
+	}
+	for (int i=0; i<codeBucketVec_.size(); ++i) {
+		if (codeBucketVec_[i].codeVec_.size() == 0) {
+		} else {
+			qtmDataFile_.write_multi_code_data (startPosition_ + i, codeBucketVec_[i].codeVec_);
+		}
+	}
+}
 
 QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 		QtmDataFile & p_qtm_data_file )
@@ -109,21 +111,6 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 	}
 	totalLength_ = width_;
 		
-	/*
-	startPosition_ = file_xcha.GetCurrentColumnPosition();
-	if ( (qtmFileMode_ != READ_EQ_0) && 
-		(startPosition_ + width_) >= file_xcha.cardWrapAroundAt_) {
-		if (dontBreakQuestionsAtBoundary_) {
-			file_xcha.NextCard();
-			startPosition_ = file_xcha.cardStartAt_;
-		} else {
-			cerr << " dontBreakQuestionsAtBoundary_ == false is unhandled case by algorithm " 
-				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
-			cerr << "exiting ...\n";
-			exit(1);
-		}
-	}
-	*/
 	startPosition_ = qtmDataFile_.fileXcha_.UpdateCurrentColumn(width_);
 	int noBuckets = width_;
 	for (int i=0; i< noBuckets; ++i) {
@@ -244,7 +231,7 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 	{ }
 
 	// This function cannot be used to write codes '-', '&'
-	void QtmDataFile::write_data (int column, vector<int> & data)
+	void QtmDataFile::write_multi_code_data (int column, vector<int> & data)
 	{
 		bool valid_col_ref = CheckForValidColumnRef (column);
 		if (!valid_col_ref) {
@@ -270,23 +257,23 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 		}
 	}
 
-	pair<int, int> QtmDataFile::ConvertToCardColumn (int column) 
-	{
-		if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
-			// flat file - single card - column is the actual position
-			return pair<int, int> (0, column);
-		} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
-			return pair<int, int> (column/1000, column%1000);
-		} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
-			return pair<int, int> (column/100, column%100);
-		} else {
-			stringstream error_str;
-			error_str << " fileXcha_.qtmFileMode_ has an unknown value " 
-				<< endl;
-			cerr << LOG_MESSAGE(error_str.str());
-			exit(1);
-		}
+pair<int, int> QtmDataFile::ConvertToCardColumn (int column) 
+{
+	if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
+		// flat file - single card - column is the actual position
+		return pair<int, int> (0, column);
+	} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
+		return pair<int, int> (column/1000 -1, column%1000);
+	} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
+		return pair<int, int> (column/100 - 1, column%100);
+	} else {
+		stringstream error_str;
+		error_str << " fileXcha_.qtmFileMode_ has an unknown value " 
+			<< endl;
+		cerr << LOG_MESSAGE(error_str.str());
+		exit(1);
 	}
+}
 
 	bool QtmDataFile::CheckForValidColumnRef (int column)
 	{
@@ -314,13 +301,14 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 
 	void QtmDataFile::write_record_to_disk(std::fstream & disk_file)
 	{
+		char end_of_data_marker = '';
 		for (int i=0; i<cardVec_.size(); ++i) {
-			char end_of_data_marker = '';
 			char * the_single_coded_data = new char [cardVec_[i].data_.size()+1];
 			using std::copy;
 			copy (cardVec_[i].data_.begin(), cardVec_[i].data_.end(), the_single_coded_data);
 			disk_file << the_single_coded_data
-				<<  end_of_data_marker ; //<< cardVec_[i].multiPunchData_ << endl;
+				<<  end_of_data_marker << endl ; //<< cardVec_[i].multiPunchData_ << endl;
+			delete [] the_single_coded_data;
 		}
 	}
 
@@ -351,11 +339,11 @@ void QtmDataFile::AllocateCards()
 }
 
 Card::Card (int no_cols)
-	: data_(no_cols)
+	: data_(no_cols, ' ')
 { }
 
 
-void QtmDataFile::Reset()
+void QtmDataFile::Reset ()
 {
 	for (int i=0; i<cardVec_.size(); ++i) {
 		for (int j=0; j<cardVec_[i].data_.size(); j++) {
@@ -363,6 +351,35 @@ void QtmDataFile::Reset()
 		}
 		cardVec_[i].multiPunchData_.clear();
 	}
+}
+
+void QtmDataFile::write_single_code_data (int column, int width, int code)
+{
+	stringstream s;
+	s << code;
+	if (s.str().length() > width) {
+		stringstream error_str;
+		error_str << " width of single code data > width allocated ... internal compiler error - this error should have been caught at an earlier stage ... exiting";
+		cerr << LOG_MESSAGE(error_str.str());
+		exit(1);
+	}
+	pair<int,int> cc = ConvertToCardColumn (column);
+	cerr << " ConvertToCardColumn: card: " << cc.first 
+		<< " col: " << cc.second 
+		<< endl;
+	cerr	<< "cardVec_.length(): " << cardVec_.size() << endl
+		<< "cardVec_[" << cc.first << "].data_.length(): " 
+		<< cardVec_[cc.first].data_.size() << endl;
+	// cerr << "s.str().c_str()[0]: " << s.str().c_str()[0] << endl;
+	//cerr << & (s.str().c_str()[s.str().length()]) << endl;
+	//const char * ptr1 = & (s.str().c_str()[0]);  
+	//const char * ptr2 = & (s.str().c_str()[s.str().length()]);
+	char * buffer = new char[s.str().length()+1];
+	strcpy (buffer, s.str().c_str());
+	vector<char>::iterator it = cardVec_[cc.first].data_.begin() + cc.second;
+	//cout << "[0]: " << *ptr1 << endl;
+	std::copy (&buffer[0], &buffer[s.str().length()], it );
+	delete[] buffer;
 }
 
 }

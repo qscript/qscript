@@ -47,7 +47,8 @@ struct QtmDataFile
 {
 	std::vector<Card> cardVec_;
 	QtmFileCharacteristics fileXcha_;
-	void write_data (int column, vector<int> & data);
+	void write_multi_code_data (int column, vector<int> & data);
+	void write_single_code_data (int column, int width, int code);
 	void write_record_to_disk(std::fstream & disk_file);
 	bool CheckForValidColumnRef(int column);
 	void AllocateCards();
@@ -80,6 +81,8 @@ struct QtmDataDiskMap
 		int GetTotalLength() { return totalLength_; }
 
 		void write_data ();
+		void write_single_code_data();
+		void write_multi_code_data();
 		void print_map(std::fstream & map_file);
 		std::vector <CodeBucket> codeBucketVec_;
 		void AllocateCards();
