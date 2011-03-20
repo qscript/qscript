@@ -27,6 +27,7 @@ struct QtmFileCharacteristics
 	int currentCard_;
 	int currentColumn_;
 	int multiplier_;
+	std::vector < pair<int,int> > maxColList_;
 	//QtmFileCharacteristics();
 	void NextCard();
 	int GetCurrentColumnPosition();
@@ -39,6 +40,7 @@ struct Card
 {
 	std::vector<char> data_;
 	std::vector<char> multiPunchData_;
+	Card(int no_cols);
 };
 
 struct QtmDataFile
@@ -48,6 +50,9 @@ struct QtmDataFile
 	void write_data (int column, vector<int> & data);
 	void write_record_to_disk(std::fstream & disk_file);
 	bool CheckForValidColumnRef(int column);
+	void AllocateCards();
+	void Reset();
+	// pair <card, col>
 	std::pair<int, int> ConvertToCardColumn (int column);
 	QtmDataFile();
 };
@@ -74,9 +79,10 @@ struct QtmDataDiskMap
 
 		int GetTotalLength() { return totalLength_; }
 
-		void write_data (QtmDataFile & p_qtm_data_file);
+		void write_data ();
 		void print_map(std::fstream & map_file);
 		std::vector <CodeBucket> codeBucketVec_;
+		void AllocateCards();
 
 };
 

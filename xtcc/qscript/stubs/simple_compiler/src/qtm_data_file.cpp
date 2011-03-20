@@ -14,7 +14,14 @@ using std::endl;
 using std::fstream;
 using std::pair;
 
-void QtmDataDiskMap::write_data (QtmDataFile & p_qtm_data_file)
+// This function operates on the 
+// assumption that all columns for
+// a question are allocated in the same block
+// 20-mar-2011 - split into 2 funcs
+// - write_multi_coded_data
+// - write_single_coded_data - below is wrong
+// and assumes everything is multi_coded
+void QtmDataDiskMap::write_data ()
 {
 
 	for (set<int>::iterator it = q->input_data.begin();
@@ -213,102 +220,148 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 	currentCard_ = 1;
 }
 
-void QtmFileCharacteristics::NextCard()
-{
-	if (qtmFileMode_ == READ_EQ_0) {
-		cerr << " this function should never be called when qtmFileMode_ == READ_EQ_0"
-			<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
-		cerr << "exiting ...\n";
-		exit(1);
+	void QtmFileCharacteristics::NextCard()
+	{
+		if (qtmFileMode_ == READ_EQ_0) {
+			cerr << " this function should never be called when qtmFileMode_ == READ_EQ_0"
+				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
+			cerr << "exiting ...\n";
+			exit(1);
+		}
+		maxColList_.push_back( pair<int, int>(currentCard_, currentColumn_) );
+		++currentCard_;
+		currentColumn_ = cardStartAt_;
 	}
-	++currentCard_;
-	currentColumn_ = cardStartAt_;
-}
 
-int QtmFileCharacteristics::GetCurrentColumnPosition()
+	int QtmFileCharacteristics::GetCurrentColumnPosition()
+	{
+		return currentCard_ * multiplier_
+				+ currentColumn_;
+	}
+
+	QtmDataFile::QtmDataFile()
+		: fileXcha_(11, 80, true, READ_EQ_2)
+	{ }
+
+	// This function cannot be used to write codes '-', '&'
+	void QtmDataFile::write_data (int column, vector<int> & data)
+	{
+		bool valid_col_ref = CheckForValidColumnRef (column);
+		if (!valid_col_ref) {
+			stringstream s;
+			s << " invalid col reference ... exiting " << endl;
+			LOG_MESSAGE(s.str());
+			exit(1);
+		}
+		if (data.size() == 0) {
+			stringstream warn_str;
+			warn_str << "RUNTIME WARNING we should not be invoked when data.size() == 0 " << endl;
+			cerr << warn_str.str();
+		} else if (data.size() == 1) {
+			pair<int,int> cc = ConvertToCardColumn (column);
+			cout << "cc.first: " << cc.first << ", cc.second: " << cc.second << endl;
+			cout 	<< "cardVec_.size(): " << cardVec_.size() << endl;
+				//<< "cardVec_.data_.size(): " << cardVec_[cc.first].data_.size()
+				//<< endl;
+			cardVec_[cc.first].data_[cc.second] == data[data.size()-1] % 10;
+		} else /* if (data.size() > 1 */ {
+			pair<int,int> cc = ConvertToCardColumn (column);
+			cardVec_[cc.first].data_[cc.second] == '*'; // multi punch data
+		}
+	}
+
+	pair<int, int> QtmDataFile::ConvertToCardColumn (int column) 
+	{
+		if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
+			// flat file - single card - column is the actual position
+			return pair<int, int> (0, column);
+		} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
+			return pair<int, int> (column/1000, column%1000);
+		} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
+			return pair<int, int> (column/100, column%100);
+		} else {
+			stringstream error_str;
+			error_str << " fileXcha_.qtmFileMode_ has an unknown value " 
+				<< endl;
+			cerr << LOG_MESSAGE(error_str.str());
+			exit(1);
+		}
+	}
+
+	bool QtmDataFile::CheckForValidColumnRef (int column)
+	{
+		if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
+			// no need to check column references
+		} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
+			if (column < 1000) {
+				stringstream error_str;
+				error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
+				LOG_MESSAGE(error_str.str());
+				exit(1);
+				return false;
+			}
+		} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
+			if (column < 100) {
+				stringstream error_str;
+				error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
+				LOG_MESSAGE(error_str.str());
+				exit(1);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	void QtmDataFile::write_record_to_disk(std::fstream & disk_file)
+	{
+		for (int i=0; i<cardVec_.size(); ++i) {
+			char end_of_data_marker = '';
+			char * the_single_coded_data = new char [cardVec_[i].data_.size()+1];
+			using std::copy;
+			copy (cardVec_[i].data_.begin(), cardVec_[i].data_.end(), the_single_coded_data);
+			disk_file << the_single_coded_data
+				<<  end_of_data_marker ; //<< cardVec_[i].multiPunchData_ << endl;
+		}
+	}
+
+void QtmDataFile::AllocateCards()
 {
-	return currentCard_ * multiplier_
-			+ currentColumn_;
+	// last card is never added by NextCard - could be empty - add it now
+	fileXcha_.maxColList_.push_back( pair<int, int>(fileXcha_.currentCard_, fileXcha_.currentColumn_) );
+	cout << " allocated currentCard_: " << fileXcha_.currentCard_ 
+		<< " currentColumn_: " << fileXcha_.currentColumn_ 
+		<< endl;
+	for (int i=0; i<fileXcha_.maxColList_.size(); ++i) {
+		// pair <card, col>
+		pair <int, int> card_col = fileXcha_.maxColList_[i];
+		cardVec_.push_back ( Card(card_col.second) );
+		bool not_the_last_card = i < fileXcha_.maxColList_.size()-1;
+		if (not_the_last_card) {
+			pair <int, int> next_card_col  = fileXcha_.maxColList_[i+1]; 
+			// above is safe
+			if (next_card_col.first - card_col.first > 1) {
+				// blank cards in between 
+				for (int j=card_col.first+1; j< next_card_col.first;
+						++j) {
+					cardVec_.push_back ( Card(0) );
+				}
+			}
+		}
+	}
 }
 
-QtmDataFile::QtmDataFile()
-	: fileXcha_(11, 80, true, READ_EQ_2)
+Card::Card (int no_cols)
+	: data_(no_cols)
 { }
 
-// This function cannot be used to write codes '-', '&'
-void QtmDataFile::write_data (int column, vector<int> & data)
-{
-	bool valid_col_ref = CheckForValidColumnRef (column);
-	if (!valid_col_ref) {
-		stringstream s;
-		s << " invalid col reference ... exiting " << endl;
-		LOG_MESSAGE(s.str());
-		exit(1);
-	}
-	if (data.size() == 0) {
-		stringstream warn_str;
-		warn_str << "RUNTIME WARNING we should not be invoked when data.size() == 0 " << endl;
-		cerr << warn_str.str();
-	} else if (data.size() == 1) {
-		pair<int,int> cc = ConvertToCardColumn (column);
-		cardVec_[cc.first].data_[cc.second] == data[data.size()-1] % 10;
-	} else /* if (data.size() > 1 */ {
-		pair<int,int> cc = ConvertToCardColumn (column);
-		cardVec_[cc.first].data_[cc.second] == '*'; // multi punch data
-	}
-}
 
-pair<int, int> QtmDataFile::ConvertToCardColumn (int column) 
-{
-	if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
-		// flat file - single card - column is the actual position
-		return pair<int, int> (0, column);
-	} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
-		return pair<int, int> (column/1000, column%1000);
-	} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
-		return pair<int, int> (column/100, column%100);
-	} else {
-		stringstream error_str;
-		error_str << " fileXcha_.qtmFileMode_ has an unknown value " 
-			<< endl;
-		cerr << LOG_MESSAGE(error_str.str());
-		exit(1);
-	}
-}
-
-bool QtmDataFile::CheckForValidColumnRef (int column)
-{
-	if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
-		// no need to check column references
-	} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
-		if (column < 1000) {
-			stringstream error_str;
-			error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
-			LOG_MESSAGE(error_str.str());
-			exit(1);
-			return false;
-		}
-	} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
-		if (column < 100) {
-			stringstream error_str;
-			error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
-			LOG_MESSAGE(error_str.str());
-			exit(1);
-			return false;
-		}
-	}
-	return true;
-}
-
-void QtmDataFile::write_record_to_disk(std::fstream & disk_file)
+void QtmDataFile::Reset()
 {
 	for (int i=0; i<cardVec_.size(); ++i) {
-		char end_of_data_marker = '';
-		char * the_single_coded_data = new char [cardVec_[i].data_.size()+1];
-		using std::copy;
-		copy (cardVec_[i].data_.begin(), cardVec_[i].data_.end(), the_single_coded_data);
-		disk_file << the_single_coded_data
-			<<  end_of_data_marker ; //<< cardVec_[i].multiPunchData_ << endl;
+		for (int j=0; j<cardVec_[i].data_.size(); j++) {
+			cardVec_[i].data_[j] = ' ';
+		}
+		cardVec_[i].multiPunchData_.clear();
 	}
 }
 

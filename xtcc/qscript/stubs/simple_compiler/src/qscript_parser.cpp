@@ -158,11 +158,9 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	compute_flat_map_code.program_code << "\t print_map_header(qtm_map_file);\n";
 	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
 		<< "\t qtm_datafile_question_disk_map[i]->print_map(qtm_map_file);\n"
-		<< "}\n";
-	compute_flat_map_code.program_code << "len_flat_file_output_buffer = current_map_pos+1;\n";
-	compute_flat_map_code.program_code << "flat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
-	compute_flat_map_code.program_code << "memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
-	compute_flat_map_code.program_code << "flat_file_output_buffer[len_flat_file_output_buffer-1] = 0;\n";
+		<< "}\n"
+		<< "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.AllocateCards();\n"
+		<< "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n";
 	compute_flat_map_code.program_code << "string qtm_disk_file_name(jno + string(\".qdat\"));\n";
 	compute_flat_map_code.program_code << "qtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "\t}\n";
@@ -296,7 +294,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
 	fprintf(script, "\tprocess_options(argc, argv);\n");
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
-	fprintf(script, "\tif (write_data_file_flag) {\n");
+	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag) {\n");
 	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
 	fprintf(script, "\t	if (! directory_ptr) {\n");
 	fprintf(script, "\t		cout << \" unable to open . (current directory) for reading\\n\";\n");
@@ -357,7 +355,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	//fprintf(script, "\treset_questionnaire();\n");
 	fprintf(script, "\tint ser_no = 0;\n");
 	if(ncurses_flag) {
-		fprintf(script, "\tif (!write_data_file_flag) {\n");
+		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
 		fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
 		fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
 		fprintf(script, "\t}\n");
@@ -369,9 +367,9 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 
 	//fprintf(script, "\twgetch(data_entry_window);\n");
 	// fprintf(script, "\tstring jno = \"%s\";\n", project_name.c_str());
-	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag)){\n");
+	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
 
-	fprintf(script, "	if (write_data_file_flag) {\n");
+	fprintf(script, "	if (write_data_file_flag || write_qtm_data_file_flag) {\n");
 	fprintf(script, "		struct dirent * directory_entry = readdir(directory_ptr);\n");
 	fprintf(script, "		if (directory_entry == NULL) {\n");
 	fprintf(script, "			// we have read upto the last record in the directory\n");
@@ -474,6 +472,12 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "	cout << \"output_buffer: \" << flat_file_output_buffer;\n");
 	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
 	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
+	fprintf(script, "\t} else if (write_qtm_data_file_flag) {\n");
+
+	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file); \n");
 
 	fprintf(script, "\t} else {\n");
 
@@ -837,7 +841,7 @@ int32_t check_parameters(AbstractExpression* e, VariableList* v)
 const char * file_exists_check_code()
 {
 	const char * file_check_code =
-	"\tif (write_data_file_flag) {\n"
+	"\tif (write_data_file_flag||write_qtm_data_file_flag) {\n"
 	"\t} else {\n"
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\tif(exists == 1){\n"
