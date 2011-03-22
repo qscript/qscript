@@ -12,3 +12,6 @@ a.out
 *.csv
 *.map
 xtcc_work
+*.qdat
+*.qmap
+*.dat

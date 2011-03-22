@@ -89,7 +89,7 @@ struct QtmDataDiskMap
 
 };
 
-void init_execptions();
+void init_exceptions();
 char check_for_exceptions( vector <int> & data);
 
 

@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <map>
+#include <fstream>
 #include "qtm_data_file.h"
 #include "log_mesg.h"
 
@@ -14,6 +15,8 @@ using std::cerr;
 using std::endl;
 using std::fstream;
 using std::pair;
+fstream qtm_data_file_writer_log;
+
 
 // This function operates on the 
 // assumption that all columns for
@@ -41,19 +44,26 @@ void QtmDataDiskMap::write_single_code_data()
 
 void QtmDataDiskMap::write_multi_code_data()
 {
+	stringstream message;
+	message << "ENTER writing : " << q->questionName_ << endl;
+	qtm_data_file_writer_log << LOG_MESSAGE(message.str());
 	for (set<int>::iterator it = q->input_data.begin();
 		it != q->input_data.end(); ++it) {
 		int code = *it;
 		int qtm_code = code % 10 == 0 ? 10 : code % 10 ;
 		int bucket_no = (code % 10 == 0) ? (code / 10) -1 : code / 10 ;
 		codeBucketVec_[bucket_no].codeVec_.push_back(qtm_code);
-		stringstream code_str;
-		code_str << code;
-		cout << "putting code: " << code << " into bucket no: " << bucket_no << "\n";
+		qtm_data_file_writer_log << "putting code: " << code << " into bucket no: " << bucket_no << "\n";
 	}
+	qtm_data_file_writer_log << "codeBucketVec_.size: " << codeBucketVec_.size() << endl;
 	for (int i=0; i<codeBucketVec_.size(); ++i) {
 		if (codeBucketVec_[i].codeVec_.size() == 0) {
+		} else if (codeBucketVec_[i].codeVec_.size() == 1) {
+			qtmDataFile_.write_single_code_data (startPosition_ + i, 1, 
+					codeBucketVec_[i].codeVec_[0]);
 		} else {
+			qtm_data_file_writer_log << " writing bucket " << i << " data at col position: "
+				<< startPosition_ +i +1 << endl; // remember index = 0 => data file col 1
 			qtmDataFile_.write_multi_code_data (startPosition_ + i, codeBucketVec_[i].codeVec_);
 		}
 	}
@@ -258,6 +268,8 @@ void QtmDataFile::write_multi_code_data (int column, vector<int> & data)
 		pair<int,int> cc = ConvertToCardColumn (column);
 		if (c) {
 			cardVec_[cc.first].data_[cc.second] = c;
+			qtm_data_file_writer_log << "check_for_exceptions found exception returned: " 
+				<< c << endl;
 			return;
 		}
 		cardVec_[cc.first].data_[cc.second] = '*'; // multi punch data
@@ -393,7 +405,7 @@ void QtmDataFile::Reset ()
 		for (int j=0; j<cardVec_[i].data_.size(); j++) {
 			cardVec_[i].data_[j] = ' ';
 		}
-		cardVec_[i].multiPunchData_.clear();
+		cardVec_[i].multiPunchData_.resize(0);
 	}
 }
 
@@ -430,8 +442,13 @@ void QtmDataFile::write_single_code_data (int column, int width, int code)
 using std::map;
 map <int, char> table_of_exceptions;
 
-void init_execptions()
+void init_exceptions()
 {
+	qtm_data_file_writer_log.open("qtm_data_file_writer.log", std::ios_base::trunc | std::ios_base::out);
+	if (!qtm_data_file_writer_log) {
+		cerr << " unable to open qtm_data_file_writer.log for writing ... exiting\n";
+		exit(1);
+	}
 	for (int code1=1; code1<=9; ++code1) {
 		for (int code2=10; code2<=12; ++code2) {
 			int index = (code1*100+code2);
