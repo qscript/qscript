@@ -1,6 +1,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <algorithm>
+#include <map>
 #include "qtm_data_file.h"
 #include "log_mesg.h"
 
@@ -43,8 +44,9 @@ void QtmDataDiskMap::write_multi_code_data()
 	for (set<int>::iterator it = q->input_data.begin();
 		it != q->input_data.end(); ++it) {
 		int code = *it;
-		int bucket_no = code / 10;
-		codeBucketVec_[bucket_no].codeVec_.push_back(code);
+		int qtm_code = code % 10 == 0 ? 10 : code % 10 ;
+		int bucket_no = (code % 10 == 0) ? (code / 10) -1 : code / 10 ;
+		codeBucketVec_[bucket_no].codeVec_.push_back(qtm_code);
 		stringstream code_str;
 		code_str << code;
 		cout << "putting code: " << code << " into bucket no: " << bucket_no << "\n";
@@ -207,55 +209,91 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 	currentCard_ = 1;
 }
 
-	void QtmFileCharacteristics::NextCard()
-	{
-		if (qtmFileMode_ == READ_EQ_0) {
-			cerr << " this function should never be called when qtmFileMode_ == READ_EQ_0"
-				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
-			cerr << "exiting ...\n";
-			exit(1);
-		}
-		maxColList_.push_back( pair<int, int>(currentCard_, currentColumn_) );
-		++currentCard_;
-		currentColumn_ = cardStartAt_;
+void QtmFileCharacteristics::NextCard()
+{
+	if (qtmFileMode_ == READ_EQ_0) {
+		cerr << " this function should never be called when qtmFileMode_ == READ_EQ_0"
+			<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
+		cerr << "exiting ...\n";
+		exit(1);
 	}
+	maxColList_.push_back( pair<int, int>(currentCard_, currentColumn_) );
+	++currentCard_;
+	currentColumn_ = cardStartAt_;
+}
 
-	int QtmFileCharacteristics::GetCurrentColumnPosition()
-	{
-		return currentCard_ * multiplier_
-				+ currentColumn_;
+int QtmFileCharacteristics::GetCurrentColumnPosition()
+{
+	return currentCard_ * multiplier_
+			+ currentColumn_;
+}
+
+QtmDataFile::QtmDataFile()
+	: fileXcha_(11, 80, true, READ_EQ_2)
+{ }
+
+// This function cannot be used to write codes '-', '&'
+void QtmDataFile::write_multi_code_data (int column, vector<int> & data)
+{
+	bool valid_col_ref = CheckForValidColumnRef (column);
+	if (!valid_col_ref) {
+		stringstream s;
+		s << " invalid col reference ... exiting " << endl;
+		LOG_MESSAGE(s.str());
+		exit(1);
 	}
-
-	QtmDataFile::QtmDataFile()
-		: fileXcha_(11, 80, true, READ_EQ_2)
-	{ }
-
-	// This function cannot be used to write codes '-', '&'
-	void QtmDataFile::write_multi_code_data (int column, vector<int> & data)
-	{
-		bool valid_col_ref = CheckForValidColumnRef (column);
-		if (!valid_col_ref) {
-			stringstream s;
-			s << " invalid col reference ... exiting " << endl;
-			LOG_MESSAGE(s.str());
-			exit(1);
+	if (data.size() == 0) {
+		stringstream warn_str;
+		warn_str << "RUNTIME WARNING we should not be invoked when data.size() == 0 " << endl;
+		cerr << warn_str.str();
+	} else if (data.size() == 1) {
+		pair<int,int> cc = ConvertToCardColumn (column);
+		cout << "cc.first: " << cc.first << ", cc.second: " << cc.second << endl;
+		cout 	<< "cardVec_.size(): " << cardVec_.size() << endl;
+			//<< "cardVec_.data_.size(): " << cardVec_[cc.first].data_.size()
+			//<< endl;
+		cardVec_[cc.first].data_[cc.second] = data[data.size()-1] % 10;
+	} else /* if (data.size() > 1 */ {
+		char c = check_for_exceptions (data);
+		pair<int,int> cc = ConvertToCardColumn (column);
+		if (c) {
+			cardVec_[cc.first].data_[cc.second] = c;
+			return;
 		}
-		if (data.size() == 0) {
-			stringstream warn_str;
-			warn_str << "RUNTIME WARNING we should not be invoked when data.size() == 0 " << endl;
-			cerr << warn_str.str();
-		} else if (data.size() == 1) {
-			pair<int,int> cc = ConvertToCardColumn (column);
-			cout << "cc.first: " << cc.first << ", cc.second: " << cc.second << endl;
-			cout 	<< "cardVec_.size(): " << cardVec_.size() << endl;
-				//<< "cardVec_.data_.size(): " << cardVec_[cc.first].data_.size()
-				//<< endl;
-			cardVec_[cc.first].data_[cc.second] == data[data.size()-1] % 10;
-		} else /* if (data.size() > 1 */ {
-			pair<int,int> cc = ConvertToCardColumn (column);
-			cardVec_[cc.first].data_[cc.second] == '*'; // multi punch data
+		cardVec_[cc.first].data_[cc.second] = '*'; // multi punch data
+		char mp_data[2]  = { 64, 64 };
+		for (int i=0; i<data.size(); ++i) {
+			int code = data[i];
+			if (code == 1) {
+				mp_data[0] |= 1<<2;
+			} else if (code == 2) {
+				mp_data[0] |= 1<<1;
+			} else if (code == 3) {
+				mp_data[0] |= 1<<0;
+			} else if (code == 10 /* '0' */) {
+				mp_data[0] |= 1<<3;
+			} else if (code == 11 /* '-' */) {
+				mp_data[0] |= 1<<4;
+			} else if (code == 12 /* '&' */) {
+				mp_data[0] |= 1<<5;
+			} else if (code == 4) {
+				mp_data[1] |= 1<<5;
+			} else if (code == 5) {
+				mp_data[1] |= 1<<4;
+			} else if (code == 6) {
+				mp_data[1] |= 1<<3;
+			} else if (code == 7) {
+				mp_data[1] |= 1<<2;
+			} else if (code == 8) {
+				mp_data[1] |= 1<<1;
+			} else if (code == 9) {
+				mp_data[1] |= 1<<0;
+			}
 		}
+		cardVec_[cc.first].multiPunchData_.push_back(mp_data[0]);
+		cardVec_[cc.first].multiPunchData_.push_back(mp_data[1]);
 	}
+}
 
 pair<int, int> QtmDataFile::ConvertToCardColumn (int column) 
 {
@@ -275,42 +313,48 @@ pair<int, int> QtmDataFile::ConvertToCardColumn (int column)
 	}
 }
 
-	bool QtmDataFile::CheckForValidColumnRef (int column)
-	{
-		if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
-			// no need to check column references
-		} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
-			if (column < 1000) {
-				stringstream error_str;
-				error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
-				LOG_MESSAGE(error_str.str());
-				exit(1);
-				return false;
-			}
-		} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
-			if (column < 100) {
-				stringstream error_str;
-				error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
-				LOG_MESSAGE(error_str.str());
-				exit(1);
-				return false;
-			}
+bool QtmDataFile::CheckForValidColumnRef (int column)
+{
+	if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
+		// no need to check column references
+	} else if (fileXcha_.qtmFileMode_ == READ_EQ_1) {
+		if (column < 1000) {
+			stringstream error_str;
+			error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
+			LOG_MESSAGE(error_str.str());
+			exit(1);
+			return false;
 		}
-		return true;
+	} else if (fileXcha_.qtmFileMode_ == READ_EQ_2) {
+		if (column < 100) {
+			stringstream error_str;
+			error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
+			LOG_MESSAGE(error_str.str());
+			exit(1);
+			return false;
+		}
 	}
+	return true;
+}
 
-	void QtmDataFile::write_record_to_disk(std::fstream & disk_file)
-	{
-		char end_of_data_marker = '';
-		for (int i=0; i<cardVec_.size(); ++i) {
-			char * the_single_coded_data = new char [cardVec_[i].data_.size()+1];
-			using std::copy;
-			copy (cardVec_[i].data_.begin(), cardVec_[i].data_.end(), the_single_coded_data);
-			disk_file << the_single_coded_data
-				<<  end_of_data_marker << endl ; //<< cardVec_[i].multiPunchData_ << endl;
-			delete [] the_single_coded_data;
+void QtmDataFile::write_record_to_disk(std::fstream & disk_file)
+{
+	char end_of_data_marker = 127;
+	for (int i=0; i<cardVec_.size(); ++i) {
+		char * the_single_coded_data = new char [cardVec_[i].data_.size()+1];
+		the_single_coded_data[cardVec_[i].data_.size()] = '\0';
+		using std::copy;
+		copy (cardVec_[i].data_.begin(), cardVec_[i].data_.end(), the_single_coded_data);
+		disk_file << the_single_coded_data
+			<<  end_of_data_marker;
+		//<< endl ; //<< cardVec_[i].multiPunchData_ << endl;
+		for (int j=0; j<cardVec_[i].multiPunchData_.size(); ++j) {
+			disk_file << cardVec_[i].multiPunchData_[j];
 		}
+		disk_file << endl;
+		delete [] the_single_coded_data;
 	}
+}
 
 void QtmDataFile::AllocateCards()
 {
@@ -376,10 +420,99 @@ void QtmDataFile::write_single_code_data (int column, int width, int code)
 	//const char * ptr2 = & (s.str().c_str()[s.str().length()]);
 	char * buffer = new char[s.str().length()+1];
 	strcpy (buffer, s.str().c_str());
-	vector<char>::iterator it = cardVec_[cc.first].data_.begin() + cc.second;
 	//cout << "[0]: " << *ptr1 << endl;
+	vector<char>::iterator it = cardVec_[cc.first].data_.begin() + cc.second;
 	std::copy (&buffer[0], &buffer[s.str().length()], it );
 	delete[] buffer;
+	//std::copy (& s.str()[0], &s.str()[s.str().length()], it);
 }
+
+using std::map;
+map <int, char> table_of_exceptions;
+
+void init_execptions()
+{
+	for (int code1=1; code1<=9; ++code1) {
+		for (int code2=10; code2<=12; ++code2) {
+			int index = (code1*100+code2);
+			if (code2 == 10) {
+				table_of_exceptions[index] = 'R' + code1-1;
+			} else if (code2 == 11) {
+				table_of_exceptions[index] = 'J' + code1-1;
+			} else if (code2 == 12) {
+				table_of_exceptions[index] = 'A' + code1-1;
+			}
+		}
+	}
+
+	table_of_exceptions[110] = '/';
+	table_of_exceptions[1011] = '}';
+	table_of_exceptions[1012] = '{';
+	table_of_exceptions[208] = ':';
+	table_of_exceptions[308] = '#';
+	table_of_exceptions[408] = '@';
+	table_of_exceptions[508] = '\'';
+	table_of_exceptions[608] = '=';
+	table_of_exceptions[708] = '"';
+
+
+
+	for (int code1=1; code1<=9; ++code1) {
+		for (int code2=10; code2<=11; ++code2) {
+			for (int code3=code2+1; code3<=12; ++code3) {
+				int index = code1*10000 +code2*100 + code3;
+				if (code2 == 10 && code3 == 11) {
+					table_of_exceptions[index] = 'r' + code1-1;
+				} else if (code2 == 10 && code3 == 12) {
+					table_of_exceptions[index] = 'a' + code1-1;
+				} else if (code2 == 11 && code3 == 12) {
+					table_of_exceptions[index] = 'j' + code1-1;
+				}
+			}
+		}
+	}
+	table_of_exceptions[11011] = '~';
+	table_of_exceptions[10812] = '`';
+	table_of_exceptions[20810] = '\\';
+	table_of_exceptions[20811] = '!';
+	table_of_exceptions[20812] = '|';
+	table_of_exceptions[30810] = ',';
+	table_of_exceptions[30811] = '$';
+	table_of_exceptions[30812] = '.';
+
+	table_of_exceptions[40810] = '%';
+	// table_of_exceptions[40811] = '*'
+	table_of_exceptions[40812] = '<';
+
+	table_of_exceptions[50810] = '_';
+	table_of_exceptions[50811] = ')';
+	table_of_exceptions[50812] = '(';
+
+	table_of_exceptions[60810] = '>';
+	table_of_exceptions[60811] = ';';
+	table_of_exceptions[60812] = '+';
+}
+
+char check_for_exceptions(vector<int> & data)
+{
+	if (data.size() == 2 || data.size() == 3) {
+		vector<int> data_copy = data;
+		sort(data_copy.begin(), data_copy.end());
+		int index = 0;
+		if (data_copy.size() == 2) {
+			index = data_copy[0]*100+data_copy[1];
+		} else if (data_copy.size() == 3) {
+			index = data_copy[0]*10000+data_copy[1]*100 + data_copy[2];
+		}
+		if (table_of_exceptions.find(index) != table_of_exceptions.end()) {
+			return table_of_exceptions[index];
+		} else {
+			return 0;
+		}
+	} else {
+		return 0;
+	}
+}
+
 
 }

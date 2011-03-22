@@ -89,6 +89,9 @@ struct QtmDataDiskMap
 
 };
 
+void init_execptions();
+char check_for_exceptions( vector <int> & data);
+
 
 } /* close namespace qtm_data_file */
 
