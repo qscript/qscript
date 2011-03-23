@@ -1,0 +1,38 @@
+
+%{
+#include <sys/types.h>
+#include "qtm_datafile_conf_parser.h"
+	void qtm_datafile_conf_error(const char * s);
+	int qtm_datafile_conf_lex();
+%}
+
+%union {
+	int32_t ival;
+}
+
+%token SER_NO_COLS
+%token CARD_NO_COLS
+%token <ival> INUMBER
+
+%%
+
+
+config_file: statement_list
+	;
+
+statement_list: statement
+	| statement_list statement
+	;
+
+statement:
+	CARD_NO_COLS '=' INUMBER ',' INUMBER ';' {
+		qtm_datafile_conf_parser_ns::crd_start = $3;
+		qtm_datafile_conf_parser_ns::crd_end = $5;
+	}
+	| SER_NO_COLS '=' INUMBER ',' INUMBER ';' {
+		qtm_datafile_conf_parser_ns::ser_start = $3;
+		qtm_datafile_conf_parser_ns::ser_end = $5;
+	}
+	;
+
+%%

@@ -99,7 +99,7 @@ void print_reset_questionnaire(FILE * script);
 void PrintDisplayActiveQuestions(FILE *script);
 void PrintGetUserResponse(FILE *script);
 void PrintSetupNCurses(FILE * script);
-void PrintSignalHandler(FILE * script);
+void PrintSignalHandler(FILE * script, bool ncurses_flag);
 void PrintSetupSignalHandler(FILE * script);
 
 void PrintPrintMapHeader(FILE * script);
@@ -135,6 +135,10 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	tree_root->GenerateConsolidatedForLoopIndexes();
 	StatementCompiledCode compute_flat_map_code;
 	compute_flat_map_code.program_code << "if (write_data_file_flag || write_qtm_data_file_flag) {\nint current_map_pos = 0;\n";
+	compute_flat_map_code.program_code << "if (write_qtm_data_file_flag) {\n"
+		<< "\tqtm_datafile_conf_parser_ns::load_config_file(jno);\n"
+		<< "}\n";
+
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
 
 	compute_flat_map_code.program_code << "\tstring map_file_name(jno + string(\".map\"));\n";
@@ -202,6 +206,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"question.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
 	fprintf(script, "#include \"qtm_data_file.h\"\n");
+	fprintf(script, "#include \"qtm_datafile_conf_parser.h\"\n");
 	{
 		stringstream mesg;
 		mesg << "do we need to #include \"TempNameGenerator.h\" in generated code? I have commented it out";
@@ -551,7 +556,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 		}
 
 	}
-	PrintSignalHandler(script);
+	PrintSignalHandler(script, ncurses_flag);
 	PrintSetupSignalHandler(script);
 	PrintProcessOptions(script);
 	PrintPrintMapHeader(script);
@@ -1306,7 +1311,7 @@ void PrintActiveVariablesAtScope(vector <Scope*> & active_scope_list
 	}
 }
 
-void PrintSignalHandler(FILE * script)
+void PrintSignalHandler(FILE * script, bool ncurses_flag)
 {
 	fprintf(script, "static void sig_usr(int32_t signo)\n");
 	fprintf(script, "{\n");
@@ -1318,6 +1323,9 @@ void PrintSignalHandler(FILE * script)
 	fprintf(script, "		fprintf(stderr, \"received signal : %%d\\n\", signo);\n");
 	fprintf(script, "	}\n");
 	fprintf(script, "	fflush(qscript_stdout);\n");
+	if (ncurses_flag) {
+		fprintf(script, "	 endwin();\n");
+	}
 	fprintf(script, "	exit(1);\n");
 	fprintf(script, "}\n");
 }
