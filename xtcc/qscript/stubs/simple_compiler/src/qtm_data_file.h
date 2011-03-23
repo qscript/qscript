@@ -49,7 +49,7 @@ struct QtmDataFile
 	QtmFileCharacteristics fileXcha_;
 	void write_multi_code_data (int column, vector<int> & data);
 	void write_single_code_data (int column, int width, int code);
-	void write_record_to_disk(std::fstream & disk_file);
+	void write_record_to_disk(std::fstream & disk_file, int ser_no);
 	bool CheckForValidColumnRef(int column);
 	void AllocateCards();
 	void Reset();

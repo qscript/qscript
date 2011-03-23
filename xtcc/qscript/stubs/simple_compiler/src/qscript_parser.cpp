@@ -437,6 +437,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "			}\n");
 	fprintf(script, "			cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf(script, "			int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
+	fprintf(script, "			ser_no =  file_ser_no;\n");
 	fprintf(script, "			load_data(jno,file_ser_no);\n");
 	fprintf(script, "			merge_disk_data_into_questions(qscript_stdout);\n");
 	fprintf(script, "		} else {\n");
@@ -483,7 +484,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
 	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file); \n");
+	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no); \n");
 
 	fprintf(script, "\t} else {\n");
 

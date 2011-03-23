@@ -5,6 +5,7 @@
 #include <fstream>
 #include "qtm_data_file.h"
 #include "log_mesg.h"
+#include "qtm_datafile_conf_parser.h"
 
 
 namespace qtm_data_file_ns {
@@ -249,7 +250,7 @@ void QtmDataFile::write_multi_code_data (int column, vector<int> & data)
 	if (!valid_col_ref) {
 		stringstream s;
 		s << " invalid col reference ... exiting " << endl;
-		LOG_MESSAGE(s.str());
+		cerr << LOG_MESSAGE(s.str());
 		exit(1);
 	}
 	if (data.size() == 0) {
@@ -333,7 +334,7 @@ bool QtmDataFile::CheckForValidColumnRef (int column)
 		if (column < 1000) {
 			stringstream error_str;
 			error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
-			LOG_MESSAGE(error_str.str());
+			cerr << LOG_MESSAGE(error_str.str());
 			exit(1);
 			return false;
 		}
@@ -341,7 +342,7 @@ bool QtmDataFile::CheckForValidColumnRef (int column)
 		if (column < 100) {
 			stringstream error_str;
 			error_str << "RUNTIME ERROR we should not be invoked when data.size() == 0 " << endl;
-			LOG_MESSAGE(error_str.str());
+			cerr << LOG_MESSAGE(error_str.str());
 			exit(1);
 			return false;
 		}
@@ -349,16 +350,54 @@ bool QtmDataFile::CheckForValidColumnRef (int column)
 	return true;
 }
 
-void QtmDataFile::write_record_to_disk(std::fstream & disk_file)
+void QtmDataFile::write_record_to_disk(std::fstream & disk_file, int ser_no)
 {
 	char end_of_data_marker = 127;
+	stringstream mesg;
+	mesg << " : invoked with ser_no: " << ser_no << endl;
+	qtm_data_file_writer_log << LOG_MESSAGE(mesg.str());
 	for (int i=0; i<cardVec_.size(); ++i) {
 		char * the_single_coded_data = new char [cardVec_[i].data_.size()+1];
 		the_single_coded_data[cardVec_[i].data_.size()] = '\0';
 		using std::copy;
 		copy (cardVec_[i].data_.begin(), cardVec_[i].data_.end(), the_single_coded_data);
+		stringstream ser_no_str;
+		ser_no_str << ser_no;
+		if (ser_no_str.str().length() > (qtm_datafile_conf_parser_ns::ser_end
+					-qtm_datafile_conf_parser_ns::ser_start+1)) {
+			stringstream error_str;
+			error_str << "RUNTIME ERROR when writing datafile - space reserved for ser_no is not enough\n...exiting\n";
+			cerr << LOG_MESSAGE(error_str.str());
+			exit(1);
+		}
+		qtm_data_file_writer_log << " ser_start: " << qtm_datafile_conf_parser_ns::ser_start
+			<< endl;
+
+		for (int j=0; j<ser_no_str.str().length(); ++j) {
+			the_single_coded_data[j+qtm_datafile_conf_parser_ns::ser_start-1] =  ser_no_str.str()[j];
+			qtm_data_file_writer_log << " output char : " << ser_no_str.str()[j] 
+				<< " of serial to data file: "
+				<< endl;
+		}
+
+		stringstream crd_no_str;
+		crd_no_str << i+1;
+		if (crd_no_str.str().length() > (qtm_datafile_conf_parser_ns::crd_end
+					-qtm_datafile_conf_parser_ns::crd_start+1)) {
+			stringstream error_str;
+			error_str << "RUNTIME ERROR when writing datafile - space reserved for crd_no is not enough\n...exiting\n";
+			cerr << LOG_MESSAGE(error_str.str());
+			exit(1);
+		}
+		for (int j=0; j<crd_no_str.str().length(); ++j) {
+			the_single_coded_data[j+qtm_datafile_conf_parser_ns::crd_start-1] =  crd_no_str.str()[j];
+			qtm_data_file_writer_log << " output char : " << crd_no_str.str()[j] 
+				<< " of crd no to data file: "
+				<< endl;
+		}
 		disk_file << the_single_coded_data
 			<<  end_of_data_marker;
+
 		//<< endl ; //<< cardVec_[i].multiPunchData_ << endl;
 		for (int j=0; j<cardVec_[i].multiPunchData_.size(); ++j) {
 			disk_file << cardVec_[i].multiPunchData_[j];
