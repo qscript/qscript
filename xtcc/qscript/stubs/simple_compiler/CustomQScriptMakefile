@@ -66,6 +66,9 @@ $(SOURCE_DIR)/qscript_data.hpp: YFLAGS = -p read_disk_data
 $(SOURCE_DIR)/qscript_conf.cpp: YFLAGS = -p qscript_conf
 $(SOURCE_DIR)/qscript_conf.hpp: YFLAGS = -p qscript_conf
 
+$(SOURCE_DIR)/qtm_datafile_conf.hpp: YFLAGS = -p qtm_datafile_conf_
+$(SOURCE_DIR)/qtm_datafile_conf.cpp: YFLAGS = -p qtm_datafile_conf_
+
 $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.hpp: $(SOURCE_DIR)/%.ypp
 	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
 	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
@@ -79,6 +82,7 @@ $(SOURCE_DIR)/lex.cpp: $(SOURCE_DIR)/q.hpp
 $(SOURCE_DIR)/scan_data.cpp: $(SOURCE_DIR)/data_entry.hpp
 $(SOURCE_DIR)/read_disk_data.cpp: $(SOURCE_DIR)/qscript_data.hpp
 $(SOURCE_DIR)/qscript_conf_lex.cpp: $(SOURCE_DIR)/qscript_conf.hpp
+$(SOURCE_DIR)/qtm_datafile_conf_lex.cpp: $(SOURCE_DIR)/qtm_datafile_conf.hpp
 
 $(SOURCE_DIR)/%.cpp : $(SOURCE_DIR)/%.l
 	flex -o$@ $<
@@ -103,7 +107,8 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 		$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp \
 		$(SOURCE_DIR)/TempNameGenerator.cpp $(SOURCE_DIR)/code_gen_utils.cpp \
 		$(SOURCE_DIR)/QuestionAttributes.cpp $(SOURCE_DIR)/qtm_data_file.cpp \
-		$(SOURCE_DIR)/log_mesg.cpp 
+		$(SOURCE_DIR)/log_mesg.cpp $(SOURCE_DIR)/qtm_datafile_conf.cpp \
+		$(SOURCE_DIR)/qtm_datafile_conf_parser.cpp $(SOURCE_DIR)/qtm_datafile_conf_lex.cpp
 
 RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
 RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)
