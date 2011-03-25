@@ -40,13 +40,16 @@ void QtmDataDiskMap::write_data ()
 void QtmDataDiskMap::write_single_code_data()
 {
 	if (q->input_data.begin() != q->input_data.end())
-		qtmDataFile_.write_single_code_data (startPosition_, width_, *q->input_data.begin());
+		qtmDataFile_.write_single_code_data (startPosition_, width_, *q->input_data.begin(), q);
 }
 
 void QtmDataDiskMap::write_multi_code_data()
 {
 	stringstream message;
 	message << "ENTER writing : " << q->questionName_ << endl;
+	for (int32_t i=0; i<q->loop_index_values.size(); ++i) {
+		message << "." << q->loop_index_values[i];
+	}
 	qtm_data_file_writer_log << LOG_MESSAGE(message.str());
 	for (set<int>::iterator it = q->input_data.begin();
 		it != q->input_data.end(); ++it) {
@@ -61,11 +64,11 @@ void QtmDataDiskMap::write_multi_code_data()
 		if (codeBucketVec_[i].codeVec_.size() == 0) {
 		} else if (codeBucketVec_[i].codeVec_.size() == 1) {
 			qtmDataFile_.write_single_code_data (startPosition_ + i, 1, 
-					codeBucketVec_[i].codeVec_[0]);
+					codeBucketVec_[i].codeVec_[0], q);
 		} else {
 			qtm_data_file_writer_log << " writing bucket " << i << " data at col position: "
 				<< startPosition_ +i +1 << endl; // remember index = 0 => data file col 1
-			qtmDataFile_.write_multi_code_data (startPosition_ + i, codeBucketVec_[i].codeVec_);
+			qtmDataFile_.write_multi_code_data (startPosition_ + i, codeBucketVec_[i].codeVec_, q);
 		}
 	}
 }
@@ -244,12 +247,17 @@ QtmDataFile::QtmDataFile()
 { }
 
 // This function cannot be used to write codes '-', '&'
-void QtmDataFile::write_multi_code_data (int column, vector<int> & data)
+void QtmDataFile::write_multi_code_data (int column, vector<int> & data,
+		AbstractQuestion * q)
 {
 	bool valid_col_ref = CheckForValidColumnRef (column);
 	if (!valid_col_ref) {
 		stringstream s;
 		s << " invalid col reference ... exiting " << endl;
+		s << "question name: " << q->questionName_;
+		for (int32_t i=0; i<q->loop_index_values.size(); ++i) {
+			s << "." << q->loop_index_values[i];
+		}
 		cerr << LOG_MESSAGE(s.str());
 		exit(1);
 	}
@@ -448,13 +456,28 @@ void QtmDataFile::Reset ()
 	}
 }
 
-void QtmDataFile::write_single_code_data (int column, int width, int code)
+void QtmDataFile::write_single_code_data (int column, int width, int code, AbstractQuestion *q)
 {
 	stringstream s;
-	s << code;
+	if (code==10) {
+		s << "0";
+	} else if (code == 11) {
+		s << "-";
+	} else if (code == 12) {
+		s << "&";
+	} else {
+		s << code;
+	}
+
 	if (s.str().length() > width) {
 		stringstream error_str;
-		error_str << " width of single code data > width allocated ... internal compiler error - this error should have been caught at an earlier stage ... exiting";
+		error_str << " width of single code data > width allocated ... internal compiler error - this error should have been caught at an earlier stage \n";
+		error_str << "question name: " << q->questionName_;
+		for (int32_t i=0; i<q->loop_index_values.size(); ++i) {
+			error_str << "." << q->loop_index_values[i];
+		}
+		error_str << ", code: " << code << endl;
+		error_str << "... exiting\n";
 		cerr << LOG_MESSAGE(error_str.str());
 		exit(1);
 	}
