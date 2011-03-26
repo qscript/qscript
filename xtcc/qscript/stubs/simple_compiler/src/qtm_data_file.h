@@ -20,8 +20,8 @@ enum QtmFileMode
 
 struct QtmFileCharacteristics
 {
-	int cardWrapAroundAt_;
-	int cardStartAt_;
+	int cardDataWrapAroundAt_;
+	int cardDataStartAt_;
 	bool dontBreakQuestionsAtBoundary_;
 	QtmFileMode qtmFileMode_;
 	int currentCard_;
@@ -32,8 +32,11 @@ struct QtmFileCharacteristics
 	void NextCard();
 	int GetCurrentColumnPosition();
 	int UpdateCurrentColumn(int width_);
-	QtmFileCharacteristics(int p_cardStartAt_, int p_cardWrapAroundAt,
-			bool p_dontBreakQuestionsAtBoundary, QtmFileMode p_qtmFileMode);
+	QtmFileCharacteristics(int p_cardDataStartAt_, 
+			int p_cardWrapAroundAt,
+			bool p_dontBreakQuestionsAtBoundary,
+			QtmFileMode p_qtmFileMode);
+	void Initialize();
 };
 
 struct Card 
@@ -47,12 +50,15 @@ struct QtmDataFile
 {
 	std::vector<Card> cardVec_;
 	QtmFileCharacteristics fileXcha_;
-	void write_multi_code_data (int column, vector<int> & data, AbstractQuestion * q);
+	void write_multi_code_data (int column, 
+			vector<int> & data, 
+			AbstractQuestion * q);
 	void write_single_code_data (int column, int width, int code, AbstractQuestion *q);
 	void write_record_to_disk(std::fstream & disk_file, int ser_no);
 	bool CheckForValidColumnRef(int column);
 	void AllocateCards();
 	void Reset();
+	void Initialize();
 	// pair <card, col>
 	std::pair<int, int> ConvertToCardColumn (int column);
 	QtmDataFile();
@@ -67,26 +73,21 @@ struct CodeBucket
 
 struct QtmDataDiskMap
 {
-	public:
-		AbstractQuestion *q;
-		int32_t startPosition_;
-		int32_t width_;
-		int32_t totalLength_;
-		QtmDataFile & qtmDataFile_;
-
-		QtmDataDiskMap(AbstractQuestion * p_q, 
-				/*QtmFileCharacteristics & file_xcha*/
-				QtmDataFile & p_qtm_data_file);
-
-		int GetTotalLength() { return totalLength_; }
-
-		void write_data ();
-		void write_single_code_data();
-		void write_multi_code_data();
-		void print_map(std::fstream & map_file);
-		std::vector <CodeBucket> codeBucketVec_;
-		void AllocateCards();
-
+public:
+	AbstractQuestion *q;
+	int32_t startPosition_;
+	int32_t width_;
+	int32_t totalLength_;
+	QtmDataFile & qtmDataFile_;
+	QtmDataDiskMap(AbstractQuestion * p_q, 
+		QtmDataFile & p_qtm_data_file);
+	int GetTotalLength() { return totalLength_; }
+	void write_data ();
+	void write_single_code_data();
+	void write_multi_code_data();
+	void print_map(std::fstream & map_file);
+	std::vector <CodeBucket> codeBucketVec_;
+	void AllocateCards();
 };
 
 void init_exceptions();

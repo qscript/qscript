@@ -39,6 +39,22 @@ SER_NO_COLS {
 	return SER_NO_COLS;
 }
 
+AUTO	{
+	return AUTO;
+}
+
+DATA_START_COL_NO {
+	return DATA_START_COL_NO;
+}
+
+DATA_END_COL_NO {
+	return DATA_END_COL_NO;
+}
+
+READ_EQ 	{
+	return READ_EQ;
+}
+
 .	{ //std::cerr << "returning " << qscript_conftext[0] << std::endl; 
 	return qtm_datafile_conf_text[0]; 
 }

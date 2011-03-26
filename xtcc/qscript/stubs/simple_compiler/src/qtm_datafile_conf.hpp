@@ -41,7 +41,11 @@
    enum yytokentype {
      SER_NO_COLS = 258,
      CARD_NO_COLS = 259,
-     INUMBER = 260
+     INUMBER = 260,
+     READ_EQ = 261,
+     AUTO = 262,
+     DATA_START_COL_NO = 263,
+     DATA_END_COL_NO = 264
    };
 #endif
 
@@ -52,14 +56,14 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 9 "src/qtm_datafile_conf.ypp"
+#line 10 "src/qtm_datafile_conf.ypp"
 
 	int32_t ival;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 63 "src/qtm_datafile_conf.hpp"
+#line 67 "src/qtm_datafile_conf.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

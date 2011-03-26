@@ -137,14 +137,14 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 int QtmFileCharacteristics::UpdateCurrentColumn(int width_)
 {
 	if (qtmFileMode_ != READ_EQ_0) {
-		if (width_ > (cardWrapAroundAt_ - cardStartAt_)) {
+		if (width_ > (cardDataWrapAroundAt_ - cardDataStartAt_)) {
 			cerr << " the questions width_ exceeds the width_ that can fit in a single card ... "
 				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
 			cerr << "exiting ...\n";
 			exit(1);
 		}
 	
-		if (currentColumn_ + width_ >= cardWrapAroundAt_)  {
+		if (currentColumn_ + width_ >= cardDataWrapAroundAt_)  {
 			NextCard();
 		}
 	}
@@ -171,21 +171,22 @@ void QtmDataDiskMap::print_map(fstream & map_file)
 
 
 
-QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWrapAroundAt,
+QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_, int p_cardWrapAroundAt,
 		bool p_dontBreakQuestionsAtBoundary, QtmFileMode p_qtmFileMode)
-	: cardStartAt_(p_cardStartAt_), cardWrapAroundAt_(p_cardWrapAroundAt),
+	: cardDataStartAt_(p_cardDataStartAt_), cardDataWrapAroundAt_(p_cardWrapAroundAt),
 	  dontBreakQuestionsAtBoundary_(p_dontBreakQuestionsAtBoundary),
 	  qtmFileMode_(p_qtmFileMode)
 {
 	/*
-	int cardWrapAroundAt_;
-	int cardStartAt_;
+	int cardDataWrapAroundAt_;
+	int cardDataStartAt_;
 	bool dontBreakQuestionsAtBoundary_;
 	QtmFileMode qtmFileMode_;
 	int currentCard_;
 	int currentColumn_;
 	int multiplier_;
 	*/
+	/*
 	if (qtmFileMode_ == READ_EQ_0) {
 		multiplier_ = 1;
 	} else if (qtmFileMode_ == READ_EQ_1) {
@@ -198,15 +199,15 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 		exit(1);
 	}
 	if (qtmFileMode_ == READ_EQ_0) {
-		// we dont care about cardWrapAroundAt_ or cardStartAt_ 
+		// we dont care about cardDataWrapAroundAt_ or cardDataStartAt_ 
 	} else if (qtmFileMode_ == READ_EQ_1) {
-		if (cardWrapAroundAt_ > 999) {
-			cerr << " cardWrapAroundAt_ = " << cardWrapAroundAt_ << " which is an invalid value for READ_EQ_1 ... exiting" << endl;
+		if (cardDataWrapAroundAt_ > 999) {
+			cerr << " cardDataWrapAroundAt_ = " << cardDataWrapAroundAt_ << " which is an invalid value for READ_EQ_1 ... exiting" << endl;
 			exit(1);
 		}
 	} else if (qtmFileMode_ == READ_EQ_2) {
-		if (cardWrapAroundAt_ > 99) {
-			cerr << " cardWrapAroundAt_ = " << cardWrapAroundAt_ << " which is an invalid value for READ_EQ_2 ... exiting" << endl;
+		if (cardDataWrapAroundAt_ > 99) {
+			cerr << " cardDataWrapAroundAt_ = " << cardDataWrapAroundAt_ << " which is an invalid value for READ_EQ_2 ... exiting" << endl;
 			exit(1);
 		}
 	} else {
@@ -214,13 +215,14 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardStartAt_, int p_cardWra
 		cerr  << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 		exit (1);
 	}
-	if (cardStartAt_ < 1) {
-		cerr	<< " invalid value for cardStartAt_: " << cardStartAt_ 
+	if (cardDataStartAt_ < 1) {
+		cerr	<< " invalid value for cardDataStartAt_: " << cardDataStartAt_ 
 			<< ", " <<  __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 		exit(1);
 	}
-	currentColumn_ = cardStartAt_;
+	currentColumn_ = cardDataStartAt_;
 	currentCard_ = 1;
+	*/
 }
 
 void QtmFileCharacteristics::NextCard()
@@ -233,7 +235,7 @@ void QtmFileCharacteristics::NextCard()
 	}
 	maxColList_.push_back( pair<int, int>(currentCard_, currentColumn_) );
 	++currentCard_;
-	currentColumn_ = cardStartAt_;
+	currentColumn_ = cardDataStartAt_;
 }
 
 int QtmFileCharacteristics::GetCurrentColumnPosition()
@@ -243,8 +245,18 @@ int QtmFileCharacteristics::GetCurrentColumnPosition()
 }
 
 QtmDataFile::QtmDataFile()
-	: fileXcha_(11, 80, true, READ_EQ_2)
-{ }
+	: fileXcha_(/*11,  */
+		qtm_datafile_conf_parser_ns::crd_start,
+		qtm_datafile_conf_parser_ns::crd_end, true, 
+		qtm_datafile_conf_parser_ns::qtm_file_mode)
+{
+	cout << "qtm_datafile_conf_parser_ns::crd_start: " 
+		<< qtm_datafile_conf_parser_ns::crd_start 
+		<< endl;
+	cout << "qtm_datafile_conf_parser_ns::crd_end: " 
+		<< qtm_datafile_conf_parser_ns::crd_end 
+		<< endl;
+}
 
 // This function cannot be used to write codes '-', '&'
 void QtmDataFile::write_multi_code_data (int column, vector<int> & data,
@@ -459,12 +471,16 @@ void QtmDataFile::Reset ()
 void QtmDataFile::write_single_code_data (int column, int width, int code, AbstractQuestion *q)
 {
 	stringstream s;
-	if (code==10) {
-		s << "0";
-	} else if (code == 11) {
-		s << "-";
-	} else if (code == 12) {
-		s << "&";
+	if (width == 1) {
+		if (code==10) {
+			s << "0";
+		} else if (code == 11) {
+			s << "-";
+		} else if (code == 12) {
+			s << "&";
+		}  else {
+			s << code;
+		}
 	} else {
 		s << code;
 	}
@@ -593,5 +609,68 @@ char check_for_exceptions(vector<int> & data)
 	}
 }
 
+void QtmDataFile::Initialize()
+{
+	fileXcha_.Initialize();
+
+
+}
+
+void QtmFileCharacteristics::Initialize()
+{
+	cardDataStartAt_ = qtm_datafile_conf_parser_ns::data_start_col;
+	cardDataWrapAroundAt_ = qtm_datafile_conf_parser_ns::data_end_col;
+	qtmFileMode_ = qtm_datafile_conf_parser_ns::qtm_file_mode;
+	cout << "cardDataStartAt_: " << cardDataStartAt_ 
+		<< " cardDataWrapAroundAt_: " << cardDataWrapAroundAt_
+		<< endl;
+
+	
+	if (qtmFileMode_ == READ_EQ_0) {
+		multiplier_ = 1;
+	} else if (qtmFileMode_ == READ_EQ_1) {
+		multiplier_ = 1000;
+	} else if (qtmFileMode_ == READ_EQ_2) {
+		multiplier_ = 100;
+	} else {
+		cerr << "error in setting qtmFileMode_ in " 
+			<< __PRETTY_FUNCTION__ << ", " 
+			<< __FILE__ << ", " 
+			<< __LINE__ << endl;
+		cerr << "exiting ...\n";
+		exit(1);
+	}
+	if (qtmFileMode_ == READ_EQ_0) {
+		// we dont care about 
+		// cardDataWrapAroundAt_ or cardDataStartAt_ 
+	} else if (qtmFileMode_ == READ_EQ_1) {
+		if (cardDataWrapAroundAt_ > 999) {
+			cerr    << " cardDataWrapAroundAt_ = " 
+				<< cardDataWrapAroundAt_ 
+				<< " which is an invalid value for READ_EQ_1 ... exiting" << endl;
+			exit(1);
+		}
+	} else if (qtmFileMode_ == READ_EQ_2) {
+		if (cardDataWrapAroundAt_ > 99) {
+			cerr << " cardDataWrapAroundAt_ = " 
+				<< cardDataWrapAroundAt_ 
+				<< " which is an invalid value for READ_EQ_2 ... exiting" << endl;
+			exit(1);
+		}
+	} else {
+		cerr << " impossible - the earlier line of code should have terminated the program" << endl;
+		cerr  << __FILE__ << ", " 
+			<< __LINE__ << ", " 
+			<< __PRETTY_FUNCTION__ << endl;
+		exit (1);
+	}
+	if (cardDataStartAt_ < 1) {
+		cerr	<< " invalid value for cardDataStartAt_: " << cardDataStartAt_ 
+			<< ", " <<  __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+		exit(1);
+	}
+	currentColumn_ = cardDataStartAt_;
+	currentCard_ = 1;
+}
 
 }

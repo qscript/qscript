@@ -137,6 +137,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	compute_flat_map_code.program_code << "if (write_data_file_flag || write_qtm_data_file_flag) {\nint current_map_pos = 0;\n";
 	compute_flat_map_code.program_code << "if (write_qtm_data_file_flag) {\n"
 		<< "\tqtm_datafile_conf_parser_ns::load_config_file(jno);\n"
+		<< "\tqtm_data_file.Initialize();\n"
 		<< "}\n";
 
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);

@@ -80,12 +80,13 @@
 
 #include <sys/types.h>
 #include "qtm_datafile_conf_parser.h"
+#include <iostream>
 	void qtm_datafile_conf_error(const char * s);
 	int qtm_datafile_conf_lex();
 
 
 /* Line 189 of yacc.c  */
-#line 89 "src/qtm_datafile_conf.cpp"
+#line 90 "src/qtm_datafile_conf.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -114,7 +115,11 @@
    enum yytokentype {
      SER_NO_COLS = 258,
      CARD_NO_COLS = 259,
-     INUMBER = 260
+     INUMBER = 260,
+     READ_EQ = 261,
+     AUTO = 262,
+     DATA_START_COL_NO = 263,
+     DATA_END_COL_NO = 264
    };
 #endif
 
@@ -125,14 +130,14 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 9 "src/qtm_datafile_conf.ypp"
+#line 10 "src/qtm_datafile_conf.ypp"
 
 	int32_t ival;
 
 
 
 /* Line 214 of yacc.c  */
-#line 136 "src/qtm_datafile_conf.cpp"
+#line 141 "src/qtm_datafile_conf.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -144,7 +149,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 148 "src/qtm_datafile_conf.cpp"
+#line 153 "src/qtm_datafile_conf.cpp"
 
 #ifdef short
 # undef short
@@ -357,22 +362,22 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  8
+#define YYFINAL  14
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   14
+#define YYLAST   32
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  9
+#define YYNTOKENS  13
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  6
+#define YYNRULES  10
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  18
+#define YYNSTATES  32
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   260
+#define YYMAXUTOK   264
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -384,9 +389,9 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     7,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     8,
-       2,     6,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,    11,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    12,
+       2,    10,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -406,7 +411,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5
+       5,     6,     7,     8,     9
 };
 
 #if YYDEBUG
@@ -414,21 +419,25 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     7,    10,    17
+       0,     0,     3,     5,     7,    10,    17,    24,    29,    34,
+      39
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      10,     0,    -1,    11,    -1,    12,    -1,    11,    12,    -1,
-       4,     6,     5,     7,     5,     8,    -1,     3,     6,     5,
-       7,     5,     8,    -1
+      14,     0,    -1,    15,    -1,    16,    -1,    15,    16,    -1,
+       4,    10,     5,    11,     5,    12,    -1,     3,    10,     5,
+      11,     5,    12,    -1,     8,    10,     5,    12,    -1,     8,
+      10,     7,    12,    -1,     9,    10,     5,    12,    -1,     6,
+      10,     5,    12,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    20,    20,    23,    24,    28,    32
+       0,    25,    25,    28,    29,    33,    37,    41,    44,    47,
+      50
 };
 #endif
 
@@ -438,8 +447,8 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "SER_NO_COLS", "CARD_NO_COLS", "INUMBER",
-  "'='", "','", "';'", "$accept", "config_file", "statement_list",
-  "statement", 0
+  "READ_EQ", "AUTO", "DATA_START_COL_NO", "DATA_END_COL_NO", "'='", "','",
+  "';'", "$accept", "config_file", "statement_list", "statement", 0
 };
 #endif
 
@@ -448,20 +457,23 @@ static const char *const yytname[] =
    token YYLEX-NUM.  */
 static const yytype_uint16 yytoknum[] =
 {
-       0,   256,   257,   258,   259,   260,    61,    44,    59
+       0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
+      61,    44,    59
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,     9,    10,    11,    11,    12,    12
+       0,    13,    14,    15,    15,    16,    16,    16,    16,    16,
+      16
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     6,     6
+       0,     2,     1,     1,     2,     6,     6,     4,     4,     4,
+       4
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -469,29 +481,33 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     0,     2,     3,     0,     0,     1,     4,
-       0,     0,     0,     0,     0,     0,     6,     5
+       0,     0,     0,     0,     0,     0,     0,     2,     3,     0,
+       0,     0,     0,     0,     1,     4,     0,     0,     0,     0,
+       0,     0,     0,     0,    10,     7,     8,     9,     0,     0,
+       6,     5
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     3,     4,     5
+      -1,     6,     7,     8
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -5
+#define YYPACT_NINF -9
 static const yytype_int8 yypact[] =
 {
-      -3,    -4,    -2,     3,    -3,    -5,     0,     1,    -5,    -5,
-       2,     4,     5,     7,    -1,     6,    -5,    -5
+      -3,    -8,    -6,    -2,     0,     1,    12,    -3,    -9,     8,
+       9,    10,     2,    11,    -9,    -9,     6,     7,    13,    14,
+      15,    16,    17,    18,    -9,    -9,    -9,    -9,    19,    20,
+      -9,    -9
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -5,    -5,    -5,     9
+      -9,    -9,    -9,    22
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -501,22 +517,28 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       1,     2,     6,     8,     7,    10,    11,    16,     0,    12,
-      14,    13,    15,     9,    17
+       1,     2,     9,     3,    10,     4,     5,    19,    11,    20,
+      12,    13,    14,    16,    17,    18,    21,    22,    23,     0,
+       0,     0,    28,    29,     0,    24,    25,    26,    27,    15,
+       0,    30,    31
 };
 
 static const yytype_int8 yycheck[] =
 {
-       3,     4,     6,     0,     6,     5,     5,     8,    -1,     7,
-       5,     7,     5,     4,     8
+       3,     4,    10,     6,    10,     8,     9,     5,    10,     7,
+      10,    10,     0,     5,     5,     5,     5,    11,    11,    -1,
+      -1,    -1,     5,     5,    -1,    12,    12,    12,    12,     7,
+      -1,    12,    12
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     4,    10,    11,    12,     6,     6,     0,    12,
-       5,     5,     7,     7,     5,     5,     8,     8
+       0,     3,     4,     6,     8,     9,    14,    15,    16,    10,
+      10,    10,    10,    10,     0,    16,     5,     5,     5,     5,
+       7,     5,    11,    11,    12,    12,    12,    12,     5,     5,
+      12,    12
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1330,7 +1352,7 @@ yyreduce:
         case 5:
 
 /* Line 1455 of yacc.c  */
-#line 28 "src/qtm_datafile_conf.ypp"
+#line 33 "src/qtm_datafile_conf.ypp"
     {
 		qtm_datafile_conf_parser_ns::crd_start = (yyvsp[(3) - (6)].ival);
 		qtm_datafile_conf_parser_ns::crd_end = (yyvsp[(5) - (6)].ival);
@@ -1340,17 +1362,64 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 32 "src/qtm_datafile_conf.ypp"
+#line 37 "src/qtm_datafile_conf.ypp"
     {
 		qtm_datafile_conf_parser_ns::ser_start = (yyvsp[(3) - (6)].ival);
 		qtm_datafile_conf_parser_ns::ser_end = (yyvsp[(5) - (6)].ival);
 	;}
     break;
 
+  case 7:
+
+/* Line 1455 of yacc.c  */
+#line 41 "src/qtm_datafile_conf.ypp"
+    {
+		qtm_datafile_conf_parser_ns::data_start_col = (yyvsp[(3) - (4)].ival);
+	;}
+    break;
+
+  case 8:
+
+/* Line 1455 of yacc.c  */
+#line 44 "src/qtm_datafile_conf.ypp"
+    {
+		qtm_datafile_conf_parser_ns::auto_determine_data_start_col = true;
+	;}
+    break;
+
+  case 9:
+
+/* Line 1455 of yacc.c  */
+#line 47 "src/qtm_datafile_conf.ypp"
+    {
+		qtm_datafile_conf_parser_ns::data_end_col = (yyvsp[(3) - (4)].ival);
+	;}
+    break;
+
+  case 10:
+
+/* Line 1455 of yacc.c  */
+#line 50 "src/qtm_datafile_conf.ypp"
+    {
+		if (! ((yyvsp[(3) - (4)].ival) == 1 || (yyvsp[(3) - (4)].ival) == 2 || (yyvsp[(3) - (4)].ival) == 3) ) {
+			std::cerr << "READ_EQ mode can be 0, 1 or 2 only\n";
+			exit(1);
+		} else {
+			if ((yyvsp[(3) - (4)].ival) == 0) {
+				qtm_datafile_conf_parser_ns::qtm_file_mode = qtm_data_file_ns::READ_EQ_0;
+			} else if ((yyvsp[(3) - (4)].ival) == 1) {
+				qtm_datafile_conf_parser_ns::qtm_file_mode = qtm_data_file_ns::READ_EQ_1;
+			} else if ((yyvsp[(3) - (4)].ival) == 2) {
+				qtm_datafile_conf_parser_ns::qtm_file_mode = qtm_data_file_ns::READ_EQ_2;
+			}
+		}
+	;}
+    break;
+
 
 
 /* Line 1455 of yacc.c  */
-#line 1354 "src/qtm_datafile_conf.cpp"
+#line 1423 "src/qtm_datafile_conf.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1562,6 +1631,6 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 38 "src/qtm_datafile_conf.ypp"
+#line 66 "src/qtm_datafile_conf.ypp"
 
 
