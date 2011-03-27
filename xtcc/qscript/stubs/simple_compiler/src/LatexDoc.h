@@ -19,11 +19,11 @@
 
 class LatexDocument
 {
-	public:
-		void parse(const std::string &source_file);
+public:
+	void parse(const std::string &source_file);
 
 
-		friend std::ostream & operator<<(std::ostream &os, LatexDocument &d);
+	//friend std::ostream & operator<<(std::ostream &os, LatexDocument &d);
 
 	LatexDocument(std::string latex_fname): qv(),
 		questionProcessedUpto_(0)
@@ -36,17 +36,16 @@ class LatexDocument
 	~LatexDocument();
 	std::ofstream latex_file; 
 
-	public:
-		std::vector<NamedStubQuestion*> qv;
-		
-		void package(std::ostream &os, int i, int j);
-
-		static std::string safe(const std::string &s);
-		
-		void visit(AbstractStatement *stmt);
-		string setup_latex();
-		string finish_latex();
-		int questionProcessedUpto_;
+public:
+	//std::vector<NamedStubQuestion*> qv;
+	std::vector<AbstractQuestion*> qv;
+	void package(std::ostream &os, int i, int j);
+	static std::string safe(const std::string &s);
+	void visit(AbstractStatement *stmt);
+	string setup_latex();
+	string finish_latex();
+	int questionProcessedUpto_;
+	void ProcessQuestions();
 };
 
 /*

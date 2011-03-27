@@ -49,94 +49,135 @@ void LatexDocument::package(std::ostream &os, int i, int j)
 	using std::cerr;
 	using std::endl;
 	if (i>=qv.size()) {
+
 		stringstream mesg;
 		mesg << "Hack to stop core dump - check this later in LaTeX generation ";
 		LOG_MAINTAINER_MESSAGE(mesg.str());
-		cout << ".";
+		cout << "i:" << i << ", qv.size(): " << qv.size() << endl;
 		return ; 
 	} else {
 		cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << ", " << qv[i]->questionName_
 			<< endl;
 	}
-	os << "\\parbox{8cm} {\n";
-	//os << "\\noindent\n\\begin{tabular}{p{0.7cm}p{6cm}}\n";
-	os << "\\noindent\n\\begin{tabulary}{8cm}{LL}\n";
-	//os << "\\noindent\n\\begin{tabular}{p{2cm}p{14cm}}\n";
-	FOR(k,i,j-1) os << "\\bfseries{" << safe(qv[k]->questionName_) << "} & \\bfseries{" << safe(qv[k]->questionText_) << "}\\\\\n";
-	os << "\\end{tabulary}\n"
-		"\\newline\n"
-		"\\nopagebreak[3]\n"
-		"\\noindent\n"
-		;
-	std::vector<stub_pair> &vsp = qv[i]->nr_ptr->stubs;
-	int max_stub_length = 0;
-	for (int i1=0; i1<vsp.size(); ++i1) {
-		if (max_stub_length < vsp[i1].stub_text.length()) {
-			max_stub_length = vsp[i1].stub_text.length();
+	// hack because I now want to handle range questions
+	NamedStubQuestion * ns_q = dynamic_cast<NamedStubQuestion*>(qv[i]);
+	if (ns_q) {
+		// this will stay in place 
+		// till i put the machinery to handle range questions
+
+		os << "\\parbox{8cm} {\n";
+		//os << "\\noindent\n\\begin{tabular}{p{0.7cm}p{6cm}}\n";
+		os << "\\noindent\n\\begin{tabulary}{8cm}{LL}\n";
+		//os << "\\noindent\n\\begin{tabular}{p{2cm}p{14cm}}\n";
+		FOR(k,i,j) {
+			/*
+			os << "\\bfseries{" 
+				<< safe(qv[k]->questionName_) 
+				<< "} & \\bfseries{" 
+				<< safe(qv[k]->questionText_) 
+				<< "}\\\\\n";
+				*/
+			os << "\\textcolor{red}{" 
+				<< safe(qv[k]->questionName_) 
+				<< "} & \\textcolor{blue}{" 
+				<< safe(qv[k]->questionText_) 
+				<< "}\\\\\n";
 		}
+		os << "\\end{tabulary}\n"
+			"\\newline\n"
+			"\\nopagebreak[3]\n"
+			"\\noindent\n"
+			;
+		//std::vector<stub_pair> &vsp = qv[i]->nr_ptr->stubs;
+		std::vector<stub_pair> &vsp = ns_q->nr_ptr->stubs;
+		int max_stub_length = 0;
+		for (int i1=0; i1<vsp.size(); ++i1) {
+			if (max_stub_length < vsp[i1].stub_text.length()) {
+				max_stub_length = vsp[i1].stub_text.length();
+			}
+		}
+		// std::cout << safe(qv[i]->questionName_) << ", max_stub_length: " << max_stub_length << std::endl;
+		int stub_text_col_width = 0;
+		if (max_stub_length > 30) {
+			stub_text_col_width = 6;
+		} else if (max_stub_length > 25) {
+			stub_text_col_width = 5.5;
+		} else if (max_stub_length > 20) {
+			stub_text_col_width = 5;
+		} else if (max_stub_length > 15) {
+			stub_text_col_width = 4;
+		} else if (max_stub_length > 10) {
+			stub_text_col_width = 3;
+		} else if (max_stub_length > 5) {
+			stub_text_col_width = 2;
+		} else {
+			stub_text_col_width = 1;
+		}
+		// std::cout << "stub_text_col_width: " << stub_text_col_width << std::endl;
+		os << "\\begin{tabulary}{8cm}{|L|";
+		int accum_width = stub_text_col_width;
+		FOR(k,i,j) { 
+			os << "L|"; 
+			accum_width += 1;
+		}
+		os << "}\n\\hline\n";
+		FOR(k,i,j) 
+			os << " & \\textcolor{red}{" << safe(qv[k]->questionName_)
+				<< "}"; 
+		os << "\\\\\n\\hline\n";
+		/*
+		REP(x,vsp.size()) { 
+			os << safe(vsp[x].stub_text); 
+			FOR(k,i,j) os << " & " << vsp[x].code; 
+			os << " \\\\\n"; 
+		}
+		*/
+		REP(x,vsp.size()) { 
+			os <<  "\\textcolor{darkgreen}{" << safe(vsp[x].stub_text) << "}"; 
+			FOR(k,i,j) os << " & \\textcolor{magenta}{" << vsp[x].code << "}"; 
+			os << " \\\\\n"; 
+		}
+		os << "\\hline\n\\end{tabulary}\n";
+		os << "}\n";
+		os << "\\newline\n";
+		if (accum_width > 7) {
+			os << "\\enlargethispage*{1000pt}\n";
+			//os << "\\pagebreak[3]\n";
+			os << "\\newpage\n";
+			os << "\\cleardoublepage\n";
+			os << "\\clearpage\n";
+		} else {
+			os << "\\pagebreak[0]\n";
+		}
+
 	}
-	// std::cout << safe(qv[i]->questionName_) << ", max_stub_length: " << max_stub_length << std::endl;
-	int stub_text_col_width = 0;
-	if (max_stub_length > 30) {
-		stub_text_col_width = 6;
-	} else if (max_stub_length > 25) {
-		stub_text_col_width = 5.5;
-	} else if (max_stub_length > 20) {
-		stub_text_col_width = 5;
-	} else if (max_stub_length > 15) {
-		stub_text_col_width = 4;
-	} else if (max_stub_length > 10) {
-		stub_text_col_width = 3;
-	} else if (max_stub_length > 5) {
-		stub_text_col_width = 2;
-	} else {
-		stub_text_col_width = 1;
+	RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(qv[i]);
+	if (r_q) {
+		os << "\\parbox{8cm} {\n";
+		//os << "\\noindent\n\\begin{tabular}{p{0.7cm}p{6cm}}\n";
+		os << "\\noindent\n\\begin{tabulary}{8cm}{LL}\n";
+		//os << "\\noindent\n\\begin{tabular}{p{2cm}p{14cm}}\n";
+		FOR(k,i,j) {
+			os << "\\textcolor{red}{" 
+				<< safe(qv[k]->questionName_) 
+				<< "} & \\textcolor{blue}{" 
+				<< safe(qv[k]->questionText_) 
+				<< "}\\\\\n";
+		}
+		os << "\\end{tabulary}\n"
+			"\\newline\n"
+			"\\nopagebreak[3]\n"
+			"\\noindent\n"
+			;
+		if (r_q->no_mpn == 1) 
+			os << "\\framebox[3cm]{\\rule[-0.5cm]{0cm}{0.5cm}}\n";
+		else 
+			os << "\\framebox[7.5cm]{\\rule[-0.5cm]{0cm}{3cm}}\n";
+		os << "}\n";
+		os << "\\newline\n";
+		//std::vector<stub_pair> &vsp = qv[i]->nr_ptr->stubs;
 	}
-	// std::cout << "stub_text_col_width: " << stub_text_col_width << std::endl;
-	/*
-	os << "\\begin{tabular}{|p{"  << stub_text_col_width << "cm}|"; 
-	int accum_width = stub_text_col_width;
-	FOR(k,i,j-1) { 
-		os << "p{1cm}|"; 
-		accum_width += 1;
-	}
-	os << "}\n\\hline\n";
-	FOR(k,i,j-1) os << " & " << safe(qv[k]->questionName_); os << "\\\\\n\\hline\n";
-	REP(x,vsp.size()){ os << safe(vsp[x].stub_text); FOR(k,i,j-1) os << " & " << vsp[x].code; os << " \\\\\n"; }
-	os << "\\hline\n\\end{tabular}\\\\\n";
-	os << "}\n";
-	os << "\\newline\n";
-	if (accum_width > 7) {
-		os << "\\enlargethispage*{1000pt}\n";
-		//os << "\\pagebreak[3]\n";
-		os << "\\newpage\n";
-		os << "\\cleardoublepage\n";
-		os << "\\clearpage\n";
-	} else {
-		os << "\\pagebreak[0]\n";
-	}
-	*/
-	os << "\\begin{tabulary}{8cm}{|L|";
-	int accum_width = stub_text_col_width;
-	FOR(k,i,j-1) { 
-		os << "L|"; 
-		accum_width += 1;
-	}
-	os << "}\n\\hline\n";
-	FOR(k,i,j-1) os << " & " << safe(qv[k]->questionName_); os << "\\\\\n\\hline\n";
-	REP(x,vsp.size()){ os << safe(vsp[x].stub_text); FOR(k,i,j-1) os << " & " << vsp[x].code; os << " \\\\\n"; }
-	os << "\\hline\n\\end{tabulary}\n";
-	os << "}\n";
-	os << "\\newline\n";
-	if (accum_width > 7) {
-		os << "\\enlargethispage*{1000pt}\n";
-		//os << "\\pagebreak[3]\n";
-		os << "\\newpage\n";
-		os << "\\cleardoublepage\n";
-		os << "\\clearpage\n";
-	} else {
-		os << "\\pagebreak[0]\n";
-	}
+
 
 	// std::cout << "EXIT: " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ << std::endl;
 }
@@ -159,8 +200,9 @@ void LatexDocument::visit(AbstractStatement *stmt)
 	//std::cout << __PRETTY_FUNCTION__ << std::endl;
 	if (!stmt) return;
 	if (AbstractQuestion *q = dynamic_cast<AbstractQuestion*>(stmt)) {
-		if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q));
-		else if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q)) {
+		if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q)) {
+			qv.push_back(rq);
+		} else if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q)) {
 			qv.push_back(nq);
 			// std::cout << __PRETTY_FUNCTION__ << " pushed : " 
 			// 	<< nq->questionName_ << std::endl;
@@ -190,20 +232,13 @@ void LatexDocument::visit(AbstractStatement *stmt)
 			     (cmpd_stmt_else_cmpd_block && 
 			      	cmpd_stmt_else_cmpd_block->counterContainsQuestions_) )
 			{
-				if (qv.size() > 0) {
-					FOR(i,questionProcessedUpto_,qv.size()-1) {
-						int j=i;
-						while (j<qv.size() && qv[j]->nr_ptr == qv[i]->nr_ptr)
-							++j;
-						//std::cout << "i: " << i << ", j: " << j << std::endl;
-						std::cerr << __FILE__ << ", " << __LINE__ << ", "
-							<< __PRETTY_FUNCTION__
-							<< "i: " << i << ", j: " << j << std::endl;
-						package(latex_file,i,j); i = j-1;
-					}
-				}
+				std::cerr << __FILE__ << ", " << __LINE__ << ", "
+					<< __PRETTY_FUNCTION__ << endl;
+				ProcessQuestions();
+				questionProcessedUpto_ = qv.size() ;
 			}
-			questionProcessedUpto_ = qv.size() ;
+			// dont think its needed here anymore
+			// questionProcessedUpto_ = qv.size() ;
 			if (cmpd_stmt_if_cmpd_block
 				&& cmpd_stmt_if_cmpd_block->counterContainsQuestions_) {
 				latex_file << "\\framebox{\n";
@@ -248,7 +283,7 @@ int main(int argc, char **argv)
 }
 */
 
-
+/*
 std::ostream & operator<<(std::ostream &os, LatexDocument &d)
 {
 	//const char *tex_begin = "\\documentclass[8pt,twocolumn]{article}\n\\begin{document}\n";
@@ -262,12 +297,14 @@ std::ostream & operator<<(std::ostream &os, LatexDocument &d)
 	}
 	//return os << tex_end;
 }
+*/
 
 std::string LatexDocument::setup_latex()
 {
 	const char *tex_begin = "\\documentclass[10pt,twocolumn,a4paper]{article}\n"
 					"\\usepackage[cm]{fullpage}\n"
 					"\\usepackage{tabulary}\n"
+					"\\usepackage{color}\n"
 					"\\setlength{\\columnsep}{1pt}\n"
 					"%two column float page must be 90% full\n"
 					"\\renewcommand\\dblfloatpagefraction{.45}\n"
@@ -283,6 +320,7 @@ std::string LatexDocument::setup_latex()
 					"\\renewcommand\\textfraction{.1}\n"
 				//	"\\usepackage[landscape,a4paper]{geometry}\n"
 					"\\begin{document}\n"
+					"\\definecolor{darkgreen}{rgb}{0,0.4,0}\n"
 					;
 	return tex_begin;
 }
@@ -294,6 +332,8 @@ std::string LatexDocument::finish_latex()
 	//return string("");
 
 	if (qv.size() > 0) {
+		ProcessQuestions();
+		/*
 		FOR(i,questionProcessedUpto_,qv.size()-1) {
 			int j=i;
 			while (j<qv.size() && qv[j]->nr_ptr == qv[i]->nr_ptr)
@@ -306,6 +346,7 @@ std::string LatexDocument::finish_latex()
 				break;
 			}
 		}
+		*/
 	}
 
 	const char *tex_end = "\\end{document}\n";
@@ -315,4 +356,61 @@ std::string LatexDocument::finish_latex()
 LatexDocument::~LatexDocument()
 {
 	latex_file << finish_latex();
+}
+
+void LatexDocument::ProcessQuestions()
+{
+	if (qv.size() > 0) {
+		FOR(i,questionProcessedUpto_,qv.size()-1) {
+			int j=i;
+			NamedStubQuestion * q_start_point 
+				= dynamic_cast<NamedStubQuestion*>(qv[i]);
+			if (q_start_point) {
+				while (j<qv.size()) {
+					++j;
+					if (j==qv.size() ) {
+						--j; break;
+					}
+					NamedStubQuestion * q_current_point = dynamic_cast<NamedStubQuestion*>(qv[j]);
+					if (q_current_point) {
+						if (q_current_point->nr_ptr == q_start_point->nr_ptr) {
+							std::cerr << "q_current_point->nr_ptr->name: "
+								<< q_current_point->nr_ptr->name
+								<< std::endl
+								<< "q_start_point->nr_ptr->name: " 
+								<< q_start_point->nr_ptr->name
+								<< std::endl;
+						} else {
+							--j;
+							break;
+						}
+					} else {
+						--j;
+						break;
+					}
+				}
+			}
+			//std::cout << "i: " << i << ", j: " << j << std::endl;
+			std::cerr << __FILE__ << ", " << __LINE__ << ", "
+				<< __PRETTY_FUNCTION__
+				<< ", i: " << i << ", j: " << j 
+				<< "qv.size(): " << qv.size()
+				<< std::endl;
+			/*
+			if (i==j) {
+				package (latex_file, i, j);
+				questionProcessedUpto_ = j;
+			} else {
+				package (latex_file, i, j-1);
+				questionProcessedUpto_ = j-1;
+			}
+			*/
+			package (latex_file, i, j);
+			questionProcessedUpto_ = j;
+			//i = j-1;
+			i = questionProcessedUpto_;
+			std::cerr << " i = " << i << std::endl;
+		}
+		questionProcessedUpto_ = qv.size() - 1 ;
+	}
 }
