@@ -36,7 +36,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=13
+QSCRIPT_MINOR_VERSION_NUMBER=14
 
 
 #dummy:
@@ -188,7 +188,6 @@ release: clean
 	cp CustomQScriptMakefile CustomQScriptMakefile.Win32 CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
 	-rm inputs/test_script
 	-rm inputs/test_script_bcpp.[Co]
-	-rm inputs/*.dat
 	-rm inputs/tags
 	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op inputs/*.exe
 	cp inputs/* $(RELEASE_DIR)/inputs
