@@ -86,6 +86,7 @@ public:
 	void write_single_code_data();
 	void write_multi_code_data();
 	void print_map(std::fstream & map_file);
+	void print_qax(std::fstream & qax_file);
 	std::vector <CodeBucket> codeBucketVec_;
 	void AllocateCards();
 };

@@ -277,21 +277,24 @@ class NamedStubQuestion: public AbstractQuestion
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		, DataType l_dt, named_range * l_nr_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, QuestionAttributes  l_question_attributes
 		);
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		, DataType l_dt, named_range * l_nr_ptr
 		, QuestionAttributes  l_question_attributes
 		);
 	//! only called in the runtime environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		, DataType l_dt, named_range * l_nr_ptr
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes

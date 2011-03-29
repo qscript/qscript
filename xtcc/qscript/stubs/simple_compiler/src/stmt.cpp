@@ -1285,16 +1285,29 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << "for( ; set_iter!= "
 				<< questionName_
 				<< "->input_data.end(); ++set_iter){" << endl;
-			code.program_code << "\tfor(int32_t i = 0; i< "
-				<< namedStub_ << ".size(); ++i){" << endl;
+			code.program_code << "\tfor (int32_t "
+				<< qscript_parser::temp_name_generator.GetNewName();
+			code.program_code 
+				<< " = 0; "
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< " < "
+				<< namedStub_ << ".stubs.size(); ++"
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< ") {" << endl;
 			code.program_code << "\t\tif (" << namedStub_
-				<< "[i].code == *set_iter) {" << endl;
+				<< ".stubs["
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< "].code == *set_iter) {" << endl;
 			if (type_ == STUB_MANIP_DEL){
 				code.program_code << "\t\t\t"
-					<< namedStub_ << "[i].mask = false; " << endl;
+					<< namedStub_ << ".stubs["
+					<< qscript_parser::temp_name_generator.GetCurrentName()
+					<< "].mask = false; " << endl;
 			} else if (type_ == STUB_MANIP_ADD) {
 				code.program_code << "\t\t\t"
-					<< namedStub_ << "[i].mask = true; " << endl;
+					<< namedStub_ << ".stubs["
+					<< qscript_parser::temp_name_generator.GetCurrentName()
+					<< "].mask = true; " << endl;
 			}
 			code.program_code << "\t\t}" << endl;
 			code.program_code << "\t}" << endl;
@@ -1323,12 +1336,12 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< qscript_parser::
 					temp_set_name_generator.GetCurrentName()
 				<< ".indiv.end(); ++xtcc_set_iter1) {\n"
-				<< "\tfor (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".size(); ++xtcc_i2) {\n"
+				<< "\tfor (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".stubs.size(); ++xtcc_i2) {\n"
 				<< "\t\tif ("
 				<< "*xtcc_set_iter1  == " 
 				<< namedStub_
-				<< "[xtcc_i2].code) {\n"
-				<< "\t\t\t" << namedStub_ << "[xtcc_i2].mask = true;\n"
+				<< ".stubs[xtcc_i2].code) {\n"
+				<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = true;\n"
 				<< "\t\t}\n"
 				<< "\t}\n"
 				<< "}\n"
@@ -1347,12 +1360,12 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< "\t\t\t;++set_member) {\n"
 				<< "\t\tfor (int32_t xtcc_i2=0; xtcc_i2<"
 				<< namedStub_
-				<< ".size(); ++xtcc_i2) {\n"
+				<< ".stubs.size(); ++xtcc_i2) {\n"
 				<< "\t\t\tif (set_member == " 
 				<< namedStub_ 
-				<< "[xtcc_i2].code) {\n"
+				<< ".stubs[xtcc_i2].code) {\n"
 				<< "\t\t\t\t"
-				<< namedStub_ << "[xtcc_i2].mask = true;\n"
+				<< namedStub_ << ".stubs[xtcc_i2].mask = true;\n"
 				<< "\t\t\t}\n"
 				<< "\t\t}\n"
 				<< "\t}\n"
@@ -1375,14 +1388,25 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 		}
 	} else if (type_ == STUB_MANIP_UNSET_ALL || type_ == STUB_MANIP_SET_ALL) {
-		code.program_code << "for(int32_t i = 0; i< "
-			<< namedStub_ << ".size(); ++i){" << endl;
+		code.program_code << "for(int32_t "
+			<< qscript_parser::temp_name_generator.GetNewName();
+		code.program_code 
+			<< " = 0; " 
+			<< qscript_parser::temp_name_generator.GetCurrentName()
+			<< " < "
+			<< namedStub_ << ".stubs.size(); ++"
+			<< qscript_parser::temp_name_generator.GetCurrentName()
+			<< "){" << endl;
 		if (type_ == STUB_MANIP_UNSET_ALL) {
 			code.program_code << namedStub_
-				<< "[i].mask = false; " << endl;
+				<< ".stubs["
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< "].mask = false; " << endl;
 		} else if (type_ == STUB_MANIP_SET_ALL) {
 			code.program_code << namedStub_
-				<< "[i].mask = true; " << endl;
+				<< ".stubs["
+				<< qscript_parser::temp_name_generator.GetCurrentName()
+				<< "].mask = true; " << endl;
 		}
 		code.program_code << "}" << endl;
 	} else {

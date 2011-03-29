@@ -163,8 +163,15 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	compute_flat_map_code.program_code << "\t print_map_header(qtm_map_file);\n";
 	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
 		<< "\t qtm_datafile_question_disk_map[i]->print_map(qtm_map_file);\n"
-		<< "}\n"
-		<< "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.AllocateCards();\n"
+		<< "}\n";
+
+	compute_flat_map_code.program_code << "\tstring qtm_qax_file_name(jno + string(\".qax\"));\n";
+	compute_flat_map_code.program_code << "\tfstream qtm_qax_file(qtm_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+		<< "\t qtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file);\n"
+		<< "}\n";
+
+	compute_flat_map_code.program_code << "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.AllocateCards();\n"
 		<< "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n";
 	compute_flat_map_code.program_code << "string qtm_disk_file_name(jno + string(\".qdat\"));\n";
 	compute_flat_map_code.program_code << "qtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
@@ -215,6 +222,7 @@ void print_header(FILE* script, bool ncurses_flag)
 		//fprintf(script, "#include \"TempNameGenerator.h\"\n");
 	}
 	fprintf(script, "#include \"QuestionAttributes.h\"\n");
+	fprintf(script, "#include \"named_range.h\"\n");
 	if(config_file_parser::PLATFORM == "LINUX"){
 		FILE * simple_pd_curses_keys_h = fopen("a_few_pd_curses_keys.h", "wb");
 		if(!simple_pd_curses_keys_h){

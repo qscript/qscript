@@ -153,7 +153,10 @@ AbstractQuestion::AbstractQuestion(
 int32_t AbstractQuestion::GetMaxCode()
 {
 	if (maxCode_ == 0) {
-		print_err(compiler_internal_error, " maxCode_ == 0 should have been set"
+		stringstream err_msg;
+		err_msg << " maxCode_ == 0 should have been set: questionName_: "
+			<< questionName_ << endl;
+		print_err(compiler_internal_error, err_msg.str()
 				, 0, __LINE__, __FILE__);
 		exit(1);
 	}
@@ -844,9 +847,10 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 
 bool NamedStubQuestion::IsValid(int32_t value)
 {
-	vector<stub_pair> & vec= *stub_ptr;
-	for(uint32_t j = 0; j < vec.size(); ++j){
-		if(vec[j].code == value && vec[j].mask){
+	//vector<stub_pair> & vec= *stub_ptr;
+	vector<stub_pair> & vec= (nr_ptr->stubs);
+	for (uint32_t j = 0; j < vec.size(); ++j) {
+		if (vec[j].code == value && vec[j].mask) {
 			return true;
 		}
 	}
@@ -868,7 +872,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		cout << questionText_ << endl << endl;
 
 		//cout << questionName_ << "." << questionText_ << endl << endl;
-		vector<stub_pair> vec= *stub_ptr;
+		//vector<stub_pair> vec= *stub_ptr;
+		vector<stub_pair> & vec= (nr_ptr->stubs);
 		for(uint32_t i = 0; i< vec.size(); ++i){
 			if( vec[i].mask)
 				cout << vec[i].stub_text << ": " << vec[i].code << endl;
@@ -901,7 +906,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
 
-		vector<stub_pair> & vec= *stub_ptr;
+		//vector<stub_pair> & vec= *stub_ptr;
+		vector<stub_pair> & vec= (nr_ptr->stubs);
 		for(uint32_t i = 0; i< vec.size(); ++i){
 			if( vec[i].mask) {
 				//cout << vec[i].stub_text << ": " << vec[i].code << endl;
@@ -1169,19 +1175,29 @@ NamedStubQuestion::NamedStubQuestion(
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, string l_q_text
-	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
-	, vector<stub_pair>* l_stub_ptr
+	, QuestionType l_q_type, int32_t l_no_mpn
+	, DataType l_dt, named_range * l_nr_ptr
 	, QuestionAttributes  l_question_attributes
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, named_list()
-	, nr_ptr(0), stub_ptr(l_stub_ptr)
+	, nr_ptr(l_nr_ptr), stub_ptr(0)
 { 
+#if 0
 	vector <stub_pair> & v= *stub_ptr;
 	for (int i=0; i<v.size(); ++i) {
 		if (maxCode_ < v[i].code) {
 			maxCode_ = v[i].code;
+		}
+	}
+#endif /* 0 */
+	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
+		if (nr_ptr->stubs[i].is_mutex) {
+			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
+		}
+		if (maxCode_ < nr_ptr->stubs[i].code) {
+			maxCode_ = nr_ptr->stubs[i].code;
 		}
 	}
 }
@@ -1190,8 +1206,9 @@ NamedStubQuestion::NamedStubQuestion(
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, string l_q_text
-	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
-	, vector<stub_pair>* l_stub_ptr
+	, QuestionType l_q_type, int32_t l_no_mpn
+	// , DataType l_dt , vector<stub_pair>* l_stub_ptr
+	, DataType l_dt, named_range * l_nr_ptr
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
@@ -1200,12 +1217,22 @@ NamedStubQuestion::NamedStubQuestion(
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes
 		)
 	, named_list()
-	, nr_ptr(0), stub_ptr(l_stub_ptr)
-{ 
+	, nr_ptr(l_nr_ptr), stub_ptr(0)
+{
+#if 0
 	vector <stub_pair> & v= *stub_ptr;
 	for (int i=0; i<v.size(); ++i) {
 		if (maxCode_ < v[i].code) {
 			maxCode_ = v[i].code;
+		}
+	}
+#endif /* 0 */
+	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
+		if (nr_ptr->stubs[i].is_mutex) {
+			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
+		}
+		if (maxCode_ < nr_ptr->stubs[i].code) {
+			maxCode_ = nr_ptr->stubs[i].code;
 		}
 	}
 }

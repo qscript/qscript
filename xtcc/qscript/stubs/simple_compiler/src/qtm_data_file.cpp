@@ -6,6 +6,7 @@
 #include "qtm_data_file.h"
 #include "log_mesg.h"
 #include "qtm_datafile_conf_parser.h"
+#include "named_range.h"
 
 
 namespace qtm_data_file_ns {
@@ -169,6 +170,33 @@ void QtmDataDiskMap::print_map(fstream & map_file)
 	map_file << startPosition_ + totalLength_  << "\n";
 }
 
+void QtmDataDiskMap::print_qax(fstream & qax_file)
+{
+	qax_file << "l " << q->questionName_ ;
+	for (int i=0; i< q->loop_index_values.size(); ++i) {
+		qax_file << "_" << q->loop_index_values[i];
+	}
+	qax_file << endl;
+	qax_file << "*include qttl.qin;qno=" << q->questionName_;
+	for (int i=0; i< q->loop_index_values.size(); ++i) {
+		qax_file << "." << q->loop_index_values[i];
+	}
+	qax_file << ";qtit=" << q->questionText_ << ";" << endl;
+	qax_file << "*include base.qin" << endl;
+	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+		if (n_q->nr_ptr) {
+			qax_file << "*include " << n_q->nr_ptr->name << ".qin;"
+			<< "col(a)=" << startPosition_ + 1
+			<< endl;
+		}
+	} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
+		qax_file << "*include " << q->questionName_ << ".qin;"
+			<< "col(a)=" << startPosition_ + 1
+			<< ";"
+			<< endl;
+	}
+	qax_file << endl;
+}
 
 
 QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_, int p_cardWrapAroundAt,

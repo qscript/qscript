@@ -25,6 +25,7 @@ struct named_range: public AbstractStatement
 		//cout << "named_range: constructor" << endl;
 	}
 	~named_range();
+	named_range(named_range & nr);
 };
 
 #endif /* xtcc_named_range_h */
