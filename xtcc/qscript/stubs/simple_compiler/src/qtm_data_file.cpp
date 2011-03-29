@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <map>
 #include <fstream>
+#include <set>
 #include "qtm_data_file.h"
 #include "log_mesg.h"
 #include "qtm_datafile_conf_parser.h"
 #include "named_range.h"
+
+set<string> qtm_include_files;
 
 
 namespace qtm_data_file_ns {
@@ -188,6 +191,32 @@ void QtmDataDiskMap::print_qax(fstream & qax_file)
 			qax_file << "*include " << n_q->nr_ptr->name << ".qin;"
 			<< "col(a)=" << startPosition_ + 1
 			<< endl;
+		}
+		set<string>::iterator it = qtm_include_files.find(n_q->nr_ptr->name);
+		if (it == qtm_include_files.end()) {
+			stringstream fname;
+			fname << n_q->nr_ptr->name << ".qin";
+			fstream qtm_include_file (fname.str().c_str(), 
+					std::ios_base::out | std::ios_base::trunc);
+			for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+				qtm_include_file << "n01"
+					<< n_q->nr_ptr->stubs[i].stub_text
+					<< "; c=ca";
+				int the_code = n_q->nr_ptr->stubs[i].code;
+				int dividend = the_code/10;
+				int remainder = the_code%10;
+				if (remainder == 0) {
+					qtm_include_file 
+						<< dividend - 1 << "'"
+						<< remainder << "'";
+				} else {
+					qtm_include_file 
+						<< dividend  << "'"
+						<< remainder << "'";
+				}
+				qtm_include_file << endl;
+			}
+			qtm_include_files.insert(n_q->nr_ptr->name);
 		}
 	} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
 		qax_file << "*include " << q->questionName_ << ".qin;"
