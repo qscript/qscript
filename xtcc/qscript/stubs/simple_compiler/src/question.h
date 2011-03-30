@@ -115,14 +115,14 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void GetQuestionsInBlock(
 		vector<AbstractQuestion*> & question_list
 		, AbstractStatement * stop_at);
-	virtual void PrintEvalAndNavigateCode(ostringstream & program_code);
-	virtual user_response::UserResponseType GetDataFromUser(WINDOW * data_entry_window);
+	void PrintEvalAndNavigateCode(ostringstream & program_code);
+	user_response::UserResponseType GetDataFromUser(WINDOW * data_entry_window);
 
-	virtual bool VerifyData(string & err_mesg, string & re_arranged_buffer
+	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data);
-	virtual bool VerifyResponse(user_response::UserResponseType user_resp);
-	virtual void PrintArrayDeclarations(ostringstream & quest_defns);
-	virtual void PrintQuestionArrayInitialisation(
+	bool VerifyResponse(user_response::UserResponseType user_resp);
+	void PrintArrayDeclarations(ostringstream & quest_defns);
+	void PrintQuestionArrayInitialisation(
 		StatementCompiledCode & code);
 	std::string PrintCodeSaveArrayQuestionNotInTheSameBlock(AbstractQuestion * save_array_quest);
 	std::string PrintCodeRestoreArrayQuestionNotInTheSameBlock(AbstractQuestion * restore_array_quest);
@@ -340,17 +340,15 @@ class DummyArrayQuestion: public AbstractQuestion{
 	public:
 	vector<int32_t> array_bounds;
 
-	DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
-		: AbstractQuestion(QUESTION_TYPE, 0, l_qno, string(l_qno + "_dummy"), spn, 0
-				   , INT32_TYPE, QuestionAttributes(true, true) )
-		,  array_bounds(l_array_bounds)
-	{ }
+	DummyArrayQuestion(string l_qno, 
+			vector<int32_t> l_array_bounds);
+
 	void WriteDataToDisk(ofstream& data_file);
 	//void eval(){}
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
-		  , /*qs_ncurses::*/WINDOW* data_entry_window)
-	{}
+		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+	
 
 	bool IsValid(int32_t value){ return false;}
 	void GenerateCode(StatementCompiledCode &code){}

@@ -8,6 +8,8 @@
 #include "log_mesg.h"
 #include "qtm_datafile_conf_parser.h"
 #include "named_range.h"
+#include "question.h"
+
 
 set<string> qtm_include_files;
 

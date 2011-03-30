@@ -45,7 +45,7 @@ void InitStatement()
 
 
 //AbstractQuestion* AbstractStatement::IsAQuestionStatement() { return 0; }
-
+#if 0
 void AbstractStatement::GetQuestionNames(vector<string> &question_list,
 					 AbstractStatement * endStatement)
 {
@@ -82,6 +82,7 @@ void AbstractStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code
 		next_->Generate_ComputeFlatFileMap(code);
 	}
 }
+#endif /* 0 */
 
 //extern ofstream debug_log_file;
 void read_data(const char * prompt);

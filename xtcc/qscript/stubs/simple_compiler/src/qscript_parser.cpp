@@ -31,7 +31,7 @@ namespace qscript_parser
 	vector<CompoundStatement*> stack_cmpd_stmt;
 	vector<string> stack_of_active_push_vars;
 	map<string, vector<string> > map_of_active_vars_for_questions;
-	map<std::pair<int, int>, string > maintainer_messages;
+	// map<std::pair<int, int>, string > maintainer_messages;
 
 	AbstractExpression * recurse_for_index(int32_t stack_index);
 	vector<AbstractStatement*> delete_manually_in_cleanup;
@@ -42,7 +42,7 @@ namespace qscript_parser
 	//void print_err(compiler_err_category cmp_err,
 	//	string err_msg, int32_t line_no,
 	//	int32_t compiler_line_no, string compiler_file_name);
-	int32_t line_no;
+	// int32_t line_no;
 	extern noun_list_type noun_list[];
 
 	QuestionType q_type;
@@ -54,7 +54,7 @@ namespace qscript_parser
 	bool has_mutex_range = false;
 	int32_t yylex();
 	void yyerror(const char * s);
-	int32_t no_errors;
+	//int32_t no_errors;
 
 	struct AbstractStatement* tree_root = 0;
 	vector <AbstractQuestion*> question_list;
@@ -205,7 +205,8 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <signal.h>\n");
 	fprintf(script, "#include <dirent.h>\n");
 	fprintf(script, "#include <cctype>\n");
-	fprintf(script, "#include \"stmt.h\"\n");
+	//fprintf(script, "#include \"stmt.h\"\n");
+	fprintf(script, "#include \"AbstractStatement.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"symtab.h\"\n");

@@ -169,7 +169,7 @@ int32_t lookup_func(string func_name_index)
 	return -1;
 }
 
-
+#if 0
 #include <string>
 using std::string;
 void print_err(compiler_err_category cmp_err, string err_msg,
@@ -193,11 +193,12 @@ void print_err(compiler_err_category cmp_err, string err_msg,
 	default:
 		cerr << "internal compiler error - error code category missing in switch statement: compiler file: "
 		     << __FILE__ << " compiler src code lineno: " << __LINE__ << endl;
-
 	}
 	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: "
 		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
 }
+#endif /* 0 */
+
 	noun_list_type noun_list[]= {
 			{	"void"	, VOID_TYPE},
 			{	"int8_t" ,INT8_TYPE},
@@ -348,16 +349,15 @@ DataType arr_deref_type(DataType d1)
 	return ERROR_TYPE;
 }
 
+#if 0
 // http://www.cse.yorku.ca/~oz/hash.html
 // hash algo copied from here
 unsigned long sdbm_hash(const char *str)
 {
 	unsigned long hash = 0;
 	int c;
-
 	while (c = *str++)
 	    hash = c + (hash << 6) + (hash << 16) - hash;
-
 	return hash;
 }
 
@@ -367,13 +367,13 @@ unsigned long djb_hash(const char *str)
 {
 	unsigned long hash = 5381;
 	int c;
-
 	while (c = *str++)
 	    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
 	return hash;
 }
+#endif /* 0 */
 
+#if 0
 /* for those who are reading the source and want to understand the logic
  * the maintainer messages are cluttering up the stdout of the compiler.
  * Im storing them in a map so they will appear only once - less clutter
@@ -398,3 +398,4 @@ void log_maintainer_message(int line, string file, string func_name, string mesg
 		maintainer_messages[hashed_pair] = s.str();
 	}
 }
+#endif /* 0 */

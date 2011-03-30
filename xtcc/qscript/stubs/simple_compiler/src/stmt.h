@@ -23,6 +23,8 @@
 #include "scope.h"
 //#include "common.h"
 #include "compiled_code.h"
+#include "AbstractStatement.h"
+
 using std::string;
 using std::ostringstream;
 
@@ -36,6 +38,7 @@ using std::ostringstream;
   about the statement being parsed
 */
 
+#if 0
 struct AbstractQuestion;
 
 struct AbstractStatement
@@ -71,6 +74,7 @@ struct AbstractStatement
 		AbstractStatement& operator=(const AbstractStatement&);
 		AbstractStatement (const AbstractStatement&);
 };
+#endif /* 0 */
 
 //#include "named_range.h"
 

@@ -74,7 +74,7 @@ AbstractQuestion::AbstractQuestion(
 	}
 }
 
-
+#if 0
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
@@ -95,6 +95,8 @@ AbstractQuestion::AbstractQuestion(
 	//		, qscript_parser::line_no, __LINE__, __FILE__  );
 	//}
 }
+#endif /* 0 */
+
 
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(
@@ -124,6 +126,7 @@ AbstractQuestion::AbstractQuestion(
 	}
 }
 
+#if 0
 // this is only called from the runtime
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name
@@ -149,7 +152,9 @@ AbstractQuestion::AbstractQuestion(
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
 	//}
 }
+#endif /* 0 */
 
+#if 0
 int32_t AbstractQuestion::GetMaxCode()
 {
 	if (maxCode_ == 0) {
@@ -162,7 +167,9 @@ int32_t AbstractQuestion::GetMaxCode()
 	}
 	return maxCode_;
 }
+#endif /* 0 */
 
+#if 0
 AbstractQuestion::~AbstractQuestion()
 {
 	for (int i=0; i<activeVarInfo_.size(); ++i) {
@@ -170,8 +177,9 @@ AbstractQuestion::~AbstractQuestion()
 		activeVarInfo_[i]=0;
 	}
 }
+#endif /* 0 */
 
-
+#if 0
 void AbstractQuestion::GetQuestionsInBlock(
 	vector<AbstractQuestion*> & question_list, AbstractStatement * stop_at)
 {
@@ -182,6 +190,7 @@ void AbstractQuestion::GetQuestionsInBlock(
 	}
 	//std::cerr << "EXIT AbstractQuestion::GetQuestionsInBlock()" << std::endl;
 }
+#endif /* 0 */
 
 void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 {
@@ -377,6 +386,7 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 	}
 }
 
+#if 0
 // re_arranged_buffer will contain the data like this: valid_data invalid_data
 bool AbstractQuestion::VerifyData(
 	string & err_mesg, string & re_arranged_buffer
@@ -444,7 +454,9 @@ end:
 	// 	<< "|" << endl;
 	return invalid_code;
 }
+#endif /* 0 */
 
+#if 0
 user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
 {
 	// cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
@@ -544,6 +556,7 @@ label_ask_again:
 		return user_response::UserEnteredData;
 	}
 }
+#endif /* 0 */
 
 void AbstractQuestion::PrintArrayDeclarations(ostringstream & quest_defns)
 {
@@ -600,6 +613,8 @@ RangeQuestion::RangeQuestion(
 	maxCode_ = r_data->GetMax();
 }
 
+#if 0
+
 	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
@@ -613,6 +628,7 @@ RangeQuestion::RangeQuestion(
 { 
 	maxCode_ = r_data->GetMax();
 }
+#endif /* 0 */
 
 	//! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(
@@ -634,6 +650,7 @@ RangeQuestion::RangeQuestion(
 	maxCode_ = r_data->GetMax();
 }
 
+#if 0
 	//! this is only called from the runtime environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
@@ -651,15 +668,21 @@ RangeQuestion::RangeQuestion(
 { 
 	maxCode_ = r_data->GetMax();
 }
+#endif /* 0 */
 
-
+#if 0
 bool RangeQuestion::IsValid(int32_t value)
 {
 	return (r_data->exists(value))? true: false;
 }
+#endif /* 0 */
 
+void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
+			 , /*qs_ncurses::*/WINDOW* stub_list_window
+			 , /*qs_ncurses::*/WINDOW* data_entry_window)
+{ }
 
-
+#if 0
 //void RangeQuestion::eval()
 void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
@@ -818,7 +841,12 @@ get_data_again:
 	*/
 
 }
+#endif /* 0 */
 
+void RangeQuestion::WriteDataToDisk(ofstream& data_file)
+{ }
+
+#if 0
 void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	if(loop_index_values.size()>0){
@@ -844,7 +872,9 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 	//LOG_MAINTAINER_MESSAGE(mesg.str());
 	//input_data.clear();
 }
+#endif /* 0 */
 
+#if 0
 bool NamedStubQuestion::IsValid(int32_t value)
 {
 	//vector<stub_pair> & vec= *stub_ptr;
@@ -856,7 +886,14 @@ bool NamedStubQuestion::IsValid(int32_t value)
 	}
 	return false;
 }
+#endif /* 0 */
 
+void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window)
+{ }
+
+#if 0
 //void NamedStubQuestion::eval()
 void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
@@ -954,6 +991,7 @@ get_data_again:
 	*/
 
 }
+#endif /* 0 */
 
 void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 {
@@ -1202,6 +1240,7 @@ NamedStubQuestion::NamedStubQuestion(
 	}
 }
 
+#if 0
 //! only called in the runtime environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
@@ -1236,6 +1275,7 @@ NamedStubQuestion::NamedStubQuestion(
 		}
 	}
 }
+#endif /* 0 */
 
 void AbstractQuestion::print_q_type(string &s)
 {
@@ -1294,7 +1334,9 @@ void AbstractQuestion::print_data_type(string &s)
 	}
 }
 
-
+void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
+{ }
+#if 0
 void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	if(loop_index_values.size()>0){
@@ -1319,6 +1361,7 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 	//LOG_MAINTAINER_MESSAGE(mesg.str());
 	//input_data.clear();
 }
+#endif /* 0 */
 
 void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 {
@@ -1402,16 +1445,22 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	//code.program_code << "*/\n";
 }
 
+#if 0
 RangeQuestion::~RangeQuestion()
 {
 	delete r_data ; r_data = 0;
 }
+#endif /* 0 */
 
 
 // -----------------------------------------------------
 // DummyArrayQuestion
 
 
+void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
+{ }
+
+#if 0
 void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	data_file << questionName_ << " BOUNDS";
@@ -1420,6 +1469,7 @@ void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
 	}
 	data_file << endl;
 }
+#endif /* 0 */
 
 int32_t GetTempMapKeyNumber()
 {
@@ -2763,6 +2813,7 @@ std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(Abs
 	return s.str();
 }
 
+#if 0
 bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
 {
 	stringstream mesg; mesg << "user_resp: " << user_resp;
@@ -2794,3 +2845,4 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
 		return false;
 	}
 }
+#endif /* 0 */
