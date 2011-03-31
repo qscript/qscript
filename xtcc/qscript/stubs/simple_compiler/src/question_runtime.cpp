@@ -665,3 +665,33 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 	//input_data.clear();
 }
 
+
+NamedStubQuestion::NamedStubQuestion(
+	DataType this_stmt_type, int32_t line_number
+	, string l_name, string l_q_text
+	, QuestionType l_q_type, int32_t l_no_mpn
+	, DataType l_dt, named_range * l_nr_ptr
+	, QuestionAttributes  l_question_attributes
+	):
+	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes)
+	, named_list()
+	, nr_ptr(l_nr_ptr), stub_ptr(0)
+{ 
+#if 0
+	vector <stub_pair> & v= *stub_ptr;
+	for (int i=0; i<v.size(); ++i) {
+		if (maxCode_ < v[i].code) {
+			maxCode_ = v[i].code;
+		}
+	}
+#endif /* 0 */
+	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
+		if (nr_ptr->stubs[i].is_mutex) {
+			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
+		}
+		if (maxCode_ < nr_ptr->stubs[i].code) {
+			maxCode_ = nr_ptr->stubs[i].code;
+		}
+	}
+}

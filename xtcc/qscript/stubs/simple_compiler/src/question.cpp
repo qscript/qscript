@@ -1209,7 +1209,7 @@ NamedStubQuestion::NamedStubQuestion(
 		}
 	}
 }
-
+#if 0
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, string l_q_text
@@ -1239,7 +1239,7 @@ NamedStubQuestion::NamedStubQuestion(
 		}
 	}
 }
-
+#endif /* 0 */
 #if 0
 //! only called in the runtime environment
 NamedStubQuestion::NamedStubQuestion(

@@ -78,8 +78,8 @@ namespace qscript_parser
 	bool show_lex_error_context = true;
 	string fname;
 	struct LexLocation lex_location;
-	TempNameGenerator temp_set_name_generator("qscript_temp_xtcc_set_");
-	TempNameGenerator temp_name_generator("qscript_temp_");
+	//TempNameGenerator temp_set_name_generator("qscript_temp_xtcc_set_");
+	//TempNameGenerator temp_name_generator("qscript_temp_");
 
 }
 
