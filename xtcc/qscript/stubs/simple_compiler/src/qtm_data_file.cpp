@@ -203,18 +203,46 @@ void QtmDataDiskMap::print_qax(fstream & qax_file)
 			for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
 				qtm_include_file << "n01"
 					<< n_q->nr_ptr->stubs[i].stub_text
-					<< "; c=ca";
+					<< "; c=c";
 				int the_code = n_q->nr_ptr->stubs[i].code;
-				int dividend = the_code/10;
-				int remainder = the_code%10;
-				if (remainder == 0) {
-					qtm_include_file 
-						<< dividend - 1 << "'"
-						<< remainder << "'";
+				if (n_q->no_mpn>1) {
+					qtm_include_file << "a";
+					int dividend = the_code/10;
+					int remainder = the_code%10;
+					if (remainder == 0) {
+						qtm_include_file 
+							<< dividend - 1 << "'"
+							<< remainder << "'";
+					} else {
+						qtm_include_file 
+							<< dividend  << "'"
+							<< remainder << "'";
+					}
 				} else {
-					qtm_include_file 
-						<< dividend  << "'"
-						<< remainder << "'";
+					if (width_==1) {
+						qtm_include_file << "a0'";
+						if (the_code < 10) {
+							qtm_include_file << the_code
+								<< "'";
+						} else {
+							if (the_code == 10) {
+								qtm_include_file << "'0'";
+							} else if (the_code == 11) {
+								qtm_include_file << "'-'";
+							} else if (the_code == 12) {
+								qtm_include_file << "'&'";
+							} else {
+								stringstream error_str;
+								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+								cerr << LOG_MESSAGE(error_str.str());
+								exit(1);
+							}
+						}
+					} else {
+						qtm_include_file << "(a0,a"
+							<< width_-1 << ").eq."
+							<< the_code;
+					}
 				}
 				qtm_include_file << endl;
 			}
