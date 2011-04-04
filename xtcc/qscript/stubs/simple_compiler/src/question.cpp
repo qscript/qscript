@@ -2564,6 +2564,40 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< " :belong to different blocks "
 					<< "*/"
 					<< endl;
+				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
+				for(int32_t i1 = 0; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
+					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
+							restore_array_quest->for_bounds_stack[i1]);
+					if(bin_expr_ptr){
+						AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+						ExpressionCompiledCode expr_code;
+						rhs->PrintExpressionCode(expr_code);
+						s << expr_code.code_bef_expr.str() /* should be empty */
+							<< expr_code.code_expr.str();
+						if(i1<restore_array_quest->for_bounds_stack.size()-1) {
+							s << "*";
+						}
+					} else {
+						print_err(compiler_code_generation_error
+							, "for loop index condition is not a binary expression"
+							, 0, __LINE__, __FILE__);
+					}
+				}
+				s << ";++xtcc_i){\n"
+					<< "ostringstream map_key;\n"
+					<< "map_key << \"" << questionName_ << "\""
+					<< " << "
+					<< "\"_\" << xtcc_i << \"$\" << "
+					//<< consolidated_for_loop_index_stack.back()
+					<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+					<< ";" << endl
+					<< restore_array_quest->questionName_
+					<< "_list.questionList[xtcc_i]->input_data = "
+					<< restore_array_quest->questionName_ << "_scope_question_t["
+					<< "map_key.str()" << "]  ;\n"
+					<< endl;
+				s << "}\n";
+
 			} else if (IsAtAHigherNestLevelInTheSameBlock(quest_loc, restore_array_quest)){
 				s << "/*"
 					<< quest_loc->questionName_
