@@ -106,6 +106,7 @@ void PrintPrintMapHeader(FILE * script);
 void PrintDefineSomePDCursesKeys(FILE * script);
 void PrintPDCursesKeysHeader(FILE * script);
 void PrintProcessOptions(FILE * script);
+void PrintMain(FILE * script, bool ncurses_flag);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -180,8 +181,17 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	compute_flat_map_code.program_code << "}\n";
 	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
+
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
+	fprintf(script, "TheQuestionnaire()\n{\n");
+	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
+
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
+	fprintf(script, "}\n");
+	// 5-apr-2011 , 0:12 (am)
+	// continue from here - put the compute_flat_map_code into
+	// a write data function - commiting this 
+	// - generated code wont compile
 	fprintf(script, "%s\n", compute_flat_map_code.program_code.str().c_str());
 	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
@@ -216,6 +226,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"user_navigation.h\"\n");
 	fprintf(script, "#include \"qtm_data_file.h\"\n");
 	fprintf(script, "#include \"qtm_datafile_conf_parser.h\"\n");
+	fprintf(script, "#include \"ArrayQuestion.h\"\n");
+	fprintf(script, "#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
+
 	{
 		stringstream mesg;
 		mesg << "do we need to #include \"TempNameGenerator.h\" in generated code? I have commented it out";
@@ -292,11 +305,11 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "string output_data_file_name;\n");
 	fprintf(script, "string output_qtm_data_file_name;\n");
 	fprintf(script, "void GetUserResponse(string& qno, int32_t &qindex);\n");
-	print_array_question_class(script);
+	// print_array_question_class(script);
 	fprintf(script, "string jno = \"%s\";\n", project_name.c_str());
 	fprintf(script, "char * flat_file_output_buffer = 0;\n");
 	fprintf(script, "int32_t len_flat_file_output_buffer  = 0;\n");
-	print_flat_ascii_data_class(script);
+	//print_flat_ascii_data_class(script);
 	//print_qtm_data_class(script);
 	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
 	fprintf(script, "vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
@@ -305,62 +318,12 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
+	fprintf(script, "struct TheQuestionnaire\n{\n");
+
 
 	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
-	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
-	fprintf(script, "\tprocess_options(argc, argv);\n");
-	fprintf(script, "\tDIR * directory_ptr = 0;\n");
-	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag) {\n");
-	fprintf(script, "\t	qtm_data_file_ns::init_exceptions();\n");
-	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
-	fprintf(script, "\t	if (! directory_ptr) {\n");
-	fprintf(script, "\t		cout << \" unable to open . (current directory) for reading\\n\";\n");
-	fprintf(script, "\t		exit(1);\n");
-	fprintf(script, "\t	}\n");
-	fprintf(script, "\t}\n");
+	/* main was here */
 
-	fprintf(script, "bool using_ncurses = %s;\n", (ncurses_flag) ?  "true": "false");
-	//fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
-	fprintf(script, "qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
-	fprintf(script, "	using namespace std;\n");
-
-	fprintf(script, "	WINDOW 	* question_window = 0,\n"
-			"		* stub_list_window = 0,\n"
-			"		* data_entry_window = 0,\n"
-			"		* help_window = 0;\n"
-			);
-	fprintf(script, "	PANEL 	* question_panel = 0,\n"
-			"		* stub_list_panel = 0,\n"
-			"		* data_entry_panel = 0,\n"
-			"		* help_panel = 0;\n");
-
-	if(ncurses_flag) {
-		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);\n");
-		fprintf(script, "	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0 /* || help_window == 0 */ ){\n");
-		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
-		fprintf(script, "		return 1;\n");
-		fprintf(script, "	}\n");
-	}
-	fprintf(script, "	SetupSignalHandler();\n");
-
-	/*
-	map<string, vector<string> > ::iterator iter;
-	for(iter = map_of_active_push_vars_for_questions.begin();
-		iter != map_of_active_push_vars_for_questions.end();
-		++iter){
-		//fprintf("\t");
-		string q_name = iter->first;
-		fprintf(script, "vector <string> active_push_vars_%s;\n",
-			q_name.c_str());
-		vector<string>& v = iter->second;
-		for(unsigned int32_t i = 0; i < v.size(); ++i){
-			fprintf(script, "active_push_vars_%s.push_back(%s);\n",
-				q_name.c_str(), v[i].c_str());
-		}
-		fprintf(script, "map_of_active_push_vars_for_questions[%s] = active_push_vars_%s;\n",
-			q_name.c_str(), q_name.c_str());
-	}
-	*/
 
 }
 
@@ -1642,6 +1605,46 @@ void PrintPrintMapHeader(FILE * script)
 	fprintf(script, "\tvoid print_map_header(fstream & map_file )\n{\n");
 	fprintf(script, "map_file << \"Question No\t\t\t,width,\tno responses,\tstart position,\tend position\\n\";\n");
 	fprintf(script, "}\n");
+}
+
+void PrintMain (FILE * script, bool ncurses_flag)
+{
+
+	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
+	fprintf(script, "\tprocess_options(argc, argv);\n");
+	fprintf(script, "\tDIR * directory_ptr = 0;\n");
+	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag) {\n");
+	fprintf(script, "\t	qtm_data_file_ns::init_exceptions();\n");
+	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
+	fprintf(script, "\t	if (! directory_ptr) {\n");
+	fprintf(script, "\t		cout << \" unable to open . (current directory) for reading\\n\";\n");
+	fprintf(script, "\t		exit(1);\n");
+	fprintf(script, "\t	}\n");
+	fprintf(script, "\t}\n");
+
+	fprintf(script, "bool using_ncurses = %s;\n", (ncurses_flag) ?  "true": "false");
+	//fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
+	fprintf(script, "qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
+	fprintf(script, "	using namespace std;\n");
+
+	fprintf(script, "	WINDOW 	* question_window = 0,\n"
+			"		* stub_list_window = 0,\n"
+			"		* data_entry_window = 0,\n"
+			"		* help_window = 0;\n"
+			);
+	fprintf(script, "	PANEL 	* question_panel = 0,\n"
+			"		* stub_list_panel = 0,\n"
+			"		* data_entry_panel = 0,\n"
+			"		* help_panel = 0;\n");
+
+	if(ncurses_flag) {
+		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);\n");
+		fprintf(script, "	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0 /* || help_window == 0 */ ){\n");
+		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
+		fprintf(script, "		return 1;\n");
+		fprintf(script, "	}\n");
+	}
+	fprintf(script, "	SetupSignalHandler();\n");
 }
 
 

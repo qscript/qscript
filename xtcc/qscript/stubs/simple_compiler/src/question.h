@@ -121,7 +121,8 @@ struct AbstractQuestion: public AbstractStatement
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data);
 	bool VerifyResponse(user_response::UserResponseType user_resp);
-	void PrintArrayDeclarations(ostringstream & quest_defns);
+	// void PrintArrayDeclarations(ostringstream & quest_defns);
+	void PrintArrayDeclarations(StatementCompiledCode & code);
 	void PrintQuestionArrayInitialisation(
 		StatementCompiledCode & code);
 	std::string PrintCodeSaveArrayQuestionNotInTheSameBlock(AbstractQuestion * save_array_quest);

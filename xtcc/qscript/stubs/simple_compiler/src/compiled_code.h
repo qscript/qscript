@@ -4,7 +4,8 @@
 #include <sstream>
 struct StatementCompiledCode 
 {
-	std::ostringstream quest_defns, array_quest_init_area, program_code;
+	std::ostringstream quest_defns, quest_defns_init_code,
+		array_quest_init_area, program_code;
 	StatementCompiledCode(): quest_defns(), array_quest_init_area(), program_code() {}
 
 };
