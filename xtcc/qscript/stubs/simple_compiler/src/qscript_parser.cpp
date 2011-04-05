@@ -144,12 +144,12 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	tree_root->GenerateCode(code);
 
 	fprintf(script, "struct TheQuestionnaire\n{\n");
-	fprintf(script, "AbstractQuestion * last_question_answered;\n");
+	//fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire(): \n");
 	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
 	fprintf(script, "{\n");
-	fprintf(script, "last_question_answered = 0;\n");
+	//fprintf(script, "last_question_answered = 0;\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
 
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
@@ -167,8 +167,9 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	PrintGetUserResponse(script);
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
-	fprintf(script, "}\n");
+	fprintf(script, "};\n");
 	print_close(script, code.program_code, ncurses_flag);
+	PrintMain(script, ncurses_flag);
 	fflush(script);
 	if(qscript_debug::DEBUG_qscript_parser)
 		cerr << "EXIT qscript_parser::GenerateCode" << endl;
@@ -293,6 +294,18 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
+
+	fprintf(script, "	WINDOW 	* question_window = 0,\n"
+			"		* stub_list_window = 0,\n"
+			"		* data_entry_window = 0,\n"
+			"		* help_window = 0;\n"
+			);
+	fprintf(script, "	PANEL 	* question_panel = 0,\n"
+			"		* stub_list_panel = 0,\n"
+			"		* data_entry_panel = 0,\n"
+			"		* help_panel = 0;\n");
+	fprintf(script, "\tDIR * directory_ptr = 0;\n");
+	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
 
 	// fprintf(script, "struct TheQuestionnaire\n{\n");
 	// fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
@@ -1552,7 +1565,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 {
 	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
 	fprintf(script, "\tprocess_options(argc, argv);\n");
-	fprintf(script, "\tDIR * directory_ptr = 0;\n");
+	//fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag) {\n");
 	fprintf(script, "\t	qtm_data_file_ns::init_exceptions();\n");
 	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
@@ -1565,6 +1578,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
 	fprintf(script, "	using namespace std;\n");
 
+	/*
 	fprintf(script, "	WINDOW 	* question_window = 0,\n"
 			"		* stub_list_window = 0,\n"
 			"		* data_entry_window = 0,\n"
@@ -1574,6 +1588,8 @@ void PrintMain (FILE * script, bool ncurses_flag)
 			"		* stub_list_panel = 0,\n"
 			"		* data_entry_panel = 0,\n"
 			"		* help_panel = 0;\n");
+	*/
+
 	if(ncurses_flag) {
 		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);\n");
 		fprintf(script, "	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0 /* || help_window == 0 */ ){\n");
