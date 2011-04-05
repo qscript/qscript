@@ -563,8 +563,15 @@ void AbstractQuestion::PrintArrayDeclarations(StatementCompiledCode & code)
 {
 	string temp_array_bounds_name = "list_" + questionName_ + "_array_bounds";
 	code.quest_defns << "vector<int32_t> " << temp_array_bounds_name
-		<< "(" << for_bounds_stack.size() << ")"
 		<< ";" << endl;
+	static bool first_time = true;
+	if (!first_time) {
+		code.quest_defns_constructor << "," ;
+	} else {
+		first_time = false;
+	}
+	code.quest_defns_constructor << temp_array_bounds_name
+		<< "(" << for_bounds_stack.size() << ")";
 	for(int32_t i = 0; i< for_bounds_stack.size(); ++i){
 		ostringstream array_bounds;
 		BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);

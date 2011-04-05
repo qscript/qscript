@@ -10,6 +10,9 @@ class ArrayQuestion
 	public:
 		std::vector<AbstractQuestion*> questionList;
 		std::vector<int32_t> arrayBounds;
+		ArrayQuestion()
+			: questionList(), arrayBounds()
+		{ }
 		ArrayQuestion(vector<int32_t>& l_arrayBounds): arrayBounds(l_arrayBounds)
 		{
 			int32_t bounds = 1;

@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <iostream>
+#include <string>
+#include <fstream>
 #include "question.h"
 #include "named_range.h"
 #include "qscript_readline.h"

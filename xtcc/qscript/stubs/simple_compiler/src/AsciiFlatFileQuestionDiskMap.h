@@ -116,6 +116,6 @@ class AsciiFlatFileQuestionDiskMap
 			map_file << start_pos+1 << ",	";
 			map_file << start_pos + total_length  << "\n";
 		}
-}
+};
 
 #endif  /* */
