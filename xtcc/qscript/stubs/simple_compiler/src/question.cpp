@@ -1137,11 +1137,11 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	quest_decl << " = new NamedStubQuestion("
 		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
 		<< lineNo_ << ","
-		<< "string( \"" << questionName_.c_str() << "\")" << ","
-		<< "string(\" " << questionText_.c_str() << "\")" << ","
-		<< q_type_str.c_str() << ","
+		<< "string( \"" << questionName_ << "\")" << ","
+		<< "string(\" " << questionText_ << "\")" << ","
+		<< q_type_str << ","
 		<< no_mpn << ","
-		<< datatype_str.c_str() << ",&"
+		<< datatype_str << ",&"
 		<< nr_ptr->name;
 	if(for_bounds_stack.size() >0 ){
 		quest_decl << ", stack_of_loop_indices "
@@ -1154,7 +1154,9 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
 	if(for_bounds_stack.size() == 0){
-		code.quest_defns << quest_decl.str();
+		// code.quest_defns << quest_decl.str();
+		code.quest_defns << "NamedStubQuestion * " << questionName_ << ";\n";
+		code.quest_defns_init_code << quest_decl.str();
 	} else {
 		code.array_quest_init_area << quest_decl.str();
 	}

@@ -192,10 +192,10 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <dirent.h>\n");
 	fprintf(script, "#include <cctype>\n");
 	//fprintf(script, "#include \"stmt.h\"\n");
+	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"AbstractStatement.h\"\n");
 	fprintf(script, "#include \"named_range.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
-	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"datatype.h\"\n");
 	fprintf(script, "#include \"qscript_lib.h\"\n");
 	fprintf(script, "#include \"question_disk_data.h\"\n");
