@@ -568,6 +568,7 @@ void AbstractQuestion::PrintArrayDeclarations(StatementCompiledCode & code)
 	if (!first_time) {
 		code.quest_defns_constructor << "," ;
 	} else {
+		code.quest_defns_constructor << ": ";
 		first_time = false;
 	}
 	code.quest_defns_constructor << temp_array_bounds_name
@@ -1013,7 +1014,7 @@ get_data_again:
 }
 #endif /* 0 */
 
-void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
+void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 {
 	//AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
 
@@ -1053,9 +1054,12 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 
 	}
 #endif /* 0 */
-
-	quest_decl << "RangeQuestion * " << questionName_
-		<< " = new RangeQuestion("
+	if (array_mode) {
+		quest_decl << "RangeQuestion * " << questionName_;
+	} else {
+		quest_decl <<  questionName_;
+	}
+	quest_decl << " = new RangeQuestion("
 		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
 		<< lineNo_ << ","
 		<< "string( \"" << questionName_.c_str() << "\")" << ","
@@ -1099,12 +1103,12 @@ void RangeQuestion::GenerateCode(StatementCompiledCode & code )
 {
 	if(for_bounds_stack.size() == 0){
 		AbstractQuestion::PrintSetupBackJump(code);
-		GenerateCodeSingleQuestion(code);
+		GenerateCodeSingleQuestion(code, false);
 	} else {
 		AbstractQuestion::PrintSetupBackJump(code);
 		PrintArrayDeclarations(code);
 
-		GenerateCodeSingleQuestion(code);
+		GenerateCodeSingleQuestion(code, true);
 		code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
 	}
@@ -1114,7 +1118,7 @@ void RangeQuestion::GenerateCode(StatementCompiledCode & code )
 }
 
 //extern vector <scope*> active_scope_list;
-void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
+void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 {
 	//AbstractQuestion::PrintSetupBackJump(quest_defns, program_code);
 
@@ -1125,8 +1129,12 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
 	print_data_type(datatype_str);
 
 	ostringstream quest_decl;
-	quest_decl << "NamedStubQuestion * " << questionName_.c_str()
-		<< " = new NamedStubQuestion("
+	if (array_mode) 
+		quest_decl << "NamedStubQuestion * " << questionName_;
+	else
+		quest_decl << questionName_;
+
+	quest_decl << " = new NamedStubQuestion("
 		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
 		<< lineNo_ << ","
 		<< "string( \"" << questionName_.c_str() << "\")" << ","
@@ -1164,13 +1172,13 @@ void NamedStubQuestion::GenerateCode(StatementCompiledCode &code)
 {
 	if(for_bounds_stack.size() == 0){
 		AbstractQuestion::PrintSetupBackJump(code);
-		GenerateCodeSingleQuestion(code);
+		GenerateCodeSingleQuestion(code, false);
 	}  else {
 		//----------------------------------------
 		AbstractQuestion::PrintSetupBackJump(code);
 		// PrintArrayDeclarations(code.quest_defns);
 		PrintArrayDeclarations(code);
-		GenerateCodeSingleQuestion(code);
+		GenerateCodeSingleQuestion(code, true);
 		code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
 	}

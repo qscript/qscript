@@ -92,7 +92,7 @@ struct AbstractQuestion: public AbstractStatement
 //	virtual void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code)=0;
 	virtual void GenerateCode(StatementCompiledCode &code)=0;
-	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code)=0;
+	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)=0;
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual void eval(/*qs_ncurses::*/WINDOW * question_window
 			  , /*qs_ncurses::*/WINDOW* stub_list_window
@@ -203,7 +203,7 @@ struct RangeQuestion: public AbstractQuestion
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
-	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	virtual bool IsValid(int32_t value);
 	//void eval();
 	void eval(/*qs_ncurses::*/WINDOW * question_window
@@ -302,7 +302,7 @@ class NamedStubQuestion: public AbstractQuestion
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
-	void GenerateCodeSingleQuestion(StatementCompiledCode &code);
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	virtual bool IsValid(int32_t value);
 	//void eval();
 	void eval(/*qs_ncurses::*/WINDOW * question_window
@@ -353,7 +353,7 @@ class DummyArrayQuestion: public AbstractQuestion{
 
 	bool IsValid(int32_t value){ return false;}
 	void GenerateCode(StatementCompiledCode &code){}
-	void GenerateCodeSingleQuestion(StatementCompiledCode &code){}
+	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode){}
 	void GetQuestionNames(vector<string> & question_list
 			      , AbstractStatement* endStatement)
 	{

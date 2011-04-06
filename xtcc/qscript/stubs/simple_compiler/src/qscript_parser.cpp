@@ -146,7 +146,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "struct TheQuestionnaire\n{\n");
 	//fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
-	fprintf(script, "TheQuestionnaire(): \n");
+	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
 	fprintf(script, "{\n");
 	//fprintf(script, "last_question_answered = 0;\n");
@@ -1598,6 +1598,9 @@ void PrintMain (FILE * script, bool ncurses_flag)
 		fprintf(script, "	}\n");
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
+	fprintf(script, "TheQuestionnaire theQuestionnaire;\n"
+			"theQuestionnaire.eval();\n");
+
 	fprintf(script, "\n} /* close main */\n");
 }
 
