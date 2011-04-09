@@ -96,6 +96,7 @@ void print_qtm_data_class(FILE *script);
 void print_close(FILE* script, ostringstream & program_code, bool  ncurses_flag);
 void print_navigation_support_functions(FILE * script);
 void print_reset_questionnaire(FILE * script);
+void print_read_a_serial_no (FILE * script);
 void PrintDisplayActiveQuestions(FILE *script);
 void PrintGetUserResponse(FILE *script);
 void PrintSetupNCurses(FILE * script);
@@ -163,6 +164,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "%s\n", write_data_to_disk_code());
 	print_navigation_support_functions(script);
 	print_reset_questionnaire(script);
+	print_read_a_serial_no (script);
 	PrintDisplayActiveQuestions(script);
 	PrintGetUserResponse(script);
 	//print_close(script, code.program_code, ncurses_flag);
@@ -226,6 +228,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	}
 
 
+	fprintf(script, "int ser_no = 0;\n");
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "string qscript_stdout_fname(\"qscript_stdout.log\");\n");
 	fprintf(script, "FILE * qscript_stdout = 0;\n");
@@ -778,6 +781,10 @@ const char * file_exists_check_code()
 {
 	const char * file_check_code =
 	"\tif (write_data_file_flag||write_qtm_data_file_flag) {\n"
+	"\t	ser_no = read_a_serial_no();\n"
+	"\t	if (ser_no == 0) {\n"
+	"\t		exit(1);\n"
+	"\t	} \n"
 	"\t} else {\n"
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\tif(exists == 1){\n"
@@ -1657,7 +1664,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
 	fprintf(script, "void eval()\n{\n");
-	fprintf(script, "\tint ser_no = 0;\n");
+	// fprintf(script, "\tint ser_no = 0;\n");
 	if(ncurses_flag) {
 		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
 		fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
@@ -1671,6 +1678,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	}
 
 	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
+#if 0
 	fprintf(script, "	if (write_data_file_flag || write_qtm_data_file_flag) {\n");
 	fprintf(script, "		struct dirent * directory_entry = readdir(directory_ptr);\n");
 	fprintf(script, "		if (directory_entry == NULL) {\n");
@@ -1741,6 +1749,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "			continue;\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
+#endif /* 0 */
 	// code-frag/open-eval-while-loop-code-frag.cpp 
 
 	fprintf(script, "%s\n", file_exists_check_code());
@@ -1816,6 +1825,95 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	if(ncurses_flag)
 		fprintf(script, "\tendwin();\n");
 	fprintf(script, "} /* close eval */\n");
+}
+
+void print_read_a_serial_no (FILE * script)
+{
+	fprintf (script, "\n");
+	fprintf (script, "    int read_a_serial_no()\n");
+	fprintf (script, "    {\n");
+	fprintf (script, "restart:\n");
+	fprintf (script, "	struct dirent *directory_entry = readdir(directory_ptr);\n");
+	fprintf (script, "	if (directory_entry == NULL) {\n");
+	fprintf (script, "	    // we have read upto the last record in the directory\n");
+	fprintf (script, "	    cout << \"finished reading all data files ... exiting\"\n");
+	fprintf (script, "		<< endl;\n");
+	fprintf (script, "	    return 0;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	string dir_entry_name(directory_entry->d_name);\n");
+	fprintf (script, "	int len_entry = dir_entry_name.length();\n");
+	fprintf (script, "	if (len_entry > 4 &&\n");
+	fprintf (script, "	    dir_entry_name[len_entry - 1] == 't' &&\n");
+	fprintf (script, "	    dir_entry_name[len_entry - 2] == 'a' &&\n");
+	fprintf (script, "	    dir_entry_name[len_entry - 3] == 'd' &&\n");
+	fprintf (script, "	    dir_entry_name[len_entry - 4] == '.') {\n");
+	fprintf (script, "	    if (dir_entry_name.length() < jno.length() + 6\n");
+	fprintf (script, "		/* \"_1.dat\" is the shortest possible datafile name for our study */\n");
+	fprintf (script, "		) {\n");
+	fprintf (script, "		// cannot be our data file\n");
+	fprintf (script, "		goto restart;\n");
+	fprintf (script, "	    }\n");
+	fprintf (script, "	    bool not_our_file = false;\n");
+	fprintf (script, "	    for (int i = 0; i < jno.length(); ++i) {\n");
+	fprintf (script, "		if (!(jno[i] == dir_entry_name[i])) {\n");
+	fprintf (script, "		    // cannot be our data file\n");
+	fprintf (script, "		    not_our_file = true;\n");
+	fprintf (script, "		    break;\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	    }\n");
+	fprintf (script, "	    if (not_our_file) {\n");
+	fprintf (script, "		//continue;\n");
+	fprintf (script, "		goto restart;\n");
+	fprintf (script, "	    }\n");
+	fprintf (script, "	    // all our data files are expected\n");
+	fprintf (script, "	    // to have a \".dat\" ending and '_' after job number\n");
+	fprintf (script, "	    // find the \".\"\n");
+	fprintf (script, "	    cout << dir_entry_name << endl;\n");
+	fprintf (script, "	    if (dir_entry_name[jno.length()] != '_') {\n");
+	fprintf (script, "		not_our_file = true;\n");
+	fprintf (script, "		//continue;\n");
+	fprintf (script, "		goto restart;\n");
+	fprintf (script, "	    }\n");
+	fprintf (script, "	    stringstream file_ser_no_str;\n");
+	fprintf (script, "	    for (int i = jno.length() + 1;\n");
+	fprintf (script, "		 i < dir_entry_name.length(); ++i) {\n");
+	fprintf (script, "		if (isdigit(dir_entry_name[i])) {\n");
+	fprintf (script, "		    file_ser_no_str << dir_entry_name[i];\n");
+	fprintf (script, "		} else {\n");
+	fprintf (script, "		    if ((i + 3 == dir_entry_name.length())\n");
+	fprintf (script, "			&& dir_entry_name[i] == '.'\n");
+	fprintf (script, "			&& dir_entry_name[i + 1] == 'd'\n");
+	fprintf (script, "			&& dir_entry_name[i + 2] == 'a'\n");
+	fprintf (script, "			&& dir_entry_name[i + 3] == 't') {\n");
+	fprintf (script, "			//its most probably our file \n");
+	fprintf (script, "			// need to check leading digit is not 0\n");
+	fprintf (script, "			break;\n");
+	fprintf (script, "		    } else {\n");
+	fprintf (script, "			// it's not our file \n");
+	fprintf (script, "			not_our_file = true;\n");
+	fprintf (script, "			goto restart;\n");
+	fprintf (script, "		    }\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	    }\n");
+	fprintf (script, "	    if (not_our_file) {\n");
+	fprintf (script, "		    goto restart;\n");
+	fprintf (script, "	    }\n");
+	fprintf (script, "	    if ((file_ser_no_str.str())[0] == '0') {\n");
+	fprintf (script, "		// the leading digit of our data file\n");
+	fprintf (script, "		// can never be zero - so its not our file\n");
+	fprintf (script, "		goto restart;\n");
+	fprintf (script, "	    }\n");
+	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
+	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
+	fprintf (script, "	    load_data(jno, file_ser_no);\n");
+	fprintf (script, "	    merge_disk_data_into_questions(qscript_stdout);\n");
+	fprintf (script, "	    return file_ser_no;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "	    // not our data file\n");
+	fprintf (script, "	    goto restart;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "    }\n");
+	fprintf (script, "\n");
 }
 
 /* end of namespace */
