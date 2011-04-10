@@ -309,6 +309,7 @@ void print_header(FILE* script, bool ncurses_flag)
 			"		* help_panel = 0;\n");
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
+	fprintf(script, "AbstractQuestion * last_question_visited = 0;\n");
 
 	// fprintf(script, "struct TheQuestionnaire\n{\n");
 	// fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
@@ -1624,7 +1625,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\tfprintf(qscript_stdout, \"reached top of while loop:\\n\");");
 	fprintf(script, "\t\t      re_eval_from_start:\n");
 	fprintf(script, "\t\t	AbstractQuestion * q =\n");
-	fprintf(script, "\t\t	    theQuestionnaire.eval2(last_question_answered,\n");
+	fprintf(script, "\t\t	    theQuestionnaire.eval2(last_question_answered, last_question_visited, \n");
 	fprintf(script, "\t\t				   qnre_navigation_mode);\n");
 	fprintf(script, "\t\t	fprintf(qscript_stdout, \"eval2 returned %%s\\n\",\n");
 	fprintf(script, "\t\t		q->questionName_.c_str());\n");
@@ -1661,10 +1662,10 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t		fprintf(qscript_stdout,\n");
 	fprintf(script, "\t\t			\"questionName_ %%s: going back to re_eval\\n\",\n");
 	fprintf(script, "\t\t			q->questionName_.c_str());\n");
-	fprintf(script, "\t\t		//goto label_eval_q2;\n");
 	fprintf(script, "\t\t		goto re_eval;\n");
 	fprintf(script, "\t\t	    }\n");
-	fprintf(script, "\t\t	    stopAtNextQuestion = true;\n");
+	fprintf(script, "\t\t	    qnre_navigation_mode = NAVIGATE_NEXT;\n");
+	fprintf(script, "\t\t	    // stopAtNextQuestion = true;\n");
 	fprintf(script, "\t\t	    user_navigation = NOT_SET;\n");
 	fprintf(script, "\t\t	} else if (user_navigation == JUMP_TO_QUESTION) {\n");
 	fprintf(script, "\t\t	    theQuestionnaire.DisplayActiveQuestions();\n");
@@ -1746,7 +1747,10 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
 	fprintf(script, "AbstractQuestion * eval2(AbstractQuestion * p_last_question_answered,\n"
+			"\t\t AbstractQuestion * p_last_question_visited,\n"
 			"\t\t UserNavigation p_navigation_mode)\n{\n");
+
+	fprintf(script, "if (p_last_question_visited)\n\tfprintf (qscript_stdout, \"entered eval2: p_last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", p_last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
 	//if(ncurses_flag) {
 	//	fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
 	//	fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");

@@ -288,20 +288,31 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	program_code << "if(!"
 		<< questionName_ << "->isAnswered_ ||" << endl
 		<< "stopAtNextQuestion ||" << endl
-		<< "(p_navigation_mode == NAVIGATE_NEXT && p_last_question_answered == "
+		<< "(p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == "
 		<< questionName_ << ") || "
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
-		<< " ) {\n\tstopAtNextQuestion = false;\n}\n";
+		<< " ) {\n\tstopAtNextQuestion = false; "
+		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
+		<< " disarming stopAtNextQuestion = false \\n\");\n"
+		<< "\n}\n";
+	program_code << "if ("
+		<< "jumpToQuestion == \"" << questionName_ << "\") { " << endl
+		<< "jumpToQuestion = \"\";\n"
+		<< "}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
-		<< "if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_answered == "
+		<< "if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == "
 		<< questionName_ << ") {\n"
 		<< " stopAtNextQuestion = true;\n"
+		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
+		<< " arming stopAtNextQuestion = true \\n\");\n"
 		<< "}"
 		<< "else if (" << questionName_ << "->question_attributes.hidden_==false) {\n"
 		<< "\t// " << questionName_
 		<< "->eval(question_window, stub_list_window, data_entry_window);\n"
+		<< "\tlast_question_visited = " << questionName_ << ";" << endl
+		<< "\tfprintf(qscript_stdout, \"last_question_visited: " << questionName_ << "\\n\");\n"
 		<< "\treturn " << questionName_ << ";" << endl
 		<< "\t}\n";
 	// PrintUserNavigation(program_code);
