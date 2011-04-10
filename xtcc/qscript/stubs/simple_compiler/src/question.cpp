@@ -273,7 +273,7 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 			<< "]->isAnswered_==false) {\n"
 			<< "\t\tcout << \"question has not been answered ... jumping back\\n\";\n"
 			<< "\t\t\tgoto label_eval_" << questionName_ << ";\n"
-			<< "\t\t}\n";
+			<< "\t\t}\n"; 
 	program_code << "}\n";
 	program_code << " else { " << endl
 		<< "last_question_answered = " << questionName_ << "_list.questionList["
@@ -286,17 +286,25 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
 	program_code << "if(!"
-		<< questionName_.c_str() << "->isAnswered_ ||" << endl
+		<< questionName_ << "->isAnswered_ ||" << endl
 		<< "stopAtNextQuestion ||" << endl
+		<< "(p_navigation_mode == NAVIGATE_NEXT && p_last_question_answered == "
+		<< questionName_ << ") || "
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
 		<< " ) {\n\tstopAtNextQuestion = false;\n}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
-		<< "if ( " << questionName_ << "->question_attributes.hidden_==false) {\n"
-		<< questionName_.c_str()
-		<< "->eval(question_window, stub_list_window, data_entry_window);\n\t}\n";
-	PrintUserNavigation(program_code);
+		<< "if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_answered == "
+		<< questionName_ << ") {\n"
+		<< " stopAtNextQuestion = true;\n"
+		<< "}"
+		<< "else if (" << questionName_ << "->question_attributes.hidden_==false) {\n"
+		<< "\t// " << questionName_
+		<< "->eval(question_window, stub_list_window, data_entry_window);\n"
+		<< "\treturn " << questionName_ << ";" << endl
+		<< "\t}\n";
+	// PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }
 

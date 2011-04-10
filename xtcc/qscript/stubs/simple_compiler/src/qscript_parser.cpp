@@ -164,9 +164,9 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "%s\n", write_data_to_disk_code());
 	print_navigation_support_functions(script);
 	print_reset_questionnaire(script);
-	print_read_a_serial_no (script);
 	PrintDisplayActiveQuestions(script);
 	PrintGetUserResponse(script);
+	print_read_a_serial_no (script);
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
@@ -266,7 +266,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "vector <double> vector_double_t;\n");
 	fprintf(script, "bool back_jump = false;// no need for this but state the intent\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);\n");
-	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
+	//fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
 	fprintf(script, "WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx);\n");
 	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n"
 			"			WINDOW * &  stub_list_window,\n"
@@ -279,7 +279,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void define_some_pd_curses_keys();\n");
 	fprintf(script, "void SetupSignalHandler();\n");
 	fprintf(script, "static void sig_usr(int32_t signo);\n");
-	fprintf(script, "int32_t ComputeJumpToIndex(AbstractQuestion * q);\n");
+	//fprintf(script, "int32_t ComputeJumpToIndex(AbstractQuestion * q);\n");
 	fprintf(script, "void reset_questionnaire();\n");
 	fprintf(script, "void DisplayActiveQuestions();\n");
 	fprintf(script, "string output_data_file_name;\n");
@@ -1606,8 +1606,90 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
 	fprintf(script, "TheQuestionnaire theQuestionnaire;\n"
-			"theQuestionnaire.eval();\n");
+			"theQuestionnaire.compute_flat_file_map_and_init();\n"
+			);
+	if(ncurses_flag) {
+		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
+		fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
+		fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+		fprintf(script, "\t}\n");
+	} else	{
+		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
+		fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
+		fprintf(script, "\t\tchar  newl; cin >> ser_no;cin.get(newl);\n");
+		fprintf(script, "\t}\n");
+	}
+	fprintf(script, "\tUserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
+	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
+	fprintf(script, "\t\tfprintf(qscript_stdout, \"reached top of while loop:\\n\");");
+	fprintf(script, "\t\t      re_eval_from_start:\n");
+	fprintf(script, "\t\t	AbstractQuestion * q =\n");
+	fprintf(script, "\t\t	    theQuestionnaire.eval2(last_question_answered,\n");
+	fprintf(script, "\t\t				   qnre_navigation_mode);\n");
+	fprintf(script, "\t\t	fprintf(qscript_stdout, \"eval2 returned %%s\\n\",\n");
+	fprintf(script, "\t\t		q->questionName_.c_str());\n");
+	fprintf(script, "\t\t      re_eval:\n");
+	fprintf(script, "\t\t	q->eval(question_window, stub_list_window, data_entry_window);\n");
+	fprintf(script, "\t\t\n");
+	fprintf(script, "\t\t	if (user_navigation == NAVIGATE_PREVIOUS) {\n");
+	fprintf(script, "\t\t	    fprintf(qscript_stdout,\n");
+	fprintf(script, "\t\t		    \"user_navigation == NAVIGATE_PREVIOUS\\n\");\n");
+	fprintf(script, "\t\t	    AbstractQuestion *target_question =\n");
+	fprintf(script, "\t\t		theQuestionnaire.ComputePreviousQuestion(q);\n");
+	fprintf(script, "\t\t	    if (target_question == 0)\n");
+	fprintf(script, "\t\t		goto re_eval;\n");
+	fprintf(script, "\t\t	    else {\n");
+	fprintf(script, "\t\t		jumpToQuestion = target_question->questionName_;\n");
+	fprintf(script, "\t\t		if (target_question->type_ == QUESTION_ARR_TYPE) {\n");
+	fprintf(script, "\t\t		    jumpToIndex =\n");
+	fprintf(script, "\t\t			theQuestionnaire.\n");
+	fprintf(script, "\t\t			ComputeJumpToIndex(target_question);\n");
+	fprintf(script, "\t\t		}\n");
+	fprintf(script, "\t\t		if (data_entry_window == 0)\n");
+	fprintf(script, "\t\t		    cout << \"target question: \" << jumpToQuestion;\n");
+	fprintf(script, "\t\t		if (data_entry_window == 0)\n");
+	fprintf(script, "\t\t		    cout << \"target question Index: \" << jumpToIndex;\n");
+	fprintf(script, "\t\t		back_jump = true;\n");
+	fprintf(script, "\t\t		user_navigation = NOT_SET;\n");
+	fprintf(script, "\t\t		//goto start_of_questions;\n");
+	fprintf(script, "\t\t		goto re_eval_from_start;\n");
+	fprintf(script, "\t\t	    }\n");
+	fprintf(script, "\t\t	} else if (user_navigation == NAVIGATE_NEXT) {\n");
+	fprintf(script, "\t\t	    fprintf(qscript_stdout, \"user_navigation == NAVIGATE_NEXT\\n\");\n");
+	fprintf(script, "\t\t	    if (q->isAnswered_ == false\n");
+	fprintf(script, "\t\t		&& q->question_attributes.isAllowBlank() == false) {\n");
+	fprintf(script, "\t\t		fprintf(qscript_stdout,\n");
+	fprintf(script, "\t\t			\"questionName_ %%s: going back to re_eval\\n\",\n");
+	fprintf(script, "\t\t			q->questionName_.c_str());\n");
+	fprintf(script, "\t\t		//goto label_eval_q2;\n");
+	fprintf(script, "\t\t		goto re_eval;\n");
+	fprintf(script, "\t\t	    }\n");
+	fprintf(script, "\t\t	    stopAtNextQuestion = true;\n");
+	fprintf(script, "\t\t	    user_navigation = NOT_SET;\n");
+	fprintf(script, "\t\t	} else if (user_navigation == JUMP_TO_QUESTION) {\n");
+	fprintf(script, "\t\t	    theQuestionnaire.DisplayActiveQuestions();\n");
+	fprintf(script, "\t\t	    theQuestionnaire.GetUserResponse(jumpToQuestion, jumpToIndex);\n");
+	fprintf(script, "\t\t	    user_navigation = NOT_SET;\n");
+	fprintf(script, "\t\t	    //goto start_of_questions;\n");
+	fprintf(script, "\t\t	    goto re_eval_from_start;\n");
+	fprintf(script, "\t\t	} else if (user_navigation == SAVE_DATA) {\n");
+	fprintf(script, "\t\t	    theQuestionnaire.write_data_to_disk(question_list, jno,\n");
+	fprintf(script, "\t\t						ser_no);\n");
+	fprintf(script, "\t\t	    if (data_entry_window)\n");
+	fprintf(script, "\t\t		mvwprintw(data_entry_window, 2, 50, \"saved partial data\");\n");
+	fprintf(script, "\t\t	    else\n");
+	fprintf(script, "\t\t		cout << \"saved partial data\\n\";\n");
+	fprintf(script, "\t\t	    if (q->isAnswered_ == false) {\n");
+	fprintf(script, "\t\t		//goto label_eval_q2;\n");
+	fprintf(script, "\t\t		goto re_eval;\n");
+	fprintf(script, "\t\t	    }\n");
+	fprintf(script, "\t\t	} else {\n");
+	fprintf(script, "\t\t	    last_question_answered = q;\n");
+	fprintf(script, "\t\t	}\n");
+	fprintf(script, "} /* close while */\n");
 
+	if(ncurses_flag)
+		fprintf(script, "\tendwin();\n");
 	fprintf(script, "\n} /* close main */\n");
 }
 
@@ -1663,21 +1745,21 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
-	fprintf(script, "void eval()\n{\n");
-	// fprintf(script, "\tint ser_no = 0;\n");
-	if(ncurses_flag) {
-		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
-		fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
-		fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-		fprintf(script, "\t}\n");
-	} else	{
-		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
-		fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
-		fprintf(script, "\t\tchar  newl; cin >> ser_no;cin.get(newl);\n");
-		fprintf(script, "\t}\n");
-	}
+	fprintf(script, "AbstractQuestion * eval2(AbstractQuestion * p_last_question_answered,\n"
+			"\t\t UserNavigation p_navigation_mode)\n{\n");
+	//if(ncurses_flag) {
+	//	fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
+	//	fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
+	//	fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+	//	fprintf(script, "\t}\n");
+	//} else	{
+	//	fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
+	//	fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
+	//	fprintf(script, "\t\tchar  newl; cin >> ser_no;cin.get(newl);\n");
+	//	fprintf(script, "\t}\n");
+	//}
 
-	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
+	// fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
 #if 0
 	fprintf(script, "	if (write_data_file_flag || write_qtm_data_file_flag) {\n");
 	fprintf(script, "		struct dirent * directory_entry = readdir(directory_ptr);\n");
@@ -1815,15 +1897,16 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \"); \n");
 		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
 		fprintf(script, "\t}\n");
-		fprintf(script, "\treset_questionnaire();\n");
+		fprintf(script, "\treset_questionnaire();\n"
+				"\t\treturn 0;\n"
+			);
 	} else {
 		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
 		fprintf(script, "\tcin >> ser_no;cin.get(newl);\n");
 		fprintf(script, "\treset_questionnaire();\n");
+		fprintf(script, "\treturn 0;\n");
 	}
-	fprintf(script, "\n\t} /* close while */\n");
-	if(ncurses_flag)
-		fprintf(script, "\tendwin();\n");
+	// fprintf(script, "\n\t} /* close while */\n");
 	fprintf(script, "} /* close eval */\n");
 }
 
