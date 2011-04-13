@@ -601,10 +601,10 @@ void RangeQuestion::GenerateCode(StatementCompiledCode & code )
 void NamedStubQuestion::GenerateCode(StatementCompiledCode &code)
 { }
 
-void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
+void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 { }
 
-void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code)
+void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 { }
 
 void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
