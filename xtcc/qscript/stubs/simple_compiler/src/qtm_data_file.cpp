@@ -366,8 +366,8 @@ void QtmDataFile::write_multi_code_data (int column, vector<int> & data,
 		cerr << warn_str.str();
 	} else if (data.size() == 1) {
 		pair<int,int> cc = ConvertToCardColumn (column);
-		cout << "cc.first: " << cc.first << ", cc.second: " << cc.second << endl;
-		cout 	<< "cardVec_.size(): " << cardVec_.size() << endl;
+		//cout << "cc.first: " << cc.first << ", cc.second: " << cc.second << endl;
+		//cout 	<< "cardVec_.size(): " << cardVec_.size() << endl;
 			//<< "cardVec_.data_.size(): " << cardVec_[cc.first].data_.size()
 			//<< endl;
 		cardVec_[cc.first].data_[cc.second] = data[data.size()-1] % 10;
@@ -585,12 +585,12 @@ void QtmDataFile::write_single_code_data (int column, int width, int code, Abstr
 		exit(1);
 	}
 	pair<int,int> cc = ConvertToCardColumn (column);
-	cerr << " ConvertToCardColumn: card: " << cc.first 
-		<< " col: " << cc.second 
-		<< endl;
-	cerr	<< "cardVec_.length(): " << cardVec_.size() << endl
-		<< "cardVec_[" << cc.first << "].data_.length(): " 
-		<< cardVec_[cc.first].data_.size() << endl;
+	// cerr << " ConvertToCardColumn: card: " << cc.first 
+	// 	<< " col: " << cc.second 
+	// 	<< endl;
+	// cerr	<< "cardVec_.length(): " << cardVec_.size() << endl
+	// 	<< "cardVec_[" << cc.first << "].data_.length(): " 
+	// 	<< cardVec_[cc.first].data_.size() << endl;
 	// cerr << "s.str().c_str()[0]: " << s.str().c_str()[0] << endl;
 	//cerr << & (s.str().c_str()[s.str().length()]) << endl;
 	//const char * ptr1 = & (s.str().c_str()[0]);  

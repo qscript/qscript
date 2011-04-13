@@ -1606,6 +1606,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
 	fprintf(script, "TheQuestionnaire theQuestionnaire;\n"
+			"theQuestionnaire.compute_flat_file_map_and_init();\n"
 			"theQuestionnaire.eval();\n");
 
 	fprintf(script, "\n} /* close main */\n");
@@ -1771,6 +1772,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
 	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
 	fprintf(script, "	}\n");
+	fprintf(script, "	cout << \"writing serial no: \" << ser_no << \" to disk \\n\";\n");
 	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no);\n");
 	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n");
 	fprintf(script, "\t} else {\n");
@@ -1880,7 +1882,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "		if (isdigit(dir_entry_name[i])) {\n");
 	fprintf (script, "		    file_ser_no_str << dir_entry_name[i];\n");
 	fprintf (script, "		} else {\n");
-	fprintf (script, "		    if ((i + 3 == dir_entry_name.length())\n");
+	fprintf (script, "		    if ((i + 4 == dir_entry_name.length())\n");
 	fprintf (script, "			&& dir_entry_name[i] == '.'\n");
 	fprintf (script, "			&& dir_entry_name[i + 1] == 'd'\n");
 	fprintf (script, "			&& dir_entry_name[i + 2] == 'a'\n");
