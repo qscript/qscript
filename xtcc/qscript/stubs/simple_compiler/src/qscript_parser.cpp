@@ -783,7 +783,7 @@ const char * file_exists_check_code()
 	"\tif (write_data_file_flag||write_qtm_data_file_flag) {\n"
 	"\t	ser_no = read_a_serial_no();\n"
 	"\t	if (ser_no == 0) {\n"
-	"\t		exit(1);\n"
+	"\t		break;\n"
 	"\t	} \n"
 	"\t} else {\n"
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
