@@ -110,6 +110,8 @@ void PrintProcessOptions(FILE * script);
 void PrintMain(FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
+void print_write_qtm_data_to_disk(FILE *script);
+void print_write_ascii_data_to_disk(FILE *script);
 const char * file_exists_check_code();
 const char * write_data_to_disk_code();
 
@@ -167,6 +169,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_read_a_serial_no (script);
 	PrintDisplayActiveQuestions(script);
 	PrintGetUserResponse(script);
+	print_write_qtm_data_to_disk(script);
+	print_write_ascii_data_to_disk(script);
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
@@ -1762,19 +1766,9 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "%s\n", program_code.str().c_str());
 	fprintf(script, "\tif (write_data_file_flag) {\n\n");
-	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
-	fprintf(script, "	}\n");
-	fprintf(script, "	cout << \"output_buffer: \" << flat_file_output_buffer;\n");
-	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
-	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
+	fprintf(script, "\t\twrite_ascii_data_to_disk();\n");
 	fprintf(script, "\t} else if (write_qtm_data_file_flag) {\n");
-	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
-	fprintf(script, "	}\n");
-	fprintf(script, "	cout << \"writing serial no: \" << ser_no << \" to disk \\n\";\n");
-	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no);\n");
-	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n");
+	fprintf(script, "\t\twrite_qtm_data_to_disk();\n");
 	fprintf(script, "\t} else {\n");
 	fprintf(script, "\tchar end_of_question_navigation;\n");
 	fprintf(script, "label_end_of_qnre_navigation:\n");
@@ -1917,6 +1911,30 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "    }\n");
 	fprintf (script, "\n");
 }
+
+void print_write_qtm_data_to_disk(FILE *script)
+{
+	fprintf(script, "void write_qtm_data_to_disk()\n {\n");
+	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	cout << \"writing serial no: \" << ser_no << \" to disk \\n\";\n");
+	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no);\n");
+	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n");
+	fprintf(script, "}\n");
+}
+void print_write_ascii_data_to_disk(FILE *script)
+{
+	fprintf(script, "void write_ascii_data_to_disk()\n {\n");
+	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	cout << \"output_buffer: \" << flat_file_output_buffer;\n");
+	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
+	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
+	fprintf(script, "}\n");
+}
+
 
 /* end of namespace */
 }
