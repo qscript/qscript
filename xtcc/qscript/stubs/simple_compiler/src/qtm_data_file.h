@@ -89,11 +89,15 @@ public:
 	void print_qax(std::fstream & qax_file);
 	std::vector <CodeBucket> codeBucketVec_;
 	void AllocateCards();
+	void Reset();
 };
 
 void init_exceptions();
 char check_for_exceptions( vector <int> & data);
 extern std::fstream qtm_data_file_writer_log;
+// this function should be called first to initialise the
+// log writer file
+void init();
 
 
 } /* close namespace qtm_data_file */

@@ -1579,6 +1579,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\tprocess_options(argc, argv);\n");
 	//fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag) {\n");
+	fprintf(script, "\t	qtm_data_file_ns::init();\n");
 	fprintf(script, "\t	qtm_data_file_ns::init_exceptions();\n");
 	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
 	fprintf(script, "\t	if (! directory_ptr) {\n");
@@ -1952,12 +1953,17 @@ void print_write_qtm_data_to_disk(FILE *script)
 {
 	fprintf(script, "void write_qtm_data_to_disk()\n {\n");
 	fprintf(script, "	using qtm_data_file_ns::qtm_data_file_writer_log;\n");
+	fprintf(script, "	qtm_data_file_writer_log << \"writing serial no: \" << ser_no << \" to disk \\n\";\n");
 	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
 	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	qtm_data_file_writer_log << \"writing serial no: \" << ser_no << \" to disk \\n\";\n");
 	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no);\n");
 	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n");
+	fprintf(script, "	//qtm_datafile_question_disk_map[0]->Reset();\n");
+	fprintf(script, "	for (int32_t i = 0; i < qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		qtm_datafile_question_disk_map[i]->Reset();\n");
+	fprintf(script, "	}\n");
+
 	fprintf(script, "       for (int32_t i = 0; i < question_list.size(); ++i) {\n");
 	fprintf(script, "                       AbstractQuestion * q = question_list[i];\n");
 	fprintf(script, "			stringstream question_name_str;\n");

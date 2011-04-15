@@ -52,10 +52,11 @@ void QtmDataDiskMap::write_single_code_data()
 void QtmDataDiskMap::write_multi_code_data()
 {
 	stringstream message;
-	message << "ENTER writing : " << q->questionName_ << endl;
+	message << "ENTER writing : " << q->questionName_;
 	for (int32_t i=0; i<q->loop_index_values.size(); ++i) {
 		message << "." << q->loop_index_values[i];
 	}
+	message << endl;
 	qtm_data_file_writer_log << LOG_MESSAGE(message.str());
 	for (set<int>::iterator it = q->input_data.begin();
 		it != q->input_data.end(); ++it) {
@@ -551,8 +552,18 @@ void QtmDataFile::Reset ()
 		for (int j=0; j<cardVec_[i].data_.size(); j++) {
 			cardVec_[i].data_[j] = ' ';
 		}
+		cardVec_[i].multiPunchData_.clear();
 		cardVec_[i].multiPunchData_.resize(0);
 	}
+}
+
+void QtmDataDiskMap::Reset()
+{
+	for (int i=0; i<codeBucketVec_.size(); ++i) {
+		codeBucketVec_[i].codeVec_.clear();
+		codeBucketVec_[i].codeVec_.resize(0);
+	}
+	//qtmDataFile_.Reset();
 }
 
 void QtmDataFile::write_single_code_data (int column, int width, int code, AbstractQuestion *q)
@@ -607,13 +618,17 @@ void QtmDataFile::write_single_code_data (int column, int width, int code, Abstr
 using std::map;
 map <int, char> table_of_exceptions;
 
-void init_exceptions()
+void init()
 {
 	qtm_data_file_writer_log.open("qtm_data_file_writer.log", std::ios_base::trunc | std::ios_base::out);
 	if (!qtm_data_file_writer_log) {
 		cerr << " unable to open qtm_data_file_writer.log for writing ... exiting\n";
 		exit(1);
 	}
+}
+
+void init_exceptions()
+{
 	for (int code1=1; code1<=9; ++code1) {
 		for (int code2=10; code2<=12; ++code2) {
 			int index = (code1*100+code2);
