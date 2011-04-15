@@ -1833,10 +1833,19 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "       {\n");
 	fprintf(script, "                   AbstractQuestion *q = question_list[i];\n");
 	fprintf(script, "                   //freq_count_file << it->first << endl;\n");
-	fprintf(script, "                   freq_count_file << q->questionName_ << endl;\n");
+	fprintf(script, "                   freq_count_file << q->questionName_ ;\n");
+	fprintf(script, "			stringstream question_name_str;\n");
+	fprintf(script, "			question_name_str << q->questionName_;\n");
+	fprintf(script, "		    if (q->loop_index_values.size()) {\n");
+	fprintf(script, "				for (int j=0; j<q->loop_index_values.size(); ++j) {\n");
+	fprintf(script, "					freq_count_file << \".\" << q->loop_index_values[j];\n");
+	fprintf(script, "					question_name_str << \".\" << q->loop_index_values[j];\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "		    }\n");
+	fprintf(script, "		    freq_count_file << endl;\n");
 	fprintf(script, "                   freq_count_file << \"code, frequency\" << endl;\n");
 	fprintf(script, "                   // map<int32_t, int32_t>  q_freq_count = it->second;\n");
-	fprintf(script, "                   map<int32_t, int32_t>  q_freq_count = freq_count[q->questionName_];\n");
+	fprintf(script, "                   map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
 	fprintf(script, "                   for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
 	fprintf(script, "                                   it2 != q_freq_count.end(); ++ it2) {\n");
 	fprintf(script, "                       freq_count_file << it2->first << \", \" \n");
@@ -1942,22 +1951,29 @@ void print_read_a_serial_no (FILE * script)
 void print_write_qtm_data_to_disk(FILE *script)
 {
 	fprintf(script, "void write_qtm_data_to_disk()\n {\n");
+	fprintf(script, "	using qtm_data_file_ns::qtm_data_file_writer_log;\n");
 	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
 	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	cout << \"writing serial no: \" << ser_no << \" to disk \\n\";\n");
+	fprintf(script, "	qtm_data_file_writer_log << \"writing serial no: \" << ser_no << \" to disk \\n\";\n");
 	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no);\n");
 	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n");
 	fprintf(script, "       for (int32_t i = 0; i < question_list.size(); ++i) {\n");
-	fprintf(script, "                       //question_list[i]->isAnswered_ = false;\n");
-	fprintf(script, "                       //question_list[i]->input_data.clear();\n");
 	fprintf(script, "                       AbstractQuestion * q = question_list[i];\n");
-	fprintf(script, "                       map<int , int> q_freq_map = freq_count[q->questionName_];\n");
+	fprintf(script, "			stringstream question_name_str;\n");
+	fprintf(script, "			question_name_str << q->questionName_;\n");
+			
+	fprintf(script, "		    if (q->loop_index_values.size()) {\n");
+	fprintf(script, "				for (int j=0; j<q->loop_index_values.size(); ++j) {\n");
+	fprintf(script, "					question_name_str << \".\" << q->loop_index_values[j];\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "		    }\n");
+	fprintf(script, "                       map<int , int> q_freq_map = freq_count[question_name_str.str()];\n");
 	fprintf(script, "                       for (set<int32_t>::iterator it = q->input_data.begin();\n");
 	fprintf(script, "                                       it != q->input_data.end(); ++it) {\n");
 	fprintf(script, "                               q_freq_map[*it] ++;\n");
 	fprintf(script, "                       }\n");
-	fprintf(script, "                       freq_count[q->questionName_] = q_freq_map;\n");
+	fprintf(script, "                       freq_count[question_name_str.str()] = q_freq_map;\n");
 	fprintf(script, "       }\n");
 
 
