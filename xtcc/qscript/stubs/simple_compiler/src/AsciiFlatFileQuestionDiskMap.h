@@ -75,10 +75,20 @@ class AsciiFlatFileQuestionDiskMap
 				std::stringstream code_str;
 				code_str << code;
 				cout << "writing code: " << code << " to output_buffer: length: " << code_str.str().length() << "\n";
+				int jump_delta = width;
 				if (code_str.str().length() > width)
 				{
 					cerr << " internal programming error - width of code exceeds width allocated ... exiting\n";
 					exit(1);
+				} 
+				else if (code_str.str().length() < width) {
+					// zero pad 
+					int diff = width - code_str.str().length();
+					for (int i=0; i<diff; ++i) {
+						ptr[i]='0';
+					}
+					ptr += diff;
+					jump_delta -= diff;
 				}
 				// int bytes_written = snprintf(ptr, code_str.str().length(), "%s", code_str.str().c_str());
 				// int bytes_written = snprintf(ptr, code_str.str().length(), "%d", code);
@@ -91,7 +101,7 @@ class AsciiFlatFileQuestionDiskMap
 				//	cerr << "impossible internal programming error - width of code exceeds width allocated ... exiting\n";
 				//	exit(1);
 				//}
-				ptr += width;
+				ptr += jump_delta;
 				++no_responses_written;
 				if (no_responses_written > q->no_mpn)
 				{
