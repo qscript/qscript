@@ -560,7 +560,7 @@ bool AbstractQuestion::VerifyData(
 		invalid_code = true;
 		data.clear();
 	} else if (q_type == mpn) {
-		cout << "reached here: " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+		//cout << "reached here: " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 		if (data.size() > no_mpn){
 			err_mesg = "Multi coded Question, no values exceed max allowed:  ";
 			invalid_code = true;

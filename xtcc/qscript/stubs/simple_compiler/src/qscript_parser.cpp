@@ -197,6 +197,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <signal.h>\n");
 	fprintf(script, "#include <dirent.h>\n");
 	fprintf(script, "#include <cctype>\n");
+	fprintf(script, "#include <unistd.h>\n");
 	//fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"AbstractStatement.h\"\n");
@@ -530,7 +531,7 @@ void print_navigation_support_functions(FILE * script)
 
 	fprintf(script,"int32_t ComputeJumpToIndex(AbstractQuestion * q)\n");
 	fprintf(script,"{\n");
-	fprintf(script,"	cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
+	fprintf(script,"	//cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
 	fprintf(script,"	for(int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
 	fprintf(script,"		cout << q->loop_index_values[i] << \" \";\n");
 	fprintf(script,"	}\n");
@@ -543,7 +544,7 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script,"		}\n");
 	fprintf(script,"		index+=tmp1;\n");
 	fprintf(script,"	}\n");
-	fprintf(script,"	cout << \"EXIT ComputeJumpToIndex: returning : \" << index << endl;\n");
+	fprintf(script,"	//cout << \"EXIT ComputeJumpToIndex: returning : \" << index << endl;\n");
 	fprintf(script,"	return index;\n");
 	fprintf(script,"}\n");
 }
@@ -1408,6 +1409,10 @@ test_script.o: test_script.C
 	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += ".exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
+	if (contains_space != string::npos) {
+		QSCRIPT_HOME.erase(contains_space);
+	}
 	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
