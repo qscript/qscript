@@ -148,6 +148,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 	fprintf(script, "struct TheQuestionnaire\n{\n");
 	//fprintf(script, "AbstractQuestion * last_question_answered;\n");
+	fprintf(script, "int ser_no_pos;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
@@ -1646,7 +1647,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "				<< \" for reading\" << endl;\n";
 	compute_flat_map_code.program_code << "			exit(1);\n";
 	compute_flat_map_code.program_code << "		}\n";
-	compute_flat_map_code.program_code << "		string ser_no_token; string equal_token; int ser_no_pos=-1; string semi_colon_token;\n";
+	compute_flat_map_code.program_code << "		string ser_no_token; string equal_token; ser_no_pos=-1; string semi_colon_token;\n";
 	compute_flat_map_code.program_code << "		asc_datafile_conf >> ser_no_token;\n";
 	compute_flat_map_code.program_code << "		if ( ser_no_token != string(\"SER_NO_COLS\")) {\n";
 	compute_flat_map_code.program_code << "			cerr << \"expected token SER_NO_COLS\" << endl;\n";
@@ -1663,7 +1664,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "			cerr << \"invalid no of positions reserved for serial no: \";\n";
 	compute_flat_map_code.program_code << "			exit(1);\n";
 	compute_flat_map_code.program_code << "		}\n";
-	compute_flat_map_code.program_code << "		current_map_pos += ser_no_pos;\n";
+	compute_flat_map_code.program_code << "		current_map_pos += (ser_no_pos-1);\n";
 	compute_flat_map_code.program_code << "	}\n";
 
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
@@ -2027,6 +2028,23 @@ void print_write_qtm_data_to_disk(FILE *script)
 void print_write_ascii_data_to_disk(FILE *script)
 {
 	fprintf(script, "void write_ascii_data_to_disk()\n {\n");
+	fprintf(script, "	stringstream temp_ser_no_str;\n");
+	fprintf(script, "	temp_ser_no_str << ser_no;\n");
+	fprintf(script, "	if (temp_ser_no_str.str().length() > ser_no_pos) {\n");
+	fprintf(script, "		cerr << \"space reserved to hold serial no: \" \n");
+	fprintf(script, "			<< ser_no_pos << \" is not enough\"\n");
+	fprintf(script, "			<< \" to hold this serial no: \" \n");
+	fprintf(script, "			<< ser_no << endl;\n");
+	fprintf(script, "		exit(1);\n");
+	fprintf(script, "	} else {\n");
+	fprintf(script, "		//char * ptr = flat_file_output_buffer;\n");
+	fprintf(script, "		for (int i=0; i<temp_ser_no_str.str().length(); ++i) {\n");
+	fprintf(script, "			flat_file_output_buffer[i] = temp_ser_no_str.str()[i];\n");
+	fprintf(script, "		//cout << \"writing digit \" << temp_ser_no_str[i] << \" to flat_file_output_buffer\" << endl;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+
+	fprintf(script, "\n");
 	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
 	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
 	fprintf(script, "	}\n");
