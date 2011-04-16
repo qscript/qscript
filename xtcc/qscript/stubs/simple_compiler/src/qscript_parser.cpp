@@ -1636,6 +1636,36 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\tqtm_data_file.Initialize();\n"
 		<< "}\n";
 
+	compute_flat_map_code.program_code << "	if (write_data_file_flag) {\n";
+	compute_flat_map_code.program_code << "		stringstream asc_datafile_conf_str;\n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf_str << jno \n";
+	compute_flat_map_code.program_code << "			<< \".asc_data.conf\";\n";
+	compute_flat_map_code.program_code << "		fstream asc_datafile_conf(asc_datafile_conf_str.str().c_str(), ios_base::in);\n";
+	compute_flat_map_code.program_code << "		if (!asc_datafile_conf) {\n";
+	compute_flat_map_code.program_code << "			cerr << \" could not open : \" << asc_datafile_conf_str.str() \n";
+	compute_flat_map_code.program_code << "				<< \" for reading\" << endl;\n";
+	compute_flat_map_code.program_code << "			exit(1);\n";
+	compute_flat_map_code.program_code << "		}\n";
+	compute_flat_map_code.program_code << "		string ser_no_token; string equal_token; int ser_no_pos=-1; string semi_colon_token;\n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf >> ser_no_token;\n";
+	compute_flat_map_code.program_code << "		if ( ser_no_token != string(\"SER_NO_COLS\")) {\n";
+	compute_flat_map_code.program_code << "			cerr << \"expected token SER_NO_COLS\" << endl;\n";
+	compute_flat_map_code.program_code << "			exit(1);\n";
+	compute_flat_map_code.program_code << "		}\n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf >> equal_token;\n";
+
+	compute_flat_map_code.program_code << "		if (equal_token != string(\"=\") ) {\n";
+	compute_flat_map_code.program_code << "			cerr << \"expected token =\" << endl;\n";
+	compute_flat_map_code.program_code << "			exit(1);\n";
+	compute_flat_map_code.program_code << "		}\n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf >> ser_no_pos;\n";
+	compute_flat_map_code.program_code << "		if (ser_no_pos == -1) {\n";
+	compute_flat_map_code.program_code << "			cerr << \"invalid no of positions reserved for serial no: \";\n";
+	compute_flat_map_code.program_code << "			exit(1);\n";
+	compute_flat_map_code.program_code << "		}\n";
+	compute_flat_map_code.program_code << "		current_map_pos += ser_no_pos;\n";
+	compute_flat_map_code.program_code << "	}\n";
+
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
 
 	compute_flat_map_code.program_code << "\tstring map_file_name(jno + string(\".map\"));\n";
