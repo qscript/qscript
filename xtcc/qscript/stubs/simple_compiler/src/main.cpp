@@ -93,6 +93,7 @@ int32_t main(int32_t argc, char* argv[])
 	if (exit_flag){
 		exit(1);
 	}
+	cout << "reached here" << endl;
 
 	if (!fname_flag){
 		cout << "Usage: "

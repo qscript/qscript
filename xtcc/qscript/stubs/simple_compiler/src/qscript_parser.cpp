@@ -1288,20 +1288,24 @@ void PrintSetupSignalHandler(FILE * script)
 // Returns 0 on failure, 1 on success
 int32_t ReadQScriptConfig()
 {
-	//cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
+	cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
 	using namespace std;
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
+	if (contains_space != string::npos) {
+		QSCRIPT_HOME.erase(contains_space);
+	}
 	string QSCRIPT_CONFIG = QSCRIPT_HOME + "/config/qscript.config";
 	FILE * qscript_confin = fopen(QSCRIPT_CONFIG.c_str(), "rb");
 	qscript_confrestart(qscript_confin);
 	if(!qscript_confin){
-		//cout << "unable to open " <<  QSCRIPT_CONFIG <<" for reading ... exiting\n";
+		cout << "unable to open " <<  QSCRIPT_CONFIG <<" for reading ... exiting\n";
 		return 0;
 	}
-	//cerr << "opened : " << QSCRIPT_CONFIG << endl;
+	cerr << "opened : " << QSCRIPT_CONFIG << endl;
 
 	if(!qscript_confparse()){
-		//cout << "Successfully parsed " << QSCRIPT_CONFIG << endl;
+		cout << "Successfully parsed " << QSCRIPT_CONFIG << endl;
 	} else {
 		cerr << "there were errors in parsing configuration file" << QSCRIPT_CONFIG << endl;
 		return 0;
