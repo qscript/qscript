@@ -533,10 +533,10 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script,"int32_t ComputeJumpToIndex(AbstractQuestion * q)\n");
 	fprintf(script,"{\n");
 	fprintf(script,"	//cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
-	fprintf(script,"	for(int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
-	fprintf(script,"		cout << q->loop_index_values[i] << \" \";\n");
-	fprintf(script,"	}\n");
-	fprintf(script,"	cout << endl;\n");
+	fprintf(script,"	//for(int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"	//	cout << q->loop_index_values[i] << \" \";\n");
+	fprintf(script,"	//}\n");
+	fprintf(script,"	//cout << endl;\n");
 	fprintf(script,"	int32_t index = 0;\n");
 	fprintf(script,"	for(int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
 	fprintf(script,"		int32_t tmp1=q->loop_index_values[i];\n");

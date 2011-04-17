@@ -150,7 +150,7 @@ void NCursesReadline::EraseLine(int32_t line_no)
 	int32_t maxX, maxY;
 	getmaxyx(dataEntryWindow_, maxY,maxX);
 	if(line_no  >= 0 && line_no  <=  maxY){
-		for(int32_t i = 0; i < buffer_.length()+10; ++i){
+		for(int32_t i = 0; i < /*buffer_.length()+10*/ maxX ; ++i){
 			mvwaddch(dataEntryWindow_, line_no, i,  ' ');
 		}
 	}
