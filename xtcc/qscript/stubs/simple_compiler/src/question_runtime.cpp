@@ -129,7 +129,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		box(stub_list_window, 0, 0);
 		wclear(data_entry_window);
 		box(data_entry_window, 0, 0);
-		mvwprintw(question_window,1, 1, "%s.", questionName_.c_str());
+		mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
 		int len_qno = questionName_.length()+2;
 		if(loop_index_values.size()>0){
 			for(uint32_t i=0; i<loop_index_values.size(); ++i){
@@ -180,7 +180,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 		}
 #endif /* 0 */
-		for(	vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
+		for (vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
 				it != displayData_.end(); ++it)
 		{
 			//cout << *it << endl;
@@ -197,6 +197,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			mvwprintw(stub_list_window, currYpos, currXpos, "%s", s.str().c_str());
 			currXpos += s.str().length() + 1;
 		}
+		// mvwprintw(data_entry_window, 2, 1, "just before exit eval");
 
 		//wrefresh(stub_list_window);
 		update_panels();
@@ -260,9 +261,9 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	if(question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0 ){
+	if (question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0) {
 		cout << questionName_ << ".";
-		if(loop_index_values.size()>0){
+		if (loop_index_values.size()>0) {
 			for(uint32_t i=0; i<loop_index_values.size(); ++i){
 				cout << loop_index_values[i]+1 << ".";
 			}
@@ -272,12 +273,12 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//cout << questionName_ << "." << questionText_ << endl << endl;
 		//vector<stub_pair> vec= *stub_ptr;
 		vector<stub_pair> & vec= (nr_ptr->stubs);
-		for(uint32_t i = 0; i< vec.size(); ++i){
+		for (uint32_t i = 0; i< vec.size(); ++i) {
 			if( vec[i].mask)
 				cout << vec[i].stub_text << ": " << vec[i].code << endl;
 		}
 
-		if(input_data.begin() != input_data.end()){
+		if (input_data.begin() != input_data.end()) {
 			cout << "Current data values: ";
 
 			for(set<int32_t>::iterator iter = input_data.begin();
@@ -571,7 +572,7 @@ bool AbstractQuestion::VerifyData(
 		int count_mutex_data = 0;
 		for(int i=0; i<data.size(); ++i) {
 			if (mutexCodeList_.exists(data[i])){
-				cout << "mutexCodeList_ contains: " << data[i];
+				// cout << "mutexCodeList_ contains: " << data[i];
 				++count_mutex_data;
 			}
 		}
