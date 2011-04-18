@@ -70,6 +70,9 @@ $(SOURCE_DIR)/qscript_data.hpp: YFLAGS = -p read_disk_data
 $(SOURCE_DIR)/qscript_conf.cpp: YFLAGS = -p qscript_conf
 $(SOURCE_DIR)/qscript_conf.hpp: YFLAGS = -p qscript_conf
 
+$(SOURCE_DIR)/qtm_datafile_conf.hpp: YFLAGS = -p qtm_datafile_conf_
+$(SOURCE_DIR)/qtm_datafile_conf.cpp: YFLAGS = -p qtm_datafile_conf_
+
 $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.hpp: $(SOURCE_DIR)/%.ypp
 	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
 	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
@@ -82,6 +85,8 @@ lex_deps: $(LEX_OUTPUTS)
 $(SOURCE_DIR)/lex.cpp: $(SOURCE_DIR)/q.hpp
 $(SOURCE_DIR)/scan_data.cpp: $(SOURCE_DIR)/data_entry.hpp
 $(SOURCE_DIR)/read_disk_data.cpp: $(SOURCE_DIR)/qscript_data.hpp
+$(SOURCE_DIR)/qscript_conf_lex.cpp: $(SOURCE_DIR)/qscript_conf.hpp
+$(SOURCE_DIR)/qtm_datafile_conf_lex.cpp: $(SOURCE_DIR)/qtm_datafile_conf.hpp
 
 $(SOURCE_DIR)/%.cpp : $(SOURCE_DIR)/%.l
 	flex -o$@ $<
@@ -92,20 +97,35 @@ $(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
 		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
 		rm -f $@.$$$$
 
-RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
-		$(SOURCE_DIR)/data_entry.cpp $(SOURCE_DIR)/question.cpp \
-		$(SOURCE_DIR)/stmt_common.cpp $(SOURCE_DIR)/qscript_lib.cpp \
+RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/qtm_data_file.cpp \
+		$(SOURCE_DIR)/scan_data.cpp $(SOURCE_DIR)/qscript_readline.cpp \
+		$(SOURCE_DIR)/QuestionAttributes.cpp \
+		$(SOURCE_DIR)/data_entry.cpp \
+		$(SOURCE_DIR)/qscript_lib.cpp \
 		$(SOURCE_DIR)/qscript_data.cpp $(SOURCE_DIR)/read_disk_data.cpp \
-		$(SOURCE_DIR)/qscript_parser.cpp $(SOURCE_DIR)/expr.cpp \
-		$(SOURCE_DIR)/utils.cpp $(SOURCE_DIR)/symtab.cpp \
-		$(SOURCE_DIR)/stmt.cpp $(SOURCE_DIR)/scope.cpp \
+		$(SOURCE_DIR)/qscript_parser_common.cpp \
 		$(SOURCE_DIR)/question_disk_data.cpp \
-		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
-		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp \
-		$(SOURCE_DIR)/qscript_readline.cpp $(SOURCE_DIR)/config_parser.cpp \
-		$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp \
-		$(SOURCE_DIR)/TempSetNameGenerator.cpp $(SOURCE_DIR)/code_gen_utils.cpp \
-		$(SOURCE_DIR)/QuestionAttributes.cpp
+		$(SOURCE_DIR)/qscript_debug.cpp \
+		$(SOURCE_DIR)/config_parser.cpp \
+		$(SOURCE_DIR)/qscript_conf.cpp \
+		$(SOURCE_DIR)/qscript_conf_lex.cpp \
+		$(SOURCE_DIR)/TempNameGenerator.cpp \
+		$(SOURCE_DIR)/log_mesg.cpp $(SOURCE_DIR)/qtm_datafile_conf.cpp \
+		$(SOURCE_DIR)/qtm_datafile_conf_parser.cpp $(SOURCE_DIR)/qtm_datafile_conf_lex.cpp \
+		$(SOURCE_DIR)/AbstractStatement.cpp \
+		$(SOURCE_DIR)/question_runtime.cpp $(SOURCE_DIR)/question_common.cpp \
+		$(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/named_range.cpp
+#$(SOURCE_DIR)/question.cpp \
+#$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/lex.cpp \
+#$(SOURCE_DIR)/expr.cpp \
+#$(SOURCE_DIR)/stmt.cpp \
+#	$(SOURCE_DIR)/utils.cpp 
+#$(SOURCE_DIR)/stmt_common.cpp \
+#	$(SOURCE_DIR)/symtab.cpp \
+#	$(SOURCE_DIR)/scope.cpp \
+#	$(SOURCE_DIR)/named_range.cpp \
+#$(SOURCE_DIR)/debug_mem.cpp \
+# $(SOURCE_DIR)/code_gen_utils.cpp 
 
 RUNTIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_LIB_SOURCES) )
 RUNTIME_LIB_OBJECTS := $(RUNTIME_LIB_OBJECTS:.cpp=.o)
@@ -195,10 +215,9 @@ release: clean
 	cp   src/* $(RELEASE_DIR)/src 
 	cp -R cmake $(RELEASE_DIR)
 	cp -R testsuite $(RELEASE_DIR)
-	cp CustomQScriptMakefile CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
+	cp CustomQScriptMakefile CustomQScriptMakefile.Win32 CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
 	-rm inputs/test_script
 	-rm inputs/test_script_bcpp.[Co]
-	-rm inputs/*.dat
 	-rm inputs/tags
 	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op
 	cp inputs/* $(RELEASE_DIR)/inputs
