@@ -115,12 +115,13 @@ RUNTIME_STATIC_LIB_OBJECTS := $(RUNTIME_STATIC_LIB_OBJECTS:.cpp=.o)
 
 COMPILETIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp \
 		$(SOURCE_DIR)/data_entry.cpp $(SOURCE_DIR)/question.cpp \
-		$(SOURCE_DIR)/stmt_common.cpp \
 		$(SOURCE_DIR)/qscript_parser.cpp $(SOURCE_DIR)/expr.cpp \
 		$(SOURCE_DIR)/utils.cpp $(SOURCE_DIR)/symtab.cpp \
 		$(SOURCE_DIR)/stmt.cpp $(SOURCE_DIR)/scope.cpp \
 		$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/named_range.cpp \
 		$(SOURCE_DIR)/debug_mem.cpp $(SOURCE_DIR)/lex.cpp $(SOURCE_DIR)/qscript_debug.cpp
+
+#	$(SOURCE_DIR)/stmt_common.cpp \
 
 COMPILETIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/compiletime_lib,$(COMPILETIME_LIB_SOURCES) )
 COMPILETIME_LIB_OBJECTS := $(COMPILETIME_LIB_OBJECTS:.cpp=.o)
