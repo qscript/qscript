@@ -1473,6 +1473,11 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 	code.program_code << consolidated_for_loop_index;
 	code.program_code << "]->isAnswered_||stopAtNextQuestion||\n"
+		<< "(p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == "
+		<< questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index
+		<< "]"
+		<< ") ||\n"
 		<< "(jumpToQuestion == \"" << questionName_ << "\""
 		<< " && " << "jumpToIndex ==  "
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
@@ -1486,12 +1491,30 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "jumpToIndex = -1;\n"
 		<< "}\n";
 
-	code.program_code	<< "if ( " << questionName_ << "_list.questionList["
+	code.program_code
+		<< "if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == "
+		<< questionName_  << "_list.questionList["
+		<< consolidated_for_loop_index << "]"
+		<< " &&  "
+		<< questionName_  << "_list.questionList["
+		<< consolidated_for_loop_index << "]->isAnswered_ == true"
+		<< ") {\n"
+		<< " stopAtNextQuestion = true;\n"
+		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
+		<< " arming stopAtNextQuestion = true \\n\");\n"
+		<< "}";
+	code.program_code	<< " else if ( " << questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "] ->question_attributes.hidden_==false) {\n";
-	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
-	// ---------------------------------
+	code.program_code << "\t\t//" << questionName_ << "_list.questionList[";
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n\t}\n";
+	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n";
+	code.program_code << "\t\tlast_question_visited = " << questionName_ << "_list.questionList[";
+	code.program_code << consolidated_for_loop_index;
+	code.program_code << "];\n";
+	code.program_code << "stopAtNextQuestion = false;\n";
+	code.program_code << "\t\treturn " << questionName_ << "_list.questionList[";
+	code.program_code << consolidated_for_loop_index;
+	code.program_code << "];\n\t}\n";
 	PrintUserNavigationArrayQuestion(code.program_code);
 
 	code.program_code << "}\n";

@@ -1,0 +1,67 @@
+<html>
+<head>
+<title>Welcome</title>
+<script type="text/javascript" src="event_util.js">
+</script>
+</head> 
+<body> 
+	<form action="q2" method="post"> 
+q2. Q2. This is question 2
+		<input type="text" name="question_response"value="" /> 
+<p>		 last_question_answered: <input type="text" name="last_question_answered" value ="" /> 
+		 last_question_visited: <input type="text" name="last_question_visited" value ="q2$0$0" /> 
+		 current_question: <input type="text" name="current_question" value ="q2$0$0" /> 
+		 user_navigation: <input type="text" name="user_navigation" value ="" /> 
+		 <!--
+		<input type="submit" value="Previous" name="prev_button" id="prev_button" /> 
+		<input type="submit" value="Next" name="next_button" id="next_button" /> 
+		-->
+		<input type="button" value="Previous" name="prev_button" id="prev_button" /> 
+		<input type="button" value="Next" name="next_button" id="next_button" /> 
+		<input type="button" id="form_button" value="button" />
+	</form> 
+
+	<script type="text/javascript">
+	var form = document.forms[0];
+	var form_button = form.elements["form_button"];
+	//var form_button = document.getElementById("form_button");
+	alert ('form_button' +  form_button);
+	var handler = function () {
+		alert("handler executed on click");
+		var user_navigation = form.elements["user_navigation"];
+		user_navigation.value = "previous";
+	}
+	EventUtil.addHandler(form_button, "click", handler);
+	alert("added handler to button");
+	// the real stuff I want to do goes here
+	// 1. when user clicks button previous 
+	//    set user_navigation to previous
+	//    and submit the form
+	var prev_button = form.elements["prev_button"]
+	var handle_prev = function() {
+		var user_navigation = form.elements["user_navigation"];
+		user_navigation.value = "previous";
+		prev_button.disabled = true;
+		next_button.disabled = true;
+		form.submit();
+	}
+	EventUtil.addHandler(prev_button, "click", handle_prev);
+
+	// 2. when user clicks button next
+	//    set user_navigation to next
+	//    and submit the form
+	var next_button = form.elements["next_button"]
+	var handle_next = function(event) {
+		var user_navigation = form.elements["user_navigation"];
+		user_navigation.value = "next";
+		prev_button.disabled = true;
+		next_button.disabled = true;
+		//event = EventUtil.getEvent(event);
+		//EventUtil.preventDefault(event);
+		form.submit();
+	}
+	EventUtil.addHandler(next_button, "click", handle_next);
+	</script>
+
+</body>
+</html> 
