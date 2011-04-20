@@ -33,6 +33,7 @@
 #include "ArrayQuestion.h"
 #include "AsciiFlatFileQuestionDiskMap.h"
 #include "QuestionAttributes.h"
+#include "UserResponse.h"
 int ser_no = 0;
 using namespace std;
 string qscript_stdout_fname("qscript_stdout.log");
@@ -43,7 +44,6 @@ fstream flat_file;
 fstream qtm_disk_file;
 extern set<string> qtm_include_files;
 using namespace std;
-void read_data(const char * prompt);
 extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 vector <AbstractQuestion*> question_list;
@@ -1109,7 +1109,8 @@ struct TheQuestionnaire
 								}
 								if ( q4_list.questionList[i1*2+i2] ->question_attributes.hidden_==false)
 								{
-									q4_list.questionList[i1*2+i2]->eval(question_window, stub_list_window, data_entry_window);
+									//q4_list.questionList[i1*2+i2]->eval(question_window, stub_list_window, data_entry_window);
+									return q4_list.questionList[i1*2+i2];
 								}
 								if(user_navigation == NAVIGATE_PREVIOUS)
 								{
@@ -1306,7 +1307,8 @@ struct TheQuestionnaire
 						}
 						if ( q5_list.questionList[i1*3+i2] ->question_attributes.hidden_==false)
 						{
-							q5_list.questionList[i1*3+i2]->eval(question_window, stub_list_window, data_entry_window);
+							//q5_list.questionList[i1*3+i2]->eval(question_window, stub_list_window, data_entry_window);
+							return q5_list.questionList[i1*3+i2];
 						}
 						if(user_navigation == NAVIGATE_PREVIOUS)
 						{
@@ -1708,11 +1710,13 @@ struct Session
 	char last_question_answered[200];
 	char last_question_visited[200];
 	char question_response[200];
+	char user_navigation[200];
+	AbstractQuestion * last_question_served;
 
 	Session()
 		: start(time(NULL)),
 		  questionnaire(new TheQuestionnaire()),
-		  rc(1)
+		  rc(1), last_question_served(0)
 	{ 
 		snprintf (sid,
 		    sizeof (sid),
@@ -2127,7 +2131,7 @@ int32_t main(int argc, char * argv[])
 		{
 			last_question_answered = q;
 		}
-	}								 
+	}
 	endwin();
 	*/
 }
@@ -2209,109 +2213,99 @@ create_response (void *cls,
 		 size_t *upload_data_size,
 		 void **ptr)
 {
-  struct MHD_Response *response;
-  struct Request *request;
-  struct Session *session;
-  int ret;
-  unsigned int i;
+	struct MHD_Response *response;
+	struct Request *request;
+	struct Session *session;
+	int ret;
+	unsigned int i;
 
-  printf("ENTER: %s\n", __PRETTY_FUNCTION__);
+	printf("ENTER: %s\n", __PRETTY_FUNCTION__);
 
-  request = (struct Request*) *ptr;
-  if (NULL == request)
-    {
-	printf("func: %s, called the first time creating MHD_create_post_processor\n", __PRETTY_FUNCTION__);
-      request = (struct Request *) calloc (1, sizeof (struct Request));
-      if (NULL == request)
-	{
-	  fprintf (stderr, "calloc error: %s\n", strerror (errno));
-	  return MHD_NO;
+	request = (struct Request*) *ptr;
+	if (NULL == request) {
+		printf("func: %s, called the first time creating MHD_create_post_processor\n", __PRETTY_FUNCTION__);
+		request = (struct Request *) calloc (1, sizeof (struct Request));
+		if (NULL == request) {
+			fprintf (stderr, "calloc error: %s\n", strerror (errno));
+			return MHD_NO;
+		}
+		*ptr = request;
+		if (0 == strcmp (method, MHD_HTTP_METHOD_POST)) {
+			request->pp = MHD_create_post_processor (connection, 1024,
+							   &post_iterator, request);
+			if (NULL == request->pp) {
+				fprintf (stderr, "Failed to setup post processor for `%s'\n",
+					url);
+				return MHD_NO; /* internal error */
+			}
+		}
+		printf("func: %s, called the first time successfully created a MHD_create_post_processor\n", __PRETTY_FUNCTION__);
+		return MHD_YES;
+	} else {
+		printf("func: %s post processor already created continuing to handle request\n", __PRETTY_FUNCTION__); 
 	}
-      *ptr = request;
-      if (0 == strcmp (method, MHD_HTTP_METHOD_POST))
-	{
-	  request->pp = MHD_create_post_processor (connection, 1024,
-						   &post_iterator, request);
-	  if (NULL == request->pp)
-	    {
-	      fprintf (stderr, "Failed to setup post processor for `%s'\n",
-		       url);
-	      return MHD_NO; /* internal error */
-	    }
+	if (NULL == request->session) {
+		printf("func: %s, creating a session\n", __PRETTY_FUNCTION__);
+		request->session = get_session (connection);
+		if (NULL == request->session) {
+			fprintf (stderr, "Failed to setup session for `%s'\n",
+				url);
+			return MHD_NO; /* internal error */
+		}
 	}
-	printf("func: %s, called the first time successfully created a MHD_create_post_processor\n", __PRETTY_FUNCTION__);
-      return MHD_YES;
-    }
-  else {
-	  printf("func: %s post processor already created continuing to handle request\n", __PRETTY_FUNCTION__); 
-  }
-  if (NULL == request->session)
-    {
-	printf("func: %s, creating a session\n", __PRETTY_FUNCTION__);
-      request->session = get_session (connection);
-      if (NULL == request->session)
-	{
-	  fprintf (stderr, "Failed to setup session for `%s'\n",
-		   url);
-	  return MHD_NO; /* internal error */
-	}
-    }
-  session = request->session;
-  session->start = time (NULL);
-  if (0 == strcmp (method, MHD_HTTP_METHOD_POST))
-    {      
-      /* evaluate POST data */
-	printf("func: %s, MHD_HTTP_METHOD_POST\n", __PRETTY_FUNCTION__);
-      MHD_post_process (request->pp,
-			upload_data,
-			*upload_data_size);
-      if (0 != *upload_data_size)
-	{
-	  *upload_data_size = 0;
-	  return MHD_YES;
-	}
-      /* done with POST data, serve response */
-      MHD_destroy_post_processor (request->pp);
-      request->pp = NULL;
-      method = MHD_HTTP_METHOD_GET; /* fake 'GET' */
-      if (NULL != request->post_url)
-	url = request->post_url;
+	session = request->session;
+	session->start = time (NULL);
+	if (0 == strcmp (method, MHD_HTTP_METHOD_POST)) {
+		/* evaluate POST data */
+		printf("func: %s, MHD_HTTP_METHOD_POST\n", __PRETTY_FUNCTION__);
+		MHD_post_process (request->pp,
+				upload_data,
+				*upload_data_size);
+		if (0 != *upload_data_size) {
+			*upload_data_size = 0;
+			return MHD_YES;
+		}
+		/* done with POST data, serve response */
+		MHD_destroy_post_processor (request->pp);
+		request->pp = NULL;
+		method = MHD_HTTP_METHOD_GET; /* fake 'GET' */
+		if (NULL != request->post_url)
+			url = request->post_url;
 
-	printf("func: %s, done with post processor : requested url is: %s\n"
-			, __PRETTY_FUNCTION__, url);
-    }
+		printf("func: %s, done with post processor : requested url is: %s\n"
+				, __PRETTY_FUNCTION__, url);
+	}
 
-  if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) ||
-       (0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) )
-    {
-      /* find out which page to serve */
+	if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) ||
+		(0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {
+	/* find out which page to serve */
 	    /*
-      printf("func: %s, url %s\n", __PRETTY_FUNCTION__, url);
-      i=0;
-      while ( (pages[i].url != NULL) &&
+	printf("func: %s, url %s\n", __PRETTY_FUNCTION__, url);
+	i=0;
+	while ( (pages[i].url != NULL) &&
 	      (0 != strcmp (pages[i].url, url)) )
 	i++;
 
-      printf("i == %d\n", i);
-      ret = pages[i].handler (pages[i].handler_cls, 
+	printf("i == %d\n", i);
+	ret = pages[i].handler (pages[i].handler_cls, 
 			      pages[i].mime,
 			      session, connection);
 	*/
-	ret = serve_question(session, connection);
-      if (ret != MHD_YES)
-	fprintf (stderr, "Failed to create page for `%s'\n",
-		 url);
-      return ret;
-    }
-  /* unsupported HTTP method */
-  response = MHD_create_response_from_buffer (strlen (METHOD_ERROR),
+		ret = serve_question(session, connection);
+		if (ret != MHD_YES)
+			fprintf (stderr, "Failed to create page for `%s'\n",
+				url);
+		return ret;
+	}
+	/* unsupported HTTP method */
+	response = MHD_create_response_from_buffer (strlen (METHOD_ERROR),
 					      (void *) METHOD_ERROR,
 					      MHD_RESPMEM_PERSISTENT);
-  ret = MHD_queue_response (connection, 
+	ret = MHD_queue_response (connection, 
 			    MHD_HTTP_METHOD_NOT_ACCEPTABLE, 
 			    response);
-  MHD_destroy_response (response);
-  return ret;
+	MHD_destroy_response (response);
+	return ret;
 }
 
 
@@ -2347,20 +2341,33 @@ post_iterator (void *cls,
 		      data,
 		      size);
 		if (size + off < sizeof (session->last_question_answered))
-		session->last_question_answered[size+off] = '\0';
+			session->last_question_answered[size+off] = '\0';
 		cout << "post_iterator finished" << endl;
 		return MHD_YES;
 	}
 
 	if (0 == strcmp ("question_response", key)) {
 		if (size + off > sizeof(session->question_response))
-		size = sizeof (session->last_question_answered) - off;
+		size = sizeof (session->question_response) - off;
 		memcpy (&session->question_response[off],
 		      data,
 		      size);
-		if (size + off < sizeof (session->last_question_answered))
-		session->question_response[size+off] = '\0';
+		if (size + off < sizeof (session->question_response))
+			session->question_response[size+off] = '\0';
 		cout << "question_response : " << session->question_response << endl;
+		cout << "post_iterator finished" << endl;
+		return MHD_YES;
+	}
+
+	if (0 == strcmp ("user_navigation", key)) {
+		if (size + off > sizeof(session->user_navigation))
+		size = sizeof (session->user_navigation) - off;
+		memcpy (&session->user_navigation[off],
+		      data,
+		      size);
+		if (size + off < sizeof (session->user_navigation))
+			session->user_navigation[size+off] = '\0';
+		cout << "user_navigation : " << session->user_navigation << endl;
 		cout << "post_iterator finished" << endl;
 		return MHD_YES;
 	}
@@ -2545,31 +2552,101 @@ not_found_page (const void *cls,
 }
 
 #include "qscript_readline.h"
+bool verify_web_data (string p_question_data, 
+		UserNavigation p_user_navigation,
+		user_response::UserResponseType p_the_user_response);
+
 static int serve_question(struct Session *session,
 		 struct MHD_Connection *connection
 		)
 {
 	cout << "ENTER: " << __PRETTY_FUNCTION__ << endl;
 	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
+	/*
+	if (session->last_question_served == 0) {
+		// this is the 1st question we are going to serve
+		AbstractQuestion * q =
+				session->questionnaire->eval2(last_question_answered, last_question_visited,
+								qnre_navigation_mode);
+		session->last_question_served = q;
+	} else 
+	*/
+	// first check that the response to the previous question is valid
+
+	string err_mesg, re_arranged_buffer;
+	int32_t pos_1st_invalid_data;
+	string last_question_visited_str = session->last_question_visited;
+	string current_question_response = session->question_response;
+	if (session->last_question_served) {
+		if (last_question_visited_str != "" && current_question_response != "") {
+			UserNavigation user_nav=NOT_SET;
+			user_response::UserResponseType user_resp=user_response::NotSet;
+			bool parse_success = verify_web_data (current_question_response, user_nav, user_resp);
+			extern vector<int32_t> data;
+			if (parse_success) {
+				cout << "successfully parsed data = ";
+				for (int i=0; i<data.size(); ++i) {
+					cout << data[i] << ", ";
+				}
+				cout << endl;
+			}
+			AbstractQuestion * last_question_served = session->last_question_served;
+			// the call below will be required at some later stage
+			//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+			// right now we go along with the happy path
+			bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
+			if (invalid_code == false) {
+				last_question_served->input_data.erase
+					(last_question_served->input_data.begin(), 
+					 last_question_served->input_data.end());
+				for(uint32_t i = 0; i < data.size(); ++i){
+					last_question_served->input_data.insert(data[i]);
+					//cout << "storing: " << data[i]
+					//	<< " into input_data" << endl;
+				}
+				last_question_served->isAnswered_ = true;
+				data.clear();
+			}
+		}
+	}
 	AbstractQuestion * q =
 			session->questionnaire->eval2(last_question_answered, last_question_visited,
 							qnre_navigation_mode);
+	session->last_question_served = q;
+label_ask_again:
 	stringstream question_form;
-	string last_question_visited_str = session->last_question_visited;
-	string current_question_response = session->question_response;
-	if (last_question_visited_str != "" && current_question_response !="") {
-		YY_BUFFER_STATE s_data = scan_data_scan_string(current_question_response.str());
-	}
 
 	cout << "last_question_visited == " << last_question_visited_str << endl;
 	cout << "current_question_response == " << current_question_response << endl;
 
 	
 
-	question_form << "<html><head><title>Welcome</title></head>\n<body>\n";
+	question_form << "<html><head><title>"
+		<< "Questionnaire: " << jno
+		<< "</title>\n";
+	//question_form << "<script type=\"text/javascript\" src=\"event_util.js\" ></script>\n";
+	fstream event_js_file("event_util.js", ios_base::in);
+	string event_js_file_contents;
+	stringstream event_js_file_contents_str;
+	cout << "reading file: event_js_file" << endl;
+	while (getline (event_js_file, event_js_file_contents) ) {
+		// cout << "contents: " << event_js_file_contents << endl;
+		event_js_file_contents_str << event_js_file_contents << endl;
+	}
+
+	question_form << "<script type=\"text/javascript\" >\n";
+	question_form << event_js_file_contents_str.str().c_str() << endl;
+	question_form << "</script>\n";
+
+	question_form << "</head>\n<body>\n";
 	question_form << "\t<form action=\"" << q->questionName_ 
 		<< "\" method=\"post\">\n" 
-		<< q->questionName_ << "." << q->questionText_
+		<< q->questionName_ << ".";
+	for(int32_t i = 0; i< q->loop_index_values.size(); ++i){
+		question_form << "." << q->loop_index_values[i];
+	}
+
+	question_form << q->questionText_
 		<< endl;
 	question_form
 		<< "\t\t<input type=\"text\" name=\"question_response\"" 
@@ -2628,8 +2705,55 @@ static int serve_question(struct Session *session,
 		<< "\""
 		<< " />\n";
 
-	question_form << "\t\t<input type=\"submit\" value=\"Next\" />\n";
-	question_form << "\t</form>\n</body></html>\n";
+	question_form << "		user_navigation: <input type=\"text\" name=\"user_navigation\" value =\"\" /> " << endl;
+	question_form << "		<input type=\"button\" value=\"Previous\" name=\"prev_button\" id=\"prev_button\" /> " << endl;
+	question_form << "		<input type=\"button\" value=\"Next\" name=\"next_button\" id=\"next_button\" /> " << endl;
+	question_form << "		<input type=\"button\" id=\"form_button\" value=\"button\" />" << endl;
+
+	question_form << "	<script type=\"text/javascript\">\n";
+	question_form << "	var form = document.forms[0];\n";
+	question_form << "	var form_button = form.elements[\"form_button\"];\n";
+	question_form << "	//var form_button = document.getElementById(\"form_button\");\n";
+	question_form << "	//alert ('form_button' +  form_button);\n";
+	question_form << "	var handler = function () {\n";
+	question_form << "		//alert(\"handler executed on click\");\n";
+	question_form << "		var user_navigation = form.elements[\"user_navigation\"];\n";
+	question_form << "		user_navigation.value = \"previous\";\n";
+	question_form << "	}\n";
+	question_form << "	EventUtil.addHandler(form_button, \"click\", handler);\n";
+	question_form << "	//alert(\"added handler to button\");\n";
+	question_form << "	// the real stuff I want to do goes here\n";
+	question_form << "	// 1. when user clicks button previous \n";
+	question_form << "	//    set user_navigation to previous\n";
+	question_form << "	//    and submit the form\n";
+	question_form << "	var prev_button = form.elements[\"prev_button\"]\n";
+	question_form << "	var handle_prev = function() {\n";
+	question_form << "		var user_navigation = form.elements[\"user_navigation\"];\n";
+	question_form << "		user_navigation.value = \"previous\";\n";
+	question_form << "		prev_button.disabled = true;\n";
+	question_form << "		next_button.disabled = true;\n";
+	question_form << "		form.submit();\n";
+	question_form << "	}\n";
+	question_form << "	EventUtil.addHandler(prev_button, \"click\", handle_prev);\n";
+	question_form << "\n";
+	question_form << "	// 2. when user clicks button next\n";
+	question_form << "	//    set user_navigation to next\n";
+	question_form << "	//    and submit the form\n";
+	question_form << "	var next_button = form.elements[\"next_button\"]\n";
+	question_form << "	var handle_next = function(event) {\n";
+	question_form << "		var user_navigation = form.elements[\"user_navigation\"];\n";
+	question_form << "		user_navigation.value = \"next\";\n";
+	question_form << "		prev_button.disabled = true;\n";
+	question_form << "		next_button.disabled = true;\n";
+	question_form << "		//event = EventUtil.getEvent(event);\n";
+	question_form << "		//EventUtil.preventDefault(event);\n";
+	question_form << "		form.submit();\n";
+	question_form << "	}\n";
+	question_form << "	EventUtil.addHandler(next_button, \"click\", handle_next);\n";
+	question_form << "	</script>\n";
+	question_form << "\n";
+
+	question_form << "\n</body></html>\n";
 	struct MHD_Response * response  = MHD_create_response_from_buffer(question_form.str().length(),
 									(void *) question_form.str().c_str(),
 									MHD_RESPMEM_MUST_COPY);

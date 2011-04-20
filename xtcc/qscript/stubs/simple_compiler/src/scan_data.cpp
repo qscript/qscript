@@ -1967,7 +1967,7 @@ top:
 			return the_user_response;
 		} else if (user_navigation == NOT_SET) {
 			user_navigation = NAVIGATE_NEXT; // treat as if visit next question
-			the_user_response == user_response::UserEnteredNavigation;
+			the_user_response = user_response::UserEnteredNavigation;
 			return the_user_response;
 		} else if (user_navigation == SAVE_DATA &&
 				the_user_response == user_response::UserSavedData) {
@@ -2001,4 +2001,27 @@ top:
 	return the_user_response;
 }
 
+	
+bool verify_web_data (string p_question_data, 
+		UserNavigation p_user_navigation,
+		user_response::UserResponseType p_the_user_response)
+{
+	cout << __PRETTY_FUNCTION__ << ", p_question_data: " << p_question_data << endl;
+	user_response::UserResponseType l_user_response = user_response::NotSet; 
+	if (p_question_data.length()==0) {
+		return l_user_response;
+	}
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(p_question_data.c_str());
+	if (scan_dataparse()) {
+		cout << "there was an error in parsing the data" << endl;
+		scan_data_delete_buffer(s_data);
+		data.clear();
+		return false;
+	} else {
+		return true;
+	}
+	cout << endl;
+	scan_data_delete_buffer(s_data);
+	return true;
+}
 
