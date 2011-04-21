@@ -568,9 +568,16 @@ struct TheQuestionnaire
 									back_jump = false;
 									jumpToIndex = -1;
 								}
-								if ( q1_list.questionList[i1*2+i2] ->question_attributes.hidden_==false)
+								if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == q1_list.questionList[i1*2+i2] &&  q1_list.questionList[i1*2+i2]->isAnswered_ == true)
+								{
+									stopAtNextQuestion = true;
+									fprintf (qscript_stdout, " at question:  q1 arming stopAtNextQuestion = true \n");
+								}
+								else if ( q1_list.questionList[i1*2+i2] ->question_attributes.hidden_==false)
 								{
 									//q1_list.questionList[i1*2+i2]->eval(question_window, stub_list_window, data_entry_window);
+									last_question_visited = q1_list.questionList[i1*2+i2];
+									stopAtNextQuestion = false;
 									return q1_list.questionList[i1*2+i2];
 								}
 								if(user_navigation == NAVIGATE_PREVIOUS)
@@ -706,6 +713,7 @@ struct TheQuestionnaire
 					}
 
 					if(!q2_list.questionList[i1*3+i2]->isAnswered_||stopAtNextQuestion||
+						(p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == q2_list.questionList[i1*3+i2]) ||
 						(jumpToQuestion == "q2" && jumpToIndex ==  consolidated_for_loop_index_4) )
 					{
 						label_eval_q2:
@@ -714,9 +722,16 @@ struct TheQuestionnaire
 							back_jump = false;
 							jumpToIndex = -1;
 						}
-						if ( q2_list.questionList[i1*3+i2] ->question_attributes.hidden_==false)
+						if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == q2_list.questionList[i1*3+i2] &&  q2_list.questionList[i1*3+i2]->isAnswered_ == true)
+						{
+							stopAtNextQuestion = true;
+							fprintf (qscript_stdout, " at question:  q2 arming stopAtNextQuestion = true \n");
+						}
+						else if ( q2_list.questionList[i1*3+i2] ->question_attributes.hidden_==false)
 						{
 							//q2_list.questionList[i1*3+i2]->eval(question_window, stub_list_window, data_entry_window);
+							last_question_visited = q2_list.questionList[i1*3+i2];
+							stopAtNextQuestion = false;
 							return q2_list.questionList[i1*3+i2];
 						}
 						if(user_navigation == NAVIGATE_PREVIOUS)
@@ -1099,6 +1114,7 @@ struct TheQuestionnaire
 							}
 
 							if(!q4_list.questionList[i1*2+i2]->isAnswered_||stopAtNextQuestion||
+								(p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == q4_list.questionList[i1*2+i2]) ||
 								(jumpToQuestion == "q4" && jumpToIndex ==  consolidated_for_loop_index_7) )
 							{
 								label_eval_q4:
@@ -1107,9 +1123,16 @@ struct TheQuestionnaire
 									back_jump = false;
 									jumpToIndex = -1;
 								}
-								if ( q4_list.questionList[i1*2+i2] ->question_attributes.hidden_==false)
+								if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == q4_list.questionList[i1*2+i2] &&  q4_list.questionList[i1*2+i2]->isAnswered_ == true)
+								{
+									stopAtNextQuestion = true;
+									fprintf (qscript_stdout, " at question:  q4 arming stopAtNextQuestion = true \n");
+								}
+								else if ( q4_list.questionList[i1*2+i2] ->question_attributes.hidden_==false)
 								{
 									//q4_list.questionList[i1*2+i2]->eval(question_window, stub_list_window, data_entry_window);
+									last_question_visited = q4_list.questionList[i1*2+i2];
+									stopAtNextQuestion = false;
 									return q4_list.questionList[i1*2+i2];
 								}
 								if(user_navigation == NAVIGATE_PREVIOUS)
@@ -1305,9 +1328,16 @@ struct TheQuestionnaire
 							back_jump = false;
 							jumpToIndex = -1;
 						}
-						if ( q5_list.questionList[i1*3+i2] ->question_attributes.hidden_==false)
+						if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == q5_list.questionList[i1*3+i2] &&  q5_list.questionList[i1*3+i2]->isAnswered_ == true)
+						{
+							stopAtNextQuestion = true;
+							fprintf (qscript_stdout, " at question:  q5 arming stopAtNextQuestion = true \n");
+						}
+						else if ( q5_list.questionList[i1*3+i2] ->question_attributes.hidden_==false)
 						{
 							//q5_list.questionList[i1*3+i2]->eval(question_window, stub_list_window, data_entry_window);
+							last_question_visited = q5_list.questionList[i1*3+i2];
+							stopAtNextQuestion = false;
 							return q5_list.questionList[i1*3+i2];
 						}
 						if(user_navigation == NAVIGATE_PREVIOUS)
@@ -2003,14 +2033,16 @@ not_found_page (const void *cls,
 		struct Session *session,
 		struct MHD_Connection *connection);
 
+/*
 static struct Page pages[] = 
   {
     { "/", "text/html",  &serve_simple_form, MAIN_PAGE },
     { "/2", "text/html", &serve_simple_form, SECOND_PAGE },
     { "/S", "text/html", &serve_simple_form, SUBMIT_PAGE },
     { "/F", "text/html", &serve_simple_form, LAST_PAGE },
-    { NULL, NULL, &not_found_page, NULL } /* 404 */
+    { NULL, NULL, &not_found_page, NULL } / * 404 * /
   };
+*/
 
 static int serve_question(struct Session *session,
 		 struct MHD_Connection *connection
@@ -2503,6 +2535,7 @@ add_session_cookie (struct Session *session,
 }
 
 
+/*
 static int
 serve_simple_form (const void *cls,
 		   const char *mime,
@@ -2513,7 +2546,7 @@ serve_simple_form (const void *cls,
   const char *form = (const char *) cls;
   struct MHD_Response *response;
 
-  /* return static form */
+  //  return static form 
   response = MHD_create_response_from_buffer (strlen (form),
 					      (void *) form,
 					      MHD_RESPMEM_PERSISTENT);
@@ -2527,6 +2560,7 @@ serve_simple_form (const void *cls,
   MHD_destroy_response (response);
   return ret;
 }
+*/
 
 static int
 not_found_page (const void *cls,
