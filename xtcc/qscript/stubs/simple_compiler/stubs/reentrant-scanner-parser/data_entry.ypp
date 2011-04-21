@@ -1,0 +1,106 @@
+/*
+ *  xtcc/xtcc/qscript/stubs/simple_compiler/data_entry.y
+ *
+ *  Parser for the data entry command line
+ *
+ *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
+ */
+
+%{
+#include <limits.h>
+#include <vector>
+#include <iostream>
+#include "user_navigation.h"
+#include "UserResponse.h"
+#include "data_entry.hpp"
+using namespace std;
+	//vector<int> data;
+	UserNavigation user_navigation=NOT_SET;
+	user_response::UserResponseType the_user_response=user_response::NotSet;
+//#define yylex scan_datalex
+	typedef void * yyscan_t;
+	//int scan_datalex(yyscan_t scanner);
+	int scan_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
+	void scan_dataerror(yyscan_t scanner, vector<int>* data_ptr, char *s);
+	//#define YYLEX_PARAM vector <int>* data_ptr 
+%}
+
+%define api.pure
+%parse-param	{ yyscan_t yyscanner }
+%parse-param 	{ vector <int>* data_ptr }
+%lex-param	{ yyscan_t yyscanner }
+	/*%lex-param 	{ vector <int>* data_ptr } */
+
+%union {
+	int ival;
+}
+
+%token <ival> NUMBER
+%token HYPHEN
+%token NAVIGATE_NEXT_TOK
+%token NAVIGATE_PREVIOUS_TOK
+%token JUMP_TO_QUESTION_TOK
+%token SAVE_DATA_TOK
+%token CLEAR_DATA
+ //%token END_OF_DATA
+
+
+
+%%
+
+prog:	datalist  {
+		the_user_response = user_response::UserEnteredData;
+	}
+	;
+	/*
+	| navigation {
+		the_user_response = user_response::UserEnteredNavigation;
+	}
+	| CLEAR_DATA {
+		data.clear();
+		the_user_response = user_response::UserClearedData;
+	}
+	;
+	*/
+
+datalist: data
+	| datalist data
+	;
+
+data: NUMBER	{
+	      vector <int> & data = *data_ptr; 
+	      data.push_back($1);
+	}
+	| NUMBER HYPHEN NUMBER {
+		vector <int> & data = *data_ptr; 
+		data.push_back($1);
+		for(int i=data[data.size()-1]+1; i<=$3; ++i){
+			data.push_back(i);
+		}
+	}
+	;
+
+	/*
+	navigation:	JUMP_TO_QUESTION_TOK {
+			user_navigation=JUMP_TO_QUESTION;
+		}
+	| NAVIGATE_PREVIOUS_TOK{
+			user_navigation=NAVIGATE_PREVIOUS;
+		}
+	| NAVIGATE_NEXT_TOK{
+			user_navigation=NAVIGATE_NEXT;
+		}
+	| SAVE_DATA_TOK {
+		user_navigation = SAVE_DATA;
+	}
+	;
+	*/
+
+%%
+	extern char * scan_datatext;
+	//void scan_dataerror(char *s){
+	void scan_dataerror(yyscan_t scanner, vector<int>* data_ptr, char *s)
+	{
+		//cout << "error in input: " << s << endl
+		//	<< "yytext(scan_datatext): " << scan_datatext << endl;
+	}
