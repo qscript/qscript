@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <string>
+#include <sstream>
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
@@ -31,6 +32,14 @@ using  std::cout;
 
 	void InitStatement();
 
+namespace program_options_ns {
+	bool ncurses_flag = false;
+	bool static_binary_flag = false;
+	bool web_server_flag = false;
+	bool compile_to_cpp_only_flag = false;
+	int32_t fname_flag = 0;
+}
+
 int32_t main(int32_t argc, char* argv[])
 {
 	InitStatement();
@@ -39,27 +48,26 @@ int32_t main(int32_t argc, char* argv[])
 	using qscript_parser::no_errors;
 	int32_t opterr = 1, c;
 	using qscript_parser::fname;
-	int32_t fname_flag = 0;
-	bool ncurses_flag = false;
-	bool static_binary_flag = false;
 	bool exit_flag = false;
-	bool compile_to_cpp_only_flag = false;
 
-	while( (c = getopt(argc, argv, "csnf:")) != -1 ){
+	while( (c = getopt(argc, argv, "wcsnf:")) != -1 ){
 		char ch = optopt;
 		switch(c){
 		case 'c':
-			compile_to_cpp_only_flag = true;
+			program_options_ns::compile_to_cpp_only_flag = true;
 			break;
 		case 'n':
-			ncurses_flag = true;
+			program_options_ns::ncurses_flag = true;
 			break;
 		case 's':
-			static_binary_flag = true;
+			program_options_ns::static_binary_flag = true;
+			break;
+		case 'w':
+			program_options_ns::web_server_flag = true;
 			break;
 		case 'f':
 			fname = optarg;
-			fname_flag = 1;
+			program_options_ns::fname_flag = 1;
 			break;
 		case '?':
 			if (optopt == 'f' )
@@ -75,7 +83,10 @@ int32_t main(int32_t argc, char* argv[])
 				<< argv[0] << " -f <input-file>\n" <<   endl;
 			exit(0);
 		}
-		if (fname_flag == 1){
+		std::stringstream mesg;
+		mesg << " why am i doing this? - need to read the manual again on getopt: does the filename have to be the last option?";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+		if (program_options_ns::fname_flag == 1){
 			break;
 		}
 	}
@@ -94,7 +105,7 @@ int32_t main(int32_t argc, char* argv[])
 		exit(1);
 	}
 
-	if (!fname_flag){
+	if (!program_options_ns::fname_flag){
 		cout << "Usage: "
 			<< argv[0] << " -f <input-file> "  << endl;
 		cout << "Options: " << endl;
@@ -125,7 +136,7 @@ int32_t main(int32_t argc, char* argv[])
 	if (!yyparse() && !no_errors) {
 		cout << "Input parsed sucessfully: generating code" << endl;
 		//data_entry_loop();
-		qscript_parser::GenerateCode(fname, ncurses_flag);
+		qscript_parser::GenerateCode(fname, program_options_ns::ncurses_flag);
 #ifndef _WIN32
 		{
 			std::stringstream bcpp_command;
@@ -174,9 +185,9 @@ int32_t main(int32_t argc, char* argv[])
 #endif /* _WIN32 */
 				
 		cout << "code generated " << endl;
-		if (compile_to_cpp_only_flag) {
+		if (program_options_ns::compile_to_cpp_only_flag) {
 		} else {
-			if (static_binary_flag)
+			if (program_options_ns::static_binary_flag)
 				qscript_parser::CompileGeneratedCodeStatic(fname);
 			else
 				qscript_parser::CompileGeneratedCode(fname);

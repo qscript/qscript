@@ -9,6 +9,15 @@
 #include "TempNameGenerator.h"
 #include "utils.h"
 
+
+namespace program_options_ns {
+	extern bool ncurses_flag;
+	extern bool static_binary_flag;
+	extern bool web_server_flag;
+	extern bool compile_to_cpp_only_flag;
+	extern int32_t fname_flag;
+}
+
 extern int32_t qscript_confparse();
 extern void qscript_confrestart(FILE *input_file);
 namespace qscript_parser
@@ -107,11 +116,18 @@ void PrintPrintMapHeader(FILE * script);
 void PrintDefineSomePDCursesKeys(FILE * script);
 void PrintPDCursesKeysHeader(FILE * script);
 void PrintProcessOptions(FILE * script);
-void PrintMain(FILE * script, bool ncurses_flag);
+void PrintNCursesMain(FILE * script, bool ncurses_flag);
+void PrintWebMain (FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
 const char * file_exists_check_code();
 const char * write_data_to_disk_code();
+void print_microhttpd_web_support (FILE * script);
+void print_ncurses_func_prototypes (FILE * script);
+void print_web_func_prototypes (FILE * script);
+void print_microhttpd_include_files (FILE * script);
+void print_ncurses_include_files (FILE * script);
+void print_web_support_structs (FILE * script);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -147,15 +163,19 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "struct TheQuestionnaire\n{\n");
 	fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "AbstractQuestion * last_question_visited;\n");
+	fprintf(script, "bool back_jump;\n");
+	fprintf(script, "string jno;\n", project_name.c_str());
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
-	fprintf(script, ", last_question_answered(0), last_question_visited(0)\n");
+	fprintf(script, ", last_question_answered(0), last_question_visited(0), back_jump(false)\n");
+	fprintf(script, ", jno (\"%s\")\n", project_name.c_str());
 	fprintf(script, "{\n");
 	//fprintf(script, "last_question_answered = 0;\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
 
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
+	fprintf(script, "\tcompute_flat_file_map_and_init();\n");
 	fprintf(script, "}\n");
 	// 5-apr-2011 , 0:12 (am)
 	// continue from here - put the compute_flat_map_code into
@@ -172,8 +192,16 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
+
+	if (program_options_ns::ncurses_flag)
+		PrintNCursesMain(script, ncurses_flag);
+	if (program_options_ns::web_server_flag) {
+		print_web_support_structs (script);
+		print_web_func_prototypes (script);
+		PrintWebMain(script, ncurses_flag);
+		print_microhttpd_web_support(script);
+	}
 	print_close(script, code.program_code, ncurses_flag);
-	PrintMain(script, ncurses_flag);
 	fflush(script);
 	if(qscript_debug::DEBUG_qscript_parser)
 		cerr << "EXIT qscript_parser::GenerateCode" << endl;
@@ -188,9 +216,11 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <fstream>\n");
 	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include <cstdlib>\n");
-	if(ncurses_flag) {
-		fprintf(script, "#include <curses.h>\n");
-		fprintf(script, "#include <panel.h>\n");
+	if (program_options_ns::ncurses_flag) {
+		print_ncurses_include_files(script);
+	}
+	if (program_options_ns::web_server_flag) {
+		print_microhttpd_include_files(script);
 	}
 	fprintf(script, "#include <signal.h>\n");
 	fprintf(script, "#include <dirent.h>\n");
@@ -218,6 +248,7 @@ void print_header(FILE* script, bool ncurses_flag)
 		//fprintf(script, "#include \"TempNameGenerator.h\"\n");
 	}
 	fprintf(script, "#include \"QuestionAttributes.h\"\n");
+	fprintf(script, "#include \"UserResponse.h\"\n");
 	if(config_file_parser::PLATFORM == "LINUX"){
 		FILE * simple_pd_curses_keys_h = fopen("a_few_pd_curses_keys.h", "wb");
 		if(!simple_pd_curses_keys_h){
@@ -242,7 +273,6 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "extern set<string> qtm_include_files;\n");
 
 	fprintf(script, "using namespace std;\n");
-	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "//extern vector<int32_t> data;\n");
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
@@ -256,42 +286,24 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int32_t jumpToIndex;\n");
 	fprintf(script, "bool write_data_file_flag;\n");
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
-	fprintf(script, "bool card_start_flag;\n");
-	fprintf(script, "bool card_end_flag;\n");
-	fprintf(script, "int card_start;\n");
-	fprintf(script, "int card_end;\n");
 
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
-	fprintf(script, "void print_map_header(fstream & map_file);");
-	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
-	fprintf(script, "vector <int8_t> vector_int8_t;\n");
-	fprintf(script, "vector <int16_t> vector_int16_t;\n");
-	fprintf(script, "vector <int32_t> vector_int32_t;\n");
-	fprintf(script, "vector <float> vector_float_t;\n");
-	fprintf(script, "vector <double> vector_double_t;\n");
-	fprintf(script, "bool back_jump = false;// no need for this but state the intent\n");
+	fprintf(script, "void print_map_header(fstream & map_file);\n");
+
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);\n");
 	//fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
-	fprintf(script, "WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx);\n");
-	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n"
-			"			WINDOW * &  stub_list_window,\n"
-			"			WINDOW * & data_entry_window,\n"
-			"			WINDOW * & help_window,\n"
-			"			PANEL * &  question_panel,\n"
-			"			PANEL * &  stub_list_panel,\n"
-			"			PANEL * & data_entry_panel,\n"
-			"			PANEL * & help_panel);\n");
-	fprintf(script, "void define_some_pd_curses_keys();\n");
+	if (program_options_ns::ncurses_flag) {
+		print_ncurses_func_prototypes(script);
+	}
 	fprintf(script, "void SetupSignalHandler();\n");
 	fprintf(script, "static void sig_usr(int32_t signo);\n");
 	//fprintf(script, "int32_t ComputeJumpToIndex(AbstractQuestion * q);\n");
-	fprintf(script, "void reset_questionnaire();\n");
-	fprintf(script, "void DisplayActiveQuestions();\n");
+	//fprintf(script, "void reset_questionnaire();\n");
+	//fprintf(script, "void DisplayActiveQuestions();\n");
 	fprintf(script, "string output_data_file_name;\n");
 	fprintf(script, "string output_qtm_data_file_name;\n");
 	fprintf(script, "void GetUserResponse(string& qno, int32_t &qindex);\n");
 	// print_array_question_class(script);
-	fprintf(script, "string jno = \"%s\";\n", project_name.c_str());
 	fprintf(script, "char * flat_file_output_buffer = 0;\n");
 	fprintf(script, "int32_t len_flat_file_output_buffer  = 0;\n");
 	//print_flat_ascii_data_class(script);
@@ -299,7 +311,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
 	fprintf(script, "vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
 	fprintf(script, "qtm_data_file_ns::QtmDataFile qtm_data_file;\n");
-	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
+	//fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
@@ -326,162 +338,6 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
 
 	//print_eval_questionnaire(script, program_code, ncurses_flag);
-#if 0
-	fprintf(script, "void eval()\n{\n");
-	fprintf(script, "\tint ser_no = 0;\n");
-	if(ncurses_flag) {
-		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
-		fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
-		fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-		fprintf(script, "\t}\n");
-	} else	{
-		fprintf(script, "\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
-		fprintf(script, "\tchar  newl; cin >> ser_no;cin.get(newl);\n");
-	}
-	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
-	fprintf(script, "	if (write_data_file_flag || write_qtm_data_file_flag) {\n");
-	fprintf(script, "		struct dirent * directory_entry = readdir(directory_ptr);\n");
-	fprintf(script, "		if (directory_entry == NULL) {\n");
-	fprintf(script, "			// we have read upto the last record in the directory\n");
-	fprintf(script, "			cout << \"finished reading all data files ... exiting\" << endl;\n");
-	fprintf(script, "			exit(1);\n");
-	fprintf(script, "		}\n");
-	fprintf(script, "		string dir_entry_name(directory_entry->d_name);\n");
-	fprintf(script, "		int len_entry = dir_entry_name.length();\n");
-	fprintf(script, "		if (	len_entry > 4 &&\n");
-	fprintf(script, "			dir_entry_name[len_entry-1]=='t' &&\n");
-	fprintf(script, "			dir_entry_name[len_entry-2]=='a' &&\n");
-	fprintf(script, "			dir_entry_name[len_entry-3]=='d' &&\n");
-	fprintf(script, "			dir_entry_name[len_entry-4]=='.') {\n");
-	fprintf(script, "			if (dir_entry_name.length() < jno.length()+ 6 /* \"_1.dat\" is the shortest possible datafile name for our study */) {\n");
-	fprintf(script, "				// cannot be our data file\n");
-	fprintf(script, "				continue;\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			bool not_our_file = false;\n");
-	fprintf(script, "			for (int i=0; i<jno.length(); ++i) {\n");
-	fprintf(script, "				if (! (jno[i] == dir_entry_name[i]) ) {\n");
-	fprintf(script, "					// cannot be our data file\n");
-	fprintf(script, "					not_our_file = true;\n");
-	fprintf(script, "					break;\n");
-	fprintf(script, "				}\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			if (not_our_file) {\n");
-	fprintf(script, "				continue;\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			// all our data files are expected\n");
-	fprintf(script, "			// to have a \".dat\" ending and '_' after job number\n");
-	fprintf(script, "			// find the \".\"\n");
-	fprintf(script, "			cout << dir_entry_name << endl;\n");
-	fprintf(script, "			if (dir_entry_name[jno.length()] != '_') {\n");
-	fprintf(script, "				not_our_file = true;\n");
-	fprintf(script, "				continue;\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			stringstream file_ser_no_str;\n");
-	fprintf(script, "			for (int i=jno.length()+1; i<dir_entry_name.length(); ++i) {\n");
-	fprintf(script, "				if (isdigit(dir_entry_name[i])) {\n");
-	fprintf(script, "					file_ser_no_str << dir_entry_name[i];\n");
-	fprintf(script, "				} else {\n");
-	fprintf(script, "					if ( (i + 3 == dir_entry_name.length()) \n");
-	fprintf(script, "						&& dir_entry_name[i] == '.'\n");
-	fprintf(script, "						&& dir_entry_name[i+1] == 'd'\n");
-	fprintf(script, "						&& dir_entry_name[i+2] == 'a'\n");
-	fprintf(script, "						&& dir_entry_name[i+3] == 't') {\n");
-	fprintf(script, "							//its our file \n");
-	fprintf(script, "							break;\n");
-	fprintf(script, "					} else {\n");
-	fprintf(script, "						// it's not our file \n");
-	fprintf(script, "						continue;\n");
-	fprintf(script, "					}\n");
-	fprintf(script, "				}\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			if ( (file_ser_no_str.str())[0] == '0') {\n");
-	fprintf(script, "				// the leading digit of our data file\n");
-	fprintf(script, "				// can never be zero - so its not our file\n");
-	fprintf(script, "				continue;\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			cout << \"got a data file: \" << dir_entry_name << endl;\n");
-	fprintf(script, "			int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
-	fprintf(script, "			ser_no =  file_ser_no;\n");
-	fprintf(script, "			load_data(jno,file_ser_no);\n");
-	fprintf(script, "			merge_disk_data_into_questions(qscript_stdout);\n");
-	fprintf(script, "		} else {\n");
-	fprintf(script, "			// not our data file\n");
-	fprintf(script, "			continue;\n");
-	fprintf(script, "		}\n");
-	fprintf(script, "	}\n");
-	fprintf(script, "%s\n", file_exists_check_code());
-	fprintf(script, "\tstart_of_questions:\n");
-	fprintf(script, "\tif(back_jump == true){\n");
-	fprintf(script, "\tfprintf(qscript_stdout, \"have reached start_of_questions with back_jump\");\n");
-	fprintf(script, "\t}\n");
-	fprintf(script, "%s\n", program_code.str().c_str());
-	fprintf(script, "\tif (write_data_file_flag) {\n\n");
-	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
-	fprintf(script, "	}\n");
-	fprintf(script, "	cout << \"output_buffer: \" << flat_file_output_buffer;\n");
-	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
-	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
-	fprintf(script, "\t} else if (write_qtm_data_file_flag) {\n");
-	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
-	fprintf(script, "	}\n");
-	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no);\n");
-	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n");
-	fprintf(script, "\t} else {\n");
-	fprintf(script, "\tchar end_of_question_navigation;\n");
-	fprintf(script, "label_end_of_qnre_navigation:\n");
-	if(ncurses_flag) {
-		fprintf(script, "\twclear(data_entry_window);\n");
-		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1,\"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)\"); \n");
-		fprintf(script, "\tmvwscanw(data_entry_window, 1, 75, \"%%c\", & end_of_question_navigation);\n");
-	} else {
-		fprintf(script, "\tcout << \"End of Questionnaire: (s to save, p = previous question, j = question jump list, q = quit without saving - all newly entered data will be lost)\" << endl;\n");
-		fprintf(script, "\tcin >> end_of_question_navigation;\n");
-	}
-	fprintf(script, "\tif(end_of_question_navigation == 's'){\n");
-	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
-	fprintf(script, "\t} else if (end_of_question_navigation == 'p'){\n");
-	fprintf(script, "\t\tAbstractQuestion * target_question = ComputePreviousQuestion(last_question_answered);\n");
-	fprintf(script, "\t\tif(target_question->type_ == QUESTION_ARR_TYPE)\n");
-	fprintf(script,	"\t\t\t{\n");
-	fprintf(script, "\t\t\t\tjumpToIndex = ComputeJumpToIndex(target_question);\n");
-	fprintf(script, "\t\t\t}\n");
-	fprintf(script,	"\t\tjumpToQuestion = target_question->questionName_;\n");
-	fprintf(script, "\t\tif (data_entry_window == 0) cout << \"target question: \" << jumpToQuestion;\n");
-	fprintf(script, "\t\tback_jump = true;\n");
-	fprintf(script, "\t\tuser_navigation = NOT_SET;\n");
-	fprintf(script, "\t\tgoto start_of_questions;\n");
-	fprintf(script, "\t}");
-	fprintf(script, "\telse if (end_of_question_navigation == 'j') {\n"
-			"\t\tDisplayActiveQuestions();\n"
-			"\t\tGetUserResponse(jumpToQuestion, jumpToIndex);\n"
-			"\t\tuser_navigation = NOT_SET;\n"
-			"\t\tgoto start_of_questions;\n}");
-	fprintf(script, "\telse if (end_of_question_navigation == 'q') {\n"
-		 	"\t\treset_questionnaire();\n"
-			"}");
-	fprintf(script, " else {\n"
-			"\t\tgoto label_end_of_qnre_navigation;\n"
-			"\t}\n"
-			);
-	if( ncurses_flag) {
-		fprintf(script, "\twclear(data_entry_window);\n");
-		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \"); \n");
-		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-		fprintf(script, "\t}\n");
-		fprintf(script, "\treset_questionnaire();\n");
-	} else {
-		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
-		fprintf(script, "\tcin >> ser_no;cin.get(newl);\n");
-		fprintf(script, "\treset_questionnaire();\n");
-	}
-	fprintf(script, "\n\t} /* close while */\n");
-	if(ncurses_flag)
-		fprintf(script, "\tendwin();\n");
-	fprintf(script, "} /* close eval */\n");
-#endif /* 0 */
-
 	// fprintf(script, "%s\n", write_data_to_disk_code());
 	// print_navigation_support_functions(script);
 	// print_reset_questionnaire(script);
@@ -1357,7 +1213,9 @@ test_script.o: test_script.C
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
 
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
-	string cpp_compile_command = string("g++ -g -o ")
+	string cpp_compile_command ;
+	if (program_options_ns::ncurses_flag) {
+		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
@@ -1365,7 +1223,15 @@ test_script.o: test_script.C
 			+ string(" ") + intermediate_file_name
 			+ string(" -lqscript_runtime -lpanel ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
-
+	} else if (program_options_ns::web_server_flag) {
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string(" -lmicrohttpd -lqscript_runtime");
+	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
 	int32_t ret_val = system(cpp_compile_command.c_str());
@@ -1524,6 +1390,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "				  output_data_file_name = \"datafile.dat\";\n");
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
+	fprintf(script, "			  break;\n");
 
 	fprintf(script, "		case 'q': {\n");
 	fprintf(script, "			  write_qtm_data_file_flag = true;\n");
@@ -1533,20 +1400,6 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "				  output_qtm_data_file_name = \"qtm_datafile.dat\";\n");
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
-	fprintf (script, "		case 's': {\n");
-	fprintf (script, "			card_start_flag = true;\n");
-	fprintf (script, "			if (optarg) {\n");
-	fprintf (script, "				card_start = atoi(optarg);\n");
-	fprintf (script, "			}\n");
-	fprintf (script, "		}\n");
-	fprintf (script, "		case 'e': {\n");
-	fprintf (script, "			card_end_flag = true;\n");
-	fprintf (script, "			if (optarg) {\n");
-	fprintf (script, "				card_end = atoi(optarg);\n");
-	fprintf (script, "			}\n");
-	fprintf (script, "		}\n");
-
-
 	fprintf(script, "			  break;\n");
 	fprintf(script, "		case '?' : {\n");
 	fprintf(script, "				   cout << \" invalid option, optopt:\" << optopt << endl;\n");
@@ -1572,7 +1425,7 @@ void PrintPrintMapHeader(FILE * script)
 	fprintf(script, "}\n");
 }
 
-void PrintMain (FILE * script, bool ncurses_flag)
+void PrintNCursesMain (FILE * script, bool ncurses_flag)
 {
 	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
 	fprintf(script, "\tprocess_options(argc, argv);\n");
@@ -1653,7 +1506,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t		    cout << \"target question: \" << jumpToQuestion;\n");
 	fprintf(script, "\t\t		if (data_entry_window == 0)\n");
 	fprintf(script, "\t\t		    cout << \"target question Index: \" << jumpToIndex;\n");
-	fprintf(script, "\t\t		back_jump = true;\n");
+	fprintf(script, "\t\t		theQuestionnaire.back_jump = true;\n");
 	fprintf(script, "\t\t		user_navigation = NOT_SET;\n");
 	fprintf(script, "\t\t		//goto start_of_questions;\n");
 	fprintf(script, "\t\t		goto re_eval_from_start;\n");
@@ -1677,7 +1530,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t	    //goto start_of_questions;\n");
 	fprintf(script, "\t\t	    goto re_eval_from_start;\n");
 	fprintf(script, "\t\t	} else if (user_navigation == SAVE_DATA) {\n");
-	fprintf(script, "\t\t	    theQuestionnaire.write_data_to_disk(question_list, jno,\n");
+	fprintf(script, "\t\t	    theQuestionnaire.write_data_to_disk(question_list, theQuestionnaire.jno,\n");
 	fprintf(script, "\t\t						ser_no);\n");
 	fprintf(script, "\t\t	    if (data_entry_window)\n");
 	fprintf(script, "\t\t		mvwprintw(data_entry_window, 2, 50, \"saved partial data\");\n");
@@ -1695,6 +1548,31 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	if(ncurses_flag)
 		fprintf(script, "\tendwin();\n");
 	fprintf(script, "\n} /* close main */\n");
+}
+
+
+void PrintWebMain (FILE * script, bool ncurses_flag)
+{
+	fprintf (script, "int32_t main(int argc, char * argv[])\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	process_options(argc, argv);\n");
+	fprintf (script, "	if (write_data_file_flag||write_qtm_data_file_flag)\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "		qtm_data_file_ns::init_exceptions();\n");
+	fprintf (script, "		directory_ptr = opendir(\".\");\n");
+	fprintf (script, "		if (! directory_ptr)\n");
+	fprintf (script, "		{\n");
+	fprintf (script, "			cout << \" unable to open . (current directory) for reading\\n\";\n");
+	fprintf (script, "			exit(1);\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	bool using_ncurses = true;\n");
+	fprintf (script, "	qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
+	fprintf (script, "	using namespace std;\n");
+	fprintf (script, "	SetupSignalHandler();\n");
+	fprintf (script, "	setup_and_run_MHD_daemon();\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
 }
 
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
@@ -1754,92 +1632,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 			"\t\t UserNavigation p_navigation_mode)\n{\n");
 
 	fprintf(script, "if (last_question_visited)\n\tfprintf (qscript_stdout, \"entered eval2: last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
-	//if(ncurses_flag) {
-	//	fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
-	//	fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
-	//	fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-	//	fprintf(script, "\t}\n");
-	//} else	{
-	//	fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
-	//	fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
-	//	fprintf(script, "\t\tchar  newl; cin >> ser_no;cin.get(newl);\n");
-	//	fprintf(script, "\t}\n");
-	//}
 
-	// fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
-#if 0
-	fprintf(script, "	if (write_data_file_flag || write_qtm_data_file_flag) {\n");
-	fprintf(script, "		struct dirent * directory_entry = readdir(directory_ptr);\n");
-	fprintf(script, "		if (directory_entry == NULL) {\n");
-	fprintf(script, "			// we have read upto the last record in the directory\n");
-	fprintf(script, "			cout << \"finished reading all data files ... exiting\" << endl;\n");
-	fprintf(script, "			exit(1);\n");
-	fprintf(script, "		}\n");
-	fprintf(script, "		string dir_entry_name(directory_entry->d_name);\n");
-	fprintf(script, "		int len_entry = dir_entry_name.length();\n");
-	fprintf(script, "		if (	len_entry > 4 &&\n");
-	fprintf(script, "			dir_entry_name[len_entry-1]=='t' &&\n");
-	fprintf(script, "			dir_entry_name[len_entry-2]=='a' &&\n");
-	fprintf(script, "			dir_entry_name[len_entry-3]=='d' &&\n");
-	fprintf(script, "			dir_entry_name[len_entry-4]=='.') {\n");
-	fprintf(script, "			if (dir_entry_name.length() < jno.length()+ 6 /* \"_1.dat\" is the shortest possible datafile name for our study */) {\n");
-	fprintf(script, "				// cannot be our data file\n");
-	fprintf(script, "				continue;\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			bool not_our_file = false;\n");
-	fprintf(script, "			for (int i=0; i<jno.length(); ++i) {\n");
-	fprintf(script, "				if (! (jno[i] == dir_entry_name[i]) ) {\n");
-	fprintf(script, "					// cannot be our data file\n");
-	fprintf(script, "					not_our_file = true;\n");
-	fprintf(script, "					break;\n");
-	fprintf(script, "				}\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			if (not_our_file) {\n");
-	fprintf(script, "				continue;\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			// all our data files are expected\n");
-	fprintf(script, "			// to have a \".dat\" ending and '_' after job number\n");
-	fprintf(script, "			// find the \".\"\n");
-	fprintf(script, "			cout << dir_entry_name << endl;\n");
-	fprintf(script, "			if (dir_entry_name[jno.length()] != '_') {\n");
-	fprintf(script, "				not_our_file = true;\n");
-	fprintf(script, "				continue;\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			stringstream file_ser_no_str;\n");
-	fprintf(script, "			for (int i=jno.length()+1; i<dir_entry_name.length(); ++i) {\n");
-	fprintf(script, "				if (isdigit(dir_entry_name[i])) {\n");
-	fprintf(script, "					file_ser_no_str << dir_entry_name[i];\n");
-	fprintf(script, "				} else {\n");
-	fprintf(script, "					if ( (i + 3 == dir_entry_name.length()) \n");
-	fprintf(script, "						&& dir_entry_name[i] == '.'\n");
-	fprintf(script, "						&& dir_entry_name[i+1] == 'd'\n");
-	fprintf(script, "						&& dir_entry_name[i+2] == 'a'\n");
-	fprintf(script, "						&& dir_entry_name[i+3] == 't') {\n");
-	fprintf(script, "							//its our file \n");
-	fprintf(script, "							break;\n");
-	fprintf(script, "					} else {\n");
-	fprintf(script, "						// it's not our file \n");
-	fprintf(script, "						continue;\n");
-	fprintf(script, "					}\n");
-	fprintf(script, "				}\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			if ( (file_ser_no_str.str())[0] == '0') {\n");
-	fprintf(script, "				// the leading digit of our data file\n");
-	fprintf(script, "				// can never be zero - so its not our file\n");
-	fprintf(script, "				continue;\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "			cout << \"got a data file: \" << dir_entry_name << endl;\n");
-	fprintf(script, "			int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
-	fprintf(script, "			ser_no =  file_ser_no;\n");
-	fprintf(script, "			load_data(jno,file_ser_no);\n");
-	fprintf(script, "			merge_disk_data_into_questions(qscript_stdout);\n");
-	fprintf(script, "		} else {\n");
-	fprintf(script, "			// not our data file\n");
-	fprintf(script, "			continue;\n");
-	fprintf(script, "		}\n");
-	fprintf(script, "	}\n");
-#endif /* 0 */
-	// code-frag/open-eval-while-loop-code-frag.cpp 
 
 	fprintf(script, "%s\n", file_exists_check_code());
 
@@ -1899,7 +1692,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 			"\t\tgoto label_end_of_qnre_navigation;\n"
 			"\t}\n"
 			);
-	if( ncurses_flag) {
+	if(program_options_ns::ncurses_flag) {
 		fprintf(script, "\twclear(data_entry_window);\n");
 		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \"); \n");
 		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
@@ -1907,9 +1700,16 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\treset_questionnaire();\n"
 				"\t\treturn 0;\n"
 			);
+	} else if(program_options_ns::web_server_flag) {
+		// we should post the THANK YOU PAGE here
+		fprintf(script, "\t}\n");
+		fprintf(script, "\treset_questionnaire();\n"
+				"\t\treturn 0;\n"
+			);
 	} else {
 		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
 		fprintf(script, "\tcin >> ser_no;cin.get(newl);\n");
+		fprintf(script, "\t}\n");
 		fprintf(script, "\treset_questionnaire();\n");
 		fprintf(script, "\treturn 0;\n");
 	}
@@ -2006,5 +1806,819 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "\n");
 }
 
+
+void print_microhttpd_web_support (FILE * script)
+{
+	fprintf (script, " \n");
+	fprintf (script, "#define MHD_PORT_NUMBER 	8888\n");
+	fprintf (script, "//struct MHD_Daemon * setup_and_run_MHD_daemon()\n");
+	fprintf (script, "int setup_and_run_MHD_daemon()\n");
+	fprintf (script, "{\n");
+	fprintf (script, "  struct MHD_Daemon *d;\n");
+	fprintf (script, "  struct timeval tv;\n");
+	fprintf (script, "  struct timeval *tvp;\n");
+	fprintf (script, "  fd_set rs;\n");
+	fprintf (script, "  fd_set ws;\n");
+	fprintf (script, "  fd_set es;\n");
+	fprintf (script, "  int max;\n");
+	fprintf (script, "  unsigned MHD_LONG_LONG mhd_timeout;\n");
+	fprintf (script, "\n");
+	fprintf (script, "  /* initialize PRNG */\n");
+	fprintf (script, "  srandom ((unsigned int) time (NULL));\n");
+	fprintf (script, "  d = MHD_start_daemon (MHD_USE_DEBUG,\n");
+	fprintf (script, "                        MHD_PORT_NUMBER,\n");
+	fprintf (script, "                        NULL, NULL, \n");
+	fprintf (script, "			&create_response, NULL, \n");
+	fprintf (script, "			MHD_OPTION_CONNECTION_TIMEOUT, (unsigned int) 15,\n");
+	fprintf (script, "			MHD_OPTION_NOTIFY_COMPLETED, &request_completed_callback, NULL,\n");
+	fprintf (script, "			MHD_OPTION_END);\n");
+	fprintf (script, "  if (NULL == d)\n");
+	fprintf (script, "    return 1;\n");
+	fprintf (script, "  while (1)\n");
+	fprintf (script, "    {\n");
+	fprintf (script, "      //expire_sessions ();\n");
+	fprintf (script, "      max = 0;\n");
+	fprintf (script, "      FD_ZERO (&rs);\n");
+	fprintf (script, "      FD_ZERO (&ws);\n");
+	fprintf (script, "      FD_ZERO (&es);\n");
+	fprintf (script, "      if (MHD_YES != MHD_get_fdset (d, &rs, &ws, &es, &max))\n");
+	fprintf (script, "	break; /* fatal internal error */\n");
+	fprintf (script, "      if (MHD_get_timeout (d, &mhd_timeout) == MHD_YES)	\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "	  tv.tv_sec = mhd_timeout / 1000;\n");
+	fprintf (script, "	  tv.tv_usec = (mhd_timeout - (tv.tv_sec * 1000)) * 1000;\n");
+	fprintf (script, "	  tvp = &tv;	  \n");
+	fprintf (script, "	}\n");
+	fprintf (script, "      else\n");
+	fprintf (script, "	tvp = NULL;\n");
+	fprintf (script, "      select (max + 1, &rs, &ws, &es, tvp);\n");
+	fprintf (script, "      MHD_run (d);\n");
+	fprintf (script, "    }\n");
+	fprintf (script, "  MHD_stop_daemon (d);\n");
+	fprintf (script, "  return 0;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "static void\n");
+	fprintf (script, "request_completed_callback (void *cls,\n");
+	fprintf (script, "			    struct MHD_Connection *connection,\n");
+	fprintf (script, "			    void **con_cls,\n");
+	fprintf (script, "			    enum MHD_RequestTerminationCode toe)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "  struct Request *request = (struct Request *) *con_cls;\n");
+	fprintf (script, "\n");
+	fprintf (script, "  if (NULL == request)\n");
+	fprintf (script, "    return;\n");
+	fprintf (script, "  if (NULL != request->session)\n");
+	fprintf (script, "    request->session->rc--;\n");
+	fprintf (script, "  if (NULL != request->pp)\n");
+	fprintf (script, "    MHD_destroy_post_processor (request->pp);\n");
+	fprintf (script, "  free (request);\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "static int\n");
+	fprintf (script, "create_response (void *cls,\n");
+	fprintf (script, "		 struct MHD_Connection *connection,\n");
+	fprintf (script, "		 const char *url,\n");
+	fprintf (script, "		 const char *method,\n");
+	fprintf (script, "		 const char *version,\n");
+	fprintf (script, "		 const char *upload_data, \n");
+	fprintf (script, "		 size_t *upload_data_size,\n");
+	fprintf (script, "		 void **ptr)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	struct MHD_Response *response;\n");
+	fprintf (script, "	struct Request *request;\n");
+	fprintf (script, "	struct Session *session;\n");
+	fprintf (script, "	int ret;\n");
+	fprintf (script, "	unsigned int i;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	printf(\"ENTER: %%s\\n\", __PRETTY_FUNCTION__);\n");
+	fprintf (script, "\n");
+	fprintf (script, "	request = (struct Request*) *ptr;\n");
+	fprintf (script, "	if (NULL == request) {\n");
+	fprintf (script, "		printf(\"func: %%s, called the first time creating MHD_create_post_processor\\n\", __PRETTY_FUNCTION__);\n");
+	fprintf (script, "		request = (struct Request *) calloc (1, sizeof (struct Request));\n");
+	fprintf (script, "		if (NULL == request) {\n");
+	fprintf (script, "			fprintf (stderr, \"calloc error: %%s\\n\", strerror (errno));\n");
+	fprintf (script, "			return MHD_NO;\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "		*ptr = request;\n");
+	fprintf (script, "		if (0 == strcmp (method, MHD_HTTP_METHOD_POST)) {\n");
+	fprintf (script, "			request->pp = MHD_create_post_processor (connection, 1024,\n");
+	fprintf (script, "							   &post_iterator, request);\n");
+	fprintf (script, "			if (NULL == request->pp) {\n");
+	fprintf (script, "				fprintf (stderr, \"Failed to setup post processor for `%%s'\\n\",\n");
+	fprintf (script, "					url);\n");
+	fprintf (script, "				return MHD_NO; /* internal error */\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "		printf(\"func: %%s, called the first time successfully created a MHD_create_post_processor\\n\", __PRETTY_FUNCTION__);\n");
+	fprintf (script, "		return MHD_YES;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		printf(\"func: %%s post processor already created continuing to handle request\\n\", __PRETTY_FUNCTION__); \n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	if (NULL == request->session) {\n");
+	fprintf (script, "		printf(\"func: %%s, creating a session\\n\", __PRETTY_FUNCTION__);\n");
+	fprintf (script, "		request->session = get_session (connection);\n");
+	fprintf (script, "		if (NULL == request->session) {\n");
+	fprintf (script, "			fprintf (stderr, \"Failed to setup session for `%%s'\\n\",\n");
+	fprintf (script, "				url);\n");
+	fprintf (script, "			return MHD_NO; /* internal error */\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	session = request->session;\n");
+	fprintf (script, "	session->start = time (NULL);\n");
+	fprintf (script, "	if (0 == strcmp (method, MHD_HTTP_METHOD_POST)) {\n");
+	fprintf (script, "		/* evaluate POST data */\n");
+	fprintf (script, "		printf(\"func: %%s, MHD_HTTP_METHOD_POST\\n\", __PRETTY_FUNCTION__);\n");
+	fprintf (script, "		MHD_post_process (request->pp,\n");
+	fprintf (script, "				upload_data,\n");
+	fprintf (script, "				*upload_data_size);\n");
+	fprintf (script, "		if (0 != *upload_data_size) {\n");
+	fprintf (script, "			*upload_data_size = 0;\n");
+	fprintf (script, "			return MHD_YES;\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "		/* done with POST data, serve response */\n");
+	fprintf (script, "		MHD_destroy_post_processor (request->pp);\n");
+	fprintf (script, "		request->pp = NULL;\n");
+	fprintf (script, "		method = MHD_HTTP_METHOD_GET; /* fake 'GET' */\n");
+	fprintf (script, "		if (NULL != request->post_url)\n");
+	fprintf (script, "			url = request->post_url;\n");
+	fprintf (script, "\n");
+	fprintf (script, "		printf(\"func: %%s, done with post processor : requested url is: %%s\\n\"\n");
+	fprintf (script, "				, __PRETTY_FUNCTION__, url);\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	if ( (0 == strcmp (method, MHD_HTTP_METHOD_GET)) ||\n");
+	fprintf (script, "		(0 == strcmp (method, MHD_HTTP_METHOD_HEAD)) ) {\n");
+	fprintf (script, "	/* find out which page to serve */\n");
+	fprintf (script, "	    /*\n");
+	fprintf (script, "	printf(\"func: %%s, url %%s\\n\", __PRETTY_FUNCTION__, url);\n");
+	fprintf (script, "	i=0;\n");
+	fprintf (script, "	while ( (pages[i].url != NULL) &&\n");
+	fprintf (script, "	      (0 != strcmp (pages[i].url, url)) )\n");
+	fprintf (script, "	i++;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	printf(\"i == %%d\\n\", i);\n");
+	fprintf (script, "	ret = pages[i].handler (pages[i].handler_cls, \n");
+	fprintf (script, "			      pages[i].mime,\n");
+	fprintf (script, "			      session, connection);\n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "		ret = serve_question(session, connection);\n");
+	fprintf (script, "		if (ret != MHD_YES)\n");
+	fprintf (script, "			fprintf (stderr, \"Failed to create page for `%%s'\\n\",\n");
+	fprintf (script, "				url);\n");
+	fprintf (script, "		return ret;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	/* unsupported HTTP method */\n");
+	fprintf (script, "	response = MHD_create_response_from_buffer (strlen (METHOD_ERROR),\n");
+	fprintf (script, "					      (void *) METHOD_ERROR,\n");
+	fprintf (script, "					      MHD_RESPMEM_PERSISTENT);\n");
+	fprintf (script, "	ret = MHD_queue_response (connection, \n");
+	fprintf (script, "			    MHD_HTTP_METHOD_NOT_ACCEPTABLE, \n");
+	fprintf (script, "			    response);\n");
+	fprintf (script, "	MHD_destroy_response (response);\n");
+	fprintf (script, "	return ret;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "static int\n");
+	fprintf (script, "post_iterator (void *cls,\n");
+	fprintf (script, "	       enum MHD_ValueKind kind,\n");
+	fprintf (script, "	       const char *key,\n");
+	fprintf (script, "	       const char *filename,\n");
+	fprintf (script, "	       const char *content_type,\n");
+	fprintf (script, "	       const char *transfer_encoding,\n");
+	fprintf (script, "	       const char *data, uint64_t off, size_t size)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	struct Request *request = (struct Request *) cls;\n");
+	fprintf (script, "	struct Session *session = request->session;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	printf(\"func: %%s, key: %%s, filename: %%s, content_type: %%s, transfer_encoding: %%s, offset: %%ld, size of data avlbl: %%ld\\n\",\n");
+	fprintf (script, "		  __PRETTY_FUNCTION__, key, filename, content_type, transfer_encoding, off, size);\n");
+	fprintf (script, "\n");
+	// fprintf (script, "	if (0 == strcmp (\"DONE\", key)) {\n");
+	// fprintf (script, "		fprintf (stdout,\n");
+	// fprintf (script, "		       \"Session `%%s' submitted `%%s', `%%s'\\n\",\n");
+	// fprintf (script, "		       session->sid,\n");
+	// fprintf (script, "		       session->value_1,\n");
+	// fprintf (script, "		       session->value_2);\n");
+	// fprintf (script, "		cout << \"post_iterator finished\" << endl;\n");
+	// fprintf (script, "		return MHD_YES;\n");
+	// fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	if (0 == strcmp (\"last_question_answered\", key)) {\n");
+	fprintf (script, "		if (size + off > sizeof(session->last_question_answered))\n");
+	fprintf (script, "		size = sizeof (session->last_question_answered) - off;\n");
+	fprintf (script, "		memcpy (&session->last_question_answered[off],\n");
+	fprintf (script, "		      data,\n");
+	fprintf (script, "		      size);\n");
+	fprintf (script, "		if (size + off < sizeof (session->last_question_answered))\n");
+	fprintf (script, "			session->last_question_answered[size+off] = '\\0';\n");
+	fprintf (script, "		cout << \"post_iterator finished\" << endl;\n");
+	fprintf (script, "		return MHD_YES;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	if (0 == strcmp (\"question_response\", key)) {\n");
+	fprintf (script, "		if (size + off > sizeof(session->question_response))\n");
+	fprintf (script, "		size = sizeof (session->question_response) - off;\n");
+	fprintf (script, "		memcpy (&session->question_response[off],\n");
+	fprintf (script, "		      data,\n");
+	fprintf (script, "		      size);\n");
+	fprintf (script, "		if (size + off < sizeof (session->question_response))\n");
+	fprintf (script, "			session->question_response[size+off] = '\\0';\n");
+	fprintf (script, "		cout << \"question_response : \" << session->question_response << endl;\n");
+	fprintf (script, "		cout << \"post_iterator finished\" << endl;\n");
+	fprintf (script, "		return MHD_YES;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	if (0 == strcmp (\"user_navigation\", key)) {\n");
+	fprintf (script, "		if (size + off > sizeof(session->user_navigation))\n");
+	fprintf (script, "		size = sizeof (session->user_navigation) - off;\n");
+	fprintf (script, "		memcpy (&session->user_navigation[off],\n");
+	fprintf (script, "		      data,\n");
+	fprintf (script, "		      size);\n");
+	fprintf (script, "		if (size + off < sizeof (session->user_navigation))\n");
+	fprintf (script, "			session->user_navigation[size+off] = '\\0';\n");
+	fprintf (script, "		cout << \"user_navigation : \" << session->user_navigation << endl;\n");
+	fprintf (script, "		cout << \"post_iterator finished\" << endl;\n");
+	fprintf (script, "		return MHD_YES;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	/*\n");
+	fprintf (script, "	if (0 == strcmp (\"last_question_visited\", key))\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "	if (size + off > sizeof(session->last_question_visited))\n");
+	fprintf (script, "	size = sizeof (session->last_question_visited) - off;\n");
+	fprintf (script, "	memcpy (&session->last_question_visited[off],\n");
+	fprintf (script, "	      data,\n");
+	fprintf (script, "	      size);\n");
+	fprintf (script, "	if (size + off < sizeof (session->last_question_visited))\n");
+	fprintf (script, "	session->last_question_visited[size+off] = '\\0';\n");
+	fprintf (script, "	return MHD_YES;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "\n");
+	fprintf (script, "	/* copy current_question to last_question_visited */\n");
+	fprintf (script, "	if (0 == strcmp (\"current_question\", key)) {\n");
+	fprintf (script, "		if (size + off > sizeof(session->last_question_visited))\n");
+	fprintf (script, "		size = sizeof (session->last_question_visited) - off;\n");
+	fprintf (script, "		memcpy (&session->last_question_visited[off],\n");
+	fprintf (script, "		      data,\n");
+	fprintf (script, "		      size);\n");
+	fprintf (script, "		if (size + off < sizeof (session->last_question_visited))\n");
+	fprintf (script, "		session->last_question_visited[size+off] = '\\0';\n");
+	fprintf (script, "		cout << \"post_iterator finished\" << endl;\n");
+	fprintf (script, "		return MHD_YES;\n");
+	fprintf (script, "	}\n");
+
+	fprintf (script, "\n");
+	fprintf (script, "	fprintf (stderr, \"Unsupported form value `%%s'\\n\", key);\n");
+	fprintf (script, "	return MHD_YES;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "static struct Session *\n");
+	fprintf (script, "get_session (struct MHD_Connection *connection)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "  struct Session *ret;\n");
+	fprintf (script, "  const char *cookie;\n");
+	fprintf (script, "\n");
+	fprintf (script, "  cookie = MHD_lookup_connection_value (connection,\n");
+	fprintf (script, "					MHD_COOKIE_KIND,\n");
+	fprintf (script, "					COOKIE_NAME);\n");
+	fprintf (script, "  if (cookie != NULL)\n");
+	fprintf (script, "    {\n");
+	fprintf (script, "      /* find existing session */\n");
+	fprintf (script, "      ret = sessions;\n");
+	fprintf (script, "      while (NULL != ret)\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "	  if (0 == strcmp (cookie, ret->sid))\n");
+	fprintf (script, "	    break;\n");
+	fprintf (script, "	  ret = ret->next;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "      if (NULL != ret)\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "	  ret->rc++;\n");
+	fprintf (script, "	  return ret;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "    }\n");
+	fprintf (script, "  /* create fresh session */\n");
+	fprintf (script, "\n");
+	fprintf (script, "  /*\n");
+	fprintf (script, "  ret = (struct Session *) calloc (1, sizeof (struct Session));\n");
+	fprintf (script, "  ret->questionnaire = new TheQuestionnaire();\n");
+	fprintf (script, "  if (NULL == ret)\n");
+	fprintf (script, "    {						\n");
+	fprintf (script, "      fprintf (stderr, \"calloc error: %%s\\n\", strerror (errno));\n");
+	fprintf (script, "      return NULL; \n");
+	fprintf (script, "    }\n");
+	fprintf (script, "  snprintf (ret->sid,\n");
+	fprintf (script, "	    sizeof (ret->sid),\n");
+	fprintf (script, "	    \"%%X%%X%%X%%X\",\n");
+	fprintf (script, "	    (unsigned int) random (),\n");
+	fprintf (script, "	    (unsigned int) random (),\n");
+	fprintf (script, "	    (unsigned int) random (),\n");
+	fprintf (script, "	    (unsigned int) random ());\n");
+	fprintf (script, "  ret->rc++;  \n");
+	fprintf (script, "  ret->start = time (NULL);\n");
+	fprintf (script, "  */\n");
+	fprintf (script, "  ret = new Session();\n");
+	fprintf (script, "  ret->next = sessions;\n");
+	fprintf (script, "  sessions = ret;\n");
+	fprintf (script, "  return ret;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "static void\n");
+	fprintf (script, "add_session_cookie (struct Session *session,\n");
+	fprintf (script, "		    struct MHD_Response *response)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "  char cstr[256];\n");
+	fprintf (script, "  snprintf (cstr,\n");
+	fprintf (script, "	    sizeof (cstr),\n");
+	fprintf (script, "	    \"%%s=%%s\",\n");
+	fprintf (script, "	    COOKIE_NAME,\n");
+	fprintf (script, "	    session->sid);\n");
+	fprintf (script, "  if (MHD_NO == \n");
+	fprintf (script, "      MHD_add_response_header (response,\n");
+	fprintf (script, "			       MHD_HTTP_HEADER_SET_COOKIE,\n");
+	fprintf (script, "			       cstr))\n");
+	fprintf (script, "    {\n");
+	fprintf (script, "      fprintf (stderr, \n");
+	fprintf (script, "	       \"Failed to set session cookie header!\\n\");\n");
+	fprintf (script, "    }\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "/*\n");
+	fprintf (script, "static int\n");
+	fprintf (script, "serve_simple_form (const void *cls,\n");
+	fprintf (script, "		   const char *mime,\n");
+	fprintf (script, "		   struct Session *session,\n");
+	fprintf (script, "		   struct MHD_Connection *connection)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "  int ret;\n");
+	fprintf (script, "  const char *form = (const char *) cls;\n");
+	fprintf (script, "  struct MHD_Response *response;\n");
+	fprintf (script, "\n");
+	fprintf (script, "  //  return static form \n");
+	fprintf (script, "  response = MHD_create_response_from_buffer (strlen (form),\n");
+	fprintf (script, "					      (void *) form,\n");
+	fprintf (script, "					      MHD_RESPMEM_PERSISTENT);\n");
+	fprintf (script, "  add_session_cookie (session, response);\n");
+	fprintf (script, "  MHD_add_response_header (response,\n");
+	fprintf (script, "			   MHD_HTTP_HEADER_CONTENT_ENCODING,\n");
+	fprintf (script, "			   mime);\n");
+	fprintf (script, "  ret = MHD_queue_response (connection, \n");
+	fprintf (script, "			    MHD_HTTP_OK, \n");
+	fprintf (script, "			    response);\n");
+	fprintf (script, "  MHD_destroy_response (response);\n");
+	fprintf (script, "  return ret;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "*/\n");
+	fprintf (script, "\n");
+	fprintf (script, "static int\n");
+	fprintf (script, "not_found_page (const void *cls,\n");
+	fprintf (script, "		const char *mime,\n");
+	fprintf (script, "		struct Session *session,\n");
+	fprintf (script, "		struct MHD_Connection *connection)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "  int ret;\n");
+	fprintf (script, "  struct MHD_Response *response;\n");
+	fprintf (script, "\n");
+	fprintf (script, "  /* unsupported HTTP method */\n");
+	fprintf (script, "  response = MHD_create_response_from_buffer (strlen (NOT_FOUND_ERROR),\n");
+	fprintf (script, "					      (void *) NOT_FOUND_ERROR,\n");
+	fprintf (script, "					      MHD_RESPMEM_PERSISTENT);\n");
+	fprintf (script, "  ret = MHD_queue_response (connection, \n");
+	fprintf (script, "			    MHD_HTTP_NOT_FOUND, \n");
+	fprintf (script, "			    response);\n");
+	fprintf (script, "  MHD_add_response_header (response,\n");
+	fprintf (script, "			   MHD_HTTP_HEADER_CONTENT_ENCODING,\n");
+	fprintf (script, "			   mime);\n");
+	fprintf (script, "  MHD_destroy_response (response);\n");
+	fprintf (script, "  return ret;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "#include \"qscript_readline.h\"\n");
+	fprintf (script, "bool verify_web_data (string p_question_data, \n");
+	fprintf (script, "		UserNavigation p_user_navigation,\n");
+	fprintf (script, "		user_response::UserResponseType p_the_user_response);\n");
+	fprintf (script, "\n");
+	fprintf (script, "static int serve_question(struct Session *session,\n");
+	fprintf (script, "		 struct MHD_Connection *connection\n");
+	fprintf (script, "		)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	cout << \"ENTER: \" << __PRETTY_FUNCTION__ << endl;\n");
+	fprintf (script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
+	fprintf (script, "	/*\n");
+	fprintf (script, "	if (session->last_question_served == 0) {\n");
+	fprintf (script, "		// this is the 1st question we are going to serve\n");
+	fprintf (script, "		AbstractQuestion * q =\n");
+	fprintf (script, "				session->questionnaire->eval2(last_question_answered, last_question_visited,\n");
+	fprintf (script, "								qnre_navigation_mode);\n");
+	fprintf (script, "		session->last_question_served = q;\n");
+	fprintf (script, "	} else \n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "	// first check that the response to the previous question is valid\n");
+	fprintf (script, "\n");
+	fprintf (script, "	string err_mesg, re_arranged_buffer;\n");
+	fprintf (script, "	int32_t pos_1st_invalid_data;\n");
+	fprintf (script, "	string last_question_visited_str = session->last_question_visited;\n");
+	fprintf (script, "	string current_question_response = session->question_response;\n");
+	fprintf (script, "	if (session->last_question_served) {\n");
+	fprintf (script, "		if (last_question_visited_str != \"\" && current_question_response != \"\") {\n");
+	fprintf (script, "			UserNavigation user_nav=NOT_SET;\n");
+	fprintf (script, "			user_response::UserResponseType user_resp=user_response::NotSet;\n");
+	fprintf (script, "			vector<int32_t> data;\n");
+	fprintf (script, "			bool parse_success = verify_web_data (current_question_response, user_nav, user_resp, &data);\n");
+	fprintf (script, "			if (parse_success) {\n");
+	fprintf (script, "				cout << \"successfully parsed data = \";\n");
+	fprintf (script, "				for (int i=0; i<data.size(); ++i) {\n");
+	fprintf (script, "					cout << data[i] << \", \";\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "				cout << endl;\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "			AbstractQuestion * last_question_served = session->last_question_served;\n");
+	fprintf (script, "			// the call below will be required at some later stage\n");
+	fprintf (script, "			//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);\n");
+	fprintf (script, "			// right now we go along with the happy path\n");
+	fprintf (script, "			bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,\n");
+	fprintf (script, "					&data);\n");
+	fprintf (script, "			if (invalid_code == false) {\n");
+	fprintf (script, "				last_question_served->input_data.erase\n");
+	fprintf (script, "					(last_question_served->input_data.begin(), \n");
+	fprintf (script, "					 last_question_served->input_data.end());\n");
+	fprintf (script, "				for(uint32_t i = 0; i < data.size(); ++i){\n");
+	fprintf (script, "					last_question_served->input_data.insert(data[i]);\n");
+	fprintf (script, "					//cout << \"storing: \" << data[i]\n");
+	fprintf (script, "					//	<< \" into input_data\" << endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "				last_question_served->isAnswered_ = true;\n");
+	fprintf (script, "				data.clear();\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	AbstractQuestion * q =\n");
+	fprintf (script, "			session->questionnaire->eval2(/*session->ptr_last_question_answered, session->ptr_last_question_visited,*/\n");
+	fprintf (script, "							qnre_navigation_mode);\n");
+	fprintf (script, "	session->last_question_served = q;\n");
+	fprintf (script, "label_ask_again:\n");
+	fprintf (script, "	stringstream question_form;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	cout << \"last_question_visited == \" << last_question_visited_str << endl;\n");
+	fprintf (script, "	cout << \"current_question_response == \" << current_question_response << endl;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form << \"<html><head><title>\"\n");
+	fprintf (script, "		<< \"Questionnaire: \" << session->questionnaire->jno\n");
+	fprintf (script, "		<< \"</title>\\n\";\n");
+	fprintf (script, "	//question_form << \"<script type=\\\"text/javascript\\\" src=\\\"event_util.js\\\" ></script>\\n\";\n");
+	fprintf (script, "	fstream event_js_file(\"event_util.js\", ios_base::in);\n");
+	fprintf (script, "	string event_js_file_contents;\n");
+	fprintf (script, "	stringstream event_js_file_contents_str;\n");
+	fprintf (script, "	cout << \"reading file: event_js_file\" << endl;\n");
+	fprintf (script, "	while (getline (event_js_file, event_js_file_contents) ) {\n");
+	fprintf (script, "		// cout << \"contents: \" << event_js_file_contents << endl;\n");
+	fprintf (script, "		event_js_file_contents_str << event_js_file_contents << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form << \"<script type=\\\"text/javascript\\\" >\\n\";\n");
+	fprintf (script, "	question_form << event_js_file_contents_str.str().c_str() << endl;\n");
+	fprintf (script, "	question_form << \"</script>\\n\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form << \"</head>\\n<body>\\n\";\n");
+	fprintf (script, "	question_form << \"\\t<form action=\\\"\" << q->questionName_ \n");
+	fprintf (script, "		<< \"\\\" method=\\\"post\\\">\\n\" \n");
+	fprintf (script, "		<< q->questionName_ << \".\";\n");
+	fprintf (script, "	for(int32_t i = 0; i< q->loop_index_values.size(); ++i){\n");
+	fprintf (script, "		question_form << \".\" << q->loop_index_values[i];\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form << q->questionText_\n");
+	fprintf (script, "		<< endl;\n");
+	fprintf (script, "	question_form\n");
+	fprintf (script, "		<< \"\\t\\t<input type=\\\"text\\\" name=\\\"question_response\\\"\" \n");
+	fprintf (script, "		<< \"value=\\\"\"\n");
+	fprintf (script, "		// put the value here later\n");
+	fprintf (script, "		<< \"\\\" />\\n\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form << \"<p>\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form\n");
+	fprintf (script, "		// << \"\\t\\t<input type=\\\"hidden\\\" name=\\\"last_question_answered\\\" \";\n");
+	fprintf (script, "		<< \"\\t\\t last_question_answered: <input type=\\\"text\\\" name=\\\"last_question_answered\\\" \";\n");
+	fprintf (script, "	/*\n");
+	fprintf (script, "	if (session->last_question_answered) {\n");
+	fprintf (script, "		question_form\n");
+	fprintf (script, "			<< \" value=\\\"\"\n");
+	fprintf (script, "			<< last_question_answered->questionName_ \n");
+	fprintf (script, "			<< \"\\\"\";\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		question_form\n");
+	fprintf (script, "			<< \" value=\\\"\"\n");
+	fprintf (script, "			<< \"\\\"\";\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "	question_form << \"value =\\\"\" << session->last_question_answered \n");
+	fprintf (script, "			<< \"\\\"\"\n");
+	fprintf (script, "			<< \" />\\n\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form\n");
+	fprintf (script, "		<< \"\\t\\t last_question_visited: <input type=\\\"text\\\" name=\\\"last_question_visited\\\" \";\n");
+	fprintf (script, "	/*\n");
+	fprintf (script, "	if (session->last_question_visited) {\n");
+	fprintf (script, "		question_form\n");
+	fprintf (script, "			<< \" value=\\\"\"\n");
+	fprintf (script, "			<< last_question_visited->questionName_ \n");
+	fprintf (script, "			<< \"\\\"\";\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		question_form\n");
+	fprintf (script, "			<< \" value=\\\"\"\n");
+	fprintf (script, "			<< \"\\\"\";\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "	question_form << \"value =\\\"\" << session->last_question_visited \n");
+	fprintf (script, "			<< \"\\\"\"\n");
+	fprintf (script, "			<< \" />\\n\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form\n");
+	fprintf (script, "		<< \"\\t\\t current_question: <input type=\\\"text\\\" name=\\\"current_question\\\" \";\n");
+	fprintf (script, "	question_form << \"value =\\\"\" << q->questionName_;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	for (int i=0; i<q->loop_index_values.size(); ++i) {\n");
+	fprintf (script, "		question_form << \"$\" << q->loop_index_values[i];\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	question_form\n");
+	fprintf (script, "		<< \"\\\"\"\n");
+	fprintf (script, "		<< \" />\\n\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form << \"		user_navigation: <input type=\\\"text\\\" name=\\\"user_navigation\\\" value =\\\"\\\" /> \" << endl;\n");
+	fprintf (script, "	question_form << \"		<input type=\\\"button\\\" value=\\\"Previous\\\" name=\\\"prev_button\\\" id=\\\"prev_button\\\" /> \" << endl;\n");
+	fprintf (script, "	question_form << \"		<input type=\\\"button\\\" value=\\\"Next\\\" name=\\\"next_button\\\" id=\\\"next_button\\\" /> \" << endl;\n");
+	fprintf (script, "	question_form << \"		<input type=\\\"button\\\" id=\\\"form_button\\\" value=\\\"button\\\" />\" << endl;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form << \"	<script type=\\\"text/javascript\\\">\\n\";\n");
+	fprintf (script, "	question_form << \"	var form = document.forms[0];\\n\";\n");
+	fprintf (script, "	question_form << \"	var form_button = form.elements[\\\"form_button\\\"];\\n\";\n");
+	fprintf (script, "	question_form << \"	//var form_button = document.getElementById(\\\"form_button\\\");\\n\";\n");
+	fprintf (script, "	question_form << \"	//alert ('form_button' +  form_button);\\n\";\n");
+	fprintf (script, "	question_form << \"	var handler = function () {\\n\";\n");
+	fprintf (script, "	question_form << \"		//alert(\\\"handler executed on click\\\");\\n\";\n");
+	fprintf (script, "	question_form << \"		var user_navigation = form.elements[\\\"user_navigation\\\"];\\n\";\n");
+	fprintf (script, "	question_form << \"		user_navigation.value = \\\"previous\\\";\\n\";\n");
+	fprintf (script, "	question_form << \"	}\\n\";\n");
+	fprintf (script, "	question_form << \"	EventUtil.addHandler(form_button, \\\"click\\\", handler);\\n\";\n");
+	fprintf (script, "	question_form << \"	//alert(\\\"added handler to button\\\");\\n\";\n");
+	fprintf (script, "	question_form << \"	// the real stuff I want to do goes here\\n\";\n");
+	fprintf (script, "	question_form << \"	// 1. when user clicks button previous \\n\";\n");
+	fprintf (script, "	question_form << \"	//    set user_navigation to previous\\n\";\n");
+	fprintf (script, "	question_form << \"	//    and submit the form\\n\";\n");
+	fprintf (script, "	question_form << \"	var prev_button = form.elements[\\\"prev_button\\\"]\\n\";\n");
+	fprintf (script, "	question_form << \"	var handle_prev = function() {\\n\";\n");
+	fprintf (script, "	question_form << \"		var user_navigation = form.elements[\\\"user_navigation\\\"];\\n\";\n");
+	fprintf (script, "	question_form << \"		user_navigation.value = \\\"previous\\\";\\n\";\n");
+	fprintf (script, "	question_form << \"		prev_button.disabled = true;\\n\";\n");
+	fprintf (script, "	question_form << \"		next_button.disabled = true;\\n\";\n");
+	fprintf (script, "	question_form << \"		form.submit();\\n\";\n");
+	fprintf (script, "	question_form << \"	}\\n\";\n");
+	fprintf (script, "	question_form << \"	EventUtil.addHandler(prev_button, \\\"click\\\", handle_prev);\\n\";\n");
+	fprintf (script, "	question_form << \"\\n\";\n");
+	fprintf (script, "	question_form << \"	// 2. when user clicks button next\\n\";\n");
+	fprintf (script, "	question_form << \"	//    set user_navigation to next\\n\";\n");
+	fprintf (script, "	question_form << \"	//    and submit the form\\n\";\n");
+	fprintf (script, "	question_form << \"	var next_button = form.elements[\\\"next_button\\\"]\\n\";\n");
+	fprintf (script, "	question_form << \"	var handle_next = function(event) {\\n\";\n");
+	fprintf (script, "	question_form << \"		var user_navigation = form.elements[\\\"user_navigation\\\"];\\n\";\n");
+	fprintf (script, "	question_form << \"		user_navigation.value = \\\"next\\\";\\n\";\n");
+	fprintf (script, "	question_form << \"		prev_button.disabled = true;\\n\";\n");
+	fprintf (script, "	question_form << \"		next_button.disabled = true;\\n\";\n");
+	fprintf (script, "	question_form << \"		//event = EventUtil.getEvent(event);\\n\";\n");
+	fprintf (script, "	question_form << \"		//EventUtil.preventDefault(event);\\n\";\n");
+	fprintf (script, "	question_form << \"		form.submit();\\n\";\n");
+	fprintf (script, "	question_form << \"	}\\n\";\n");
+	fprintf (script, "	question_form << \"	EventUtil.addHandler(next_button, \\\"click\\\", handle_next);\\n\";\n");
+	fprintf (script, "	question_form << \"	</script>\\n\";\n");
+	fprintf (script, "	question_form << \"\\n\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "	question_form << \"\\n</body></html>\\n\";\n");
+	fprintf (script, "	struct MHD_Response * response  = MHD_create_response_from_buffer(question_form.str().length(),\n");
+	fprintf (script, "									(void *) question_form.str().c_str(),\n");
+	fprintf (script, "									MHD_RESPMEM_MUST_COPY);\n");
+	fprintf (script, "	add_session_cookie (session, response);\n");
+	fprintf (script, "	const char * mime = \"text/html\";\n");
+	fprintf (script, "	MHD_add_response_header (response,\n");
+	fprintf (script, "				 MHD_HTTP_HEADER_CONTENT_ENCODING,\n");
+	fprintf (script, "				 mime);\n");
+	fprintf (script, "	int ret = MHD_queue_response (connection, MHD_HTTP_OK, response);\n");
+	fprintf (script, "	MHD_destroy_response (response);\n");
+	fprintf (script, "\n");
+	fprintf (script, "	cout << \"EXIT: \" << __PRETTY_FUNCTION__ << endl;\n");
+	fprintf (script, "	return ret;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+}
+
+void print_ncurses_include_files (FILE * script)
+{
+	fprintf(script, "#include <curses.h>\n");
+	fprintf(script, "#include <panel.h>\n");
+}
+
+void print_microhttpd_include_files (FILE * script)
+{
+	fprintf (script, "#define _GNU_SOURCE\n");
+	fprintf (script, "#include <stdlib.h>\n");
+	fprintf (script, "#include <string.h>\n");
+	fprintf (script, "#include <stdio.h>\n");
+	fprintf (script, "#include <errno.h>\n");
+	fprintf (script, "#include <time.h>\n");
+	fprintf (script, "#include <microhttpd.h>\n");
+}
+
+void print_ncurses_func_prototypes (FILE * script)
+{
+	fprintf(script, "WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx);\n");
+	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n"
+			"			WINDOW * &  stub_list_window,\n"
+			"			WINDOW * & data_entry_window,\n"
+			"			WINDOW * & help_window,\n"
+			"			PANEL * &  question_panel,\n"
+			"			PANEL * &  stub_list_panel,\n"
+			"			PANEL * & data_entry_panel,\n"
+			"			PANEL * & help_panel);\n");
+	fprintf(script, "void define_some_pd_curses_keys();\n");
+}
+
+
+void print_web_support_structs (FILE * script)
+{
+	fprintf (script, "/**\n");
+	fprintf (script, " * Invalid method page.\n");
+	fprintf (script, " */\n");
+	fprintf (script, "#define METHOD_ERROR \"<html><head><title>Illegal request</title></head><body>Go away.</body></html>\"\n");
+	fprintf (script, "\n");
+	fprintf (script, "/**\n");
+	fprintf (script, " * Invalid URL page.\n");
+	fprintf (script, " */\n");
+	fprintf (script, "#define NOT_FOUND_ERROR \"<html><head><title>Not found</title></head><body>Go away.</body></html>\"\n");
+	fprintf (script, "\n");
+	fprintf (script, "/**\n");
+	fprintf (script, " * Last page.\n");
+	fprintf (script, " */\n");
+	fprintf (script, "#define LAST_PAGE \"<html><head><title>Thank you</title></head><body>Thank you.</body></html>\"\n");
+	fprintf (script, "\n");
+	fprintf (script, "#define COOKIE_NAME \"session\"\n");
+	fprintf (script, "\n");
+	fprintf (script, "struct Request\n");
+	fprintf (script, "{\n");
+	fprintf (script, "  /**\n");
+	fprintf (script, "   * Associated session.\n");
+	fprintf (script, "   */\n");
+	fprintf (script, "  struct Session *session;\n");
+	fprintf (script, "  /**\n");
+	fprintf (script, "   * Post processor handling form data (IF this is\n");
+	fprintf (script, "   * a POST request).\n");
+	fprintf (script, "   */\n");
+	fprintf (script, "  struct MHD_PostProcessor *pp;\n");
+	fprintf (script, "  /**\n");
+	fprintf (script, "   * URL to serve in response to this POST (if this request \n");
+	fprintf (script, "   * was a 'POST')\n");
+	fprintf (script, "   */\n");
+	fprintf (script, "  const char *post_url;\n");
+	fprintf (script, "};\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "struct Session\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	/**\n");
+	fprintf (script, "	* We keep all sessions in a linked list.\n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "	struct Session *next;\n");
+	fprintf (script, "	/**\n");
+	fprintf (script, "	* Unique ID for this session. \n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "	char sid[33];\n");
+	fprintf (script, "	/**\n");
+	fprintf (script, "	* Reference counter giving the number of connections\n");
+	fprintf (script, "	* currently using this session.\n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "	unsigned int rc;\n");
+	fprintf (script, "	/**\n");
+	fprintf (script, "	* Time when this session was last active.\n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "	time_t start;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	struct TheQuestionnaire * questionnaire;\n");
+	fprintf (script, "	char last_question_answered[200];\n");
+	fprintf (script, "	char last_question_visited[200];\n");
+	fprintf (script, "	char question_response[200];\n");
+	fprintf (script, "	char user_navigation[200];\n");
+	fprintf (script, "	AbstractQuestion * last_question_served;\n");
+	fprintf (script, "	AbstractQuestion * ptr_last_question_answered;\n");
+	fprintf (script, "	AbstractQuestion * ptr_last_question_visited;\n");
+	fprintf (script, "	Session()\n");
+	fprintf (script, "		: start(time(NULL)),\n");
+	fprintf (script, "		  questionnaire(new TheQuestionnaire()),\n");
+	fprintf (script, "		  rc(1), last_question_served(0),\n");
+	fprintf (script, "		  ptr_last_question_answered(0),\n");
+	fprintf (script, "		  ptr_last_question_visited(0)\n");
+	fprintf (script, "	{ \n");
+	fprintf (script, "		snprintf (sid,\n");
+	fprintf (script, "		    sizeof (sid),\n");
+	fprintf (script, "		    \"%X%X%X%X\",\n");
+	fprintf (script, "		    (unsigned int) random (),\n");
+	fprintf (script, "		    (unsigned int) random (),\n");
+	fprintf (script, "		    (unsigned int) random (),\n");
+	fprintf (script, "		    (unsigned int) random ());\n");
+	fprintf (script, "		memset(last_question_answered, 0, sizeof(last_question_answered));\n");
+	fprintf (script, "		memset(last_question_visited, 0, sizeof(last_question_visited));\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "};\n");
+	fprintf (script, "\n");
+	fprintf (script, "static struct Session *sessions;\n");
+}
+
+void print_web_func_prototypes (FILE * script)
+{
+	fprintf(script, "\n");
+	fprintf(script, "static int\n");
+	fprintf(script, "post_iterator (void *cls,\n");
+	fprintf(script, "	       enum MHD_ValueKind kind,\n");
+	fprintf(script, "	       const char *key,\n");
+	fprintf(script, "	       const char *filename,\n");
+	fprintf(script, "	       const char *content_type,\n");
+	fprintf(script, "	       const char *transfer_encoding,\n");
+	fprintf(script, "	       const char *data, uint64_t off, size_t size);\n");
+	fprintf(script, "\n");
+	fprintf(script, "int setup_and_run_MHD_daemon();\n");
+	fprintf(script, "\n");
+	fprintf(script, "static struct Session *\n");
+	fprintf(script, "get_session (struct MHD_Connection *connection);\n");
+	fprintf(script, "static void\n");
+	fprintf(script, "request_completed_callback (void *cls,\n");
+	fprintf(script, "			    struct MHD_Connection *connection,\n");
+	fprintf(script, "			    void **con_cls,\n");
+	fprintf(script, "			    enum MHD_RequestTerminationCode toe);\n");
+	fprintf(script, "\n");
+	fprintf(script, "static int\n");
+	fprintf(script, "create_response (void *cls,\n");
+	fprintf(script, "		 struct MHD_Connection *connection,\n");
+	fprintf(script, "		 const char *url,\n");
+	fprintf(script, "		 const char *method,\n");
+	fprintf(script, "		 const char *version,\n");
+	fprintf(script, "		 const char *upload_data, \n");
+	fprintf(script, "		 size_t *upload_data_size,\n");
+	fprintf(script, "		 void **ptr);\n");
+	fprintf(script, "\n");
+	fprintf(script, "typedef int (*PageHandler)(const void *cls,\n");
+	fprintf(script, "			   const char *mime,\n");
+	fprintf(script, "			   struct Session *session,\n");
+	fprintf(script, "			   struct MHD_Connection *connection);\n");
+	fprintf(script, "struct Page\n");
+	fprintf(script, "{\n");
+	fprintf(script, "  /**\n");
+	fprintf(script, "   * Acceptable URL for this page.\n");
+	fprintf(script, "   */\n");
+	fprintf(script, "  const char *url;\n");
+	fprintf(script, "\n");
+	fprintf(script, "  /**\n");
+	fprintf(script, "   * Mime type to set for the page.\n");
+	fprintf(script, "   */\n");
+	fprintf(script, "  const char *mime;\n");
+	fprintf(script, "\n");
+	fprintf(script, "  /**\n");
+	fprintf(script, "   * Handler to call to generate response.\n");
+	fprintf(script, "   */\n");
+	fprintf(script, "  PageHandler handler;\n");
+	fprintf(script, "\n");
+	fprintf(script, "  /**\n");
+	fprintf(script, "   * Extra argument to handler.\n");
+	fprintf(script, "   */ \n");
+	fprintf(script, "  const void *handler_cls;\n");
+	fprintf(script, "};\n");
+	fprintf(script, "static void\n");
+	fprintf(script, "add_session_cookie (struct Session *session,\n");
+	fprintf(script, "		    struct MHD_Response *response);\n");
+	fprintf(script, "\n");
+	fprintf(script, "static int\n");
+	fprintf(script, "not_found_page (const void *cls,\n");
+	fprintf(script, "		const char *mime,\n");
+	fprintf(script, "		struct Session *session,\n");
+	fprintf(script, "		struct MHD_Connection *connection);\n");
+	fprintf(script, "\n");
+	fprintf(script, "static int serve_question(struct Session *session,\n");
+	fprintf(script, "		 struct MHD_Connection *connection\n");
+	fprintf(script, "		);\n");
+	fprintf(script, "\n");
+}
+
+
 /* end of namespace */
+
+
+
 }

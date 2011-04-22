@@ -1515,7 +1515,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	code.program_code << "\t\treturn " << questionName_ << "_list.questionList[";
 	code.program_code << consolidated_for_loop_index;
 	code.program_code << "];\n\t}\n";
-	PrintUserNavigationArrayQuestion(code.program_code);
+	//PrintUserNavigationArrayQuestion(code.program_code);
 
 	code.program_code << "}\n";
 	//code.program_code << "*/\n";
