@@ -145,10 +145,12 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	tree_root->GenerateCode(code);
 
 	fprintf(script, "struct TheQuestionnaire\n{\n");
-	//fprintf(script, "AbstractQuestion * last_question_answered;\n");
+	fprintf(script, "AbstractQuestion * last_question_answered;\n");
+	fprintf(script, "AbstractQuestion * last_question_visited;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
+	fprintf(script, ", last_question_answered(0), last_question_visited(0)\n");
 	fprintf(script, "{\n");
 	//fprintf(script, "last_question_answered = 0;\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
@@ -246,7 +248,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
 	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
-	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout);\n");
+	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout,\n"
+			"\t\tAbstractQuestion * & p_last_question_answered,\n"
+			"\t\tAbstractQuestion * & p_last_question_visited);\n");
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
@@ -309,8 +313,6 @@ void print_header(FILE* script, bool ncurses_flag)
 			"		* data_entry_panel = 0,\n"
 			"		* help_panel = 0;\n");
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
-	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
-	fprintf(script, "AbstractQuestion * last_question_visited = 0;\n");
 
 	// fprintf(script, "struct TheQuestionnaire\n{\n");
 	// fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
@@ -791,7 +793,7 @@ const char * file_exists_check_code()
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\tif(exists == 1){\n"
 	"\t\t	load_data(jno,ser_no);\n"
-	"\t\t	merge_disk_data_into_questions(qscript_stdout);\n"
+	"\t\t	merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
 	"\t\t}\n\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "
@@ -1626,7 +1628,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\tfprintf(qscript_stdout, \"reached top of while loop:\\n\");");
 	fprintf(script, "\t\t      re_eval_from_start:\n");
 	fprintf(script, "\t\t	AbstractQuestion * q =\n");
-	fprintf(script, "\t\t	    theQuestionnaire.eval2(last_question_answered, last_question_visited, \n");
+	fprintf(script, "\t\t	    theQuestionnaire.eval2 ( /*last_question_answered, last_question_visited, */ \n");
 	fprintf(script, "\t\t				   qnre_navigation_mode);\n");
 	fprintf(script, "\t\t	fprintf(qscript_stdout, \"eval2 returned %%s\\n\",\n");
 	fprintf(script, "\t\t		q->questionName_.c_str());\n");
@@ -1686,7 +1688,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t		goto re_eval;\n");
 	fprintf(script, "\t\t	    }\n");
 	fprintf(script, "\t\t	} else {\n");
-	fprintf(script, "\t\t	    last_question_answered = q;\n");
+	fprintf(script, "\t\t	    theQuestionnaire.last_question_answered = q;\n");
 	fprintf(script, "\t\t	}\n");
 	fprintf(script, "} /* close while */\n");
 
@@ -1747,11 +1749,11 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
-	fprintf(script, "AbstractQuestion * eval2(AbstractQuestion * p_last_question_answered,\n"
-			"\t\t AbstractQuestion * p_last_question_visited,\n"
+	fprintf(script, "AbstractQuestion * eval2 ( /*AbstractQuestion * p_last_question_answered,\n"
+			"\t\t AbstractQuestion * p_last_question_visited,*/\n"
 			"\t\t UserNavigation p_navigation_mode)\n{\n");
 
-	fprintf(script, "if (p_last_question_visited)\n\tfprintf (qscript_stdout, \"entered eval2: p_last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", p_last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
+	fprintf(script, "if (last_question_visited)\n\tfprintf (qscript_stdout, \"entered eval2: last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
 	//if(ncurses_flag) {
 	//	fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag)) {\n");
 	//	fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
@@ -1994,7 +1996,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
 	fprintf (script, "	    load_data(jno, file_ser_no);\n");
-	fprintf (script, "	    merge_disk_data_into_questions(qscript_stdout);\n");
+	fprintf (script, "	    merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n");
 	fprintf (script, "	    return file_ser_no;\n");
 	fprintf (script, "	} else {\n");
 	fprintf (script, "	    // not our data file\n");

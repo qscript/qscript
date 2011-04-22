@@ -288,7 +288,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	program_code << "if(!"
 		<< questionName_ << "->isAnswered_ ||" << endl
 		<< "stopAtNextQuestion ||" << endl
-		<< "(p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == "
+		<< "(p_navigation_mode == NAVIGATE_NEXT && last_question_visited == "
 		<< questionName_ << ") || "
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
@@ -302,7 +302,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
-		<< "if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == "
+		<< "if (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == "
 		<< questionName_ << ") {\n"
 		<< " stopAtNextQuestion = true;\n"
 		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
@@ -1473,7 +1473,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 	code.program_code << consolidated_for_loop_index;
 	code.program_code << "]->isAnswered_||stopAtNextQuestion||\n"
-		<< "(p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == "
+		<< "(p_navigation_mode == NAVIGATE_NEXT && last_question_visited == "
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index
 		<< "]"
@@ -1492,7 +1492,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "}\n";
 
 	code.program_code
-		<< "if (p_navigation_mode == NAVIGATE_NEXT && p_last_question_visited == "
+		<< "if (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == "
 		<< questionName_  << "_list.questionList["
 		<< consolidated_for_loop_index << "]"
 		<< " &&  "
