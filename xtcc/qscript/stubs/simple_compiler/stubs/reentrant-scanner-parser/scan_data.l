@@ -12,7 +12,6 @@
 #include "user_navigation.h"
 //#include <readline/readline.h>
 #include "qscript_readline.h"
-	//#define YYLEX_PARAM
 
 	using namespace std;
 
@@ -160,7 +159,7 @@ top:
 		goto top;
 	}
 	cout << "buffer: " << buffer << endl;
-	YY_BUFFER_STATE s_data =  scan_data_scan_string(buffer.c_str(), &scanner);
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(buffer.c_str(), scanner);
 	if(scan_dataparse(scanner, &data)){
 		cout << "there was an error in parsing the data" << endl;
 		yy_delete_buffer(s_data, scanner);
@@ -218,7 +217,7 @@ top:
 	}
 	yyscan_t scanner;
 	yylex_init(&scanner);
-	YY_BUFFER_STATE s_data =  scan_data_scan_string(line, &scanner);
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(line, scanner);
 	if (scan_dataparse(scanner, &data)) {
 		//cout << "there was an error in parsing the data" << endl;
 		data.clear();
@@ -255,7 +254,7 @@ bool verify_web_data (string p_question_data,
 	}
 	yyscan_t scanner;
 	yylex_init(&scanner);
-	YY_BUFFER_STATE s_data =  scan_data_scan_string(p_question_data.c_str(), &scanner);
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(p_question_data.c_str(), scanner);
 	vector <int> data;
 	if (scan_dataparse(scanner, &data)) {
 		cout << "there was an error in parsing the data" << endl;

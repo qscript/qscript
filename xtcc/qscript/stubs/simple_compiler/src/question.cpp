@@ -25,7 +25,7 @@
 
 int32_t scan_datalex();
 int32_t scan_dataparse();
-extern vector<int32_t> data;
+//extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 // extern user_response::UserResponseType the_user_response;
 

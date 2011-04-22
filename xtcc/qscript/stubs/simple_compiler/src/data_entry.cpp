@@ -52,7 +52,7 @@
 #define YYSKELETON_NAME "yacc.c"
 
 /* Pure parsers.  */
-#define YYPURE 0
+#define YYPURE 1
 
 /* Push parsers.  */
 #define YYPUSH 0
@@ -80,20 +80,24 @@
 
 #include <limits.h>
 #include <vector>
+#include <iostream>
 #include "user_navigation.h"
 #include "UserResponse.h"
+#include "data_entry.hpp"
 using namespace std;
-	vector<int> data;
+	//vector<int> data;
 	UserNavigation user_navigation=NOT_SET;
 	user_response::UserResponseType the_user_response=user_response::NotSet;
-#include <iostream>
 //#define yylex scan_datalex
-	int scan_datalex();
-	void scan_dataerror(char *s);
+	typedef void * yyscan_t;
+	//int scan_datalex(yyscan_t scanner);
+	int scan_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
+	void scan_dataerror(yyscan_t scanner, vector<int>* data_ptr, char *s);
+	//#define YYLEX_PARAM vector <int>* data_ptr 
 
 
 /* Line 189 of yacc.c  */
-#line 97 "src/data_entry.cpp"
+#line 101 "src/data_entry.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -137,14 +141,14 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 24 "src/data_entry.ypp"
+#line 34 "src/data_entry.ypp"
 
 	int ival;
 
 
 
 /* Line 214 of yacc.c  */
-#line 148 "src/data_entry.cpp"
+#line 152 "src/data_entry.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -156,7 +160,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 160 "src/data_entry.cpp"
+#line 164 "src/data_entry.cpp"
 
 #ifdef short
 # undef short
@@ -439,7 +443,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    41,    41,    56,    57,    60,    63
+       0,    51,    51,    66,    67,    70,    74
 };
 #endif
 
@@ -555,7 +559,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (YY_("syntax error: cannot back up")); \
+      yyerror (yyscanner, data_ptr, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -610,9 +614,9 @@ while (YYID (0))
 /* YYLEX -- calling `yylex' with the right arguments.  */
 
 #ifdef YYLEX_PARAM
-# define YYLEX yylex (YYLEX_PARAM)
+# define YYLEX yylex (&yylval, YYLEX_PARAM)
 #else
-# define YYLEX yylex ()
+# define YYLEX yylex (&yylval, yyscanner)
 #endif
 
 /* Enable debugging if requested.  */
@@ -635,7 +639,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value); \
+		  Type, Value, yyscanner, data_ptr); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -649,17 +653,21 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, yyscan_t yyscanner, vector <int>* data_ptr)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yyscanner, data_ptr)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
+    yyscan_t yyscanner;
+    vector <int>* data_ptr;
 #endif
 {
   if (!yyvaluep)
     return;
+  YYUSE (yyscanner);
+  YYUSE (data_ptr);
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
     YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
@@ -681,13 +689,15 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, yyscan_t yyscanner, vector <int>* data_ptr)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yyscanner, data_ptr)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
+    yyscan_t yyscanner;
+    vector <int>* data_ptr;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -695,7 +705,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep)
   else
     YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yyscanner, data_ptr);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -738,12 +748,14 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, int yyrule)
+yy_reduce_print (YYSTYPE *yyvsp, int yyrule, yyscan_t yyscanner, vector <int>* data_ptr)
 #else
 static void
-yy_reduce_print (yyvsp, yyrule)
+yy_reduce_print (yyvsp, yyrule, yyscanner, data_ptr)
     YYSTYPE *yyvsp;
     int yyrule;
+    yyscan_t yyscanner;
+    vector <int>* data_ptr;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -757,7 +769,7 @@ yy_reduce_print (yyvsp, yyrule)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       		       );
+		       		       , yyscanner, data_ptr);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -765,7 +777,7 @@ yy_reduce_print (yyvsp, yyrule)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, Rule); \
+    yy_reduce_print (yyvsp, Rule, yyscanner, data_ptr); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1016,16 +1028,20 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, yyscan_t yyscanner, vector <int>* data_ptr)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep)
+yydestruct (yymsg, yytype, yyvaluep, yyscanner, data_ptr)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
+    yyscan_t yyscanner;
+    vector <int>* data_ptr;
 #endif
 {
   YYUSE (yyvaluep);
+  YYUSE (yyscanner);
+  YYUSE (data_ptr);
 
   if (!yymsg)
     yymsg = "Deleting";
@@ -1048,21 +1064,13 @@ int yyparse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int yyparse (void);
+int yyparse (yyscan_t yyscanner, vector <int>* data_ptr);
 #else
 int yyparse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
 
 
-/* The lookahead symbol.  */
-int yychar;
-
-/* The semantic value of the lookahead symbol.  */
-YYSTYPE yylval;
-
-/* Number of syntax errors so far.  */
-int yynerrs;
 
 
 
@@ -1084,15 +1092,23 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (void)
+yyparse (yyscan_t yyscanner, vector <int>* data_ptr)
 #else
 int
-yyparse ()
-
+yyparse (yyscanner, data_ptr)
+    yyscan_t yyscanner;
+    vector <int>* data_ptr;
 #endif
 #endif
 {
+/* The lookahead symbol.  */
+int yychar;
 
+/* The semantic value of the lookahead symbol.  */
+YYSTYPE yylval;
+
+    /* Number of syntax errors so far.  */
+    int yynerrs;
 
     int yystate;
     /* Number of tokens to shift before error messages enabled.  */
@@ -1336,7 +1352,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 41 "src/data_entry.ypp"
+#line 51 "src/data_entry.ypp"
     {
 		the_user_response = user_response::UserEnteredData;
 	;}
@@ -1345,8 +1361,9 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 60 "src/data_entry.ypp"
+#line 70 "src/data_entry.ypp"
     {
+	      vector <int> & data = *data_ptr; 
 	      data.push_back((yyvsp[(1) - (1)].ival));
 	;}
     break;
@@ -1354,8 +1371,9 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 63 "src/data_entry.ypp"
+#line 74 "src/data_entry.ypp"
     {
+		vector <int> & data = *data_ptr; 
 		data.push_back((yyvsp[(1) - (3)].ival));
 		for(int i=data[data.size()-1]+1; i<=(yyvsp[(3) - (3)].ival); ++i){
 			data.push_back(i);
@@ -1366,7 +1384,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1370 "src/data_entry.cpp"
+#line 1388 "src/data_entry.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1401,7 +1419,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (YY_("syntax error"));
+      yyerror (yyscanner, data_ptr, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -1425,11 +1443,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (yymsg);
+	    yyerror (yyscanner, data_ptr, yymsg);
 	  }
 	else
 	  {
-	    yyerror (YY_("syntax error"));
+	    yyerror (yyscanner, data_ptr, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -1453,7 +1471,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval);
+		      yytoken, &yylval, yyscanner, data_ptr);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1509,7 +1527,7 @@ yyerrlab1:
 
 
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp);
+		  yystos[yystate], yyvsp, yyscanner, data_ptr);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1544,7 +1562,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (YY_("memory exhausted"));
+  yyerror (yyscanner, data_ptr, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1552,7 +1570,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval);
+		 yytoken, &yylval, yyscanner, data_ptr);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -1560,7 +1578,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp);
+		  yystos[*yyssp], yyvsp, yyscanner, data_ptr);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1578,10 +1596,12 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 87 "src/data_entry.ypp"
+#line 99 "src/data_entry.ypp"
 
 	extern char * scan_datatext;
-	void scan_dataerror(char *s){
+	//void scan_dataerror(char *s){
+	void scan_dataerror(yyscan_t scanner, vector<int>* data_ptr, char *s)
+	{
 		//cout << "error in input: " << s << endl
 		//	<< "yytext(scan_datatext): " << scan_datatext << endl;
 	}

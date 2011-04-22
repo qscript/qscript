@@ -9,17 +9,27 @@
 %{
 #include <limits.h>
 #include <vector>
+#include <iostream>
 #include "user_navigation.h"
 #include "UserResponse.h"
+#include "data_entry.hpp"
 using namespace std;
-	vector<int> data;
+	//vector<int> data;
 	UserNavigation user_navigation=NOT_SET;
 	user_response::UserResponseType the_user_response=user_response::NotSet;
-#include <iostream>
 //#define yylex scan_datalex
-	int scan_datalex();
-	void scan_dataerror(char *s);
+	typedef void * yyscan_t;
+	//int scan_datalex(yyscan_t scanner);
+	int scan_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
+	void scan_dataerror(yyscan_t scanner, vector<int>* data_ptr, char *s);
+	//#define YYLEX_PARAM vector <int>* data_ptr 
 %}
+
+%define api.pure
+%parse-param	{ yyscan_t yyscanner }
+%parse-param 	{ vector <int>* data_ptr }
+%lex-param	{ yyscan_t yyscanner }
+	/*%lex-param 	{ vector <int>* data_ptr } */
 
 %union {
 	int ival;
@@ -58,9 +68,11 @@ datalist: data
 	;
 
 data: NUMBER	{
+	      vector <int> & data = *data_ptr; 
 	      data.push_back($1);
 	}
 	| NUMBER HYPHEN NUMBER {
+		vector <int> & data = *data_ptr; 
 		data.push_back($1);
 		for(int i=data[data.size()-1]+1; i<=$3; ++i){
 			data.push_back(i);
@@ -86,7 +98,9 @@ data: NUMBER	{
 
 %%
 	extern char * scan_datatext;
-	void scan_dataerror(char *s){
+	//void scan_dataerror(char *s){
+	void scan_dataerror(yyscan_t scanner, vector<int>* data_ptr, char *s)
+	{
 		//cout << "error in input: " << s << endl
 		//	<< "yytext(scan_datatext): " << scan_datatext << endl;
 	}

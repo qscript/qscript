@@ -241,7 +241,7 @@ void print_header(FILE* script, bool ncurses_flag)
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
-	fprintf(script, "extern vector<int32_t> data;\n");
+	fprintf(script, "//extern vector<int32_t> data;\n");
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");

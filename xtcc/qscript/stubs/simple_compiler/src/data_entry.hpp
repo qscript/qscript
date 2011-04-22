@@ -56,7 +56,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 24 "src/data_entry.ypp"
+#line 34 "src/data_entry.ypp"
 
 	int ival;
 
@@ -70,6 +70,6 @@ typedef union YYSTYPE
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
-extern YYSTYPE scan_datalval;
+
 
 

@@ -9,7 +9,7 @@
 #include "utils.h"
 
 using namespace std;
-extern vector<int32_t> data;
+//extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 
 	//! this is only called in the runtime environment
@@ -398,9 +398,10 @@ user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * data_
 	if (data_entry_window == 0) {
 		bool invalid_code = false;
 		string prompt = "Enter Data:";
+		vector <int> data;
 		do {
 ask_again:
-			user_response::UserResponseType user_resp = read_data(prompt.c_str());
+			user_response::UserResponseType user_resp = read_data(prompt.c_str(), &data);
 			bool valid_response = AbstractQuestion::VerifyResponse(user_resp);
 			if (!valid_response) {
 				goto ask_again;
@@ -412,7 +413,7 @@ ask_again:
 				isAnswered_ = false;
 				goto ask_again;
 			}
-			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
+			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data, &data);
 			prompt = err_mesg;
 
 			if(invalid_code == false){
@@ -439,6 +440,7 @@ ask_again:
 		}
 		re_arranged_buffer = current_data_str.str();
 		pos_1st_invalid_data = re_arranged_buffer.length() - 1;
+		vector <int> data;
 		do {
 label_ask_again:
 			user_response::UserResponseType user_resp 
@@ -446,7 +448,7 @@ label_ask_again:
 						data_entry_window, err_mesg.c_str()
 					      //, (!invalid_code), re_arranged_buffer
 					      , false, re_arranged_buffer
-					      , pos_1st_invalid_data);
+					      , pos_1st_invalid_data, &data);
 			// if (user_resp == user_response::UserEnteredNavigation) {
 			// 	return user_resp;
 			// }
@@ -468,7 +470,7 @@ label_ask_again:
 				goto label_ask_again;
 			}
 
-			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data);
+			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data, &data);
 
 
 			if (invalid_code == false) {
@@ -526,8 +528,9 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
 // re_arranged_buffer will contain the data like this: valid_data invalid_data
 bool AbstractQuestion::VerifyData(
 	string & err_mesg, string & re_arranged_buffer
-	, int32_t & pos_1st_invalid_data)
+	, int32_t & pos_1st_invalid_data, vector<int32_t>* data_ptr)
 {
+	vector <int> & data = * data_ptr;
 	bool invalid_code=false, has_invalid_data_flag = false;
 	stringstream valid_data, invalid_data;
 	for(uint32_t i = 0; i < data.size(); ++i){
