@@ -164,11 +164,17 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "AbstractQuestion * last_question_visited;\n");
 	fprintf(script, "bool back_jump;\n");
-	fprintf(script, "string jno;\n", project_name.c_str());
+	fprintf(script, "string jno;\n" );
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
-	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
-	fprintf(script, ", last_question_answered(0), last_question_visited(0), back_jump(false)\n");
+	fprintf(script, " /* length(): %d */", code.quest_defns_constructor.str().length() );
+	if (code.quest_defns_constructor.str().length() == 0) {
+		fprintf(script, ":");
+	} else {
+		fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
+		fprintf(script, ",");
+	}
+	fprintf(script, " last_question_answered(0), last_question_visited(0), back_jump(false)\n");
 	fprintf(script, ", jno (\"%s\")\n", project_name.c_str());
 	fprintf(script, "{\n");
 	//fprintf(script, "last_question_answered = 0;\n");
@@ -1230,7 +1236,7 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lmicrohttpd -lqscript_runtime");
+			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime");
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
@@ -2529,7 +2535,7 @@ void print_web_support_structs (FILE * script)
 	fprintf (script, "	{ \n");
 	fprintf (script, "		snprintf (sid,\n");
 	fprintf (script, "		    sizeof (sid),\n");
-	fprintf (script, "		    \"%X%X%X%X\",\n");
+	fprintf (script, "		    \"%%X%%X%%X%%X\",\n");
 	fprintf (script, "		    (unsigned int) random (),\n");
 	fprintf (script, "		    (unsigned int) random (),\n");
 	fprintf (script, "		    (unsigned int) random (),\n");

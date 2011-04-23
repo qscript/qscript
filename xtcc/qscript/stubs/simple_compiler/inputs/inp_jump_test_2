@@ -15,21 +15,12 @@ inp_jump_test_2{
 		i1=20;
 	}
 
+	setdel(my_stub_list, q1);
+	q1_1 "Q1_1" sp int32_t my_stub_list;
+
 	stubs gender = "Male" 1
 		"Female" 2;
 
 	q2 "Q2" sp int32_t gender;
-
-	stubs age = "14 to 20" 1
-		"21 to 25" 2
-		"26 to 30" 3
-		"31 to 35" 4
-		"36 to 40" 5
-		"41 to 45" 6
-		"46 to 50" 7
-		"51 to 55" 8
-		"56 to 60" 9;
-		
-	q3 "Q3" sp int32_t age;
 
 }
