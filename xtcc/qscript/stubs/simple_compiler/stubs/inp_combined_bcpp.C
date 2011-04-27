@@ -2199,6 +2199,36 @@ struct MHD_Connection *connection
 	string current_question_response = session->question_response;
 	if (session->last_question_served)
 	{
+		/* continue from here - add functionality
+		   for navigate previous.
+		   pull the navigation direction from the input form field
+		 */
+		/*
+		if (user_navigation == NAVIGATE_PREVIOUS)
+		{
+			fprintf(qscript_stdout,
+				"user_navigation == NAVIGATE_PREVIOUS\n");
+			AbstractQuestion *target_question =
+				theQuestionnaire.ComputePreviousQuestion(q);
+			if (target_question == 0)
+				goto re_eval;
+			else
+			{
+				jumpToQuestion = target_question->questionName_;
+				if (target_question->type_ == QUESTION_ARR_TYPE)
+				{
+					jumpToIndex =
+						theQuestionnaire.
+						ComputeJumpToIndex(target_question);
+				}
+				theQuestionnaire.back_jump = true;
+				user_navigation = NOT_SET;
+				//goto start_of_questions;
+				goto re_eval_from_start;
+			}
+		}
+		*/
+
 		if (last_question_visited_str != "" && current_question_response != "")
 		{
 			UserNavigation user_nav=NOT_SET;
