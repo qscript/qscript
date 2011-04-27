@@ -52,10 +52,11 @@ void QtmDataDiskMap::write_single_code_data()
 void QtmDataDiskMap::write_multi_code_data()
 {
 	stringstream message;
-	message << "ENTER writing : " << q->questionName_ << endl;
+	message << "ENTER writing : " << q->questionName_;
 	for (int32_t i=0; i<q->loop_index_values.size(); ++i) {
 		message << "." << q->loop_index_values[i];
 	}
+	message << endl;
 	qtm_data_file_writer_log << LOG_MESSAGE(message.str());
 	for (set<int>::iterator it = q->input_data.begin();
 		it != q->input_data.end(); ++it) {

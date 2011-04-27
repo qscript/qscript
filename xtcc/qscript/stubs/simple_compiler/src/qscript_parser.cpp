@@ -130,6 +130,7 @@ void print_web_func_prototypes (FILE * script);
 void print_microhttpd_include_files (FILE * script);
 void print_ncurses_include_files (FILE * script);
 void print_web_support_structs (FILE * script);
+void print_prompt_user_for_serial_no(FILE * script);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -204,6 +205,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	PrintGetUserResponse(script);
 	print_write_qtm_data_to_disk(script);
 	print_write_ascii_data_to_disk(script);
+	print_prompt_user_for_serial_no(script);
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
@@ -303,7 +305,7 @@ void print_header(FILE* script, bool ncurses_flag)
 
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
 	fprintf(script, "void print_map_header(fstream & map_file);\n");
-
+	fprintf(script, "map<string, map<int, int> > freq_count;\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);\n");
 	//fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
 	if (program_options_ns::ncurses_flag) {
@@ -1161,6 +1163,10 @@ int32_t ReadQScriptConfig()
 	//cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
 	using namespace std;
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
+	if (contains_space != string::npos) {
+		QSCRIPT_HOME.erase(contains_space);
+	}
 	string QSCRIPT_CONFIG = QSCRIPT_HOME + "/config/qscript.config";
 	FILE * qscript_confin = fopen(QSCRIPT_CONFIG.c_str(), "rb");
 	qscript_confrestart(qscript_confin);
@@ -1527,7 +1533,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\n");
 
 
-	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
+	fprintf(script, "\twhile(theQuestionnaire.ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
 	fprintf(script, "\t\tfprintf(qscript_stdout, \"reached top of while loop:\\n\");");
 	fprintf(script, "\t\t      re_eval_from_start:\n");
 	fprintf(script, "\t\t	AbstractQuestion * q =\n");
@@ -1627,7 +1633,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t	    goto re_eval_from_start;\n");
 	fprintf(script, "\t\t	} else if (user_navigation == SAVE_DATA) {\n");
 	fprintf(script, "\t\t	    theQuestionnaire.write_data_to_disk(question_list, theQuestionnaire.jno,\n");
-	fprintf(script, "\t\t						ser_no);\n");
+	fprintf(script, "\t\t						theQuestionnaire.ser_no);\n");
 	fprintf(script, "\t\t	    if (data_entry_window)\n");
 	fprintf(script, "\t\t		mvwprintw(data_entry_window, 2, 50, \"saved partial data\");\n");
 	fprintf(script, "\t\t	    else\n");
@@ -2799,6 +2805,17 @@ void print_web_func_prototypes (FILE * script)
 	fprintf(script, "		);\n");
 	fprintf(script, "\n");
 }
+
+void print_prompt_user_for_serial_no(FILE * script)
+{
+	fprintf(script, "	void prompt_user_for_serial_no()\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		wclear(data_entry_window);\n");
+	fprintf(script, "		mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
+	fprintf(script, "		mvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+	fprintf(script, "	}\n\n");
+}
+
 
 
 /* end of namespace */

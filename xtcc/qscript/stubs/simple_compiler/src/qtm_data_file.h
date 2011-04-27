@@ -94,6 +94,10 @@ public:
 
 void init_exceptions();
 char check_for_exceptions( vector <int> & data);
+extern std::fstream qtm_data_file_writer_log;
+// this function should be called first to initialise the
+// log writer file
+void init();
 
 
 } /* close namespace qtm_data_file */
