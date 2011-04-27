@@ -89,6 +89,7 @@ public:
 	void print_qax(std::fstream & qax_file);
 	std::vector <CodeBucket> codeBucketVec_;
 	void AllocateCards();
+	void Reset();
 };
 
 void init_exceptions();

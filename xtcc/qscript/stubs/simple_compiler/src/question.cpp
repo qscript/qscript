@@ -273,7 +273,7 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 			<< "]->isAnswered_==false) {\n"
 			<< "\t\tcout << \"question has not been answered ... jumping back\\n\";\n"
 			<< "\t\t\tgoto label_eval_" << questionName_ << ";\n"
-			<< "\t\t}\n"; 
+			<< "\t\t}\n";
 	program_code << "}\n";
 	program_code << " else { " << endl
 		<< "last_question_answered = " << questionName_ << "_list.questionList["

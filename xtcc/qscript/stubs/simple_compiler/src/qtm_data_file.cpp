@@ -366,8 +366,8 @@ void QtmDataFile::write_multi_code_data (int column, vector<int> & data,
 		cerr << warn_str.str();
 	} else if (data.size() == 1) {
 		pair<int,int> cc = ConvertToCardColumn (column);
-		cout << "cc.first: " << cc.first << ", cc.second: " << cc.second << endl;
-		cout 	<< "cardVec_.size(): " << cardVec_.size() << endl;
+		//cout << "cc.first: " << cc.first << ", cc.second: " << cc.second << endl;
+		//cout 	<< "cardVec_.size(): " << cardVec_.size() << endl;
 			//<< "cardVec_.data_.size(): " << cardVec_[cc.first].data_.size()
 			//<< endl;
 		cardVec_[cc.first].data_[cc.second] = data[data.size()-1] % 10;
@@ -551,8 +551,18 @@ void QtmDataFile::Reset ()
 		for (int j=0; j<cardVec_[i].data_.size(); j++) {
 			cardVec_[i].data_[j] = ' ';
 		}
+		cardVec_[i].multiPunchData_.clear();
 		cardVec_[i].multiPunchData_.resize(0);
 	}
+}
+
+void QtmDataDiskMap::Reset()
+{
+	for (int i=0; i<codeBucketVec_.size(); ++i) {
+		codeBucketVec_[i].codeVec_.clear();
+		codeBucketVec_[i].codeVec_.resize(0);
+	}
+	//qtmDataFile_.Reset();
 }
 
 void QtmDataFile::write_single_code_data (int column, int width, int code, AbstractQuestion *q)
@@ -585,12 +595,12 @@ void QtmDataFile::write_single_code_data (int column, int width, int code, Abstr
 		exit(1);
 	}
 	pair<int,int> cc = ConvertToCardColumn (column);
-	cerr << " ConvertToCardColumn: card: " << cc.first 
-		<< " col: " << cc.second 
-		<< endl;
-	cerr	<< "cardVec_.length(): " << cardVec_.size() << endl
-		<< "cardVec_[" << cc.first << "].data_.length(): " 
-		<< cardVec_[cc.first].data_.size() << endl;
+	// cerr << " ConvertToCardColumn: card: " << cc.first 
+	// 	<< " col: " << cc.second 
+	// 	<< endl;
+	// cerr	<< "cardVec_.length(): " << cardVec_.size() << endl
+	// 	<< "cardVec_[" << cc.first << "].data_.length(): " 
+	// 	<< cardVec_[cc.first].data_.size() << endl;
 	// cerr << "s.str().c_str()[0]: " << s.str().c_str()[0] << endl;
 	//cerr << & (s.str().c_str()[s.str().length()]) << endl;
 	//const char * ptr1 = & (s.str().c_str()[0]);  
@@ -607,13 +617,17 @@ void QtmDataFile::write_single_code_data (int column, int width, int code, Abstr
 using std::map;
 map <int, char> table_of_exceptions;
 
-void init_exceptions()
+void init()
 {
 	qtm_data_file_writer_log.open("qtm_data_file_writer.log", std::ios_base::trunc | std::ios_base::out);
 	if (!qtm_data_file_writer_log) {
 		cerr << " unable to open qtm_data_file_writer.log for writing ... exiting\n";
 		exit(1);
 	}
+}
+
+void init_exceptions()
+{
 	for (int code1=1; code1<=9; ++code1) {
 		for (int code2=10; code2<=12; ++code2) {
 			int index = (code1*100+code2);
