@@ -1511,7 +1511,9 @@ int32_t main(int argc, char * argv[])
 
 
 	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
-	do {
+
+	do 
+	{
 		theQuestionnaire.reset_questionnaire();
 		if (write_data_file_flag||write_qtm_data_file_flag)
 		{
@@ -1543,21 +1545,29 @@ int32_t main(int argc, char * argv[])
 			AbstractQuestion * q =
 				theQuestionnaire.eval2 ( /*last_question_answered, last_question_visited, */
 				qnre_navigation_mode);
-			if (!q) {
-				if (write_data_file_flag) {
+			if (!q)
+			{
+				if (write_data_file_flag)
+				{
 					theQuestionnaire.write_flat_ascii_file();
-
-				} else if (write_qtm_data_file_flag) {
+				}
+				else if (write_qtm_data_file_flag)
+				{
 					theQuestionnaire.write_qtm_data_file();
-				} else {
+				}
+				else
+				{
 					char end_of_question_navigation;
 					label_end_of_qnre_navigation:
 					wclear(data_entry_window);
 					mvwprintw(data_entry_window, 1, 1,"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)");
 					mvwscanw(data_entry_window, 1, 75, "%c", & end_of_question_navigation);
-					if(end_of_question_navigation == 's') {
+					if(end_of_question_navigation == 's')
+					{
 						theQuestionnaire.write_data_to_disk(question_list, theQuestionnaire.jno, theQuestionnaire.ser_no);
-					} else if (end_of_question_navigation == 'p') {
+					}
+					else if (end_of_question_navigation == 'p')
+					{
 						AbstractQuestion * target_question = theQuestionnaire.ComputePreviousQuestion(theQuestionnaire.last_question_answered);
 						if(target_question->type_ == QUESTION_ARR_TYPE)
 						{
@@ -1569,16 +1579,22 @@ int32_t main(int argc, char * argv[])
 						user_navigation = NOT_SET;
 						//goto start_of_questions;
 						goto re_eval_from_start;
-					} else if (end_of_question_navigation == 'j') {
+					}
+					else if (end_of_question_navigation == 'j')
+					{
 						theQuestionnaire.DisplayActiveQuestions();
 						theQuestionnaire.GetUserResponse(jumpToQuestion, jumpToIndex);
 						user_navigation = NOT_SET;
 						//goto start_of_questions;
 						goto re_eval_from_start;
-					} else if (end_of_question_navigation == 'q') {
+					}
+					else if (end_of_question_navigation == 'q')
+					{
 						//theQuestionnaire.reset_questionnaire();
 						break;
-					} else {
+					}
+					else
+					{
 						goto label_end_of_qnre_navigation;
 					}
 					// wclear(data_entry_window);
@@ -1660,7 +1676,6 @@ int32_t main(int argc, char * argv[])
 			{
 				theQuestionnaire.last_question_answered = q;
 			}
-
 		} /* close while */
 	} while(theQuestionnaire.ser_no != 0); /* close do */
 

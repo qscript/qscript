@@ -1104,6 +1104,9 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		//code.quest_defns << quest_decl.str();
 		code.quest_defns << "RangeQuestion * " << questionName_ << ";\n";
 		code.quest_defns_init_code << quest_decl.str();
+		// new
+		code.array_quest_init_area << "question_list.push_back(" << questionName_.c_str()
+			<< ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
 	}
@@ -1176,6 +1179,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		// code.quest_defns << quest_decl.str();
 		code.quest_defns << "NamedStubQuestion * " << questionName_ << ";\n";
 		code.quest_defns_init_code << quest_decl.str();
+		code.array_quest_init_area << "question_list.push_back(" << questionName_.c_str()
+			<< ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
 	}
