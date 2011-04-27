@@ -120,6 +120,8 @@ void PrintNCursesMain(FILE * script, bool ncurses_flag);
 void PrintWebMain (FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
+void print_write_qtm_data_to_disk(FILE *script);
+void print_write_ascii_data_to_disk(FILE *script);
 const char * file_exists_check_code();
 const char * write_data_to_disk_code();
 void print_microhttpd_web_support (FILE * script);
@@ -168,6 +170,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "int ser_no;\n");
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "int32_t questions_start_from_here_index;\n" );
+	fprintf(script, "int ser_no_pos;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, " /* length(): %d */", code.quest_defns_constructor.str().length() );
@@ -196,9 +199,11 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "%s\n", write_data_to_disk_code());
 	print_navigation_support_functions(script);
 	print_reset_questionnaire(script);
+	print_read_a_serial_no (script);
 	PrintDisplayActiveQuestions(script);
 	PrintGetUserResponse(script);
-	print_read_a_serial_no (script);
+	print_write_qtm_data_to_disk(script);
+	print_write_ascii_data_to_disk(script);
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
@@ -1279,6 +1284,10 @@ test_script.o: test_script.C
 	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += ".exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
+	if (contains_space != string::npos) {
+		QSCRIPT_HOME.erase(contains_space);
+	}
 	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
@@ -1527,9 +1536,9 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 
 	fprintf(script, "\t		if (!q) {\n");
 	fprintf(script, "\t			if (write_data_file_flag) {\n");
-	fprintf(script, "\t				theQuestionnaire.write_flat_ascii_file();\n");
+	fprintf(script, "\t				theQuestionnaire.write_ascii_data_to_disk();\n");
 	fprintf(script, "\t			} else if (write_qtm_data_file_flag) {\n");
-	fprintf(script, "\t				theQuestionnaire.write_qtm_data_file();\n");
+	fprintf(script, "\t				theQuestionnaire.write_qtm_data_to_disk();\n");
 	fprintf(script, "\t			} else {\n");
 	fprintf(script, "\t				char end_of_question_navigation;\n");
 	fprintf(script, "\t				label_end_of_qnre_navigation:\n");
@@ -1672,6 +1681,36 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\tqtm_data_file.Initialize();\n"
 		<< "}\n";
 
+	compute_flat_map_code.program_code << "	if (write_data_file_flag) {\n";
+	compute_flat_map_code.program_code << "		stringstream asc_datafile_conf_str;\n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf_str << jno \n";
+	compute_flat_map_code.program_code << "			<< \".asc_data.conf\";\n";
+	compute_flat_map_code.program_code << "		fstream asc_datafile_conf(asc_datafile_conf_str.str().c_str(), ios_base::in);\n";
+	compute_flat_map_code.program_code << "		if (!asc_datafile_conf) {\n";
+	compute_flat_map_code.program_code << "			cerr << \" could not open : \" << asc_datafile_conf_str.str() \n";
+	compute_flat_map_code.program_code << "				<< \" for reading\" << endl;\n";
+	compute_flat_map_code.program_code << "			exit(1);\n";
+	compute_flat_map_code.program_code << "		}\n";
+	compute_flat_map_code.program_code << "		string ser_no_token; string equal_token; ser_no_pos=-1; string semi_colon_token;\n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf >> ser_no_token;\n";
+	compute_flat_map_code.program_code << "		if ( ser_no_token != string(\"SER_NO_COLS\")) {\n";
+	compute_flat_map_code.program_code << "			cerr << \"expected token SER_NO_COLS\" << endl;\n";
+	compute_flat_map_code.program_code << "			exit(1);\n";
+	compute_flat_map_code.program_code << "		}\n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf >> equal_token;\n";
+
+	compute_flat_map_code.program_code << "		if (equal_token != string(\"=\") ) {\n";
+	compute_flat_map_code.program_code << "			cerr << \"expected token =\" << endl;\n";
+	compute_flat_map_code.program_code << "			exit(1);\n";
+	compute_flat_map_code.program_code << "		}\n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf >> ser_no_pos;\n";
+	compute_flat_map_code.program_code << "		if (ser_no_pos == -1) {\n";
+	compute_flat_map_code.program_code << "			cerr << \"invalid no of positions reserved for serial no: \";\n";
+	compute_flat_map_code.program_code << "			exit(1);\n";
+	compute_flat_map_code.program_code << "		}\n";
+	compute_flat_map_code.program_code << "		current_map_pos += (ser_no_pos-1);\n";
+	compute_flat_map_code.program_code << "	}\n";
+
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
 
 	compute_flat_map_code.program_code << "\tstring map_file_name(jno + string(\".map\"));\n";
@@ -1735,18 +1774,9 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "%s\n", program_code.str().c_str());
 	fprintf(script, "\t/*\n");
 	fprintf(script, "\tif (write_data_file_flag) {\n\n");
-	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
-	fprintf(script, "	}\n");
-	fprintf(script, "	cout << \"output_buffer: \" << flat_file_output_buffer;\n");
-	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
-	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
+	fprintf(script, "\t\twrite_ascii_data_to_disk();\n");
 	fprintf(script, "\t} else if (write_qtm_data_file_flag) {\n");
-	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
-	fprintf(script, "	}\n");
-	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no);\n");
-	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n");
+	fprintf(script, "\t\twrite_qtm_data_to_disk();\n");
 	fprintf(script, "\t} else {\n");
 	fprintf(script, "\tchar end_of_question_navigation;\n");
 	fprintf(script, "label_end_of_qnre_navigation:\n");
@@ -1863,7 +1893,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "		if (isdigit(dir_entry_name[i])) {\n");
 	fprintf (script, "		    file_ser_no_str << dir_entry_name[i];\n");
 	fprintf (script, "		} else {\n");
-	fprintf (script, "		    if ((i + 3 == dir_entry_name.length())\n");
+	fprintf (script, "		    if ((i + 4 == dir_entry_name.length())\n");
 	fprintf (script, "			&& dir_entry_name[i] == '.'\n");
 	fprintf (script, "			&& dir_entry_name[i + 1] == 'd'\n");
 	fprintf (script, "			&& dir_entry_name[i + 2] == 'a'\n");
@@ -1899,6 +1929,67 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "\n");
 }
 
+
+void print_write_qtm_data_to_disk(FILE *script)
+{
+	fprintf(script, "void write_qtm_data_to_disk()\n {\n");
+	fprintf(script, "	using qtm_data_file_ns::qtm_data_file_writer_log;\n");
+	fprintf(script, "	qtm_data_file_writer_log << \"writing serial no: \" << ser_no << \" to disk \\n\";\n");
+	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		qtm_datafile_question_disk_map[i]->write_data ();\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.write_record_to_disk(qtm_disk_file, ser_no);\n");
+	fprintf(script, "	qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n");
+	fprintf(script, "	//qtm_datafile_question_disk_map[0]->Reset();\n");
+	fprintf(script, "	for (int32_t i = 0; i < qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		qtm_datafile_question_disk_map[i]->Reset();\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "       for (int32_t i = 0; i < question_list.size(); ++i) {\n");
+	fprintf(script, "                       AbstractQuestion * q = question_list[i];\n");
+	fprintf(script, "			stringstream question_name_str;\n");
+	fprintf(script, "			question_name_str << q->questionName_;\n");
+	fprintf(script, "		    if (q->loop_index_values.size()) {\n");
+	fprintf(script, "				for (int j=0; j<q->loop_index_values.size(); ++j) {\n");
+	fprintf(script, "					question_name_str << \".\" << q->loop_index_values[j];\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "		    }\n");
+	fprintf(script, "                       map<int , int> q_freq_map = freq_count[question_name_str.str()];\n");
+	fprintf(script, "                       for (set<int32_t>::iterator it = q->input_data.begin();\n");
+	fprintf(script, "                                       it != q->input_data.end(); ++it) {\n");
+	fprintf(script, "                               q_freq_map[*it] ++;\n");
+	fprintf(script, "                       }\n");
+	fprintf(script, "                       freq_count[question_name_str.str()] = q_freq_map;\n");
+	fprintf(script, "       }\n");
+	fprintf(script, "}\n");
+}
+
+void print_write_ascii_data_to_disk(FILE *script)
+{
+	fprintf(script, "void write_ascii_data_to_disk()\n {\n");
+	fprintf(script, "	stringstream temp_ser_no_str;\n");
+	fprintf(script, "	temp_ser_no_str << ser_no;\n");
+	fprintf(script, "	if (temp_ser_no_str.str().length() > ser_no_pos) {\n");
+	fprintf(script, "		cerr << \"space reserved to hold serial no: \" \n");
+	fprintf(script, "			<< ser_no_pos << \" is not enough\"\n");
+	fprintf(script, "			<< \" to hold this serial no: \" \n");
+	fprintf(script, "			<< ser_no << endl;\n");
+	fprintf(script, "		exit(1);\n");
+	fprintf(script, "	} else {\n");
+	fprintf(script, "		//char * ptr = flat_file_output_buffer;\n");
+	fprintf(script, "		for (int i=0; i<temp_ser_no_str.str().length(); ++i) {\n");
+	fprintf(script, "			flat_file_output_buffer[i] = temp_ser_no_str.str()[i];\n");
+	fprintf(script, "		//cout << \"writing digit \" << temp_ser_no_str[i] << \" to flat_file_output_buffer\" << endl;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "\n");
+	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	cout << \"output_buffer: \" << flat_file_output_buffer;\n");
+	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
+	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
+	fprintf(script, "}\n");
+}
 
 void print_microhttpd_web_support (FILE * script)
 {
@@ -2711,7 +2802,4 @@ void print_web_func_prototypes (FILE * script)
 
 
 /* end of namespace */
-
-
-
 }
