@@ -1521,7 +1521,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "			theQuestionnaire.prompt_user_for_serial_no();\n");
 	fprintf(script, "			if (theQuestionnaire.ser_no == 0)\n");
 	fprintf(script, "			{\n");
-	fprintf(script, "				exit(1);\n");
+	fprintf(script, "				break;\n");
 	fprintf(script, "			}\n");
 	fprintf(script, "			int exists = check_if_reg_file_exists(theQuestionnaire.jno, theQuestionnaire.ser_no);\n");
 	fprintf(script, "			if(exists == 1)\n");
@@ -1580,11 +1580,12 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t				// wclear(data_entry_window);\n");
 	fprintf(script, "\t				// mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
 	fprintf(script, "\t				// mvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-	fprintf(script, "\t				theQuestionnaire.prompt_user_for_serial_no();\n");
+	fprintf(script, "\t				//theQuestionnaire.prompt_user_for_serial_no();\n");
+	fprintf(script, "\t				//if (theQuestionnaire.ser_no ==0) break;\n");
+	fprintf(script, "\t				break;\n");
 	fprintf(script, "\t			}\n");
 	fprintf(script, "\t		}\n");
-	fprintf(script, "\n");
-
+	fprintf(script, "\t\t	else\n{\n");
 	fprintf(script, "\t\t	fprintf(qscript_stdout, \"eval2 returned %%s\\n\",\n");
 	fprintf(script, "\t\t		q->questionName_.c_str());\n");
 	fprintf(script, "\t\t      re_eval:\n");
@@ -1645,6 +1646,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t	} else {\n");
 	fprintf(script, "\t\t	    theQuestionnaire.last_question_answered = q;\n");
 	fprintf(script, "\t\t	}\n");
+	fprintf(script, "\t\t}\n");
 	fprintf(script, "\t} /* close while */\n");
 	fprintf(script, "} while(theQuestionnaire.ser_no != 0); /* close do */\n");
 
