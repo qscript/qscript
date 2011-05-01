@@ -1,0 +1,22 @@
+
+
+stubs suvidha_kendra =
+" CASP (JJ Colony, Madanpur Khadar, New Delhi)" 01
+" Prayatn (Basti Vikas Kendra, Jeevan Jyoti Rajiv Camp, D Block, Okhla PII" 02
+" Jal Shankar Memorial Centre (Jasloa Village, New Delhi) Jal" 03
+" Sakaar Outreach (Tanki Road, Meethapur Badarpur, New Delhi)" 04
+" Mamta health Institute for Mother and Child (JJ Camp, Tigri, New Delhi)" 05
+" New opportunities for Women (NOW) (Nr Shalimar Conema, New park)" 06
+stub_group grp_1 {
+" Kalyanam (Ratia Marg, Snagam Vihar, New Delhi)" 07
+" CASP Plan Project (Neem Chowk, Sangam Vihar, New Delhi)" 08
+" EFRAH (Aali Vihar, nr. Aali Village, New Delhi)" 09
+" Nav Srishti (Village neb Sarai, New Delhi)" 10
+}
+" Navjyoti Development Society (Tekhand village, Okhla phase I, New Del)" 11
+" Sakaar Outreach (Madangir Ambedkar Nagar, New Delhi)" 12
+" Shape India (R/o block 5c, Sarai Kale Khan, DDA flat)" 13
+" Jai Jawan Jai Kisan trust (Cenquin) (Centre for community and child development, Jamia Milia Islamia)" 14
+" Adarshila (Greater Kailash 2, New Delhi)" 15
+" Katha (A/3 Sarvodaya Enclave, New Delhi)" 16
+" Kalyanam (41/1407 DDA flats, Madangir, New Delhi)" 17;
