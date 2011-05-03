@@ -23,7 +23,6 @@
 	//vector <named_range*> active_named_range_stack;
 	AbstractNamedRange * active_named_range;
 	vector <AbstractNamedRange*> active_named_range_stack;
-	AbstractStatement * root;
 %}
 
 
@@ -48,19 +47,13 @@
 %token <text_buf> TEXT
 
 %type <stmt> stubs
-%type <nr_ptr> stub
-%type <nr_ptr> stub_list
 %type <stmt> stmt
 %type <stmt> stmt_list
 %type <stmt> randomize_stub_statement
-%type <stmt> prog
+%type <nr_ptr> stubs
+%type <nr_ptr> stub_list
 
 %%
-
-prog: stmt_list {
-	root = $1;
-	}
-	;
 
 stmt_list: stmt {
 		$$=$1;
@@ -79,6 +72,7 @@ stmt: 		stubs
 stubs:	STUBS_LIST NAME {
 		stub_list.resize(0);
 		//active_named_range = new named_range (NAMED_RANGE, line_no, $2);
+		active_named_range = new NamedRangeGroup ($2);
 	} '=' stub_list ';' {
 		//string stub_name=$2;
 		//struct named_range* nr_ptr= 
@@ -86,54 +80,40 @@ stubs:	STUBS_LIST NAME {
 		//			line_no, stub_name,stub_list);
 		//named_stubs_list.push_back(nr_ptr);
 		//$$ = nr_ptr;
-		//active_named_range->groupPtr_ = $4;
-		//active_named_range = new NamedRangeGroup ($2);
-		//active_named_range->groupName_ = $2;
-		//active_named_range-
-		//$$ = $5;
-		NamedRangeGroup * nrg = new NamedRangeGroup ($2);
-		AbstractNamedRange * nr_ptr = $5;
-		cout << "climbing up the chain" << endl;
-		while (nr_ptr->prev_nr) {
-			cout << "." ;
-			nr_ptr = nr_ptr->prev_nr;
-		}
-		cout << endl;
-		nrg->groupPtr_ = nr_ptr;
-		$$ = nrg;
+		active_named_range->groupPtr_ = $4;
+		$$ = active_named_range;
 	}
 	;
 
 
-simple_stub_list: simple_stub
-	| simple_stub_list ',' simple_stub
+stub_list: stub
+	| stub_list stub
 	;
 
-simple_stub:	TEXT INUMBER {
-		string s1=$1;
-		int32_t code=$2;
-		struct stub_pair pair1 (s1, code);
-		stub_list.push_back (pair1);
+stub:	TEXT INUMBER {
+		if (active_named_range == 0) {
+			active_named_range = new NamedRangeList();
+		}
+		active_named_range->stubs.push_back( struct stub_pair(s1, code));
+		//string s1=$1;
+		//int32_t code=$2;
+		//struct stub_pair pair1 (s1, code);
+		//stub_list.push_back (pair1);
 	}
 	| TEXT INUMBER MUTEX {
-		string s1=$1;
-		int32_t code=$2;
-		struct stub_pair pair1 (s1, code, true);
-		stub_list.push_back(pair1);
+		if (active_named_range == 0) {
+			active_named_range = new NamedRangeList();
+		}
+		active_named_range->stubs.push_back( struct stub_pair(s1, code, true));
+		//string s1=$1;
+		//int32_t code=$2;
+		//struct stub_pair pair1 (s1, code, true);
+		//stub_list.push_back(pair1);
 	}
-	;
-
-stub: simple_stub_list {
-		NamedRangeList * nrl = new NamedRangeList();
-		nrl->stubs = stub_list;
-		stub_list.clear();
-		$$ = nrl;
-	}
-	| STUB_GROUP NAME '{' stub_list  '}' {
+	| STUB_GROUP NAME '{' {
 		/* continue from here:
 		   treat this as a named compound statement - just like in the main qscript grammar
 		   */
-		/*
 		if (stub_list.size() > 0) {
 			active_named_range.set_stubs(stub_list);
 			stub_list.resize(0);
@@ -141,22 +121,10 @@ stub: simple_stub_list {
 		}
 		++stub_group_nest_level;
 		active_named_range_stack.push_back (active_named_range);
-		active_named_range->sub_group_ptr = new named_range (NAMED_RANGE, line_no, $2);
+		//active_named_range->sub_group_ptr = new named_range (NAMED_RANGE, line_no, $2);
+		//active_named_range = active_named_range->sub_group_ptr;
 		active_named_range = active_named_range->sub_group_ptr;
-		*/
-		AbstractNamedRange * nr_ptr = $4;
-		cout << "climbing up the chain" << endl;
-		while (nr_ptr->prev_nr) {
-			cout << "." ;
-			nr_ptr = nr_ptr->prev_nr;
-		}
-		cout << endl;
-
-		NamedRangeGroup * nrg = new NamedRangeGroup ($2);
-		nrg->groupPtr_ = nr_ptr;
-		$$ = nrg;
 	}
-	/*
 	| '}' {
 		if (stub_group_nest_level <= 0) {
 			++no_errors;
@@ -174,43 +142,6 @@ stub: simple_stub_list {
 		}
 		--stub_group_nest_level;
 	}
-	*/
-	;
-
-stub_list: stub
-	| stub_list stub {
-		AbstractNamedRange * nr_ptr1=$1, *nr_ptr2=$2;
-		NamedRangeList * nrl_ptr1 =0, *nrl_ptr2=0;
-		NamedRangeGroup *nrg_ptr1 =0, *nrg_ptr2=0;
-		/*
-		if (	nrl_ptr1 = dynamic_cast<NamedRangeList*> (nr_ptr1) && 
-			nrl_ptr2 = dynamic_cast<NamedRangeList*> (nr_ptr2) ) {
-			nrl_ptr1->next_nr = nrl_ptr2;
-			nrl_ptr2->prev_nr = nrl_ptr1;
-			cout << "this case should never be - as the grammar would prevent it. all such cases would fold into simple_stub_list"
-				<< endl;
-		} else if (	nrg_ptr1 = dynamic_cast<NamedRangeGroup*> (nr_ptr1) &&
-				nrl_ptr2 = dynamic_cast<NamedRangeList*> (nr_ptr2) ) {
-			nrg_ptr1->groupPtr_ = nrl_ptr2;
-			$$ = nrg_ptr1;
-		} else if (	nrg_ptr1 = dynamic_cast<NamedRangeGroup*> (nr_ptr1) &&
-				nrg_ptr2 = dynamic_cast<NamedRangeGroup*> (nr_ptr2) ) {
-			nrg_ptr1->groupPtr_ = nrg_ptr2;
-			$$ = nrg_ptr2;
-		} else if (	nrg_ptr1 = dynamic_cast<NamedRangeGroup*> (nr_ptr1) &&
-				nrl_ptr2 = dynamic_cast<NamedRangeList*>  (nr_ptr2) ) {
-			nrg_ptr1->next_nr = nrg_ptr2;
-			$$ = nrg_ptr2;
-		}
-		*/
-
-		$1->Print();
-		$2->Print();
-		cout << "connecting: " << endl;
-		$1->next_nr = $2;
-		$2->prev_nr = $1;
-		$$ = $2;
-	}
 	;
 
 randomize_stub_statement: RANDOMIZE STUBS_LIST NAME {
@@ -225,7 +156,7 @@ void yyrestart(FILE *input_file);
 int32_t yyparse();
 int main()
 {
-	FILE * yyin = fopen("random_test2.input", "rb");
+	FILE * yyin = fopen("random_test.input", "rb");
 	if (!yyin){
 		cerr << " Unable to open: random_test.input "  << " for read ... exiting" << endl;
 		exit(1);
@@ -233,11 +164,5 @@ int main()
 	yyrestart(yyin);
 	if (!yyparse() && !no_errors) {
 		cout << "sucessfully parsed" << endl;
-		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
-		if (nr_ptr) {
-			nr_ptr->Print();
-		} else {
-			cout << "not a AbstractNamedRange" << endl;
-		}
 	}
 }

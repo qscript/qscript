@@ -56,7 +56,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 23 "randomize.y"
+#line 30 "randomize.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -65,11 +65,12 @@ typedef union YYSTYPE
 	char text_buf[MY_STR_MAX];
 	//DataType dt;
 	struct AbstractStatement * stmt;
+	struct AbstractNamedRange * nr_ptr;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 73 "randomize.tab.h"
+#line 74 "randomize.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

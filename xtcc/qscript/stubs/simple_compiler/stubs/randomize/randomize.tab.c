@@ -74,7 +74,8 @@
 #include <iostream>
 	
 #include "AbstractStatement.h"
-#include "named_range.h"
+//#include "named_range.h"
+#include "new_named_range.h"
 #include "const_defs.h"
 
 	using std::vector;
@@ -83,15 +84,21 @@
 	using std::cerr;
 
         vector <stub_pair> stub_list;
-	vector <named_range*> named_stubs_list;
+	//vector <named_range*> named_stubs_list;
 	int32_t line_no = 1;
 	int32_t no_errors = 0;
 	void yyerror(const char * s);
 	int32_t yylex();
+	int stub_group_nest_level = 0;
+	//named_range * active_named_range = 0;
+	//vector <named_range*> active_named_range_stack;
+	AbstractNamedRange * active_named_range;
+	vector <AbstractNamedRange*> active_named_range_stack;
+	AbstractStatement * root;
 
 
 /* Line 189 of yacc.c  */
-#line 95 "randomize.tab.c"
+#line 102 "randomize.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -135,7 +142,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 23 "randomize.y"
+#line 30 "randomize.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -144,11 +151,12 @@ typedef union YYSTYPE
 	char text_buf[MY_STR_MAX];
 	//DataType dt;
 	struct AbstractStatement * stmt;
+	struct AbstractNamedRange * nr_ptr;
 
 
 
 /* Line 214 of yacc.c  */
-#line 152 "randomize.tab.c"
+#line 160 "randomize.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -160,7 +168,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 164 "randomize.tab.c"
+#line 172 "randomize.tab.c"
 
 #ifdef short
 # undef short
@@ -373,18 +381,18 @@ union yyalloc
 #endif
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  9
+#define YYFINAL  10
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   24
+#define YYLAST   26
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  14
+#define YYNTOKENS  15
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  8
+#define YYNNTS  11
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  14
+#define YYNRULES  17
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  26
+#define YYNSTATES  32
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -400,7 +408,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,    12,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,    10,
        2,    11,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -408,7 +416,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    12,     2,    13,     2,     2,     2,     2,
+       2,     2,     2,    13,     2,    14,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -430,25 +438,26 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     8,    10,    13,    14,    21,    23,
-      26,    29,    33,    37,    39
+       0,     0,     3,     5,     7,    10,    12,    15,    16,    23,
+      25,    29,    32,    36,    38,    44,    46,    49
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      15,     0,    -1,    16,    -1,    15,    16,    -1,    17,    -1,
-      21,    10,    -1,    -1,     3,     7,    18,    11,    19,    10,
-      -1,    20,    -1,    19,    20,    -1,     9,     8,    -1,     9,
-       8,     5,    -1,     6,     7,    12,    -1,    13,    -1,     4,
+      16,     0,    -1,    17,    -1,    18,    -1,    17,    18,    -1,
+      19,    -1,    25,    10,    -1,    -1,     3,     7,    20,    11,
+      24,    10,    -1,    22,    -1,    21,    12,    22,    -1,     9,
+       8,    -1,     9,     8,     5,    -1,    21,    -1,     6,     7,
+      13,    24,    14,    -1,    23,    -1,    24,    23,    -1,     4,
        3,     7,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    49,    49,    52,    59,    60,    63,    63,    75,    76,
-      79,    85,    91,    92,    95
+       0,    60,    60,    65,    68,    75,    76,    79,    79,   108,
+     109,   112,   118,   126,   132,   180,   181,   216
 };
 #endif
 
@@ -458,8 +467,9 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "STUBS_LIST", "RANDOMIZE", "MUTEX",
-  "STUB_GROUP", "NAME", "INUMBER", "TEXT", "';'", "'='", "'{'", "'}'",
-  "$accept", "stmt_list", "stmt", "stubs", "$@1", "stub_list", "stub",
+  "STUB_GROUP", "NAME", "INUMBER", "TEXT", "';'", "'='", "','", "'{'",
+  "'}'", "$accept", "prog", "stmt_list", "stmt", "stubs", "$@1",
+  "simple_stub_list", "simple_stub", "stub", "stub_list",
   "randomize_stub_statement", 0
 };
 #endif
@@ -470,22 +480,22 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-      59,    61,   123,   125
+      59,    61,    44,   123,   125
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    14,    15,    15,    16,    16,    18,    17,    19,    19,
-      20,    20,    20,    20,    21
+       0,    15,    16,    17,    17,    18,    18,    20,    19,    21,
+      21,    22,    22,    23,    23,    24,    24,    25
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     2,     1,     2,     0,     6,     1,     2,
-       2,     3,     3,     1,     3
+       0,     2,     1,     1,     2,     1,     2,     0,     6,     1,
+       3,     2,     3,     1,     5,     1,     2,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -493,31 +503,35 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     0,     2,     4,     0,     6,     0,     1,
-       3,     5,     0,    14,     0,     0,     0,    13,     0,     8,
-       0,    10,     7,     9,    12,    11
+       0,     0,     0,     0,     2,     3,     5,     0,     7,     0,
+       1,     4,     6,     0,    17,     0,     0,     0,    13,     9,
+      15,     0,     0,    11,     0,     8,    16,     0,    12,    10,
+       0,    14
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     3,     4,     5,    12,    18,    19,     6
+      -1,     3,     4,     5,     6,    13,    18,    19,    20,    21,
+       7
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -7
+#define YYPACT_NINF -22
 static const yytype_int8 yypact[] =
 {
-      10,    -1,    -2,     8,    -7,    -7,     0,    -7,     9,    -7,
-      -7,    -7,     4,    -7,    -4,    11,    12,    -7,    -6,    -7,
-       5,    14,    -7,    -7,    -7,    -7
+       8,     1,    10,    14,     8,   -22,   -22,     5,   -22,     9,
+     -22,   -22,   -22,     6,   -22,    -5,    11,    12,     7,   -22,
+     -22,    -3,    13,    16,    15,   -22,   -22,    -5,   -22,   -22,
+      -4,   -22
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -7,    -7,    18,    -7,    -7,    -7,     6,    -7
+     -22,   -22,   -22,    18,   -22,   -22,   -22,    -1,   -21,    -2,
+     -22
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -527,25 +541,26 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      15,     8,    15,    16,    22,    16,     7,    17,     9,    17,
-      11,     1,     2,     1,     2,    14,    13,    24,    20,    25,
-      21,    10,     0,     0,    23
+      26,    16,    16,    16,    17,    17,    17,    25,     8,    26,
+      31,     1,     2,     9,    10,    12,    14,    15,    22,    24,
+      23,    28,    11,    29,    17,    30,    27
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_uint8 yycheck[] =
 {
-       6,     3,     6,     9,    10,     9,     7,    13,     0,    13,
-      10,     3,     4,     3,     4,    11,     7,    12,     7,     5,
-       8,     3,    -1,    -1,    18
+      21,     6,     6,     6,     9,     9,     9,    10,     7,    30,
+      14,     3,     4,     3,     0,    10,     7,    11,     7,    12,
+       8,     5,     4,    24,     9,    27,    13
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     4,    15,    16,    17,    21,     7,     3,     0,
-      16,    10,    18,     7,    11,     6,     9,    13,    19,    20,
-       7,     8,    10,    20,    12,     5
+       0,     3,     4,    16,    17,    18,    19,    25,     7,     3,
+       0,    18,    10,    20,     7,    11,     6,     9,    21,    22,
+      23,    24,     7,     8,    12,    10,    23,    13,     5,    22,
+      24,    14
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1359,16 +1374,25 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 49 "randomize.y"
+#line 60 "randomize.y"
     {
-		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
+	root = (yyvsp[(1) - (1)].stmt);
 	;}
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 52 "randomize.y"
+#line 65 "randomize.y"
+    {
+		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
+	;}
+    break;
+
+  case 4:
+
+/* Line 1455 of yacc.c  */
+#line 68 "randomize.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
@@ -1376,56 +1400,157 @@ yyreduce:
 	;}
     break;
 
-  case 6:
-
-/* Line 1455 of yacc.c  */
-#line 63 "randomize.y"
-    {
-		stub_list.resize(0);
-	;}
-    break;
-
   case 7:
-
-/* Line 1455 of yacc.c  */
-#line 65 "randomize.y"
-    {
-		string stub_name=(yyvsp[(2) - (6)].name);
-		struct named_range* nr_ptr= new named_range(NAMED_RANGE
-				, line_no, stub_name,stub_list);
-		named_stubs_list.push_back(nr_ptr);
-		(yyval.stmt) = nr_ptr;
-	;}
-    break;
-
-  case 10:
 
 /* Line 1455 of yacc.c  */
 #line 79 "randomize.y"
     {
-		string s1=(yyvsp[(1) - (2)].text_buf);
-		int32_t code=(yyvsp[(2) - (2)].ival);
-		struct stub_pair pair1(s1,code);
-		stub_list.push_back(pair1);
+		stub_list.resize(0);
+		//active_named_range = new named_range (NAMED_RANGE, line_no, $2);
+	;}
+    break;
+
+  case 8:
+
+/* Line 1455 of yacc.c  */
+#line 82 "randomize.y"
+    {
+		//string stub_name=$2;
+		//struct named_range* nr_ptr= 
+		//	new named_range(NAMED_RANGE, 
+		//			line_no, stub_name,stub_list);
+		//named_stubs_list.push_back(nr_ptr);
+		//$$ = nr_ptr;
+		//active_named_range->groupPtr_ = $4;
+		//active_named_range = new NamedRangeGroup ($2);
+		//active_named_range->groupName_ = $2;
+		//active_named_range-
+		//$$ = $5;
+		NamedRangeGroup * nrg = new NamedRangeGroup ((yyvsp[(2) - (6)].name));
+		AbstractNamedRange * nr_ptr = (yyvsp[(5) - (6)].nr_ptr);
+		cout << "climbing up the chain" << endl;
+		while (nr_ptr->prev_nr) {
+			cout << "." ;
+			nr_ptr = nr_ptr->prev_nr;
+		}
+		cout << endl;
+		nrg->groupPtr_ = nr_ptr;
+		(yyval.stmt) = nrg;
 	;}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 85 "randomize.y"
+#line 112 "randomize.y"
+    {
+		string s1=(yyvsp[(1) - (2)].text_buf);
+		int32_t code=(yyvsp[(2) - (2)].ival);
+		struct stub_pair pair1 (s1, code);
+		stub_list.push_back (pair1);
+	;}
+    break;
+
+  case 12:
+
+/* Line 1455 of yacc.c  */
+#line 118 "randomize.y"
     {
 		string s1=(yyvsp[(1) - (3)].text_buf);
 		int32_t code=(yyvsp[(2) - (3)].ival);
-		struct stub_pair pair1(s1,code, true);
+		struct stub_pair pair1 (s1, code, true);
 		stub_list.push_back(pair1);
+	;}
+    break;
+
+  case 13:
+
+/* Line 1455 of yacc.c  */
+#line 126 "randomize.y"
+    {
+		NamedRangeList * nrl = new NamedRangeList();
+		nrl->stubs = stub_list;
+		stub_list.clear();
+		(yyval.nr_ptr) = nrl;
 	;}
     break;
 
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 95 "randomize.y"
+#line 132 "randomize.y"
+    {
+		/* continue from here:
+		   treat this as a named compound statement - just like in the main qscript grammar
+		   */
+		/*
+		if (stub_list.size() > 0) {
+			active_named_range.set_stubs(stub_list);
+			stub_list.resize(0);
+			active_named_range.stubs_come_first = true;
+		}
+		++stub_group_nest_level;
+		active_named_range_stack.push_back (active_named_range);
+		active_named_range->sub_group_ptr = new named_range (NAMED_RANGE, line_no, $2);
+		active_named_range = active_named_range->sub_group_ptr;
+		*/
+		AbstractNamedRange * nr_ptr = (yyvsp[(4) - (5)].nr_ptr);
+		cout << "climbing up the chain" << endl;
+		while (nr_ptr->prev_nr) {
+			cout << "." ;
+			nr_ptr = nr_ptr->prev_nr;
+		}
+		cout << endl;
+
+		NamedRangeGroup * nrg = new NamedRangeGroup ((yyvsp[(2) - (5)].name));
+		nrg->groupPtr_ = nr_ptr;
+		(yyval.nr_ptr) = nrg;
+	;}
+    break;
+
+  case 16:
+
+/* Line 1455 of yacc.c  */
+#line 181 "randomize.y"
+    {
+		AbstractNamedRange * nr_ptr1=(yyvsp[(1) - (2)].nr_ptr), *nr_ptr2=(yyvsp[(2) - (2)].nr_ptr);
+		NamedRangeList * nrl_ptr1 =0, *nrl_ptr2=0;
+		NamedRangeGroup *nrg_ptr1 =0, *nrg_ptr2=0;
+		/*
+		if (	nrl_ptr1 = dynamic_cast<NamedRangeList*> (nr_ptr1) && 
+			nrl_ptr2 = dynamic_cast<NamedRangeList*> (nr_ptr2) ) {
+			nrl_ptr1->next_nr = nrl_ptr2;
+			nrl_ptr2->prev_nr = nrl_ptr1;
+			cout << "this case should never be - as the grammar would prevent it. all such cases would fold into simple_stub_list"
+				<< endl;
+		} else if (	nrg_ptr1 = dynamic_cast<NamedRangeGroup*> (nr_ptr1) &&
+				nrl_ptr2 = dynamic_cast<NamedRangeList*> (nr_ptr2) ) {
+			nrg_ptr1->groupPtr_ = nrl_ptr2;
+			$$ = nrg_ptr1;
+		} else if (	nrg_ptr1 = dynamic_cast<NamedRangeGroup*> (nr_ptr1) &&
+				nrg_ptr2 = dynamic_cast<NamedRangeGroup*> (nr_ptr2) ) {
+			nrg_ptr1->groupPtr_ = nrg_ptr2;
+			$$ = nrg_ptr2;
+		} else if (	nrg_ptr1 = dynamic_cast<NamedRangeGroup*> (nr_ptr1) &&
+				nrl_ptr2 = dynamic_cast<NamedRangeList*>  (nr_ptr2) ) {
+			nrg_ptr1->next_nr = nrg_ptr2;
+			$$ = nrg_ptr2;
+		}
+		*/
+
+		(yyvsp[(1) - (2)].nr_ptr)->Print();
+		(yyvsp[(2) - (2)].nr_ptr)->Print();
+		cout << "connecting: " << endl;
+		(yyvsp[(1) - (2)].nr_ptr)->next_nr = (yyvsp[(2) - (2)].nr_ptr);
+		(yyvsp[(2) - (2)].nr_ptr)->prev_nr = (yyvsp[(1) - (2)].nr_ptr);
+		(yyval.nr_ptr) = (yyvsp[(2) - (2)].nr_ptr);
+	;}
+    break;
+
+  case 17:
+
+/* Line 1455 of yacc.c  */
+#line 216 "randomize.y"
     {
 		(yyval.stmt) = 0;
 	;}
@@ -1434,7 +1559,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1438 "randomize.tab.c"
+#line 1563 "randomize.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1646,7 +1771,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 100 "randomize.y"
+#line 221 "randomize.y"
 
 #include <cstdio>
 
@@ -1654,7 +1779,7 @@ void yyrestart(FILE *input_file);
 int32_t yyparse();
 int main()
 {
-	FILE * yyin = fopen("random_test.input", "rb");
+	FILE * yyin = fopen("random_test2.input", "rb");
 	if (!yyin){
 		cerr << " Unable to open: random_test.input "  << " for read ... exiting" << endl;
 		exit(1);
@@ -1662,6 +1787,12 @@ int main()
 	yyrestart(yyin);
 	if (!yyparse() && !no_errors) {
 		cout << "sucessfully parsed" << endl;
+		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
+		if (nr_ptr) {
+			nr_ptr->Print();
+		} else {
+			cout << "not a AbstractNamedRange" << endl;
+		}
 	}
 }
 
