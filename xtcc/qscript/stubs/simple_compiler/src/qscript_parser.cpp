@@ -148,6 +148,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 	fprintf(script, "struct TheQuestionnaire\n{\n");
 	//fprintf(script, "AbstractQuestion * last_question_answered;\n");
+	fprintf(script, "int32_t questions_start_from_here_index;\n" );
 	fprintf(script, "int ser_no_pos;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
@@ -155,6 +156,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "{\n");
 	//fprintf(script, "last_question_answered = 0;\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
+	fprintf(script, "questions_start_from_here_index = question_list.size();\n");
 
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
 	fprintf(script, "}\n");
@@ -509,39 +511,40 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	int32_t current_question_index = -1;\n");
-	fprintf(script, "	for(int32_t i = 0; i < question_list.size(); ++i){\n");
-	fprintf(script, "		if(question_list[i] == q){\n");
+	//fprintf(script, "	for(int32_t i = 0; i < question_list.size(); ++i)\n");
+	fprintf(script, "	for (int32_t i = questions_start_from_here_index; i < question_list.size(); ++i) {\n");
+	fprintf(script, "		if (question_list[i] == q) {\n");
 	fprintf(script, "			current_question_index = i;\n");
 	fprintf(script, "			break;\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	if(current_question_index == -1){\n");
+	fprintf(script, "	if (current_question_index == -1) {\n");
 	fprintf(script, "		cerr << \"internal compiler error at runtime ... filename: \" \n");
 	fprintf(script, "			<< __FILE__ \n");
 	fprintf(script, "			<< \"line no: \" << __LINE__\n");
 	fprintf(script, "			<< endl;\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	for(int32_t i = current_question_index-1; i >= 0; --i){\n");
-	fprintf(script, "		if(question_list[i]->isAnswered_){\n");
+	fprintf(script, "	for (int32_t i = current_question_index-1; i >= 0; --i) {\n");
+	fprintf(script, "		if (question_list[i]->isAnswered_) {\n");
 	fprintf(script, "			return question_list[i];\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
 	fprintf(script, "// If we reach here just return the 1st question and hope for the best\n");
 	fprintf(script, "// This will not work if there is a condition on the 1st question - because of which it should never have been taken\n");
-	fprintf(script, "	return question_list[0];\n");
+	fprintf(script, "	return question_list[questions_start_from_here_index];\n");
 	fprintf(script, "}\n");
 
 	fprintf(script,"int32_t ComputeJumpToIndex(AbstractQuestion * q)\n");
 	fprintf(script,"{\n");
 	fprintf(script,"	//cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
-	fprintf(script,"	//for(int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"	//for (int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
 	fprintf(script,"	//	cout << q->loop_index_values[i] << \" \";\n");
 	fprintf(script,"	//}\n");
 	fprintf(script,"	//cout << endl;\n");
 	fprintf(script,"	int32_t index = 0;\n");
-	fprintf(script,"	for(int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"	for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {\n");
 	fprintf(script,"		int32_t tmp1=q->loop_index_values[i];\n");
-	fprintf(script,"		for(int32_t j = i+1; j < q->dummyArrayQuestion_->array_bounds.size(); ++j){\n");
+	fprintf(script,"		for (int32_t j = i+1; j < q->dummyArrayQuestion_->array_bounds.size(); ++j) {\n");
 	fprintf(script,"			tmp1 *=q->dummyArrayQuestion_->array_bounds[j];\n");
 	fprintf(script,"		}\n");
 	fprintf(script,"		index+=tmp1;\n");
