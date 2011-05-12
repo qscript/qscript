@@ -251,7 +251,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
 	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
-	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout);\n");
+	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout, last_question_answered, last_question_visited);\n");
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
@@ -316,6 +316,7 @@ void print_header(FILE* script, bool ncurses_flag)
 			"		* help_panel = 0;\n");
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
+	fprintf(script, "AbstractQuestion * last_question_visited = 0;\n");
 
 	// fprintf(script, "struct TheQuestionnaire\n{\n");
 	// fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
@@ -796,7 +797,7 @@ const char * file_exists_check_code()
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\tif(exists == 1){\n"
 	"\t\t	load_data(jno,ser_no);\n"
-	"\t\t	merge_disk_data_into_questions(qscript_stdout);\n"
+	"\t\t	merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
 	"\t\t}\n\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "
@@ -1979,7 +1980,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
 	fprintf (script, "	    load_data(jno, file_ser_no);\n");
-	fprintf (script, "	    merge_disk_data_into_questions(qscript_stdout);\n");
+	fprintf (script, "	    merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n");
 	fprintf (script, "	    return file_ser_no;\n");
 	fprintf (script, "	} else {\n");
 	fprintf (script, "	    // not our data file\n");
