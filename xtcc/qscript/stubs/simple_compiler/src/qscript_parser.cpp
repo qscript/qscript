@@ -1807,7 +1807,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "\tstart_of_questions:\n");
 	fprintf(script, "\tif(back_jump == true){\n");
-	fprintf(script, "\tfprintf(qscript_stdout, \"have reached start_of_questions with back_jump\");\n");
+	fprintf(script, "\tfprintf(qscript_stdout, \"have reached start_of_questions with back_jump: jumpToQuestion: %%s, jumpToIndex: %%d\\n\", jumpToQuestion.c_str(), jumpToIndex);\n");
 	fprintf(script, "\t}\n");
 
 	fprintf(script, "%s\n", program_code.str().c_str());

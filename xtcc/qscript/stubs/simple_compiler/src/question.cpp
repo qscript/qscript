@@ -294,6 +294,8 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
 		<< "if ( " << questionName_ << "->question_attributes.hidden_==false) {\n"
+		// new: 12-may-2011
+		<< "\t\t stopAtNextQuestion = false;\n"
 		<< questionName_.c_str()
 		<< "->eval(question_window, stub_list_window, data_entry_window);\n\t}\n";
 	PrintUserNavigation(program_code);
@@ -1078,7 +1080,8 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
-	quest_decl << "question_list.push_back(" << questionName_.c_str()
+	if (array_mode)
+		quest_decl << "question_list.push_back(" << questionName_.c_str()
 		<< ");\n";
 
 	if(for_bounds_stack.size() == 0){
@@ -1152,7 +1155,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	}
 	quest_decl << "," << question_attributes.Print();
 	quest_decl << ");\n";
-	quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+	if (array_mode)
+		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
@@ -1474,6 +1478,8 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 
 	code.program_code	<< "if ( " << questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "] ->question_attributes.hidden_==false) {\n";
+	// new: 12-may-2011
+	code.program_code << "\t\t stopAtNextQuestion = false;\n";
 	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
