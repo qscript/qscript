@@ -50,6 +50,8 @@ enum ExpressionOperatorType
 	, oper_float, oper_assgn , oper_not, oper_mod
 	, oper_blk_arr_assgn, oper_in, oper_q_expr_in
 	, oper_q_expr_arr_in, oper_to_string, oper_err
+	, oper_count, oper_isanswered
+
 	};
 
 //! helper function when debugging

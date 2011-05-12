@@ -773,9 +773,10 @@ void ForStatement::CheckNestedIndexUsage()
 		}
 	}
 	using qscript_parser::for_loop_max_counter_stack;
-	cout << "CheckNestedIndexUsage: on variable: " << init_var_name << ", "
-		<< "for_loop_max_counter_stack.size(): "
-		<< for_loop_max_counter_stack.size()  << endl;
+	
+	//cout << "CheckNestedIndexUsage: on variable: " << init_var_name << ", "
+	//	<< "for_loop_max_counter_stack.size(): "
+	//	<< for_loop_max_counter_stack.size()  << endl;
 	for(int32_t i = 0; i < for_loop_max_counter_stack.size()-1; ++i){
 		BinaryExpression * prev_test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[i]);
 		if (prev_test_expr == 0){
@@ -1848,12 +1849,15 @@ bool RunColumnExpressionChecks(ColumnStatement * col_stmt)
 		stringstream s;
 		s << " Currently only numbers are allowed as column expressions";
 		print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		return false;
 	} else {
 		if (! (un2_expr->exprOperatorType_== oper_num)) {
 			stringstream s;
 			s << " Currently only numbers are allowed as column expressions";
 			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			return false;
 		} 
+		return true;
 		// else all ok 
 	}
 	

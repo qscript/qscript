@@ -460,6 +460,11 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			  line_no, __LINE__, __FILE__);
 	}
 		break;
+	case oper_isanswered: {
+		AbstractQuestion * q = symbolTableEntry_->question_;
+		code.code_expr << " " << q->questionName_ << "->isAnswered_ ";
+	}
+		break;
 	default:
 		code.code_expr <<"unhandled AbstractExpression operator: " << __PRETTY_FUNCTION__;
 		print_err(compiler_internal_error, code.code_expr.str().c_str(),
@@ -722,7 +727,18 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 						(rightOperand_);
 					r_op_type = un2expr->symbolTableEntry_->question_->dt;
 				}
-				type_ = lcm_type(l_op_type, r_op_type);
+				if ( 	exprOperatorType_ == oper_le ||
+					exprOperatorType_ == oper_lt ||
+					exprOperatorType_ == oper_ge ||
+					exprOperatorType_ == oper_gt ||
+					exprOperatorType_ == oper_isneq ||
+					exprOperatorType_ == oper_iseq ||
+					exprOperatorType_ == oper_or ||
+					exprOperatorType_ == oper_and) {
+					type_ = BOOL_TYPE;
+				} else {
+					type_ = lcm_type(l_op_type, r_op_type);
+				}
 			}
 			if (exprOperatorType_ == oper_mod
 			    && !(is_of_int_type(leftOperand_->type_)
@@ -760,7 +776,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 		type_ = STRING_TYPE;
 		text = ltxt;
 	} else if (exprOperatorType_ == oper_name
-		  || exprOperatorType_  ==  oper_to_string){
+		  || exprOperatorType_  ==  oper_to_string) {
 		map<string,SymbolTableEntry*>::iterator sym_it =
 			find_in_symtab(ltxt);
 		using qscript_parser::active_scope;
@@ -806,6 +822,54 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 					<< endl;
 				print_err(compiler_sem_err, s.str(),
 					line_no, __LINE__, __FILE__);
+			}
+		}
+	} else if (exprOperatorType_ == oper_isanswered) {
+		map<string,SymbolTableEntry*>::iterator sym_it =
+			find_in_symtab(ltxt);
+		DataType symbol_type = symbolTableEntry_->type_;
+		using qscript_parser::active_scope;
+		if (sym_it == active_scope->SymbolTable.end()) {
+			string err_msg = "Error: could not find:"
+				+ string(ltxt) + "  in symbol table  ";
+			print_err(compiler_sem_err, err_msg
+					, line_no, __LINE__, __FILE__);
+			type_ = ERROR_TYPE;
+		} else {
+			symbolTableEntry_ = sym_it->second;
+			if (exprOperatorType_ == oper_name &&
+			   (symbol_type == QUESTION_TYPE
+			    || symbol_type == QUESTION_ARR_TYPE)) {
+				type_ = BOOL_TYPE;
+			} else {
+				string err_msg = "Error: isanswered Can only be called for question types ";
+				print_err(compiler_sem_err, err_msg
+						, line_no, __LINE__, __FILE__);
+				type_ = ERROR_TYPE;
+			}
+		}
+	} else if (exprOperatorType_ == oper_count) {
+		map<string,SymbolTableEntry*>::iterator sym_it =
+			find_in_symtab(ltxt);
+		DataType symbol_type = symbolTableEntry_->type_;
+		using qscript_parser::active_scope;
+		if (sym_it == active_scope->SymbolTable.end()) {
+			string err_msg = "Error: could not find:"
+				+ string(ltxt) + "  in symbol table  ";
+			print_err(compiler_sem_err, err_msg
+					, line_no, __LINE__, __FILE__);
+			type_ = ERROR_TYPE;
+		} else {
+			symbolTableEntry_ = sym_it->second;
+			if (exprOperatorType_ == oper_name &&
+			   (symbol_type == QUESTION_TYPE
+			    || symbol_type == QUESTION_ARR_TYPE)) {
+				type_ = INT32_TYPE;
+			} else {
+				string err_msg = "Error: count Can only be called for question types ";
+				print_err(compiler_sem_err, err_msg
+						, line_no, __LINE__, __FILE__);
+				type_ = ERROR_TYPE;
 			}
 		}
 	} else {

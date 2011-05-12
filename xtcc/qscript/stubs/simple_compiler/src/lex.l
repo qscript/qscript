@@ -360,6 +360,10 @@ column	{
 		return COLUMN;
 }
 
+isanswered	{
+		return ISANSWERED;
+	}
+
 
 [0-9]+	{
 		if (qscript_parser::show_lex_error_context)
