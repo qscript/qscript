@@ -297,4 +297,57 @@ void merge_disk_data_into_questions(FILE * qscript_stdout, AbstractQuestion * & 
 			found = false;
 		}
 	}
+
+	int actual_questions_start_index = 0;
+	while (actual_questions_start_index < question_list.size()  && question_list[actual_questions_start_index]->loop_index_values.size() ==0) {
+			// keep skipping over dummy array questions which were loaded earlier
+		++ actual_questions_start_index;
+	}
+	for (int32_t i = actual_questions_start_index; i< question_list.size(); ++i) {
+		// as per the new layout in memory we have
+		// DUMMY ARRAY QUESTIONS
+		// QUESTIONS in qnre order - a mix of array and non array questions
+		// we have now reached the actual questions
+		bool found = false;
+
+		AbstractQuestion* q= question_list[i];
+		question_disk_data * q_disk = 0;
+		if (q->loop_index_values.size() == 0) {
+			for (int32_t j = 0; j< qdd_list.size(); ++j) {
+				if (qscript_debug::DEBUG_LoadData) {
+					cout << "|" <<qdd_list[j]->qno << "|" << " ";
+				}
+				fprintf(qscript_stdout, "|%s| ", qdd_list[j]->qno.c_str() );
+				fflush(qscript_stdout);
+				if (q->questionName_ == qdd_list[j]->qno) {
+					if (qscript_debug::DEBUG_LoadData) {
+						cout << "found in qdd_list[" << j << "]" << qdd_list[j]->qno << endl;
+					}
+					fprintf(qscript_stdout, "found in qdd_list[%d]:%s\n",  j,  qdd_list[j]->qno.c_str());
+					fflush(qscript_stdout);
+					q_disk = qdd_list[j];
+					found = true;
+					break;
+				}
+			}
+		}
+		if (found) {
+			if (qscript_debug::DEBUG_LoadData) {
+				cout << "loading data for non-array question: " << q->questionName_ << endl;
+			}
+			q->input_data.erase(q->input_data.begin(), q->input_data.end());
+			if (q_disk->data.size() > 0) {
+				for (int32_t k = 0; k<q_disk->data.size(); ++k) {
+					if (qscript_debug::DEBUG_LoadData) {
+						cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
+					}
+					q->input_data.insert(q_disk->data[k]);
+				}
+				q->isAnswered_ = true;
+				//last_question_answered = q;
+				p_last_question_answered = q;
+				p_last_question_visited = q;
+			}
+		}
+	}
 }
