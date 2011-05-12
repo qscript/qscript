@@ -827,7 +827,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 	} else if (exprOperatorType_ == oper_isanswered) {
 		map<string,SymbolTableEntry*>::iterator sym_it =
 			find_in_symtab(ltxt);
-		DataType symbol_type = symbolTableEntry_->type_;
+		DataType symbol_type = sym_it->second->type_;
 		using qscript_parser::active_scope;
 		if (sym_it == active_scope->SymbolTable.end()) {
 			string err_msg = "Error: could not find:"
@@ -837,9 +837,8 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 			type_ = ERROR_TYPE;
 		} else {
 			symbolTableEntry_ = sym_it->second;
-			if (exprOperatorType_ == oper_name &&
-			   (symbol_type == QUESTION_TYPE
-			    || symbol_type == QUESTION_ARR_TYPE)) {
+			if (symbol_type == QUESTION_TYPE
+			    || symbol_type == QUESTION_ARR_TYPE) {
 				type_ = BOOL_TYPE;
 			} else {
 				string err_msg = "Error: isanswered Can only be called for question types ";
@@ -851,7 +850,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 	} else if (exprOperatorType_ == oper_count) {
 		map<string,SymbolTableEntry*>::iterator sym_it =
 			find_in_symtab(ltxt);
-		DataType symbol_type = symbolTableEntry_->type_;
+		DataType symbol_type = sym_it->second->type_;
 		using qscript_parser::active_scope;
 		if (sym_it == active_scope->SymbolTable.end()) {
 			string err_msg = "Error: could not find:"
@@ -861,9 +860,8 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 			type_ = ERROR_TYPE;
 		} else {
 			symbolTableEntry_ = sym_it->second;
-			if (exprOperatorType_ == oper_name &&
-			   (symbol_type == QUESTION_TYPE
-			    || symbol_type == QUESTION_ARR_TYPE)) {
+			if ( symbol_type == QUESTION_TYPE
+			    || symbol_type == QUESTION_ARR_TYPE) {
 				type_ = INT32_TYPE;
 			} else {
 				string err_msg = "Error: count Can only be called for question types ";
