@@ -297,8 +297,27 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		box(stub_list_window, 0, 0);
 		wclear(data_entry_window);
 		box(data_entry_window, 0, 0);
-		mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
+		mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
+		int len_qno = questionName_.length()+2;
+		if(loop_index_values.size()>0){
+			for(uint32_t i=0; i<loop_index_values.size(); ++i){
+				//cout << loop_index_values[i]+1 << ".";
+				mvwprintw(question_window, 1, len_qno, "%d.", loop_index_values[i]+1);
+				if (loop_index_values[i]+1<10) {
+					len_qno += 1;
+				} else if (loop_index_values[i]+1<100) {
+					len_qno += 2;
+				} else if (loop_index_values[i]+1<1000) {
+					len_qno += 3;
+				} else if (loop_index_values[i]+1<10000) {
+					len_qno += 4;
+				}
+				len_qno += 1; // for the "."
+			}
+		}
+		//mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
 		//wrefresh(question_window);
+		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
 		update_panels();
 		doupdate();
 		//int32_t maxWinX, maxWinY;
