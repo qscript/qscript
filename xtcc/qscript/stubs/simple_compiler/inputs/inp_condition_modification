@@ -1,0 +1,38 @@
+inp_conditional_modification {
+
+stubs make = 
+"Toy " 1
+"Hon" 2
+"Chev" 3;
+
+q1 "q1:make" sp int32_t make;
+
+stubs model =
+"Ech " 1
+"Cor " 2
+"Cit " 3
+"Civ" 4
+"Av" 5
+"Opt "6;
+unset(model);
+
+	if (q1 == 1) {
+		setadd(model, (1));
+		setadd(model, (2));
+	}
+	if (q1 == 2) {
+		setadd(model, (3));
+		setadd(model, (4));
+	}
+	if (q1 == 3) {
+		setadd(model, (5));
+		setadd(model, (6));
+	}
+
+q2	"q2: model" 
+	sp int32_t model;
+
+q3	"q3: some other question"
+	sp int32_t (1-4);
+
+}
