@@ -1468,7 +1468,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "(" 
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "]->isAnswered_"
-		<< " && "
+		<< " && !"
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "]->VerifyQuestionIntegrity()"
 		<< ") || " 
@@ -1486,8 +1486,27 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "jumpToIndex = -1;\n"
 		<< "}\n";
 
-	code.program_code	<< "if ( " << questionName_ << "_list.questionList["
-		<< consolidated_for_loop_index << "] ->question_attributes.hidden_==false) {\n";
+	code.program_code	<< "if ( " 
+		<< questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index << "]->" 
+		<< "question_attributes.hidden_==false) {\n";
+	code.program_code << "fprintf( qscript_stdout, \" reached : " 
+		<< questionName_
+		<< "  because\" );\n"
+		<< "if ("
+		<< questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index << "]->isAnswered_ == false) {" 
+		<< "fprintf(qscript_stdout, \" isAnswered_ == false \\n\" );\n"
+		<< "}\n"
+		<< "if ("
+		<< questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index << "]->isAnswered_ == true" 
+		<< " && !"
+		<< questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index << "]->VerifyQuestionIntegrity()"
+		<< ") {" 
+		<< "fprintf(qscript_stdout, \" failed VerifyQuestionIntegrity \\n\");\n"
+		<< "}\n";
 	// new: 12-may-2011
 	code.program_code << "\t\t stopAtNextQuestion = false;\n";
 	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
