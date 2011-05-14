@@ -36,7 +36,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=14
+QSCRIPT_MINOR_VERSION_NUMBER=15
 
 
 #dummy:
@@ -203,7 +203,7 @@ release: clean
 	-rm inputs/test_script
 	-rm inputs/test_script_bcpp.[Co]
 	-rm inputs/tags
-	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op inputs/*.exe
+	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op inputs/*.exe inputs/*.dvi inputs/*.aux inputs/*.pdf inputs/*.log inputs/*.latex inputs/*.o
 	cp inputs/* $(RELEASE_DIR)/inputs
 	cp bin/qscript.sh $(RELEASE_DIR)/bin
 	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
