@@ -124,9 +124,16 @@ int32_t main(int32_t argc, char* argv[])
 	qscript_parser::lex_location.ResetLine();
 	qscript_parser::lex_location.ResetColumn();
 	if (!yyparse() && !no_errors) {
-		cout << "Input parsed sucessfully: generating code" << endl;
+		cout << "Input parsed successfully: There could still be errors detected in code generation from if-else statements." << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode(fname, ncurses_flag);
+		if (no_errors) {
+			cout << "There were "
+				<< no_errors
+				<< " errors detected in the code generation phase"
+				<< endl;
+			goto lab_maintainer_messages;
+		}
 #ifndef _WIN32
 		{
 			std::stringstream bcpp_command;
@@ -185,6 +192,7 @@ int32_t main(int32_t argc, char* argv[])
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
+lab_maintainer_messages:
 	{
 		if (qscript_debug::MAINTAINER_MESSAGES) {
 			using qscript_parser::maintainer_messages;

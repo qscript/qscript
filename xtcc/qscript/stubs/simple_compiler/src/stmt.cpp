@@ -23,6 +23,7 @@
 #include "qscript_debug.h"
 #include "code_gen_utils.h"
 #include "utils.h"
+#include "log_mesg.h"
 
 
 //extern vector<mem_addr_tab> mem_addr;
@@ -274,6 +275,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	ifBody_->GenerateCode(code);
 	code.program_code << " }" << endl;
 
+	// need at this scope level to detect missing else blocks
+	vector<string> question_list_if_body;
 	if (elseBody_) {
 		code.program_code << " else {" << endl;
 
@@ -289,7 +292,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 
 			ifStatementStack.push_back(stk_el);
 		}
-		vector<string> question_list_if_body;
+
+		//vector<string> question_list_if_body;
 
 		for (int32_t i = 0; i < ifStatementStack.size(); ++i) {
 			if (ifStatementStack[i]->nestLevel_ == if_nest_level) {
@@ -300,6 +304,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			}
 		}
 		ifBody_->GetQuestionNames(question_list_if_body, 0);
+
 		code.program_code << "// end of ifBody_->GetQuestionNames \n";
 		if (elseIfStatement) {
 			//elseIfStatement->elseBody_->GetQuestionNames
@@ -336,6 +341,25 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		code.program_code << " /* finished generating code IfStatement */ " << endl;
 		code.array_quest_init_area << "/* EXIT " << __PRETTY_FUNCTION__ << ", "
 				<< __FILE__ << ", " << __LINE__ << ", source line no:" << lineNo_ << " */\n";
+	}
+
+	if (elseBody_ == 0 ) {
+		cout << LOG_MESSAGE("elseBody_ == 0");
+		// this call below is for error detection
+		ifBody_->GetQuestionNames(question_list_if_body, 0);
+		if (question_list_if_body.size() > 0 || question_list_else_body.size()>0) {
+			stringstream s;
+			s << "If block on line number: " << lineNo_ << " has questions but does not have an else block. Please add a dummy else block like this" << endl
+				<< " CODE EXAMPLE FOR DUMMY ELSE BLOCK FOLLOWS " << endl
+				<< " /* ************************************* */" << endl
+				<< " else {\n\t1;\n}\n"
+				<< " /* ************************************* */" << endl
+				<< " END OF CODE EXAMPLE" << endl
+				<< " although the dummy else block seems irrelevant it helps the compiler produce correct code to handle if else statements"
+				<< endl;
+			print_err(compiler_sem_err, s.str(), lineNo_, __LINE__, __FILE__);
+			++qscript_parser::no_errors;
+		}
 	}
 	if (next_)
 		next_->GenerateCode(code);
