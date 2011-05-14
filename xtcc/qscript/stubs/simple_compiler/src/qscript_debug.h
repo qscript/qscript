@@ -11,6 +11,7 @@ namespace qscript_debug{
 	extern const int32_t DEBUG_DeclarationStatement;
 	extern const int32_t DEBUG_qscript_parser;
 	extern const int32_t DEBUG_RangeQuestion;
+	extern const int32_t DEBUG_NamedStubQuestion;
 	extern const int32_t MAINTAINER_MESSAGES;
 	extern const int32_t DEBUG_LoadData;
 	extern const int32_t DEBUG_IfStatement;

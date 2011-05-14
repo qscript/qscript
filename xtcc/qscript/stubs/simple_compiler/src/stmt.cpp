@@ -259,13 +259,17 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	if (elseBody_) {
 		elseBody_->GetQuestionNames(question_list_else_body, 0);
-		stringstream mesg;
-		mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
-		LOG_MAINTAINER_MESSAGE(mesg.str());
+		// this problem has been syntactically handled - the compiler does not allow an empty
+		// else block if the "if" block has questions in it
+		// stringstream mesg;
+		// mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
+		// LOG_MAINTAINER_MESSAGE(mesg.str());
 	} else {
-		stringstream mesg;
-		mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
-		LOG_MAINTAINER_MESSAGE(mesg.str());
+		// this problem has been syntactically handled - the compiler does not allow an empty
+		// else block if the "if" block has questions in it
+		// stringstream mesg;
+		// mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
+		// LOG_MAINTAINER_MESSAGE(mesg.str());
 	}
 	for(int32_t i = 0; i < question_list_else_body.size(); ++i) {
 		code.program_code <<  question_list_else_body[i]
@@ -344,7 +348,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	}
 
 	if (elseBody_ == 0 ) {
-		cout << LOG_MESSAGE("elseBody_ == 0");
+		// cout << LOG_MESSAGE("elseBody_ == 0");
 		// this call below is for error detection
 		ifBody_->GetQuestionNames(question_list_if_body, 0);
 		if (question_list_if_body.size() > 0 || question_list_else_body.size()>0) {

@@ -56,8 +56,8 @@ void LatexDocument::package(std::ostream &os, int i, int j)
 		cout << "i:" << i << ", qv.size(): " << qv.size() << endl;
 		return ; 
 	} else {
-		cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << ", " << qv[i]->questionName_
-			<< endl;
+		//cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << ", " << qv[i]->questionName_
+		//	<< endl;
 	}
 	// hack because I now want to handle range questions
 	NamedStubQuestion * ns_q = dynamic_cast<NamedStubQuestion*>(qv[i]);
@@ -232,8 +232,8 @@ void LatexDocument::visit(AbstractStatement *stmt)
 			     (cmpd_stmt_else_cmpd_block && 
 			      	cmpd_stmt_else_cmpd_block->counterContainsQuestions_) )
 			{
-				std::cerr << __FILE__ << ", " << __LINE__ << ", "
-					<< __PRETTY_FUNCTION__ << endl;
+				//std::cerr << __FILE__ << ", " << __LINE__ << ", "
+				//	<< __PRETTY_FUNCTION__ << endl;
 				ProcessQuestions();
 				questionProcessedUpto_ = qv.size() ;
 			}
@@ -374,12 +374,12 @@ void LatexDocument::ProcessQuestions()
 					NamedStubQuestion * q_current_point = dynamic_cast<NamedStubQuestion*>(qv[j]);
 					if (q_current_point) {
 						if (q_current_point->nr_ptr == q_start_point->nr_ptr) {
-							std::cerr << "q_current_point->nr_ptr->name: "
-								<< q_current_point->nr_ptr->name
-								<< std::endl
-								<< "q_start_point->nr_ptr->name: " 
-								<< q_start_point->nr_ptr->name
-								<< std::endl;
+							// std::cerr << "q_current_point->nr_ptr->name: "
+							// 	<< q_current_point->nr_ptr->name
+							// 	<< std::endl
+							// 	<< "q_start_point->nr_ptr->name: " 
+							// 	<< q_start_point->nr_ptr->name
+							// 	<< std::endl;
 						} else {
 							--j;
 							break;
@@ -391,11 +391,11 @@ void LatexDocument::ProcessQuestions()
 				}
 			}
 			//std::cout << "i: " << i << ", j: " << j << std::endl;
-			std::cerr << __FILE__ << ", " << __LINE__ << ", "
-				<< __PRETTY_FUNCTION__
-				<< ", i: " << i << ", j: " << j 
-				<< "qv.size(): " << qv.size()
-				<< std::endl;
+			// std::cerr << __FILE__ << ", " << __LINE__ << ", "
+			// 	<< __PRETTY_FUNCTION__
+			// 	<< ", i: " << i << ", j: " << j 
+			// 	<< "qv.size(): " << qv.size()
+			// 	<< std::endl;
 			/*
 			if (i==j) {
 				package (latex_file, i, j);
@@ -409,7 +409,7 @@ void LatexDocument::ProcessQuestions()
 			questionProcessedUpto_ = j;
 			//i = j-1;
 			i = questionProcessedUpto_;
-			std::cerr << " i = " << i << std::endl;
+			//std::cerr << " i = " << i << std::endl;
 		}
 		questionProcessedUpto_ = qv.size() - 1 ;
 	}

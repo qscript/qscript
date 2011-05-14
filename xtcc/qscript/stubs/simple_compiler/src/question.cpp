@@ -2376,10 +2376,11 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< save_array_quest->questionName_
 					<< " :are at the same scope and level */"
 					<< endl;
-				cerr << "Need to revisit this to check if condition should be "
+				stringstream mesg;
+				mesg << "Need to revisit this to check if condition should be "
 					<< "xtcc_i\" <= \" or \"<\" and other similar places  "
-					<< __LINE__ << "," << __FILE__
 					<< endl;
+				LOG_MAINTAINER_MESSAGE(mesg.str());
 				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				s << save_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back();
@@ -2611,10 +2612,11 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< restore_array_quest->questionName_
 					<< " :are at the same scope and level */"
 					<< endl;
-				cerr << "Need to revisit this to check if condition should be "
+				stringstream mesg;
+				mesg << "Need to revisit this to check if condition should be "
 					<< "xtcc_i\" <= \" or \"<\" and other similar places  "
-					<< __LINE__ << "," << __FILE__
 					<< endl;
+				LOG_MAINTAINER_MESSAGE(mesg.str());
 				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				s << restore_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back();

@@ -316,7 +316,9 @@ class NamedStubQuestion: public AbstractQuestion
 	void  GetQuestionNames(vector<string> & question_list
 			       , AbstractStatement* endStatement)
 	{
-		std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
+		if (qscript_debug::DEBUG_NamedStubQuestion) {
+			std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
+		}
 		if (this==endStatement)
 			return;
 		if (for_bounds_stack.size() == 0) {

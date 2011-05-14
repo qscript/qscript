@@ -298,10 +298,9 @@ bool skip_func_type_check(const char * fname)
 DataType lcm_type(DataType d1, DataType d2)
 {
 	if(qscript_debug_h::qscript_debug::MAINTAINER_MESSAGES) {
-		cerr << "FIXME document this function, add test suite for this function "
-		     << ", line: " << __LINE__
-		     << ", file: " << __FILE__
-		     << ", function: " << __PRETTY_FUNCTION__ << endl;
+		std::stringstream mesg;
+		mesg << "FIXME document this function, add test suite for this function ";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
 	}
 
 	//cout << "lcm_type: line_no: I have to convert the below code into a function"  << line_no << endl;
