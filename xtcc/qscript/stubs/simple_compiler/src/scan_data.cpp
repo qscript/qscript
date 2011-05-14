@@ -1967,7 +1967,11 @@ top:
 			return the_user_response;
 		} else if (user_navigation == NOT_SET) {
 			user_navigation = NAVIGATE_NEXT; // treat as if visit next question
-			the_user_response == user_response::UserEnteredNavigation;
+			// warning - earlier compiler indicated statement has no 
+			// effect - if we change behaviour of data entry because
+			// of this - come back here and change it to old value
+			//the_user_response == user_response::UserEnteredNavigation;
+			the_user_response = user_response::UserEnteredNavigation;
 			return the_user_response;
 		} else if (user_navigation == SAVE_DATA &&
 				the_user_response == user_response::UserSavedData) {

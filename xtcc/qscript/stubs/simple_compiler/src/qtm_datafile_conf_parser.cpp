@@ -26,6 +26,8 @@ namespace qtm_datafile_conf_parser_ns {
 	int32_t data_end_col;
 	qtm_data_file_ns::QtmFileMode qtm_file_mode;
 
+	// return 0 on success
+	// terminate the program on failure
 int32_t load_config_file(string jno)
 {
 	stringstream conf_file_name;
@@ -152,6 +154,7 @@ int32_t load_config_file(string jno)
 		cerr << LOG_MESSAGE(err_mesg.str());
 		exit(1);
 	}
+	return 0;
 }
 
 }

@@ -20,8 +20,8 @@ enum QtmFileMode
 
 struct QtmFileCharacteristics
 {
-	int cardDataWrapAroundAt_;
 	int cardDataStartAt_;
+	int cardDataWrapAroundAt_;
 	bool dontBreakQuestionsAtBoundary_;
 	QtmFileMode qtmFileMode_;
 	int currentCard_;
@@ -90,6 +90,9 @@ public:
 	std::vector <CodeBucket> codeBucketVec_;
 	void AllocateCards();
 	void Reset();
+private:
+	QtmDataDiskMap& operator= (const QtmDataDiskMap&);
+	QtmDataDiskMap(const QtmDataDiskMap&);
 };
 
 void init_exceptions();

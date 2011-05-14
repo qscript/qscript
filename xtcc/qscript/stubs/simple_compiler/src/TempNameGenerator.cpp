@@ -6,7 +6,7 @@ using std::stringstream;
 using std::string;
 
 TempNameGenerator::TempNameGenerator(string p_prefix)
-	: prefix_(p_prefix), count(0)
+	: count(0), prefix_(p_prefix)
 { }
 
 

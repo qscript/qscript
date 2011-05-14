@@ -248,6 +248,7 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
 	, question_attributes(l_question_attributes)
+	  , mutexCodeList_()
 	  , maxCode_(0)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){

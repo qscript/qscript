@@ -1055,8 +1055,8 @@ bool Binary2Expression::IsIntegralExpression()
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , string name
 				     , ExpressionOperatorType letype)
-	:AbstractExpression(letype), leftOperand_(0), xs(0),
-				leftOperand2_(0), rhsQuestion_(0)
+	: AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
+	  , xs(0), rhsQuestion_(0)
 {
 	switch(exprOperatorType_){
 		case oper_in: {
@@ -1090,8 +1090,8 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , XtccSet& l_rd
 				     , ExpressionOperatorType letype)
-	:AbstractExpression(letype), leftOperand_(0), xs(0),
-				leftOperand2_(0), rhsQuestion_(0)
+	:AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
+	 		, xs(0), rhsQuestion_(0)
 {
 	//cerr << "Binary2Expression::Binary2Expression" << endl;
 	switch(exprOperatorType_){

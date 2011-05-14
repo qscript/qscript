@@ -83,7 +83,9 @@ void QtmDataDiskMap::write_multi_code_data()
 QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 		QtmDataFile & p_qtm_data_file )
 	:
-	q(p_q), qtmDataFile_(p_qtm_data_file)
+	q(p_q), startPosition_(-1),
+	width_(-1), totalLength_(-1),
+	qtmDataFile_(p_qtm_data_file)
 {
 	int max_code = q->GetMaxCode();
 	if (q->no_mpn == 1) {
@@ -259,11 +261,14 @@ void QtmDataDiskMap::print_qax(fstream & qax_file)
 }
 
 
-QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_, int p_cardWrapAroundAt,
+QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_, 
+		int p_cardWrapAroundAt,
 		bool p_dontBreakQuestionsAtBoundary, QtmFileMode p_qtmFileMode)
 	: cardDataStartAt_(p_cardDataStartAt_), cardDataWrapAroundAt_(p_cardWrapAroundAt),
 	  dontBreakQuestionsAtBoundary_(p_dontBreakQuestionsAtBoundary),
-	  qtmFileMode_(p_qtmFileMode)
+	  qtmFileMode_(p_qtmFileMode),
+	  currentCard_(-1), currentColumn_(-1), multiplier_(-1),
+	  maxColList_()
 {
 	/*
 	int cardDataWrapAroundAt_;
@@ -333,7 +338,7 @@ int QtmFileCharacteristics::GetCurrentColumnPosition()
 }
 
 QtmDataFile::QtmDataFile()
-	: fileXcha_(/*11,  */
+	: cardVec_(), fileXcha_(/*11,  */
 		qtm_datafile_conf_parser_ns::crd_start,
 		qtm_datafile_conf_parser_ns::crd_end, true, 
 		qtm_datafile_conf_parser_ns::qtm_file_mode)
@@ -542,7 +547,7 @@ void QtmDataFile::AllocateCards()
 }
 
 Card::Card (int no_cols)
-	: data_(no_cols, ' ')
+	: data_(no_cols, ' '), multiPunchData_()
 { }
 
 

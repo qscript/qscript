@@ -23,6 +23,7 @@ AbstractQuestion::AbstractQuestion(
 	, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
+	  , mutexCodeList_()
 	  , maxCode_(0)
 {
 	//if(enclosingCompoundStatement_ == 0){
