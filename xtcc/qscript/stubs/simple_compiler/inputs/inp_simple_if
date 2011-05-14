@@ -1,0 +1,15 @@
+inp_simple_if {
+	q1 "Q1. " sp int32_t (1,2,3,4);
+	if (q1 in (1) ) {
+q2		"q2" sp int32_t (5-8);
+	} else {
+		1;
+	}
+	if (q1 in (2) ) {
+q3		"q3" sp int32_t (5-8);
+	} else {
+		1;
+	}
+
+q4	"q4" sp int32_t (9-10);
+}
