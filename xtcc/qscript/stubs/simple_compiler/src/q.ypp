@@ -586,12 +586,10 @@ expression: expression '+' expression {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
-		cout << "LOGAND expr: " << endl;
 		$$=new BinaryExpression($1, $3, oper_and);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
-		cout << "after LOGAND expr : " << endl;
 	}
 	| expression '=' expression {
 		using qscript_parser::mem_addr;

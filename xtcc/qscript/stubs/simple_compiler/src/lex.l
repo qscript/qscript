@@ -423,7 +423,7 @@ isanswered	{
 	void yyerror(const char * s);
 	void yyerror(const char * s)
 	{
-		fprintf(stderr, "reached here: %s\n", __PRETTY_FUNCTION__);
+		//fprintf(stderr, "reached here: %s\n", __PRETTY_FUNCTION__);
 		using qscript_parser::no_errors;
 		using qscript_parser::line_no;
 		++no_errors;

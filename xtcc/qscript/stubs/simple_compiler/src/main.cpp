@@ -97,7 +97,7 @@ int32_t main(int32_t argc, char* argv[])
 	if (exit_flag){
 		exit(1);
 	}
-	cout << "reached here" << endl;
+	//cout << "reached here" << endl;
 
 	if (!fname_flag){
 		cout << "Usage: "
@@ -106,6 +106,7 @@ int32_t main(int32_t argc, char* argv[])
 		cout << " -n            - creates an ncurses executable " << endl;
 		cout << " -s            - creates an static executable - for windows only " << endl;
 		cout << " -c            - compile to c++ only - dont invoke c++ compiler" << endl;
+		cout << " -l            - run latex on generated latex file" << endl;
 		exit(0);
 	}
 	active_scope = new Scope();
