@@ -44,8 +44,9 @@ int32_t main(int32_t argc, char* argv[])
 	bool static_binary_flag = false;
 	bool exit_flag = false;
 	bool compile_to_cpp_only_flag = false;
+	bool latex_flag = false;
 
-	while( (c = getopt(argc, argv, "csnf:")) != -1 ){
+	while( (c = getopt(argc, argv, "lcsnf:")) != -1 ){
 		char ch = optopt;
 		switch(c){
 		case 'c':
@@ -60,6 +61,9 @@ int32_t main(int32_t argc, char* argv[])
 		case 'f':
 			fname = optarg;
 			fname_flag = 1;
+			break;
+		case 'l':
+			latex_flag = true;
 			break;
 		case '?':
 			if (optopt == 'f' )
@@ -145,36 +149,38 @@ int32_t main(int32_t argc, char* argv[])
 				// cout << "successfully ran bcpp to generate indented source" << endl;
 			}
 
-			std::stringstream latex_fname; 
-			{
-				// Generate LatexDoc
-				latex_fname << output_file_name << ".latex";
-				LatexDocument doc(latex_fname.str());
-				doc.visit(qscript_parser::tree_root);
-				//doc.latex_file << doc.finish_latex();
-				//std::fstream latex_file(latex_fname.str().c_str(), exc_flags);
-				//std::ofstream latex_file; latex_file.exceptions(exc_flags); latex_file.open(latex_fname.str().c_str());
-				//if (latex_file)
-				//	latex_file << doc;
-			}
-			{
-				using std::cout; 
-				using std::endl; 
-				using std::stringstream; 
-				stringstream latex_command;
-				latex_command << "latex " << latex_fname.str();
-				if (int32_t ret_val = system(latex_command.str().c_str())) {
-					cout << "error running latex - maybe its not installed or not present in the PATH variable. " << endl
-						<< "You can install the TeX/LaTeX system and have qscript automatically generate " << endl
-						<< "beautiful pdf questionnaires. Read more about TeX/LaTeX at http://www.tug.org\n";
-				} else {
-					stringstream dvipdf_command;
-					dvipdf_command << "dvipdf " << output_file_name << ".dvi";
-					if (int32_t ret_val = system(dvipdf_command.str().c_str())) {
-						cout << "error running dvipdf - maybe it is not installed or present in the PATH variable. " << endl
-							<< " please check the latest release of ghostscript " << endl;
+			if (latex_flag) {
+				std::stringstream latex_fname; 
+				{
+					// Generate LatexDoc
+					latex_fname << output_file_name << ".latex";
+					LatexDocument doc(latex_fname.str());
+					doc.visit(qscript_parser::tree_root);
+					//doc.latex_file << doc.finish_latex();
+					//std::fstream latex_file(latex_fname.str().c_str(), exc_flags);
+					//std::ofstream latex_file; latex_file.exceptions(exc_flags); latex_file.open(latex_fname.str().c_str());
+					//if (latex_file)
+					//	latex_file << doc;
+				}
+				{
+					using std::cout; 
+					using std::endl; 
+					using std::stringstream; 
+					stringstream latex_command;
+					latex_command << "latex " << latex_fname.str();
+					if (int32_t ret_val = system(latex_command.str().c_str())) {
+						cout << "error running latex - maybe its not installed or not present in the PATH variable. " << endl
+							<< "You can install the TeX/LaTeX system and have qscript automatically generate " << endl
+							<< "beautiful pdf questionnaires. Read more about TeX/LaTeX at http://www.tug.org\n";
 					} else {
-						// successfully ran dvipdf
+						stringstream dvipdf_command;
+						dvipdf_command << "dvipdf " << output_file_name << ".dvi";
+						if (int32_t ret_val = system(dvipdf_command.str().c_str())) {
+							cout << "error running dvipdf - maybe it is not installed or present in the PATH variable. " << endl
+								<< " please check the latest release of ghostscript " << endl;
+						} else {
+							// successfully ran dvipdf
+						}
 					}
 				}
 			}
