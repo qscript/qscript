@@ -144,6 +144,7 @@ struct AbstractQuestion: public AbstractStatement
 	void PrintUserNavigation(ostringstream & program_code);
 	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
 	int32_t GetMaxCode();
+	bool VerifyQuestionIntegrity();
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);

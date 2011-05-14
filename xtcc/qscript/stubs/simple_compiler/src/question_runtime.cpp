@@ -717,3 +717,20 @@ NamedStubQuestion::NamedStubQuestion(
 		}
 	}
 }
+
+// a question can lose integrity because of modification to a previous question
+
+bool AbstractQuestion::VerifyQuestionIntegrity()
+{
+	bool has_integrity = true;
+
+	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
+			inp_data_iter != input_data.end(); ++inp_data_iter) {
+		bool invalid_code = !IsValid(*inp_data_iter);
+		if (invalid_code) {
+			has_integrity = false;
+			break;
+		}
+	}
+	return has_integrity;
+}

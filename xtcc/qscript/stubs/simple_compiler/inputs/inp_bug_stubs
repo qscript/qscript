@@ -1,0 +1,52 @@
+inp_bug_stubs {
+
+	stubs make =
+		"toy " 1
+		"nis " 2
+		"gm " 3
+		"frd " 4
+		"vlv " 5;
+
+	stubs model = 
+		"cor " 1
+		"ech " 2
+		"yrs " 3
+		"tii " 4
+		"snny" 5
+		"optr" 6
+		"vctr" 7
+		"ikn" 8
+		"endv" 9
+		"s40" 10
+		"s60" 11;
+	unset(model);
+
+q1	"q1"
+	sp int32_t (1-4);
+
+q2	"q2:make"
+	sp int32_t make;
+
+	if (q2==1) {
+		setadd(model, (1-3));
+	}
+	if (q2==2) {
+		setadd(model, (4,5));
+	}
+	if (q2==3) {
+		setadd(model, (6,7));
+	}
+	if (q2==4) {
+		setadd(model, (8,9));
+	}
+	if (q2==4) {
+		setadd(model, (10,11));
+	}
+
+q3	"q3:model"
+	sp int32_t model;
+
+q4	"q4"
+	sp int32_t (5-8);
+
+}

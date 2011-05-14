@@ -286,7 +286,9 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
 	program_code << "if(!"
-		<< questionName_.c_str() << "->isAnswered_ ||" << endl
+		<< questionName_ << "->isAnswered_ ||" << endl
+		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
+		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		<< "stopAtNextQuestion ||" << endl
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
@@ -1459,10 +1461,18 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			<< "}\n"
 			<< endl;
 	code.program_code << "if(!"
-			<< questionName_.c_str() << "_list.questionList[";
+			<< questionName_ << "_list.questionList[";
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->isAnswered_||stopAtNextQuestion||\n"
+	code.program_code << "]->isAnswered_||"
+		<< "(" 
+		<< questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index << "]->isAnswered_"
+		<< " && "
+		<< questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index << "]->VerifyQuestionIntegrity()"
+		<< ") || " 
+		<< "stopAtNextQuestion||\n"
 		<< "(jumpToQuestion == \"" << questionName_ << "\""
 		<< " && " << "jumpToIndex ==  "
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
