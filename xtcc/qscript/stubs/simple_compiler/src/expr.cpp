@@ -465,6 +465,21 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 		code.code_expr << " " << q->questionName_ << "->isAnswered_ ";
 	}
 		break;
+	case oper_count: {
+		AbstractQuestion * q = symbolTableEntry_->question_;
+		string tmp_name = qscript_parser::temp_name_generator.GetNewName();
+		code.code_bef_expr << "int32_t " << tmp_name << " = 0;\n";
+		code.code_bef_expr << "if (!" << q->questionName_ << "->isAnswered_) {\n"
+			<< tmp_name << " = 0;\n"
+			<< "} else {\n" << endl;
+		code.code_bef_expr << "for (set<int32_t>::iterator it = " << q->questionName_ << "->input_data.begin();"
+				<< "it != "
+				<< q->questionName_ <<  "->input_data.end(); ++it) {\n"
+			<< "++" << tmp_name << ";\n"
+			<< "}\n}\n" << endl;
+		code.code_expr <<  tmp_name;
+	}
+		break;
 	default:
 		code.code_expr <<"unhandled AbstractExpression operator: " << __PRETTY_FUNCTION__;
 		print_err(compiler_internal_error, code.code_expr.str().c_str(),

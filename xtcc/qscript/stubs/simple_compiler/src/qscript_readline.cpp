@@ -60,6 +60,7 @@ const char * NCursesReadline::ReadLine()
 				exit(1);
 			case 10:
 			case 13:
+			case 459: /* numeric keypad enter on WINDOWS PDCURSES */
 			case KEY_ENTER:
 				return buffer_.c_str();
 			case 16: /* Ctrl P */

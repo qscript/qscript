@@ -364,6 +364,10 @@ isanswered	{
 		return ISANSWERED;
 	}
 
+count		{
+		return COUNT;
+	}
+
 
 [0-9]+	{
 		if (qscript_parser::show_lex_error_context)

@@ -1,0 +1,13 @@
+inp_count {
+
+	q1 "q1" 
+	mp(10) int32_t (1-10);
+
+	if (count(q1)>1) {
+q2 		"q2" 
+		sp int32_t (1-4);
+	} else {
+		1;
+	}
+
+}

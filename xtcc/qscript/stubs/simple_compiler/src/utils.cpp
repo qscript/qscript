@@ -331,10 +331,9 @@ DataType lcm_type(DataType d1, DataType d2)
 
 DataType arr_deref_type(DataType d1)
 {
-	cerr << "FIXME document this function, add test suite for this function "
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function" << __PRETTY_FUNCTION__ << endl;
+	std::stringstream mesg;
+	mesg << "FIXME document this function, add test suite for this function ";
+	LOG_MAINTAINER_MESSAGE(mesg.str());
 
 	if (d1 >= INT8_ARR_TYPE && d1 <= DOUBLE_ARR_TYPE){
 		return DataType(INT8_TYPE+d1-INT8_ARR_TYPE);
