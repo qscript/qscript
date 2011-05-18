@@ -87,6 +87,7 @@
 %token CLEAR
 %token COLUMN
 %token ISANSWERED
+%token NEWCARD
 
 
 %token '['
@@ -121,6 +122,7 @@
 %type <stmt> goto_stmt
 %type <stmt> clear_stmt
 %type <stmt> column_stmt
+%type <stmt> newcard_stmt
  /*%type <stmt> attributes	*/
 %type <stmt> stubs
 %type <c_stmt> cmpd_stmt
@@ -299,6 +301,7 @@ stmt:	question
 	| goto_stmt
 	| clear_stmt
 	| column_stmt
+	| newcard_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
 		std::stringstream err_msg;
@@ -426,6 +429,12 @@ clear_stmt: CLEAR '(' NAME ')' ';' {
 column_stmt: COLUMN '(' expression ')' ';' {
 		$$ = new ColumnStatement(COLUMN_STMT, qscript_parser::line_no, $3);
 	}
+	;
+
+newcard_stmt: NEWCARD '(' expression ')' ';' {
+		$$ = new NewCardStatement(COLUMN_STMT, qscript_parser::line_no, $3);
+	}
+	;
 
 
 question: NAME TEXT qtype datatype range_allowed_values attribute_list';' {

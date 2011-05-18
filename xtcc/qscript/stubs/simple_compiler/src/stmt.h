@@ -560,5 +560,21 @@ struct ColumnStatement: public AbstractStatement
 	ColumnStatement(const ColumnStatement&);
 };
 
+struct NewCardStatement;
+bool RunNewCardExpressionChecks(NewCardStatement * col_stmt);
+struct NewCardStatement: public AbstractStatement
+{
+	AbstractExpression * cardExpression_;
+
+	NewCardStatement(DataType l_type, int32_t l_line_number,
+					AbstractExpression * expr);
+	void GenerateCode(StatementCompiledCode & code);
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	friend bool RunColumnExpressionChecks();
+	private:
+	NewCardStatement& operator=(const NewCardStatement&);
+	NewCardStatement(const NewCardStatement&);
+};
+
 
 #endif /* stmt_h */

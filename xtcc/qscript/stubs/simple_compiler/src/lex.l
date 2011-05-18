@@ -368,6 +368,10 @@ count		{
 		return COUNT;
 	}
 
+newcard		{
+		return NEWCARD;
+	}
+
 
 [0-9]+	{
 		if (qscript_parser::show_lex_error_context)

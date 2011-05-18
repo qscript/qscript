@@ -1891,6 +1891,31 @@ bool RunColumnExpressionChecks(ColumnStatement * col_stmt)
 	
 }
 
+bool RunNewCardExpressionChecks(NewCardStatement * newcard_stmt)
+{
+	// we want to allow expressions which contain lvalues which are for
+	// loop indices
+	// but for now just allow plain numbers
+	
+	Unary2Expression * un2_expr = dynamic_cast<Unary2Expression*> (newcard_stmt->cardExpression_);
+	if (un2_expr == 0) {
+		stringstream s;
+		s << " Currently only numbers are allowed as column expressions";
+		print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		return false;
+	} else {
+		if (! (un2_expr->exprOperatorType_== oper_num)) {
+			stringstream s;
+			s << " Currently only numbers are allowed as column expressions";
+			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			return false;
+		} 
+		return true;
+		// else all ok 
+	}
+	
+}
+
 void ColumnStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 {
 	ExpressionCompiledCode expr_code;
@@ -1903,6 +1928,38 @@ void ColumnStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 }
 
 void ColumnStatement::GenerateCode(StatementCompiledCode & code)
+{
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+
+NewCardStatement::NewCardStatement(DataType l_type, int32_t l_line_number,
+				AbstractExpression * expr)
+	: AbstractStatement(l_type, l_line_number),
+	  cardExpression_(expr)
+{
+	RunNewCardExpressionChecks(this);
+}
+
+
+void NewCardStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
+{
+	ExpressionCompiledCode expr_code;
+	cardExpression_->PrintExpressionCode(expr_code);
+	string tmp_name = qscript_parser::temp_name_generator.GetNewName();
+	code.program_code << "for (int32_t " <<  tmp_name << " = 0; " << tmp_name << "<"
+		<< expr_code.code_expr.str() << " ; ++ " << tmp_name << " ) {\n"
+		<< "qtm_data_file.fileXcha_.NextCard();\n"
+		<< "}\n";
+	//code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str()
+	//	<< ";\n";
+	if (next_)
+		next_->Generate_ComputeFlatFileMap(code);
+}
+
+void NewCardStatement::GenerateCode(StatementCompiledCode & code)
 {
 	if (next_) {
 		next_->GenerateCode(code);
