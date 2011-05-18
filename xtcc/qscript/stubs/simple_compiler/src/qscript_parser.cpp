@@ -217,9 +217,10 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
 
 	{
-		stringstream mesg;
-		mesg << "do we need to #include \"TempNameGenerator.h\" in generated code? I have commented it out";
-		LOG_MAINTAINER_MESSAGE(mesg.str());
+		//stringstream mesg;
+		//mesg << "do we need to #include \"TempNameGenerator.h\" in generated code? I have commented it out";
+		// LOG_MAINTAINER_MESSAGE(mesg.str());
+		// no we dont
 		//fprintf(script, "#include \"TempNameGenerator.h\"\n");
 	}
 	fprintf(script, "#include \"QuestionAttributes.h\"\n");
@@ -1888,14 +1889,45 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "				}\n");
 	fprintf(script, "		    }\n");
 	fprintf(script, "		    freq_count_file << endl;\n");
-	fprintf(script, "                   freq_count_file << \"code, frequency\" << endl;\n");
-	fprintf(script, "                   // map<int32_t, int32_t>  q_freq_count = it->second;\n");
-	fprintf(script, "                   map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
-	fprintf(script, "                   for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
-	fprintf(script, "                                   it2 != q_freq_count.end(); ++ it2) {\n");
-	fprintf(script, "                       freq_count_file << it2->first << \", \" \n");
-	fprintf(script, "                               << it2->second << endl;\n");
-	fprintf(script, "                   }\n");
+
+	fprintf(script, "			if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {\n");
+	fprintf(script, "				freq_count_file << \"stubs, code, frequency\" << endl;\n");
+	fprintf(script, "				map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
+	fprintf(script, "				vector<stub_pair> & vec= (nq->nr_ptr->stubs);\n");
+	fprintf(script, "				for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
+	fprintf(script, "					it2 != q_freq_count.end(); ++ it2)\n");
+	fprintf(script, "				{\n");
+	fprintf(script, "					for (int i=0; i<vec.size(); ++i) {\n");
+	fprintf(script, "						if (vec[i].code == it2->first) {\n");
+	fprintf(script, "							freq_count_file << \"\\\"\" << vec[i].stub_text\n");
+	fprintf(script, "								<< \"\\\"\" << \",\";\n");
+	fprintf(script, "						}\n");
+	fprintf(script, "					}\n");
+	fprintf(script, "					freq_count_file << it2->first << \", \"\n");
+	fprintf(script, "						<< it2->second << endl;\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			} else {\n");
+	fprintf(script, "				freq_count_file << \", code, frequency\" << endl;\n");
+	fprintf(script, "				map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
+	fprintf(script, "				for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
+	fprintf(script, "					it2 != q_freq_count.end(); ++ it2)\n");
+	fprintf(script, "				{\n");
+	fprintf(script, "					freq_count_file << \", \" << it2->first << \", \"\n");
+	fprintf(script, "						<< it2->second << endl;\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			}\n");
+
+
+	// fprintf(script, "                   freq_count_file << \"code, frequency\" << endl;\n");
+	// fprintf(script, "                   // map<int32_t, int32_t>  q_freq_count = it->second;\n");
+	// fprintf(script, "                   map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
+	// fprintf(script, "                   for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
+	// fprintf(script, "                                   it2 != q_freq_count.end(); ++ it2) {\n");
+	// fprintf(script, "                       freq_count_file << it2->first << \", \" \n");
+	// fprintf(script, "                               << it2->second << endl;\n");
+	// fprintf(script, "                   }\n");
+
+
 	fprintf(script, "           }\n");
 	fprintf(script, "           freq_count_file << endl;\n");
 	fprintf(script, "    }\n");
