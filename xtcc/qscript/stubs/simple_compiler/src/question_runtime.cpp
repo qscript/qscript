@@ -12,6 +12,10 @@ using namespace std;
 extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 
+void Print_DisplayDataUnitVector (WINDOW * stub_list_window, 
+		vector<display_data::DisplayDataUnit> & disp_vec,
+		int &xPos, int &yPos, int maxWinX);
+
 	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
@@ -73,7 +77,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
 			 , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	if(displayData_.begin() == displayData_.end()){
+	if (displayData_.begin() == displayData_.end()) {
 		for(	set<int32_t>::iterator it = r_data->indiv.begin();
 				it != r_data->indiv.end(); ++it){
 			//displayData_.insert(*it);
@@ -180,6 +184,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 		}
 #endif /* 0 */
+		/*
 		for (vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
 				it != displayData_.end(); ++it)
 		{
@@ -197,6 +202,9 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			mvwprintw(stub_list_window, currYpos, currXpos, "%s", s.str().c_str());
 			currXpos += s.str().length() + 1;
 		}
+		*/
+		Print_DisplayDataUnitVector (stub_list_window, 
+				displayData_, currXpos, currYpos, maxWinX);
 		// mvwprintw(data_entry_window, 2, 1, "just before exit eval");
 
 		//wrefresh(stub_list_window);
@@ -262,6 +270,45 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
+	if (displayData_.begin() == displayData_.end()) {
+		vector<stub_pair> & vec= (nr_ptr->stubs);
+		if (vec.size() == 0) {
+			cerr << "runtime error: Impossible !!! stubs with no codes: "
+				<< __LINE__ << ", " << __FILE__ << __PRETTY_FUNCTION__
+				<< " question name: " << questionName_ << endl;
+			exit(1);
+		}
+		int start_code = vec[0].code;
+		int previous_code = start_code;
+		int current_code = start_code;
+		for (int32_t i=0; i<vec.size(); ++i) {
+			current_code = vec[i].code;
+			if (current_code - previous_code > 1) {
+				if (start_code < previous_code) {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+					start_code = current_code;
+					previous_code = current_code;
+				} else {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code));
+					start_code = current_code;
+					previous_code = current_code;
+				}
+			}
+			if (i>0) {
+				previous_code = current_code;
+			}
+			//displayData_.push_back(display_data::DisplayDataUnit(vec[i].code));
+		}
+		if (start_code < previous_code) {
+			displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+			start_code = current_code;
+			previous_code = current_code;
+		} else {
+			displayData_.push_back(display_data::DisplayDataUnit(start_code));
+			start_code = current_code;
+			previous_code = current_code;
+		}
+	}
 	if (question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0) {
 		cout << questionName_ << ".";
 		if (loop_index_values.size()>0) {
@@ -321,9 +368,11 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
 		update_panels();
 		doupdate();
-		//int32_t maxWinX, maxWinY;
-		//getmaxyx(data_entry_window, maxWinY, maxWinX);
+		int32_t maxWinX, maxWinY;
+		getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
+		Print_DisplayDataUnitVector (stub_list_window, displayData_, currXpos, currYpos, maxWinX);
+		++currYpos; currXpos = 1;
 
 		//vector<stub_pair> & vec= *stub_ptr;
 		vector<stub_pair> & vec= (nr_ptr->stubs);
@@ -390,7 +439,7 @@ NamedStubQuestion::NamedStubQuestion(
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes
 		)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0)
+	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_()
 {
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
@@ -699,7 +748,7 @@ NamedStubQuestion::NamedStubQuestion(
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0)
+	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_()
 { 
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
@@ -734,4 +783,28 @@ bool AbstractQuestion::VerifyQuestionIntegrity()
 		}
 	}
 	return has_integrity;
+}
+
+void Print_DisplayDataUnitVector(WINDOW * stub_list_window, 
+		vector<display_data::DisplayDataUnit> & disp_vec,
+		int &xPos, int &yPos, int maxWinX)
+{
+	using display_data::DisplayDataUnit;
+	for (vector<DisplayDataUnit>::iterator it = disp_vec.begin();
+				it != disp_vec.end(); ++it)
+	{
+		//cout << *it << endl;
+		stringstream s;
+
+		if ( (*it).displayDataType_ == display_data::single_element) {
+			s << (*it).startOfRangeOrSingle_ << ",";
+		} else if ( (*it).displayDataType_ == display_data::range_element) {
+			s << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_ << endl;
+		}
+		if (xPos + s.str().length() > maxWinX) {
+			xPos =1, ++yPos;
+		} 
+		mvwprintw(stub_list_window, yPos, xPos, "%s", s.str().c_str());
+		xPos += s.str().length() + 1;
+	}
 }

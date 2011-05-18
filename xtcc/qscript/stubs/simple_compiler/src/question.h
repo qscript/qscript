@@ -256,6 +256,7 @@ class NamedStubQuestion: public AbstractQuestion
 	string named_list;
 	named_range * nr_ptr;
 	vector<stub_pair> * stub_ptr;
+	vector<display_data::DisplayDataUnit> displayData_;
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
