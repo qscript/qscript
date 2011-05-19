@@ -116,7 +116,7 @@ struct AbstractQuestion: public AbstractStatement
 		vector<AbstractQuestion*> & question_list
 		, AbstractStatement * stop_at);
 	void PrintEvalAndNavigateCode(ostringstream & program_code);
-	user_response::UserResponseType GetDataFromUser(WINDOW * data_entry_window);
+	user_response::UserResponseType GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window);
 
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data);
@@ -257,6 +257,7 @@ class NamedStubQuestion: public AbstractQuestion
 	named_range * nr_ptr;
 	vector<stub_pair> * stub_ptr;
 	vector<display_data::DisplayDataUnit> displayData_;
+	int currentPage_;
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name

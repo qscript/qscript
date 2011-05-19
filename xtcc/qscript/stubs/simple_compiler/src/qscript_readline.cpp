@@ -8,6 +8,8 @@
 #include "qscript_readline.h"
 #include "user_navigation.h"
 #include "UserResponse.h"
+#include "question.h"
+#include "named_range.h"
 
 #define CTL_LEFT 	0x1bb
 #define CTL_RIGHT 	0x1bc
@@ -19,12 +21,19 @@ using std::string;
 extern user_response::UserResponseType the_user_response;
 extern UserNavigation user_navigation;
 
-NCursesReadline::NCursesReadline(WINDOW * l_data_entry_window)
-	: buffer_(), insertionPoint_(0) //, lastBufPointer_(0)
-	 , dataEntryWindow_(l_data_entry_window)
+void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq);
+void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq);
+
+NCursesReadline::NCursesReadline(WINDOW * l_question_window,
+		WINDOW * l_stub_list_window, 
+		WINDOW * l_data_entry_window)
+	: buffer_(), insertionPoint_(0),
+	  questionWindow_(l_question_window),
+	  stubListWindow_(l_stub_list_window),
+	  dataEntryWindow_(l_data_entry_window)
 	{ buffer_.reserve(4095); }
 
-const char * NCursesReadline::ReadLine()
+const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 {
 	wmove(dataEntryWindow_, 1, 1);
 	mvwprintw(dataEntryWindow_,1,1, "%s", buffer_.c_str());
@@ -123,6 +132,23 @@ const char * NCursesReadline::ReadLine()
 			case KEY_SRIGHT:
 				DoShiftRight();
 				break;
+			case KEY_NPAGE:
+				mvwprintw(dataEntryWindow_,2,50, "got KEY_NPAGE");
+				if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
+					wclear(stubListWindow_);
+					box(stubListWindow_, 0 , 0);
+					do_pagedown(questionWindow_, stubListWindow_, dataEntryWindow_, nq);
+				}
+				break;
+			case KEY_PPAGE:
+				mvwprintw(dataEntryWindow_,2,50, "got KEY_PPAGE");
+				if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
+					wclear(stubListWindow_);
+					box(stubListWindow_, 0 , 0);
+					do_pageup(questionWindow_, stubListWindow_, dataEntryWindow_, nq);
+				}
+				break;
+
 			default:
 				//mvprintw(0,0, "unknown key: %d\n", c);
 				mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c);
@@ -138,7 +164,7 @@ const char * NCursesReadline::ReadLine()
 		EraseLine(curY);
 		box(dataEntryWindow_, 0, 0);
 		mvwprintw(dataEntryWindow_,1,1, "%s", buffer_.c_str());
-		mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c);
+		//mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c);
 		wmove(dataEntryWindow_, curY, 1+insertionPoint_);// since our X origin is at 1
 		//wrefresh(dataEntryWindow_);
 		update_panels();
@@ -319,6 +345,80 @@ void NCursesReadline::DoDeleteWordForward()
 			buffer_.erase(start_mark, length);
 			// no need to updated insertionPoint_ - it remains as it was
 			return;
+		}
+	}
+}
+
+
+void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq)
+{
+	int32_t maxWinX, maxWinY;
+	getmaxyx(stubListWindow_, maxWinY, maxWinX);
+	int page_size = maxWinY - 3;
+	if (page_size>0) {
+
+
+		//vector<stub_pair> & vec= *stub_ptr;
+		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+		int total_pages = (vec.size() / page_size) + 1;
+		int32_t currXpos = 1, currYpos = 2;
+		if (page_size < vec.size() && nq->currentPage_ < total_pages) {
+			int max_index = (nq->currentPage_+1) * page_size < vec.size() ? (nq->currentPage_+1) * page_size : vec.size();
+			for(uint32_t i = (nq->currentPage_) * page_size; i< max_index; ++i) {
+				if( vec[i].mask) {
+					//cout << vec[i].stub_text << ": " << vec[i].code << endl;
+					//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
+					mvwprintw(stubListWindow_, currYpos, currXpos, "%s: ", vec[i].stub_text.c_str());
+					set<int32_t>::iterator found= nq->input_data.find(vec[i].code);
+					if (found != nq->input_data.end() ){
+						wattroff(stubListWindow_, COLOR_PAIR(2));
+						wattron(stubListWindow_, COLOR_PAIR(4));
+						mvwprintw(stubListWindow_, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
+						wattroff(stubListWindow_, COLOR_PAIR(4));
+						wattron(stubListWindow_, COLOR_PAIR(2));
+					} else {
+						mvwprintw(stubListWindow_, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
+					}
+					++currYpos;
+				}
+			}
+			++nq->currentPage_;
+		}
+	}
+}
+
+
+void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq)
+{
+	int32_t maxWinX, maxWinY;
+	getmaxyx(stubListWindow_, maxWinY, maxWinX);
+	int page_size = maxWinY - 4;
+	if (page_size>0) {
+		//vector<stub_pair> & vec= *stub_ptr;
+		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+		int total_pages = (vec.size() / page_size) + 1;
+		int32_t currXpos = 1, currYpos = 2;
+		if (page_size < vec.size() && nq->currentPage_ > 0) {
+			int max_index = nq->currentPage_ * page_size < vec.size() ? nq->currentPage_ * page_size : vec.size();
+			for(uint32_t i = (nq->currentPage_-1) * page_size; i< max_index; ++i) {
+				if( vec[i].mask) {
+					//cout << vec[i].stub_text << ": " << vec[i].code << endl;
+					//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
+					mvwprintw(stubListWindow_, currYpos, currXpos, "%s: ", vec[i].stub_text.c_str());
+					set<int32_t>::iterator found= nq->input_data.find(vec[i].code);
+					if (found != nq->input_data.end() ){
+						wattroff(stubListWindow_, COLOR_PAIR(2));
+						wattron(stubListWindow_, COLOR_PAIR(4));
+						mvwprintw(stubListWindow_, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
+						wattroff(stubListWindow_, COLOR_PAIR(4));
+						wattron(stubListWindow_, COLOR_PAIR(2));
+					} else {
+						mvwprintw(stubListWindow_, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
+					}
+					++currYpos;
+				}
+			}
+			--nq->currentPage_;
 		}
 	}
 }

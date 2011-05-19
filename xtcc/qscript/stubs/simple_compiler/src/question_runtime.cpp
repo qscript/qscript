@@ -213,7 +213,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
 
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
 
 /*
 get_data_again:
@@ -400,7 +400,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		doupdate();
 		// AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
 
 	/*
 get_data_again:
@@ -439,7 +439,7 @@ NamedStubQuestion::NamedStubQuestion(
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes
 		)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_()
+	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 {
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
@@ -460,7 +460,7 @@ NamedStubQuestion::NamedStubQuestion(
 }
 
 
-user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
+user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window)
 {
 	// cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
 	string err_mesg, re_arranged_buffer;
@@ -513,10 +513,11 @@ ask_again:
 label_ask_again:
 			user_response::UserResponseType user_resp 
 				= read_data_from_window(
+						question_window, stub_list_window,
 						data_entry_window, err_mesg.c_str()
 					      //, (!invalid_code), re_arranged_buffer
 					      , false, re_arranged_buffer
-					      , pos_1st_invalid_data);
+					      , pos_1st_invalid_data, this);
 			// if (user_resp == user_response::UserEnteredNavigation) {
 			// 	return user_resp;
 			// }
@@ -748,7 +749,7 @@ NamedStubQuestion::NamedStubQuestion(
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_()
+	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 { 
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
