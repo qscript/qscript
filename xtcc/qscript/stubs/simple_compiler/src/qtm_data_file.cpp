@@ -113,6 +113,8 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 		else if (max_code < 100000000) {
 			width_ = 8;
 		}
+		else if (max_code < 1000000000) {
+			width_ = 9;
 		else {
 			cout	<< " max_code " << max_code << " for question: " 
 				<< q->questionName_ << " exceeds max length = 8 we are programmed to handled ... exiting " 
