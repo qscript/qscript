@@ -28,6 +28,7 @@ int32_t scan_dataparse();
 //extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 // extern user_response::UserResponseType the_user_response;
+extern bool no_question_save_restore_optimization;
 
 using std::cout;
 using std::endl;
@@ -1424,6 +1425,7 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 	code.program_code << "lab_" << questionName_ << ":" << endl;
 
 
+
 	if(for_bounds_stack.size() == 0){
 		code.program_code << "if( back_jump == true  && " << questionName_ <<  "->isAnswered_ == true ) {" << endl;
 		//for(int32_t i = active_pop_vars_for_this_question.size()-1; i>=0; --i){
@@ -1431,12 +1433,17 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		//}
 		// ostringstream &s(code.program_code);
 		// the code below should be extracted to a method: NxD 11-Jun-2010
-		SetupSimpleQuestionRestore(code);
+
+		// enable this later: virtual memory exhaustion because generated code too big
+		if (no_question_save_restore_optimization == false) 
+			SetupSimpleQuestionRestore(code);
 		code.program_code << "if( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump = false;\n}\n";
 		code.program_code << "}" << endl;
 
 
-		SetupSimpleQuestionSave(code);
+		// enable this later: virtual memory exhaustion because generated code too big
+		if (no_question_save_restore_optimization == false) 
+			SetupSimpleQuestionSave(code);
 	} else {
 		// Handle Array Question here
 
@@ -1445,9 +1452,13 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 			<<  "_list.questionList["
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]->isAnswered_ == true ) {" << endl;
-		SetupArrayQuestionRestore(code);
+		// enable this later: virtual memory exhaustion because generated code too big
+		if (no_question_save_restore_optimization == false) 
+			SetupArrayQuestionRestore(code);
 		s << "}" << endl;
-		SetupArrayQuestionSave(code);
+		// enable this later: virtual memory exhaustion because generated code too big
+		if (no_question_save_restore_optimization == false) 
+			SetupArrayQuestionSave(code);
 	}
 	code.program_code << "/* EXIT: AbstractQuestion::PrintSetupBackJump()  */\n";
 }
