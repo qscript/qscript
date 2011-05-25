@@ -40,7 +40,9 @@ namespace qscript_parser
 	extern int32_t flagIsAFunctionBody_;
 	extern int32_t flagIsAForBody_;
 	extern bool flag_next_stmt_start_of_block;
+	extern bool flag_next_question_start_of_block;
 	extern vector<bool> blk_start_flag;
+	extern vector<bool> blk_question_start_flag;
 	extern vector <AbstractStatement*> blk_heads;
 	//const int32_t DEFAULT_STACK_SIZE=20;
 	extern vector<CompoundStatement*> stack_cmpd_stmt;

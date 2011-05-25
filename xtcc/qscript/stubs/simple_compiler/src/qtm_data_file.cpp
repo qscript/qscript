@@ -164,8 +164,8 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 		int currentColumnMod10 = 0;
 		int add_displacement = 0;
 		if (flag_nice_map) {
+			bufferBetweenQuestions = 10;
 			if (q->loop_index_values.size() == 0) {
-				bufferBetweenQuestions = 10;
 				currentColumnMod10 = currentColumn_ % 10;
 				//if (currentColumnMod10 != 1) { 
 					add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
@@ -174,9 +174,20 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 				//}
 			} else {
 				int n_dimensions = q->loop_index_values.size();
-				if (q->loop_index_values[n_dimensions-1] == 0) {
+				if (q->loop_index_values[n_dimensions-1] == 0 && q->isStartOfBlock_) {
 					// first array question in a block
 					NextCard();
+					if (width_ == 1) {
+					} else {
+						currentColumnMod10 = currentColumn_ % 10;
+						add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+					}
+				} else {
+					if (width_ == 1) {
+					} else {
+						currentColumnMod10 = currentColumn_ % 10;
+						add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+					}
 				}
 			}
 		}

@@ -68,6 +68,7 @@ AbstractQuestion::AbstractQuestion(
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
+	, isStartOfBlock_(false)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -120,6 +121,7 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList)
 	  , maxCode_(0)
+	, isStartOfBlock_(false)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -1078,6 +1080,11 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 			<< ", dum_" << questionName_;
 	}
 	quest_decl << "," << question_attributes.Print();
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
 	quest_decl << ");\n";
 
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
@@ -1157,6 +1164,11 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 			<< ", dum_" << questionName_;
 	}
 	quest_decl << "," << question_attributes.Print();
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
 	quest_decl << ");\n";
 	if (array_mode)
 		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";

@@ -14,6 +14,7 @@ AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
@@ -24,7 +25,7 @@ AbstractQuestion::AbstractQuestion(
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	  , mutexCodeList_()
-	  , maxCode_(0)
+	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -75,7 +76,7 @@ RangeQuestion::~RangeQuestion()
 
 DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
 	: AbstractQuestion(QUESTION_TYPE, 0, l_qno, string(l_qno + "_dummy"), spn, 0
-			   , INT32_TYPE, QuestionAttributes(true, true) )
+			   , INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
 { }
 

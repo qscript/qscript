@@ -3145,7 +3145,9 @@ CompoundStatement* ProcessOpenCurly()
 		cmpdStmt->scope_= new Scope();
 	}
 	flag_next_stmt_start_of_block=true;
+	flag_next_question_start_of_block = true;
 	blk_start_flag.push_back(flag_next_stmt_start_of_block);
+	blk_question_start_flag.push_back(flag_next_question_start_of_block);
 	active_scope_list.push_back(cmpdStmt->scope_);
 	active_scope = cmpdStmt->scope_;
 	return cmpdStmt;
@@ -3168,8 +3170,13 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 		active_scope = active_scope_list[tmp];
 	}
 	struct AbstractStatement* head_of_this_chain=blk_heads.back();
-	if(blk_start_flag.size() > 0){
+	if(blk_start_flag.size() > 0) {
 		flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
+	}
+	if (blk_question_start_flag.size()>0) {
+		//flag_next_question_start_of_block = blk_question_start_flag[blk_question_start_flag.size()-1];
+		blk_question_start_flag.pop_back();
+		flag_next_question_start_of_block = blk_question_start_flag.back();
 	}
 	if(  head_of_this_chain==0){
 		//cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
@@ -3276,6 +3283,18 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 	// and store that into the symbol table
 	// I should be able to retrieve that
 	// AbstractQuestion* pointer later
+	if (flag_next_question_start_of_block) {
+		q->isStartOfBlock_ = true;
+		flag_next_question_start_of_block = false;
+		blk_question_start_flag[blk_question_start_flag.size()-1] = false;
+		cout << "blk_question_start_flag.size(): " << blk_question_start_flag.size() << endl;
+		cout << "At question: " << name << ", resetting flag_next_question_start_of_block = false " << endl;
+		cout << " blk_question_start_flag looks like this: " << endl;
+		for (int i=0; i<blk_question_start_flag.size(); ++i) {
+			cout << " " <<blk_question_start_flag[i] ;
+		}
+		cout << endl;
+	}
 	
 	return q;
 }
@@ -3345,6 +3364,20 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	question_list.push_back(q);
 	//$$=q;
 	++(cmpd_stmt_ptr->counterContainsQuestions_);
+
+	if (flag_next_question_start_of_block) {
+		q->isStartOfBlock_ = true;
+		flag_next_question_start_of_block = false;
+		blk_question_start_flag[blk_question_start_flag.size()-1] = false;
+		cout << "blk_question_start_flag.size(): " << blk_question_start_flag.size() << endl;
+		cout << "At question: " << name << ", resetting flag_next_question_start_of_block = false " << endl;
+		cout << " blk_question_start_flag looks like this: " << endl;
+		for (int i=0; i<blk_question_start_flag.size(); ++i) {
+			cout << " " <<blk_question_start_flag[i] ;
+		}
+		cout << endl;
+	}
+
 	return q;
 }
 

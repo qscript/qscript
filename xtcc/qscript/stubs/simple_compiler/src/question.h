@@ -54,6 +54,7 @@ struct AbstractQuestion: public AbstractStatement
 	QuestionAttributes question_attributes;
 	XtccSet mutexCodeList_;
 	int maxCode_;
+	bool isStartOfBlock_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
@@ -69,6 +70,7 @@ struct AbstractQuestion: public AbstractStatement
 		DataType l_type,int32_t l_no, string l_name, string l_text
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 	//! this is only called in the compile time environment
 	AbstractQuestion(
@@ -87,6 +89,7 @@ struct AbstractQuestion: public AbstractStatement
 		, const vector<int32_t>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 	virtual ~AbstractQuestion();
 //	virtual void GenerateCode(ostringstream & quest_defns
@@ -181,6 +184,7 @@ struct RangeQuestion: public AbstractQuestion
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 
 	//! this is only called in the compile time environment
@@ -201,6 +205,7 @@ struct RangeQuestion: public AbstractQuestion
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
@@ -285,13 +290,15 @@ class NamedStubQuestion: public AbstractQuestion
 		, DataType l_dt, named_range * l_nr_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 	NamedStubQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		DataType this_stmt_type, int32_t line_number
+		, string l_name , string l_q_text
+		, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 	//! only called in the runtime environment
 	NamedStubQuestion(
@@ -302,6 +309,7 @@ class NamedStubQuestion: public AbstractQuestion
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
