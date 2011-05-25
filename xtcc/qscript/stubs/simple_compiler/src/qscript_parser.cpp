@@ -1097,7 +1097,9 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf (script, "			width = 7;\n");
 	fprintf (script, "		} else if (max_code < 100000000) {\n");
 	fprintf (script, "			width = 8;\n");
-	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 8 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		} else if (max_code < 1000000000) {\n");
+	fprintf (script, "			width = 9;\n");
+	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 9 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
 	fprintf (script, "		total_length = width * q->no_mpn;\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "\n");
@@ -1190,7 +1192,9 @@ void print_qtm_data_class(FILE *script)
 	fprintf (script, "			width = 7;\n");
 	fprintf (script, "		} else if (max_code < 100000000) {\n");
 	fprintf (script, "			width = 8;\n");
-	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 8 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		} else if (max_code < 1000000000) {\n");
+	fprintf (script, "			width = 9;\n");
+	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 9 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
 	fprintf (script, "		total_length = width * q->no_mpn;\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "\n");

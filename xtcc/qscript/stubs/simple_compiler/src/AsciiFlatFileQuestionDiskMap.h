@@ -55,9 +55,13 @@ class AsciiFlatFileQuestionDiskMap
 			{
 				width = 8;
 			}
+			else if (max_code < 1000000000)
+			{
+				width = 9;
+			}
 			else
 			{
-				cout << " max_code " << max_code << " for question: " << q->questionName_ << " exceeds max length = 8 we are programmed to handled ... exiting " << __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
+				cout << " max_code " << max_code << " for question: " << q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " << __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
 				exit(1);
 			}
 			total_length = width * q->no_mpn;

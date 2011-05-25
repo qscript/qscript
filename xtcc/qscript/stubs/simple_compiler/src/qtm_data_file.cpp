@@ -118,7 +118,7 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 		}
 		else {
 			cout	<< " max_code " << max_code << " for question: " 
-				<< q->questionName_ << " exceeds max length = 8 we are programmed to handled ... exiting " 
+				<< q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " 
 				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
 			exit(1);
 		}
