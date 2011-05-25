@@ -32,6 +32,7 @@ using  std::cout;
 	void InitStatement();
 
 bool  no_question_save_restore_optimization;
+bool flag_nice_map;
 
 int32_t main(int32_t argc, char* argv[])
 {
@@ -48,7 +49,7 @@ int32_t main(int32_t argc, char* argv[])
 	bool compile_to_cpp_only_flag = false;
 	bool latex_flag = false;
 
-	while( (c = getopt(argc, argv, "olcsnf:")) != -1 ){
+	while( (c = getopt(argc, argv, "molcsnf:")) != -1 ){
 		char ch = optopt;
 		switch(c){
 		case 'c':
@@ -69,6 +70,9 @@ int32_t main(int32_t argc, char* argv[])
 			break;
 		case 'o':
 			no_question_save_restore_optimization = true;
+			break;
+		case 'm':
+			flag_nice_map = true;
 			break;
 		case '?':
 			if (optopt == 'f' )
@@ -113,6 +117,7 @@ int32_t main(int32_t argc, char* argv[])
 		cout << " -c            - compile to c++ only - dont invoke c++ compiler" << endl;
 		cout << " -l            - run latex on generated latex file" << endl;
 		cout << " -o            - no question save/restore optimization" << endl;
+		cout << " -m            - make a nice map" << endl;
 		exit(0);
 	}
 	active_scope = new Scope();

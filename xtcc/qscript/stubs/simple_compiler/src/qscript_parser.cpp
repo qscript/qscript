@@ -11,6 +11,7 @@
 
 extern int32_t qscript_confparse();
 extern void qscript_confrestart(FILE *input_file);
+extern bool flag_nice_map;
 namespace qscript_parser
 {
 	using std::cerr;
@@ -250,6 +251,12 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "extern vector<int32_t> data;\n");
+	if ( flag_nice_map ) {
+		fprintf(script, "bool flag_nice_map = true;\n");
+	} else {
+		fprintf(script, "bool flag_nice_map = false;\n");
+	}
+	
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");

@@ -31,7 +31,7 @@ struct QtmFileCharacteristics
 	//QtmFileCharacteristics();
 	void NextCard();
 	int GetCurrentColumnPosition();
-	int UpdateCurrentColumn(int width_);
+	int UpdateCurrentColumn(int width_, AbstractQuestion * q);
 	QtmFileCharacteristics(int p_cardDataStartAt_, 
 			int p_cardWrapAroundAt,
 			bool p_dontBreakQuestionsAtBoundary,

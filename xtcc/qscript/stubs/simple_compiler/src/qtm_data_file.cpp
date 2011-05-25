@@ -12,6 +12,7 @@
 
 
 set<string> qtm_include_files;
+extern bool flag_nice_map;
 
 
 namespace qtm_data_file_ns {
@@ -139,15 +140,20 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 	}
 	totalLength_ = width_;
 		
-	startPosition_ = qtmDataFile_.fileXcha_.UpdateCurrentColumn(width_);
+	startPosition_ = qtmDataFile_.fileXcha_.UpdateCurrentColumn(width_, q);
 	int noBuckets = width_;
 	for (int i=0; i< noBuckets; ++i) {
 		codeBucketVec_.push_back(CodeBucket());	
 	}
 }
 
-int QtmFileCharacteristics::UpdateCurrentColumn(int width_)
+int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q)
 {
+	int bufferBetweenQuestions = 0;
+	stringstream mesg;
+	mesg << "MAINTAINTER NOTE:  move bufferBetweenQuestions to config file as a paramater ";
+	cerr << mesg.str() << ", line: " <<  __LINE__ << ", " << __FILE__ << ", func: " 
+		<< __PRETTY_FUNCTION__ << endl;
 	if (qtmFileMode_ != READ_EQ_0) {
 		if (width_ > (cardDataWrapAroundAt_ - cardDataStartAt_)) {
 			cerr << " the questions width_ exceeds the width_ that can fit in a single card ... "
@@ -155,10 +161,35 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_)
 			cerr << "exiting ...\n";
 			exit(1);
 		}
-	
-		if (currentColumn_ + width_ >= cardDataWrapAroundAt_)  {
+		int currentColumnMod10 = 0;
+		int add_displacement = 0;
+		if (flag_nice_map) {
+			if (q->loop_index_values.size() == 0) {
+				bufferBetweenQuestions = 10;
+				currentColumnMod10 = currentColumn_ % 10;
+				//if (currentColumnMod10 != 1) { 
+					add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+				//} else {
+				//	add_displacement =  bufferBetweenQuestions;
+				//}
+			} else {
+				int n_dimensions = q->loop_index_values.size();
+				if (q->loop_index_values[n_dimensions-1] == 0) {
+					// first array question in a block
+					NextCard();
+				}
+			}
+		}
+
+		currentColumn_ += add_displacement ;
+
+		if (currentColumn_ > cardDataWrapAroundAt_ || currentColumn_ + width_ > cardDataWrapAroundAt_) {
 			NextCard();
 		}
+	
+		// if (currentColumn_ + width_ >= cardDataWrapAroundAt_)  {
+		// 	NextCard();
+		// }
 	}
 	int question_pos = GetCurrentColumnPosition();
 	currentColumn_ += width_;
