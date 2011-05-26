@@ -1426,12 +1426,14 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 	using qscript_parser::map_of_active_vars_for_questions;
 	code.program_code << "/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():"
 		<< for_bounds_stack.size() << " */\n";
-	code.quest_defns << "map <string,int8_t> " << questionName_ << "_scope_int8_t;\n";
-	code.quest_defns << "map <string,int16_t> " << questionName_ << "_scope_int16_t;\n";
-	code.quest_defns << "map <string,int32_t> " << questionName_ << "_scope_int32_t;\n";
-	code.quest_defns << "map <string,float> " << questionName_ << "_scope_float_t;\n";
-	code.quest_defns << "map <string,double> " << questionName_ << "_scope_double_t;\n";
-	code.quest_defns << "map <string,set<int32_t> > " << questionName_ << "_scope_question_t;\n";
+	if (no_question_save_restore_optimization==false) {
+		code.quest_defns << "map <string,int8_t> " << questionName_ << "_scope_int8_t;\n";
+		code.quest_defns << "map <string,int16_t> " << questionName_ << "_scope_int16_t;\n";
+		code.quest_defns << "map <string,int32_t> " << questionName_ << "_scope_int32_t;\n";
+		code.quest_defns << "map <string,float> " << questionName_ << "_scope_float_t;\n";
+		code.quest_defns << "map <string,double> " << questionName_ << "_scope_double_t;\n";
+		code.quest_defns << "map <string,set<int32_t> > " << questionName_ << "_scope_question_t;\n";
+	}
 
 
 	code.program_code << "lab_" << questionName_ << ":" << endl;
