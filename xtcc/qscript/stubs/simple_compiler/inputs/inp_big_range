@@ -1,0 +1,8 @@
+inp_big_range {
+
+q1 "q1" sp int32_t (1-999999999);
+q1_1 "q1" sp int32_t (1-999);
+
+q2 "q2" sp int32_t (1-999999999);
+q2_2 "q2" sp int32_t (1-99);
+}

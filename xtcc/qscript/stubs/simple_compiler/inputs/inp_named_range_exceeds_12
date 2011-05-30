@@ -1,0 +1,73 @@
+
+inp_named_range_exceeds_12 {
+
+
+	stubs model = 
+		"cor " 1
+		"ech " 2
+		"yrs " 3
+		"tii " 4
+		"snny" 5
+		"optr" 6
+		"vctr" 7
+		"ikn" 8
+		"endv" 9
+		"s40" 10
+		"s60" 11
+		"307" 15
+		"407" 16
+		"507" 17
+		"a4"  21
+		"x5"  23
+		"a5"  25
+		"a6"  27
+		"a8" 28
+		"q7" 29;
+
+q1	"q1:model"
+	sp int32_t model;
+
+
+	stubs model2 = 
+		"cor " 1
+		"ech " 2
+		"yrs " 3
+		"tii " 4
+		"snny" 5
+		"optr" 6
+		"vctr" 7
+		"ikn" 8
+		"endv" 9
+		"s40" 10
+		"s60" 11
+		"307" 15
+		"407" 16
+		"507" 17
+		"a4"  21
+		"x5"  23
+		"a5"  25
+		"a6"  27
+		"a8" 28
+		"q7" 29
+		"c200" 31;
+
+q2	"q2:model"
+	sp int32_t model2;
+
+	stubs model3 = 
+		"cor " 1
+		"ech " 2
+		"yrs " 3
+		"tii " 4
+		"snny" 5
+		"optr" 6
+		"vctr" 7
+		"ikn" 8
+		"endv" 9
+		"s40" 10
+		"s60" 11;
+
+q3	"q3:model"
+	sp int32_t model3;
+
+}

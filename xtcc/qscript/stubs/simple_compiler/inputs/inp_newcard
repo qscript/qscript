@@ -1,0 +1,39 @@
+inp_newcard {
+	int32_t i1=0;
+	int32_t i2=0;
+	int32_t i3=0;
+	column (50);
+
+	for(i1=0; i1<5; i1=i1+1){
+		// Remember that indexes count from 0 - so this will 
+		// get activated when i1 = 3 which is the 4 iteration 
+		if (i1>2) {
+			for(i2=0; i2<2; i2=i2+1){
+				q1 "Q1. This is question 1" sp int32_t (1,2,3,4);
+			}
+		}
+		for(i2=0; i2<3; i2=i2+1){
+			q2 "Q2. This is question 2" sp int32_t (1,2,3,4);
+		}
+	}
+	newcard(3);
+
+	q3_1 "q3.1 " mp(5) int32_t (1-99);
+	q3_2 "q3.2 " mp(5) int32_t (1-99);
+	newcard(3);
+
+
+	for(i1=0; i1<5; i1=i1+1){
+		// Remember that indexes count from 0 - so this will 
+		// get activated when i1 = 3 which is the 4 iteration 
+		if (i1>2) {
+			for(i2=0; i2<2; i2=i2+1){
+				q4 "Q1. " mp(10) int32_t (1-200);
+			}
+		}
+		for(i2=0; i2<3; i2=i2+1){
+			q5 "Q5. " mp(10) int32_t (1-300);
+		}
+	}
+	
+}
