@@ -1,0 +1,19 @@
+inp_modulus_expr 
+{
+	int32_t i1=100;
+	int32_t i2 = 7;
+	int32_t i3 = 0;
+
+	i3 = i1 % i2;
+
+	printf("%d\n", i3);
+
+	dateofinterview "Date of Interview(ddmmyyyy)" sp int32_t (1-99999999);
+	int32_t year = (dateofinterview%10000);
+	 
+	 
+	if (!(year==2011) ) {
+		    clear (dateofinterview);
+	}        
+
+}
