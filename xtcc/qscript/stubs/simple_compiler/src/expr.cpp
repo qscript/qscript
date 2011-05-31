@@ -756,11 +756,12 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 				}
 			}
 			if (exprOperatorType_ == oper_mod
-			    && !(is_of_int_type(leftOperand_->type_)
+			    && !( (is_of_int_type(leftOperand_->type_)
+				    || (leftOperand_->type_ == QUESTION_TYPE))
 				 && is_of_int_type(rightOperand_->type_))) {
 				print_err(compiler_sem_err,
-					  " operands of %% should be of type int32_t/char only", line_no, __LINE__, __FILE__);
-				//cerr << " operands of %% should be of type int32_t/char only" << endl;
+					  " operands of % should be of type int32_t/char only", line_no, __LINE__, __FILE__);
+				cerr << "leftOperand_ type: is " << leftOperand_->type_ << endl;
 				//++no_errors;
 				type_ = ERROR_TYPE;
 			}
