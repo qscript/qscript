@@ -370,11 +370,11 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_TYPE){
 				code.code_bef_expr
-					<< "if (!" << q->questionName_
+					<< "/*if (!" << q->questionName_
 					<< "->isAnswered_) {\n"
 					<< "cerr << \"runtime error using unanswered question in expression: \" << \""
 					<< q->questionName_
-					<< "\" << endl;\n}\n";
+					<< "\" << endl;\n}*/\n";
 
 				// string temp_name = get_temp_name();
 				string temp_name = qscript_parser::temp_name_generator.GetNewName();

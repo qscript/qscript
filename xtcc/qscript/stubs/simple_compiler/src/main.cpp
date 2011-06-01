@@ -212,6 +212,7 @@ int32_t main(int32_t argc, char* argv[])
 	}
 lab_maintainer_messages:
 	{
+#if 0
 		if (qscript_debug::MAINTAINER_MESSAGES) {
 			using qscript_parser::maintainer_messages;
 			cout << "maintainer_messages: " << endl;
@@ -220,9 +221,13 @@ lab_maintainer_messages:
 				cout << it->second << endl;
 			}
 		}
+#endif /* 0 */
+		cerr << "find alternative method to re-enable MAINTAINER_MESSAGES: this was crashing on XP although it ran on Win7 and linux"
+			<< endl;
 	}
 
 ////////////////////////////////
+#if 0
 	try
 	{
 		std::ofstream conf;
@@ -258,6 +263,7 @@ lab_maintainer_messages:
 		}
 	}
 	catch(...){ std::cout << "error while generating configuration file\n"; }
+#endif /* 0 */
 ////////////////////////////////
 	if (qscript_parser::tree_root) {
 		//cerr << "deleting qscript_parser::tree_root" << endl;
