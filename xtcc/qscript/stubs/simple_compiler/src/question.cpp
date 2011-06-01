@@ -1795,7 +1795,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 		// 	<< " for_bounds_stack.size(): " << for_bounds_stack.size() << " "
 		// 	<< endl;
 		if (for_bounds_stack.size() > 0 && restore_array_quest->for_bounds_stack.size() > 0) {
-			s << "/*"
+			s << "/* restore_array_quest: "
 				<< " find where my for_bounds_stack\n"
 				<< " and other question for_bounds_stack DONT match\n"
 				<< " then from that point on in other question find bounds\n"
@@ -1813,8 +1813,10 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 					; ++i1){
 				e_stack.push_back(restore_array_quest->for_bounds_stack[i1]);
 			}
-			s << PrintConsolidatedForLoopIndex(e_stack)
-				<< "*";
+			s << PrintConsolidatedForLoopIndex(e_stack);
+			if (i1 < restore_array_quest->for_bounds_stack.size()) {
+				s << "*";
+			}
 			for(; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
 				BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 						restore_array_quest->for_bounds_stack[i1]);
@@ -2020,7 +2022,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 
 		if (save_array_quest->for_bounds_stack.size() > 0 && for_bounds_stack.size() > 0 ) {
 
-			s << "/*"
+			s << "/*: save_array_quest"
 				<< " find where my for_bounds_stack\n"
 				<< " and other question for_bounds_stack DONT match\n"
 				<< " then from that point on in other question find bounds\n"
@@ -2037,8 +2039,10 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 					; ++i1){
 				e_stack.push_back(save_array_quest->for_bounds_stack[i1]);
 			}
-			s << PrintConsolidatedForLoopIndex(e_stack)
-				<< "*";
+			s << PrintConsolidatedForLoopIndex(e_stack);
+			if (i1 < save_array_quest->for_bounds_stack.size()) {
+				s << "*";
+			}
 			for(; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
 				BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 						save_array_quest->for_bounds_stack[i1]);
@@ -2470,7 +2474,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< save_array_quest->questionName_
 					<< "*/"
 					<< endl;
-				s << "/*"
+				s << "/* save_array_quest: "
 					<< " find where my for_bounds_stack\n"
 					<< " and other question for_bounds_stack DONT match\n"
 					<< " then from that point on in other question find bounds\n"
@@ -2489,8 +2493,11 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 				}
 				s 	<< "("
 					<< PrintConsolidatedForLoopIndex(e_stack)
-					<< ")"
-					<< "*";
+					<< ")";
+
+				if (i1 < save_array_quest->for_bounds_stack.size()) {
+					s << "*";
+				}
 				for(; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
 					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 							save_array_quest->for_bounds_stack[i1]);
@@ -2706,7 +2713,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< restore_array_quest->questionName_
 					<< "*/"
 					<< endl;
-				s << "/*"
+				s << "/* restore_array_quest:"
 					<< " find where my for_bounds_stack\n"
 					<< " and other question for_bounds_stack DONT match\n"
 					<< " then from that point on in other question find bounds\n"
@@ -2725,8 +2732,11 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 				}
 				s 	<< "("
 					<< PrintConsolidatedForLoopIndex(e_stack)
-					<< ")"
-					<< "*";
+					<< ")";
+
+				if (i1 < restore_array_quest->for_bounds_stack.size()) {
+					s << "*";
+				}
 				for(; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
 					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 							restore_array_quest->for_bounds_stack[i1]);
