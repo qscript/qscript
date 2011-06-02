@@ -210,17 +210,42 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 
 void QtmDataDiskMap::print_map(fstream & map_file)
 {
-	map_file << q->questionName_;
+	stringstream full_question_name;
+	full_question_name << q->questionName_;
 	if (q->loop_index_values.size()) {
 		for (int i=0; i< q->loop_index_values.size(); ++i) {
-			map_file << "." << q->loop_index_values[i];
+			full_question_name << "." << q->loop_index_values[i];
 		}
 	}
-	map_file << ",			";
-	map_file << width_ << ",	";
-	map_file << q->no_mpn << ",	";
-	map_file << startPosition_+1 << ",	";
-	map_file << startPosition_ + totalLength_  << "\n";
+
+	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+		for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+			map_file << full_question_name.str();
+			map_file << ",			";
+			map_file << width_ << ",	";
+			map_file << q->no_mpn << ",	";
+			map_file << startPosition_+1 << ",	";
+			map_file << startPosition_ + totalLength_ << ",	";
+			map_file << n_q->nr_ptr->stubs[i].code << ",	"
+				<< n_q->nr_ptr->stubs[i].stub_text ;
+			map_file << "\n";
+		}
+	} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
+			map_file << full_question_name.str();
+			map_file << ",			";
+			map_file << width_ << ",	";
+			map_file << q->no_mpn << ",	";
+			map_file << startPosition_+1 << ",	";
+			map_file << startPosition_ + totalLength_  << ", range:	";
+			for(	set<int32_t>::iterator it = r_q->r_data->indiv.begin();
+					it != r_q->r_data->indiv.end(); ++it){
+				map_file << " " << *it;
+			}
+			for(int32_t i = 0; i < r_q->r_data->range.size(); ++i){
+				map_file << " " << r_q->r_data->range[i].first << "-" << r_q->r_data->range[i].second;
+			}
+			map_file << "\n";
+	}
 }
 
 void QtmDataDiskMap::print_qax(fstream & qax_file)
