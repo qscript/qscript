@@ -135,16 +135,12 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 			case KEY_NPAGE:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_NPAGE");
 				if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
-					wclear(stubListWindow_);
-					box(stubListWindow_, 0 , 0);
 					do_pagedown(questionWindow_, stubListWindow_, dataEntryWindow_, nq);
 				}
 				break;
 			case KEY_PPAGE:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_PPAGE");
 				if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
-					wclear(stubListWindow_);
-					box(stubListWindow_, 0 , 0);
 					do_pageup(questionWindow_, stubListWindow_, dataEntryWindow_, nq);
 				}
 				break;
@@ -362,7 +358,9 @@ void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * da
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		int total_pages = (vec.size() / page_size) + 1;
 		int32_t currXpos = 1, currYpos = 2;
-		if (page_size < vec.size() && nq->currentPage_ < total_pages) {
+		if (total_pages > 1 && page_size < vec.size() && nq->currentPage_ < total_pages) {
+			wclear(stubListWindow_);
+			box(stubListWindow_, 0 , 0);
 			int max_index = (nq->currentPage_+1) * page_size < vec.size() ? (nq->currentPage_+1) * page_size : vec.size();
 			for(uint32_t i = (nq->currentPage_) * page_size; i< max_index; ++i) {
 				if( vec[i].mask) {
@@ -398,7 +396,9 @@ void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * data
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		int total_pages = (vec.size() / page_size) + 1;
 		int32_t currXpos = 1, currYpos = 2;
-		if (page_size < vec.size() && nq->currentPage_ > 0) {
+		if (total_pages > 1 && page_size < vec.size() && nq->currentPage_ > 0) {
+			wclear(stubListWindow_);
+			box(stubListWindow_, 0 , 0);
 			int max_index = nq->currentPage_ * page_size < vec.size() ? nq->currentPage_ * page_size : vec.size();
 			for(uint32_t i = (nq->currentPage_-1) * page_size; i< max_index; ++i) {
 				if( vec[i].mask) {
