@@ -132,12 +132,14 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 			case KEY_SRIGHT:
 				DoShiftRight();
 				break;
+			case 451:
 			case KEY_NPAGE:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_NPAGE");
 				if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
 					do_pagedown(questionWindow_, stubListWindow_, dataEntryWindow_, nq);
 				}
 				break;
+			case 457:
 			case KEY_PPAGE:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_PPAGE");
 				if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
