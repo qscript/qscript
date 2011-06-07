@@ -26,6 +26,7 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	  , mutexCodeList_()
 	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
+	  , questionDiskName_(l_name)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "

@@ -156,8 +156,10 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 		<< __PRETTY_FUNCTION__ << endl;
 	if (qtmFileMode_ != READ_EQ_0) {
 		if (width_ > (cardDataWrapAroundAt_ - cardDataStartAt_)) {
-			cerr << " the questions width_ exceeds the width_ that can fit in a single card ... "
-				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
+			cerr << " the question" 
+				<< q->questionName_
+				<< "'s  width_ exceeds the width_ that can fit in a single card ... "
+				<< __FILE__ << ", "  << __LINE__ << ", "  << __PRETTY_FUNCTION__ << endl;
 			cerr << "exiting ...\n";
 			exit(1);
 		}

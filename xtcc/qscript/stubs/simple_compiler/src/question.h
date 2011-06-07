@@ -37,6 +37,7 @@ struct AbstractQuestion: public AbstractStatement
 {
 	string questionName_;
 	string questionText_;
+	string questionDiskName_;
 	QuestionType q_type;
 	int32_t no_mpn;
 	DataType dt;

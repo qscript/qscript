@@ -267,6 +267,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
 	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
 	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered, AbstractQuestion * & p_last_question_visited);\n");
+	fprintf(script, "void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered, AbstractQuestion * & p_last_question_visited);\n");
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
@@ -813,7 +814,8 @@ const char * file_exists_check_code()
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\tif(exists == 1){\n"
 	"\t\t	load_data(jno,ser_no);\n"
-	"\t\t	merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t	//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t	merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n"
 	"\t\t}\n\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "

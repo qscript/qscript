@@ -16,8 +16,8 @@ struct question_disk_data
 	vector <int32_t> data;
 	vector <int32_t> array_bounds;
 
-	question_disk_data(string & l_qno, vector<int32_t> & l_bounds, vector<int32_t> & ):
-		qno(l_qno), data(0), array_bounds(l_bounds)
+	question_disk_data(string & l_qno, vector<int32_t> & l_bounds, vector<int32_t> & l_data):
+		qno(l_qno), data(l_data), array_bounds(l_bounds)
 	{
 		//cerr << "question_disk_data::question_disk_data: bounds: " 
 		//	<< array_bounds.size()	

@@ -267,6 +267,12 @@ AbstractQuestion::AbstractQuestion(
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
 	//}
+	stringstream s;
+	s << questionName_;
+	for (int i=0; i<loop_index_values.size(); ++i) {
+		s << "$" << loop_index_values[i];
+	}
+	questionDiskName_ = s.str();
 }
 
 
