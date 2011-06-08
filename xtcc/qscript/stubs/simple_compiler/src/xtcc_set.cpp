@@ -162,6 +162,12 @@ bool XtccSet::exists(int key)
 bool XtccSet::contains_subset(std::set<int32_t> & set_data)
 {
 	bool val_exists = false;
+
+	if (set_data.begin() == set_data.end()) {
+		//empty question - could be blank -
+		// if it wasnt for this we return true - a bug
+		return false;
+	}
 	for(set<int32_t>::iterator it = set_data.begin();
 			it != set_data.end(); ++it) {
 		val_exists = exists(*it);
