@@ -23,20 +23,20 @@
 
 	<p>qscript is a language to help script questionnaires for market research for data entry. The project is open source, released under the GNU GPL version 2 license. 
 
-	<p>This <a href="qscript-win-0.12.lzma">file: qscript-win-0.12.lzma</a> contains prebuilt version of qscript with the g++ compiler and pdcurses library packaged for ease of installation. The GNU g++ compiler for windows is available from <a href="http://www.mingw.org/">MinGW: Minimalist GNU for Windows</a>, and the g++ compiler distributed in the prebuilt file is downloaded from there. The source code for the MinGW system is available from their website.  The pdcurses home page is <a href="http://pdcurses.sourceforge.net/">http://pdcurses.sourceforge.net/</a>, where you will be able to find links to the source. You should have 7-zip installed to be able to extract the files. You can get it here <a href="http://www.7-zip.org">http://www.7-zip.org</a></p>
+	<p>This file: <a href="qscript-win-0.17.lzma">qscript-win-0.17.lzma</a> contains prebuilt version of qscript with the g++ compiler and pdcurses library packaged for ease of installation. The GNU g++ compiler for windows is available from <a href="http://www.mingw.org/">MinGW: Minimalist GNU for Windows</a>, and the g++ compiler distributed in the prebuilt file is downloaded from there. The source code for the MinGW system is available from their website.  The pdcurses home page is <a href="http://pdcurses.sourceforge.net/">http://pdcurses.sourceforge.net/</a>, where you will be able to find links to the source. You should have 7-zip installed to be able to extract the files. You can get it here <a href="http://www.7-zip.org">http://www.7-zip.org</a></p>
 
-	<p>Use the batch file below to help extract and load the files. There are no warranties for the script. This installs the files in the "c:\" root directory of your windows installation. It creates the following top level directories there: "C:\Mingw-foo7", "C:\usr", ""c:\qscript-0.12". If you have any directories by these names, please take appropriate precautions. Please note the last line in the batch file which sets the PATH variable for the compiler and the dll library file for pdcurses. You must type this at the prompt or add it to your PATH environment variable, so that you don't have to type it everytime.
-</p>
+	<p>Use the batch file below to help extract and load the files. There are no warranties for the script. PLEASE READ THIS PARAGRAPH CAREFULLY: This script installs the files in the "c:\" root directory of your windows installation. It creates the following top level directories there: "C:\Mingw-foo7", "C:\usr", "c:\qscript-0.17". If you have any directories by these names, please take appropriate precautions.</p>
+	<p>Please note the last line in the batch file which sets the PATH variable for the compiler and the dll library file for pdcurses. You must type this at the prompt or add it to your PATH environment variable, so that you don't have to type it everytime you start the command prompt. Also note that the PATHs have be setup using C: as the install directory, should you install the files in D: then adjust the path accordingly</p>
 
 	<pre>
 
 		mkdir qscript-temp
-		7z x -o".\qscript-temp\" qscript-win-0.12.lzma
+		7z x -o".\qscript-temp\" qscript-win-0.17.lzma
 		cd qscript-temp
 		7z x mingw-4.5-msys-1.0.tar.lzma
 		7z x -o"c:\" mingw-4.5-msys-1.0.tar
-		7z x qscript-0.12-win-bin.tar.lzma
-		7z x -o"c:\"  qscript-0.12-win-bin.tar
+		7z x qscript-0.17-win-bin.tar.lzma
+		7z x -o"c:\"  qscript-0.17-win-bin.tar
 		7z x qscript-dep-libs.tar.lzma
 		7z x -o"c:\" qscript-dep-libs.tar
 		echo "Please set the path as follows"
@@ -44,13 +44,14 @@
 
 	</pre>
 
-	Once you have extracted the files successfully, you can try out qscript on windows by doing the following.
+	<p>There are many example programs in the c:\qscript-0.17\inputs directory. Once you have extracted the files successfully, you can try out qscript on windows by doing the following.
+	</p>
 	<ol>
-	<li><pre>set QSCRIPT_HOME=c:\qscript-0.12\</pre>
+	<li><pre>set QSCRIPT_HOME=c:\qscript-0.17\</pre>
 	<li><pre>cd c:\qscript-0.12\inputs</pre>
-	<li><pre>..\bin\qscript -n -s -f inp_jump_test</pre><p>The -s flag must be passed to the compiler on Windows</li>
+	<li><pre>..\bin\qscript -m -o -n -s -f inp_jump_test</pre><p>IMPORTANT: The -s flag must be passed to the compiler on Windows</li>
 	<li><pre>.\inp_jump_test.exe</pre></li>
-	<li><pre>Use Ctrl-P, Ctrl-N to navigate through the data entry screens</pre></li>
+	<li>Use Ctrl-P, Ctrl-N to navigate through the data entry screen, F4 to save partial data (you must have typed a valid response to the question before pressing F4), Ctrl-X to exit. When you reach the end of a questionnaire, use the given keys to save the questionnaire at that point.</li>
 
 	</body>
 </html>
