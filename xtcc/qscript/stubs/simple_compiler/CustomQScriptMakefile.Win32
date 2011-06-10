@@ -205,7 +205,7 @@ check:
 	# runtest -v -v -v  --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite printf-1.exp
 	LD_LIBRARY_PATH=$(QSCRIPT_HOME)/lib runtest --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
 
-release: clean
+release: build-dir-clean
 	-if [ -d $(RELEASE_DIR) ] ; then rm -rf $(RELEASE_DIR) ; fi
 	-if [ -f $(RELEASE_DIR).tar ] ; then rm -f $(RELEASE_DIR).tar ; fi
 	mkdir -p $(RELEASE_DIR)/bin $(RELEASE_DIR)/lib $(RELEASE_DIR)/src \
@@ -227,7 +227,9 @@ release: clean
 	-rm inputs/tags
 	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op inputs/*.exe
 	cp inputs/* $(RELEASE_DIR)/inputs
-	cp bin/qscript.sh $(RELEASE_DIR)/bin
+	cp bin/* $(RELEASE_DIR)/bin
+	cp lib/* $(RELEASE_DIR)/lib
+	cp include/* $(RELEASE_DIR)/include
 	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
 
 .PHONY: clean tags
@@ -235,6 +237,9 @@ release: clean
 #	-del /q /f $(BUILD_DIR)\*.* $(BUILD_DIR)\runtime_lib\*.* lib\*.* bin\qscript include\*.* $(BUILD_DIR)\compiletime_lib\*.* $(BUILD_DIR)\runtime_static_lib\*.* $(BUILD_DIR)\compiletime_static_lib\*.*
 clean:
 	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript.exe include/* $(BUILD_DIR)/compiletime_lib/* $(BUILD_DIR)/runtime_static_lib/* $(BUILD_DIR)/compiletime_static_lib/*
+
+build-dir-clean:
+	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* $(BUILD_DIR)/compiletime_lib/* $(BUILD_DIR)/runtime_static_lib/* $(BUILD_DIR)/compiletime_static_lib/*
 
 #local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
 #	cp $(BUILD_DIR)/qscript bin
