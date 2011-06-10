@@ -16,6 +16,36 @@ piwik_log(piwik_action_name, piwik_idsite, piwik_url);
 <object><noscript><p><img src="http://apps.sourceforge.net/piwik/xtcc/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
 	</head>
 <body>
+	<p>qscript is available for download from the sourceforge project page. <a href="http://sourceforge.net/projects/xtcc">http://sourceforge.net/projects/xtcc</a>. 
+	</p>
+	<p>The file <b> qscript-0.17.tar.gz</b> contains the source code of the compiler, which has to be built using the g++ compiler. </p>
+
+	<ul>
+	<li>Untar the file in a directory using the following command:
+		<pre>
+		$ tar xvzf qscript-0.17.tar.gz
+		</pre>
+	This will extract the files into a directory qscript-0.17
+	</li>
+	<li>You need to have the GNU g++ compiler installed, along with make, bison and flex and ncurses. Use the package manager for your distribution to install these.
+	</li>
+	<li>Compile the compiler using 
+		<pre>
+		$ cd qscript-0.17
+		$ make -f CustomQScriptMakefile local_install
+		</pre>
+	</li>
+	<li>set the QSCRIPT_HOME variable to point to the compiler home directory. for example if the compiler is installed in :
+		<pre>
+		/home/nxd/qscript-0.17
+		</pre>
+		the run the following command or put it into your shell's .profile script 
+		<pre>
+		export QSCRIPT_HOME=/home/nxd/qscript-0.17
+		</pre>
+		Instructions on how to compile <a href="qscript.html#example">an example</a> file is given <a href="qscript.html#compile">here</a>
+
+	
 
 </body>
 </html>
