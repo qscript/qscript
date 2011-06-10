@@ -1,0 +1,54 @@
+
+<html>
+	<head>
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/xtcc/" : "http://apps.sourceforge.net/piwik/xtcc/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+piwik_action_name = '';
+piwik_idsite = 1;
+piwik_url = pkBaseURL + "piwik.php";
+piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+</script>
+<object><noscript><p><img src="http://apps.sourceforge.net/piwik/xtcc/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+<!-- End Piwik Tag -->
+	</head>
+	<body>
+<a href="http://sourceforge.net/projects/xtcc"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202841&amp;type=10" width="80" height="15" alt="Get Xross Tab at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+		<a name="xtcc_goals">Goals for xtcc - the Data Processing backend</a>:
+		<ul>
+		<li>One of the main reasons for writing a new data processing software was to address some of the frustrating issues I faced with Quantum. 
+			<ul>
+			<li>I wanted to get rid of the 200 chars per line restriction - a source of many core dumps and unexpected behavious</li>
+			<li>Edit restriction like a prefined limit on the number of edit statements</li>
+			<li>Label number for loops and branching statements - that too an upper bound of 500 statements</li>
+			<li>Subroutines could not be called from a loop</li>
+			<li>Weak type checking</li>
+			<li>Record length limit of 32768 </li>
+			<li>... the list goes on</li>
+			</ul>
+		<li>Layout independence from column numbers. Ideally I would like the data map to be embedded in the data file. The burden of dealing with column nos should rest on the compiler not the DP</li>
+		<li>There is a lot of scope for computer assisted table checking. For example while processing data - we have a raw column number - it is easy to program a function to check the base of the table vs non-blank holecounts. In fact I had this working in a interpreter prior to the compiler.</li>
+		<li>Print tables to a variety of formats including html and pdf</li>
+		<li>Designed for performance. Data file will be in binary format</li>
+		<li>Automatically detect incorrectly formed data files - and stop data processing,</li> 
+		</ul>
+
+		<a name="qscript_goals">Goals for qscript</a>:
+		<ul><li>Easy to use questionnaire scripting language - with support for C like data types.</li>
+		<li>Map should be modifiable even after data has been entered</li>
+		<li>Statements which can reserve columns for future use</li>
+		<li>Hidden questions which can be exposed after coding is done - during data entry on 2nd pass it will only prompt for hidden questions</li>
+		<li>Print a pdf questionnaire from the script with routing instructions</li>
+		</ul>
+		Data conversion S/W goals - The glue between the backend and front end
+		<ul><li> Ability to convert data files from one architecture to another - ex: i386 to SPARC</li>
+			<li> Convert data from qscript to xtcc backend format<li>
+		</ul>
+		dpassist Goals - This may seem a bit cryptic but will elaborate more when there  is something to demonstrate
+		<ul><li>If just a binary data file is present - the program should setup axes based on the data types in the embedded map</li>
+		<li>If a qscript file and data file are both present - program should output a detailed axes with stub information, include files and filter conditions</li>
+		</ul>
+	</body>
+</html>

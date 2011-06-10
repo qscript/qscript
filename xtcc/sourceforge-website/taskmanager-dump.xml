@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE tasks [
+<!ELEMENT tasks (project*)>
+<!ELEMENT project (project_id,project_name,description,is_public,statuses,task*)>
+<!ELEMENT project_id (#PCDATA)>
+<!ELEMENT project_name (#PCDATA)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT is_public (#PCDATA)>
+<!ELEMENT statuses (status+)>
+<!ELEMENT status EMPTY>
+<!ELEMENT task (task_id,summary,detail,percent_complete,priority,hours,start_date,end_date,creator,status_id,dependencies,assignees,history_entries)>
+<!ELEMENT task_id (#PCDATA)>
+<!ELEMENT summary (#PCDATA)>
+<!ELEMENT detail (#PCDATA)>
+<!ELEMENT percent_complete (#PCDATA)>
+<!ELEMENT priority (#PCDATA)>
+<!ELEMENT hours (#PCDATA)>
+<!ELEMENT start_date (#PCDATA)>
+<!ELEMENT end_date (#PCDATA)>
+<!ELEMENT creator (#PCDATA)>
+<!ELEMENT status_id (#PCDATA)>
+<!ELEMENT dependencies (dependent_on*,dependent_of*)>
+<!ELEMENT dependent_on (#PCDATA)>
+<!ELEMENT dependent_of (#PCDATA)>
+<!ELEMENT assignees (assignee*)>
+<!ELEMENT assignee (#PCDATA)>
+<!ELEMENT history_entries (history_entry*)>
+<!ELEMENT history_entry (task_id, field_name, old_value, updator, date)>
+<!ELEMENT field_name (#PCDATA)>
+<!ELEMENT old_value (#PCDATA)>
+<!ELEMENT updator (#PCDATA)>
+<!ELEMENT date (#PCDATA)>
+
+<!ATTLIST status id CDATA #REQUIRED>
+<!ATTLIST status name CDATA #REQUIRED>
+]>
+<tasks>
+<project>
+<project_id>55618</project_id>
+<project_name>xtcc</project_name>
+<description>Xross Tabulation Compiler - backend data processing system</description>
+<is_public>Yes</is_public>
+<statuses>
+<status id="1" name="Open" />
+<status id="2" name="Closed" />
+<status id="3" name="Deleted" />
+<status id="100" name="None" />
+</statuses>
+<task>
+<task_id>146635</task_id>
+<summary>Main Compiler for Data Processing system</summary>
+<detail>1) Grammar for data processing language
+    a) edit grammar
+    b) tabulation and axes grammar
+2) Action rules for Grammar
+3) Compiler code generation
+4) Driver program for generated program</detail>
+<percent_complete>75</percent_complete>
+<priority>5</priority>
+<hours>160</hours>
+<start_date>1184788800</start_date>
+<end_date>1206820800</end_date>
+<creator>neilxdsouza</creator>
+<status_id>1</status_id>
+<dependencies>
+<dependent_on>100</dependent_on>
+</dependencies>
+<assignees>
+<assignee>neilxdsouza</assignee>
+</assignees>
+<history_entries>
+</history_entries>
+</task>
+<task>
+<task_id>146636</task_id>
+<summary>xtcc - testing system</summary>
+<detail>Comprehensive testing system for compiler
+1) Compiler error testing
+2) Compiler valid case testing
+
+I plan on using DejaGNU for unit testing.</detail>
+<percent_complete>5</percent_complete>
+<priority>5</priority>
+<hours>80</hours>
+<start_date>1203796800</start_date>
+<end_date>1209499200</end_date>
+<creator>neilxdsouza</creator>
+<status_id>1</status_id>
+<dependencies>
+<dependent_on>100</dependent_on>
+</dependencies>
+<assignees>
+<assignee>neilxdsouza</assignee>
+</assignees>
+<history_entries>
+</history_entries>
+</task>
+</project>
+<project>
+<project_id>55619</project_id>
+<project_name>qscript</project_name>
+<description>Questionnaire scripting tool - data capturing system</description>
+<is_public>Yes</is_public>
+<statuses>
+<status id="1" name="Open" />
+<status id="2" name="Closed" />
+<status id="3" name="Deleted" />
+<status id="100" name="None" />
+</statuses>
+<task>
+<task_id>146637</task_id>
+<summary>Grammar parser for Input questionnaire language</summary>
+<detail>Write a yacc grammar parser for an input questionnaire language
+
+</detail>
+<percent_complete>70</percent_complete>
+<priority>5</priority>
+<hours>80</hours>
+<start_date>1203796800</start_date>
+<end_date>1240516800</end_date>
+<creator>neilxdsouza</creator>
+<status_id>1</status_id>
+<dependencies>
+<dependent_on>100</dependent_on>
+<dependent_of>146638</dependent_of>
+</dependencies>
+<assignees>
+<assignee>neilxdsouza</assignee>
+</assignees>
+<history_entries>
+<history_entry>
+<task_id>146637</task_id>
+<field_name>percent_complete</field_name>
+<old_value>0</old_value>
+<updator>neilxdsouza</updator>
+<date>1235278631</date>
+</history_entry>
+<history_entry>
+<task_id>146637</task_id>
+<field_name>details</field_name>
+<old_value>Currently the sources for the qscript parser are in
+xtcc/xtcc/qscript/stubs/simple_compiler
+
+I have a working demo of the parser and the data collection program. Routing of questions using if/else is in place. Testing is required and I need to add a for loop for questions</old_value>
+<updator>neilxdsouza</updator>
+<date>1235278631</date>
+</history_entry>
+<history_entry>
+<task_id>146637</task_id>
+<field_name>end_date</field_name>
+<old_value>1222200000</old_value>
+<updator>neilxdsouza</updator>
+<date>1235278873</date>
+</history_entry>
+</history_entries>
+</task>
+<task>
+<task_id>146638</task_id>
+<summary>questionaire language interpreter/Data entry system</summary>
+<detail>1) The questionnaire interpreter will run the parsed questionnaire script
+2) It should allow visiting and modification of previously entered questionnaires and have a easy navigability over a questionnaire
+3) It should support partial data entry 
+4) It should support random data generation</detail>
+<percent_complete>40</percent_complete>
+<priority>5</priority>
+<hours>160</hours>
+<start_date>1216843200</start_date>
+<end_date>1240516800</end_date>
+<creator>neilxdsouza</creator>
+<status_id>1</status_id>
+<dependencies>
+<dependent_on>146637</dependent_on>
+</dependencies>
+<assignees>
+<assignee>neilxdsouza</assignee>
+</assignees>
+<history_entries>
+<history_entry>
+<task_id>146638</task_id>
+<field_name>percent_complete</field_name>
+<old_value>0</old_value>
+<updator>neilxdsouza</updator>
+<date>1235278729</date>
+</history_entry>
+<history_entry>
+<task_id>146638</task_id>
+<field_name>details</field_name>
+<old_value>Currently able to capture data. Reading a previously entered questionnaire for modification is not yet in place.</old_value>
+<updator>neilxdsouza</updator>
+<date>1235278729</date>
+</history_entry>
+<history_entry>
+<task_id>146638</task_id>
+<field_name>end_date</field_name>
+<old_value>1227470400</old_value>
+<updator>neilxdsouza</updator>
+<date>1235278909</date>
+</history_entry>
+</history_entries>
+</task>
+<task>
+<task_id>155154</task_id>
+<summary>Output of pdf questionnaire using Latex</summary>
+<detail>Given a questionnaire in the qscript programming language we should be able to output a ps/pdf questionnaire using LaTeX as The typesetter</detail>
+<percent_complete>0</percent_complete>
+<priority>5</priority>
+<hours>0</hours>
+<start_date>1235246400</start_date>
+<end_date>1240344000</end_date>
+<creator>neilxdsouza</creator>
+<status_id>1</status_id>
+<dependencies>
+<dependent_on>100</dependent_on>
+</dependencies>
+<assignees>
+<assignee>nobody</assignee>
+</assignees>
+<history_entries>
+</history_entries>
+</task>
+</project>
+<project>
+<project_id>55620</project_id>
+<project_name>dp_assist</project_name>
+<description>Data Processing Assistant - edit and script writer helper program</description>
+<is_public>Yes</is_public>
+<statuses>
+<status id="1" name="Open" />
+<status id="2" name="Closed" />
+<status id="3" name="Deleted" />
+<status id="100" name="None" />
+</statuses>
+</project>
+<project>
+<project_id>55621</project_id>
+<project_name>data_converter</project_name>
+<description>Data conversion program from qscript format to xtcc processing format </description>
+<is_public>Yes</is_public>
+<statuses>
+<status id="1" name="Open" />
+<status id="2" name="Closed" />
+<status id="3" name="Deleted" />
+<status id="100" name="None" />
+</statuses>
+<task>
+<task_id>146650</task_id>
+<summary>Writing a Common arhitecture independent data file format</summary>
+<detail>A rather long note here. 
+First the motivation behind the data converter.
+
+Overall Picture:
+The scripting program "qscript" is an interactive program - dealing with human beings. Its data file format is folder for a particular job. Within that folder 1 file for each questionnaire serial number.
+
+The data file format will be ascii human readable.
+
+Unlike qscript the data processing program "xtcc" is batch oriented. Performance is important to me. Hence the data file of the batch processing system will be as close to the target architecture as possible - in binary format. 
+
+This means representing floating point numbers like floats, doubles, 64 bit ints and 32 bit ints on disk. Since it is also my intention that the program be portable to many architectures we need to write a clear document on how data will be written to disk - like byte ordering, bit ordering, Floating point standard which will be used etc.</detail>
+<percent_complete>0</percent_complete>
+<priority>5</priority>
+<hours>40</hours>
+<start_date>1206302400</start_date>
+<end_date>1208980800</end_date>
+<creator>neilxdsouza</creator>
+<status_id>1</status_id>
+<dependencies>
+<dependent_on>100</dependent_on>
+</dependencies>
+<assignees>
+<assignee>neilxdsouza</assignee>
+</assignees>
+<history_entries>
+<history_entry>
+<task_id>146650</task_id>
+<field_name>details</field_name>
+<old_value>Now for the task itself:
+
+The standard should specify the following
+1) Map file format for qscript
+2) The current plan is that the binary format data file which will be the input to &amp;quot;xtcc&amp;quot; (after conversion from qscript format) will have an embedded map. 
+3) The format will make provisions for versioning of the data file 
+4) The format will address which IEEE floating  point format will be used. byte sizes, floating point bit orders and representation on disk
+5) This document will be the main software guide for the data_converter.
+6) It is important to note that the data_converter will act like a bridge from &amp;quot;qscript&amp;quot; to xtcc.</old_value>
+<updator>neilxdsouza</updator>
+<date>1203878496</date>
+</history_entry>
+</history_entries>
+</task>
+</project>
+</tasks>

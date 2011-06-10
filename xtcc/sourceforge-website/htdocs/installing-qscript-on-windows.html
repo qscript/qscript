@@ -1,0 +1,375 @@
+<html>
+	<head>
+	<!-- Piwik -->
+	<script type="text/javascript">
+	var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/xtcc/" : "http://apps.sourceforge.net/piwik/xtcc/");
+	document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+	</script><script type="text/javascript">
+	piwik_action_name = '';
+	piwik_idsite = 1;
+	piwik_url = pkBaseURL + "piwik.php";
+	piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+	</script>
+	<object><noscript><p><img src="http://apps.sourceforge.net/piwik/xtcc/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+	<!-- End Piwik Tag -->
+
+		<title>Compiling and installing the qscript compiler on Windows</title>
+	</head>
+	<body>
+		<a href="http://sourceforge.net/projects/xtcc"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202841&amp;type=10" width="80" height="15" alt="Get Xross Tab at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+	
+	<p>QScript is a language to script market research questionnaires for data entry. </p>
+
+	On windows qscript requires the MinGW C++ compiler, and the MSYS environment, GNU bison and flex. This document is a step by step guide explaining how to install the required components on Windows and how to compile and install the qscript compiler.
+	<p>
+	If you get stuck at any stage, or you believe the documentation is not clear please email me - NxD_in@yahoo.com
+
+	The installation involves the following major steps:
+	<ol>
+		<li> Installing 7-zip, a program to extract and install files distributed by the mingw project. They have a higher compression ratio than zip files.
+		</li>
+		<li> Installing the MinGW gcc and g++ compiler and the MSYS environment
+		</li>
+		<li> Installing the pdcurses library
+		</li>
+		<li> Installing flex and bison
+		</li>
+		<li> Downloading the sources of the qscript compiler 
+		</li>
+		<li> Testing that the msys environment is working fine - this is to ensure that the compile commands will not fail.
+		</li>
+		<li> Building the compiler using the distributed CustomQScriptMakefile.Win32 makefile for windows and testing it.
+		</li>
+	</ol>
+
+
+You would find it convenient to keep open a tab in your browser pointed to <a href="http://www.mingw.org/wiki/Getting_Started">http://www.mingw.org/wiki/Getting_Started</a>
+
+
+<ul>
+<li>
+Step 1: Installation of 7-zip and adding it to PATH so we can run it from the command line.
+	<ul>
+	<li>Objective: 
+		<ul>
+			<li>7-zip is required to extract the lzma files in the MinGW gcc distribution.</li> 
+			<li>we add it to the path so we can run it from the command line.</li>
+			<li>This is a handy tool to have incase you need to download any files from the MinGW site and extract them by hand</li>
+		</ul>
+	</li>
+	<li>Here is the link to the <a href="http://www.7-zip.org/">7-zip</a> website. The file I downloaded was 7z465.exe - but I think there may be a later version.
+	</li>
+	<li> Install the 7-zip program. </li>
+	<li>You then need to add 7-zip to the PATH variable<p> 
+		<pre>
+		set PATH=%PATH%;"c:\Program Files\7-zip";
+		</pre>
+
+	</p>
+	This is assuming that the self exracting exe has installed 7z into c:\program files\7-zip. <em> Note that the double quotes above is required as there is a space in Program Files</em>
+	</li>
+
+	<li>Test to know if its working fine: Once you have done the above, you should be able to type "7z" at the command prompt and get a help usage message.
+	</li>
+	<li>
+		Please have a look at this screenshot, to see an example of the desired state of things.
+		<p>
+		<img src="images/setting-path-for-7zip_optimised.png" width="800" height="600" /> 
+		</p>
+	</li>
+	</ul>
+</li>
+<li>
+Step 2: Installation of Mingw - the gcc/g++ compiler and the msys-core utils. When doing the install, you need to have an active connection to the internet, because the installer downloads the required components and then installs them.
+	<ul>
+	<li>
+	<p>The url <a href="http://www.mingw.org/wiki/Getting_Started">http://www.mingw.org/wiki/Getting_Started</a> has clear instructions for installing the MinGW-gcc compiler.
+	</li>
+	<li>The installer is called mingw-get-inst-20100831.exe.
+		<p>
+		<img src="images/running-mingw-get-inst-20100831-exe_optimised.png" width="800" height="600"></img>
+		</p>
+	When you run the installer it will ask for a directory for installation - it suggests MinGW. You can change the default directory if you want, but please make sure that there are no spaces in the directory names. For example Mingw-foo will do but "Mingw foo" will not work. 
+	<p>
+		<img src="images/choosing-install-directory-mingw-installer_optimised.png" width="800" height="600"></img>
+	</p>
+		<p>Choosing install directory mingw installer</p>
+	</li>
+	<li>
+		<p>
+		Choosing components to install:
+		Note that the gcc c compiler is installed by default, please also tick the C++ compiler and the MSYS base system which is below. Please have a look at the screenshot below</p>
+		<p>
+		<img src="images/choosing-components-to-install-mingw-installer_optimised.png" width="800" height="600" ></img>
+		</p>
+	</li>
+	<li>
+	 The installer will then install the command line mingw-get.exe, and use that to download and install the required components. If, for any reason, the download of a particular file fails, please re-run the GUI installer again, with the same directory as the original install - <em>i.e. run mingw-get-inst-20100831.exe again and if you had chosen c:\MinGW as the target of the install, specify the same directory again, <u> without deleting it</u></em>. This will download only the missing components and install only the missing components. Please see the screenshot below to see an error that occurred while I was doing an install.
+
+	 <p>
+	<img src="images/error-downloading-a-file-example_optimised.png" width="800" height="600"></img>
+	</p>
+	<p>
+	For the discussion below, I assume that you have installed to c:\MinGW. 
+    Once the install is done (i.e. after you have resolved any errors you had by re-installing the same path and faced no errors in the repeated install), add c:\MinGW\bin to the path variable. You should be able to now run gcc -v, g++ -v at the command prompt and see version and build info. Screenshot below.
+    <p>
+    <img src="images/running-gcc-g++-v_optimised.png" width="800" height="600"></img>
+    </p>
+    </li>
+    <li>
+	To test that the install is working correctly you should be able to compile 2 simple hello world files given below.
+
+	<pre>
+	/* helloworld.c
+	--------------------------------
+	*/
+	#include &lt;stdio.h&gt;
+	int main()
+	{
+	      printf("Hello,World\n");
+	      return 0;
+	}
+	</pre>
+	<pre>
+	// helloworld.cpp
+	// ----------------------------------
+	#include &lt;iostream&gt;
+	int main()
+	{
+	      std::cout << "Hello,World from C++" << std::endl;
+	}
+	// ------------------------------------
+	</pre>
+
+	<p>Compile command</p>
+
+	<pre>
+
+	&gt gcc helloworld.c
+	output a.exe
+	running a.exe -> Hello,World
+	del a.exe
+	&gt g++ helloworld.cpp
+	output a.exe
+	running a.exe -> Hello,World from C++
+	</pre>
+
+	Please find a screenshot below:
+	<p>
+	<img src="images/compiling-running-helloworld_optimised.png" width="800" height="600"></img>
+	</p>
+
+</li>
+
+<li>	Step 3: Installation of the pdcurses library. Point your browser to
+	<a href="http://sourceforge.net/projects/pdcurses">http://sourceforge.net/projects/pdcurses</a>, to download the latest version of pdcurses. This is what the list of files available looked like while I was preparing this document.
+	<p>
+	<img src="images/pdcurses-download-page_optimised.png" width="800" height="600"></img>
+	</p>
+	I downloaded the file pdc34dllw.zip - which supports wide characters. Here I am going to put the libraries in c:\usr\lib and the include file in c:\usr\include - this is their standard locations under unix/linux. Please use run the following commands, if you choose another directory you will need to modify the directories in the make file. I will point this out.
+	<pre>
+	# You can ignore the 2 commands below if you are going to use some other tool to extract the files from the zip file. I will explain the mingw-get command later in step 4.
+	# All you have to do is extract the files into a convenient directory
+	c:\Mingw-foo6 &gt set PATH=%PATH%;c:\MinGW-foo6\bin;c:\MinGW-foo6\msys\1.0\bin
+	c:\Mingw-foo6 &gt mingw-get install msys-unzip
+
+	c:\Mingw-foo6 &gt cd \users\windows-7\Downloads
+	cd \users\windows-7\Downloads &gt mkdir temp
+	c:\users\windows-7\Downloads &gt cd temp
+	c:\users\windows-7\Downloads\temp &gt unzip ../pdc34dllw.zip
+	c:\users\windows-7\Downloads\temp &gt mkdir c:\usr
+	c:\users\windows-7\Downloads\temp &gt mkdir c:\usr\include
+	c:\users\windows-7\Downloads\temp &gt mkdir c:\usr\lib
+	c:\users\windows-7\Downloads\temp &gt copy *.h c:\usr\include
+	c:\users\windows-7\Downloads\temp &gt copy pdcurses.* c:\usr\lib
+	</pre>
+
+	Please have a look at the screenshot below.
+	<p>
+	<img src="images/extracting-pdcurses_optimised.png" width="800" height="600"></img>
+	</p>
+	<p>
+	For those who are interested in details, read this paragraph, others please skip to Step 4. Actually there is a pdcurses library which is distributed with MinGW, however i was not able to get dynamic libraries i.e. dlls working and so am relying on static linking. The original Step 3 is at the bottom of this document for those interested in installing the msys-pdcurses.
+	</p>
+
+</li>
+
+<li>
+	Step 4: Installing flex and bison. You may happen to note that in the screen shots, the prompt is sometimes MinGW-foo5 and sometimes MinGW-foo6. This is because I did a lot of testing while preparing this document. However, always replace this text (MinGW-foo5, or MinGW-foo6) with the directory you have installed MinGW to.
+	<ul>
+
+	<li>
+	<p>Before we go to this step, a caveat. mingw-get is the command line tool that is used to install various components of the mingw/msys system. Sometimes if mingw-get is invoked incorrectly, it will try to rename itself - this is how it tries to update to a later version, while the current version is running. Please refer to the MinGW website and mailing list for more details. Here I am showing the commands required to restore things back to normal. Note that the directory I have installed happens to be c:\Mingw-foo5, but this need not be the directory that you have installed MinGW.</p>
+	<p>Please see the 2 screenshots below to do the renames, should you type in the mingw command incorrectly. If you type in mingw-get a second time and get "command not found", this is a clear indicator that something went wrong with the previous invocation of mingw-get and you need to do the renaming exercise as shown in the screenshots below. </p>
+	<p>
+	<p>
+	<img src="images/renaming-mingw-get_optimised.png" width="800" height="600"></img>
+	</p>
+	<p>
+	<img src="images/renaming-mingw-get-dll_optimised.png" width="800" height="600"></img>
+	</p>
+	</li>
+		<li> Installing bison using mingw-get. Please use the command below
+		<pre>
+			c:\mingw-foo5\bin &gt .\mingw-get.exe install msys-bison
+		</pre>
+		<p>
+		Screenshots for installing bison are below. I have included 2 screenshots, because you may see a lot of catalog files being displayed on the screen, and this is part of the install process, so no need to panic. Again as mentioned earlier, should any file fail while downloading, please run the command again. mingw-get will download the components the failed the first time and install them.</p>
+		</p>
+		<p>
+		<img src="images/install-bison_optimised.png" width="800" height="600"></img>
+		</p>
+		<p>
+		<img src="images/install-msys-bison-ss-2_optimised.png" width="800" height="600"></img>
+		</p>
+		</li>
+
+		<li> The next command is for installing flex
+		<pre>
+			c:\mingw-foo5\bin &gt .\mingw-get.exe install msys-flex
+		</pre>
+		<p>
+		Screenshots for installing flex
+		</p>
+		<p>
+		<img src="images/install-msys-flex-ss-1_optimised.png" width="800" height="600"></img>
+		<img src="images/install-msys-flex-ss-2_optimised.png" width="800" height="600"></img>
+		</p>
+		</li>
+	</ul>
+
+	At this point, we have the necessary framework to be able to compile the qscript compiler. 
+</ul>
+<li>
+	Step 5: point your browser to <a href="http://sourceforge.net/projects/xtcc">http://sourceforge.net/projects/xtcc</a> and download the latest version of the qscript compiler from the download link. Please see screenshot below.
+		<p>
+		<img src="images/download-qscript-sources_optimised.png" width="800" height="600"></img>
+		</p>
+</li>
+<li>
+	Step 6: Setting the path in the command prompt to point to the msys commands and the mingw32 commands that we have installed in the earlier steps. The install directory for me is MinGW-foo6, if you you have installed to C:\MinGW please reflect that in the command accordingly.
+	<pre>
+		c:\Mingw-foo6 &gt set PATH=c:\MinGW-foo6\bin;c:\MinGW-foo6\msys\1.0\bin
+
+		Now test that the msys commands are being picked up from the path
+
+		c:\Mingw-foo6 &gt ls --color
+	</pre>
+	Please see the screenshot below.
+	
+		<p>
+		<img src="images/setting-paths-to-msys-mingw_optimised.png" width="800" height="600"></img>
+		</p>
+
+</li>
+<li>
+	<ul>
+	<li>
+	Step 7.1: Untar the source code for the compiler in a suitable directory. The tar command in the screenshot below is supplied with the msys install. Because we set the path earlier to c:\MinGW-foo6\msys\1.0\bin, we can type this command at the prompt and the command interpreter will pick it up.
+		<p>
+		<img src="images/untarring-qscript-sources_optimised.png" width="800" height="600"></img>
+		</p>
+	</li>
+	<li>
+	Step 7.2: Adjust the paths of the pdcurses library in the makefile
+
+		<p>
+		<img src="images/adjust-paths-of-pdcurses-library-in-makefile_optimised.png" width="800" height="600"></img>
+		</p>
+
+
+	</li>
+	<li>
+	Step 7.3: Building the compiler. The make file for the compiler on windows in CustomQScriptMakefile.Win32. In the makefile, you need to adjust the location of the pdcurses header and library files. Search for the word WIN_INCLUDE_DIR and WIN_LIB_DIR and adjust these paths. There are comments above these variables.
+		<pre>
+			Note that the command is 
+			C:\Users\windows-7\Programs\qscript-0.7 &gt make -f CustomQScriptMakefile.Win32 local_install
+		</pre>
+		<p>
+		<img src="images/building-qscript_optimised.png" width="800" height="600"></img>
+		</p>
+	</li>
+	<li> Step 7.4 Files Generated when the compiler is built. The compiler puts the exe into the bin directory and the libraries into the lib directory
+		<pre>
+			C:\Users\windows-7\Programs\qscript-0.7 &gt ls bin lib
+		</pre>
+		<p>
+		<img src="images/files-generated-when-compiler-is-built_optimised.png" width="800" height="600"></img>
+		</p>
+	</li>
+	<li> Step 7.5 Setup the environment variable and adjust qscript.config to include the path the the pdcurses directory.
+
+		<p>
+		<img src="images/set-env-variable-adjust-qscript-config-ss-1_optimised.png" width="800" height="600"></img>
+		</p>
+		<p>Make sure that the PLATFORM is set to WINDOWS and NCURSES_LINK_LIBRARY_NAME is set to pdcurses. Otherwise you will get link errors after the compiler has generated the code and tries to link the files together.
+		<p>
+		<img src="images/adjusting-qscript-config_optimised.png" width="800" height="600"></img>
+		</p>
+	</li>
+	<li> Step 7.6 Test the compiler
+		<ul>
+		<li> Test the usage screen </li>
+		<p>
+		<img src="images/qscript-usage_optimised.png" width="800" height="600"></img>
+		</p>
+		</li>
+		<li> Compile an input file with the compiler and running it. Please note that on windows we need to do static linking, so please pass the -s flag to the compiler.
+			<p>
+			<img src="images/compiling-an-input-and-running-it_optimised.png" width="800" height="600">
+			</p>
+
+		</li>
+		<li> Compile an input file with the curses library, for now please pass the -n flag. Please note that we always need to pass the -s flag to the compiler.
+			<p>
+			<img src="images/compiling-with-curses_optimised.png" width="800" height="600">
+			</p>
+		</li>
+		<li>
+			Here is a screeshot of how the curses screen looks. From this point you are on your own. Please experiment with it and let me know your feedback, so I can improve it. 
+			<p>Thank you.  Enjoy! </p>
+			<p>Neil. </p>
+
+			<p>
+			<img src="images/curses-screen_optimised.png" width="800" height="600">
+			</p>
+		</li>
+			
+	</li>
+
+
+</li>
+
+
+<li>	
+	The following is obsolete - but I left it in, incase anyone would like to know how to install msys-pdcurses. It doesnt work for qscript because I can't figure out how to create dlls in windows using MinGW. This was supposed to be step 3 of the above document.
+	<p>
+	Step 3: Installation of the pdcurses library. For this we need to run mingw-get by hand. 
+	</p>
+	<ul>
+	<li> Installing the pdcurses library using mingw-get. Use the command below
+		<pre>
+			c:\mingw-foo5\bin &gt .\mingw-get.exe install mingw32-pdcurses
+		</pre>
+		<p> Screenshots are below. I have included 2 screenshots, because you may see a lot of catalog files being displayed on the screen, and this is part of the install process, so no need to panic. Again as mentioned earlier, should any file fail while downloading, please run the command again. mingw-get will download the components the failed the first time and install them.</p>
+		<p>
+		<img src="images/installing-pdcurses-ss-1_optimised.png" width="800" height="600"></img>
+		<img src="images/installing-pdcurses-ss2_optimised.png" width="800" height="600"></img>
+		</p>
+	</li>
+	<li>
+		We also need to install the pdcurses development library
+		<pre>
+			c:\mingw-foo5\bin &gt .\mingw-get.exe install libpdcurses-dev
+		</pre>
+		<p>Screenshots are below. </p>
+		<p>
+		<img src="images/install-libpdcurses-dev_optimised.png" width="800" height="600"></img>
+		<img src="images/install-lib-pdcurses-dev-ss-2_optimised.png" width="800" height="600"></img>
+		</p>
+	</li>
+	</ul>
+</li>
+
+</body>
+</html>

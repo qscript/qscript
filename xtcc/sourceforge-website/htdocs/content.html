@@ -1,0 +1,39 @@
+<html>
+	<head>
+	</head>
+	<body>
+		xtcc is a set of tools I am developing for Market Research Data Processing. It will comprise of the following components
+		<ul>
+		<li>xtcc compiler - data processing backend</li>
+		<li>qscript - a questionnaire scripting language</li>
+		<li>dpassist - a tool to aid in the writing of tabulation and edit specs. The input for this program will be the questionnaire script or map file for the data</li> 
+		<li>A data conversion program to convert data from the qscript format to data processing backend format</li>
+		</ul>
+
+
+		It is written in C++, yacc and generates C++ code which is then compiled and run on the host system. It requires a modern C++ compiler to be installed on the end user system.
+
+		<p> I have uploaded the sources into the subversion repository;  you can download the latest sources from here  <a href="http://xtcc.svn.sourceforge.net/viewvc/xtcc/">xtcc subversion repository</a>.
+
+		<p>I have also prepared some very preliminary documentation in tex info format and generated html browsable files. This is part of the source tree and will be availble once you checkout the sources - but please also find a link here<a href="xtcc_doc.html">xtcc Documentation</a>. A warning - not all the listed features in the doucment are functional.
+
+		<p>Here is the command I used for an initial checkout.
+		<pre class="sample"> <pre sample="verbatim"> svn co https://xtcc.svn.sourceforge.net/svnroot/xtcc/xtcc/xtcc/trunk xtcc_local_copy</pre> </pre>
+		<p>You can build the compiler by doing this.
+		<pre class="sample"> <pre sample="verbatim"> 
+		$./configure
+		$./make
+		</pre> </pre>
+
+		<p>Requirements: modern C++ compiler, bison and flex. It compiles with g++ 4.0 for me. The generated binary is named "xtcc".
+
+		<p>For windows users you need to get windows binaries for bison, flex and Gnu make
+
+		<p>I have a sample test program called inp12 present in the test-suite directory and a sample data file - "sample.dat"
+
+		<p>You can run the test program with the generated compiler using the following.
+		<pre class="sample"> <pre sample="verbatim"> xtcc test-suite/inp12 sample.dat</pre> </pre>
+
+		<p>The compiler is in its infancy and cannot be used in a production environment as I am constantly adding keywords, standardizing wherever possible. However, if you are interested in helping in development, you are welcome to join in and let me know how you can help. You can send me an email <a href="mailto:neilxdsouza@users.sourceforge.net">neilxdsouza@users.sourceforge.net</a> through this link.
+	</body>
+</html>	

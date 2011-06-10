@@ -1,0 +1,106 @@
+<html>
+	<head>
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/xtcc/" : "http://apps.sourceforge.net/piwik/xtcc/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+piwik_action_name = '';
+piwik_idsite = 1;
+piwik_url = pkBaseURL + "piwik.php";
+piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+</script>
+<object><noscript><p><img src="http://apps.sourceforge.net/piwik/xtcc/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+<!-- End Piwik Tag -->
+	</head>
+	<body>
+<a href="http://sourceforge.net/projects/xtcc"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202841&amp;type=10" width="80" height="15" alt="Get Xross Tab at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+	<p>An introductory guide to the source code for the xtcc compiler - for those who would like to join the development effort, or those who would like to understand the internals. This is a work in progress, and fairly incomplete. Anyone asking specific questions on the sources will get more detailed explanations on priority, otherwise I will just continue to explain the source code, concentrating with things I feel are more difficult to understand and then going into the easier code.
+
+	First a note on the grammar.
+	<p>The file type.y is the main grammar file of the parser. The input language consists of 3 section - the edit section, the tabulation section and the axes section. This is why in main.C, you will see 3 calls to yyparse(). The required order of the input program is 1) edit section, 2) tabulation 3) axis.
+
+
+	<p>The edit section is like a mini-programming language. The compiler generates a program which reads the data one record at a time. The data which is read in, is put in an array - the 'c' array. This 'c' array is inserted into the global namespace by the compiler. The DP programmer can access the data by reading columns from the 'c' array. The file inp12 shows examples of how to access the data from the 'c' array.
+
+	<p>At the top most level the edit section is just chain of declaration statements and function definitions. This can be seen from the productions (a) and (b) listed below.
+	<pre class="example">
+	a) top_level_item_list - top_level_item_list	
+			|	top_level_item_list top_level_item
+
+	b) top_level_item - decl
+			| func_defn
+	</pre>
+
+
+	The compiler has a very simple type system for now. We match the datatypes found on most computer systems, definitely the intel-86 architecture.
+
+	The file "symtab.h" has the enum declaration for the available types - ranging from 8 bit chars to 32 bit integers and floats and doubles. We allow arrays of each of these datatypes and, in function calls references to these datatypes are also permitted. Details on the helper functions for these datatypes will be covered a bit later. One important thing to note is the order in which the datatypes are defined in the enum. This allows us to use expressions like below in the code - using the integer property of enums.
+
+	<pre class="example">
+
+
+	return (dt >= INT8_TYPE && dt <=INT32_TYPE);
+
+	</pre>
+
+	where dt is of type enum "datatype"
+
+	The actions in the parser, construct the parse tree; finally tree_root points to the start of the chain.
+
+	<p> The edit section is the most complex as it is somewhat close to a programming language. I have tried to keep the language as close as possible to 'C' - execpt for the infinite type system,  pointers, structures and unions - so its definitely a lot simpler.
+
+	<p>The edit language is a sequence of statements. All statements are represented by classes defined in stmt.h . The base class "struct stmt" is the root of the inheritance tree. I have maintained a convention of having double linked lists for all chained classes. So almost every class which can be added to a linked list chain has a prev and a next pointer. To avoid repetition of code in linking various types of classes, there is a template function link_chain. This function is used to join objects of the "stmt" inheritance hierarchy as well as the "expr" inheritance hierarchy.
+
+	<p>The stmt base class also has a a virtual function "print_stmt_lst" which is overridden by the derived classes to generate code for their particular implementation.
+
+	<p>The motivation behind this is, after the parse tree has been constructed the programmer has to only call
+	tree_root->print_stmt_lst() to generate code. This is exactly what happens in generate_edit_section_code()
+
+	<p>All the classes for statements in the language are in stmt.h and class implementation in stmt.C
+
+	<p>All expressions in the language are implemented in expr.h and expr.C . The base class "expr" is an abstract class forming the base of all expresssions in the language. The virtual function print_expr then prints out the code for the expression. The is_lvalue function is required because expressions like 'var_name' or 'var_arr[i]' can occur which are allowed on the left hand side of an '=' assingment operator. Most other expressions on the lhs of an '=' operator have to be marked as errors.
+
+	The compiler maintains scope hierarchy using the 
+	<pre class="example">
+	vector<scope*> active_scope_list;
+	scope * active_scope;
+	</pre>
+	The "active_scope" points to the current (inner most) scope. The first scope - which is the global level scope is setup by the compiler in main.C and pushed onto the active_scope_list stack.
+
+	<h5>Notes on Compound statements and scopes</h5>	
+	<p>The active_scope_list uses the stack like property of a vector. Every time an '{' is encountered a new scope is opened and pushed onto the vector stack. The "nest_lev" global variable keeps track of the level of nesting. This is how you can tell if there are more '}' than '{' or vice versa.
+
+	In many grammars, when you need to chain statements you will see something like this.
+
+	<pre class="example">
+	stmt_list: stmt
+		| stmt_list stmt
+	
+	program : stmt_list {
+		struct stmt_ptr = $1;
+		while($1->prev)
+			stmt_ptr=stmt_ptr->prev;
+	}
+	</pre>
+
+	<p>This is because LALR parsers build the chain in reverse and you need to traverse the chain to get to the first statement. I wanted someway of detecting the start of a chain without having to traverse the chain again. In the "open_curly" production of the parser,  I detect the start of the next compound block by searching of '{' and then setting and pushing a "flag_next_stmt_start_block" flag on a stack. The reason a stack is needed is we can have a series of '{' without anything in between and we still have to get it right. Every time an open curly is seen - we create a new compound statement. Each compound statement has its own scope, and the previous scope is pushed on to the scope stack. This is probably on of the most complicated parts of the parser. Once the flag_next_stmt_start_block is set, the next statement detected is pushed onto the blk_heads vector stack. All this jugglery is required for just one purpose - performance boost in the compilation speed. When a complete compound statement is parsed - which is the compound_stmt production in the grammar - this statement is popped off the blk_heads stack and put into the compound statement.
+
+	Every scope is an stl map of 
+	<pre class="example">
+
+	map &lt string, symtab_ent* &gt 
+
+	</pre>
+	<h5>Notes on Functions</h5>
+	<p>Here I must mention something about functions. A function declaration must precede a function definition. As soon as a function declaration is encountered, it is pushed onto the func_info_table vector. Since I am currently not allowing nested functions - this much is enough to keep a track of functions. The "func_defn" production in the grammar sets a flag that the next compund statement parsed is a function body. This is important because the function scope has already been pushed into the func_info_table stack, and we now need to put the compound body parsed as part of that functions body. I hope this  throws some light on the  "flag_cmpd_stmt_is_a_func_body" variable in the parser, but I will be glad to go into more details should anyone require a more detailed explanation.
+
+
+
+	
+
+
+
+				
+	</body
+</html>

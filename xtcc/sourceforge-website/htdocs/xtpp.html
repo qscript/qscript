@@ -1,0 +1,41 @@
+<html>
+	<head>
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/xtcc/" : "http://apps.sourceforge.net/piwik/xtcc/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+piwik_action_name = '';
+piwik_idsite = 1;
+piwik_url = pkBaseURL + "piwik.php";
+piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+</script>
+<object><noscript><p><img src="http://apps.sourceforge.net/piwik/xtcc/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+<!-- End Piwik Tag -->
+	</head>
+	<body>
+: <a href="http://sourceforge.net/projects/xtcc"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202841&amp;type=10" width="80" height="15" alt="Get Xross Tab at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+		The initial sources of "xtpp" - the Xross Tabulation Pre-Processor have been checked into the repository. You can check out the source by this command:
+
+		<pre>
+		svn co https://xtcc.svn.sourceforge.net/svnroot/xtcc/xtcc/xtpp
+		</pre>
+
+		<p> A "make" will build the binary.
+
+		<p>A simple substitution mechanism is working for now, though a thorough testsuite has to be written. 
+		<ul> The following 3 files form part of the initial test input
+			<li> include-top-level-input</li>
+			<li> include-file1</li>
+			<li> include-file2</li>
+		</ul>
+		
+		You can run the pre-processor on the test file as follows. 
+
+		<pre>
+		$./xtpp < include-top-level-input 
+		</pre>
+
+		<p>It will echo the substitutions to stdout
+	</body>
+</html>

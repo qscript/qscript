@@ -1,0 +1,88 @@
+<html>
+	<head>
+<!-- Piwik -->
+<!-- 
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/xtcc/" : "http://apps.sourceforge.net/piwik/xtcc/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+piwik_action_name = '';
+piwik_idsite = 1;
+piwik_url = pkBaseURL + "piwik.php";
+piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+</script>
+<object><noscript><p><img src="http://apps.sourceforge.net/piwik/xtcc/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+-->
+<!-- End Piwik Tag -->
+	</head>
+	<body>
+	<!--
+<a href="http://sourceforge.net/projects/xtcc"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202841&amp;type=10" width="80" height="15" alt="Get Xross Tab at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+	-->
+		<p>qscript is a language to help script questionnaires for market research for data entry. The project is open source, released under the GNU GPL version 2 license.</p> 
+		<p>Currently, qscript is good for scripting Pen and Paper Interview (PAPI) questionnaires. The language supports routing of questions using conditional logic, simple looping, masking of codes and mutually exclusive codes.</p>
+
+		<p><a href="qscript_index.html" target="left_frame">Load qscript related links in Left Frame by clicking this link</a>
+
+		<p>Here is a small script to give you a feel for the language</p>
+
+		<pre>
+inp_simple_example {
+	q1 "Q1. This is question 1" sp int32_t (5-8, 1-2, 9-10, 11, 16);
+
+	stubs agree5 = 
+			" strongly disagree" 1
+			" disagree " 2
+			" neutral " 3
+			" agree " 4
+			"strongly agree" 5;
+	if (q1 in (1) ) {
+		q2_1 "Q2.1 This is question 2_1" sp int32_t agree5;
+	} else {
+		q2_2 "Q2.2 This is question 2_2" sp int32_t agree5;
+	}
+
+	stubs stuff = 
+		"USB pen drive" 1
+		"Keys" 2
+		"Wallet" 3
+		"Watch" 4
+		"Pen" 5;
+
+	q3 "Q3. This is question 3" mp(3) int32_t stuff;
+}
+		</pre>
+	<p>Compiling the above script. Suppose the file is named inp_simple_example. It can be compiled to an exe with the following commands</p>
+
+	<p>Compilation on GNU/Linux</p>
+	<pre>
+	$ qscript -n  -m -o -f inp_simple_example
+	</pre>
+
+	<p>Compilation on Windows - you must pass the -s option to generate a static binary</p>
+	<pre>
+	$ qscript -s -n  -m -o -f inp_simple_example
+	</pre>
+
+	<p>The -n flag is for a curses binary, the -m option creates a nice mapfile layout, the -o option is a optimization for save/restore jumps.</p>
+
+	<p>You can run the generated executable like this.</p>
+	<pre>
+	$ .\inp_simple_example.exe
+	</pre>
+
+	<p>Here is a screenshot of what the running exe looks like: </p>
+
+	<img src="images/screen-shot-data-entry-screen.png" />
+
+	<p>System Requirements</p>
+	<ul>
+	<li>Runs on Windows/GNU Linux and should probably work on any UNIX like OS
+	</li>
+	<li>Needs GNU g++ compiler on linux or MinGW on Windows
+	</li>
+	<li>Needs ncurses library on linux or pdcurses library on Windows
+	</li>
+
+	</body>
+</html>

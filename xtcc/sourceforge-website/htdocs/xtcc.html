@@ -1,0 +1,46 @@
+<html>
+	<head>
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/xtcc/" : "http://apps.sourceforge.net/piwik/xtcc/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+piwik_action_name = '';
+piwik_idsite = 1;
+piwik_url = pkBaseURL + "piwik.php";
+piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+</script>
+<object><noscript><p><img src="http://apps.sourceforge.net/piwik/xtcc/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+<!-- End Piwik Tag -->
+	</head>
+	<body>
+
+ <a href="http://sourceforge.net/projects/xtcc"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=202841&amp;type=10" width="80" height="15" alt="Get Xross Tab at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+		
+		The goals for xtcc are documented on the <a href="goals.html#xtcc_goals">goals</a> page.
+
+		<p>The command to download the source for the xtcc backend compiler
+		<pre>
+		svn co https://xtcc.svn.sourceforge.net/svnroot/xtcc/xtcc/xtcc/trunk xtcc_local_copy
+		</pre>
+
+		<p>You can build the compiler on GNU/LINUX, UNIX like systems by doing this.
+		<pre>
+		$./configure
+		$make
+		</pre>
+		<p>Requirements: modern C++ compiler, bison and flex. It compiles with g++ 4.0 for me. The generated binary is named "xtcc".
+
+		<p>For windows users you need to get windows binaries for bison, flex and Gnu make and you will need to tweak the sources as well.  Here is a binary distrubution of <a href="http://unxutils.sourceforge.net/" >UnxUtils</a> for Windows. 
+
+		<p>An example test program called "inp12" and a sample data file - "sample2.dat" are present in the test-suite directory. When you checkout the sources the directory "stubs" which is a subdirectory of "trunk" (i.e. xtcc_local_copy/trunk/stubs ) contains a program mk_data.C. This program will generate sample2.dat, a data map sample2.map and a human readable version of the data file - "human_readable_data.csv". "human_readable_data.csv" can be opened with a spreadsheet. When your run the generated binary "xtcc" with the test program (inp12) and data (sample2.dat) the tables are written to tab_.csv and the frequency counts to lst_.csv. You can compare the values in human_readable_data.csv and tab_.csv, lst_.csv to verify the result (use autofilter for example).
+
+		<p>You can run the test program with the generated compiler using the following.
+		<pre>
+		$./xtcc test-suite/inp12 sample2.dat
+	        $make check 
+		</pre> 
+		<p> The make check line above will run the test suite - but you need dejagnu installed. 
+
+	</body>
+</html>
