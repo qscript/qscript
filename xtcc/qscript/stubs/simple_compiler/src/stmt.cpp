@@ -1241,21 +1241,34 @@ VariableList::VariableList(DataType type, char * name, int32_t len)
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , named_range * l_named_range
 				       , AbstractQuestion * l_question
+				       , AbstractExpression * larr_index
 	)
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
-	  , xtccSet_()
+	  , xtccSet_(), arrIndex_(larr_index)
 { }
 
+/*
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+				       , named_range * l_named_range
+				       , AbstractQuestion * l_question
+				       , AbstractExpression * larr_index)
+	: AbstractStatement(dtype, lline_number)
+	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
+	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
+	  , xtccSet_(), arrIndex_(larr_index)
+{ }
+*/
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , AbstractQuestion * l_question_lhs
 				       , AbstractQuestion * l_question_rhs
+				       , AbstractExpression * larr_index
 	)
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(l_question_rhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(l_question_rhs)
-	  , xtccSet_()
+	  , xtccSet_(), arrIndex_(0)
 { }
 
 
@@ -1266,7 +1279,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(0)
-	  , xtccSet_(xs)
+	  , xtccSet_(xs), arrIndex_(0)
 { }
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
@@ -1276,7 +1289,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(l_question_lhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(0)
-	  , xtccSet_(xs)
+	  , xtccSet_(xs), arrIndex_(0)
 { }
 
 // This constructor is deprecated and should be deleted at a later stage
@@ -1295,7 +1308,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , string l_named_stub)
 	: AbstractStatement(dtype, lline_number)
 	, questionName_(), namedStub_(l_named_stub)
-	, namedRange_(0), lhs_(0), rhs_(0), xtccSet_()
+	, namedRange_(0), lhs_(0), rhs_(0), xtccSet_(), arrIndex_(0)
 { }
 
 void StubManipStatement::GenerateCode(StatementCompiledCode & code)
@@ -1310,11 +1323,23 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 	if (type_ == STUB_MANIP_DEL || type_ == STUB_MANIP_ADD){
 		if (namedRange_ && rhs_) {
 			code.program_code << "set<int32_t>::iterator set_iter = "
-				<< questionName_
-				<< "->input_data.begin();" << endl;
+				<< questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.begin();" << endl;
 			code.program_code << "for( ; set_iter!= "
-				<< questionName_
-				<< "->input_data.end(); ++set_iter){" << endl;
+				<< questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.end(); ++set_iter){" << endl;
 			code.program_code << "\tfor (int32_t "
 				<< qscript_parser::temp_name_generator.GetNewName();
 			code.program_code 
@@ -1344,11 +1369,23 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << "}" << endl;
 		} else if (lhs_ && rhs_) {
 			code.program_code << "set<int32_t>::iterator set_iter = "
-				<< rhs_->questionName_
-				<< "->input_data.begin();" << endl;
+				<< rhs_->questionName_;
+
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code<< "->input_data.begin();" << endl;
 			code.program_code << "for( ; set_iter!= "
-				<< rhs_->questionName_
-				<< "->input_data.end(); ++set_iter){" << endl;
+				<< rhs_->questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.end(); ++set_iter){" << endl;
 			code.program_code << lhs_->questionName_ << "->input_data.insert(*set_iter);\n";
 			code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
 			code.program_code << "\t}" << endl;

@@ -829,7 +829,8 @@ const char * file_exists_check_code()
 
 AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
-					 , char * question_name)
+					 , char * question_name
+					 , AbstractExpression * l_arr_index /* =0 */)
 {
 	int32_t index = -1;
 	bool question_stub = false, range_stub=false;
@@ -912,9 +913,15 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				line_no, __LINE__, __FILE__);
 			return new ErrorStatement(line_no);
 		}
-		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-			line_no, lhs_stub, rhs_question);
-		return st_ptr;
+		if (l_arr_index==0) {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+				line_no, lhs_stub, rhs_question);
+			return st_ptr;
+		} else {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+				line_no, lhs_stub, rhs_question, l_arr_index);
+			return st_ptr;
+		}
 	} else if (question_stub == true) {
 		if(!(rhs_question->nr_ptr->name == lhs_question->nr_ptr->name) ){
 			stringstream err_text;
@@ -928,9 +935,16 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				line_no, __LINE__, __FILE__);
 			return new ErrorStatement(line_no);
 		}
-		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-			line_no, lhs_question, rhs_question);
-		return st_ptr;
+		if (l_arr_index==0) {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+				line_no, lhs_question, rhs_question);
+			return st_ptr;
+		} else {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+				line_no, lhs_question, rhs_question, l_arr_index);
+			return st_ptr;
+		}
+
 	}
 	return new ErrorStatement(line_no);
 }

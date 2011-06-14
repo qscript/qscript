@@ -94,7 +94,7 @@ namespace qscript_parser
 	extern int32_t yywrap();
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
-			, char* stub_list_name, char * question_name);
+			, char* stub_list_name, char * question_name, AbstractExpression * l_arr_index=0);
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
 			 , char* stub_list_name , XtccSet & l_xs);

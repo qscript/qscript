@@ -356,17 +356,25 @@ struct StubManipStatement: public AbstractStatement
 	AbstractQuestion * lhs_;
 	AbstractQuestion * rhs_;
 	XtccSet xtccSet_;
-	StubManipStatement( DataType dtype, int32_t lline_number
-			    , string l_named_stub, string l_question_name);
+	AbstractExpression * arrIndex_;
+	//StubManipStatement( DataType dtype, int32_t lline_number
+	//		    , string l_named_stub, string l_question_name);
+	//StubManipStatement( DataType dtype, int32_t lline_number
+	//		    , string l_named_stub, string l_question_name, AbstractExpression * arr_index);
 	StubManipStatement( DataType dtype, int32_t lline_number
 			    , string l_named_stub);
 
+	//StubManipStatement(DataType dtype, int32_t lline_number
+	//			       , named_range * l_named_range
+	//			       , AbstractQuestion * l_question);
 	StubManipStatement(DataType dtype, int32_t lline_number
 				       , named_range * l_named_range
-				       , AbstractQuestion * l_question);
+				       , AbstractQuestion * l_question
+				       , AbstractExpression * larr_index = 0);
 	StubManipStatement(DataType dtype, int32_t lline_number
 				       , AbstractQuestion * l_question_lhs
-				       , AbstractQuestion * l_question_rhs);
+				       , AbstractQuestion * l_question_rhs
+				       , AbstractExpression * larr_index = 0);
 
 	StubManipStatement(DataType dtype, int32_t lline_number
 			       , named_range * l_named_range

@@ -1,0 +1,24 @@
+inp_simple_example {
+	q1 "Q1. This is question 1" sp int32_t (5-8, 1-2, 9-10, 11, 16);
+
+	stubs agree5 = 
+			" strongly disagree" 1
+			" disagree " 2
+			" neutral " 3
+			" agree " 4
+			"strongly agree" 5;
+	if (q1 in (1) ) {
+		q2_1 "Q2.1 This is question 2_1" sp int32_t agree5;
+	} else {
+		q2_2 "Q2.2 This is question 2_2" sp int32_t agree5;
+	}
+
+	stubs stuff = 
+		"USB pen drive" 1
+		"Keys" 2
+		"Wallet" 3
+		"Watch" 4
+		"Pen" 5;
+
+	q3 "Q3. This is question 3" mp(3) int32_t stuff;
+}
