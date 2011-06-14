@@ -2071,7 +2071,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
 	fprintf (script, "	    load_data(jno, file_ser_no);\n");
-	fprintf (script, "	    merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n");
+	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n");
 	fprintf (script, "	    return file_ser_no;\n");
 	fprintf (script, "	} else {\n");
 	fprintf (script, "	    // not our data file\n");

@@ -137,6 +137,7 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * &
 // with the AbstractQuestion no as a key and the index as the value
 // and looking up the vector that way
 //extern AbstractQuestion * last_question_answered;
+#if 0
 void merge_disk_data_into_questions(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered,
 		AbstractQuestion * & p_last_question_visited)
 {
@@ -411,3 +412,4 @@ void merge_disk_data_into_questions(FILE * qscript_stdout, AbstractQuestion * & 
 		}
 	}
 }
+#endif  /* 0 */
