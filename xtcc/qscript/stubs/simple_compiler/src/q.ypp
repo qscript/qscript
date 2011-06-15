@@ -897,6 +897,11 @@ stub_manip_stmts:
 				, $3, xs);
 		xs.reset();
 	}
+	| SETDEL '(' NAME ',' range_allowed_values ')' ';' {
+		using qscript_parser::xs;
+		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
+				, $3, xs);
+	}
 	| UNSET '(' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, $3);
 	}

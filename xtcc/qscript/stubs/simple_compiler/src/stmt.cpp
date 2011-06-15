@@ -1407,8 +1407,17 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< "\t\tif ("
 				<< "*xtcc_set_iter1  == " 
 				<< namedStub_
-				<< ".stubs[xtcc_i2].code) {\n"
-				<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = true;\n"
+				<< ".stubs[xtcc_i2].code) {\n";
+			
+			if (type_ == STUB_MANIP_DEL) {
+				code.program_code 
+					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
+			} else if (type_ == STUB_MANIP_ADD) {
+				code.program_code 
+					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
+			}
+
+			code.program_code 
 				<< "\t\t}\n"
 				<< "\t}\n"
 				<< "}\n"
@@ -1431,8 +1440,15 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< "\t\t\tif (set_member == " 
 				<< namedStub_ 
 				<< ".stubs[xtcc_i2].code) {\n"
-				<< "\t\t\t\t"
-				<< namedStub_ << ".stubs[xtcc_i2].mask = true;\n"
+				<< "\t\t\t\t";
+			if (type_ == STUB_MANIP_DEL){
+				code.program_code 
+					<< namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
+			} else if (type_ == STUB_MANIP_ADD) {
+				code.program_code 
+					<< namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
+			}
+			code.program_code	
 				<< "\t\t\t}\n"
 				<< "\t\t}\n"
 				<< "\t}\n"
