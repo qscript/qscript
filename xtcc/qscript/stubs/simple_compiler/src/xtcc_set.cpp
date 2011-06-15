@@ -179,6 +179,29 @@ bool XtccSet::contains_subset(std::set<int32_t> & set_data)
 
 }
 
+bool XtccSet::contains_value(int v)
+{
+	bool val_exists = false;
+
+#if 0
+	if (set_data.begin() == set_data.end()) {
+		//empty question - could be blank -
+		// if it wasnt for this we return true - a bug
+		return false;
+	}
+	for(set<int32_t>::iterator it = set_data.begin();
+			it != set_data.end(); ++it) {
+		val_exists = exists(*it);
+		if (!val_exists) {
+			return false;
+		}
+	}
+#endif /* 0 */
+	val_exists = exists(v);
+	return val_exists;
+
+}
+
 string XtccSet::print_replicate_code(string set_name)
 {
 	using std::endl;

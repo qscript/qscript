@@ -1297,22 +1297,6 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 		}
 			break;
 		case QUESTION_TYPE:{
-				/*
-			string test_bool_var_name = get_temp_name();
-			code.code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
-					   << " = " << struct_name1.c_str()
-					   << ".contains_subset(";
-			//ostringstream code_bef_expr1_discard, code_expr1;
-			//ExpressionCompiledCode expr1_code;
-			//leftOperand_->PrintExpressionCode(expr1_code);
-			code.code_bef_expr
-				//<< expr1_code.code_bef_expr.str()
-				//<< expr1_code.code_expr.str()
-				<< leftOperand_->get_symp_ptr()->name_
-				<< "->input_data"
-				<< ");\n";
-			code.code_expr << test_bool_var_name.c_str() << " ";
-				*/
 
 			//string test_bool_var_name2 = get_temp_name();
 			string test_bool_var_name2 = qscript_parser::temp_name_generator.GetNewName();
@@ -1334,6 +1318,33 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 
 		}
 			break;
+		case QUESTION_ARR_TYPE:{
+
+			//string test_bool_var_name2 = get_temp_name();
+			string test_bool_var_name2 = qscript_parser::temp_name_generator.GetNewName();
+			code.code_bef_expr <<  "bool " <<  test_bool_var_name2.c_str()
+					   << " = " << qscript_parser::
+					   	temp_set_name_generator.GetCurrentName()
+					   << ".contains_value(";
+			ostringstream code_bef_expr1_discard, code_expr1;
+			ExpressionCompiledCode expr1_code;
+			leftOperand_->PrintExpressionCode(expr1_code);
+			code.code_bef_expr
+				//<< expr1_code.code_bef_expr.str()
+				<< expr1_code.code_expr.str()
+				//<< leftOperand_->get_symp_ptr()->name_ << "_list.questionList["
+				<< ");\n";
+			code.code_expr << test_bool_var_name2.c_str() << " ";
+			//std::stringstream s;
+			//s << "Purposely Failing compilation here file: " << __FILE__
+			//  << ", line: " << __LINE__ << endl;
+			//code.code_expr << "/* " << s.str() << " */\n";
+			//print_err(compiler_internal_error, s.str()
+			//	  , line_no, __LINE__, __FILE__);
+
+
+		}
+		break;
 		default: {
 			std::stringstream s;
 			s << "file: " << __FILE__
