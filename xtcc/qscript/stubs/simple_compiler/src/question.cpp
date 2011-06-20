@@ -288,12 +288,17 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
-	program_code << "if(!"
-		<< questionName_ << "->isAnswered_ ||" << endl
+	program_code << "if ( ("
+		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag)) ||" << endl
 		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		<< "stopAtNextQuestion ||" << endl
-		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
+		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
+		<< "((write_data_file_flag || write_qtm_data_file_flag) " 
+		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
+		<< questionName_ << "->isAnswered_ == false " 
+		<< ")"
+	        << ") {" << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
 		<< " ) {\n\tstopAtNextQuestion = false;\n}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
@@ -1485,23 +1490,30 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			<< "\tcout << \"jumpToIndex = \" << jumpToIndex << endl;"
 			<< "}\n"
 			<< endl;
-	code.program_code << "if(!"
+	code.program_code << "if ( ("
 			<< questionName_ << "_list.questionList[";
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->isAnswered_||"
-		<< "(" 
+	code.program_code << "]->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag )) ||" << endl
+ 		<< "(" 
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "]->isAnswered_"
 		<< " && !"
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "]->VerifyQuestionIntegrity()"
-		<< ") || " 
+		<< ") || "  << endl
 		<< "stopAtNextQuestion||\n"
 		<< "(jumpToQuestion == \"" << questionName_ << "\""
 		<< " && " << "jumpToIndex ==  "
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-		<< ") ) {\n";
+		<< ") ||" << endl
+		<< "((write_data_file_flag || write_qtm_data_file_flag) " << endl
+		<< "  && !(" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+		<< "->question_attributes.isAllowBlank()) &&"
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+		<< "->isAnswered_ == false " 
+		<< ")"
+		<< ") {\n";
 	code.program_code << "label_eval_" << questionName_ << ":\n";
 	code.program_code << "if( jumpToQuestion == \"" << questionName_
 		<< "\" && jumpToIndex == "
