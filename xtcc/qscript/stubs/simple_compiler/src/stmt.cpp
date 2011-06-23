@@ -239,6 +239,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	//ostringstream code_bef_expr, code_expr;
 	ExpressionCompiledCode expr_code;
+	expr_code.code_bef_expr << "/* if_nest_level: " << if_nest_level << " */\n";
 	expr_code.code_expr << "if (";
 	ifCondition_->PrintExpressionCode(expr_code);
 	expr_code.code_expr << ") {";
@@ -257,8 +258,14 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			}
 		}
 	}
+	code.program_code << "// question_list_else_body :" ;
+	for (int32_t i=0; i<question_list_else_body.size(); ++i) {
+		code.program_code << " " << question_list_else_body[i];
+	}
+	code.program_code << endl;
 	if (elseBody_) {
-		elseBody_->GetQuestionNames(question_list_else_body, 0);
+		//elseBody_->GetQuestionNames(question_list_else_body, 0);
+		elseBody_->GetQuestionNames(question_list_else_body, next_);
 		// this problem has been syntactically handled - the compiler does not allow an empty
 		// else block if the "if" block has questions in it
 		// stringstream mesg;
@@ -307,7 +314,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 				break;
 			}
 		}
-		ifBody_->GetQuestionNames(question_list_if_body, 0);
+		//ifBody_->GetQuestionNames(question_list_if_body, 0);
+		ifBody_->GetQuestionNames(question_list_if_body, next_);
 
 		code.program_code << "// end of ifBody_->GetQuestionNames \n";
 		if (elseIfStatement) {
@@ -350,7 +358,14 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	if (elseBody_ == 0 ) {
 		// cout << LOG_MESSAGE("elseBody_ == 0");
 		// this call below is for error detection
-		ifBody_->GetQuestionNames(question_list_if_body, 0);
+		code.program_code << "// elseBody_ == 0 - detecting if ifBody_ has questions: yes => we flag an error" << endl;
+		//ifBody_->GetQuestionNames(question_list_if_body, 0);
+		ifBody_->GetQuestionNames(question_list_if_body, next_);
+		code.program_code << "// question_list_if_body: " ;
+		for (int32_t i=0; i<question_list_if_body.size(); ++i) {
+			code.program_code << " " << question_list_if_body[i];
+		}
+		code.program_code << endl;
 		if (question_list_if_body.size() > 0 || question_list_else_body.size()>0) {
 			stringstream s;
 			s << "If block on line number: " << lineNo_ << " has questions but does not have an else block. Please add a dummy else block like this" << endl

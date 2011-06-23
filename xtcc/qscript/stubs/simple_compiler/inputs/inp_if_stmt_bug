@@ -1,0 +1,37 @@
+inp_if_stmt_bug {
+
+
+stubs channels = 
+"Branches" 1
+"ATMs" 2
+"Phone Banking" 3
+"Mobile Banking" 4
+"Internet Banking" 5;
+setall(channels);
+
+q3_1 "Awareness of Channels"
+	mp(10) int32_t channels;
+
+	if ( 3 in q3_1 || 5 in q3_1 ) {
+
+		unset(channels);
+		if (3 in q3_1) {
+			setadd(channels, (3));
+		}
+		if (5 in q3_1) {
+			setadd(channels, (5));
+		}
+
+q3_6		"Used in past but not now"
+		mp(2) int32_t channels: allow_blank;
+	} 
+	// the compiler was not flagging this else clause earlier
+	else {
+		1;
+	}
+
+q3_7	"q3_7"
+	sp int32_t (1-4);
+
+
+}

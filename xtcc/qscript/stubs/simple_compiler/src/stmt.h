@@ -240,6 +240,9 @@ struct CompoundStatement: public AbstractStatement
 		}
 		compoundBody_->GetQuestionNames(question_list,
 				endStatement);
+		if (next_) {
+			next_->GetQuestionNames(question_list,endStatement);
+		}
 	}
 	void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 				 , AbstractStatement * stop_at);
@@ -312,6 +315,9 @@ struct IfStatement : public AbstractStatement
 		ifBody_->GetQuestionNames(question_list, endStatement);
 		if( elseBody_)
 			elseBody_->GetQuestionNames(question_list, endStatement);
+		if (next_) {
+			next_->GetQuestionNames(question_list,endStatement);
+		}
 	}
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 					 , AbstractStatement* stop_at);
