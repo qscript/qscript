@@ -39,7 +39,7 @@ int32_t read_disk_dataparse();
 int32_t read_disk_datalex();
 extern FILE* read_disk_datain;
 void read_disk_data_init();
-extern vector <question_disk_data*> qdd_list;
+//extern vector <question_disk_data*> qdd_list;
 extern QuestionDiskDataMap question_disk_data_map;
 
 extern map <string, question_disk_data*> qdd_map;
@@ -64,11 +64,27 @@ extern map <string, question_disk_data*> qdd_map;
 // 	fclose(read_disk_datain);
 // }
 
+void clear_previous_data()
+{
+	for (map<string, question_disk_data *>::iterator it = 
+			qdd_map.begin(); it != qdd_map.end(); ++it) {
+		delete it->second;
+		it->second = 0;
+	}
+	qdd_map.erase(qdd_map.begin(), qdd_map.end());
+}
+
 int32_t load_data(string jno, int32_t ser_no)
 {
 	stringstream s;
-	qdd_list.clear();
-	qdd_map.erase(qdd_map.begin(), qdd_map.end());
+	//qdd_list.clear();
+	// for (map<string, question_disk_data *>::iterator it = 
+	// 		qdd_map.begin(); it != qdd_map.end(); ++it) {
+	// 	delete it->second;
+	// 	it->second = 0;
+	// }
+	// qdd_map.erase(qdd_map.begin(), qdd_map.end());
+	clear_previous_data();
 	s << jno << "_" << ser_no << ".dat";
 	read_disk_datain = fopen(s.str().c_str(), "rb");
 	read_disk_data_init();

@@ -1661,6 +1661,11 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "TheQuestionnaire theQuestionnaire;\n"
 			"theQuestionnaire.compute_flat_file_map_and_init();\n"
 			"theQuestionnaire.eval();\n");
+	fprintf(script, "	for (int i=0; i<question_list.size(); ++i) {\n");
+	fprintf(script, "		delete question_list[i];\n");
+	fprintf(script, "		question_list[i] = 0;\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "clear_previous_data();\n");
 
 	fprintf(script, "\n} /* close main */\n");
 }
@@ -1986,6 +1991,15 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "           }\n");
 	fprintf(script, "           freq_count_file << endl;\n");
+	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		delete qtm_datafile_question_disk_map[i];\n");
+	fprintf(script, "		qtm_datafile_question_disk_map[i] = 0;\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		delete ascii_flatfile_question_disk_map[i];\n");
+	fprintf(script, "		ascii_flatfile_question_disk_map[i] = 0;\n");
+	fprintf(script, "	}\n");
+
 	fprintf(script, "    }\n");
 	fprintf(script, "\n");
 

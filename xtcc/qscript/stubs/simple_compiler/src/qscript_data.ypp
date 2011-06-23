@@ -11,9 +11,9 @@
 
 	static vector<int> data;
 	static vector<int> array_index_list;
-	vector <question_disk_data*> qdd_list;
+	//vector <question_disk_data*> qdd_list;
 	map <string, question_disk_data*> qdd_map;
-	QuestionDiskDataMap question_disk_data_map;
+	//QuestionDiskDataMap question_disk_data_map;
 	int read_disk_datalex();
 	int no_errors;
 	void read_disk_dataerror(const char * s);
@@ -53,9 +53,9 @@ question: NAME COLON numberlist NEWL {
 		//cout << "got question" << endl;
 		string qno($1);
 		question_disk_data * qdd = new question_disk_data(qno, data);
-		qdd_list.push_back(qdd);
+		//qdd_list.push_back(qdd);
 		qdd_map[qno] = qdd;
-		question_disk_data_map.question_list.push_back(qdd);
+		//question_disk_data_map.question_list.push_back(qdd);
 		data.clear();
 	}
 	| NAME COLON NEWL {
@@ -63,33 +63,11 @@ question: NAME COLON numberlist NEWL {
 		string qno($1);
 		question_disk_data * qdd = new question_disk_data(qno);
 		qdd_map[qno] = qdd;
-		qdd_list.push_back(qdd);
+		//qdd_list.push_back(qdd);
 		data.clear();
 	}
 	| NAME array_index_list COLON numberlist NEWL {
 		string qno($1);
-	#if 0	
-		QuestionExists q_eq(qno);
-		vector<question_disk_data*> ::iterator it = find_if(qdd_list.begin(),
-				qdd_list.end(), q_eq);
-		if(it!=qdd_list.end()){
-			question_disk_data * qdd = *it;
-			qdd->set_array_data(array_index_list, data);
-			question_disk_data_map.set_array_data(qno, array_index_list, data, qdd->array_bounds);
-			question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
-			stringstream full_question_name;
-			full_question_name << qno;
-			for (int i=0; i<array_index_list.size(); ++i) {
-				full_question_name << "$" << array_index_list[i];
-			}
-			qdd_map[full_question_name.str()] = qdd2;
-		} else {
-			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
-			//qdd_list.push_back(qdd);
-			cerr << "Array question found but bounds not set in data file - this is an error in the data file"
-				<< endl;
-		}
-	#endif /* 0 */
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
 		stringstream full_question_name;
 		full_question_name << qno;
@@ -103,29 +81,6 @@ question: NAME COLON numberlist NEWL {
 	}
 	| NAME array_index_list COLON NEWL {
 		string qno($1);
-	#if 0
-		QuestionExists q_eq(qno);
-		vector<question_disk_data*> ::iterator it = find_if(qdd_list.begin(),
-				qdd_list.end(), q_eq);
-		if(it!=qdd_list.end()){
-			question_disk_data * qdd = *it;
-			qdd->set_array_data(array_index_list, data);
-			question_disk_data_map.set_array_data(qno, array_index_list, data, qdd->array_bounds);
-			question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
-			stringstream full_question_name;
-			full_question_name << qno;
-			for (int i=0; i<array_index_list.size(); ++i) {
-				full_question_name << "$" << array_index_list[i];
-			}
-			qdd_map[full_question_name.str()] = qdd2;
-			//========
-		} else {
-			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
-			//qdd_list.push_back(qdd);
-			cerr << "Array question found but bounds not set in data file - this is an error in the data file"
-				<< endl;
-		}
-	#endif /* 0 */
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
 		stringstream full_question_name;
 		full_question_name << qno;
@@ -140,7 +95,7 @@ question: NAME COLON numberlist NEWL {
 	| NAME BOUNDS numberlist NEWL{
 		string qno($1);
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
-		qdd_list.push_back(qdd);
+		//qdd_list.push_back(qdd);
 		qdd_map[qno] = qdd;
 		// data will be empty because we reset it - the index has to go into the map
 		// otherwise we will dump core at some point
@@ -191,5 +146,5 @@ int main(){
 
 void read_disk_data_init(){
 	data.reserve(50);
-	qdd_list.reserve(100);
+	//qdd_list.reserve(100);
 }

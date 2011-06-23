@@ -89,9 +89,9 @@
 
 	static vector<int> data;
 	static vector<int> array_index_list;
-	vector <question_disk_data*> qdd_list;
+	//vector <question_disk_data*> qdd_list;
 	map <string, question_disk_data*> qdd_map;
-	QuestionDiskDataMap question_disk_data_map;
+	//QuestionDiskDataMap question_disk_data_map;
 	int read_disk_datalex();
 	int no_errors;
 	void read_disk_dataerror(const char * s);
@@ -449,8 +449,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    36,    36,    42,    43,    46,    61,    69,   104,   140,
-     152,   156,   162,   165
+       0,    36,    36,    42,    43,    46,    61,    69,    82,    95,
+     107,   111,   117,   120
 };
 #endif
 
@@ -1380,9 +1380,9 @@ yyreduce:
 		//cout << "got question" << endl;
 		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd = new question_disk_data(qno, data);
-		qdd_list.push_back(qdd);
+		//qdd_list.push_back(qdd);
 		qdd_map[qno] = qdd;
-		question_disk_data_map.question_list.push_back(qdd);
+		//question_disk_data_map.question_list.push_back(qdd);
 		data.clear();
 	;}
     break;
@@ -1396,7 +1396,7 @@ yyreduce:
 		string qno((yyvsp[(1) - (3)].name));
 		question_disk_data * qdd = new question_disk_data(qno);
 		qdd_map[qno] = qdd;
-		qdd_list.push_back(qdd);
+		//qdd_list.push_back(qdd);
 		data.clear();
 	;}
     break;
@@ -1407,28 +1407,6 @@ yyreduce:
 #line 69 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (5)].name));
-	#if 0	
-		QuestionExists q_eq(qno);
-		vector<question_disk_data*> ::iterator it = find_if(qdd_list.begin(),
-				qdd_list.end(), q_eq);
-		if(it!=qdd_list.end()){
-			question_disk_data * qdd = *it;
-			qdd->set_array_data(array_index_list, data);
-			question_disk_data_map.set_array_data(qno, array_index_list, data, qdd->array_bounds);
-			question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
-			stringstream full_question_name;
-			full_question_name << qno;
-			for (int i=0; i<array_index_list.size(); ++i) {
-				full_question_name << "$" << array_index_list[i];
-			}
-			qdd_map[full_question_name.str()] = qdd2;
-		} else {
-			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
-			//qdd_list.push_back(qdd);
-			cerr << "Array question found but bounds not set in data file - this is an error in the data file"
-				<< endl;
-		}
-	#endif /* 0 */
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
 		stringstream full_question_name;
 		full_question_name << qno;
@@ -1445,32 +1423,9 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 104 "src/qscript_data.ypp"
+#line 82 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (4)].name));
-	#if 0
-		QuestionExists q_eq(qno);
-		vector<question_disk_data*> ::iterator it = find_if(qdd_list.begin(),
-				qdd_list.end(), q_eq);
-		if(it!=qdd_list.end()){
-			question_disk_data * qdd = *it;
-			qdd->set_array_data(array_index_list, data);
-			question_disk_data_map.set_array_data(qno, array_index_list, data, qdd->array_bounds);
-			question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
-			stringstream full_question_name;
-			full_question_name << qno;
-			for (int i=0; i<array_index_list.size(); ++i) {
-				full_question_name << "$" << array_index_list[i];
-			}
-			qdd_map[full_question_name.str()] = qdd2;
-			//========
-		} else {
-			//question_disk_data * qdd = new question_disk_data(qno, array_index_list, data);
-			//qdd_list.push_back(qdd);
-			cerr << "Array question found but bounds not set in data file - this is an error in the data file"
-				<< endl;
-		}
-	#endif /* 0 */
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
 		stringstream full_question_name;
 		full_question_name << qno;
@@ -1487,11 +1442,11 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 140 "src/qscript_data.ypp"
+#line 95 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
-		qdd_list.push_back(qdd);
+		//qdd_list.push_back(qdd);
 		qdd_map[qno] = qdd;
 		// data will be empty because we reset it - the index has to go into the map
 		// otherwise we will dump core at some point
@@ -1503,7 +1458,7 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 152 "src/qscript_data.ypp"
+#line 107 "src/qscript_data.ypp"
     {
 		    data.push_back((yyvsp[(1) - (1)].ival));
 		    //cout << "INUMBER: " << $1 << endl;
@@ -1513,7 +1468,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 156 "src/qscript_data.ypp"
+#line 111 "src/qscript_data.ypp"
     {
 		    //cout << "INUMBER: " << $2 << endl;
 		    data.push_back((yyvsp[(2) - (2)].ival));
@@ -1523,7 +1478,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 162 "src/qscript_data.ypp"
+#line 117 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(2) - (2)].ival));
 	;}
@@ -1532,7 +1487,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 165 "src/qscript_data.ypp"
+#line 120 "src/qscript_data.ypp"
     {
 		array_index_list.push_back((yyvsp[(3) - (3)].ival));
 	;}
@@ -1541,7 +1496,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1545 "src/qscript_data.cpp"
+#line 1500 "src/qscript_data.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1753,7 +1708,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 170 "src/qscript_data.ypp"
+#line 125 "src/qscript_data.ypp"
 
 
 /*
@@ -1778,6 +1733,6 @@ int main(){
 
 void read_disk_data_init(){
 	data.reserve(50);
-	qdd_list.reserve(100);
+	//qdd_list.reserve(100);
 }
 
