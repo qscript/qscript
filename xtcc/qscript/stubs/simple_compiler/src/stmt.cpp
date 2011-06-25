@@ -387,10 +387,24 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 
 void IfStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 {
+	ostringstream base_text;
+	ifCondition_->PrintExpressionText(base_text);
+	if (qscript_parser::flag_dynamic_base_text == false) {
+		code.program_code << "base_text_vec.push_back(BaseText(\"" << base_text.str() << "\"));\n";
+	} else {
+		code.program_code 
+			<< "BaseText btxt(\"" << base_text.str() << "\", true," 
+			<< qscript_parser::dynamic_base_text_question->questionName_ << " );\n"
+			<< "base_text_vec.push_back(btxt);\n";
+	}
+	qscript_parser::flag_dynamic_base_text = false;
 	ifBody_->Generate_ComputeFlatFileMap(code);
+	code.program_code << "base_text_vec.pop_back();\n";
+	code.program_code << "base_text_vec.push_back(BaseText(\"Not " << base_text.str() << "\"));\n";
 	if (elseBody_) {
 		elseBody_->Generate_ComputeFlatFileMap(code);
 	}
+	code.program_code << "base_text_vec.pop_back();\n";
 	if (next_) {
 		next_->Generate_ComputeFlatFileMap(code);
 	}

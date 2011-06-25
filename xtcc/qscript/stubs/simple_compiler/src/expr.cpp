@@ -94,6 +94,35 @@ int32_t AbstractExpression::IsValid()
 	} else return 1;
 }
 
+void UnaryExpression::PrintExpressionText(ostringstream & s)
+{
+
+	switch(exprOperatorType_){
+	case oper_umin:{
+		s <<  "Minus ";
+		operand_->PrintExpressionText(s);
+	}
+		break;
+
+	case oper_not:{
+		//fprintf(edit_out, "! ");
+		s << "Not ";
+		operand_->PrintExpressionText(s);
+	}
+		break;
+
+	case oper_parexp:{
+		s <<  "(";
+		operand_->PrintExpressionText(s);
+		s <<  ")";
+	}
+		break;
+	default:
+		s <<  " un handled operator\n";
+
+	}
+}
+
 UnaryExpression::~UnaryExpression()
 {
 	using qscript_parser::mem_addr;
@@ -196,6 +225,107 @@ void UnaryExpression::PrintExpressionCode(ExpressionCompiledCode& code)
 bool UnaryExpression::IsConst()
 {
 	return operand_->IsConst();
+}
+
+void BinaryExpression::PrintExpressionText(ostringstream &s)
+{
+
+	switch(exprOperatorType_){
+	case oper_plus:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Plus ";
+		rightOperand_->PrintExpressionText(s);
+
+	}
+		break;
+	case oper_minus:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Minus ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_mult:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Multiplied ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_div:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Divided ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_mod:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Modulus ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_lt:{
+		leftOperand_->PrintExpressionText(s);
+		s << " is Less Than ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_gt:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " is Greater than ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_le:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " is less than or equal to ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_ge:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " is greater than or equal to ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_iseq:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " Equals ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_isneq: {
+
+		leftOperand_->PrintExpressionText(s);
+		s << " is Not Equal to ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_assgn:
+		s<< " oper_assgn not handled in base text generator";
+		break;
+	case oper_or:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " Or ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_and:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " And ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	default:
+		s << " unhandled operator is base text generator";
+		print_err(compiler_sem_err
+			  , " unhandled operator type_ in AbstractExpression  ",
+			  line_no, __LINE__, __FILE__);
+	}
 }
 
 
@@ -356,6 +486,83 @@ bool Unary2Expression::IsIntegralExpression()
 		}
 	default:
 		return false;
+	}
+}
+
+void Unary2Expression::PrintExpressionText(ostringstream & s)
+{
+	switch(exprOperatorType_){
+	case oper_name:{
+		//code.code_bef_expr << " /* case  oper_name */ \n";
+		if (type_ == QUESTION_TYPE){
+			AbstractQuestion * q = symbolTableEntry_->question_;
+			if (q->type_ == QUESTION_TYPE){
+				s << "All who have answered question " << q->questionName_;
+			}
+		} else {
+			s << "All respondents where internal variable " << symbolTableEntry_->name_ << " is true"; 
+		}
+
+	}
+		break;
+	case oper_arrderef:{
+		if (type_ == QUESTION_TYPE){
+			AbstractQuestion * q = symbolTableEntry_->question_;
+			if (q->type_ == QUESTION_ARR_TYPE){
+				s << " All who have answered " 
+					<< q->questionName_
+					<< "[";
+				ExpressionCompiledCode code1;
+				operand_->PrintExpressionCode(code1);
+				s << code1.code_bef_expr.str()
+					<< code1.code_expr.str()
+					<< "]";
+			}
+		}
+	}
+		break;
+
+	case oper_num:{
+		s << intSemanticValue_;
+	}
+		break;
+	case oper_float:{
+		s << doubleSemanticValue_;
+	}
+		break;
+	case oper_func_call:{
+
+		s << " oper_func_call : unhandled case" ;
+	}
+		break;
+	case oper_text_expr:{
+		s << "oper_text_expr: unhandled case  " <<  text;
+	}
+		break;
+	case oper_to_string: {
+		// the Constructor takes care that only
+		// questions are allowed as paramters for
+		// oper_to_string
+		s << "oper_to_string: unhandled case ";
+	}
+		break;
+	case oper_blk_arr_assgn: {
+		s << "oper_blk_arr_assgn : unhandled case" ;
+	}
+		break;
+	case oper_isanswered: {
+		AbstractQuestion * q = symbolTableEntry_->question_;
+		s << "All respondents who have answered " << q->questionName_;
+	}
+		break;
+	case oper_count: {
+		AbstractQuestion * q = symbolTableEntry_->question_;
+
+		s << "Count of answers at " << q->questionName_ ;
+	}
+		break;
+	default:
+		s << "unhandled case" << "," << __FILE__ << ", " << __LINE__<< ", " << __PRETTY_FUNCTION__ << endl;
 	}
 }
 
@@ -1239,6 +1446,98 @@ void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet * & xs)
 }
 #endif /* 0 */
 
+void Binary2Expression::PrintExpressionText(ostringstream & s)
+{
+
+	if (leftOperand_ != 0) {
+		//PrintTemporaryStruct(code);
+		//code.code_bef_expr << "\t} "
+		//string struct_name1 = get_temp_name();
+		//code.code_bef_expr <<  struct_name1 <<";\n";
+		//PrintTemporaryXtccSet(code, xs);
+		// use xs in creating base text statement
+		switch(leftOperand_->get_symp_ptr()->type_){
+		case INT8_TYPE:
+		case INT16_TYPE:
+		case INT32_TYPE:
+		case FLOAT_TYPE:
+		case DOUBLE_TYPE:
+		case INT8_ARR_TYPE:
+		case INT16_ARR_TYPE:
+		case INT32_ARR_TYPE:
+		case FLOAT_ARR_TYPE:
+		case DOUBLE_ARR_TYPE:
+		case INT8_REF_TYPE:
+		case INT16_REF_TYPE:
+		case INT32_REF_TYPE:
+		case FLOAT_REF_TYPE:
+		case DOUBLE_REF_TYPE:
+		case BOOL_TYPE:{
+
+
+			s << "unhandled case" << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ ;
+		}
+			break;
+		case QUESTION_TYPE:{
+
+			const SymbolTableEntry * se = leftOperand_->get_symp_ptr();
+			AbstractQuestion * q= se->question_;
+
+			NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q);
+
+			s << "All those respondents who have selected: ";
+			if (nq) {
+				s << " certain values in nq";
+			} else {
+				s << " certain values in rq";
+			}
+		}
+			break;
+		case QUESTION_ARR_TYPE:{
+
+			s << "QUESTION_ARR_TYPE not yet handled" << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__;
+		}
+		break;
+		default: {
+			std::stringstream s;
+			s << "file: " << __FILE__
+			  << ", line: " << __LINE__ << endl;
+			print_err(compiler_internal_error, s.str()
+				  , line_no, __LINE__, __FILE__);
+		} // note this closes the default label
+		}
+	} else /* if leftOperand2_ !=0 */{
+
+		ExpressionCompiledCode expr2_code;
+		leftOperand2_->PrintExpressionCode(expr2_code);
+		
+		NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (rhsQuestion_);
+		if (Unary2Expression * un2expr = dynamic_cast<Unary2Expression*> (leftOperand2_)) {
+			if (un2expr->exprOperatorType_ == oper_num ) {
+				s << " All Respondents who have coded \\\"" << un2expr->intSemanticValue_ << "\\\" i.e. ";
+				if (nq) {
+					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+					for (int i=0; i<vec.size(); ++i) {
+						if (vec[i].code == un2expr->intSemanticValue_) {
+							s << vec[i].stub_text;
+							break;
+						}
+					}
+				}
+				s << " at " << rhsQuestion_->questionName_;
+			} else if (un2expr->exprOperatorType_ == oper_name) {
+				s << rhsQuestion_->questionName_ << " oper_in unhandled case leftOperand2_ is oper_name " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ ;
+				qscript_parser::dynamic_base_text_question = rhsQuestion_;
+				qscript_parser::flag_dynamic_base_text = true;
+
+			} else {
+				s << rhsQuestion_->questionName_ << " oper_in unhandled case " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ ;
+			}
+		} else {
+			s << rhsQuestion_->questionName_ << " oper_in unhandled case " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ ;
+		}
+	}
+}
 
 void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 {

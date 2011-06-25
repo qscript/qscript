@@ -82,11 +82,11 @@ void QtmDataDiskMap::write_multi_code_data()
 }
 
 QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
-		QtmDataFile & p_qtm_data_file )
+		QtmDataFile & p_qtm_data_file , BaseText base_text)
 	:
 	q(p_q), startPosition_(-1),
 	width_(-1), totalLength_(-1),
-	qtmDataFile_(p_qtm_data_file)
+	qtmDataFile_(p_qtm_data_file), baseText_(base_text)
 {
 	int max_code = q->GetMaxCode();
 	if (q->no_mpn == 1) {
@@ -146,6 +146,7 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 		codeBucketVec_.push_back(CodeBucket());	
 	}
 }
+
 
 int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q)
 {
@@ -256,13 +257,35 @@ void QtmDataDiskMap::print_qax(fstream & qax_file)
 	for (int i=0; i< q->loop_index_values.size(); ++i) {
 		qax_file << "_" << q->loop_index_values[i];
 	}
+	qax_file << "; c=c("
+		<< startPosition_ +1 << ", " << startPosition_ + totalLength_
+		<< ") u $ $"
+		;
 	qax_file << endl;
 	qax_file << "*include qttl.qin;qno=" << q->questionName_;
 	for (int i=0; i< q->loop_index_values.size(); ++i) {
 		qax_file << "." << q->loop_index_values[i];
 	}
 	qax_file << ";qtit=" << q->questionText_ << ";" << endl;
-	qax_file << "*include base.qin" << endl;
+	if (baseText_.isDynamicBaseText_ == false) {
+		qax_file << "*include base.qin;btxt=" << baseText_.baseText_ << endl;
+	} else {
+		qax_file << "*include base.qin;btxt= All those respondents who coded ";
+		if (q->loop_index_values.size() == 1) {
+			qax_file << "\"" << q->loop_index_values[0] << "\" i.e. ";
+			NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (baseText_.dynamicBaseQuestion_);
+			if (nq) {
+				vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+				for (int i=0; i<vec.size(); ++i) {
+					if (vec[i].code == q->loop_index_values[0]+1) {
+						qax_file << vec[i].stub_text;
+						break;
+					}
+				}
+			}
+			qax_file << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
+		}
+	}
 	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
 		if (n_q->nr_ptr) {
 			qax_file << "*include " << n_q->nr_ptr->name << ".qin;"

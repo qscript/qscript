@@ -26,6 +26,9 @@ namespace qscript_parser
 	int32_t flagIsAFunctionBody_ = -1;
 	int32_t flagIsAForBody_ = 0;
 	bool flag_next_stmt_start_of_block = false;
+
+	bool flag_dynamic_base_text = false;
+	AbstractQuestion * dynamic_base_text_question = 0;
 	bool flag_next_question_start_of_block = false;
 
 	vector<bool> blk_start_flag;
@@ -95,8 +98,8 @@ using std::string;
 
 void print_header(FILE* script, bool ncurses_flag);
 void print_array_question_class(FILE* script);
-void print_flat_ascii_data_class(FILE *script);
-void print_qtm_data_class(FILE *script);
+//void print_flat_ascii_data_class(FILE *script);
+//void print_qtm_data_class(FILE *script);
 void print_close(FILE* script, ostringstream & program_code, bool  ncurses_flag);
 void print_navigation_support_functions(FILE * script);
 void print_reset_questionnaire(FILE * script);
@@ -155,6 +158,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	//fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "int32_t questions_start_from_here_index;\n" );
 	fprintf(script, "int ser_no_pos;\n");
+	fprintf(script, "vector <BaseText> base_text_vec;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
@@ -221,6 +225,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"qtm_datafile_conf_parser.h\"\n");
 	fprintf(script, "#include \"ArrayQuestion.h\"\n");
 	fprintf(script, "#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
+	fprintf(script, "#include \"base_text.h\"\n");
 
 	{
 		//stringstream mesg;
@@ -1091,7 +1096,7 @@ void print_array_question_class(FILE* script)
 
 }
 
-
+#if 0
 void print_flat_ascii_data_class(FILE *script)
 {
 
@@ -1186,7 +1191,9 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf(script, "};\n");
 	fprintf(script, "\n");
 }
+#endif /* 0 */
 
+#if 0
 void print_qtm_data_class(FILE *script)
 {
 
@@ -1281,6 +1288,7 @@ void print_qtm_data_class(FILE *script)
 	fprintf(script, "};\n");
 	fprintf(script, "\n");
 }
+#endif /* 0 */
 
 void PrintActiveVariablesAtScope(vector <Scope*> & active_scope_list
 				 , vector <ActiveVariableInfo*> & output_info)
@@ -1659,6 +1667,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
 	fprintf(script, "TheQuestionnaire theQuestionnaire;\n"
+			"theQuestionnaire.base_text_vec.push_back(BaseText(\"All Respondents\"));\n"
 			"theQuestionnaire.compute_flat_file_map_and_init();\n"
 			"theQuestionnaire.eval();\n");
 	fprintf(script, "	for (int i=0; i<question_list.size(); ++i) {\n");

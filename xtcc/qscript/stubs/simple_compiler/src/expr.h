@@ -73,7 +73,7 @@ struct AbstractExpression
 //	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 //			, ostringstream & code_expr)=0;
 	virtual void PrintExpressionCode(ExpressionCompiledCode & code)=0;
-
+	virtual void PrintExpressionText(ostringstream & s)=0;
 	virtual int32_t IsValid();
 	//! pure virtual function will tell us if an AbstractExpression can appear on the
 	//! left side of the assignment operator
@@ -110,6 +110,7 @@ struct UnaryExpression : public AbstractExpression
 	virtual ~UnaryExpression();
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
+	virtual void PrintExpressionText(ostringstream & s);
 	private:
 		UnaryExpression& operator=(const UnaryExpression&);
 		UnaryExpression (const UnaryExpression&);
@@ -146,6 +147,7 @@ struct Binary2Expression: public AbstractExpression
 //	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 //			, ostringstream & code_expr);
 	virtual void PrintExpressionCode(ExpressionCompiledCode & code);
+	virtual void PrintExpressionText(ostringstream & s);
 	~Binary2Expression();
 
 	private:
@@ -169,6 +171,7 @@ struct BinaryExpression: public AbstractExpression
 	virtual void PrintExpressionCode(ExpressionCompiledCode & code);
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
+	virtual void PrintExpressionText(ostringstream & s);
 	~BinaryExpression();
 	private:
 		BinaryExpression& operator=(const BinaryExpression&);
@@ -217,6 +220,7 @@ struct Unary2Expression : public AbstractExpression
 			, AbstractExpression* arr_index2);
 	Unary2Expression(char* ltxt, ExpressionOperatorType le_type);
 	~Unary2Expression();
+	virtual void PrintExpressionText(ostringstream & s);
 	friend void BinaryExpression::print_oper_assgn(ExpressionCompiledCode & code);
 //	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 //			, ostringstream & code_expr);

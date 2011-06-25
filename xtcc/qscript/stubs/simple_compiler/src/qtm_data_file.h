@@ -4,6 +4,7 @@
 #include <fstream>
 #include <utility>
 #include "question.h"
+#include "base_text.h"
 
 namespace qtm_data_file_ns {
 
@@ -79,8 +80,12 @@ public:
 	int32_t width_;
 	int32_t totalLength_;
 	QtmDataFile & qtmDataFile_;
+	//string baseText_;
+	//bool dynamicBaseText_;
+	//AbstractQuestion * baseTextQuestion_;
+	BaseText baseText_;
 	QtmDataDiskMap(AbstractQuestion * p_q, 
-		QtmDataFile & p_qtm_data_file);
+		QtmDataFile & p_qtm_data_file, BaseText base_text);
 	int GetTotalLength() { return totalLength_; }
 	void write_data ();
 	void write_single_code_data();
