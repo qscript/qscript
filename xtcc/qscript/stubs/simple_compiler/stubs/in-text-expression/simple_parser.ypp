@@ -1,0 +1,28 @@
+%{
+#include "const_defs.h"
+int yylex();
+void yyerror(const char *s);
+%}
+
+%union {
+	char text_buf[MY_STR_MAX];
+}
+
+%token <text> TEXT
+
+
+%%
+
+
+
+
+program: TEXT ';'	{
+
+	}
+
+%%
+
+int main ()
+{
+	yyparse();
+}
