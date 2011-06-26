@@ -4,6 +4,7 @@
 #include <map>
 #include <fstream>
 #include <set>
+#include <algorithm>
 #include "qtm_data_file.h"
 #include "log_mesg.h"
 #include "qtm_datafile_conf_parser.h"
@@ -251,7 +252,142 @@ void QtmDataDiskMap::print_map(fstream & map_file)
 	}
 }
 
-void QtmDataDiskMap::print_qax(fstream & qax_file)
+void QtmDataDiskMap::print_qin(string setup_dir)
+{
+	NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q);
+	stringstream fname;
+	// assume that setup_dir is already created
+	fname << setup_dir << "/" <<n_q->nr_ptr->name << ".qin";
+	fstream qtm_include_file (fname.str().c_str(), 
+			std::ios_base::out | std::ios_base::trunc);
+	string range_name = n_q->nr_ptr->name;
+	int rat_scale = 0;
+	int factor = 1;
+	bool flag_scale_is_reversed = false;
+	bool flag_is_a_rating_scale = false;
+	if (isdigit(range_name[range_name.size()-1]) && !(range_name[range_name.size()-1]=='0')) {
+		flag_is_a_rating_scale = true;
+		int i = range_name.size()-1;
+		while (isdigit(range_name[i])) {
+			rat_scale += (range_name[i] - '0') * factor;
+			factor *=10;
+			--i;
+		}
+		if (range_name[i] == 'r' && range_name[i-1] == '_') {
+			flag_scale_is_reversed = true;
+		}
+	}
+	if (!flag_is_a_rating_scale) {
+		for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+			qtm_include_file << "n01"
+				<< n_q->nr_ptr->stubs[i].stub_text
+				<< "; c=c";
+			int the_code = n_q->nr_ptr->stubs[i].code;
+			if (n_q->no_mpn>1) {
+				qtm_include_file << "a";
+				int dividend = the_code/10;
+				int remainder = the_code%10;
+				if (remainder == 0) {
+					qtm_include_file 
+						<< dividend - 1 << "'"
+						<< remainder << "'";
+				} else {
+					qtm_include_file 
+						<< dividend  << "'"
+						<< remainder << "'";
+				}
+			} else {
+				if (width_==1) {
+					qtm_include_file << "a0'";
+					if (the_code < 10) {
+						qtm_include_file << the_code
+							<< "'";
+					} else {
+						if (the_code == 10) {
+							qtm_include_file << "'0'";
+						} else if (the_code == 11) {
+							qtm_include_file << "'-'";
+						} else if (the_code == 12) {
+							qtm_include_file << "'&'";
+						} else {
+							stringstream error_str;
+							error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+							cerr << LOG_MESSAGE(error_str.str());
+							exit(1);
+						}
+					}
+				} else {
+					qtm_include_file << "(a0,a"
+						<< width_-1 << ").eq."
+						<< the_code;
+				}
+			}
+			qtm_include_file << endl;
+		}
+	} else {
+		if (flag_scale_is_reversed == false) {
+			vector<stub_pair>  stubs= (n_q->nr_ptr->stubs);
+			// qtm_include_file << "/* before sort\n";
+			// for(int i=0; i<stubs.size(); ++i) {
+			// 	qtm_include_file << stubs[i].stub_text << endl;
+			// }
+			sort(stubs.begin(), stubs.end(), stub_pair_order_asc());
+			// qtm_include_file << "/* after sort\n";
+			// for(int i=0; i<stubs.size(); ++i) {
+			// 	qtm_include_file << stubs[i].stub_text << endl;
+			// }
+			if (rat_scale == 5) {
+				for (int i=stubs.size()-1; i>=0; --i) {
+					if (i==stubs.size()-1) {
+						qtm_include_file << "net1Top 2 Box (Net);" << endl;
+					}
+					if (i==1) {
+						qtm_include_file << "net1Bottom 2 Box (Net);" << endl;
+					}
+
+					qtm_include_file << "n01"
+						<< stubs[i].stub_text
+						<< "; c=c";
+					int the_code = stubs[i].code;
+					if (width_==1) {
+						qtm_include_file << "a0'";
+						if (the_code < 10) {
+							qtm_include_file << the_code
+								<< "'" << endl;
+						} else {
+							if (the_code == 10) {
+								qtm_include_file << "'0'";
+							} else if (the_code == 11) {
+								qtm_include_file << "'-'";
+							} else if (the_code == 12) {
+								qtm_include_file << "'&'";
+							} else {
+								stringstream error_str;
+								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+								cerr << LOG_MESSAGE(error_str.str());
+								exit(1);
+							}
+						}
+					} else {
+						qtm_include_file << "(a0,a"
+							<< width_-1 << ").eq."
+							<< the_code << endl;
+					}
+
+					if (i==0) {
+						qtm_include_file << "netend1;\n";
+					}
+					if (i==3) {
+						qtm_include_file << "netend1;\n";
+					}
+				}
+			}
+		}
+	}
+	qtm_include_files.insert(n_q->nr_ptr->name);
+}
+
+void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 {
 	qax_file << "l " << q->questionName_ ;
 	for (int i=0; i< q->loop_index_values.size(); ++i) {
@@ -287,6 +423,8 @@ void QtmDataDiskMap::print_qax(fstream & qax_file)
 		}
 	}
 	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+		print_qin(setup_dir);
+		/*
 		if (n_q->nr_ptr) {
 			qax_file << "*include " << n_q->nr_ptr->name << ".qin;"
 			<< "col(a)=" << startPosition_ + 1
@@ -295,7 +433,8 @@ void QtmDataDiskMap::print_qax(fstream & qax_file)
 		set<string>::iterator it = qtm_include_files.find(n_q->nr_ptr->name);
 		if (it == qtm_include_files.end()) {
 			stringstream fname;
-			fname << n_q->nr_ptr->name << ".qin";
+			// assume that setup_dir is already created
+			fname << setup_dir << "/" <<n_q->nr_ptr->name << ".qin";
 			fstream qtm_include_file (fname.str().c_str(), 
 					std::ios_base::out | std::ios_base::trunc);
 			for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
@@ -346,6 +485,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file)
 			}
 			qtm_include_files.insert(n_q->nr_ptr->name);
 		}
+		*/
 	} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
 		qax_file << "*include " << q->questionName_ << ".qin;"
 			<< "col(a)=" << startPosition_ + 1

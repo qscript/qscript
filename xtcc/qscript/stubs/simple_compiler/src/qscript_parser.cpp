@@ -1736,31 +1736,32 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n";
 
-
-	compute_flat_map_code.program_code << "\tstring qtm_map_file_name(jno + string(\".qmap\"));\n";
-	compute_flat_map_code.program_code << "\tfstream qtm_map_file(qtm_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
-	compute_flat_map_code.program_code << "\t print_map_header(qtm_map_file);\n";
-	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
-		<< "\t qtm_datafile_question_disk_map[i]->print_map(qtm_map_file);\n"
-		<< "}\n";
-
 	compute_flat_map_code.program_code 
 		<< "\t{struct stat dir_exists; stringstream s1;\n"
 		<< "s1 << \"setup-\" << jno;\n"
 		<< "if (stat(s1.str().c_str(), &dir_exists) <0) {\n"
 		<< "\tif (errno == ENOENT)\n"
-		<< "\t\tmkdir(s1.str().c_str(), S_IRUSR | S_IWUSR | S_IXUSR);\n"
+		<< "\t\tif (mkdir(s1.str().c_str(), S_IRUSR | S_IWUSR | S_IXUSR) <0) {\n"
+		<< "\t\t\tperror(\"unable to create directory for setup files\");\n}\n"
 		<< "\telse\n"
 		<< "\t\tperror(\"stating directory failed\");\n"
 		<< "\t}\n}\n"
 		;
 
 
-	compute_flat_map_code.program_code << "\tstring qtm_qax_file_name(jno + string(\".qax\"));\n";
+	compute_flat_map_code.program_code << "\tstring qtm_map_file_name(string(\"setup-\") + jno + string(\"/\") + jno + string(\".qmap\"));\n";
+	compute_flat_map_code.program_code << "\tfstream qtm_map_file(qtm_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << "\t print_map_header(qtm_map_file);\n";
+	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+		<< "\t qtm_datafile_question_disk_map[i]->print_map(qtm_map_file);\n"
+		<< "}\n";
+
+
+	compute_flat_map_code.program_code << "\tstring qtm_qax_file_name( string(\"setup-\")+jno+string(\"/\") + jno + string(\".qax\"));\n";
 	compute_flat_map_code.program_code << "\tfstream qtm_qax_file(qtm_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		"\tmap <string, vector<qtm_data_file_ns::QtmDataDiskMap*> > summary_tables;\n";
 	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
-		<< "\t qtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file);\n"
+		<< "\t qtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file, string(\"setup-\")+jno);\n"
 		<< "string questionName = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
 		<< "//qtm_qax_file << \"questionName_: \" << questionName << endl;\n"
 		<< "\tif (qtm_datafile_question_disk_map[i]->q->loop_index_values.size() > 0) {\n"

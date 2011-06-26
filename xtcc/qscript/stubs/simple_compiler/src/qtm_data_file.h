@@ -91,7 +91,8 @@ public:
 	void write_single_code_data();
 	void write_multi_code_data();
 	void print_map(std::fstream & map_file);
-	void print_qax(std::fstream & qax_file);
+	void print_qax(std::fstream & qax_file, std::string setup_dir);
+	void print_qin(std::string setup_dir);
 	std::vector <CodeBucket> codeBucketVec_;
 	void AllocateCards();
 	void Reset();
