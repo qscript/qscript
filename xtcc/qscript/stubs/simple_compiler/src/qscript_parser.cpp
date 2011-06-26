@@ -203,6 +203,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <fstream>\n");
 	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include <cstdlib>\n");
+	fprintf(script, "#include <errno.h>\n");
 	if(ncurses_flag) {
 		fprintf(script, "#include <curses.h>\n");
 		fprintf(script, "#include <panel.h>\n");
@@ -1742,6 +1743,18 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
 		<< "\t qtm_datafile_question_disk_map[i]->print_map(qtm_map_file);\n"
 		<< "}\n";
+
+	compute_flat_map_code.program_code 
+		<< "\t{struct stat dir_exists; stringstream s1;\n"
+		<< "s1 << \"setup-\" << jno;\n"
+		<< "if (stat(s1.str().c_str(), &dir_exists) <0) {\n"
+		<< "\tif (errno == ENOENT)\n"
+		<< "\t\tmkdir(s1.str().c_str(), S_IRUSR | S_IWUSR | S_IXUSR);\n"
+		<< "\telse\n"
+		<< "\t\tperror(\"stating directory failed\");\n"
+		<< "\t}\n}\n"
+		;
+
 
 	compute_flat_map_code.program_code << "\tstring qtm_qax_file_name(jno + string(\".qax\"));\n";
 	compute_flat_map_code.program_code << "\tfstream qtm_qax_file(qtm_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
