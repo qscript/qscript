@@ -1788,6 +1788,17 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code 
 		<< "qtm_datafile_question_disk_map[0]->print_run(jno);"
 		<< endl;
+	compute_flat_map_code.program_code << "\tstring tab_file_name(string(\"setup-\")+ jno + string(\"/\") + jno + string(\".tab\"));\n";
+	compute_flat_map_code.program_code << "\tfstream tab_file(tab_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+		<< "string questionName = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
+		<< "AbstractQuestion * q = qtm_datafile_question_disk_map[i]->q;\n"
+		<< "tab_file << \"tab \" << q->questionName_;\n"
+		<< "\tfor(int j=0; j<q->loop_index_values.size(); ++j) {\n"
+		<< "\t\t tab_file << \"_\" << q->loop_index_values[j];\n"
+		<< "\t}\n"
+		<< "tab_file << \" &ban\" << endl;\n"
+		<< "}\n";
 
 
 	compute_flat_map_code.program_code << "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.AllocateCards();\n"
