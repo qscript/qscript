@@ -1736,17 +1736,31 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n";
 
-	compute_flat_map_code.program_code 
-		<< "\t{struct stat dir_exists; stringstream s1;\n"
-		<< "s1 << \"setup-\" << jno;\n"
-		<< "if (stat(s1.str().c_str(), &dir_exists) <0) {\n"
-		<< "\tif (errno == ENOENT)\n"
-		<< "\t\tif (mkdir(s1.str().c_str(), S_IRUSR | S_IWUSR | S_IXUSR) <0) {\n"
-		<< "\t\t\tperror(\"unable to create directory for setup files\");\n}\n"
-		<< "\telse\n"
-		<< "\t\tperror(\"stating directory failed\");\n"
-		<< "\t}\n}\n"
-		;
+	if (config_file_parser::PLATFORM != "WINDOWS") {
+		compute_flat_map_code.program_code 
+			<< "\t{struct stat dir_exists; stringstream s1;\n"
+			<< "s1 << \"setup-\" << jno;\n"
+			<< "if (stat(s1.str().c_str(), &dir_exists) <0) {\n"
+			<< "\tif (errno == ENOENT)\n"
+			<< "\t\tif (mkdir(s1.str().c_str(), S_IRUSR | S_IWUSR | S_IXUSR) <0) {\n"
+			<< "\t\t\tperror(\"unable to create directory for setup files\");\n}\n"
+			<< "\telse\n"
+			<< "\t\tperror(\"stating directory failed\");\n"
+			<< "\t}\n}\n"
+			;
+	} else {
+		compute_flat_map_code.program_code 
+			<< "\t{struct stat dir_exists; stringstream s1;\n"
+			<< "s1 << \"setup-\" << jno;\n"
+			<< "if (stat(s1.str().c_str(), &dir_exists) <0) {\n"
+			<< "\tif (errno == ENOENT)\n"
+			<< "\t\tif (mkdir(s1.str().c_str()) <0) {\n"
+			<< "\t\t\tperror(\"unable to create directory for setup files\");\n}\n"
+			<< "\telse\n"
+			<< "\t\tperror(\"stating directory failed\");\n"
+			<< "\t}\n}\n"
+			;
+	}
 
 
 	compute_flat_map_code.program_code << "\tstring qtm_map_file_name(string(\"setup-\") + jno + string(\"/\") + jno + string(\".qmap\"));\n";
