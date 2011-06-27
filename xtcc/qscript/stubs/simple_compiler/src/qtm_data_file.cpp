@@ -5,6 +5,7 @@
 #include <fstream>
 #include <set>
 #include <algorithm>
+#include <iostream>
 #include "qtm_data_file.h"
 #include "log_mesg.h"
 #include "qtm_datafile_conf_parser.h"
@@ -265,7 +266,7 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 	int factor = 1;
 	bool flag_scale_is_reversed = false;
 	bool flag_is_a_rating_scale = false;
-	if (isdigit(range_name[range_name.size()-1]) && !(range_name[range_name.size()-1]=='0')) {
+	if (isdigit(range_name[range_name.size()-1]) /*&& !(range_name[range_name.size()-1]=='0')*/ ) {
 		flag_is_a_rating_scale = true;
 		int i = range_name.size()-1;
 		while (isdigit(range_name[i])) {
@@ -382,9 +383,202 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 					}
 				}
 			}
+			if (rat_scale == 7) {
+				for (int i=stubs.size()-1; i>=0; --i) {
+					if (i==stubs.size()-1) {
+						qtm_include_file << "net1Top Box (Net);" << endl;
+						qtm_include_file << "net2Top 2 Box (Net);" << endl;
+					}
+					if (i==2) {
+						qtm_include_file << "net1Bottom Box (Net);" << endl;
+					}
+					if (i==1) {
+						qtm_include_file << "net2Bottom 2 Box (Net);" << endl;
+					}
+
+					qtm_include_file << "n01"
+						<< stubs[i].stub_text
+						<< "; c=c";
+					int the_code = stubs[i].code;
+					if (width_==1) {
+						qtm_include_file << "a0'";
+						if (the_code < 10) {
+							qtm_include_file << the_code
+								<< "'" << endl;
+						} else {
+							if (the_code == 10) {
+								qtm_include_file << "'0'";
+							} else if (the_code == 11) {
+								qtm_include_file << "'-'";
+							} else if (the_code == 12) {
+								qtm_include_file << "'&'";
+							} else {
+								stringstream error_str;
+								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+								cerr << LOG_MESSAGE(error_str.str());
+								exit(1);
+							}
+						}
+					} else {
+						qtm_include_file << "(a0,a"
+							<< width_-1 << ").eq."
+							<< the_code << endl;
+					}
+
+					if (i==5) {
+						qtm_include_file << "netend2;\n";
+					}
+					if (i==4) {
+						qtm_include_file << "netend1;\n";
+					}
+
+					if (i==0) {
+						qtm_include_file << "netend2;\n";
+						qtm_include_file << "netend1;\n";
+					}
+				}
+			}
+			if (rat_scale == 10) {
+				for (int i=stubs.size()-1; i>=0; --i) {
+					if (i==stubs.size()-1) {
+						qtm_include_file << "net1Top 3 Box (Net);" << endl;
+						qtm_include_file << "net2Top 2 Box (Net);" << endl;
+					}
+					if (i==2) {
+						qtm_include_file << "net1Bottom 3 Box (Net);" << endl;
+					}
+					if (i==1) {
+						qtm_include_file << "net2Bottom 2 Box (Net);" << endl;
+					}
+
+					qtm_include_file << "n01"
+						<< stubs[i].stub_text
+						<< "; c=c";
+					int the_code = stubs[i].code;
+					if (width_==1) {
+						qtm_include_file << "a0'";
+						if (the_code < 10) {
+							qtm_include_file << the_code
+								<< "'" << endl;
+						} else {
+							if (the_code == 10) {
+								qtm_include_file << "'0'";
+							} else if (the_code == 11) {
+								qtm_include_file << "'-'";
+							} else if (the_code == 12) {
+								qtm_include_file << "'&'";
+							} else {
+								stringstream error_str;
+								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+								cerr << LOG_MESSAGE(error_str.str());
+								exit(1);
+							}
+						}
+					} else {
+						qtm_include_file << "(a0,a"
+							<< width_-1 << ").eq."
+							<< the_code << endl;
+					}
+
+					if (i==8) {
+						qtm_include_file << "netend2;\n";
+					}
+					if (i==7) {
+						qtm_include_file << "netend1;\n";
+					}
+
+					if (i==0) {
+						qtm_include_file << "netend2;\n";
+						qtm_include_file << "netend1;\n";
+					}
+				}
+			}
+			cerr << "reached here: " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+				<< " rat_scale: " << rat_scale
+				<< endl;
+			if (rat_scale == 9) {
+				for (int i=stubs.size()-1; i>=0; --i) {
+					if (i==stubs.size()-1) {
+						qtm_include_file << "net1Top Box (Net);" << endl;
+						qtm_include_file << "net2Top 2 Box (Net);" << endl;
+					}
+					if (i==2) {
+						qtm_include_file << "net1Bottom 3 Box (Net);" << endl;
+					}
+					if (i==1) {
+						qtm_include_file << "net2Bottom 2 Box (Net);" << endl;
+					}
+
+					qtm_include_file << "n01"
+						<< stubs[i].stub_text
+						<< "; c=c";
+					int the_code = stubs[i].code;
+					if (width_==1) {
+						qtm_include_file << "a0'";
+						if (the_code < 10) {
+							qtm_include_file << the_code
+								<< "'" << endl;
+						} else {
+							if (the_code == 10) {
+								qtm_include_file << "'0'";
+							} else if (the_code == 11) {
+								qtm_include_file << "'-'";
+							} else if (the_code == 12) {
+								qtm_include_file << "'&'";
+							} else {
+								stringstream error_str;
+								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+								cerr << LOG_MESSAGE(error_str.str());
+								exit(1);
+							}
+						}
+					} else {
+						qtm_include_file << "(a0,a"
+							<< width_-1 << ").eq."
+							<< the_code << endl;
+					}
+
+					if (i==7) {
+						qtm_include_file << "netend2;\n";
+					}
+					if (i==6) {
+						qtm_include_file << "netend1;\n";
+					}
+
+					if (i==0) {
+						qtm_include_file << "netend2;\n";
+						qtm_include_file << "netend1;\n";
+					}
+				}
+			}
 		}
 	}
 	qtm_include_files.insert(n_q->nr_ptr->name);
+}
+
+void QtmDataDiskMap::print_run(string jno)
+{
+	stringstream run_file_name;
+	run_file_name << "setup-" << jno << "/" << jno << ".run" ;
+	fstream run_file(run_file_name.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	run_file << "struct ser=c(" << qtm_datafile_conf_parser_ns::ser_start
+		<< "," << qtm_datafile_conf_parser_ns::ser_end
+		<< ");crd=c(" << qtm_datafile_conf_parser_ns::crd_start
+		<< "," <<  qtm_datafile_conf_parser_ns::crd_end
+		<< ");read=" << qtm_datafile_conf_parser_ns::qtm_file_mode 
+		<< endl << endl;
+
+	run_file << "ed" << endl;
+	run_file << "end" << endl;
+
+	run_file << "*include tabs.qax;ban=tot" << endl;
+	run_file << "*include " << jno << ".qax" << endl;
+
+	run_file << endl 
+		<< "l tot" << endl << "n10Total" 
+		<< endl
+		<< endl;
+
 }
 
 void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)

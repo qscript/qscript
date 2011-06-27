@@ -1785,6 +1785,9 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "	//}\n"
 		<< "	//cout << endl;\n"
 		<< "}\n";
+	compute_flat_map_code.program_code 
+		<< "qtm_datafile_question_disk_map[0]->print_run(jno);"
+		<< endl;
 
 
 	compute_flat_map_code.program_code << "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.AllocateCards();\n"
