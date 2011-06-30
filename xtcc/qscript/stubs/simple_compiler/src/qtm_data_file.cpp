@@ -683,12 +683,12 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 	}
 	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
 		print_qin(setup_dir);
-		/*
 		if (n_q->nr_ptr) {
 			qax_file << "*include " << n_q->nr_ptr->name << ".qin;"
 			<< "col(a)=" << startPosition_ + 1
 			<< endl;
 		}
+		/*
 		set<string>::iterator it = qtm_include_files.find(n_q->nr_ptr->name);
 		if (it == qtm_include_files.end()) {
 			stringstream fname;
