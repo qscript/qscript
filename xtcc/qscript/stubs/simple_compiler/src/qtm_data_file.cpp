@@ -382,6 +382,12 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 						qtm_include_file << "netend1;\n";
 					}
 				}
+				if (width_==1)
+					qtm_include_file << "n25;inc=c(a0);c=c(a0).in.(1:5);\n";
+				else 
+					qtm_include_file << "n25;inc=" 
+						<< "c(a0,a" << width_ - 1 << ");"
+						<< "c=c(a0,a" << width_ - 1 << ").in.(1:5);\n";
 			}
 			if (rat_scale == 7) {
 				for (int i=stubs.size()-1; i>=0; --i) {
@@ -437,6 +443,12 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 						qtm_include_file << "netend1;\n";
 					}
 				}
+				if (width_==1)
+					qtm_include_file << "n25;inc=c=c(a0);c=c(a0).in.(1:7);\n";
+				else 
+					qtm_include_file << "n25;inc="
+						<< "c(a0,a" << width_ - 1 << ");"
+						<< "c=c(a0,a" << width_ - 1 << ").in.(1:7);\n";
 			}
 			if (rat_scale == 10) {
 				for (int i=stubs.size()-1; i>=0; --i) {
@@ -492,6 +504,12 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 						qtm_include_file << "netend1;\n";
 					}
 				}
+				if (width_==1)
+					qtm_include_file << "Error - width is 1 for 10 point scale;\n";
+				else 
+					qtm_include_file << "n25;inc="
+						<< "c(a0,a" << width_ - 1 << ");"
+						<< "c=c(a0,a" << width_ - 1 << ").in.(1:10);\n";
 			}
 			cerr << "reached here: " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
 				<< " rat_scale: " << rat_scale
@@ -550,8 +568,16 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 						qtm_include_file << "netend1;\n";
 					}
 				}
+				if (width_==1)
+					qtm_include_file << "n25;inc=c(a0);c=c(a0).in.(1:9);\n";
+				else 
+					qtm_include_file << "n25;inc=" 
+						<< "c(a0,a" << width_ - 1 << ");"
+						<< "c=c(a0,a" << width_ - 1 << ").in.(1:9);\n";
 			}
 		}
+
+		qtm_include_file << "*include mean.qin" << endl;
 	}
 	qtm_include_files.insert(n_q->nr_ptr->name);
 }
@@ -620,6 +646,12 @@ void QtmDataDiskMap::print_run(string jno)
 	fstream base_qin (base_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
 	base_qin << "ttlBase: &btxt" << endl
 		<< "n10Total" << endl;
+
+	stringstream mean_fname;
+	mean_fname << "setup-" << jno << "/" << "mean.qin";
+	fstream mean_qin (mean_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	mean_qin << "n12Mean;dec=2" << endl
+		<< "n17Std Dev;dec=2" << endl;
 
 }
 
