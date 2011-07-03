@@ -442,12 +442,16 @@ question: NAME TEXT qtype datatype range_allowed_values attribute_list';' {
 		$$ = qscript_parser::ProcessRangeQuestion($1, $2, $4);
 		//cout << "parsed range question : " << $1 << endl;
 		question_attributes.Reset();
+		using qscript_parser::xs;
+		xs.reset();
 	}
 	| NAME TEXT qtype datatype range_allowed_values mutex_range attribute_list';' {
 		$$ = qscript_parser::ProcessRangeQuestion($1, $2, $4);
 		//cout << "parsed range question : " << $1 << endl;
 		question_attributes.Reset();
 		qscript_parser::has_mutex_range = false;
+		using qscript_parser::xs;
+		xs.reset();
 	}
 	| NAME TEXT qtype datatype NAME attribute_list';' {
 		$$ = qscript_parser::ProcessNamedQuestion($1, $2, $4, $5);
@@ -901,6 +905,8 @@ stub_manip_stmts:
 		using qscript_parser::xs;
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, $3, xs);
+		using qscript_parser::xs;
+		xs.reset();
 	}
 	| UNSET '(' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, $3);
