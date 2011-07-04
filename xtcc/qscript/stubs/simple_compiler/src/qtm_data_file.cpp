@@ -258,7 +258,11 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 	NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q);
 	stringstream fname;
 	// assume that setup_dir is already created
-	fname << setup_dir << "/" <<n_q->nr_ptr->name << ".qin";
+	if (n_q->no_mpn>1) {
+		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".min";
+	} else {
+		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".sin";
+	}
 	fstream qtm_include_file (fname.str().c_str(), 
 			std::ios_base::out | std::ios_base::trunc);
 	string range_name = n_q->nr_ptr->name;
@@ -612,26 +616,26 @@ void QtmDataDiskMap::print_run(string jno)
 	mn1c_fname << "setup-" << jno << "/" << "mn1c.qin";
 	fstream mn1c_qin (mn1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
 	mn1c_qin << "n00;c=c(a0).in.(&range);" << endl
-		<< "n25;inc=c(a0);c=c(a0).in.(&range)" << endl
+		<< "n25;inc=c(a0);c=c(a0).in.(&myrange)" << endl
 		<< "n12&qatt;dec=2" << endl;
 
 	stringstream mn2c_fname;
 	mn2c_fname << "setup-" << jno << "/" << "mn2c.qin";
 	fstream mn2c_qin (mn2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
-	mn2c_qin << "n00;c=c(a0,a1).in.(&range);" << endl
-		<< "n25;inc=c(a0,a1);c=c(a0,a1).in.(&range)" << endl
+	mn2c_qin << "n00;c=c(a0,a1).in.(&myrange);" << endl
+		<< "n25;inc=c(a0,a1);c=c(a0,a1).in.(&myrange)" << endl
 		<< "n12&qatt;dec=2" << endl;
 
 	stringstream rat1c_fname;
 	rat1c_fname << "setup-" << jno << "/" << "rat1c.qin";
 	fstream rat1c_qin (rat1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
-	rat1c_qin << "n01 &qatt; inc=c(a0);c=c(a0).in.(&range);" << endl;
+	rat1c_qin << "n01 &qatt; inc=c(a0);c=c(a0).in.(&myrange);" << endl;
 
 
 	stringstream rat2c_fname;
 	rat2c_fname << "setup-" << jno << "/" << "rat2c.qin";
 	fstream rat2c_qin (rat2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
-	rat2c_qin << "n01 &qatt; inc=c(a0,a01);c=c(a0,a01).in.(&range);" << endl;
+	rat2c_qin << "n01 &qatt; inc=c(a0,a01);c=c(a0,a01).in.(&myrange);" << endl;
 
 	stringstream qtit_fname;
 	qtit_fname << "setup-" << jno << "/" << "qttl.qin";
@@ -716,9 +720,15 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
 		print_qin(setup_dir);
 		if (n_q->nr_ptr) {
-			qax_file << "*include " << n_q->nr_ptr->name << ".qin;"
-			<< "col(a)=" << startPosition_ + 1
-			<< endl;
+			if (n_q->no_mpn>1) {
+				qax_file << "*include " << n_q->nr_ptr->name << ".min;"
+				<< "col(a)=" << startPosition_ + 1
+				<< endl;
+			} else {
+				qax_file << "*include " << n_q->nr_ptr->name << ".sin;"
+				<< "col(a)=" << startPosition_ + 1
+				<< endl;
+			}
 		}
 		/*
 		set<string>::iterator it = qtm_include_files.find(n_q->nr_ptr->name);

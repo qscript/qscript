@@ -2263,7 +2263,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 5 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 5 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2273,7 +2273,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 5 << \", \" << 4 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 5 << \", \" << 4 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2284,7 +2284,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2294,7 +2294,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \", \" << 2 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \", \" << 2 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2304,7 +2304,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \":\" << 5 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 5 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2318,7 +2318,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 7 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 7 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2328,7 +2328,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 7 << \", \" << 6 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 7 << \", \" << 6 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2338,7 +2338,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 5 << \":\" << 7 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 5 << \":\" << 7 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2348,7 +2348,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2358,7 +2358,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \", \" << 2 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \", \" << 2 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2368,7 +2368,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \":\" << 7 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 7 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2378,7 +2378,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \":\" << 3 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 3 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2392,7 +2392,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 10 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 10 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2402,7 +2402,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 10 << \", \" << 9 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 10 << \", \" << 9 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2412,7 +2412,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 8 << \":\" << 10 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 8 << \":\" << 10 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2422,7 +2422,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2432,7 +2432,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \", \" << 2 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \", \" << 2 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2442,7 +2442,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \":\" << 10 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 10 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
@@ -2452,7 +2452,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
-	fprintf (script, "						<< \";range=(\" << 1 << \":\" << 3 << \")\"\n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 3 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "\n");
