@@ -629,12 +629,16 @@ void QtmDataDiskMap::print_run(string jno)
 	stringstream rat1c_fname;
 	rat1c_fname << "setup-" << jno << "/" << "rat1c.qin";
 	fstream rat1c_qin (rat1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	rat1c_qin << "n00 ; c=c(a0) u $ $;" << endl;
+	rat1c_qin << "n11 Total;" << endl;
 	rat1c_qin << "n01 &qatt; inc=c(a0);c=c(a0).in.(&myrange);" << endl;
 
 
 	stringstream rat2c_fname;
 	rat2c_fname << "setup-" << jno << "/" << "rat2c.qin";
 	fstream rat2c_qin (rat2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	rat2c_qin << "n00 ; c=c(a0,a01) u $ $;" << endl;
+	rat2c_qin << "n11 Total ;" << endl;
 	rat2c_qin << "n01 &qatt; inc=c(a0,a01);c=c(a0,a01).in.(&myrange);" << endl;
 
 	stringstream qtit_fname;
@@ -644,6 +648,8 @@ void QtmDataDiskMap::print_run(string jno)
 	qtit_qin << "&act2tttl&qt2it" << endl;
 	qtit_qin << "&act3tttl&qt3it" << endl;
 	qtit_qin << "&act4tttl&qt4it" << endl;
+	qtit_qin << "&att1tttl&q1att" << endl;
+	qtit_qin << "&att2tttl&q2att" << endl;
 
 	stringstream base_fname;
 	base_fname << "setup-" << jno << "/" << "base.qin";
@@ -665,25 +671,34 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 	for (int i=0; i< q->loop_index_values.size(); ++i) {
 		qax_file << "_" << q->loop_index_values[i];
 	}
+	
+
 	qax_file << "; c=c("
-		<< startPosition_ +1 << ", " << startPosition_ + totalLength_
-		<< ") u $ $"
-		;
+		<< startPosition_ +1 ;
+	if (width_ > 1) {
+		qax_file << ", " << startPosition_ + totalLength_;
+	} 
+	qax_file << ") u $ $" ;
 	qax_file << endl;
-	qax_file << "*include qttl.qin;qno=" << q->questionName_;
+	qax_file << "*include qttl.qin;qno=;" ;
+	/*
+	<< q->questionName_;
 	for (int i=0; i< q->loop_index_values.size(); ++i) {
 		qax_file << "." << q->loop_index_values[i];
 	}
-	if (q->questionText_.size() > 150) {
-		int n_pieces = (q->questionText_.size()/150) + 1;
+	*/
+
+	const int TEXT_LEN_BREAK_AT = 120;
+	if (q->questionText_.size() > TEXT_LEN_BREAK_AT) {
+		int n_pieces = (q->questionText_.size()/TEXT_LEN_BREAK_AT) + 1;
 		int i=0;
 		for (i=0; i < n_pieces ; ++i) {
 			if (i==0) {
-				qax_file << ";qt1it=" << q->questionText_.substr(i * 150, (i+1) * 150 > q->questionText_.size() 
-					? q->questionText_.size() : (i+1) * 150) << endl;
+				qax_file << "qt1it=" << q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
+					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT) << endl;
 			} else {
-				qax_file << "+qt" << i+1 << "it=" << q->questionText_.substr(i * 150, (i+1) * 150 > q->questionText_.size() 
-					? q->questionText_.size() : (i+1) * 150) 
+				qax_file << "+qt" << i+1 << "it=" << q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
+					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT) 
 					<< ";act" << i+1 << "t=;"
 					<< endl;
 			}
@@ -692,10 +707,21 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 			qax_file << "+qt" << i+1 << "it=;" << "act" << i+1 << "t=/*;" << endl;
 		}
 	} else {
-		qax_file << ";qt1it=" << q->questionText_ << ";" << endl;
+		qax_file << "qt1it=" << q->questionText_ << ";" << endl;
 		qax_file << "+qt2it=;" << "act2t=/*" << endl;
 		qax_file << "+qt3it=;" << "act3t=/*" << endl;
 		qax_file << "+qt4it=;" << "act4t=/*" << endl;
+	}
+
+	if (q->loop_index_values.size()==0) {
+		qax_file << "+q1att=;att1t=/*;" << endl;
+		qax_file << "+q2att=;att2t=/*;" << endl;
+	} else if (q->loop_index_values.size()==1) {
+		qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl;
+		qax_file << "+q2att=;att2t=/*;" << endl;
+	} else /* if (q->loop_index_values.size()>=2) */ {
+		qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl; 
+		qax_file << "+q2att=&bt" << q->loop_index_values[1] << "t;att2t=;" << endl; 
 	}
 
 	if (baseText_.isDynamicBaseText_ == false) {
