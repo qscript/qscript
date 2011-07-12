@@ -667,171 +667,227 @@ void QtmDataDiskMap::print_run(string jno)
 
 void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 {
-	qax_file << "l " << q->questionName_ ;
-	for (int i=0; i< q->loop_index_values.size(); ++i) {
-		qax_file << "_" << q->loop_index_values[i];
-	}
-	
 
-	qax_file << "; c=c("
-		<< startPosition_ +1 ;
-	if (width_ > 1) {
-		qax_file << ", " << startPosition_ + totalLength_;
-	} 
-	qax_file << ") u $ $" ;
-	qax_file << endl;
-	qax_file << "*include qttl.qin;qno=;" ;
-	/*
-	<< q->questionName_;
-	for (int i=0; i< q->loop_index_values.size(); ++i) {
-		qax_file << "." << q->loop_index_values[i];
-	}
-	*/
-
+	stringstream ttl_string;
 	const int TEXT_LEN_BREAK_AT = 120;
 	if (q->questionText_.size() > TEXT_LEN_BREAK_AT) {
 		int n_pieces = (q->questionText_.size()/TEXT_LEN_BREAK_AT) + 1;
 		int i=0;
 		for (i=0; i < n_pieces ; ++i) {
 			if (i==0) {
-				qax_file << "qt1it=" << q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
+				ttl_string << "qt1it=" << q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
 					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT) << endl;
 			} else {
-				qax_file << "+qt" << i+1 << "it=" << q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
+				ttl_string << "+qt" << i+1 << "it=" 
+					<< q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
 					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT) 
 					<< ";act" << i+1 << "t=;"
 					<< endl;
 			}
 		}
 		for (; i<4; ++i) {
-			qax_file << "+qt" << i+1 << "it=;" << "act" << i+1 << "t=/*;" << endl;
+			ttl_string << "+qt" << i+1 << "it=;" << "act" << i+1 << "t=/*;" << endl;
 		}
 	} else {
-		qax_file << "qt1it=" << q->questionText_ << ";" << endl;
-		qax_file << "+qt2it=;" << "act2t=/*" << endl;
-		qax_file << "+qt3it=;" << "act3t=/*" << endl;
-		qax_file << "+qt4it=;" << "act4t=/*" << endl;
+		ttl_string << "qt1it=" << q->questionText_ << ";" << endl;
+		ttl_string << "+qt2it=;" << "act2t=/*" << endl;
+		ttl_string << "+qt3it=;" << "act3t=/*" << endl;
+		ttl_string << "+qt4it=;" << "act4t=/*" << endl;
 	}
 
-	if (q->loop_index_values.size()==0) {
-		qax_file << "+q1att=;att1t=/*;" << endl;
-		qax_file << "+q2att=;att2t=/*;" << endl;
-	} else if (q->loop_index_values.size()==1) {
-		qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl;
-		qax_file << "+q2att=;att2t=/*;" << endl;
-	} else /* if (q->loop_index_values.size()>=2) */ {
-		qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl; 
-		qax_file << "+q2att=&bt" << q->loop_index_values[1] << "t;att2t=;" << endl; 
-	}
-
-	if (baseText_.isDynamicBaseText_ == false) {
-		qax_file << "*include base.qin;btxt=" << baseText_.baseText_ << endl;
-	} else {
-		qax_file << "*include base.qin;btxt= All those respondents who coded ";
-		if (q->loop_index_values.size() == 1) {
-			qax_file << "\"" << q->loop_index_values[0] << "\" i.e. ";
-			NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (baseText_.dynamicBaseQuestion_);
-			if (nq) {
-				vector<stub_pair> & vec= (nq->nr_ptr->stubs);
-				for (int i=0; i<vec.size(); ++i) {
-					if (vec[i].code == q->loop_index_values[0]+1) {
-						qax_file << vec[i].stub_text;
-						break;
-					}
-				}
-			}
-			qax_file << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
-		}
-	}
-	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
-		print_qin(setup_dir);
-		if (n_q->nr_ptr) {
-			if (n_q->no_mpn>1) {
-				qax_file << "*include " << n_q->nr_ptr->name << ".min;"
-				<< "col(a)=" << startPosition_ + 1
-				<< endl;
-			} else {
-				qax_file << "*include " << n_q->nr_ptr->name << ".sin;"
-				<< "col(a)=" << startPosition_ + 1
-				<< endl;
-			}
-		}
-		/*
-		set<string>::iterator it = qtm_include_files.find(n_q->nr_ptr->name);
-		if (it == qtm_include_files.end()) {
-			stringstream fname;
-			// assume that setup_dir is already created
-			fname << setup_dir << "/" <<n_q->nr_ptr->name << ".qin";
-			fstream qtm_include_file (fname.str().c_str(), 
-					std::ios_base::out | std::ios_base::trunc);
-			for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
-				qtm_include_file << "n01"
-					<< n_q->nr_ptr->stubs[i].stub_text
-					<< "; c=c";
-				int the_code = n_q->nr_ptr->stubs[i].code;
-				if (n_q->no_mpn>1) {
-					qtm_include_file << "a";
-					int dividend = the_code/10;
-					int remainder = the_code%10;
-					if (remainder == 0) {
-						qtm_include_file 
-							<< dividend - 1 << "'"
-							<< remainder << "'";
-					} else {
-						qtm_include_file 
-							<< dividend  << "'"
-							<< remainder << "'";
-					}
-				} else {
-					if (width_==1) {
-						qtm_include_file << "a0'";
-						if (the_code < 10) {
-							qtm_include_file << the_code
-								<< "'";
-						} else {
-							if (the_code == 10) {
-								qtm_include_file << "'0'";
-							} else if (the_code == 11) {
-								qtm_include_file << "'-'";
-							} else if (the_code == 12) {
-								qtm_include_file << "'&'";
-							} else {
-								stringstream error_str;
-								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
-								cerr << LOG_MESSAGE(error_str.str());
-								exit(1);
-							}
+	if (q->loop_index_values.size() > 0) {
+		stringstream l_base_text;
+		if (baseText_.isDynamicBaseText_ == false) {
+			l_base_text << baseText_.baseText_ << endl;
+		} else {
+			l_base_text << "All those respondents who coded ";
+			if (q->loop_index_values.size() == 1) {
+				l_base_text << "\"" << q->loop_index_values[0] << "\" i.e. ";
+				NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (baseText_.dynamicBaseQuestion_);
+				if (nq) {
+					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+					for (int i=0; i<vec.size(); ++i) {
+						if (vec[i].code == q->loop_index_values[0]+1) {
+							l_base_text << vec[i].stub_text;
+							break;
 						}
-					} else {
-						qtm_include_file << "(a0,a"
-							<< width_-1 << ").eq."
-							<< the_code;
 					}
 				}
-				qtm_include_file << endl;
+				l_base_text << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
 			}
-			qtm_include_files.insert(n_q->nr_ptr->name);
 		}
-		*/
-	} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
-		qax_file << "*include " << q->questionName_ << ".qin;"
-			<< "col(a)=" << startPosition_ + 1
-			<< ";"
-			<< endl;
-		stringstream fname;
-		fname << setup_dir << "/" << q->questionName_ << ".qin";
-		fstream qtm_include_file (fname.str().c_str(), 
-				std::ios_base::out | std::ios_base::trunc);
-		if (width_ == 1) {
-			qtm_include_file << "val c(a0);i;1" 
+
+		if (q->loop_index_values.size()==1) {
+			qax_file << "*include " << q->questionName_ 
+				<< ".qax"
+				<< ";qlno=" << q->loop_index_values[0] 
+				<< ";col(a)=" << startPosition_ + 1
+				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;qat2t=;att2t=/*" << endl
+				<< "+btxt=" << l_base_text.str()
+				<< endl
 				<< endl;
 		} else {
-			qtm_include_file << "val c(a0,"
-				<< "a" << width_ - 1 << ");i;1" 
+			qax_file << "*include " << q->questionName_ 
+				<< ".qax"
+				<< ";col(a)=" << startPosition_ + 1
+				<< ";qlno=" << q->loop_index_values[0] << "_" << q->loop_index_values[1] 
+				<< ";qat1t=&at" << q->loop_index_values[0] << "t;"
+				<< ";qat2t=&bt" << q->loop_index_values[0] << "t;" << endl
+				<< "+btxt=" << l_base_text
+				<< endl
 				<< endl;
 		}
+
+		/*
+		if (q->loop_index_values.size()==1) {
+			qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl;
+			qax_file << "+q2att=;att2t=/ *;" << endl;
+		} else  {
+			qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl; 
+			qax_file << "+q2att=&bt" << q->loop_index_values[1] << "t;att2t=;" << endl; 
+		}
+		*/
+		bool is_1st_iter = true;
+		//cout << "setting is_1st_iter=true" << endl;
+		for (int32_t i=0; i<q->loop_index_values.size(); ++i) {
+			if (q->loop_index_values[i] != 0) {
+				is_1st_iter = false;
+				break;
+			}
+		}
+		//cout << "setting is_1st_iter is STILL TRUE:"  << endl;
+		if (is_1st_iter == true) {
+			// make questionName_ . qax file
+			stringstream qax_fname;
+			qax_fname << setup_dir << "/";
+			qax_fname << q->questionName_ << ".qax";
+			fstream qax_file(qax_fname.str().c_str(), std::ios_base::out | std::ios_base::trunc);
+			qax_file << "l " << q->questionName_ << "_&qlno;c=c(a0";
+			if (width_>0) {
+				qax_file << ",a" << totalLength_ ;
+			} 
+			qax_file << ") u $ $;" << endl;
+			qax_file << "*include qttl.qin;" 
+				<< ttl_string.str() << endl
+				<< "*include base.qin" << endl;
+
+			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+				print_qin(setup_dir);
+				if (n_q->nr_ptr) {
+					if (n_q->no_mpn>1) {
+						qax_file << "*include " << n_q->nr_ptr->name << ".min;"
+						//<< "col(a)=" << startPosition_ + 1
+						<< endl;
+					} else {
+						qax_file << "*include " << n_q->nr_ptr->name << ".sin;"
+						//<< "col(a)=" << startPosition_ + 1
+						<< endl;
+					}
+				}
+			} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
+				qax_file << "*include " << q->questionName_ << ".qin;"
+					//<< "col(a)=" << startPosition_ + 1 << ";"
+					<< endl;
+				stringstream fname;
+				fname << setup_dir << "/" << q->questionName_ << ".qin";
+				fstream qtm_include_file (fname.str().c_str(), 
+						std::ios_base::out | std::ios_base::trunc);
+				if (width_ == 1) {
+					qtm_include_file << "val c(a0);i;1" 
+						<< endl;
+				} else {
+					qtm_include_file << "val c(a0,"
+						<< "a" << width_ - 1 << ");i;1" 
+						<< endl;
+				}
+			}
+				
+		}
+	} else {
+		qax_file << "l " << q->questionName_ ;
+		for (int i=0; i< q->loop_index_values.size(); ++i) {
+			qax_file << "_" << q->loop_index_values[i];
+		}
+		
+
+		qax_file << "; c=c("
+			<< startPosition_ +1 ;
+		if (width_ > 1) {
+			qax_file << ", " << startPosition_ + totalLength_;
+		} 
+		qax_file << ") u $ $" ;
+		qax_file << endl;
+		qax_file << "*include qttl.qin;qno=;" ;
+		/*
+		<< q->questionName_;
+		for (int i=0; i< q->loop_index_values.size(); ++i) {
+			qax_file << "." << q->loop_index_values[i];
+		}
+		*/
+
+
+		/* ===================
+		   // Title splitting code was here
+		   ===================*/
+		qax_file << ttl_string.str();
+
+		qax_file << "+q1att=;att1t=/*;" << endl;
+		qax_file << "+q2att=;att2t=/*;" << endl;
+
+		if (baseText_.isDynamicBaseText_ == false) {
+			qax_file << "*include base.qin;btxt=" << baseText_.baseText_ << endl;
+		} else {
+			qax_file << "*include base.qin;btxt= All those respondents who coded ";
+			if (q->loop_index_values.size() == 1) {
+				qax_file << "\"" << q->loop_index_values[0] << "\" i.e. ";
+				NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (baseText_.dynamicBaseQuestion_);
+				if (nq) {
+					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+					for (int i=0; i<vec.size(); ++i) {
+						if (vec[i].code == q->loop_index_values[0]+1) {
+							qax_file << vec[i].stub_text;
+							break;
+						}
+					}
+				}
+				qax_file << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
+			}
+		}
+
+		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+			print_qin(setup_dir);
+			if (n_q->nr_ptr) {
+				if (n_q->no_mpn>1) {
+					qax_file << "*include " << n_q->nr_ptr->name << ".min;"
+					<< "col(a)=" << startPosition_ + 1
+					<< endl;
+				} else {
+					qax_file << "*include " << n_q->nr_ptr->name << ".sin;"
+					<< "col(a)=" << startPosition_ + 1
+					<< endl;
+				}
+			}
+		} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
+			qax_file << "*include " << q->questionName_ << ".qin;"
+				<< "col(a)=" << startPosition_ + 1
+				<< ";"
+				<< endl;
+			stringstream fname;
+			fname << setup_dir << "/" << q->questionName_ << ".qin";
+			fstream qtm_include_file (fname.str().c_str(), 
+					std::ios_base::out | std::ios_base::trunc);
+			if (width_ == 1) {
+				qtm_include_file << "val c(a0);i;1" 
+					<< endl;
+			} else {
+				qtm_include_file << "val c(a0,"
+					<< "a" << width_ - 1 << ");i;1" 
+					<< endl;
+			}
+		}
+
+		qax_file << endl;
 	}
-	qax_file << endl;
 }
 
 
