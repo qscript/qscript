@@ -616,14 +616,14 @@ void QtmDataDiskMap::print_run(string jno)
 	mn1c_fname << "setup-" << jno << "/" << "mn1c.qin";
 	fstream mn1c_qin (mn1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
 	mn1c_qin << "n00;c=c(a0).in.(&range);" << endl
-		<< "n25;inc=c(a0);c=c(a0).in.(&myrange)" << endl
+		<< "n25;inc=c(a0);c=c(a0).in.&myrange" << endl
 		<< "n12&qatt;dec=2" << endl;
 
 	stringstream mn2c_fname;
 	mn2c_fname << "setup-" << jno << "/" << "mn2c.qin";
 	fstream mn2c_qin (mn2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
 	mn2c_qin << "n00;c=c(a0,a1).in.(&myrange);" << endl
-		<< "n25;inc=c(a0,a1);c=c(a0,a1).in.(&myrange)" << endl
+		<< "n25;inc=c(a0,a1);c=c(a0,a1).in.&myrange" << endl
 		<< "n12&qatt;dec=2" << endl;
 
 	stringstream rat1c_fname;
@@ -631,7 +631,7 @@ void QtmDataDiskMap::print_run(string jno)
 	fstream rat1c_qin (rat1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
 	rat1c_qin << "n00 ; c=c(a0) u $ $;" << endl;
 	rat1c_qin << "n11 Total;" << endl;
-	rat1c_qin << "n01 &qatt; inc=c(a0);c=c(a0).in.(&myrange);" << endl;
+	rat1c_qin << "n01 &qatt; c=c(a0).in.&myrange;" << endl;
 
 
 	stringstream rat2c_fname;
@@ -639,7 +639,7 @@ void QtmDataDiskMap::print_run(string jno)
 	fstream rat2c_qin (rat2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
 	rat2c_qin << "n00 ; c=c(a0,a01) u $ $;" << endl;
 	rat2c_qin << "n11 Total ;" << endl;
-	rat2c_qin << "n01 &qatt; inc=c(a0,a01);c=c(a0,a01).in.(&myrange);" << endl;
+	rat2c_qin << "n01 &qatt; c=c(a0,a01).in.&myrange;" << endl;
 
 	stringstream qtit_fname;
 	qtit_fname << "setup-" << jno << "/" << "qttl.qin";
