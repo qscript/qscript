@@ -731,8 +731,8 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 				<< ".qax"
 				<< ";col(a)=" << startPosition_ + 1
 				<< ";qlno=" << q->loop_index_values[0] << "_" << q->loop_index_values[1] 
-				<< ";qat1t=&at" << q->loop_index_values[0] << "t;"
-				<< ";qat2t=&bt" << q->loop_index_values[0] << "t;" << endl
+				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;"
+				<< ";qat2t=&bt" << q->loop_index_values[0] << "t;att2t=;" << endl
 				<< "+btxt=" << l_base_text
 				<< endl
 				<< endl;
@@ -764,7 +764,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 			fstream qax_file(qax_fname.str().c_str(), std::ios_base::out | std::ios_base::trunc);
 			qax_file << "l " << q->questionName_ << "_&qlno;c=c(a0";
 			if (width_>0) {
-				qax_file << ",a" << totalLength_ ;
+				qax_file << ",a" << width_-1 ;
 			} 
 			qax_file << ") u $ $;" << endl;
 			qax_file << "*include qttl.qin;" 
