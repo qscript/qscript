@@ -289,12 +289,12 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
 	program_code << "if ( ("
-		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag)) ||" << endl
+		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
 		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		<< "stopAtNextQuestion ||" << endl
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
-		<< "((write_data_file_flag || write_qtm_data_file_flag) " 
+		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
 		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
 		<< questionName_ << "->isAnswered_ == false " 
 		<< ")"
@@ -327,6 +327,23 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	}
 	code.program_code << "\tcurrent_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
 	code.program_code << "\tascii_flatfile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
+	
+
+	code.program_code << "\tif (write_xtcc_data_file_flag) {\n";
+	if (for_bounds_stack.size() == 0) {
+		code.program_code << "\t XtccDataFileDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new XtccDataFileDiskMap(" << questionName_ << ", current_xtcc_map_pos);\n";
+	}  else {
+		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
+		code.program_code << "\t XtccDataFileDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new XtccDataFileDiskMap(" << questionName_ 
+			<< "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< ", current_xtcc_map_pos);\n";
+	}
+	code.program_code << "\t current_xtcc_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
+	code.program_code << "\t xtcc_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
+	code.program_code << "\t}\n";
+
 
 	code.program_code << "\tif (write_qtm_data_file_flag) {\n";
 	if (for_bounds_stack.size() == 0) {
@@ -1495,7 +1512,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			<< questionName_ << "_list.questionList[";
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag )) ||" << endl
+	code.program_code << "]->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)) ||" << endl
  		<< "(" 
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "]->isAnswered_"
@@ -1508,7 +1525,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< " && " << "jumpToIndex ==  "
 		<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		<< ") ||" << endl
-		<< "((write_data_file_flag || write_qtm_data_file_flag) " << endl
+		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " << endl
 		<< "  && !(" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
 		<< "->question_attributes.isAllowBlank()) &&"
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
