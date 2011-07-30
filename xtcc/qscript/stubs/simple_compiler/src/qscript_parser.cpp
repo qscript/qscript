@@ -1775,15 +1775,13 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\tflat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
 	compute_flat_map_code.program_code << "\txtcc_datafile_output_buffer = new char[len_xtcc_datafile_output_buffer];\n";
 	compute_flat_map_code.program_code << "\tmemset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
-	compute_flat_map_code.program_code << "\tmemset(xtcc_datafile_output_buffer, ' ', len_xtcc_datafile_output_buffer-1);\n";
+	compute_flat_map_code.program_code << "\tmemset(xtcc_datafile_output_buffer, '\\0', len_xtcc_datafile_output_buffer-1);\n";
 	compute_flat_map_code.program_code << "\tflat_file_output_buffer[len_flat_file_output_buffer-1] = 0;\n";
 	compute_flat_map_code.program_code << "\txtcc_datafile_output_buffer[len_xtcc_datafile_output_buffer-1] = 0;\n";
 	compute_flat_map_code.program_code << "\tstring flat_file_name(jno + string(\".dat\"));\n";
 	compute_flat_map_code.program_code << "\tflat_file.open(flat_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "\tstring xtcc_datafile_name(jno + string(\".xdat\"));\n";
 	compute_flat_map_code.program_code << "\txtcc_datafile.open(xtcc_datafile_name.c_str(), ios_base::out | ios_base::trunc);\n";
-
-	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n";
 
 	if (config_file_parser::PLATFORM != "WINDOWS") {
 		compute_flat_map_code.program_code 
@@ -1810,6 +1808,8 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 			<< "\t\t\t}\n\t\t}\n"
 			;
 	}
+
+	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n";
 
 
 	compute_flat_map_code.program_code << "\t\tstring qtm_map_file_name(string(\"setup-\") + jno + string(\"/\") + jno + string(\".qmap\"));\n";
@@ -1855,6 +1855,27 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\t\tstring qtm_disk_file_name(jno + string(\".qdat\"));\n";
 	compute_flat_map_code.program_code << "\t\tqtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "\t}\n";
+
+	compute_flat_map_code.program_code 
+		<< "\tif (write_xtcc_data_file_flag) {\n"
+		<< "\t\tstring xtcc_ax_file_name(string(\"setup-\")+jno+string(\"/\") + jno + string(\".xtcc\"));\n"
+		<< "\t\tfstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);\n"
+		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n" 
+		<< "\t\txtcc_ax_file << \"ed_start\\n\";\n"
+		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\txtcc_question_disk_map[i]->print_edit_var_defns(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
+		<< "\t\t}\n"
+		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data()\\n{\\n\";\n"
+		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_edit_load(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
+		<< "\t\t}\n"
+		<< "\t\t xtcc_ax_file << \"\t}\\n\";\n"
+		<< "\t\txtcc_ax_file << \"ed_end\\n\";\n"
+		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_ax(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
+		<< "\t\t}\n"
+		<< "\t}\n";	
+
 	compute_flat_map_code.program_code << "}\n";
 	compute_flat_map_code.program_code << "}\n";
 }

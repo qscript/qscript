@@ -108,6 +108,74 @@ public:
 		map_file << start_pos + totalLength_  << "\n";
 	}
 
+	void print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir)
+	{
+		xtcc_ax_file << "ax " << q_->questionName_ << ";" << endl
+			<< "ttl; " << "\"" << q_->questionName_ 
+			<< "." 
+			<< q_->questionText_ 
+			<< "\"" 
+			<< endl << endl;
+			
+	}
+
+	void print_xtcc_edit_load(fstream & xtcc_ax_file, string setup_dir)
+	{
+		if (q_->no_mpn == 1) {
+			xtcc_ax_file << "\t"
+				<< q_->questionName_ << "_data = c [" 
+				<< start_pos + 1 << ", " 
+				<< start_pos + totalLength_
+				<< "];" <<endl;
+		} else {
+			xtcc_ax_file << "\t"
+				<< "fld " 
+				<< q_->questionName_ << "_arr = c (" 
+				<< start_pos + 1 << ", " 
+				<< start_pos + totalLength_
+				<< ") : "  << width_ << ";" << endl;
+		}
+	}
+
+	void print_edit_var_defns(fstream & xtcc_ax_file, string setup_dir)
+	{
+		stringstream var_type_str;
+		if (q_->dt == INT8_TYPE) {
+			var_type_str << "int8_t";
+		} else if (q_->dt == INT16_TYPE) {
+			var_type_str << "int16_t";
+		} else if (q_->dt == INT32_TYPE) {
+			var_type_str << "int32_t";
+		} else if (q_->dt == FLOAT_TYPE) {
+			var_type_str << "float";
+		} else if (q_->dt == DOUBLE_TYPE) {
+			var_type_str << "double";
+		} else {
+			var_type_str << "file: " << __FILE__ << ", line: " << __LINE__
+				<< ", func: " << __PRETTY_FUNCTION__ 
+				<< ", unhandled question data type: else branch " 
+				<< endl;
+			cerr  << var_type_str.str() << endl;
+			exit(1);
+		}
+
+		if (q_->no_mpn == 1) {
+			xtcc_ax_file 
+				<< var_type_str.str()
+				<< " "
+				<< q_->questionName_ << "_data;"
+				<< endl;
+		} else {
+			xtcc_ax_file 
+				<< var_type_str.str()
+				<< " "
+				<< q_->questionName_ << "_arr["
+				<< q_->maxCode_
+				<< "]"
+				<< ";" << endl;
+		}
+	}
+
 };
 
 
