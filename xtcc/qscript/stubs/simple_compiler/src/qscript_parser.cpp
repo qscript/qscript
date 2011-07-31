@@ -1871,9 +1871,16 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t}\n"
 		<< "\t\t xtcc_ax_file << \"\t}\\n\";\n"
 		<< "\t\txtcc_ax_file << \"ed_end\\n\";\n"
+		<< "\t\txtcc_ax_file << \"tabstart {\\n\";\n"
+		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_tab(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
+		<< "\t\t}\n"
+		<< "\t\txtcc_ax_file << \"}\\n\";\n"
+		<< "\t\txtcc_ax_file << \"axstart {\\n\";\n"
 		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
 		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_ax(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
 		<< "\t\t}\n"
+		<< "\t\txtcc_ax_file << \"}\\n\";\n"
 		<< "\t}\n";	
 
 	compute_flat_map_code.program_code << "}\n";

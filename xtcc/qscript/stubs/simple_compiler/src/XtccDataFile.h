@@ -110,13 +110,62 @@ public:
 
 	void print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir)
 	{
-		xtcc_ax_file << "ax " << q_->questionName_ << ";" << endl
+		xtcc_ax_file 
+			<< endl
+			<< "ax " << q_->questionName_ << ";" << endl
 			<< "ttl; " << "\"" << q_->questionName_ 
 			<< "." 
 			<< q_->questionText_ 
-			<< "\"" 
+			<< "\";" 
 			<< endl << endl;
-			
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
+			named_range * nr_ptr = nq->nr_ptr;
+			for (int i=0; i<nr_ptr->stubs.size(); ++i) {
+				xtcc_ax_file << "cnt; " << "\""
+					<< nr_ptr->stubs[i].stub_text
+					<< "\""
+					<< "; c="
+					<< q_->questionName_ << "_data == "
+					<< nr_ptr->stubs[i].code 
+					<< ";" 
+					<< endl;
+			}
+		} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q_)) {
+			set<int32_t> & indiv = rq->r_data->indiv;
+			for (set<int32_t>::iterator it1 = indiv.begin();
+					it1 != indiv.end(); ++it1) {
+				xtcc_ax_file << "cnt; " << "\""
+					<< *it1 
+					<< "\""
+					<< "; c="
+					<< q_->questionName_ << "_data == "
+					<< *it1
+					<< ";" 
+					<< endl;
+			}
+			vector < pair<int32_t,int32_t> > range
+				= rq->r_data->range;
+			for (int i=0; i<range.size(); ++i) {
+				xtcc_ax_file << "cnt; " << "\""
+					<< range[i].first 
+					<< " - "
+					<< range[i].second
+					<< "\""
+					<< "; c="
+					<< q_->questionName_ << "_data >= "
+					<< range[i].first
+					<< " && "
+					<< q_->questionName_ << "_data <= "
+					<< range[i].second
+					<< ";" 
+					<< endl;
+			}
+		}
+	}
+
+	void print_xtcc_tab(fstream & xtcc_ax_file, string setup_dir)
+	{
+		xtcc_ax_file << "tab " << q_->questionName_ << " " << "tot_ax;" << endl;
 	}
 
 	void print_xtcc_edit_load(fstream & xtcc_ax_file, string setup_dir)
