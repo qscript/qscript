@@ -78,7 +78,7 @@ class AsciiFlatFileQuestionDiskMap
 				int code = *it;
 				std::stringstream code_str;
 				code_str << code;
-				cout << "writing code: " << code << " to output_buffer: length: " << code_str.str().length() << "\n";
+				//cout << "writing code: " << code << " to output_buffer: length: " << code_str.str().length() << "\n";
 				int jump_delta = width;
 				if (code_str.str().length() > width)
 				{

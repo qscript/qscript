@@ -2057,7 +2057,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "    int read_a_serial_no()\n");
 	fprintf (script, "    {\n");
-	fprintf (script, "	cout << \"ENTER: \"  << __FILE__ << \", \" << __LINE__ << \", \" << __PRETTY_FUNCTION__ << endl;\n"); 
+	fprintf (script, "	//cout << \"ENTER: \"  << __FILE__ << \", \" << __LINE__ << \", \" << __PRETTY_FUNCTION__ << endl;\n"); 
 	fprintf (script, "restart:\n");
 	fprintf (script, "	struct dirent *directory_entry = readdir(directory_ptr);\n");
 	fprintf (script, "	if (directory_entry == NULL) {\n");
@@ -2228,7 +2228,7 @@ void print_write_ascii_data_to_disk(FILE *script)
 	fprintf(script, "	// cout << \"output_buffer: \" << flat_file_output_buffer;\n");
 	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
 	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
-	//fprintf(script, "	do_freq_counts();\n");
+	fprintf(script, "	do_freq_counts();\n");
 	fprintf(script, "}\n");
 }
 
