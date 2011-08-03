@@ -494,9 +494,12 @@ count_ax_stmt::~count_ax_stmt(){
 }
 
 tot_ax_stmt::tot_ax_stmt(axstmt_type ltype, string txt
-			, struct Expression::AbstractExpression* c)
-	: AbstractCountableAxisStatement(ltype,txt,c) 
-{}
+			, struct Expression::AbstractExpression* c, int l_position)
+	: AbstractCountableAxisStatement(ltype,txt,c)
+{
+	// later move this into the base constructor
+	position_=l_position;
+}
 
 void tot_ax_stmt::print(fstream& f)
 {
@@ -509,14 +512,19 @@ string tot_ax_stmt::ax_text()
 	return text;
 }
 
-void tot_ax_stmt::generate_code(FILE * f, unsigned int index){
+void tot_ax_stmt::generate_code(FILE * f, unsigned int index) 
+{
 	ostringstream code_expr1, code_bef_expr1;
-	condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-	fprintf(f, "%s", code_bef_expr1.str().c_str());
-	fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-	fprintf(f, " ){\n");
-	fprintf(f, "\t\tflag[%d]=true;\n", index);
-	fprintf(f, "\t}\n");
+	if (condn) {
+		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
+		fprintf(f, "%s", code_bef_expr1.str().c_str());
+		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		fprintf(f, " ){\n");
+		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		fprintf(f, "\t}\n");
+	} else {
+		fprintf(f, "\t\tflag[%d]=true;\n", index);
+	}
 }
 
 

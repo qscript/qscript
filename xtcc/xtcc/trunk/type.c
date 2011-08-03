@@ -3007,9 +3007,9 @@ yyreduce:
 #line 940 "type.y"
     {
 		using Table::tot_ax_stmt;
+		(yyval.count_stmt) = new tot_ax_stmt (Table::tot_axstmt,(yyvsp[(3) - (4)].text_buf), 0, no_count_ax_elems);
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
-		(yyval.count_stmt) = new tot_ax_stmt (Table::tot_axstmt,(yyvsp[(3) - (4)].text_buf), 0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.count_stmt), __LINE__, __FILE__, line_no);
 		}
@@ -3022,9 +3022,9 @@ yyreduce:
 #line 949 "type.y"
     {
 		using Table::tot_ax_stmt;
+		(yyval.count_stmt) = new tot_ax_stmt (Table::tot_axstmt,(yyvsp[(3) - (7)].text_buf), (yyvsp[(6) - (7)].expr), no_count_ax_elems);
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
-		(yyval.count_stmt) = new tot_ax_stmt (Table::tot_axstmt,(yyvsp[(3) - (7)].text_buf), (yyvsp[(6) - (7)].expr));
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.count_stmt), __LINE__, __FILE__, line_no);
 		}

@@ -31,6 +31,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 	using namespace Table;
 	fprintf(op, "#include <iostream>\n");
 	fprintf(op, "#include <fstream>\n");
+	fprintf(op, "#include <sstream>\n");
 	fprintf(op, "#include <vector>\nusing namespace std;\n");
 	fprintf(tab_drv_func, "#include \"my_table.C\"\n");
 	fprintf(tab_drv_func, "void tab_compute(){\n");
@@ -191,15 +192,21 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			fprintf(op, "\t\tfor(int i=0; i<ax_%s.count_stmt_text.size(); ++i){\n",
 					map_iter_s->first.c_str());
 			fprintf(op, "\t\ttab_op << \",\";\n");
+			fprintf(op, "\t\tstringstream col_perc_str;\n");
+			fprintf(op, "\t\tcol_perc_str << \",,\";\n");
 			fprintf(op, "\t\t\tcci=0;\n");
 			fprintf(op, "\t\t\ttab_op << \"\\\"\" << ax_%s.count_stmt_text[i] << \"\\\"\" << \",\";\n", map_iter_s->first.c_str()); 
 			fprintf(op, "\t\t\tfor(int j=0; j<ax_%s.count_stmt_text.size(); ++j){\n",
 				map_iter_b->first.c_str());
 			fprintf(op, "\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+			fprintf(op, "\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_s->first.c_str() );
+			fprintf(op, "\t\t\t\t\tcol_perc_str << (((double) counter[cci+rci*cols]) / counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) * 100 <<\",\";\n", map_iter_s->first.c_str() );
+			fprintf(op, "\t\t\t\t}\n");
 			fprintf(op, "\t\t\t\t++cci;\n");
 			fprintf(op, "\t\t\t}\n");
 			fprintf(op, "\t\t\t++rci;\n");
 			fprintf(op, "\t\t\ttab_op << endl;\n");
+			fprintf(op, "\t\t\ttab_op << col_perc_str.str() << endl;\n");
 			fprintf(op, "\t\t}\n");
 			fprintf(op, "\t\ttab_op << endl;\n");
 			//fprintf(op, "\t\t}\n");
@@ -400,6 +407,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 		fprintf(op, "\tbitset<%d> flag;\n", it->second->no_count_ax_elems );
 		fprintf(op, "\tvector<string> ttl_stmt_text;\n");
 		fprintf(op, "\tvector<string> count_stmt_text;\n");
+		fprintf(op, "\tvector<int> tot_elem_pos_vec;\n");
 		fprintf(op, "\tbitset<%d> is_a_count_text;\n", it->second->no_tot_ax_elems);
 		fprintf(op, "\taxis_%s():ttl_stmt_text(%d),count_stmt_text(%d) {\n"
 				, it->first.c_str()
@@ -427,6 +435,10 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 				++my_counter){
 			//fprintf(op, "\tcount_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
 			ax_stmt_iter->print_axis_constructor_text(op, my_counter);
+			if (tot_ax_stmt * my_tot_ax_stmt = dynamic_cast<tot_ax_stmt*>(ax_stmt_iter)) {
+				fprintf(op, "\ttot_elem_pos_vec.push_back(%d);\n", ax_stmt_iter->position_);
+			}
+			
 			/*
 			if(ax_stmt_iter->axtype<=txt_axstmt){
 				fprintf(op, "\tis_a_count_text[%d]=false;\n", my_counter);

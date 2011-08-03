@@ -115,6 +115,7 @@ class AbstractCountableAxisStatement {
 	string text;
 	struct Expression::AbstractExpression* condn;
 	int count;
+	int position_;
 	AbstractCountableAxisStatement(axstmt_type ltype,string txt
 			, struct Expression::AbstractExpression* c); 
 	virtual void print(fstream& f)=0;
@@ -140,7 +141,7 @@ class tot_ax_stmt: public AbstractCountableAxisStatement
 {
 	public:
 	tot_ax_stmt(axstmt_type ltype, string txt
-			, struct Expression::AbstractExpression* c);
+			, struct Expression::AbstractExpression* c, int l_position);
 	
 	virtual void print(fstream& f);
 	virtual string ax_text();

@@ -939,18 +939,18 @@ count_ax_stmt_list: 	count_ax_stmt	{
 
 count_ax_stmt: TOT ';' TEXT ';' {
 		using Table::tot_ax_stmt;
+		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, 0, no_count_ax_elems);
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
-		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, 0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| TOT ';' TEXT ';' COND_START expression ';'	{
 		using Table::tot_ax_stmt;
+		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, $6, no_count_ax_elems);
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
-		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, $6);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
