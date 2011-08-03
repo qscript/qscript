@@ -128,6 +128,7 @@ public:
 			<< "\";" 
 			<< endl << endl;
 		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
+			xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
 			named_range * nr_ptr = nq->nr_ptr;
 			for (int i=0; i<nr_ptr->stubs.size(); ++i) {
 				xtcc_ax_file << "cnt; " << "\""
@@ -157,6 +158,7 @@ public:
 				}
 			}
 		} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q_)) {
+			xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
 			set<int32_t> & indiv = rq->r_data->indiv;
 			for (set<int32_t>::iterator it1 = indiv.begin();
 					it1 != indiv.end(); ++it1) {
