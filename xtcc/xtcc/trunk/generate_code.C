@@ -46,9 +46,9 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			++ no_errors;
 		} else {
 			Expression::AbstractExpression* f= table_list[i]->filter;
-			cout << "table: " <<
-				map_iter_b->first << " by " <<
-				map_iter_s->first << endl;
+			// cout << "table: " <<
+			// 	map_iter_b->first << " by " <<
+			// 	map_iter_s->first << endl;
 			if ( f ){
 				cout << " Filter: " ;
 			}
@@ -85,10 +85,10 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			int cols=map_iter_b->second->no_count_ax_elems;
 			AbstractCountableAxisStatement* side_stmt=map_iter_s->second->count_ax_stmt_start;
 			for(int i=0; i<rows; ++i){
-				cout << "generate_code: i: " << i << endl;
+				//cout << "generate_code: i: " << i << endl;
 				AbstractCountableAxisStatement* banner_stmt=map_iter_b->second->count_ax_stmt_start;
 				for(int j=0; j<cols; ++j){
-					cout << "generate_code: j: " << j << endl;
+					//cout << "generate_code: j: " << j << endl;
 					fprintf(op, "\t\tif(");
 					fprintf(op, "ax_%s.flag[%d]", map_iter_s->first.c_str(), i);
 					fprintf(op, " && " );
@@ -159,13 +159,13 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			fprintf(op, "\tvoid print(){\n\t\tint rci=0, cci=0; /* row counter index , col ... */\n");
 			fprintf(op, "\t\tofstream tab_op(\"tab_.csv\", ios_base::out|ios_base::app);\n");
 			fprintf(op, "\t\ttab_op << \"rows: \" << rows << \"cols: \" << cols << endl;\n");
-			fprintf(op, "\t\ttab_op << ax_%s.ttl_stmt_text[0] << \" x \" << ax_%s.ttl_stmt_text[0] << endl;\n",
+			fprintf(op, "\t\ttab_op << \"\\\"\" << ax_%s.ttl_stmt_text[0] << \"\\\"\" << \" x \" <<  \"\\\"\" << ax_%s.ttl_stmt_text[0] << \"\\\"\"  << endl;\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
 			fprintf(op, "\t\ttab_op << \",,\";\n");
 			fprintf(op, "\t\tfor(int j=0; j<ax_%s.count_stmt_text.size(); ++j){\n", 
 					map_iter_b->first.c_str());
-			fprintf(op, "\t\t\t tab_op << ax_%s.count_stmt_text[j] << \",\" ;\n", 
+			fprintf(op, "\t\t\t tab_op << \"\\\"\" << ax_%s.count_stmt_text[j] << \"\\\"\"  << \",\" ;\n", 
 					map_iter_b->first.c_str()); 
 			fprintf(op, "\t\t}\n");
 
@@ -192,7 +192,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 					map_iter_s->first.c_str());
 			fprintf(op, "\t\ttab_op << \",\";\n");
 			fprintf(op, "\t\t\tcci=0;\n");
-			fprintf(op, "\t\t\ttab_op << ax_%s.count_stmt_text[i] << \",\";\n", map_iter_s->first.c_str()); 
+			fprintf(op, "\t\t\ttab_op << \"\\\"\" << ax_%s.count_stmt_text[i] << \"\\\"\" << \",\";\n", map_iter_s->first.c_str()); 
 			fprintf(op, "\t\t\tfor(int j=0; j<ax_%s.count_stmt_text.size(); ++j){\n",
 				map_iter_b->first.c_str());
 			fprintf(op, "\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
@@ -394,7 +394,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 	fprintf(axes_drv_func, "void ax_compute(){\n");
 	for(CMAPITER it=ax_map.begin(); it!=ax_map.end(); ++it){
 		//struct ax* l_ax = *it;
-		cout << "Processing axis: " << it->first.c_str() << endl;
+		//cout << "Processing axis: " << it->first.c_str() << endl;
 
 		fprintf(op, "struct axis_%s{\n", it->first.c_str() );
 		fprintf(op, "\tbitset<%d> flag;\n", it->second->no_count_ax_elems );
@@ -436,7 +436,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 			*/
 		}
 
-		cout << "after basic_ax_stmt loop " << endl;
+		// cout << "after basic_ax_stmt loop " << endl;
 		/*
 		for(unsigned int i=0; 
 			it->second->fld_stmt &&

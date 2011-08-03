@@ -96,7 +96,7 @@ tabstart {
 }
 
 data_struct {
-	std::cout << "DATA_STRUCT" << std::endl;
+	//std::cout << "DATA_STRUCT" << std::endl;
 	return DATA_STRUCT;
 }
 

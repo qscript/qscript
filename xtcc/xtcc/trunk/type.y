@@ -134,7 +134,7 @@
 };
 
 %token CONVERT
-%token	TOT AX ';' CNT '{' '}' TTL INC
+%token	TOT AX ';' CNT '{' '}' TTL
 %type <dt> xtcc_type
 %type <tbl> tab_list
 %type <tbl> tab_defn
@@ -205,7 +205,7 @@
 %type <stmt> attributes	
 
 %token CONTINUE BREAK
-
+%token INC
 
 
 
@@ -920,7 +920,8 @@ ttl_ax_stmt_list: ttl_ax_stmt { $$=$1; }
 	;
 
 ttl_ax_stmt: 	TTL ';' TEXT ';'	{
-		$$ = new Table::TitleStatement (Table::txt_axstmt,$3);
+		using Table::TitleStatement;
+		$$ = new TitleStatement (Table::txt_axstmt,$3);
 		++no_tot_ax_elems;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
@@ -964,13 +965,6 @@ count_ax_stmt: TOT ';' TEXT ';' {
 		}
 	}
 	| bit_list
-	| INC ';' TEXT ';' expression ';'COND_START expression ';' {
-		// Need to generate the correct code for the statment below
-		// hack added so that we can compile
-		++no_count_ax_elems;	
-		++no_tot_ax_elems;
-		$$ = new Table::inc_ax_stmt (Table::inc_axstmt,$3, $8, $5);
-	}
 	;
 
 bit_list: BIT NAME ';' stub_list';' {

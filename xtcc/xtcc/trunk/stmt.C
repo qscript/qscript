@@ -774,9 +774,12 @@ void FieldStatement::GenerateCode(FILE * & fptr)
 		fprintf(fptr,"\t\tint tmp=*i_ptr;\n");
 	}
 	fprintf(fptr,"\t\tif(tmp>=1 && tmp <=%d){\n", lhsSymbolTableEntry_->n_elms);
-	fprintf(fptr,"\t\t\t++%s[tmp-1];\n", lhsSymbolTableEntry_->name_);
+	fprintf(fptr,"\t\t\t++%s[tmp];\n", lhsSymbolTableEntry_->name_);
+	fprintf(fptr,"\t\t} else if (tmp == 0) {\n");
+	// ignore tmp == 0 for now - later maybe create a blank variable indicator or something
 	fprintf(fptr,"\t\t} else {\n");
-	fprintf(fptr,"\t\t\tprintf(\" runtime warning: code too big to fit in array\\n\");\n");
+	fprintf(fptr,"\t\t\tprintf(\" runtime warning: code: %%d at variable: %s too big to fit in array. ser_no: %%d incrementing count in position 0 of array \\n\", tmp, ser_no);\n", lhsSymbolTableEntry_->name_);
+	fprintf(fptr,"\t\t\t++%s[0];\n", lhsSymbolTableEntry_->name_);
 	fprintf(fptr,"\t\t}\n;");
 	
 	fprintf(fptr, "}} \n");
