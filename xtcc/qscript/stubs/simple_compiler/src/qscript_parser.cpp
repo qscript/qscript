@@ -1862,10 +1862,15 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\tfstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);\n"
 		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n" 
 		<< "\t\txtcc_ax_file << \"ed_start\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data();\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tint32_t all;\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tint32_t ser_no;\\n\";\n"
 		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
 		<< "\t\t\txtcc_question_disk_map[i]->print_edit_var_defns(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
 		<< "\t\t}\n"
 		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data()\\n{\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tall = 1;\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tser_no = c[0,3];\\n\";\n"
 		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
 		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_edit_load(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
 		<< "\t\t}\n"
@@ -1877,6 +1882,11 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t}\n"
 		<< "\t\txtcc_ax_file << \"}\\n\";\n"
 		<< "\t\txtcc_ax_file << \"axstart {\\n\";\n"
+
+		<< "\t\txtcc_ax_file << \"ax tot_ax;\\n\";\n"
+		<< "\t\txtcc_ax_file << \"ttl; \\\"Total\\\";\\n\";\n"
+		<< "\t\txtcc_ax_file << \"cnt; \\\"All\\\"; c= all==1;\\n\";\n"
+
 		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
 		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_ax(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
 		<< "\t\t}\n"
@@ -2248,7 +2258,7 @@ void print_write_xtcc_data_to_disk(FILE *script)
 	fprintf(script, "	}\n");
 	fprintf(script, "	//cout << \"output_buffer: \" << xtcc_datafile_output_buffer;\n");
 	fprintf(script, "	xtcc_datafile . write(xtcc_datafile_output_buffer, len_xtcc_datafile_output_buffer);\n");
-	fprintf(script, "	memset(xtcc_datafile_output_buffer, ' ', len_xtcc_datafile_output_buffer-1);\n");
+	fprintf(script, "	memset(xtcc_datafile_output_buffer, 0, len_xtcc_datafile_output_buffer-1);\n");
 	fprintf(script, "	do_freq_counts();\n");
 	fprintf(script, "	cout << \"len_xtcc_datafile_output_buffer: \" << len_xtcc_datafile_output_buffer << endl;\n");
 	fprintf(script, "}\n");

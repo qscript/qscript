@@ -104,15 +104,24 @@ public:
 		map_file << ",			";
 		map_file << width_ << ",	";
 		map_file << q_->no_mpn << ",	";
-		map_file << start_pos+1 << ",	";
-		map_file << start_pos + totalLength_  << "\n";
+		map_file << start_pos << ",	";
+		map_file << start_pos + totalLength_ -1  << "\n";
 	}
 
 	void print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir)
 	{
 		xtcc_ax_file 
 			<< endl
-			<< "ax " << q_->questionName_ << ";" << endl
+			<< "ax " << q_->questionName_ ;
+
+		if (q_->loop_index_values.size())
+		{
+			for (int i=0; i< q_->loop_index_values.size(); ++i)
+			{
+				xtcc_ax_file << "_" << q_->loop_index_values[i];
+			}
+		}
+		xtcc_ax_file << ";" << endl
 			<< "ttl; " << "\"" << q_->questionName_ 
 			<< "." 
 			<< q_->questionText_ 
@@ -125,10 +134,27 @@ public:
 					<< nr_ptr->stubs[i].stub_text
 					<< "\""
 					<< "; c="
-					<< q_->questionName_ << "_data == "
-					<< nr_ptr->stubs[i].code 
-					<< ";" 
-					<< endl;
+					<< q_->questionName_;
+				if (q_->loop_index_values.size())
+				{
+					for (int i=0; i< q_->loop_index_values.size(); ++i)
+					{
+						xtcc_ax_file << "_" << q_->loop_index_values[i];
+					}
+				}
+				if (nq->no_mpn==1) { 
+					xtcc_ax_file << "_data == "
+						<< nr_ptr->stubs[i].code 
+						<< ";" 
+						<< endl;
+				} else {
+					xtcc_ax_file << "_arr["
+						<< nr_ptr->stubs[i].code 
+						<< "]"
+						<< " > 0"
+						<< ";" 
+						<< endl;
+				}
 			}
 		} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q_)) {
 			set<int32_t> & indiv = rq->r_data->indiv;
@@ -138,50 +164,151 @@ public:
 					<< *it1 
 					<< "\""
 					<< "; c="
-					<< q_->questionName_ << "_data == "
-					<< *it1
-					<< ";" 
-					<< endl;
+					<< q_->questionName_;
+				if (q_->loop_index_values.size())
+				{
+					for (int i=0; i< q_->loop_index_values.size(); ++i)
+					{
+						xtcc_ax_file << "_" << q_->loop_index_values[i];
+					}
+				}
+				//xtcc_ax_file << "_data == "
+				//	<< *it1
+				//	<< ";" 
+				//	<< endl;
+				if (rq->no_mpn==1) { 
+					xtcc_ax_file << "_data == "
+						<< *it1
+						<< ";" 
+						<< endl;
+				} else {
+					xtcc_ax_file << "_arr["
+						<< *it1
+						<< "]"
+						<< " == "
+						<< *it1
+						<< ";" 
+						<< endl;
+				}
 			}
 			vector < pair<int32_t,int32_t> > range
 				= rq->r_data->range;
-			for (int i=0; i<range.size(); ++i) {
-				xtcc_ax_file << "cnt; " << "\""
-					<< range[i].first 
-					<< " - "
-					<< range[i].second
-					<< "\""
-					<< "; c="
-					<< q_->questionName_ << "_data >= "
-					<< range[i].first
-					<< " && "
-					<< q_->questionName_ << "_data <= "
-					<< range[i].second
-					<< ";" 
-					<< endl;
+			if (rq->no_mpn==1) {
+				for (int i=0; i<range.size(); ++i) {
+					xtcc_ax_file << "cnt; " << "\""
+						<< range[i].first 
+						<< " - "
+						<< range[i].second
+						<< "\""
+						<< "; c="
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							xtcc_ax_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					xtcc_ax_file << "_data >= "
+						<< range[i].first
+						<< " && "
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							xtcc_ax_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					xtcc_ax_file << "_data <= "
+						<< range[i].second
+						<< ";" 
+						<< endl;
+				}
+			} else {
+				xtcc_ax_file << "cnt; " << "\"all\"; c= all == 1;\n";
+				/*
+
+				for (int i=0; i<range.size(); ++i) {
+					xtcc_ax_file << "cnt; " << "\""
+						<< range[i].first 
+						<< " - "
+						<< range[i].second
+						<< "\""
+						<< "; c="
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							xtcc_ax_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					xtcc_ax_file << "_arr >= "
+						<< range[i].first
+						<< " && "
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							xtcc_ax_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					xtcc_ax_file << "_arr <= "
+						<< range[i].second
+						<< ";" 
+						<< endl;
+				}
+				*/
 			}
 		}
 	}
 
 	void print_xtcc_tab(fstream & xtcc_ax_file, string setup_dir)
 	{
-		xtcc_ax_file << "tab " << q_->questionName_ << " " << "tot_ax;" << endl;
+		xtcc_ax_file << "tab " << q_->questionName_ ;
+		if (q_->loop_index_values.size())
+		{
+			for (int i=0; i< q_->loop_index_values.size(); ++i)
+			{
+				xtcc_ax_file << "_" << q_->loop_index_values[i];
+			}
+		}
+		xtcc_ax_file << " " << "tot_ax;" << endl;
 	}
 
 	void print_xtcc_edit_load(fstream & xtcc_ax_file, string setup_dir)
 	{
 		if (q_->no_mpn == 1) {
 			xtcc_ax_file << "\t"
-				<< q_->questionName_ << "_data = c [" 
-				<< start_pos + 1 << ", " 
-				<< start_pos + totalLength_
+				<< q_->questionName_ ;
+
+			if (q_->loop_index_values.size())
+			{
+				for (int i=0; i< q_->loop_index_values.size(); ++i)
+				{
+					xtcc_ax_file << "_" << q_->loop_index_values[i];
+				}
+			}
+			xtcc_ax_file 	<< "_data = c [" 
+				<< start_pos  << ", " 
+				<< start_pos + totalLength_ - 1
 				<< "];" <<endl;
 		} else {
 			xtcc_ax_file << "\t"
 				<< "fld " 
-				<< q_->questionName_ << "_arr = c (" 
-				<< start_pos + 1 << ", " 
-				<< start_pos + totalLength_
+				<< q_->questionName_;
+			if (q_->loop_index_values.size())
+			{
+				for (int i=0; i< q_->loop_index_values.size(); ++i)
+				{
+					xtcc_ax_file << "_" << q_->loop_index_values[i];
+				}
+			}
+			xtcc_ax_file << "_arr = c (" 
+				<< start_pos  << ", " 
+				<< start_pos + totalLength_ -1
 				<< ") : "  << width_ << ";" << endl;
 		}
 	}
@@ -212,14 +339,30 @@ public:
 			xtcc_ax_file 
 				<< var_type_str.str()
 				<< " "
-				<< q_->questionName_ << "_data;"
+				<< q_->questionName_;
+			if (q_->loop_index_values.size())
+			{
+				for (int i=0; i< q_->loop_index_values.size(); ++i)
+				{
+					xtcc_ax_file << "_" << q_->loop_index_values[i];
+				}
+			}
+			xtcc_ax_file << "_data;"
 				<< endl;
 		} else {
 			xtcc_ax_file 
 				<< var_type_str.str()
 				<< " "
-				<< q_->questionName_ << "_arr["
-				<< q_->maxCode_
+				<< q_->questionName_;
+			if (q_->loop_index_values.size())
+			{
+				for (int i=0; i< q_->loop_index_values.size(); ++i)
+				{
+					xtcc_ax_file << "_" << q_->loop_index_values[i];
+				}
+			}
+			xtcc_ax_file << "_arr["
+				<< q_->maxCode_+1
 				<< "]"
 				<< ";" << endl;
 		}
