@@ -6,6 +6,8 @@
 #include "debug_mem.h"
 #include "stmt.h"
 #include "Tab.h"
+#include "code_output_files.h"
+
 template<class T> T* link_chain(T* & elem1, T* & elem2);
 template<class T> T* trav_chain(T* & elem1);
 extern vector<Table::table*>	table_list;
@@ -19,6 +21,7 @@ extern Scope* active_scope;
 extern vector <Statement::FunctionInformation*> func_info_table;
 
 extern int errno;
+bool flag_compile_only;
 //void print_expr(FILE* edit_out, AbstractExpression * e);
 
 int check_parameters(struct AbstractExpression* e, struct FunctionParameter* v);
@@ -45,6 +48,8 @@ char default_work_dir[]="xtcc_work";
 char * work_dir=default_work_dir;
 void reset_files();
 
+CodeOutputFiles code_output_files;
+
 
 extern int no_errors;
 extern int line_no;
@@ -62,10 +67,13 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	int c;
 	// temp hack
 
-	while((c=getopt(argc, argv, "w:"))!=-1){
+	while((c=getopt(argc, argv, "cw:"))!=-1){
 		switch(c){
 			case 'w':
 				work_dir=optarg;
+			break;
+			case 'c':
+				flag_compile_only = true;
 			break;
 			case '?':
 				if (optopt == 'w')
@@ -214,18 +222,20 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	fclose(axes_op); 
 	fclose(axes_drv_func);
 	fclose(tab_summ_func);
-	bool my_compile_flag=true;
+	//bool my_compile_flag=true;
 	//bool my_compile_flag=false;
 	printf("parsing over\n about to begin compiling\n");
-	if(my_compile_flag&&!compile(XTCC_HOME, work_dir)){
+	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
+	if(flag_compile_only==false && !compile(XTCC_HOME, work_dir)){
 		char * endptr=0;
 		int convert_to_base=10;
 		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
-		bool run_flag=true;
+		//bool run_flag=true;
 		int rval=0;
-		if(run_flag){
+		//if(run_flag){
+		//if(!flag_compile_only){
 			rval= run(data_file, rec_len);
-		}
+		//}
 		if(tree_root) {
 			delete tree_root;
 			tree_root=0;
@@ -313,7 +323,8 @@ template<class T> T* trav_chain(T* & elem1){
 }
 
 #include <cstdlib>
-int compile(char * const XTCC_HOME, char * const work_dir){
+int compile(char * const XTCC_HOME, char * const work_dir)
+{
 	using std::cout;
 	using std::endl;
 	using std::cerr;
@@ -326,7 +337,7 @@ int compile(char * const XTCC_HOME, char * const work_dir){
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
 	const char * file_list[]={
 		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
-		"my_tab_drv_func.C", "temp.C"
+		"my_tab_drv_func.C", "temp.C", "/stubs/ax_stmt_type.h"
 	};
 	string cmd1="cat "; 
 	const int main_loop_file_index=2;
@@ -357,7 +368,7 @@ int compile(char * const XTCC_HOME, char * const work_dir){
 		return rval;
 	}
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
-	string cmd2=string("g++ ") + work_dir + string("/temp.C -o ") +  work_dir + string("/myedit.exe");
+	string cmd2=string("g++ -g ") + work_dir + string("/temp.C -o ") +  work_dir + string("/myedit.exe");
 #endif /* GNU/UNIX */	
 #if __WIN32__
 	string cmd2="\\Borland\\BCC55\\Bin\\bcc32 -P -I\\Borland\\BCC55\\Include -L\\Borland\\BCC55\\LIB -extcc_work\\myedit.exe xtcc_work\\temp.C ";
@@ -378,6 +389,8 @@ int run(char * data_file_name, int rec_len){
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	cmd1 <<  work_dir << "/myedit.exe " << data_file_name  << " " << rec_len;
 #endif /* UNIX */
+	std::cout << "executing : " 
+		<< cmd1.str() << std::endl;
 	rval=system(cmd1.str().c_str());
 	return rval;
 }

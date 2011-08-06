@@ -547,10 +547,11 @@ tot_ax_stmt::~tot_ax_stmt()
 }
 
 // -------------------------------------------
-inc_ax_stmt::inc_ax_stmt(axstmt_type ltype, string txt
+inc_ax_stmt::inc_ax_stmt(axstmt_type ltype
+		, Expression::AbstractExpression* p_incrementExpression
 		, Expression::AbstractExpression* p_condition
-		, Expression::AbstractExpression* p_incrementExpression)
-	: AbstractCountableAxisStatement(ltype,txt,p_condition)
+		)
+	: AbstractCountableAxisStatement(ltype,string("\"inc_ax_stmt\""),p_condition)
 	  , incrementExpression_(p_incrementExpression)
 { cout << "constructed inc_ax_stmt: incrementExpression_" << incrementExpression_ << endl;}
 
@@ -579,6 +580,8 @@ void inc_ax_stmt::generate_code(FILE * f, unsigned int index)
 	fprintf(f, " ){\n");
 	fprintf(f, "\t\tflag[%d]=true;\n", index);
 	fprintf(f, "\t}\n");
+
+	//string global_vars_fname=work_dir+string("/global.C");
 }
 
 void inc_ax_stmt::print_axis_constructor_text(FILE * f

@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <cstdlib>
+#include "ax_stmt_type.h"
 //#include <sys/mman.h>
 
 using namespace std;

@@ -37,6 +37,7 @@
 #include "scope.h"
 //#include "tree.h"
 #include "debug_mem.h"
+#include "ax_stmt_type.h"
 //using namespace std;
 namespace Table {
 
@@ -49,7 +50,7 @@ using std::endl;
 
 int yyparse();
 
-enum axstmt_type { ax_uninit,txt_axstmt, tot_axstmt, cnt_axstmt, fld_axstmt, inc_axstmt };
+//enum axstmt_type { ax_uninit, txt_axstmt, tot_axstmt, cnt_axstmt, fld_axstmt, inc_axstmt };
 
 struct table{
 	string side;
@@ -155,9 +156,10 @@ class inc_ax_stmt: public AbstractCountableAxisStatement
 {
 	public:
 	Expression::AbstractExpression * incrementExpression_;
-	inc_ax_stmt(axstmt_type ltype, string txt
+	inc_ax_stmt(axstmt_type ltype
+			, Expression::AbstractExpression* p_incrementExpression
 			, Expression::AbstractExpression* p_condition
-			, Expression::AbstractExpression* p_incrementExpression);
+			);
 		
 	virtual void print(fstream& f);
 	virtual string ax_text();
@@ -225,18 +227,24 @@ class ax
 	AbstractPrintableAxisStatement * ttl_ax_stmt_start;
 	AbstractCountableAxisStatement * count_ax_stmt_start;
 	//vector <AbstractCountableAxisStatement*> bas_cnt_ax_stmt_list;
-	int no_count_ax_elems;	
-	int no_tot_ax_elems;	
+	int no_count_ax_elems;
+	int no_tot_ax_elems;
+	int no_inc_ax_elems;
 	vector <bool> condn_flags;
 	Expression::AbstractExpression* filter;
 	//fld_ax_stmt * fld_stmt;
-	ax(AbstractPrintableAxisStatement * ttl_s,	AbstractCountableAxisStatement* cnt_ax_s
+	ax (AbstractPrintableAxisStatement * ttl_s
+			, AbstractCountableAxisStatement* cnt_ax_s
 			, int l_no_count_ax_elems, int l_no_tot_ax_elems
+			, int l_no_inc_ax_elems
 			, Expression::AbstractExpression* f=0)
-		: ttl_ax_stmt_start(ttl_s),  count_ax_stmt_start(cnt_ax_s)
-		, no_count_ax_elems(l_no_count_ax_elems)
-		, no_tot_ax_elems(l_no_tot_ax_elems)
-		, condn_flags(l_no_count_ax_elems), filter(f) {}
+		: 
+		ttl_ax_stmt_start (ttl_s),  count_ax_stmt_start (cnt_ax_s)
+		, no_count_ax_elems (l_no_count_ax_elems)
+		, no_tot_ax_elems (l_no_tot_ax_elems)
+		, no_inc_ax_elems (l_no_inc_ax_elems)
+		, condn_flags(l_no_count_ax_elems), filter(f) 
+	{ }
 
 	~ax();
 };

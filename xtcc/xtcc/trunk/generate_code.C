@@ -7,7 +7,10 @@
 extern Statement::AbstractStatement * tree_root;
 extern char* work_dir;
 extern int rec_len;
+extern CodeOutputFiles code_output_files;
+
 #include "Tab.h"
+#include "ax_stmt_type.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -27,7 +30,9 @@ extern map <string, Table::ax*> ax_map;
 #include <cstdio>
 void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
 void print_latex_print(FILE* op, int table_index);
-void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
+
+void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
+{
 	using namespace Table;
 	fprintf(op, "#include <iostream>\n");
 	fprintf(op, "#include <fstream>\n");
@@ -57,13 +62,17 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 					map_iter_s->first.c_str(), map_iter_b->first.c_str ());
 			fprintf(op, "\tconst int rows, cols;\n");
 			fprintf(op, "\tvector <int> counter;\n");
-			fprintf(op, "\ttable_%s_%s():rows(%d), cols(%d),counter(%d*%d){\n\t\tfor (int i=0;i<counter.size();++i) counter[i]=0; }\n",
+			fprintf(op, "\ttable_%s_%s():rows(%d), cols(%d),counter(%d*%d){\n\t\tfor (int i=0;i<counter.size();++i) counter[i]=0; \n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
 					map_iter_s->second->no_count_ax_elems,
 					map_iter_b->second->no_count_ax_elems,
 					map_iter_s->second->no_count_ax_elems,
 					map_iter_b->second->no_count_ax_elems
 					);
+			fprintf(op, "for (int i=0; i<mean_inc_%s_%s.size(); ++i) mean_inc_%s_%s[i]=0.0;\n",
+					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+					map_iter_s->first.c_str(), map_iter_b->first.c_str ());
+			fprintf(op, "}\n");
 
 			/*
 			fprintf(op, "\tvoid compute(){\n");
@@ -85,40 +94,56 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 			int rows=map_iter_s->second->no_count_ax_elems;
 			int cols=map_iter_b->second->no_count_ax_elems;
 			AbstractCountableAxisStatement* side_stmt=map_iter_s->second->count_ax_stmt_start;
-			for(int i=0; i<rows; ++i){
+			int inc_stmt_count=0;
+			for (int i=0; i<rows; ++i) {
 				//cout << "generate_code: i: " << i << endl;
 				AbstractCountableAxisStatement* banner_stmt=map_iter_b->second->count_ax_stmt_start;
-				for(int j=0; j<cols; ++j){
+				if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
+					string global_vars_fname=work_dir+string("/global.C");
+					FILE * global_vars=fopen(global_vars_fname.c_str(), "a+b");
+					fprintf (global_vars, "vector<double> mean_inc_%s_%s(%d);\n",
+							map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
+					fclose(global_vars);
+					++inc_stmt_count;
+				}
+				for (int j=0; j<cols; ++j) {
 					//cout << "generate_code: j: " << j << endl;
 					fprintf(op, "\t\tif(");
 					fprintf(op, "ax_%s.flag[%d]", map_iter_s->first.c_str(), i);
 					fprintf(op, " && " );
 					fprintf(op, "ax_%s.flag[%d]){\n", map_iter_b->first.c_str(), j);
-					if(!banner_stmt || ! side_stmt){
+					if (!banner_stmt || ! side_stmt) {
 						// handles the case of fld_stmt
 						fprintf(op, "\t\t\t++counter[%d*cols+%d];\n",
 								i, j);
 					} else if(side_stmt->CustomCountExpression()==false
-						&& banner_stmt->CustomCountExpression()==false){
+						&& banner_stmt->CustomCountExpression()==false) {
 						fprintf(op, "\t\t\t++counter[%d*cols+%d];\n",
 								i, j);
 					} else if(side_stmt->CustomCountExpression()==true
-						&& banner_stmt->CustomCountExpression()==false){
+						&& banner_stmt->CustomCountExpression()==false) {
 						cout << "side is inc_axstmt" << endl;
-						fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
-								i, j);
+						// fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
+						// 		i, j);
 						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
+						//inc_st_ptr->PrintIncrExpression(op);
+						//fprintf(op, ";\n");
+
+						fprintf(op, "\t\t\t mean_inc_%s_%s[%d*cols+%d]+=",
+								map_iter_s->first.c_str(), map_iter_b->first.c_str(), 
+								inc_stmt_count-1, j);
+						//inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
 						inc_st_ptr->PrintIncrExpression(op);
 						fprintf(op, ";\n");
 					} else if ( side_stmt->CustomCountExpression()==false
-						&& banner_stmt->CustomCountExpression()==true){
+						&& banner_stmt->CustomCountExpression()==true) {
 						cout << "banner is inc_axstmt" << endl;
 						fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
 								i, j);
 						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(banner_stmt);
 						inc_st_ptr->PrintIncrExpression(op);
 						fprintf(op, ";\n");
-					} else if(side_stmt==banner_stmt && side_stmt->CustomCountExpression()==true){
+					} else if(side_stmt==banner_stmt && side_stmt->CustomCountExpression()==true) {
 						cout << "  axis by axis -> diagonal table" << endl;
 						// axis by axis -> diagonal table
 						fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
@@ -188,25 +213,41 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 #endif /* 0 */
 
 			fprintf(op, "\t\ttab_op << endl;\n");
-
-			fprintf(op, "\t\tfor(int i=0; i<ax_%s.count_stmt_text.size(); ++i){\n",
+			fprintf(op, "\t\tint inc_counter=0;\n");
+			fprintf(op, "\t\tfor (int i=0; i<ax_%s.count_stmt_text.size(); ++i) {\n",
 					map_iter_s->first.c_str());
-			fprintf(op, "\t\ttab_op << \",\";\n");
-			fprintf(op, "\t\tstringstream col_perc_str;\n");
-			fprintf(op, "\t\tcol_perc_str << \",,\";\n");
+			fprintf(op, "\t\t\ttab_op << \",\";\n");
+			fprintf(op, "\t\t\tstringstream col_perc_str;\n");
+			fprintf(op, "\t\t\tstringstream row_perc_str;\n");
+			fprintf(op, "\t\t\tcol_perc_str << \",,\";\n");
+			fprintf(op, "\t\t\trow_perc_str << \",,\";\n");
 			fprintf(op, "\t\t\tcci=0;\n");
 			fprintf(op, "\t\t\ttab_op << \"\\\"\" << ax_%s.count_stmt_text[i] << \"\\\"\" << \",\";\n", map_iter_s->first.c_str()); 
-			fprintf(op, "\t\t\tfor(int j=0; j<ax_%s.count_stmt_text.size(); ++j){\n",
+			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
+			fprintf(op, "\t\t\t\t\t++inc_counter;\n");
+			fprintf(op, "\t\t\t\t}\n");
+			fprintf(op, "\t\t\tfor (int j=0; j<ax_%s.count_stmt_text.size(); ++j) {\n",
 				map_iter_b->first.c_str());
+			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::cnt_axstmt) {\n", map_iter_s->first.c_str());
 			fprintf(op, "\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
 			fprintf(op, "\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_s->first.c_str() );
 			fprintf(op, "\t\t\t\t\tcol_perc_str << (((double) counter[cci+rci*cols]) / counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) * 100 <<\",\";\n", map_iter_s->first.c_str() );
+			//fprintf(op, "\t\t\t\t\tcol_perc_str << ( counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) <<\",\";\n", map_iter_s->first.c_str() );
+			fprintf(op, "\t\t\t\t}\n");
+			fprintf(op, "\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_b->first.c_str() );
+			//fprintf(op, "\t\t\t\t\trow_perc_str << ax_%s.tot_elem_pos_vec[0] << \"|\" << ( counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) <<\",\";\n", map_iter_b->first.c_str(), map_iter_b->first.c_str() );
+			fprintf(op, "\t\t\t\t\trow_perc_str << (((double) counter[cci+rci*cols]) / counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) * 100 <<\",\";\n", map_iter_b->first.c_str() );
+			fprintf(op, "\t\t\t\t}\n");
+			fprintf(op, "\t\t\t\t}\n");
+			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
+			fprintf(op, "\t\t\t\t\ttab_op << mean_inc_%s_%s[(inc_counter-1)*cols+cci] << \",\";\n", map_iter_s->first.c_str(), map_iter_b->first.c_str());
 			fprintf(op, "\t\t\t\t}\n");
 			fprintf(op, "\t\t\t\t++cci;\n");
 			fprintf(op, "\t\t\t}\n");
 			fprintf(op, "\t\t\t++rci;\n");
 			fprintf(op, "\t\t\ttab_op << endl;\n");
 			fprintf(op, "\t\t\ttab_op << col_perc_str.str() << endl;\n");
+			fprintf(op, "\t\t\ttab_op << row_perc_str.str() << endl;\n");
 			fprintf(op, "\t\t}\n");
 			fprintf(op, "\t\ttab_op << endl;\n");
 			//fprintf(op, "\t\t}\n");
@@ -343,6 +384,15 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func){
 	}
 	fprintf(tab_drv_func, "}\n");
 
+	string fname=work_dir+string("/global.C");
+	FILE * global_vars=fopen(fname.c_str(), "a+");
+	if(!global_vars){
+		cerr << "cannot open global.C for writing" << endl;
+		exit(1);
+	}
+	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
+	fclose(global_vars);
+
 }
 void print_latex_print(FILE* op, int table_index){
 	using namespace Table;
@@ -396,6 +446,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 	fprintf(op, "#include <bitset>\n" );
 	fprintf(op, "#include <string>\n" );
 	fprintf(op, "#include <vector>\n" );
+	fprintf(op, "#include \"ax_stmt_type.h\"\n");
 	fprintf(op, "using namespace std;\n" );
 	fprintf(axes_drv_func, "#include \"my_axes.C\"\n");
 	fprintf(axes_drv_func, "void ax_compute(){\n");
@@ -409,8 +460,12 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 		fprintf(op, "\tvector<string> count_stmt_text;\n");
 		fprintf(op, "\tvector<int> tot_elem_pos_vec;\n");
 		fprintf(op, "\tbitset<%d> is_a_count_text;\n", it->second->no_tot_ax_elems);
-		fprintf(op, "\taxis_%s():ttl_stmt_text(%d),count_stmt_text(%d) {\n"
+		fprintf(op, "\tvector<Table::axstmt_type> axis_stmt_type_print;\n", it->second->no_tot_ax_elems - it->second->no_count_ax_elems);
+		fprintf(op, "\tvector<Table::axstmt_type> axis_stmt_type_count;\n", it->second->no_count_ax_elems);
+		fprintf(op, "\taxis_%s():ttl_stmt_text(%d),count_stmt_text(%d), axis_stmt_type_print(%d), axis_stmt_type_count(%d) {\n"
 				, it->first.c_str()
+				, it->second->no_tot_ax_elems - it->second->no_count_ax_elems
+				, it->second->no_count_ax_elems
 				, it->second->no_tot_ax_elems - it->second->no_count_ax_elems
 				, it->second->no_count_ax_elems
 				) ;
@@ -420,6 +475,14 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next_,
 				++my_counter){
 			fprintf(op, "\t\tttl_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
+			if (ax_stmt_iter->axtype == Table::txt_axstmt) {
+				fprintf(op, "\t\t axis_stmt_type_print[%d]=Table::txt_axstmt;\n", my_counter);
+			} else {
+				fprintf(op, "\t\t axis_stmt_type_print[%d]= cause a compile error;\n", my_counter);
+				print_err(Util::compiler_internal_error, "Error generating code for axes - unknown type for print stmt"
+							, line_no, __LINE__, __FILE__);
+				++no_errors;
+			}
 
 			/*
 			if(ax_stmt_iter->axtype<=txt_axstmt){
@@ -437,6 +500,20 @@ void print_axis_code(FILE * op, FILE * axes_drv_func){
 			ax_stmt_iter->print_axis_constructor_text(op, my_counter);
 			if (tot_ax_stmt * my_tot_ax_stmt = dynamic_cast<tot_ax_stmt*>(ax_stmt_iter)) {
 				fprintf(op, "\ttot_elem_pos_vec.push_back(%d);\n", ax_stmt_iter->position_);
+			}
+			if (ax_stmt_iter->axtype == Table::tot_axstmt) {
+				fprintf(op, "\t\t axis_stmt_type_count[%d]=Table::tot_axstmt;\n", my_counter);
+			} else if (ax_stmt_iter->axtype == Table::cnt_axstmt) {
+				fprintf(op, "\t\t axis_stmt_type_count[%d]=Table::cnt_axstmt;\n", my_counter);
+			} else if (ax_stmt_iter->axtype == Table::fld_axstmt) {
+				fprintf(op, "\t\t axis_stmt_type_count[%d]=Table::fld_axstmt;\n", my_counter);
+			} else if (ax_stmt_iter->axtype == Table::inc_axstmt) {
+				fprintf(op, "\t\t axis_stmt_type_count[%d]=Table::inc_axstmt;\n", my_counter);
+			} else {
+				fprintf(op, "\t\tttl_stmt_text[%d]= cause a compile error;\n", my_counter);
+				print_err(Util::compiler_internal_error, "Error generating code for axes - unknown type for print stmt"
+							, line_no, __LINE__, __FILE__);
+				++no_errors;
 			}
 			
 			/*
@@ -531,6 +608,7 @@ void	generate_edit_section_code(){
 	}
 #if __WIN32__
 	fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
+	fprintf(edit_out, "#include \"ax_stmt_type.h\"\n" );
 #endif /* __WIN32__ */
 	fprintf(edit_out, "#include <cstdio>\n#include <iostream>\n#include <string>\n#include <vector>\nusing namespace std;\n" );
 
@@ -542,14 +620,7 @@ void	generate_edit_section_code(){
 	cout << "printing edit:" << endl;
 	tree_root->GenerateCode(edit_out);
 	fclose(edit_out);
-	fname=work_dir+string("/global.C");
-	global_vars=fopen(fname.c_str(), "a+");
-	if(!global_vars){
-		cerr << "cannot open global.C for writing" << endl;
-		exit(1);
-	}
-	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
-	fclose(global_vars);
+
 	fname=work_dir+string("/print_list_counts.C");
 	print_list_counts=fopen(fname.c_str(), "a+");
 	fprintf(print_list_counts, "}\n");

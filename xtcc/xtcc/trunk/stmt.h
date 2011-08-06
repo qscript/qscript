@@ -35,6 +35,7 @@
 #include "scope.h"
 #include "expr.h"
 #include "utils.h"
+#include "code_output_files.h"
 
 #include <cstdio>
 #include <cstdlib>

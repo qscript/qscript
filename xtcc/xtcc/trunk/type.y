@@ -30,6 +30,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <sstream>
 #include <sys/types.h>
 #include <limits.h>
 #include "scope.h"
@@ -43,7 +44,7 @@
 #include "stmt.h"
 #include "Tab.h"
 
-
+	using std::stringstream;
 	const bool XTCC_DEBUG_MEM_USAGE=1;
 	XtccSet xs;
 
@@ -84,6 +85,7 @@
 
 	int no_count_ax_elems=0;
 	int no_tot_ax_elems=0;
+	int no_inc_ax_elems=0;
 	int in_a_loop=0;
 	int nest_lev=0;
 	int rec_len;
@@ -334,6 +336,7 @@ decl:	xtcc_type NAME ';' {
 	| DEFINELIST NAME '=' range_list ';' {
 		$$ = active_scope->insert($2, RANGE_DECL_STMT, &xs);
 		//$$ = new decl_stmt($2, RANGE_DECL_STMT, &xs );
+		xs.reset();
 	}
 	| func_decl	{
 		$$=$1;
@@ -756,6 +759,7 @@ expression: expression '+' expression {
 	}
 	| expression IN '(' range_list ')' {
 		$$ = new Expression::Binary2Expression($1, xs, Expression::oper_in);
+		xs.reset();
 	}
 	/*
 	| NAME IN NAME {
@@ -833,7 +837,11 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 		Table::AbstractPrintableAxisStatement  * ttl_stmt_ptr= trav_chain($4);
 		Table::AbstractCountableAxisStatement * count_stmt_ptr= trav_chain($5);
 
-		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, 0);
+		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, 
+				no_count_ax_elems, 
+				no_tot_ax_elems, 
+				no_inc_ax_elems,
+				0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -843,16 +851,27 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 		no_tot_ax_elems=0;
 		free($2);
 	}
-	|	AX NAME ';' COND_START expression ';' ttl_ax_stmt_list count_ax_stmt_list {
+	|	AX NAME ';' COND_START expression ';' ttl_ax_stmt_list count_ax_stmt_list 
+	{
 		Table::AbstractPrintableAxisStatement * ttl_stmt_ptr= trav_chain($7);
 		Table::AbstractCountableAxisStatement * count_stmt_ptr= trav_chain($8);
-		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, no_count_ax_elems, no_tot_ax_elems, $5);
+		$$ = new Table::ax(ttl_stmt_ptr, count_stmt_ptr, 
+				no_count_ax_elems, 
+				no_tot_ax_elems, 
+				no_inc_ax_elems,
+				$5);
+		
+		std::cout << "got axis: " << $2 
+			<< "no_tot_ax_elems: " << no_tot_ax_elems 
+			<< ", no_count_ax_elems: " << no_count_ax_elems
+			<< endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 		ax_map[$2]=$$;
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
+		no_inc_ax_elems = 0;
 		free($2);
 	}
 	| error ';'	{
@@ -939,18 +958,19 @@ count_ax_stmt_list: 	count_ax_stmt	{
 
 count_ax_stmt: TOT ';' TEXT ';' {
 		using Table::tot_ax_stmt;
-		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, 0, no_count_ax_elems);
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
+		int position = no_count_ax_elems-1;
+		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, 0, position);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| TOT ';' TEXT ';' COND_START expression ';'	{
 		using Table::tot_ax_stmt;
-		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, $6, no_count_ax_elems);
 		++no_count_ax_elems;	
 		++no_tot_ax_elems;
+		$$ = new tot_ax_stmt (Table::tot_axstmt,$3, $6, no_count_ax_elems);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
@@ -963,6 +983,17 @@ count_ax_stmt: TOT ';' TEXT ';' {
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
+	}
+	|	INC ';' expression ';' COND_START expression ';' {
+		if (no_inc_ax_elems > 0) {
+			stringstream err_msg;
+			err_msg << "Only 1 inc statement is allowed per axis" << endl;
+			print_err(Util::compiler_sem_err, err_msg.str(), line_no, __LINE__, __FILE__);
+		}
+		++no_inc_ax_elems;
+		++no_count_ax_elems;	
+		++no_tot_ax_elems;
+		$$ = new Table::inc_ax_stmt (Table::inc_axstmt, $3, $6);
 	}
 	| bit_list
 	;
