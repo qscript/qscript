@@ -69,10 +69,15 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
 					map_iter_s->second->no_count_ax_elems,
 					map_iter_b->second->no_count_ax_elems
 					);
-			fprintf(op, "for (int i=0; i<mean_inc_%s_%s.size(); ++i) mean_inc_%s_%s[i]=0.0;\n",
+			fprintf(op, "\t\tfor (int i=0; i<mean_inc_%s_%s.size(); ++i) {\n\t\t\tmean_inc_%s_%s[i].sum_n=0.0; mean_inc_%s_%s[i].n=0.0;\n\t\t}\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-					map_iter_s->first.c_str(), map_iter_b->first.c_str ());
-			fprintf(op, "}\n");
+					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+					map_iter_s->first.c_str(), map_iter_b->first.c_str ()
+					);
+			fprintf(op, "\t}\n");
 
 			/*
 			fprintf(op, "\tvoid compute(){\n");
@@ -101,7 +106,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
 				if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
 					string global_vars_fname=work_dir+string("/global.C");
 					FILE * global_vars=fopen(global_vars_fname.c_str(), "a+b");
-					fprintf (global_vars, "vector<double> mean_inc_%s_%s(%d);\n",
+					fprintf (global_vars, "vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
 							map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
 					fclose(global_vars);
 					++inc_stmt_count;
@@ -129,11 +134,15 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
 						//inc_st_ptr->PrintIncrExpression(op);
 						//fprintf(op, ";\n");
 
-						fprintf(op, "\t\t\t mean_inc_%s_%s[%d*cols+%d]+=",
+						fprintf(op, "\t\t\t mean_inc_%s_%s[%d*cols+%d].sum_n +=",
 								map_iter_s->first.c_str(), map_iter_b->first.c_str(), 
 								inc_stmt_count-1, j);
 						//inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
 						inc_st_ptr->PrintIncrExpression(op);
+						fprintf(op, ";\n");
+						fprintf(op, "\t\t\t mean_inc_%s_%s[%d*cols+%d].n +=1",
+								map_iter_s->first.c_str(), map_iter_b->first.c_str(), 
+								inc_stmt_count-1, j);
 						fprintf(op, ";\n");
 					} else if ( side_stmt->CustomCountExpression()==false
 						&& banner_stmt->CustomCountExpression()==true) {
@@ -229,18 +238,21 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
 			fprintf(op, "\t\t\tfor (int j=0; j<ax_%s.count_stmt_text.size(); ++j) {\n",
 				map_iter_b->first.c_str());
 			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::cnt_axstmt) {\n", map_iter_s->first.c_str());
-			fprintf(op, "\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
-			fprintf(op, "\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_s->first.c_str() );
-			fprintf(op, "\t\t\t\t\tcol_perc_str << (((double) counter[cci+rci*cols]) / counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) * 100 <<\",\";\n", map_iter_s->first.c_str() );
+			fprintf(op, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+			fprintf(op, "\t\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_s->first.c_str() );
+			fprintf(op, "\t\t\t\t\t\tcol_perc_str << (((double) counter[cci+rci*cols]) / counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) * 100 <<\",\";\n", map_iter_s->first.c_str() );
 			//fprintf(op, "\t\t\t\t\tcol_perc_str << ( counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) <<\",\";\n", map_iter_s->first.c_str() );
-			fprintf(op, "\t\t\t\t}\n");
-			fprintf(op, "\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_b->first.c_str() );
+			fprintf(op, "\t\t\t\t\t}\n");
+			fprintf(op, "\t\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_b->first.c_str() );
 			//fprintf(op, "\t\t\t\t\trow_perc_str << ax_%s.tot_elem_pos_vec[0] << \"|\" << ( counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) <<\",\";\n", map_iter_b->first.c_str(), map_iter_b->first.c_str() );
-			fprintf(op, "\t\t\t\t\trow_perc_str << (((double) counter[cci+rci*cols]) / counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) * 100 <<\",\";\n", map_iter_b->first.c_str() );
+			fprintf(op, "\t\t\t\t\t\trow_perc_str << (((double) counter[cci+rci*cols]) / counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) * 100 <<\",\";\n", map_iter_b->first.c_str() );
+			fprintf(op, "\t\t\t\t\t}\n");
 			fprintf(op, "\t\t\t\t}\n");
+			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::tot_axstmt) {\n", map_iter_s->first.c_str());
+			fprintf(op, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
 			fprintf(op, "\t\t\t\t}\n");
 			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
-			fprintf(op, "\t\t\t\t\ttab_op << mean_inc_%s_%s[(inc_counter-1)*cols+cci] << \",\";\n", map_iter_s->first.c_str(), map_iter_b->first.c_str());
+			fprintf(op, "\t\t\t\t\ttab_op << mean_inc_%s_%s[(inc_counter-1)*cols+cci].sum_n / mean_inc_%s_%s[(inc_counter-1)*cols+cci].n  << \",\";\n", map_iter_s->first.c_str(), map_iter_b->first.c_str(), map_iter_s->first.c_str(), map_iter_b->first.c_str() );
 			fprintf(op, "\t\t\t\t}\n");
 			fprintf(op, "\t\t\t\t++cci;\n");
 			fprintf(op, "\t\t\t}\n");
@@ -590,6 +602,7 @@ void	generate_edit_section_code(){
 	fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
 	fprintf(global_vars, "#include <sys/types.h>\n");
 	fprintf(global_vars, "#include <map>\n using namespace std;\n");
+	fprintf(global_vars, "#include \"mean_stddev_struct.h\"\n");
 	fprintf(global_vars, "void print_list_counts();\n");
 	fprintf(global_vars, "void tab_compute();\n");
 	fprintf(global_vars, "void tab_summ();\n");

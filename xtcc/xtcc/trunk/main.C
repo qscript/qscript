@@ -337,8 +337,22 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
 	const char * file_list[]={
 		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
-		"my_tab_drv_func.C", "temp.C", "/stubs/ax_stmt_type.h"
+		"my_tab_drv_func.C", "temp.C" 
 	};
+	const char * copy_file_list[] = {"/stubs/ax_stmt_type.h",
+					"/stubs/mean_stddev_struct.h"
+	};
+
+	for(int i=0; i<(sizeof(copy_file_list)/sizeof(copy_file_list[0])); ++i) {
+		string cmd0="cp "; 
+		cmd0 += MY_XTCC_HOME +  copy_file_list[i] + " " + my_work_dir;
+		cout << "executing command : " << cmd0 << endl;
+		rval=system(cmd0.c_str());
+		if (rval) {
+			cerr << "unable to cp include file: "  << copy_file_list[i] << " to " << my_work_dir << endl;
+			return rval;
+		}
+	}
 	string cmd1="cat "; 
 	const int main_loop_file_index=2;
 	const int temp_file_index=4;
