@@ -127,7 +127,7 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
 								i, j);
 					} else if(side_stmt->CustomCountExpression()==true
 						&& banner_stmt->CustomCountExpression()==false) {
-						cout << "side is inc_axstmt" << endl;
+						// cout << "side is inc_axstmt" << endl;
 						// fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
 						// 		i, j);
 						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);

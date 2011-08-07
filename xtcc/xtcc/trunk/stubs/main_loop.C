@@ -144,6 +144,8 @@ int fread_data(FILE * & inp_data_file , int file_size, int rec_len){
 	int seek_res=fseek(inp_data_file, 0, SEEK_SET);
 	int r_val=0;
 		
+	int n_records = 0;
+	cout << "Each dot('.') represents 100 records read\n";
 	while(1){
 		//memset(buffer,0, rec_len);
 		int n_read= fread(c ,  sizeof(char), rec_len,  inp_data_file);
@@ -162,9 +164,16 @@ int fread_data(FILE * & inp_data_file , int file_size, int rec_len){
 			edit_data();
 			ax_compute();
 			tab_compute();
+			++n_records;
+		}
+		if (n_records % 100 == 0) {
 			cout << ".";
 		}
+		if (n_records % 50 == 0) {
+			cout << "\n";
+		}
 	}
+	cout << "\nTotal records: " << n_records << endl; 
 	cout << endl;
 	//delete [] buffer;
 	cout << "END read_data" << endl;

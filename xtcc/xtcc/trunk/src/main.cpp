@@ -346,7 +346,7 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	for(int i=0; i<(sizeof(copy_file_list)/sizeof(copy_file_list[0])); ++i) {
 		string cmd0="cp "; 
 		cmd0 += MY_XTCC_HOME +  copy_file_list[i] + " " + my_work_dir;
-		cout << "executing command : " << cmd0 << endl;
+		// cout << "executing command : " << cmd0 << endl;
 		rval=system(cmd0.c_str());
 		if (rval) {
 			cerr << "unable to cp include file: "  << copy_file_list[i] << " to " << my_work_dir << endl;

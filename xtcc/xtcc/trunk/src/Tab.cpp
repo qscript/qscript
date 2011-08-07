@@ -553,7 +553,9 @@ inc_ax_stmt::inc_ax_stmt(axstmt_type ltype
 		)
 	: AbstractCountableAxisStatement(ltype,string("\"inc_ax_stmt\""),p_condition)
 	  , incrementExpression_(p_incrementExpression)
-{ cout << "constructed inc_ax_stmt: incrementExpression_" << incrementExpression_ << endl;}
+{ 
+	//cout << "constructed inc_ax_stmt: incrementExpression_" << incrementExpression_ << endl;
+}
 
 void inc_ax_stmt::print(fstream& f)
 {
@@ -604,7 +606,7 @@ inc_ax_stmt::~inc_ax_stmt()
 
 void inc_ax_stmt::PrintIncrExpression(FILE* op)
 {
-	cout << "inc_ax_stmt::PrintIncrExpression " << endl;
+	//cout << "inc_ax_stmt::PrintIncrExpression " << endl;
 	ostringstream code_bef_expr, code_expr;
 	incrementExpression_->PrintExpressionCode(code_bef_expr, code_expr);
 	fprintf(op, " %s ", code_expr.str().c_str());

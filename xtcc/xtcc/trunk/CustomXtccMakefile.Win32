@@ -1,0 +1,150 @@
+
+CC = $(CXX)
+CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
+CXX_SHARED_LIB_FLAGS = -fPIC
+CXX_LINK_FLAGS = -g
+#CXX_LINK_LIBS = -lreadline
+CXX_LINK_LIBS = 
+SOURCE_DIR=src
+BUILD_DIR=make-build-dir
+CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
+#EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp
+#CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
+OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(CPP_SOURCES))
+OBJECTS := $(OBJECTS:.cpp=.o)
+DEPENDENCIES = $(OBJECTS:.o=.dep)
+
+YACC_SOURCES = $(wildcard $(SOURCE_DIR)/*.ypp)
+#EXCLUDE_FILE = src/qscript_data.ypp
+#YACC_SOURCES := $(filter-out $(EXCLUDE_FILE),$(YACC_SOURCES) )
+YACC_OUTPUTS  = $(YACC_SOURCES:.ypp=.cpp)
+YACC_OUTPUTS += $(YACC_SOURCES:.ypp=.hpp)
+
+YACC_OBJECTS = $(YACC_SOURCES)
+YACC_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(YACC_OBJECTS))
+YACC_OBJECTS := $(YACC_OBJECTS:.ypp=.o)
+OBJECTS += $(YACC_OBJECTS)
+
+LEX_SOURCES = $(wildcard $(SOURCE_DIR)/*.l)
+#EXCLUDE_FILE=src/read_disk_data.l
+#LEX_SOURCES := $(filter-out $(EXCLUDE_FILE),$(LEX_SOURCES))
+LEX_OUTPUTS  = $(LEX_SOURCES:.l=.cpp)	# added ne wby NxD on 23-sep-2010 - need to check if it works then delete this statement
+LEX_OBJECTS = $(LEX_SOURCES)
+LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
+LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
+OBJECTS += $(LEX_OBJECTS)
+OBJECTS := $(sort $(OBJECTS) )
+
+XTCC_MAJOR_VERSION_NUMBER=0
+XTCC_MINOR_VERSION_NUMBER=5
+
+
+#dummy:
+#	echo "CPP sources: $(CPP_SOURCES)" 
+#	echo "YACC sources: $(YACC_SOURCES)" 
+#	echo "LEX sources: $(LEX_SOURCES)" 
+#	echo "OBJS $(OBJECTS)"
+#	echo "DEPS $(DEPENDENCIES)"
+#	echo "YACC OUTPUTS $(YACC_OUTPUTS)"
+#	echo "YACC OBJECTS $(YACC_OBJECTS)"
+#	echo "LEX OBJECTS $(LEX_OBJECTS)"
+
+$(BUILD_DIR)/xtcc: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
+#echo "cpp sources: $(CPP_SOURCES)" 
+#	echo "yacc sources: $(YACC_SOURCES)" 
+#	echo "lex sources: $(LEX_SOURCES)" 
+	$(CC) $(CXX_LINK_FLAGS) -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
+
+yacc_deps: $(YACC_OUTPUTS)
+
+$(SOURCE_DIR)/type.cpp: 
+$(SOURCE_DIR)/type.hpp: 
+
+#$(SOURCE_DIR)/qtm_datafile_conf.hpp: YFLAGS = -p qtm_datafile_conf_
+#$(SOURCE_DIR)/qtm_datafile_conf.cpp: YFLAGS = -p qtm_datafile_conf_
+
+$(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.hpp: $(SOURCE_DIR)/%.ypp
+	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
+	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
+#bison $(YFLAGS) -d $< -o $(SOURCE_DIR)/$(@F)
+#	echo $(SOURCE_DIR)/$(*F).hpp 
+#	mv $(SOURCE_DIR)/$(*F).hpp $(SOURCE_DIR)/$(*F).h
+
+lex_deps: $(LEX_OUTPUTS)
+
+#$(SOURCE_DIR)/lex.cpp: $(SOURCE_DIR)/q.hpp
+#$(SOURCE_DIR)/scan_data.cpp: $(SOURCE_DIR)/data_entry.hpp
+#$(SOURCE_DIR)/read_disk_data.cpp: $(SOURCE_DIR)/qscript_data.hpp
+#$(SOURCE_DIR)/qscript_conf_lex.cpp: $(SOURCE_DIR)/qscript_conf.hpp
+$(SOURCE_DIR)/lex.cpp: $(SOURCE_DIR)/type.hpp
+
+$(SOURCE_DIR)/%.cpp : $(SOURCE_DIR)/%.l
+	flex -o$@ $<
+
+$(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
+	@set -e; rm -f $@; \
+		$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
+		rm -f $@.$$$$
+
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
+	echo "making target $@"
+	$(CC) $(CFLAGS) -o $@ $<
+#echo "dir of target: $(@D), filename of target $(@F)"
+
+
+
+RELEASE_DIR=xtcc-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER)
+
+check:
+	#LD_PRELOAD=$(QSCRIPT_HOME)/lib/libqscript_runtime.so runtest --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
+	# you can manually run a test by below - however you need to set LD_PRELOAD before that 
+	# runtest -v -v -v  --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite printf-1.exp
+	LD_LIBRARY_PATH=$(QSCRIPT_HOME)/lib runtest --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
+
+release: clean
+	-if [ -d $(RELEASE_DIR) ] ; then rm -rf $(RELEASE_DIR) ; fi
+	-if [ -f $(RELEASE_DIR).tar ] ; then rm -f $(RELEASE_DIR).tar ; fi
+	mkdir -p $(RELEASE_DIR)/bin $(RELEASE_DIR)/lib $(RELEASE_DIR)/src \
+		$(RELEASE_DIR)/make-build-dir/runtime_lib \
+		$(RELEASE_DIR)/make-build-dir/compiletime_lib  \
+		$(RELEASE_DIR)/make-build-dir/runtime_static_lib \
+		$(RELEASE_DIR)/make-build-dir/compiletime_static_lib  \
+		$(RELEASE_DIR)/testsuite/xtcc.test $(RELEASE_DIR)/testsuite/config \
+		$(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include \
+		$(RELEASE_DIR)/config
+	cp   * $(RELEASE_DIR)
+#sed -f suppress-maintainer-messages.sed src/qscript_debug.cpp > $(RELEASE_DIR)/src/qscript_debug.cpp
+#	cp -R cmake $(RELEASE_DIR)
+	cp -R testsuite $(RELEASE_DIR)
+	cp CustomXtccMakefile CustomXtccMakefile.Win32 COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
+	-rm inputs/test_script
+	-rm inputs/test_script_bcpp.[Co]
+	-rm inputs/tags
+	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op inputs/*.exe inputs/*.dvi inputs/*.aux inputs/*.pdf inputs/*.log inputs/*.latex inputs/*.o
+	cp inputs/* $(RELEASE_DIR)/inputs
+	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
+
+.PHONY: clean tags
+
+clean:
+	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/* $(BUILD_DIR)/compiletime_lib/* \
+		inputs/*.exe src/*.output
+
+local_install: $(BUILD_DIR)/xtcc 
+	cp $(BUILD_DIR)/xtcc bin
+	cp ${SOURCE_DIR}/*.h include
+
+#nsiqcppstyle:
+#	cd src; make -f Makefile.nsiqcppstyle; cd ..
+#	nsiqcppstyle .  | sed -f cleanup-nsiqcppstyle-output.sed > nsiqcpp-style-violations.txt
+#	cd ..
+
+#cpplint:
+#	cd src; make -f Makefile.cpplint
+
+tags:
+	ctags -R --extra=+f+q --fields=afikKlmnsSzt; cd ..;
+
+-include $(DEPENDENCIES)
