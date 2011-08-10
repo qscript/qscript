@@ -130,6 +130,89 @@ class AsciiFlatFileQuestionDiskMap
 			map_file << start_pos+1 << ",	";
 			map_file << start_pos + total_length  << "\n";
 		}
+		void write_spss_pull_data(fstream & spss_syn_file)
+		{
+			stringstream var_name;
+			var_name << q->questionName_;
+			if (q->loop_index_values.size())
+			{
+				for (int i=0; i< q->loop_index_values.size(); ++i)
+				{
+					var_name << "_" << q->loop_index_values[i];
+				}
+			}
+			if (q->no_mpn>1) {
+				spss_syn_file << var_name.str() << "_1 to " 
+					<< var_name.str() << "_" << q->no_mpn ;
+			} else {
+				spss_syn_file << var_name.str();
+			}
+
+			spss_syn_file << "\t\t\t\t";
+			spss_syn_file << start_pos+1 << "-";
+			spss_syn_file << start_pos + total_length  << "\n";
+			//spss_syn_file << ",			";
+			//spss_syn_file << width << ",	";
+			//spss_syn_file << q->no_mpn << ",	";
+		}
+		void write_spss_variable_labels(fstream & spss_syn_file)
+		{
+			stringstream var_name;
+			var_name << q->questionName_;
+			if (q->loop_index_values.size())
+			{
+				for (int i=0; i< q->loop_index_values.size(); ++i)
+				{
+					var_name << "_" << q->loop_index_values[i];
+				}
+			}
+			if (q->no_mpn>1) {
+				for(int i=0; i<q->no_mpn; ++i) {
+					spss_syn_file << "variable label ";
+					spss_syn_file << var_name.str() << "_" << i+1;
+					spss_syn_file << " \"" << q->questionText_ << "\"." << endl;
+				}
+			} else {
+				spss_syn_file << "variable label ";
+				spss_syn_file << var_name.str();
+				spss_syn_file << " \"" << q->questionText_ << "\"." << endl;
+			}
+
+		}
+		void write_spss_value_labels(fstream & spss_syn_file)
+		{
+			stringstream var_name;
+			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+				
+				var_name << q->questionName_;
+				if (q->loop_index_values.size())
+				{
+					for (int i=0; i< q->loop_index_values.size(); ++i)
+					{
+						var_name << "_" << q->loop_index_values[i];
+					}
+				}
+				if (q->no_mpn>1) {
+					spss_syn_file << "value label ";
+					spss_syn_file << var_name.str() << "_1 to " 
+						<< var_name.str() << "_" << q->no_mpn ;
+				} else {
+					spss_syn_file << "value label ";
+					spss_syn_file << var_name.str();
+				}
+				spss_syn_file << endl;
+				for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+					spss_syn_file 
+						<< n_q->nr_ptr->stubs[i].code
+						<< " \""
+						<< n_q->nr_ptr->stubs[i].stub_text
+						<< " \""
+						<< endl;
+				}
+				spss_syn_file << "." << endl; 
+
+			}
+		}
 };
 
 #endif  /* */

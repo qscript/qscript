@@ -119,6 +119,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
 void print_write_qtm_data_to_disk(FILE *script);
 void print_write_ascii_data_to_disk(FILE *script);
+void print_write_spss_file_for_ascii_data_to_disk(/*FILE *script*/StatementCompiledCode & compute_flat_map_code);
 void print_do_freq_counts(FILE *script);
 void print_write_xtcc_data_to_disk(FILE *script);
 const char * file_exists_check_code();
@@ -186,6 +187,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	PrintGetUserResponse(script);
 	print_write_qtm_data_to_disk(script);
 	print_write_ascii_data_to_disk(script);
+	//print_write_spss_file_for_ascii_data_to_disk(script);
 	print_write_xtcc_data_to_disk(script);
 	print_do_freq_counts(script);
 	//print_close(script, code.program_code, ncurses_flag);
@@ -1762,6 +1764,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\tfor (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
 		<< "\t\tascii_flatfile_question_disk_map[i]->print_map(map_file);\n"
 		<< "\t}\n";
+	print_write_spss_file_for_ascii_data_to_disk(compute_flat_map_code);
 	compute_flat_map_code.program_code << "\tstring xtcc_map_file_name(jno + string(\".xmap\"));\n";
 	compute_flat_map_code.program_code << "\tfstream xtcc_map_file(xtcc_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
 	compute_flat_map_code.program_code << "\tprint_map_header(xtcc_map_file);\n";
@@ -2240,6 +2243,36 @@ void print_write_ascii_data_to_disk(FILE *script)
 	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
 	fprintf(script, "	do_freq_counts();\n");
 	fprintf(script, "}\n");
+}
+
+void print_write_spss_file_for_ascii_data_to_disk(/*FILE *script*/StatementCompiledCode & compute_flat_map_code)
+{
+	compute_flat_map_code.program_code << "\tstring spss_syn_file_name(jno + string(\"-flat-ascii.sps\"));\n";
+	compute_flat_map_code.program_code << "\tfstream spss_syn_file(spss_syn_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << "\t spss_syn_file << \"DATA LIST FILE='\" << "
+		<< " jno << \".dat'\\n\"<< endl << \"/RESPID\t\t\t1-6\\n\";\n";
+	compute_flat_map_code.program_code << "\tfor (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
+		<< "\t\tascii_flatfile_question_disk_map[i]->write_spss_pull_data(spss_syn_file);\n"
+		<< "\t}\n";
+	compute_flat_map_code.program_code << "\t spss_syn_file << \".\\n\";\n";
+	compute_flat_map_code.program_code << "\n spss_syn_file << \"exe.\\n\";\n";
+	compute_flat_map_code.program_code << "\tfor (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
+		<< "\t\tascii_flatfile_question_disk_map[i]->write_spss_variable_labels(spss_syn_file);\n"
+		<< "\t}\n";
+	compute_flat_map_code.program_code << "\n spss_syn_file << \"exe.\\n\";\n";
+	compute_flat_map_code.program_code << "\tfor (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
+		<< "\t\tascii_flatfile_question_disk_map[i]->write_spss_value_labels(spss_syn_file);\n"
+		<< "\t}\n";
+	compute_flat_map_code.program_code << "\n spss_syn_file << \"exe.\\n\";\n";
+	compute_flat_map_code.program_code << "\n spss_syn_file << \"save outfile=\\\"\" << jno << \".sav\\\"\\n\";\n";
+
+	//compute_flat_map_code.program_code << "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+	//	<< "\t\t\tqtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file, string(\"setup-\")+jno);\n"
+	//	<< "\t\t\tstring questionName = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
+	//	<< "\t\t\tif (qtm_datafile_question_disk_map[i]->q->loop_index_values.size() > 0) {\n"
+	//	<< "\t\t\t\tsummary_tables[questionName].push_back(qtm_datafile_question_disk_map[i]);\n"
+	//	<< "\t\t\t}\n"
+
 }
 
 void print_write_xtcc_data_to_disk(FILE *script)
