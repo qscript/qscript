@@ -1834,6 +1834,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	} else if(program_options_ns::web_server_flag) {
 		// we should post the THANK YOU PAGE here
 		fprintf(script, "\t}\n");
+		fprintf(script, "\t*/\n");
 		fprintf(script, "\treset_questionnaire();\n"
 				"\t\treturn 0;\n"
 			);
