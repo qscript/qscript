@@ -1,0 +1,28 @@
+commit 7bba9d2b6bd2bae88b63631cab08b1acff49f9d1
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Fri Apr 15 00:11:10 2011 +0530
+
+    refactored write_qtm_data_to_disk as a function
+
+Merge Comment: No need to merge this commit 
+
+commit 05b2979248cf2fc053dd23b2cb68c91de87fdabb
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Fri Apr 15 01:00:42 2011 +0530
+
+    added writing freq count to this branch
+
+Merge Comment: Merged the above commit
+
+
+commit 47026bcd261b723ac726fcd187b0782ff1f78dc8
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Fri Apr 15 16:28:19 2011 +0530
+
+    fixed bug in calc freq counts of array questions
+
+ .../stubs/simple_compiler/src/qscript_parser.cpp   |   30 +++++++++++++++----
+ .../stubs/simple_compiler/src/qtm_data_file.h      |    1 +
+ 2 files changed, 24 insertions(+), 7 deletions(-)
+
+Merge Comment: Merged the above commit
