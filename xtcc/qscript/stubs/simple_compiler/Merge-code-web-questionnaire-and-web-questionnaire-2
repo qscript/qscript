@@ -30,3 +30,16 @@ Merge Comment: Merged the above commit
 commit 4cb2733763735ae3b458e7d68d041113fe25a142
 
 Merge Comment: This was already present in web-questionnaire-2
+
+
+commit ddcad3abf3b2ab0d045b9ae26eb0e361ebea34c7
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Sat Apr 16 13:47:12 2011 -0700
+
+    fixed space at end of QSCRIPT_HOME env variable
+    
+    I have not seen this problem before on windows.
+    it is showing up in the compilation of other files
+    as well
+
+Merge Comment: This was already present in web-questionnaire-2
