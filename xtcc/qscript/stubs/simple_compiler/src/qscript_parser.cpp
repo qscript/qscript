@@ -1456,6 +1456,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\tprocess_options(argc, argv);\n");
 	//fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag) {\n");
+	fprintf(script, "\t	qtm_data_file_ns::init();\n");
 	fprintf(script, "\t	qtm_data_file_ns::init_exceptions();\n");
 	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
 	fprintf(script, "\t	if (! directory_ptr) {\n");
