@@ -54,3 +54,14 @@ Date:   Sat Apr 16 19:29:33 2011 +0530
  1 files changed, 11 insertions(+), 1 deletions(-)
 
 Merge Comment: This was already present in web-questionnaire-2
+
+commit 1ca2e3efb4ea3d1d7c0f71698abaecaed2849cf7
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Sun Apr 17 01:53:53 2011 +0530
+
+    code to read flat ascii data config file
+
+ .../stubs/simple_compiler/src/qscript_parser.cpp   |   30 ++++++++++++++++++++
+ 1 files changed, 30 insertions(+), 0 deletions(-)
+
+Merge Comment: This was already present in web-questionnaire-2
