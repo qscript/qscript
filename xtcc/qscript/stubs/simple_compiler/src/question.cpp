@@ -29,6 +29,17 @@ int32_t scan_dataparse();
 extern UserNavigation user_navigation;
 // extern user_response::UserResponseType the_user_response;
 
+namespace program_options_ns {
+	extern bool ncurses_flag;
+	extern bool static_binary_flag;
+	extern bool web_server_flag;
+	extern bool compile_to_cpp_only_flag;
+	extern int32_t fname_flag;
+	extern bool no_question_save_restore_optimization;
+}
+
+using program_options_ns::no_question_save_restore_optimization;
+
 using std::cout;
 using std::endl;
 using std::cerr;
@@ -67,6 +78,7 @@ AbstractQuestion::AbstractQuestion(
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
+	, isStartOfBlock_(false)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -119,6 +131,7 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList)
 	  , maxCode_(0)
+	, isStartOfBlock_(false)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -285,12 +298,17 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
-	program_code << "if(!"
-		<< questionName_ << "->isAnswered_ ||" << endl
+	program_code << "if ( ("
+		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
+		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
+		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		<< "stopAtNextQuestion ||" << endl
-		<< "(p_navigation_mode == NAVIGATE_NEXT && last_question_visited == "
-		<< questionName_ << ") || "
-		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" ){ " << endl;
+		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
+		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
+		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
+		<< questionName_ << "->isAnswered_ == false " 
+		<< ")"
+	        << ") {" << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
 		<< " ) {\n\tstopAtNextQuestion = false; "
 		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
@@ -334,18 +352,36 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	}
 	code.program_code << "\tcurrent_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
 	code.program_code << "\tascii_flatfile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
+	
+
+	code.program_code << "\tif (write_xtcc_data_file_flag) {\n";
+	if (for_bounds_stack.size() == 0) {
+		code.program_code << "\t XtccDataFileDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new XtccDataFileDiskMap(" << questionName_ << ", current_xtcc_map_pos);\n";
+	}  else {
+		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
+		code.program_code << "\t XtccDataFileDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
+			<<  " = new XtccDataFileDiskMap(" << questionName_ 
+			<< "_list.questionList[" << consolidated_for_loop_index << "]"
+			<< ", current_xtcc_map_pos);\n";
+	}
+	code.program_code << "\t current_xtcc_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
+	code.program_code << "\t xtcc_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
+	code.program_code << "\t}\n";
+
 
 	code.program_code << "\tif (write_qtm_data_file_flag) {\n";
 	if (for_bounds_stack.size() == 0) {
 
 		code.program_code << "\t\tqtm_data_file_ns::QtmDataDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
-			<<  " = new qtm_data_file_ns::QtmDataDiskMap(" << questionName_ << ", qtm_data_file);\n";
+			<<  " = new qtm_data_file_ns::QtmDataDiskMap(" << questionName_ << ", qtm_data_file, base_text_vec.back()"
+			<< ");\n";
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << "\tqtm_data_file_ns::QtmDataDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
 			<<  " = new qtm_data_file_ns::QtmDataDiskMap(" << questionName_ 
 			<< "_list.questionList[" << consolidated_for_loop_index << "]"
-			<< ", qtm_data_file);\n";
+			<< ", qtm_data_file, base_text_vec.back());\n";
 	}
 	code.program_code << "\t qtm_datafile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
 	code.program_code << "\t}\n";
@@ -1092,12 +1128,18 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 			<< ", dum_" << questionName_;
 	}
 	quest_decl << "," << question_attributes.Print();
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
 	quest_decl << ");\n";
 
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
-	quest_decl << "question_list.push_back(" << questionName_.c_str()
+	if (array_mode)
+		quest_decl << "question_list.push_back(" << questionName_.c_str()
 		<< ");\n";
 
 	if(for_bounds_stack.size() == 0){
@@ -1170,8 +1212,14 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 			<< ", dum_" << questionName_;
 	}
 	quest_decl << "," << question_attributes.Print();
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
 	quest_decl << ");\n";
-	quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+	if (array_mode)
+		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
@@ -1426,15 +1474,18 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 	using qscript_parser::map_of_active_vars_for_questions;
 	code.program_code << "/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():"
 		<< for_bounds_stack.size() << " */\n";
-	code.quest_defns << "map <string,int8_t> " << questionName_ << "_scope_int8_t;\n";
-	code.quest_defns << "map <string,int16_t> " << questionName_ << "_scope_int16_t;\n";
-	code.quest_defns << "map <string,int32_t> " << questionName_ << "_scope_int32_t;\n";
-	code.quest_defns << "map <string,float> " << questionName_ << "_scope_float_t;\n";
-	code.quest_defns << "map <string,double> " << questionName_ << "_scope_double_t;\n";
-	code.quest_defns << "map <string,set<int32_t> > " << questionName_ << "_scope_question_t;\n";
+	if (program_options_ns::no_question_save_restore_optimization==false) {
+		code.quest_defns << "map <string,int8_t> " << questionName_ << "_scope_int8_t;\n";
+		code.quest_defns << "map <string,int16_t> " << questionName_ << "_scope_int16_t;\n";
+		code.quest_defns << "map <string,int32_t> " << questionName_ << "_scope_int32_t;\n";
+		code.quest_defns << "map <string,float> " << questionName_ << "_scope_float_t;\n";
+		code.quest_defns << "map <string,double> " << questionName_ << "_scope_double_t;\n";
+		code.quest_defns << "map <string,set<int32_t> > " << questionName_ << "_scope_question_t;\n";
+	}
 
 
 	code.program_code << "lab_" << questionName_ << ":" << endl;
+
 
 
 	if(for_bounds_stack.size() == 0){
@@ -1444,12 +1495,17 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		//}
 		// ostringstream &s(code.program_code);
 		// the code below should be extracted to a method: NxD 11-Jun-2010
-		SetupSimpleQuestionRestore(code);
+
+		// enable this later: virtual memory exhaustion because generated code too big
+		if (program_options_ns::no_question_save_restore_optimization == false) 
+			SetupSimpleQuestionRestore(code);
 		code.program_code << "if( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump = false;\n}\n";
 		code.program_code << "}" << endl;
 
 
-		SetupSimpleQuestionSave(code);
+		// enable this later: virtual memory exhaustion because generated code too big
+		if (program_options_ns::no_question_save_restore_optimization == false) 
+			SetupSimpleQuestionSave(code);
 	} else {
 		// Handle Array Question here
 
@@ -1458,9 +1514,13 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 			<<  "_list.questionList["
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]->isAnswered_ == true ) {" << endl;
-		SetupArrayQuestionRestore(code);
+		// enable this later: virtual memory exhaustion because generated code too big
+		if (program_options_ns::no_question_save_restore_optimization == false) 
+			SetupArrayQuestionRestore(code);
 		s << "}" << endl;
-		SetupArrayQuestionSave(code);
+		// enable this later: virtual memory exhaustion because generated code too big
+		if (program_options_ns::no_question_save_restore_optimization == false) 
+			SetupArrayQuestionSave(code);
 	}
 	code.program_code << "/* EXIT: AbstractQuestion::PrintSetupBackJump()  */\n";
 }
@@ -1474,7 +1534,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 			<< "}\n"
 			<< endl;
 	code.program_code << "if(!"
-			<< questionName_.c_str() << "_list.questionList[";
+			<< questionName_ << "_list.questionList[";
 	string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 	code.program_code << consolidated_for_loop_index;
 	code.program_code << "]->isAnswered_||stopAtNextQuestion||\n"
@@ -1777,7 +1837,7 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 		// 	<< " for_bounds_stack.size(): " << for_bounds_stack.size() << " "
 		// 	<< endl;
 		if (for_bounds_stack.size() > 0 && restore_array_quest->for_bounds_stack.size() > 0) {
-			s << "/*"
+			s << "/* restore_array_quest: "
 				<< " find where my for_bounds_stack\n"
 				<< " and other question for_bounds_stack DONT match\n"
 				<< " then from that point on in other question find bounds\n"
@@ -1795,8 +1855,10 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 					; ++i1){
 				e_stack.push_back(restore_array_quest->for_bounds_stack[i1]);
 			}
-			s << PrintConsolidatedForLoopIndex(e_stack)
-				<< "*";
+			s << PrintConsolidatedForLoopIndex(e_stack);
+			if (i1 < restore_array_quest->for_bounds_stack.size()) {
+				s << "*";
+			}
 			for(; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
 				BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 						restore_array_quest->for_bounds_stack[i1]);
@@ -2002,7 +2064,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 
 		if (save_array_quest->for_bounds_stack.size() > 0 && for_bounds_stack.size() > 0 ) {
 
-			s << "/*"
+			s << "/*: save_array_quest"
 				<< " find where my for_bounds_stack\n"
 				<< " and other question for_bounds_stack DONT match\n"
 				<< " then from that point on in other question find bounds\n"
@@ -2019,8 +2081,10 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 					; ++i1){
 				e_stack.push_back(save_array_quest->for_bounds_stack[i1]);
 			}
-			s << PrintConsolidatedForLoopIndex(e_stack)
-				<< "*";
+			s << PrintConsolidatedForLoopIndex(e_stack);
+			if (i1 < save_array_quest->for_bounds_stack.size()) {
+				s << "*";
+			}
 			for(; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
 				BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 						save_array_quest->for_bounds_stack[i1]);
@@ -2383,10 +2447,11 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< save_array_quest->questionName_
 					<< " :are at the same scope and level */"
 					<< endl;
-				cerr << "Need to revisit this to check if condition should be "
+				stringstream mesg;
+				mesg << "Need to revisit this to check if condition should be "
 					<< "xtcc_i\" <= \" or \"<\" and other similar places  "
-					<< __LINE__ << "," << __FILE__
 					<< endl;
+				LOG_MAINTAINER_MESSAGE(mesg.str());
 				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				s << save_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back();
@@ -2451,7 +2516,7 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 					<< save_array_quest->questionName_
 					<< "*/"
 					<< endl;
-				s << "/*"
+				s << "/* save_array_quest: "
 					<< " find where my for_bounds_stack\n"
 					<< " and other question for_bounds_stack DONT match\n"
 					<< " then from that point on in other question find bounds\n"
@@ -2470,8 +2535,11 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 				}
 				s 	<< "("
 					<< PrintConsolidatedForLoopIndex(e_stack)
-					<< ")"
-					<< "*";
+					<< ")";
+
+				if (i1 < save_array_quest->for_bounds_stack.size()) {
+					s << "*";
+				}
 				for(; i1 < save_array_quest->for_bounds_stack.size(); ++i1) {
 					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 							save_array_quest->for_bounds_stack[i1]);
@@ -2618,10 +2686,11 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< restore_array_quest->questionName_
 					<< " :are at the same scope and level */"
 					<< endl;
-				cerr << "Need to revisit this to check if condition should be "
+				stringstream mesg;
+				mesg << "Need to revisit this to check if condition should be "
 					<< "xtcc_i\" <= \" or \"<\" and other similar places  "
-					<< __LINE__ << "," << __FILE__
 					<< endl;
+				LOG_MAINTAINER_MESSAGE(mesg.str());
 				s << "for(int32_t xtcc_i = 0; xtcc_i < ";
 				s << restore_array_quest->enclosingCompoundStatement_
 					->ConsolidatedForLoopIndexStack_.back();
@@ -2686,7 +2755,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 					<< restore_array_quest->questionName_
 					<< "*/"
 					<< endl;
-				s << "/*"
+				s << "/* restore_array_quest:"
 					<< " find where my for_bounds_stack\n"
 					<< " and other question for_bounds_stack DONT match\n"
 					<< " then from that point on in other question find bounds\n"
@@ -2705,8 +2774,11 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 				}
 				s 	<< "("
 					<< PrintConsolidatedForLoopIndex(e_stack)
-					<< ")"
-					<< "*";
+					<< ")";
+
+				if (i1 < restore_array_quest->for_bounds_stack.size()) {
+					s << "*";
+				}
 				for(; i1 < restore_array_quest->for_bounds_stack.size(); ++i1) {
 					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(
 							restore_array_quest->for_bounds_stack[i1]);

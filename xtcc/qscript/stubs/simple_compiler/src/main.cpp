@@ -36,8 +36,11 @@ namespace program_options_ns {
 	bool ncurses_flag = false;
 	bool static_binary_flag = false;
 	bool web_server_flag = false;
-	bool compile_to_cpp_only_flag = false;
 	int32_t fname_flag = 0;
+	bool  no_question_save_restore_optimization;
+	bool flag_nice_map;
+	bool compile_to_cpp_only_flag = false;
+	bool latex_flag = false;
 }
 
 int32_t main(int32_t argc, char* argv[])
@@ -50,7 +53,7 @@ int32_t main(int32_t argc, char* argv[])
 	using qscript_parser::fname;
 	bool exit_flag = false;
 
-	while( (c = getopt(argc, argv, "wcsnf:")) != -1 ){
+	while( (c = getopt(argc, argv, "molwcsnf:")) != -1 ){
 		char ch = optopt;
 		switch(c){
 		case 'c':
@@ -68,6 +71,15 @@ int32_t main(int32_t argc, char* argv[])
 		case 'f':
 			fname = optarg;
 			program_options_ns::fname_flag = 1;
+			break;
+		case 'l':
+			program_options_ns::latex_flag = true;
+			break;
+		case 'o':
+			program_options_ns::no_question_save_restore_optimization = true;
+			break;
+		case 'm':
+			program_options_ns::flag_nice_map = true;
 			break;
 		case '?':
 			if (optopt == 'f' )
@@ -112,6 +124,9 @@ int32_t main(int32_t argc, char* argv[])
 		cout << " -n            - creates an ncurses executable " << endl;
 		cout << " -s            - creates an static executable - for windows only " << endl;
 		cout << " -c            - compile to c++ only - dont invoke c++ compiler" << endl;
+		cout << " -l            - run latex on generated latex file" << endl;
+		cout << " -o            - no question save/restore optimization" << endl;
+		cout << " -m            - make a nice map" << endl;
 		exit(0);
 	}
 	active_scope = new Scope();
@@ -134,9 +149,16 @@ int32_t main(int32_t argc, char* argv[])
 	qscript_parser::lex_location.ResetLine();
 	qscript_parser::lex_location.ResetColumn();
 	if (!yyparse() && !no_errors) {
-		cout << "Input parsed sucessfully: generating code" << endl;
+		cout << "Input parsed successfully: There could still be errors detected in code generation from if-else statements." << endl;
 		//data_entry_loop();
 		qscript_parser::GenerateCode(fname, program_options_ns::ncurses_flag);
+		if (no_errors) {
+			cout << "There were "
+				<< no_errors
+				<< " errors detected in the code generation phase"
+				<< endl;
+			goto lab_maintainer_messages;
+		}
 #ifndef _WIN32
 		{
 			std::stringstream bcpp_command;
@@ -148,36 +170,38 @@ int32_t main(int32_t argc, char* argv[])
 				// cout << "successfully ran bcpp to generate indented source" << endl;
 			}
 
-			std::stringstream latex_fname; 
-			{
-				// Generate LatexDoc
-				latex_fname << output_file_name << ".latex";
-				LatexDocument doc(latex_fname.str());
-				doc.visit(qscript_parser::tree_root);
-				//doc.latex_file << doc.finish_latex();
-				//std::fstream latex_file(latex_fname.str().c_str(), exc_flags);
-				//std::ofstream latex_file; latex_file.exceptions(exc_flags); latex_file.open(latex_fname.str().c_str());
-				//if (latex_file)
-				//	latex_file << doc;
-			}
-			{
-				using std::cout; 
-				using std::endl; 
-				using std::stringstream; 
-				stringstream latex_command;
-				latex_command << "latex " << latex_fname.str();
-				if (int32_t ret_val = system(latex_command.str().c_str())) {
-					cout << "error running latex - maybe its not installed or not present in the PATH variable. " << endl
-						<< "You can install the TeX/LaTeX system and have qscript automatically generate " << endl
-						<< "beautiful pdf questionnaires. Read more about TeX/LaTeX at http://www.tug.org\n";
-				} else {
-					stringstream dvipdf_command;
-					dvipdf_command << "dvipdf " << output_file_name << ".dvi";
-					if (int32_t ret_val = system(dvipdf_command.str().c_str())) {
-						cout << "error running dvipdf - maybe it is not installed or present in the PATH variable. " << endl
-							<< " please check the latest release of ghostscript " << endl;
+			if (program_options_ns::latex_flag) {
+				std::stringstream latex_fname; 
+				{
+					// Generate LatexDoc
+					latex_fname << output_file_name << ".latex";
+					LatexDocument doc(latex_fname.str());
+					doc.visit(qscript_parser::tree_root);
+					//doc.latex_file << doc.finish_latex();
+					//std::fstream latex_file(latex_fname.str().c_str(), exc_flags);
+					//std::ofstream latex_file; latex_file.exceptions(exc_flags); latex_file.open(latex_fname.str().c_str());
+					//if (latex_file)
+					//	latex_file << doc;
+				}
+				{
+					using std::cout; 
+					using std::endl; 
+					using std::stringstream; 
+					stringstream latex_command;
+					latex_command << "latex " << latex_fname.str();
+					if (int32_t ret_val = system(latex_command.str().c_str())) {
+						cout << "error running latex - maybe its not installed or not present in the PATH variable. " << endl
+							<< "You can install the TeX/LaTeX system and have qscript automatically generate " << endl
+							<< "beautiful pdf questionnaires. Read more about TeX/LaTeX at http://www.tug.org\n";
 					} else {
-						// successfully ran dvipdf
+						stringstream dvipdf_command;
+						dvipdf_command << "dvipdf " << output_file_name << ".dvi";
+						if (int32_t ret_val = system(dvipdf_command.str().c_str())) {
+							cout << "error running dvipdf - maybe it is not installed or present in the PATH variable. " << endl
+								<< " please check the latest release of ghostscript " << endl;
+						} else {
+							// successfully ran dvipdf
+						}
 					}
 				}
 			}
@@ -195,6 +219,7 @@ int32_t main(int32_t argc, char* argv[])
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
 	}
+lab_maintainer_messages:
 	{
 		if (qscript_debug::MAINTAINER_MESSAGES) {
 			using qscript_parser::maintainer_messages;

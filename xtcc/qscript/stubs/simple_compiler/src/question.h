@@ -37,6 +37,7 @@ struct AbstractQuestion: public AbstractStatement
 {
 	string questionName_;
 	string questionText_;
+	string questionDiskName_;
 	QuestionType q_type;
 	int32_t no_mpn;
 	DataType dt;
@@ -54,6 +55,7 @@ struct AbstractQuestion: public AbstractStatement
 	QuestionAttributes question_attributes;
 	XtccSet mutexCodeList_;
 	int maxCode_;
+	bool isStartOfBlock_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
@@ -69,6 +71,7 @@ struct AbstractQuestion: public AbstractStatement
 		DataType l_type,int32_t l_no, string l_name, string l_text
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 	//! this is only called in the compile time environment
 	AbstractQuestion(
@@ -87,6 +90,7 @@ struct AbstractQuestion: public AbstractStatement
 		, const vector<int32_t>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 	virtual ~AbstractQuestion();
 //	virtual void GenerateCode(ostringstream & quest_defns
@@ -116,7 +120,7 @@ struct AbstractQuestion: public AbstractStatement
 		vector<AbstractQuestion*> & question_list
 		, AbstractStatement * stop_at);
 	void PrintEvalAndNavigateCode(ostringstream & program_code);
-	user_response::UserResponseType GetDataFromUser(WINDOW * data_entry_window);
+	user_response::UserResponseType GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window);
 
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data, vector<int32_t> * data_ptr);
@@ -144,6 +148,7 @@ struct AbstractQuestion: public AbstractStatement
 	void PrintUserNavigation(ostringstream & program_code);
 	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
 	int32_t GetMaxCode();
+	bool VerifyQuestionIntegrity();
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
@@ -180,6 +185,7 @@ struct RangeQuestion: public AbstractQuestion
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 
 	//! this is only called in the compile time environment
@@ -200,6 +206,7 @@ struct RangeQuestion: public AbstractQuestion
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
@@ -255,6 +262,8 @@ class NamedStubQuestion: public AbstractQuestion
 	string named_list;
 	named_range * nr_ptr;
 	vector<stub_pair> * stub_ptr;
+	vector<display_data::DisplayDataUnit> displayData_;
+	int currentPage_;
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
@@ -282,13 +291,15 @@ class NamedStubQuestion: public AbstractQuestion
 		, DataType l_dt, named_range * l_nr_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 	NamedStubQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
-		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
+		DataType this_stmt_type, int32_t line_number
+		, string l_name , string l_q_text
+		, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 	//! only called in the runtime environment
 	NamedStubQuestion(
@@ -299,6 +310,7 @@ class NamedStubQuestion: public AbstractQuestion
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes
+		, bool l_isStartOfBlock
 		);
 
 	void GenerateCode(StatementCompiledCode &code);
@@ -315,7 +327,9 @@ class NamedStubQuestion: public AbstractQuestion
 	void  GetQuestionNames(vector<string> & question_list
 			       , AbstractStatement* endStatement)
 	{
-		std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
+		if (qscript_debug::DEBUG_NamedStubQuestion) {
+			std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
+		}
 		if (this==endStatement)
 			return;
 		if (for_bounds_stack.size() == 0) {
