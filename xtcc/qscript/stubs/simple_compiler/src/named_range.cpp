@@ -9,6 +9,7 @@
 #include <sstream>
 #include "named_range.h"
 #include "qscript_parser.h"
+#include "utils.h"
 
 using std::cout;
 using std::endl;
@@ -41,6 +42,9 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 	code.quest_defns_init_code << name << ".set_range_data(\""
 		<< name << "\", " << qscript_parser::temp_name_generator.GetCurrentName()
 		<< ");" << endl;
+	stringstream mesg;
+	mesg << "Review source of this file: check we are not allowing duplicate codes in the stubs ";
+	LOG_MAINTAINER_MESSAGE(mesg.str());
 
 	if(next_){
 		next_->GenerateCode(code);

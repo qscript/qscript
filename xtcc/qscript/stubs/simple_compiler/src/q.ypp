@@ -86,6 +86,8 @@
 %token MUTEX
 %token CLEAR
 %token COLUMN
+%token ISANSWERED
+%token NEWCARD
 
 
 %token '['

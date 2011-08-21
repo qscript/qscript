@@ -94,6 +94,35 @@ int32_t AbstractExpression::IsValid()
 	} else return 1;
 }
 
+void UnaryExpression::PrintExpressionText(ostringstream & s)
+{
+
+	switch(exprOperatorType_){
+	case oper_umin:{
+		s <<  "Minus ";
+		operand_->PrintExpressionText(s);
+	}
+		break;
+
+	case oper_not:{
+		//fprintf(edit_out, "! ");
+		s << "Not ";
+		operand_->PrintExpressionText(s);
+	}
+		break;
+
+	case oper_parexp:{
+		s <<  "(";
+		operand_->PrintExpressionText(s);
+		s <<  ")";
+	}
+		break;
+	default:
+		s <<  " un handled operator\n";
+
+	}
+}
+
 UnaryExpression::~UnaryExpression()
 {
 	using qscript_parser::mem_addr;
@@ -196,6 +225,107 @@ void UnaryExpression::PrintExpressionCode(ExpressionCompiledCode& code)
 bool UnaryExpression::IsConst()
 {
 	return operand_->IsConst();
+}
+
+void BinaryExpression::PrintExpressionText(ostringstream &s)
+{
+
+	switch(exprOperatorType_){
+	case oper_plus:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Plus ";
+		rightOperand_->PrintExpressionText(s);
+
+	}
+		break;
+	case oper_minus:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Minus ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_mult:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Multiplied ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_div:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Divided ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_mod:{
+		leftOperand_->PrintExpressionText(s);
+		s << " Modulus ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_lt:{
+		leftOperand_->PrintExpressionText(s);
+		s << " is Less Than ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_gt:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " is Greater than ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_le:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " is less than or equal to ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_ge:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " is greater than or equal to ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_iseq:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " Equals ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_isneq: {
+
+		leftOperand_->PrintExpressionText(s);
+		s << " is Not Equal to ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_assgn:
+		s<< " oper_assgn not handled in base text generator";
+		break;
+	case oper_or:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " Or ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	case oper_and:{
+
+		leftOperand_->PrintExpressionText(s);
+		s << " And ";
+		rightOperand_->PrintExpressionText(s);
+	}
+		break;
+	default:
+		s << " unhandled operator is base text generator";
+		print_err(compiler_sem_err
+			  , " unhandled operator type_ in AbstractExpression  ",
+			  line_no, __LINE__, __FILE__);
+	}
 }
 
 
@@ -359,6 +489,83 @@ bool Unary2Expression::IsIntegralExpression()
 	}
 }
 
+void Unary2Expression::PrintExpressionText(ostringstream & s)
+{
+	switch(exprOperatorType_){
+	case oper_name:{
+		//code.code_bef_expr << " /* case  oper_name */ \n";
+		if (type_ == QUESTION_TYPE){
+			AbstractQuestion * q = symbolTableEntry_->question_;
+			if (q->type_ == QUESTION_TYPE){
+				s << "All who have answered question " << q->questionName_;
+			}
+		} else {
+			s << "All respondents where internal variable " << symbolTableEntry_->name_ << " is true"; 
+		}
+
+	}
+		break;
+	case oper_arrderef:{
+		if (type_ == QUESTION_TYPE){
+			AbstractQuestion * q = symbolTableEntry_->question_;
+			if (q->type_ == QUESTION_ARR_TYPE){
+				s << " All who have answered " 
+					<< q->questionName_
+					<< "[";
+				ExpressionCompiledCode code1;
+				operand_->PrintExpressionCode(code1);
+				s << code1.code_bef_expr.str()
+					<< code1.code_expr.str()
+					<< "]";
+			}
+		}
+	}
+		break;
+
+	case oper_num:{
+		s << intSemanticValue_;
+	}
+		break;
+	case oper_float:{
+		s << doubleSemanticValue_;
+	}
+		break;
+	case oper_func_call:{
+
+		s << " oper_func_call : unhandled case" ;
+	}
+		break;
+	case oper_text_expr:{
+		s << "oper_text_expr: unhandled case  " <<  text;
+	}
+		break;
+	case oper_to_string: {
+		// the Constructor takes care that only
+		// questions are allowed as paramters for
+		// oper_to_string
+		s << "oper_to_string: unhandled case ";
+	}
+		break;
+	case oper_blk_arr_assgn: {
+		s << "oper_blk_arr_assgn : unhandled case" ;
+	}
+		break;
+	case oper_isanswered: {
+		AbstractQuestion * q = symbolTableEntry_->question_;
+		s << "All respondents who have answered " << q->questionName_;
+	}
+		break;
+	case oper_count: {
+		AbstractQuestion * q = symbolTableEntry_->question_;
+
+		s << "Count of answers at " << q->questionName_ ;
+	}
+		break;
+	default:
+		s << "unhandled case" << "," << __FILE__ << ", " << __LINE__<< ", " << __PRETTY_FUNCTION__ << endl;
+	}
+}
+
 void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 {
 	if (qscript_debug::DEBUG_Unary2Expression)
@@ -370,11 +577,11 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_TYPE){
 				code.code_bef_expr
-					<< "if (!" << q->questionName_
+					<< "/*if (!" << q->questionName_
 					<< "->isAnswered_) {\n"
 					<< "cerr << \"runtime error using unanswered question in expression: \" << \""
 					<< q->questionName_
-					<< "\" << endl;\n}\n";
+					<< "\" << endl;\n}*/\n";
 
 				// string temp_name = get_temp_name();
 				string temp_name = qscript_parser::temp_name_generator.GetNewName();
@@ -458,6 +665,26 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 		code.code_expr <<"This case should not occur\n";
 		print_err(compiler_internal_error, "This case should not occur\n",
 			  line_no, __LINE__, __FILE__);
+	}
+		break;
+	case oper_isanswered: {
+		AbstractQuestion * q = symbolTableEntry_->question_;
+		code.code_expr << " " << q->questionName_ << "->isAnswered_ ";
+	}
+		break;
+	case oper_count: {
+		AbstractQuestion * q = symbolTableEntry_->question_;
+		string tmp_name = qscript_parser::temp_name_generator.GetNewName();
+		code.code_bef_expr << "int32_t " << tmp_name << " = 0;\n";
+		code.code_bef_expr << "if (!" << q->questionName_ << "->isAnswered_) {\n"
+			<< tmp_name << " = 0;\n"
+			<< "} else {\n" << endl;
+		code.code_bef_expr << "for (set<int32_t>::iterator it = " << q->questionName_ << "->input_data.begin();"
+				<< "it != "
+				<< q->questionName_ <<  "->input_data.end(); ++it) {\n"
+			<< "++" << tmp_name << ";\n"
+			<< "}\n}\n" << endl;
+		code.code_expr <<  tmp_name;
 	}
 		break;
 	default:
@@ -722,14 +949,26 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 						(rightOperand_);
 					r_op_type = un2expr->symbolTableEntry_->question_->dt;
 				}
-				type_ = lcm_type(l_op_type, r_op_type);
+				if ( 	exprOperatorType_ == oper_le ||
+					exprOperatorType_ == oper_lt ||
+					exprOperatorType_ == oper_ge ||
+					exprOperatorType_ == oper_gt ||
+					exprOperatorType_ == oper_isneq ||
+					exprOperatorType_ == oper_iseq ||
+					exprOperatorType_ == oper_or ||
+					exprOperatorType_ == oper_and) {
+					type_ = BOOL_TYPE;
+				} else {
+					type_ = lcm_type(l_op_type, r_op_type);
+				}
 			}
 			if (exprOperatorType_ == oper_mod
-			    && !(is_of_int_type(leftOperand_->type_)
+			    && !( (is_of_int_type(leftOperand_->type_)
+				    || (leftOperand_->type_ == QUESTION_TYPE))
 				 && is_of_int_type(rightOperand_->type_))) {
 				print_err(compiler_sem_err,
 					  " operands of %% should be of type int32_t/char only", line_no, __LINE__, __FILE__);
-				//cerr << " operands of %% should be of type int32_t/char only" << endl;
+				cerr << "leftOperand_ type: is " << leftOperand_->type_ << endl;
 				//++no_errors;
 				type_ = ERROR_TYPE;
 			}
@@ -760,7 +999,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 		type_ = STRING_TYPE;
 		text = ltxt;
 	} else if (exprOperatorType_ == oper_name
-		  || exprOperatorType_  ==  oper_to_string){
+		  || exprOperatorType_  ==  oper_to_string) {
 		map<string,SymbolTableEntry*>::iterator sym_it =
 			find_in_symtab(ltxt);
 		using qscript_parser::active_scope;
@@ -806,6 +1045,52 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 					<< endl;
 				print_err(compiler_sem_err, s.str(),
 					line_no, __LINE__, __FILE__);
+			}
+		}
+	} else if (exprOperatorType_ == oper_isanswered) {
+		map<string,SymbolTableEntry*>::iterator sym_it =
+			find_in_symtab(ltxt);
+		DataType symbol_type = sym_it->second->type_;
+		using qscript_parser::active_scope;
+		if (sym_it == active_scope->SymbolTable.end()) {
+			string err_msg = "Error: could not find:"
+				+ string(ltxt) + "  in symbol table  ";
+			print_err(compiler_sem_err, err_msg
+					, line_no, __LINE__, __FILE__);
+			type_ = ERROR_TYPE;
+		} else {
+			symbolTableEntry_ = sym_it->second;
+			if (symbol_type == QUESTION_TYPE
+			    || symbol_type == QUESTION_ARR_TYPE) {
+				type_ = BOOL_TYPE;
+			} else {
+				string err_msg = "Error: isanswered Can only be called for question types ";
+				print_err(compiler_sem_err, err_msg
+						, line_no, __LINE__, __FILE__);
+				type_ = ERROR_TYPE;
+			}
+		}
+	} else if (exprOperatorType_ == oper_count) {
+		map<string,SymbolTableEntry*>::iterator sym_it =
+			find_in_symtab(ltxt);
+		DataType symbol_type = sym_it->second->type_;
+		using qscript_parser::active_scope;
+		if (sym_it == active_scope->SymbolTable.end()) {
+			string err_msg = "Error: could not find:"
+				+ string(ltxt) + "  in symbol table  ";
+			print_err(compiler_sem_err, err_msg
+					, line_no, __LINE__, __FILE__);
+			type_ = ERROR_TYPE;
+		} else {
+			symbolTableEntry_ = sym_it->second;
+			if ( symbol_type == QUESTION_TYPE
+			    || symbol_type == QUESTION_ARR_TYPE) {
+				type_ = INT32_TYPE;
+			} else {
+				string err_msg = "Error: count Can only be called for question types ";
+				print_err(compiler_sem_err, err_msg
+						, line_no, __LINE__, __FILE__);
+				type_ = ERROR_TYPE;
 			}
 		}
 	} else {
@@ -993,8 +1278,8 @@ bool Binary2Expression::IsIntegralExpression()
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , string name
 				     , ExpressionOperatorType letype)
-	:AbstractExpression(letype), leftOperand_(0), xs(0),
-				leftOperand2_(0), rhsQuestion_(0)
+	: AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
+	  , xs(0), rhsQuestion_(0)
 {
 	switch(exprOperatorType_){
 		case oper_in: {
@@ -1028,8 +1313,8 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , XtccSet& l_rd
 				     , ExpressionOperatorType letype)
-	:AbstractExpression(letype), leftOperand_(0), xs(0),
-				leftOperand2_(0), rhsQuestion_(0)
+	:AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
+	 		, xs(0), rhsQuestion_(0)
 {
 	//cerr << "Binary2Expression::Binary2Expression" << endl;
 	switch(exprOperatorType_){
@@ -1161,6 +1446,98 @@ void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet * & xs)
 }
 #endif /* 0 */
 
+void Binary2Expression::PrintExpressionText(ostringstream & s)
+{
+
+	if (leftOperand_ != 0) {
+		//PrintTemporaryStruct(code);
+		//code.code_bef_expr << "\t} "
+		//string struct_name1 = get_temp_name();
+		//code.code_bef_expr <<  struct_name1 <<";\n";
+		//PrintTemporaryXtccSet(code, xs);
+		// use xs in creating base text statement
+		switch(leftOperand_->get_symp_ptr()->type_){
+		case INT8_TYPE:
+		case INT16_TYPE:
+		case INT32_TYPE:
+		case FLOAT_TYPE:
+		case DOUBLE_TYPE:
+		case INT8_ARR_TYPE:
+		case INT16_ARR_TYPE:
+		case INT32_ARR_TYPE:
+		case FLOAT_ARR_TYPE:
+		case DOUBLE_ARR_TYPE:
+		case INT8_REF_TYPE:
+		case INT16_REF_TYPE:
+		case INT32_REF_TYPE:
+		case FLOAT_REF_TYPE:
+		case DOUBLE_REF_TYPE:
+		case BOOL_TYPE:{
+
+
+			s << "unhandled case" << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ ;
+		}
+			break;
+		case QUESTION_TYPE:{
+
+			const SymbolTableEntry * se = leftOperand_->get_symp_ptr();
+			AbstractQuestion * q= se->question_;
+
+			NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q);
+
+			s << "All those respondents who have selected: ";
+			if (nq) {
+				s << " certain values in nq";
+			} else {
+				s << " certain values in rq";
+			}
+		}
+			break;
+		case QUESTION_ARR_TYPE:{
+
+			s << "QUESTION_ARR_TYPE not yet handled" << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__;
+		}
+		break;
+		default: {
+			std::stringstream s;
+			s << "file: " << __FILE__
+			  << ", line: " << __LINE__ << endl;
+			print_err(compiler_internal_error, s.str()
+				  , line_no, __LINE__, __FILE__);
+		} // note this closes the default label
+		}
+	} else /* if leftOperand2_ !=0 */{
+
+		ExpressionCompiledCode expr2_code;
+		leftOperand2_->PrintExpressionCode(expr2_code);
+		
+		NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (rhsQuestion_);
+		if (Unary2Expression * un2expr = dynamic_cast<Unary2Expression*> (leftOperand2_)) {
+			if (un2expr->exprOperatorType_ == oper_num ) {
+				s << " All Respondents who have coded \\\"" << un2expr->intSemanticValue_ << "\\\" i.e. ";
+				if (nq) {
+					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+					for (int i=0; i<vec.size(); ++i) {
+						if (vec[i].code == un2expr->intSemanticValue_) {
+							s << vec[i].stub_text;
+							break;
+						}
+					}
+				}
+				s << " at " << rhsQuestion_->questionName_;
+			} else if (un2expr->exprOperatorType_ == oper_name) {
+				s << rhsQuestion_->questionName_ << " oper_in unhandled case leftOperand2_ is oper_name " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ ;
+				qscript_parser::dynamic_base_text_question = rhsQuestion_;
+				qscript_parser::flag_dynamic_base_text = true;
+
+			} else {
+				s << rhsQuestion_->questionName_ << " oper_in unhandled case " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ ;
+			}
+		} else {
+			s << rhsQuestion_->questionName_ << " oper_in unhandled case " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ ;
+		}
+	}
+}
 
 void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 {
@@ -1219,22 +1596,6 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 		}
 			break;
 		case QUESTION_TYPE:{
-				/*
-			string test_bool_var_name = get_temp_name();
-			code.code_bef_expr <<  "bool " <<  test_bool_var_name.c_str()
-					   << " = " << struct_name1.c_str()
-					   << ".contains_subset(";
-			//ostringstream code_bef_expr1_discard, code_expr1;
-			//ExpressionCompiledCode expr1_code;
-			//leftOperand_->PrintExpressionCode(expr1_code);
-			code.code_bef_expr
-				//<< expr1_code.code_bef_expr.str()
-				//<< expr1_code.code_expr.str()
-				<< leftOperand_->get_symp_ptr()->name_
-				<< "->input_data"
-				<< ");\n";
-			code.code_expr << test_bool_var_name.c_str() << " ";
-				*/
 
 			//string test_bool_var_name2 = get_temp_name();
 			string test_bool_var_name2 = qscript_parser::temp_name_generator.GetNewName();
@@ -1256,6 +1617,27 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 
 		}
 			break;
+		case QUESTION_ARR_TYPE:{
+
+			//string test_bool_var_name2 = get_temp_name();
+			string test_bool_var_name2 = qscript_parser::temp_name_generator.GetNewName();
+			code.code_bef_expr <<  "bool " <<  test_bool_var_name2.c_str()
+					   << " = " << qscript_parser::
+					   	temp_set_name_generator.GetCurrentName()
+					   << ".contains_value(";
+			ostringstream code_bef_expr1_discard, code_expr1;
+			ExpressionCompiledCode expr1_code;
+			leftOperand_->PrintExpressionCode(expr1_code);
+			code.code_bef_expr
+				//<< expr1_code.code_bef_expr.str()
+				<< expr1_code.code_expr.str()
+				//<< leftOperand_->get_symp_ptr()->name_ << "_list.questionList["
+				<< ");\n";
+			code.code_expr << test_bool_var_name2.c_str() << " ";
+
+
+		}
+		break;
 		default: {
 			std::stringstream s;
 			s << "file: " << __FILE__

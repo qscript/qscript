@@ -34,6 +34,11 @@ namespace qscript_parser
 	int32_t flagIsAFunctionBody_ = -1;
 	int32_t flagIsAForBody_ = 0;
 	bool flag_next_stmt_start_of_block = false;
+
+	bool flag_dynamic_base_text = false;
+	AbstractQuestion * dynamic_base_text_question = 0;
+	bool flag_next_question_start_of_block = false;
+
 	vector<bool> blk_start_flag;
 	vector <AbstractStatement*> blk_heads;
 	//const int32_t DEFAULT_STACK_SIZE=20;
