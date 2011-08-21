@@ -55,9 +55,13 @@ class AsciiFlatFileQuestionDiskMap
 			{
 				width = 8;
 			}
+			else if (max_code < 1000000000)
+			{
+				width = 9;
+			}
 			else
 			{
-				cout << " max_code " << max_code << " for question: " << q->questionName_ << " exceeds max length = 8 we are programmed to handled ... exiting " << __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
+				cout << " max_code " << max_code << " for question: " << q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " << __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
 				exit(1);
 			}
 			total_length = width * q->no_mpn;
@@ -74,7 +78,7 @@ class AsciiFlatFileQuestionDiskMap
 				int code = *it;
 				std::stringstream code_str;
 				code_str << code;
-				cout << "writing code: " << code << " to output_buffer: length: " << code_str.str().length() << "\n";
+				//cout << "writing code: " << code << " to output_buffer: length: " << code_str.str().length() << "\n";
 				int jump_delta = width;
 				if (code_str.str().length() > width)
 				{
@@ -125,6 +129,89 @@ class AsciiFlatFileQuestionDiskMap
 			map_file << q->no_mpn << ",	";
 			map_file << start_pos+1 << ",	";
 			map_file << start_pos + total_length  << "\n";
+		}
+		void write_spss_pull_data(fstream & spss_syn_file)
+		{
+			stringstream var_name;
+			var_name << q->questionName_;
+			if (q->loop_index_values.size())
+			{
+				for (int i=0; i< q->loop_index_values.size(); ++i)
+				{
+					var_name << "_" << q->loop_index_values[i];
+				}
+			}
+			if (q->no_mpn>1) {
+				spss_syn_file << var_name.str() << "_1 to " 
+					<< var_name.str() << "_" << q->no_mpn ;
+			} else {
+				spss_syn_file << var_name.str();
+			}
+
+			spss_syn_file << "\t\t\t\t";
+			spss_syn_file << start_pos+1 << "-";
+			spss_syn_file << start_pos + total_length  << "\n";
+			//spss_syn_file << ",			";
+			//spss_syn_file << width << ",	";
+			//spss_syn_file << q->no_mpn << ",	";
+		}
+		void write_spss_variable_labels(fstream & spss_syn_file)
+		{
+			stringstream var_name;
+			var_name << q->questionName_;
+			if (q->loop_index_values.size())
+			{
+				for (int i=0; i< q->loop_index_values.size(); ++i)
+				{
+					var_name << "_" << q->loop_index_values[i];
+				}
+			}
+			if (q->no_mpn>1) {
+				for(int i=0; i<q->no_mpn; ++i) {
+					spss_syn_file << "variable label ";
+					spss_syn_file << var_name.str() << "_" << i+1;
+					spss_syn_file << " \"" << q->questionText_ << "\"." << endl;
+				}
+			} else {
+				spss_syn_file << "variable label ";
+				spss_syn_file << var_name.str();
+				spss_syn_file << " \"" << q->questionText_ << "\"." << endl;
+			}
+
+		}
+		void write_spss_value_labels(fstream & spss_syn_file)
+		{
+			stringstream var_name;
+			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+				
+				var_name << q->questionName_;
+				if (q->loop_index_values.size())
+				{
+					for (int i=0; i< q->loop_index_values.size(); ++i)
+					{
+						var_name << "_" << q->loop_index_values[i];
+					}
+				}
+				if (q->no_mpn>1) {
+					spss_syn_file << "value label ";
+					spss_syn_file << var_name.str() << "_1 to " 
+						<< var_name.str() << "_" << q->no_mpn ;
+				} else {
+					spss_syn_file << "value label ";
+					spss_syn_file << var_name.str();
+				}
+				spss_syn_file << endl;
+				for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+					spss_syn_file 
+						<< n_q->nr_ptr->stubs[i].code
+						<< " \""
+						<< n_q->nr_ptr->stubs[i].stub_text
+						<< " \""
+						<< endl;
+				}
+				spss_syn_file << "." << endl; 
+
+			}
 		}
 };
 
