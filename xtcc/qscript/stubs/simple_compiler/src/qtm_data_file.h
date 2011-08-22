@@ -4,6 +4,7 @@
 #include <fstream>
 #include <utility>
 #include "question.h"
+#include "base_text.h"
 
 namespace qtm_data_file_ns {
 
@@ -20,8 +21,8 @@ enum QtmFileMode
 
 struct QtmFileCharacteristics
 {
-	int cardDataWrapAroundAt_;
 	int cardDataStartAt_;
+	int cardDataWrapAroundAt_;
 	bool dontBreakQuestionsAtBoundary_;
 	QtmFileMode qtmFileMode_;
 	int currentCard_;
@@ -31,7 +32,7 @@ struct QtmFileCharacteristics
 	//QtmFileCharacteristics();
 	void NextCard();
 	int GetCurrentColumnPosition();
-	int UpdateCurrentColumn(int width_);
+	int UpdateCurrentColumn(int width_, AbstractQuestion * q);
 	QtmFileCharacteristics(int p_cardDataStartAt_, 
 			int p_cardWrapAroundAt,
 			bool p_dontBreakQuestionsAtBoundary,
@@ -79,17 +80,26 @@ public:
 	int32_t width_;
 	int32_t totalLength_;
 	QtmDataFile & qtmDataFile_;
+	//string baseText_;
+	//bool dynamicBaseText_;
+	//AbstractQuestion * baseTextQuestion_;
+	BaseText baseText_;
 	QtmDataDiskMap(AbstractQuestion * p_q, 
-		QtmDataFile & p_qtm_data_file);
+		QtmDataFile & p_qtm_data_file, BaseText base_text);
 	int GetTotalLength() { return totalLength_; }
 	void write_data ();
 	void write_single_code_data();
 	void write_multi_code_data();
+	void print_run(string jno);
 	void print_map(std::fstream & map_file);
-	void print_qax(std::fstream & qax_file);
+	void print_qax(std::fstream & qax_file, std::string setup_dir);
+	void print_qin(std::string setup_dir);
 	std::vector <CodeBucket> codeBucketVec_;
 	void AllocateCards();
 	void Reset();
+private:
+	QtmDataDiskMap& operator= (const QtmDataDiskMap&);
+	QtmDataDiskMap(const QtmDataDiskMap&);
 };
 
 void init_exceptions();

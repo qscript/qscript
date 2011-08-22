@@ -23,6 +23,7 @@
 #include "qscript_debug.h"
 #include "code_gen_utils.h"
 #include "utils.h"
+#include "log_mesg.h"
 
 
 //extern vector<mem_addr_tab> mem_addr;
@@ -238,6 +239,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	}
 	//ostringstream code_bef_expr, code_expr;
 	ExpressionCompiledCode expr_code;
+	expr_code.code_bef_expr << "/* if_nest_level: " << if_nest_level << " */\n";
 	expr_code.code_expr << "if (";
 	ifCondition_->PrintExpressionCode(expr_code);
 	expr_code.code_expr << ") {";
@@ -256,15 +258,25 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			}
 		}
 	}
+	code.program_code << "// question_list_else_body :" ;
+	for (int32_t i=0; i<question_list_else_body.size(); ++i) {
+		code.program_code << " " << question_list_else_body[i];
+	}
+	code.program_code << endl;
 	if (elseBody_) {
-		elseBody_->GetQuestionNames(question_list_else_body, 0);
-		stringstream mesg;
-		mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
-		LOG_MAINTAINER_MESSAGE(mesg.str());
+		//elseBody_->GetQuestionNames(question_list_else_body, 0);
+		elseBody_->GetQuestionNames(question_list_else_body, next_);
+		// this problem has been syntactically handled - the compiler does not allow an empty
+		// else block if the "if" block has questions in it
+		// stringstream mesg;
+		// mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
+		// LOG_MAINTAINER_MESSAGE(mesg.str());
 	} else {
-		stringstream mesg;
-		mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
-		LOG_MAINTAINER_MESSAGE(mesg.str());
+		// this problem has been syntactically handled - the compiler does not allow an empty
+		// else block if the "if" block has questions in it
+		// stringstream mesg;
+		// mesg << "In case else body of question is blank - need to automatically generate a dummy, empty compound block and run GetQuestionNames on it - right now the user has to do this on his own";
+		// LOG_MAINTAINER_MESSAGE(mesg.str());
 	}
 	for(int32_t i = 0; i < question_list_else_body.size(); ++i) {
 		code.program_code <<  question_list_else_body[i]
@@ -274,6 +286,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	ifBody_->GenerateCode(code);
 	code.program_code << " }" << endl;
 
+	// need at this scope level to detect missing else blocks
+	vector<string> question_list_if_body;
 	if (elseBody_) {
 		code.program_code << " else {" << endl;
 
@@ -289,7 +303,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 
 			ifStatementStack.push_back(stk_el);
 		}
-		vector<string> question_list_if_body;
+
+		//vector<string> question_list_if_body;
 
 		for (int32_t i = 0; i < ifStatementStack.size(); ++i) {
 			if (ifStatementStack[i]->nestLevel_ == if_nest_level) {
@@ -299,7 +314,9 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 				break;
 			}
 		}
-		ifBody_->GetQuestionNames(question_list_if_body, 0);
+		//ifBody_->GetQuestionNames(question_list_if_body, 0);
+		ifBody_->GetQuestionNames(question_list_if_body, next_);
+
 		code.program_code << "// end of ifBody_->GetQuestionNames \n";
 		if (elseIfStatement) {
 			//elseIfStatement->elseBody_->GetQuestionNames
@@ -337,6 +354,32 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		code.array_quest_init_area << "/* EXIT " << __PRETTY_FUNCTION__ << ", "
 				<< __FILE__ << ", " << __LINE__ << ", source line no:" << lineNo_ << " */\n";
 	}
+
+	if (elseBody_ == 0 ) {
+		// cout << LOG_MESSAGE("elseBody_ == 0");
+		// this call below is for error detection
+		code.program_code << "// elseBody_ == 0 - detecting if ifBody_ has questions: yes => we flag an error" << endl;
+		//ifBody_->GetQuestionNames(question_list_if_body, 0);
+		ifBody_->GetQuestionNames(question_list_if_body, next_);
+		code.program_code << "// question_list_if_body: " ;
+		for (int32_t i=0; i<question_list_if_body.size(); ++i) {
+			code.program_code << " " << question_list_if_body[i];
+		}
+		code.program_code << endl;
+		if (question_list_if_body.size() > 0 || question_list_else_body.size()>0) {
+			stringstream s;
+			s << "If block on line number: " << lineNo_ << " has questions but does not have an else block. Please add a dummy else block like this" << endl
+				<< " CODE EXAMPLE FOR DUMMY ELSE BLOCK FOLLOWS " << endl
+				<< " /* ************************************* */" << endl
+				<< " else {\n\t1;\n}\n"
+				<< " /* ************************************* */" << endl
+				<< " END OF CODE EXAMPLE" << endl
+				<< " although the dummy else block seems irrelevant it helps the compiler produce correct code to handle if else statements"
+				<< endl;
+			print_err(compiler_sem_err, s.str(), lineNo_, __LINE__, __FILE__);
+			++qscript_parser::no_errors;
+		}
+	}
 	if (next_)
 		next_->GenerateCode(code);
 	//cerr << "EXIT: IfStatement::GenerateCode()" << endl;
@@ -344,10 +387,24 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 
 void IfStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 {
+	ostringstream base_text;
+	ifCondition_->PrintExpressionText(base_text);
+	if (qscript_parser::flag_dynamic_base_text == false) {
+		code.program_code << "base_text_vec.push_back(BaseText(\"" << base_text.str() << "\"));\n";
+	} else {
+		code.program_code 
+			<< "BaseText btxt(\"" << base_text.str() << "\", true," 
+			<< qscript_parser::dynamic_base_text_question->questionName_ << " );\n"
+			<< "base_text_vec.push_back(btxt);\n";
+	}
+	qscript_parser::flag_dynamic_base_text = false;
 	ifBody_->Generate_ComputeFlatFileMap(code);
+	code.program_code << "base_text_vec.pop_back();\n";
+	code.program_code << "base_text_vec.push_back(BaseText(\"Not " << base_text.str() << "\"));\n";
 	if (elseBody_) {
 		elseBody_->Generate_ComputeFlatFileMap(code);
 	}
+	code.program_code << "base_text_vec.pop_back();\n";
 	if (next_) {
 		next_->Generate_ComputeFlatFileMap(code);
 	}
@@ -773,9 +830,10 @@ void ForStatement::CheckNestedIndexUsage()
 		}
 	}
 	using qscript_parser::for_loop_max_counter_stack;
-	cout << "CheckNestedIndexUsage: on variable: " << init_var_name << ", "
-		<< "for_loop_max_counter_stack.size(): "
-		<< for_loop_max_counter_stack.size()  << endl;
+	
+	//cout << "CheckNestedIndexUsage: on variable: " << init_var_name << ", "
+	//	<< "for_loop_max_counter_stack.size(): "
+	//	<< for_loop_max_counter_stack.size()  << endl;
 	for(int32_t i = 0; i < for_loop_max_counter_stack.size()-1; ++i){
 		BinaryExpression * prev_test_expr = dynamic_cast<BinaryExpression*>(for_loop_max_counter_stack[i]);
 		if (prev_test_expr == 0){
@@ -1212,21 +1270,34 @@ VariableList::VariableList(DataType type, char * name, int32_t len)
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , named_range * l_named_range
 				       , AbstractQuestion * l_question
+				       , AbstractExpression * larr_index
 	)
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
-	  , xtccSet_()
+	  , xtccSet_(), arrIndex_(larr_index)
 { }
 
+/*
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+				       , named_range * l_named_range
+				       , AbstractQuestion * l_question
+				       , AbstractExpression * larr_index)
+	: AbstractStatement(dtype, lline_number)
+	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
+	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
+	  , xtccSet_(), arrIndex_(larr_index)
+{ }
+*/
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , AbstractQuestion * l_question_lhs
 				       , AbstractQuestion * l_question_rhs
+				       , AbstractExpression * larr_index
 	)
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(l_question_rhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(l_question_rhs)
-	  , xtccSet_()
+	  , xtccSet_(), arrIndex_(0)
 { }
 
 
@@ -1237,7 +1308,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(0)
-	  , xtccSet_(xs)
+	  , xtccSet_(xs), arrIndex_(0)
 { }
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
@@ -1247,7 +1318,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number)
 	  , questionName_(l_question_lhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(0)
-	  , xtccSet_(xs)
+	  , xtccSet_(xs), arrIndex_(0)
 { }
 
 // This constructor is deprecated and should be deleted at a later stage
@@ -1266,7 +1337,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , string l_named_stub)
 	: AbstractStatement(dtype, lline_number)
 	, questionName_(), namedStub_(l_named_stub)
-	, namedRange_(0), lhs_(0), rhs_(0), xtccSet_()
+	, namedRange_(0), lhs_(0), rhs_(0), xtccSet_(), arrIndex_(0)
 { }
 
 void StubManipStatement::GenerateCode(StatementCompiledCode & code)
@@ -1281,11 +1352,23 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 	if (type_ == STUB_MANIP_DEL || type_ == STUB_MANIP_ADD){
 		if (namedRange_ && rhs_) {
 			code.program_code << "set<int32_t>::iterator set_iter = "
-				<< questionName_
-				<< "->input_data.begin();" << endl;
+				<< questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.begin();" << endl;
 			code.program_code << "for( ; set_iter!= "
-				<< questionName_
-				<< "->input_data.end(); ++set_iter){" << endl;
+				<< questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.end(); ++set_iter){" << endl;
 			code.program_code << "\tfor (int32_t "
 				<< qscript_parser::temp_name_generator.GetNewName();
 			code.program_code 
@@ -1315,11 +1398,23 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << "}" << endl;
 		} else if (lhs_ && rhs_) {
 			code.program_code << "set<int32_t>::iterator set_iter = "
-				<< rhs_->questionName_
-				<< "->input_data.begin();" << endl;
+				<< rhs_->questionName_;
+
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code<< "->input_data.begin();" << endl;
 			code.program_code << "for( ; set_iter!= "
-				<< rhs_->questionName_
-				<< "->input_data.end(); ++set_iter){" << endl;
+				<< rhs_->questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->input_data.end(); ++set_iter){" << endl;
 			code.program_code << lhs_->questionName_ << "->input_data.insert(*set_iter);\n";
 			code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
 			code.program_code << "\t}" << endl;
@@ -1341,8 +1436,17 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< "\t\tif ("
 				<< "*xtcc_set_iter1  == " 
 				<< namedStub_
-				<< ".stubs[xtcc_i2].code) {\n"
-				<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = true;\n"
+				<< ".stubs[xtcc_i2].code) {\n";
+			
+			if (type_ == STUB_MANIP_DEL) {
+				code.program_code 
+					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
+			} else if (type_ == STUB_MANIP_ADD) {
+				code.program_code 
+					<< "\t\t\t" << namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
+			}
+
+			code.program_code 
 				<< "\t\t}\n"
 				<< "\t}\n"
 				<< "}\n"
@@ -1365,8 +1469,15 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< "\t\t\tif (set_member == " 
 				<< namedStub_ 
 				<< ".stubs[xtcc_i2].code) {\n"
-				<< "\t\t\t\t"
-				<< namedStub_ << ".stubs[xtcc_i2].mask = true;\n"
+				<< "\t\t\t\t";
+			if (type_ == STUB_MANIP_DEL){
+				code.program_code 
+					<< namedStub_ << ".stubs[xtcc_i2].mask = false;\n";
+			} else if (type_ == STUB_MANIP_ADD) {
+				code.program_code 
+					<< namedStub_ << ".stubs[xtcc_i2].mask = true;\n";
+			}
+			code.program_code	
 				<< "\t\t\t}\n"
 				<< "\t\t}\n"
 				<< "\t}\n"
@@ -1727,7 +1838,7 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 				string l_question_name)
 	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0)
+	  symbolTableEntry_(0), arrIndex_(0)
 {
 
 	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
@@ -1848,12 +1959,40 @@ bool RunColumnExpressionChecks(ColumnStatement * col_stmt)
 		stringstream s;
 		s << " Currently only numbers are allowed as column expressions";
 		print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		return false;
 	} else {
 		if (! (un2_expr->exprOperatorType_== oper_num)) {
 			stringstream s;
 			s << " Currently only numbers are allowed as column expressions";
 			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			return false;
 		} 
+		return true;
+		// else all ok 
+	}
+	
+}
+
+bool RunNewCardExpressionChecks(NewCardStatement * newcard_stmt)
+{
+	// we want to allow expressions which contain lvalues which are for
+	// loop indices
+	// but for now just allow plain numbers
+	
+	Unary2Expression * un2_expr = dynamic_cast<Unary2Expression*> (newcard_stmt->cardExpression_);
+	if (un2_expr == 0) {
+		stringstream s;
+		s << " Currently only numbers are allowed as column expressions";
+		print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		return false;
+	} else {
+		if (! (un2_expr->exprOperatorType_== oper_num)) {
+			stringstream s;
+			s << " Currently only numbers are allowed as column expressions";
+			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			return false;
+		} 
+		return true;
 		// else all ok 
 	}
 	
@@ -1871,6 +2010,38 @@ void ColumnStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 }
 
 void ColumnStatement::GenerateCode(StatementCompiledCode & code)
+{
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}
+
+
+NewCardStatement::NewCardStatement(DataType l_type, int32_t l_line_number,
+				AbstractExpression * expr)
+	: AbstractStatement(l_type, l_line_number),
+	  cardExpression_(expr)
+{
+	RunNewCardExpressionChecks(this);
+}
+
+
+void NewCardStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
+{
+	ExpressionCompiledCode expr_code;
+	cardExpression_->PrintExpressionCode(expr_code);
+	string tmp_name = qscript_parser::temp_name_generator.GetNewName();
+	code.program_code << "for (int32_t " <<  tmp_name << " = 0; " << tmp_name << "<"
+		<< expr_code.code_expr.str() << " ; ++ " << tmp_name << " ) {\n"
+		<< "qtm_data_file.fileXcha_.NextCard();\n"
+		<< "}\n";
+	//code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str()
+	//	<< ";\n";
+	if (next_)
+		next_->Generate_ComputeFlatFileMap(code);
+}
+
+void NewCardStatement::GenerateCode(StatementCompiledCode & code)
 {
 	if (next_) {
 		next_->GenerateCode(code);

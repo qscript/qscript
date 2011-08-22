@@ -240,6 +240,9 @@ struct CompoundStatement: public AbstractStatement
 		}
 		compoundBody_->GetQuestionNames(question_list,
 				endStatement);
+		if (next_) {
+			next_->GetQuestionNames(question_list,endStatement);
+		}
 	}
 	void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 				 , AbstractStatement * stop_at);
@@ -312,6 +315,9 @@ struct IfStatement : public AbstractStatement
 		ifBody_->GetQuestionNames(question_list, endStatement);
 		if( elseBody_)
 			elseBody_->GetQuestionNames(question_list, endStatement);
+		if (next_) {
+			next_->GetQuestionNames(question_list,endStatement);
+		}
 	}
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 					 , AbstractStatement* stop_at);
@@ -356,17 +362,25 @@ struct StubManipStatement: public AbstractStatement
 	AbstractQuestion * lhs_;
 	AbstractQuestion * rhs_;
 	XtccSet xtccSet_;
-	StubManipStatement( DataType dtype, int32_t lline_number
-			    , string l_named_stub, string l_question_name);
+	AbstractExpression * arrIndex_;
+	//StubManipStatement( DataType dtype, int32_t lline_number
+	//		    , string l_named_stub, string l_question_name);
+	//StubManipStatement( DataType dtype, int32_t lline_number
+	//		    , string l_named_stub, string l_question_name, AbstractExpression * arr_index);
 	StubManipStatement( DataType dtype, int32_t lline_number
 			    , string l_named_stub);
 
+	//StubManipStatement(DataType dtype, int32_t lline_number
+	//			       , named_range * l_named_range
+	//			       , AbstractQuestion * l_question);
 	StubManipStatement(DataType dtype, int32_t lline_number
 				       , named_range * l_named_range
-				       , AbstractQuestion * l_question);
+				       , AbstractQuestion * l_question
+				       , AbstractExpression * larr_index = 0);
 	StubManipStatement(DataType dtype, int32_t lline_number
 				       , AbstractQuestion * l_question_lhs
-				       , AbstractQuestion * l_question_rhs);
+				       , AbstractQuestion * l_question_rhs
+				       , AbstractExpression * larr_index = 0);
 
 	StubManipStatement(DataType dtype, int32_t lline_number
 			       , named_range * l_named_range
@@ -558,6 +572,22 @@ struct ColumnStatement: public AbstractStatement
 	private:
 	ColumnStatement& operator=(const ColumnStatement&);
 	ColumnStatement(const ColumnStatement&);
+};
+
+struct NewCardStatement;
+bool RunNewCardExpressionChecks(NewCardStatement * col_stmt);
+struct NewCardStatement: public AbstractStatement
+{
+	AbstractExpression * cardExpression_;
+
+	NewCardStatement(DataType l_type, int32_t l_line_number,
+					AbstractExpression * expr);
+	void GenerateCode(StatementCompiledCode & code);
+	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	friend bool RunColumnExpressionChecks();
+	private:
+	NewCardStatement& operator=(const NewCardStatement&);
+	NewCardStatement(const NewCardStatement&);
 };
 
 

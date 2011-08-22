@@ -7,6 +7,8 @@
 #include "UserResponse.h"
 #include "user_navigation.h"
 
+struct AbstractQuestion;
+
 class NCursesReadline
 {
 	//const int32_t MAX_BUFF;
@@ -14,11 +16,15 @@ class NCursesReadline
 	std::string buffer_;
 	int32_t insertionPoint_;
 		//, lastBufPointer_;
+	WINDOW * questionWindow_;
+	WINDOW * stubListWindow_;
 	WINDOW * dataEntryWindow_;
 	public:
 	// We expect an already allocated window to be passed to us
-	NCursesReadline(WINDOW * l_data_entry_window);
-	const char * ReadLine();
+	NCursesReadline(WINDOW * l_question_window,
+		WINDOW * l_stub_list_window, 
+		WINDOW * l_data_entry_window);
+	const char * ReadLine(AbstractQuestion * q);
 	void SetBuffer(const std::string & re_arranged_buffer
 		       , int32_t l_new_insertionPoint);
 	void DoDelete();
@@ -42,9 +48,15 @@ class NCursesReadline
 ///			   , int32_t & pos_1st_invalid_data);
 
 user_response::UserResponseType read_data (const char * prompt, std::vector<int> * data_ptr);
-user_response::UserResponseType read_data_from_window(WINDOW * data_entry_window,
-		const char * prompt, bool clear_buffer_flag, std::string & re_arranged_buffer,
-		int & pos_1st_invalid_data, std::vector<int> * data_ptr);
+user_response::UserResponseType read_data_from_window(
+		WINDOW * question_window,
+		WINDOW * stub_list_window,
+		WINDOW * data_entry_window,
+		const char * prompt, bool clear_buffer_flag,
+		std::string & re_arranged_buffer,
+		int & pos_1st_invalid_data,
+		AbstractQuestion * q,
+		std::vector<int> * data_ptr);
 bool verify_web_data (std::string p_question_data, 
 		UserNavigation p_user_navigation,
 		user_response::UserResponseType p_the_user_response,

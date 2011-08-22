@@ -16,6 +16,7 @@ namespace program_options_ns {
 	extern bool web_server_flag;
 	extern bool compile_to_cpp_only_flag;
 	extern int32_t fname_flag;
+	extern bool flag_nice_map;
 }
 
 extern int32_t qscript_confparse();
@@ -40,6 +41,7 @@ namespace qscript_parser
 	bool flag_next_question_start_of_block = false;
 
 	vector<bool> blk_start_flag;
+	vector<bool> blk_question_start_flag;
 	vector <AbstractStatement*> blk_heads;
 	//const int32_t DEFAULT_STACK_SIZE=20;
 	vector<CompoundStatement*> stack_cmpd_stmt;
@@ -105,8 +107,8 @@ using std::string;
 
 void print_header(FILE* script, bool ncurses_flag);
 void print_array_question_class(FILE* script);
-void print_flat_ascii_data_class(FILE *script);
-void print_qtm_data_class(FILE *script);
+//void print_flat_ascii_data_class(FILE *script);
+//void print_qtm_data_class(FILE *script);
 void print_close(FILE* script, ostringstream & program_code, bool  ncurses_flag);
 void print_navigation_support_functions(FILE * script);
 void print_reset_questionnaire(FILE * script);
@@ -127,8 +129,12 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
 void print_write_qtm_data_to_disk(FILE *script);
 void print_write_ascii_data_to_disk(FILE *script);
+void print_write_spss_file_for_ascii_data_to_disk(/*FILE *script*/StatementCompiledCode & compute_flat_map_code);
+void print_do_freq_counts(FILE *script);
+void print_write_xtcc_data_to_disk(FILE *script);
 const char * file_exists_check_code();
 const char * write_data_to_disk_code();
+void print_summary_axis(FILE * script);
 void print_microhttpd_web_support (FILE * script);
 void print_ncurses_func_prototypes (FILE * script);
 void print_web_func_prototypes (FILE * script);
@@ -177,6 +183,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "int32_t questions_start_from_here_index;\n" );
 	fprintf(script, "int ser_no_pos;\n");
+	fprintf(script, "vector <BaseText> base_text_vec;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, " /* length(): %d */", code.quest_defns_constructor.str().length() );
@@ -262,11 +269,14 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"qtm_datafile_conf_parser.h\"\n");
 	fprintf(script, "#include \"ArrayQuestion.h\"\n");
 	fprintf(script, "#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
+	fprintf(script, "#include \"XtccDataFile.h\"\n");
+	fprintf(script, "#include \"base_text.h\"\n");
 
 	{
-		stringstream mesg;
-		mesg << "do we need to #include \"TempNameGenerator.h\" in generated code? I have commented it out";
-		LOG_MAINTAINER_MESSAGE(mesg.str());
+		//stringstream mesg;
+		//mesg << "do we need to #include \"TempNameGenerator.h\" in generated code? I have commented it out";
+		// LOG_MAINTAINER_MESSAGE(mesg.str());
+		// no we dont
 		//fprintf(script, "#include \"TempNameGenerator.h\"\n");
 	}
 	fprintf(script, "#include \"QuestionAttributes.h\"\n");
@@ -290,11 +300,18 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"debug_mem.h\"\n");
 	fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
 	fprintf(script, "fstream flat_file;\n");
+	fprintf(script, "fstream xtcc_datafile;\n");
 	fprintf(script, "fstream qtm_disk_file;\n");
 	fprintf(script, "extern set<string> qtm_include_files;\n");
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "//extern vector<int32_t> data;\n");
+	if ( program_options_ns::flag_nice_map ) {
+		fprintf(script, "bool flag_nice_map = true;\n");
+	} else {
+		fprintf(script, "bool flag_nice_map = false;\n");
+	}
+	
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
@@ -302,14 +319,21 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout,\n"
 			"\t\tAbstractQuestion * & p_last_question_answered,\n"
 			"\t\tAbstractQuestion * & p_last_question_visited);\n");
+	fprintf(script, "void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered, AbstractQuestion * & p_last_question_visited);\n");
 	//fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
 	fprintf(script, "bool write_data_file_flag;\n");
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
+	fprintf(script, "bool write_xtcc_data_file_flag;\n");
+	fprintf(script, "bool card_start_flag;\n");
+	fprintf(script, "bool card_end_flag;\n");
+	fprintf(script, "int card_start;\n");
+	fprintf(script, "int card_end;\n");
 
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
 	fprintf(script, "void print_map_header(fstream & map_file);\n");
+	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
 	fprintf(script, "map<string, map<int, int> > freq_count;\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);\n");
 	//fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
@@ -323,16 +347,21 @@ void print_header(FILE* script, bool ncurses_flag)
 	//fprintf(script, "void DisplayActiveQuestions();\n");
 	fprintf(script, "string output_data_file_name;\n");
 	fprintf(script, "string output_qtm_data_file_name;\n");
+	fprintf(script, "string output_xtcc_data_file_name;\n");
 	fprintf(script, "void GetUserResponse(string& qno, int32_t &qindex);\n");
 	// print_array_question_class(script);
+	fprintf(script, "string jno = \"%s\";\n", project_name.c_str());
 	fprintf(script, "char * flat_file_output_buffer = 0;\n");
+	fprintf(script, "char * xtcc_datafile_output_buffer = 0;\n");
 	fprintf(script, "int32_t len_flat_file_output_buffer  = 0;\n");
+	fprintf(script, "int32_t len_xtcc_datafile_output_buffer  = 0;\n");
 	//print_flat_ascii_data_class(script);
 	//print_qtm_data_class(script);
 	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
+	fprintf(script, "vector <XtccDataFileDiskMap*> xtcc_question_disk_map;\n");
 	fprintf(script, "vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
 	fprintf(script, "qtm_data_file_ns::QtmDataFile qtm_data_file;\n");
-	//fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
+	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
@@ -407,11 +436,11 @@ void print_navigation_support_functions(FILE * script)
 
 	fprintf(script,"int32_t ComputeJumpToIndex(AbstractQuestion * q)\n");
 	fprintf(script,"{\n");
-	fprintf(script,"	cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
-	fprintf(script,"	for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {\n");
-	fprintf(script,"		cout << q->loop_index_values[i] << \" \";\n");
-	fprintf(script,"	}\n");
-	fprintf(script,"	cout << endl;\n");
+	fprintf(script,"	//cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
+	fprintf(script,"	//for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {\n");
+	fprintf(script,"	//	cout << q->loop_index_values[i] << \" \";\n");
+	fprintf(script,"	//}\n");
+	fprintf(script,"	//cout << endl;\n");
 	fprintf(script,"	int32_t index = 0;\n");
 	fprintf(script,"	for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {\n");
 	fprintf(script,"		int32_t tmp1=q->loop_index_values[i];\n");
@@ -420,7 +449,7 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script,"		}\n");
 	fprintf(script,"		index+=tmp1;\n");
 	fprintf(script,"	}\n");
-	fprintf(script,"	cout << \"EXIT ComputeJumpToIndex: returning : \" << index << endl;\n");
+	fprintf(script,"	//cout << \"EXIT ComputeJumpToIndex: returning : \" << index << endl;\n");
 	fprintf(script,"	return index;\n");
 	fprintf(script,"}\n");
 }
@@ -671,7 +700,8 @@ const char * file_exists_check_code()
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\tif(exists == 1){\n"
 	"\t\t	load_data(jno,ser_no);\n"
-	"\t\t	merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t	//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t	merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n"
 	"\t\t}\n\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "
@@ -685,7 +715,8 @@ const char * file_exists_check_code()
 
 AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
-					 , char * question_name)
+					 , char * question_name
+					 , AbstractExpression * l_arr_index /* =0 */)
 {
 	int32_t index = -1;
 	bool question_stub = false, range_stub=false;
@@ -768,9 +799,15 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				line_no, __LINE__, __FILE__);
 			return new ErrorStatement(line_no);
 		}
-		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-			line_no, lhs_stub, rhs_question);
-		return st_ptr;
+		if (l_arr_index==0) {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+				line_no, lhs_stub, rhs_question);
+			return st_ptr;
+		} else {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+				line_no, lhs_stub, rhs_question, l_arr_index);
+			return st_ptr;
+		}
 	} else if (question_stub == true) {
 		if(!(rhs_question->nr_ptr->name == lhs_question->nr_ptr->name) ){
 			stringstream err_text;
@@ -784,9 +821,16 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				line_no, __LINE__, __FILE__);
 			return new ErrorStatement(line_no);
 		}
-		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-			line_no, lhs_question, rhs_question);
-		return st_ptr;
+		if (l_arr_index==0) {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+				line_no, lhs_question, rhs_question);
+			return st_ptr;
+		} else {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+				line_no, lhs_question, rhs_question, l_arr_index);
+			return st_ptr;
+		}
+
 	}
 	return new ErrorStatement(line_no);
 }
@@ -933,7 +977,7 @@ void print_array_question_class(FILE* script)
 
 }
 
-
+#if 0
 void print_flat_ascii_data_class(FILE *script)
 {
 
@@ -967,7 +1011,9 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf (script, "			width = 7;\n");
 	fprintf (script, "		} else if (max_code < 100000000) {\n");
 	fprintf (script, "			width = 8;\n");
-	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 8 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		} else if (max_code < 1000000000) {\n");
+	fprintf (script, "			width = 9;\n");
+	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 9 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
 	fprintf (script, "		total_length = width * q->no_mpn;\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "\n");
@@ -1026,7 +1072,9 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf(script, "};\n");
 	fprintf(script, "\n");
 }
+#endif /* 0 */
 
+#if 0
 void print_qtm_data_class(FILE *script)
 {
 
@@ -1060,7 +1108,9 @@ void print_qtm_data_class(FILE *script)
 	fprintf (script, "			width = 7;\n");
 	fprintf (script, "		} else if (max_code < 100000000) {\n");
 	fprintf (script, "			width = 8;\n");
-	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 8 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		} else if (max_code < 1000000000) {\n");
+	fprintf (script, "			width = 9;\n");
+	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 9 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
 	fprintf (script, "		total_length = width * q->no_mpn;\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "\n");
@@ -1119,6 +1169,7 @@ void print_qtm_data_class(FILE *script)
 	fprintf(script, "};\n");
 	fprintf(script, "\n");
 }
+#endif /* 0 */
 
 void PrintActiveVariablesAtScope(vector <Scope*> & active_scope_list
 				 , vector <ActiveVariableInfo*> & output_info)
@@ -1165,7 +1216,7 @@ void PrintSetupSignalHandler(FILE * script)
 // Returns 0 on failure, 1 on success
 int32_t ReadQScriptConfig()
 {
-	//cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
+	cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
 	using namespace std;
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
 	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
@@ -1176,13 +1227,13 @@ int32_t ReadQScriptConfig()
 	FILE * qscript_confin = fopen(QSCRIPT_CONFIG.c_str(), "rb");
 	qscript_confrestart(qscript_confin);
 	if(!qscript_confin){
-		//cout << "unable to open " <<  QSCRIPT_CONFIG <<" for reading ... exiting\n";
+		cout << "unable to open " <<  QSCRIPT_CONFIG <<" for reading ... exiting\n";
 		return 0;
 	}
-	//cerr << "opened : " << QSCRIPT_CONFIG << endl;
+	cerr << "opened : " << QSCRIPT_CONFIG << endl;
 
 	if(!qscript_confparse()){
-		//cout << "Successfully parsed " << QSCRIPT_CONFIG << endl;
+		cout << "Successfully parsed " << QSCRIPT_CONFIG << endl;
 	} else {
 		cerr << "there were errors in parsing configuration file" << QSCRIPT_CONFIG << endl;
 		return 0;
@@ -1408,7 +1459,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	extern int32_t optind, opterr, optopt;\n");
 	fprintf(script, "	extern char * optarg;\n");
 	fprintf(script, "	int c;\n");
-	fprintf(script, "	while ( (c = getopt(argc, argv, \"w::q::\")) != -1) {\n");
+	fprintf(script, "	while ( (c = getopt(argc, argv, \"x::w::q::\")) != -1) {\n");
 	fprintf(script, "		char ch = optopt;\n");
 	fprintf(script, "		switch (c) {\n");
 
@@ -1420,7 +1471,18 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "				  output_data_file_name = \"datafile.dat\";\n");
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
-	fprintf(script, "			  break;\n");
+	fprintf(script, "		break;\n");
+
+
+	fprintf(script, "		case 'x': {\n");
+	fprintf(script, "			  write_xtcc_data_file_flag = true;\n");
+	fprintf(script, "			  if (optarg) {\n");
+	fprintf(script, "				  output_xtcc_data_file_name = optarg;\n");
+	fprintf(script, "			  } else {\n");
+	fprintf(script, "				  output_xtcc_data_file_name = \"xtcc_datafile.dat\";\n");
+	fprintf(script, "			  }\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		break;\n");
 
 	fprintf(script, "		case 'q': {\n");
 	fprintf(script, "			  write_qtm_data_file_flag = true;\n");
@@ -1430,7 +1492,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "				  output_qtm_data_file_name = \"qtm_datafile.dat\";\n");
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
-	fprintf(script, "			  break;\n");
+	fprintf(script, "		break;\n");
 	fprintf(script, "		case '?' : {\n");
 	fprintf(script, "				   cout << \" invalid option, optopt:\" << optopt << endl;\n");
 	fprintf(script, "				   exit(1);\n");
@@ -1460,7 +1522,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
 	fprintf(script, "\tprocess_options(argc, argv);\n");
 	//fprintf(script, "\tDIR * directory_ptr = 0;\n");
-	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag) {\n");
+	fprintf(script, "\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n");
 	fprintf(script, "\t	qtm_data_file_ns::init();\n");
 	fprintf(script, "\t	qtm_data_file_ns::init_exceptions();\n");
 	fprintf(script, "\t	directory_ptr = opendir(\".\");\n");
@@ -1494,6 +1556,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
 	fprintf(script, "TheQuestionnaire theQuestionnaire;\n"
+			"theQuestionnaire.base_text_vec.push_back(BaseText(\"All Respondents\"));\n"
 			"theQuestionnaire.compute_flat_file_map_and_init();\n"
 			);
 	/*
@@ -1689,13 +1752,17 @@ void PrintWebMain (FILE * script, bool ncurses_flag)
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 {
 	compute_flat_map_code.program_code << "void compute_flat_file_map_and_init()\n{\n";
-	compute_flat_map_code.program_code << "if (write_data_file_flag || write_qtm_data_file_flag) {\nint current_map_pos = 0;\n";
-	compute_flat_map_code.program_code << "if (write_qtm_data_file_flag) {\n"
-		<< "\tqtm_datafile_conf_parser_ns::load_config_file(jno);\n"
-		<< "\tqtm_data_file.Initialize();\n"
-		<< "}\n";
+	compute_flat_map_code.program_code 
+		<< "if (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)\n"
+		<< "{\n"
+		<< "\tint current_map_pos = 0;\n"
+		<< "\tint current_xtcc_map_pos = 0;\n";
+	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n"
+		<< "\t\tqtm_datafile_conf_parser_ns::load_config_file(jno);\n"
+		<< "\t\tqtm_data_file.Initialize();\n"
+		<< "\t}\n";
 
-	compute_flat_map_code.program_code << "	if (write_data_file_flag) {\n";
+	compute_flat_map_code.program_code << "\tif (write_data_file_flag) {\n";
 	compute_flat_map_code.program_code << "		stringstream asc_datafile_conf_str;\n";
 	compute_flat_map_code.program_code << "		asc_datafile_conf_str << jno \n";
 	compute_flat_map_code.program_code << "			<< \".asc_data.conf\";\n";
@@ -1725,42 +1792,150 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "		current_map_pos += (ser_no_pos-1);\n";
 	compute_flat_map_code.program_code << "	}\n";
 
+	compute_flat_map_code.program_code << "\tif (write_xtcc_data_file_flag) {\n";
+	compute_flat_map_code.program_code << "\t\tcurrent_xtcc_map_pos += 4; // serial no is 4 bytes fixed\n";
+	compute_flat_map_code.program_code << "\t}\n";
+
+
 	tree_root->Generate_ComputeFlatFileMap(compute_flat_map_code);
 
 	compute_flat_map_code.program_code << "\tstring map_file_name(jno + string(\".map\"));\n";
 	compute_flat_map_code.program_code << "\tfstream map_file(map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
 	compute_flat_map_code.program_code << "\t print_map_header(map_file);\n";
-	compute_flat_map_code.program_code << " for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
-		<< "\tascii_flatfile_question_disk_map[i]->print_map(map_file);\n"
-		<< "}\n";
-	compute_flat_map_code.program_code << "len_flat_file_output_buffer = current_map_pos+1;\n";
-	compute_flat_map_code.program_code << "flat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
-	compute_flat_map_code.program_code << "memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
-	compute_flat_map_code.program_code << "flat_file_output_buffer[len_flat_file_output_buffer-1] = 0;\n";
-	compute_flat_map_code.program_code << "string flat_file_name(jno + string(\".dat\"));\n";
-	compute_flat_map_code.program_code << "flat_file.open(flat_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
+	compute_flat_map_code.program_code << "\tfor (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
+		<< "\t\tascii_flatfile_question_disk_map[i]->print_map(map_file);\n"
+		<< "\t}\n";
+	print_write_spss_file_for_ascii_data_to_disk(compute_flat_map_code);
+	compute_flat_map_code.program_code << "\tstring xtcc_map_file_name(jno + string(\".xmap\"));\n";
+	compute_flat_map_code.program_code << "\tfstream xtcc_map_file(xtcc_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << "\tprint_map_header(xtcc_map_file);\n";
+	compute_flat_map_code.program_code 
+		<< "\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\txtcc_question_disk_map[i]->print_map(xtcc_map_file);\n"
+		<< "\t}\n";
+
+	compute_flat_map_code.program_code << "\tlen_flat_file_output_buffer = current_map_pos+1;\n";
+	compute_flat_map_code.program_code << "\tlen_xtcc_datafile_output_buffer = current_xtcc_map_pos+1;\n";
+	compute_flat_map_code.program_code << "\tflat_file_output_buffer = new char[len_flat_file_output_buffer];\n";
+	compute_flat_map_code.program_code << "\txtcc_datafile_output_buffer = new char[len_xtcc_datafile_output_buffer];\n";
+	compute_flat_map_code.program_code << "\tmemset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n";
+	compute_flat_map_code.program_code << "\tmemset(xtcc_datafile_output_buffer, '\\0', len_xtcc_datafile_output_buffer-1);\n";
+	compute_flat_map_code.program_code << "\tflat_file_output_buffer[len_flat_file_output_buffer-1] = 0;\n";
+	compute_flat_map_code.program_code << "\txtcc_datafile_output_buffer[len_xtcc_datafile_output_buffer-1] = 0;\n";
+	compute_flat_map_code.program_code << "\tstring flat_file_name(jno + string(\".dat\"));\n";
+	compute_flat_map_code.program_code << "\tflat_file.open(flat_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
+	compute_flat_map_code.program_code << "\tstring xtcc_datafile_name(jno + string(\".xdat\"));\n";
+	compute_flat_map_code.program_code << "\txtcc_datafile.open(xtcc_datafile_name.c_str(), ios_base::out | ios_base::trunc);\n";
+
+	if (config_file_parser::PLATFORM != "WINDOWS") {
+		compute_flat_map_code.program_code 
+			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
+			<< "\t\ts1 << \"setup-\" << jno;\n"
+			<< "\t\tif (stat(s1.str().c_str(), &dir_exists) <0) {\n"
+			<< "\t\t\tif (errno == ENOENT)\n"
+			<< "\t\t\t\tif (mkdir(s1.str().c_str(), S_IRUSR | S_IWUSR | S_IXUSR) <0) {\n"
+			<< "\t\t\t\t\tperror(\"unable to create directory for setup files\");\n}\n"
+			<< "\t\t\telse\n"
+			<< "\t\t\t\tperror(\"stating directory failed\");\n"
+			<< "\t\t\t}\t\t\n}\n"
+			;
+	} else {
+		compute_flat_map_code.program_code 
+			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
+			<< "\t\t\ts1 << \"setup-\" << jno;\n"
+			<< "\t\t\tif (stat(s1.str().c_str(), &dir_exists) <0) {\n"
+			<< "\t\t\t\tif (errno == ENOENT)\n"
+			<< "\t\t\t\t\tif (mkdir(s1.str().c_str()) <0) {\n"
+			<< "\t\t\t\t\t\tperror(\"unable to create directory for setup files\");\n"
+			<< "\t\t\t\t\t} else\n"
+			<< "\t\t\t\t\t\tperror(\"stating directory failed\");\n"
+			<< "\t\t\t}\n\t\t}\n"
+			;
+	}
 
 	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n";
 
 
-	compute_flat_map_code.program_code << "\tstring qtm_map_file_name(jno + string(\".qmap\"));\n";
-	compute_flat_map_code.program_code << "\tfstream qtm_map_file(qtm_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
-	compute_flat_map_code.program_code << "\t print_map_header(qtm_map_file);\n";
-	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
-		<< "\t qtm_datafile_question_disk_map[i]->print_map(qtm_map_file);\n"
-		<< "}\n";
+	compute_flat_map_code.program_code << "\t\tstring qtm_map_file_name(string(\"setup-\") + jno + string(\"/\") + jno + string(\".qmap\"));\n";
+	compute_flat_map_code.program_code << "\t\tfstream qtm_map_file(qtm_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << "\t\tprint_map_header(qtm_map_file);\n";
+	compute_flat_map_code.program_code << "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\tqtm_datafile_question_disk_map[i]->print_map(qtm_map_file);\n"
+		<< "\t\t}\n";
 
-	compute_flat_map_code.program_code << "\tstring qtm_qax_file_name(jno + string(\".qax\"));\n";
-	compute_flat_map_code.program_code << "\tfstream qtm_qax_file(qtm_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n";
-	compute_flat_map_code.program_code << " for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
-		<< "\t qtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file);\n"
-		<< "}\n";
 
-	compute_flat_map_code.program_code << "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.AllocateCards();\n"
-		<< "\t qtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n";
-	compute_flat_map_code.program_code << "string qtm_disk_file_name(jno + string(\".qdat\"));\n";
-	compute_flat_map_code.program_code << "qtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
+	compute_flat_map_code.program_code << "\t\tstring qtm_qax_file_name( string(\"setup-\")+jno+string(\"/\") + jno + string(\".qax\"));\n";
+	compute_flat_map_code.program_code << "\t\tfstream qtm_qax_file(qtm_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		"\t\tmap <string, vector<qtm_data_file_ns::QtmDataDiskMap*> > summary_tables;\n";
+	compute_flat_map_code.program_code << "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\tqtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file, string(\"setup-\")+jno);\n"
+		<< "\t\t\tstring questionName = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
+		<< "\t\t\tif (qtm_datafile_question_disk_map[i]->q->loop_index_values.size() > 0) {\n"
+		<< "\t\t\t\tsummary_tables[questionName].push_back(qtm_datafile_question_disk_map[i]);\n"
+		<< "\t\t\t}\n"
+		<< "\t\t}\n"
+		<< "\t\tfor ( map <string, vector<qtm_data_file_ns::QtmDataDiskMap*> >::iterator it= summary_tables.begin();\n"
+		<< "\t\t		it != summary_tables.end(); ++it) {\n"
+		<< "\t\t	print_summary_axis(it->second, qtm_qax_file);\n"
+		<< "\t\t}\n";
+	compute_flat_map_code.program_code 
+		<< "\t\tqtm_datafile_question_disk_map[0]->print_run(jno);"
+		<< endl;
+	compute_flat_map_code.program_code << "\t\tstring tab_file_name(string(\"setup-\")+ jno + string(\"/\") + jno + string(\".tab\"));\n";
+	compute_flat_map_code.program_code << "\t\tfstream tab_file(tab_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\tstring questionName = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
+		<< "\t\t\tAbstractQuestion * q = qtm_datafile_question_disk_map[i]->q;\n"
+		<< "\t\t\ttab_file << \"tab \" << q->questionName_;\n"
+		<< "\t\t\tfor(int j=0; j<q->loop_index_values.size(); ++j) {\n"
+		<< "\t\t\t\ttab_file << \"_\" << q->loop_index_values[j];\n"
+		<< "\t\t\t}\n"
+		<< "\t\t\ttab_file << \" &ban\" << endl;\n"
+		<< "\t\t}\n";
+
+
+	compute_flat_map_code.program_code << "\t\tqtm_datafile_question_disk_map[0]->qtmDataFile_.AllocateCards();\n"
+		<< "\t\tqtm_datafile_question_disk_map[0]->qtmDataFile_.Reset();\n";
+	compute_flat_map_code.program_code << "\t\tstring qtm_disk_file_name(jno + string(\".qdat\"));\n";
+	compute_flat_map_code.program_code << "\t\tqtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "\t}\n";
+
+	compute_flat_map_code.program_code 
+		<< "\tif (write_xtcc_data_file_flag) {\n"
+		<< "\t\tstring xtcc_ax_file_name(string(\"setup-\")+jno+string(\"/\") + jno + string(\".xtcc\"));\n"
+		<< "\t\tfstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);\n"
+		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n" 
+		<< "\t\txtcc_ax_file << \"ed_start\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data();\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tint32_t all;\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tint32_t ser_no;\\n\";\n"
+		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\txtcc_question_disk_map[i]->print_edit_var_defns(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
+		<< "\t\t}\n"
+		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data()\\n{\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tall = 1;\\n\";\n"
+		<< "\t\t xtcc_ax_file << \"\tser_no = c[0,3];\\n\";\n"
+		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_edit_load(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
+		<< "\t\t}\n"
+		<< "\t\t xtcc_ax_file << \"\t}\\n\";\n"
+		<< "\t\txtcc_ax_file << \"ed_end\\n\";\n"
+		<< "\t\txtcc_ax_file << \"tabstart {\\n\";\n"
+		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_tab(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
+		<< "\t\t}\n"
+		<< "\t\txtcc_ax_file << \"}\\n\";\n"
+		<< "\t\txtcc_ax_file << \"axstart {\\n\";\n"
+
+		<< "\t\txtcc_ax_file << \"ax tot_ax;\\n\";\n"
+		<< "\t\txtcc_ax_file << \"ttl; \\\"Total\\\";\\n\";\n"
+		<< "\t\txtcc_ax_file << \"cnt; \\\"All\\\"; c= all==1;\\n\";\n"
+
+		<< "\t\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
+		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_ax(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
+		<< "\t\t}\n"
+		<< "\t\txtcc_ax_file << \"}\\n\";\n"
+		<< "\t}\n";	
 
 	compute_flat_map_code.program_code << "}\n";
 	compute_flat_map_code.program_code << "}\n";
@@ -1782,15 +1957,20 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "\tstart_of_questions:\n");
 	fprintf(script, "\tif(back_jump == true){\n");
-	fprintf(script, "\tfprintf(qscript_stdout, \"have reached start_of_questions with back_jump\");\n");
+	fprintf(script, "\tfprintf(qscript_stdout, \"have reached start_of_questions with back_jump: jumpToQuestion: %%s, jumpToIndex: %%d\\n\", jumpToQuestion.c_str(), jumpToIndex);\n");
 	fprintf(script, "\t}\n");
 
 	fprintf(script, "%s\n", program_code.str().c_str());
 	fprintf(script, "\t/*\n");
 	fprintf(script, "\tif (write_data_file_flag) {\n\n");
+	fprintf(script, "\t\t cout << \"write_data_file_flag is set\\n\";\n");
 	fprintf(script, "\t\twrite_ascii_data_to_disk();\n");
 	fprintf(script, "\t} else if (write_qtm_data_file_flag) {\n");
+	fprintf(script, "\t\t cout << \"write_qtm_data_file_flag is set\\n\";\n");
 	fprintf(script, "\t\twrite_qtm_data_to_disk();\n");
+	fprintf(script, "\t} else if (write_xtcc_data_file_flag) {\n");
+	fprintf(script, "\t\t cout << \"write_xtcc_data_file_flag is set\\n\";\n");
+	fprintf(script, "\t\t write_xtcc_data_to_disk();\n");
 	fprintf(script, "\t} else {\n");
 	fprintf(script, "\tchar end_of_question_navigation;\n");
 	fprintf(script, "label_end_of_qnre_navigation:\n");
@@ -1853,7 +2033,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	}
 	// fprintf(script, "\n\t} /* close while */\n");
 
-	fprintf(script, "    if (write_qtm_data_file_flag) {\n");
+	fprintf(script, "    if (write_qtm_data_file_flag||write_data_file_flag || write_xtcc_data_file_flag) {\n");
 	fprintf(script, "\n");
 	fprintf(script, "           string freq_count_file_name(jno + string(\".freq_count.csv\"));\n");
 	fprintf(script, "           fstream freq_count_file(freq_count_file_name.c_str(), ios_base::out | ios_base::trunc);\n");
@@ -1874,16 +2054,44 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "				}\n");
 	fprintf(script, "		    }\n");
 	fprintf(script, "		    freq_count_file << endl;\n");
-	fprintf(script, "                   freq_count_file << \"code, frequency\" << endl;\n");
-	fprintf(script, "                   // map<int32_t, int32_t>  q_freq_count = it->second;\n");
-	fprintf(script, "                   map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
-	fprintf(script, "                   for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
-	fprintf(script, "                                   it2 != q_freq_count.end(); ++ it2) {\n");
-	fprintf(script, "                       freq_count_file << it2->first << \", \" \n");
-	fprintf(script, "                               << it2->second << endl;\n");
-	fprintf(script, "                   }\n");
+
+	fprintf(script, "			if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {\n");
+	fprintf(script, "				freq_count_file << \"stubs, code, frequency\" << endl;\n");
+	fprintf(script, "				map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
+	fprintf(script, "				vector<stub_pair> & vec= (nq->nr_ptr->stubs);\n");
+	fprintf(script, "				for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
+	fprintf(script, "					it2 != q_freq_count.end(); ++ it2)\n");
+	fprintf(script, "				{\n");
+	fprintf(script, "					for (int i=0; i<vec.size(); ++i) {\n");
+	fprintf(script, "						if (vec[i].code == it2->first) {\n");
+	fprintf(script, "							freq_count_file << \"\\\"\" << vec[i].stub_text\n");
+	fprintf(script, "								<< \"\\\"\" << \",\";\n");
+	fprintf(script, "						}\n");
+	fprintf(script, "					}\n");
+	fprintf(script, "					freq_count_file << it2->first << \", \"\n");
+	fprintf(script, "						<< it2->second << endl;\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			} else {\n");
+	fprintf(script, "				freq_count_file << \", code, frequency\" << endl;\n");
+	fprintf(script, "				map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
+	fprintf(script, "				for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
+	fprintf(script, "					it2 != q_freq_count.end(); ++ it2)\n");
+	fprintf(script, "				{\n");
+	fprintf(script, "					freq_count_file << \", \" << it2->first << \", \"\n");
+	fprintf(script, "						<< it2->second << endl;\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "			}\n");
 	fprintf(script, "           }\n");
 	fprintf(script, "           freq_count_file << endl;\n");
+	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		delete qtm_datafile_question_disk_map[i];\n");
+	fprintf(script, "		qtm_datafile_question_disk_map[i] = 0;\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		delete ascii_flatfile_question_disk_map[i];\n");
+	fprintf(script, "		ascii_flatfile_question_disk_map[i] = 0;\n");
+	fprintf(script, "	}\n");
+
 	fprintf(script, "    }\n");
 	fprintf(script, "\n");
 
@@ -1895,6 +2103,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "    int read_a_serial_no()\n");
 	fprintf (script, "    {\n");
+	fprintf (script, "	//cout << \"ENTER: \"  << __FILE__ << \", \" << __LINE__ << \", \" << __PRETTY_FUNCTION__ << endl;\n"); 
 	fprintf (script, "restart:\n");
 	fprintf (script, "	struct dirent *directory_entry = readdir(directory_ptr);\n");
 	fprintf (script, "	if (directory_entry == NULL) {\n");
@@ -1969,7 +2178,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
 	fprintf (script, "	    load_data(jno, file_ser_no);\n");
-	fprintf (script, "	    merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n");
+	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n");
 	fprintf (script, "	    return file_ser_no;\n");
 	fprintf (script, "	} else {\n");
 	fprintf (script, "	    // not our data file\n");
@@ -1978,7 +2187,6 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "    }\n");
 	fprintf (script, "\n");
 }
-
 
 void print_write_qtm_data_to_disk(FILE *script)
 {
@@ -1994,6 +2202,8 @@ void print_write_qtm_data_to_disk(FILE *script)
 	fprintf(script, "	for (int32_t i = 0; i < qtm_datafile_question_disk_map.size(); ++i) {\n");
 	fprintf(script, "		qtm_datafile_question_disk_map[i]->Reset();\n");
 	fprintf(script, "	}\n");
+	fprintf(script, "	do_freq_counts();\n");
+	/*
 	fprintf(script, "       for (int32_t i = 0; i < question_list.size(); ++i) {\n");
 	fprintf(script, "                       AbstractQuestion * q = question_list[i];\n");
 	fprintf(script, "			stringstream question_name_str;\n");
@@ -2010,12 +2220,35 @@ void print_write_qtm_data_to_disk(FILE *script)
 	fprintf(script, "                       }\n");
 	fprintf(script, "                       freq_count[question_name_str.str()] = q_freq_map;\n");
 	fprintf(script, "       }\n");
+	*/
+	fprintf(script, "}\n");
+}
+
+void print_do_freq_counts(FILE *script)
+{
+	fprintf(script, "void do_freq_counts()\n{\n");
+	fprintf(script, "\tfor (int32_t i = 0; i < question_list.size(); ++i) {\n");
+	fprintf(script, "\t\tAbstractQuestion * q = question_list[i];\n");
+	fprintf(script, "\t\tstringstream question_name_str;\n");
+	fprintf(script, "\t\tquestion_name_str << q->questionName_;\n");
+	fprintf(script, "\t\tif (q->loop_index_values.size()) {\n");
+	fprintf(script, "\t\t\tfor (int j=0; j<q->loop_index_values.size(); ++j) {\n");
+	fprintf(script, "\t\t\t\tquestion_name_str << \".\" << q->loop_index_values[j];\n");
+	fprintf(script, "\t\t\t}\n");
+	fprintf(script, "\t\t}\n");
+	fprintf(script, "\t\tmap<int , int> q_freq_map = freq_count[question_name_str.str()];\n");
+	fprintf(script, "\t\tfor (set<int32_t>::iterator it = q->input_data.begin();\n");
+	fprintf(script, "\t\t\tit != q->input_data.end(); ++it) {\n");
+	fprintf(script, "\t\t\t\tq_freq_map[*it] ++;\n");
+	fprintf(script, "\t\t}\n");
+	fprintf(script, "\t\tfreq_count[question_name_str.str()] = q_freq_map;\n");
+	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
 }
 
 void print_write_ascii_data_to_disk(FILE *script)
 {
-	fprintf(script, "void write_ascii_data_to_disk()\n {\n");
+	fprintf(script, "void write_ascii_data_to_disk()\n{\n");
 	fprintf(script, "	stringstream temp_ser_no_str;\n");
 	fprintf(script, "	temp_ser_no_str << ser_no;\n");
 	fprintf(script, "	if (temp_ser_no_str.str().length() > ser_no_pos) {\n");
@@ -2035,10 +2268,323 @@ void print_write_ascii_data_to_disk(FILE *script)
 	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
 	fprintf(script, "		ascii_flatfile_question_disk_map[i]->write_data (flat_file_output_buffer);\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "	cout << \"output_buffer: \" << flat_file_output_buffer;\n");
+	fprintf(script, "	// cout << \"output_buffer: \" << flat_file_output_buffer;\n");
 	fprintf(script, "	flat_file << flat_file_output_buffer << endl;\n");
 	fprintf(script, "	memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);\n");
+	fprintf(script, "	do_freq_counts();\n");
 	fprintf(script, "}\n");
+}
+
+void print_write_spss_file_for_ascii_data_to_disk(/*FILE *script*/StatementCompiledCode & compute_flat_map_code)
+{
+	compute_flat_map_code.program_code << "\tstring spss_syn_file_name(jno + string(\"-flat-ascii.sps\"));\n";
+	compute_flat_map_code.program_code << "\tfstream spss_syn_file(spss_syn_file_name.c_str(), ios_base::out|ios_base::ate);\n";
+	compute_flat_map_code.program_code << "\t spss_syn_file << \"DATA LIST FILE='\" << "
+		<< " jno << \".dat'\\n\"<< endl << \"/RESPID\t\t\t1-6\\n\";\n";
+	compute_flat_map_code.program_code << "\tfor (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
+		<< "\t\tascii_flatfile_question_disk_map[i]->write_spss_pull_data(spss_syn_file);\n"
+		<< "\t}\n";
+	compute_flat_map_code.program_code << "\t spss_syn_file << \".\\n\";\n";
+	compute_flat_map_code.program_code << "\n spss_syn_file << \"exe.\\n\";\n";
+	compute_flat_map_code.program_code << "\tfor (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
+		<< "\t\tascii_flatfile_question_disk_map[i]->write_spss_variable_labels(spss_syn_file);\n"
+		<< "\t}\n";
+	compute_flat_map_code.program_code << "\n spss_syn_file << \"exe.\\n\";\n";
+	compute_flat_map_code.program_code << "\tfor (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n"
+		<< "\t\tascii_flatfile_question_disk_map[i]->write_spss_value_labels(spss_syn_file);\n"
+		<< "\t}\n";
+	compute_flat_map_code.program_code << "\n spss_syn_file << \"exe.\\n\";\n";
+	compute_flat_map_code.program_code << "\n spss_syn_file << \"save outfile=\\\"\" << jno << \".sav\\\"\\n\";\n";
+
+	//compute_flat_map_code.program_code << "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+	//	<< "\t\t\tqtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file, string(\"setup-\")+jno);\n"
+	//	<< "\t\t\tstring questionName = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
+	//	<< "\t\t\tif (qtm_datafile_question_disk_map[i]->q->loop_index_values.size() > 0) {\n"
+	//	<< "\t\t\t\tsummary_tables[questionName].push_back(qtm_datafile_question_disk_map[i]);\n"
+	//	<< "\t\t\t}\n"
+
+}
+
+void print_write_xtcc_data_to_disk(FILE *script)
+{
+	fprintf(script, "void write_xtcc_data_to_disk()\n {\n");
+	// serial number goes into the 1st 4 bytes
+	fprintf(script, "	void * void_ptr = &ser_no;\n");
+	fprintf(script, "	char * char_ptr = static_cast<char*>(void_ptr);\n");
+	fprintf(script, "	char * my_data_ptr = xtcc_datafile_output_buffer;\n");
+	fprintf(script, "	for (int i=0; i<sizeof(int); ++i) {\n");
+	fprintf(script, "		*my_data_ptr++ = *char_ptr++;\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "\n");
+	fprintf(script, "	for (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		xtcc_question_disk_map[i]->write_data (xtcc_datafile_output_buffer);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	//cout << \"output_buffer: \" << xtcc_datafile_output_buffer;\n");
+	fprintf(script, "	xtcc_datafile . write(xtcc_datafile_output_buffer, len_xtcc_datafile_output_buffer);\n");
+	fprintf(script, "	memset(xtcc_datafile_output_buffer, 0, len_xtcc_datafile_output_buffer-1);\n");
+	fprintf(script, "	do_freq_counts();\n");
+	fprintf(script, "	cout << \"len_xtcc_datafile_output_buffer: \" << len_xtcc_datafile_output_buffer << endl;\n");
+	fprintf(script, "}\n");
+}
+
+
+void print_summary_axis(FILE * script)
+{
+
+	fprintf (script, "void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, fstream & qtm_qax_file) \n");
+	fprintf (script, "{\n");
+	fprintf (script, "	AbstractQuestion * q = v[0]->q;\n");
+	fprintf (script, "	if (q->q_type == spn) {\n");
+	fprintf (script, "		int n_digits = 0;\n");
+	fprintf (script, "		int rat_scale = 0;\n");
+	fprintf (script, "		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {\n");
+	fprintf (script, "			if (n_q->nr_ptr) {\n");
+	fprintf (script, "				string & stub_name = n_q->nr_ptr->name;\n");
+	fprintf (script, "				int multiplier = 1;\n");
+	fprintf (script, "				for (int i=stub_name.length()-1; i>0; --i) {\n");
+	fprintf (script, "					if ( isdigit(stub_name[i]) ) {\n");
+	fprintf (script, "						int c = stub_name[i] - '0';\n");
+	fprintf (script, "						++n_digits;\n");
+	fprintf (script, "						rat_scale = rat_scale + c * multiplier;\n");
+	fprintf (script, "						multiplier *= 10;\n");
+	fprintf (script, "					} else {\n");
+	fprintf (script, "						break;\n");
+	fprintf (script, "					}\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "		if (n_digits > 0) {\n");
+	fprintf (script, "			string include_file_name;\n");
+	fprintf (script, "			string mean_score_include_file;\n");
+	fprintf (script, "			if (v[0]->width_ == 1) {\n");
+	fprintf (script, "				include_file_name = \"rat1c.qin\";\n");
+	fprintf (script, "				mean_score_include_file = \"mn1c.qin\";\n");
+	fprintf (script, "			} else if (v[0]->width_ == 2) {\n");
+	fprintf (script, "				include_file_name = \"rat2c.qin\";\n");
+	fprintf (script, "				mean_score_include_file = \"mn2c.qin\";\n");
+	fprintf (script, "			} else if (v[0]->width_ == 3) {\n");
+	fprintf (script, "				include_file_name = \"rat3c.qin\";\n");
+	fprintf (script, "				mean_score_include_file = \"mn3c.qin\";\n");
+	fprintf (script, "			} else {\n");
+	fprintf (script, "				include_file_name = \"unhandled width syntax error\";\n");
+	fprintf (script, "				mean_score_include_file = \"unhandled width syntax error\";\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "\n");
+
+	fprintf (script, "			if (rat_scale == 5) {\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 5 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top2\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 5 << \", \" << 4 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot2\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \", \" << 2 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_mn\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 5 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "			}\n");
+
+	fprintf (script, "			else if (rat_scale == 7) {\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 7 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top2\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 7 << \", \" << 6 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top3\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 5 << \":\" << 7 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot2\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \", \" << 2 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_mn\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 7 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot3\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 3 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "			}\n");
+
+	fprintf (script, "			else if (rat_scale == 10) {\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 10 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top2\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 10 << \", \" << 9 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top3\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 8 << \":\" << 10 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot2\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \", \" << 2 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_mn\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 10 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot3\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
+	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
+	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 3 << \")\"\n");
+	fprintf (script, "						<< endl;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "\n");
+	fprintf (script, "			}\n");
+
+	fprintf (script, "		} else {\n");
+	fprintf (script, "			qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
+	fprintf (script, "			qtm_qax_file << \"/*l \" << q->questionName_ << \"_sum\" << endl;\n");
+	fprintf (script, "			qtm_qax_file << \"/*ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "			for (int i=0; i<v.size(); ++i) {\n");
+	fprintf (script, "				qtm_qax_file << \"/**include summ.qin;qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 << endl;\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	cout << endl;\n");
+	fprintf (script, "}\n");
 }
 
 void print_microhttpd_web_support (FILE * script)
