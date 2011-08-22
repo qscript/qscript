@@ -282,10 +282,11 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "extern vector<int32_t> data;\n");
+
 	if ( program_options_ns::flag_nice_map ) {
-		fprintf(script, "bool flag_nice_map = true;\n");
+		fprintf(script, "namespace program_options_ns { bool flag_nice_map = true; }\n");
 	} else {
-		fprintf(script, "bool flag_nice_map = false;\n");
+		fprintf(script, "namespace program_options_ns { bool flag_nice_map = false; }\n");
 	}
 	
 	fprintf(script, "extern UserNavigation user_navigation;\n");

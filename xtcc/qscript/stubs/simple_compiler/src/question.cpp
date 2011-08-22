@@ -23,16 +23,22 @@
 #include "utils.h"
 #include "UserResponse.h"
 
-namespace program_options_ns {
-	extern bool  no_question_save_restore_optimization;
-}
-
 int32_t scan_datalex();
 int32_t scan_dataparse();
 //extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 // extern user_response::UserResponseType the_user_response;
-//extern bool no_question_save_restore_optimization;
+
+namespace program_options_ns {
+	extern bool ncurses_flag;
+	extern bool static_binary_flag;
+	extern bool web_server_flag;
+	extern bool compile_to_cpp_only_flag;
+	extern int32_t fname_flag;
+	extern bool no_question_save_restore_optimization;
+}
+
+using program_options_ns::no_question_save_restore_optimization;
 
 using std::cout;
 using std::endl;

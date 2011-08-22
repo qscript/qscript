@@ -3,7 +3,9 @@
 #include <sys/types.h>
 #include <curses.h>
 #include <string>
+#include <vector>
 #include "UserResponse.h"
+#include "user_navigation.h"
 
 struct AbstractQuestion;
 
@@ -45,7 +47,7 @@ class NCursesReadline
 ///			   , std::string & re_arranged_buffer
 ///			   , int32_t & pos_1st_invalid_data);
 
-user_response::UserResponseType read_data (const char * prompt);
+user_response::UserResponseType read_data (const char * prompt, std::vector<int> * data_ptr);
 user_response::UserResponseType read_data_from_window(
 		WINDOW * question_window,
 		WINDOW * stub_list_window,
@@ -53,7 +55,12 @@ user_response::UserResponseType read_data_from_window(
 		const char * prompt, bool clear_buffer_flag,
 		std::string & re_arranged_buffer,
 		int & pos_1st_invalid_data,
-		AbstractQuestion * q);
+		AbstractQuestion * q,
+		std::vector<int> * data_ptr);
+bool verify_web_data (std::string p_question_data, 
+		UserNavigation p_user_navigation,
+		user_response::UserResponseType p_the_user_response,
+		std::vector<int> * data_ptr);
 /*
 char * qscript_readline(WINDOW * data_entry_window, const char * prompt
 	, bool clear_buffer_flag, std::string & re_arranged_buffer, int32_t & pos_1st_invalid_data);
