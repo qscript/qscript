@@ -45,7 +45,7 @@ class NCursesReadline
 ///			   , std::string & re_arranged_buffer
 ///			   , int32_t & pos_1st_invalid_data);
 
-user_response::UserResponseType read_data( const char * prompt);
+user_response::UserResponseType read_data (const char * prompt);
 user_response::UserResponseType read_data_from_window(
 		WINDOW * question_window,
 		WINDOW * stub_list_window,

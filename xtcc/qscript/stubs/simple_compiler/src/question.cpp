@@ -23,12 +23,16 @@
 #include "utils.h"
 #include "UserResponse.h"
 
+namespace program_options_ns {
+	extern bool  no_question_save_restore_optimization;
+}
+
 int32_t scan_datalex();
 int32_t scan_dataparse();
 //extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 // extern user_response::UserResponseType the_user_response;
-extern bool no_question_save_restore_optimization;
+//extern bool no_question_save_restore_optimization;
 
 using std::cout;
 using std::endl;
@@ -300,7 +304,15 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< ")"
 	        << ") {" << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
-		<< " ) {\n\tstopAtNextQuestion = false;\n}\n";
+		<< " ) {\n\tstopAtNextQuestion = false; "
+		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
+		<< " disarming stopAtNextQuestion = false \\n\");\n"
+		<< "\n}\n";
+	// Review this code later 
+	//program_code << "if ("
+	//	<< "jumpToQuestion == \"" << questionName_ << "\") { " << endl
+	//	<< "jumpToQuestion = \"\";\n"
+	//	<< "}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
 		<< "if ( " << questionName_ << "->question_attributes.hidden_==false) {\n"
@@ -1449,7 +1461,7 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 	using qscript_parser::map_of_active_vars_for_questions;
 	code.program_code << "/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():"
 		<< for_bounds_stack.size() << " */\n";
-	if (no_question_save_restore_optimization==false) {
+	if (program_options_ns::no_question_save_restore_optimization==false) {
 		code.quest_defns << "map <string,int8_t> " << questionName_ << "_scope_int8_t;\n";
 		code.quest_defns << "map <string,int16_t> " << questionName_ << "_scope_int16_t;\n";
 		code.quest_defns << "map <string,int32_t> " << questionName_ << "_scope_int32_t;\n";
@@ -1472,14 +1484,14 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		// the code below should be extracted to a method: NxD 11-Jun-2010
 
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false) 
 			SetupSimpleQuestionRestore(code);
 		code.program_code << "if( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump = false;\n}\n";
 		code.program_code << "}" << endl;
 
 
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false) 
 			SetupSimpleQuestionSave(code);
 	} else {
 		// Handle Array Question here
@@ -1490,11 +1502,11 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]->isAnswered_ == true ) {" << endl;
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false) 
 			SetupArrayQuestionRestore(code);
 		s << "}" << endl;
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false) 
 			SetupArrayQuestionSave(code);
 	}
 	code.program_code << "/* EXIT: AbstractQuestion::PrintSetupBackJump()  */\n";

@@ -14,7 +14,10 @@
 
 
 set<string> qtm_include_files;
-extern bool flag_nice_map;
+
+namespace program_options_ns {
+	extern bool flag_nice_map;
+}
 
 
 namespace qtm_data_file_ns {
@@ -168,7 +171,7 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 		}
 		int currentColumnMod10 = 0;
 		int add_displacement = 0;
-		if (flag_nice_map) {
+		if (program_options_ns::flag_nice_map) {
 			bufferBetweenQuestions = 10;
 			if (q->loop_index_values.size() == 0) {
 				currentColumnMod10 = currentColumn_ % 10;

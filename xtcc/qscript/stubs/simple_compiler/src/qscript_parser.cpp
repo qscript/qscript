@@ -9,9 +9,18 @@
 #include "TempNameGenerator.h"
 #include "utils.h"
 
+
+namespace program_options_ns {
+	extern bool ncurses_flag;
+	extern bool static_binary_flag;
+	extern bool web_server_flag;
+	extern bool compile_to_cpp_only_flag;
+	extern int32_t fname_flag;
+	extern bool flag_nice_map;
+}
+
 extern int32_t qscript_confparse();
 extern void qscript_confrestart(FILE *input_file);
-extern bool flag_nice_map;
 namespace qscript_parser
 {
 	using std::cerr;
@@ -114,7 +123,7 @@ void PrintPrintMapHeader(FILE * script);
 void PrintDefineSomePDCursesKeys(FILE * script);
 void PrintPDCursesKeysHeader(FILE * script);
 void PrintProcessOptions(FILE * script);
-void PrintMain(FILE * script, bool ncurses_flag);
+void PrintNCursesMain(FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
 void print_write_qtm_data_to_disk(FILE *script);
@@ -193,8 +202,11 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
+	//print_close(script, code.program_code, ncurses_flag);
+
+	if (program_options_ns::ncurses_flag)
+		PrintNCursesMain(script, ncurses_flag);
 	print_close(script, code.program_code, ncurses_flag);
-	PrintMain(script, ncurses_flag);
 	fflush(script);
 	if(qscript_debug::DEBUG_qscript_parser)
 		cerr << "EXIT qscript_parser::GenerateCode" << endl;
@@ -270,7 +282,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "void read_data(const char * prompt);\n");
 	fprintf(script, "extern vector<int32_t> data;\n");
-	if ( flag_nice_map ) {
+	if ( program_options_ns::flag_nice_map ) {
 		fprintf(script, "bool flag_nice_map = true;\n");
 	} else {
 		fprintf(script, "bool flag_nice_map = false;\n");
@@ -294,7 +306,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int card_end;\n");
 
 	fprintf(script, "int32_t check_if_reg_file_exists(string jno, int32_t ser_no);\n");
-	fprintf(script, "void print_map_header(fstream & map_file);");
+	fprintf(script, "void print_map_header(fstream & map_file);\n");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
 	fprintf(script, "map<string, map<int, int> > freq_count;\n");
 	fprintf(script, "vector <int8_t> vector_int8_t;\n");
@@ -414,7 +426,7 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script,"int32_t ComputeJumpToIndex(AbstractQuestion * q)\n");
 	fprintf(script,"{\n");
 	fprintf(script,"	//cout << \"ENTER ComputeJumpToIndex: index:  \";\n");
-	fprintf(script,"	//for (int32_t i = 0; i < q->loop_index_values.size(); ++i){\n");
+	fprintf(script,"	//for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {\n");
 	fprintf(script,"	//	cout << q->loop_index_values[i] << \" \";\n");
 	fprintf(script,"	//}\n");
 	fprintf(script,"	//cout << endl;\n");
@@ -1267,7 +1279,9 @@ test_script.o: test_script.C
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
 
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
-	string cpp_compile_command = string("g++ -g -o ")
+	string cpp_compile_command ;
+	if (program_options_ns::ncurses_flag) {
+		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
@@ -1275,7 +1289,15 @@ test_script.o: test_script.C
 			+ string(" ") + intermediate_file_name
 			+ string(" -lqscript_runtime -lpanel ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
-
+	} else if (program_options_ns::web_server_flag) {
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime");
+	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
 	int32_t ret_val = system(cpp_compile_command.c_str());
@@ -1460,23 +1482,6 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "		break;\n");
-	fprintf (script, "		case 's': {\n");
-	fprintf (script, "			card_start_flag = true;\n");
-	fprintf (script, "			if (optarg) {\n");
-	fprintf (script, "				card_start = atoi(optarg);\n");
-	fprintf (script, "			}\n");
-	fprintf (script, "		}\n");
-	fprintf(script, "		break;\n");
-	fprintf (script, "		case 'e': {\n");
-	fprintf (script, "			card_end_flag = true;\n");
-	fprintf (script, "			if (optarg) {\n");
-	fprintf (script, "				card_end = atoi(optarg);\n");
-	fprintf (script, "			}\n");
-	fprintf (script, "		}\n");
-	fprintf(script, "		break;\n");
-
-
-	fprintf(script, "			  break;\n");
 	fprintf(script, "		case '?' : {\n");
 	fprintf(script, "				   cout << \" invalid option, optopt:\" << optopt << endl;\n");
 	fprintf(script, "				   exit(1);\n");
@@ -1501,7 +1506,7 @@ void PrintPrintMapHeader(FILE * script)
 	fprintf(script, "}\n");
 }
 
-void PrintMain (FILE * script, bool ncurses_flag)
+void PrintNCursesMain (FILE * script, bool ncurses_flag)
 {
 	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
 	fprintf(script, "\tprocess_options(argc, argv);\n");
@@ -1533,7 +1538,7 @@ void PrintMain (FILE * script, bool ncurses_flag)
 
 	if(ncurses_flag) {
 		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);\n");
-		fprintf(script, "	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0 /* || help_window == 0 */ ){\n");
+		fprintf(script, "	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0\n\t\t /* || help_window == 0 */\n\t\t ){\n");
 		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
 		fprintf(script, "		return 1;\n");
 		fprintf(script, "	}\n");
