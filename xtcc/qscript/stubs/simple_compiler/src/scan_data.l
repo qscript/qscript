@@ -247,3 +247,30 @@ top:
 	return the_user_response;
 }
 
+	
+bool verify_web_data (string p_question_data, 
+		UserNavigation p_user_navigation,
+		user_response::UserResponseType p_the_user_response,
+		vector<int> * data_ptr)
+{
+	cout << __PRETTY_FUNCTION__ << ", p_question_data: " << p_question_data << endl;
+	user_response::UserResponseType l_user_response = user_response::NotSet; 
+	if (p_question_data.length()==0) {
+		return l_user_response;
+	}
+	yyscan_t scanner;
+	yylex_init(&scanner);
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(p_question_data.c_str(), scanner);
+	vector <int> & data = * data_ptr;
+	if (scan_dataparse(scanner, &data)) {
+		cout << "there was an error in parsing the data" << endl;
+		yy_delete_buffer(s_data, scanner);
+		data.clear();
+		return false;
+	} else {
+		return true;
+	}
+	cout << endl;
+	yy_delete_buffer(s_data, scanner);
+	return true;
+}
