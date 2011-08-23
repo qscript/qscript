@@ -14,10 +14,7 @@
 
 
 set<string> qtm_include_files;
-
-namespace program_options_ns {
-	extern bool flag_nice_map;
-}
+extern bool flag_nice_map;
 
 
 namespace qtm_data_file_ns {
@@ -171,7 +168,7 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 		}
 		int currentColumnMod10 = 0;
 		int add_displacement = 0;
-		if (program_options_ns::flag_nice_map) {
+		if (flag_nice_map) {
 			bufferBetweenQuestions = 10;
 			if (q->loop_index_values.size() == 0) {
 				currentColumnMod10 = currentColumn_ % 10;
@@ -205,10 +202,6 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 		if (currentColumn_ > cardDataWrapAroundAt_ || currentColumn_ + width_ > cardDataWrapAroundAt_) {
 			NextCard();
 		}
-	
-		// if (currentColumn_ + width_ >= cardDataWrapAroundAt_)  {
-		// 	NextCard();
-		// }
 	}
 	int question_pos = GetCurrentColumnPosition();
 	currentColumn_ += width_;

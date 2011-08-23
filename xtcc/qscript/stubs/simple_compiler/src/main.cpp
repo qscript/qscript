@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <string>
+#include <sstream>
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
@@ -35,10 +36,10 @@ namespace program_options_ns {
 	bool ncurses_flag = false;
 	bool static_binary_flag = false;
 	bool web_server_flag = false;
-	bool compile_to_cpp_only_flag = false;
 	int32_t fname_flag = 0;
 	bool  no_question_save_restore_optimization;
 	bool flag_nice_map;
+	bool compile_to_cpp_only_flag = false;
 	bool latex_flag = false;
 }
 
