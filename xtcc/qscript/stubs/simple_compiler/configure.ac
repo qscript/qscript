@@ -16,8 +16,8 @@ AC_CHECK_LIB([panel], [update_panels])
 
 # Checks for header files.
 AC_FUNC_ALLOCA
-AC_CHECK_HEADERS([inttypes.h libintl.h limits.h malloc.h stddef.h stdlib.h
-		  string.h unistd.h curses.h panel.h])
+AC_CHECK_HEADERS([inttypes.h libintl.h limits.h malloc.h stddef.h stdlib.h \
+                  string.h unistd.h curses.h panel.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
