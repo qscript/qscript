@@ -112,7 +112,7 @@
 
 
 /* Line 189 of yacc.c  */
-#line 116 "q.cpp"
+#line 116 "../../simple_compiler/src/q.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -183,6 +183,50 @@
      SETALL = 299
    };
 #endif
+/* Tokens.  */
+#define INUMBER 258
+#define FNUMBER 259
+#define NAME 260
+#define TOSTRING 261
+#define TEXT 262
+#define SINGLE_CODED 263
+#define MP 264
+#define VOID_T 265
+#define INT8_T 266
+#define INT16_T 267
+#define INT32_T 268
+#define FLOAT_T 269
+#define DOUBLE_T 270
+#define STRING_T 271
+#define IN 272
+#define FOR 273
+#define GOTO 274
+#define HIDDEN 275
+#define ALLOW_BLANK 276
+#define MUTEX 277
+#define CLEAR 278
+#define COLUMN 279
+#define ISANSWERED 280
+#define NEWCARD 281
+#define CONST 282
+#define LOGOR 283
+#define LOGAND 284
+#define NOEQ 285
+#define ISEQ 286
+#define GEQ 287
+#define LEQ 288
+#define NOT 289
+#define UMINUS 290
+#define COUNT 291
+#define FUNC_CALL 292
+#define IF 293
+#define ELSE 294
+#define STUBS_LIST 295
+#define SETDEL 296
+#define SETADD 297
+#define UNSET 298
+#define SETALL 299
+
 
 
 
@@ -210,7 +254,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 214 "q.cpp"
+#line 258 "../../simple_compiler/src/q.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -222,7 +266,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 226 "q.cpp"
+#line 270 "../../simple_compiler/src/q.cpp"
 
 #ifdef short
 # undef short
@@ -1744,7 +1788,7 @@ yyreduce:
 			cerr << "This should never appear: climbing up the tree" << endl;
 			qscript_parser::tree_root=qscript_parser::tree_root->prev_;
 		}
-	;}
+	}
     break;
 
   case 3:
@@ -1753,7 +1797,7 @@ yyreduce:
 #line 160 "q.ypp"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
-	;}
+	}
     break;
 
   case 4:
@@ -1771,7 +1815,7 @@ yyreduce:
 					, err_mesg.str().c_str(),
 					qscript_parser::line_no, __LINE__, __FILE__  );
 		}
-	;}
+	}
     break;
 
   case 5:
@@ -1797,7 +1841,7 @@ yyreduce:
 		// - took me a while to figure out this memory leak
 		delete v_list;
 		free((yyvsp[(2) - (7)].name));
-	;}
+	}
     break;
 
   case 6:
@@ -1807,7 +1851,7 @@ yyreduce:
     {
 		 (yyval.v_list)=(yyvsp[(1) - (1)].v_list);
 		 //cout << "got decl_comma_list : " << endl;
-	;}
+	}
     break;
 
   case 7:
@@ -1817,7 +1861,7 @@ yyreduce:
     {
 		(yyval.v_list)=qscript_parser::link_chain((yyvsp[(1) - (3)].v_list),(yyvsp[(3) - (3)].v_list));
 		//cout << "chaining var_decl : " << endl;
-	;}
+	}
     break;
 
   case 8:
@@ -1830,7 +1874,7 @@ yyreduce:
 			mem_log((yyval.v_list), __LINE__, __FILE__, qscript_parser::line_no);
 		}
 		free((yyvsp[(2) - (2)].name));
-	;}
+	}
     break;
 
   case 9:
@@ -1845,7 +1889,7 @@ yyreduce:
 			mem_log((yyval.v_list), __LINE__, __FILE__, qscript_parser::line_no);
 		}
 		free((yyvsp[(2) - (5)].name));
-	;}
+	}
     break;
 
   case 10:
@@ -1859,7 +1903,7 @@ yyreduce:
 			mem_log((yyval.v_list), __LINE__, __FILE__, qscript_parser::line_no);
 		}
 		free((yyvsp[(3) - (3)].name));
-	;}
+	}
     break;
 
   case 11:
@@ -1868,7 +1912,7 @@ yyreduce:
 #line 234 "q.ypp"
     {
 		(yyval.v_list)=0;
-		;}
+		}
     break;
 
   case 12:
@@ -1883,7 +1927,7 @@ yyreduce:
 			qscript_parser::blk_start_flag.pop_back();
 		}
 
-	;}
+	}
     break;
 
   case 13:
@@ -1894,7 +1938,7 @@ yyreduce:
 		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
 		(yyval.stmt)=(yyvsp[(2) - (2)].stmt);
-	;}
+	}
     break;
 
   case 21:
@@ -1903,7 +1947,7 @@ yyreduce:
 #line 268 "q.ypp"
     {
 		   (yyval.type_qual) = CONST_QUAL;
-	;}
+	}
     break;
 
   case 22:
@@ -1912,7 +1956,7 @@ yyreduce:
 #line 273 "q.ypp"
     {
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (3)].name), (yyvsp[(1) - (3)].dt)/*, line_no*/);
-	;}
+	}
     break;
 
   case 23:
@@ -1920,7 +1964,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 276 "q.ypp"
     {
-	;}
+	}
     break;
 
   case 24:
@@ -1929,7 +1973,7 @@ yyreduce:
 #line 278 "q.ypp"
     {
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (5)].name), (yyvsp[(1) - (5)].dt), (yyvsp[(4) - (5)].expr));
-	;}
+	}
     break;
 
   case 25:
@@ -1940,7 +1984,7 @@ yyreduce:
 		/* NxD: I have ordered the types in datatype so that this hack is possible I hope */
 		DataType dt=DataType(INT8_ARR_TYPE+((yyvsp[(1) - (6)].dt)-INT8_TYPE));
 		(yyval.stmt) = qscript_parser::active_scope->insert((yyvsp[(2) - (6)].name), dt, (yyvsp[(4) - (6)].expr)/*, line_no*/);
-	;}
+	}
     break;
 
   case 30:
@@ -1949,7 +1993,7 @@ yyreduce:
 #line 295 "q.ypp"
     {
 		(yyval.stmt) = (yyvsp[(1) - (1)].c_stmt);
-	;}
+	}
     break;
 
   case 38:
@@ -1969,7 +2013,7 @@ yyreduce:
 			, qscript_parser::lex_location.lineNo_, __LINE__, __FILE__);
 		yyerrok;
 		(yyval.stmt) = new ErrorStatement(qscript_parser::line_no);
-	;}
+	}
     break;
 
   case 39:
@@ -1979,7 +2023,7 @@ yyreduce:
     {
 		++qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.push_back((yyvsp[(5) - (8)].expr));
-	;}
+	}
     break;
 
   case 40:
@@ -1995,7 +2039,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 41:
@@ -2004,7 +2048,7 @@ yyreduce:
 #line 337 "q.ypp"
     {
 		(yyval.c_stmt) = qscript_parser::ProcessCompoundStatement((yyvsp[(1) - (3)].c_stmt), (yyvsp[(2) - (3)].stmt));
-	;}
+	}
     break;
 
   case 42:
@@ -2016,7 +2060,7 @@ yyreduce:
 		//qscript_parser::compound_body_stack.push_back(cmpdStmt);
 		//cmpdStmt->nestedCompoundStatementStack_=qscript_parser::compound_body_stack;
 		(yyval.c_stmt)=cmpdStmt;
-	;}
+	}
     break;
 
   case 43:
@@ -2037,7 +2081,7 @@ yyreduce:
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 44:
@@ -2068,7 +2112,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, qscript_parser::line_no);
 		}
-	;}
+	}
     break;
 
   case 45:
@@ -2090,7 +2134,7 @@ yyreduce:
 				mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 			}
 		}
-	;}
+	}
     break;
 
   case 46:
@@ -2100,7 +2144,7 @@ yyreduce:
     {
 		(yyval.stmt) = new GotoStatement(GOTO_STMT, qscript_parser::line_no, (yyvsp[(2) - (3)].name));
 		// free($2); ? is this required here
-	;}
+	}
     break;
 
   case 47:
@@ -2110,7 +2154,7 @@ yyreduce:
     {
 		// free($3); ? is this required here
 		(yyval.stmt) = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, (yyvsp[(3) - (5)].name));
-	;}
+	}
     break;
 
   case 48:
@@ -2120,7 +2164,7 @@ yyreduce:
     {
 		(yyval.stmt) = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, (yyvsp[(3) - (8)].name), (yyvsp[(5) - (8)].expr));
 		// free($3); ? is this required here
-	;}
+	}
     break;
 
   case 49:
@@ -2129,7 +2173,7 @@ yyreduce:
 #line 429 "q.ypp"
     {
 		(yyval.stmt) = new ColumnStatement(COLUMN_STMT, qscript_parser::line_no, (yyvsp[(3) - (5)].expr));
-	;}
+	}
     break;
 
   case 50:
@@ -2138,7 +2182,7 @@ yyreduce:
 #line 434 "q.ypp"
     {
 		(yyval.stmt) = new NewCardStatement(COLUMN_STMT, qscript_parser::line_no, (yyvsp[(3) - (5)].expr));
-	;}
+	}
     break;
 
   case 51:
@@ -2152,7 +2196,7 @@ yyreduce:
 		question_attributes.Reset();
 		using qscript_parser::xs;
 		xs.reset();
-	;}
+	}
     break;
 
   case 52:
@@ -2166,7 +2210,7 @@ yyreduce:
 		qscript_parser::has_mutex_range = false;
 		using qscript_parser::xs;
 		xs.reset();
-	;}
+	}
     break;
 
   case 53:
@@ -2177,7 +2221,7 @@ yyreduce:
 		(yyval.stmt) = qscript_parser::ProcessNamedQuestion((yyvsp[(1) - (7)].name), (yyvsp[(2) - (7)].text_buf), (yyvsp[(4) - (7)].dt), (yyvsp[(5) - (7)].name));
 		//cout << "parsed named question : " << $1 << endl;
 		question_attributes.Reset();
-	;}
+	}
     break;
 
   case 58:
@@ -2186,7 +2230,7 @@ yyreduce:
 #line 472 "q.ypp"
     {
 		question_attributes.setHidden();
-	;}
+	}
     break;
 
   case 59:
@@ -2195,7 +2239,7 @@ yyreduce:
 #line 475 "q.ypp"
     {
 		question_attributes.setAllowBlank();
-	;}
+	}
     break;
 
   case 60:
@@ -2210,7 +2254,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 61:
@@ -2225,7 +2269,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 62:
@@ -2240,7 +2284,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 63:
@@ -2255,7 +2299,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 64:
@@ -2270,7 +2314,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 65:
@@ -2285,7 +2329,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 66:
@@ -2300,7 +2344,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 67:
@@ -2315,7 +2359,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 68:
@@ -2330,7 +2374,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 69:
@@ -2345,7 +2389,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 70:
@@ -2360,7 +2404,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 71:
@@ -2375,7 +2419,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 72:
@@ -2390,7 +2434,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 73:
@@ -2405,7 +2449,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 74:
@@ -2420,7 +2464,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 75:
@@ -2435,7 +2479,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 76:
@@ -2450,7 +2494,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 77:
@@ -2464,7 +2508,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 78:
@@ -2478,7 +2522,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 79:
@@ -2492,7 +2536,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 80:
@@ -2552,7 +2596,7 @@ yyreduce:
 				mem_addr.push_back(m1);
 			}
 		}
-	;}
+	}
     break;
 
   case 81:
@@ -2565,7 +2609,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 82:
@@ -2578,7 +2622,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
-	;}
+	}
     break;
 
   case 83:
@@ -2593,7 +2637,7 @@ yyreduce:
 			mem_log((yyval.expr), __LINE__, __FILE__, line_no);
 		}
 		xs.reset();
-	;}
+	}
     break;
 
   case 84:
@@ -2605,7 +2649,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, qscript_parser::line_no);
 		}
-	;}
+	}
     break;
 
   case 85:
@@ -2617,7 +2661,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, qscript_parser::line_no);
 		}
-	;}
+	}
     break;
 
   case 86:
@@ -2629,7 +2673,7 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, qscript_parser::line_no);
 		}
-	;}
+	}
     break;
 
   case 87:
@@ -2641,14 +2685,14 @@ yyreduce:
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.expr), __LINE__, __FILE__, qscript_parser::line_no);
 		}
-	;}
+	}
     break;
 
   case 88:
 
 /* Line 1455 of yacc.c  */
 #line 771 "q.ypp"
-    { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
+    { (yyval.expr)=(yyvsp[(1) - (1)].expr); }
     break;
 
   case 89:
@@ -2657,7 +2701,7 @@ yyreduce:
 #line 772 "q.ypp"
     {
 		(yyval.expr)=qscript_parser::link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
-	;}
+	}
     break;
 
   case 90:
@@ -2669,7 +2713,7 @@ yyreduce:
 	       // we need this =1 when generating
 	       // code for flat file creation
 		qscript_parser::no_mpn = 1;
-       ;}
+       }
     break;
 
   case 91:
@@ -2678,7 +2722,7 @@ yyreduce:
 #line 783 "q.ypp"
     { qscript_parser::q_type = mpn;
 		qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival);
-	;}
+	}
     break;
 
   case 92:
@@ -2687,7 +2731,7 @@ yyreduce:
 #line 788 "q.ypp"
     { 
 		     qscript_parser::has_mutex_range = true;
-	     ;}
+	     }
     break;
 
   case 95:
@@ -2704,7 +2748,7 @@ yyreduce:
 		} else {
 			qscript_parser:: mutex_range_set.add_range ( (yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival));
 		}
-	;}
+	}
     break;
 
   case 96:
@@ -2713,14 +2757,14 @@ yyreduce:
 #line 809 "q.ypp"
     {
 		qscript_parser::mutex_range_set.add_indiv((yyvsp[(1) - (1)].ival));
-	;}
+	}
     break;
 
   case 97:
 
 /* Line 1455 of yacc.c  */
 #line 815 "q.ypp"
-    { ;}
+    { }
     break;
 
   case 100:
@@ -2738,7 +2782,7 @@ yyreduce:
 			//qscript_parser:: xs.range.push_back( pair<int32_t,int32_t>($1,$3));
 			qscript_parser:: xs.add_range ( (yyvsp[(1) - (3)].ival),(yyvsp[(3) - (3)].ival));
 		}
-	;}
+	}
     break;
 
   case 101:
@@ -2748,7 +2792,7 @@ yyreduce:
     {
 		//qscript_parser::xs.indiv.insert($1);
 		qscript_parser::xs.add_indiv((yyvsp[(1) - (1)].ival));
-	;}
+	}
     break;
 
   case 102:
@@ -2759,7 +2803,7 @@ yyreduce:
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
 		stub_list.resize(0);
-	;}
+	}
     break;
 
   case 103:
@@ -2777,7 +2821,7 @@ yyreduce:
 		named_stubs_list.push_back(nr_ptr);
 		//$$=0;
 		(yyval.stmt) = nr_ptr;
-	;}
+	}
     break;
 
   case 106:
@@ -2790,7 +2834,7 @@ yyreduce:
 		int32_t code=(yyvsp[(2) - (2)].ival);
 		struct stub_pair pair1(s1,code);
 		stub_list.push_back(pair1);
-	;}
+	}
     break;
 
   case 107:
@@ -2804,7 +2848,7 @@ yyreduce:
 		struct stub_pair pair1(s1,code, true);
 		stub_list.push_back(pair1);
 		//cout << "chaining stublist" << endl;
-	;}
+	}
     break;
 
   case 108:
@@ -2814,7 +2858,7 @@ yyreduce:
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
-	;}
+	}
     break;
 
   case 109:
@@ -2824,7 +2868,7 @@ yyreduce:
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, (yyvsp[(3) - (10)].name), (yyvsp[(5) - (10)].name), (yyvsp[(7) - (10)].expr));
-	;}
+	}
     break;
 
   case 110:
@@ -2834,7 +2878,7 @@ yyreduce:
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
-	;}
+	}
     break;
 
   case 111:
@@ -2844,7 +2888,7 @@ yyreduce:
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, (yyvsp[(3) - (10)].name), (yyvsp[(5) - (10)].name), (yyvsp[(7) - (10)].expr));
-	;}
+	}
     break;
 
   case 112:
@@ -2856,7 +2900,7 @@ yyreduce:
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, (yyvsp[(3) - (7)].name), xs);
 		xs.reset();
-	;}
+	}
     break;
 
   case 113:
@@ -2869,7 +2913,7 @@ yyreduce:
 				, (yyvsp[(3) - (7)].name), xs);
 		using qscript_parser::xs;
 		xs.reset();
-	;}
+	}
     break;
 
   case 114:
@@ -2878,7 +2922,7 @@ yyreduce:
 #line 911 "q.ypp"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, (yyvsp[(3) - (5)].name));
-	;}
+	}
     break;
 
   case 115:
@@ -2887,13 +2931,13 @@ yyreduce:
 #line 914 "q.ypp"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_SET_ALL, (yyvsp[(3) - (5)].name));
-	;}
+	}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 2897 "q.cpp"
+#line 2941 "../../simple_compiler/src/q.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);

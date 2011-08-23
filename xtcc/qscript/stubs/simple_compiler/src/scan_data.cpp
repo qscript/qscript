@@ -2014,7 +2014,7 @@ void scan_datafree (void * ptr , yyscan_t yyscanner)
 	using std::endl;
 	using std::vector;
 	void read_question_data();
-	vector<int> data;
+	//vector<int> data;
 
 int main(){
 	string s="1 2 4-8 12-15 5";
@@ -2076,7 +2076,7 @@ void read_question_data(){
 
 #include <vector>
 	using std::vector;
-	extern vector<int> data;
+	//extern vector<int> data;
 	extern UserNavigation user_navigation;
 	extern user_response::UserResponseType the_user_response;
 	void scan_dataerror(char *s);
