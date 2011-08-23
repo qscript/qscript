@@ -33,19 +33,31 @@ int32_t check_if_reg_file_exists(string jno, int32_t ser_no)
 }
 
 #include <vector>
+#include <map>
 #include "question_disk_data.h"
 int32_t read_disk_dataparse();
 int32_t read_disk_datalex();
 extern FILE* read_disk_datain;
 void read_disk_data_init();
-extern vector <question_disk_data*> qdd_list;
 extern QuestionDiskDataMap question_disk_data_map;
+
+extern map <string, question_disk_data*> qdd_map;
 //extern WINDOW * data_entry_window;
+
+void clear_previous_data()
+{
+	for (map<string, question_disk_data *>::iterator it = 
+			qdd_map.begin(); it != qdd_map.end(); ++it) {
+		delete it->second;
+		it->second = 0;
+	}
+	qdd_map.erase(qdd_map.begin(), qdd_map.end());
+}
 
 int32_t load_data(string jno, int32_t ser_no)
 {
 	stringstream s;
-	qdd_list.clear();
+	clear_previous_data();
 	s << jno << "_" << ser_no << ".dat";
 	read_disk_datain = fopen(s.str().c_str(), "rb");
 	read_disk_data_init();
@@ -69,14 +81,52 @@ int32_t load_data(string jno, int32_t ser_no)
 	//}
 	return 1;
 }
+
+#include "question.h"
+extern vector <AbstractQuestion*> question_list;
+void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered,
+		AbstractQuestion * & p_last_question_visited)
+{
+	if (qscript_debug::DEBUG_LoadData) {
+		cout << "ENTER: " 
+			<< __PRETTY_FUNCTION__ 
+			<< __FILE__ << ", " << __LINE__ << ", " 
+			<< endl;
+	}
+	for (int32_t i = 0; i< question_list.size(); ++i) {
+		AbstractQuestion* q= question_list[i];
+
+
+		fprintf(qscript_stdout, "searching for %s \n", q->questionDiskName_.c_str());
+		map<string,question_disk_data*>::iterator it=  qdd_map.find (q->questionDiskName_);
+		if (  it != qdd_map.end()) {
+			question_disk_data * q_disk = it->second;
+			q->input_data.erase(q->input_data.begin(), q->input_data.end());
+			if (q_disk->data.size() > 0) {
+				for (int32_t k = 0; k<q_disk->data.size(); ++k) {
+					if (qscript_debug::DEBUG_LoadData) {
+						cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
+					}
+					fprintf(qscript_stdout, "inserting into %s %d\n", q->questionDiskName_.c_str(), q_disk->data[k]);
+					q->input_data.insert(q_disk->data[k]);
+				}
+				q->isAnswered_ = true;
+				//last_question_answered = q;
+				p_last_question_answered = q;
+				p_last_question_visited = q;
+			}
+		}
+	}
+}
+
+
 // this is inefficient and will later be replaced
 // but right now i want to see this working
 // ideally we should be storing the questions in a map
 // with the AbstractQuestion no as a key and the index as the value
 // and looking up the vector that way
-#include "question.h"
-extern vector <AbstractQuestion*> question_list;
 //extern AbstractQuestion * last_question_answered;
+#if 0
 void merge_disk_data_into_questions(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered,
 		AbstractQuestion * & p_last_question_visited)
 {
@@ -297,4 +347,58 @@ void merge_disk_data_into_questions(FILE * qscript_stdout, AbstractQuestion * & 
 			found = false;
 		}
 	}
+
+	int actual_questions_start_index = 0;
+	while (actual_questions_start_index < question_list.size()  && question_list[actual_questions_start_index]->loop_index_values.size() ==0) {
+			// keep skipping over dummy array questions which were loaded earlier
+		++ actual_questions_start_index;
+	}
+	for (int32_t i = actual_questions_start_index; i< question_list.size(); ++i) {
+		// as per the new layout in memory we have
+		// DUMMY ARRAY QUESTIONS
+		// QUESTIONS in qnre order - a mix of array and non array questions
+		// we have now reached the actual questions
+		bool found = false;
+
+		AbstractQuestion* q= question_list[i];
+		question_disk_data * q_disk = 0;
+		if (q->loop_index_values.size() == 0) {
+			for (int32_t j = 0; j< qdd_list.size(); ++j) {
+				if (qscript_debug::DEBUG_LoadData) {
+					cout << "|" <<qdd_list[j]->qno << "|" << " ";
+				}
+				fprintf(qscript_stdout, "|%s| ", qdd_list[j]->qno.c_str() );
+				fflush(qscript_stdout);
+				if (q->questionName_ == qdd_list[j]->qno) {
+					if (qscript_debug::DEBUG_LoadData) {
+						cout << "found in qdd_list[" << j << "]" << qdd_list[j]->qno << endl;
+					}
+					fprintf(qscript_stdout, "found in qdd_list[%d]:%s\n",  j,  qdd_list[j]->qno.c_str());
+					fflush(qscript_stdout);
+					q_disk = qdd_list[j];
+					found = true;
+					break;
+				}
+			}
+		}
+		if (found) {
+			if (qscript_debug::DEBUG_LoadData) {
+				cout << "loading data for non-array question: " << q->questionName_ << endl;
+			}
+			q->input_data.erase(q->input_data.begin(), q->input_data.end());
+			if (q_disk->data.size() > 0) {
+				for (int32_t k = 0; k<q_disk->data.size(); ++k) {
+					if (qscript_debug::DEBUG_LoadData) {
+						cout << "inserting q_disk->data[k]: " << q_disk->data[k] << endl;
+					}
+					q->input_data.insert(q_disk->data[k]);
+				}
+				q->isAnswered_ = true;
+				//last_question_answered = q;
+				p_last_question_answered = q;
+				p_last_question_visited = q;
+			}
+		}
+	}
 }
+#endif  /* 0 */
