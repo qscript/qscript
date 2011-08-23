@@ -1,30 +1,26 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-
-AC_PREREQ(2.61)
-AC_INIT([qscript], [0.03], nxd_in@yahoo.com)
-AM_INIT_AUTOMAKE	
-AC_CONFIG_HEADER([config.h])
+AC_PREREQ([2.67])
+AC_INIT([qscript], [0.20], [nxd_in@yahoo.com])
+AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AC_CONFIG_SRCDIR([config.h.in])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
-AC_PROG_YACC
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_LEX
-AC_PROG_MAKE_SET
+AC_PROG_YACC
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lreadline':
-AC_CHECK_LIB([readline], [main])
+AC_CHECK_LIB([ncurses], [mvwprintw])
+AC_CHECK_LIB([panel], [update_panels])
 
 # Checks for header files.
 AC_FUNC_ALLOCA
-AC_HEADER_STDC
-AC_CHECK_HEADERS([inttypes.h libintl.h limits.h malloc.h stddef.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([inttypes.h libintl.h limits.h malloc.h stddef.h stdlib.h
+		  string.h unistd.h curses.h panel.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
-AC_C_CONST
 AC_C_INLINE
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
@@ -37,11 +33,8 @@ AC_TYPE_UINT8_T
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_FUNC_STAT
-AC_CHECK_FUNCS([memset strdup])
-AC_CONFIG_FILES([
-		Makefile
-		src/Makefile
-		])
+AC_CHECK_FUNCS([isascii memset mkdir strdup])
 
+AC_CONFIG_FILES([Makefile
+                 src/Makefile])
 AC_OUTPUT
