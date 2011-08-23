@@ -232,6 +232,7 @@ lab_maintainer_messages:
 	}
 
 ////////////////////////////////
+#if 0
 	try
 	{
 		std::ofstream conf;
@@ -267,6 +268,7 @@ lab_maintainer_messages:
 		}
 	}
 	catch(...){ std::cout << "error while generating configuration file\n"; }
+#endif /* 0 */
 ////////////////////////////////
 	if (qscript_parser::tree_root) {
 		//cerr << "deleting qscript_parser::tree_root" << endl;

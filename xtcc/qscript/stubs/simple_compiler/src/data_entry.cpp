@@ -88,6 +88,7 @@ using namespace std;
 	//vector<int> data;
 	UserNavigation user_navigation=NOT_SET;
 	user_response::UserResponseType the_user_response=user_response::NotSet;
+#include <iostream>
 //#define yylex scan_datalex
 	typedef void * yyscan_t;
 	//int scan_datalex(yyscan_t scanner);
@@ -97,7 +98,7 @@ using namespace std;
 
 
 /* Line 189 of yacc.c  */
-#line 101 "src/data_entry.cpp"
+#line 102 "src/data_entry.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -141,14 +142,14 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 34 "src/data_entry.ypp"
+#line 35 "src/data_entry.ypp"
 
 	int ival;
 
 
 
 /* Line 214 of yacc.c  */
-#line 152 "src/data_entry.cpp"
+#line 153 "src/data_entry.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -160,7 +161,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 164 "src/data_entry.cpp"
+#line 165 "src/data_entry.cpp"
 
 #ifdef short
 # undef short
@@ -443,7 +444,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    51,    51,    66,    67,    70,    74
+       0,    52,    52,    67,    68,    71,    75
 };
 #endif
 
@@ -1352,7 +1353,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 51 "src/data_entry.ypp"
+#line 52 "src/data_entry.ypp"
     {
 		the_user_response = user_response::UserEnteredData;
 	;}
@@ -1361,7 +1362,7 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 70 "src/data_entry.ypp"
+#line 71 "src/data_entry.ypp"
     {
 	      vector <int> & data = *data_ptr; 
 	      data.push_back((yyvsp[(1) - (1)].ival));
@@ -1371,7 +1372,7 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 74 "src/data_entry.ypp"
+#line 75 "src/data_entry.ypp"
     {
 		vector <int> & data = *data_ptr; 
 		data.push_back((yyvsp[(1) - (3)].ival));
@@ -1384,7 +1385,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1388 "src/data_entry.cpp"
+#line 1389 "src/data_entry.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1596,7 +1597,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 99 "src/data_entry.ypp"
+#line 100 "src/data_entry.ypp"
 
 	extern char * scan_datatext;
 	//void scan_dataerror(char *s){
