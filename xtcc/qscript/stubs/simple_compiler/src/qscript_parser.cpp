@@ -135,13 +135,13 @@ void print_write_xtcc_data_to_disk(FILE *script);
 const char * file_exists_check_code();
 const char * write_data_to_disk_code();
 void print_summary_axis(FILE * script);
-void print_microhttpd_web_support (FILE * script);
+void print_prompt_user_for_serial_no(FILE * script);
+void print_ncurses_include_files (FILE * script);
 void print_ncurses_func_prototypes (FILE * script);
+void print_microhttpd_web_support (FILE * script);
 void print_web_func_prototypes (FILE * script);
 void print_microhttpd_include_files (FILE * script);
-void print_ncurses_include_files (FILE * script);
 void print_web_support_structs (FILE * script);
-void print_prompt_user_for_serial_no(FILE * script);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -245,6 +245,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <fstream>\n");
 	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include <cstdlib>\n");
+	fprintf(script, "#include <errno.h>\n");
 	if (program_options_ns::ncurses_flag) {
 		print_ncurses_include_files(script);
 	}
@@ -307,9 +308,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "//extern vector<int32_t> data;\n");
 	if ( program_options_ns::flag_nice_map ) {
-		fprintf(script, "bool flag_nice_map = true;\n");
+		fprintf(script, "namespace program_options_ns { bool flag_nice_map = true; }\n");
 	} else {
-		fprintf(script, "bool flag_nice_map = false;\n");
+		fprintf(script, "namespace program_options_ns { bool flag_nice_map = false; }\n");
 	}
 	
 	fprintf(script, "extern UserNavigation user_navigation;\n");
@@ -691,7 +692,7 @@ int32_t check_parameters(AbstractExpression* e, VariableList* v)
 const char * file_exists_check_code()
 {
 	const char * file_check_code =
-	"\tif (write_data_file_flag||write_qtm_data_file_flag) {\n"
+	"\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n"
 	"\t	ser_no = read_a_serial_no();\n"
 	"\t	if (ser_no == 0) {\n"
 	"\t		exit(1);\n"
@@ -2587,6 +2588,36 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "}\n");
 }
 
+void print_prompt_user_for_serial_no(FILE * script)
+{
+	fprintf(script, "	void prompt_user_for_serial_no()\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		wclear(data_entry_window);\n");
+	fprintf(script, "		mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
+	fprintf(script, "		mvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+	fprintf(script, "	}\n\n");
+}
+
+void print_ncurses_include_files (FILE * script)
+{
+	fprintf(script, "#include <curses.h>\n");
+	fprintf(script, "#include <panel.h>\n");
+}
+
+void print_ncurses_func_prototypes (FILE * script)
+{
+	fprintf(script, "WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx);\n");
+	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n"
+			"			WINDOW * &  stub_list_window,\n"
+			"			WINDOW * & data_entry_window,\n"
+			"			WINDOW * & help_window,\n"
+			"			PANEL * &  question_panel,\n"
+			"			PANEL * &  stub_list_panel,\n"
+			"			PANEL * & data_entry_panel,\n"
+			"			PANEL * & help_panel);\n");
+	fprintf(script, "void define_some_pd_curses_keys();\n");
+}
+
 void print_microhttpd_web_support (FILE * script)
 {
 	fprintf (script, " \n");
@@ -3201,12 +3232,6 @@ void print_microhttpd_web_support (FILE * script)
 	fprintf (script, "\n");
 }
 
-void print_ncurses_include_files (FILE * script)
-{
-	fprintf(script, "#include <curses.h>\n");
-	fprintf(script, "#include <panel.h>\n");
-}
-
 void print_microhttpd_include_files (FILE * script)
 {
 	fprintf (script, "#define _GNU_SOURCE\n");
@@ -3216,20 +3241,6 @@ void print_microhttpd_include_files (FILE * script)
 	fprintf (script, "#include <errno.h>\n");
 	fprintf (script, "#include <time.h>\n");
 	fprintf (script, "#include <microhttpd.h>\n");
-}
-
-void print_ncurses_func_prototypes (FILE * script)
-{
-	fprintf(script, "WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx);\n");
-	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n"
-			"			WINDOW * &  stub_list_window,\n"
-			"			WINDOW * & data_entry_window,\n"
-			"			WINDOW * & help_window,\n"
-			"			PANEL * &  question_panel,\n"
-			"			PANEL * &  stub_list_panel,\n"
-			"			PANEL * & data_entry_panel,\n"
-			"			PANEL * & help_panel);\n");
-	fprintf(script, "void define_some_pd_curses_keys();\n");
 }
 
 
@@ -3394,16 +3405,6 @@ void print_web_func_prototypes (FILE * script)
 	fprintf(script, "		 struct MHD_Connection *connection\n");
 	fprintf(script, "		);\n");
 	fprintf(script, "\n");
-}
-
-void print_prompt_user_for_serial_no(FILE * script)
-{
-	fprintf(script, "	void prompt_user_for_serial_no()\n");
-	fprintf(script, "	{\n");
-	fprintf(script, "		wclear(data_entry_window);\n");
-	fprintf(script, "		mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
-	fprintf(script, "		mvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-	fprintf(script, "	}\n\n");
 }
 
 
