@@ -131,7 +131,8 @@ release: clean
 .PHONY: clean tags
 
 clean:
-	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/* $(BUILD_DIR)/compiletime_lib/* \
+	-rm -f $(BUILD_DIR)/xtcc $(BUILD_DIR)/*.o \
+		bin/qscript include/*.h \
 		inputs/*.exe src/*.output
 
 local_install: $(BUILD_DIR)/xtcc 
