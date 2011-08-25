@@ -203,6 +203,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
 	fprintf(script, "\tcompute_flat_file_map_and_init();\n");
 	fprintf(script, "}\n");
+	print_summary_axis(script);
 	// 5-apr-2011 , 0:12 (am)
 	// continue from here - put the compute_flat_map_code into
 	// a write data function - commiting this 
@@ -218,6 +219,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_write_qtm_data_to_disk(script);
 	print_write_ascii_data_to_disk(script);
 	print_prompt_user_for_serial_no(script);
+	print_write_xtcc_data_to_disk(script);
+	print_do_freq_counts(script);
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
@@ -1597,13 +1600,13 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "			if(exists == 1)\n");
 	fprintf(script, "			{\n");
 	fprintf(script, "				load_data(theQuestionnaire.jno, theQuestionnaire.ser_no);\n");
-	fprintf(script, "				merge_disk_data_into_questions(qscript_stdout, theQuestionnaire.last_question_answered, theQuestionnaire.last_question_visited);\n");
+	fprintf(script, "				merge_disk_data_into_questions2(qscript_stdout, theQuestionnaire.last_question_answered, theQuestionnaire.last_question_visited);\n");
 	fprintf(script, "			}\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "\n");
 
 
-	fprintf(script, "\twhile(theQuestionnaire.ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag)){\n");
+	fprintf(script, "\twhile(theQuestionnaire.ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)){\n");
 	fprintf(script, "\t\tfprintf(qscript_stdout, \"reached top of while loop:\\n\");");
 	fprintf(script, "\t\t      re_eval_from_start:\n");
 	fprintf(script, "\t\t	AbstractQuestion * q =\n");
