@@ -967,7 +967,7 @@ BinaryExpression::BinaryExpression(AbstractExpression* llop
 				    || (leftOperand_->type_ == QUESTION_TYPE))
 				 && is_of_int_type(rightOperand_->type_))) {
 				print_err(compiler_sem_err,
-					  " operands of % should be of type int32_t/char only", line_no, __LINE__, __FILE__);
+					  " operands of %% should be of type int32_t/char only", line_no, __LINE__, __FILE__);
 				cerr << "leftOperand_ type: is " << leftOperand_->type_ << endl;
 				//++no_errors;
 				type_ = ERROR_TYPE;
@@ -1634,12 +1634,6 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 				//<< leftOperand_->get_symp_ptr()->name_ << "_list.questionList["
 				<< ");\n";
 			code.code_expr << test_bool_var_name2.c_str() << " ";
-			//std::stringstream s;
-			//s << "Purposely Failing compilation here file: " << __FILE__
-			//  << ", line: " << __LINE__ << endl;
-			//code.code_expr << "/* " << s.str() << " */\n";
-			//print_err(compiler_internal_error, s.str()
-			//	  , line_no, __LINE__, __FILE__);
 
 
 		}

@@ -123,7 +123,7 @@ struct AbstractQuestion: public AbstractStatement
 	user_response::UserResponseType GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window);
 
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
-				, int32_t &pos_1st_invalid_data);
+				, int32_t &pos_1st_invalid_data, vector<int32_t> * data_ptr);
 	bool VerifyResponse(user_response::UserResponseType user_resp);
 	// void PrintArrayDeclarations(ostringstream & quest_defns);
 	void PrintArrayDeclarations(StatementCompiledCode & code);

@@ -29,3 +29,4 @@ sum_
 *.xmap
 xtcc/xtcc/trunk/include
 op
+diff.*.out

@@ -39,30 +39,10 @@ int32_t read_disk_dataparse();
 int32_t read_disk_datalex();
 extern FILE* read_disk_datain;
 void read_disk_data_init();
-//extern vector <question_disk_data*> qdd_list;
 extern QuestionDiskDataMap question_disk_data_map;
 
 extern map <string, question_disk_data*> qdd_map;
 //extern WINDOW * data_entry_window;
-
-// int32_t load_data2(string jno, int32_t ser_no)
-// {
-// 	qdd_map.erase(qdd_map.begin(), qdd_map.end());
-// 	stringstream s;
-// 	s << jno << "_" << ser_no << ".dat";
-// 	read_disk_datain = fopen(s.str().c_str(), "rb");
-// 	read_disk_data_init();
-// 	if (read_disk_datain){
-// 		fflush(read_disk_datain);
-// 		if (!read_disk_dataparse()){
-// 			//return 1;
-// 		} else {
-// 			cerr << "input datafile found had errors" << endl;
-// 			return 0;
-// 		}
-// 	}
-// 	fclose(read_disk_datain);
-// }
 
 void clear_previous_data()
 {
@@ -77,13 +57,6 @@ void clear_previous_data()
 int32_t load_data(string jno, int32_t ser_no)
 {
 	stringstream s;
-	//qdd_list.clear();
-	// for (map<string, question_disk_data *>::iterator it = 
-	// 		qdd_map.begin(); it != qdd_map.end(); ++it) {
-	// 	delete it->second;
-	// 	it->second = 0;
-	// }
-	// qdd_map.erase(qdd_map.begin(), qdd_map.end());
 	clear_previous_data();
 	s << jno << "_" << ser_no << ".dat";
 	read_disk_datain = fopen(s.str().c_str(), "rb");

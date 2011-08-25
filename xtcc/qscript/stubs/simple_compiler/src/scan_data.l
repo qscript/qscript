@@ -7,6 +7,7 @@
 %{
 #include <string>
 #include <iostream>
+#include <vector>
 #include "data_entry.hpp"
 #include "user_navigation.h"
 //#include <readline/readline.h>
@@ -15,19 +16,22 @@
 	using namespace std;
 
 	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
-	int scan_datalex();
-	int scan_dataparse();
+	int scan_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
+	int scan_dataparse(yyscan_t yyscanner, vector<int>* data_ptr);
 %}
 
 %option never-interactive
 %option noyywrap
 %option prefix="scan_data"
+%option reentrant 
+%option bison-bridge
 
 %%
 [ \t]+	;
 
 [0-9]+	{
-	scan_datalval.ival = atoi(yytext);
+	yylval_param->ival = atoi(yytext);
+	//scan_datalval.ival = atoi(yytext);
 	return NUMBER;
 }
 
@@ -73,16 +77,20 @@
 	using std::endl;
 	using std::vector;
 	void read_question_data();
-	vector<int> data;
+	//vector<int> data;
 
 int main(){
 	string s="1 2 4-8 12-15 5";
-	YY_BUFFER_STATE s_data =  yy_scan_string(s.c_str());
+	yyscan_t scanner;
+	yylex_init(&scanner);
+	//YY_BUFFER_STATE s_data =  yy_scan_string(s.c_str());
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(s.c_str(), scanner);
 
 	//read_question_data();
-	scan_dataparse();
+	vector <int> data;
+	scan_dataparse(scanner, &data);
 	cout << endl;
-	yy_delete_buffer(s_data);
+	yy_delete_buffer(s_data, scanner);
 
 	cout << endl;
 	for(int i=0; i<data.size(); ++i){
@@ -131,13 +139,16 @@ void read_question_data(){
 
 #include <vector>
 	using std::vector;
-	extern vector<int> data;
+	//extern vector<int> data;
 	extern UserNavigation user_navigation;
 	extern user_response::UserResponseType the_user_response;
 	void scan_dataerror(char *s);
 
-user_response::UserResponseType read_data( const char * prompt)
+user_response::UserResponseType read_data( const char * prompt, vector<int> * data_ptr)
 {
+	yyscan_t scanner;
+	yylex_init(&scanner);
+	vector <int> & data = *data_ptr;
 	data.clear();
 	user_navigation = NOT_SET;
 top:
@@ -150,29 +161,15 @@ top:
 		goto top;
 	}
 	cout << "buffer: " << buffer << endl;
-	YY_BUFFER_STATE s_data =  scan_data_scan_string(buffer.c_str());
-	if(scan_dataparse()){
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(buffer.c_str(), scanner);
+	if(scan_dataparse(scanner, &data)){
 		cout << "there was an error in parsing the data" << endl;
-		yy_delete_buffer(s_data);
+		yy_delete_buffer(s_data, scanner);
 		data.clear();
 		goto top;
 	}
 	cout << endl;
-	yy_delete_buffer(s_data);
-	/*
-	user_response::UserResponseType resp = (user_navigation == NOT_SET) 
-		? user_response::UserEnteredData:user_response::UserEnteredNavigation;
-	if (user_navigation == NOT_SET) {
-		if (data.size() == 0) {
-			return user_response::UserClearedData;
-		} else {
-			return user_response::UserEnteredData;
-		}
-	} else {
-		return user_response::UserEnteredNavigation;
-	}
-	return resp;
-	*/
+	yy_delete_buffer(s_data, scanner);
 	return the_user_response;
 }
 
@@ -181,9 +178,10 @@ user_response::UserResponseType read_data_from_window(
 		WINDOW * stub_list_window,
 		WINDOW * data_entry_window,
 		const char * prompt, bool clear_buffer_flag, string & re_arranged_buffer,
-		int & pos_1st_invalid_data, AbstractQuestion * q)
+		int & pos_1st_invalid_data, AbstractQuestion * q, vector<int> * data_ptr)
 {
 	static NCursesReadline ncurses_readline(question_window, stub_list_window, data_entry_window);
+	vector <int> & data = *data_ptr;
 	data.clear();
 	if (clear_buffer_flag) {
 		ncurses_readline.Reset();
@@ -213,10 +211,6 @@ top:
 			return the_user_response;
 		} else if (user_navigation == NOT_SET) {
 			user_navigation = NAVIGATE_NEXT; // treat as if visit next question
-			// warning - earlier compiler indicated statement has no 
-			// effect - if we change behaviour of data entry because
-			// of this - come back here and change it to old value
-			//the_user_response == user_response::UserEnteredNavigation;
 			the_user_response = user_response::UserEnteredNavigation;
 			return the_user_response;
 		} else if (user_navigation == SAVE_DATA &&
@@ -226,11 +220,13 @@ top:
 			goto top;
 		}
 	}
-	YY_BUFFER_STATE s_data =  scan_data_scan_string(line);
-	if (scan_dataparse()) {
+	yyscan_t scanner;
+	yylex_init(&scanner);
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(line, scanner);
+	if (scan_dataparse(scanner, &data)) {
 		//cout << "there was an error in parsing the data" << endl;
 		data.clear();
-		yy_delete_buffer(s_data);
+		yy_delete_buffer(s_data, scanner);
 		//delete[] line;
 		clear_buffer_flag=false;
 		//cerr << "reset clear_buffer_flag: " << clear_buffer_flag;
@@ -244,10 +240,37 @@ top:
 	//for(int i=0; i<data.size(); ++i){
 	//	cout << data[i] << "," ;
 	//}
-	yy_delete_buffer(s_data);
+	yy_delete_buffer(s_data, scanner);
 	// user_response::UserResponseType resp = (user_navigation == NOT_SET) 
 	// 	? user_response::UserEnteredData:user_response::UserEnteredNavigation;
 	// return resp;
 	return the_user_response;
 }
 
+	
+bool verify_web_data (string p_question_data, 
+		UserNavigation p_user_navigation,
+		user_response::UserResponseType p_the_user_response,
+		vector<int> * data_ptr)
+{
+	cout << __PRETTY_FUNCTION__ << ", p_question_data: " << p_question_data << endl;
+	user_response::UserResponseType l_user_response = user_response::NotSet; 
+	if (p_question_data.length()==0) {
+		return l_user_response;
+	}
+	yyscan_t scanner;
+	yylex_init(&scanner);
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(p_question_data.c_str(), scanner);
+	vector <int> & data = * data_ptr;
+	if (scan_dataparse(scanner, &data)) {
+		cout << "there was an error in parsing the data" << endl;
+		yy_delete_buffer(s_data, scanner);
+		data.clear();
+		return false;
+	} else {
+		return true;
+	}
+	cout << endl;
+	yy_delete_buffer(s_data, scanner);
+	return true;
+}
