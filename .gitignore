@@ -27,3 +27,5 @@ sum_
 *.qin
 *.xdat
 *.xmap
+xtcc/xtcc/trunk/include
+op
