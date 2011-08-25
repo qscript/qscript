@@ -52,7 +52,8 @@ int yyparse();
 
 //enum axstmt_type { ax_uninit, txt_axstmt, tot_axstmt, cnt_axstmt, fld_axstmt, inc_axstmt };
 
-struct table{
+struct table
+{
 	string side;
 	string banner;
 	int line_no;
@@ -86,7 +87,8 @@ class basic_ax_stmt	{
 
 #include <cstdio>
 using namespace std;
-class AbstractPrintableAxisStatement {
+class AbstractPrintableAxisStatement 
+{
 	public:
 	axstmt_type axtype;
 	AbstractPrintableAxisStatement * prev_;
@@ -98,7 +100,8 @@ class AbstractPrintableAxisStatement {
 	virtual ~AbstractPrintableAxisStatement();
 };
 
-class TitleStatement: public AbstractPrintableAxisStatement{
+class TitleStatement: public AbstractPrintableAxisStatement
+{
 	public:
 	TitleStatement(axstmt_type ltype,string s);
 	void print(fstream& f);
@@ -108,7 +111,8 @@ class TitleStatement: public AbstractPrintableAxisStatement{
 
 
 
-class AbstractCountableAxisStatement {
+class AbstractCountableAxisStatement 
+{
 	public:
 	axstmt_type axtype;
 	AbstractCountableAxisStatement * prev_;
@@ -121,17 +125,18 @@ class AbstractCountableAxisStatement {
 			, struct Expression::AbstractExpression* c); 
 	virtual void print(fstream& f)=0;
 	virtual string ax_text()=0;
-	virtual void generate_code(FILE * f, unsigned int index)=0;
+	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)=0;
 	virtual void print_axis_constructor_text(FILE *  f, unsigned int start_index)=0;
 	virtual bool CustomCountExpression();
 	virtual ~AbstractCountableAxisStatement() ;
 };
 
-class count_ax_stmt: public AbstractCountableAxisStatement{
+class count_ax_stmt: public AbstractCountableAxisStatement
+{
 	public:
 	count_ax_stmt(axstmt_type ltype,string txt, struct Expression::AbstractExpression* c);
 	virtual void print(fstream& f);
-	virtual void generate_code(FILE * f, unsigned int index);
+	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
 			, unsigned int start_index);
 	virtual string ax_text();
@@ -146,7 +151,7 @@ class tot_ax_stmt: public AbstractCountableAxisStatement
 	
 	virtual void print(fstream& f);
 	virtual string ax_text();
-	virtual void generate_code(FILE * f, unsigned int index);
+	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
 			, unsigned int start_index);
 	~tot_ax_stmt();
@@ -163,7 +168,7 @@ class inc_ax_stmt: public AbstractCountableAxisStatement
 		
 	virtual void print(fstream& f);
 	virtual string ax_text();
-	virtual void generate_code(FILE * f, unsigned int index);
+	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
 			, unsigned int start_index);
 	virtual bool CustomCountExpression();
@@ -188,15 +193,7 @@ class fld_ax_stmt : public AbstractCountableAxisStatement {
 	//fld_ax_stmt(string field_name, struct stub * l_stub_list);
 	fld_ax_stmt(axstmt_type ltype ,string field_name
 			, vector<stub*> l_stub_list);
-	virtual void generate_code(FILE * f, unsigned int index)
-	{
-		for(unsigned int i=0; i< stub_list.size(); ++i){
-			fprintf(f, "\t\tif (%s[%d]){\n"
-					, symp->name_, stub_list[i]->code-1);
-			fprintf(f, "\t\t\t flag[%d]=true;\n\t\t}\n"
-					, index+stub_list[i]->code-1);
-		}
-	}
+	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
 			, unsigned int start_index){
 		cout << "came to print_axis_constructor_text in fld_ax_stmt" 
