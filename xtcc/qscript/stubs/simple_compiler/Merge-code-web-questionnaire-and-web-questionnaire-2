@@ -1,0 +1,67 @@
+commit 7bba9d2b6bd2bae88b63631cab08b1acff49f9d1
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Fri Apr 15 00:11:10 2011 +0530
+
+    refactored write_qtm_data_to_disk as a function
+
+Merge Comment: No need to merge this commit 
+
+commit 05b2979248cf2fc053dd23b2cb68c91de87fdabb
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Fri Apr 15 01:00:42 2011 +0530
+
+    added writing freq count to this branch
+
+Merge Comment: Merged the above commit
+
+
+commit 47026bcd261b723ac726fcd187b0782ff1f78dc8
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Fri Apr 15 16:28:19 2011 +0530
+
+    fixed bug in calc freq counts of array questions
+
+ .../stubs/simple_compiler/src/qscript_parser.cpp   |   30 +++++++++++++++----
+ .../stubs/simple_compiler/src/qtm_data_file.h      |    1 +
+ 2 files changed, 24 insertions(+), 7 deletions(-)
+
+Merge Comment: Merged the above commit
+
+commit 4cb2733763735ae3b458e7d68d041113fe25a142
+
+Merge Comment: This was already present in web-questionnaire-2
+
+
+commit ddcad3abf3b2ab0d045b9ae26eb0e361ebea34c7
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Sat Apr 16 13:47:12 2011 -0700
+
+    fixed space at end of QSCRIPT_HOME env variable
+    
+    I have not seen this problem before on windows.
+    it is showing up in the compilation of other files
+    as well
+
+Merge Comment: This was already present in web-questionnaire-2
+
+commit b0ef9bd7c3c25fee58a763ede29931f8226cc6d1
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Sat Apr 16 19:29:33 2011 +0530
+
+    zero filling for mpn data in flat ascii file
+
+ .../src/AsciiFlatFileQuestionDiskMap.h             |   12 +++++++++++-
+ 1 files changed, 11 insertions(+), 1 deletions(-)
+
+Merge Comment: This was already present in web-questionnaire-2
+
+commit 1ca2e3efb4ea3d1d7c0f71698abaecaed2849cf7
+Author: Neil Xavier D'Souza <nxd_in@yahoo.com>
+Date:   Sun Apr 17 01:53:53 2011 +0530
+
+    code to read flat ascii data config file
+
+ .../stubs/simple_compiler/src/qscript_parser.cpp   |   30 ++++++++++++++++++++
+ 1 files changed, 30 insertions(+), 0 deletions(-)
+
+Merge Comment: This was already present in web-questionnaire-2

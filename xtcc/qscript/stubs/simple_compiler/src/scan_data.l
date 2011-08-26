@@ -173,11 +173,14 @@ top:
 	return the_user_response;
 }
 
-user_response::UserResponseType read_data_from_window(WINDOW * data_entry_window,
+user_response::UserResponseType read_data_from_window(
+		WINDOW * question_window, 
+		WINDOW * stub_list_window,
+		WINDOW * data_entry_window,
 		const char * prompt, bool clear_buffer_flag, string & re_arranged_buffer,
-		int & pos_1st_invalid_data, vector<int> * data_ptr)
+		int & pos_1st_invalid_data, AbstractQuestion * q, vector<int> * data_ptr)
 {
-	static NCursesReadline ncurses_readline(data_entry_window);
+	static NCursesReadline ncurses_readline(question_window, stub_list_window, data_entry_window);
 	vector <int> & data = *data_ptr;
 	data.clear();
 	if (clear_buffer_flag) {
@@ -196,7 +199,7 @@ top:
 	//cerr << "clear_buffer_flag: " << clear_buffer_flag;
 	// NOTE: so long as the ncurses_readline is static the pointer
 	// returned will be valid
-	const char * line=ncurses_readline.ReadLine();
+	const char * line=ncurses_readline.ReadLine(q);
 	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 	// 	<< ", " << line << endl;
 

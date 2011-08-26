@@ -40,7 +40,11 @@ namespace qscript_parser
 	extern int32_t flagIsAFunctionBody_;
 	extern int32_t flagIsAForBody_;
 	extern bool flag_next_stmt_start_of_block;
+	extern bool flag_next_question_start_of_block;
+	extern bool flag_dynamic_base_text;
+	extern AbstractQuestion * dynamic_base_text_question;
 	extern vector<bool> blk_start_flag;
+	extern vector<bool> blk_question_start_flag;
 	extern vector <AbstractStatement*> blk_heads;
 	//const int32_t DEFAULT_STACK_SIZE=20;
 	extern vector<CompoundStatement*> stack_cmpd_stmt;
@@ -92,7 +96,7 @@ namespace qscript_parser
 	extern int32_t yywrap();
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
-			, char* stub_list_name, char * question_name);
+			, char* stub_list_name, char * question_name, AbstractExpression * l_arr_index=0);
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
 			 , char* stub_list_name , XtccSet & l_xs);

@@ -17,6 +17,7 @@ using namespace std;
 	//vector<int> data;
 	UserNavigation user_navigation=NOT_SET;
 	user_response::UserResponseType the_user_response=user_response::NotSet;
+#include <iostream>
 //#define yylex scan_datalex
 	typedef void * yyscan_t;
 	//int scan_datalex(yyscan_t scanner);

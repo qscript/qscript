@@ -12,15 +12,21 @@ using namespace std;
 //extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 
+void Print_DisplayDataUnitVector (WINDOW * stub_list_window, 
+		vector<display_data::DisplayDataUnit> & disp_vec,
+		int &xPos, int &yPos, int maxWinX);
+
 	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
 	)
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
-			   , l_q_type, l_no_mpn, l_dt, l_question_attributes)
+			   , l_q_type, l_no_mpn, l_dt, l_question_attributes
+			   , l_isStartOfBlock)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { 
 	maxCode_ = r_data->GetMax();
@@ -58,10 +64,11 @@ RangeQuestion::RangeQuestion(
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
-		, l_question_attributes
+		, l_question_attributes, l_isStartOfBlock
 		)
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { 
@@ -73,7 +80,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
 			 , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	if(displayData_.begin() == displayData_.end()){
+	if (displayData_.begin() == displayData_.end()) {
 		for(	set<int32_t>::iterator it = r_data->indiv.begin();
 				it != r_data->indiv.end(); ++it){
 			//displayData_.insert(*it);
@@ -129,7 +136,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		box(stub_list_window, 0, 0);
 		wclear(data_entry_window);
 		box(data_entry_window, 0, 0);
-		mvwprintw(question_window,1, 1, "%s.", questionName_.c_str());
+		mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
 		int len_qno = questionName_.length()+2;
 		if(loop_index_values.size()>0){
 			for(uint32_t i=0; i<loop_index_values.size(); ++i){
@@ -180,7 +187,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 		}
 #endif /* 0 */
-		for(	vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
+		/*
+		for (vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
 				it != displayData_.end(); ++it)
 		{
 			//cout << *it << endl;
@@ -197,6 +205,10 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			mvwprintw(stub_list_window, currYpos, currXpos, "%s", s.str().c_str());
 			currXpos += s.str().length() + 1;
 		}
+		*/
+		Print_DisplayDataUnitVector (stub_list_window, 
+				displayData_, currXpos, currYpos, maxWinX);
+		// mvwprintw(data_entry_window, 2, 1, "just before exit eval");
 
 		//wrefresh(stub_list_window);
 		update_panels();
@@ -204,7 +216,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
 
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
 
 /*
 get_data_again:
@@ -236,6 +248,7 @@ AbstractQuestion::AbstractQuestion(
 	, const vector<int32_t>& l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
@@ -247,11 +260,19 @@ AbstractQuestion::AbstractQuestion(
 	, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
 	, question_attributes(l_question_attributes)
+	  , mutexCodeList_()
 	  , maxCode_(0)
+	  , isStartOfBlock_(l_isStartOfBlock)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
 	//}
+	stringstream s;
+	s << questionName_;
+	for (int i=0; i<loop_index_values.size(); ++i) {
+		s << "$" << loop_index_values[i];
+	}
+	questionDiskName_ = s.str();
 }
 
 
@@ -260,9 +281,48 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	if(question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0 ){
+	if (displayData_.begin() == displayData_.end()) {
+		vector<stub_pair> & vec= (nr_ptr->stubs);
+		if (vec.size() == 0) {
+			cerr << "runtime error: Impossible !!! stubs with no codes: "
+				<< __LINE__ << ", " << __FILE__ << __PRETTY_FUNCTION__
+				<< " question name: " << questionName_ << endl;
+			exit(1);
+		}
+		int start_code = vec[0].code;
+		int previous_code = start_code;
+		int current_code = start_code;
+		for (int32_t i=0; i<vec.size(); ++i) {
+			current_code = vec[i].code;
+			if (current_code - previous_code > 1) {
+				if (start_code < previous_code) {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+					start_code = current_code;
+					previous_code = current_code;
+				} else {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code));
+					start_code = current_code;
+					previous_code = current_code;
+				}
+			}
+			if (i>0) {
+				previous_code = current_code;
+			}
+			//displayData_.push_back(display_data::DisplayDataUnit(vec[i].code));
+		}
+		if (start_code < previous_code) {
+			displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+			start_code = current_code;
+			previous_code = current_code;
+		} else {
+			displayData_.push_back(display_data::DisplayDataUnit(start_code));
+			start_code = current_code;
+			previous_code = current_code;
+		}
+	}
+	if (question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0) {
 		cout << questionName_ << ".";
-		if(loop_index_values.size()>0){
+		if (loop_index_values.size()>0) {
 			for(uint32_t i=0; i<loop_index_values.size(); ++i){
 				cout << loop_index_values[i]+1 << ".";
 			}
@@ -272,12 +332,12 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//cout << questionName_ << "." << questionText_ << endl << endl;
 		//vector<stub_pair> vec= *stub_ptr;
 		vector<stub_pair> & vec= (nr_ptr->stubs);
-		for(uint32_t i = 0; i< vec.size(); ++i){
+		for (uint32_t i = 0; i< vec.size(); ++i) {
 			if( vec[i].mask)
 				cout << vec[i].stub_text << ": " << vec[i].code << endl;
 		}
 
-		if(input_data.begin() != input_data.end()){
+		if (input_data.begin() != input_data.end()) {
 			cout << "Current data values: ";
 
 			for(set<int32_t>::iterator iter = input_data.begin();
@@ -296,13 +356,34 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		box(stub_list_window, 0, 0);
 		wclear(data_entry_window);
 		box(data_entry_window, 0, 0);
-		mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
+		mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
+		int len_qno = questionName_.length()+2;
+		if(loop_index_values.size()>0){
+			for(uint32_t i=0; i<loop_index_values.size(); ++i){
+				//cout << loop_index_values[i]+1 << ".";
+				mvwprintw(question_window, 1, len_qno, "%d.", loop_index_values[i]+1);
+				if (loop_index_values[i]+1<10) {
+					len_qno += 1;
+				} else if (loop_index_values[i]+1<100) {
+					len_qno += 2;
+				} else if (loop_index_values[i]+1<1000) {
+					len_qno += 3;
+				} else if (loop_index_values[i]+1<10000) {
+					len_qno += 4;
+				}
+				len_qno += 1; // for the "."
+			}
+		}
+		//mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
 		//wrefresh(question_window);
+		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
 		update_panels();
 		doupdate();
-		//int32_t maxWinX, maxWinY;
-		//getmaxyx(data_entry_window, maxWinY, maxWinX);
+		int32_t maxWinX, maxWinY;
+		getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
+		Print_DisplayDataUnitVector (stub_list_window, displayData_, currXpos, currYpos, maxWinX);
+		++currYpos; currXpos = 1;
 
 		//vector<stub_pair> & vec= *stub_ptr;
 		vector<stub_pair> & vec= (nr_ptr->stubs);
@@ -330,7 +411,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		doupdate();
 		// AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
 
 	/*
 get_data_again:
@@ -364,12 +445,13 @@ NamedStubQuestion::NamedStubQuestion(
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes
+		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes, l_isStartOfBlock
 		)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0)
+	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 {
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
@@ -390,7 +472,7 @@ NamedStubQuestion::NamedStubQuestion(
 }
 
 
-user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * data_entry_window)
+user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window)
 {
 	// cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
 	string err_mesg, re_arranged_buffer;
@@ -445,10 +527,11 @@ ask_again:
 label_ask_again:
 			user_response::UserResponseType user_resp 
 				= read_data_from_window(
+						question_window, stub_list_window,
 						data_entry_window, err_mesg.c_str()
 					      //, (!invalid_code), re_arranged_buffer
 					      , false, re_arranged_buffer
-					      , pos_1st_invalid_data, &data);
+					      , pos_1st_invalid_data, this, &data);
 			// if (user_resp == user_response::UserEnteredNavigation) {
 			// 	return user_resp;
 			// }
@@ -563,7 +646,7 @@ bool AbstractQuestion::VerifyData(
 		invalid_code = true;
 		data.clear();
 	} else if (q_type == mpn) {
-		cout << "reached here: " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+		//cout << "reached here: " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 		if (data.size() > no_mpn){
 			err_mesg = "Multi coded Question, no values exceed max allowed:  ";
 			invalid_code = true;
@@ -574,7 +657,7 @@ bool AbstractQuestion::VerifyData(
 		int count_mutex_data = 0;
 		for(int i=0; i<data.size(); ++i) {
 			if (mutexCodeList_.exists(data[i])){
-				cout << "mutexCodeList_ contains: " << data[i];
+				// cout << "mutexCodeList_ contains: " << data[i];
 				++count_mutex_data;
 			}
 		}
@@ -677,11 +760,13 @@ NamedStubQuestion::NamedStubQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt, named_range * l_nr_ptr
 	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
-			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes)
+			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes
+			 , l_isStartOfBlock)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0)
+	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 { 
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
@@ -698,5 +783,46 @@ NamedStubQuestion::NamedStubQuestion(
 		if (maxCode_ < nr_ptr->stubs[i].code) {
 			maxCode_ = nr_ptr->stubs[i].code;
 		}
+	}
+}
+
+// a question can lose integrity because of modification to a previous question
+
+bool AbstractQuestion::VerifyQuestionIntegrity()
+{
+	bool has_integrity = true;
+
+	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
+			inp_data_iter != input_data.end(); ++inp_data_iter) {
+		bool invalid_code = !IsValid(*inp_data_iter);
+		if (invalid_code) {
+			has_integrity = false;
+			break;
+		}
+	}
+	return has_integrity;
+}
+
+void Print_DisplayDataUnitVector(WINDOW * stub_list_window, 
+		vector<display_data::DisplayDataUnit> & disp_vec,
+		int &xPos, int &yPos, int maxWinX)
+{
+	using display_data::DisplayDataUnit;
+	for (vector<DisplayDataUnit>::iterator it = disp_vec.begin();
+				it != disp_vec.end(); ++it)
+	{
+		//cout << *it << endl;
+		stringstream s;
+
+		if ( (*it).displayDataType_ == display_data::single_element) {
+			s << (*it).startOfRangeOrSingle_ << ",";
+		} else if ( (*it).displayDataType_ == display_data::range_element) {
+			s << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_ << endl;
+		}
+		if (xPos + s.str().length() > maxWinX) {
+			xPos =1, ++yPos;
+		} 
+		mvwprintw(stub_list_window, yPos, xPos, "%s", s.str().c_str());
+		xPos += s.str().length() + 1;
 	}
 }

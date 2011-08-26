@@ -36,6 +36,7 @@ struct XtccSet {
 	void add_indiv(int32_t n1);
 	bool exists(int32_t key);
 	bool contains_subset(std::set<int32_t> & set_data);
+	bool contains_value(int v);
 	string print_replicate_code(string set_name);
 	int32_t GetMax();
 };

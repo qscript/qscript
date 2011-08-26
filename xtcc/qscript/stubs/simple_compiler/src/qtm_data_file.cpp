@@ -4,6 +4,8 @@
 #include <map>
 #include <fstream>
 #include <set>
+#include <algorithm>
+#include <iostream>
 #include "qtm_data_file.h"
 #include "log_mesg.h"
 #include "qtm_datafile_conf_parser.h"
@@ -12,6 +14,7 @@
 
 
 set<string> qtm_include_files;
+namespace program_options_ns { extern bool flag_nice_map; }
 
 
 namespace qtm_data_file_ns {
@@ -81,9 +84,11 @@ void QtmDataDiskMap::write_multi_code_data()
 }
 
 QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
-		QtmDataFile & p_qtm_data_file )
+		QtmDataFile & p_qtm_data_file , BaseText base_text)
 	:
-	q(p_q), qtmDataFile_(p_qtm_data_file)
+	q(p_q), startPosition_(-1),
+	width_(-1), totalLength_(-1),
+	qtmDataFile_(p_qtm_data_file), baseText_(base_text)
 {
 	int max_code = q->GetMaxCode();
 	if (q->no_mpn == 1) {
@@ -111,9 +116,12 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 		else if (max_code < 100000000) {
 			width_ = 8;
 		}
+		else if (max_code < 1000000000) {
+			width_ = 9;
+		}
 		else {
 			cout	<< " max_code " << max_code << " for question: " 
-				<< q->questionName_ << " exceeds max length = 8 we are programmed to handled ... exiting " 
+				<< q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " 
 				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
 			exit(1);
 		}
@@ -134,24 +142,64 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 	}
 	totalLength_ = width_;
 		
-	startPosition_ = qtmDataFile_.fileXcha_.UpdateCurrentColumn(width_);
+	startPosition_ = qtmDataFile_.fileXcha_.UpdateCurrentColumn(width_, q);
 	int noBuckets = width_;
 	for (int i=0; i< noBuckets; ++i) {
 		codeBucketVec_.push_back(CodeBucket());	
 	}
 }
 
-int QtmFileCharacteristics::UpdateCurrentColumn(int width_)
+
+int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q)
 {
+	int bufferBetweenQuestions = 0;
+	stringstream mesg;
+	mesg << "MAINTAINTER NOTE:  move bufferBetweenQuestions to config file as a paramater ";
+	cerr << mesg.str() << ", line: " <<  __LINE__ << ", " << __FILE__ << ", func: " 
+		<< __PRETTY_FUNCTION__ << endl;
 	if (qtmFileMode_ != READ_EQ_0) {
 		if (width_ > (cardDataWrapAroundAt_ - cardDataStartAt_)) {
-			cerr << " the questions width_ exceeds the width_ that can fit in a single card ... "
-				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
+			cerr << " the question" 
+				<< q->questionName_
+				<< "'s  width_ exceeds the width_ that can fit in a single card ... "
+				<< __FILE__ << ", "  << __LINE__ << ", "  << __PRETTY_FUNCTION__ << endl;
 			cerr << "exiting ...\n";
 			exit(1);
 		}
-	
-		if (currentColumn_ + width_ >= cardDataWrapAroundAt_)  {
+		int currentColumnMod10 = 0;
+		int add_displacement = 0;
+		if (program_options_ns::flag_nice_map) {
+			bufferBetweenQuestions = 10;
+			if (q->loop_index_values.size() == 0) {
+				currentColumnMod10 = currentColumn_ % 10;
+				//if (currentColumnMod10 != 1) { 
+					add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+				//} else {
+				//	add_displacement =  bufferBetweenQuestions;
+				//}
+			} else {
+				int n_dimensions = q->loop_index_values.size();
+				if (q->loop_index_values[n_dimensions-1] == 0 && q->isStartOfBlock_) {
+					// first array question in a block
+					NextCard();
+					if (width_ == 1) {
+					} else {
+						currentColumnMod10 = currentColumn_ % 10;
+						add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+					}
+				} else {
+					if (width_ == 1) {
+					} else {
+						currentColumnMod10 = currentColumn_ % 10;
+						add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+					}
+				}
+			}
+		}
+
+		currentColumn_ += add_displacement ;
+
+		if (currentColumn_ > cardDataWrapAroundAt_ || currentColumn_ + width_ > cardDataWrapAroundAt_) {
 			NextCard();
 		}
 	}
@@ -163,68 +211,150 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_)
 
 void QtmDataDiskMap::print_map(fstream & map_file)
 {
-	map_file << q->questionName_;
+	stringstream full_question_name;
+	full_question_name << q->questionName_;
 	if (q->loop_index_values.size()) {
 		for (int i=0; i< q->loop_index_values.size(); ++i) {
-			map_file << "." << q->loop_index_values[i];
+			full_question_name << "." << q->loop_index_values[i];
 		}
 	}
-	map_file << ",			";
-	map_file << width_ << ",	";
-	map_file << q->no_mpn << ",	";
-	map_file << startPosition_+1 << ",	";
-	map_file << startPosition_ + totalLength_  << "\n";
+
+	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+		for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+			map_file << full_question_name.str();
+			map_file << ",			";
+			map_file << width_ << ",	";
+			map_file << q->no_mpn << ",	";
+			map_file << startPosition_+1 << ",	";
+			map_file << startPosition_ + totalLength_ << ",	";
+			map_file << n_q->nr_ptr->stubs[i].code << ",	"
+				<< n_q->nr_ptr->stubs[i].stub_text ;
+			map_file << "\n";
+		}
+	} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
+			map_file << full_question_name.str();
+			map_file << ",			";
+			map_file << width_ << ",	";
+			map_file << q->no_mpn << ",	";
+			map_file << startPosition_+1 << ",	";
+			map_file << startPosition_ + totalLength_  << ", range:	";
+			for(	set<int32_t>::iterator it = r_q->r_data->indiv.begin();
+					it != r_q->r_data->indiv.end(); ++it){
+				map_file << " " << *it;
+			}
+			for(int32_t i = 0; i < r_q->r_data->range.size(); ++i){
+				map_file << " " << r_q->r_data->range[i].first << "-" << r_q->r_data->range[i].second;
+			}
+			map_file << "\n";
+	}
 }
 
-void QtmDataDiskMap::print_qax(fstream & qax_file)
+void QtmDataDiskMap::print_qin(string setup_dir)
 {
-	qax_file << "l " << q->questionName_ ;
-	for (int i=0; i< q->loop_index_values.size(); ++i) {
-		qax_file << "_" << q->loop_index_values[i];
+	NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q);
+	stringstream fname;
+	// assume that setup_dir is already created
+	if (n_q->no_mpn>1) {
+		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".min";
+	} else {
+		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".sin";
 	}
-	qax_file << endl;
-	qax_file << "*include qttl.qin;qno=" << q->questionName_;
-	for (int i=0; i< q->loop_index_values.size(); ++i) {
-		qax_file << "." << q->loop_index_values[i];
-	}
-	qax_file << ";qtit=" << q->questionText_ << ";" << endl;
-	qax_file << "*include base.qin" << endl;
-	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
-		if (n_q->nr_ptr) {
-			qax_file << "*include " << n_q->nr_ptr->name << ".qin;"
-			<< "col(a)=" << startPosition_ + 1
-			<< endl;
+	fstream qtm_include_file (fname.str().c_str(), 
+			std::ios_base::out | std::ios_base::trunc);
+	string range_name = n_q->nr_ptr->name;
+	int rat_scale = 0;
+	int factor = 1;
+	bool flag_scale_is_reversed = false;
+	bool flag_is_a_rating_scale = false;
+	if (isdigit(range_name[range_name.size()-1]) /*&& !(range_name[range_name.size()-1]=='0')*/ ) {
+		flag_is_a_rating_scale = true;
+		int i = range_name.size()-1;
+		while (isdigit(range_name[i])) {
+			rat_scale += (range_name[i] - '0') * factor;
+			factor *=10;
+			--i;
 		}
-		set<string>::iterator it = qtm_include_files.find(n_q->nr_ptr->name);
-		if (it == qtm_include_files.end()) {
-			stringstream fname;
-			fname << n_q->nr_ptr->name << ".qin";
-			fstream qtm_include_file (fname.str().c_str(), 
-					std::ios_base::out | std::ios_base::trunc);
-			for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
-				qtm_include_file << "n01"
-					<< n_q->nr_ptr->stubs[i].stub_text
-					<< "; c=c";
-				int the_code = n_q->nr_ptr->stubs[i].code;
-				if (n_q->no_mpn>1) {
-					qtm_include_file << "a";
-					int dividend = the_code/10;
-					int remainder = the_code%10;
-					if (remainder == 0) {
-						qtm_include_file 
-							<< dividend - 1 << "'"
-							<< remainder << "'";
+		if (range_name[i] == 'r' && range_name[i-1] == '_') {
+			flag_scale_is_reversed = true;
+		}
+	}
+	if (!flag_is_a_rating_scale) {
+		for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+			qtm_include_file << "n01"
+				<< n_q->nr_ptr->stubs[i].stub_text
+				<< "; c=c";
+			int the_code = n_q->nr_ptr->stubs[i].code;
+			if (n_q->no_mpn>1) {
+				qtm_include_file << "a";
+				int dividend = the_code/10;
+				int remainder = the_code%10;
+				if (remainder == 0) {
+					qtm_include_file 
+						<< dividend - 1 << "'"
+						<< remainder << "'";
+				} else {
+					qtm_include_file 
+						<< dividend  << "'"
+						<< remainder << "'";
+				}
+			} else {
+				if (width_==1) {
+					qtm_include_file << "a0'";
+					if (the_code < 10) {
+						qtm_include_file << the_code
+							<< "'";
 					} else {
-						qtm_include_file 
-							<< dividend  << "'"
-							<< remainder << "'";
+						if (the_code == 10) {
+							qtm_include_file << "'0'";
+						} else if (the_code == 11) {
+							qtm_include_file << "'-'";
+						} else if (the_code == 12) {
+							qtm_include_file << "'&'";
+						} else {
+							stringstream error_str;
+							error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+							cerr << LOG_MESSAGE(error_str.str());
+							exit(1);
+						}
 					}
 				} else {
+					qtm_include_file << "(a0,a"
+						<< width_-1 << ").eq."
+						<< the_code;
+				}
+			}
+			qtm_include_file << endl;
+		}
+	} else {
+		if (flag_scale_is_reversed == false) {
+			vector<stub_pair>  stubs= (n_q->nr_ptr->stubs);
+			// qtm_include_file << "/* before sort\n";
+			// for(int i=0; i<stubs.size(); ++i) {
+			// 	qtm_include_file << stubs[i].stub_text << endl;
+			// }
+			sort(stubs.begin(), stubs.end(), stub_pair_order_asc());
+			// qtm_include_file << "/* after sort\n";
+			// for(int i=0; i<stubs.size(); ++i) {
+			// 	qtm_include_file << stubs[i].stub_text << endl;
+			// }
+			if (rat_scale == 5) {
+				for (int i=stubs.size()-1; i>=0; --i) {
+					if (i==stubs.size()-1) {
+						qtm_include_file << "net1Top 2 Box (Net);" << endl;
+					}
+					if (i==1) {
+						qtm_include_file << "net1Bottom 2 Box (Net);" << endl;
+					}
+
+					qtm_include_file << "n01"
+						<< stubs[i].stub_text
+						<< "; c=c";
+					int the_code = stubs[i].code;
 					if (width_==1) {
 						qtm_include_file << "a0'";
 						if (the_code < 10) {
 							qtm_include_file << the_code
-								<< "'";
+								<< "'" << endl;
 						} else {
 							if (the_code == 10) {
 								qtm_include_file << "'0'";
@@ -242,28 +372,529 @@ void QtmDataDiskMap::print_qax(fstream & qax_file)
 					} else {
 						qtm_include_file << "(a0,a"
 							<< width_-1 << ").eq."
-							<< the_code;
+							<< the_code << endl;
+					}
+
+					if (i==0) {
+						qtm_include_file << "netend1;\n";
+					}
+					if (i==3) {
+						qtm_include_file << "netend1;\n";
 					}
 				}
-				qtm_include_file << endl;
+				if (width_==1)
+					qtm_include_file << "n25;inc=c(a0);c=c(a0).in.(1:5);\n";
+				else 
+					qtm_include_file << "n25;inc=" 
+						<< "c(a0,a" << width_ - 1 << ");"
+						<< "c=c(a0,a" << width_ - 1 << ").in.(1:5);\n";
 			}
-			qtm_include_files.insert(n_q->nr_ptr->name);
+			if (rat_scale == 7) {
+				for (int i=stubs.size()-1; i>=0; --i) {
+					if (i==stubs.size()-1) {
+						qtm_include_file << "net1Top Box (Net);" << endl;
+						qtm_include_file << "net2Top 2 Box (Net);" << endl;
+					}
+					if (i==2) {
+						qtm_include_file << "net1Bottom Box (Net);" << endl;
+					}
+					if (i==1) {
+						qtm_include_file << "net2Bottom 2 Box (Net);" << endl;
+					}
+
+					qtm_include_file << "n01"
+						<< stubs[i].stub_text
+						<< "; c=c";
+					int the_code = stubs[i].code;
+					if (width_==1) {
+						qtm_include_file << "a0'";
+						if (the_code < 10) {
+							qtm_include_file << the_code
+								<< "'" << endl;
+						} else {
+							if (the_code == 10) {
+								qtm_include_file << "'0'";
+							} else if (the_code == 11) {
+								qtm_include_file << "'-'";
+							} else if (the_code == 12) {
+								qtm_include_file << "'&'";
+							} else {
+								stringstream error_str;
+								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+								cerr << LOG_MESSAGE(error_str.str());
+								exit(1);
+							}
+						}
+					} else {
+						qtm_include_file << "(a0,a"
+							<< width_-1 << ").eq."
+							<< the_code << endl;
+					}
+
+					if (i==5) {
+						qtm_include_file << "netend2;\n";
+					}
+					if (i==4) {
+						qtm_include_file << "netend1;\n";
+					}
+
+					if (i==0) {
+						qtm_include_file << "netend2;\n";
+						qtm_include_file << "netend1;\n";
+					}
+				}
+				if (width_==1)
+					qtm_include_file << "n25;inc=c=c(a0);c=c(a0).in.(1:7);\n";
+				else 
+					qtm_include_file << "n25;inc="
+						<< "c(a0,a" << width_ - 1 << ");"
+						<< "c=c(a0,a" << width_ - 1 << ").in.(1:7);\n";
+			}
+			if (rat_scale == 10) {
+				for (int i=stubs.size()-1; i>=0; --i) {
+					if (i==stubs.size()-1) {
+						qtm_include_file << "net1Top 3 Box (Net);" << endl;
+						qtm_include_file << "net2Top 2 Box (Net);" << endl;
+					}
+					if (i==2) {
+						qtm_include_file << "net1Bottom 3 Box (Net);" << endl;
+					}
+					if (i==1) {
+						qtm_include_file << "net2Bottom 2 Box (Net);" << endl;
+					}
+
+					qtm_include_file << "n01"
+						<< stubs[i].stub_text
+						<< "; c=c";
+					int the_code = stubs[i].code;
+					if (width_==1) {
+						qtm_include_file << "a0'";
+						if (the_code < 10) {
+							qtm_include_file << the_code
+								<< "'" << endl;
+						} else {
+							if (the_code == 10) {
+								qtm_include_file << "'0'";
+							} else if (the_code == 11) {
+								qtm_include_file << "'-'";
+							} else if (the_code == 12) {
+								qtm_include_file << "'&'";
+							} else {
+								stringstream error_str;
+								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+								cerr << LOG_MESSAGE(error_str.str());
+								exit(1);
+							}
+						}
+					} else {
+						qtm_include_file << "(a0,a"
+							<< width_-1 << ").eq."
+							<< the_code << endl;
+					}
+
+					if (i==8) {
+						qtm_include_file << "netend2;\n";
+					}
+					if (i==7) {
+						qtm_include_file << "netend1;\n";
+					}
+
+					if (i==0) {
+						qtm_include_file << "netend2;\n";
+						qtm_include_file << "netend1;\n";
+					}
+				}
+				if (width_==1)
+					qtm_include_file << "Error - width is 1 for 10 point scale;\n";
+				else 
+					qtm_include_file << "n25;inc="
+						<< "c(a0,a" << width_ - 1 << ");"
+						<< "c=c(a0,a" << width_ - 1 << ").in.(1:10);\n";
+			}
+			cerr << "reached here: " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+				<< " rat_scale: " << rat_scale
+				<< endl;
+			if (rat_scale == 9) {
+				for (int i=stubs.size()-1; i>=0; --i) {
+					if (i==stubs.size()-1) {
+						qtm_include_file << "net1Top Box (Net);" << endl;
+						qtm_include_file << "net2Top 2 Box (Net);" << endl;
+					}
+					if (i==2) {
+						qtm_include_file << "net1Bottom 3 Box (Net);" << endl;
+					}
+					if (i==1) {
+						qtm_include_file << "net2Bottom 2 Box (Net);" << endl;
+					}
+
+					qtm_include_file << "n01"
+						<< stubs[i].stub_text
+						<< "; c=c";
+					int the_code = stubs[i].code;
+					if (width_==1) {
+						qtm_include_file << "a0'";
+						if (the_code < 10) {
+							qtm_include_file << the_code
+								<< "'" << endl;
+						} else {
+							if (the_code == 10) {
+								qtm_include_file << "'0'";
+							} else if (the_code == 11) {
+								qtm_include_file << "'-'";
+							} else if (the_code == 12) {
+								qtm_include_file << "'&'";
+							} else {
+								stringstream error_str;
+								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+								cerr << LOG_MESSAGE(error_str.str());
+								exit(1);
+							}
+						}
+					} else {
+						qtm_include_file << "(a0,a"
+							<< width_-1 << ").eq."
+							<< the_code << endl;
+					}
+
+					if (i==7) {
+						qtm_include_file << "netend2;\n";
+					}
+					if (i==6) {
+						qtm_include_file << "netend1;\n";
+					}
+
+					if (i==0) {
+						qtm_include_file << "netend2;\n";
+						qtm_include_file << "netend1;\n";
+					}
+				}
+				if (width_==1)
+					qtm_include_file << "n25;inc=c(a0);c=c(a0).in.(1:9);\n";
+				else 
+					qtm_include_file << "n25;inc=" 
+						<< "c(a0,a" << width_ - 1 << ");"
+						<< "c=c(a0,a" << width_ - 1 << ").in.(1:9);\n";
+			}
 		}
-	} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
-		qax_file << "*include " << q->questionName_ << ".qin;"
-			<< "col(a)=" << startPosition_ + 1
-			<< ";"
-			<< endl;
+
+		qtm_include_file << "*include mean.qin" << endl;
 	}
-	qax_file << endl;
+	qtm_include_files.insert(n_q->nr_ptr->name);
+}
+
+void QtmDataDiskMap::print_run(string jno)
+{
+	stringstream run_file_name;
+	run_file_name << "setup-" << jno << "/" << jno << ".run" ;
+	fstream run_file(run_file_name.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	run_file << "struct;ser=c(" << qtm_datafile_conf_parser_ns::ser_start
+		<< "," << qtm_datafile_conf_parser_ns::ser_end
+		<< ");crd=c(" << qtm_datafile_conf_parser_ns::crd_start
+		<< "," <<  qtm_datafile_conf_parser_ns::crd_end
+		<< ");read=" << qtm_datafile_conf_parser_ns::qtm_file_mode 
+		<< ";max=" << qtmDataFile_.fileXcha_.currentCard_ + 1
+		<< endl << endl;
+
+	run_file << "ed" << endl;
+	run_file << "end" << endl << endl;
+	run_file << "a;" << endl << endl;
+
+	run_file << "*include " << jno << ".tab;ban=tot" << endl;
+	run_file << "*include " << jno << ".qax" << endl;
+
+	run_file << endl 
+		<< "l tot" << endl << "n10Total" 
+		<< endl
+		<< endl;
+
+	// print other support files
+	stringstream mn1c_fname;
+	mn1c_fname << "setup-" << jno << "/" << "mn1c.qin";
+	fstream mn1c_qin (mn1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	mn1c_qin << "n00;c=c(a0).in.(&range);" << endl
+		<< "n25;inc=c(a0);c=c(a0).in.&myrange" << endl
+		<< "n12&qatt;dec=2" << endl;
+
+	stringstream mn2c_fname;
+	mn2c_fname << "setup-" << jno << "/" << "mn2c.qin";
+	fstream mn2c_qin (mn2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	mn2c_qin << "n00;c=c(a0,a1).in.(&myrange);" << endl
+		<< "n25;inc=c(a0,a1);c=c(a0,a1).in.&myrange" << endl
+		<< "n12&qatt;dec=2" << endl;
+
+	stringstream rat1c_fname;
+	rat1c_fname << "setup-" << jno << "/" << "rat1c.qin";
+	fstream rat1c_qin (rat1c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	rat1c_qin << "n00 ; c=c(a0) u $ $;" << endl;
+	rat1c_qin << "n11 Total;" << endl;
+	rat1c_qin << "n01 &qatt; c=c(a0).in.&myrange;" << endl;
+
+
+	stringstream rat2c_fname;
+	rat2c_fname << "setup-" << jno << "/" << "rat2c.qin";
+	fstream rat2c_qin (rat2c_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	rat2c_qin << "n00 ; c=c(a0,a01) u $ $;" << endl;
+	rat2c_qin << "n11 Total ;" << endl;
+	rat2c_qin << "n01 &qatt; c=c(a0,a01).in.&myrange;" << endl;
+
+	stringstream qtit_fname;
+	qtit_fname << "setup-" << jno << "/" << "qttl.qin";
+	fstream qtit_qin (qtit_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	qtit_qin << "ttl&qno &qt1it" << endl;
+	qtit_qin << "&act2tttl&qt2it" << endl;
+	qtit_qin << "&act3tttl&qt3it" << endl;
+	qtit_qin << "&act4tttl&qt4it" << endl;
+	qtit_qin << "&att1tttl&q1att" << endl;
+	qtit_qin << "&att2tttl&q2att" << endl;
+
+	stringstream base_fname;
+	base_fname << "setup-" << jno << "/" << "base.qin";
+	fstream base_qin (base_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	base_qin << "ttlBase: &btxt" << endl
+		<< "n10Total" << endl;
+
+	stringstream mean_fname;
+	mean_fname << "setup-" << jno << "/" << "mean.qin";
+	fstream mean_qin (mean_fname.str().c_str(), std::ios_base::out | std::ios_base::ate);
+	mean_qin << "n12Mean;dec=2" << endl
+		<< "n17Std Dev;dec=2" << endl;
+
+}
+
+void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
+{
+
+	stringstream ttl_string;
+	const int TEXT_LEN_BREAK_AT = 120;
+	if (q->questionText_.size() > TEXT_LEN_BREAK_AT) {
+		int n_pieces = (q->questionText_.size()/TEXT_LEN_BREAK_AT) + 1;
+		int i=0;
+		for (i=0; i < n_pieces ; ++i) {
+			if (i==0) {
+				ttl_string << "qt1it=" << q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
+					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT) << endl;
+			} else {
+				ttl_string << "+qt" << i+1 << "it=" 
+					<< q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
+					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT) 
+					<< ";act" << i+1 << "t=;"
+					<< endl;
+			}
+		}
+		for (; i<4; ++i) {
+			ttl_string << "+qt" << i+1 << "it=;" << "act" << i+1 << "t=/*;" << endl;
+		}
+	} else {
+		ttl_string << "qt1it=" << q->questionText_ << ";" << endl;
+		ttl_string << "+qt2it=;" << "act2t=/*" << endl;
+		ttl_string << "+qt3it=;" << "act3t=/*" << endl;
+		ttl_string << "+qt4it=;" << "act4t=/*" << endl;
+	}
+
+	if (q->loop_index_values.size() > 0) {
+		stringstream l_base_text;
+		if (baseText_.isDynamicBaseText_ == false) {
+			l_base_text << baseText_.baseText_ << endl;
+		} else {
+			l_base_text << "All those respondents who coded ";
+			if (q->loop_index_values.size() == 1) {
+				l_base_text << "\"" << q->loop_index_values[0] << "\" i.e. ";
+				NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (baseText_.dynamicBaseQuestion_);
+				if (nq) {
+					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+					for (int i=0; i<vec.size(); ++i) {
+						if (vec[i].code == q->loop_index_values[0]+1) {
+							l_base_text << vec[i].stub_text;
+							break;
+						}
+					}
+				}
+				l_base_text << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
+			}
+		}
+
+		if (q->loop_index_values.size()==1) {
+			qax_file << "*include " << q->questionName_ 
+				<< ".qax"
+				<< ";qlno=" << q->loop_index_values[0] 
+				<< ";col(a)=" << startPosition_ + 1
+				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;qat2t=;att2t=/*" << endl
+				<< "+btxt=" << l_base_text.str()
+				<< endl
+				<< endl;
+		} else {
+			qax_file << "*include " << q->questionName_ 
+				<< ".qax"
+				<< ";col(a)=" << startPosition_ + 1
+				<< ";qlno=" << q->loop_index_values[0] << "_" << q->loop_index_values[1] 
+				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;"
+				<< ";qat2t=&bt" << q->loop_index_values[0] << "t;att2t=;" << endl
+				<< "+btxt=" << l_base_text
+				<< endl
+				<< endl;
+		}
+
+		/*
+		if (q->loop_index_values.size()==1) {
+			qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl;
+			qax_file << "+q2att=;att2t=/ *;" << endl;
+		} else  {
+			qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl; 
+			qax_file << "+q2att=&bt" << q->loop_index_values[1] << "t;att2t=;" << endl; 
+		}
+		*/
+		bool is_1st_iter = true;
+		//cout << "setting is_1st_iter=true" << endl;
+		for (int32_t i=0; i<q->loop_index_values.size(); ++i) {
+			if (q->loop_index_values[i] != 0) {
+				is_1st_iter = false;
+				break;
+			}
+		}
+		//cout << "setting is_1st_iter is STILL TRUE:"  << endl;
+		if (is_1st_iter == true) {
+			// make questionName_ . qax file
+			stringstream qax_fname;
+			qax_fname << setup_dir << "/";
+			qax_fname << q->questionName_ << ".qax";
+			fstream qax_file(qax_fname.str().c_str(), std::ios_base::out | std::ios_base::trunc);
+			qax_file << "l " << q->questionName_ << "_&qlno;c=c(a0";
+			if (width_>0) {
+				qax_file << ",a" << width_-1 ;
+			} 
+			qax_file << ") u $ $;" << endl;
+			qax_file << "*include qttl.qin;" 
+				<< ttl_string.str() << endl
+				<< "*include base.qin" << endl;
+
+			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+				print_qin(setup_dir);
+				if (n_q->nr_ptr) {
+					if (n_q->no_mpn>1) {
+						qax_file << "*include " << n_q->nr_ptr->name << ".min;"
+						//<< "col(a)=" << startPosition_ + 1
+						<< endl;
+					} else {
+						qax_file << "*include " << n_q->nr_ptr->name << ".sin;"
+						//<< "col(a)=" << startPosition_ + 1
+						<< endl;
+					}
+				}
+			} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
+				qax_file << "*include " << q->questionName_ << ".qin;"
+					//<< "col(a)=" << startPosition_ + 1 << ";"
+					<< endl;
+				stringstream fname;
+				fname << setup_dir << "/" << q->questionName_ << ".qin";
+				fstream qtm_include_file (fname.str().c_str(), 
+						std::ios_base::out | std::ios_base::trunc);
+				if (width_ == 1) {
+					qtm_include_file << "val c(a0);i;1" 
+						<< endl;
+				} else {
+					qtm_include_file << "val c(a0,"
+						<< "a" << width_ - 1 << ");i;1" 
+						<< endl;
+				}
+			}
+				
+		}
+	} else {
+		qax_file << "l " << q->questionName_ ;
+		for (int i=0; i< q->loop_index_values.size(); ++i) {
+			qax_file << "_" << q->loop_index_values[i];
+		}
+		
+
+		qax_file << "; c=c("
+			<< startPosition_ +1 ;
+		if (width_ > 1) {
+			qax_file << ", " << startPosition_ + totalLength_;
+		} 
+		qax_file << ") u $ $" ;
+		qax_file << endl;
+		qax_file << "*include qttl.qin;qno=;" ;
+		/*
+		<< q->questionName_;
+		for (int i=0; i< q->loop_index_values.size(); ++i) {
+			qax_file << "." << q->loop_index_values[i];
+		}
+		*/
+
+
+		/* ===================
+		   // Title splitting code was here
+		   ===================*/
+		qax_file << ttl_string.str();
+
+		qax_file << "+q1att=;att1t=/*;" << endl;
+		qax_file << "+q2att=;att2t=/*;" << endl;
+
+		if (baseText_.isDynamicBaseText_ == false) {
+			qax_file << "*include base.qin;btxt=" << baseText_.baseText_ << endl;
+		} else {
+			qax_file << "*include base.qin;btxt= All those respondents who coded ";
+			if (q->loop_index_values.size() == 1) {
+				qax_file << "\"" << q->loop_index_values[0] << "\" i.e. ";
+				NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (baseText_.dynamicBaseQuestion_);
+				if (nq) {
+					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+					for (int i=0; i<vec.size(); ++i) {
+						if (vec[i].code == q->loop_index_values[0]+1) {
+							qax_file << vec[i].stub_text;
+							break;
+						}
+					}
+				}
+				qax_file << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
+			}
+		}
+
+		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+			print_qin(setup_dir);
+			if (n_q->nr_ptr) {
+				if (n_q->no_mpn>1) {
+					qax_file << "*include " << n_q->nr_ptr->name << ".min;"
+					<< "col(a)=" << startPosition_ + 1
+					<< endl;
+				} else {
+					qax_file << "*include " << n_q->nr_ptr->name << ".sin;"
+					<< "col(a)=" << startPosition_ + 1
+					<< endl;
+				}
+			}
+		} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
+			qax_file << "*include " << q->questionName_ << ".qin;"
+				<< "col(a)=" << startPosition_ + 1
+				<< ";"
+				<< endl;
+			stringstream fname;
+			fname << setup_dir << "/" << q->questionName_ << ".qin";
+			fstream qtm_include_file (fname.str().c_str(), 
+					std::ios_base::out | std::ios_base::trunc);
+			if (width_ == 1) {
+				qtm_include_file << "val c(a0);i;1" 
+					<< endl;
+			} else {
+				qtm_include_file << "val c(a0,"
+					<< "a" << width_ - 1 << ");i;1" 
+					<< endl;
+			}
+		}
+
+		qax_file << endl;
+	}
 }
 
 
-QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_, int p_cardWrapAroundAt,
+QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_, 
+		int p_cardWrapAroundAt,
 		bool p_dontBreakQuestionsAtBoundary, QtmFileMode p_qtmFileMode)
 	: cardDataStartAt_(p_cardDataStartAt_), cardDataWrapAroundAt_(p_cardWrapAroundAt),
 	  dontBreakQuestionsAtBoundary_(p_dontBreakQuestionsAtBoundary),
-	  qtmFileMode_(p_qtmFileMode)
+	  qtmFileMode_(p_qtmFileMode),
+	  currentCard_(-1), currentColumn_(-1), multiplier_(-1),
+	  maxColList_()
 {
 	/*
 	int cardDataWrapAroundAt_;
@@ -333,7 +964,7 @@ int QtmFileCharacteristics::GetCurrentColumnPosition()
 }
 
 QtmDataFile::QtmDataFile()
-	: fileXcha_(/*11,  */
+	: cardVec_(), fileXcha_(/*11,  */
 		qtm_datafile_conf_parser_ns::crd_start,
 		qtm_datafile_conf_parser_ns::crd_end, true, 
 		qtm_datafile_conf_parser_ns::qtm_file_mode)
@@ -542,7 +1173,7 @@ void QtmDataFile::AllocateCards()
 }
 
 Card::Card (int no_cols)
-	: data_(no_cols, ' ')
+	: data_(no_cols, ' '), multiPunchData_()
 { }
 
 
