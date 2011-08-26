@@ -265,12 +265,14 @@ bool verify_web_data (string p_question_data,
 	if (scan_dataparse(scanner, &data)) {
 		cout << "there was an error in parsing the data" << endl;
 		yy_delete_buffer(s_data, scanner);
+		yylex_destroy(scanner);
 		data.clear();
 		return false;
 	} else {
+		yy_delete_buffer(s_data, scanner);
+		yylex_destroy(scanner);
 		return true;
 	}
 	cout << endl;
-	yy_delete_buffer(s_data, scanner);
 	return true;
 }
