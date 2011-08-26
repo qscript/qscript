@@ -1,0 +1,7 @@
+INCLUDE_DIR=../include
+LIB_DIR=../lib
+LIBS= -lwt -lwthttp -lqscript_runtime -lmicrohttpd -lncurses -lpanel
+inp_jump_test_wt_bcpp.exe: inp_jump_test_wt_bcpp.C
+	g++ -g -c -I$(INCLUDE_DIR) $<  
+	g++ -L $(LIB_DIR) -g -o $@ inp_jump_test_wt_bcpp.o $(LIBS)
+
