@@ -1328,7 +1328,23 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
+#ifndef _WIN32
 			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime");
+#else
+			+ string(" -lmicrohttpd -lpdcurses -lqscript_runtime");
+#endif /* _WIN32 */
+	} else if (program_options_ns::wt_flag) {
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+#ifndef _WIN32
+			+ string(" -lwt -lwthttp -lpanel -lncurses -lqscript_runtime");
+#else
+			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime");
+#endif /* _WIN32 */
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
@@ -1336,9 +1352,11 @@ test_script.o: test_script.C
 	if(ret_val != 0){
 		cerr << "Failed in compiling generated code : test_script.C ";
 	} else {
+		cout << endl;
 		cout << "Generated executable. You can run it by\n shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./"
 			 <<  executable_file_name
 			<< endl;
+		cout << endl;
 	}
 }
 
