@@ -77,10 +77,11 @@
      IF = 293,
      ELSE = 294,
      STUBS_LIST = 295,
-     SETDEL = 296,
-     SETADD = 297,
-     UNSET = 298,
-     SETALL = 299
+     NAMED_ATTRIBUTES = 296,
+     SETDEL = 297,
+     SETADD = 298,
+     UNSET = 299,
+     SETALL = 300
    };
 #endif
 
@@ -91,7 +92,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 51 "src/q.ypp"
+#line 52 "src/q.ypp"
 
 	type_qualifier type_qual;
 	int32_t ival;
@@ -110,7 +111,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 114 "src/q.hpp"
+#line 115 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

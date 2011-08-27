@@ -1157,6 +1157,8 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_
 			<< ");\n";
+		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
 		quest_decl << "}\n";
 	}
 
@@ -1191,8 +1193,8 @@ void RangeQuestion::GenerateCode(StatementCompiledCode & code )
 		PrintArrayDeclarations(code);
 
 		GenerateCodeSingleQuestion(code, true);
-		code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
-			<< endl;
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+		//	<< endl;
 	}
 	if(next_){
 		next_->GenerateCode(code);
@@ -1254,6 +1256,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+			<< endl;
 		quest_decl << "}\n";
 	}
 
@@ -1290,8 +1294,8 @@ void NamedStubQuestion::GenerateCode(StatementCompiledCode &code)
 		// PrintArrayDeclarations(code.quest_defns);
 		PrintArrayDeclarations(code);
 		GenerateCodeSingleQuestion(code, true);
-		code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
-			<< endl;
+		//code.array_quest_init_area << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
+		//	<< endl;
 	}
 
 	if(next_){

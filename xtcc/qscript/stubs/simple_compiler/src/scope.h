@@ -54,7 +54,9 @@ using std::map;
 struct Scope
 {
 	map<string,SymbolTableEntry*> SymbolTable;
-	Scope():SymbolTable(){ }
+	Scope():
+		SymbolTable()
+	{ }
 
 	AbstractStatement* insert(const char * name, DataType dt/*, int32_t line_no*/);
 	AbstractStatement* insert(const char * name, DataType dt, AbstractExpression *e);
@@ -63,6 +65,7 @@ struct Scope
 	AbstractStatement* insert(const char * name, DataType dt, int32_t arr_size, /*int32_t line_no,*/ char *text);
 	AbstractStatement* insert(const char * name, DataType dt, XtccSet *lxs);
 	AbstractStatement* insert(const char * name, DataType dt, AbstractQuestion * l_q /*, int32_t line_no*/);
+	AbstractStatement* insert(const char * name, DataType dt, int l_line_no, vector<string> l_vec_named_attribute_list);
 	void print_scope(const string & stack_name, vector<string> &push_stack, vector<string>& pop_stack);
 	void print_scope(vector<ActiveVariableInfo*> & output_info);
 	~Scope();

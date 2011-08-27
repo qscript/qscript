@@ -43,6 +43,7 @@
 	vector </*Statement::*/FunctionInformation*> func_info_table;
 	QuestionAttributes question_attributes;
 	vector<TextExpression*> text_expr_vec;
+	vector<string> vec_named_attribute_list;
 
 
 %}
@@ -126,6 +127,7 @@
 %type <stmt> newcard_stmt
  /*%type <stmt> attributes	*/
 %type <stmt> stubs
+%type <stmt> named_attributes
 %type <c_stmt> cmpd_stmt
 %type <c_stmt> open_curly
 %type <stmt> if_stmt
@@ -137,6 +139,7 @@
 %token IF ELSE
 
 %token STUBS_LIST
+%token NAMED_ATTRIBUTES
 %token SETDEL
 %token SETADD
 %token UNSET
@@ -293,6 +296,7 @@ stmt:	question
 	| expr_stmt
 	| decl_stmt
 	| stubs
+	| named_attributes
 	| cmpd_stmt  {
 		$$ = $1;
 	}
@@ -884,6 +888,24 @@ stubs:     STUBS_LIST NAME {
 		$$ = nr_ptr;
 	}
 	;
+
+named_attributes: NAMED_ATTRIBUTES NAME '=' named_attribute_list ';' {
+		//$$ = new named_attribute_list (NAMED_ATTRIBUTE_TYPE, $2, vec_named_attribute_list);
+		//qscript_parser::delete_manually_in_cleanup.push_back(
+		$$ = qscript_parser::active_scope_list[0]->insert($2, NAMED_ATTRIBUTE_TYPE, qscript_parser::line_no, vec_named_attribute_list);
+		//);
+		vec_named_attribute_list.clear();
+	}
+	;
+
+named_attribute_list: TEXT {
+		vec_named_attribute_list.push_back ($1);
+	}
+	| named_attribute_list ',' TEXT {
+		vec_named_attribute_list.push_back ($3);
+	}
+	;
+	
 
 
 stub_list: stub
