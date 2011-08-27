@@ -157,6 +157,9 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 		//mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
 		mvwprintw(question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
+		for (int i=1; i<textExprVec_.size(); ++i) {
+			mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
+		}
 		//wrefresh(question_window);
 		update_panels();
 		doupdate();
@@ -382,6 +385,9 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//wrefresh(question_window);
 		//mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
 		mvwprintw(question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
+		for (int i=1; i<textExprVec_.size(); ++i) {
+			mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
+		}
 		update_panels();
 		doupdate();
 		int32_t maxWinX, maxWinY;

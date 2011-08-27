@@ -570,10 +570,10 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 {
 	if (qscript_debug::DEBUG_Unary2Expression)
 		code.code_bef_expr <<"/* Unary2Expression::PrintExpressionCode ENTER */" << endl;
-	switch(exprOperatorType_){
+	switch (exprOperatorType_) {
 	case oper_name:{
 		//code.code_bef_expr << " /* case  oper_name */ \n";
-		if (type_ == QUESTION_TYPE){
+		if (type_ == QUESTION_TYPE) {
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_TYPE){
 				code.code_bef_expr
@@ -597,7 +597,7 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 	}
 		break;
 	case oper_arrderef:{
-		if (type_ == QUESTION_TYPE){
+		if (type_ == QUESTION_TYPE) {
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_ARR_TYPE){
 				code.code_bef_expr
@@ -614,10 +614,26 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 					<< q->questionName_
 					<< "\" << endl;\n}\n";
 			}
+			// 27-aug-2011 moved code into if block: was below commented out before
+			code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
+			operand_->PrintExpressionCode(code);
+			code.code_expr << "]->input_data.begin())";
 		}
-		code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
-		operand_->PrintExpressionCode(code);
-		code.code_expr << "]->input_data.begin())";
+		// 27-aug-2011 moved code into if block
+		//	code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
+		//	operand_->PrintExpressionCode(code);
+		//	code.code_expr << "]->input_data.begin())";
+		// this else if is added on 27-aug-2011 for named_attributes_list code generation
+		// it didnt exist earlier
+		else if (type_ == NAMED_ATTRIBUTE_TYPE) {
+			//ExpressionCompiledCode code1;
+			//operand_->PrintExpressionCode(code1);
+			//code.code_bef_expr << code1.code_bef_expr.str()
+			//		   << code1.code_expr.str();
+			code.code_expr << symbolTableEntry_->name_ << ".attribute[";
+			operand_->PrintExpressionCode(code);
+			code.code_expr << "]";
+		}
 	}
 		break;
 
@@ -1138,7 +1154,12 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 			}
 		}
 		DataType l_e_type = arr_index->type_;
-		if (is_of_int_type(l_e_type)){
+		if (se->type_ == NAMED_ATTRIBUTE_TYPE) {
+			std::stringstream mesg;
+			mesg << "We need to put a bounds check on the indexing expression -> esp if it is a simple variable like i" << "\n";
+			LOG_MAINTAINER_MESSAGE(mesg.str());
+			type_ = NAMED_ATTRIBUTE_TYPE;
+		} else  if (is_of_int_type(l_e_type)){
 			DataType nametype =arr_deref_type(se->type_);
 			if (nametype == ERROR_TYPE) {
 				std::stringstream s;

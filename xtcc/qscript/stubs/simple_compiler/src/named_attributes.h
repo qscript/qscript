@@ -23,6 +23,8 @@ struct named_attribute_list: public AbstractStatement
 	struct SymbolTableEntry* symbolTableEntry_;
 
 	named_attribute_list(DataType dt, int32_t lline_no,  string l_name, vector<string> l_attr);
+	named_attribute_list();
+	virtual ~named_attribute_list();
 	virtual void GenerateCode(StatementCompiledCode & code);
 	private:
 		named_attribute_list& operator=(const named_attribute_list&);

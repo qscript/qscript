@@ -292,6 +292,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
 	fprintf(script, "#include \"XtccDataFile.h\"\n");
 	fprintf(script, "#include \"base_text.h\"\n");
+	fprintf(script, "#include \"named_attributes.h\"\n");
 
 	{
 		//stringstream mesg;

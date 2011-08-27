@@ -1,0 +1,16 @@
+
+inp_simple_for {
+	named_attribute q1_atts = " I like the rain",
+				" I like electronic devices",
+				" I like to party every night",
+				" I like trendy clothes",
+				" I love nature "
+				//" I love long drives "
+				//" Traffic irritates me "
+					;
+	int32_t i1=0;
+	for (i1=0; i1<5; i1=i1+1) {
+q1		"test" : q1_atts[i1]
+		sp int32_t (1-5);
+	}
+}

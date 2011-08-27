@@ -1114,9 +1114,17 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 
 	for (int i=0; i < textExprVec_.size(); ++i) {
-		quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
-			<< textExprVec_[i]->text_
-			<< "\")));\n";
+		if (textExprVec_[i]->nameExpr_ == 0) { 
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+				<< textExprVec_[i]->text_
+				<< "\")));\n";
+		} else {
+			ExpressionCompiledCode expr_code;
+			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back(new TextExpression("
+				<< expr_code.code_expr.str()
+				<< "));\n";
+		}
 	}
 
 	if (array_mode) {
