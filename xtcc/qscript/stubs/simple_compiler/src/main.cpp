@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
+#include <getopt.h>
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
@@ -36,12 +37,16 @@ namespace program_options_ns {
 	bool ncurses_flag = false;
 	bool static_binary_flag = false;
 	bool web_server_flag = false;
+	bool microhttpd_flag = false;
+	bool wt_flag = false;
 	int32_t fname_flag = 0;
 	bool  no_question_save_restore_optimization;
 	bool flag_nice_map;
 	bool compile_to_cpp_only_flag = false;
 	bool latex_flag = false;
 }
+
+void process_options (int32_t argc, char* argv[]);
 
 int32_t main(int32_t argc, char* argv[])
 {
@@ -53,7 +58,8 @@ int32_t main(int32_t argc, char* argv[])
 	using qscript_parser::fname;
 	bool exit_flag = false;
 
-	while( (c = getopt(argc, argv, "molwcsnf:")) != -1 ){
+	/*
+	while( (c = getopt(argc, argv, "molcsnw:f:")) != -1 ){
 		char ch = optopt;
 		switch(c){
 		case 'c':
@@ -102,12 +108,18 @@ int32_t main(int32_t argc, char* argv[])
 			break;
 		}
 	}
+	*/
+
+	process_options (argc, argv);
 	char * QSCRIPT_HOME = getenv("QSCRIPT_HOME");
 	if (!QSCRIPT_HOME){
 		cout << "Please set environment variable QSCRIPT_HOME to the top-level directory that qscript is installed in" << endl
 			<< "If qscript was installed in /home/unixuser/qscript/, in UNIX - bash " << endl
 			<< "you would do this as (assume $ as shell prompt):" << endl
-			<< "$export QSCRIPT_HOME=/home/unix_user/qscript" << endl;
+			<< "$export QSCRIPT_HOME=/home/unix_user/qscript" << endl
+			<< " on windows you would do this as " << endl
+			<< "c:\\qscript-0.19>set QSCRIPT_HOME=c:\\qscript-0.19" << endl
+			<< " assuming qscript is installed in c:\\qscript-0.19" << endl;
 		exit_flag = true;
 	}
 	if (!qscript_parser::ReadQScriptConfig()){
@@ -288,4 +300,86 @@ lab_maintainer_messages:
 
 
 	return no_errors;
+}
+
+
+void process_options (int32_t argc, char* argv[])
+{
+	int c;
+	using qscript_parser::fname;
+	static struct option long_options[] = 
+		{
+			{ "nice-map", no_argument, 0, 'm'},
+			{ "optimise-no-save-restore", no_argument, 0, 'o'},
+			{ "latex-qnre", no_argument, 0, 'l'},
+			{ "compile-c++-only", no_argument, 0, 'c'},
+			{ "static", no_argument, 0, 's'},
+			{ "ncurses-exe", no_argument, 0, 'n'},
+			{ "web-exe", required_argument, 0, 'w'},
+			{ "filename", required_argument, 0, 'f'}
+		};
+	int option_index = 0;
+	while (1) {
+		c = getopt_long (argc, argv, "molcsnw:f:", long_options, &option_index);
+		if (c == -1) {
+			break;
+		}
+		switch (c) {
+			case 'c':
+				program_options_ns::compile_to_cpp_only_flag = true;
+				break;
+			case 'n':
+				program_options_ns::ncurses_flag = true;
+				break;
+			case 's':
+				program_options_ns::static_binary_flag = true;
+				break;
+			case 'w': {
+					program_options_ns::web_server_flag = true;
+					string option_arg(optarg);
+					if (option_arg == "microhttpd") {
+						program_options_ns::microhttpd_flag = true;
+					} else if (option_arg == "wt") {
+						program_options_ns::wt_flag = true;
+					} else {
+						cerr << "invalid parameter: " << option_arg 
+							<< " for -w (--web-exe) ... exiting" << endl;
+						exit(1);
+					}
+				}
+				break;
+			case 'f':
+				fname = optarg;
+				program_options_ns::fname_flag = 1;
+				break;
+			case 'l':
+				program_options_ns::latex_flag = true;
+				break;
+			case 'o':
+				program_options_ns::no_question_save_restore_optimization = true;
+				break;
+			case 'm':
+				program_options_ns::flag_nice_map = true;
+				break;
+			case '?':
+				if (optopt == 'f' )
+					cerr << " option -'" << optopt << "' requires an argument" << endl;
+				else if (optopt == 'w' )
+					cerr << " option -'" << optopt << "' requires an argument" << endl;
+				else if (isprint(optopt)){
+					cerr << " unknown option : '-" << optopt << "'" << endl;
+				} else
+					cerr << " unknown character " << optopt << endl;
+				exit(1);
+				break;
+			default:
+				cerr << "Usage: "
+					<< argv[0] << " -f <input-file>\n" <<   endl;
+				exit(0);
+			}
+	}
+	if (program_options_ns::microhttpd_flag && program_options_ns::wt_flag) {
+		cerr << " -w option can be specified only once" << endl;
+		exit (0);
+	}
 }

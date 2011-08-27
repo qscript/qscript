@@ -14,6 +14,8 @@ namespace program_options_ns {
 	extern bool ncurses_flag;
 	extern bool static_binary_flag;
 	extern bool web_server_flag;
+	extern bool microhttpd_flag ;
+	extern bool wt_flag ;
 	extern bool compile_to_cpp_only_flag;
 	extern int32_t fname_flag;
 	extern bool flag_nice_map;
@@ -124,7 +126,7 @@ void PrintDefineSomePDCursesKeys(FILE * script);
 void PrintPDCursesKeysHeader(FILE * script);
 void PrintProcessOptions(FILE * script);
 void PrintNCursesMain(FILE * script, bool ncurses_flag);
-void PrintWebMain (FILE * script, bool ncurses_flag);
+void PrintMicrohttpdMain (FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
 void print_write_qtm_data_to_disk(FILE *script);
@@ -140,8 +142,10 @@ void print_ncurses_include_files (FILE * script);
 void print_ncurses_func_prototypes (FILE * script);
 void print_microhttpd_web_support (FILE * script);
 void print_web_func_prototypes (FILE * script);
+void print_Wt_support_code(FILE * script);
 void print_microhttpd_include_files (FILE * script);
 void print_web_support_structs (FILE * script);
+void print_microhttpd_web_support_structs (FILE * script);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -227,11 +231,16 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 	if (program_options_ns::ncurses_flag)
 		PrintNCursesMain(script, ncurses_flag);
-	if (program_options_ns::web_server_flag) {
+	if (program_options_ns::microhttpd_flag) {
+		print_microhttpd_web_support_structs (script);
 		print_web_support_structs (script);
 		print_web_func_prototypes (script);
-		PrintWebMain(script, ncurses_flag);
+		PrintMicrohttpdMain(script, ncurses_flag);
 		print_microhttpd_web_support(script);
+	}
+	if (program_options_ns::wt_flag) {
+		print_web_support_structs (script);
+		print_Wt_support_code(script);
 	}
 	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
@@ -241,6 +250,14 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 void print_header(FILE* script, bool ncurses_flag)
 {
+	if (program_options_ns::wt_flag) {
+		fprintf (script, "#include <Wt/WApplication>\n");
+		fprintf (script, "#include <Wt/WBreak>\n");
+		fprintf (script, "#include <Wt/WContainerWidget>\n");
+		fprintf (script, "#include <Wt/WLineEdit>\n");
+		fprintf (script, "#include <Wt/WPushButton>\n");
+		fprintf (script, "#include <Wt/WText>\n");
+	}
 	fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
 	fprintf(script, "#include <string>\n");
@@ -252,7 +269,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	if (program_options_ns::ncurses_flag) {
 		print_ncurses_include_files(script);
 	}
-	if (program_options_ns::web_server_flag) {
+	if (program_options_ns::microhttpd_flag) {
 		print_microhttpd_include_files(script);
 	}
 	fprintf(script, "#include <signal.h>\n");
@@ -1304,7 +1321,7 @@ test_script.o: test_script.C
 			+ string(" ") + intermediate_file_name
 			+ string(" -lqscript_runtime -lpanel ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
-	} else if (program_options_ns::web_server_flag) {
+	} else if (program_options_ns::microhttpd_flag) {
 		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
@@ -1729,7 +1746,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 }
 
 
-void PrintWebMain (FILE * script, bool ncurses_flag)
+void PrintMicrohttpdMain (FILE * script, bool ncurses_flag)
 {
 	fprintf (script, "int32_t main(int argc, char * argv[])\n");
 	fprintf (script, "{\n");
@@ -2021,8 +2038,14 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\t// reset_questionnaire();\n"
 				"\t\treturn 0;\n"
 			);
-	} else if(program_options_ns::web_server_flag) {
+	} else if(program_options_ns::microhttpd_flag) {
 		// we should post the THANK YOU PAGE here
+		fprintf(script, "\t}\n");
+		fprintf(script, "\t*/\n");
+		fprintf(script, "\treset_questionnaire();\n"
+				"\t\treturn 0;\n"
+			);
+	} else if(program_options_ns::wt_flag) {
 		fprintf(script, "\t}\n");
 		fprintf(script, "\t*/\n");
 		fprintf(script, "\treset_questionnaire();\n"
@@ -3015,10 +3038,12 @@ void print_microhttpd_web_support (FILE * script)
 	fprintf (script, "}\n");
 	fprintf (script, "\n");
 	fprintf (script, "#include \"qscript_readline.h\"\n");
-	fprintf (script, "bool verify_web_data (string p_question_data, \n");
+
+	fprintf (script, "bool verify_web_data (std::string p_question_data, \n");
 	fprintf (script, "		UserNavigation p_user_navigation,\n");
-	fprintf (script, "		user_response::UserResponseType p_the_user_response);\n");
-	fprintf (script, "\n");
+	fprintf (script, "		user_response::UserResponseType p_the_user_response,\n");
+	fprintf (script, "		std::vector<int> * data_ptr);\n");
+	fprintf (script, " \n");
 	fprintf (script, "static int serve_question(struct Session *session,\n");
 	fprintf (script, "		 struct MHD_Connection *connection\n");
 	fprintf (script, "		)\n");
@@ -3246,8 +3271,7 @@ void print_microhttpd_include_files (FILE * script)
 	fprintf (script, "#include <microhttpd.h>\n");
 }
 
-
-void print_web_support_structs (FILE * script)
+void print_microhttpd_web_support_structs (FILE * script)
 {
 	fprintf (script, "/**\n");
 	fprintf (script, " * Invalid method page.\n");
@@ -3286,6 +3310,11 @@ void print_web_support_structs (FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "\n");
 	fprintf (script, "\n");
+}
+
+void print_web_support_structs (FILE * script)
+{
+
 	fprintf (script, "struct Session\n");
 	fprintf (script, "{\n");
 	fprintf (script, "	/**\n");
@@ -3334,6 +3363,7 @@ void print_web_support_structs (FILE * script)
 	fprintf (script, "};\n");
 	fprintf (script, "\n");
 	fprintf (script, "static struct Session *sessions;\n");
+	fprintf (script, "vector <Session*> wt_sessions;\n");
 }
 
 void print_web_func_prototypes (FILE * script)
@@ -3408,6 +3438,206 @@ void print_web_func_prototypes (FILE * script)
 	fprintf(script, "		 struct MHD_Connection *connection\n");
 	fprintf(script, "		);\n");
 	fprintf(script, "\n");
+}
+
+void print_Wt_support_code(FILE * script)
+{
+	fprintf(script, "using namespace Wt;\n");
+	fprintf(script, "\n");
+	fprintf(script, "class QuestionnaireApplication: public WApplication\n");
+	fprintf(script, "{\n");
+	fprintf(script, "public: \n");
+	fprintf(script, "	QuestionnaireApplication(const WEnvironment &env);\n");
+	fprintf(script, "private:\n");
+	fprintf(script, "	WText * wt_debug_;\n");
+	fprintf(script, "	WText * wt_questionText_;\n");
+	fprintf(script, "	WLineEdit * le_data_;\n");
+	fprintf(script, "	WText * wt_lastQuestionVisited_;\n");
+	fprintf(script, "\n");
+	fprintf(script, "	WContainerWidget viewPort_;\n");
+	fprintf(script, "	WWidget * currentForm_;\n");
+	fprintf(script, "	WContainerWidget * formContainer_;\n");
+	fprintf(script, "\n");
+	fprintf(script, "	void display();\n");
+	fprintf(script, "	void DoQuestionnaire() ;\n");
+	fprintf(script, "	void setCentralWidget(WWidget * new_question_form);\n");
+	fprintf(script, "};\n");
+	fprintf(script, "bool verify_web_data (std::string p_question_data, \n");
+	fprintf(script, "		UserNavigation p_user_navigation,\n");
+	fprintf(script, "		user_response::UserResponseType p_the_user_response,\n");
+	fprintf(script, "		std::vector<int> * data_ptr);\n");
+	fprintf(script, "\n");
+	fprintf(script, "\n");
+	fprintf(script, "void QuestionnaireApplication::DoQuestionnaire()\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	//if (!wt_questionText_) {\n");
+	fprintf(script, "	//	wt_questionText_ = new WText(root());\n");
+	fprintf(script, "	//}\n");
+	fprintf(script, "	static int counter = 0;\n");
+	fprintf(script, "	stringstream s;\n");
+	fprintf(script, "	s << \"reached DoQuestionnaire: \" << counter++;\n");
+	fprintf(script, "	wt_debug_->setText(s.str());\n");
+	fprintf(script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
+	fprintf(script, "	string sess_id = sessionId();\n");
+	fprintf(script, "	string display_text = string(\"This is the survey:\") + sess_id;\n");
+	fprintf(script, "	wt_questionText_->setText(display_text);\n");
+	fprintf(script, "	int found_index = -1;\n");
+	fprintf(script, "	for (int i=0; i<wt_sessions.size(); ++i) {\n");
+	fprintf(script, "		// boy is the below inefficient and should be fixed\n");
+	fprintf(script, "		if (sess_id == string(wt_sessions[i]->sid) ) {\n");
+	fprintf(script, "			found_index = i;\n");
+	fprintf(script, "			break;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	Session * this_users_session = 0;\n");
+	fprintf(script, "	if (found_index != -1) {\n");
+	fprintf(script, "		s << \"found session at index: \" << found_index;\n");
+	fprintf(script, "		this_users_session = wt_sessions[found_index];\n");
+	fprintf(script, "	} else {\n");
+	fprintf(script, "		this_users_session = new Session();\n");
+	fprintf(script, "		strcpy(this_users_session->sid, sess_id.c_str());\n");
+	fprintf(script, "		wt_sessions.push_back(this_users_session);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	// put this code later\n");
+	fprintf(script, "	string err_mesg, re_arranged_buffer;\n");
+	fprintf(script, "	int32_t pos_1st_invalid_data;\n");
+	fprintf(script, "	string last_question_visited_str = wt_lastQuestionVisited_->text().narrow();\n");
+	fprintf(script, "	string current_question_response = le_data_->text().narrow();\n");
+	fprintf(script, "	s << \"last_question_served: \" << this_users_session->last_question_served;\n");
+	fprintf(script, "	wt_debug_->setText(s.str());\n");
+	fprintf(script, "	if (this_users_session->last_question_served) {\n");
+	fprintf(script, "		if (last_question_visited_str != \"\" && current_question_response != \"\")\n");
+	fprintf(script, "		{\n");
+	fprintf(script, "			UserNavigation user_nav=NOT_SET;\n");
+	fprintf(script, "			user_response::UserResponseType user_resp=user_response::NotSet;\n");
+	fprintf(script, "			vector<int32_t> data;\n");
+	fprintf(script, "			bool parse_success = verify_web_data (current_question_response, user_nav, user_resp, &data);\n");
+	fprintf(script, "			if (parse_success)\n");
+	fprintf(script, "			{\n");
+	fprintf(script, "				cout << \"successfully parsed data = \";\n");
+	fprintf(script, "				for (int i=0; i<data.size(); ++i)\n");
+	fprintf(script, "				{\n");
+	fprintf(script, "					cout << data[i] << \", \";\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "				cout << endl;\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "			AbstractQuestion * last_question_served = this_users_session->last_question_served;\n");
+	fprintf(script, "			// the call below will be required at some later stage\n");
+	fprintf(script, "			//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);\n");
+	fprintf(script, "			// right now we go along with the happy path\n");
+	fprintf(script, "			bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,\n");
+	fprintf(script, "				&data);\n");
+	fprintf(script, "			if (invalid_code == false)\n");
+	fprintf(script, "			{\n");
+	fprintf(script, "				last_question_served->input_data.erase\n");
+	fprintf(script, "					(last_question_served->input_data.begin(),\n");
+	fprintf(script, "					last_question_served->input_data.end());\n");
+	fprintf(script, "				for(uint32_t i = 0; i < data.size(); ++i)\n");
+	fprintf(script, "				{\n");
+	fprintf(script, "					last_question_served->input_data.insert(data[i]);\n");
+	fprintf(script, "					//cout << \"storing: \" << data[i]\n");
+	fprintf(script, "					//	<< \" into input_data\" << endl;\n");
+	fprintf(script, "				}\n");
+	fprintf(script, "				last_question_served->isAnswered_ = true;\n");
+	fprintf(script, "				data.clear();\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	AbstractQuestion * q =\n");
+	fprintf(script, "		this_users_session->questionnaire->eval2(\n");
+	fprintf(script, "		qnre_navigation_mode);\n");
+	fprintf(script, "	this_users_session->last_question_served = q;\n");
+	fprintf(script, "	WContainerWidget * new_form = 0;\n");
+	fprintf(script, "	if (q) {\n");
+	fprintf(script, "		new_form = new WContainerWidget();\n");
+	fprintf(script, "		wt_questionText_ = new WText();\n");
+	fprintf(script, "		wt_questionText_->setText(q->questionText_);\n");
+	fprintf(script, "		new_form->addWidget(wt_questionText_);\n");
+	fprintf(script, "\n");
+	fprintf(script, "		le_data_ = new WLineEdit();\n");
+	fprintf(script, "		new_form->addWidget(le_data_);\n");
+	fprintf(script, "\n");
+	fprintf(script, "		wt_lastQuestionVisited_ = new WText();\n");
+	fprintf(script, "		if (this_users_session->last_question_answered)\n");
+	fprintf(script, "			wt_lastQuestionVisited_->setText(q->questionName_);\n");
+	fprintf(script, "		new_form->addWidget(wt_lastQuestionVisited_);\n");
+	fprintf(script, "\n");
+	fprintf(script, "		WPushButton *b = new WPushButton(\"Next\"); // create a button\n");
+	fprintf(script, "		b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
+	fprintf(script, "		new_form->addWidget(b);\n");
+	fprintf(script, "\n");
+	fprintf(script, "		setCentralWidget(new_form);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "\n");
+	fprintf(script, "\n");
+	fprintf(script, "}\n");
+	fprintf(script, "\n");
+	fprintf(script, "void QuestionnaireApplication::setCentralWidget(WWidget * new_question_form)\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	if (currentForm_)\n");
+	fprintf(script, "		delete currentForm_;\n");
+	fprintf(script, "	currentForm_ = new_question_form;\n");
+	fprintf(script, "	formContainer_->addWidget(currentForm_);\n");
+	fprintf(script, "}\n");
+	fprintf(script, "\n");
+	fprintf(script, "\n");
+	fprintf(script, "\n");
+	fprintf(script, "QuestionnaireApplication::QuestionnaireApplication(const WEnvironment &env)\n");
+	fprintf(script, "	: WApplication(env), wt_questionText_(0), currentForm_(0)\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	WContainerWidget * canvas = new WContainerWidget(0);\n");
+	fprintf(script, "	setTitle(\"QuestionnaireApplication\");\n");
+	fprintf(script, "	/*\n");
+	fprintf(script, "	WPushButton *b = new WPushButton(\"Click to start survey\", root()); // create a button\n");
+	fprintf(script, "	b->setMargin(5, Left);                                 // add 5 pixels margin\n");
+	fprintf(script, "\n");
+	fprintf(script, "	root()->addWidget(new WBreak());                       // insert a line break\n");
+	fprintf(script, "\n");
+	fprintf(script, "	wt_questionText_ = new WText(root());                         // empty text\n");
+	fprintf(script, "\n");
+	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
+	fprintf(script, "	*/\n");
+	fprintf(script, "	WPushButton *b = new WPushButton(\"Click to start survey\", canvas); // create a button\n");
+	fprintf(script, "	b->setMargin(5, Left);                                 // add 5 pixels margin\n");
+	fprintf(script, "	canvas->addWidget(new WBreak());                       // insert a line break\n");
+	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
+	fprintf(script, "	wt_questionText_ = new WText(canvas);                         // empty text\n");
+	fprintf(script, "	wt_questionText_->setText(\"question text will be updated\");\n");
+	fprintf(script, "	wt_lastQuestionVisited_ = new WText(canvas);\n");
+	fprintf(script, "	le_data_ = new WLineEdit(canvas);\n");
+	fprintf(script, "\n");
+	fprintf(script, "	wt_debug_ = new WText(canvas);\n");
+	fprintf(script, "	formContainer_ = new WContainerWidget(root());\n");
+	fprintf(script, "	formContainer_->addWidget(canvas);\n");
+	fprintf(script, "}\n");
+	fprintf(script, "\n");
+	fprintf(script, "WApplication * createApplication(const WEnvironment &env)\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	return new QuestionnaireApplication (env);\n");
+	fprintf(script, "}\n");
+	fprintf(script, "\n");
+	fprintf(script, "int main(int argc, char ** argv)\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	//process_options(argc, argv);\n");
+	fprintf(script, "	if (write_data_file_flag||write_qtm_data_file_flag)\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		qtm_data_file_ns::init_exceptions();\n");
+	fprintf(script, "		directory_ptr = opendir(\".\");\n");
+	fprintf(script, "		if (! directory_ptr)\n");
+	fprintf(script, "		{\n");
+	fprintf(script, "			cout << \" unable to open . (current directory) for reading\\n\";\n");
+	fprintf(script, "			exit(1);\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	bool using_ncurses = true;\n");
+	fprintf(script, "	qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
+	fprintf(script, "\n");
+	fprintf(script, "	return WRun (argc, argv, &createApplication);\n");
+	fprintf(script, "}\n");
+	fprintf(script, "\n");
+
+
+
 }
 
 
