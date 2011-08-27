@@ -124,7 +124,7 @@ public:
 		xtcc_ax_file << ";" << endl
 			<< "ttl; " << "\"" << q_->questionName_ 
 			<< "." 
-			<< q_->questionText_ 
+			<< q_->textExprVec_[0]->text_ 
 			<< "\";" 
 			<< endl << endl;
 		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {

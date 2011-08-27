@@ -170,12 +170,12 @@ class AsciiFlatFileQuestionDiskMap
 				for(int i=0; i<q->no_mpn; ++i) {
 					spss_syn_file << "variable label ";
 					spss_syn_file << var_name.str() << "_" << i+1;
-					spss_syn_file << " \"" << q->questionText_ << "\"." << endl;
+					spss_syn_file << " \"" << q->textExprVec_[0]->text_ << "\"." << endl;
 				}
 			} else {
 				spss_syn_file << "variable label ";
 				spss_syn_file << var_name.str();
-				spss_syn_file << " \"" << q->questionText_ << "\"." << endl;
+				spss_syn_file << " \"" << q->textExprVec_[0]->text_ << "\"." << endl;
 			}
 
 		}

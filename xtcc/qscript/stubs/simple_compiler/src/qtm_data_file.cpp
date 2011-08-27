@@ -666,6 +666,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 
 	stringstream ttl_string;
 	const int TEXT_LEN_BREAK_AT = 120;
+#if 0
 	if (q->questionText_.size() > TEXT_LEN_BREAK_AT) {
 		int n_pieces = (q->questionText_.size()/TEXT_LEN_BREAK_AT) + 1;
 		int i=0;
@@ -690,6 +691,8 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 		ttl_string << "+qt3it=;" << "act3t=/*" << endl;
 		ttl_string << "+qt4it=;" << "act4t=/*" << endl;
 	}
+#endif /* 0 */
+	ttl_string << "Dummy question text" << endl;
 
 	if (q->loop_index_values.size() > 0) {
 		stringstream l_base_text;

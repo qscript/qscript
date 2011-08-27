@@ -14,6 +14,7 @@
 #include <sstream>
 #include <panel.h>
 
+#include "expr.h"
 #include "question.h"
 #include "named_range.h"
 #include "scope.h"
@@ -60,7 +61,7 @@ extern vector<string> consolidated_for_loop_index_stack;
 
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(
-	DataType l_type, int32_t l_no, string l_name, string l_text
+	DataType l_type, int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
@@ -69,7 +70,7 @@ AbstractQuestion::AbstractQuestion(
 	)
 	: 
 	AbstractStatement(l_type, l_no)
-	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
+	, questionName_(l_name), textExprVec_(text_expr_vec),  q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(l_for_bounds_stack), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -113,7 +114,7 @@ AbstractQuestion::AbstractQuestion(
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no
-	, string l_name, string l_text
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
@@ -121,7 +122,7 @@ AbstractQuestion::AbstractQuestion(
 	, const XtccSet & p_mutexCodeList
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type)
+	, textExprVec_(text_expr_vec), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -672,7 +673,7 @@ void AbstractQuestion::PrintArrayDeclarations(StatementCompiledCode & code)
 //! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt, XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
@@ -680,7 +681,7 @@ RangeQuestion::RangeQuestion(
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	: AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
 			   , l_enclosing_scope, l_av_info, l_question_attributes
 			   , p_mutexCodeList)
@@ -709,14 +710,14 @@ RangeQuestion::RangeQuestion(
 	//! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	: AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt
 			   , l_enclosing_scope, l_av_info, l_question_attributes
 			   , p_mutexCodeList
@@ -1109,6 +1110,15 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 
 	}
 #endif /* 0 */
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+
+	for (int i=0; i < textExprVec_.size(); ++i) {
+		quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+			<< textExprVec_[i]->text_
+			<< "\")));\n";
+	}
+
 	if (array_mode) {
 		quest_decl << "RangeQuestion * " << questionName_;
 	} else {
@@ -1117,13 +1127,16 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	quest_decl << " = new RangeQuestion("
 		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
 		<< lineNo_ << ","
-		<< "string( \"" << questionName_.c_str() << "\")" << ","
-		<< "string(\" " << questionText_.c_str() << "\")" << ","
-		<< q_type_str.c_str() << ","
+		<< "string( \"" << questionName_.c_str() << "\")" << ",";
+
+	//quest_decl	<< "string(\" " << questionText_ << "\")" 
+	quest_decl << " text_expr_vec";
+	quest_decl	<< ","
+		<< q_type_str << ","
 		<< no_mpn << ","
-		<< datatype_str.c_str() << ","
+		<< datatype_str << ","
 		<< xtcc_set_name;
-	if(for_bounds_stack.size() >0 ){
+	if (for_bounds_stack.size() > 0) {
 		quest_decl << ", stack_of_loop_indices "
 			<< ", dum_" << questionName_;
 	}
@@ -1134,20 +1147,25 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		quest_decl << ", false";
 	}
 	quest_decl << ");\n";
+	if (!array_mode) {
+		quest_decl << "}\n";
+	}
 
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
-	if (array_mode)
-		quest_decl << "question_list.push_back(" << questionName_.c_str()
-		<< ");\n";
+	if (array_mode) {
+		quest_decl << "question_list.push_back(" << questionName_
+			<< ");\n";
+		quest_decl << "}\n";
+	}
 
 	if(for_bounds_stack.size() == 0){
 		//code.quest_defns << quest_decl.str();
 		code.quest_defns << "RangeQuestion * " << questionName_ << ";\n";
 		code.quest_defns_init_code << quest_decl.str();
 		// new
-		code.array_quest_init_area << "question_list.push_back(" << questionName_.c_str()
+		code.array_quest_init_area << "question_list.push_back(" << questionName_
 			<< ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
@@ -1193,6 +1211,15 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	print_data_type(datatype_str);
 
 	ostringstream quest_decl;
+
+	quest_decl << "{\n";
+	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
+	for (int i=0; i < textExprVec_.size(); ++i) {
+		quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+			<< textExprVec_[i]->text_
+			<< "\")));\n";
+	}
+
 	if (array_mode) 
 		quest_decl << "NamedStubQuestion * " << questionName_;
 	else
@@ -1201,8 +1228,11 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	quest_decl << " = new NamedStubQuestion("
 		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
 		<< lineNo_ << ","
-		<< "string( \"" << questionName_ << "\")" << ","
-		<< "string(\" " << questionText_ << "\")" << ","
+		<< "string( \"" << questionName_ << "\")" << ",";
+
+	quest_decl << " text_expr_vec";
+	//quest_decl	<< "string(\" " << questionText_ << "\")" 
+	quest_decl	<< ","
 		<< q_type_str << ","
 		<< no_mpn << ","
 		<< datatype_str << ",&"
@@ -1218,8 +1248,15 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		quest_decl << ", false";
 	}
 	quest_decl << ");\n";
-	if (array_mode)
+	if (!array_mode) {
+		quest_decl << "}\n";
+	}
+
+	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+		quest_decl << "}\n";
+	}
+
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
@@ -1266,7 +1303,7 @@ void NamedStubQuestion::GenerateCode(StatementCompiledCode &code)
 	//! this is only called in the compile time environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, named_range* l_nr_ptr
 	, vector<AbstractExpression*>& l_for_bounds_stack
@@ -1274,7 +1311,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			 , l_q_type, l_no_mpn, l_dt
 			 , l_for_bounds_stack, l_enclosing_scope, l_av_info, l_question_attributes)
 	, named_list()
@@ -1293,14 +1330,14 @@ NamedStubQuestion::NamedStubQuestion(
 	//! this is only called in the compile time environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, named_range* l_nr_ptr
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
+	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
 		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, l_question_attributes
 		)
 	, named_list()
@@ -2999,6 +3036,17 @@ std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(Abs
 	s << "}\n";
 	return s.str();
 }
+
+// TextExpression::TextExpression(string text)
+// 	: text_(text), nameExpr_(0)
+// { }
+// TextExpression::TextExpression(Unary2Expression * expr)
+// 	: text_(), nameExpr_(expr)
+// { }
+// // for DummyArrayQuestion
+// TextExpression::TextExpression()
+// 	: text_(), nameExpr_(0)
+// { }
 
 #if 0
 bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)

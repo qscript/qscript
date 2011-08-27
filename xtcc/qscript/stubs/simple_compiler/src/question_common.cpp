@@ -11,13 +11,13 @@ using namespace std;
 
 #if 1
 AbstractQuestion::AbstractQuestion(
-	DataType l_type, int32_t l_no, string l_name, string l_text
+	DataType l_type, int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type)
+	, textExprVec_(text_expr_vec), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -76,7 +76,10 @@ RangeQuestion::~RangeQuestion()
 }
 
 DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
-	: AbstractQuestion(QUESTION_TYPE, 0, l_qno, string(l_qno + "_dummy"), spn, 0
+	: AbstractQuestion(QUESTION_TYPE, 0, l_qno
+			//, string(l_qno + "_dummy")
+			, vector<TextExpression*>()
+			, spn, 0
 			   , INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
 { }
@@ -104,3 +107,15 @@ bool RangeQuestion::IsValid(int32_t value)
 {
 	return (r_data->exists(value))? true: false;
 }
+
+
+TextExpression::TextExpression(string text)
+	: text_(text), nameExpr_(0)
+{ }
+TextExpression::TextExpression(Unary2Expression * expr)
+	: text_(), nameExpr_(expr)
+{ }
+// for DummyArrayQuestion
+TextExpression::TextExpression()
+	: text_(), nameExpr_(0)
+{ }

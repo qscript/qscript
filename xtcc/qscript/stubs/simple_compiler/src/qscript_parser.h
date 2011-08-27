@@ -126,6 +126,8 @@ namespace qscript_parser
 	extern TempNameGenerator temp_name_generator;
 	string ExtractBaseFileName(const string & fname);
 
+	extern vector<TextExpression*> text_expr_vec;
+
 }
 
 #endif /* qscript_parser_h */

@@ -19,12 +19,12 @@ void Print_DisplayDataUnitVector (WINDOW * stub_list_window,
 	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	: AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes
 			   , l_isStartOfBlock)
 	, r_data(new XtccSet(l_r_data)), displayData_()
@@ -59,14 +59,14 @@ AbstractQuestion::AbstractQuestion(
 	//! this is only called from the runtime environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text, QuestionType l_q_type
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
 	, int32_t l_no_mpn, DataType l_dt,	XtccSet& l_r_data
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
+	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
 		, l_question_attributes, l_isStartOfBlock
 		)
@@ -104,7 +104,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				cout << loop_index_values[i]+1 << ".";
 			}
 		}
-		cout << questionText_ << endl << endl;
+		//cout << questionText_ << endl << endl;
+		cout << textExprVec_[0]->text_ << endl << endl;
 		//for(	set<int32_t>::iterator it = displayData_.begin();
 		//		it != displayData_.end(); ++it)
 		for(	vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
@@ -154,7 +155,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				len_qno += 1; // for the "."
 			}
 		}
-		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
+		//mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
+		mvwprintw(question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
 		//wrefresh(question_window);
 		update_panels();
 		doupdate();
@@ -243,7 +245,8 @@ get_data_again:
 // this is only called from the runtime
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name
-	, string l_text
+	//, string l_text
+	, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, const vector<int32_t>& l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
@@ -251,7 +254,7 @@ AbstractQuestion::AbstractQuestion(
 	, bool l_isStartOfBlock
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type)
+	, textExprVec_(text_expr_vec), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
@@ -327,7 +330,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				cout << loop_index_values[i]+1 << ".";
 			}
 		}
-		cout << questionText_ << endl << endl;
+		//cout << questionText_ << endl << endl;
+		cout << textExprVec_[0]->text_ << endl << endl;
 
 		//cout << questionName_ << "." << questionText_ << endl << endl;
 		//vector<stub_pair> vec= *stub_ptr;
@@ -376,7 +380,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 		//mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
 		//wrefresh(question_window);
-		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
+		//mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
+		mvwprintw(question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
 		update_panels();
 		doupdate();
 		int32_t maxWinX, maxWinY;
@@ -438,7 +443,7 @@ get_data_again:
 //! only called in the runtime environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn
 	// , DataType l_dt , vector<stub_pair>* l_stub_ptr
 	, DataType l_dt, named_range * l_nr_ptr
@@ -447,7 +452,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
+	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes, l_isStartOfBlock
 		)
 	, named_list()
@@ -756,13 +761,13 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file)
 
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt, named_range * l_nr_ptr
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes
 			 , l_isStartOfBlock)
 	, named_list()
