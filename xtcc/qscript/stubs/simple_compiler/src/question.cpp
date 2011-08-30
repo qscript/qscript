@@ -1155,9 +1155,11 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		quest_decl << ", false";
 	}
 	quest_decl << ");\n";
-	if (!array_mode) {
-		quest_decl << "}\n";
-	}
+	// I think these lines should move into the else clause of the if (array_mode)
+	// which currently does not exist
+	// if (!array_mode) {
+	// 	quest_decl << "}\n";
+	// }
 
 	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
@@ -1165,8 +1167,11 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_
 			<< ");\n";
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
+		quest_decl << "}\n";
+	} else {
 		quest_decl << "}\n";
 	}
 
@@ -1177,6 +1182,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		// new
 		code.array_quest_init_area << "question_list.push_back(" << questionName_
 			<< ");\n";
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
 	}

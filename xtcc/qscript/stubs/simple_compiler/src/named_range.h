@@ -10,6 +10,7 @@
 //#include <fstream>
 #include <vector>
 #include <string>
+#include <sstream>
 #include "stub_pair.h"
 //#include "stmt.h"
 #include "AbstractStatement.h"

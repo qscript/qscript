@@ -27,12 +27,23 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 		<< ";" << endl << endl;
 
 	for(int32_t i = 0; i<stubs.size(); ++i){
-		code.quest_defns_init_code 
-			<< qscript_parser::temp_name_generator.GetCurrentName() 
+		code.quest_defns_init_code
+			<< qscript_parser::temp_name_generator.GetCurrentName()
 			<< ".push_back( stub_pair(\"" << stubs[i].stub_text
 			<< "\", " << stubs[i].code << "));"
 			<< endl;
 	}
+
+	code.quest_defns_init_code
+		<< "\tif (write_messages_flag) {\n"
+		<< "\tfor (int i=0; i<"
+		<< qscript_parser::temp_name_generator.GetCurrentName()<< ".size(); ++i) {\n"
+		<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << i << \"\\\">\""
+		<<	" << "
+		<< qscript_parser::temp_name_generator.GetCurrentName()
+		<< "[i].stub_text << \"</message>\\n\" << endl;\n"
+		<< "\t}\n"
+		<< "}\n";
 	code.quest_defns << "named_range " << name << ";" << endl;
 	//code.quest_defns_init_code << "named_range " << name 
 	//	<< "(NAMED_RANGE, " << lineNo_

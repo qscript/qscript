@@ -147,6 +147,8 @@ void print_microhttpd_include_files (FILE * script);
 void print_web_support_structs (FILE * script);
 void print_microhttpd_web_support_structs (FILE * script);
 
+void print_question_messages(FILE * script);
+
 string ExtractBaseFileName(const string & fname)
 {
 	string output_file_name = fname;
@@ -181,6 +183,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "struct TheQuestionnaire\n{\n");
 	fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "AbstractQuestion * last_question_visited;\n");
+	fprintf(script, "fstream messages;\n");
 	fprintf(script, "bool back_jump;\n");
 	fprintf(script, "string jno;\n" );
 	fprintf(script, "int ser_no;\n");
@@ -201,12 +204,22 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, ", jno (\"%s\"), ser_no(0)\n", project_name.c_str());
 	fprintf(script, "{\n");
 	//fprintf(script, "last_question_answered = 0;\n");
+	fprintf(script, "if (write_messages_flag) {\n");
+	fprintf(script, "\tmessages.open (\"%s.xml\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
+	fprintf(script, "\tif(!messages) { cerr << \"unable to open file for output of messages... exiting\\n\"; exit(1); }\n");
+	fprintf(script, "\tmessages << \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\n\";\n");
+
+	fprintf(script, "}\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
 	fprintf(script, "questions_start_from_here_index = question_list.size();\n");
 
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
 	fprintf(script, "\tcompute_flat_file_map_and_init();\n");
+	fprintf(script, "\tif (write_messages_flag) {\n");
+	fprintf(script, "\tmessages << \"</messages>\\n\";\n");
+	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
+	print_question_messages(script);
 	print_summary_axis(script);
 	// 5-apr-2011 , 0:12 (am)
 	// continue from here - put the compute_flat_map_code into
@@ -347,6 +360,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int32_t jumpToIndex;\n");
 	fprintf(script, "bool write_data_file_flag;\n");
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
+	fprintf(script, "bool write_messages_flag;\n");
 	fprintf(script, "bool write_xtcc_data_file_flag;\n");
 	fprintf(script, "bool card_start_flag;\n");
 	fprintf(script, "bool card_end_flag;\n");
@@ -425,6 +439,28 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	PrintSetupSignalHandler(script);
 	PrintProcessOptions(script);
 	PrintPrintMapHeader(script);
+}
+
+void print_question_messages(FILE * script)
+{
+
+	fprintf (script, "\n");
+	fprintf (script, "void print_question_messages(AbstractQuestion * q)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	stringstream question_name;\n");
+	fprintf (script, "	question_name << q->questionName_;\n");
+	fprintf (script, "	for (int i=0; i< q->loop_index_values.size(); ++i) {\n");
+	fprintf (script, "		question_name << \"$\" << q->loop_index_values[i];\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	for (int i=0; i< q->textExprVec_.size(); ++i) {\n");
+	fprintf (script, "		messages << \"<message id=\\\"\" << question_name.str() \n");
+	fprintf (script, "			<< \"_\" << i << \"\\\">\" \n");
+	fprintf (script, "			<< q->textExprVec_[i]->text_ \n");
+	fprintf (script, "			<< \"</message>\\n\" << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+
 }
 
 void print_navigation_support_functions(FILE * script)
@@ -1499,7 +1535,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	extern int32_t optind, opterr, optopt;\n");
 	fprintf(script, "	extern char * optarg;\n");
 	fprintf(script, "	int c;\n");
-	fprintf(script, "	while ( (c = getopt(argc, argv, \"x::w::q::\")) != -1) {\n");
+	fprintf(script, "	while ( (c = getopt(argc, argv, \"mx::w::q::\")) != -1) {\n");
 	fprintf(script, "		char ch = optopt;\n");
 	fprintf(script, "		switch (c) {\n");
 
@@ -1533,6 +1569,12 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "			  }\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "		break;\n");
+
+	fprintf(script, "		case 'm': {\n");
+	fprintf(script, "			  write_messages_flag = true;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		break;\n");
+
 	fprintf(script, "		case '?' : {\n");
 	fprintf(script, "				   cout << \" invalid option, optopt:\" << optopt << endl;\n");
 	fprintf(script, "				   exit(1);\n");
@@ -3570,7 +3612,15 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	if (q) {\n");
 	fprintf(script, "		new_form = new WContainerWidget();\n");
 	fprintf(script, "		wt_questionText_ = new WText();\n");
-	fprintf(script, "		wt_questionText_->setText(q->textExprVec_[0]->text_);\n");
+	fprintf(script, "		//wt_questionText_->setText(q->textExprVec_[0]->text_);\n");
+	fprintf(script, "		stringstream question_text;\n");
+	fprintf(script, "		for (int i=0; i<q->textExprVec_.size(); ++i) {\n");
+	fprintf(script, "			question_text << \"<p>\";\n");
+	fprintf(script, "			question_text << q->textExprVec_[i]->text_;\n");
+	fprintf(script, "			question_text << \"</p>\";\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		wt_questionText_->setText(question_text.str());\n");
+	fprintf(script, "\n");
 	fprintf(script, "		new_form->addWidget(wt_questionText_);\n");
 	fprintf(script, "\n");
 	fprintf(script, "		le_data_ = new WLineEdit();\n");
@@ -3604,6 +3654,8 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "QuestionnaireApplication::QuestionnaireApplication(const WEnvironment &env)\n");
 	fprintf(script, "	: WApplication(env), wt_questionText_(0), currentForm_(0)\n");
 	fprintf(script, "{\n");
+	fprintf(script, "	messageResourceBundle().use(WApplication::appRoot() + jno);\n");
+
 	fprintf(script, "	WContainerWidget * canvas = new WContainerWidget(0);\n");
 	fprintf(script, "	setTitle(\"QuestionnaireApplication\");\n");
 	fprintf(script, "	/*\n");
