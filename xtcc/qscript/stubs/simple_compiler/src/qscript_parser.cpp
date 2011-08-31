@@ -208,6 +208,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "\tmessages.open (\"%s.xml\", ios_base::out|ios_base::trunc);\n", project_name.c_str());
 	fprintf(script, "\tif(!messages) { cerr << \"unable to open file for output of messages... exiting\\n\"; exit(1); }\n");
 	fprintf(script, "\tmessages << \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\n\";\n");
+	fprintf(script, "\tmessages << \"<messages>\\n\";");
 
 	fprintf(script, "}\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
@@ -450,7 +451,7 @@ void print_question_messages(FILE * script)
 	fprintf (script, "	stringstream question_name;\n");
 	fprintf (script, "	question_name << q->questionName_;\n");
 	fprintf (script, "	for (int i=0; i< q->loop_index_values.size(); ++i) {\n");
-	fprintf (script, "		question_name << \"$\" << q->loop_index_values[i];\n");
+	fprintf (script, "		question_name << \"_\" << q->loop_index_values[i];\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "	for (int i=0; i< q->textExprVec_.size(); ++i) {\n");
 	fprintf (script, "		messages << \"<message id=\\\"\" << question_name.str() \n");
@@ -3614,16 +3615,24 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		wt_questionText_ = new WText();\n");
 	fprintf(script, "		//wt_questionText_->setText(q->textExprVec_[0]->text_);\n");
 	fprintf(script, "		//stringstream question_text;\n");
-	fprintf(script, "		stringstream mesg_id;\n");
+	fprintf(script, "		stringstream part_mesg_id;\n");
 	fprintf(script, "		WString question_text; \n");
+	fprintf(script, "		part_mesg_id << q->questionName_; \n");
 	fprintf(script, "		for (int i=0; i<q->loop_index_values.size(); ++i) {\n");
-	fprintf(script, "			mesg_id << \"$\" << q->loop_index_values[i];\n");
+	fprintf(script, "			part_mesg_id << \"_\" << q->loop_index_values[i];\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "		for (int i=0; i<q->textExprVec_.size(); ++i) {\n");
 	fprintf(script, "			question_text += \"<p>\";\n");
-	fprintf(script, "			//question_text << q->textExprVec_[i]->text_;\n");
-	fprintf(script, "			mesg_id << \"_\" << i;\n");
-	fprintf(script, "			question_text += WString::tr(mesg_id.str().c_str());\n");
+	fprintf (script, "			if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type) {\n");
+	fprintf (script, "				stringstream mesg_id;\n");
+	fprintf (script, "				mesg_id << part_mesg_id.str() << \"_\" << i;\n");
+	fprintf (script, "				question_text += WString::tr(mesg_id.str().c_str());\n");
+	fprintf (script, "			} else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type) {\n");
+	fprintf (script, "				stringstream named_attribute_key;\n");
+	fprintf (script, "				named_attribute_key << q->textExprVec_[i]->naPtr_->name;\n");
+	fprintf (script, "				named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n");
+	fprintf (script, "				question_text += WString::tr(named_attribute_key.str().c_str());\n");
+	fprintf (script, "			}\n");
 	fprintf(script, "			question_text += \"</p>\";\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "		wt_questionText_->setText(question_text);\n");

@@ -26,6 +26,7 @@
 #include "display_data.h"
 #include "QuestionAttributes.h"
 #include "UserResponse.h"
+#include "named_attributes.h"
 
 using std::ostringstream;
 using std::ofstream;
@@ -34,10 +35,18 @@ struct DummyArrayQuestion;
 
 	struct TextExpression
 	{
+		enum TextExpressionType {
+			simple_text_type, named_attribute_type, question_type
+		};
+		TextExpressionType teType_;
+
 		string text_;
+		named_attribute_list* naPtr_;
+		int32_t naIndex_;
 		Unary2Expression * nameExpr_;
 		TextExpression(string text);
 		TextExpression(Unary2Expression * expr );
+		TextExpression(named_attribute_list * na_ptr, int na_index);
 		TextExpression(); // for DummyArrayQuestion
 	};
 

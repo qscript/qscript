@@ -33,6 +33,16 @@ void named_attribute_list::GenerateCode(StatementCompiledCode & code)
 			<<  name << ".attribute.push_back (string(\"" << attribute[i]
 				<< "\"));\n";
 	}
+	code.quest_defns_init_code
+		<< "\tif (write_messages_flag) {\n"
+		<< "\tfor (int i=0; i<"
+		<< name << ".attribute.size(); ++i) {\n"
+		<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << i << \"\\\">\""
+		<<	" << "
+		<< name
+		<< ".attribute[i] << \"</message>\\n\" << endl;\n"
+		<< "\t}\n"
+		<< "}\n";
 	if (next_) {
 		next_->GenerateCode(code);
 	}

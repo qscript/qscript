@@ -630,9 +630,13 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			//operand_->PrintExpressionCode(code1);
 			//code.code_bef_expr << code1.code_bef_expr.str()
 			//		   << code1.code_expr.str();
-			code.code_expr << symbolTableEntry_->name_ << ".attribute[";
+
+			//code.code_expr << symbolTableEntry_->name_ << ".attribute[";
+			//operand_->PrintExpressionCode(code);
+			//code.code_expr << "]";
+
+			code.code_expr << "&" << symbolTableEntry_->name_ << ", ";
 			operand_->PrintExpressionCode(code);
-			code.code_expr << "]";
 		}
 	}
 		break;

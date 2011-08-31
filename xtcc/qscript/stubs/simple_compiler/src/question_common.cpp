@@ -110,12 +110,21 @@ bool RangeQuestion::IsValid(int32_t value)
 
 
 TextExpression::TextExpression(string text)
-	: text_(text), nameExpr_(0)
+	: teType_(TextExpression::simple_text_type), 
+	  text_(text), nameExpr_(0),
+	  naPtr_(0), naIndex_(0)
 { }
 TextExpression::TextExpression(Unary2Expression * expr)
-	: text_(), nameExpr_(expr)
+	: text_(), nameExpr_(expr),
+	  naPtr_(0), naIndex_(0)
 { }
 // for DummyArrayQuestion
 TextExpression::TextExpression()
-	: text_(), nameExpr_(0)
+	: text_(), nameExpr_(0),
+	  naPtr_(0), naIndex_(0)
+{ }
+
+TextExpression::TextExpression(named_attribute_list * na_ptr, int na_index)
+	: teType_(TextExpression::named_attribute_type),
+	  naPtr_(na_ptr), naIndex_(na_index)
 { }
