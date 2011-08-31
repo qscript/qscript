@@ -3,6 +3,10 @@ make-build-dir
 bin
 inputs/*.C
 inputs/*.h
+inputs/*.xdat
+inputs/*.xmap
+inputs/*.xml
+inputs/*.xtcc
 src/cpplint-violations.txt
 src/nsiqcpp-style-violations.txt
 *.log

@@ -212,7 +212,12 @@ release: clean
 .PHONY: clean tags
 
 clean:
-	-rm -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript include/* $(BUILD_DIR)/compiletime_lib/* \
+	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/qscript  \
+		$(BUILD_DIR)/runtime_lib/*.o \
+		$(BUILD_DIR)/runtime_lib/*.so \
+		lib/*.so bin/qscript include/*.h \
+		$(BUILD_DIR)/compiletime_lib/*.o  \
+		$(BUILD_DIR)/compiletime_lib/*.so  \
 		inputs/*.C inputs/*.exe src/tags src/TAGS src/*.output
 
 local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib

@@ -1,0 +1,14 @@
+trunk/bin
+trunk/err
+trunk/include
+trunk/make-build-dir
+trunk/op
+test-inputs/active_sabb_direct.xtcc
+test-inputs/active_sabb_direct.xdat
+test-inputs/clang-run
+test-inputs/gcc-run
+test-inputs/inp_jump_test.xdat
+test-inputs/inp_jump_test.xtcc
+test-inputs/tab_.tex
+type.bak
+type.bak1
