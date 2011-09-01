@@ -3576,8 +3576,6 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	// put this code later\n");
 	fprintf(script, "	string err_mesg, re_arranged_buffer;\n");
 	fprintf(script, "	int32_t pos_1st_invalid_data;\n");
-	fprintf(script, "	string last_question_visited_str = wt_lastQuestionVisited_->text().narrow();\n");
-	fprintf(script, "	string current_question_response = le_data_->text().narrow();\n");
 	fprintf(script, "	s << \"last_question_served: \" << this_users_session->last_question_served;\n");
 	fprintf(script, "	wt_debug_->setText(s.str());\n");
 
@@ -3715,6 +3713,9 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	this_users_session->last_question_served = q;\n");
 	fprintf(script, "	WContainerWidget * new_form = 0;\n");
 	fprintf(script, "	if (q) {\n");
+	fprintf (script, "		vec_rb.clear(); // memory leak introduced here \n");
+	fprintf (script, "		vec_cb.clear(); // memory leak introduced here \n");
+	fprintf (script, "		map_cb_code_index.clear();\n");
 	fprintf(script, "		new_form = new WContainerWidget();\n");
 	fprintf(script, "		wt_questionText_ = new WText();\n");
 	fprintf(script, "		//wt_questionText_->setText(q->textExprVec_[0]->text_);\n");
@@ -3744,9 +3745,6 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		new_form->addWidget(wt_questionText_);\n");
 
 	fprintf (script, "		if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {\n");
-	fprintf (script, "			vec_rb.clear(); // memory leak introduced here \n");
-	fprintf (script, "			vec_cb.clear(); // memory leak introduced here \n");
-	fprintf (script, "			map_cb_code_index.clear();\n");
 
 	fprintf (script, "			new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());\n");
 	fprintf (script, "			if (q->no_mpn==1) {\n");
