@@ -271,6 +271,12 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf (script, "#include <Wt/WLineEdit>\n");
 		fprintf (script, "#include <Wt/WPushButton>\n");
 		fprintf (script, "#include <Wt/WText>\n");
+		fprintf (script, "#include <Wt/WRadioButton>\n");
+		fprintf (script, "#include <Wt/WCheckBox>\n");
+		fprintf (script, "#include <Wt/WBreak>\n");
+		fprintf (script, "#include <Wt/WButtonGroup>\n");
+		fprintf (script, "#include <Wt/WGroupBox>\n");
+
 	}
 	fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
@@ -3515,6 +3521,12 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	WText * wt_questionText_;\n");
 	fprintf(script, "	WLineEdit * le_data_;\n");
 	fprintf(script, "	WText * wt_lastQuestionVisited_;\n");
+	fprintf (script, "	WGroupBox * wt_cb_rb_container_;\n");
+	fprintf (script, "	WButtonGroup * wt_rb_container_;\n");
+	fprintf (script, "	WRadioButton wt_rb;\n");
+	fprintf (script, "	WCheckBox * wt_cb;\n");
+
+
 	fprintf(script, "\n");
 	fprintf(script, "	WContainerWidget viewPort_;\n");
 	fprintf(script, "	WWidget * currentForm_;\n");
@@ -3638,9 +3650,28 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		wt_questionText_->setText(question_text);\n");
 	fprintf(script, "\n");
 	fprintf(script, "		new_form->addWidget(wt_questionText_);\n");
-	fprintf(script, "\n");
-	fprintf(script, "		le_data_ = new WLineEdit();\n");
-	fprintf(script, "		new_form->addWidget(le_data_);\n");
+
+	fprintf (script, "		if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {\n");
+	fprintf (script, "			new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());\n");
+	fprintf (script, "			if (q->no_mpn==1) {\n");
+	fprintf (script, "				wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);\n");
+	fprintf (script, "			}\n");
+
+
+	fprintf (script, "			vector<stub_pair> & vec= (nq->nr_ptr->stubs);\n");
+	fprintf (script, "			for (int i=0; i<vec.size(); ++i) {\n");
+	fprintf (script, "				if (q->no_mpn==1 && vec[i].mask) {\n");
+	fprintf (script, "					WRadioButton * wt_rb = new WRadioButton(vec[i].stub_text, wt_cb_rb_container_);\n");
+	fprintf (script, "					wt_rb_container_->addButton(wt_rb, vec[i].code);\n");
+	fprintf (script, "				} else if (q->no_mpn>1 && vec[i].mask) {\n");
+	fprintf (script, "					WCheckBox * wt_cb = new WCheckBox (vec[i].stub_text, wt_cb_rb_container_);\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "			new_form->addWidget(wt_cb_rb_container_);\n");
+	fprintf (script, "		} else {\n");
+	fprintf (script, "			le_data_ = new WLineEdit();\n");
+	fprintf (script, "			new_form->addWidget(le_data_);\n");
+	fprintf (script, "		}\n");
 	fprintf(script, "\n");
 	fprintf(script, "		wt_lastQuestionVisited_ = new WText();\n");
 	fprintf(script, "		if (this_users_session->last_question_answered)\n");

@@ -1231,9 +1231,17 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	quest_decl << "{\n";
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 	for (int i=0; i < textExprVec_.size(); ++i) {
-		quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
-			<< textExprVec_[i]->text_
-			<< "\")));\n";
+		if (textExprVec_[i]->nameExpr_ == 0) { 
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+				<< textExprVec_[i]->text_
+				<< "\")));\n";
+		} else {
+			ExpressionCompiledCode expr_code;
+			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back(new TextExpression("
+				<< expr_code.code_expr.str()
+				<< "));\n";
+		}
 	}
 
 	if (array_mode) 
@@ -1264,14 +1272,16 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		quest_decl << ", false";
 	}
 	quest_decl << ");\n";
-	if (!array_mode) {
-		quest_decl << "}\n";
-	}
+	//if (!array_mode) {
+	//	quest_decl << "}\n";
+	//}
 
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
+		quest_decl << "}\n";
+	} else {
 		quest_decl << "}\n";
 	}
 
