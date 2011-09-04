@@ -14,6 +14,11 @@
 #include "qscript_debug.h"
 #include "LatexDoc.h"
 
+#if _WIN32
+#include <windows.h>
+#include <tchar.h>
+#endif /* _WIN32 */
+
 
 #include <fstream>
 using  std::cerr;
@@ -30,7 +35,12 @@ using  std::cout;
 
 	void clean_lex();
 
+	string check_for_registry_key();
+#if _WIN32
+string QueryKeyData(HKEY hKey);
+#endif /* _WIN32 */
 	void InitStatement();
+	bool do_sanity_checks(string qscript_install_dir);
 
 namespace program_options_ns {
 	bool ncurses_flag = false;
@@ -96,20 +106,42 @@ int32_t main(int32_t argc, char* argv[])
 			break;
 		}
 	}
+	string  qscript_install_dir ;
+	// uncomment this and comment the one below to 
+	// test the registry key code
+	//char * QSCRIPT_HOME = 0;
 	char * QSCRIPT_HOME = getenv("QSCRIPT_HOME");
-	if (!QSCRIPT_HOME){
+
+#if 	_WIN32
+	if (!QSCRIPT_HOME) {
+		qscript_install_dir = check_for_registry_key();
+		if (qscript_install_dir != "") {
+			cout << "got qscript_install_dir from registry key : SOFTWARE\\QScript" << endl;
+			exit_flag = false;
+			// this is going to result in a small memory leak
+			QSCRIPT_HOME = strdup(qscript_install_dir.c_str());
+			cout << "QSCRIPT_HOME is : " << QSCRIPT_HOME << endl;
+		} else {
+			cout << "For Windows you can also set qscript_install_dir using the registry key : SOFTWARE\\QScript" << endl;
+		}
+	}
+#endif /* _WIN32 */
+
+	if (!QSCRIPT_HOME) {
 		cout << "Please set environment variable QSCRIPT_HOME to the top-level directory that qscript is installed in" << endl
 			<< "If qscript was installed in /home/unixuser/qscript/, in UNIX - bash " << endl
 			<< "you would do this as (assume $ as shell prompt):" << endl
 			<< "$export QSCRIPT_HOME=/home/unix_user/qscript" << endl;
 		exit_flag = true;
 	}
-	if (!qscript_parser::ReadQScriptConfig()){
+
+	if (!qscript_parser::ReadQScriptConfig()) {
 		exit_flag = true;
 	}
 	if (exit_flag){
 		exit(1);
 	}
+	do_sanity_checks(QSCRIPT_HOME);
 	//cout << "reached here" << endl;
 
 	if (!program_options_ns::fname_flag){
@@ -166,7 +198,7 @@ int32_t main(int32_t argc, char* argv[])
 			}
 
 			if (program_options_ns::latex_flag) {
-				std::stringstream latex_fname; 
+				std::stringstream latex_fname;
 				{
 					// Generate LatexDoc
 					latex_fname << output_file_name << ".latex";
@@ -179,9 +211,9 @@ int32_t main(int32_t argc, char* argv[])
 					//	latex_file << doc;
 				}
 				{
-					using std::cout; 
-					using std::endl; 
-					using std::stringstream; 
+					using std::cout;
+					using std::endl;
+					using std::stringstream;
 					stringstream latex_command;
 					latex_command << "latex " << latex_fname.str();
 					if (int32_t ret_val = system(latex_command.str().c_str())) {
@@ -202,7 +234,7 @@ int32_t main(int32_t argc, char* argv[])
 			}
 		}
 #endif /* _WIN32 */
-				
+
 		cout << "code generated " << endl;
 		if (program_options_ns::compile_to_cpp_only_flag) {
 		} else {
@@ -283,4 +315,188 @@ lab_maintainer_messages:
 
 
 	return no_errors;
+}
+
+#if _WIN32
+string check_for_registry_key()
+{
+	HKEY hTestKey;
+	string qscript_install_dir ;
+
+
+	//
+	//HKEY_CURRENT_USER
+	//HKEY_LOCAL_MACHINE
+	if (RegOpenKeyEx( HKEY_CURRENT_USER,
+		TEXT("SOFTWARE\\QScript"),
+		0,
+		KEY_READ,
+		&hTestKey) == ERROR_SUCCESS
+		)
+	{
+		qscript_install_dir = QueryKeyData(hTestKey);
+	}
+
+	RegCloseKey(hTestKey);
+	return qscript_install_dir;
+}
+
+
+#define MAX_KEY_LENGTH 255
+#define MAX_VALUE_NAME 32767
+
+string QueryKeyData(HKEY hKey)
+{
+	TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
+	DWORD    cbName;                   // size of name string
+	TCHAR    achClass[MAX_PATH] = TEXT("");  // buffer for class name
+	//DWORD    cchClassName = MAX_PATH;  // size of class string
+	DWORD    cchClassName = MAX_PATH;  // size of class string
+	DWORD    cSubKeys=0;               // number of subkeys
+	DWORD    cbMaxSubKey =0 ;              // longest subkey size
+	DWORD    cchMaxClass = 0;              // longest class string
+	DWORD    cValues = 0;              // number of values for key
+	DWORD    cchMaxValue =0;          // longest value name
+	DWORD    cbMaxValueData = 0;       // longest value data
+	DWORD    cbSecurityDescriptor = 0; // size of security descriptor
+	FILETIME ftLastWriteTime;      // last write time
+
+
+	TCHAR    achKeyValue[MAX_VALUE_NAME];   // buffer for subkey name
+	BYTE    achKeyValueData[MAX_VALUE_NAME];   // buffer for subkey name
+	DWORD  pcbData = 0;
+
+	DWORD i, retCode;
+
+	TCHAR  achValue[MAX_VALUE_NAME];
+	DWORD cchValue = MAX_VALUE_NAME;
+
+	// Get the class name and the value count.
+	retCode = RegQueryInfoKey(
+			hKey,                    // key handle
+			achClass,                // buffer for class name
+			&cchClassName,           // size of class string
+			NULL,                    // reserved
+			&cSubKeys,               // number of subkeys
+			&cbMaxSubKey,            // longest subkey size
+			&cchMaxClass,            // longest class string
+			&cValues,                // number of values for this key
+			&cchMaxValue,            // longest value name
+			&cbMaxValueData,         // longest value data
+			&cbSecurityDescriptor,   // security descriptor
+			&ftLastWriteTime);       // last write time
+
+    // Enumerate the subkeys, until RegEnumKeyEx fails.
+
+	if (cSubKeys) {
+		printf( "\nNumber of subkeys: %d\n", cSubKeys);
+		for (i=0; i<cSubKeys; i++) {
+			cbName = MAX_KEY_LENGTH;
+			retCode = RegEnumKeyEx(hKey, i,
+			     achKey,
+			     &cbName,
+			     NULL,
+			     NULL,
+			     NULL,
+			     &ftLastWriteTime);
+			if (retCode == ERROR_SUCCESS)
+			{
+			_tprintf(TEXT("(%d) %s\n"), i+1, achKey);
+			}
+		}
+	}
+
+	/*
+	if (cValues)
+	{
+	printf( "\nNumber of values: %d\n", cValues);
+
+	for (i=0, retCode=ERROR_SUCCESS; i<cValues; i++)
+	{
+	    cchValue = MAX_VALUE_NAME;
+	    achValue[0] = '\0';
+	    retCode = RegEnumValue(hKey, i,
+		achValue,
+		&cchValue,
+		NULL,
+		NULL,
+		NULL,
+		NULL);
+
+	    if (retCode == ERROR_SUCCESS )
+	    {
+		_tprintf(TEXT("step 1, retCode: %d: (%d) %s\n"), retCode, i+1, achValue);
+	    }
+	}
+	}
+	*/
+
+	string return_value;
+	if (cSubKeys) {
+		i=0;
+		//short int my_cchValue=32767;
+		int my_cchValue=32767;
+		DWORD pcbKeyValueData = MAX_VALUE_NAME;
+		cchValue = MAX_VALUE_NAME;
+		achValue[0] = '\0';
+		retCode = RegEnumValue(hKey, i,
+				achValue,
+				//&my_cchValue,
+				&cchValue,
+				NULL /* reserved */,
+				NULL /* type: can be null if type not required */,
+				achKeyValueData,
+				&pcbKeyValueData
+				);
+
+		if (retCode == ERROR_SUCCESS ) {
+			//_tprintf(TEXT("step 2, retCode: %d: (%d) %s\n"), retCode, i+1, achValue);
+			//_tprintf(TEXT("step 2, retCode: %d: achKeyValueData:  %s\n"), retCode,  achKeyValueData);
+			//return_value = string(static_cast<const char *>(achKeyValueData));
+			char c = -1;
+			for (int i=0; i<MAX_VALUE_NAME && c; ++i) {
+				char c = achKeyValueData[i];
+				return_value.push_back(c);
+			}
+		} else {
+			//_tprintf(TEXT("step 2, !ERROR_SUCCESS retCode: (%d) \n"),  retCode);
+		}
+	}
+
+	/*
+
+	i = 0;
+	retCode = RegEnumValue(hKey, i,
+                achValue,
+                &my_cchValue,
+                NULL,
+                NULL,
+                NULL,
+                NULL);
+            if (retCode == ERROR_SUCCESS )
+            {
+                _tprintf(TEXT("(%d) %s\n"), i+1, achValue);
+            } else {
+                _tprintf(TEXT("retCode: (%d) \n"),  retCode);
+	    }
+	for (i=0; i<MAX_VALUE_NAME; ++i) {
+		achKeyValue[i] = 0;
+	}
+	*/
+	// retCode = RegGetValueA (hKey, "SOFTWARE\\QScript", "Install_Dir",
+	// 			0x00000002  /*RRF_RT_REG_SZ */, NULL, achKeyValue, &pcbData);
+        // if (retCode == ERROR_SUCCESS )
+        // {
+	// 	_tprintf(TEXT("achKeyValue: %s\n"), achKeyValue);
+	// } else {
+	// 	_tprintf(TEXT("retCode: (%d) \n"),  retCode);
+	// }
+	return return_value;
+}
+
+#endif /* _WIN32 */
+
+bool do_sanity_checks(string qscript_install_dir)
+{
+	return false;
 }
