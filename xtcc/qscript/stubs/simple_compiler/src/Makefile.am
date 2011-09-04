@@ -1,10 +1,22 @@
 CC=$(CXX)
-AM_CXXFLAGS= -Wall -Weffc++ -frepo -g 
+AM_CXXFLAGS= -Wall -Weffc++ -frepo -Wno-sign-compare -g 
 AM_YFLAGS= -d -v
 SOURCE_DIR=src
 BUILD_DIR=automake-build-dir
 bin_PROGRAMS= qscript
-qscript_SOURCES= q.ypp lex.l debug_mem.cpp expr.cpp main.cpp named_range.cpp qscript_parser.cpp question.cpp scope.cpp stmt.cpp stmt_common.cpp symtab.cpp utils.cpp xtcc_set.cpp const_defs.h debug_mem.h expr.h named_attributes.h named_range.h qscript_lib.h qscript_parser.h question_disk_data.h question.h scope.h stmt.h stub_pair.h symtab.h utils.h xtcc_set.h data_entry.ypp scan_data.l user_navigation.h
+qscript_SOURCES= AbstractStatement.cpp code_gen_utils.cpp config_parser.cpp \
+		 debug_mem.cpp expr.cpp LatexDoc.cpp \
+		 log_mesg.cpp main.cpp named_attributes.cpp named_range.cpp \
+		 qscript_debug.cpp qscript_parser_common.cpp \
+		 qscript_parser.cpp qscript_readline.cpp \
+		 qtm_datafile_conf_parser.cpp \
+		 QuestionAttributes.cpp question_common.cpp \
+		 question.cpp scope.cpp stmt.cpp \
+		 symtab.cpp TempNameGenerator.cpp utils_common.cpp \
+		 utils.cpp xtcc_set.cpp  \
+		 data_entry.ypp qscript_conf.ypp \
+		 qtm_datafile_conf.ypp q.ypp  \
+		 lex.l qscript_conf_lex.l qtm_datafile_conf_lex.l scan_data.l
 
 #$(BUILD_DIR)/%.o: %.C
 #	$(CC) -$(AM_CXXFLAGS) -c $<
@@ -13,28 +25,41 @@ qscript_SOURCES= q.ypp lex.l debug_mem.cpp expr.cpp main.cpp named_range.cpp qsc
 #	bison -d q.y -o q.cpp
 #	mv q.hpp q.h
 
-q.cpp q.h: q.ypp
+#q.cpp q.h: q.ypp
 
-lex.cpp: lex.l q.ypp 
-	flex -o $@ $<
+#lex.cpp: lex.l q.ypp 
+#	flex -o $@ $<
 
-data_entry.cpp: AM_YFLAGS = -p scan_data -d 
-data_entry.cpp data_entry.h: data_entry.ypp
-	echo $@
-	bison -d -p scan_data $< -o $@
-#mv data_entry.hpp data_entry.h
+%.cpp : %.l
+	flex -o$@ $<
 
-#scan_data.c: scan_data.l
-#scan_data.c: data_entry.y scan_data.l
+%.cpp %.hpp: %.ypp
+	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
+	bison $(AM_YFLAGS) -v -d $< -o $(basename $@).cpp
 
-scan_data.cpp: scan_data.l data_entry.ypp
-	flex -o $@ $< 
+data_entry.cpp: AM_YFLAGS = -p scan_data -d -v
+data_entry.hpp: AM_YFLAGS = -p scan_data -d -v
+#data_entry.cpp data_entry.h: data_entry.ypp
+#	echo $@
+#	bison -d -p scan_data $< -o $@
+
+#scan_data.cpp: scan_data.l data_entry.ypp
+#	flex -o $@ $< 
 
 
-#mv lex.scan_data.c scan_data.c
+
+qscript_data.cpp: AM_YFLAGS = -p read_disk_data -d -v
+qscript_data.hpp: AM_YFLAGS = -p read_disk_data -d -v
+
+qscript_conf.cpp: AM_YFLAGS = -p qscript_conf -d -v
+qscript_conf.hpp: AM_YFLAGS = -p qscript_conf -d -v
+
+qtm_datafile_conf.hpp: AM_YFLAGS = -p qtm_datafile_conf_ -d -v
+qtm_datafile_conf.cpp: AM_YFLAGS = -p qtm_datafile_conf_ -d -v
 
 
-BUILT_SOURCES=q.h q.cpp lex.cpp scan_data.cpp data_entry.h data_entry.cpp
+
+BUILT_SOURCES=q.hpp q.cpp lex.cpp scan_data.cpp data_entry.hpp data_entry.cpp qtm_datafile_conf.cpp qtm_datafile_conf.hpp
 EXTRA_DIST= inp QScriptMakefile qscript_lib.cpp qscript_lib.h qscript_data.y qscript_data.l
 #dist_pkgdata_DATA=stubs/main_loop.C stubs/list_summ_template.C stubs/iso_types.h docs/manual.texi docs/qscript_doc.html
 #AUTOMAKE_OPTIONS = dejagnu

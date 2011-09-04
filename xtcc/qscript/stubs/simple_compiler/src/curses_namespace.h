@@ -4,8 +4,8 @@
 #include <curses.h>
 #include <panel.h>
 #else /* _WIN32 */
-#include <ncursesw/curses.h>
-#include <ncursesw/panel.h>
+#include <curses.h>
+#include <panel.h>
 #endif /* ELSE */
 
 //}

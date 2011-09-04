@@ -84,7 +84,7 @@ class AsciiFlatFileQuestionDiskMap
 				{
 					cerr << " internal programming error - width of code exceeds width allocated ... exiting\n";
 					exit(1);
-				} 
+				}
 				else if (code_str.str().length() < width) {
 					// zero pad 
 					int diff = width - code_str.str().length();

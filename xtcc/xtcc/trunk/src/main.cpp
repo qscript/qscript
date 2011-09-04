@@ -33,6 +33,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func);
 void clean_up();
 
 void	generate_edit_section_code();
+void 	generate_make_file();
 
 extern void yyrestart ( FILE *input_file );
 extern int yyparse();
@@ -48,6 +49,7 @@ char default_work_dir[]="xtcc_work";
 char * work_dir=default_work_dir;
 void reset_files();
 
+bool flag_use_clang = false;
 CodeOutputFiles code_output_files;
 
 
@@ -67,13 +69,16 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	int c;
 	// temp hack
 
-	while((c=getopt(argc, argv, "cw:"))!=-1){
+	while((c=getopt(argc, argv, "lcw:"))!=-1){
 		switch(c){
 			case 'w':
 				work_dir=optarg;
 			break;
 			case 'c':
 				flag_compile_only = true;
+			break;
+			case 'l':
+				flag_use_clang = true;
 			break;
 			case '?':
 				if (optopt == 'w')
@@ -220,6 +225,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	flex_finish();
 	print_table_code(table_op, tab_drv_func, tab_summ_func);
 	print_axis_code(axes_op, axes_drv_func);
+	generate_make_file();
 	fclose(yyin); yyin=0;
 	fclose(table_op);
 	fclose(tab_drv_func);
@@ -386,12 +392,18 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 		return rval;
 	}
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
-	string cmd2=string("g++ -g ") + work_dir + string("/temp.C -o ") +  work_dir + string("/myedit.exe");
+	string cmd2;
+	if (flag_use_clang == false)
+		cmd2=string("g++ -g ") + work_dir + string("/temp.C -o ") +  work_dir + string("/myedit.exe");
+	else
+		cmd2=string("clang -g ") + work_dir + string("/temp.C -o ") +  work_dir + string("/myedit.exe /usr/lib/libstlport_gcc.so.4.6");
 #endif /* GNU/UNIX */	
 #if __WIN32__
 	string cmd2="\\Borland\\BCC55\\Bin\\bcc32 -P -I\\Borland\\BCC55\\Include -L\\Borland\\BCC55\\LIB -extcc_work\\myedit.exe xtcc_work\\temp.C ";
 #endif /* __WIN32__ */	
 
+	cout << "compile command: " << endl
+		<< cmd2 << endl;
 	rval=system(cmd2.c_str());
 
 	return rval;
@@ -405,11 +417,18 @@ int run(char * data_file_name, int rec_len){
 	cmd1 << "xtcc_work\\myedit.exe " << data_file_name  << " " << rec_len;
 #endif /* __WIN32__ */
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
-	cmd1 <<  work_dir << "/myedit.exe " << data_file_name  << " " << rec_len;
+	string cmd0 = "date +hour:%l:minute:%M:second:%S:nanosecond:%N";
+	rval=system(cmd0.c_str());
+
+	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/myedit.exe " << data_file_name  << " " << rec_len;
 #endif /* UNIX */
 	std::cout << "executing : " 
 		<< cmd1.str() << std::endl;
 	rval=system(cmd1.str().c_str());
+	if (!rval) {
+		string cmd0 = "date +hour:%l:minute:%M:second:%S:nanosecond:%N";
+		rval=system(cmd0.c_str());
+	}
 	return rval;
 }
 

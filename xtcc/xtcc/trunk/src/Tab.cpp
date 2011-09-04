@@ -455,15 +455,30 @@ void count_ax_stmt::print(fstream& f){
 	f << "\n";
 }
 
-void count_ax_stmt::generate_code(FILE * f, unsigned int index)
+void count_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)
 {
 	ostringstream code_expr1, code_bef_expr1;
-	condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-	fprintf(f, "%s", code_bef_expr1.str().c_str());
-	fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-	fprintf(f, " ){\n");
-	fprintf(f, "\t\tflag[%d]=true;\n", index);
-	fprintf(f, "\t}\n");
+	if (condn) {
+		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
+		fprintf(f, "%s", code_bef_expr1.str().c_str());
+		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		fprintf(f, " ){\n");
+		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		fprintf(f, "\t}\n");
+
+		cpp_code_str << code_bef_expr1.str();
+		cpp_code_str << "\tif ( " << code_expr1.str();
+		cpp_code_str << " ){\n";
+		cpp_code_str << "\t\tflag["
+			<< index << "]=true;\n";
+		cpp_code_str << "\t}\n";
+	} else {
+		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		cpp_code_str 
+			<< "\t\tflag["
+			<< index
+			<< "]=true;\n";
+	}
 }
 
 count_ax_stmt::count_ax_stmt(axstmt_type ltype,string txt, struct Expression::AbstractExpression* c)
@@ -512,7 +527,7 @@ string tot_ax_stmt::ax_text()
 	return text;
 }
 
-void tot_ax_stmt::generate_code(FILE * f, unsigned int index) 
+void tot_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index) 
 {
 	ostringstream code_expr1, code_bef_expr1;
 	if (condn) {
@@ -522,8 +537,20 @@ void tot_ax_stmt::generate_code(FILE * f, unsigned int index)
 		fprintf(f, " ){\n");
 		fprintf(f, "\t\tflag[%d]=true;\n", index);
 		fprintf(f, "\t}\n");
+
+		cpp_code_str << code_bef_expr1.str();
+		cpp_code_str << "\tif ( " << code_expr1.str();
+		cpp_code_str << " ){\n";
+		cpp_code_str << "\t\tflag["
+			<< index << "]=true;\n";
+		cpp_code_str << "\t}\n";
+
 	} else {
 		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		cpp_code_str 
+			<< "\t\tflag["
+			<< index
+			<< "]=true;\n";
 	}
 }
 
@@ -573,15 +600,30 @@ bool inc_ax_stmt::CustomCountExpression()
 	return true;
 }
 
-void inc_ax_stmt::generate_code(FILE * f, unsigned int index)
+void inc_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)
 {
 	ostringstream code_expr1, code_bef_expr1;
-	condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-	fprintf(f, "%s", code_bef_expr1.str().c_str());
-	fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-	fprintf(f, " ){\n");
-	fprintf(f, "\t\tflag[%d]=true;\n", index);
-	fprintf(f, "\t}\n");
+	if (condn) {
+		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
+		fprintf(f, "%s", code_bef_expr1.str().c_str());
+		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		fprintf(f, " ){\n");
+		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		fprintf(f, "\t}\n");
+
+		cpp_code_str << code_bef_expr1.str();
+		cpp_code_str << "\tif ( " << code_expr1.str();
+		cpp_code_str << " ){\n";
+		cpp_code_str << "\t\tflag["
+			<< index << "]=true;\n";
+		cpp_code_str << "\t}\n";
+	} else {
+		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		cpp_code_str 
+			<< "\t\tflag["
+			<< index
+			<< "]=true;\n";
+	}
 
 	//string global_vars_fname=work_dir+string("/global.C");
 }
@@ -679,6 +721,22 @@ fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_s
 		cout << stub_list[i]->text << "," << stub_list[i]->code << endl;
 	}
 	cout << endl;
+}
+
+void fld_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)
+{
+	for(unsigned int i=0; i< stub_list.size(); ++i){
+		fprintf(f, "\t\tif (%s[%d]){\n"
+				, symp->name_, stub_list[i]->code-1);
+		cpp_code_str 
+			<< "\t\tif ("
+			<< symp->name_ << "["
+			<< stub_list[i]->code-1 << "]){\n" ;
+		fprintf(f, "\t\t\t flag[%d]=true;\n\t\t}\n"
+				, index+stub_list[i]->code-1);
+		cpp_code_str << "\t\t\t flag["
+			<< index+stub_list[i]->code-1 << "]=true;\n\t\t}\n";
+	}
 }
 
 } /* close namespace Table */
