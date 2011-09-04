@@ -149,7 +149,11 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	if (xtcc_work_dir_exists==-1){
 		cout << "attempting to create directory xtcc_work" << endl;
 		// file does not exist - so create the directoryo
-		int dir_success=mkdir(work_dir, S_IRUSR| S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP);
+#ifndef _WIN32
+		int dir_success=mkdir (work_dir, S_IRUSR| S_IWUSR | S_IXUSR | S_IRGRP | S_IWGRP | S_IXGRP);
+#else
+		int dir_success=mkdir (work_dir /*, S_IRUSR| S_IWUSR | S_IXUSR*/);
+#endif
 		if(dir_success==-1){
 			cerr << "Unable to create temp work directory " <<work_dir <<  " : ... exiting" << endl;
 			exit(1);
