@@ -133,8 +133,8 @@ clean:
 		inputs/*.exe src/*.output
 
 local_install: $(BUILD_DIR)/xtcc 
-	cp $(BUILD_DIR)/xtcc bin
-	cp ${SOURCE_DIR}/*.h include
+	xcopy $(BUILD_DIR)\\xtcc.exe bin
+	xcopy "${SOURCE_DIR}\\*.h" include
 
 #nsiqcppstyle:
 #	cd src; make -f Makefile.nsiqcppstyle; cd ..
