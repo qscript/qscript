@@ -23,10 +23,9 @@ and should be included with the distribution
 BUILD ENVIRONMENT
 
 	You can build this project using the Custom Makefile
-	1) CustomQScriptMakefile or
-	2) cmake
+	1) CustomQScriptMakefile  for linux
+	2) CustomQScriptMakefile.Win32 for windows
 
-	using cmake requires an out-of-source build
 
 	Please read the file INSTALL_CUSTOM.readme for instructions on how to build
 

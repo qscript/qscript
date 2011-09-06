@@ -18,7 +18,7 @@ DEPENDENCIES = $(OBJECTS:.o=.dep)
 # the directories you have installed the include files and the libraries to
 WIN_INCLUDE_DIR = c:\usr\include
 WIN_LIB_DIR = c:\usr\lib
-RM_HOME=/c/MinGW-foo7/msys/1.0/bin
+MSYS_HOME=/c/MinGW-foo7/msys/1.0/bin
 
 YACC_SOURCES = $(wildcard $(SOURCE_DIR)/*.ypp)
 EXCLUDE_FILE = src/qscript_data.ypp
@@ -41,7 +41,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=19
+QSCRIPT_MINOR_VERSION_NUMBER=20
 
 
 #dummy:
@@ -206,38 +206,43 @@ check:
 	# runtest -v -v -v  --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite printf-1.exp
 	LD_LIBRARY_PATH=$(QSCRIPT_HOME)/lib runtest --tool qscript QSCRIPT_HOME=`pwd` QSCRIPT=`pwd`/bin/qscript --srcdir testsuite
 
-release: clean
-	-if [ -d $(RELEASE_DIR) ] ; then rm -rf $(RELEASE_DIR) ; fi
-	-if [ -f $(RELEASE_DIR).tar ] ; then rm -f $(RELEASE_DIR).tar ; fi
-	mkdir -p $(RELEASE_DIR)/bin $(RELEASE_DIR)/lib $(RELEASE_DIR)/src \
-		$(RELEASE_DIR)/make-build-dir/runtime_lib \
-		$(RELEASE_DIR)/make-build-dir/compiletime_lib  \
-		$(RELEASE_DIR)/make-build-dir/runtime_static_lib \
-		$(RELEASE_DIR)/make-build-dir/compiletime_static_lib  \
-		$(RELEASE_DIR)/testsuite/qscript.test $(RELEASE_DIR)/testsuite/config \
-		$(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include \
-		$(RELEASE_DIR)/config
-	cp config/qscript.config $(RELEASE_DIR)/config
-	cp   src/* $(RELEASE_DIR)/src 
-	sed -f suppress-maintainer-messages.sed src/qscript_debug.cpp > $(RELEASE_DIR)/src/qscript_debug.cpp
-	cp -R cmake $(RELEASE_DIR)
-	cp -R testsuite $(RELEASE_DIR)
-	cp CustomQScriptMakefile CustomQScriptMakefile.Win32 CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
-	-rm inputs/test_script
-	-rm inputs/test_script_bcpp.[Co]
-	-rm inputs/tags
-	-rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op inputs/*.exe
-	cp inputs/* $(RELEASE_DIR)/inputs
-	cp bin/qscript.sh $(RELEASE_DIR)/bin
-	tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
+#Note: no clean dependency - because we want to copy the binaries to the 
+# released file
+release: 
+	-if [ -d $(RELEASE_DIR) ] ; then $(MSYS_HOME)/rm -rf $(RELEASE_DIR) ; fi
+	-if [ -f $(RELEASE_DIR).tar ] ; then $(MSYS_HOME)/rm -f $(RELEASE_DIR).tar ; fi
+	$(MSYS_HOME)/mkdir   $(RELEASE_DIR)
+	$(MSYS_HOME)/mkdir   $(RELEASE_DIR)/bin $(RELEASE_DIR)/lib $(RELEASE_DIR)/src 
+	$(MSYS_HOME)/mkdir   -p $(RELEASE_DIR)/make-build-dir/runtime_lib 
+	$(MSYS_HOME)/mkdir   -p $(RELEASE_DIR)/make-build-dir/compiletime_lib  
+	$(MSYS_HOME)/mkdir   -p $(RELEASE_DIR)/make-build-dir/runtime_static_lib 
+	$(MSYS_HOME)/mkdir   -p $(RELEASE_DIR)/make-build-dir/compiletime_static_lib  
+	$(MSYS_HOME)/mkdir   -p $(RELEASE_DIR)/testsuite/qscript.test $(RELEASE_DIR)/testsuite/config 
+	$(MSYS_HOME)/mkdir   -p $(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include 
+	$(MSYS_HOME)/mkdir   -p $(RELEASE_DIR)/config
+	$(MSYS_HOME)/cp config/qscript.config $(RELEASE_DIR)/config
+	$(MSYS_HOME)/cp   src/* $(RELEASE_DIR)/src 
+	$(MSYS_HOME)/cp   include/* $(RELEASE_DIR)/include 
+	$(MSYS_HOME)/cp   lib/* $(RELEASE_DIR)/lib 
+	$(MSYS_HOME)/sed -f suppress-maintainer-messages.sed src/qscript_debug.cpp > $(RELEASE_DIR)/src/qscript_debug.cpp
+	$(MSYS_HOME)/cp -R cmake $(RELEASE_DIR)
+	$(MSYS_HOME)/cp -R testsuite $(RELEASE_DIR)
+	$(MSYS_HOME)/cp CustomQScriptMakefile CustomQScriptMakefile.Win32 CMakeLists.txt COPYING README INSTALL_CUSTOM.readme tar-exclude-file-list $(RELEASE_DIR)
+	-$(MSYS_HOME)/rm inputs/test_script
+	-$(MSYS_HOME)/rm inputs/test_script_bcpp.[Co]
+	-$(MSYS_HOME)/rm inputs/tags
+	-$(MSYS_HOME)/rm inputs/test_script.[Co] inputs/a.out inputs/err inputs/op inputs/*.exe
+	$(MSYS_HOME)/cp inputs/* $(RELEASE_DIR)/inputs
+	$(MSYS_HOME)/cp bin/* $(RELEASE_DIR)/bin
+	$(MSYS_HOME)/cp lib/* $(RELEASE_DIR)/lib
+	$(MSYS_HOME)/tar --exclude-from="tar-exclude-file-list" --exclude-vcs -cvf qscript-$(QSCRIPT_MAJOR_VERSION_NUMBER).$(QSCRIPT_MINOR_VERSION_NUMBER).tar $(RELEASE_DIR)
 
 .PHONY: clean tags
 
 #	-del /q /f $(BUILD_DIR)\*.* $(BUILD_DIR)\runtime_lib\*.* lib\*.* bin\qscript include\*.* $(BUILD_DIR)\compiletime_lib\*.* $(BUILD_DIR)\runtime_static_lib\*.* $(BUILD_DIR)\compiletime_static_lib\*.*
 clean:
-	-$(RM_HOME)/rm.exe -f $(BUILD_DIR)/* $(BUILD_DIR)/runtime_lib/* lib/* bin/qscript.exe include/* $(BUILD_DIR)/compiletime_lib/* $(BUILD_DIR)/runtime_static_lib/* $(BUILD_DIR)/compiletime_static_lib/*
+	-$(MSYS_HOME)/rm.exe -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.exe $(BUILD_DIR)/runtime_lib/*.a lib/*.a bin/qscript.exe include/*.h $(BUILD_DIR)/compiletime_lib/*.a $(BUILD_DIR)/runtime_static_lib/*.a $(BUILD_DIR)/compiletime_static_lib/*.a
 #	-cmd /c "del /f $(BUILD_DIR)\\*.o $(BUILD_DIR)\\*.exe $(bin)\\qscript.exe include\\* $(BUILD_DIR)\\compiletime_lib\\*.* $(BUILD_DIR)\\runtime_static_lib\\*.* $(BUILD_DIR)\\compiletime_static_lib\\*.*"
-	echo $(PATH)
 #cd make-build-dir && del /y *.*
 #	cd make-build-dir/compiletime_static_lib && del /y *.*
 #	cd make-build-dir/runtime_static_lib && del /y *.*
@@ -262,10 +267,10 @@ clean:
 #	copy $(BUILD_DIR)\compiletime_static_lib\libqscript_compiletime.a lib
 #	copy ${SOURCE_DIR}\*.h include
 local_install: $(BUILD_DIR)/qscript.exe runtime_static_lib compiletime_static_lib 
-	xcopy   $(BUILD_DIR)\\qscript.exe bin
-	xcopy   $(BUILD_DIR)\\runtime_static_lib\\libqscript_runtime.a lib
-	xcopy   $(BUILD_DIR)\\compiletime_static_lib\\libqscript_compiletime.a lib
-	xcopy   ${SOURCE_DIR}\\*.h include
+	$(MSYS_HOME)/cp $(BUILD_DIR)/qscript.exe bin
+	$(MSYS_HOME)/cp $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a lib
+	$(MSYS_HOME)/cp $(BUILD_DIR)/compiletime_static_lib/libqscript_compiletime.a lib
+	$(MSYS_HOME)/cp ${SOURCE_DIR}/*.h include
 
 nsiqcppstyle:
 	cd src; make -f Makefile.nsiqcppstyle; cd ..
