@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
+#include <dirent.h>
 #include "symtab.h"
 #include "stmt.h"
 #include "expr.h"
@@ -40,7 +41,9 @@ using  std::cout;
 string QueryKeyData(HKEY hKey);
 #endif /* _WIN32 */
 	void InitStatement();
-	bool do_sanity_checks(string qscript_install_dir);
+	bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_registry);
+int find_file_in_dir(string filename, const vector<string> & dir_list);
+bool find_file_entry_in_directory(string filename, DIR * directory_ptr);
 
 namespace program_options_ns {
 	bool ncurses_flag = false;
@@ -51,6 +54,7 @@ namespace program_options_ns {
 	bool flag_nice_map;
 	bool compile_to_cpp_only_flag = false;
 	bool latex_flag = false;
+	char * QSCRIPT_HOME;
 }
 
 int32_t main(int32_t argc, char* argv[])
@@ -110,24 +114,25 @@ int32_t main(int32_t argc, char* argv[])
 	// uncomment this and comment the one below to 
 	// test the registry key code
 	//char * QSCRIPT_HOME = 0;
-	char * QSCRIPT_HOME = getenv("QSCRIPT_HOME");
-
+	program_options_ns::QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	bool QSCRIPT_HOME_came_from_registry = false;
 #if 	_WIN32
-	if (!QSCRIPT_HOME) {
+	if (!program_options_ns::QSCRIPT_HOME) {
 		qscript_install_dir = check_for_registry_key();
 		if (qscript_install_dir != "") {
 			cout << "got qscript_install_dir from registry key : SOFTWARE\\QScript" << endl;
 			exit_flag = false;
 			// this is going to result in a small memory leak
-			QSCRIPT_HOME = strdup(qscript_install_dir.c_str());
-			cout << "QSCRIPT_HOME is : " << QSCRIPT_HOME << endl;
+			program_options_ns::QSCRIPT_HOME = strdup(qscript_install_dir.c_str());
+			cout << "QSCRIPT_HOME is : " << program_options_ns::QSCRIPT_HOME << endl;
+			QSCRIPT_HOME_came_from_registry = true;
 		} else {
 			cout << "For Windows you can also set qscript_install_dir using the registry key : SOFTWARE\\QScript" << endl;
 		}
 	}
 #endif /* _WIN32 */
 
-	if (!QSCRIPT_HOME) {
+	if (!program_options_ns::QSCRIPT_HOME) {
 		cout << "Please set environment variable QSCRIPT_HOME to the top-level directory that qscript is installed in" << endl
 			<< "If qscript was installed in /home/unixuser/qscript/, in UNIX - bash " << endl
 			<< "you would do this as (assume $ as shell prompt):" << endl
@@ -141,7 +146,7 @@ int32_t main(int32_t argc, char* argv[])
 	if (exit_flag){
 		exit(1);
 	}
-	do_sanity_checks(QSCRIPT_HOME);
+	do_sanity_checks(program_options_ns::QSCRIPT_HOME, QSCRIPT_HOME_came_from_registry);
 	//cout << "reached here" << endl;
 
 	if (!program_options_ns::fname_flag){
@@ -494,9 +499,100 @@ string QueryKeyData(HKEY hKey)
 	return return_value;
 }
 
-#endif /* _WIN32 */
 
-bool do_sanity_checks(string qscript_install_dir)
+bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_registry)
 {
+	bool environment_is_sane = true;
+	bool found_g_plus_plus = false;
+	bool found_pd_curses = false;
+	bool found_pd_curses_headers = false;
+	if (QSCRIPT_HOME_came_from_registry) {
+		// step 1 - try to find g++ in the path
+		// if it came from the registry, then it should be in
+		// ..\MinGW-foo7\bin
+		string mingw_path = qscript_install_dir + "..\\MinGW-foo7\\bin";
+		vector<string> dirs;
+		dirs.push_back(mingw_path);
+		if (find_file_in_dir("g++", dirs) ) {
+			found_g_plus_plus = true;
+		} else {
+			environment_is_sane = false;
+		}
+
+		string pdcurses_path = qscript_install_dir + "..\\usr\\lib";
+		dirs.clear();
+		dirs.push_back(mingw_path);
+		if (find_file_in_dir("pdcurses.dll", dirs) ) {
+			found_pd_curses = true;
+		} else {
+			environment_is_sane = false;
+		}
+
+		string pdcurses_headers_path = qscript_install_dir + "..\\usr\\include";
+		dirs.clear();
+		dirs.push_back(pdcurses_headers_path);
+		int count_pd_curses_headers = 0;
+		if (find_file_in_dir("curses.h", dirs) ) {
+			++count_pd_curses_headers;
+		}
+		if (find_file_in_dir("panel.h", dirs) ) {
+			++count_pd_curses_headers;
+		}
+
+		if (count_pd_curses_headers==2) {
+			found_pd_curses_headers = true;
+		} else {
+			environment_is_sane = false;
+		}
+
+		if (!environment_is_sane) {
+			if (!found_g_plus_plus) {
+				cout << "Could not find g++ binary needed for compilation" << endl;
+			}
+			if (!found_pd_curses) {
+				cout << "Could not find pdcurses library needed for linking compiled code" << endl;
+			}
+			if (!found_pd_curses_headers) {
+				cout << "Could not find pdcurses headers needed for  compiling code" << endl;
+			}
+		}
+	}
+	return environment_is_sane;
+}
+
+
+
+int find_file_in_dir(string filename, const vector<string> & dir_list)
+{
+	cout << "ENTER find_file_in_dir: " << endl;
+	for (int i=0; i<dir_list.size(); ++i) {
+		DIR * directory_ptr = opendir(dir_list[i].c_str());
+		if (!directory_ptr) {
+			cerr << "Unable to open directory : " << dir_list[i] << endl
+				<< " for reading, skipping entry. Check your provided paths\n";
+		} else {
+			bool found = find_file_entry_in_directory(filename, directory_ptr);
+			if (found == true) {
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+
+bool find_file_entry_in_directory(string filename, DIR * directory_ptr)
+{
+	struct dirent * directory_entry = readdir(directory_ptr);
+
+	while (directory_entry) {
+		string entry_name = directory_entry->d_name;
+		if (entry_name == "pdcurses.dll") {
+			return true;
+		}
+		directory_entry = readdir(directory_ptr);
+	}
 	return false;
 }
+
+#endif /* _WIN32 */

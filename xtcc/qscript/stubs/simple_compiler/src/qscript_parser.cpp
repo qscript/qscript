@@ -17,6 +17,7 @@ namespace program_options_ns {
 	extern bool compile_to_cpp_only_flag;
 	extern int32_t fname_flag;
 	extern bool flag_nice_map;
+	extern char * QSCRIPT_HOME;
 }
 
 extern int32_t qscript_confparse();
@@ -1201,7 +1202,8 @@ int32_t ReadQScriptConfig()
 {
 	cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
 	using namespace std;
-	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	//string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
 	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
 	if (contains_space != string::npos) {
 		QSCRIPT_HOME.erase(contains_space);
