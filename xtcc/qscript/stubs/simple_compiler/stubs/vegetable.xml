@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF8"?>
+<messages>
+<message id="yn_0">Yes</message>
+
+<message id="yn_1">No</message>
+
+<message id="q1_0">Eat veg?</message>
+
+<message id="agree_5_0">agree strongly</message>
+
+<message id="agree_5_1">agree somewhat</message>
+
+<message id="agree_5_2">Neutral</message>
+
+<message id="agree_5_3">Disagree </message>
+
+<message id="agree_5_4">Disagree strongly</message>
+
+<message id="veg_0">Tomates</message>
+
+<message id="veg_1">Potatoes</message>
+
+<message id="veg_2">Capsicum</message>
+
+<message id="veg_3">Brinjal/Egg plant</message>
+
+<message id="veg_4">Okra/Lady Finger</message>
+
+<message id="veg_seg_att_0"> Vegetables are good for health</message>
+
+<message id="veg_seg_att_1"> I buy fresh vegetables often</message>
+
+<message id="veg_seg_att_2"> Greens are good source of dietary fibre</message>
+
+<message id="veg_seg_att_3"> I would like to be vegetarian some day</message>
+
+<message id="q2_0">Which veg u r aware of?</message>
+
+<message id="q3_0">Which veg dou eat?</message>
+
+<message id="q4_0">Which is ur fav veg?</message>
+
+<message id="q6_0_0">In a week what perc of your veggies are (piping not yet implemented): </message>
+
+<message id="q6_1_0">In a week what perc of your veggies are (piping not yet implemented): </message>
+
+<message id="q6_2_0">In a week what perc of your veggies are (piping not yet implemented): </message>
+
+<message id="q6_3_0">In a week what perc of your veggies are (piping not yet implemented): </message>
+
+<message id="q6_4_0">In a week what perc of your veggies are (piping not yet implemented): </message>
+
+</messages>

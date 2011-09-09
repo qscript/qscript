@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF8"?>
+<messages>
+<message id="yn_0">हाा््ााााा् </message>
+
+<message id="yn_1">नाा </message>
+
+<message id="q1_0">क्या आप सब्जियां खाने?</message>
+
+<message id="agree_5_0">दृढ़ता से सहमत हैं</message>
+
+<message id="agree_5_1"> मैं सहमत हूँ</message>
+
+<message id="agree_5_2">तटस्थ </message>
+
+<message id="agree_5_3"> असहमत</message>
+
+<message id="agree_5_4"> दृढ़ता से असहमत </message>
+
+<message id="veg_0"> टमाटर</message>
+
+<message id="veg_1">आलू </message>
+
+<message id="veg_2"> शिमला मिर्च</message>
+
+<message id="veg_3">बैंगन</message>
+
+<message id="veg_4"> भिंडी </message>
+
+<message id="veg_seg_att_0"> सब्जियां स्वास्थ्य के लिए अच्छा कर रहे हैं</message>
+
+<message id="veg_seg_att_1"> मैं ताजा सब्जियों अक्सर खरीदते हैं</message>
+
+<message id="veg_seg_att_2"> सब्जियाँ आहार फाइबर का अच्छा स्रोत हैं</message>
+
+<message id="veg_seg_att_3"> मैं कुछ दिन के लिए शाकाहारी करना चाहते हैं</message>
+<message id="q2_0">इन सब्जियों में से कौन सा तुम जानते हो?</message>
+<message id="q3_0">इन सब्जियों में से कौन सा आप खाते हैं?</message>
+<message id="q4_0">इनमें से कौन अपने पसंदीदा सब्जी है?</message>
+
+<message id="q6_0_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (पाइपिंग कार्यान्वित अभी तक नहीं)</message>
+<message id="q6_1_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (पाइपिंग कार्यान्वित अभी तक नहीं)</message>
+<message id="q6_2_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (पाइपिंग कार्यान्वित अभी तक नहीं)</message>
+<message id="q6_3_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (पाइपिंग कार्यान्वित अभी तक नहीं)</message>
+<message id="q6_4_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (पाइपिंग कार्यान्वित अभी तक नहीं)</message>
+
+</messages>
