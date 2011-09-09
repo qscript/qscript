@@ -972,12 +972,12 @@ QtmDataFile::QtmDataFile()
 		qtm_datafile_conf_parser_ns::crd_end, true, 
 		qtm_datafile_conf_parser_ns::qtm_file_mode)
 {
-	cout << "qtm_datafile_conf_parser_ns::crd_start: " 
-		<< qtm_datafile_conf_parser_ns::crd_start 
-		<< endl;
-	cout << "qtm_datafile_conf_parser_ns::crd_end: " 
-		<< qtm_datafile_conf_parser_ns::crd_end 
-		<< endl;
+	//cout << "qtm_datafile_conf_parser_ns::crd_start: "
+	//	<< qtm_datafile_conf_parser_ns::crd_start
+	//	<< endl;
+	//cout << "qtm_datafile_conf_parser_ns::crd_end: "
+	//	<< qtm_datafile_conf_parser_ns::crd_end
+	//	<< endl;
 }
 
 // This function cannot be used to write codes '-', '&'

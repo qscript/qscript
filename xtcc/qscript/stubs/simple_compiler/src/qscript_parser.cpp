@@ -1722,7 +1722,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t						jumpToIndex = theQuestionnaire.ComputeJumpToIndex(target_question);\n");
 	fprintf(script, "\t					}\n");
 	fprintf(script, "\t					jumpToQuestion = target_question->questionName_;\n");
-	fprintf(script, "\t					if (data_entry_window == 0) cout << \"target question: \" << jumpToQuestion;\n");
+	fprintf(script, "\t					//if (data_entry_window == 0) cout << \"target question: \" << jumpToQuestion;\n");
 	fprintf(script, "\t					theQuestionnaire.back_jump = true;\n");
 	fprintf(script, "\t					user_navigation = NOT_SET;\n");
 	fprintf(script, "\t					//goto start_of_questions;\n");
@@ -1767,10 +1767,10 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t			theQuestionnaire.\n");
 	fprintf(script, "\t\t			ComputeJumpToIndex(target_question);\n");
 	fprintf(script, "\t\t		}\n");
-	fprintf(script, "\t\t		if (data_entry_window == 0)\n");
-	fprintf(script, "\t\t		    cout << \"target question: \" << jumpToQuestion;\n");
-	fprintf(script, "\t\t		if (data_entry_window == 0)\n");
-	fprintf(script, "\t\t		    cout << \"target question Index: \" << jumpToIndex;\n");
+	fprintf(script, "\t\t		// if (data_entry_window == 0)\n");
+	fprintf(script, "\t\t		//     cout << \"target question: \" << jumpToQuestion;\n");
+	fprintf(script, "\t\t		// if (data_entry_window == 0)\n");
+	fprintf(script, "\t\t		//     cout << \"target question Index: \" << jumpToIndex;\n");
 	fprintf(script, "\t\t		theQuestionnaire.back_jump = true;\n");
 	fprintf(script, "\t\t		user_navigation = NOT_SET;\n");
 	fprintf(script, "\t\t		//goto start_of_questions;\n");
@@ -2040,7 +2040,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 			"\t\t AbstractQuestion * p_last_question_visited,*/\n"
 			"\t\t UserNavigation p_navigation_mode)\n{\n");
 
-	fprintf(script, "if (last_question_visited)\n\tfprintf (qscript_stdout, \"entered eval2: last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
+	fprintf(script, "//if (last_question_visited)\n\t//fprintf (qscript_stdout, \"entered eval2: last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
 
 
 
@@ -2050,7 +2050,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "\tstart_of_questions:\n");
 	fprintf(script, "\tif(back_jump == true){\n");
-	fprintf(script, "\tfprintf(qscript_stdout, \"have reached start_of_questions with back_jump: jumpToQuestion: %%s, jumpToIndex: %%d\\n\", jumpToQuestion.c_str(), jumpToIndex);\n");
+	fprintf(script, "\t//fprintf(qscript_stdout, \"have reached start_of_questions with back_jump: jumpToQuestion: %%s, jumpToIndex: %%d\\n\", jumpToQuestion.c_str(), jumpToIndex);\n");
 	fprintf(script, "\t}\n");
 
 	fprintf(script, "%s\n", program_code.str().c_str());
@@ -2084,7 +2084,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t\t\t\tjumpToIndex = ComputeJumpToIndex(target_question);\n");
 	fprintf(script, "\t\t\t}\n");
 	fprintf(script,	"\t\tjumpToQuestion = target_question->questionName_;\n");
-	fprintf(script, "\t\tif (data_entry_window == 0) cout << \"target question: \" << jumpToQuestion;\n");
+	fprintf(script, "\t\t//if (data_entry_window == 0) cout << \"target question: \" << jumpToQuestion;\n");
 	fprintf(script, "\t\tback_jump = true;\n");
 	fprintf(script, "\t\tuser_navigation = NOT_SET;\n");
 	fprintf(script, "\t\tgoto start_of_questions;\n");
@@ -3143,13 +3143,13 @@ void print_microhttpd_web_support (FILE * script)
 	fprintf (script, "			user_response::UserResponseType user_resp=user_response::NotSet;\n");
 	fprintf (script, "			vector<int32_t> data;\n");
 	fprintf (script, "			bool parse_success = verify_web_data (current_question_response, user_nav, user_resp, &data);\n");
-	fprintf (script, "			if (parse_success) {\n");
-	fprintf (script, "				cout << \"successfully parsed data = \";\n");
-	fprintf (script, "				for (int i=0; i<data.size(); ++i) {\n");
-	fprintf (script, "					cout << data[i] << \", \";\n");
-	fprintf (script, "				}\n");
-	fprintf (script, "				cout << endl;\n");
-	fprintf (script, "			}\n");
+	fprintf (script, "			//if (parse_success) {\n");
+	fprintf (script, "			//	cout << \"successfully parsed data = \";\n");
+	fprintf (script, "			//	for (int i=0; i<data.size(); ++i) {\n");
+	fprintf (script, "			//		cout << data[i] << \", \";\n");
+	fprintf (script, "			//	}\n");
+	fprintf (script, "			//	cout << endl;\n");
+	fprintf (script, "			//}\n");
 	fprintf (script, "			AbstractQuestion * last_question_served = session->last_question_served;\n");
 	fprintf (script, "			// the call below will be required at some later stage\n");
 	fprintf (script, "			//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);\n");
@@ -3683,15 +3683,15 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "				user_response::UserResponseType user_resp=user_response::NotSet;\n");
 	fprintf (script, "				vector<int32_t> data;\n");
 	fprintf (script, "				bool parse_success = verify_web_data (current_question_response, user_nav, user_resp, &data);\n");
-	fprintf (script, "				if (parse_success)\n");
-	fprintf (script, "				{\n");
-	fprintf (script, "					cout << \"successfully parsed data = \";\n");
-	fprintf (script, "					for (int i=0; i<data.size(); ++i)\n");
-	fprintf (script, "					{\n");
-	fprintf (script, "						cout << data[i] << \", \";\n");
-	fprintf (script, "					}\n");
-	fprintf (script, "					cout << endl;\n");
-	fprintf (script, "				}\n");
+	fprintf (script, "				//if (parse_success)\n");
+	fprintf (script, "				//{\n");
+	fprintf (script, "				//	cout << \"successfully parsed data = \";\n");
+	fprintf (script, "				//	for (int i=0; i<data.size(); ++i)\n");
+	fprintf (script, "				//	{\n");
+	fprintf (script, "				//		cout << data[i] << \", \";\n");
+	fprintf (script, "				//	}\n");
+	fprintf (script, "				//	cout << endl;\n");
+	fprintf (script, "				//}\n");
 	fprintf (script, "				AbstractQuestion * last_question_served = this_users_session->last_question_served;\n");
 	fprintf (script, "				// the call below will be required at some later stage\n");
 	fprintf (script, "				//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);\n");
@@ -4004,7 +4004,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "{\n");
 	fprintf(script, "	//return new QuestionnaireApplication (env);\n");
 	fprintf(script, "	WApplication * ptr =  new QuestionnaireApplication (env);\n"); 
-	fprintf(script, "	cout << \"Sizeof (WApplication): \" << sizeof (*ptr) << endl;\n"); 
+	fprintf(script, "	//cout << \"Sizeof (WApplication): \" << sizeof (*ptr) << endl;\n"); 
 	fprintf(script, "	return ptr;\n"); 
 	fprintf(script, "}\n");
 	fprintf(script, "\n");

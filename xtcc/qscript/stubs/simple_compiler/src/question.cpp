@@ -219,8 +219,8 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 		if(target_question->type_ == QUESTION_ARR_TYPE){\n\
 			jumpToIndex = ComputeJumpToIndex(target_question);\n\
 		}\n\
-		if (data_entry_window==0) cout << \"target question: \" << jumpToQuestion;\n\
-		if (data_entry_window==0) cout << \"target question Index: \" << jumpToIndex;\n\
+		//if (data_entry_window==0) cout << \"target question: \" << jumpToQuestion;\n\
+		//if (data_entry_window==0) cout << \"target question Index: \" << jumpToIndex;\n\
 		back_jump = true;\n\
 		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n}\n}\n";
@@ -264,8 +264,8 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 		if(target_question->type_ == QUESTION_ARR_TYPE){\n\
 			jumpToIndex = ComputeJumpToIndex(target_question);\n\
 		}\n\
-		if (data_entry_window==0) cout << \"target question: \" << jumpToQuestion;\n\
-		if (data_entry_window==0) cout << \"target question Index: \" << jumpToIndex;\n\
+		//if (data_entry_window==0) cout << \"target question: \" << jumpToQuestion;\n\
+		//if (data_entry_window==0) cout << \"target question Index: \" << jumpToIndex;\n\
 		back_jump = true;\n\
 		user_navigation = NOT_SET;\n\
 		goto start_of_questions;\n}\n}\n";
@@ -1594,9 +1594,9 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 {
 	// ----------------------------------
-	code.program_code << " if (data_entry_window == 0) {\n\tcout << \"jumpToQuestion = \" << jumpToQuestion << endl;"
-			<< "\tcout << \"jumpToIndex = \" << jumpToIndex << endl;"
-			<< "}\n"
+	code.program_code << "// if (data_entry_window == 0) {\n\t//cout << \"jumpToQuestion = \" << jumpToQuestion << endl;"
+			<< "//\tcout << \"jumpToIndex = \" << jumpToIndex << endl;"
+			<< "//}\n"
 			<< endl;
 	code.program_code << "if(!"
 			<< questionName_ << "_list.questionList[";
