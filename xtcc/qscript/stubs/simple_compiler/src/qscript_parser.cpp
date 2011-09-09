@@ -1258,9 +1258,12 @@ void PrintSignalHandler(FILE * script, bool ncurses_flag)
 	fprintf(script, "		printf(\"received SIGSEGV\\n\");\n");
 	fprintf(script, "	} else if(signo == SIGILL){\n");
 	fprintf(script, "		printf(\"received SIGILL\\n\");\n");
-	fprintf(script, "	} else {\n");
-	fprintf(script, "		fprintf(stderr, \"received signal : %%d\\n\", signo);\n");
-	fprintf(script, "	}\n");
+	fprintf(script, "} else if(signo == SIGHUP) {\n");
+	fprintf(script, "	printf(\"received, SIGHUP: ignore this signal\\n\");\n");
+	fprintf(script, "	return;\n");
+	fprintf(script, "} else {\n");
+	fprintf(script, "	fprintf(stderr, \"received signal : %%d\\n\", signo);\n");
+	fprintf(script, "}\n");
 	fprintf(script, "	fflush(qscript_stdout);\n");
 	if (ncurses_flag) {
 		fprintf(script, "	 endwin();\n");
@@ -1273,6 +1276,9 @@ void PrintSetupSignalHandler(FILE * script)
 {
 	fprintf(script, "void SetupSignalHandler()\n{\n");
 	fprintf(script, "	if(signal(SIGSEGV, sig_usr) == SIG_ERR){\n");
+	fprintf(script, "		fprintf(stderr, \"cannot catch SIGSEGV\\n\");\n");
+	fprintf(script, "		exit(1);\n");
+	fprintf(script, "	}  else if(signal(SIGHUP, sig_usr) == SIG_ERR){\n");
 	fprintf(script, "		fprintf(stderr, \"cannot catch SIGSEGV\\n\");\n");
 	fprintf(script, "		exit(1);\n");
 	fprintf(script, "	}  else if(signal(SIGILL, sig_usr) == SIG_ERR){\n");
