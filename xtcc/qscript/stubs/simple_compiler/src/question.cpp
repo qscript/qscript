@@ -1172,6 +1172,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 			<< endl;
 		quest_decl << "}\n";
 	} else {
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << "}\n";
 	}
 
@@ -1282,6 +1283,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 			<< endl;
 		quest_decl << "}\n";
 	} else {
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << "}\n";
 	}
 
