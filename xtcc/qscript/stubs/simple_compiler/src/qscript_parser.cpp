@@ -276,6 +276,8 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf (script, "#include <Wt/WBreak>\n");
 		fprintf (script, "#include <Wt/WButtonGroup>\n");
 		fprintf (script, "#include <Wt/WGroupBox>\n");
+		fprintf (script, "#include <Wt/WString>\n");
+		fprintf (script, "#include <Wt/WStringUtil>\n");
 
 	}
 	fprintf(script, "#include <iostream>\n");
@@ -405,6 +407,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
 	fprintf(script, "qtm_data_file_ns::QtmDataFile qtm_data_file;\n");
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
+	fprintf(script, "void load_languages_available(vector<string> & vec_language);\n");
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
@@ -418,6 +421,7 @@ void print_header(FILE* script, bool ncurses_flag)
 			"		* data_entry_panel = 0,\n"
 			"		* help_panel = 0;\n");
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
+	fprintf(script, "vector <string> vec_language;\n");
 
 	// fprintf(script, "struct TheQuestionnaire\n{\n");
 	// fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
@@ -3526,6 +3530,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "	vector<WRadioButton*> vec_rb;\n");
 	fprintf (script, "	vector<WCheckBox*> vec_cb;\n");
 	fprintf (script, "	std::map<int, int> map_cb_code_index;\n");
+	fprintf (script, "	std::vector<WText *> languageSelects_;\n");
 
 
 	fprintf(script, "\n");
@@ -3536,6 +3541,10 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	void display();\n");
 	fprintf(script, "	void DoQuestionnaire() ;\n");
 	fprintf(script, "	void setCentralWidget(WWidget * new_question_form);\n");
+	fprintf(script, "	void changeLanguage();\n");
+	fprintf(script, "	void setLanguage(const std::string lang);\n");
+	fprintf(script, "	void ConstructQuestionForm(\n");
+	fprintf(script, "		AbstractQuestion *q, Session * this_users_session);\n");
 	fprintf(script, "};\n");
 	fprintf(script, "bool verify_web_data (std::string p_question_data, \n");
 	fprintf(script, "		UserNavigation p_user_navigation,\n");
@@ -3703,6 +3712,10 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "					last_question_served->isAnswered_ = true;\n");
 	fprintf (script, "					data.clear();\n");
 	fprintf (script, "				}\n");
+	fprintf (script, "				else {\n");
+	fprintf (script, "					ConstructQuestionForm(last_question_served, this_users_session);\n");
+	fprintf (script, "					return;\n");
+	fprintf (script, "				}\n");
 	fprintf (script, "			}\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "	}\n");
@@ -3712,6 +3725,10 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		qnre_navigation_mode);\n");
 	fprintf(script, "	this_users_session->last_question_served = q;\n");
 	fprintf(script, "	WContainerWidget * new_form = 0;\n");
+	fprintf(script, "if (q) {\n");
+	fprintf(script, "	ConstructQuestionForm(q, this_users_session);\n");
+	fprintf(script, "}\n");
+	fprintf(script, "#if 0\n");
 	fprintf(script, "	if (q) {\n");
 	fprintf (script, "		vec_rb.clear(); // memory leak introduced here \n");
 	fprintf (script, "		vec_cb.clear(); // memory leak introduced here \n");
@@ -3783,9 +3800,97 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "\n");
 	fprintf(script, "		setCentralWidget(new_form);\n");
 	fprintf(script, "	}\n");
-	fprintf(script, "\n");
-	fprintf(script, "\n");
+	fprintf(script, "#endif /*  0  */\n");
 	fprintf(script, "}\n");
+	fprintf(script, "\n");
+
+
+	fprintf(script, "\n"); 
+	fprintf(script, "void QuestionnaireApplication::ConstructQuestionForm(\n"); 
+	fprintf(script, "	AbstractQuestion *q, Session * this_users_session)\n"); 
+	fprintf(script, "{\n"); 
+	fprintf(script, "\n"); 
+	fprintf(script, "	WContainerWidget * new_form = new WContainerWidget();\n"); 
+	fprintf(script, "	vec_rb.clear();			 // memory leak introduced here\n"); 
+	fprintf(script, "	vec_cb.clear();			 // memory leak introduced here\n"); 
+	fprintf(script, "	map_cb_code_index.clear();\n"); 
+	fprintf(script, "\n"); 
+	fprintf(script, "	wt_questionText_ = new WText();\n"); 
+	fprintf(script, "	//wt_questionText_->setText(q->textExprVec_[0]->text_);\n"); 
+	fprintf(script, "	//stringstream question_text;\n"); 
+	fprintf(script, "	stringstream part_mesg_id;\n"); 
+	fprintf(script, "	WString question_text;\n"); 
+	fprintf(script, "	part_mesg_id << q->questionName_;\n"); 
+	fprintf(script, "	for (int i=0; i<q->loop_index_values.size(); ++i)\n"); 
+	fprintf(script, "	{\n"); 
+	fprintf(script, "		part_mesg_id << \"_\" << q->loop_index_values[i];\n"); 
+	fprintf(script, "	}\n"); 
+	fprintf(script, "	for (int i=0; i<q->textExprVec_.size(); ++i)\n"); 
+	fprintf(script, "	{\n"); 
+	fprintf(script, "		question_text += \"<p>\";\n"); 
+	fprintf(script, "		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)\n"); 
+	fprintf(script, "		{\n"); 
+	fprintf(script, "			stringstream mesg_id;\n"); 
+	fprintf(script, "			mesg_id << part_mesg_id.str() << \"_\" << i;\n"); 
+	fprintf(script, "			question_text += WString::tr(mesg_id.str().c_str());\n"); 
+	fprintf(script, "		}\n"); 
+	fprintf(script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)\n"); 
+	fprintf(script, "		{\n"); 
+	fprintf(script, "			stringstream named_attribute_key;\n"); 
+	fprintf(script, "			named_attribute_key << q->textExprVec_[i]->naPtr_->name;\n"); 
+	fprintf(script, "			named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n"); 
+	fprintf(script, "			question_text += WString::tr(named_attribute_key.str().c_str());\n"); 
+	fprintf(script, "		}\n"); 
+	fprintf(script, "		question_text += \"</p>\";\n"); 
+	fprintf(script, "	}\n"); 
+	fprintf(script, "	wt_questionText_->setText(question_text);\n"); 
+	fprintf(script, "\n"); 
+	fprintf(script, "	new_form->addWidget(wt_questionText_);\n"); 
+	fprintf(script, "	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))\n"); 
+	fprintf(script, "	{\n"); 
+	fprintf(script, "		new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());\n"); 
+	fprintf(script, "		if (q->no_mpn==1)\n"); 
+	fprintf(script, "		{\n"); 
+	fprintf(script, "			wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);\n"); 
+	fprintf(script, "		}\n"); 
+	fprintf(script, "		vector<stub_pair> & vec= (nq->nr_ptr->stubs);\n"); 
+	fprintf(script, "		for (int i=0; i<vec.size(); ++i)\n"); 
+	fprintf(script, "		{\n"); 
+	fprintf(script, "			if (q->no_mpn==1 && vec[i].mask)\n"); 
+	fprintf(script, "			{\n"); 
+	fprintf(script, "				WRadioButton * wt_rb = new WRadioButton(vec[i].stub_text, wt_cb_rb_container_);\n"); 
+	fprintf(script, "				wt_rb_container_->addButton(wt_rb, vec[i].code);\n"); 
+	fprintf(script, "				vec_rb.push_back(wt_rb);\n"); 
+	fprintf(script, "			}\n"); 
+	fprintf(script, "			else if (q->no_mpn>1 && vec[i].mask)\n"); 
+	fprintf(script, "			{\n"); 
+	fprintf(script, "				WCheckBox * wt_cb = new WCheckBox (vec[i].stub_text, wt_cb_rb_container_);\n"); 
+	fprintf(script, "				map_cb_code_index[i] = vec[i].code;\n"); 
+	fprintf(script, "				vec_cb.push_back(wt_cb);\n"); 
+	fprintf(script, "			}\n"); 
+	fprintf(script, "		}\n"); 
+	fprintf(script, "		new_form->addWidget(wt_cb_rb_container_);\n"); 
+	fprintf(script, "	}\n"); 
+	fprintf(script, "	else\n"); 
+	fprintf(script, "	{\n"); 
+	fprintf(script, "		le_data_ = new WLineEdit();\n"); 
+	fprintf(script, "		new_form->addWidget(le_data_);\n"); 
+	fprintf(script, "	}\n"); 
+	fprintf(script, "\n"); 
+	fprintf(script, "	wt_lastQuestionVisited_ = new WText();\n"); 
+	fprintf(script, "	if (this_users_session->last_question_answered)\n"); 
+	fprintf(script, "		wt_lastQuestionVisited_->setText(q->questionName_);\n"); 
+	fprintf(script, "	new_form->addWidget(wt_lastQuestionVisited_);\n"); 
+	fprintf(script, "\n"); 
+	fprintf(script, "							 // create a button\n"); 
+	fprintf(script, "	WPushButton *b = new WPushButton(\"Next\");\n"); 
+	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n"); 
+	fprintf(script, "	new_form->addWidget(b);\n"); 
+	fprintf(script, "\n"); 
+	fprintf(script, "	setCentralWidget(new_form);\n"); 
+	fprintf(script, "}\n"); 
+	fprintf(script, "\n"); 
+
 	fprintf(script, "\n");
 	fprintf(script, "void QuestionnaireApplication::setCentralWidget(WWidget * new_question_form)\n");
 	fprintf(script, "{\n");
@@ -3795,6 +3900,38 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	formContainer_->addWidget(currentForm_);\n");
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
+
+
+	fprintf (script, "void QuestionnaireApplication::changeLanguage()\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	WText *t = (WText *)sender();\n");
+	fprintf (script, "	setLanguage(narrow(t->text().value()));\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "void QuestionnaireApplication::setLanguage(const std::string lang)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	bool haveLang = false;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	for (unsigned i = 0; i < languageSelects_.size(); ++i) {\n");
+	fprintf (script, "		WText *t = languageSelects_[i];\n");
+	fprintf (script, "\n");
+	fprintf (script, "		// prefix match, e.g. en matches en-us.\n");
+	fprintf (script, "		bool isLang = lang.find(narrow(t->text().value())) == 0;\n");
+	fprintf (script, "		t->setStyleClass(isLang ? L\"langcurrent\" : L\"lang\");\n");
+	fprintf (script, "\n");
+	fprintf (script, "		haveLang = haveLang || isLang;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	if (!haveLang) {\n");
+	fprintf (script, "		languageSelects_[0]->setStyleClass(L\"langcurrent\");\n");
+	fprintf (script, "		WApplication::instance()\n");
+	fprintf (script, "			->setLocale(narrow(languageSelects_[0]->text().value()));\n");
+	fprintf (script, "	} else\n");
+	fprintf (script, "		WApplication::instance()->setLocale(lang);\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+
+
 	fprintf(script, "\n");
 	fprintf(script, "\n");
 	fprintf(script, "QuestionnaireApplication::QuestionnaireApplication(const WEnvironment &env)\n");
@@ -3818,6 +3955,41 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	b->setMargin(5, Left);                                 // add 5 pixels margin\n");
 	fprintf(script, "	canvas->addWidget(new WBreak());                       // insert a line break\n");
 	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
+
+	fprintf (script, "\n");
+	fprintf (script, "	// warning the statement below modifies the global variable\n");
+	fprintf (script, "	//load_languages_available(vec_language);\n");
+	fprintf (script, "	WContainerWidget *langLayout = new WContainerWidget(canvas);\n");
+	fprintf (script, "	langLayout->setContentAlignment(AlignRight);\n");
+	fprintf (script, "	new WText(WString::tr(\"language\"), langLayout);\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "	WCssDecorationStyle langStyle;\n");
+	fprintf (script, "	langStyle.font().setSize(WFont::Smaller);\n");
+	fprintf (script, "	langStyle.setCursor(PointingHandCursor);\n");
+	fprintf (script, "	langStyle.setForegroundColor(blue);\n");
+	fprintf (script, "	langStyle.setTextDecoration(WCssDecorationStyle::Underline);\n");
+	fprintf (script, "	this->styleSheet().addRule(\".lang\", langStyle);\n");
+	fprintf (script, "\n");
+	fprintf (script, "	langStyle.setCursor(ArrowCursor);\n");
+	fprintf (script, "	langStyle.font().setWeight(WFont::Bold);\n");
+	fprintf (script, "	this->styleSheet().addRule(\".langcurrent\", langStyle);\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "	for (int i = 0; i < vec_language.size(); ++i) {\n");
+	fprintf (script, "		WText *t = new WText(widen(vec_language[i]), langLayout);\n");
+	fprintf (script, "		t->setMargin(5);\n");
+	fprintf (script, "		t->clicked().connect(this, &QuestionnaireApplication::changeLanguage);\n");
+	fprintf (script, "		languageSelects_.push_back(t);\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+	fprintf (script, "	/*\n");
+	fprintf (script, "	* Start with the reported locale, if available\n");
+	fprintf (script, "	*/\n");
+	fprintf (script, "	setLanguage(wApp->locale());\n");
+	fprintf (script, "\n");
+
 	fprintf(script, "	wt_questionText_ = new WText(canvas);                         // empty text\n");
 	fprintf(script, "	wt_questionText_->setText(\"question text will be updated\");\n");
 	fprintf(script, "	wt_lastQuestionVisited_ = new WText(canvas);\n");
@@ -3830,7 +4002,10 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "\n");
 	fprintf(script, "WApplication * createApplication(const WEnvironment &env)\n");
 	fprintf(script, "{\n");
-	fprintf(script, "	return new QuestionnaireApplication (env);\n");
+	fprintf(script, "	//return new QuestionnaireApplication (env);\n");
+	fprintf(script, "	WApplication * ptr =  new QuestionnaireApplication (env);\n"); 
+	fprintf(script, "	cout << \"Sizeof (WApplication): \" << sizeof (*ptr) << endl;\n"); 
+	fprintf(script, "	return ptr;\n"); 
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 	fprintf(script, "int main(int argc, char ** argv)\n");
@@ -3846,6 +4021,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "			exit(1);\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
+	fprintf (script, "	load_languages_available(vec_language);\n");
 	fprintf(script, "	bool using_ncurses = true;\n");
 	fprintf(script, "	qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
 	fprintf(script, "\n");
@@ -3853,6 +4029,63 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 
+	fprintf (script, "\n");
+	fprintf (script, "// warning modifies the input variable\n");
+	fprintf (script, "void load_languages_available(vector<string> & vec_language)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	DIR * directory_ptr = opendir(\".\");\n");
+	fprintf (script, "	vec_language.push_back(\"en\");\n");
+	fprintf (script, "	struct dirent *directory_entry = readdir(directory_ptr);\n");
+	fprintf (script, "	while (directory_entry) {\n");
+	fprintf (script, "		string dir_entry_name(directory_entry->d_name);\n");
+	fprintf (script, "		int len_entry = dir_entry_name.length();\n");
+	fprintf (script, "		if (len_entry > 4 &&\n");
+	fprintf (script, "				dir_entry_name[len_entry - 1] == 'l' &&\n");
+	fprintf (script, "				dir_entry_name[len_entry - 2] == 'm' &&\n");
+	fprintf (script, "				dir_entry_name[len_entry - 3] == 'x' &&\n");
+	fprintf (script, "				dir_entry_name[len_entry - 4] == '.' ) {\n");
+	fprintf (script, "			// the names we are looking for are of the form\n");
+	fprintf (script, "			// jno + \"[a-z][a-z].xml\"\n");
+	fprintf (script, "			bool is_our_file = true;\n");
+	fprintf (script, "			if (len_entry != jno.length() + 7) {\n");
+	fprintf (script, "				is_our_file = false;\n");
+	fprintf (script, "				// the above doesnt matter actually, \n");
+	fprintf (script, "				// continue takes us back to the top\n");
+	fprintf (script, "				goto read_another_entry;\n");
+	fprintf (script, "			} else {\n");
+	fprintf (script, "				// possibly what we are looking for\n");
+	fprintf (script, "				//\n");
+	fprintf (script, "				for (int i = 0; i < jno.length(); ++i) {\n");
+	fprintf (script, "					if (!(jno[i] == dir_entry_name[i])) {\n");
+	fprintf (script, "						// cannot be our data file\n");
+	fprintf (script, "						is_our_file = false;\n");
+	fprintf (script, "						goto read_another_entry;\n");
+	fprintf (script, "					}\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "				char first_letter = dir_entry_name[jno.length() + 1];\n");
+	fprintf (script, "				if (! isalpha (first_letter)) {\n");
+	fprintf (script, "					is_our_file = false;\n");
+	fprintf (script, "					goto read_another_entry;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "				char second_letter = dir_entry_name[jno.length() + 2];\n");
+	fprintf (script, "				if (! isalpha (second_letter)) {\n");
+	fprintf (script, "					is_our_file = false;\n");
+	fprintf (script, "					goto read_another_entry;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "				string a_language;\n");
+	fprintf (script, "				a_language.push_back(first_letter);\n");
+	fprintf (script, "				a_language.push_back(second_letter);\n");
+	fprintf (script, "				vec_language.push_back(a_language);\n");
+	fprintf (script, "				//cout << \"found an language traslation file: \" \n");
+	fprintf (script, "				//	<< dir_entry_name << endl;\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "read_another_entry:\n");
+	fprintf (script, "		directory_entry = readdir(directory_ptr);\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	closedir(directory_ptr);\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
 
 
 }
