@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF8"?>
 <messages>
+
+<message id="thank_you">The Survey is now complete. Thank You for your time.</message>
 <message id="yn_0">Yes</message>
 
 <message id="yn_1">No</message>
@@ -40,6 +42,14 @@
 
 <message id="q4_0">Which is ur fav veg?</message>
 
+<message id="q1_0">Eat veg?</message>
+
+<message id="q2_0">Which veg u r aware of?</message>
+
+<message id="q3_0">Which veg dou eat?</message>
+
+<message id="q4_0">Which is ur fav veg?</message>
+
 <message id="q6_0_0">In a week what perc of your veggies are (piping not yet implemented): </message>
 
 <message id="q6_1_0">In a week what perc of your veggies are (piping not yet implemented): </message>
@@ -49,5 +59,21 @@
 <message id="q6_3_0">In a week what perc of your veggies are (piping not yet implemented): </message>
 
 <message id="q6_4_0">In a week what perc of your veggies are (piping not yet implemented): </message>
+
+<message id="q5_0_0">Please state your agreement with these statements</message>
+
+<message id="q5_0_1"></message>
+
+<message id="q5_1_0">Please state your agreement with these statements</message>
+
+<message id="q5_1_1"></message>
+
+<message id="q5_2_0">Please state your agreement with these statements</message>
+
+<message id="q5_2_1"></message>
+
+<message id="q5_3_0">Please state your agreement with these statements</message>
+
+<message id="q5_3_1"></message>
 
 </messages>
