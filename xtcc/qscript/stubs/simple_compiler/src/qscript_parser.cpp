@@ -3555,13 +3555,17 @@ void print_Wt_support_code(FILE * script)
 
 	fprintf(script, "\n");
 	fprintf(script, "	WContainerWidget viewPort_;\n");
-	fprintf(script, "	WWidget * currentForm_;\n");
+	fprintf(script, "	//WWidget * currentForm_;\n");
+	fprintf(script, "		WContainerWidget * currentForm_;\n");
 	fprintf(script, "	WContainerWidget * formContainer_;\n");
 	fprintf(script, "	int ser_no;\n");
+	fprintf(script, "		WContainerWidget * serialPage_;\n");
+	fprintf(script, "		bool flagSerialPageRemoved_;\n");
 	fprintf(script, "\n");
 	fprintf(script, "	void display();\n");
 	fprintf(script, "	void DoQuestionnaire() ;\n");
-	fprintf(script, "	void setCentralWidget(WWidget * new_question_form);\n");
+	fprintf(script, "	//void setCentralWidget(WWidget * new_question_form);\n");
+	fprintf(script, "	void setCentralWidget(WContainerWidget * new_question_form);\n");
 	fprintf(script, "	void changeLanguage();\n");
 	fprintf(script, "	void setLanguage(const std::string lang);\n");
 	fprintf(script, "	void ConstructQuestionForm(\n");
@@ -3891,8 +3895,12 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "\n"); 
 
 	fprintf(script, "\n");
-	fprintf(script, "void QuestionnaireApplication::setCentralWidget(WWidget * new_question_form)\n");
+	fprintf(script, "void QuestionnaireApplication::setCentralWidget(WContainerWidget * new_question_form)\n");
 	fprintf(script, "{\n");
+	fprintf(script, "	if (!flagSerialPageRemoved_) {\n");
+	fprintf(script, "		formContainer_->removeWidget(serialPage_);\n");
+	fprintf(script, "		flagSerialPageRemoved_ = true;\n");
+	fprintf(script, "	}\n");
 	fprintf(script, "	if (currentForm_)\n");
 	fprintf(script, "		delete currentForm_;\n");
 	fprintf(script, "	currentForm_ = new_question_form;\n");
@@ -3934,11 +3942,11 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "\n");
 	fprintf(script, "\n");
 	fprintf(script, "QuestionnaireApplication::QuestionnaireApplication(const WEnvironment &env)\n");
-	fprintf(script, "	: WApplication(env), wt_questionText_(0), currentForm_(0)\n");
+	fprintf(script, "	: WApplication(env), wt_questionText_(0), currentForm_(0), flagSerialPageRemoved_(false)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	messageResourceBundle().use(WApplication::appRoot() + jno);\n");
 
-	fprintf(script, "	WContainerWidget * canvas = new WContainerWidget(0);\n");
+	fprintf(script, "	serialPage_ = new WContainerWidget(0);\n");
 	fprintf(script, "	setTitle(\"QuestionnaireApplication\");\n");
 	fprintf(script, "	/*\n");
 	fprintf(script, "	WPushButton *b = new WPushButton(\"Click to start survey\", root()); // create a button\n");
@@ -3950,16 +3958,16 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "\n");
 	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
 	fprintf(script, "	*/\n");
-	fprintf(script, "	WPushButton *b = new WPushButton(\"Click to start survey\", canvas); // create a button\n");
+	fprintf(script, "	WPushButton *b = new WPushButton(\"Click to start survey\", serialPage_); // create a button\n");
 	fprintf(script, "	b->setMargin(5, Left);                                 // add 5 pixels margin\n");
-	fprintf(script, "	canvas->addWidget(new WBreak());                       // insert a line break\n");
+	fprintf(script, "	serialPage_->addWidget(new WBreak());                       // insert a line break\n");
 	fprintf(script, "	//b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
 	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::ValidateSerialNo);\n");
 
 	fprintf (script, "\n");
 	fprintf (script, "	// warning the statement below modifies the global variable\n");
 	fprintf (script, "	//load_languages_available(vec_language);\n");
-	fprintf (script, "	WContainerWidget *langLayout = new WContainerWidget(canvas);\n");
+	fprintf (script, "	WContainerWidget *langLayout = new WContainerWidget();\n");
 	fprintf (script, "	langLayout->setContentAlignment(AlignRight);\n");
 	fprintf (script, "	new WText(WString::tr(\"language\"), langLayout);\n");
 	fprintf (script, "\n");
@@ -3990,14 +3998,15 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "	setLanguage(wApp->locale());\n");
 	fprintf (script, "\n");
 
-	fprintf(script, "	wt_questionText_ = new WText(canvas);                         // empty text\n");
+	fprintf(script, "	wt_questionText_ = new WText(serialPage_);                         // empty text\n");
 	fprintf(script, "	wt_questionText_->setText(\"Serial No: \");\n");
-	fprintf(script, "	wt_lastQuestionVisited_ = new WText(canvas);\n");
-	fprintf(script, "	le_data_ = new WLineEdit(canvas);\n");
+	fprintf(script, "	wt_lastQuestionVisited_ = new WText(serialPage_);\n");
+	fprintf(script, "	le_data_ = new WLineEdit(serialPage_);\n");
 	fprintf(script, "\n");
-	fprintf(script, "	wt_debug_ = new WText(canvas);\n");
+	fprintf(script, "	wt_debug_ = new WText(serialPage_);\n");
 	fprintf(script, "	formContainer_ = new WContainerWidget(root());\n");
-	fprintf(script, "	formContainer_->addWidget(canvas);\n");
+	fprintf(script, "	formContainer_->addWidget(serialPage_);\n");
+	fprintf(script, "	formContainer_->addWidget(langLayout);\n");
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 	fprintf(script, "WApplication * createApplication(const WEnvironment &env)\n");
