@@ -1279,6 +1279,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
 		quest_decl << "}\n";
@@ -1296,6 +1297,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		code.quest_defns_init_code << quest_decl.str();
 		code.array_quest_init_area << "question_list.push_back(" << questionName_.c_str()
 			<< ");\n";
+		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
 	} else {
 		code.array_quest_init_area << quest_decl.str();
 	}

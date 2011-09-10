@@ -210,6 +210,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "\tif(!messages) { cerr << \"unable to open file for output of messages... exiting\\n\"; exit(1); }\n");
 	fprintf(script, "\tmessages << \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF8\\\"?>\\n\";\n");
 	fprintf(script, "\tmessages << \"<messages>\\n\";");
+	fprintf(script, "\tmessages << \"  <message id=\\\"thank_you\\\">The Survey is now complete. Thank You for your time.</message>\\n\";");
 
 	fprintf(script, "}\n");
 	fprintf(script, "%s\n", code.quest_defns_init_code.str().c_str());
@@ -3556,6 +3557,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	WContainerWidget viewPort_;\n");
 	fprintf(script, "	WWidget * currentForm_;\n");
 	fprintf(script, "	WContainerWidget * formContainer_;\n");
+	fprintf(script, "	int ser_no;\n");
 	fprintf(script, "\n");
 	fprintf(script, "	void display();\n");
 	fprintf(script, "	void DoQuestionnaire() ;\n");
@@ -3564,7 +3566,32 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	void setLanguage(const std::string lang);\n");
 	fprintf(script, "	void ConstructQuestionForm(\n");
 	fprintf(script, "		AbstractQuestion *q, Session * this_users_session);\n");
+	fprintf(script, "	void ValidateSerialNo();\n");
+	fprintf(script, " 	void ConstructThankYouPage();\n"); 
 	fprintf(script, "};\n");
+
+
+	fprintf(script, "void QuestionnaireApplication::ValidateSerialNo()\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	int l_ser_no = -1;\n");
+	fprintf(script, "	if (le_data_ ) {\n");
+	fprintf(script, "		WString serno_text = le_data_->text();\n");
+	fprintf(script, "		string narrow_text = serno_text.narrow();\n");
+	fprintf(script, "		if (narrow_text.length() == 0 || narrow_text.length()>7) {\n");
+	fprintf(script, "			le_data_->setText(\"You have entered a very long serial number\");\n");
+	fprintf(script, "		} else {\n");
+	fprintf(script, "			l_ser_no = strtol (narrow_text.c_str(), 0, 10);\n");
+	fprintf(script, "			if (l_ser_no > 0) {\n");
+	fprintf(script, "				ser_no = l_ser_no;\n");
+	fprintf(script, "				DoQuestionnaire();\n");
+	fprintf(script, "			} else {\n");
+	fprintf(script, "				le_data_->setText(\"You have entered a  negative number\");\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "}\n");
+	fprintf(script, "\n");
+
 	fprintf(script, "bool verify_web_data (std::string p_question_data, \n");
 	fprintf(script, "		UserNavigation p_user_navigation,\n");
 	fprintf(script, "		user_response::UserResponseType p_the_user_response,\n");
@@ -3582,7 +3609,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	wt_debug_->setText(s.str());\n");
 	fprintf(script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
 	fprintf(script, "	string sess_id = sessionId();\n");
-	fprintf(script, "	string display_text = string(\"This is the survey:\") + sess_id;\n");
+	fprintf(script, "	string display_text = string(\"Session Id:\") + sess_id;\n");
 	fprintf(script, "	wt_questionText_->setText(display_text);\n");
 	fprintf(script, "	int found_index = -1;\n");
 	fprintf(script, "	for (int i=0; i<wt_sessions.size(); ++i) {\n");
@@ -3598,6 +3625,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		this_users_session = wt_sessions[found_index];\n");
 	fprintf(script, "	} else {\n");
 	fprintf(script, "		this_users_session = new Session();\n");
+	fprintf(script, " 		this_users_session->questionnaire->ser_no = ser_no;\n");
 	fprintf(script, "		strcpy(this_users_session->sid, sess_id.c_str());\n");
 	fprintf(script, "		wt_sessions.push_back(this_users_session);\n");
 	fprintf(script, "	}\n");
@@ -3755,10 +3783,20 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "} else {\n");
 	fprintf(script, " 	TheQuestionnaire * qnre = this_users_session->questionnaire;\n");
 	fprintf(script, "	qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);\n");
+	fprintf(script, " 	ConstructThankYouPage();\n"); 
 	fprintf(script, "}\n");
 
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
+
+	fprintf(script, "void QuestionnaireApplication::ConstructThankYouPage()\n"); 
+	fprintf(script, "{\n"); 
+	fprintf(script, "	WContainerWidget * new_form = new WContainerWidget();\n"); 
+	fprintf(script, "	WText * txt = new WText(WString::tr(\"thank_you\"), new_form);\n"); 
+	fprintf(script, "	setCentralWidget(new_form);\n"); 
+	fprintf(script, "	cout << \"ConstructThankYouPage\\n\";\n"); 
+	fprintf(script, "}\n"); 
+
 
 
 	fprintf(script, "\n"); 
@@ -3915,7 +3953,8 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	WPushButton *b = new WPushButton(\"Click to start survey\", canvas); // create a button\n");
 	fprintf(script, "	b->setMargin(5, Left);                                 // add 5 pixels margin\n");
 	fprintf(script, "	canvas->addWidget(new WBreak());                       // insert a line break\n");
-	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
+	fprintf(script, "	//b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
+	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::ValidateSerialNo);\n");
 
 	fprintf (script, "\n");
 	fprintf (script, "	// warning the statement below modifies the global variable\n");
@@ -3952,7 +3991,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "\n");
 
 	fprintf(script, "	wt_questionText_ = new WText(canvas);                         // empty text\n");
-	fprintf(script, "	wt_questionText_->setText(\"question text will be updated\");\n");
+	fprintf(script, "	wt_questionText_->setText(\"Serial No: \");\n");
 	fprintf(script, "	wt_lastQuestionVisited_ = new WText(canvas);\n");
 	fprintf(script, "	le_data_ = new WLineEdit(canvas);\n");
 	fprintf(script, "\n");
