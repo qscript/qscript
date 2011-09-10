@@ -1,9 +1,9 @@
 #include "question_disk_data.h"
 #include "question.h"
-extern vector <AbstractQuestion*> question_list;
+//extern vector <AbstractQuestion*> question_list;
 
-
-void question_disk_data::set_array_data(vector<int32_t> l_array_index_list, vector<int32_t> & l_data)
+#if 0
+void question_disk_data::set_array_data(vector<int32_t> l_array_index_list, vector<int32_t> & l_data, vector <AbstractQuestion*> question_list)
 {
 	if(l_array_index_list.size()!=array_bounds.size()){
 		cout << "array_index_list.size() != array_bounds.size()" << endl;
@@ -35,6 +35,7 @@ void question_disk_data::set_array_data(vector<int32_t> l_array_index_list, vect
 		}
 	}
 }
+#endif /*  0  */
 
 void QuestionDiskDataMap::set_array_data(string qno, vector<int32_t> & l_array_index_list, vector<int32_t> & data, vector <int32_t> & array_bounds)
 {

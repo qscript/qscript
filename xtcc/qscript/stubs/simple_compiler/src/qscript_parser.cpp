@@ -183,6 +183,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "struct TheQuestionnaire\n{\n");
 	fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "AbstractQuestion * last_question_visited;\n");
+	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "fstream messages;\n");
 	fprintf(script, "bool back_jump;\n");
 	fprintf(script, "string jno;\n" );
@@ -357,13 +358,13 @@ void print_header(FILE* script, bool ncurses_flag)
 	}
 	
 	fprintf(script, "extern UserNavigation user_navigation;\n");
-	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
+	fprintf(script, "//vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
-	fprintf(script, "extern vector<question_disk_data*>  qdd_list;\n");
-	fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout,\n"
-			"\t\tAbstractQuestion * & p_last_question_answered,\n"
-			"\t\tAbstractQuestion * & p_last_question_visited);\n");
-	fprintf(script, "void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered, AbstractQuestion * & p_last_question_visited);\n");
+	fprintf(script, "//extern vector<question_disk_data*>  qdd_list;\n");
+	// fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout,\n"
+	// 		"\t\tAbstractQuestion * & p_last_question_answered,\n"
+	// 		"\t\tAbstractQuestion * & p_last_question_visited);\n");
+	//fprintf(script, "void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered, AbstractQuestion * & p_last_question_visited);\n");
 	//fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "string jumpToQuestion;\n");
 	fprintf(script, "int32_t jumpToIndex;\n");
@@ -770,7 +771,7 @@ const char * file_exists_check_code()
 	"\t\tif(exists == 1){\n"
 	"\t\t	load_data(jno,ser_no);\n"
 	"\t\t	//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
-	"\t\t	merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n"
+	"\t\t	merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited, this->question_list);\n"
 	"\t\t}\n\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "
@@ -1695,7 +1696,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "			if(exists == 1)\n");
 	fprintf(script, "			{\n");
 	fprintf(script, "				load_data(theQuestionnaire.jno, theQuestionnaire.ser_no);\n");
-	fprintf(script, "				merge_disk_data_into_questions2(qscript_stdout, theQuestionnaire.last_question_answered, theQuestionnaire.last_question_visited);\n");
+	fprintf(script, "				merge_disk_data_into_questions2(qscript_stdout, theQuestionnaire.last_question_answered, theQuestionnaire.last_question_visited, theQuestionnaire.question_list);\n");
 	fprintf(script, "			}\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "\n");
@@ -1720,7 +1721,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t				mvwprintw(data_entry_window, 1, 1,\"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)\");\n");
 	fprintf(script, "\t				mvwscanw(data_entry_window, 1, 75, \"%%c\", & end_of_question_navigation);\n");
 	fprintf(script, "\t				if(end_of_question_navigation == 's') {\n");
-	fprintf(script, "\t					theQuestionnaire.write_data_to_disk(question_list, theQuestionnaire.jno, theQuestionnaire.ser_no);\n");
+	fprintf(script, "\t					theQuestionnaire.write_data_to_disk(theQuestionnaire.question_list, theQuestionnaire.jno, theQuestionnaire.ser_no);\n");
 	fprintf(script, "\t				} else if (end_of_question_navigation == 'p') {\n");
 	fprintf(script, "\t					AbstractQuestion * target_question = theQuestionnaire.ComputePreviousQuestion(theQuestionnaire.last_question_answered);\n");
 	fprintf(script, "\t					if(target_question->type_ == QUESTION_ARR_TYPE)\n");
@@ -1801,7 +1802,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t	    //goto start_of_questions;\n");
 	fprintf(script, "\t\t	    goto re_eval_from_start;\n");
 	fprintf(script, "\t\t	} else if (user_navigation == SAVE_DATA) {\n");
-	fprintf(script, "\t\t	    theQuestionnaire.write_data_to_disk(question_list, theQuestionnaire.jno,\n");
+	fprintf(script, "\t\t	    theQuestionnaire.write_data_to_disk(theQuestionnaire.question_list, theQuestionnaire.jno,\n");
 	fprintf(script, "\t\t						theQuestionnaire.ser_no);\n");
 	fprintf(script, "\t\t	    if (data_entry_window)\n");
 	fprintf(script, "\t\t		mvwprintw(data_entry_window, 2, 50, \"saved partial data\");\n");
@@ -2118,15 +2119,18 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 			);
 	} else if(program_options_ns::microhttpd_flag) {
 		// we should post the THANK YOU PAGE here
+		// or in the function calling this - when this func returns 0
 		fprintf(script, "\t}\n");
 		fprintf(script, "\t*/\n");
-		fprintf(script, "\treset_questionnaire();\n"
+		fprintf(script, "\t//reset_questionnaire();\n"
 				"\t\treturn 0;\n"
 			);
 	} else if(program_options_ns::wt_flag) {
+		// we should post the THANK YOU PAGE here
+		// or in the function calling this - when this func returns 0
 		fprintf(script, "\t}\n");
 		fprintf(script, "\t*/\n");
-		fprintf(script, "\treset_questionnaire();\n"
+		fprintf(script, "\t//reset_questionnaire();\n"
 				"\t\treturn 0;\n"
 			);
 	} else {
@@ -2137,7 +2141,14 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\treturn 0;\n");
 	}
 	// fprintf(script, "\n\t} /* close while */\n");
+	//
+	
+	/*
+	 * The code below will have to be put at the correct place - 
+	 * For now, I am commenting it ou
+	 */
 
+#if 0
 	fprintf(script, "    if (write_qtm_data_file_flag||write_data_file_flag || write_xtcc_data_file_flag) {\n");
 	fprintf(script, "\n");
 	fprintf(script, "           string freq_count_file_name(jno + string(\".freq_count.csv\"));\n");
@@ -2199,6 +2210,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 
 	fprintf(script, "    }\n");
 	fprintf(script, "\n");
+#endif /* 0 */
 
 	fprintf(script, "} /* close eval */\n");
 }
@@ -2283,7 +2295,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
 	fprintf (script, "	    load_data(jno, file_ser_no);\n");
-	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n");
+	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited, this->question_list);\n");
 	fprintf (script, "	    return file_ser_no;\n");
 	fprintf (script, "	} else {\n");
 	fprintf (script, "	    // not our data file\n");
@@ -3163,9 +3175,10 @@ void print_microhttpd_web_support (FILE * script)
 	fprintf (script, "			bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,\n");
 	fprintf (script, "					&data);\n");
 	fprintf (script, "			if (invalid_code == false) {\n");
-	fprintf (script, "				last_question_served->input_data.erase\n");
-	fprintf (script, "					(last_question_served->input_data.begin(), \n");
-	fprintf (script, "					 last_question_served->input_data.end());\n");
+	fprintf (script, "				//last_question_served->input_data.erase\n");
+	fprintf (script, "				//	(last_question_served->input_data.begin(), \n");
+	fprintf (script, "				//	 last_question_served->input_data.end());\n");
+	fprintf (script, "				last_question_served->input_data.clear();\n");
 	fprintf (script, "				for(uint32_t i = 0; i < data.size(); ++i){\n");
 	fprintf (script, "					last_question_served->input_data.insert(data[i]);\n");
 	fprintf (script, "					//cout << \"storing: \" << data[i]\n");
@@ -3666,9 +3679,10 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "					&data);\n");
 	fprintf (script, "				if (invalid_code == false)\n");
 	fprintf (script, "				{\n");
-	fprintf (script, "					last_question_served->input_data.erase\n");
-	fprintf (script, "						(last_question_served->input_data.begin(),\n");
-	fprintf (script, "						last_question_served->input_data.end());\n");
+	fprintf (script, "					//last_question_served->input_data.erase\n");
+	fprintf (script, "					//	(last_question_served->input_data.begin(),\n");
+	fprintf (script, "					//	last_question_served->input_data.end());\n");
+	fprintf (script, "				last_question_served->input_data.clear();\n");
 	fprintf (script, "					for(uint32_t i = 0; i < data.size(); ++i)\n");
 	fprintf (script, "					{\n");
 	fprintf (script, "						last_question_served->input_data.insert(data[i]);\n");
@@ -3727,14 +3741,20 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "			}\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "	}\n");
+	fprintf (script, "	{\n");
+	fprintf(script, " 		TheQuestionnaire * qnre = this_users_session->questionnaire;\n");
+	fprintf(script, "		qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);\n");
+	fprintf (script, "	}\n");
 
 	fprintf(script, "	AbstractQuestion * q =\n");
 	fprintf(script, "		this_users_session->questionnaire->eval2(\n");
 	fprintf(script, "		qnre_navigation_mode);\n");
 	fprintf(script, "	this_users_session->last_question_served = q;\n");
-	fprintf(script, "	WContainerWidget * new_form = 0;\n");
 	fprintf(script, "if (q) {\n");
 	fprintf(script, "	ConstructQuestionForm(q, this_users_session);\n");
+	fprintf(script, "} else {\n");
+	fprintf(script, " 	TheQuestionnaire * qnre = this_users_session->questionnaire;\n");
+	fprintf(script, "	qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);\n");
 	fprintf(script, "}\n");
 
 	fprintf(script, "}\n");
@@ -3747,8 +3767,8 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "{\n"); 
 	fprintf(script, "\n"); 
 	fprintf(script, "	WContainerWidget * new_form = new WContainerWidget();\n"); 
-	fprintf(script, "	vec_rb.clear();			 // memory leak introduced here\n"); 
-	fprintf(script, "	vec_cb.clear();			 // memory leak introduced here\n"); 
+	fprintf(script, "	vec_rb.clear();			 // memory leak introduced here? no it seems\n"); 
+	fprintf(script, "	vec_cb.clear();			 // memory leak introduced here? no it seems\n"); 
 	fprintf(script, "	map_cb_code_index.clear();\n"); 
 	fprintf(script, "\n"); 
 	fprintf(script, "	wt_questionText_ = new WText();\n"); 

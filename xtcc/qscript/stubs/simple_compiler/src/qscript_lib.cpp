@@ -83,9 +83,9 @@ int32_t load_data(string jno, int32_t ser_no)
 }
 
 #include "question.h"
-extern vector <AbstractQuestion*> question_list;
+//extern vector <AbstractQuestion*> question_list;
 void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered,
-		AbstractQuestion * & p_last_question_visited)
+		AbstractQuestion * & p_last_question_visited, const vector <AbstractQuestion*> question_list)
 {
 	if (qscript_debug::DEBUG_LoadData) {
 		cout << "ENTER: " 

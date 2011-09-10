@@ -9,6 +9,7 @@
 #include <map>
 using namespace std;
 
+struct AbstractQuestion;
 
 struct question_disk_data
 {
@@ -42,7 +43,7 @@ struct question_disk_data
 		//cerr << "question_disk_data: (string& l_qno) " << endl;
 	}
 
-	void set_array_data(vector<int32_t> l_array_index_list, vector<int32_t> & l_data);
+	void set_array_data(vector<int32_t> l_array_index_list, vector<int32_t> & l_data, vector <AbstractQuestion*> question_list);
 
 };
 
