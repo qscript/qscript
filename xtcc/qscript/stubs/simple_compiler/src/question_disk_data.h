@@ -17,8 +17,8 @@ struct question_disk_data
 	vector <int32_t> data;
 	vector <int32_t> array_bounds;
 
-	question_disk_data(string & l_qno, vector<int32_t> & l_bounds, vector<int32_t> & ):
-		qno(l_qno), data(0), array_bounds(l_bounds)
+	question_disk_data(string & l_qno, vector<int32_t> & l_bounds, vector<int32_t> & l_data):
+		qno(l_qno), data(l_data), array_bounds(l_bounds)
 	{
 		//cerr << "question_disk_data::question_disk_data: bounds: " 
 		//	<< array_bounds.size()	
@@ -43,10 +43,11 @@ struct question_disk_data
 		//cerr << "question_disk_data: (string& l_qno) " << endl;
 	}
 
-	void set_array_data(vector<int32_t> l_array_index_list, vector<int32_t> & l_data, vector <AbstractQuestion*> question_list);
+	//void set_array_data(vector<int32_t> l_array_index_list, vector<int32_t> & l_data, vector <AbstractQuestion*> question_list);
 
 };
 
+#if 0
 struct QuestionDiskDataMap
 {
 	vector <question_disk_data*> question_list;
@@ -72,5 +73,6 @@ class QuestionExists
 		}
 	}
 };
+#endif /* 0 */
 
 #endif /* question_disk_data_h */

@@ -52,7 +52,7 @@
 #define YYSKELETON_NAME "yacc.c"
 
 /* Pure parsers.  */
-#define YYPURE 0
+#define YYPURE 1
 
 /* Push parsers.  */
 #define YYPUSH 0
@@ -79,26 +79,32 @@
 #line 2 "src/qscript_data.ypp"
 
 #include <iostream>
-	using namespace std;
-#include "const_defs.h"
-#include "question_disk_data.h"
 #include <vector>
 #include <map>
 #include <sstream>
+	using namespace std;
+#include "question_disk_data.h"
+#include "qscript_data.hpp"
+#include "const_defs.h"
 
 
-	static vector<int> data;
-	static vector<int> array_index_list;
+	//static vector<int> data;
+	//static vector<int> array_index_list;
 	//vector <question_disk_data*> qdd_list;
-	map <string, question_disk_data*> qdd_map;
+	//map <string, question_disk_data*> qdd_map;
 	//QuestionDiskDataMap question_disk_data_map;
-	int read_disk_datalex();
-	int no_errors;
-	void read_disk_dataerror(const char * s);
+	typedef void * yyscan_t;
+	int read_disk_datalex(YYSTYPE * yylval_param, yyscan_t yyscanner);
+	//int no_errors;
+	void read_disk_dataerror(yyscan_t scanner,
+		map <string, question_disk_data*>* qdd_map_ptr,
+		vector<int>* data,
+		vector<int>* array_index_list,
+		const char * s);
 
 
 /* Line 189 of yacc.c  */
-#line 102 "src/qscript_data.cpp"
+#line 108 "src/qscript_data.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -141,16 +147,16 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 23 "src/qscript_data.ypp"
+#line 35 "src/qscript_data.ypp"
 
 	int ival;
 	double dval;
-	char name[MY_STR_MAX];
+	char name[/* kept getting an error not defined MY_STR_MAX */ 4095];
 
 
 
 /* Line 214 of yacc.c  */
-#line 154 "src/qscript_data.cpp"
+#line 160 "src/qscript_data.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -162,7 +168,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 166 "src/qscript_data.cpp"
+#line 172 "src/qscript_data.cpp"
 
 #ifdef short
 # undef short
@@ -449,8 +455,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    36,    36,    42,    43,    46,    61,    69,    82,    95,
-     107,   111,   117,   120
+       0,    49,    49,    55,    56,    59,    76,    85,   107,   123,
+     137,   142,   149,   153
 };
 #endif
 
@@ -578,7 +584,7 @@ do								\
     }								\
   else								\
     {								\
-      yyerror (YY_("syntax error: cannot back up")); \
+      yyerror (yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr, YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
@@ -633,9 +639,9 @@ while (YYID (0))
 /* YYLEX -- calling `yylex' with the right arguments.  */
 
 #ifdef YYLEX_PARAM
-# define YYLEX yylex (YYLEX_PARAM)
+# define YYLEX yylex (&yylval, YYLEX_PARAM)
 #else
-# define YYLEX yylex ()
+# define YYLEX yylex (&yylval, yyscanner)
 #endif
 
 /* Enable debugging if requested.  */
@@ -658,7 +664,7 @@ do {									  \
     {									  \
       YYFPRINTF (stderr, "%s ", Title);					  \
       yy_symbol_print (stderr,						  \
-		  Type, Value); \
+		  Type, Value, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr); \
       YYFPRINTF (stderr, "\n");						  \
     }									  \
 } while (YYID (0))
@@ -672,17 +678,25 @@ do {									  \
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, yyscan_t yyscanner, map <string, question_disk_data*>* qdd_map_ptr, vector<int>* data_ptr, vector<int>* array_index_list_ptr)
 #else
 static void
-yy_symbol_value_print (yyoutput, yytype, yyvaluep)
+yy_symbol_value_print (yyoutput, yytype, yyvaluep, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
+    yyscan_t yyscanner;
+    map <string, question_disk_data*>* qdd_map_ptr;
+    vector<int>* data_ptr;
+    vector<int>* array_index_list_ptr;
 #endif
 {
   if (!yyvaluep)
     return;
+  YYUSE (yyscanner);
+  YYUSE (qdd_map_ptr);
+  YYUSE (data_ptr);
+  YYUSE (array_index_list_ptr);
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
     YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
@@ -704,13 +718,17 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep, yyscan_t yyscanner, map <string, question_disk_data*>* qdd_map_ptr, vector<int>* data_ptr, vector<int>* array_index_list_ptr)
 #else
 static void
-yy_symbol_print (yyoutput, yytype, yyvaluep)
+yy_symbol_print (yyoutput, yytype, yyvaluep, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr)
     FILE *yyoutput;
     int yytype;
     YYSTYPE const * const yyvaluep;
+    yyscan_t yyscanner;
+    map <string, question_disk_data*>* qdd_map_ptr;
+    vector<int>* data_ptr;
+    vector<int>* array_index_list_ptr;
 #endif
 {
   if (yytype < YYNTOKENS)
@@ -718,7 +736,7 @@ yy_symbol_print (yyoutput, yytype, yyvaluep)
   else
     YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr);
   YYFPRINTF (yyoutput, ")");
 }
 
@@ -761,12 +779,16 @@ do {								\
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (YYSTYPE *yyvsp, int yyrule)
+yy_reduce_print (YYSTYPE *yyvsp, int yyrule, yyscan_t yyscanner, map <string, question_disk_data*>* qdd_map_ptr, vector<int>* data_ptr, vector<int>* array_index_list_ptr)
 #else
 static void
-yy_reduce_print (yyvsp, yyrule)
+yy_reduce_print (yyvsp, yyrule, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr)
     YYSTYPE *yyvsp;
     int yyrule;
+    yyscan_t yyscanner;
+    map <string, question_disk_data*>* qdd_map_ptr;
+    vector<int>* data_ptr;
+    vector<int>* array_index_list_ptr;
 #endif
 {
   int yynrhs = yyr2[yyrule];
@@ -780,7 +802,7 @@ yy_reduce_print (yyvsp, yyrule)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
-		       		       );
+		       		       , yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr);
       YYFPRINTF (stderr, "\n");
     }
 }
@@ -788,7 +810,7 @@ yy_reduce_print (yyvsp, yyrule)
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (yyvsp, Rule); \
+    yy_reduce_print (yyvsp, Rule, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr); \
 } while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
@@ -1039,16 +1061,24 @@ yysyntax_error (char *yyresult, int yystate, int yychar)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
+yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep, yyscan_t yyscanner, map <string, question_disk_data*>* qdd_map_ptr, vector<int>* data_ptr, vector<int>* array_index_list_ptr)
 #else
 static void
-yydestruct (yymsg, yytype, yyvaluep)
+yydestruct (yymsg, yytype, yyvaluep, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr)
     const char *yymsg;
     int yytype;
     YYSTYPE *yyvaluep;
+    yyscan_t yyscanner;
+    map <string, question_disk_data*>* qdd_map_ptr;
+    vector<int>* data_ptr;
+    vector<int>* array_index_list_ptr;
 #endif
 {
   YYUSE (yyvaluep);
+  YYUSE (yyscanner);
+  YYUSE (qdd_map_ptr);
+  YYUSE (data_ptr);
+  YYUSE (array_index_list_ptr);
 
   if (!yymsg)
     yymsg = "Deleting";
@@ -1071,21 +1101,13 @@ int yyparse ();
 #endif
 #else /* ! YYPARSE_PARAM */
 #if defined __STDC__ || defined __cplusplus
-int yyparse (void);
+int yyparse (yyscan_t yyscanner, map <string, question_disk_data*>* qdd_map_ptr, vector<int>* data_ptr, vector<int>* array_index_list_ptr);
 #else
 int yyparse ();
 #endif
 #endif /* ! YYPARSE_PARAM */
 
 
-/* The lookahead symbol.  */
-int yychar;
-
-/* The semantic value of the lookahead symbol.  */
-YYSTYPE yylval;
-
-/* Number of syntax errors so far.  */
-int yynerrs;
 
 
 
@@ -1107,15 +1129,25 @@ yyparse (YYPARSE_PARAM)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 int
-yyparse (void)
+yyparse (yyscan_t yyscanner, map <string, question_disk_data*>* qdd_map_ptr, vector<int>* data_ptr, vector<int>* array_index_list_ptr)
 #else
 int
-yyparse ()
-
+yyparse (yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr)
+    yyscan_t yyscanner;
+    map <string, question_disk_data*>* qdd_map_ptr;
+    vector<int>* data_ptr;
+    vector<int>* array_index_list_ptr;
 #endif
 #endif
 {
+/* The lookahead symbol.  */
+int yychar;
 
+/* The semantic value of the lookahead symbol.  */
+YYSTYPE yylval;
+
+    /* Number of syntax errors so far.  */
+    int yynerrs;
 
     int yystate;
     /* Number of tokens to shift before error messages enabled.  */
@@ -1359,17 +1391,17 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 36 "src/qscript_data.ypp"
+#line 49 "src/qscript_data.ypp"
     {
 	//cout << "got question_list: parsed to program: " << endl;
-	return no_errors;
+	//return no_errors;
 	;}
     break;
 
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 46 "src/qscript_data.ypp"
+#line 59 "src/qscript_data.ypp"
     {
 		//cout << "data<int>[]: ";
 		// for(int i=0; i<data.size(); ++i){
@@ -1378,6 +1410,8 @@ yyreduce:
 		//cout << "data.capacity(): " << data.capacity() << endl;
 		// cout <<endl;
 		//cout << "got question" << endl;
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
+		vector<int>& data = * data_ptr;
 		string qno((yyvsp[(1) - (4)].name));
 		question_disk_data * qdd = new question_disk_data(qno, data);
 		//qdd_list.push_back(qdd);
@@ -1390,48 +1424,61 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 61 "src/qscript_data.ypp"
+#line 76 "src/qscript_data.ypp"
     {
 		//cout << "got empty question" << endl;
 		string qno((yyvsp[(1) - (3)].name));
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		question_disk_data * qdd = new question_disk_data(qno);
 		qdd_map[qno] = qdd;
 		//qdd_list.push_back(qdd);
-		data.clear();
+		//data.clear();
 	;}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 69 "src/qscript_data.ypp"
+#line 85 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (5)].name));
+		vector<int>& data = * data_ptr;
+		vector<int>& array_index_list = * array_index_list_ptr;
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
 		stringstream full_question_name;
 		full_question_name << qno;
 		for (int i=0; i<array_index_list.size(); ++i) {
 			full_question_name << "$" << array_index_list[i];
 		}
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		qdd_map[full_question_name.str()] = qdd2;
 		array_index_list.clear();
+		cout << " Got array question: " << full_question_name.str()
+			<< " data is: " ;
+		for (int i=0; i<data.size(); ++i) {
+			cout << " " <<  data[i];
+		}
+		cout << endl;
 		data.clear();
-		//cout << " Got array question: " << qno << endl;
+		
 	;}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 82 "src/qscript_data.ypp"
+#line 107 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (4)].name));
+		vector<int>& array_index_list = * array_index_list_ptr;
+		vector<int>& data = * data_ptr;
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
 		stringstream full_question_name;
 		full_question_name << qno;
 		for (int i=0; i<array_index_list.size(); ++i) {
 			full_question_name << "$" << array_index_list[i];
 		}
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		qdd_map[full_question_name.str()] = qdd2;
 		array_index_list.clear();
 		data.clear();
@@ -1442,11 +1489,13 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 95 "src/qscript_data.ypp"
+#line 123 "src/qscript_data.ypp"
     {
 		string qno((yyvsp[(1) - (4)].name));
+		vector<int>& data = * data_ptr;
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
 		//qdd_list.push_back(qdd);
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		qdd_map[qno] = qdd;
 		// data will be empty because we reset it - the index has to go into the map
 		// otherwise we will dump core at some point
@@ -1458,28 +1507,31 @@ yyreduce:
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 107 "src/qscript_data.ypp"
+#line 137 "src/qscript_data.ypp"
     {
-		    data.push_back((yyvsp[(1) - (1)].ival));
-		    //cout << "INUMBER: " << $1 << endl;
+		vector<int>& data = * data_ptr;
+		data.push_back((yyvsp[(1) - (1)].ival));
+		//cout << "INUMBER: " << $1 << endl;
 	;}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 111 "src/qscript_data.ypp"
+#line 142 "src/qscript_data.ypp"
     {
-		    //cout << "INUMBER: " << $2 << endl;
-		    data.push_back((yyvsp[(2) - (2)].ival));
+		vector<int>& data = * data_ptr;
+		//cout << "INUMBER: " << $2 << endl;
+		data.push_back((yyvsp[(2) - (2)].ival));
 	;}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 117 "src/qscript_data.ypp"
+#line 149 "src/qscript_data.ypp"
     {
+		vector<int>& array_index_list = * array_index_list_ptr;
 		array_index_list.push_back((yyvsp[(2) - (2)].ival));
 	;}
     break;
@@ -1487,8 +1539,9 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 120 "src/qscript_data.ypp"
+#line 153 "src/qscript_data.ypp"
     {
+		vector<int>& array_index_list = * array_index_list_ptr;
 		array_index_list.push_back((yyvsp[(3) - (3)].ival));
 	;}
     break;
@@ -1496,7 +1549,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1500 "src/qscript_data.cpp"
+#line 1553 "src/qscript_data.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1531,7 +1584,7 @@ yyerrlab:
     {
       ++yynerrs;
 #if ! YYERROR_VERBOSE
-      yyerror (YY_("syntax error"));
+      yyerror (yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr, YY_("syntax error"));
 #else
       {
 	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
@@ -1555,11 +1608,11 @@ yyerrlab:
 	if (0 < yysize && yysize <= yymsg_alloc)
 	  {
 	    (void) yysyntax_error (yymsg, yystate, yychar);
-	    yyerror (yymsg);
+	    yyerror (yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr, yymsg);
 	  }
 	else
 	  {
-	    yyerror (YY_("syntax error"));
+	    yyerror (yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr, YY_("syntax error"));
 	    if (yysize != 0)
 	      goto yyexhaustedlab;
 	  }
@@ -1583,7 +1636,7 @@ yyerrlab:
       else
 	{
 	  yydestruct ("Error: discarding",
-		      yytoken, &yylval);
+		      yytoken, &yylval, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr);
 	  yychar = YYEMPTY;
 	}
     }
@@ -1639,7 +1692,7 @@ yyerrlab1:
 
 
       yydestruct ("Error: popping",
-		  yystos[yystate], yyvsp);
+		  yystos[yystate], yyvsp, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr);
       YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
@@ -1674,7 +1727,7 @@ yyabortlab:
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
 yyexhaustedlab:
-  yyerror (YY_("memory exhausted"));
+  yyerror (yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr, YY_("memory exhausted"));
   yyresult = 2;
   /* Fall through.  */
 #endif
@@ -1682,7 +1735,7 @@ yyexhaustedlab:
 yyreturn:
   if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
-		 yytoken, &yylval);
+		 yytoken, &yylval, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr);
   /* Do not reclaim the symbols of the rule which action triggered
      this YYABORT or YYACCEPT.  */
   YYPOPSTACK (yylen);
@@ -1690,7 +1743,7 @@ yyreturn:
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
-		  yystos[*yyssp], yyvsp);
+		  yystos[*yyssp], yyvsp, yyscanner, qdd_map_ptr, data_ptr, array_index_list_ptr);
       YYPOPSTACK (1);
     }
 #ifndef yyoverflow
@@ -1708,7 +1761,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 125 "src/qscript_data.ypp"
+#line 159 "src/qscript_data.ypp"
 
 
 /*
@@ -1729,10 +1782,10 @@ int main(){
 		return 1;
 	}
 }
-*/
 
 void read_disk_data_init(){
 	data.reserve(50);
 	//qdd_list.reserve(100);
 }
+*/
 

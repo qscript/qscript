@@ -1,30 +1,43 @@
 
 %{
 #include <iostream>
-	using namespace std;
-#include "const_defs.h"
-#include "question_disk_data.h"
 #include <vector>
 #include <map>
 #include <sstream>
+	using namespace std;
+#include "question_disk_data.h"
+#include "qscript_data.hpp"
+#include "const_defs.h"
 
 
-	static vector<int> data;
-	static vector<int> array_index_list;
+	//static vector<int> data;
+	//static vector<int> array_index_list;
 	//vector <question_disk_data*> qdd_list;
-	map <string, question_disk_data*> qdd_map;
+	//map <string, question_disk_data*> qdd_map;
 	//QuestionDiskDataMap question_disk_data_map;
-	int read_disk_datalex();
-	int no_errors;
-	void read_disk_dataerror(const char * s);
+	typedef void * yyscan_t;
+	int read_disk_datalex(YYSTYPE * yylval_param, yyscan_t yyscanner);
+	//int no_errors;
+	void read_disk_dataerror(yyscan_t scanner,
+		map <string, question_disk_data*>* qdd_map_ptr,
+		vector<int>* data,
+		vector<int>* array_index_list,
+		const char * s);
 %}
 
+%define api.pure
+%parse-param	{ yyscan_t yyscanner }
+%parse-param 	{ map <string, question_disk_data*>* qdd_map_ptr }
+%parse-param 	{ vector<int>* data_ptr }
+%parse-param 	{ vector<int>* array_index_list_ptr }
+%lex-param	{ yyscan_t yyscanner }
 
 %union {
 	int ival;
 	double dval;
-	char name[MY_STR_MAX];
+	char name[/* kept getting an error not defined MY_STR_MAX */ 4095];
 }
+
 %token <name> NAME
 %token COLON DOLLAR BOUNDS
 %token <ival> INUMBER
@@ -35,7 +48,7 @@
 
 program: question_list{
 	//cout << "got question_list: parsed to program: " << endl;
-	return no_errors;
+	//return no_errors;
 	}
 	;
 
@@ -51,6 +64,8 @@ question: NAME COLON numberlist NEWL {
 		//cout << "data.capacity(): " << data.capacity() << endl;
 		// cout <<endl;
 		//cout << "got question" << endl;
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
+		vector<int>& data = * data_ptr;
 		string qno($1);
 		question_disk_data * qdd = new question_disk_data(qno, data);
 		//qdd_list.push_back(qdd);
@@ -61,32 +76,45 @@ question: NAME COLON numberlist NEWL {
 	| NAME COLON NEWL {
 		//cout << "got empty question" << endl;
 		string qno($1);
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		question_disk_data * qdd = new question_disk_data(qno);
 		qdd_map[qno] = qdd;
 		//qdd_list.push_back(qdd);
-		data.clear();
+		//data.clear();
 	}
 	| NAME array_index_list COLON numberlist NEWL {
 		string qno($1);
+		vector<int>& data = * data_ptr;
+		vector<int>& array_index_list = * array_index_list_ptr;
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
 		stringstream full_question_name;
 		full_question_name << qno;
 		for (int i=0; i<array_index_list.size(); ++i) {
 			full_question_name << "$" << array_index_list[i];
 		}
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		qdd_map[full_question_name.str()] = qdd2;
 		array_index_list.clear();
+		cout << " Got array question: " << full_question_name.str()
+			<< " data is: " ;
+		for (int i=0; i<data.size(); ++i) {
+			cout << " " <<  data[i];
+		}
+		cout << endl;
 		data.clear();
-		//cout << " Got array question: " << qno << endl;
+		
 	}
 	| NAME array_index_list COLON NEWL {
 		string qno($1);
+		vector<int>& array_index_list = * array_index_list_ptr;
+		vector<int>& data = * data_ptr;
 		question_disk_data * qdd2 = new question_disk_data (qno, array_index_list, data);
 		stringstream full_question_name;
 		full_question_name << qno;
 		for (int i=0; i<array_index_list.size(); ++i) {
 			full_question_name << "$" << array_index_list[i];
 		}
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		qdd_map[full_question_name.str()] = qdd2;
 		array_index_list.clear();
 		data.clear();
@@ -94,8 +122,10 @@ question: NAME COLON numberlist NEWL {
 	}
 	| NAME BOUNDS numberlist NEWL{
 		string qno($1);
+		vector<int>& data = * data_ptr;
 		question_disk_data * qdd = new question_disk_data(qno, data, data);
 		//qdd_list.push_back(qdd);
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 		qdd_map[qno] = qdd;
 		// data will be empty because we reset it - the index has to go into the map
 		// otherwise we will dump core at some point
@@ -105,19 +135,23 @@ question: NAME COLON numberlist NEWL {
 	;
 
 numberlist: INUMBER {
-		    data.push_back($1);
-		    //cout << "INUMBER: " << $1 << endl;
+		vector<int>& data = * data_ptr;
+		data.push_back($1);
+		//cout << "INUMBER: " << $1 << endl;
 	}
 	|	numberlist INUMBER {
-		    //cout << "INUMBER: " << $2 << endl;
-		    data.push_back($2);
+		vector<int>& data = * data_ptr;
+		//cout << "INUMBER: " << $2 << endl;
+		data.push_back($2);
 	}
 	;
 
 array_index_list: DOLLAR INUMBER {
+		vector<int>& array_index_list = * array_index_list_ptr;
 		array_index_list.push_back($2);
 	}
 	| array_index_list DOLLAR INUMBER {
+		vector<int>& array_index_list = * array_index_list_ptr;
 		array_index_list.push_back($3);
 	}
 	;
@@ -142,9 +176,9 @@ int main(){
 		return 1;
 	}
 }
-*/
 
 void read_disk_data_init(){
 	data.reserve(50);
 	//qdd_list.reserve(100);
 }
+*/

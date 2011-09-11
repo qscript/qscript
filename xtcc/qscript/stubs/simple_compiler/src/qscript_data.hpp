@@ -55,11 +55,11 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 23 "src/qscript_data.ypp"
+#line 35 "src/qscript_data.ypp"
 
 	int ival;
 	double dval;
-	char name[MY_STR_MAX];
+	char name[/* kept getting an error not defined MY_STR_MAX */ 4095];
 
 
 
@@ -71,6 +71,6 @@ typedef union YYSTYPE
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
-extern YYSTYPE read_disk_datalval;
+
 
 

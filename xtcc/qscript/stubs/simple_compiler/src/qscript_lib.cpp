@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include "qscript_lib.h"
 #include "qscript_debug.h"
+#include "qscript_data.hpp"
 
 
 
@@ -35,15 +36,25 @@ int32_t check_if_reg_file_exists(string jno, int32_t ser_no)
 #include <vector>
 #include <map>
 #include "question_disk_data.h"
-int32_t read_disk_dataparse();
-int32_t read_disk_datalex();
-extern FILE* read_disk_datain;
-void read_disk_data_init();
-extern QuestionDiskDataMap question_disk_data_map;
+#include "read_disk_data_flex_prototypes.h"
+//int32_t read_disk_dataparse();
+//int32_t read_disk_datalex();
+//extern FILE* read_disk_datain;
 
-extern map <string, question_disk_data*> qdd_map;
+	typedef void * yyscan_t;
+int read_disk_dataparse(yyscan_t yyscanner, 
+	std::map <string, question_disk_data*>* qdd_map_ptr,
+	std::vector<int>* data_ptr,
+	vector<int>* array_index_list_ptr);
+int read_disk_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
+
+void read_disk_data_init();
+//extern QuestionDiskDataMap question_disk_data_map;
+
 //extern WINDOW * data_entry_window;
 
+/*
+extern map <string, question_disk_data*> qdd_map;
 void clear_previous_data()
 {
 	for (map<string, question_disk_data *>::iterator it = 
@@ -53,24 +64,56 @@ void clear_previous_data()
 	}
 	qdd_map.erase(qdd_map.begin(), qdd_map.end());
 }
+*/
 
-int32_t load_data(string jno, int32_t ser_no)
+int32_t load_data(string jno, int32_t ser_no, 
+		map <string, question_disk_data*> * qdd_map_ptr)
 {
+	yyscan_t scanner;
+	//yylex_init(&scanner);
 	stringstream s;
-	clear_previous_data();
+	//clear_previous_data();
 	s << jno << "_" << ser_no << ".dat";
-	read_disk_datain = fopen(s.str().c_str(), "rb");
-	read_disk_data_init();
-	if (read_disk_datain){
-		fflush(read_disk_datain);
-		if (!read_disk_dataparse()){
+	//FILE* read_disk_datain;
+	FILE * read_disk_datain = fopen (s.str().c_str(), "rb");
+	//read_disk_data_init();
+	if (read_disk_datain) {
+		read_disk_datalex_init(&scanner);
+		fflush (read_disk_datain);
+		read_disk_dataset_in (read_disk_datain, scanner);
+		vector <int> data;
+		vector <int> array_index_list;
+		if (! read_disk_dataparse (scanner, qdd_map_ptr, &data, &array_index_list)) {
 			//return 1;
+			map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
+			for (map<string, question_disk_data*>:: iterator it 
+					= qdd_map.begin();
+					it != qdd_map.end();
+					++it) {
+				cout << "loaded data for question: "
+					<< it->first;
+				question_disk_data * qdd = it->second;
+				for (int i=0; i<qdd->array_bounds.size(); ++i) {
+					cout << "$" << qdd->array_bounds[i];
+				}
+				cout << ": " ;
+				for (int i=0; i<qdd->data.size(); ++i) {
+					cout << " " << qdd->data[i];
+				}
+				cout << endl;
+			}
+			read_disk_datalex_destroy(scanner);
+			fclose (read_disk_datain);
+			return 1;
 		} else {
 			cerr << "input datafile found had errors" << endl;
+			read_disk_datalex_destroy(scanner);
+			fclose (read_disk_datain);
 			return 0;
 		}
+		fclose (read_disk_datain);
 	}
-	fclose(read_disk_datain);
+
 	//cerr << "finished loading data - here is the summary" << endl;
 	//for(int32_t i = 0; i<qdd_list.size(); ++i){
 	//	cerr << qdd_list[i]->qno;
@@ -79,14 +122,19 @@ int32_t load_data(string jno, int32_t ser_no)
 	//	}
 	//	cerr << endl;
 	//}
-	return 1;
+	// case : unable to open data file for read
+	return 0;
 }
 
 #include "question.h"
+
 //extern vector <AbstractQuestion*> question_list;
 void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered,
-		AbstractQuestion * & p_last_question_visited, const vector <AbstractQuestion*> question_list)
+		AbstractQuestion * & p_last_question_visited, const vector <AbstractQuestion*> question_list,
+		map <string, question_disk_data*> * qdd_map_ptr)
+
 {
+	map <string, question_disk_data*> & qdd_map =  * qdd_map_ptr;
 	if (qscript_debug::DEBUG_LoadData) {
 		cout << "ENTER: " 
 			<< __PRETTY_FUNCTION__ 
@@ -98,8 +146,11 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * &
 
 
 		fprintf(qscript_stdout, "searching for %s \n", q->questionDiskName_.c_str());
+		cout << "searching for " << q->questionDiskName_ << "\n";
+
 		map<string,question_disk_data*>::iterator it=  qdd_map.find (q->questionDiskName_);
 		if (  it != qdd_map.end()) {
+			cout << "found " << q->questionDiskName_ << "\n";
 			question_disk_data * q_disk = it->second;
 			q->input_data.erase(q->input_data.begin(), q->input_data.end());
 			if (q_disk->data.size() > 0) {
