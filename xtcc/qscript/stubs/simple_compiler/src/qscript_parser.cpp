@@ -3561,6 +3561,8 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	int ser_no;\n");
 	fprintf(script, "		WContainerWidget * serialPage_;\n");
 	fprintf(script, "		bool flagSerialPageRemoved_;\n");
+	fprintf(script, "		Session * this_users_session;\n");
+	fprintf(script, "		string sess_id ;\n");
 	fprintf(script, "\n");
 	fprintf(script, "	void display();\n");
 	fprintf(script, "	void DoQuestionnaire() ;\n");
@@ -3587,6 +3589,18 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "			l_ser_no = strtol (narrow_text.c_str(), 0, 10);\n");
 	fprintf(script, "			if (l_ser_no > 0) {\n");
 	fprintf(script, "				ser_no = l_ser_no;\n");
+	fprintf(script, "				int exists = check_if_reg_file_exists(jno, ser_no);\n");
+	fprintf(script, "				cout << \"checking if serial no : \" << ser_no \n");
+	fprintf(script, "					<< \", jno: \" << jno << \" exists: \" << exists << endl;\n");
+	fprintf(script, "\n");
+	fprintf(script, "				if(exists == 1){\n");
+	fprintf(script, "					load_data(jno,ser_no);\n");
+	fprintf(script, "					//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n");
+	fprintf(script, "					merge_disk_data_into_questions2(qscript_stdout,\n");
+	fprintf(script, "							this_users_session->questionnaire->last_question_answered,\n");
+	fprintf(script, "							this_users_session->questionnaire->last_question_visited,\n");
+	fprintf(script, "							this_users_session->questionnaire->question_list);\n");
+	fprintf(script, "				}\n");
 	fprintf(script, "				DoQuestionnaire();\n");
 	fprintf(script, "			} else {\n");
 	fprintf(script, "				le_data_->setText(\"You have entered a  negative number\");\n");
@@ -3607,12 +3621,23 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	//if (!wt_questionText_) {\n");
 	fprintf(script, "	//	wt_questionText_ = new WText(root());\n");
 	fprintf(script, "	//}\n");
+	fprintf(script, "	cout << \"Data for ser_no: \" << ser_no;\n");
+	fprintf(script, "	for(int32_t i = 0; i < this_users_session->questionnaire->question_list.size(); ++i)\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		cout << this_users_session->questionnaire->question_list[i]->questionName_;\n");
+	fprintf(script, "		for( set<int32_t>::iterator iter = this_users_session->questionnaire->question_list[i]->input_data.begin();\n");
+	fprintf(script, "				iter != this_users_session->questionnaire->question_list[i]->input_data.end(); ++iter){\n");
+	fprintf(script, "			cout << \" \" << *iter;\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		cout << \"\\n\";\n");
+	fprintf(script, "	}\n");
+
 	fprintf(script, "	static int counter = 0;\n");
 	fprintf(script, "	stringstream s;\n");
 	fprintf(script, "	s << \"reached DoQuestionnaire: \" << counter++;\n");
 	fprintf(script, "	wt_debug_->setText(s.str());\n");
 	fprintf(script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
-	fprintf(script, "	string sess_id = sessionId();\n");
+	//fprintf(script, "	string sess_id = sessionId();\n");
 	fprintf(script, "	string display_text = string(\"Session Id:\") + sess_id;\n");
 	fprintf(script, "	wt_questionText_->setText(display_text);\n");
 	fprintf(script, "	int found_index = -1;\n");
@@ -3623,6 +3648,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "			break;\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
+	/*
 	fprintf(script, "	Session * this_users_session = 0;\n");
 	fprintf(script, "	if (found_index != -1) {\n");
 	fprintf(script, "		s << \"found session at index: \" << found_index;\n");
@@ -3633,6 +3659,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		strcpy(this_users_session->sid, sess_id.c_str());\n");
 	fprintf(script, "		wt_sessions.push_back(this_users_session);\n");
 	fprintf(script, "	}\n");
+	*/
 	fprintf(script, "	// put this code later\n");
 	fprintf(script, "	string err_mesg, re_arranged_buffer;\n");
 	fprintf(script, "	int32_t pos_1st_invalid_data;\n");
@@ -4007,6 +4034,10 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	formContainer_ = new WContainerWidget(root());\n");
 	fprintf(script, "	formContainer_->addWidget(serialPage_);\n");
 	fprintf(script, "	formContainer_->addWidget(langLayout);\n");
+	fprintf(script, "	string sess_id = sessionId();\n");
+	fprintf(script, "	this_users_session = new Session();\n");
+	fprintf(script, "	strcpy(this_users_session->sid, sess_id.c_str());\n");
+	fprintf(script, "	wt_sessions.push_back(this_users_session);\n");
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 	fprintf(script, "WApplication * createApplication(const WEnvironment &env)\n");
