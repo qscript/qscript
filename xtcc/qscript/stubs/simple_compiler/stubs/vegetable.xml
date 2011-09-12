@@ -25,7 +25,7 @@
 
 <message id="yn_1">No</message>
 
-<message id="q1_0">Eat veg?</message>
+<message id="q1_0">Do you eat vegetables?</message>
 
 <message id="agree_5_0">agree strongly</message>
 
@@ -55,25 +55,20 @@
 
 <message id="veg_seg_att_3"> I would like to be vegetarian some day</message>
 
-<message id="q2_0">Which veg u r aware of?</message>
+<message id="q2_0">Which of these vegetables are you aware of?</message>
 
-<message id="q3_0">Which veg dou eat?</message>
+<message id="q3_0">Which of these vegetables do you eat?</message>
 
-<message id="q4_0">Which is ur fav veg?</message>
+<message id="q4_0">And, Which of these is your favourite vegetable?</message>
 
-<message id="q1_0">Eat veg?</message>
 
-<message id="q2_0">Which veg u r aware of?</message>
 
-<message id="q3_0">Which veg dou eat?</message>
 
-<message id="q4_0">Which is ur fav veg?</message>
-
-<message id="q5_0_0">In a week what perc of your veggies are (piping not yet implemented): </message>
-<message id="q5_1_0">In a week what perc of your veggies are (piping not yet implemented): </message>
-<message id="q5_2_0">In a week what perc of your veggies are (piping not yet implemented): </message>
-<message id="q5_3_0">In a week what perc of your veggies are (piping not yet implemented): </message>
-<message id="q5_4_0">In a week what perc of your veggies are (piping not yet implemented): </message>
+<message id="q5_0_0">In a week what percentage of your vegetables are (piping not yet implemented): </message>
+<message id="q5_1_0">In a week what percentage of your vegetables are (piping not yet implemented): </message>
+<message id="q5_2_0">In a week what percentage of your vegetables are (piping not yet implemented): </message>
+<message id="q5_3_0">In a week what percentage of your vegetables are (piping not yet implemented): </message>
+<message id="q5_4_0">In a week what percentage of your vegetables are (piping not yet implemented): </message>
 
 
 <message id="q6_0_0">Please state your agreement with these statements</message>
