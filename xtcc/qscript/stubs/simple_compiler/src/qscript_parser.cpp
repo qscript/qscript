@@ -3647,6 +3647,7 @@ void print_Wt_support_code(FILE * script)
 	//fprintf(script, "	string sess_id = sessionId();\n");
 	fprintf(script, "	string display_text = string(\"Session Id:\") + sess_id;\n");
 	fprintf(script, "	wt_questionText_->setText(display_text);\n");
+	/*
 	fprintf(script, "	int found_index = -1;\n");
 	fprintf(script, "	for (int i=0; i<wt_sessions.size(); ++i) {\n");
 	fprintf(script, "		// boy is the below inefficient and should be fixed\n");
@@ -3655,7 +3656,6 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "			break;\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
-	/*
 	fprintf(script, "	Session * this_users_session = 0;\n");
 	fprintf(script, "	if (found_index != -1) {\n");
 	fprintf(script, "		s << \"found session at index: \" << found_index;\n");
@@ -3831,6 +3831,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "{\n"); 
 	fprintf(script, "	WContainerWidget * new_form = new WContainerWidget();\n"); 
 	fprintf(script, "	WText * txt = new WText(WString::tr(\"thank_you\"), new_form);\n"); 
+	fprintf(script, " 	WText * survey_code = new WText(WString::tr(\"vege_source_code\"), new_form);\n");
 	fprintf(script, "	setCentralWidget(new_form);\n"); 
 	fprintf(script, "	cout << \"ConstructThankYouPage\\n\";\n"); 
 	fprintf(script, "}\n"); 
