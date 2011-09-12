@@ -3577,6 +3577,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		AbstractQuestion *q, Session * this_users_session);\n");
 	fprintf(script, "	void ValidateSerialNo();\n");
 	fprintf(script, " 	void ConstructThankYouPage();\n"); 
+	fprintf(script, " 	const char * software_info();\n");
 	fprintf(script, "};\n");
 
 
@@ -3856,6 +3857,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	{\n"); 
 	fprintf(script, "		part_mesg_id << \"_\" << q->loop_index_values[i];\n"); 
 	fprintf(script, "	}\n"); 
+	fprintf(script, "	WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);\n"); 
 	fprintf(script, "	for (int i=0; i<q->textExprVec_.size(); ++i)\n"); 
 	fprintf(script, "	{\n"); 
 	fprintf(script, "		question_text += \"<p>\";\n"); 
@@ -3991,11 +3993,6 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "\n");
 	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
 	fprintf(script, "	*/\n");
-	fprintf(script, "	WPushButton *b = new WPushButton(\"Click to start survey\", serialPage_); // create a button\n");
-	fprintf(script, "	b->setMargin(5, Left);                                 // add 5 pixels margin\n");
-	fprintf(script, "	serialPage_->addWidget(new WBreak());                       // insert a line break\n");
-	fprintf(script, "	//b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
-	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::ValidateSerialNo);\n");
 
 	fprintf (script, "\n");
 	fprintf (script, "	// warning the statement below modifies the global variable\n");
@@ -4020,6 +4017,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "	for (int i = 0; i < vec_language.size(); ++i) {\n");
 	fprintf (script, "		WText *t = new WText(widen(vec_language[i]), langLayout);\n");
+	//fprintf (script, "		WText *t = new WText(WString::tr(vec_language[i]), langLayout);\n");
 	fprintf (script, "		t->setMargin(5);\n");
 	fprintf (script, "		t->clicked().connect(this, &QuestionnaireApplication::changeLanguage);\n");
 	fprintf (script, "		languageSelects_.push_back(t);\n");
@@ -4028,10 +4026,19 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "	/*\n");
 	fprintf (script, "	* Start with the reported locale, if available\n");
 	fprintf (script, "	*/\n");
-	fprintf (script, "	setLanguage(wApp->locale());\n");
+	fprintf (script, "	//setLanguage(wApp->locale());\n");
+	fprintf (script, "	setLanguage(\"hn\");\n");
 	fprintf (script, "\n");
 
-	fprintf(script, "	wt_questionText_ = new WText(serialPage_);                         // empty text\n");
+	//fprintf(script, "	WText * txt_software_info = new WText(software_info(), serialPage_);\n");
+	fprintf(script, "	WText * txt_software_info = new WText(WString::tr(\"qscript_info\"), serialPage_);\n");
+
+	fprintf(script, "	WPushButton *b = new WPushButton(\"Click to start survey\", serialPage_); // create a button\n");
+	fprintf(script, "	b->setMargin(5, Left);                                 // add 5 pixels margin\n");
+	fprintf(script, "	serialPage_->addWidget(new WBreak());                       // insert a line break\n");
+	fprintf(script, "	//b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
+	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::ValidateSerialNo);\n");
+	fprintf(script, "	wt_questionText_ = new WText(serialPage_);\n");
 	fprintf(script, "	wt_questionText_->setText(\"Serial No: \");\n");
 	fprintf(script, "	wt_lastQuestionVisited_ = new WText(serialPage_);\n");
 	fprintf(script, "	le_data_ = new WLineEdit(serialPage_);\n");
@@ -4075,6 +4082,11 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	return WRun (argc, argv, &createApplication);\n");
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
+
+	fprintf(script, "const char * QuestionnaireApplication::software_info()\n{\n");
+	fprintf(script, "	const char * info = ");
+	fprintf(script, "\"Welcome to the qscript demo survey page. This survey is not a demo of qscript web capabilities, but rather a demo of the pen and paper module. For web capable qscript we need to implement the following features <ul><li>Piping of answers</li><li>Unicode capture of other responses</li><li>Randomization of stub lists - groups, subgroups, holding an attribute, holding a group, etc</li><li>Randomization of attributes</li><li>question numbers are displayed at the top like this \\\"q1\\\". Looped question numbers will be displayed like this \\\"q1_0\\\". Note that the 1st iteration starts at 0.</li><li>The qscript project page is <a href=\\\"http://qscript.in\\\">http://qscript.in</a></li><li>The Download page is <a href=\\\"http://sourceforge.net/projects/xtcc\\\">http://sourceforge.net/projects/xtcc</a></li><li>Enter a serial number below. It can be upto 7 digits long. You can finish the survey later, by entering the same serial number. It will start exactly where you left off. We have no control over what serial numbers people enter. To make up a number somewhat unique - try using your mobile number, mixed with your date of birth, mixed with your spouse's date of birth.</li></ul>\";\n");
+	fprintf(script, " 	return info;\n}\n");
 
 	fprintf (script, "\n");
 	fprintf (script, "// warning modifies the input variable\n");

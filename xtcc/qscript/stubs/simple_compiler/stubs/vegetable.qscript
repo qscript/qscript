@@ -52,16 +52,16 @@ q4 		"Which is ur fav veg?"
 			int32_t code = i1+1;
 
 			if (code in q3) {
-q6				"In a week what perc of your veggies are (piping not yet implemented): "
+q5				"In a week what perc of your veggies are (piping not yet implemented): "
 				sp int32_t (0-100);
-				sum=sum+q6[i1];
+				sum=sum+q5[i1];
 				iter_no=i1;
 			} else {
 				1;
 			}
 		}
 		if (sum != 100) {
-			clear (q6[iter_no]);
+			clear (q5[iter_no]);
 		}
 
 
@@ -72,7 +72,7 @@ q6				"In a week what perc of your veggies are (piping not yet implemented): "
 
 
 		for (i1=0; i1<4; i1=i1+1) {
-q5			"Please state your agreement with these statements" : veg_seg_att[i1]
+q6			"Please state your agreement with these statements" : veg_seg_att[i1]
 			sp int32_t agree_5;
 		}
 
