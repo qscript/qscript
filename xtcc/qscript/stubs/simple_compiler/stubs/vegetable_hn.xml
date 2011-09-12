@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF8"?>
 <messages>
 
-	<message id="language"> भाषा</message>
+	<message id="language"> Language/भाषा</message>
 	<message id="en">English</message>
 	<message id="hn"> हिंदी</message>
 	<message id="qscript_info">
