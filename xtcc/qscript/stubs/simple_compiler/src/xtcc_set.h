@@ -39,6 +39,7 @@ struct XtccSet {
 	bool contains_value(int v);
 	string print_replicate_code(string set_name);
 	int32_t GetMax();
+	bool isEmpty();
 };
 
 #endif /* xtcc_set_h */
