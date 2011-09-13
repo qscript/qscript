@@ -2300,6 +2300,12 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, " 		map <string, question_disk_data*>  qdd_map;\n");
 	fprintf (script, "	    load_data(jno, file_ser_no, &qdd_map);\n");
 	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited, this->question_list, &qdd_map);\n");
+	fprintf (script, "		for (map<string, question_disk_data*>:: iterator it \n");
+	fprintf (script, "				= qdd_map.begin();\n");
+	fprintf (script, "				it != qdd_map.end();\n");
+	fprintf (script, "				++it) {\n");
+	fprintf (script, "			delete it->second;\n");
+	fprintf (script, "		}\n");
 	fprintf (script, "	    return file_ser_no;\n");
 	fprintf (script, "	} else {\n");
 	fprintf (script, "	    // not our data file\n");
@@ -3455,6 +3461,11 @@ void print_web_support_structs (FILE * script)
 	fprintf (script, "		memset(last_question_answered, 0, sizeof(last_question_answered));\n");
 	fprintf (script, "		memset(last_question_visited, 0, sizeof(last_question_visited));\n");
 	fprintf (script, "	}\n");
+	fprintf(script, "	~Session()\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		delete questionnaire;\n");
+	fprintf(script, "		questionnaire = 0;\n");
+	fprintf(script, "	}\n");
 	fprintf (script, "};\n");
 	fprintf (script, "\n");
 	fprintf (script, "static struct Session *sessions;\n");
@@ -3578,9 +3589,20 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	void ValidateSerialNo();\n");
 	fprintf(script, " 	void ConstructThankYouPage();\n"); 
 	fprintf(script, " 	const char * software_info();\n");
+	fprintf(script, "		virtual ~QuestionnaireApplication();\n");
 	fprintf(script, "};\n");
 
-
+	fprintf(script, "\n");
+	fprintf(script, "QuestionnaireApplication::~QuestionnaireApplication()\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	delete this_users_session; 	this_users_session=0;\n");
+	fprintf(script, "	delete serialPage_; 		serialPage_ = 0;\n");
+	fprintf(script, "	if (currentForm_) {\n");
+	fprintf(script, "		delete currentForm_; 	currentForm_ = 0;\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	cout << __PRETTY_FUNCTION__ << endl;\n");
+	fprintf(script, "}\n");
+	fprintf(script, "\n");
 	fprintf(script, "void QuestionnaireApplication::ValidateSerialNo()\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	int l_ser_no = -1;\n");
@@ -3607,6 +3629,12 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "							this_users_session->questionnaire->last_question_visited,\n");
 	fprintf(script, "							this_users_session->questionnaire->question_list,\n");
 	fprintf(script, "							&qdd_map);\n");
+	fprintf(script, "					for (map<string, question_disk_data*>:: iterator it \n");
+	fprintf(script, "							= qdd_map.begin();\n");
+	fprintf(script, "							it != qdd_map.end();\n");
+	fprintf(script, "							++it) {\n");
+	fprintf(script, "						delete it->second;\n");
+	fprintf(script, "					}\n");
 	fprintf(script, "				}\n");
 	fprintf(script, "				DoQuestionnaire();\n");
 	fprintf(script, "			} else {\n");
