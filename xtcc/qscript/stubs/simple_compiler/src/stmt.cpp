@@ -1493,6 +1493,11 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			s << "This should cause an ERROR in the generated code: " 
 				<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 			code.program_code << s.str();
+			if (xtccSet_ . isEmpty() ) {
+				s << " In-correct setup of StubManipStatement. xtccSet_ should not be empty";
+			} else {
+				cout << "xtccSet_ is non-empty as expected\n";
+			}
 			print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 		} else {
 			stringstream s;
