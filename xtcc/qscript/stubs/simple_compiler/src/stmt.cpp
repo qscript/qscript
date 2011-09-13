@@ -1925,6 +1925,7 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 	if (arrIndex_==0) {
 		code.program_code 
 			<< symbolTableEntry_->question_->questionName_ << "->isAnswered_ = false;\n";
+		code.program_code << "stopAtNextQuestion = false;\n";
 		code.program_code << "goto start_of_questions;\n";
 	} else {
 		stringstream mesg;
@@ -1937,6 +1938,7 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 		code.program_code << code1.code_bef_expr.str()
 				   << code1.code_expr.str();
 		code.program_code << "]->isAnswered_ = false;\n";
+		code.program_code << "stopAtNextQuestion = false;\n";
 		code.program_code << "goto start_of_questions;\n";
 	}
 	if (next_) {

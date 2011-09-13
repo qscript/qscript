@@ -4024,13 +4024,6 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	*/\n");
 
 	fprintf (script, "\n");
-	fprintf (script, "	// warning the statement below modifies the global variable\n");
-	fprintf (script, "	//load_languages_available(vec_language);\n");
-	fprintf (script, "	WContainerWidget *langLayout = new WContainerWidget();\n");
-	fprintf (script, "	langLayout->setContentAlignment(AlignRight);\n");
-	fprintf (script, "	new WText(WString::tr(\"language\"), langLayout);\n");
-	fprintf (script, "\n");
-	fprintf (script, "\n");
 	fprintf (script, "	WCssDecorationStyle langStyle;\n");
 	fprintf (script, "	langStyle.font().setSize(WFont::Smaller);\n");
 	fprintf (script, "	langStyle.setCursor(PointingHandCursor);\n");
@@ -4041,7 +4034,23 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "	langStyle.setCursor(ArrowCursor);\n");
 	fprintf (script, "	langStyle.font().setWeight(WFont::Bold);\n");
 	fprintf (script, "	this->styleSheet().addRule(\".langcurrent\", langStyle);\n");
+
 	fprintf (script, "\n");
+	//langStyle.setForegroundColor(green);
+	fprintf (script, "	langStyle.setForegroundColor(WColor(100, 0, 200, 100));\n");
+	fprintf (script, "	langStyle.setCursor(IBeamCursor);\n");
+	fprintf (script, "	langStyle.font().setWeight(WFont::Bold);\n");
+	fprintf (script, "	langStyle.font().setSize(WFont::XLarge);\n");
+	fprintf (script, "	this->styleSheet().addRule(\".langtitle\", langStyle);\n");
+
+	fprintf (script, "\n");
+	fprintf (script, "	// warning the statement below modifies the global variable\n");
+	fprintf (script, "	//load_languages_available(vec_language);\n");
+	fprintf (script, "	WContainerWidget *langLayout = new WContainerWidget();\n");
+	fprintf (script, "	langLayout->setContentAlignment(AlignRight);\n");
+	fprintf (script, "\n");
+	fprintf (script, "	WText * lang_title = new WText(WString::tr(\"language\"), langLayout);\n");
+	fprintf (script, "	lang_title->setStyleClass(L\"langtitle\");\n");
 	fprintf (script, "\n");
 	fprintf (script, "\n");
 	fprintf (script, "	for (int i = 0; i < vec_language.size(); ++i) {\n");
