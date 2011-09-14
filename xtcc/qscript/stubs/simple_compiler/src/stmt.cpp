@@ -1506,19 +1506,44 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 						it != xtccSet_.indiv.end();
 						++it) {
 					if (lhs_->IsValid(*it)) {
-						code.program_code << lhs_->questionName_ << "->input_data.insert(" 
-							<< *it << ");\n";
+						if (type_ == STUB_MANIP_DEL) {
+							code.program_code << lhs_->questionName_ << "->input_data.erase(" 
+								<< *it << ");\n";
+						} else if (type_ == STUB_MANIP_ADD) {
+							code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+								<< *it << ");\n";
+						}
 						//	lhs->input_data.insert(*it);
+					} else {
+						stringstream err_msg;
+						err_msg << "invalid element: " << *it << " in set_del/set_add. ";
+						print_err(compiler_internal_error, err_msg.str() , qscript_parser::line_no, __LINE__, __FILE__);
 					}
 				}
 				for (int32_t xtcc_i1 = 0; xtcc_i1 < xtccSet_.range.size(); ++xtcc_i1) {
 					for (int32_t set_member = xtccSet_.range[xtcc_i1].first; set_member <= xtccSet_.range[xtcc_i1].second;
 							++set_member) {
-						if (lhs_->IsValid(set_member)) {
-							//lhs->input_data.insert(set_member);
-							code.program_code << lhs_->questionName_ << "->input_data.insert(" 
-								<< set_member << ");\n";
+						if (type_ == STUB_MANIP_DEL) {
+							if (lhs_->IsValid(set_member)) {
+								//lhs->input_data.insert(set_member);
+								code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+									<< set_member << ");\n";
+							} else {
+								stringstream err_msg;
+								err_msg << "invalid element: " << set_member << " in set_del. ";
+								print_err(compiler_internal_error, err_msg.str() , qscript_parser::line_no, __LINE__, __FILE__);
+							}
+						} else if (type_ == STUB_MANIP_ADD) {
+							if (lhs_->IsValid(set_member)) {
+								code.program_code << lhs_->questionName_ << "->input_data.erase(" 
+									<< set_member << ");\n";
+							} else {
+								stringstream err_msg;
+								err_msg << "invalid element: " << set_member << " in set_add. ";
+								print_err(compiler_internal_error, err_msg.str() , qscript_parser::line_no, __LINE__, __FILE__);
+							}
 						}
+
 					}
 				}
 			}
