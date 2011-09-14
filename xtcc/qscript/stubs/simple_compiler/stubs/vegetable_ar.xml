@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF8"?>
+<messages>
+	<message id="language">Language</message>
+	<message id="en">English</message>
+	<message id="hn"> हिंदी</message>
+	<message id="ar">العربية</message>
+	<message id="qscript_info">
+أرحب في المسح التجريبي qscript الصفحة. هذه الدراسة ليست التجريبية من قدرات الشبكة qscript، بل هو تجريبي وحدة القلم والورق. لqscript الشبكة قادرة على أننا بحاجة إلى تنفيذ الميزات التالية
+	<ul>
+		<li>الأنابيب من الإجابات </li>
+		<li>يونيكود القبض على الردود الأخرى </li>
+		<li>قوائم التوزيع العشوائي كعب -- مجموعات فرعية، وعقد سمة، وعقد مجموعة ، الخ </li>
+		<li>التوزيع العشوائي </li>
+		<li>من الصفات </li>
+	</ul>
+	تعليمات
+	<ul>
+		<li>عرض الأرقام السؤال </li>
+		<li>في أعلى مثل هذا "Q1". وسيتم عرض أرقام يحلق مثل هذا السؤال "q1_0". علما بأن التكرار يبدأ في 1 0. </li>
+		<li>الصفحة qscript المشروع هو <a href="http://qscript.in"> http://qscript.in </a> </li>
+		<li>الصفحة حمل هو <a href="http://sourceforge.net/projects/xtcc"> http://sourceforge.net/projects/xtcc </a> </li>
+		<li>أدخل رقم تسلسلي أدناه. يمكن أن يكون لغاية 7 أرقام طويلة. ويمكن الانتهاء من المسح في وقت لاحق، عن طريق إدخال نفس الرقم التسلسلي. وسوف تبدأ بالضبط المكان الذي تركته. ليست لدينا سيطرة على ما الأرقام التسلسلية الناس يدخلون. لجعل عددا فريدة نوعا ما -- حاول استخدام رقم هاتفك المحمول، ومختلطة مع تاريخ ميلادك، ومختلطة مع زوجك تاريخ الميلاد </li>
+		<li>وفي </li>
+		<li>السؤال 5 -- مجموع إجاباتك يجب أن تكون 100 </li>
+	</ul>
+
+	</message>
+	<message id="thank_you">المسح اكتمال الآن. أشكرك على وقتك.</message>
+<message id="yn_0">نعم</message>
+
+<message id="yn_1">لا</message>
+
+<message id="q1_0">هل أكل الخضروات؟</message>
+
+<message id="agree_5_0">أوافق بشدة</message>
+
+<message id="agree_5_1">توافق إلى حد ما</message>
+
+<message id="agree_5_2">محايد</message>
+
+<message id="agree_5_3">نختلف</message>
+
+<message id="agree_5_4">لا أوافق بشدة</message>
+
+<message id="veg_0">طماطم</message>
+
+<message id="veg_1">البطاطا</message>
+
+<message id="veg_2">فلفل</message>
+
+<message id="veg_3">Brinjal / مصنع البيض</message>
+
+<message id="veg_4">البامية / سيدة فنجر</message>
+
+<message id="veg_seg_att_0">الخضراوات مفيدة للصحة</message>
+
+<message id="veg_seg_att_1">يمكنني شراء الخضار الطازجة في كثير من الأحيان</message>
+
+<message id="veg_seg_att_2">الخضر هي مصدر جيد للألياف الغذائية</message>
+
+<message id="veg_seg_att_3">وأود أن يكون نباتيا يوما ما</message>
+
+<message id="q2_0">أي من هذه الخضروات التي تعرفها؟</message>
+
+<message id="q3_0">أي من هذه الخضار هل تأكل؟</message>
+
+<message id="q4_0">و، أي نص من هذه الخضار المفضلة لديك؟</message>
+
+
+
+
+<message id="q5_0_0">في غضون أسبوع ما هي النسبة المئوية من الخضار الخاص هي (الأنابيب التي لم تنفذ حتى الآن) :</message>
+<message id="q5_1_0">في غضون أسبوع ما هي النسبة المئوية من الخضار الخاص هي (الأنابيب التي لم تنفذ حتى الآن) :</message>
+<message id="q5_2_0">في غضون أسبوع ما هي النسبة المئوية من الخضار الخاص هي (الأنابيب التي لم تنفذ حتى الآن) :</message>
+<message id="q5_3_0">في غضون أسبوع ما هي النسبة المئوية من الخضار الخاص هي (الأنابيب التي لم تنفذ حتى الآن) :</message>
+<message id="q5_4_0">في غضون أسبوع ما هي النسبة المئوية من الخضار الخاص هي (الأنابيب التي لم تنفذ حتى الآن) :</message>
+
+
+<message id="q6_0_0">اذكر الاتفاق الخاص مع هذه التصريحات</message>
+<message id="q6_0_1"></message>
+
+<message id="q6_1_0">اذكر الاتفاق الخاص مع هذه التصريحات</message>
+<message id="q6_1_1"></message>
+
+<message id="q6_2_0">اذكر الاتفاق الخاص مع هذه التصريحات</message>
+<message id="q6_2_1"></message>
+
+<message id="q6_3_0">اذكر الاتفاق الخاص مع هذه التصريحات</message>
+<message id="q6_3_1"></message>
+
+<message id="vege_source_code">
+	<pre>
+vegetable {
+		int32_t i1;
+ stubs yn=	"Yes" 1
+		"No" 2;
+
+q1 	"Eat veg?"
+	sp int32_t yn;
+
+stubs agree_5 = 
+	"agree strongly" 5
+	"agree somewhat" 4
+	"Neutral" 3
+	"Disagree " 2
+	"Disagree strongly" 1;	
+
+ stubs veg=	
+ 		"Tomates" 1
+		"Potatoes" 2
+		"Capsicum" 3
+		"Brinjal/Egg plant" 4
+		"Okra/Lady Finger" 5
+		;
+	named_attribute veg_seg_att = " Vegetables are good for health",
+				" I buy fresh vegetables often",
+				" Greens are good source of dietary fibre",
+				" I would like to be vegetarian some day"
+				;
+
+
+	if (q1==1) {
+	setall(veg);
+	
+
+q2 		"Which veg u r aware of?"
+		mp(5) int32_t veg;
+
+		unset(veg);
+		setadd(veg, q2);
+q3 		"Which veg dou eat?"
+		mp(5) int32_t veg;
+
+ 	
+		unset(veg);
+		setadd(veg, q3);
+q4 		"Which is ur fav veg?"
+		sp int32_t veg;
+
+		int32_t sum=0;
+		int32_t iter_no=0;
+		for (i1=0; i1&lt; 5; i1=i1+1) {
+			int32_t code = i1+1;
+
+			if (code in q3) {
+q5				"In a week what perc of your veggies are (piping not yet implemented): "
+				sp int32_t (0-100);
+				sum=sum+q5[i1];
+				iter_no=i1;
+			} else {
+				1;
+			}
+		}
+		if (sum != 100) {
+			clear (q5[iter_no]);
+		}
+
+
+
+	} else {
+		1;
+	}
+
+
+		for (i1=0; i1&lt; 4; i1=i1+1) {
+q6			"Please state your agreement with these statements" : veg_seg_att[i1]
+			sp int32_t agree_5;
+		}
+
+}
+	</pre>
+	</message>
+
+
+</messages>
