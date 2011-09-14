@@ -1486,19 +1486,43 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 
 			// ==================
 		} else if (lhs_ && rhs_ == 0 && namedRange_ == 0) {
-			stringstream s;
-			s << "/* not yet programmed : "
-				<< __FILE__ << ", " << __LINE__ << ", "
-				<< __PRETTY_FUNCTION__ << " */" << endl;
-			s << "This should cause an ERROR in the generated code: " 
-				<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
-			code.program_code << s.str();
+			//stringstream s;
+			//s << "/* not yet programmed : "
+			//	<< __FILE__ << ", " << __LINE__ << ", "
+			//	<< __PRETTY_FUNCTION__ << " */" << endl;
+			//s << "This should cause an ERROR in the generated code: " 
+			//	<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+			//code.program_code << s.str();
 			if (xtccSet_ . isEmpty() ) {
-				s << " In-correct setup of StubManipStatement. xtccSet_ should not be empty";
+				stringstream s;
+				s << " In-correct setup of StubManipStatement. xtccSet_ should not be empty. This error should have been caught in the parsing stage.";
+				print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 			} else {
 				cout << "xtccSet_ is non-empty as expected\n";
+				stringstream mesg;
+				mesg << "This code has to be revisited. first of all we are not allowing SETADD/SETDEL on array questions. Secondly there is no check on mutex. ";
+				LOG_MAINTAINER_MESSAGE(mesg.str());
+				for (set<int32_t>::iterator it=xtccSet_.indiv.begin();
+						it != xtccSet_.indiv.end();
+						++it) {
+					if (lhs_->IsValid(*it)) {
+						code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+							<< *it << ");\n";
+						//	lhs->input_data.insert(*it);
+					}
+				}
+				for (int32_t xtcc_i1 = 0; xtcc_i1 < xtccSet_.range.size(); ++xtcc_i1) {
+					for (int32_t set_member = xtccSet_.range[xtcc_i1].first; set_member <= xtccSet_.range[xtcc_i1].second;
+							++set_member) {
+						if (lhs_->IsValid(set_member)) {
+							//lhs->input_data.insert(set_member);
+							code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+								<< set_member << ");\n";
+						}
+					}
+				}
 			}
-			print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
+			//print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 		} else {
 			stringstream s;
 			s << " incorrect setup of StubManipStatement: ";
