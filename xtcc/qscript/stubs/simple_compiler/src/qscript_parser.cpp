@@ -191,6 +191,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "bool stopAtNextQuestion;\n");
 	fprintf(script, "int32_t questions_start_from_here_index;\n" );
 	fprintf(script, "int ser_no_pos;\n");
+	fprintf (script, " 	string jumpToQuestion;\n");
+	fprintf (script, " 	int32_t jumpToIndex;\n");
 	fprintf(script, "vector <BaseText> base_text_vec;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
@@ -1729,9 +1731,9 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t					AbstractQuestion * target_question = theQuestionnaire.ComputePreviousQuestion(theQuestionnaire.last_question_answered);\n");
 	fprintf(script, "\t					if(target_question->type_ == QUESTION_ARR_TYPE)\n");
 	fprintf(script, "\t					{\n");
-	fprintf(script, "\t						jumpToIndex = theQuestionnaire.ComputeJumpToIndex(target_question);\n");
+	fprintf(script, "\t						theQuestionnaire.jumpToIndex = theQuestionnaire.ComputeJumpToIndex(target_question);\n");
 	fprintf(script, "\t					}\n");
-	fprintf(script, "\t					jumpToQuestion = target_question->questionName_;\n");
+	fprintf(script, "\t					theQuestionnaire.jumpToQuestion = target_question->questionName_;\n");
 	fprintf(script, "\t					//if (data_entry_window == 0) cout << \"target question: \" << jumpToQuestion;\n");
 	fprintf(script, "\t					theQuestionnaire.back_jump = true;\n");
 	fprintf(script, "\t					user_navigation = NOT_SET;\n");
@@ -1739,7 +1741,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t					goto re_eval_from_start;\n");
 	fprintf(script, "\t				} else if (end_of_question_navigation == 'j') {\n");
 	fprintf(script, "\t					theQuestionnaire.DisplayActiveQuestions();\n");
-	fprintf(script, "\t					theQuestionnaire.GetUserResponse(jumpToQuestion, jumpToIndex);\n");
+	fprintf(script, "\t					theQuestionnaire.GetUserResponse(theQuestionnaire.jumpToQuestion, theQuestionnaire.jumpToIndex);\n");
 	fprintf(script, "\t					user_navigation = NOT_SET;\n");
 	fprintf(script, "\t					//goto start_of_questions;\n");
 	fprintf(script, "\t					goto re_eval_from_start;\n");
@@ -1771,16 +1773,16 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t	    if (target_question == 0)\n");
 	fprintf(script, "\t\t		goto re_eval;\n");
 	fprintf(script, "\t\t	    else {\n");
-	fprintf(script, "\t\t		jumpToQuestion = target_question->questionName_;\n");
+	fprintf(script, "\t\t		theQuestionnaire.jumpToQuestion = target_question->questionName_;\n");
 	fprintf(script, "\t\t		if (target_question->type_ == QUESTION_ARR_TYPE) {\n");
-	fprintf(script, "\t\t		    jumpToIndex =\n");
+	fprintf(script, "\t\t		    theQuestionnaire.jumpToIndex =\n");
 	fprintf(script, "\t\t			theQuestionnaire.\n");
 	fprintf(script, "\t\t			ComputeJumpToIndex(target_question);\n");
 	fprintf(script, "\t\t		}\n");
 	fprintf(script, "\t\t		// if (data_entry_window == 0)\n");
 	fprintf(script, "\t\t		//     cout << \"target question: \" << jumpToQuestion;\n");
 	fprintf(script, "\t\t		// if (data_entry_window == 0)\n");
-	fprintf(script, "\t\t		//     cout << \"target question Index: \" << jumpToIndex;\n");
+	fprintf(script, "\t\t		//     cout << \"target question Index: \" << theQuestionnaire.jumpToIndex;\n");
 	fprintf(script, "\t\t		theQuestionnaire.back_jump = true;\n");
 	fprintf(script, "\t\t		user_navigation = NOT_SET;\n");
 	fprintf(script, "\t\t		//goto start_of_questions;\n");
@@ -1800,7 +1802,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t\t	    user_navigation = NOT_SET;\n");
 	fprintf(script, "\t\t	} else if (user_navigation == JUMP_TO_QUESTION) {\n");
 	fprintf(script, "\t\t	    theQuestionnaire.DisplayActiveQuestions();\n");
-	fprintf(script, "\t\t	    theQuestionnaire.GetUserResponse(jumpToQuestion, jumpToIndex);\n");
+	fprintf(script, "\t\t	    theQuestionnaire.GetUserResponse(theQuestionnaire.jumpToQuestion, theQuestionnaire.jumpToIndex);\n");
 	fprintf(script, "\t\t	    user_navigation = NOT_SET;\n");
 	fprintf(script, "\t\t	    //goto start_of_questions;\n");
 	fprintf(script, "\t\t	    goto re_eval_from_start;\n");
@@ -3444,8 +3446,6 @@ void print_web_support_structs (FILE * script)
 	fprintf (script, "	AbstractQuestion * last_question_served;\n");
 	fprintf (script, "	AbstractQuestion * ptr_last_question_answered;\n");
 	fprintf (script, "	AbstractQuestion * ptr_last_question_visited;\n");
-	fprintf (script, " 	string jumpToQuestion;\n");
-	fprintf (script, " 	int32_t jumpToIndex;\n");
 	fprintf (script, "	Session()\n");
 	fprintf (script, "		: start(time(NULL)),\n");
 	fprintf (script, "		  questionnaire(new TheQuestionnaire()),\n");
@@ -3835,10 +3835,10 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "					return;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "			}\n");
-	fprintf (script, "			else if (last_question_visited_str != "" && current_question_response != "" && last_question_served->no_mpn > 1)\n");
+	fprintf (script, "			else if (last_question_visited_str != \"\" && current_question_response != \"\" && last_question_served->no_mpn > 1)\n");
 	fprintf (script, "			{\n");
 	fprintf (script, "				string utf8_response = le_data_->text().toUTF8();\n");
-	fprintf (script, "				if (utf8_response != "") \n");
+	fprintf (script, "				if (utf8_response != \"\") \n");
 	fprintf (script, "				{\n");
 	fprintf (script, "					stringstream file_name_str;\n");
 	fprintf (script, "					file_name_str << last_question_served->questionName_ << \".\" \n");
@@ -3947,6 +3947,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);\n"); 
 	fprintf(script, "				WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);\n"); 
 	fprintf(script, "				wt_rb_container_->addButton(wt_rb, vec[i].code);\n"); 
+	fprintf(script, "				new WBreak(wt_cb_rb_container_);\n"); 
 	fprintf(script, "				vec_rb.push_back(wt_rb);\n"); 
 	fprintf(script, "			}\n"); 
 	fprintf(script, "			else if (q->no_mpn>1 && vec[i].mask)\n"); 
