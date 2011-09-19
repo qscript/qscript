@@ -243,3 +243,11 @@ int32_t XtccSet::GetMax()
 	return max_code;
 
 }
+
+bool XtccSet::isEmpty()
+{
+	if (indiv.begin() != indiv.end()) {
+		return false;
+	}
+	return !range.size();
+}
