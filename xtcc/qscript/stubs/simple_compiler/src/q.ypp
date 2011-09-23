@@ -489,8 +489,35 @@ text_expr:	TEXT {
 		text_expr_vec.push_back (new TextExpression(string($1)));
 	}
 	|	NAME '[' expression ']' {
+		string name ($1);
+		//qscript_parser::active_scope_list.find 
+		map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(name);
+
+		if ( sym_it  == qscript_parser::active_scope->SymbolTable.end() ){
+			std::stringstream err_mesg;
+			err_mesg << "symbol: " << name << " not found in symbol table. It should be a named_attribute list";
+			print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		} else {
+			SymbolTableEntry * se = sym_it->second;
+			if (se->type_ == NAMED_ATTRIBUTE_TYPE) {
+				text_expr_vec.push_back (new TextExpression(new Unary2Expression (oper_arrderef, $1, $3)));
+			} else if (se->type_ == QUESTION_TYPE) {
+				text_expr_vec.push_back (new TextExpression(se->question_, $3) );
+				std::stringstream err_mesg;
+				//err_mesg << "symbol: " << name << " question - unhandled case";
+				//print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			} else {
+				std::stringstream err_mesg;
+				err_mesg << "symbol: " << name << " should be a named_attribute or a question";
+				print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		}
+	}
+	/*
+	|	NAME {
 		text_expr_vec.push_back (new TextExpression(new Unary2Expression (oper_arrderef, $1, $3)));
 	}
+	*/
 	;
 
 attribute_list:	/* empty */

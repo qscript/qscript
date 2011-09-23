@@ -3925,6 +3925,10 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "			named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n"); 
 	fprintf(script, "			question_text += WString::tr(named_attribute_key.str().c_str());\n"); 
 	fprintf(script, "		}\n"); 
+	fprintf(script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)\n"); 
+	fprintf(script, "		{\n"); 
+	fprintf(script, "			question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);\n"); 
+	fprintf(script, "		}\n"); 
 	fprintf(script, "		question_text += \"</p>\";\n"); 
 	fprintf(script, "	}\n"); 
 	fprintf(script, "	wt_questionText_->setText(question_text);\n"); 

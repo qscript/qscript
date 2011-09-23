@@ -1114,6 +1114,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 
 	for (int i=0; i < textExprVec_.size(); ++i) {
+		/* 
 		if (textExprVec_[i]->nameExpr_ == 0) { 
 			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
 				<< textExprVec_[i]->text_
@@ -1125,6 +1126,31 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 				<< expr_code.code_expr.str()
 				<< "));\n";
 		}
+		*/
+		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) { 
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+				<< textExprVec_[i]->text_
+				<< "\")));\n";
+		} else if (textExprVec_[i]->teType_ == TextExpression::named_attribute_type) {
+			ExpressionCompiledCode expr_code;
+			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back(new TextExpression("
+				<< expr_code.code_expr.str()
+				<< "));\n";
+		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
+			ExpressionCompiledCode expr_code;
+			textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+					<< textExprVec_[i]->pipedQuestion_->questionName_
+					<< ", "
+					<< expr_code.code_expr.str()
+					<< ") );\n";
+		} else {
+			stringstream err_msg;
+			err_msg << " unhandled TextExpressionType ";
+			print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		}
+
 	}
 
 	if (array_mode) {
@@ -3067,6 +3093,28 @@ std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(Abs
 	s	<< endl;
 	s << "}\n";
 	return s.str();
+}
+
+string NamedStubQuestion::PrintSelectedAnswers()
+{
+	return string();
+}
+
+
+string NamedStubQuestion::PrintSelectedAnswers(int code_index)
+{
+	return string();
+}
+
+string RangeQuestion::PrintSelectedAnswers()
+{
+	return string();
+}
+
+
+string RangeQuestion::PrintSelectedAnswers(int code_index)
+{
+	return string();
 }
 
 // TextExpression::TextExpression(string text)

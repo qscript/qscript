@@ -115,7 +115,8 @@ TextExpression::TextExpression(string text)
 	  naPtr_(0), naIndex_(0)
 { }
 TextExpression::TextExpression(Unary2Expression * expr)
-	: text_(), nameExpr_(expr),
+	: teType_(TextExpression::named_attribute_type), 
+	  text_(), nameExpr_(expr),
 	  naPtr_(0), naIndex_(0)
 { }
 // for DummyArrayQuestion
@@ -128,3 +129,32 @@ TextExpression::TextExpression(named_attribute_list * na_ptr, int na_index)
 	: teType_(TextExpression::named_attribute_type),
 	  naPtr_(na_ptr), naIndex_(na_index)
 { }
+
+TextExpression::TextExpression(AbstractQuestion * q, int code_index)
+	: teType_(TextExpression::question_type),
+	  pipedQuestion_(q), codeIndex_ (code_index)
+{ }
+
+TextExpression::TextExpression (AbstractQuestion * q, AbstractExpression * expr)
+	: teType_ (TextExpression::question_type), 
+	  naPtr_ (0), naIndex_ (0),
+	  pipedQuestion_ (q), questionIndexExpr_ (expr)
+{ }
+
+TextExpression::TextExpression (AbstractQuestion * q)
+	: teType_ (TextExpression::question_type), 
+	  naPtr_ (0), naIndex_ (0),
+	  pipedQuestion_ (q), questionIndexExpr_ ()
+{ }
+
+
+string DummyArrayQuestion::PrintSelectedAnswers()
+{
+	return string();
+}
+
+
+string DummyArrayQuestion::PrintSelectedAnswers(int code_index)
+{
+	return string();
+}

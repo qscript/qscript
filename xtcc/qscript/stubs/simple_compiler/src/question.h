@@ -43,10 +43,16 @@ struct DummyArrayQuestion;
 		string text_;
 		named_attribute_list* naPtr_;
 		int32_t naIndex_;
+		AbstractQuestion * pipedQuestion_;
 		Unary2Expression * nameExpr_;
+		AbstractExpression * questionIndexExpr_;
+		int32_t codeIndex_;
 		TextExpression(string text);
 		TextExpression(Unary2Expression * expr );
 		TextExpression(named_attribute_list * na_ptr, int na_index);
+		TextExpression(AbstractQuestion * q, AbstractExpression * expr);
+		TextExpression(AbstractQuestion * q, int code_index);
+		TextExpression (AbstractQuestion * q);
 		TextExpression(); // for DummyArrayQuestion
 	};
 
@@ -169,6 +175,8 @@ struct AbstractQuestion: public AbstractStatement
 	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
 	int32_t GetMaxCode();
 	bool VerifyQuestionIntegrity();
+	virtual string PrintSelectedAnswers()=0;
+	virtual string PrintSelectedAnswers(int code_index)=0;
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
@@ -262,6 +270,9 @@ struct RangeQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list,endStatement);
 		}
 	}
+
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
 	~RangeQuestion();
 	private:
 		RangeQuestion& operator=(const RangeQuestion&);
@@ -341,6 +352,8 @@ class NamedStubQuestion: public AbstractQuestion
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
 		  , /*qs_ncurses::*/WINDOW* data_entry_window);
 	void WriteDataToDisk(ofstream& data_file);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
 	//AbstractQuestion* IsAQuestionStatement(){
 	//	return this;
 	//}
@@ -371,7 +384,8 @@ class NamedStubQuestion: public AbstractQuestion
 		NamedStubQuestion (const NamedStubQuestion&);
 };
 
-class DummyArrayQuestion: public AbstractQuestion{
+class DummyArrayQuestion: public AbstractQuestion
+{
 	public:
 	vector<int32_t> array_bounds;
 
@@ -397,6 +411,8 @@ class DummyArrayQuestion: public AbstractQuestion{
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
 	private:
 		DummyArrayQuestion& operator=(const DummyArrayQuestion&);
 		DummyArrayQuestion (const DummyArrayQuestion&);
