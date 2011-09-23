@@ -53,6 +53,7 @@ q4 		"Which is ur fav veg?"
 
 			if (code in q3) {
 q6				"In a week what perc of your veggies are (piping not yet implemented): "
+				: q3[i1]
 				sp int32_t (0-100);
 				sum=sum+q6[i1];
 				iter_no=i1;
