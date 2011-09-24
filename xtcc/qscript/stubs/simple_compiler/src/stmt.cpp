@@ -1498,7 +1498,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				s << " In-correct setup of StubManipStatement. xtccSet_ should not be empty. This error should have been caught in the parsing stage.";
 				print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 			} else {
-				cout << "xtccSet_ is non-empty as expected\n";
+				//cout << "xtccSet_ is non-empty as expected\n";
 				stringstream mesg;
 				mesg << "This code has to be revisited. first of all we are not allowing SETADD/SETDEL on array questions. Secondly there is no check on mutex. ";
 				LOG_MAINTAINER_MESSAGE(mesg.str());
@@ -1526,7 +1526,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 						if (type_ == STUB_MANIP_DEL) {
 							if (lhs_->IsValid(set_member)) {
 								//lhs->input_data.insert(set_member);
-								code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+								code.program_code << lhs_->questionName_ << "->input_data.erase(" 
 									<< set_member << ");\n";
 							} else {
 								stringstream err_msg;
@@ -1535,7 +1535,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 							}
 						} else if (type_ == STUB_MANIP_ADD) {
 							if (lhs_->IsValid(set_member)) {
-								code.program_code << lhs_->questionName_ << "->input_data.erase(" 
+								code.program_code << lhs_->questionName_ << "->input_data.insert(" 
 									<< set_member << ");\n";
 							} else {
 								stringstream err_msg;
@@ -1546,6 +1546,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 
 					}
 				}
+				code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
 			}
 			//print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 		} else {

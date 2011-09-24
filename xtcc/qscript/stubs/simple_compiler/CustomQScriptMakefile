@@ -36,7 +36,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=19
+QSCRIPT_MINOR_VERSION_NUMBER=20
 
 
 #dummy:
@@ -212,7 +212,10 @@ release: clean
 
 clean:
 	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/runtime_lib/*.o lib/*.so.* bin/qscript include/*.h $(BUILD_DIR)/compiletime_lib/*.o \
-		inputs/*.exe src/*.output
+		$(BUILD_DIR)/qscript $(BUILD_DIR)/*.dep $(BUILD_DIR)/runtime_lib/*.dep $(BUILD_DIR)/compiletime_lib/*.dep \
+		$(BUILD_DIR)/runtime_lib/libqscript_runtime.so.* \
+		$(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.* \
+		inputs/*.exe inputs/*.C src/*.output
 
 local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/qscript bin

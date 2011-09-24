@@ -1300,8 +1300,10 @@ test_script.o: test_script.C
 	if(ret_val != 0){
 		cerr << "Failed in compiling generated code : test_script.C ";
 	} else {
-		cout << "Generated executable. You can run it by\n shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./"
-			 <<  executable_file_name
+		cout 	<< endl
+			<< "Generated executable. You can run it by\n shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./"
+			<<  executable_file_name
+			<< endl
 			<< endl;
 	}
 }
