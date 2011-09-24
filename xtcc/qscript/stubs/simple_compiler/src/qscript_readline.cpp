@@ -38,8 +38,8 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 	wmove(dataEntryWindow_, 1, 1);
 	mvwprintw(dataEntryWindow_,1,1, "%s", buffer_.c_str());
 	//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer);
-	mvwprintw(dataEntryWindow_, 3, 41, "insertionPoint_: %d, lastBufPointer_: %d\n"
-			, insertionPoint_, buffer_.length());
+	//mvwprintw(dataEntryWindow_, 3, 41, "insertionPoint_: %d, lastBufPointer_: %d\n"
+	//		, insertionPoint_, buffer_.length());
 	//mvwprintw(dataEntryWindow_, 3,1, "%s" , prompt);
 	wmove(dataEntryWindow_, 1, insertionPoint_);
 	//wrefresh(dataEntryWindow_);
@@ -153,8 +153,8 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 				break;
 			}
 		//mvwprintw(dataEntryWindow_, 2,1, "buffer_: %s\n", buffer_);
-		mvwprintw(dataEntryWindow_, 3,1, "insertionPoint_: %d, lastBufPointer_: %d\n"
-				, insertionPoint_, buffer_.length());
+		//mvwprintw(dataEntryWindow_, 3,1, "insertionPoint_: %d, lastBufPointer_: %d\n"
+		//		, insertionPoint_, buffer_.length());
 		//for(int32_t i = lastBufPointer_-1; i < lastBufPointer_+10; ++i){
 		//	mvwaddch(dataEntryWindow_, curY, i,  ' ');
 		//}

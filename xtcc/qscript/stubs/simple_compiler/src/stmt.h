@@ -548,11 +548,18 @@ struct ClearStatement: public AbstractStatement
 	ClearStatement(DataType l_type, int32_t l_line_number,
 			string l_question_name);
 	ClearStatement(DataType l_type, int32_t l_line_number,
+			string l_question_name, string err_msg);
+	ClearStatement(DataType l_type, int32_t l_line_number,
 			string l_array_question_name,
 			AbstractExpression *e);
+	ClearStatement(DataType l_type, int32_t l_line_number,
+			string l_array_question_name,
+			AbstractExpression *e, string err_msg);
 	void GenerateCode(StatementCompiledCode & code);
+	bool VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index);
 	SymbolTableEntry* symbolTableEntry_ ;
 	AbstractExpression * arrIndex_;
+	string errorMessage_;
 	private:
 	ClearStatement& operator=(const ClearStatement&);
 	ClearStatement(const ClearStatement&);

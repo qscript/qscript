@@ -424,6 +424,13 @@ clear_stmt: CLEAR '(' NAME ')' ';' {
 		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3, $5);
 		// free($3); ? is this required here
 	}
+	| CLEAR '(' NAME '[' expression ']' ',' TEXT ')'';' {
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3, $8);
+	}
+	|  CLEAR '(' NAME  ',' TEXT ')' ';' {
+		// free($3); ? is this required here
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3, $5);
+	}
 	;
 
 column_stmt: COLUMN '(' expression ')' ';' {

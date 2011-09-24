@@ -15,6 +15,7 @@
 #include <sys/types.h>
 #include <limits.h>
 #include <cstring>
+#include <stdint.h>
 #include "datatype.h"
 #include "active_var_info.h"
 //#include <sstream>
