@@ -134,14 +134,22 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		box(question_window, 0, 0);
 		wclear(stub_list_window);
 		box(stub_list_window, 0, 0);
-		//wclear(data_entry_window);
+		wclear(data_entry_window);
 		int32_t maxWinX, maxWinY;
 		getmaxyx(data_entry_window, maxWinY, maxWinX);
+#if 0
 		for (int i=0; i<maxWinX; ++i) {
 			mvwprintw(question_window, 1, i, " ");
 			mvwprintw(question_window, 2, i, " ");
 		}
 		box(data_entry_window, 0, 0);
+		redrawwin(data_entry_window);
+		clearok(data_entry_window, TRUE);
+		wclrtoeol(data_entry_window);
+		wrefresh (data_entry_window);
+		update_panels();
+		doupdate();
+#endif /* 0 */
 		mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
 		int len_qno = questionName_.length()+2;
 		if(loop_index_values.size()>0){
@@ -161,6 +169,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 		}
 		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
+		mvwprintw(data_entry_window, 1, 1, " ");
+		wmove(data_entry_window, 1,1);
 		//wrefresh(question_window);
 		update_panels();
 		doupdate();
@@ -215,6 +225,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		// mvwprintw(data_entry_window, 2, 1, "just before exit eval");
 
 		//wrefresh(stub_list_window);
+		wmove(data_entry_window, 1,1);
 		update_panels();
 		doupdate();
 		//AbstractQuestion::GetDataFromUser(data_entry_window);
@@ -358,14 +369,22 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		box(question_window, 0, 0);
 		wclear(stub_list_window);
 		box(stub_list_window, 0, 0);
-		//wclear(data_entry_window);
+		wclear(data_entry_window);
 		int32_t maxWinX, maxWinY;
 		getmaxyx(data_entry_window, maxWinY, maxWinX);
+#if 0
 		for (int i=0; i<maxWinX; ++i) {
 			mvwprintw(question_window, 1, i, " ");
 			mvwprintw(question_window, 2, i, " ");
 		}
 		box(data_entry_window, 0, 0);
+		redrawwin(data_entry_window);
+		clearok(data_entry_window, TRUE);
+		wclrtoeol(data_entry_window);
+		wrefresh (data_entry_window);
+		update_panels();
+		doupdate();
+#endif /*  0 */
 		mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
 		int len_qno = questionName_.length()+2;
 		if(loop_index_values.size()>0){
@@ -387,6 +406,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
 		//wrefresh(question_window);
 		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
+		mvwprintw(data_entry_window, 1, 1, " ");
+		wmove(data_entry_window, 1,1);
 		update_panels();
 		doupdate();
 		//int32_t maxWinX, maxWinY;
@@ -417,11 +438,11 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 
 				set<int32_t>::iterator found= input_data.find(vec[i].code);
 				if (found != input_data.end() ){
-					wattroff(stub_list_window, COLOR_PAIR(2));
-					wattron(stub_list_window, COLOR_PAIR(4));
+					wattroff(stub_list_window, COLOR_PAIR(3));
+					wattron(stub_list_window, COLOR_PAIR(5));
 					mvwprintw(stub_list_window, currYpos, currXpos , "%d :", vec[i].code);
-					wattroff(stub_list_window, COLOR_PAIR(4));
-					wattron(stub_list_window, COLOR_PAIR(2));
+					wattroff(stub_list_window, COLOR_PAIR(5));
+					wattron(stub_list_window, COLOR_PAIR(3));
 				} else {
 					mvwprintw(stub_list_window, currYpos, currXpos , "%d :", vec[i].code);
 				}
@@ -431,6 +452,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 
 		//wrefresh(stub_list_window);
+		wmove(data_entry_window, 1,1);
 		update_panels();
 		doupdate();
 		// AbstractQuestion::GetDataFromUser(data_entry_window);

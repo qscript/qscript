@@ -39,9 +39,9 @@ using  std::cout;
 	string check_for_registry_key();
 #if _WIN32
 string QueryKeyData(HKEY hKey);
+bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_registry);
 #endif /* _WIN32 */
 	void InitStatement();
-	bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_registry);
 int find_file_in_dir(string filename, const vector<string> & dir_list);
 bool find_file_entry_in_directory(string filename, DIR * directory_ptr);
 
@@ -146,7 +146,9 @@ int32_t main(int32_t argc, char* argv[])
 	if (exit_flag){
 		exit(1);
 	}
+#if _WIN32
 	do_sanity_checks(program_options_ns::QSCRIPT_HOME, QSCRIPT_HOME_came_from_registry);
+#endif /*  _WIN32 */
 	//cout << "reached here" << endl;
 
 	if (!program_options_ns::fname_flag){
@@ -499,7 +501,7 @@ string QueryKeyData(HKEY hKey)
 	return return_value;
 }
 
-
+#if _WIN32
 bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_registry)
 {
 	bool environment_is_sane = true;
@@ -559,6 +561,7 @@ bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_re
 	}
 	return environment_is_sane;
 }
+#endif /* _WIN32  */
 
 
 

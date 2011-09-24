@@ -2078,9 +2078,13 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 void ClearStatement::GenerateCode(StatementCompiledCode & code)
 {
 
-	code.program_code << "mvwprintw (data_entry_window, 3, 30, \"" 
+	code.program_code << "wattroff(stub_list_window, COLOR_PAIR(2));\n"
+		<< "wattron(stub_list_window, COLOR_PAIR(4));\n"
+		<< "mvwprintw (error_msg_window, 1, 1, \"" 
 		<< errorMessage_.c_str()
-		<< "\");\n";
+		<< "\");\n"
+		<< "wattron(stub_list_window, COLOR_PAIR(4));\n"
+		<< "wattroff(stub_list_window, COLOR_PAIR(2));\n";
 
 	if (arrIndex_==0) {
 		code.program_code 

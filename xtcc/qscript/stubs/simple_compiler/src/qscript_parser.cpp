@@ -350,11 +350,13 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "	WINDOW 	* question_window = 0,\n"
 			"		* stub_list_window = 0,\n"
 			"		* data_entry_window = 0,\n"
+			"		* error_msg_window = 0,\n"
 			"		* help_window = 0;\n"
 			);
 	fprintf(script, "	PANEL 	* question_panel = 0,\n"
 			"		* stub_list_panel = 0,\n"
 			"		* data_entry_panel = 0,\n"
+			"		* error_msg_panel = 0,\n"
 			"		* help_panel = 0;\n");
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
@@ -458,10 +460,12 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n"
 			"			WINDOW * &  stub_list_window,\n"
 			"			WINDOW * & data_entry_window,\n"
+			"			WINDOW * & error_msg_window,\n"
 			"			WINDOW * & help_window,\n"
 			"			PANEL * &  question_panel,\n"
 			"			PANEL * &  stub_list_panel,\n"
 			"			PANEL * & data_entry_panel,\n"
+			"			PANEL * & error_msg_panel,\n"
 			"			PANEL * & help_panel)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	initscr();\n");
@@ -524,13 +528,25 @@ void PrintSetupNCurses(FILE * script)
 	//fprintf(script, "	wrefresh(stub_list_window);\n");
 	fprintf(script, "\n");
 	fprintf(script, "\n");
-	fprintf(script, "	int32_t QUESTION_WINDOW_HEIGHT=(height_left%%3) + (height_left/3), QUESTION_WINDOW_WIDTH=maxX;\n");
+
+	fprintf(script, "	int32_t ERROR_WINDOW_HEIGHT= (height_left/6), ERROR_WINDOW_WIDTH=maxX;\n");
+	fprintf(script, "	starty = maxY - DATA_ENTRY_WINDOW_HEIGHT - STUB_LIST_WINDOW_HEIGHT - ERROR_WINDOW_HEIGHT;\n");
+	fprintf(script, "	error_msg_window = create_newwin(ERROR_WINDOW_HEIGHT\n");
+	fprintf(script, "			, ERROR_WINDOW_WIDTH, starty, startx);\n");
+	fprintf(script, "	wbkgd(error_msg_window, space | COLOR_PAIR(3));\n");
+	fprintf(script, "	wcolor_set(error_msg_window, 3, 0);\n");
+	fprintf(script, "	wattron(error_msg_window, COLOR_PAIR(3));\n");
+
+	fprintf(script, " 	height_left -= ERROR_WINDOW_HEIGHT;\n");
+
+	fprintf(script, "	int32_t QUESTION_WINDOW_HEIGHT=maxY - DATA_ENTRY_WINDOW_HEIGHT - STUB_LIST_WINDOW_HEIGHT - ERROR_WINDOW_HEIGHT, QUESTION_WINDOW_WIDTH=maxX;\n");
 	fprintf(script, "	starty = 0;\n");
 	fprintf(script, "	question_window = create_newwin(QUESTION_WINDOW_HEIGHT\n");
 	fprintf(script, "			, QUESTION_WINDOW_WIDTH, starty, startx);\n");
 	fprintf(script, "	wbkgd(question_window, space | COLOR_PAIR(3));\n");
 	fprintf(script, "	wcolor_set(question_window, 3, 0);\n");
 	fprintf(script, "	wattron(question_window, COLOR_PAIR(3));\n");
+
 	//fprintf(script, "	mvwprintw(question_window, 1, 1, "question_window: height: %d, width, %d"\n");
 	//fprintf(script, "			, QUESTION_WINDOW_HEIGHT , QUESTION_WINDOW_WIDTH);\n");
 	//fprintf(script, "	wrefresh(question_window);\n");
@@ -550,6 +566,7 @@ void PrintSetupNCurses(FILE * script)
 			"	stub_list_panel = new_panel(stub_list_window);\n"
 			"	data_entry_panel = new_panel(data_entry_window);\n"
 			"	//help_panel = new_panel(help_window);\n"
+			"	error_msg_panel = new_panel(error_msg_window);\n"
 			);
 	fprintf(script, "	update_panels();\n"
 			"	doupdate();\n");
@@ -1535,7 +1552,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	*/
 
 	if(ncurses_flag) {
-		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);\n");
+		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window, error_msg_window, help_window, question_panel, stub_list_panel, data_entry_panel, error_msg_panel, help_panel);\n");
 		fprintf(script, "	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0\n\t\t /* || help_window == 0 */\n\t\t ){\n");
 		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
 		fprintf(script, "		return 1;\n");
@@ -2426,10 +2443,12 @@ void print_ncurses_func_prototypes (FILE * script)
 	fprintf(script, "void SetupNCurses(WINDOW * &  question_window,\n"
 			"			WINDOW * &  stub_list_window,\n"
 			"			WINDOW * & data_entry_window,\n"
+			"			WINDOW * & error_msg_window,\n"
 			"			WINDOW * & help_window,\n"
 			"			PANEL * &  question_panel,\n"
 			"			PANEL * &  stub_list_panel,\n"
 			"			PANEL * & data_entry_panel,\n"
+			"			PANEL * & error_msg_panel,\n"
 			"			PANEL * & help_panel);\n");
 	fprintf(script, "void define_some_pd_curses_keys();\n");
 }

@@ -111,6 +111,7 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/qtm_data_file.cpp
 		$(SOURCE_DIR)/AbstractStatement.cpp \
 		$(SOURCE_DIR)/question_runtime.cpp $(SOURCE_DIR)/question_common.cpp \
 		$(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/named_range.cpp
+
 #$(SOURCE_DIR)/question.cpp \
 #$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/lex.cpp \
 #$(SOURCE_DIR)/expr.cpp \
