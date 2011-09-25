@@ -1,4 +1,4 @@
-nil_temp{
+nil_temp {
 
 stubs location_country = 
 "UAE" 1
@@ -9,56 +9,99 @@ country "country" sp int32_t location_country;
 
 
 stubs location_uae = 
-"Abu Dhabi" 1
-"Dubai" 2
-"Sharjah" 3
-"Al Ain" 4;
+	"Abu Dhabi" 1
+	"Dubai" 2
+	"Sharjah" 3
+	"Al Ain" 4;
 
 stubs location_KSA = 
-"Riyadh" 1
-"Jeddah" 2
-"Dammam" 3
-"Al khobar" 4;
+	"Riyadh" 1
+	"Jeddah" 2
+	"Dammam" 3
+	"Al khobar" 4;
 
 	if (country in (1)) {
-loc_uae "LOCATION" sp int32_t location_uae;
-	}else{
-	1;
+
+loc_uae 	"LOCATION" sp int32_t location_uae;
+
+	} else {
+
+		1;
+
 	}
 
-if (country in (2)) {
-	loc_ksa "LOCATION" sp int32_t location_KSA;
+	if (country in (2)) {
+
+loc_ksa 	"LOCATION" sp int32_t location_KSA;
+
 	}else{
-	1;
+
+		1;
+
 	}
 
 stubs location = 
-"Abu Dhabi" 1
-"Dubai" 2
-"Sharjah" 3
-"Al Ain" 4
-"Riyadh" 5
-"Jeddah" 6
-"Dammam" 7
-"Al khobar" 8;
+	"Abu Dhabi" 1
+	"Dubai" 2
+	"Sharjah" 3
+	"Al Ain" 4
+	"Riyadh" 5
+	"Jeddah" 6
+	"Dammam" 7
+	"Al khobar" 8;
 
 loc "LOCATION" sp int32_t location:hide;
 
-if (loc_uae==1) {
-	printf("UAE code 1");
-	setadd(loc, (1));
-}
+	if (loc_uae==1) {
+		printf("UAE code 1\n");
+		setadd(loc, (1));
+	}
 
+	if (loc_uae==2) {
+		printf("UAE code 2\n");
+		setadd(loc,(2));
+	}
 
+	if (loc_uae==3) {
+		printf("UAE code 3\n");
+		setadd(loc,(3));
+	}
 
+	if (loc_uae==4) {
+		printf("UAE code 4\n");
+		setadd(loc,(4));
+	}
 
-if (loc_uae==2) setadd(loc,(2));
-if (loc_uae==3) setadd(loc,(3));
-if (loc_uae==4) setadd(loc,(4));
+	if (loc_ksa==1) {
+		printf("KSA code 1 - setting 5\n");
+		setadd(loc,(5));
+	}
 
-if (loc_ksa==1) setadd(loc,(5));
-if (loc_ksa==2) setadd(loc,(6));
-if (loc_ksa==3) setadd(loc,(7));
-if (loc_ksa==4) setadd(loc,(8));
+	if (loc_ksa==2) {
+		printf("KSA code 2 - setting 6\n");
+		setadd(loc,(6));
+	}
+
+	if (loc_ksa==3) {
+		printf("KSA code 3 - setting 7\n");
+		setadd(loc,(7));
+	}
+
+	if (loc_ksa==4) {
+		printf("KSA code 4 - setting 8\n");
+		setadd(loc,(8));
+	}
+
+	int32_t i1=0;
+	for (i1 = 0; i1 < 3; i1 = i1+1) {
+
+foo 		"foo" sp int32_t (1-5);
+
+	}
+
+	if (foo[1] == 1) {
+		printf("KSA code 4 - setting 8\n");
+		setadd(loc,(8));
+	}
 
 }

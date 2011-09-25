@@ -1510,6 +1510,11 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 							code.program_code << lhs_->questionName_ << "->input_data.erase(" 
 								<< *it << ");\n";
 						} else if (type_ == STUB_MANIP_ADD) {
+							code.program_code << "if ("
+								<< lhs_->questionName_
+								<< "->q_type == spn) " 
+								<<  lhs_->questionName_
+								<< "->input_data.clear();\n" ;
 							code.program_code << lhs_->questionName_ << "->input_data.insert(" 
 								<< *it << ");\n";
 						}

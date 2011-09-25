@@ -586,8 +586,12 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 				// string temp_name = get_temp_name();
 				string temp_name = qscript_parser::temp_name_generator.GetNewName();
 				code.code_bef_expr << "int32_t " << temp_name
-						   << " = *" << symbolTableEntry_->name_ 
-						   << "->input_data.begin();\n";
+						   << " = "
+						   << q->questionName_ << "->isAnswered_ ? "
+						   << "*" << symbolTableEntry_->name_
+						   << "->input_data.begin()"
+						   << " : INT_MAX"
+						   << ";\n";
 				code.code_expr << temp_name;
 			}
 		} else {
@@ -597,11 +601,11 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 	}
 		break;
 	case oper_arrderef:{
-		if (type_ == QUESTION_TYPE){
+		if (type_ == QUESTION_TYPE) {
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_ARR_TYPE){
 				code.code_bef_expr
-					<< "if (!"
+					<< "/* if (!"
 					<< q->questionName_
 					<< "_list.questionList[";
 				ExpressionCompiledCode code1;
@@ -612,12 +616,31 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 					<< "]->isAnswered_) {\n"
 					<< "cerr << \"runtime error using unanswered question in expression: \" << \""
 					<< q->questionName_
-					<< "\" << endl;\n}\n";
+					<< "\" << endl;\n} */\n";
+				string temp_name = qscript_parser::temp_name_generator.GetNewName();
+				code.code_bef_expr << "int32_t " << temp_name
+						   << " = "
+						   << q->questionName_
+						   << "_list.questionList["
+						   << code1.code_bef_expr.str()
+						   << code1.code_expr.str()
+						   << "]"
+						   << "->isAnswered_ ? "
+						   << "*"
+						   << q->questionName_
+						   << "_list.questionList["
+						   << code1.code_bef_expr.str()
+						   << code1.code_expr.str()
+						   << "]"
+						   << "->input_data.begin()"
+						   << " : INT_MAX"
+						   << ";\n";
+				code.code_expr << temp_name;
 			}
+			//code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
+			//operand_->PrintExpressionCode(code);
+			//code.code_expr << "]->input_data.begin())";
 		}
-		code.code_expr <<  "*(" << symbolTableEntry_->name_ << "_list.questionList[";
-		operand_->PrintExpressionCode(code);
-		code.code_expr << "]->input_data.begin())";
 	}
 		break;
 
