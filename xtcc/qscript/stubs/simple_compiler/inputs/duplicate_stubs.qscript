@@ -1,0 +1,21 @@
+duplicate_stubs
+{
+	stubs test_stub =
+		"agree" 1
+		"disagree" 2
+		"agree" 3;
+
+	stubs test_stub2 =
+		"agree 1" 1
+		"disagree" 2
+		"agree" 3;
+
+	stubs repeated_code =
+		"repcode1" 1
+		"repcode2" 2
+		"repcode3" 1;
+
+q1 	"q1"
+	sp int32_t (1-5);
+
+}
