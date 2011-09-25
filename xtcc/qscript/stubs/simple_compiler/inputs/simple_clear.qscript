@@ -1,0 +1,16 @@
+
+simple_clear {
+
+q1 "q1"
+	sp int32_t (1-5);
+
+q2 "q2"
+	sp int32_t (1-5);
+
+	if (q1 == q2) {
+		clear (q2, "error : nxd");
+	}
+
+q3 "q3"
+	sp int32_t (1-5);
+}
