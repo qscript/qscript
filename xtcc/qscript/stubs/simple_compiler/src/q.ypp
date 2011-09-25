@@ -880,7 +880,7 @@ stub:	TEXT INUMBER {
 		stub_list.push_back(pair1);
 
 		map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(s1);
-		cout << "searching for : " << s1 << " in map" << endl;
+		//cout << "searching for : " << s1 << " in map" << endl;
 		if (map_iter != map_duplicate_stub_entry_check.end()) {
 			std::stringstream err_msg;
 			err_msg << "the stub text: \"" << s1
