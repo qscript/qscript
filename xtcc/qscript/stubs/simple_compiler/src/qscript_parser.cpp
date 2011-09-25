@@ -411,7 +411,7 @@ void print_navigation_support_functions(FILE * script)
 	fprintf(script, "			<< endl;\n");
 	fprintf(script, "	}\n");
 	fprintf(script, "	for (int32_t i = current_question_index-1; i >= 0; --i) {\n");
-	fprintf(script, "		if (question_list[i]->isAnswered_) {\n");
+	fprintf(script, "		if (question_list[i]->isAnswered_ && !question_list[i]->question_attributes.hidden_) {\n");
 	fprintf(script, "			return question_list[i];\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
