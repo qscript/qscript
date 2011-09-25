@@ -325,7 +325,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		// new: 12-may-2011
 		<< "\t\t stopAtNextQuestion = false;\n"
 		<< questionName_.c_str()
-		<< "->eval(question_window, stub_list_window, data_entry_window);\n\t}\n";
+		<< "->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n";
 	PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }
@@ -748,7 +748,8 @@ bool RangeQuestion::IsValid(int32_t value)
 
 void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
-			 , /*qs_ncurses::*/WINDOW* data_entry_window)
+			 , /*qs_ncurses::*/WINDOW* data_entry_window
+			 , WINDOW * error_msg_window )
 { }
 
 #if 0
@@ -959,7 +960,8 @@ bool NamedStubQuestion::IsValid(int32_t value)
 
 void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
-			     , /*qs_ncurses::*/WINDOW* data_entry_window)
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
 { }
 
 #if 0
@@ -1585,7 +1587,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window);\n\t}\n";
+	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n";
 	PrintUserNavigationArrayQuestion(code.program_code);
 
 	code.program_code << "}\n";

@@ -83,7 +83,8 @@ DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bou
 
 void DummyArrayQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
-		  , /*qs_ncurses::*/WINDOW* data_entry_window)
+		  , /*qs_ncurses::*/WINDOW* data_entry_window
+		  , WINDOW * error_msg_window)
 { }
 
 

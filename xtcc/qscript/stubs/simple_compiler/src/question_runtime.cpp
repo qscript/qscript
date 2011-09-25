@@ -78,7 +78,8 @@ RangeQuestion::RangeQuestion(
 //void RangeQuestion::eval()
 void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
-			 , /*qs_ncurses::*/WINDOW* data_entry_window)
+			 , /*qs_ncurses::*/WINDOW* data_entry_window
+			 , WINDOW * error_msg_window)
 {
 	if (displayData_.begin() == displayData_.end()) {
 		for(	set<int32_t>::iterator it = r_data->indiv.begin();
@@ -231,7 +232,10 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
 
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
+	user_response::UserResponseType user_resp = 
+		AbstractQuestion::GetDataFromUser
+			(question_window, stub_list_window,
+			 data_entry_window, error_msg_window);
 
 /*
 get_data_again:
@@ -294,7 +298,8 @@ AbstractQuestion::AbstractQuestion(
 //void NamedStubQuestion::eval()
 void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
-			     , /*qs_ncurses::*/WINDOW* data_entry_window)
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
 {
 	if (displayData_.begin() == displayData_.end()) {
 		vector<stub_pair> & vec= (nr_ptr->stubs);
@@ -457,7 +462,10 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		doupdate();
 		// AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
+	user_response::UserResponseType user_resp = 
+		AbstractQuestion::GetDataFromUser
+			(question_window, stub_list_window,
+			 data_entry_window, error_msg_window);
 
 	/*
 get_data_again:
@@ -518,7 +526,9 @@ NamedStubQuestion::NamedStubQuestion(
 }
 
 
-user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window)
+user_response::UserResponseType AbstractQuestion::GetDataFromUser
+	(WINDOW * question_window, WINDOW * stub_list_window,
+	 WINDOW * data_entry_window, WINDOW * error_msg_window)
 {
 	// cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
 	string err_mesg, re_arranged_buffer;
@@ -616,6 +626,7 @@ label_ask_again:
 		mesg << "is it necessary to clear data here - we are doing it at top of read_data";
 		LOG_MAINTAINER_MESSAGE(mesg.str());
 		data.clear();
+		wclear (error_msg_window);
 		return user_response::UserEnteredData;
 	}
 }

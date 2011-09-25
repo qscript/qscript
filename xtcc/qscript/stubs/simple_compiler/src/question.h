@@ -100,7 +100,8 @@ struct AbstractQuestion: public AbstractStatement
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual void eval(/*qs_ncurses::*/WINDOW * question_window
 			  , /*qs_ncurses::*/WINDOW* stub_list_window
-			  , /*qs_ncurses::*/WINDOW* data_entry_window)=0;
+			  , /*qs_ncurses::*/WINDOW* data_entry_window
+			  , WINDOW * error_msg_window)=0;
 	virtual bool IsValid(int32_t value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
@@ -120,7 +121,9 @@ struct AbstractQuestion: public AbstractStatement
 		vector<AbstractQuestion*> & question_list
 		, AbstractStatement * stop_at);
 	void PrintEvalAndNavigateCode(ostringstream & program_code);
-	user_response::UserResponseType GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window);
+	user_response::UserResponseType GetDataFromUser
+		(WINDOW * question_window, WINDOW * stub_list_window,
+		 WINDOW * data_entry_window, WINDOW * error_msg_window);
 
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data, vector<int32_t> * data_ptr);
@@ -215,7 +218,9 @@ struct RangeQuestion: public AbstractQuestion
 	//void eval();
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
-		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+		  , /*qs_ncurses::*/WINDOW* data_entry_window
+		  , WINDOW * error_msg_window
+		  );
 	void WriteDataToDisk(ofstream& data_file);
 	//AbstractQuestion*  IsAQuestionStatement(){
 	//	return this;
@@ -319,7 +324,9 @@ class NamedStubQuestion: public AbstractQuestion
 	//void eval();
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
-		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+		  , /*qs_ncurses::*/WINDOW* data_entry_window
+		  , WINDOW * error_msg_window
+		  );
 	void WriteDataToDisk(ofstream& data_file);
 	//AbstractQuestion* IsAQuestionStatement(){
 	//	return this;
@@ -362,7 +369,8 @@ class DummyArrayQuestion: public AbstractQuestion{
 	//void eval(){}
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
-		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+		  , /*qs_ncurses::*/WINDOW* data_entry_window
+		  , WINDOW * error_msg_window);
 	
 
 	bool IsValid(int32_t value){ return false;}
