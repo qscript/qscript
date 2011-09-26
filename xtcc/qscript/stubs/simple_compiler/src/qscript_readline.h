@@ -19,11 +19,13 @@ class NCursesReadline
 	WINDOW * questionWindow_;
 	WINDOW * stubListWindow_;
 	WINDOW * dataEntryWindow_;
+	WINDOW * errorMessageWindow_;
 	public:
 	// We expect an already allocated window to be passed to us
 	NCursesReadline(WINDOW * l_question_window,
 		WINDOW * l_stub_list_window, 
-		WINDOW * l_data_entry_window);
+		WINDOW * l_data_entry_window,
+		WINDOW * l_error_msg_window);
 	const char * ReadLine(AbstractQuestion * q);
 	void SetBuffer(const std::string & re_arranged_buffer
 		       , int32_t l_new_insertionPoint);
@@ -52,6 +54,7 @@ user_response::UserResponseType read_data_from_window(
 		WINDOW * question_window,
 		WINDOW * stub_list_window,
 		WINDOW * data_entry_window,
+		WINDOW * error_msg_window,
 		const char * prompt, bool clear_buffer_flag,
 		std::string & re_arranged_buffer,
 		int & pos_1st_invalid_data,

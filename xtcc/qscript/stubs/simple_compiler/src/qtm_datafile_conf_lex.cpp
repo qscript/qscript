@@ -597,8 +597,6 @@ extern int qtm_datafile_conf_wrap (void );
 #endif
 #endif
 
-    static void yyunput (int c,char *buf_ptr  );
-    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -725,11 +723,11 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 12 "src/qtm_datafile_conf_lex.l"
+#line 13 "src/qtm_datafile_conf_lex.l"
 
 
 
-#line 733 "src/qtm_datafile_conf_lex.cpp"
+#line 731 "src/qtm_datafile_conf_lex.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -810,56 +808,56 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 15 "src/qtm_datafile_conf_lex.l"
+#line 16 "src/qtm_datafile_conf_lex.l"
 ; // ingore comment - single line
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 16 "src/qtm_datafile_conf_lex.l"
+#line 17 "src/qtm_datafile_conf_lex.l"
 BEGIN(comment);
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 17 "src/qtm_datafile_conf_lex.l"
+#line 18 "src/qtm_datafile_conf_lex.l"
 /* eat anything that's not a '*' */
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 18 "src/qtm_datafile_conf_lex.l"
+#line 19 "src/qtm_datafile_conf_lex.l"
 /* eat up '*'s not followed by '/'s */
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 19 "src/qtm_datafile_conf_lex.l"
+#line 20 "src/qtm_datafile_conf_lex.l"
 ++qtm_datafile_conf_parser_ns::line_no;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 20 "src/qtm_datafile_conf_lex.l"
+#line 21 "src/qtm_datafile_conf_lex.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 22 "src/qtm_datafile_conf_lex.l"
+#line 23 "src/qtm_datafile_conf_lex.l"
 {
 	// ignore Comment
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 26 "src/qtm_datafile_conf_lex.l"
+#line 27 "src/qtm_datafile_conf_lex.l"
 ; /* ignore */
 	YY_BREAK
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 27 "src/qtm_datafile_conf_lex.l"
+#line 28 "src/qtm_datafile_conf_lex.l"
 { ++qtm_datafile_conf_parser_ns::line_no; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 29 "src/qtm_datafile_conf_lex.l"
+#line 30 "src/qtm_datafile_conf_lex.l"
 {
 	qtm_datafile_conf_lval.ival = atoi(qtm_datafile_conf_text);
 	return INUMBER;
@@ -867,59 +865,59 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 34 "src/qtm_datafile_conf_lex.l"
+#line 35 "src/qtm_datafile_conf_lex.l"
 {
 	return CARD_NO_COLS;
 }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 38 "src/qtm_datafile_conf_lex.l"
+#line 39 "src/qtm_datafile_conf_lex.l"
 {
 	return SER_NO_COLS;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 42 "src/qtm_datafile_conf_lex.l"
+#line 43 "src/qtm_datafile_conf_lex.l"
 {
 	return AUTO;
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 46 "src/qtm_datafile_conf_lex.l"
+#line 47 "src/qtm_datafile_conf_lex.l"
 {
 	return DATA_START_COL_NO;
 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 50 "src/qtm_datafile_conf_lex.l"
+#line 51 "src/qtm_datafile_conf_lex.l"
 {
 	return DATA_END_COL_NO;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 54 "src/qtm_datafile_conf_lex.l"
+#line 55 "src/qtm_datafile_conf_lex.l"
 {
 	return READ_EQ;
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 58 "src/qtm_datafile_conf_lex.l"
+#line 59 "src/qtm_datafile_conf_lex.l"
 { //std::cerr << "returning " << qscript_conftext[0] << std::endl; 
 	return qtm_datafile_conf_text[0]; 
 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 62 "src/qtm_datafile_conf_lex.l"
+#line 63 "src/qtm_datafile_conf_lex.l"
 ECHO;
 	YY_BREAK
-#line 923 "src/qtm_datafile_conf_lex.cpp"
+#line 921 "src/qtm_datafile_conf_lex.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -1248,43 +1246,6 @@ static int yy_get_next_buffer (void)
 	yy_is_jam = (yy_current_state == 86);
 
 	return yy_is_jam ? 0 : yy_current_state;
-}
-
-    static void yyunput (int c, register char * yy_bp )
-{
-	register char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-	/* undo effects of setting up qtm_datafile_conf_text */
-	*yy_cp = (yy_hold_char);
-
-	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-		{ /* need to shift things up to make room */
-		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
-		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		register char *source =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			*--dest = *--source;
-
-		yy_cp += (int) (dest - source);
-		yy_bp += (int) (dest - source);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-			YY_FATAL_ERROR( "flex scanner push-back overflow" );
-		}
-
-	*--yy_cp = (char) c;
-
-	(yytext_ptr) = yy_bp;
-	(yy_hold_char) = *yy_cp;
-	(yy_c_buf_p) = yy_cp;
 }
 
 #ifndef YY_NO_INPUT
@@ -1915,7 +1876,7 @@ void qtm_datafile_conf_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 62 "src/qtm_datafile_conf_lex.l"
+#line 63 "src/qtm_datafile_conf_lex.l"
 
 
 

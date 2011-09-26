@@ -597,8 +597,6 @@ extern int qscript_confwrap (void );
 #endif
 #endif
 
-    static void yyunput (int c,char *buf_ptr  );
-    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -725,10 +723,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 18 "src/qscript_conf_lex.l"
+#line 19 "src/qscript_conf_lex.l"
 
 
-#line 732 "src/qscript_conf_lex.cpp"
+#line 730 "src/qscript_conf_lex.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -809,56 +807,56 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 20 "src/qscript_conf_lex.l"
+#line 21 "src/qscript_conf_lex.l"
 ; // ingore comment - single line
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 21 "src/qscript_conf_lex.l"
+#line 22 "src/qscript_conf_lex.l"
 BEGIN(comment);
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 22 "src/qscript_conf_lex.l"
+#line 23 "src/qscript_conf_lex.l"
 /* eat anything that's not a '*' */
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 23 "src/qscript_conf_lex.l"
+#line 24 "src/qscript_conf_lex.l"
 /* eat up '*'s not followed by '/'s */
 	YY_BREAK
 case 5:
 /* rule 5 can match eol */
 YY_RULE_SETUP
-#line 24 "src/qscript_conf_lex.l"
+#line 25 "src/qscript_conf_lex.l"
 ++config_file_parser::line_no;
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 25 "src/qscript_conf_lex.l"
+#line 26 "src/qscript_conf_lex.l"
 BEGIN(INITIAL);
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 26 "src/qscript_conf_lex.l"
+#line 27 "src/qscript_conf_lex.l"
 {
 	// ignore Comment
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 30 "src/qscript_conf_lex.l"
+#line 31 "src/qscript_conf_lex.l"
 ; /* ignore */
 	YY_BREAK
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 31 "src/qscript_conf_lex.l"
+#line 32 "src/qscript_conf_lex.l"
 { ++config_file_parser::line_no; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 33 "src/qscript_conf_lex.l"
+#line 34 "src/qscript_conf_lex.l"
 { 
 	//std::cerr << "returning NCURSES_INCLUDE_DIR" << std::endl; 
 	return NCURSES_INCLUDE_DIR; 
@@ -866,22 +864,22 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 37 "src/qscript_conf_lex.l"
+#line 38 "src/qscript_conf_lex.l"
 { return NCURSES_LIB_DIR; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 38 "src/qscript_conf_lex.l"
+#line 39 "src/qscript_conf_lex.l"
 { return NCURSES_LINK_LIBRARY_NAME; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 39 "src/qscript_conf_lex.l"
+#line 40 "src/qscript_conf_lex.l"
 { return PLATFORM; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 41 "src/qscript_conf_lex.l"
+#line 42 "src/qscript_conf_lex.l"
 {
 	qscript_conflval.ival = atoi(qscript_conftext);
 	return INUMBER;
@@ -890,7 +888,7 @@ YY_RULE_SETUP
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 46 "src/qscript_conf_lex.l"
+#line 47 "src/qscript_conf_lex.l"
 {
 	int len_text=strlen(qscript_conftext);
 	qscript_conftext[len_text-1]='\0';
@@ -905,17 +903,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 58 "src/qscript_conf_lex.l"
+#line 59 "src/qscript_conf_lex.l"
 { //std::cerr << "returning " << qscript_conftext[0] << std::endl; 
 	return qscript_conftext[0]; 
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 62 "src/qscript_conf_lex.l"
+#line 63 "src/qscript_conf_lex.l"
 ECHO;
 	YY_BREAK
-#line 919 "src/qscript_conf_lex.cpp"
+#line 917 "src/qscript_conf_lex.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -1244,43 +1242,6 @@ static int yy_get_next_buffer (void)
 	yy_is_jam = (yy_current_state == 77);
 
 	return yy_is_jam ? 0 : yy_current_state;
-}
-
-    static void yyunput (int c, register char * yy_bp )
-{
-	register char *yy_cp;
-    
-    yy_cp = (yy_c_buf_p);
-
-	/* undo effects of setting up qscript_conftext */
-	*yy_cp = (yy_hold_char);
-
-	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-		{ /* need to shift things up to make room */
-		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
-		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
-					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
-		register char *source =
-				&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move];
-
-		while ( source > YY_CURRENT_BUFFER_LVALUE->yy_ch_buf )
-			*--dest = *--source;
-
-		yy_cp += (int) (dest - source);
-		yy_bp += (int) (dest - source);
-		YY_CURRENT_BUFFER_LVALUE->yy_n_chars =
-			(yy_n_chars) = YY_CURRENT_BUFFER_LVALUE->yy_buf_size;
-
-		if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
-			YY_FATAL_ERROR( "flex scanner push-back overflow" );
-		}
-
-	*--yy_cp = (char) c;
-
-	(yytext_ptr) = yy_bp;
-	(yy_hold_char) = *yy_cp;
-	(yy_c_buf_p) = yy_cp;
 }
 
 #ifndef YY_NO_INPUT
@@ -1911,7 +1872,7 @@ void qscript_conffree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 62 "src/qscript_conf_lex.l"
+#line 63 "src/qscript_conf_lex.l"
 
 
 

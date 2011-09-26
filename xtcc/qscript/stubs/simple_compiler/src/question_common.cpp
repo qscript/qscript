@@ -17,7 +17,9 @@ AbstractQuestion::AbstractQuestion(
 	, bool l_isStartOfBlock
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type)
+	, questionText_(l_text)
+	, questionDiskName_(l_name)
+	, q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -26,7 +28,6 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	  , mutexCodeList_()
 	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
-	  , questionDiskName_(l_name)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "

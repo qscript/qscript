@@ -392,17 +392,17 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 #endif /*  0 */
 		mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
 		int len_qno = questionName_.length()+2;
-		if(loop_index_values.size()>0){
-			for(uint32_t i=0; i<loop_index_values.size(); ++i){
+		if (loop_index_values.size() > 0) {
+			for (uint32_t i=0; i < loop_index_values.size(); ++i) {
 				//cout << loop_index_values[i]+1 << ".";
 				mvwprintw(question_window, 1, len_qno, "%d.", loop_index_values[i]+1);
-				if (loop_index_values[i]+1<10) {
+				if (loop_index_values[i] + 1 < 10) {
 					len_qno += 1;
-				} else if (loop_index_values[i]+1<100) {
+				} else if (loop_index_values[i] + 1 < 100) {
 					len_qno += 2;
-				} else if (loop_index_values[i]+1<1000) {
+				} else if (loop_index_values[i] + 1 < 1000) {
 					len_qno += 3;
-				} else if (loop_index_values[i]+1<10000) {
+				} else if (loop_index_values[i] + 1 < 10000) {
 					len_qno += 4;
 				}
 				len_qno += 1; // for the "."
@@ -410,39 +410,51 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 		//mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
 		//wrefresh(question_window);
-		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
-		mvwprintw(data_entry_window, 1, 1, " ");
-		wmove(data_entry_window, 1,1);
-		update_panels();
-		doupdate();
+		mvwprintw (question_window, 1, len_qno + 1, " %s", questionText_.c_str() );
+		mvwprintw (data_entry_window, 1, 1, " ");
+		wmove (data_entry_window, 1,1);
+		update_panels ();
+		doupdate ();
 		//int32_t maxWinX, maxWinY;
 		//getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
 		Print_DisplayDataUnitVector (stub_list_window, displayData_, currXpos, currYpos, maxWinX);
 		++currYpos; currXpos = 1;
-
-		//vector<stub_pair> & vec= *stub_ptr;
+	
 		vector<stub_pair> & vec= (nr_ptr->stubs);
-		for(uint32_t i = 0; i< vec.size(); ++i){
-			if( vec[i].mask) {
+		if (totPages_ == 0) {
+			int start_page_index = 0, end_page_index = 0;
+			stubStartYIndex_ = currYpos;
+			int y_pos_tracker = currYpos;
+			for (uint32_t i = 0; i < vec.size(); ++i) {
+				if (vec[i].mask) {
+					++ y_pos_tracker;
+					if (y_pos_tracker == maxWinY) {
+						pageIndices_.push_back ( pair <int, int> (start_page_index, i) );
+						start_page_index = i + 1;
+						y_pos_tracker = 0;
+					}
+				}
+			}
+			if (start_page_index < vec.size())
+				pageIndices_.push_back ( pair <int, int> (start_page_index, vec.size()-1) );
+			cout << "n Pages: " << pageIndices_.size() << endl;
+			for (int i=0; i < pageIndices_.size(); ++i) {
+				cout << pageIndices_[i].first << ", "
+					<< pageIndices_[i].second
+					<< endl;
+			}
+		}
+
+		//for (uint32_t i = 0; i < vec.size(); ++i) 
+		// this block below has become DisplayStubsPage
+#if 0
+		for (uint32_t i = pageIndices_[currentPage_].first; i <= pageIndices_[currentPage_].second; ++i) {
+			if (vec[i].mask) {
 				//cout << vec[i].stub_text << ": " << vec[i].code << endl;
 				//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
-				/*
-				mvwprintw(stub_list_window, currYpos, currXpos, "%s: ", vec[i].stub_text.c_str());
-				set<int32_t>::iterator found= input_data.find(vec[i].code);
-				if (found != input_data.end() ){
-					wattroff(stub_list_window, COLOR_PAIR(2));
-					wattron(stub_list_window, COLOR_PAIR(4));
-					mvwprintw(stub_list_window, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
-					wattroff(stub_list_window, COLOR_PAIR(4));
-					wattron(stub_list_window, COLOR_PAIR(2));
-				} else {
-					mvwprintw(stub_list_window, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
-				}
-				*/
-
-				set<int32_t>::iterator found= input_data.find(vec[i].code);
-				if (found != input_data.end() ){
+				set<int32_t>::iterator found = input_data.find(vec[i].code);
+				if (found != input_data.end()) {
 					wattroff(stub_list_window, COLOR_PAIR(3));
 					wattron(stub_list_window, COLOR_PAIR(5));
 					mvwprintw(stub_list_window, currYpos, currXpos , "%d :", vec[i].code);
@@ -453,8 +465,17 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				}
 				mvwprintw(stub_list_window, currYpos, currXpos + 8, "%s", vec[i].stub_text.c_str());
 				++currYpos;
+				// this should not be necessary - the paging algo should already have calculated this
+				//if (currYpos >= maxWinY) {
+				//	break;
+				//}
 			}
 		}
+#endif /* 0   */
+		DisplayStubsPage( question_window
+			     ,  stub_list_window
+			     ,  data_entry_window
+			     ,  error_msg_window);
 
 		//wrefresh(stub_list_window);
 		wmove(data_entry_window, 1,1);
@@ -488,6 +509,38 @@ get_data_again:
 
 }
 
+void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
+{
+
+	int32_t currXpos = 1, currYpos = stubStartYIndex_;
+	vector<stub_pair> & vec= (nr_ptr->stubs);
+	for (uint32_t i = pageIndices_[currentPage_].first; i <= pageIndices_[currentPage_].second; ++i) {
+		if (vec[i].mask) {
+			//cout << vec[i].stub_text << ": " << vec[i].code << endl;
+			//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
+			set<int32_t>::iterator found = input_data.find(vec[i].code);
+			if (found != input_data.end()) {
+				wattroff(stub_list_window, COLOR_PAIR(3));
+				wattron(stub_list_window, COLOR_PAIR(5));
+				mvwprintw(stub_list_window, currYpos, currXpos , "%d :", vec[i].code);
+				wattroff(stub_list_window, COLOR_PAIR(5));
+				wattron(stub_list_window, COLOR_PAIR(3));
+			} else {
+				mvwprintw(stub_list_window, currYpos, currXpos , "%d :", vec[i].code);
+			}
+			mvwprintw(stub_list_window, currYpos, currXpos + 8, "%s", vec[i].stub_text.c_str());
+			++currYpos;
+			// this should not be necessary - the paging algo should already have calculated this
+			//if (currYpos >= maxWinY) {
+			//	break;
+			//}
+		}
+	}
+
+}
 
 //! only called in the runtime environment
 NamedStubQuestion::NamedStubQuestion(
@@ -506,6 +559,7 @@ NamedStubQuestion::NamedStubQuestion(
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
+	, totPages_ (0), pageIndices_ (), stubStartYIndex_ (0)
 {
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
@@ -584,7 +638,7 @@ label_ask_again:
 			user_response::UserResponseType user_resp 
 				= read_data_from_window(
 						question_window, stub_list_window,
-						data_entry_window, err_mesg.c_str()
+						data_entry_window, error_msg_window, err_mesg.c_str()
 					      //, (!invalid_code), re_arranged_buffer
 					      , false, re_arranged_buffer
 					      , pos_1st_invalid_data, this, &data);
@@ -824,6 +878,7 @@ NamedStubQuestion::NamedStubQuestion(
 			 , l_isStartOfBlock)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
+	, totPages_ (0), pageIndices_ (), stubStartYIndex_ (0)
 { 
 #if 0
 	vector <stub_pair> & v= *stub_ptr;

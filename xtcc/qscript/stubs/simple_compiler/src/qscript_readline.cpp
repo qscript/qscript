@@ -22,16 +22,18 @@ extern user_response::UserResponseType the_user_response;
 extern UserNavigation user_navigation;
 
 void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq);
-void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq);
+void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, WINDOW * errorMessageWindow_, NamedStubQuestion * nq);
 
 NCursesReadline::NCursesReadline(WINDOW * l_question_window,
 		WINDOW * l_stub_list_window, 
-		WINDOW * l_data_entry_window)
+		WINDOW * l_data_entry_window,
+		WINDOW * l_error_msg_window)
 	: buffer_(), insertionPoint_(0),
 	  questionWindow_(l_question_window),
 	  stubListWindow_(l_stub_list_window),
-	  dataEntryWindow_(l_data_entry_window)
-	{ buffer_.reserve(4095); }
+	  dataEntryWindow_(l_data_entry_window),
+	  errorMessageWindow_(l_error_msg_window)
+{ buffer_.reserve(4095); }
 
 const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 {
@@ -46,7 +48,7 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 	update_panels();
 	doupdate();
 	int32_t curX, curY;
-	while(1){
+	while(1) {
 		//c = mvwgetch(dataEntryWindow_,1,1);
 		int32_t c = wgetch(dataEntryWindow_);
 		//mvprintw(0,0, "got char: %d\n", c);
@@ -136,7 +138,7 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 			case KEY_NPAGE:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_NPAGE");
 				if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
-					do_pagedown(questionWindow_, stubListWindow_, dataEntryWindow_, nq);
+					do_pagedown(questionWindow_, stubListWindow_, dataEntryWindow_, errorMessageWindow_, nq);
 				}
 				break;
 			case 451:
@@ -348,10 +350,12 @@ void NCursesReadline::DoDeleteWordForward()
 }
 
 
-void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq)
+void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, WINDOW * errorMessageWindow_, NamedStubQuestion * nq)
 {
 	int32_t maxWinX, maxWinY;
 	getmaxyx(stubListWindow_, maxWinY, maxWinX);
+
+#if OLD_PAGE_ALGORITHM
 	int page_size = maxWinY - 3;
 	if (page_size>0) {
 
@@ -365,7 +369,7 @@ void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * da
 			box(stubListWindow_, 0 , 0);
 			int max_index = (nq->currentPage_+1) * page_size < vec.size() ? (nq->currentPage_+1) * page_size : vec.size();
 			for(uint32_t i = (nq->currentPage_) * page_size; i< max_index; ++i) {
-				if( vec[i].mask) {
+				if (vec[i].mask) {
 					//cout << vec[i].stub_text << ": " << vec[i].code << endl;
 					//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
 					mvwprintw(stubListWindow_, currYpos, currXpos, "%s: ", vec[i].stub_text.c_str());
@@ -385,6 +389,18 @@ void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * da
 			++nq->currentPage_;
 		}
 	}
+#endif /*  OLD_PAGE_ALGORITHM */
+
+	int page_size = maxWinY - nq->stubStartYIndex_;
+	int start_y = nq->stubStartYIndex_;
+	if (nq->currentPage_ + 1 < nq->pageIndices_.size()) {
+		++ nq->currentPage_;
+		nq->DisplayStubsPage (questionWindow_, stubListWindow_, dataEntryWindow_, errorMessageWindow_);
+	}
+
+
+
+
 }
 
 

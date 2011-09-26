@@ -69,7 +69,9 @@ AbstractQuestion::AbstractQuestion(
 	)
 	: 
 	AbstractStatement(l_type, l_no)
-	, questionName_(l_name), questionText_(l_text), q_type(l_q_type)
+	, questionName_(l_name), questionText_(l_text)
+	, questionDiskName_()
+	, q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(l_for_bounds_stack), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -121,7 +123,9 @@ AbstractQuestion::AbstractQuestion(
 	, const XtccSet & p_mutexCodeList
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type)
+	, questionText_(l_text)
+	, questionDiskName_()
+	, q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -1274,6 +1278,7 @@ NamedStubQuestion::NamedStubQuestion(
 			 , l_for_bounds_stack, l_enclosing_scope, l_av_info, l_question_attributes)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
+	, displayData_(), currentPage_(0)
 {
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
@@ -1300,6 +1305,7 @@ NamedStubQuestion::NamedStubQuestion(
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
+	, displayData_(), currentPage_(0)
 { 
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
@@ -3006,6 +3012,14 @@ std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(Abs
 	s	<< endl;
 	s << "}\n";
 	return s.str();
+}
+
+void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
+{
+
 }
 
 #if 0

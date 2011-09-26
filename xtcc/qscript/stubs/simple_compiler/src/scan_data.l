@@ -25,6 +25,7 @@
 %option prefix="scan_data"
 %option reentrant 
 %option bison-bridge
+%option nounput
 
 %%
 [ \t]+	;
@@ -177,10 +178,11 @@ user_response::UserResponseType read_data_from_window(
 		WINDOW * question_window, 
 		WINDOW * stub_list_window,
 		WINDOW * data_entry_window,
+		WINDOW * error_msg_window,
 		const char * prompt, bool clear_buffer_flag, string & re_arranged_buffer,
 		int & pos_1st_invalid_data, AbstractQuestion * q, vector<int> * data_ptr)
 {
-	static NCursesReadline ncurses_readline(question_window, stub_list_window, data_entry_window);
+	static NCursesReadline ncurses_readline(question_window, stub_list_window, data_entry_window, error_msg_window);
 	vector <int> & data = *data_ptr;
 	data.clear();
 	if (clear_buffer_flag) {

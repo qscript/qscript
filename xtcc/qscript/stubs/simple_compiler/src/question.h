@@ -269,6 +269,10 @@ class NamedStubQuestion: public AbstractQuestion
 	vector<stub_pair> * stub_ptr;
 	vector<display_data::DisplayDataUnit> displayData_;
 	int currentPage_;
+	int totPages_;
+	// this is a stack of indices - start and stop for each page
+	vector <pair<int,int> > pageIndices_;
+	int stubStartYIndex_;
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
@@ -352,6 +356,10 @@ class NamedStubQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
+	void DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window);
 
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);

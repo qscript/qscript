@@ -1898,7 +1898,8 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 				string l_question_name)
 	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0), arrIndex_(0)
+	  symbolTableEntry_(0), arrIndex_(0),
+	  errorMessage_()
 {
 #if 0
 	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
@@ -1932,7 +1933,8 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 			string l_array_question_name,
 			AbstractExpression *arr_index)
 	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0), arrIndex_(0)
+	  symbolTableEntry_(0), arrIndex_(0),
+	  errorMessage_()
 {
 #if 0
 	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_array_question_name);

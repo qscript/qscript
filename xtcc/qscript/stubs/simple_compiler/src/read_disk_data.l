@@ -13,6 +13,7 @@
 %}
 %option noyywrap
 %option prefix="read_disk_data"
+%option nounput
 
 
 %%
