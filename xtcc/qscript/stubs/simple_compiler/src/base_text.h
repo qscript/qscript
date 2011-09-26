@@ -18,6 +18,9 @@ struct BaseText
 		baseText_(base_text), isDynamicBaseText_(l_dynamicBaseQuestion),
 		dynamicBaseQuestion_(l_dynamicBaseQuestion)
 	{ }
+	//private:
+	//	BaseText& operator=(const BaseText&);
+	//	BaseText (const BaseText&);
 };
 
 #endif /* BaseText_h */

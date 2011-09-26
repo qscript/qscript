@@ -43,7 +43,7 @@ q3 		"Which veg dou eat?"
  	
 		unset(veg);
 		setadd(veg, q3);
-q4 		"Which is ur fav veg?"
+q4 		"Which is ur fav veg?" : q3
 		sp int32_t veg;
 
 		int32_t sum=0;
@@ -53,7 +53,7 @@ q4 		"Which is ur fav veg?"
 
 			if (code in q3) {
 q6				"In a week what perc of your veggies are (piping not yet implemented): "
-				: q3[i1]
+				: q3 . stubs [i1]
 				sp int32_t (0-100);
 				sum=sum+q6[i1];
 				iter_no=i1;

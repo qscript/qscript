@@ -41,10 +41,11 @@ struct DummyArrayQuestion;
 		TextExpressionType teType_;
 
 		string text_;
+		Unary2Expression * nameExpr_;
 		named_attribute_list* naPtr_;
 		int32_t naIndex_;
+
 		AbstractQuestion * pipedQuestion_;
-		Unary2Expression * nameExpr_;
 		AbstractExpression * questionIndexExpr_;
 		int32_t codeIndex_;
 		TextExpression(string text);
@@ -54,6 +55,9 @@ struct DummyArrayQuestion;
 		TextExpression(AbstractQuestion * q, int code_index);
 		TextExpression (AbstractQuestion * q);
 		TextExpression(); // for DummyArrayQuestion
+	private:
+		TextExpression& operator=(const TextExpression&);
+		TextExpression (const TextExpression&);
 	};
 
 

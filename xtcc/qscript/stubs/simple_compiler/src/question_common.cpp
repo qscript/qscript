@@ -17,7 +17,9 @@ AbstractQuestion::AbstractQuestion(
 	, bool l_isStartOfBlock
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
-	, textExprVec_(text_expr_vec), q_type(l_q_type)
+	, textExprVec_(text_expr_vec)
+	, questionDiskName_(l_name)
+	, q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
@@ -25,8 +27,8 @@ AbstractQuestion::AbstractQuestion(
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	  , mutexCodeList_()
-	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
-	  , questionDiskName_(l_name)
+	  , maxCode_(0)
+	, isStartOfBlock_(l_isStartOfBlock)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -112,39 +114,50 @@ bool RangeQuestion::IsValid(int32_t value)
 TextExpression::TextExpression(string text)
 	: teType_(TextExpression::simple_text_type), 
 	  text_(text), nameExpr_(0),
-	  naPtr_(0), naIndex_(0)
+	  naPtr_(0), naIndex_(-1),
+	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
 { }
+
 TextExpression::TextExpression(Unary2Expression * expr)
 	: teType_(TextExpression::named_attribute_type), 
 	  text_(), nameExpr_(expr),
-	  naPtr_(0), naIndex_(0)
+	  naPtr_(0), naIndex_(-1),
+	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
 { }
 // for DummyArrayQuestion
 TextExpression::TextExpression()
-	: text_(), nameExpr_(0),
-	  naPtr_(0), naIndex_(0)
+	: teType_(TextExpression::simple_text_type), 
+	  text_(), nameExpr_(0),
+	  naPtr_(0), naIndex_(0),
+	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
 { }
 
 TextExpression::TextExpression(named_attribute_list * na_ptr, int na_index)
 	: teType_(TextExpression::named_attribute_type),
-	  naPtr_(na_ptr), naIndex_(na_index)
+	  text_(), nameExpr_(0),
+	  naPtr_(na_ptr), naIndex_(na_index),
+	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
 { }
 
 TextExpression::TextExpression(AbstractQuestion * q, int code_index)
 	: teType_(TextExpression::question_type),
-	  pipedQuestion_(q), codeIndex_ (code_index)
+	  text_(), nameExpr_(0),
+	  naPtr_(0), naIndex_(0),
+	  pipedQuestion_(q), questionIndexExpr_(0), codeIndex_ (code_index)
 { }
 
 TextExpression::TextExpression (AbstractQuestion * q, AbstractExpression * expr)
 	: teType_ (TextExpression::question_type), 
-	  naPtr_ (0), naIndex_ (0),
-	  pipedQuestion_ (q), questionIndexExpr_ (expr)
+	  text_(), nameExpr_(0),
+	  naPtr_ (0), naIndex_ (-1),
+	  pipedQuestion_ (q), questionIndexExpr_ (expr), codeIndex_ (-1)
 { }
 
 TextExpression::TextExpression (AbstractQuestion * q)
 	: teType_ (TextExpression::question_type), 
-	  naPtr_ (0), naIndex_ (0),
-	  pipedQuestion_ (q), questionIndexExpr_ ()
+	  text_(), nameExpr_(0),
+	  naPtr_ (0), naIndex_ (-1),
+	  pipedQuestion_ (q), questionIndexExpr_ (0), codeIndex_ (-1)
 { }
 
 

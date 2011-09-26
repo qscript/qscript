@@ -27,6 +27,7 @@
 %option reentrant 
 %option bison-bridge
 %option header-file="read_disk_data_flex_prototypes.h"
+%option nounput
 
 
 %%

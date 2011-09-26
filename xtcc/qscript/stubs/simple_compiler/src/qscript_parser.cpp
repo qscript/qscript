@@ -3927,7 +3927,11 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		}\n"); 
 	fprintf(script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)\n"); 
 	fprintf(script, "		{\n"); 
-	fprintf(script, "			question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);\n"); 
+	fprintf(script, "			if (q->textExprVec_[i]->codeIndex_ != -1) {\n"); 
+	fprintf(script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);\n"); 
+	fprintf(script, "			} else {\n"); 
+	fprintf(script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();\n"); 
+	fprintf(script, "			}\n"); 
 	fprintf(script, "		}\n"); 
 	fprintf(script, "		question_text += \"</p>\";\n"); 
 	fprintf(script, "	}\n"); 

@@ -30,7 +30,9 @@ namespace qscript_parser {
 
 %}
 %option never-interactive
+%option nounput
 %x comment
+
 
 
 %%

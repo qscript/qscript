@@ -6,6 +6,7 @@
 %option prefix="qtm_datafile_conf_"
 %option noyywrap
 %option never-interactive
+%option nounput
 
 %x comment
 

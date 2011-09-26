@@ -12,6 +12,7 @@
 %option prefix="qscript_conf"
 %option noyywrap
 %option never-interactive
+%option nounput
 
 %x comment
 

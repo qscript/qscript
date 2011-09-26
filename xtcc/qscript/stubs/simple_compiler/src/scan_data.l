@@ -25,6 +25,7 @@
 %option prefix="scan_data"
 %option reentrant 
 %option bison-bridge
+%option nounput
 
 %%
 [ \t]+	;
