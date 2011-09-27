@@ -52,7 +52,8 @@ q4 		"Which is ur fav veg?"
 			int32_t code = i1+1;
 
 			if (code in q3) {
-q5				"In a week what perc of your veggies are (piping not yet implemented): "
+q5				"In a week what perc of your veggies are : "
+				: q3 . stubs [i1]
 				sp int32_t (0-100);
 				sum=sum+q5[i1];
 				iter_no=i1;

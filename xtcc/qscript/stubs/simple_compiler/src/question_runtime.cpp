@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <Wt/WString>
 #include "question.h"
 #include "named_range.h"
 #include "qscript_readline.h"
@@ -839,29 +840,37 @@ void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 }
 
 
-string NamedStubQuestion::PrintSelectedAnswers()
+Wt::WString NamedStubQuestion::PrintSelectedAnswers()
 {
 	//return string("hello");
-	stringstream select_answers_text;
+	//stringstream select_answers_text;
+	Wt::WString select_answers_text;
 	bool first_time = true;
 	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
 			inp_data_iter != input_data.end(); ++inp_data_iter) {
+		stringstream mesg_key;
+		mesg_key << nr_ptr->name << "_" << *inp_data_iter - 1;
 		if (first_time) {
-			select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
+			//select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
+			cout << "searching for : " << mesg_key.str() << endl;
+			select_answers_text += Wt::WString::tr(mesg_key.str());
 			first_time = false;
 		} else {
-			select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
+			//select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
+			cout << "searching for : " << mesg_key.str() << endl;
+			select_answers_text += Wt::WString(", ") +  Wt::WString::tr(mesg_key.str());
 		}
 	}
 	//select_answers_text << nr_ptr->stubs[codeIndex_].stub_text;
-	return select_answers_text.str();
+	//return select_answers_text.str();
+	return select_answers_text;
 }
 
 
-string NamedStubQuestion::PrintSelectedAnswers(int code_index)
+Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
 {
 	//return string("hello");
-	stringstream select_answers_text;
+	Wt::WString select_answers_text;
 	bool first_time = true;
 	//for (set<int32_t>::iterator inp_data_iter = input_data.begin();
 	//		inp_data_iter != input_data.end(); ++inp_data_iter) {
@@ -872,18 +881,22 @@ string NamedStubQuestion::PrintSelectedAnswers(int code_index)
 	//		select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
 	//	}
 	//}
-	select_answers_text << nr_ptr->stubs[code_index].stub_text;
-	return select_answers_text.str();
+	stringstream mesg_key;
+	mesg_key << nr_ptr->name << "_" << code_index ;
+	//select_answers_text << nr_ptr->stubs[code_index].stub_text;
+	//select_answers_text << WString::tr(mesg_key.str());
+	//return select_answers_text.str();
+	return Wt::WString::tr(mesg_key.str());
 }
 
 
-string RangeQuestion::PrintSelectedAnswers()
+Wt::WString RangeQuestion::PrintSelectedAnswers()
 {
-	return string("hello");
+	return Wt::WString("hello");
 }
 
 
-string RangeQuestion::PrintSelectedAnswers (int code_index)
+Wt::WString RangeQuestion::PrintSelectedAnswers (int code_index)
 {
-	return string("hello");
+	return Wt::WString("hello");
 }

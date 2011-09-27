@@ -3124,26 +3124,30 @@ std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(Abs
 	return s.str();
 }
 
-string NamedStubQuestion::PrintSelectedAnswers()
+Wt::WString NamedStubQuestion::PrintSelectedAnswers()
 {
-	return string();
+	//return string();
+	return Wt::WString();
 }
 
 
-string NamedStubQuestion::PrintSelectedAnswers(int code_index)
+Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
 {
-	return string();
+	//return string();
+	return Wt::WString();
 }
 
-string RangeQuestion::PrintSelectedAnswers()
+Wt::WString RangeQuestion::PrintSelectedAnswers()
 {
 	return string();
+	return Wt::WString();
 }
 
 
-string RangeQuestion::PrintSelectedAnswers(int code_index)
+Wt::WString RangeQuestion::PrintSelectedAnswers(int code_index)
 {
-	return string();
+	//return string();
+	return Wt::WString();
 }
 
 // TextExpression::TextExpression(string text)
