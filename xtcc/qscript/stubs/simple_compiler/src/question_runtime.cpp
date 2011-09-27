@@ -519,6 +519,7 @@ void NamedStubQuestion::ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_w
 			     , /*qs_ncurses::*/WINDOW* data_entry_window
 			     , WINDOW * error_msg_window)
 {
+	pageIndices_.clear();
 	vector<stub_pair> & vec= (nr_ptr->stubs);
 	int32_t maxWinX, maxWinY;
 	getmaxyx(stub_list_window, maxWinY, maxWinX);
@@ -595,7 +596,7 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 		for (int y = currYpos; y < maxWinY; ++y) {
 			for (int x = 1; x < maxWinX; ++x) {
 				mvwaddch (stub_list_window, currYpos, currXpos , ' ');
-				cout << "reached here\n";
+				//cout << "reached here\n";
 			}
 		}
 	}
