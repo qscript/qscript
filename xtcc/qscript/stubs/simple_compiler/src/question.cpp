@@ -3022,6 +3022,14 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 
 }
 
+void NamedStubQuestion::ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
+{
+
+}
+
 #if 0
 bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
 {

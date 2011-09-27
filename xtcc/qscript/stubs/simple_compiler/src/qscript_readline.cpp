@@ -21,7 +21,7 @@ using std::string;
 extern user_response::UserResponseType the_user_response;
 extern UserNavigation user_navigation;
 
-void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq);
+void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, WINDOW * errorMessageWindow_, NamedStubQuestion * nq);
 void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, WINDOW * errorMessageWindow_, NamedStubQuestion * nq);
 
 NCursesReadline::NCursesReadline(WINDOW * l_question_window,
@@ -145,7 +145,7 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 			case KEY_PPAGE:
 				mvwprintw(dataEntryWindow_,2,50, "got KEY_PPAGE");
 				if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
-					do_pageup(questionWindow_, stubListWindow_, dataEntryWindow_, nq);
+					do_pageup(questionWindow_, stubListWindow_, dataEntryWindow_, errorMessageWindow_, nq);
 				}
 				break;
 
@@ -404,10 +404,11 @@ void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * da
 }
 
 
-void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq)
+void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, WINDOW * errorMessageWindow_, NamedStubQuestion * nq)
 {
 	int32_t maxWinX, maxWinY;
 	getmaxyx(stubListWindow_, maxWinY, maxWinX);
+#if OLD_PAGE_ALGORITHM
 	int page_size = maxWinY - 4;
 	if (page_size>0) {
 		//vector<stub_pair> & vec= *stub_ptr;
@@ -438,5 +439,13 @@ void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * data
 			}
 			--nq->currentPage_;
 		}
+	}
+#endif /* OLD_PAGE_ALGORITHM  */
+
+	int page_size = maxWinY - nq->stubStartYIndex_;
+	int start_y = nq->stubStartYIndex_;
+	if (nq->currentPage_ - 1 >= 0) {
+		-- nq->currentPage_;
+		nq->DisplayStubsPage (questionWindow_, stubListWindow_, dataEntryWindow_, errorMessageWindow_);
 	}
 }

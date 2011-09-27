@@ -360,6 +360,10 @@ class NamedStubQuestion: public AbstractQuestion
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window
 			     , WINDOW * error_msg_window);
+	void ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_window
+				     , /*qs_ncurses::*/WINDOW* stub_list_window
+				     , /*qs_ncurses::*/WINDOW* data_entry_window
+				     , WINDOW * error_msg_window);
 
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);

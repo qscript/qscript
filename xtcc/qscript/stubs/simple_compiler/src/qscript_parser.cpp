@@ -505,11 +505,12 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "	wattron(data_entry_window, COLOR_PAIR(1));\n");
 	fprintf(script, "	wbkgd(data_entry_window, space | COLOR_PAIR(1));\n");
 	fprintf(script, "	wattrset(data_entry_window, COLOR_PAIR(1));\n");
-
+	fprintf(script, "	wmove(data_entry_window, 1, 1);\n");
 	//fprintf(script, "       wrefresh(data_entry_window);\n");
 	//fprintf(script, "	mvwprintw(data_entry_window, 1, 1, "data_entry_window: height: %d, width, %d"\n");
 	//fprintf(script, "			, DATA_ENTRY_WINDOW_HEIGHT , DATA_ENTRY_WINDOW_WIDTH);\n");
 	fprintf(script, "       keypad(data_entry_window, TRUE);\n");
+
 	fprintf(script, "	// Divide the rest of the screen between the question window\n");
 	fprintf(script, "	//  and the stub window in the ration 1:2\n");
 	fprintf(script, "	int32_t height_left = maxY - DATA_ENTRY_WINDOW_HEIGHT;\n");
@@ -533,9 +534,9 @@ void PrintSetupNCurses(FILE * script)
 	fprintf(script, "	starty = maxY - DATA_ENTRY_WINDOW_HEIGHT - STUB_LIST_WINDOW_HEIGHT - ERROR_WINDOW_HEIGHT;\n");
 	fprintf(script, "	error_msg_window = create_newwin(ERROR_WINDOW_HEIGHT\n");
 	fprintf(script, "			, ERROR_WINDOW_WIDTH, starty, startx);\n");
-	fprintf(script, "	wbkgd(error_msg_window, space | COLOR_PAIR(3));\n");
+	fprintf(script, "	wbkgd(error_msg_window, space | COLOR_PAIR(5));\n");
 	fprintf(script, "	wcolor_set(error_msg_window, 3, 0);\n");
-	fprintf(script, "	wattron(error_msg_window, COLOR_PAIR(3));\n");
+	fprintf(script, "	wattron(error_msg_window, COLOR_PAIR(5));\n");
 
 	fprintf(script, " 	height_left -= ERROR_WINDOW_HEIGHT;\n");
 
@@ -551,7 +552,6 @@ void PrintSetupNCurses(FILE * script)
 	//fprintf(script, "			, QUESTION_WINDOW_HEIGHT , QUESTION_WINDOW_WIDTH);\n");
 	//fprintf(script, "	wrefresh(question_window);\n");
 	fprintf(script, "\n");
-	fprintf(script, "	wmove(data_entry_window, 1,1);\n");
 	//fprintf(script, "	wgetch(data_entry_window);\n");
 	if(config_file_parser::PLATFORM == "LINUX"|| config_file_parser::PLATFORM == "UNIX"){
 		fprintf(script, "	define_some_pd_curses_keys();\n");
