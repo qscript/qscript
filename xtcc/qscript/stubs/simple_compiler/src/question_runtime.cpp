@@ -559,6 +559,9 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 	int32_t maxWinX, maxWinY;
 	getmaxyx(data_entry_window, maxWinY, maxWinX);
 	vector<stub_pair> & vec= (nr_ptr->stubs);
+	wclear(stub_list_window);
+	update_panels ();
+	doupdate ();
 	for (int y = currYpos; y < maxWinY; ++y) {
 		for (int x=1; x < maxWinX; ++x) {
 			//mvwprintw (stub_list_window, y, x, " ");
