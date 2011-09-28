@@ -1894,7 +1894,7 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 	: AbstractStatement(l_type, l_line_number),
 	  symbolTableEntry_(0), arrIndex_(0)
 {
-
+#if 0
 	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
 	if (sym_it == active_scope->SymbolTable.end()){
 		std::stringstream s;
@@ -1918,15 +1918,18 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 					, qscript_parser::line_no, __LINE__, __FILE__);
 		}
 	}
+#endif /* 0 */
+	VerifyForClearStatement(l_question_name, 0);
 }
 
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 			string l_array_question_name,
 			AbstractExpression *arr_index)
 	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0), arrIndex_(0)
+	  symbolTableEntry_(0), arrIndex_(0),
+	  errorMessage_()
 {
-
+#if 0
 	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_array_question_name);
 	if (sym_it == active_scope->SymbolTable.end()){
 		std::stringstream s;
@@ -1967,6 +1970,109 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
 		}
 	}
+#endif /* 0 */
+	VerifyForClearStatement(l_array_question_name, arr_index);
+}
+
+bool ClearStatement::VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index)
+{
+	if (arr_index == 0) {
+		map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
+		if (sym_it == active_scope->SymbolTable.end()){
+			std::stringstream s;
+			s << "Could not find question " << l_question_name 
+				<<"  in symbol table:  ";
+			print_err(compiler_sem_err, s.str()
+					, qscript_parser::line_no, __LINE__, __FILE__);
+			return false;
+		} else {
+			symbolTableEntry_ = sym_it->second;
+			if (symbolTableEntry_->question_) {
+				if (!symbolTableEntry_->question_->type_ == QUESTION_TYPE) {
+					std::stringstream s;
+					s << l_question_name  << " must be of QUESTION_TYPE ";
+					print_err(compiler_sem_err, s.str()
+							, qscript_parser::line_no, __LINE__, __FILE__);
+					return false;
+				} else {
+					return true;
+				}
+			} else {
+				std::stringstream s;
+				s << l_question_name  << " must be of QUESTION_TYPE ";
+				print_err(compiler_sem_err, s.str()
+						, qscript_parser::line_no, __LINE__, __FILE__);
+				return false;
+			}
+		}
+	} else {
+
+		map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
+		if (sym_it == active_scope->SymbolTable.end()){
+			std::stringstream s;
+			s << "Could not find question " << l_question_name 
+				<<"  in symbol table: ";
+			print_err(compiler_sem_err, s.str()
+					, qscript_parser::line_no, __LINE__, __FILE__);
+			return false;
+		} else {
+			symbolTableEntry_ = sym_it->second;
+			if (symbolTableEntry_->question_) {
+				if (!symbolTableEntry_->question_->type_ == QUESTION_ARR_TYPE) {
+					std::stringstream s;
+					s << l_question_name  << " must be of QUESTION_ARR_TYPE ";
+					print_err(compiler_sem_err, s.str()
+							, qscript_parser::line_no, __LINE__, __FILE__);
+					return false;
+				}
+			} else {
+				std::stringstream s;
+				s << l_question_name  << " must be of QUESTION_ARR_TYPE ";
+				print_err(compiler_sem_err, s.str()
+						, qscript_parser::line_no, __LINE__, __FILE__);
+				return false;
+			}
+			DataType l_e_type = arr_index->type_;
+			if (is_of_int_type(l_e_type)){
+				DataType nametype =arr_deref_type(symbolTableEntry_->type_);
+				if (nametype == ERROR_TYPE) {
+					std::stringstream s;
+					s << "ERROR: Array indexing AbstractExpression Variable being indexed not of Array Type " << "\n";
+					print_err(compiler_sem_err, s.str()
+							, qscript_parser::line_no, __LINE__, __FILE__);
+					return false;
+				} else {
+					type_ = nametype;
+					arrIndex_ = arr_index;
+					return true;
+				}
+			} else {
+				stringstream s;
+				s << "ERROR: Array index not of Type Int \b" ;
+				print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+				return false;
+			}
+			return false;
+		}
+	}
+}
+
+
+ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			string l_question_name, string err_msg)
+	: AbstractStatement(l_type, l_line_number),
+	  symbolTableEntry_(0), arrIndex_(0), errorMessage_ (err_msg)
+{
+	VerifyForClearStatement(l_question_name, 0);
+}
+
+ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			string l_array_question_name,
+			AbstractExpression *e, string err_msg)
+	: AbstractStatement(l_type, l_line_number),
+	  symbolTableEntry_(0), arrIndex_(0), errorMessage_ (err_msg)
+{
+	VerifyForClearStatement(l_array_question_name, e);
 }
 
 void ClearStatement::GenerateCode(StatementCompiledCode & code)
