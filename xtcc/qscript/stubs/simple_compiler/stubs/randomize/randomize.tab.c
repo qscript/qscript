@@ -95,10 +95,11 @@
 	AbstractNamedRange * active_named_range;
 	vector <AbstractNamedRange*> active_named_range_stack;
 	AbstractStatement * root;
+	vector <int> stub_number;
 
 
 /* Line 189 of yacc.c  */
-#line 102 "randomize.tab.c"
+#line 103 "randomize.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -142,7 +143,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 30 "randomize.y"
+#line 31 "randomize.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -156,7 +157,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 160 "randomize.tab.c"
+#line 161 "randomize.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -168,7 +169,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 172 "randomize.tab.c"
+#line 173 "randomize.tab.c"
 
 #ifdef short
 # undef short
@@ -383,16 +384,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  10
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   26
+#define YYLAST   29
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  15
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  11
+#define YYNNTS  12
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  17
+#define YYNRULES  18
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  32
+#define YYNSTATES  33
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -439,25 +440,25 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     5,     7,    10,    12,    15,    16,    23,
-      25,    29,    32,    36,    38,    44,    46,    49
+      25,    29,    32,    36,    38,    39,    46,    48,    51
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
       16,     0,    -1,    17,    -1,    18,    -1,    17,    18,    -1,
-      19,    -1,    25,    10,    -1,    -1,     3,     7,    20,    11,
-      24,    10,    -1,    22,    -1,    21,    12,    22,    -1,     9,
-       8,    -1,     9,     8,     5,    -1,    21,    -1,     6,     7,
-      13,    24,    14,    -1,    23,    -1,    24,    23,    -1,     4,
-       3,     7,    -1
+      19,    -1,    26,    10,    -1,    -1,     3,     7,    20,    11,
+      25,    10,    -1,    22,    -1,    21,    12,    22,    -1,     9,
+       8,    -1,     9,     8,     5,    -1,    21,    -1,    -1,     6,
+       7,    24,    13,    25,    14,    -1,    23,    -1,    25,    23,
+      -1,     4,     3,     7,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    60,    60,    65,    68,    75,    76,    79,    79,   108,
-     109,   112,   118,   126,   132,   180,   181,   216
+       0,    61,    61,    66,    69,    76,    77,    80,    80,   119,
+     120,   123,   130,   139,   145,   145,   200,   201,   236
 };
 #endif
 
@@ -469,7 +470,7 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "STUBS_LIST", "RANDOMIZE", "MUTEX",
   "STUB_GROUP", "NAME", "INUMBER", "TEXT", "';'", "'='", "','", "'{'",
   "'}'", "$accept", "prog", "stmt_list", "stmt", "stubs", "$@1",
-  "simple_stub_list", "simple_stub", "stub", "stub_list",
+  "simple_stub_list", "simple_stub", "stub", "$@2", "stub_list",
   "randomize_stub_statement", 0
 };
 #endif
@@ -488,14 +489,14 @@ static const yytype_uint16 yytoknum[] =
 static const yytype_uint8 yyr1[] =
 {
        0,    15,    16,    17,    17,    18,    18,    20,    19,    21,
-      21,    22,    22,    23,    23,    24,    24,    25
+      21,    22,    22,    23,    24,    23,    25,    25,    26
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     1,     2,     1,     2,     0,     6,     1,
-       3,     2,     3,     1,     5,     1,     2,     3
+       3,     2,     3,     1,     0,     6,     1,     2,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -504,16 +505,16 @@ static const yytype_uint8 yyr2[] =
 static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,     0,     2,     3,     5,     0,     7,     0,
-       1,     4,     6,     0,    17,     0,     0,     0,    13,     9,
-      15,     0,     0,    11,     0,     8,    16,     0,    12,    10,
-       0,    14
+       1,     4,     6,     0,    18,     0,     0,     0,    13,     9,
+      16,     0,    14,    11,     0,     8,    17,     0,    12,    10,
+       0,     0,    15
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     3,     4,     5,     6,    13,    18,    19,    20,    21,
-       7
+      -1,     3,     4,     5,     6,    13,    18,    19,    20,    27,
+      21,     7
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -521,17 +522,17 @@ static const yytype_int8 yydefgoto[] =
 #define YYPACT_NINF -22
 static const yytype_int8 yypact[] =
 {
-       8,     1,    10,    14,     8,   -22,   -22,     5,   -22,     9,
-     -22,   -22,   -22,     6,   -22,    -5,    11,    12,     7,   -22,
-     -22,    -3,    13,    16,    15,   -22,   -22,    -5,   -22,   -22,
-      -4,   -22
+       9,     0,    11,     3,     9,   -22,   -22,     5,   -22,    10,
+     -22,   -22,   -22,     7,   -22,     2,    12,     8,    13,   -22,
+     -22,    -4,   -22,    15,    14,   -22,   -22,    16,   -22,   -22,
+       2,    -5,   -22
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -22,   -22,   -22,    18,   -22,   -22,   -22,    -1,   -21,    -2,
-     -22
+     -22,   -22,   -22,    17,   -22,   -22,   -22,    -2,   -21,   -22,
+      -6,   -22
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -541,26 +542,26 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      26,    16,    16,    16,    17,    17,    17,    25,     8,    26,
-      31,     1,     2,     9,    10,    12,    14,    15,    22,    24,
-      23,    28,    11,    29,    17,    30,    27
+      26,    16,    16,    10,    17,    17,    25,     8,    16,    32,
+      26,    17,     1,     2,     9,    12,    23,    14,    15,    22,
+      28,    11,    29,    17,    31,    24,     0,     0,     0,    30
 };
 
-static const yytype_uint8 yycheck[] =
+static const yytype_int8 yycheck[] =
 {
-      21,     6,     6,     6,     9,     9,     9,    10,     7,    30,
-      14,     3,     4,     3,     0,    10,     7,    11,     7,    12,
-       8,     5,     4,    24,     9,    27,    13
+      21,     6,     6,     0,     9,     9,    10,     7,     6,    14,
+      31,     9,     3,     4,     3,    10,     8,     7,    11,     7,
+       5,     4,    24,     9,    30,    12,    -1,    -1,    -1,    13
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     3,     4,    16,    17,    18,    19,    25,     7,     3,
+       0,     3,     4,    16,    17,    18,    19,    26,     7,     3,
        0,    18,    10,    20,     7,    11,     6,     9,    21,    22,
-      23,    24,     7,     8,    12,    10,    23,    13,     5,    22,
-      24,    14
+      23,    25,     7,     8,    12,    10,    23,    24,     5,    22,
+      13,    25,    14
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1374,7 +1375,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 60 "randomize.y"
+#line 61 "randomize.y"
     {
 	root = (yyvsp[(1) - (1)].stmt);
 	;}
@@ -1383,7 +1384,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 65 "randomize.y"
+#line 66 "randomize.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 	;}
@@ -1392,7 +1393,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 68 "randomize.y"
+#line 69 "randomize.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
@@ -1403,9 +1404,10 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 79 "randomize.y"
+#line 80 "randomize.y"
     {
 		stub_list.resize(0);
+		stub_number.push_back(0);
 		//active_named_range = new named_range (NAMED_RANGE, line_no, $2);
 	;}
     break;
@@ -1413,7 +1415,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 82 "randomize.y"
+#line 84 "randomize.y"
     {
 		//string stub_name=$2;
 		//struct named_range* nr_ptr= 
@@ -1436,17 +1438,27 @@ yyreduce:
 		cout << endl;
 		nrg->groupPtr_ = nr_ptr;
 		(yyval.stmt) = nrg;
+
+		int highest_stub_number_in_group = stub_number.back() ;
+		 
+		stub_number.pop_back(); 
+		cout << "highest_stub_number_in_group: " 
+			<< (yyvsp[(2) - (6)].name) << ": " 
+			<< highest_stub_number_in_group
+			<< endl;
+		stub_number.pop_back();
 	;}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 112 "randomize.y"
+#line 123 "randomize.y"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int32_t code=(yyvsp[(2) - (2)].ival);
-		struct stub_pair pair1 (s1, code);
+		++stub_number[stub_number.size()-1];
+		struct stub_pair pair1 (s1, code, stub_number.back());
 		stub_list.push_back (pair1);
 	;}
     break;
@@ -1454,11 +1466,12 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 118 "randomize.y"
+#line 130 "randomize.y"
     {
 		string s1=(yyvsp[(1) - (3)].text_buf);
 		int32_t code=(yyvsp[(2) - (3)].ival);
-		struct stub_pair pair1 (s1, code, true);
+		++stub_number[stub_number.size()-1];
+		struct stub_pair pair1 (s1, code, true, stub_number.back());
 		stub_list.push_back(pair1);
 	;}
     break;
@@ -1466,7 +1479,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 126 "randomize.y"
+#line 139 "randomize.y"
     {
 		NamedRangeList * nrl = new NamedRangeList();
 		nrl->stubs = stub_list;
@@ -1478,7 +1491,14 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 132 "randomize.y"
+#line 145 "randomize.y"
+    { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); ;}
+    break;
+
+  case 15:
+
+/* Line 1455 of yacc.c  */
+#line 145 "randomize.y"
     {
 		/* continue from here:
 		   treat this as a named compound statement - just like in the main qscript grammar
@@ -1494,7 +1514,7 @@ yyreduce:
 		active_named_range->sub_group_ptr = new named_range (NAMED_RANGE, line_no, $2);
 		active_named_range = active_named_range->sub_group_ptr;
 		*/
-		AbstractNamedRange * nr_ptr = (yyvsp[(4) - (5)].nr_ptr);
+		AbstractNamedRange * nr_ptr = (yyvsp[(5) - (6)].nr_ptr);
 		cout << "climbing up the chain" << endl;
 		while (nr_ptr->prev_nr) {
 			cout << "." ;
@@ -1502,16 +1522,23 @@ yyreduce:
 		}
 		cout << endl;
 
-		NamedRangeGroup * nrg = new NamedRangeGroup ((yyvsp[(2) - (5)].name));
+		NamedRangeGroup * nrg = new NamedRangeGroup ((yyvsp[(2) - (6)].name));
 		nrg->groupPtr_ = nr_ptr;
 		(yyval.nr_ptr) = nrg;
+		int highest_stub_number_in_group = stub_number.back() ;
+		 
+		stub_number.pop_back(); 
+		cout << "highest_stub_number_in_group: " 
+			<< (yyvsp[(2) - (6)].name) << ": " 
+			<< highest_stub_number_in_group
+			<< endl
 	;}
     break;
 
-  case 16:
+  case 17:
 
 /* Line 1455 of yacc.c  */
-#line 181 "randomize.y"
+#line 201 "randomize.y"
     {
 		AbstractNamedRange * nr_ptr1=(yyvsp[(1) - (2)].nr_ptr), *nr_ptr2=(yyvsp[(2) - (2)].nr_ptr);
 		NamedRangeList * nrl_ptr1 =0, *nrl_ptr2=0;
@@ -1547,10 +1574,10 @@ yyreduce:
 	;}
     break;
 
-  case 17:
+  case 18:
 
 /* Line 1455 of yacc.c  */
-#line 216 "randomize.y"
+#line 236 "randomize.y"
     {
 		(yyval.stmt) = 0;
 	;}
@@ -1559,7 +1586,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1563 "randomize.tab.c"
+#line 1590 "randomize.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1771,7 +1798,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 221 "randomize.y"
+#line 241 "randomize.y"
 
 #include <cstdio>
 

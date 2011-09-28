@@ -37,7 +37,9 @@ struct NamedRangeList: public AbstractNamedRange
 	{ }
 	void Print() {
 		for (int i=0; i<stubs.size(); ++i) {
-			cout << stubs[i].stub_text << ", " << stubs[i].code << endl;
+			cout << stubs[i].stub_text << ", " << stubs[i].code 
+				<< ", index_in_group: " << stubs[i].index_in_group
+				<< endl;
 		}
 		if (next_nr) {
 			next_nr->Print();

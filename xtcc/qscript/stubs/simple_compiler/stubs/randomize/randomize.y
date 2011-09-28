@@ -24,6 +24,7 @@
 	AbstractNamedRange * active_named_range;
 	vector <AbstractNamedRange*> active_named_range_stack;
 	AbstractStatement * root;
+	vector <int> stub_number;
 %}
 
 
@@ -78,6 +79,7 @@ stmt: 		stubs
 
 stubs:	STUBS_LIST NAME {
 		stub_list.resize(0);
+		stub_number.push_back(0);
 		//active_named_range = new named_range (NAMED_RANGE, line_no, $2);
 	} '=' stub_list ';' {
 		//string stub_name=$2;
@@ -101,6 +103,15 @@ stubs:	STUBS_LIST NAME {
 		cout << endl;
 		nrg->groupPtr_ = nr_ptr;
 		$$ = nrg;
+
+		int highest_stub_number_in_group = stub_number.back() ;
+		 
+		stub_number.pop_back(); 
+		cout << "highest_stub_number_in_group: " 
+			<< $2 << ": " 
+			<< highest_stub_number_in_group
+			<< endl;
+		stub_number.pop_back();
 	}
 	;
 
@@ -112,13 +123,15 @@ simple_stub_list: simple_stub
 simple_stub:	TEXT INUMBER {
 		string s1=$1;
 		int32_t code=$2;
-		struct stub_pair pair1 (s1, code);
+		++stub_number[stub_number.size()-1];
+		struct stub_pair pair1 (s1, code, stub_number.back());
 		stub_list.push_back (pair1);
 	}
 	| TEXT INUMBER MUTEX {
 		string s1=$1;
 		int32_t code=$2;
-		struct stub_pair pair1 (s1, code, true);
+		++stub_number[stub_number.size()-1];
+		struct stub_pair pair1 (s1, code, true, stub_number.back());
 		stub_list.push_back(pair1);
 	}
 	;
@@ -129,7 +142,7 @@ stub: simple_stub_list {
 		stub_list.clear();
 		$$ = nrl;
 	}
-	| STUB_GROUP NAME '{' stub_list  '}' {
+	| STUB_GROUP NAME { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); } '{' stub_list  '}' {
 		/* continue from here:
 		   treat this as a named compound statement - just like in the main qscript grammar
 		   */
@@ -144,7 +157,7 @@ stub: simple_stub_list {
 		active_named_range->sub_group_ptr = new named_range (NAMED_RANGE, line_no, $2);
 		active_named_range = active_named_range->sub_group_ptr;
 		*/
-		AbstractNamedRange * nr_ptr = $4;
+		AbstractNamedRange * nr_ptr = $5;
 		cout << "climbing up the chain" << endl;
 		while (nr_ptr->prev_nr) {
 			cout << "." ;
@@ -155,6 +168,13 @@ stub: simple_stub_list {
 		NamedRangeGroup * nrg = new NamedRangeGroup ($2);
 		nrg->groupPtr_ = nr_ptr;
 		$$ = nrg;
+		int highest_stub_number_in_group = stub_number.back() ;
+		 
+		stub_number.pop_back(); 
+		cout << "highest_stub_number_in_group: " 
+			<< $2 << ": " 
+			<< highest_stub_number_in_group
+			<< endl
 	}
 	/*
 	| '}' {
