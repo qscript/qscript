@@ -72,6 +72,7 @@
 
 #include <vector>
 #include <iostream>
+#include <sstream>
 	
 #include "AbstractStatement.h"
 //#include "named_range.h"
@@ -79,6 +80,7 @@
 #include "const_defs.h"
 
 	using std::vector;
+	using std::stringstream;
 	using std::endl;
 	using std::cout;
 	using std::cerr;
@@ -99,7 +101,7 @@
 
 
 /* Line 189 of yacc.c  */
-#line 103 "randomize.tab.c"
+#line 105 "randomize.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -143,7 +145,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 31 "randomize.y"
+#line 33 "randomize.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -157,7 +159,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 161 "randomize.tab.c"
+#line 163 "randomize.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -169,7 +171,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 173 "randomize.tab.c"
+#line 175 "randomize.tab.c"
 
 #ifdef short
 # undef short
@@ -457,8 +459,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    61,    61,    66,    69,    76,    77,    80,    80,   119,
-     120,   123,   130,   139,   145,   145,   200,   201,   236
+       0,    63,    63,    68,    71,    78,    79,    82,    82,   126,
+     127,   130,   137,   146,   152,   152,   207,   208,   243
 };
 #endif
 
@@ -1375,7 +1377,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 61 "randomize.y"
+#line 63 "randomize.y"
     {
 	root = (yyvsp[(1) - (1)].stmt);
 	;}
@@ -1384,7 +1386,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 66 "randomize.y"
+#line 68 "randomize.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 	;}
@@ -1393,7 +1395,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 69 "randomize.y"
+#line 71 "randomize.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
@@ -1404,7 +1406,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 80 "randomize.y"
+#line 82 "randomize.y"
     {
 		stub_list.resize(0);
 		stub_number.push_back(0);
@@ -1415,7 +1417,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 84 "randomize.y"
+#line 86 "randomize.y"
     {
 		//string stub_name=$2;
 		//struct named_range* nr_ptr= 
@@ -1441,19 +1443,24 @@ yyreduce:
 
 		int highest_stub_number_in_group = stub_number.back() ;
 		 
+		cout << "stub_number.size(): "  << stub_number.size()
+			<< endl;
 		stub_number.pop_back(); 
 		cout << "highest_stub_number_in_group: " 
 			<< (yyvsp[(2) - (6)].name) << ": " 
 			<< highest_stub_number_in_group
 			<< endl;
-		stub_number.pop_back();
+		if (stub_number.size() != 0) {
+			cerr << "Error in parsing assumptions: stub_number.size should be 0 at this point"
+				<< endl;
+		}
 	;}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 123 "randomize.y"
+#line 130 "randomize.y"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int32_t code=(yyvsp[(2) - (2)].ival);
@@ -1466,7 +1473,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 130 "randomize.y"
+#line 137 "randomize.y"
     {
 		string s1=(yyvsp[(1) - (3)].text_buf);
 		int32_t code=(yyvsp[(2) - (3)].ival);
@@ -1479,7 +1486,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 139 "randomize.y"
+#line 146 "randomize.y"
     {
 		NamedRangeList * nrl = new NamedRangeList();
 		nrl->stubs = stub_list;
@@ -1491,14 +1498,14 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 145 "randomize.y"
+#line 152 "randomize.y"
     { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); ;}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 145 "randomize.y"
+#line 152 "randomize.y"
     {
 		/* continue from here:
 		   treat this as a named compound statement - just like in the main qscript grammar
@@ -1538,7 +1545,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 201 "randomize.y"
+#line 208 "randomize.y"
     {
 		AbstractNamedRange * nr_ptr1=(yyvsp[(1) - (2)].nr_ptr), *nr_ptr2=(yyvsp[(2) - (2)].nr_ptr);
 		NamedRangeList * nrl_ptr1 =0, *nrl_ptr2=0;
@@ -1577,7 +1584,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 236 "randomize.y"
+#line 243 "randomize.y"
     {
 		(yyval.stmt) = 0;
 	;}
@@ -1586,7 +1593,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 1590 "randomize.tab.c"
+#line 1597 "randomize.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1798,12 +1805,13 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 241 "randomize.y"
+#line 248 "randomize.y"
 
 #include <cstdio>
 
 void yyrestart(FILE *input_file);
 int32_t yyparse();
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, stringstream & final_answer);
 int main()
 {
 	FILE * yyin = fopen("random_test2.input", "rb");
@@ -1817,9 +1825,41 @@ int main()
 		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
 		if (nr_ptr) {
 			nr_ptr->Print();
+			vector <string> group_str;
+			stringstream final_answer;
+			PrintNamedRange (nr_ptr, group_str, final_answer);
+			cout 	<< "final_answer: " << endl
+				<< final_answer.str()
+				<< endl;
 		} else {
 			cout << "not a AbstractNamedRange" << endl;
 		}
 	}
 }
+
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, stringstream & final_answer)
+{
+	while (nr) {
+		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (nr)) {
+			string s (ng->groupName_);
+			if (group_str.size() > 0) {
+				group_str[group_str.size() - 1] += "|" + s;
+			}
+			s += " : ";
+			group_str.push_back(s);
+			PrintNamedRange (ng->groupPtr_, group_str, final_answer);
+		} else if (NamedRangeList * nl = dynamic_cast<NamedRangeList*> (nr)) {
+			group_str[group_str.size() -1 ] += string("|");
+			for (int i = 0; i < nl->stubs.size(); ++i) {
+				group_str[group_str.size() - 1] += string("|") + nl->stubs[i].stub_text;
+			}
+		}
+		nr = nr->next_nr;
+	}
+	if (group_str.size() > 0) {
+		final_answer << group_str.back() << endl;
+		group_str.pop_back();
+	}
+}
+
 

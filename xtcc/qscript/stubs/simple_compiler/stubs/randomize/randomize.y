@@ -1,6 +1,7 @@
 %{
 #include <vector>
 #include <iostream>
+#include <sstream>
 	
 #include "AbstractStatement.h"
 //#include "named_range.h"
@@ -8,6 +9,7 @@
 #include "const_defs.h"
 
 	using std::vector;
+	using std::stringstream;
 	using std::endl;
 	using std::cout;
 	using std::cerr;
@@ -106,12 +108,17 @@ stubs:	STUBS_LIST NAME {
 
 		int highest_stub_number_in_group = stub_number.back() ;
 		 
+		cout << "stub_number.size(): "  << stub_number.size()
+			<< endl;
 		stub_number.pop_back(); 
 		cout << "highest_stub_number_in_group: " 
 			<< $2 << ": " 
 			<< highest_stub_number_in_group
 			<< endl;
-		stub_number.pop_back();
+		if (stub_number.size() != 0) {
+			cerr << "Error in parsing assumptions: stub_number.size should be 0 at this point"
+				<< endl;
+		}
 	}
 	;
 
@@ -243,6 +250,7 @@ randomize_stub_statement: RANDOMIZE STUBS_LIST NAME {
 
 void yyrestart(FILE *input_file);
 int32_t yyparse();
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, stringstream & final_answer);
 int main()
 {
 	FILE * yyin = fopen("random_test2.input", "rb");
@@ -256,8 +264,40 @@ int main()
 		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
 		if (nr_ptr) {
 			nr_ptr->Print();
+			vector <string> group_str;
+			stringstream final_answer;
+			PrintNamedRange (nr_ptr, group_str, final_answer);
+			cout 	<< "final_answer: " << endl
+				<< final_answer.str()
+				<< endl;
 		} else {
 			cout << "not a AbstractNamedRange" << endl;
 		}
 	}
 }
+
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, stringstream & final_answer)
+{
+	while (nr) {
+		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (nr)) {
+			string s (ng->groupName_);
+			if (group_str.size() > 0) {
+				group_str[group_str.size() - 1] += "|" + s;
+			}
+			s += " : ";
+			group_str.push_back(s);
+			PrintNamedRange (ng->groupPtr_, group_str, final_answer);
+		} else if (NamedRangeList * nl = dynamic_cast<NamedRangeList*> (nr)) {
+			group_str[group_str.size() -1 ] += string("|");
+			for (int i = 0; i < nl->stubs.size(); ++i) {
+				group_str[group_str.size() - 1] += string("|") + nl->stubs[i].stub_text;
+			}
+		}
+		nr = nr->next_nr;
+	}
+	if (group_str.size() > 0) {
+		final_answer << group_str.back() << endl;
+		group_str.pop_back();
+	}
+}
+
