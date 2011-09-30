@@ -15,6 +15,8 @@
 #include "AbstractStatement.h"
 
 using namespace std;
+struct NamedRangeList;
+struct NamedRangeGroup;
 
 struct AbstractNamedRange: public AbstractStatement
 {
@@ -25,7 +27,10 @@ struct AbstractNamedRange: public AbstractStatement
 	{ }
 	void GenerateCode(StatementCompiledCode & code)
 	{ }
-	virtual void Print()=0;
+	virtual void Print ()=0;
+	virtual void SimplePrint ()=0;
+	virtual void AddStub (string p_text, int p_code, int p_index_in_group)=0;
+	virtual void AddGroup (NamedRangeGroup & p_group)=0;
 };
 
 
@@ -43,6 +48,19 @@ struct NamedRangeList: public AbstractNamedRange
 		}
 		if (next_nr) {
 			next_nr->Print();
+		}
+	}
+	void AddStub (string p_text, int p_code, int p_index_in_group);
+	void AddGroup (NamedRangeGroup & p_group);
+	void SimplePrint()
+	{
+		for (int i=0; i<stubs.size(); ++i) {
+			cout << stubs[i].stub_text << ", " << stubs[i].code 
+				<< ", index_in_group: " << stubs[i].index_in_group
+				<< endl;
+		}
+		if (next_nr) {
+			next_nr->SimplePrint();
 		}
 	}
 };
@@ -65,6 +83,16 @@ struct NamedRangeGroup: public AbstractNamedRange
 			next_nr->Print();
 		}
 	}
+
+	void SimplePrint()
+	{
+		cout << groupName_ << endl;
+		if (next_nr) {
+			next_nr->SimplePrint();
+		}
+	}
+	void AddStub (string p_text, int p_code, int p_index_in_group);
+	void AddGroup (NamedRangeGroup & p_group);
 };
 
 #endif /* xtcc_named_range_h */

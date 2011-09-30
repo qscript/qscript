@@ -1,7 +1,8 @@
 %{
-#include <vector>
 #include <iostream>
+#include <vector>
 #include <sstream>
+#include <string>
 	
 #include "AbstractStatement.h"
 //#include "named_range.h"
@@ -10,6 +11,7 @@
 
 	using std::vector;
 	using std::stringstream;
+	using std::string;
 	using std::endl;
 	using std::cout;
 	using std::cerr;
@@ -247,10 +249,12 @@ randomize_stub_statement: RANDOMIZE STUBS_LIST NAME {
 
 %%
 #include <cstdio>
+#include <vector>
 
 void yyrestart(FILE *input_file);
 int32_t yyparse();
-void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, stringstream & final_answer);
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vector <string> & group_list, stringstream & final_answer);
+bool compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2);
 int main()
 {
 	FILE * yyin = fopen("random_test2.input", "rb");
@@ -265,39 +269,253 @@ int main()
 		if (nr_ptr) {
 			nr_ptr->Print();
 			vector <string> group_str;
+			vector <string> group_list;
 			stringstream final_answer;
-			PrintNamedRange (nr_ptr, group_str, final_answer);
+
+			if (NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr)) {
+				//group_list.push_back ("NamedRangeGroup " + ng->groupName_ + ";\n");
+				//group_str.push_back (ng->groupName_);
+				PrintNamedRange (nr_ptr, group_str, group_list, final_answer);
+			}
 			cout 	<< "final_answer: " << endl
+				<< "========================" << endl
 				<< final_answer.str()
+				<< "========================" << endl
 				<< endl;
 		} else {
 			cout << "not a AbstractNamedRange" << endl;
 		}
-	}
-}
-
-void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, stringstream & final_answer)
-{
-	while (nr) {
-		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (nr)) {
-			string s (ng->groupName_);
-			if (group_str.size() > 0) {
-				group_str[group_str.size() - 1] += "|" + s;
-			}
-			s += " : ";
-			group_str.push_back(s);
-			PrintNamedRange (ng->groupPtr_, group_str, final_answer);
-		} else if (NamedRangeList * nl = dynamic_cast<NamedRangeList*> (nr)) {
-			group_str[group_str.size() -1 ] += string("|");
-			for (int i = 0; i < nl->stubs.size(); ++i) {
-				group_str[group_str.size() - 1] += string("|") + nl->stubs[i].stub_text;
+		if (nr_ptr) {
+			if (NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr)) {
+				cout << "SimplePrint =============== " << endl;
+				ng->groupPtr_->SimplePrint();
+				cout << "END SimplePrint =============== " << endl;
 			}
 		}
-		nr = nr->next_nr;
 	}
-	if (group_str.size() > 0) {
+	{
+		// test area
+		//=======
+		NamedRangeGroup grp_1("grp_1");
+		grp_1.AddStub( " Kalyanam (Ratia Marg, Snagam Vihar, New Delhi)", 7, 1);
+		grp_1.AddStub( " CASP Plan Project (Neem Chowk, Sangam Vihar, New Delhi)", 8, 2);
+		grp_1.AddStub( " EFRAH (Aali Vihar, nr. Aali Village, New Delhi)", 9, 3);
+		grp_1.AddStub( " Nav Srishti (Village neb Sarai, New Delhi)", 10, 4);
+		cout << "grp_1.groupPtr_->SimplePrint =============== " << endl;
+		grp_1.groupPtr_->SimplePrint();
+		cout << "END SimplePrint =============== " << endl;
+
+		NamedRangeGroup grp_21("grp_21");
+		grp_21.AddStub( " Shape India (R/o block 5c, Sarai Kale Khan, DDA flat)", 13, 1);
+		grp_21.AddStub( " Jai Jawan Jai Kisan trust (Cenquin) (Centre for community and child development, Jamia Milia Islamia)", 14, 2);
+
+		NamedRangeGroup grp_22("grp_22");
+		grp_22.AddStub( " Adarshila (Greater Kailash 2, New Delhi)", 15, 1);
+		grp_22.AddStub( " Katha (A/3 Sarvodaya Enclave, New Delhi)", 16, 2);
+
+		NamedRangeGroup grp_2("grp_2");
+		cout << "before: grp_2.AddGroup(grp_21);" << endl;
+		grp_2.AddGroup(grp_21);
+		cout << "before: grp_2.AddGroup(grp_22);" << endl;
+		grp_2.AddGroup(grp_22);
+		cout << "grp_2.groupPtr_->SimplePrint =============== " << endl;
+		grp_2.groupPtr_->SimplePrint();
+		cout << "END SimplePrint =============== " << endl;
+
+		NamedRangeGroup suvidha_kendra("suvidha_kendra");
+		suvidha_kendra.AddStub( " CASP (JJ Colony, Madanpur Khadar, New Delhi)", 1, 1);
+		suvidha_kendra.AddStub( " Prayatn (Basti Vikas Kendra, Jeevan Jyoti Rajiv Camp, D Block, Okhla PII", 2, 2);
+		suvidha_kendra.AddStub( " Jal Shankar Memorial Centre (Jasloa Village, New Delhi) Jal", 3, 3);
+		suvidha_kendra.AddStub( " Sakaar Outreach (Tanki Road, Meethapur Badarpur, New Delhi)", 4, 4);
+		suvidha_kendra.AddStub( " Mamta health Institute for Mother and Child (JJ Camp, Tigri, New Delhi)", 5, 5);
+		suvidha_kendra.AddStub( " New opportunities for Women (NOW) (Nr Shalimar Conema, New park)", 6, 6);
+		suvidha_kendra.AddGroup(grp_1);
+		suvidha_kendra.AddStub( " Navjyoti Development Society (Tekhand village, Okhla phase I, New Del)", 11, 8);
+		suvidha_kendra.AddStub( " Sakaar Outreach (Madangir Ambedkar Nagar, New Delhi)", 12, 9);
+		suvidha_kendra.AddGroup(grp_2);
+		suvidha_kendra.AddStub( " Kalyanam (41/1407 DDA flats, Madangir, New Delhi)", 17, 11);
+
+		cout << "SimplePrint suvidha_kendra.groupPtr_ =============== " << endl;
+		suvidha_kendra.groupPtr_->SimplePrint();
+		cout << "END SimplePrint =============== " << endl;
+		//cout << "SimplePrint =============== " << endl;
+		//suvidha_kendra.SimplePrint();
+		//cout << "END SimplePrint =============== " << endl;
+		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
+		if (NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr)) {
+			bool compare_result = compare_structure (&suvidha_kendra, ng);
+			cout << " compare_result: " << compare_result << endl;
+		}
+
+		//=======
+		vector <string> group_str;
+		vector <string> group_list;
+		stringstream final_answer;
+		//group_str.push_back("suvidha_kendra");
+		//group_list.push_back("suvidha_kendra");
+		PrintNamedRange (&suvidha_kendra, group_str, group_list, final_answer);
+		cout << "final_answer: "
+			<< "=======================" << endl
+			<< final_answer.str()
+			<< "=======================" << endl
+			<< endl;
+
+	}
+
+}
+
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vector <string> & group_list, stringstream & final_answer)
+{
+	//while (nr) 
+	bool added_to_stack = false;
+	if (nr) {
+		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (nr)) {
+			string s (ng->groupName_);
+			group_list.push_back ( s);
+
+			cout << "Adding group: " << s 
+				<< " onto the stack" << endl;
+			if (group_str.size() > 0) {
+				group_str[group_str.size() - 1] 
+					+=  group_list[group_list.size()-2]
+						+ ".AddGroup(" 
+						+ s
+						+ ");\n";
+			}
+			//s += " : ";
+			group_str.push_back("NamedRangeGroup " + s + "(\"" + s + "\")" +";\n");
+			//if (ng->groupPtr_)
+			PrintNamedRange (ng->groupPtr_, group_str, group_list, final_answer);
+			added_to_stack = true;
+		} else if (NamedRangeList * nl = dynamic_cast<NamedRangeList*> (nr)) {
+			//group_str[group_str.size() -1 ] += string("|");
+			for (int i = 0; i < nl->stubs.size(); ++i) {
+				//group_str[group_str.size() - 1] += string("|") + nl->stubs[i].stub_text;
+				stringstream s1;
+				s1 << group_list[group_list.size()-1]
+					<< string(".AddStub( \"") << nl->stubs[i].stub_text
+					<< string("\", ")
+					<< nl->stubs[i].code
+					<< string(", ") << nl->stubs[i].index_in_group 
+					<< string(");\n");
+				group_str[group_str.size() - 1] 
+					+= s1.str();
+			}
+		}
+		//nr = nr->next_nr;
+	}
+	//if (group_str.size() > 0) 
+	if (added_to_stack) {
 		final_answer << group_str.back() << endl;
 		group_str.pop_back();
+		group_list.pop_back();
+	}
+	cout << "before next recursive call nr: " << nr << endl;
+	if (nr->next_nr) {
+			PrintNamedRange (nr->next_nr, group_str, group_list, final_answer);
 	}
 }
 
+bool compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2)
+{
+	NamedRangeList * nl1 = dynamic_cast<NamedRangeList*> (nr1);
+	NamedRangeGroup * ng1 = dynamic_cast<NamedRangeGroup*> (nr1);
+	NamedRangeList * nl2 = dynamic_cast<NamedRangeList*> (nr2);
+	NamedRangeGroup * ng2 = dynamic_cast<NamedRangeGroup*> (nr2);
+
+	if (ng1 && ng1->groupName_ == "grp_21") {
+		cout << "ng1 == grp_21" << endl;
+		cout << "ng1->groupPtr_: "
+			<< ng1->groupPtr_ << endl;
+		if (dynamic_cast<NamedRangeGroup*> (ng1->groupPtr_)) {
+			cout << "ng1->groupPtr_"
+				<< " is a NamedRangeGroup"
+				<< endl;
+		}
+		if (dynamic_cast<NamedRangeList*> (ng1->groupPtr_)) {
+			cout << "ng1->groupPtr_"
+				<< " is a NamedRangeList"
+				<< endl;
+		}
+		cout << "=============" << endl;
+	}
+	if (ng2 && ng2->groupName_ == "grp_21") {
+		cout << "ng2 == grp_21" << endl;
+		cout << "ng2->groupPtr_: "
+			<< ng2->groupPtr_ << endl;
+		if (dynamic_cast<NamedRangeGroup*> (ng2->groupPtr_)) {
+			cout << "ng2->groupPtr_"
+				<< " is a NamedRangeGroup"
+				<< endl;
+		}
+		if (dynamic_cast<NamedRangeList*> (ng2->groupPtr_)) {
+			cout << "ng2->groupPtr_"
+				<< " is a NamedRangeList"
+				<< endl;
+		}
+		cout << "-------------" << endl;
+	}
+
+	cout << __PRETTY_FUNCTION__ << endl;
+
+	if (nl1 && nl2) {
+		cout <<  "both are lists" << endl;
+		if (nl1->stubs.size() != nl2->stubs.size()) {
+			cout << "nl1 and nl2 are both lists but stub sizes are different" << endl;
+			return false;
+		} else {
+			for (int i=0; i < nl1->stubs.size(); ++i) {
+				if (nl1->stubs[i].stub_text != nl2->stubs[i].stub_text) {
+					cout << "nl1 and nl2 differ at i= " << i;
+					cout << nl1->stubs[i].stub_text << endl
+						 << nl2->stubs[i].stub_text << endl;
+				}
+			}
+			if (nl1->next_nr && nl2->next_nr) {
+				return compare_structure (nl1->next_nr, nl2->next_nr);
+			} else {
+				return true;
+			}
+		}
+	} else if (ng1 && ng2) {
+		cout <<  "both are named groups: " 
+			<< ng1->groupName_ << ", " 
+			<< ng2->groupName_ 
+			<< endl;
+		if (ng1->groupName_ == ng2->groupName_) {
+			
+			bool result = compare_structure (ng1->groupPtr_, ng2->groupPtr_);
+			if (!result) {
+				cout << "group names match but structure doesnt: "
+					<< ng1->groupName_
+					<< endl;
+				return false;
+			} else if (ng1->next_nr && ng2->next_nr) {
+				return compare_structure (ng1->next_nr, ng2->next_nr);
+			} else if (ng1->next_nr == 0 && ng2->next_nr == 0) {
+				return true;
+			} else {
+				cout << "one of the groups does not have a next_nr pointer" << endl;
+				if (ng1->next_nr) {
+					cout << "ng1->next: " << ng1->next_nr << endl;
+				} else {
+					cout << "ng1->next == 0" << endl;
+				}
+				if (ng2->next_nr) {
+					cout << "ng2->next: " << ng2->next_nr << endl;
+				} else {
+					cout << "ng2->next == 0" << endl;
+				}
+				return false;
+			}
+		} else {
+			cout << "ng1 and ng2 have different names"
+				<< endl;
+			return false;
+		}
+	} else {
+		cout << "the inputs are of different types" 
+			<< endl;
+		return false;
+	}
+}
