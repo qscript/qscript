@@ -1612,7 +1612,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "			cerr << \"invalid no of positions reserved for serial no: \";\n";
 	compute_flat_map_code.program_code << "			exit(1);\n";
 	compute_flat_map_code.program_code << "		}\n";
-	compute_flat_map_code.program_code << "		current_map_pos += (ser_no_pos-1);\n";
+	compute_flat_map_code.program_code << "		current_map_pos += ser_no_pos;\n";
 	compute_flat_map_code.program_code << "	}\n";
 
 	compute_flat_map_code.program_code << "\tif (write_xtcc_data_file_flag) {\n";
