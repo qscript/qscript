@@ -168,6 +168,7 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 		}
 		int currentColumnMod10 = 0;
 		int add_displacement = 0;
+		bool add_displacement_was_set = false;
 		if (program_options_ns::flag_nice_map) {
 			bufferBetweenQuestions = 10;
 			if (q->loop_index_values.size() == 0) {
@@ -181,11 +182,42 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 				int n_dimensions = q->loop_index_values.size();
 				if (q->loop_index_values[n_dimensions-1] == 0 && q->isStartOfBlock_) {
 					// first array question in a block
-					NextCard();
+					if (qtmFileMode_ == READ_EQ_2) {
+						NextCard();
+					} else if (qtmFileMode_ == READ_EQ_1) {
+						//add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+						qtm_data_file_writer_log << "REACHED qtmFileMode_ == READ_EQ_1 " 
+									<< endl;
+						cerr << "REACHED qtmFileMode_ == READ_EQ_1 " 
+									<< endl;
+						int currentColumnMod100 = currentColumn_ % 100;
+						if (currentColumnMod100 < 50) {
+							if (bufferBetweenQuestions < 100) {
+								add_displacement =  100 - currentColumnMod100 ;
+							} else {
+								add_displacement =  100 - currentColumnMod100 + bufferBetweenQuestions;
+							}
+						} else {
+							if (bufferBetweenQuestions < 100) {
+								add_displacement =  200 - currentColumnMod100 ;
+							} else {
+								add_displacement =  200 - currentColumnMod100 + bufferBetweenQuestions;
+							}
+						}
+						cerr << "add_displacement: " << add_displacement << endl;
+						add_displacement_was_set = true;
+					} else {
+						stringstream error_str;
+						error_str << "unhandled file mode - exiting" << endl;
+						cerr << LOG_MESSAGE(error_str.str());
+						exit(1);
+					}
 					if (width_ == 1) {
 					} else {
-						currentColumnMod10 = currentColumn_ % 10;
-						add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+						if (add_displacement_was_set == false) {
+							currentColumnMod10 = currentColumn_ % 10;
+							add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
+						}
 					}
 				} else {
 					if (width_ == 1) {
