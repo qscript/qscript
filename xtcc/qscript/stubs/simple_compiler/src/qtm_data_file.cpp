@@ -1269,12 +1269,31 @@ void QtmDataFile::write_single_code_data (int column, int width, int code, Abstr
 	//cerr << & (s.str().c_str()[s.str().length()]) << endl;
 	//const char * ptr1 = & (s.str().c_str()[0]);  
 	//const char * ptr2 = & (s.str().c_str()[s.str().length()]);
+#if 0
 	char * buffer = new char[s.str().length()+1];
 	strcpy (buffer, s.str().c_str());
 	//cout << "[0]: " << *ptr1 << endl;
 	vector<char>::iterator it = cardVec_[cc.first].data_.begin() + cc.second;
 	std::copy (&buffer[0], &buffer[s.str().length()], it );
 	delete[] buffer;
+#endif /*  0 */
+	char * buffer = new char[width+1];
+	buffer[width] = 0;
+	char * ptr = buffer;
+	if (s.str().length() < width) {
+		int delta = width - s.str().length();
+		for (int i=0; i<delta; ++i) {
+			*ptr = ' ';
+			++ptr;
+		}
+	}
+	//strcpy (buffer, s.str().c_str());
+	strcpy (ptr, s.str().c_str());
+	vector<char>::iterator it = cardVec_[cc.first].data_.begin() + cc.second;
+	std::copy (&buffer[0], &buffer[width], it );
+	delete[] buffer;
+
+
 	//std::copy (& s.str()[0], &s.str()[s.str().length()], it);
 }
 
