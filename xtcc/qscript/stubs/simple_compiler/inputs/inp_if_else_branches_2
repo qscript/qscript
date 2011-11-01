@@ -23,6 +23,16 @@ inp_if_else_branches_2 {
 		} else {
 			1;
 		}
+
+		if (q6 in (21)) {
+			q6_11 "q6_11" sp int32_t(21,22);
+		} else if (q6 in (22)) {
+			q6_12 "q6_12" sp int32_t(21,22);
+		} else {
+			1;
+		}
+		q6_1 "q6_1" sp int32_t(21,22);
+		q6_2 "q6_1" sp int32_t(21,22);
 	} else if (q4 in (3)) {
 		q7 "Q7. " sp int32_t(7,8);
 		q8 "Q8. " sp int32_t(7,8);
@@ -39,4 +49,5 @@ inp_if_else_branches_2 {
 	} else {
 		q11 "Q11 " sp int32_t(1, 3);
 	}
+	q12 "Q12 " sp int32_t(1, 3);
 }

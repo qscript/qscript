@@ -21,7 +21,7 @@ inp_hidden_blank {
 	setadd(q_tot_aw, q1_1);
 	setadd(q_tot_aw, q1_2);
 	setadd(q_tot_aw, q1_3);
-	setadd(q_tot_aw, (1));
+	setadd(q_tot_aw, (5));
 
 
 	unset(brand_list);
