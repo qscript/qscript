@@ -21,7 +21,9 @@ inp_if_else_branches_2 {
 			q5_3 "Q5_3. " sp int32_t (13,14);
 			q5_4 "Q5_4. " sp int32_t (15,16);
 		} else {
-			1;
+			q5_5 "Q5_5. " sp int32_t (15,16);
+			q5_6 "Q5_6. " sp int32_t (15,16);
+			//1;
 		}
 
 		if (q6 in (21)) {
@@ -29,7 +31,7 @@ inp_if_else_branches_2 {
 		} else if (q6 in (22)) {
 			q6_12 "q6_12" sp int32_t(21,22);
 		} else {
-			1;
+			q6_13 "q6_12" sp int32_t(21,22);
 		}
 		q6_1 "q6_1" sp int32_t(21,22);
 		q6_2 "q6_1" sp int32_t(21,22);

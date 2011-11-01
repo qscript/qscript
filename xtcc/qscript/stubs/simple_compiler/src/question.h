@@ -226,27 +226,8 @@ struct RangeQuestion: public AbstractQuestion
 	//	return this;
 	//}
 	void  GetQuestionNames(vector<string> & question_list,
-			       AbstractStatement* endStatement)
-	{
-		if (qscript_debug::DEBUG_RangeQuestion) {
-			std::cout << "RangeQuestion::GetQuestionNames"
-				  << std::endl;
-		}
-		if (this==endStatement)
-			return;
-		if (for_bounds_stack.size() == 0) {
-			question_list.push_back(questionName_);
-		} else {
-			std::stringstream s;
-			s << questionName_  << "_list.questionList["
-			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-			<< "]";
-			question_list.push_back(s.str());
-		}
-		if (next_) {
-			next_->GetQuestionNames(question_list,endStatement);
-		}
-	}
+			       AbstractStatement* endStatement);
+
 	~RangeQuestion();
 	private:
 		RangeQuestion& operator=(const RangeQuestion&);
@@ -336,26 +317,8 @@ class NamedStubQuestion: public AbstractQuestion
 	//	return this;
 	//}
 	void  GetQuestionNames(vector<string> & question_list
-			       , AbstractStatement* endStatement)
-	{
-		if (qscript_debug::DEBUG_NamedStubQuestion) {
-			std::cout << "NamedStubQuestion::GetQuestionNames" << std::endl;
-		}
-		if (this==endStatement)
-			return;
-		if (for_bounds_stack.size() == 0) {
-			question_list.push_back(questionName_);
-		} else {
-			std::stringstream s;
-			s << questionName_  << "_list.questionList["
-			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
-			<< "]";
-			question_list.push_back(s.str());
-		}
-		if (next_) {
-			next_->GetQuestionNames(question_list, endStatement);
-		}
-	}
+			       , AbstractStatement* endStatement);
+
 	void DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window
@@ -389,14 +352,8 @@ class DummyArrayQuestion: public AbstractQuestion{
 	void GenerateCode(StatementCompiledCode &code){}
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode){}
 	void GetQuestionNames(vector<string> & question_list
-			      , AbstractStatement* endStatement)
-	{
-		if (this==endStatement)
-			return;
-		if (next_) {
-			next_->GetQuestionNames(question_list, endStatement);
-		}
-	}
+			      , AbstractStatement* endStatement);
+
 	private:
 		DummyArrayQuestion& operator=(const DummyArrayQuestion&);
 		DummyArrayQuestion (const DummyArrayQuestion&);

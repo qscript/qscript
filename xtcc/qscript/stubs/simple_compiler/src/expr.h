@@ -84,6 +84,7 @@ struct AbstractExpression
 	// ! determines if an expression is an integral value
 	virtual bool IsIntegralExpression()=0;
 	virtual ~AbstractExpression();
+	virtual string PrintIdentity();
 	private:
 		AbstractExpression& operator=(const AbstractExpression&);
 		AbstractExpression (const AbstractExpression&);
@@ -111,6 +112,7 @@ struct UnaryExpression : public AbstractExpression
 	virtual bool IsConst();
 	virtual bool IsIntegralExpression();
 	virtual void PrintExpressionText(ostringstream & s);
+	//virtual string PrintIdentity();
 	private:
 		UnaryExpression& operator=(const UnaryExpression&);
 		UnaryExpression (const UnaryExpression&);
@@ -126,7 +128,7 @@ struct UnaryExpression : public AbstractExpression
 struct Unary2Expression;
 class AbstractQuestion;
 
-//! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set
+//! holds expressions of the form  a in (1,2,4) - where a can be a varible or an inteexpression and the right hand side of operator "in" is a set
 struct Binary2Expression: public AbstractExpression
 {
 	public:
@@ -149,7 +151,7 @@ struct Binary2Expression: public AbstractExpression
 	virtual void PrintExpressionCode(ExpressionCompiledCode & code);
 	virtual void PrintExpressionText(ostringstream & s);
 	~Binary2Expression();
-
+	std::string PrintIdentity ();
 	private:
 		Binary2Expression& operator=(const Binary2Expression&);
 		Binary2Expression (const Binary2Expression&);

@@ -1441,6 +1441,7 @@ void AbstractQuestion::print_data_type(string &s)
 	}
 }
 
+
 void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 { }
 #if 0

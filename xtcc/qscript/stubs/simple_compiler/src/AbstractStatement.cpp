@@ -55,3 +55,10 @@ AbstractStatement::~AbstractStatement()
 	}
 	//debug_log_file << "AbstractStatement::~AbstractStatement() base destructor" << endl;
 }
+
+std::string AbstractStatement::PrintIdentity ()
+{
+	std::stringstream s;
+	s << __PRETTY_FUNCTION__ << std::endl;
+	return s.str();
+}

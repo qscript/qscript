@@ -250,11 +250,12 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		<< ifStatementStack.size() << endl;
 	if (ifStatementStack.size() > 0) {
 		for(int32_t i = 0; i < ifStatementStack.size(); ++i){
-			if (ifStatementStack[i]->nestLevel_ == if_nest_level){
-				ifStatementStack[i]->ifStatementPtr_
+			if (ifStatementStack[i]->nestLevel_ == if_nest_level) {
+				cout << ifStatementStack[i]->ifStatementPtr_->PrintIdentity() << endl;
+				ifStatementStack[i]->ifStatementPtr_->ifBody_
 					->GetQuestionNames
 					(question_list_else_body, this);
-				break;
+				//break;
 			}
 		}
 	}
@@ -308,10 +309,10 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 
 		for (int32_t i = 0; i < ifStatementStack.size(); ++i) {
 			if (ifStatementStack[i]->nestLevel_ == if_nest_level) {
-				ifStatementStack[i]->ifStatementPtr_
+				ifStatementStack[i]->ifStatementPtr_->ifBody_
 					->GetQuestionNames
 					(question_list_if_body, this);
-				break;
+				//break;
 			}
 		}
 		//ifBody_->GetQuestionNames(question_list_if_body, 0);
@@ -384,6 +385,19 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		next_->GenerateCode(code);
 	//cerr << "EXIT: IfStatement::GenerateCode()" << endl;
 }
+
+void IfStatement::GetQuestionNames(vector<string> & question_list,
+			AbstractStatement* endStatement)
+	{
+		if(endStatement==this)
+			return;
+		ifBody_->GetQuestionNames(question_list, endStatement);
+		if( elseBody_)
+			elseBody_->GetQuestionNames(question_list, endStatement);
+		if (next_) {
+			next_->GetQuestionNames(question_list,endStatement);
+		}
+	}
 
 void IfStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 {
@@ -467,6 +481,21 @@ CompoundStatement::CompoundStatement(
 	, flagIsAIfBody_(0)
 {
 	compoundStatementNumber_ = CompoundStatement::counter_++;
+}
+
+
+
+void CompoundStatement::GetQuestionNames(vector<string> & question_list,
+		      AbstractStatement * endStatement)
+{
+	if(endStatement==this){
+		return;
+	}
+	compoundBody_->GetQuestionNames(question_list,
+			endStatement);
+	if (next_) {
+		next_->GetQuestionNames(question_list,endStatement);
+	}
 }
 
 void CompoundStatement::GenerateConsolidatedForLoopIndexes()
@@ -2224,3 +2253,7 @@ void NewCardStatement::GenerateCode(StatementCompiledCode & code)
 	}
 }
 
+std::string IfStatement ::PrintIdentity ()
+{
+	return string(__PRETTY_FUNCTION__) + ifCondition_->PrintIdentity();
+}

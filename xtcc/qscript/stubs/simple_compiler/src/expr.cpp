@@ -1293,6 +1293,14 @@ bool Binary2Expression::IsConst()
 	return false;
 }
 
+
+std::string Binary2Expression::PrintIdentity ()
+{
+	stringstream s;
+	s << __PRETTY_FUNCTION__ << endl;
+	return s.str();
+}
+
 bool Binary2Expression::IsIntegralExpression()
 {
 	return false;
@@ -1838,3 +1846,11 @@ string human_readable_expr_type(ExpressionOperatorType exprOperatorType_)
 	}
 	return s;
 }
+
+string AbstractExpression::PrintIdentity()
+{
+	stringstream s;
+	s << __PRETTY_FUNCTION__ << endl;
+	return s.str();
+}
+

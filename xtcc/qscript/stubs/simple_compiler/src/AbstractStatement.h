@@ -42,6 +42,7 @@ struct AbstractStatement
 	virtual void GetQuestionsInBlock(std::vector<AbstractQuestion*> & question_list
 					 , AbstractStatement * stop_at);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	virtual std::string PrintIdentity ();
 	private:
 		AbstractStatement& operator=(const AbstractStatement&);
 		AbstractStatement (const AbstractStatement&);

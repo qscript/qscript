@@ -233,17 +233,8 @@ struct CompoundStatement: public AbstractStatement
 	virtual void GenerateCode(StatementCompiledCode & code);
 	virtual ~CompoundStatement();
 	void GetQuestionNames(vector<string> & question_list,
-			      AbstractStatement * endStatement)
-	{
-		if(endStatement==this){
-			return;
-		}
-		compoundBody_->GetQuestionNames(question_list,
-				endStatement);
-		if (next_) {
-			next_->GetQuestionNames(question_list,endStatement);
-		}
-	}
+			      AbstractStatement * endStatement);
+
 	void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 				 , AbstractStatement * stop_at);
 	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
@@ -308,22 +299,15 @@ struct IfStatement : public AbstractStatement
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	virtual ~IfStatement();
 	void GetQuestionNames(vector<string> & question_list,
-			AbstractStatement* endStatement)
-	{
-		if(endStatement==this)
-			return;
-		ifBody_->GetQuestionNames(question_list, endStatement);
-		if( elseBody_)
-			elseBody_->GetQuestionNames(question_list, endStatement);
-		if (next_) {
-			next_->GetQuestionNames(question_list,endStatement);
-		}
-	}
+			AbstractStatement* endStatement);
+
 	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
 					 , AbstractStatement* stop_at);
+	std::string PrintIdentity ();
 	private:
 	IfStatement& operator=(const IfStatement&);
 	IfStatement(const IfStatement&);
+
 };
 
 using std::string;
