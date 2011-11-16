@@ -1143,7 +1143,9 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 				<< "));\n";
 		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
 			ExpressionCompiledCode expr_code;
-			textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+
+			if (textExprVec_[i]->questionIndexExpr_)
+				textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
 			if (textExprVec_[i]->questionIndexExpr_ ) {
 				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
 						<< textExprVec_[i]->pipedQuestion_->questionName_
