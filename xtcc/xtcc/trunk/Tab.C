@@ -511,12 +511,16 @@ string tot_ax_stmt::ax_text()
 
 void tot_ax_stmt::generate_code(FILE * f, unsigned int index){
 	ostringstream code_expr1, code_bef_expr1;
-	condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-	fprintf(f, "%s", code_bef_expr1.str().c_str());
-	fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-	fprintf(f, " ){\n");
+	if (condn) {
+		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
+		fprintf(f, "%s", code_bef_expr1.str().c_str());
+		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		fprintf(f, " ){\n");
+	}
 	fprintf(f, "\t\tflag[%d]=true;\n", index);
-	fprintf(f, "\t}\n");
+	if (condn) {
+		fprintf(f, "\t}\n");
+	}
 }
 
 
