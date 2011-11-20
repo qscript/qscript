@@ -1378,7 +1378,7 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime -lpanel -lwt ")
+			+ string(" -lqscript_runtime -lpanel -lwt -lboost_filesystem ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 	} else if (program_options_ns::microhttpd_flag) {
 		cpp_compile_command = string("g++ -g -o ")

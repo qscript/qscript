@@ -246,8 +246,9 @@ void LatexDocument::visit(AbstractStatement *stmt)
 				latex_file << "\\framebox{\n";
 				for (int i=0; i< cmpd_stmt_if_cmpd_block->questionsInBlock_.size(); 
 						++i) {
-					latex_file << cmpd_stmt_if_cmpd_block->
-							questionsInBlock_[i]->questionName_ 
+
+					latex_file << safe (cmpd_stmt_if_cmpd_block->
+							questionsInBlock_[i]->questionName_)
 							<< ", ";
 				}
 				latex_file << "}\n";
