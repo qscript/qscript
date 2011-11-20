@@ -628,9 +628,9 @@ static const yytype_uint16 yyrline[] =
      616,   622,   628,   634,   640,   646,   652,   658,   664,   670,
      676,   683,   689,   695,   702,   709,   748,   754,   760,   774,
      775,   778,   787,   792,   797,   805,   813,   821,   828,   830,
-     834,   854,   877,   886,   886,   910,   914,   920,   921,   926,
-     935,   936,   941,   951,   954,   959,   969,   978,   987,   998,
-    1001
+     834,   855,   878,   887,   887,   911,   915,   921,   922,   927,
+     936,   937,   942,   952,   955,   960,   970,   979,   988,   999,
+    1002
 };
 #endif
 
@@ -2814,6 +2814,7 @@ yyreduce:
 		ax_map[(yyvsp[(2) - (5)].name)]=(yyval.ax);
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
+		no_inc_ax_elems = 0;
 		free((yyvsp[(2) - (5)].name));
 	;}
     break;
@@ -2821,7 +2822,7 @@ yyreduce:
   case 91:
 
 /* Line 1455 of yacc.c  */
-#line 855 "src/type.ypp"
+#line 856 "src/type.ypp"
     {
 		Table::AbstractPrintableAxisStatement * ttl_stmt_ptr= trav_chain((yyvsp[(7) - (8)].print_stmt));
 		Table::AbstractCountableAxisStatement * count_stmt_ptr= trav_chain((yyvsp[(8) - (8)].count_stmt));
@@ -2849,7 +2850,7 @@ yyreduce:
   case 92:
 
 /* Line 1455 of yacc.c  */
-#line 877 "src/type.ypp"
+#line 878 "src/type.ypp"
     {
 		cerr << "Error in axis section line: " <<
 			line_no << endl;
@@ -2862,7 +2863,7 @@ yyreduce:
   case 93:
 
 /* Line 1455 of yacc.c  */
-#line 886 "src/type.ypp"
+#line 887 "src/type.ypp"
     {
 		attribute_list.resize(0);
 		//cout << "resize attribute_list to 0\n";
@@ -2872,7 +2873,7 @@ yyreduce:
   case 94:
 
 /* Line 1455 of yacc.c  */
-#line 889 "src/type.ypp"
+#line 890 "src/type.ypp"
     {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		//$$=0;
@@ -2897,7 +2898,7 @@ yyreduce:
   case 95:
 
 /* Line 1455 of yacc.c  */
-#line 910 "src/type.ypp"
+#line 911 "src/type.ypp"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		attribute_list.push_back(s1);
@@ -2907,7 +2908,7 @@ yyreduce:
   case 96:
 
 /* Line 1455 of yacc.c  */
-#line 914 "src/type.ypp"
+#line 915 "src/type.ypp"
     {
 		string s1=(yyvsp[(2) - (3)].text_buf);
 		attribute_list.push_back(s1);
@@ -2917,7 +2918,7 @@ yyreduce:
   case 98:
 
 /* Line 1455 of yacc.c  */
-#line 921 "src/type.ypp"
+#line 922 "src/type.ypp"
     {
 		//$$=link_chain($1, $2);
 	;}
@@ -2926,7 +2927,7 @@ yyreduce:
   case 99:
 
 /* Line 1455 of yacc.c  */
-#line 926 "src/type.ypp"
+#line 927 "src/type.ypp"
     {
 		using Table::stub;
 		(yyval.stub)=new stub((yyvsp[(1) - (4)].text_buf), (yyvsp[(3) - (4)].ival));
@@ -2939,14 +2940,14 @@ yyreduce:
   case 100:
 
 /* Line 1455 of yacc.c  */
-#line 935 "src/type.ypp"
+#line 936 "src/type.ypp"
     { (yyval.print_stmt)=(yyvsp[(1) - (1)].print_stmt); ;}
     break;
 
   case 101:
 
 /* Line 1455 of yacc.c  */
-#line 936 "src/type.ypp"
+#line 937 "src/type.ypp"
     {
 		(yyval.print_stmt)=link_chain((yyvsp[(1) - (2)].print_stmt), (yyvsp[(2) - (2)].print_stmt));
 	;}
@@ -2955,7 +2956,7 @@ yyreduce:
   case 102:
 
 /* Line 1455 of yacc.c  */
-#line 941 "src/type.ypp"
+#line 942 "src/type.ypp"
     {
 		using Table::TitleStatement;
 		(yyval.print_stmt) = new TitleStatement (Table::txt_axstmt,(yyvsp[(3) - (4)].text_buf));
@@ -2969,7 +2970,7 @@ yyreduce:
   case 103:
 
 /* Line 1455 of yacc.c  */
-#line 951 "src/type.ypp"
+#line 952 "src/type.ypp"
     {
 		(yyval.count_stmt) = (yyvsp[(1) - (1)].count_stmt);
 	;}
@@ -2978,7 +2979,7 @@ yyreduce:
   case 104:
 
 /* Line 1455 of yacc.c  */
-#line 954 "src/type.ypp"
+#line 955 "src/type.ypp"
     {
 		(yyval.count_stmt)=link_chain((yyvsp[(1) - (2)].count_stmt), (yyvsp[(2) - (2)].count_stmt));
 	;}
@@ -2987,7 +2988,7 @@ yyreduce:
   case 105:
 
 /* Line 1455 of yacc.c  */
-#line 959 "src/type.ypp"
+#line 960 "src/type.ypp"
     {
 		using Table::tot_ax_stmt;
 		++no_count_ax_elems;	
@@ -3003,7 +3004,7 @@ yyreduce:
   case 106:
 
 /* Line 1455 of yacc.c  */
-#line 969 "src/type.ypp"
+#line 970 "src/type.ypp"
     {
 		using Table::tot_ax_stmt;
 		++no_count_ax_elems;	
@@ -3018,7 +3019,7 @@ yyreduce:
   case 107:
 
 /* Line 1455 of yacc.c  */
-#line 978 "src/type.ypp"
+#line 979 "src/type.ypp"
     {
 		using Table::count_ax_stmt;
 		++no_count_ax_elems;	
@@ -3033,7 +3034,7 @@ yyreduce:
   case 108:
 
 /* Line 1455 of yacc.c  */
-#line 987 "src/type.ypp"
+#line 988 "src/type.ypp"
     {
 		if (no_inc_ax_elems > 0) {
 			stringstream err_msg;
@@ -3050,7 +3051,7 @@ yyreduce:
   case 110:
 
 /* Line 1455 of yacc.c  */
-#line 1001 "src/type.ypp"
+#line 1002 "src/type.ypp"
     {
 		using Table::fld_ax_stmt;
 		//stub * stub_ptr = trav_chain($4);
@@ -3063,7 +3064,7 @@ yyreduce:
 
 
 /* Line 1455 of yacc.c  */
-#line 3067 "src/type.cpp"
+#line 3068 "src/type.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3275,7 +3276,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 1010 "src/type.ypp"
+#line 1011 "src/type.ypp"
 
 
 

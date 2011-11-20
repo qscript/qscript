@@ -849,6 +849,7 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 		ax_map[$2]=$$;
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
+		no_inc_ax_elems = 0;
 		free($2);
 	}
 	|	AX NAME ';' COND_START expression ';' ttl_ax_stmt_list count_ax_stmt_list 
