@@ -17,6 +17,7 @@
 using namespace std;
 struct NamedRangeList;
 struct NamedRangeGroup;
+struct NamedRangeStub;
 
 struct AbstractNamedRange: public AbstractStatement
 {
@@ -31,6 +32,8 @@ struct AbstractNamedRange: public AbstractStatement
 	virtual void SimplePrint ()=0;
 	virtual void AddStub (string p_text, int p_code, int p_index_in_group)=0;
 	virtual void AddGroup (NamedRangeGroup & p_group)=0;
+	virtual void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec) = 0;
+	virtual void VectorizePrint () = 0;
 };
 
 
@@ -50,6 +53,9 @@ struct NamedRangeList: public AbstractNamedRange
 			next_nr->Print();
 		}
 	}
+
+	void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
+
 	void AddStub (string p_text, int p_code, int p_index_in_group);
 	void AddGroup (NamedRangeGroup & p_group);
 	void SimplePrint()
@@ -63,12 +69,16 @@ struct NamedRangeList: public AbstractNamedRange
 			next_nr->SimplePrint();
 		}
 	}
+	void VectorizePrint ()
+	{
+	}
 };
 
 struct NamedRangeGroup: public AbstractNamedRange
 {
 	string groupName_;
 	AbstractNamedRange * groupPtr_;
+	vector <AbstractNamedRange *> stub_grp_vec;
 	NamedRangeGroup(string p_groupName):
 		AbstractNamedRange(),
 		groupName_(p_groupName), groupPtr_(0)
@@ -93,6 +103,45 @@ struct NamedRangeGroup: public AbstractNamedRange
 	}
 	void AddStub (string p_text, int p_code, int p_index_in_group);
 	void AddGroup (NamedRangeGroup & p_group);
+
+	void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
+	void VectorizePrint ()
+	{
+		cout << groupName_ << endl;
+	}
+
+};
+
+struct NamedRangeStub : public AbstractNamedRange
+{
+	stub_pair stub;
+	void Print()
+	{
+		cout << stub.stub_text << endl;
+	}
+	void SimplePrint ()
+	{
+		Print();
+	}
+	void AddStub(string p_text, int p_code, int p_index_in_group)
+	{
+		stub.stub_text = p_text;
+		stub.code = p_code;
+	}
+	NamedRangeStub (string p_text, int p_code):
+		stub(p_text, p_code)
+	{}
+	void AddGroup (NamedRangeGroup & p_group)
+	{
+	}
+	void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec)
+	{
+	}
+	void VectorizePrint ()
+	{
+		Print();
+	}
+
 };
 
 #endif /* xtcc_named_range_h */

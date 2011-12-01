@@ -26,6 +26,10 @@ struct	stub_pair
 		: stub_text(l_txt), code(l_code), mask(true),
 		  is_mutex(p_mutex), index_in_group (l_index_in_group)
 	{}
+	stub_pair(string l_txt, int32_t l_code)
+		: stub_text (l_txt), code (l_code), mask (true), is_mutex(false),
+		  index_in_group (-1)
+	{ }
 };
 
 #endif /* xtcc_stub_pair_h */
