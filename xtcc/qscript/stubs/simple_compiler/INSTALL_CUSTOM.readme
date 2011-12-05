@@ -43,10 +43,86 @@ the base of the QScript installation
 11) typical example in trying out one of the inputs in the 
 	$(QSCRIPT_HOME)/inputs directory - based on my setup
 
+	Linux:
+
 	1. $ export QSCRIPT_HOME=/media/sda3/home/nxd/xtcc_sourceforge_copy/xtcc/xtcc/qscript/stubs/simple_compiler
 	2. $ export PATH=$PATH:$QSCRIPT_HOME/bin
 	3. $ cd inputs
-	4. $ qscript -f inp_jump_test -> test_script.C generated
-	5. $ make -f CustomRuntimeMakefile -> test_script.C compiled and linked with qscript_runtime library stored in $QSCRIPT_HOME/lib ->generates test_script
-	6. $ LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./test_script -> program runs
-	
+	4. 
+	   Linux:
+	   $ qscript -o -m -n -f inp_jump_test -> inp_jump_test.exe generated
+	   Windows
+	   $ qscript -o -m -n -s -f inp_jump_test -> inp_jump_test.exe generated
+	5. 
+	   Linux
+	   $ LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./inp_jump_test.exe -> program runs
+	   Windows
+	   $ .\inp_jump_test.exe -> program runs
+	6. To write out a data file in quantum format:
+	   Copy a file from the inputs directory which has a name in this format:
+	       *.qtm_data.conf
+	   into the same directory where the *.dat files are present
+
+	   example:
+	   $cp $QSCRIPT_HOME/inputs/inp_qax_test.qtm_data.conf .
+
+	   rename the "conf" file with the same name that you have given the script
+
+	   Example : 
+	   
+	   in the inp_qax_test file you will find the following:
+
+     |--------------------- This is the name of the script.
+     V
+inp_jump_test {
+	int32_t i1=1;
+	int32_t i2=2;
+	int32_t i3;
+	i3=10;
+	printf("before q1 i1:%d , i2:%d, i3:%d\n", i1, i2, i3);
+
+	q1 "Q1. " sp int32_t (5-8, 1-2, 9-10, 11, 16);
+	if(q1 in (1) ){
+		i1=10;
+	} else {
+		i1=20;
+	}
+	printf("after q1 i1:%d , i2:%d, i3:%d\n", i1, i2, i3);
+
+	q2 "Q2. " sp int32_t (1,2,3,4);
+	i1=1001;i2=1002;i3=1003;
+	printf("after q2: i1:%d , i2:%d, i3:%d\n", i1, i2, i3);
+
+	q3 "Q3. " sp int32_t (5,6);
+	i1=2001;i2=2002;i3=2003;
+	printf("after q3: i1:%d , i2:%d, i3:%d\n", i1, i2, i3);
+}
+
+
+	   $ mv inp_qax_test.qtm_data.conf inp_jump_test.qtm_data.conf
+
+           Now run the file as follows
+
+	   $ ./inp_jump_test.exe -q
+
+	   The -q option runs the data file to generate a Quantum data file.
+
+	   The quantum setup will be in a directory setup-inp_jump_test
+
+	7. To generate an SPSS script :
+	   Copy a file from the inputs directory which has a name in this format:
+	       *.asc_data.conf
+	   into the same directory where the *.dat files are present
+	   Example:
+	   $cp $QSCRIPT_HOME/inputs/inp_combined.asc_data.conf .
+
+	   rename the "conf" file with the same name that you have given the script, see point 6 
+	   above to understand where the name of the script is
+
+           Now run the file as follows
+
+	   $ ./inp_jump_test.exe -w
+
+	   The -w option runs the data file to generate a flat ascii data file
+	   and an SPSS script.
+
