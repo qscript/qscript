@@ -69,14 +69,17 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
 					map_iter_s->second->no_count_ax_elems,
 					map_iter_b->second->no_count_ax_elems
 					);
-			fprintf(op, "\t\tfor (int i=0; i<mean_inc_%s_%s.size(); ++i) {\n\t\t\tmean_inc_%s_%s[i].sum_n=0.0; mean_inc_%s_%s[i].n=0.0;\n\t\t}\n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-					map_iter_s->first.c_str(), map_iter_b->first.c_str ()
-					);
+			if (map_iter_s->second->no_inc_ax_elems > 0 || 
+						map_iter_b->second->no_inc_ax_elems > 0) {
+				fprintf(op, "\t\tfor (int i=0; i<mean_inc_%s_%s.size(); ++i) {\n\t\t\tmean_inc_%s_%s[i].sum_n=0.0; mean_inc_%s_%s[i].n=0.0;\n\t\t}\n",
+						map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+						map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+						map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+						map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+						map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+						map_iter_s->first.c_str(), map_iter_b->first.c_str ()
+						);
+			}
 			fprintf(op, "\t}\n");
 
 			/*
@@ -251,9 +254,13 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
 			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::tot_axstmt) {\n", map_iter_s->first.c_str());
 			fprintf(op, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
 			fprintf(op, "\t\t\t\t}\n");
-			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
-			fprintf(op, "\t\t\t\t\ttab_op << mean_inc_%s_%s[(inc_counter-1)*cols+cci].sum_n / mean_inc_%s_%s[(inc_counter-1)*cols+cci].n  << \",\";\n", map_iter_s->first.c_str(), map_iter_b->first.c_str(), map_iter_s->first.c_str(), map_iter_b->first.c_str() );
+
+			if (map_iter_s->second->no_inc_ax_elems > 0 || 
+						map_iter_b->second->no_inc_ax_elems > 0) {
+				fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
+				fprintf(op, "\t\t\t\t\ttab_op << mean_inc_%s_%s[(inc_counter-1)*cols+cci].sum_n / mean_inc_%s_%s[(inc_counter-1)*cols+cci].n  << \",\";\n", map_iter_s->first.c_str(), map_iter_b->first.c_str(), map_iter_s->first.c_str(), map_iter_b->first.c_str() );
 			fprintf(op, "\t\t\t\t}\n");
+			}
 			fprintf(op, "\t\t\t\t++cci;\n");
 			fprintf(op, "\t\t\t}\n");
 			fprintf(op, "\t\t\t++rci;\n");
