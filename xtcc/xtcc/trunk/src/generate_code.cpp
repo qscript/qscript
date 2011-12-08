@@ -721,7 +721,7 @@ void	generate_edit_section_code()
 		exit(1);
 	}
 #if __WIN32__
-	fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
+	//fprintf(edit_out, "#include \"stubs/iso_types.h\"\n" );
 	fprintf(edit_out, "#include \"ax_stmt_type.h\"\n" );
 #endif /* __WIN32__ */
 	fprintf(edit_out, "#include <cstdio>\n#include <iostream>\n#include <string>\n#include <vector>\nusing namespace std;\n" );

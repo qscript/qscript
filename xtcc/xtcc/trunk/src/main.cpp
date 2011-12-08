@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
+#include <sstream>
 #include "expr.h"
 //#include "tree.h"
 #include "debug_mem.h"
@@ -339,9 +340,9 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	using std::endl;
 	using std::cerr;
 	int rval;
+#if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	string my_work_dir=string(work_dir)+string("/");
 	string MY_XTCC_HOME=string(XTCC_HOME)+string("/");
-#if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	string cmd=string("rm ") + string(work_dir) + string("/temp.C");
 	//system("rm xtcc_work/temp.C");
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
@@ -377,20 +378,85 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
 	string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
 	cmd1 += cmd3;
-
-#endif /* GNU/UNIX */
-#if __WIN32__
-	/* this code has to be updated as above*/
-	system("del xtcc_work\\temp.C");
-	string cmd1=string("type xtcc_work\\edit_out.c xtcc_work\\my_axes_drv_func.C xtcc_work\\my_tab_drv_func.C ") + string(XTCC_HOME)+ string("\\stubs\\main_loop.C > xtcc_work\\temp.C");
-#endif /* __WIN32__ */
-
 	cout << cmd1.c_str() << endl;
 	rval=system(cmd1.c_str());
 	if(rval){
 		cerr << "unable to cat files" << endl;
 		return rval;
 	}
+
+#endif /* GNU/UNIX */
+#if __WIN32__
+	string my_work_dir=string(work_dir)+string("\\");
+	string MY_XTCC_HOME=string(XTCC_HOME)+string("\\");
+	/* this code has to be updated as above*/
+	system("del xtcc_work\\temp.C");
+	//string cmd1=string("type xtcc_work\\edit_out.c xtcc_work\\my_axes_drv_func.C xtcc_work\\my_tab_drv_func.C ") + string(XTCC_HOME)+ string("\\stubs\\main_loop.C > xtcc_work\\temp.C");
+	const char * copy_file_list[] = {"/stubs/ax_stmt_type.h",
+					"/stubs/mean_stddev_struct.h"
+	};
+
+	//cout << "Copying include files to work directory" << endl;
+
+	//for(int i=0; i<(sizeof(copy_file_list)/sizeof(copy_file_list[0])); ++i) {
+	//	string cmd0="copy "; 
+	//	cmd0 += MY_XTCC_HOME +  copy_file_list[i] + " " + my_work_dir;
+	//	// cout << "executing command : " << cmd0 << endl;
+	//	rval=system(cmd0.c_str());
+	//	if (rval) {
+	//		cerr << "unable to cp include file: "  << copy_file_list[i] << " to " << my_work_dir 
+	//			<< ", command was : "
+	//			<< endl
+	//			<< cmd0
+	//			<< endl;
+	//		return rval;
+	//	}
+	//}
+	const char * file_list[]={
+		"edit_out.c", "my_axes_drv_func.C", "\\stubs\\main_loop.C", 
+		"my_tab_drv_func.C", "temp.C" 
+	};
+
+	string cmd1="type "; 
+	const int main_loop_file_index=2;
+	const int temp_file_index=4;
+
+	for(int i=0; i<(sizeof(file_list)/sizeof(file_list[0]))-1; ++i){
+		if (i==main_loop_file_index){
+			cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
+		} else {
+			cmd1 += my_work_dir + string(file_list[i])+string(" ");
+		}
+	}
+	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
+	//cmd1 += cmd3;
+
+	cout << cmd1.c_str() << endl;
+	rval=system(cmd1.c_str());
+	if (rval) {
+		cerr << "unable to cat files: cmd failed:" 
+			<< cmd1.c_str()
+			<< endl;
+		return rval;
+	}
+	//string cmd3=string("echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("temp.C");
+	//rval = system (cmd3.c_str());
+	//if (rval) {
+	//	cerr << "unable to cat files: cmd failed:" 
+	//		<< cmd3.c_str()
+	//		<< endl;
+	//	return rval;
+	//}
+	std::stringstream temp_c_str;
+	temp_c_str << my_work_dir << "temp.C";
+	FILE * temp_C = fopen (temp_c_str.str().c_str(), "a+");
+	fprintf (temp_C, "#include <%s/stubs/list_summ_template.C>",
+			XTCC_HOME);
+	fclose (temp_C);
+
+
+#endif /* __WIN32__ */
+
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	string cmd2;
 	if (flag_use_clang == false)
@@ -399,7 +465,12 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 		cmd2=string("clang -g ") + work_dir + string("/temp.C -o ") +  work_dir + string("/myedit.exe /usr/lib/libstlport_gcc.so.4.6");
 #endif /* GNU/UNIX */	
 #if __WIN32__
-	string cmd2="\\Borland\\BCC55\\Bin\\bcc32 -P -I\\Borland\\BCC55\\Include -L\\Borland\\BCC55\\LIB -extcc_work\\myedit.exe xtcc_work\\temp.C ";
+	//string cmd2="\\Borland\\BCC55\\Bin\\bcc32 -P -I\\Borland\\BCC55\\Include -L\\Borland\\BCC55\\LIB -extcc_work\\myedit.exe xtcc_work\\temp.C ";
+	string cmd2=string("g++ -g ") + 
+		string ("-I") + MY_XTCC_HOME + string (" ") +//string("stubs ") +
+		string ("-I") + MY_XTCC_HOME + string ("include ") +//string("stubs ") +
+		string ("-I") + MY_XTCC_HOME + string ("stubs ") +//string("stubs ") +
+		work_dir + string("/temp.C -o ") +  work_dir + string("/myedit.exe");
 #endif /* __WIN32__ */	
 
 	cout << "compile command: " << endl
