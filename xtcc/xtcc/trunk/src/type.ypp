@@ -97,12 +97,15 @@
 	vector<bool> blk_start_flag;
         vector <string> attribute_list;
 	vector <Statement::named_attribute_list> named_attributes_list;
+	vector <double> weight_vec;
+	vector <Table::weight_axis_group> wt_axis_group_vec;
+	vector <Table::weight_axis> wt_axis_vec;
 
 	noun_list_type noun_list[]= {
-			{	"void"	, VOID_TYPE},
-			{	"int8_t" ,INT8_TYPE},
-			{	"int16_t" ,INT16_TYPE},
-			{	"int32_t" ,INT32_TYPE},
+			{	"void", VOID_TYPE},
+			{	"int8_t", INT8_TYPE},
+			{	"int16_t", INT16_TYPE},
+			{	"int32_t", INT32_TYPE},
 			{	"float", FLOAT_TYPE},
 			{	"double", DOUBLE_TYPE}
 		};
@@ -136,7 +139,7 @@
 };
 
 %token CONVERT
-%token	TOT AX ';' CNT '{' '}' TTL
+%token	TOT AX ';' CNT '{' '}' TTL WT
 %type <dt> xtcc_type
 %type <tbl> tab_list
 %type <tbl> tab_defn
@@ -206,7 +209,7 @@
 	//%type <fld_ax_stmt> bit_list
 %type <stmt> attributes	
 
-%token CONTINUE BREAK
+%token CONTINUE BREAK 
 %token INC
 
 
@@ -875,6 +878,10 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 		no_inc_ax_elems = 0;
 		free($2);
 	}
+	| WT NAME ';' axes_and_weights {
+		Table::weight_axis_group wt_axis_grp ($2, wt_axis_vec);
+		wt_axis_group_vec .push_back (wt_axis_grp);
+	}
 	| error ';'	{
 		cerr << "Error in axis section line: " <<
 			line_no << endl;
@@ -917,6 +924,47 @@ text_list:      TEXT ';' {
 		attribute_list.push_back(s1);
         }
         ;
+
+axes_and_weights: NAME weights ';' {
+		string wt_ax_name($1);
+		Table::weight_axis wt_ax (wt_ax_name, weight_vec);
+		Table::ax * wt_ax_ptr = ax_map[wt_ax_name];
+		if (wt_ax_ptr == 0) {
+			Util::print_err(Util::compiler_sem_err, "weight axis was not found in the axes parse so far around line_no: ", 
+				line_no, __LINE__, __FILE__);
+		} else {
+			if ( wt_ax_ptr->no_count_ax_elems  != weight_vec.size()) {
+
+				stringstream err_msg;
+				err_msg << "no of factors in weight axis |" 
+					<< wt_ax_name << "| : "
+					<< wt_ax_ptr->no_count_ax_elems 
+					<< ",  does not match no of factors in axis, around line_no: " 
+					<< weight_vec.size()
+					<< endl;
+				Util::print_err(Util::compiler_sem_err, err_msg.str(), 
+				line_no, __LINE__, __FILE__);
+			} else {
+				cout << "no of factors in weight axes matched with axes count elements" << endl;
+			}
+		}
+		wt_axis_vec.push_back (wt_ax);
+		weight_vec.clear();
+	}
+	| axes_and_weights NAME weights';' {
+		Table::weight_axis wt_ax ($2, weight_vec);
+		wt_axis_vec.push_back (wt_ax);
+		weight_vec.clear();
+	}
+	;
+
+weights: FNUMBER {
+		weight_vec.push_back ($1);
+	}
+	| weights FNUMBER {
+		weight_vec.push_back ($2);
+	}
+	;
 
 stub_list: stub 
 	| stub_list stub {

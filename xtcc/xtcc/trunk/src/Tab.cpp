@@ -739,4 +739,13 @@ void fld_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsi
 	}
 }
 
+weight_axis::weight_axis (string p_name, vector<double> p_weights)
+	: name (p_name), weights (p_weights)
+{ }
+
+weight_axis_group::weight_axis_group (string p_name, 
+		vector <weight_axis> p_weight_axis_vec)
+{
+}
+
 } /* close namespace Table */

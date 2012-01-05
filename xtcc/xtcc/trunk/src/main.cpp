@@ -29,11 +29,15 @@ bool check_type_compat(DataType typ1, DataType typ2);
 int	compile( char * const XTCC_HOME, char * const work_dir);
 int	run(char * data_file_name, int rec_len);
 void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
+void print_weighting_code();
 void print_axis_code(FILE * op, FILE * axes_drv_func);
 void clean_up();
 
 void	generate_edit_section_code();
 void 	generate_make_file();
+
+extern	vector <Table::weight_axis_group> wt_axis_group_vec;
+extern	vector <Table::weight_axis> wt_axis_vec;
 
 extern void yyrestart ( FILE *input_file );
 extern int yyparse();
@@ -225,6 +229,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	flex_finish();
 	print_table_code(table_op, tab_drv_func, tab_summ_func);
 	print_axis_code(axes_op, axes_drv_func);
+	print_weighting_code();
 	generate_make_file();
 	fclose(yyin); yyin=0;
 	fclose(table_op);
@@ -382,7 +387,35 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 #if __WIN32__
 	/* this code has to be updated as above*/
 	system("del xtcc_work\\temp.C");
-	string cmd1=string("type xtcc_work\\edit_out.c xtcc_work\\my_axes_drv_func.C xtcc_work\\my_tab_drv_func.C ") + string(XTCC_HOME)+ string("\\stubs\\main_loop.C > xtcc_work\\temp.C");
+	const char * copy_file_list[] = {"/stubs/ax_stmt_type.h",
+					"/stubs/mean_stddev_struct.h"
+	};
+	for(int i=0; i<(sizeof(copy_file_list)/sizeof(copy_file_list[0])); ++i) {
+		string cmd0="copy "; 
+		cmd0 += MY_XTCC_HOME +  copy_file_list[i] + " " + my_work_dir;
+		// cout << "executing command : " << cmd0 << endl;
+		rval=system(cmd0.c_str());
+		if (rval) {
+			cerr << "unable to copy include file: "  << copy_file_list[i] << " to " << my_work_dir << endl;
+			return rval;
+		}
+	}
+	//string cmd1=string("type xtcc_work\\edit_out.c xtcc_work\\my_axes_drv_func.C xtcc_work\\my_tab_drv_func.C ") + string(XTCC_HOME)+ string("\\stubs\\main_loop.C > xtcc_work\\temp.C");
+	string cmd1=string("type ");
+	const char * file_list[]={
+		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
+		"my_tab_drv_func.C", "temp.C" 
+	};
+	for(int i=0; i<(sizeof(file_list)/sizeof(file_list[0]))-1; ++i){
+		if (i==main_loop_file_index){
+			cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
+		} else {
+			cmd1 += my_work_dir + string(file_list[i])+string(" ");
+		}
+	}
+	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
+	string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
+	//cmd1 += cmd3;
 #endif /* __WIN32__ */
 
 	cout << cmd1.c_str() << endl;
@@ -452,3 +485,20 @@ void reset_files(){
 	tab_tex.close();
 }
 
+void print_weighting_code()
+{
+	using namespace std;
+	cout << "wt_axis_group_vec.size(): " << wt_axis_group_vec.size() << endl;
+	if (wt_axis_group_vec.size() > 0) {
+		for (int i=0; i < wt_axis_group_vec.size(); ++i) {
+			vector <Table::weight_axis> & wt_axis_vec = wt_axis_group_vec[i].weight_axis_vec;
+			vector <Table::ax * > wt_ax_ptr_vec (wt_axis_vec.size());
+			for (int j=0; j < wt_axis_vec.size(); ++j) {
+				Table::ax * ax_ptr = ax_map[wt_axis_vec[j].name];			
+				wt_ax_ptr_vec.push_back (ax_ptr);
+			}
+		}
+	} else {
+		return;
+	}
+}

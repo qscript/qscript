@@ -44,46 +44,47 @@
      AX = 260,
      CNT = 261,
      TTL = 262,
-     FOR = 263,
-     FLD = 264,
-     BIT = 265,
-     TEXT = 266,
-     NAME = 267,
-     DEFINELIST = 268,
-     FNUMBER = 269,
-     INUMBER = 270,
-     CODELIST = 271,
-     LISTA = 272,
-     IF = 273,
-     ELSE = 274,
-     IN = 275,
-     VOID_T = 276,
-     INT8_T = 277,
-     INT16_T = 278,
-     INT32_T = 279,
-     FLOAT_T = 280,
-     DOUBLE_T = 281,
-     ATTRIBUTE_LIST = 282,
-     AXSTART = 283,
-     TABSTART = 284,
-     ED_START = 285,
-     DATA_STRUCT = 286,
-     REC_LEN = 287,
-     ED_END = 288,
-     TAB = 289,
-     COND_START = 290,
-     CONTINUE = 291,
-     BREAK = 292,
-     INC = 293,
-     LOGOR = 294,
-     LOGAND = 295,
-     NOEQ = 296,
-     ISEQ = 297,
-     GEQ = 298,
-     LEQ = 299,
-     NOT = 300,
-     UMINUS = 301,
-     FUNC_CALL = 302
+     WT = 263,
+     FOR = 264,
+     FLD = 265,
+     BIT = 266,
+     TEXT = 267,
+     NAME = 268,
+     DEFINELIST = 269,
+     FNUMBER = 270,
+     INUMBER = 271,
+     CODELIST = 272,
+     LISTA = 273,
+     IF = 274,
+     ELSE = 275,
+     IN = 276,
+     VOID_T = 277,
+     INT8_T = 278,
+     INT16_T = 279,
+     INT32_T = 280,
+     FLOAT_T = 281,
+     DOUBLE_T = 282,
+     ATTRIBUTE_LIST = 283,
+     AXSTART = 284,
+     TABSTART = 285,
+     ED_START = 286,
+     DATA_STRUCT = 287,
+     REC_LEN = 288,
+     ED_END = 289,
+     TAB = 290,
+     COND_START = 291,
+     CONTINUE = 292,
+     BREAK = 293,
+     INC = 294,
+     LOGOR = 295,
+     LOGAND = 296,
+     NOEQ = 297,
+     ISEQ = 298,
+     GEQ = 299,
+     LEQ = 300,
+     NOT = 301,
+     UMINUS = 302,
+     FUNC_CALL = 303
    };
 #endif
 
@@ -94,7 +95,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 118 "src/type.ypp"
+#line 121 "src/type.ypp"
 
 	double dval;
 	int ival ;
@@ -117,7 +118,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 121 "src/type.hpp"
+#line 122 "src/type.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

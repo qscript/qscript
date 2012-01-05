@@ -33,7 +33,7 @@
 //#include "y.tab.h"
 #include "Tab.h"
 #include "stmt.h"
-#include "type.h"
+#include "type.hpp"
 #include <math.h>
 #include <string.h>
 	void yyerror(char * s);
@@ -147,6 +147,10 @@ continue	{
 
 attributes      {
         return ATTRIBUTE_LIST;
+}
+
+wt 	{
+	return WT;
 }
 
 break	{

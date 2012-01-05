@@ -273,6 +273,19 @@ struct internal_table{
 	int index;
 };
 
+struct weight_axis {
+	string name;
+	vector<double> weights;
+	weight_axis (string p_name, vector <double> p_weights);
+};
+
+struct weight_axis_group {
+	string name;
+	vector <weight_axis> weight_axis_vec;
+	weight_axis_group (string p_name, vector <weight_axis> p_weight_axis_vec);
+};
+
+
 } /* Close Namespace Table */
 
 /*
