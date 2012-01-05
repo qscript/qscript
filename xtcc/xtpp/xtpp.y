@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <iostream>
+#include <cstring>
 
 #define YY_USE_PROTOS
 #ifdef YY_USE_PROTOS
