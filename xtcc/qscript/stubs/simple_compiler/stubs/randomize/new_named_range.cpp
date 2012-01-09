@@ -106,23 +106,26 @@ void NamedRangeList::AddGroup (NamedRangeGroup & p_group)
 }
 
 
-void NamedRangeList::Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec)
+void NamedRangeList::Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec)
 {
 	for (int i=0; i<stubs.size(); ++i) {
 		p_stub_grp_vec.push_back (new NamedRangeStub (stubs[i].stub_text, stubs[i].code));
 	}
 	if (next_nr) {
-		next_nr -> Vectorize (p_stub_grp_vec);
+		next_nr -> Vectorize (invoker, p_stub_grp_vec);
 	}
 }
 
 
-void NamedRangeGroup::Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec)
+void NamedRangeGroup::Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec)
 {
-	p_stub_grp_vec.push_back (this);
-	if (groupPtr_)
-		groupPtr_->Vectorize (stub_grp_vec);
+	if (this != invoker)
+		p_stub_grp_vec.push_back (this);
+	if (groupPtr_) {
+		groupPtr_->Vectorize (invoker, stub_grp_vec);
+		//p_stub_grp_vec.push_back (groupPtr_);
+	}
 	if (next_nr) {
-		next_nr->Vectorize (p_stub_grp_vec);
+		next_nr->Vectorize (invoker, p_stub_grp_vec);
 	}
 }

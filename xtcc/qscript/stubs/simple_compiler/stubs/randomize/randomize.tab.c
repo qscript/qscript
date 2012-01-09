@@ -1928,6 +1928,11 @@ int main()
 			<< "group_list.size(): " << group_list.size() << endl
 			<< endl;
 
+		cout << "=========== ng->Print(); ============ " << endl;
+		ng->Print();
+		ng->Vectorize(ng, ng->stub_grp_vec);
+		//cout << "ng->stub_grp_vec.size(): " << ng->stub_grp_vec.size() << endl;
+		ng->VectorizePrint(ng);
 
 	}
 
@@ -1935,9 +1940,9 @@ int main()
 
 void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vector <string> & group_list, stringstream & final_answer)
 {
-	cout << "Enter: " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
-	cout << "group_str.size(): " << group_str.size() << endl;
-	cout << "group_list.size(): " << group_list.size() << endl;
+	//cout << "Enter: " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+	//cout << "group_str.size(): " << group_str.size() << endl;
+	//cout << "group_list.size(): " << group_list.size() << endl;
 	bool added_to_stack = false;
 	if (nr) {
 		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (nr)) {
@@ -1947,12 +1952,12 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vect
 			cout << "Adding group: " << s 
 				<< " onto the stack" << endl;
 			if (group_str.size() > 0) {
-				cout << "inside if clause" << __LINE__ 
-					<< ": group_str.size(): " 
-					<< group_str.size() << endl;
-				cout << "inside if clause" << __LINE__ 
-					<< ": group_list.size(): " 
-					<< group_list.size() << endl;
+				//cout << "inside if clause" << __LINE__
+				//	<< ": group_str.size(): "
+				//	<< group_str.size() << endl;
+				//cout << "inside if clause" << __LINE__
+				//	<< ": group_list.size(): "
+				//	<< group_list.size() << endl;
 				group_str[group_str.size() - 1] 
 					+=  group_list[group_list.size()-2]
 						+ ".AddGroup(" 
@@ -1962,7 +1967,7 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vect
 			//s += " : ";
 			group_str.push_back("NamedRangeGroup " + s + "(\"" + s + "\")" +";\n");
 			//if (ng->groupPtr_)
-			cout << " before call to PrintNamedRange: " << __LINE__ << endl;
+			//cout << " before call to PrintNamedRange: " << __LINE__ << endl;
 			PrintNamedRange (ng->groupPtr_, group_str, group_list, final_answer);
 			added_to_stack = true;
 		} else if (NamedRangeList * nl = dynamic_cast<NamedRangeList*> (nr)) {
@@ -1988,7 +1993,7 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vect
 		group_str.pop_back();
 		group_list.pop_back();
 	}
-	cout << "before next recursive call nr: " << nr << endl;
+	//cout << "before next recursive call nr: " << nr << endl;
 	if (nr->next_nr) {
 			PrintNamedRange (nr->next_nr, group_str, group_list, final_answer);
 	}

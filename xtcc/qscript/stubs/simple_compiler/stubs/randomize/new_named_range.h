@@ -32,8 +32,8 @@ struct AbstractNamedRange: public AbstractStatement
 	virtual void SimplePrint ()=0;
 	virtual void AddStub (string p_text, int p_code, int p_index_in_group)=0;
 	virtual void AddGroup (NamedRangeGroup & p_group)=0;
-	virtual void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec) = 0;
-	virtual void VectorizePrint () = 0;
+	virtual void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) = 0;
+	virtual void VectorizePrint (AbstractNamedRange * invoker) = 0;
 };
 
 
@@ -54,7 +54,8 @@ struct NamedRangeList: public AbstractNamedRange
 		}
 	}
 
-	void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
+	//void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
+	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) ;
 
 	void AddStub (string p_text, int p_code, int p_index_in_group);
 	void AddGroup (NamedRangeGroup & p_group);
@@ -69,8 +70,13 @@ struct NamedRangeList: public AbstractNamedRange
 			next_nr->SimplePrint();
 		}
 	}
-	void VectorizePrint ()
+	void VectorizePrint (AbstractNamedRange * invoker) 
 	{
+		for (int i=0; i<stubs.size(); ++i) {
+			cout << stubs[i].stub_text << ", " << stubs[i].code 
+				<< ", index_in_group: " << stubs[i].index_in_group
+				<< endl;
+		}
 	}
 };
 
@@ -79,6 +85,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 	string groupName_;
 	AbstractNamedRange * groupPtr_;
 	vector <AbstractNamedRange *> stub_grp_vec;
+	vector <int> randomized_order;
 	NamedRangeGroup(string p_groupName):
 		AbstractNamedRange(),
 		groupName_(p_groupName), groupPtr_(0)
@@ -104,10 +111,17 @@ struct NamedRangeGroup: public AbstractNamedRange
 	void AddStub (string p_text, int p_code, int p_index_in_group);
 	void AddGroup (NamedRangeGroup & p_group);
 
-	void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
-	void VectorizePrint ()
+	//void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
+	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) ;
+	void VectorizePrint (AbstractNamedRange * invoker)
 	{
-		cout << groupName_ << endl;
+		cout << groupName_ ;
+		cout << ", stub_grp_vec.size(): " << stub_grp_vec.size() << endl;
+		if (invoker == this) {
+			for (int i=0; i < stub_grp_vec.size(); ++i) {
+				stub_grp_vec[i]->VectorizePrint(invoker);
+			}
+		}
 	}
 
 };
@@ -117,7 +131,7 @@ struct NamedRangeStub : public AbstractNamedRange
 	stub_pair stub;
 	void Print()
 	{
-		cout << stub.stub_text << endl;
+		cout << stub.code << ": " <<  stub.stub_text << endl;
 	}
 	void SimplePrint ()
 	{
@@ -134,10 +148,10 @@ struct NamedRangeStub : public AbstractNamedRange
 	void AddGroup (NamedRangeGroup & p_group)
 	{
 	}
-	void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec)
+	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec)
 	{
 	}
-	void VectorizePrint ()
+	void VectorizePrint (AbstractNamedRange * invoker)
 	{
 		Print();
 	}

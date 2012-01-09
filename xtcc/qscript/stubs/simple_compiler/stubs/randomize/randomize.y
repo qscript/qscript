@@ -367,6 +367,11 @@ int main()
 			<< "group_list.size(): " << group_list.size() << endl
 			<< endl;
 
+		cout << "=========== ng->Print(); ============ " << endl;
+		ng->Print();
+		ng->Vectorize(ng, ng->stub_grp_vec);
+		//cout << "ng->stub_grp_vec.size(): " << ng->stub_grp_vec.size() << endl;
+		ng->VectorizePrint(ng);
 
 	}
 
