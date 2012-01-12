@@ -130,7 +130,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 	{
 		cout << groupName_ ;
 		cout << ", stub_grp_vec.size(): " << stub_grp_vec.size() << endl;
-		if (invoker == this) {
+		//if (invoker == this) {
 			if (randomized_order.size() == 0) {
 				for (int i=0; i < stub_grp_vec.size(); ++i) {
 					stub_grp_vec[i]->VectorizePrint(invoker);
@@ -140,7 +140,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 					stub_grp_vec[randomized_order[i]]->VectorizePrint(invoker);
 				}
 			}
-		}
+		//}
 	}
 	// Warning : this function should only be called
 	// after calling Vectorize on the group

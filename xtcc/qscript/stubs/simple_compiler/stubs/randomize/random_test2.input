@@ -24,5 +24,10 @@ stub_group grp_2 {
 " Adarshila (Greater Kailash 2, New Delhi)" 15,
 " Katha (A/3 Sarvodaya Enclave, New Delhi)" 16
 	}
+	stub_group grp_23 {
+" test 1" 161,
+" test 2" 162
+" test 3" 163
+	}
 }
 " Kalyanam (41/1407 DDA flats, Madangir, New Delhi)" 17;

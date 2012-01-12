@@ -159,7 +159,12 @@ void NamedRangeGroup::Randomize()
 	randomized_order.resize (stub_grp_vec.size());	
 	for (int i=0; i < randomized_order.size(); ++i) {
 		randomized_order[i] = i;
+		NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (stub_grp_vec[i]);
+		if (nrg) {
+			nrg->Randomize();
+		}
 	}
+
 	MyRNG my_rng;
 	random_shuffle ( randomized_order.begin(), randomized_order.end(), my_rng);
 }
