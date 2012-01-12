@@ -3,7 +3,7 @@ HEADERS = AbstractStatement.h compiled_code.h const_defs.h datatype.h lex_locati
 SOURCES= lex.yy.c randomize.tab.c named_range.cpp AbstractStatement.cpp new_named_range.cpp
 
 randomize.exe: $(SOURCES) $(HEADERS)
-	g++ $(SOURCES) -o $@
+	g++ -fpermissive $(SOURCES) -o $@
 
 randomize.tab.c randomize.tab.h: randomize.y
 	bison -v -d $<
@@ -11,5 +11,5 @@ randomize.tab.c randomize.tab.h: randomize.y
 lex.yy.c: lex.l
 	flex $<
 
-new_named_range.o: new_named_range.cpp new_named_range.h
-	g++ -c $<
+#new_named_range.o: new_named_range.cpp new_named_range.h
+#	g++ -fpermissive -c $<

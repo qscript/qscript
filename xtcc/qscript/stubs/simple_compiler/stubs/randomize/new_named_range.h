@@ -9,6 +9,10 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <cstdio>
+#include <ctime>
+#include <cstdlib>
+#include <iostream>
 
 #include "stub_pair.h"
 //#include "stmt.h"
@@ -18,6 +22,15 @@ using namespace std;
 struct NamedRangeList;
 struct NamedRangeGroup;
 struct NamedRangeStub;
+
+struct MyRNG
+{
+	int random_seed;
+	MyRNG() : random_seed (time(0))
+	{ }
+	int operator () (ptrdiff_t i);
+
+};
 
 struct AbstractNamedRange: public AbstractStatement
 {
@@ -118,11 +131,20 @@ struct NamedRangeGroup: public AbstractNamedRange
 		cout << groupName_ ;
 		cout << ", stub_grp_vec.size(): " << stub_grp_vec.size() << endl;
 		if (invoker == this) {
-			for (int i=0; i < stub_grp_vec.size(); ++i) {
-				stub_grp_vec[i]->VectorizePrint(invoker);
+			if (randomized_order.size() == 0) {
+				for (int i=0; i < stub_grp_vec.size(); ++i) {
+					stub_grp_vec[i]->VectorizePrint(invoker);
+				}
+			} else {
+				for (int i=0; i < randomized_order.size(); ++i) {
+					stub_grp_vec[randomized_order[i]]->VectorizePrint(invoker);
+				}
 			}
 		}
 	}
+	// Warning : this function should only be called
+	// after calling Vectorize on the group
+	void Randomize();
 
 };
 

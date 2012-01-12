@@ -371,6 +371,7 @@ int main()
 		ng->Print();
 		ng->Vectorize(ng, ng->stub_grp_vec);
 		//cout << "ng->stub_grp_vec.size(): " << ng->stub_grp_vec.size() << endl;
+		ng->Randomize();
 		ng->VectorizePrint(ng);
 
 	}

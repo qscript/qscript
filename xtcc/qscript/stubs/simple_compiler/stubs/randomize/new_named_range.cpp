@@ -15,7 +15,29 @@
  * =====================================================================================
  */
 
+#include <algorithm>
+#include <functional>
 #include "new_named_range.h"
+
+//ptrdiff_t (*p_myrandom)(ptrdiff_t) = myrandom;
+//ptrdiff_t myrandom (ptrdiff_t i) 
+//{
+//	int random_seed = time (0);
+//	return rand()%i;
+//}
+
+/*
+struct MyRNG
+{
+	int random_seed;
+	MyRNG(): 	random_seed (time(0))
+	{ }
+	int MyRNG(ptrdiff_t i)
+	{
+		return rand_r(&random_seed) % i;
+	}
+};
+*/
 
 void NamedRangeGroup::AddStub (string p_text, int p_code, int p_index_in_group)
 {
@@ -128,4 +150,22 @@ void NamedRangeGroup::Vectorize (AbstractNamedRange * invoker, vector <AbstractN
 	if (next_nr) {
 		next_nr->Vectorize (invoker, p_stub_grp_vec);
 	}
+}
+
+// Warning : this function should only be called
+// after calling Vectorize on the group
+void NamedRangeGroup::Randomize()
+{
+	randomized_order.resize (stub_grp_vec.size());	
+	for (int i=0; i < randomized_order.size(); ++i) {
+		randomized_order[i] = i;
+	}
+	MyRNG my_rng;
+	random_shuffle ( randomized_order.begin(), randomized_order.end(), my_rng);
+}
+
+
+int MyRNG::operator () (ptrdiff_t i)
+{
+	return rand_r(&random_seed) % i;
 }
