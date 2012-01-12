@@ -373,7 +373,8 @@ int main()
 		//cout << "ng->stub_grp_vec.size(): " << ng->stub_grp_vec.size() << endl;
 		ng->Randomize();
 		ng->VectorizePrint(ng);
-
+		ng->SaveRandomizedOrderToDisk();
+		cout << endl;
 	}
 
 }

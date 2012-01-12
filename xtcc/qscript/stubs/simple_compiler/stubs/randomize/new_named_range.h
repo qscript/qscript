@@ -145,7 +145,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 	// Warning : this function should only be called
 	// after calling Vectorize on the group
 	void Randomize();
-
+	void SaveRandomizedOrderToDisk();
 };
 
 struct NamedRangeStub : public AbstractNamedRange

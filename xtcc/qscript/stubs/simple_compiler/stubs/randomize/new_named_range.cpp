@@ -174,3 +174,17 @@ int MyRNG::operator () (ptrdiff_t i)
 {
 	return rand_r(&random_seed) % i;
 }
+
+
+void NamedRangeGroup::SaveRandomizedOrderToDisk()
+{
+	cout << "{ " << groupName_ << ": ";
+	for (int i=0; i<randomized_order.size(); ++i) {
+		cout << " " << randomized_order[i];
+		NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (stub_grp_vec[i]);
+		if (nrg) {
+			nrg->SaveRandomizedOrderToDisk();
+		}
+	}
+	cout << "} ";
+}
