@@ -179,12 +179,21 @@ int MyRNG::operator () (ptrdiff_t i)
 void NamedRangeGroup::SaveRandomizedOrderToDisk()
 {
 	cout << "{ " << groupName_ << ": ";
+	bool last_item_was_nrg = false;
 	for (int i=0; i<randomized_order.size(); ++i) {
 		cout << " " << randomized_order[i];
 		NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (stub_grp_vec[i]);
 		if (nrg) {
+			cout << "; ";
 			nrg->SaveRandomizedOrderToDisk();
+			last_item_was_nrg = true;
+		} else {
+			last_item_was_nrg = false;
 		}
 	}
-	cout << "} ";
+	if (last_item_was_nrg) {
+		cout << " }  ";
+	} else {
+		cout << "; }  ";
+	}
 }
