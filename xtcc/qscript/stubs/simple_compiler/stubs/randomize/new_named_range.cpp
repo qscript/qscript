@@ -67,7 +67,7 @@ void NamedRangeGroup::AddStub (string p_text, int p_code, int p_index_in_group)
 	}
 }
 
-void NamedRangeGroup::AddGroup (NamedRangeGroup & p_group)
+void NamedRangeGroup::AddGroup (NamedRangeGroup & p_group, int p_index_in_group)
 {
 	cout << __PRETTY_FUNCTION__ << "groupName_: " 
 		<< groupName_
@@ -76,7 +76,7 @@ void NamedRangeGroup::AddGroup (NamedRangeGroup & p_group)
 		<< endl;
 	if (next_nr== 0 && groupPtr_==0) {
 		//groupPtr_ = & p_group;
-		NamedRangeGroup * nrg = new NamedRangeGroup(p_group.groupName_);
+		NamedRangeGroup * nrg = new NamedRangeGroup (p_group.groupName_, p_index_in_group);
 		nrg->groupPtr_ = p_group.groupPtr_;
 		//groupPtr_ = p_group.groupPtr_;
 		groupPtr_ = nrg;
@@ -88,7 +88,7 @@ void NamedRangeGroup::AddGroup (NamedRangeGroup & p_group)
 			ptr_AbstractNamedRange = ptr_AbstractNamedRange->next_nr;
 		}
 		//ptr_AbstractNamedRange->next_nr = & p_group;
-		NamedRangeGroup * nrg = new NamedRangeGroup(p_group.groupName_);
+		NamedRangeGroup * nrg = new NamedRangeGroup (p_group.groupName_, p_index_in_group);
 		nrg->groupPtr_ = p_group.groupPtr_;
 		ptr_AbstractNamedRange->next_nr = nrg;
 	}
@@ -113,7 +113,7 @@ void NamedRangeList::AddStub (string p_text, int p_code, int p_index_in_group)
 	}
 }
 
-void NamedRangeList::AddGroup (NamedRangeGroup & p_group)
+void NamedRangeList::AddGroup (NamedRangeGroup & p_group, int p_index_in_group)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	if (next_nr == NULL) {
@@ -179,15 +179,23 @@ int MyRNG::operator () (ptrdiff_t i)
 void NamedRangeGroup::SaveRandomizedOrderToDisk()
 {
 	cout << "{ " << groupName_ << ": ";
-	bool last_item_was_nrg = false;
+	bool last_item_was_nrg = true; // I am the last Item and I am an NRG
+	//{ grp_2: { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }   }
+	// other wise the output would be like this
+	//{ grp_2: ; { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }   }
+	//         ^
+	//         | ---- this is wrong
 	for (int i=0; i<randomized_order.size(); ++i) {
-		cout << " " << randomized_order[i];
-		NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (stub_grp_vec[i]);
+		NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (stub_grp_vec[randomized_order[i]]);
 		if (nrg) {
-			cout << "; ";
+			if (last_item_was_nrg) {
+			} else {
+				cout << "; ";
+			}
 			nrg->SaveRandomizedOrderToDisk();
 			last_item_was_nrg = true;
 		} else {
+			cout << " " << randomized_order[i];
 			last_item_was_nrg = false;
 		}
 	}

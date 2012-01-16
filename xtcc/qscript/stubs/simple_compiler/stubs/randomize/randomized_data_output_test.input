@@ -1,5 +1,1 @@
-{ suvidha_kendra:  6 2 0 9 1 8 7 ;}
-{ suvidha_kendra:  { grp_1:  1 2 3 4; }  }
-{ suvidha_kendra:  10 2 9 8 7 6 4; { grp_1:  0 2 3 1 ; }   0 1 3; { grp_2:  0; { grp_21:  0 1 ; }   2; { grp_22:  0 1 ; }   1; { grp_23:  0 2 1 ; }    }   5 ; }  
-{ suvidha_kendra:  1 7 3 4 6 5 2; { grp_1:  1 0 3 2; }   10 0 8;  { grp_2:  1; { grp_21:  1 0;  }   0; { grp_22:  1 0;  }   2; { grp_23:  1 0 2; }   }   9; }  
-
+{ suvidha_kendra:  10 0 5 7 2 1 4 8 3; { grp_1:  2 0 1 3; }  { grp_2: { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }   }  

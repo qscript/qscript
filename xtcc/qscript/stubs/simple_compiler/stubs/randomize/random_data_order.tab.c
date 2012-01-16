@@ -93,9 +93,14 @@
 	void yyerror(const char * s);
 	int32_t yylex();
 
+	vector <AbstractNamedRange*> vec_abs_nr;
+	vector <int> no_vec;
+	vector <int> stub_number;
+	AbstractStatement * root;
+
 
 /* Line 189 of yacc.c  */
-#line 99 "random_data_order.tab.c"
+#line 104 "random_data_order.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -135,7 +140,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 27 "random_data_order.y"
+#line 32 "random_data_order.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -149,7 +154,7 @@ typedef union YYSTYPE
 
 
 /* Line 214 of yacc.c  */
-#line 153 "random_data_order.tab.c"
+#line 158 "random_data_order.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -161,7 +166,7 @@ typedef union YYSTYPE
 
 
 /* Line 264 of yacc.c  */
-#line 165 "random_data_order.tab.c"
+#line 170 "random_data_order.tab.c"
 
 #ifdef short
 # undef short
@@ -376,16 +381,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  7
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   15
+#define YYLAST   14
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  10
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  8
+#define YYNNTS  9
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  12
+#define YYNRULES  13
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  19
+#define YYNSTATES  20
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -431,24 +436,24 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5,     7,    10,    12,    18,    20,    23,
-      26,    28,    30
+       0,     0,     3,     5,     7,    10,    12,    13,    20,    22,
+      25,    28,    30,    32
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
       11,     0,    -1,    12,    -1,    13,    -1,    12,    13,    -1,
-      14,    -1,     6,     3,     7,    15,     8,    -1,    16,    -1,
-      15,    16,    -1,    17,     9,    -1,    14,    -1,     4,    -1,
-      17,     4,    -1
+      14,    -1,    -1,     6,     3,     7,    15,    16,     8,    -1,
+      17,    -1,    16,    17,    -1,    18,     9,    -1,    14,    -1,
+       4,    -1,    18,     4,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    53,    53,    58,    61,    68,    71,    75,    76,    80,
-      82,    86,    88
+       0,    58,    58,    63,    66,    73,    79,    79,    96,    99,
+     112,   118,   124,   132
 };
 #endif
 
@@ -459,8 +464,8 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "NAME", "INUMBER", "TEXT", "'{'", "':'",
   "'}'", "';'", "$accept", "prog", "stmt_list", "stmt",
-  "randomized_data_order", "randomized_data_list", "randomized_data",
-  "simple_number_list", 0
+  "randomized_data_order", "$@1", "randomized_data_list",
+  "randomized_data", "simple_number_list", 0
 };
 #endif
 
@@ -476,15 +481,15 @@ static const yytype_uint16 yytoknum[] =
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    10,    11,    12,    12,    13,    14,    15,    15,    16,
-      16,    17,    17
+       0,    10,    11,    12,    12,    13,    15,    14,    16,    16,
+      17,    17,    18,    18
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     1,     2,     1,     5,     1,     2,     2,
-       1,     1,     2
+       0,     2,     1,     1,     2,     1,     0,     6,     1,     2,
+       2,     1,     1,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -492,29 +497,29 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,     0,     0,     2,     3,     5,     0,     1,     4,     0,
-      11,    10,     0,     7,     0,     6,     8,    12,     9
+       0,     0,     0,     2,     3,     5,     0,     1,     4,     6,
+       0,    12,    11,     0,     8,     0,     7,     9,    13,    10
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,     4,     5,    12,    13,    14
+      -1,     2,     3,     4,     5,    10,    13,    14,    15
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -5
+#define YYPACT_NINF -6
 static const yytype_int8 yypact[] =
 {
-       1,     6,    10,     1,    -5,    -5,     5,    -5,    -5,    -3,
-      -5,    -5,    -2,    -5,    -4,    -5,    -5,    -5,    -5
+      -5,     0,     8,    -5,    -6,    -6,     6,    -6,    -6,    -6,
+       5,    -6,    -6,    -2,    -6,    -4,    -6,    -6,    -6,    -6
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -5,    -5,    -5,    11,    -1,    -5,     3,    -5
+      -6,    -6,    -6,     9,    -3,    -6,    -6,     1,    -6
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -524,14 +529,14 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      17,    10,    10,     1,     1,    18,    15,     1,    11,     6,
-       7,    11,     9,     0,     8,    16
+      18,     1,    11,     6,     1,    19,    16,    12,     7,    11,
+      12,     1,     8,     9,    17
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_uint8 yycheck[] =
 {
-       4,     4,     4,     6,     6,     9,     8,     6,     9,     3,
-       0,    12,     7,    -1,     3,    12
+       4,     6,     4,     3,     6,     9,     8,    10,     0,     4,
+      13,     6,     3,     7,    13
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -539,7 +544,7 @@ static const yytype_int8 yycheck[] =
 static const yytype_uint8 yystos[] =
 {
        0,     6,    11,    12,    13,    14,     3,     0,    13,     7,
-       4,    14,    15,    16,    17,     8,    16,     4,     9
+      15,     4,    14,    16,    17,    18,     8,    17,     4,     9
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1353,16 +1358,16 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 53 "random_data_order.y"
+#line 58 "random_data_order.y"
     {
-		(yyval.stmt) = (yyvsp[(1) - (1)].stmt);
+		root = (yyvsp[(1) - (1)].stmt);
 	;}
     break;
 
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 58 "random_data_order.y"
+#line 63 "random_data_order.y"
     {
 	 	//$$ = $1;
 	;}
@@ -1371,7 +1376,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 61 "random_data_order.y"
+#line 66 "random_data_order.y"
     {
 		//$1->next_=$2;
 		//$2->prev_=$1;
@@ -1379,50 +1384,123 @@ yyreduce:
 	;}
     break;
 
+  case 5:
+
+/* Line 1455 of yacc.c  */
+#line 73 "random_data_order.y"
+    {
+    	(yyval.stmt) = (yyvsp[(1) - (1)].nr_ptr);
+	cout << "parsed randomized_data_order" << endl;
+	;}
+    break;
+
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 71 "random_data_order.y"
+#line 79 "random_data_order.y"
+    { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); ;}
+    break;
+
+  case 7:
+
+/* Line 1455 of yacc.c  */
+#line 79 "random_data_order.y"
     {
-		     ;}
+		AbstractNamedRange * nr_ptr = (yyvsp[(5) - (6)].nr_ptr);
+		//cout << "climbing up the chain" << endl;
+		while (nr_ptr->prev_nr) {
+			//cout << "." ;
+			nr_ptr = nr_ptr->prev_nr;
+		}
+		//cout << endl;
+		string grp_name = (yyvsp[(2) - (6)].name);
+		NamedRangeGroup * nrg = new NamedRangeGroup (grp_name, stub_number[stub_number.size()-2]);
+		nrg->groupPtr_ = nr_ptr;
+		(yyval.nr_ptr) = nrg;
+		cout << "NamedRangeGroup: " << grp_name << endl;
+		stub_number.pop_back(); 
+	;}
+    break;
+
+  case 8:
+
+/* Line 1455 of yacc.c  */
+#line 96 "random_data_order.y"
+    {
+			    (yyval.nr_ptr) = (yyvsp[(1) - (1)].nr_ptr);
+		;}
     break;
 
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 80 "random_data_order.y"
+#line 99 "random_data_order.y"
     {
-		    ;}
+		    (yyvsp[(1) - (2)].nr_ptr)->next_nr = (yyvsp[(2) - (2)].nr_ptr);
+		    (yyvsp[(2) - (2)].nr_ptr)->prev_nr = (yyvsp[(1) - (2)].nr_ptr);
+		    AbstractNamedRange * nr = (yyvsp[(2) - (2)].nr_ptr);
+		    NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (nr);
+		    if (nrg) {
+		    	cout << "chaining: " << nrg->groupName_ << endl;
+		    }
+		    (yyval.nr_ptr) = (yyvsp[(2) - (2)].nr_ptr);
+		;}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 82 "random_data_order.y"
+#line 112 "random_data_order.y"
     {
+			NamedRangeList * nrl = new NamedRangeList();
+			nrl->stubs = stub_list;
+			stub_list.clear();
+			(yyval.nr_ptr) = nrl;
 		    ;}
     break;
 
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 86 "random_data_order.y"
+#line 118 "random_data_order.y"
     {
-		  ;}
+		    	(yyval.nr_ptr) = (yyvsp[(1) - (1)].nr_ptr);
+			cout << " got nested randomized_data_order: " << endl;
+		    ;}
     break;
 
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 88 "random_data_order.y"
+#line 124 "random_data_order.y"
     {
+			//no_vec.push_back ($1);
+			string s1 = "dummy";
+			int32_t code=(yyvsp[(1) - (1)].ival);
+			++stub_number[stub_number.size()-1];
+			struct stub_pair pair1 (s1, code, stub_number.back());
+			stub_list.push_back (pair1);
+		  ;}
+    break;
+
+  case 13:
+
+/* Line 1455 of yacc.c  */
+#line 132 "random_data_order.y"
+    {
+			//no_vec.push_back ($2);
+			string s1 = "dummy";
+			int32_t code=(yyvsp[(2) - (2)].ival);
+			++stub_number[stub_number.size()-1];
+			struct stub_pair pair1 (s1, code, stub_number.back());
+			stub_list.push_back (pair1);
 		  ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 1426 "random_data_order.tab.c"
+#line 1504 "random_data_order.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1634,7 +1712,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 93 "random_data_order.y"
+#line 143 "random_data_order.y"
 
 
 #include <cstdio>
@@ -1653,8 +1731,13 @@ int main()
 		exit(1);
 	}
 	yyrestart(yyin);
+	stub_number.push_back(0);
 	if (!yyparse() && !no_errors) {
 		cout << "sucessfully parsed" << endl;
+		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
+		if (NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr)) {
+			ng->Print();
+		}
 	}
 }
 

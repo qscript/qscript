@@ -44,7 +44,7 @@ struct AbstractNamedRange: public AbstractStatement
 	virtual void Print ()=0;
 	virtual void SimplePrint ()=0;
 	virtual void AddStub (string p_text, int p_code, int p_index_in_group)=0;
-	virtual void AddGroup (NamedRangeGroup & p_group)=0;
+	virtual void AddGroup (NamedRangeGroup & p_group, int p_index_in_group)=0;
 	virtual void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) = 0;
 	virtual void VectorizePrint (AbstractNamedRange * invoker) = 0;
 };
@@ -71,7 +71,7 @@ struct NamedRangeList: public AbstractNamedRange
 	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) ;
 
 	void AddStub (string p_text, int p_code, int p_index_in_group);
-	void AddGroup (NamedRangeGroup & p_group);
+	void AddGroup (NamedRangeGroup & p_group, int p_index_in_group);
 	void SimplePrint()
 	{
 		for (int i=0; i<stubs.size(); ++i) {
@@ -99,12 +99,16 @@ struct NamedRangeGroup: public AbstractNamedRange
 	AbstractNamedRange * groupPtr_;
 	vector <AbstractNamedRange *> stub_grp_vec;
 	vector <int> randomized_order;
-	NamedRangeGroup(string p_groupName):
+	int index_in_group;
+	NamedRangeGroup(string p_groupName, int p_index_in_group):
 		AbstractNamedRange(),
-		groupName_(p_groupName), groupPtr_(0)
+		groupName_(p_groupName), groupPtr_(0),
+		index_in_group (p_index_in_group)
 	{ }
 	void Print() {
-		cout << groupName_ << endl;
+		cout << groupName_
+			<< ", index_in_group: " << index_in_group
+			<< endl;
 		if (groupPtr_) {
 			groupPtr_->Print();
 		}
@@ -122,7 +126,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 		}
 	}
 	void AddStub (string p_text, int p_code, int p_index_in_group);
-	void AddGroup (NamedRangeGroup & p_group);
+	void AddGroup (NamedRangeGroup & p_group, int p_index_in_group);
 
 	//void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
 	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) ;
@@ -167,7 +171,7 @@ struct NamedRangeStub : public AbstractNamedRange
 	NamedRangeStub (string p_text, int p_code):
 		stub(p_text, p_code)
 	{}
-	void AddGroup (NamedRangeGroup & p_group)
+	void AddGroup (NamedRangeGroup & p_group, int p_index_in_group)
 	{
 	}
 	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec)
