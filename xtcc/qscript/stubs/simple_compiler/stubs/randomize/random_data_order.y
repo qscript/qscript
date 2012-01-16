@@ -1,3 +1,6 @@
+/* Copyright : Neil Xavier D'Souza, 2012
+*/
+
 %{
 #include <iostream>
 #include <vector>
