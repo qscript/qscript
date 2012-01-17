@@ -25,7 +25,7 @@ struct NamedRangeStub;
 
 struct MyRNG
 {
-	int random_seed;
+	unsigned int random_seed;
 	MyRNG() : random_seed (time(0))
 	{ }
 	int operator () (ptrdiff_t i);

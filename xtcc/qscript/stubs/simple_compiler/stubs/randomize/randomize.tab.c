@@ -68,7 +68,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 189 of yacc.c  */
-#line 1 "randomize.y"
+#line 4 "randomize.y"
 
 #include <iostream>
 #include <vector>
@@ -147,7 +147,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 35 "randomize.y"
+#line 38 "randomize.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -461,8 +461,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    65,    65,    70,    73,    80,    81,    84,    84,   128,
-     129,   132,   139,   148,   154,   154,   209,   210,   245
+       0,    68,    68,    73,    76,    83,    84,    87,    87,   131,
+     132,   135,   142,   151,   157,   157,   212,   213,   248
 };
 #endif
 
@@ -1379,7 +1379,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 65 "randomize.y"
+#line 68 "randomize.y"
     {
 	root = (yyvsp[(1) - (1)].stmt);
 	;}
@@ -1388,7 +1388,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 70 "randomize.y"
+#line 73 "randomize.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 	;}
@@ -1397,7 +1397,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 73 "randomize.y"
+#line 76 "randomize.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
@@ -1408,7 +1408,7 @@ yyreduce:
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 84 "randomize.y"
+#line 87 "randomize.y"
     {
 		stub_list.resize(0);
 		stub_number.push_back(0);
@@ -1419,7 +1419,7 @@ yyreduce:
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 88 "randomize.y"
+#line 91 "randomize.y"
     {
 		//string stub_name=$2;
 		//struct named_range* nr_ptr= 
@@ -1462,7 +1462,7 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 132 "randomize.y"
+#line 135 "randomize.y"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int32_t code=(yyvsp[(2) - (2)].ival);
@@ -1475,7 +1475,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 139 "randomize.y"
+#line 142 "randomize.y"
     {
 		string s1=(yyvsp[(1) - (3)].text_buf);
 		int32_t code=(yyvsp[(2) - (3)].ival);
@@ -1488,7 +1488,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 148 "randomize.y"
+#line 151 "randomize.y"
     {
 		NamedRangeList * nrl = new NamedRangeList();
 		nrl->stubs = stub_list;
@@ -1500,14 +1500,14 @@ yyreduce:
   case 14:
 
 /* Line 1455 of yacc.c  */
-#line 154 "randomize.y"
+#line 157 "randomize.y"
     { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); ;}
     break;
 
   case 15:
 
 /* Line 1455 of yacc.c  */
-#line 154 "randomize.y"
+#line 157 "randomize.y"
     {
 		/* continue from here:
 		   treat this as a named compound statement - just like in the main qscript grammar
@@ -1547,7 +1547,7 @@ yyreduce:
   case 17:
 
 /* Line 1455 of yacc.c  */
-#line 210 "randomize.y"
+#line 213 "randomize.y"
     {
 		AbstractNamedRange * nr_ptr1=(yyvsp[(1) - (2)].nr_ptr), *nr_ptr2=(yyvsp[(2) - (2)].nr_ptr);
 		NamedRangeList * nrl_ptr1 =0, *nrl_ptr2=0;
@@ -1586,7 +1586,7 @@ yyreduce:
   case 18:
 
 /* Line 1455 of yacc.c  */
-#line 245 "randomize.y"
+#line 248 "randomize.y"
     {
 		(yyval.stmt) = 0;
 	;}
@@ -1807,7 +1807,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 250 "randomize.y"
+#line 253 "randomize.y"
 
 #include <cstdio>
 #include <vector>

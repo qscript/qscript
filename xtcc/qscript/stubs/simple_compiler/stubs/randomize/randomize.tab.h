@@ -56,7 +56,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 35 "randomize.y"
+#line 38 "randomize.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
