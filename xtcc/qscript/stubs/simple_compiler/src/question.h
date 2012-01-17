@@ -297,15 +297,17 @@ class NamedStubQuestion: public AbstractQuestion
 {
 	public:
 	string named_list;
-	named_range * nr_ptr;
+	//named_range * nr_ptr;
+	NamedRangeGroup * nrg_ptr;
 	vector<stub_pair> * stub_ptr;
 	vector<display_data::DisplayDataUnit> displayData_;
 	int currentPage_;
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
-		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, named_range * l_nr_ptr
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, int32_t l_no_mpn
+		, DataType l_dt, NamedRangeGroup * l_nrg_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
@@ -314,8 +316,9 @@ class NamedStubQuestion: public AbstractQuestion
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
-		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, named_range * l_nr_ptr
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, int32_t l_no_mpn
+		, DataType l_dt, NamedRangeGroup * l_nrg_ptr
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
@@ -323,9 +326,10 @@ class NamedStubQuestion: public AbstractQuestion
 
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
-		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
+		, int32_t l_no_mpn
 		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
-		, DataType l_dt, named_range * l_nr_ptr
+		, DataType l_dt, NamedRangeGroup * l_nrg_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
@@ -334,7 +338,7 @@ class NamedStubQuestion: public AbstractQuestion
 		DataType this_stmt_type, int32_t line_number
 		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn
-		, DataType l_dt, named_range * l_nr_ptr
+		, DataType l_dt, NamedRangeGroup * l_nrg_ptr
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
 		);

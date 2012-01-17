@@ -353,12 +353,13 @@ struct Parameter
 struct AbstractQuestion;
 AbstractQuestion* find_in_question_list(string name);
 
-struct named_range;
+//struct named_range;
+struct NamedRangeGroup;
 struct StubManipStatement: public AbstractStatement
 {
 	string questionName_;
 	string namedStub_;
-	named_range * namedRange_;
+	NamedRangeGroup * namedRange_;
 	AbstractQuestion * lhs_;
 	AbstractQuestion * rhs_;
 	XtccSet xtccSet_;
@@ -374,7 +375,7 @@ struct StubManipStatement: public AbstractStatement
 	//			       , named_range * l_named_range
 	//			       , AbstractQuestion * l_question);
 	StubManipStatement(DataType dtype, int32_t lline_number
-				       , named_range * l_named_range
+				       , NamedRangeGroup * l_named_range
 				       , AbstractQuestion * l_question
 				       , AbstractExpression * larr_index = 0);
 	StubManipStatement(DataType dtype, int32_t lline_number
@@ -383,7 +384,7 @@ struct StubManipStatement: public AbstractStatement
 				       , AbstractExpression * larr_index = 0);
 
 	StubManipStatement(DataType dtype, int32_t lline_number
-			       , named_range * l_named_range
+			       , NamedRangeGroup * l_named_range
 			       , XtccSet & xs);
 	StubManipStatement(DataType dtype, int32_t lline_number
 			       , AbstractQuestion * l_question_lhs

@@ -16,7 +16,7 @@
 #include "stmt.h"
 #include "expr.h"
 #include "named_attributes.h"
-#include "named_range.h"
+#include "new_named_range.h"
 #include "const_defs.h"
 #include "xtcc_set.h"
 #include "utils.h"
@@ -89,7 +89,7 @@ namespace qscript_parser
 	extern int32_t check_parameters(struct AbstractExpression* e, struct VariableList* v);
 
         extern vector <string> attribute_list;
-	extern vector <named_range*> named_stubs_list;
+	extern vector <NamedRangeGroup*> named_stubs_list;
 	extern vector <named_attribute_list> named_attributes_list;
         extern vector <stub_pair> stub_list;
 	extern int32_t if_line_no;

@@ -1,4 +1,4 @@
-State 201 conflicts: 1 shift/reduce
+State 204 conflicts: 1 shift/reduce
 
 
 Grammar
@@ -84,125 +84,137 @@ Grammar
 
    56 text_expr: TEXT
    57          | NAME '[' expression ']'
+   58          | NAME '.' STUBS_LIST '[' expression ']'
+   59          | NAME
 
-   58 attribute_list: /* empty */
-   59               | ':' attributes
+   60 attribute_list: /* empty */
+   61               | ':' attributes
 
-   60 attributes: attribute
-   61           | attributes attribute
+   62 attributes: attribute
+   63           | attributes attribute
 
-   62 attribute: HIDDEN
-   63          | ALLOW_BLANK
+   64 attribute: HIDDEN
+   65          | ALLOW_BLANK
 
-   64 expression: expression '+' expression
-   65           | expression '-' expression
-   66           | expression '*' expression
-   67           | expression '/' expression
-   68           | expression '%' expression
-   69           | '-' expression
-   70           | expression '<' expression
-   71           | expression '>' expression
-   72           | expression LEQ expression
-   73           | expression GEQ expression
-   74           | expression ISEQ expression
-   75           | expression NOEQ expression
-   76           | expression LOGOR expression
-   77           | expression LOGAND expression
-   78           | expression '=' expression
-   79           | NOT expression
-   80           | INUMBER
-   81           | FNUMBER
-   82           | NAME
-   83           | NAME '[' expression ']'
-   84           | NAME '(' expr_list ')'
-   85           | TEXT
-   86           | '(' expression ')'
-   87           | expression IN range_allowed_values
-   88           | TOSTRING '(' NAME ')'
-   89           | expression IN NAME
-   90           | ISANSWERED '(' NAME ')'
-   91           | COUNT '(' NAME ')'
+   66 expression: expression '+' expression
+   67           | expression '-' expression
+   68           | expression '*' expression
+   69           | expression '/' expression
+   70           | expression '%' expression
+   71           | '-' expression
+   72           | expression '<' expression
+   73           | expression '>' expression
+   74           | expression LEQ expression
+   75           | expression GEQ expression
+   76           | expression ISEQ expression
+   77           | expression NOEQ expression
+   78           | expression LOGOR expression
+   79           | expression LOGAND expression
+   80           | expression '=' expression
+   81           | NOT expression
+   82           | INUMBER
+   83           | FNUMBER
+   84           | NAME
+   85           | NAME '[' expression ']'
+   86           | NAME '(' expr_list ')'
+   87           | TEXT
+   88           | '(' expression ')'
+   89           | expression IN range_allowed_values
+   90           | TOSTRING '(' NAME ')'
+   91           | expression IN NAME
+   92           | ISANSWERED '(' NAME ')'
+   93           | COUNT '(' NAME ')'
 
-   92 expr_list: expression
-   93          | expr_list ',' expression
+   94 expr_list: expression
+   95          | expr_list ',' expression
 
-   94 qtype: SINGLE_CODED
-   95      | MP '(' INUMBER ')'
+   96 qtype: SINGLE_CODED
+   97      | MP '(' INUMBER ')'
 
-   96 mutex_range: MUTEX '(' mutex_range_list ')'
+   98 mutex_range: MUTEX '(' mutex_range_list ')'
 
-   97 mutex_range_list: mutex_range
-   98                 | mutex_range_list ',' mutex_range
+   99 mutex_range_list: mutex_range
+  100                 | mutex_range_list ',' mutex_range
 
-   99 mutex_range: INUMBER '-' INUMBER
-  100            | INUMBER
+  101 mutex_range: INUMBER '-' INUMBER
+  102            | INUMBER
 
-  101 range_allowed_values: '(' range_list ')'
+  103 range_allowed_values: '(' range_list ')'
 
-  102 range_list: range
-  103           | range_list ',' range
+  104 range_list: range
+  105           | range_list ',' range
 
-  104 range: INUMBER '-' INUMBER
-  105      | INUMBER
+  106 range: INUMBER '-' INUMBER
+  107      | INUMBER
 
-  106 $@3: /* empty */
+  108 $@3: /* empty */
 
-  107 stubs: STUBS_LIST NAME $@3 '=' stub_list ';'
+  109 stubs: STUBS_LIST NAME $@3 '=' stub_list ';'
 
-  108 named_attributes: NAMED_ATTRIBUTES NAME '=' named_attribute_list ';'
+  110 named_attributes: NAMED_ATTRIBUTES NAME '=' named_attribute_list ';'
 
-  109 named_attribute_list: TEXT
-  110                     | named_attribute_list ',' TEXT
+  111 named_attribute_list: TEXT
+  112                     | named_attribute_list ',' TEXT
 
-  111 stub_list: stub
-  112          | stub_list stub
+  113 simple_stub_list: simple_stub
+  114                 | simple_stub_list ',' simple_stub
 
-  113 stub: TEXT INUMBER
-  114     | TEXT INUMBER MUTEX
+  115 simple_stub: TEXT INUMBER
+  116            | TEXT INUMBER MUTEX
 
-  115 stub_manip_stmts: SETDEL '(' NAME ',' NAME ')' ';'
-  116                 | SETDEL '(' NAME ',' NAME '[' expression ']' ')' ';'
-  117                 | SETADD '(' NAME ',' NAME ')' ';'
-  118                 | SETADD '(' NAME ',' NAME '[' expression ']' ')' ';'
-  119                 | SETADD '(' NAME ',' range_allowed_values ')' ';'
-  120                 | SETDEL '(' NAME ',' range_allowed_values ')' ';'
-  121                 | UNSET '(' NAME ')' ';'
-  122                 | SETALL '(' NAME ')' ';'
+  117 stub: simple_stub_list
+
+  118 $@4: /* empty */
+
+  119 stub: STUB_GROUP NAME $@4 '{' stub_list '}'
+
+  120 stub_list: stub
+  121          | stub_list stub
+
+  122 stub_manip_stmts: SETDEL '(' NAME ',' NAME ')' ';'
+  123                 | SETDEL '(' NAME ',' NAME '[' expression ']' ')' ';'
+  124                 | SETADD '(' NAME ',' NAME ')' ';'
+  125                 | SETADD '(' NAME ',' NAME '[' expression ']' ')' ';'
+  126                 | SETADD '(' NAME ',' range_allowed_values ')' ';'
+  127                 | SETDEL '(' NAME ',' range_allowed_values ')' ';'
+  128                 | UNSET '(' NAME ')' ';'
+  129                 | SETALL '(' NAME ')' ';'
 
 
 Terminals, with rules where they appear
 
 $end (0) 0
-'%' (37) 68
+'%' (37) 70
 '&' (38) 9
-'(' (40) 4 40 43 44 47 48 49 50 84 86 88 90 91 95 96 101 115 116 117
-    118 119 120 121 122
-')' (41) 4 40 43 44 47 48 49 50 84 86 88 90 91 95 96 101 115 116 117
-    118 119 120 121 122
-'*' (42) 66
-'+' (43) 64
-',' (44) 6 93 98 103 110 115 116 117 118 119 120
-'-' (45) 65 69 99 104
-'/' (47) 67
-':' (58) 55 59
-';' (59) 21 22 23 24 38 40 45 46 47 48 49 50 51 52 53 107 108 115 116
-    117 118 119 120 121 122
-'<' (60) 70
-'=' (61) 22 23 78 107 108
-'>' (62) 71
-'[' (91) 8 24 48 57 83 116 118
-']' (93) 8 24 48 57 83 116 118
-'{' (123) 42
-'}' (125) 41
+'(' (40) 4 40 43 44 47 48 49 50 86 88 90 92 93 97 98 103 122 123 124
+    125 126 127 128 129
+')' (41) 4 40 43 44 47 48 49 50 86 88 90 92 93 97 98 103 122 123 124
+    125 126 127 128 129
+'*' (42) 68
+'+' (43) 66
+',' (44) 6 95 100 105 112 114 122 123 124 125 126 127
+'-' (45) 67 71 101 106
+'.' (46) 58
+'/' (47) 69
+':' (58) 55 61
+';' (59) 21 22 23 24 38 40 45 46 47 48 49 50 51 52 53 109 110 122 123
+    124 125 126 127 128 129
+'<' (60) 72
+'=' (61) 22 23 80 109 110
+'>' (62) 73
+'[' (91) 8 24 48 57 58 85 123 125
+']' (93) 8 24 48 57 58 85 123 125
+'{' (123) 42 119
+'}' (125) 41 119
 error (256) 38
-INUMBER (258) 8 80 95 99 100 104 105 113 114
-FNUMBER (259) 81
-NAME (260) 1 4 7 8 9 21 22 23 24 46 47 48 51 52 53 57 82 83 84 88 89
-    90 91 107 108 115 116 117 118 119 120 121 122
-TOSTRING (261) 88
-TEXT (262) 56 85 109 110 113 114
-SINGLE_CODED (263) 94
-MP (264) 95
+INUMBER (258) 8 82 97 101 102 106 107 115 116
+FNUMBER (259) 83
+NAME (260) 1 4 7 8 9 21 22 23 24 46 47 48 51 52 53 57 58 59 84 85 86
+    90 91 92 93 109 110 119 122 123 124 125 126 127 128 129
+TOSTRING (261) 90
+TEXT (262) 56 87 111 112 115 116
+SINGLE_CODED (263) 96
+MP (264) 97
 VOID_T (265) 13
 INT8_T (266) 14
 INT16_T (267) 15
@@ -210,128 +222,135 @@ INT32_T (268) 16
 FLOAT_T (269) 17
 DOUBLE_T (270) 18
 STRING_T (271) 19
-IN (272) 87 89
+IN (272) 89 91
 FOR (273) 40
 GOTO (274) 46
-HIDDEN (275) 62
-ALLOW_BLANK (276) 63
-MUTEX (277) 96 114
+HIDDEN (275) 64
+ALLOW_BLANK (276) 65
+MUTEX (277) 98 116
 CLEAR (278) 47 48
 COLUMN (279) 49
-ISANSWERED (280) 90
+ISANSWERED (280) 92
 NEWCARD (281) 50
 CONST (282) 20
-LOGOR (283) 76
-LOGAND (284) 77
-NOEQ (285) 75
-ISEQ (286) 74
-GEQ (287) 73
-LEQ (288) 72
-NOT (289) 79
+LOGOR (283) 78
+LOGAND (284) 79
+NOEQ (285) 77
+ISEQ (286) 76
+GEQ (287) 75
+LEQ (288) 74
+NOT (289) 81
 UMINUS (290)
-COUNT (291) 91
+COUNT (291) 93
 FUNC_CALL (292)
 IF (293) 43 44
 ELSE (294) 44
-STUBS_LIST (295) 107
-NAMED_ATTRIBUTES (296) 108
-SETDEL (297) 115 116 120
-SETADD (298) 117 118 119
-UNSET (299) 121
-SETALL (300) 122
+STUBS_LIST (295) 58 109
+STUB_GROUP (296) 119
+NAMED_ATTRIBUTES (297) 110
+SETDEL (298) 122 123 127
+SETADD (299) 124 125 126
+UNSET (300) 128
+SETALL (301) 129
 
 
 Nonterminals, with rules where they appear
 
-$accept (64)
+$accept (66)
     on left: 0
-prog (65)
+prog (67)
     on left: 1 2, on right: 0
-func_defn (66)
+func_defn (68)
     on left: 4, on right: 2
-$@1 (67)
+$@1 (69)
     on left: 3, on right: 4
-decl_comma_list (68)
+decl_comma_list (70)
     on left: 5 6, on right: 4 6
-var_decl (69)
+var_decl (71)
     on left: 7 8 9 10, on right: 5 6
-stmt_list (70)
+stmt_list (72)
     on left: 11 12, on right: 12 41
-datatype (71)
+datatype (73)
     on left: 13 14 15 16 17 18 19, on right: 4 7 8 9 21 22 23 24 51
     52 53
-type_qual (72)
+type_qual (74)
     on left: 20, on right: 22
-decl_stmt (73)
+decl_stmt (75)
     on left: 21 22 23 24, on right: 27
-stmt (74)
+stmt (76)
     on left: 25 26 27 28 29 30 31 32 33 34 35 36 37 38, on right: 11
     12 43 44
-for_loop_stmt (75)
+for_loop_stmt (77)
     on left: 40, on right: 32
-$@2 (76)
+$@2 (78)
     on left: 39, on right: 40
-cmpd_stmt (77)
+cmpd_stmt (79)
     on left: 41, on right: 1 4 30 40
-open_curly (78)
+open_curly (80)
     on left: 42, on right: 41
-if_stmt (79)
+if_stmt (81)
     on left: 43 44, on right: 31
-expr_stmt (80)
+expr_stmt (82)
     on left: 45, on right: 26
-goto_stmt (81)
+goto_stmt (83)
     on left: 46, on right: 34
-clear_stmt (82)
+clear_stmt (84)
     on left: 47 48, on right: 35
-column_stmt (83)
+column_stmt (85)
     on left: 49, on right: 36
-newcard_stmt (84)
+newcard_stmt (86)
     on left: 50, on right: 37
-question (85)
+question (87)
     on left: 51 52 53, on right: 25
-text_expr_list (86)
+text_expr_list (88)
     on left: 54 55, on right: 51 52 53 55
-text_expr (87)
-    on left: 56 57, on right: 54 55
-attribute_list (88)
-    on left: 58 59, on right: 51 52 53
-attributes (89)
-    on left: 60 61, on right: 59 61
-attribute (90)
-    on left: 62 63, on right: 60 61
-expression (91)
-    on left: 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81
-    82 83 84 85 86 87 88 89 90 91, on right: 22 23 24 40 43 44 45 48
-    49 50 57 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 83 86
-    87 89 92 93 116 118
-expr_list (92)
-    on left: 92 93, on right: 84 93
-qtype (93)
-    on left: 94 95, on right: 51 52 53
-mutex_range (94)
-    on left: 96 99 100, on right: 52 97 98
-mutex_range_list (95)
-    on left: 97 98, on right: 96 98
-range_allowed_values (96)
-    on left: 101, on right: 51 52 87 119 120
-range_list (97)
-    on left: 102 103, on right: 101 103
-range (98)
-    on left: 104 105, on right: 102 103
-stubs (99)
-    on left: 107, on right: 28
-$@3 (100)
-    on left: 106, on right: 107
-named_attributes (101)
-    on left: 108, on right: 29
-named_attribute_list (102)
-    on left: 109 110, on right: 108 110
-stub_list (103)
-    on left: 111 112, on right: 107 112
-stub (104)
-    on left: 113 114, on right: 111 112
-stub_manip_stmts (105)
-    on left: 115 116 117 118 119 120 121 122, on right: 33
+text_expr (89)
+    on left: 56 57 58 59, on right: 54 55
+attribute_list (90)
+    on left: 60 61, on right: 51 52 53
+attributes (91)
+    on left: 62 63, on right: 61 63
+attribute (92)
+    on left: 64 65, on right: 62 63
+expression (93)
+    on left: 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83
+    84 85 86 87 88 89 90 91 92 93, on right: 22 23 24 40 43 44 45 48
+    49 50 57 58 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 85
+    88 89 91 94 95 123 125
+expr_list (94)
+    on left: 94 95, on right: 86 95
+qtype (95)
+    on left: 96 97, on right: 51 52 53
+mutex_range (96)
+    on left: 98 101 102, on right: 52 99 100
+mutex_range_list (97)
+    on left: 99 100, on right: 98 100
+range_allowed_values (98)
+    on left: 103, on right: 51 52 89 126 127
+range_list (99)
+    on left: 104 105, on right: 103 105
+range (100)
+    on left: 106 107, on right: 104 105
+stubs (101)
+    on left: 109, on right: 28
+$@3 (102)
+    on left: 108, on right: 109
+named_attributes (103)
+    on left: 110, on right: 29
+named_attribute_list (104)
+    on left: 111 112, on right: 110 112
+simple_stub_list (105)
+    on left: 113 114, on right: 114 117
+simple_stub (106)
+    on left: 115 116, on right: 113 114
+stub (107)
+    on left: 117 119, on right: 120 121
+$@4 (108)
+    on left: 118, on right: 119
+stub_list (109)
+    on left: 120 121, on right: 109 119 121
+stub_manip_stmts (110)
+    on left: 122 123 124 125 126 127 128 129, on right: 33
 
 
 state 0
@@ -527,16 +546,16 @@ state 17
 
 state 18
 
-   80 expression: INUMBER .
+   82 expression: INUMBER .
 
-    $default  reduce using rule 80 (expression)
+    $default  reduce using rule 82 (expression)
 
 
 state 19
 
-   81 expression: FNUMBER .
+   83 expression: FNUMBER .
 
-    $default  reduce using rule 81 (expression)
+    $default  reduce using rule 83 (expression)
 
 
 state 20
@@ -544,16 +563,16 @@ state 20
    51 question: NAME . text_expr_list qtype datatype range_allowed_values attribute_list ';'
    52         | NAME . text_expr_list qtype datatype range_allowed_values mutex_range attribute_list ';'
    53         | NAME . text_expr_list qtype datatype NAME attribute_list ';'
-   82 expression: NAME .
-   83           | NAME . '[' expression ']'
-   84           | NAME . '(' expr_list ')'
+   84 expression: NAME .
+   85           | NAME . '[' expression ']'
+   86           | NAME . '(' expr_list ')'
 
     NAME  shift, and go to state 61
     TEXT  shift, and go to state 62
     '['   shift, and go to state 63
     '('   shift, and go to state 64
 
-    $default  reduce using rule 82 (expression)
+    $default  reduce using rule 84 (expression)
 
     text_expr_list  go to state 65
     text_expr       go to state 66
@@ -561,16 +580,16 @@ state 20
 
 state 21
 
-   88 expression: TOSTRING . '(' NAME ')'
+   90 expression: TOSTRING . '(' NAME ')'
 
     '('  shift, and go to state 67
 
 
 state 22
 
-   85 expression: TEXT .
+   87 expression: TEXT .
 
-    $default  reduce using rule 85 (expression)
+    $default  reduce using rule 87 (expression)
 
 
 state 23
@@ -604,7 +623,7 @@ state 26
 
 state 27
 
-   90 expression: ISANSWERED . '(' NAME ')'
+   92 expression: ISANSWERED . '(' NAME ')'
 
     '('  shift, and go to state 72
 
@@ -618,7 +637,7 @@ state 28
 
 state 29
 
-   86 expression: '(' . expression ')'
+   88 expression: '(' . expression ')'
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -643,7 +662,7 @@ state 30
 
 state 31
 
-   69 expression: '-' . expression
+   71 expression: '-' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -661,7 +680,7 @@ state 31
 
 state 32
 
-   79 expression: NOT . expression
+   81 expression: NOT . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -679,7 +698,7 @@ state 32
 
 state 33
 
-   91 expression: COUNT . '(' NAME ')'
+   93 expression: COUNT . '(' NAME ')'
 
     '('  shift, and go to state 78
 
@@ -694,46 +713,46 @@ state 34
 
 state 35
 
-  107 stubs: STUBS_LIST . NAME $@3 '=' stub_list ';'
+  109 stubs: STUBS_LIST . NAME $@3 '=' stub_list ';'
 
     NAME  shift, and go to state 80
 
 
 state 36
 
-  108 named_attributes: NAMED_ATTRIBUTES . NAME '=' named_attribute_list ';'
+  110 named_attributes: NAMED_ATTRIBUTES . NAME '=' named_attribute_list ';'
 
     NAME  shift, and go to state 81
 
 
 state 37
 
-  115 stub_manip_stmts: SETDEL . '(' NAME ',' NAME ')' ';'
-  116                 | SETDEL . '(' NAME ',' NAME '[' expression ']' ')' ';'
-  120                 | SETDEL . '(' NAME ',' range_allowed_values ')' ';'
+  122 stub_manip_stmts: SETDEL . '(' NAME ',' NAME ')' ';'
+  123                 | SETDEL . '(' NAME ',' NAME '[' expression ']' ')' ';'
+  127                 | SETDEL . '(' NAME ',' range_allowed_values ')' ';'
 
     '('  shift, and go to state 82
 
 
 state 38
 
-  117 stub_manip_stmts: SETADD . '(' NAME ',' NAME ')' ';'
-  118                 | SETADD . '(' NAME ',' NAME '[' expression ']' ')' ';'
-  119                 | SETADD . '(' NAME ',' range_allowed_values ')' ';'
+  124 stub_manip_stmts: SETADD . '(' NAME ',' NAME ')' ';'
+  125                 | SETADD . '(' NAME ',' NAME '[' expression ']' ')' ';'
+  126                 | SETADD . '(' NAME ',' range_allowed_values ')' ';'
 
     '('  shift, and go to state 83
 
 
 state 39
 
-  121 stub_manip_stmts: UNSET . '(' NAME ')' ';'
+  128 stub_manip_stmts: UNSET . '(' NAME ')' ';'
 
     '('  shift, and go to state 84
 
 
 state 40
 
-  122 stub_manip_stmts: SETALL . '(' NAME ')' ';'
+  129 stub_manip_stmts: SETALL . '(' NAME ')' ';'
 
     '('  shift, and go to state 85
 
@@ -901,22 +920,22 @@ state 54
 state 55
 
    45 expr_stmt: expression . ';'
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
     '='     shift, and go to state 91
@@ -986,8 +1005,13 @@ state 60
 state 61
 
    57 text_expr: NAME . '[' expression ']'
+   58          | NAME . '.' STUBS_LIST '[' expression ']'
+   59          | NAME .
 
     '['  shift, and go to state 109
+    '.'  shift, and go to state 110
+
+    $default  reduce using rule 59 (text_expr)
 
 
 state 62
@@ -999,25 +1023,7 @@ state 62
 
 state 63
 
-   83 expression: NAME '[' . expression ']'
-
-    INUMBER     shift, and go to state 18
-    FNUMBER     shift, and go to state 19
-    NAME        shift, and go to state 74
-    TOSTRING    shift, and go to state 21
-    TEXT        shift, and go to state 22
-    ISANSWERED  shift, and go to state 27
-    '('         shift, and go to state 29
-    '-'         shift, and go to state 31
-    NOT         shift, and go to state 32
-    COUNT       shift, and go to state 33
-
-    expression  go to state 110
-
-
-state 64
-
-   84 expression: NAME '(' . expr_list ')'
+   85 expression: NAME '[' . expression ']'
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1031,7 +1037,25 @@ state 64
     COUNT       shift, and go to state 33
 
     expression  go to state 111
-    expr_list   go to state 112
+
+
+state 64
+
+   86 expression: NAME '(' . expr_list ')'
+
+    INUMBER     shift, and go to state 18
+    FNUMBER     shift, and go to state 19
+    NAME        shift, and go to state 74
+    TOSTRING    shift, and go to state 21
+    TEXT        shift, and go to state 22
+    ISANSWERED  shift, and go to state 27
+    '('         shift, and go to state 29
+    '-'         shift, and go to state 31
+    NOT         shift, and go to state 32
+    COUNT       shift, and go to state 33
+
+    expression  go to state 112
+    expr_list   go to state 113
 
 
 state 65
@@ -1041,11 +1065,11 @@ state 65
    53         | NAME text_expr_list . qtype datatype NAME attribute_list ';'
    55 text_expr_list: text_expr_list . ':' text_expr
 
-    SINGLE_CODED  shift, and go to state 113
-    MP            shift, and go to state 114
-    ':'           shift, and go to state 115
+    SINGLE_CODED  shift, and go to state 114
+    MP            shift, and go to state 115
+    ':'           shift, and go to state 116
 
-    qtype  go to state 116
+    qtype  go to state 117
 
 
 state 66
@@ -1057,9 +1081,9 @@ state 66
 
 state 67
 
-   88 expression: TOSTRING '(' . NAME ')'
+   90 expression: TOSTRING '(' . NAME ')'
 
-    NAME  shift, and go to state 117
+    NAME  shift, and go to state 118
 
 
 state 68
@@ -1077,14 +1101,14 @@ state 68
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 118
+    expression  go to state 119
 
 
 state 69
 
    46 goto_stmt: GOTO NAME . ';'
 
-    ';'  shift, and go to state 119
+    ';'  shift, and go to state 120
 
 
 state 70
@@ -1092,7 +1116,7 @@ state 70
    47 clear_stmt: CLEAR '(' . NAME ')' ';'
    48           | CLEAR '(' . NAME '[' expression ']' ')' ';'
 
-    NAME  shift, and go to state 120
+    NAME  shift, and go to state 121
 
 
 state 71
@@ -1110,14 +1134,14 @@ state 71
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 121
+    expression  go to state 122
 
 
 state 72
 
-   90 expression: ISANSWERED '(' . NAME ')'
+   92 expression: ISANSWERED '(' . NAME ')'
 
-    NAME  shift, and go to state 122
+    NAME  shift, and go to state 123
 
 
 state 73
@@ -1135,43 +1159,43 @@ state 73
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 123
+    expression  go to state 124
 
 
 state 74
 
-   82 expression: NAME .
-   83           | NAME . '[' expression ']'
-   84           | NAME . '(' expr_list ')'
+   84 expression: NAME .
+   85           | NAME . '[' expression ']'
+   86           | NAME . '(' expr_list ')'
 
     '['  shift, and go to state 63
     '('  shift, and go to state 64
 
-    $default  reduce using rule 82 (expression)
+    $default  reduce using rule 84 (expression)
 
 
 state 75
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   86           | '(' expression . ')'
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   88           | '(' expression . ')'
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
-    ')'     shift, and go to state 124
+    ')'     shift, and go to state 125
     '='     shift, and go to state 91
     LOGOR   shift, and go to state 92
     LOGAND  shift, and go to state 93
@@ -1190,59 +1214,59 @@ state 75
 
 state 76
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   69           | '-' expression .
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   71           | '-' expression .
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN  shift, and go to state 90
 
-    $default  reduce using rule 69 (expression)
+    $default  reduce using rule 71 (expression)
 
 
 state 77
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   79           | NOT expression .
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   81           | NOT expression .
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN  shift, and go to state 90
 
-    $default  reduce using rule 79 (expression)
+    $default  reduce using rule 81 (expression)
 
 
 state 78
 
-   91 expression: COUNT '(' . NAME ')'
+   93 expression: COUNT '(' . NAME ')'
 
-    NAME  shift, and go to state 125
+    NAME  shift, and go to state 126
 
 
 state 79
@@ -1261,55 +1285,55 @@ state 79
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 126
+    expression  go to state 127
 
 
 state 80
 
-  107 stubs: STUBS_LIST NAME . $@3 '=' stub_list ';'
+  109 stubs: STUBS_LIST NAME . $@3 '=' stub_list ';'
 
-    $default  reduce using rule 106 ($@3)
+    $default  reduce using rule 108 ($@3)
 
-    $@3  go to state 127
+    $@3  go to state 128
 
 
 state 81
 
-  108 named_attributes: NAMED_ATTRIBUTES NAME . '=' named_attribute_list ';'
+  110 named_attributes: NAMED_ATTRIBUTES NAME . '=' named_attribute_list ';'
 
-    '='  shift, and go to state 128
+    '='  shift, and go to state 129
 
 
 state 82
 
-  115 stub_manip_stmts: SETDEL '(' . NAME ',' NAME ')' ';'
-  116                 | SETDEL '(' . NAME ',' NAME '[' expression ']' ')' ';'
-  120                 | SETDEL '(' . NAME ',' range_allowed_values ')' ';'
-
-    NAME  shift, and go to state 129
-
-
-state 83
-
-  117 stub_manip_stmts: SETADD '(' . NAME ',' NAME ')' ';'
-  118                 | SETADD '(' . NAME ',' NAME '[' expression ']' ')' ';'
-  119                 | SETADD '(' . NAME ',' range_allowed_values ')' ';'
+  122 stub_manip_stmts: SETDEL '(' . NAME ',' NAME ')' ';'
+  123                 | SETDEL '(' . NAME ',' NAME '[' expression ']' ')' ';'
+  127                 | SETDEL '(' . NAME ',' range_allowed_values ')' ';'
 
     NAME  shift, and go to state 130
 
 
-state 84
+state 83
 
-  121 stub_manip_stmts: UNSET '(' . NAME ')' ';'
+  124 stub_manip_stmts: SETADD '(' . NAME ',' NAME ')' ';'
+  125                 | SETADD '(' . NAME ',' NAME '[' expression ']' ')' ';'
+  126                 | SETADD '(' . NAME ',' range_allowed_values ')' ';'
 
     NAME  shift, and go to state 131
 
 
-state 85
+state 84
 
-  122 stub_manip_stmts: SETALL '(' . NAME ')' ';'
+  128 stub_manip_stmts: UNSET '(' . NAME ')' ';'
 
     NAME  shift, and go to state 132
+
+
+state 85
+
+  129 stub_manip_stmts: SETALL '(' . NAME ')' ';'
+
+    NAME  shift, and go to state 133
 
 
 state 86
@@ -1332,50 +1356,32 @@ state 88
    23          | datatype NAME . '=' expression ';'
    24          | datatype NAME . '[' expression ']' ';'
 
-    '['  shift, and go to state 133
-    '='  shift, and go to state 134
-    ';'  shift, and go to state 135
+    '['  shift, and go to state 134
+    '='  shift, and go to state 135
+    ';'  shift, and go to state 136
 
 
 state 89
 
    22 decl_stmt: type_qual datatype . NAME '=' expression ';'
 
-    NAME  shift, and go to state 136
+    NAME  shift, and go to state 137
 
 
 state 90
 
-   87 expression: expression IN . range_allowed_values
-   89           | expression IN . NAME
+   89 expression: expression IN . range_allowed_values
+   91           | expression IN . NAME
 
-    NAME  shift, and go to state 137
-    '('   shift, and go to state 138
+    NAME  shift, and go to state 138
+    '('   shift, and go to state 139
 
-    range_allowed_values  go to state 139
+    range_allowed_values  go to state 140
 
 
 state 91
 
-   78 expression: expression '=' . expression
-
-    INUMBER     shift, and go to state 18
-    FNUMBER     shift, and go to state 19
-    NAME        shift, and go to state 74
-    TOSTRING    shift, and go to state 21
-    TEXT        shift, and go to state 22
-    ISANSWERED  shift, and go to state 27
-    '('         shift, and go to state 29
-    '-'         shift, and go to state 31
-    NOT         shift, and go to state 32
-    COUNT       shift, and go to state 33
-
-    expression  go to state 140
-
-
-state 92
-
-   76 expression: expression LOGOR . expression
+   80 expression: expression '=' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1391,9 +1397,9 @@ state 92
     expression  go to state 141
 
 
-state 93
+state 92
 
-   77 expression: expression LOGAND . expression
+   78 expression: expression LOGOR . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1409,9 +1415,9 @@ state 93
     expression  go to state 142
 
 
-state 94
+state 93
 
-   75 expression: expression NOEQ . expression
+   79 expression: expression LOGAND . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1427,9 +1433,9 @@ state 94
     expression  go to state 143
 
 
-state 95
+state 94
 
-   74 expression: expression ISEQ . expression
+   77 expression: expression NOEQ . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1445,9 +1451,9 @@ state 95
     expression  go to state 144
 
 
-state 96
+state 95
 
-   70 expression: expression '<' . expression
+   76 expression: expression ISEQ . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1463,9 +1469,9 @@ state 96
     expression  go to state 145
 
 
-state 97
+state 96
 
-   71 expression: expression '>' . expression
+   72 expression: expression '<' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1481,9 +1487,9 @@ state 97
     expression  go to state 146
 
 
-state 98
+state 97
 
-   73 expression: expression GEQ . expression
+   73 expression: expression '>' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1499,9 +1505,9 @@ state 98
     expression  go to state 147
 
 
-state 99
+state 98
 
-   72 expression: expression LEQ . expression
+   75 expression: expression GEQ . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1517,9 +1523,9 @@ state 99
     expression  go to state 148
 
 
-state 100
+state 99
 
-   65 expression: expression '-' . expression
+   74 expression: expression LEQ . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1535,9 +1541,9 @@ state 100
     expression  go to state 149
 
 
-state 101
+state 100
 
-   64 expression: expression '+' . expression
+   67 expression: expression '-' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1553,9 +1559,9 @@ state 101
     expression  go to state 150
 
 
-state 102
+state 101
 
-   66 expression: expression '*' . expression
+   66 expression: expression '+' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1571,9 +1577,9 @@ state 102
     expression  go to state 151
 
 
-state 103
+state 102
 
-   67 expression: expression '/' . expression
+   68 expression: expression '*' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1589,9 +1595,9 @@ state 103
     expression  go to state 152
 
 
-state 104
+state 103
 
-   68 expression: expression '%' . expression
+   69 expression: expression '/' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -1607,6 +1613,24 @@ state 104
     expression  go to state 153
 
 
+state 104
+
+   70 expression: expression '%' . expression
+
+    INUMBER     shift, and go to state 18
+    FNUMBER     shift, and go to state 19
+    NAME        shift, and go to state 74
+    TOSTRING    shift, and go to state 21
+    TEXT        shift, and go to state 22
+    ISANSWERED  shift, and go to state 27
+    '('         shift, and go to state 29
+    '-'         shift, and go to state 31
+    NOT         shift, and go to state 32
+    COUNT       shift, and go to state 33
+
+    expression  go to state 154
+
+
 state 105
 
    45 expr_stmt: expression ';' .
@@ -1619,8 +1643,8 @@ state 106
     4 func_defn: datatype NAME '(' decl_comma_list . ')' $@1 cmpd_stmt
     6 decl_comma_list: decl_comma_list . ',' var_decl
 
-    ')'  shift, and go to state 154
-    ','  shift, and go to state 155
+    ')'  shift, and go to state 155
+    ','  shift, and go to state 156
 
 
 state 107
@@ -1636,8 +1660,8 @@ state 108
     8         | datatype . NAME '[' INUMBER ']'
     9         | datatype . '&' NAME
 
-    NAME  shift, and go to state 156
-    '&'   shift, and go to state 157
+    NAME  shift, and go to state 157
+    '&'   shift, and go to state 158
 
 
 state 109
@@ -1655,66 +1679,73 @@ state 109
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 158
+    expression  go to state 159
 
 
 state 110
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   83           | NAME '[' expression . ']'
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   58 text_expr: NAME '.' . STUBS_LIST '[' expression ']'
 
-    IN      shift, and go to state 90
-    ']'     shift, and go to state 159
-    '='     shift, and go to state 91
-    LOGOR   shift, and go to state 92
-    LOGAND  shift, and go to state 93
-    NOEQ    shift, and go to state 94
-    ISEQ    shift, and go to state 95
-    '<'     shift, and go to state 96
-    '>'     shift, and go to state 97
-    GEQ     shift, and go to state 98
-    LEQ     shift, and go to state 99
-    '-'     shift, and go to state 100
-    '+'     shift, and go to state 101
-    '*'     shift, and go to state 102
-    '/'     shift, and go to state 103
-    '%'     shift, and go to state 104
+    STUBS_LIST  shift, and go to state 160
 
 
 state 111
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
-   92 expr_list: expression .
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   85           | NAME '[' expression . ']'
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+
+    IN      shift, and go to state 90
+    ']'     shift, and go to state 161
+    '='     shift, and go to state 91
+    LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
+
+
+state 112
+
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+   94 expr_list: expression .
 
     IN      shift, and go to state 90
     '='     shift, and go to state 91
@@ -1732,43 +1763,43 @@ state 111
     '/'     shift, and go to state 103
     '%'     shift, and go to state 104
 
-    $default  reduce using rule 92 (expr_list)
-
-
-state 112
-
-   84 expression: NAME '(' expr_list . ')'
-   93 expr_list: expr_list . ',' expression
-
-    ')'  shift, and go to state 160
-    ','  shift, and go to state 161
+    $default  reduce using rule 94 (expr_list)
 
 
 state 113
 
-   94 qtype: SINGLE_CODED .
+   86 expression: NAME '(' expr_list . ')'
+   95 expr_list: expr_list . ',' expression
 
-    $default  reduce using rule 94 (qtype)
+    ')'  shift, and go to state 162
+    ','  shift, and go to state 163
 
 
 state 114
 
-   95 qtype: MP . '(' INUMBER ')'
+   96 qtype: SINGLE_CODED .
 
-    '('  shift, and go to state 162
+    $default  reduce using rule 96 (qtype)
 
 
 state 115
+
+   97 qtype: MP . '(' INUMBER ')'
+
+    '('  shift, and go to state 164
+
+
+state 116
 
    55 text_expr_list: text_expr_list ':' . text_expr
 
     NAME  shift, and go to state 61
     TEXT  shift, and go to state 62
 
-    text_expr  go to state 163
+    text_expr  go to state 165
 
 
-state 116
+state 117
 
    51 question: NAME text_expr_list qtype . datatype range_allowed_values attribute_list ';'
    52         | NAME text_expr_list qtype . datatype range_allowed_values mutex_range attribute_list ';'
@@ -1782,35 +1813,35 @@ state 116
     DOUBLE_T  shift, and go to state 7
     STRING_T  shift, and go to state 8
 
-    datatype  go to state 164
-
-
-state 117
-
-   88 expression: TOSTRING '(' NAME . ')'
-
-    ')'  shift, and go to state 165
+    datatype  go to state 166
 
 
 state 118
 
+   90 expression: TOSTRING '(' NAME . ')'
+
+    ')'  shift, and go to state 167
+
+
+state 119
+
    40 for_loop_stmt: FOR '(' expression . ';' expression ';' expression ')' $@2 cmpd_stmt
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
     '='     shift, and go to state 91
@@ -1827,89 +1858,44 @@ state 118
     '*'     shift, and go to state 102
     '/'     shift, and go to state 103
     '%'     shift, and go to state 104
-    ';'     shift, and go to state 166
+    ';'     shift, and go to state 168
 
 
-state 119
+state 120
 
    46 goto_stmt: GOTO NAME ';' .
 
     $default  reduce using rule 46 (goto_stmt)
 
 
-state 120
+state 121
 
    47 clear_stmt: CLEAR '(' NAME . ')' ';'
    48           | CLEAR '(' NAME . '[' expression ']' ')' ';'
 
-    '['  shift, and go to state 167
-    ')'  shift, and go to state 168
-
-
-state 121
-
-   49 column_stmt: COLUMN '(' expression . ')' ';'
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
-
-    IN      shift, and go to state 90
-    ')'     shift, and go to state 169
-    '='     shift, and go to state 91
-    LOGOR   shift, and go to state 92
-    LOGAND  shift, and go to state 93
-    NOEQ    shift, and go to state 94
-    ISEQ    shift, and go to state 95
-    '<'     shift, and go to state 96
-    '>'     shift, and go to state 97
-    GEQ     shift, and go to state 98
-    LEQ     shift, and go to state 99
-    '-'     shift, and go to state 100
-    '+'     shift, and go to state 101
-    '*'     shift, and go to state 102
-    '/'     shift, and go to state 103
-    '%'     shift, and go to state 104
+    '['  shift, and go to state 169
+    ')'  shift, and go to state 170
 
 
 state 122
 
-   90 expression: ISANSWERED '(' NAME . ')'
-
-    ')'  shift, and go to state 170
-
-
-state 123
-
-   50 newcard_stmt: NEWCARD '(' expression . ')' ';'
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   49 column_stmt: COLUMN '(' expression . ')' ';'
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
     ')'     shift, and go to state 171
@@ -1929,40 +1915,32 @@ state 123
     '%'     shift, and go to state 104
 
 
-state 124
+state 123
 
-   86 expression: '(' expression ')' .
-
-    $default  reduce using rule 86 (expression)
-
-
-state 125
-
-   91 expression: COUNT '(' NAME . ')'
+   92 expression: ISANSWERED '(' NAME . ')'
 
     ')'  shift, and go to state 172
 
 
-state 126
+state 124
 
-   43 if_stmt: IF '(' expression . ')' stmt
-   44        | IF '(' expression . ')' stmt ELSE stmt
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   50 newcard_stmt: NEWCARD '(' expression . ')' ';'
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
     ')'     shift, and go to state 173
@@ -1982,55 +1960,108 @@ state 126
     '%'     shift, and go to state 104
 
 
+state 125
+
+   88 expression: '(' expression ')' .
+
+    $default  reduce using rule 88 (expression)
+
+
+state 126
+
+   93 expression: COUNT '(' NAME . ')'
+
+    ')'  shift, and go to state 174
+
+
 state 127
 
-  107 stubs: STUBS_LIST NAME $@3 . '=' stub_list ';'
+   43 if_stmt: IF '(' expression . ')' stmt
+   44        | IF '(' expression . ')' stmt ELSE stmt
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
-    '='  shift, and go to state 174
+    IN      shift, and go to state 90
+    ')'     shift, and go to state 175
+    '='     shift, and go to state 91
+    LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
 
 
 state 128
 
-  108 named_attributes: NAMED_ATTRIBUTES NAME '=' . named_attribute_list ';'
+  109 stubs: STUBS_LIST NAME $@3 . '=' stub_list ';'
 
-    TEXT  shift, and go to state 175
-
-    named_attribute_list  go to state 176
+    '='  shift, and go to state 176
 
 
 state 129
 
-  115 stub_manip_stmts: SETDEL '(' NAME . ',' NAME ')' ';'
-  116                 | SETDEL '(' NAME . ',' NAME '[' expression ']' ')' ';'
-  120                 | SETDEL '(' NAME . ',' range_allowed_values ')' ';'
+  110 named_attributes: NAMED_ATTRIBUTES NAME '=' . named_attribute_list ';'
 
-    ','  shift, and go to state 177
+    TEXT  shift, and go to state 177
+
+    named_attribute_list  go to state 178
 
 
 state 130
 
-  117 stub_manip_stmts: SETADD '(' NAME . ',' NAME ')' ';'
-  118                 | SETADD '(' NAME . ',' NAME '[' expression ']' ')' ';'
-  119                 | SETADD '(' NAME . ',' range_allowed_values ')' ';'
+  122 stub_manip_stmts: SETDEL '(' NAME . ',' NAME ')' ';'
+  123                 | SETDEL '(' NAME . ',' NAME '[' expression ']' ')' ';'
+  127                 | SETDEL '(' NAME . ',' range_allowed_values ')' ';'
 
-    ','  shift, and go to state 178
+    ','  shift, and go to state 179
 
 
 state 131
 
-  121 stub_manip_stmts: UNSET '(' NAME . ')' ';'
+  124 stub_manip_stmts: SETADD '(' NAME . ',' NAME ')' ';'
+  125                 | SETADD '(' NAME . ',' NAME '[' expression ']' ')' ';'
+  126                 | SETADD '(' NAME . ',' range_allowed_values ')' ';'
 
-    ')'  shift, and go to state 179
+    ','  shift, and go to state 180
 
 
 state 132
 
-  122 stub_manip_stmts: SETALL '(' NAME . ')' ';'
+  128 stub_manip_stmts: UNSET '(' NAME . ')' ';'
 
-    ')'  shift, and go to state 180
+    ')'  shift, and go to state 181
 
 
 state 133
+
+  129 stub_manip_stmts: SETALL '(' NAME . ')' ';'
+
+    ')'  shift, and go to state 182
+
+
+state 134
 
    24 decl_stmt: datatype NAME '[' . expression ']' ';'
 
@@ -2045,10 +2076,10 @@ state 133
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 181
+    expression  go to state 183
 
 
-state 134
+state 135
 
    23 decl_stmt: datatype NAME '=' . expression ';'
 
@@ -2063,70 +2094,107 @@ state 134
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 182
+    expression  go to state 184
 
 
-state 135
+state 136
 
    21 decl_stmt: datatype NAME ';' .
 
     $default  reduce using rule 21 (decl_stmt)
 
 
-state 136
+state 137
 
    22 decl_stmt: type_qual datatype NAME . '=' expression ';'
 
-    '='  shift, and go to state 183
-
-
-state 137
-
-   89 expression: expression IN NAME .
-
-    $default  reduce using rule 89 (expression)
+    '='  shift, and go to state 185
 
 
 state 138
 
-  101 range_allowed_values: '(' . range_list ')'
+   91 expression: expression IN NAME .
 
-    INUMBER  shift, and go to state 184
-
-    range_list  go to state 185
-    range       go to state 186
+    $default  reduce using rule 91 (expression)
 
 
 state 139
 
-   87 expression: expression IN range_allowed_values .
+  103 range_allowed_values: '(' . range_list ')'
 
-    $default  reduce using rule 87 (expression)
+    INUMBER  shift, and go to state 186
+
+    range_list  go to state 187
+    range       go to state 188
 
 
 state 140
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   78           | expression '=' expression .
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   89 expression: expression IN range_allowed_values .
+
+    $default  reduce using rule 89 (expression)
+
+
+state 141
+
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   80           | expression '=' expression .
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
     '='     shift, and go to state 91
     LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
+
+    $default  reduce using rule 80 (expression)
+
+
+state 142
+
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   78           | expression LOGOR expression .
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+
+    IN      shift, and go to state 90
     LOGAND  shift, and go to state 93
     NOEQ    shift, and go to state 94
     ISEQ    shift, and go to state 95
@@ -2143,62 +2211,25 @@ state 140
     $default  reduce using rule 78 (expression)
 
 
-state 141
+state 143
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   76           | expression LOGOR expression .
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
-
-    IN      shift, and go to state 90
-    LOGAND  shift, and go to state 93
-    NOEQ    shift, and go to state 94
-    ISEQ    shift, and go to state 95
-    '<'     shift, and go to state 96
-    '>'     shift, and go to state 97
-    GEQ     shift, and go to state 98
-    LEQ     shift, and go to state 99
-    '-'     shift, and go to state 100
-    '+'     shift, and go to state 101
-    '*'     shift, and go to state 102
-    '/'     shift, and go to state 103
-    '%'     shift, and go to state 104
-
-    $default  reduce using rule 76 (expression)
-
-
-state 142
-
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   77           | expression LOGAND expression .
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   79           | expression LOGAND expression .
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN    shift, and go to state 90
     NOEQ  shift, and go to state 94
@@ -2213,62 +2244,28 @@ state 142
     '/'   shift, and go to state 103
     '%'   shift, and go to state 104
 
-    $default  reduce using rule 77 (expression)
-
-
-state 143
-
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   75           | expression NOEQ expression .
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
-
-    IN   shift, and go to state 90
-    '<'  shift, and go to state 96
-    '>'  shift, and go to state 97
-    GEQ  shift, and go to state 98
-    LEQ  shift, and go to state 99
-    '-'  shift, and go to state 100
-    '+'  shift, and go to state 101
-    '*'  shift, and go to state 102
-    '/'  shift, and go to state 103
-    '%'  shift, and go to state 104
-
-    $default  reduce using rule 75 (expression)
+    $default  reduce using rule 79 (expression)
 
 
 state 144
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   74           | expression ISEQ expression .
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   77           | expression NOEQ expression .
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN   shift, and go to state 90
     '<'  shift, and go to state 96
@@ -2281,58 +2278,62 @@ state 144
     '/'  shift, and go to state 103
     '%'  shift, and go to state 104
 
-    $default  reduce using rule 74 (expression)
+    $default  reduce using rule 77 (expression)
 
 
 state 145
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   70           | expression '<' expression .
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   76           | expression ISEQ expression .
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN   shift, and go to state 90
+    '<'  shift, and go to state 96
+    '>'  shift, and go to state 97
+    GEQ  shift, and go to state 98
+    LEQ  shift, and go to state 99
     '-'  shift, and go to state 100
     '+'  shift, and go to state 101
     '*'  shift, and go to state 102
     '/'  shift, and go to state 103
     '%'  shift, and go to state 104
 
-    $default  reduce using rule 70 (expression)
+    $default  reduce using rule 76 (expression)
 
 
 state 146
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   71           | expression '>' expression .
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   72           | expression '<' expression .
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN   shift, and go to state 90
     '-'  shift, and go to state 100
@@ -2341,28 +2342,28 @@ state 146
     '/'  shift, and go to state 103
     '%'  shift, and go to state 104
 
-    $default  reduce using rule 71 (expression)
+    $default  reduce using rule 72 (expression)
 
 
 state 147
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   73           | expression GEQ expression .
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   73           | expression '>' expression .
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN   shift, and go to state 90
     '-'  shift, and go to state 100
@@ -2376,23 +2377,23 @@ state 147
 
 state 148
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   72           | expression LEQ expression .
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   75           | expression GEQ expression .
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN   shift, and go to state 90
     '-'  shift, and go to state 100
@@ -2401,150 +2402,180 @@ state 148
     '/'  shift, and go to state 103
     '%'  shift, and go to state 104
 
-    $default  reduce using rule 72 (expression)
+    $default  reduce using rule 75 (expression)
 
 
 state 149
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   65           | expression '-' expression .
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   74           | expression LEQ expression .
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN   shift, and go to state 90
+    '-'  shift, and go to state 100
+    '+'  shift, and go to state 101
     '*'  shift, and go to state 102
     '/'  shift, and go to state 103
     '%'  shift, and go to state 104
 
-    $default  reduce using rule 65 (expression)
+    $default  reduce using rule 74 (expression)
 
 
 state 150
 
-   64 expression: expression . '+' expression
-   64           | expression '+' expression .
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   67           | expression '-' expression .
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN   shift, and go to state 90
     '*'  shift, and go to state 102
     '/'  shift, and go to state 103
     '%'  shift, and go to state 104
 
-    $default  reduce using rule 64 (expression)
+    $default  reduce using rule 67 (expression)
 
 
 state 151
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   66           | expression '*' expression .
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   66           | expression '+' expression .
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
-    IN  shift, and go to state 90
+    IN   shift, and go to state 90
+    '*'  shift, and go to state 102
+    '/'  shift, and go to state 103
+    '%'  shift, and go to state 104
 
     $default  reduce using rule 66 (expression)
 
 
 state 152
 
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   67           | expression '/' expression .
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
-
-    IN  shift, and go to state 90
-
-    $default  reduce using rule 67 (expression)
-
-
-state 153
-
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   68           | expression '%' expression .
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   68           | expression '*' expression .
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN  shift, and go to state 90
 
     $default  reduce using rule 68 (expression)
 
 
+state 153
+
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   69           | expression '/' expression .
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+
+    IN  shift, and go to state 90
+
+    $default  reduce using rule 69 (expression)
+
+
 state 154
+
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   70           | expression '%' expression .
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+
+    IN  shift, and go to state 90
+
+    $default  reduce using rule 70 (expression)
+
+
+state 155
 
     4 func_defn: datatype NAME '(' decl_comma_list ')' . $@1 cmpd_stmt
 
     $default  reduce using rule 3 ($@1)
 
-    $@1  go to state 187
+    $@1  go to state 189
 
 
-state 155
+state 156
 
     6 decl_comma_list: decl_comma_list ',' . var_decl
 
@@ -2558,49 +2589,49 @@ state 155
 
     $default  reduce using rule 10 (var_decl)
 
-    var_decl  go to state 188
+    var_decl  go to state 190
     datatype  go to state 108
-
-
-state 156
-
-    7 var_decl: datatype NAME .
-    8         | datatype NAME . '[' INUMBER ']'
-
-    '['  shift, and go to state 189
-
-    $default  reduce using rule 7 (var_decl)
 
 
 state 157
 
-    9 var_decl: datatype '&' . NAME
+    7 var_decl: datatype NAME .
+    8         | datatype NAME . '[' INUMBER ']'
 
-    NAME  shift, and go to state 190
+    '['  shift, and go to state 191
+
+    $default  reduce using rule 7 (var_decl)
 
 
 state 158
 
+    9 var_decl: datatype '&' . NAME
+
+    NAME  shift, and go to state 192
+
+
+state 159
+
    57 text_expr: NAME '[' expression . ']'
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
-    ']'     shift, and go to state 191
+    ']'     shift, and go to state 193
     '='     shift, and go to state 91
     LOGOR   shift, and go to state 92
     LOGAND  shift, and go to state 93
@@ -2617,23 +2648,30 @@ state 158
     '%'     shift, and go to state 104
 
 
-state 159
-
-   83 expression: NAME '[' expression ']' .
-
-    $default  reduce using rule 83 (expression)
-
-
 state 160
 
-   84 expression: NAME '(' expr_list ')' .
+   58 text_expr: NAME '.' STUBS_LIST . '[' expression ']'
 
-    $default  reduce using rule 84 (expression)
+    '['  shift, and go to state 194
 
 
 state 161
 
-   93 expr_list: expr_list ',' . expression
+   85 expression: NAME '[' expression ']' .
+
+    $default  reduce using rule 85 (expression)
+
+
+state 162
+
+   86 expression: NAME '(' expr_list ')' .
+
+    $default  reduce using rule 86 (expression)
+
+
+state 163
+
+   95 expr_list: expr_list ',' . expression
 
     INUMBER     shift, and go to state 18
     FNUMBER     shift, and go to state 19
@@ -2646,43 +2684,43 @@ state 161
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 192
+    expression  go to state 195
 
 
-state 162
+state 164
 
-   95 qtype: MP '(' . INUMBER ')'
+   97 qtype: MP '(' . INUMBER ')'
 
-    INUMBER  shift, and go to state 193
+    INUMBER  shift, and go to state 196
 
 
-state 163
+state 165
 
    55 text_expr_list: text_expr_list ':' text_expr .
 
     $default  reduce using rule 55 (text_expr_list)
 
 
-state 164
+state 166
 
    51 question: NAME text_expr_list qtype datatype . range_allowed_values attribute_list ';'
    52         | NAME text_expr_list qtype datatype . range_allowed_values mutex_range attribute_list ';'
    53         | NAME text_expr_list qtype datatype . NAME attribute_list ';'
 
-    NAME  shift, and go to state 194
-    '('   shift, and go to state 138
+    NAME  shift, and go to state 197
+    '('   shift, and go to state 139
 
-    range_allowed_values  go to state 195
-
-
-state 165
-
-   88 expression: TOSTRING '(' NAME ')' .
-
-    $default  reduce using rule 88 (expression)
+    range_allowed_values  go to state 198
 
 
-state 166
+state 167
+
+   90 expression: TOSTRING '(' NAME ')' .
+
+    $default  reduce using rule 90 (expression)
+
+
+state 168
 
    40 for_loop_stmt: FOR '(' expression ';' . expression ';' expression ')' $@2 cmpd_stmt
 
@@ -2697,10 +2735,10 @@ state 166
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 196
+    expression  go to state 199
 
 
-state 167
+state 169
 
    48 clear_stmt: CLEAR '(' NAME '[' . expression ']' ')' ';'
 
@@ -2715,45 +2753,45 @@ state 167
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 197
-
-
-state 168
-
-   47 clear_stmt: CLEAR '(' NAME ')' . ';'
-
-    ';'  shift, and go to state 198
-
-
-state 169
-
-   49 column_stmt: COLUMN '(' expression ')' . ';'
-
-    ';'  shift, and go to state 199
+    expression  go to state 200
 
 
 state 170
 
-   90 expression: ISANSWERED '(' NAME ')' .
+   47 clear_stmt: CLEAR '(' NAME ')' . ';'
 
-    $default  reduce using rule 90 (expression)
+    ';'  shift, and go to state 201
 
 
 state 171
 
-   50 newcard_stmt: NEWCARD '(' expression ')' . ';'
+   49 column_stmt: COLUMN '(' expression ')' . ';'
 
-    ';'  shift, and go to state 200
+    ';'  shift, and go to state 202
 
 
 state 172
 
-   91 expression: COUNT '(' NAME ')' .
+   92 expression: ISANSWERED '(' NAME ')' .
 
-    $default  reduce using rule 91 (expression)
+    $default  reduce using rule 92 (expression)
 
 
 state 173
+
+   50 newcard_stmt: NEWCARD '(' expression ')' . ';'
+
+    ';'  shift, and go to state 203
+
+
+state 174
+
+   93 expression: COUNT '(' NAME ')' .
+
+    $default  reduce using rule 93 (expression)
+
+
+state 175
 
    43 if_stmt: IF '(' expression ')' . stmt
    44        | IF '(' expression ')' . stmt ELSE stmt
@@ -2794,7 +2832,7 @@ state 173
     datatype          go to state 42
     type_qual         go to state 43
     decl_stmt         go to state 44
-    stmt              go to state 201
+    stmt              go to state 204
     for_loop_stmt     go to state 46
     cmpd_stmt         go to state 47
     open_curly        go to state 14
@@ -2811,127 +2849,130 @@ state 173
     stub_manip_stmts  go to state 58
 
 
-state 174
-
-  107 stubs: STUBS_LIST NAME $@3 '=' . stub_list ';'
-
-    TEXT  shift, and go to state 202
-
-    stub_list  go to state 203
-    stub       go to state 204
-
-
-state 175
-
-  109 named_attribute_list: TEXT .
-
-    $default  reduce using rule 109 (named_attribute_list)
-
-
 state 176
 
-  108 named_attributes: NAMED_ATTRIBUTES NAME '=' named_attribute_list . ';'
-  110 named_attribute_list: named_attribute_list . ',' TEXT
+  109 stubs: STUBS_LIST NAME $@3 '=' . stub_list ';'
 
-    ','  shift, and go to state 205
-    ';'  shift, and go to state 206
+    TEXT        shift, and go to state 205
+    STUB_GROUP  shift, and go to state 206
+
+    simple_stub_list  go to state 207
+    simple_stub       go to state 208
+    stub              go to state 209
+    stub_list         go to state 210
 
 
 state 177
 
-  115 stub_manip_stmts: SETDEL '(' NAME ',' . NAME ')' ';'
-  116                 | SETDEL '(' NAME ',' . NAME '[' expression ']' ')' ';'
-  120                 | SETDEL '(' NAME ',' . range_allowed_values ')' ';'
+  111 named_attribute_list: TEXT .
 
-    NAME  shift, and go to state 207
-    '('   shift, and go to state 138
-
-    range_allowed_values  go to state 208
+    $default  reduce using rule 111 (named_attribute_list)
 
 
 state 178
 
-  117 stub_manip_stmts: SETADD '(' NAME ',' . NAME ')' ';'
-  118                 | SETADD '(' NAME ',' . NAME '[' expression ']' ')' ';'
-  119                 | SETADD '(' NAME ',' . range_allowed_values ')' ';'
+  110 named_attributes: NAMED_ATTRIBUTES NAME '=' named_attribute_list . ';'
+  112 named_attribute_list: named_attribute_list . ',' TEXT
 
-    NAME  shift, and go to state 209
-    '('   shift, and go to state 138
-
-    range_allowed_values  go to state 210
+    ','  shift, and go to state 211
+    ';'  shift, and go to state 212
 
 
 state 179
 
-  121 stub_manip_stmts: UNSET '(' NAME ')' . ';'
+  122 stub_manip_stmts: SETDEL '(' NAME ',' . NAME ')' ';'
+  123                 | SETDEL '(' NAME ',' . NAME '[' expression ']' ')' ';'
+  127                 | SETDEL '(' NAME ',' . range_allowed_values ')' ';'
 
-    ';'  shift, and go to state 211
+    NAME  shift, and go to state 213
+    '('   shift, and go to state 139
+
+    range_allowed_values  go to state 214
 
 
 state 180
 
-  122 stub_manip_stmts: SETALL '(' NAME ')' . ';'
+  124 stub_manip_stmts: SETADD '(' NAME ',' . NAME ')' ';'
+  125                 | SETADD '(' NAME ',' . NAME '[' expression ']' ')' ';'
+  126                 | SETADD '(' NAME ',' . range_allowed_values ')' ';'
 
-    ';'  shift, and go to state 212
+    NAME  shift, and go to state 215
+    '('   shift, and go to state 139
+
+    range_allowed_values  go to state 216
 
 
 state 181
 
-   24 decl_stmt: datatype NAME '[' expression . ']' ';'
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+  128 stub_manip_stmts: UNSET '(' NAME ')' . ';'
 
-    IN      shift, and go to state 90
-    ']'     shift, and go to state 213
-    '='     shift, and go to state 91
-    LOGOR   shift, and go to state 92
-    LOGAND  shift, and go to state 93
-    NOEQ    shift, and go to state 94
-    ISEQ    shift, and go to state 95
-    '<'     shift, and go to state 96
-    '>'     shift, and go to state 97
-    GEQ     shift, and go to state 98
-    LEQ     shift, and go to state 99
-    '-'     shift, and go to state 100
-    '+'     shift, and go to state 101
-    '*'     shift, and go to state 102
-    '/'     shift, and go to state 103
-    '%'     shift, and go to state 104
+    ';'  shift, and go to state 217
 
 
 state 182
 
+  129 stub_manip_stmts: SETALL '(' NAME ')' . ';'
+
+    ';'  shift, and go to state 218
+
+
+state 183
+
+   24 decl_stmt: datatype NAME '[' expression . ']' ';'
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+
+    IN      shift, and go to state 90
+    ']'     shift, and go to state 219
+    '='     shift, and go to state 91
+    LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
+
+
+state 184
+
    23 decl_stmt: datatype NAME '=' expression . ';'
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
     '='     shift, and go to state 91
@@ -2948,10 +2989,10 @@ state 182
     '*'     shift, and go to state 102
     '/'     shift, and go to state 103
     '%'     shift, and go to state 104
-    ';'     shift, and go to state 214
+    ';'     shift, and go to state 220
 
 
-state 183
+state 185
 
    22 decl_stmt: type_qual datatype NAME '=' . expression ';'
 
@@ -2966,205 +3007,223 @@ state 183
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 215
-
-
-state 184
-
-  104 range: INUMBER . '-' INUMBER
-  105      | INUMBER .
-
-    '-'  shift, and go to state 216
-
-    $default  reduce using rule 105 (range)
-
-
-state 185
-
-  101 range_allowed_values: '(' range_list . ')'
-  103 range_list: range_list . ',' range
-
-    ')'  shift, and go to state 217
-    ','  shift, and go to state 218
+    expression  go to state 221
 
 
 state 186
 
-  102 range_list: range .
+  106 range: INUMBER . '-' INUMBER
+  107      | INUMBER .
 
-    $default  reduce using rule 102 (range_list)
+    '-'  shift, and go to state 222
+
+    $default  reduce using rule 107 (range)
 
 
 state 187
+
+  103 range_allowed_values: '(' range_list . ')'
+  105 range_list: range_list . ',' range
+
+    ')'  shift, and go to state 223
+    ','  shift, and go to state 224
+
+
+state 188
+
+  104 range_list: range .
+
+    $default  reduce using rule 104 (range_list)
+
+
+state 189
 
     4 func_defn: datatype NAME '(' decl_comma_list ')' $@1 . cmpd_stmt
 
     '{'  shift, and go to state 12
 
-    cmpd_stmt   go to state 219
+    cmpd_stmt   go to state 225
     open_curly  go to state 14
 
 
-state 188
+state 190
 
     6 decl_comma_list: decl_comma_list ',' var_decl .
 
     $default  reduce using rule 6 (decl_comma_list)
 
 
-state 189
+state 191
 
     8 var_decl: datatype NAME '[' . INUMBER ']'
 
-    INUMBER  shift, and go to state 220
+    INUMBER  shift, and go to state 226
 
 
-state 190
+state 192
 
     9 var_decl: datatype '&' NAME .
 
     $default  reduce using rule 9 (var_decl)
 
 
-state 191
+state 193
 
    57 text_expr: NAME '[' expression ']' .
 
     $default  reduce using rule 57 (text_expr)
 
 
-state 192
-
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
-   93 expr_list: expr_list ',' expression .
-
-    IN      shift, and go to state 90
-    '='     shift, and go to state 91
-    LOGOR   shift, and go to state 92
-    LOGAND  shift, and go to state 93
-    NOEQ    shift, and go to state 94
-    ISEQ    shift, and go to state 95
-    '<'     shift, and go to state 96
-    '>'     shift, and go to state 97
-    GEQ     shift, and go to state 98
-    LEQ     shift, and go to state 99
-    '-'     shift, and go to state 100
-    '+'     shift, and go to state 101
-    '*'     shift, and go to state 102
-    '/'     shift, and go to state 103
-    '%'     shift, and go to state 104
-
-    $default  reduce using rule 93 (expr_list)
-
-
-state 193
-
-   95 qtype: MP '(' INUMBER . ')'
-
-    ')'  shift, and go to state 221
-
-
 state 194
 
-   53 question: NAME text_expr_list qtype datatype NAME . attribute_list ';'
+   58 text_expr: NAME '.' STUBS_LIST '[' . expression ']'
 
-    ':'  shift, and go to state 222
+    INUMBER     shift, and go to state 18
+    FNUMBER     shift, and go to state 19
+    NAME        shift, and go to state 74
+    TOSTRING    shift, and go to state 21
+    TEXT        shift, and go to state 22
+    ISANSWERED  shift, and go to state 27
+    '('         shift, and go to state 29
+    '-'         shift, and go to state 31
+    NOT         shift, and go to state 32
+    COUNT       shift, and go to state 33
 
-    $default  reduce using rule 58 (attribute_list)
-
-    attribute_list  go to state 223
+    expression  go to state 227
 
 
 state 195
 
-   51 question: NAME text_expr_list qtype datatype range_allowed_values . attribute_list ';'
-   52         | NAME text_expr_list qtype datatype range_allowed_values . mutex_range attribute_list ';'
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+   95 expr_list: expr_list ',' expression .
 
-    INUMBER  shift, and go to state 224
-    MUTEX    shift, and go to state 225
-    ':'      shift, and go to state 222
+    IN      shift, and go to state 90
+    '='     shift, and go to state 91
+    LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
 
-    $default  reduce using rule 58 (attribute_list)
-
-    attribute_list  go to state 226
-    mutex_range     go to state 227
+    $default  reduce using rule 95 (expr_list)
 
 
 state 196
 
-   40 for_loop_stmt: FOR '(' expression ';' expression . ';' expression ')' $@2 cmpd_stmt
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   97 qtype: MP '(' INUMBER . ')'
 
-    IN      shift, and go to state 90
-    '='     shift, and go to state 91
-    LOGOR   shift, and go to state 92
-    LOGAND  shift, and go to state 93
-    NOEQ    shift, and go to state 94
-    ISEQ    shift, and go to state 95
-    '<'     shift, and go to state 96
-    '>'     shift, and go to state 97
-    GEQ     shift, and go to state 98
-    LEQ     shift, and go to state 99
-    '-'     shift, and go to state 100
-    '+'     shift, and go to state 101
-    '*'     shift, and go to state 102
-    '/'     shift, and go to state 103
-    '%'     shift, and go to state 104
-    ';'     shift, and go to state 228
+    ')'  shift, and go to state 228
 
 
 state 197
 
-   48 clear_stmt: CLEAR '(' NAME '[' expression . ']' ')' ';'
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   53 question: NAME text_expr_list qtype datatype NAME . attribute_list ';'
+
+    ':'  shift, and go to state 229
+
+    $default  reduce using rule 60 (attribute_list)
+
+    attribute_list  go to state 230
+
+
+state 198
+
+   51 question: NAME text_expr_list qtype datatype range_allowed_values . attribute_list ';'
+   52         | NAME text_expr_list qtype datatype range_allowed_values . mutex_range attribute_list ';'
+
+    INUMBER  shift, and go to state 231
+    MUTEX    shift, and go to state 232
+    ':'      shift, and go to state 229
+
+    $default  reduce using rule 60 (attribute_list)
+
+    attribute_list  go to state 233
+    mutex_range     go to state 234
+
+
+state 199
+
+   40 for_loop_stmt: FOR '(' expression ';' expression . ';' expression ')' $@2 cmpd_stmt
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
-    ']'     shift, and go to state 229
+    '='     shift, and go to state 91
+    LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
+    ';'     shift, and go to state 235
+
+
+state 200
+
+   48 clear_stmt: CLEAR '(' NAME '[' expression . ']' ')' ';'
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+
+    IN      shift, and go to state 90
+    ']'     shift, and go to state 236
     '='     shift, and go to state 91
     LOGOR   shift, and go to state 92
     LOGAND  shift, and go to state 93
@@ -3181,157 +3240,184 @@ state 197
     '%'     shift, and go to state 104
 
 
-state 198
+state 201
 
    47 clear_stmt: CLEAR '(' NAME ')' ';' .
 
     $default  reduce using rule 47 (clear_stmt)
 
 
-state 199
+state 202
 
    49 column_stmt: COLUMN '(' expression ')' ';' .
 
     $default  reduce using rule 49 (column_stmt)
 
 
-state 200
+state 203
 
    50 newcard_stmt: NEWCARD '(' expression ')' ';' .
 
     $default  reduce using rule 50 (newcard_stmt)
 
 
-state 201
+state 204
 
    43 if_stmt: IF '(' expression ')' stmt .
    44        | IF '(' expression ')' stmt . ELSE stmt
 
-    ELSE  shift, and go to state 230
+    ELSE  shift, and go to state 237
 
     ELSE      [reduce using rule 43 (if_stmt)]
     $default  reduce using rule 43 (if_stmt)
 
 
-state 202
-
-  113 stub: TEXT . INUMBER
-  114     | TEXT . INUMBER MUTEX
-
-    INUMBER  shift, and go to state 231
-
-
-state 203
-
-  107 stubs: STUBS_LIST NAME $@3 '=' stub_list . ';'
-  112 stub_list: stub_list . stub
-
-    TEXT  shift, and go to state 202
-    ';'   shift, and go to state 232
-
-    stub  go to state 233
-
-
-state 204
-
-  111 stub_list: stub .
-
-    $default  reduce using rule 111 (stub_list)
-
-
 state 205
 
-  110 named_attribute_list: named_attribute_list ',' . TEXT
+  115 simple_stub: TEXT . INUMBER
+  116            | TEXT . INUMBER MUTEX
 
-    TEXT  shift, and go to state 234
+    INUMBER  shift, and go to state 238
 
 
 state 206
 
-  108 named_attributes: NAMED_ATTRIBUTES NAME '=' named_attribute_list ';' .
+  119 stub: STUB_GROUP . NAME $@4 '{' stub_list '}'
 
-    $default  reduce using rule 108 (named_attributes)
+    NAME  shift, and go to state 239
 
 
 state 207
 
-  115 stub_manip_stmts: SETDEL '(' NAME ',' NAME . ')' ';'
-  116                 | SETDEL '(' NAME ',' NAME . '[' expression ']' ')' ';'
+  114 simple_stub_list: simple_stub_list . ',' simple_stub
+  117 stub: simple_stub_list .
 
-    '['  shift, and go to state 235
-    ')'  shift, and go to state 236
+    ','  shift, and go to state 240
+
+    $default  reduce using rule 117 (stub)
 
 
 state 208
 
-  120 stub_manip_stmts: SETDEL '(' NAME ',' range_allowed_values . ')' ';'
+  113 simple_stub_list: simple_stub .
 
-    ')'  shift, and go to state 237
+    $default  reduce using rule 113 (simple_stub_list)
 
 
 state 209
 
-  117 stub_manip_stmts: SETADD '(' NAME ',' NAME . ')' ';'
-  118                 | SETADD '(' NAME ',' NAME . '[' expression ']' ')' ';'
+  120 stub_list: stub .
 
-    '['  shift, and go to state 238
-    ')'  shift, and go to state 239
+    $default  reduce using rule 120 (stub_list)
 
 
 state 210
 
-  119 stub_manip_stmts: SETADD '(' NAME ',' range_allowed_values . ')' ';'
+  109 stubs: STUBS_LIST NAME $@3 '=' stub_list . ';'
+  121 stub_list: stub_list . stub
 
-    ')'  shift, and go to state 240
+    TEXT        shift, and go to state 205
+    STUB_GROUP  shift, and go to state 206
+    ';'         shift, and go to state 241
+
+    simple_stub_list  go to state 207
+    simple_stub       go to state 208
+    stub              go to state 242
 
 
 state 211
 
-  121 stub_manip_stmts: UNSET '(' NAME ')' ';' .
+  112 named_attribute_list: named_attribute_list ',' . TEXT
 
-    $default  reduce using rule 121 (stub_manip_stmts)
+    TEXT  shift, and go to state 243
 
 
 state 212
 
-  122 stub_manip_stmts: SETALL '(' NAME ')' ';' .
+  110 named_attributes: NAMED_ATTRIBUTES NAME '=' named_attribute_list ';' .
 
-    $default  reduce using rule 122 (stub_manip_stmts)
+    $default  reduce using rule 110 (named_attributes)
 
 
 state 213
 
-   24 decl_stmt: datatype NAME '[' expression ']' . ';'
+  122 stub_manip_stmts: SETDEL '(' NAME ',' NAME . ')' ';'
+  123                 | SETDEL '(' NAME ',' NAME . '[' expression ']' ')' ';'
 
-    ';'  shift, and go to state 241
+    '['  shift, and go to state 244
+    ')'  shift, and go to state 245
 
 
 state 214
+
+  127 stub_manip_stmts: SETDEL '(' NAME ',' range_allowed_values . ')' ';'
+
+    ')'  shift, and go to state 246
+
+
+state 215
+
+  124 stub_manip_stmts: SETADD '(' NAME ',' NAME . ')' ';'
+  125                 | SETADD '(' NAME ',' NAME . '[' expression ']' ')' ';'
+
+    '['  shift, and go to state 247
+    ')'  shift, and go to state 248
+
+
+state 216
+
+  126 stub_manip_stmts: SETADD '(' NAME ',' range_allowed_values . ')' ';'
+
+    ')'  shift, and go to state 249
+
+
+state 217
+
+  128 stub_manip_stmts: UNSET '(' NAME ')' ';' .
+
+    $default  reduce using rule 128 (stub_manip_stmts)
+
+
+state 218
+
+  129 stub_manip_stmts: SETALL '(' NAME ')' ';' .
+
+    $default  reduce using rule 129 (stub_manip_stmts)
+
+
+state 219
+
+   24 decl_stmt: datatype NAME '[' expression ']' . ';'
+
+    ';'  shift, and go to state 250
+
+
+state 220
 
    23 decl_stmt: datatype NAME '=' expression ';' .
 
     $default  reduce using rule 23 (decl_stmt)
 
 
-state 215
+state 221
 
    22 decl_stmt: type_qual datatype NAME '=' expression . ';'
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
     '='     shift, and go to state 91
@@ -3348,107 +3434,145 @@ state 215
     '*'     shift, and go to state 102
     '/'     shift, and go to state 103
     '%'     shift, and go to state 104
-    ';'     shift, and go to state 242
+    ';'     shift, and go to state 251
 
 
-state 216
+state 222
 
-  104 range: INUMBER '-' . INUMBER
+  106 range: INUMBER '-' . INUMBER
 
-    INUMBER  shift, and go to state 243
-
-
-state 217
-
-  101 range_allowed_values: '(' range_list ')' .
-
-    $default  reduce using rule 101 (range_allowed_values)
+    INUMBER  shift, and go to state 252
 
 
-state 218
+state 223
 
-  103 range_list: range_list ',' . range
+  103 range_allowed_values: '(' range_list ')' .
 
-    INUMBER  shift, and go to state 184
-
-    range  go to state 244
+    $default  reduce using rule 103 (range_allowed_values)
 
 
-state 219
+state 224
+
+  105 range_list: range_list ',' . range
+
+    INUMBER  shift, and go to state 186
+
+    range  go to state 253
+
+
+state 225
 
     4 func_defn: datatype NAME '(' decl_comma_list ')' $@1 cmpd_stmt .
 
     $default  reduce using rule 4 (func_defn)
 
 
-state 220
+state 226
 
     8 var_decl: datatype NAME '[' INUMBER . ']'
 
-    ']'  shift, and go to state 245
-
-
-state 221
-
-   95 qtype: MP '(' INUMBER ')' .
-
-    $default  reduce using rule 95 (qtype)
-
-
-state 222
-
-   59 attribute_list: ':' . attributes
-
-    HIDDEN       shift, and go to state 246
-    ALLOW_BLANK  shift, and go to state 247
-
-    attributes  go to state 248
-    attribute   go to state 249
-
-
-state 223
-
-   53 question: NAME text_expr_list qtype datatype NAME attribute_list . ';'
-
-    ';'  shift, and go to state 250
-
-
-state 224
-
-   99 mutex_range: INUMBER . '-' INUMBER
-  100            | INUMBER .
-
-    '-'  shift, and go to state 251
-
-    $default  reduce using rule 100 (mutex_range)
-
-
-state 225
-
-   96 mutex_range: MUTEX . '(' mutex_range_list ')'
-
-    '('  shift, and go to state 252
-
-
-state 226
-
-   51 question: NAME text_expr_list qtype datatype range_allowed_values attribute_list . ';'
-
-    ';'  shift, and go to state 253
+    ']'  shift, and go to state 254
 
 
 state 227
 
-   52 question: NAME text_expr_list qtype datatype range_allowed_values mutex_range . attribute_list ';'
+   58 text_expr: NAME '.' STUBS_LIST '[' expression . ']'
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
-    ':'  shift, and go to state 222
-
-    $default  reduce using rule 58 (attribute_list)
-
-    attribute_list  go to state 254
+    IN      shift, and go to state 90
+    ']'     shift, and go to state 255
+    '='     shift, and go to state 91
+    LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
 
 
 state 228
+
+   97 qtype: MP '(' INUMBER ')' .
+
+    $default  reduce using rule 97 (qtype)
+
+
+state 229
+
+   61 attribute_list: ':' . attributes
+
+    HIDDEN       shift, and go to state 256
+    ALLOW_BLANK  shift, and go to state 257
+
+    attributes  go to state 258
+    attribute   go to state 259
+
+
+state 230
+
+   53 question: NAME text_expr_list qtype datatype NAME attribute_list . ';'
+
+    ';'  shift, and go to state 260
+
+
+state 231
+
+  101 mutex_range: INUMBER . '-' INUMBER
+  102            | INUMBER .
+
+    '-'  shift, and go to state 261
+
+    $default  reduce using rule 102 (mutex_range)
+
+
+state 232
+
+   98 mutex_range: MUTEX . '(' mutex_range_list ')'
+
+    '('  shift, and go to state 262
+
+
+state 233
+
+   51 question: NAME text_expr_list qtype datatype range_allowed_values attribute_list . ';'
+
+    ';'  shift, and go to state 263
+
+
+state 234
+
+   52 question: NAME text_expr_list qtype datatype range_allowed_values mutex_range . attribute_list ';'
+
+    ':'  shift, and go to state 229
+
+    $default  reduce using rule 60 (attribute_list)
+
+    attribute_list  go to state 264
+
+
+state 235
 
    40 for_loop_stmt: FOR '(' expression ';' expression ';' . expression ')' $@2 cmpd_stmt
 
@@ -3463,17 +3587,17 @@ state 228
     NOT         shift, and go to state 32
     COUNT       shift, and go to state 33
 
-    expression  go to state 255
+    expression  go to state 265
 
 
-state 229
+state 236
 
    48 clear_stmt: CLEAR '(' NAME '[' expression ']' . ')' ';'
 
-    ')'  shift, and go to state 256
+    ')'  shift, and go to state 266
 
 
-state 230
+state 237
 
    44 if_stmt: IF '(' expression ')' stmt ELSE . stmt
 
@@ -3513,7 +3637,7 @@ state 230
     datatype          go to state 42
     type_qual         go to state 43
     decl_stmt         go to state 44
-    stmt              go to state 257
+    stmt              go to state 267
     for_loop_stmt     go to state 46
     cmpd_stmt         go to state 47
     open_curly        go to state 14
@@ -3530,231 +3654,256 @@ state 230
     stub_manip_stmts  go to state 58
 
 
-state 231
-
-  113 stub: TEXT INUMBER .
-  114     | TEXT INUMBER . MUTEX
-
-    MUTEX  shift, and go to state 258
-
-    $default  reduce using rule 113 (stub)
-
-
-state 232
-
-  107 stubs: STUBS_LIST NAME $@3 '=' stub_list ';' .
-
-    $default  reduce using rule 107 (stubs)
-
-
-state 233
-
-  112 stub_list: stub_list stub .
-
-    $default  reduce using rule 112 (stub_list)
-
-
-state 234
-
-  110 named_attribute_list: named_attribute_list ',' TEXT .
-
-    $default  reduce using rule 110 (named_attribute_list)
-
-
-state 235
-
-  116 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' . expression ']' ')' ';'
-
-    INUMBER     shift, and go to state 18
-    FNUMBER     shift, and go to state 19
-    NAME        shift, and go to state 74
-    TOSTRING    shift, and go to state 21
-    TEXT        shift, and go to state 22
-    ISANSWERED  shift, and go to state 27
-    '('         shift, and go to state 29
-    '-'         shift, and go to state 31
-    NOT         shift, and go to state 32
-    COUNT       shift, and go to state 33
-
-    expression  go to state 259
-
-
-state 236
-
-  115 stub_manip_stmts: SETDEL '(' NAME ',' NAME ')' . ';'
-
-    ';'  shift, and go to state 260
-
-
-state 237
-
-  120 stub_manip_stmts: SETDEL '(' NAME ',' range_allowed_values ')' . ';'
-
-    ';'  shift, and go to state 261
-
-
 state 238
 
-  118 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' . expression ']' ')' ';'
+  115 simple_stub: TEXT INUMBER .
+  116            | TEXT INUMBER . MUTEX
 
-    INUMBER     shift, and go to state 18
-    FNUMBER     shift, and go to state 19
-    NAME        shift, and go to state 74
-    TOSTRING    shift, and go to state 21
-    TEXT        shift, and go to state 22
-    ISANSWERED  shift, and go to state 27
-    '('         shift, and go to state 29
-    '-'         shift, and go to state 31
-    NOT         shift, and go to state 32
-    COUNT       shift, and go to state 33
+    MUTEX  shift, and go to state 268
 
-    expression  go to state 262
+    $default  reduce using rule 115 (simple_stub)
 
 
 state 239
 
-  117 stub_manip_stmts: SETADD '(' NAME ',' NAME ')' . ';'
+  119 stub: STUB_GROUP NAME . $@4 '{' stub_list '}'
 
-    ';'  shift, and go to state 263
+    $default  reduce using rule 118 ($@4)
+
+    $@4  go to state 269
 
 
 state 240
 
-  119 stub_manip_stmts: SETADD '(' NAME ',' range_allowed_values ')' . ';'
+  114 simple_stub_list: simple_stub_list ',' . simple_stub
 
-    ';'  shift, and go to state 264
+    TEXT  shift, and go to state 205
+
+    simple_stub  go to state 270
 
 
 state 241
+
+  109 stubs: STUBS_LIST NAME $@3 '=' stub_list ';' .
+
+    $default  reduce using rule 109 (stubs)
+
+
+state 242
+
+  121 stub_list: stub_list stub .
+
+    $default  reduce using rule 121 (stub_list)
+
+
+state 243
+
+  112 named_attribute_list: named_attribute_list ',' TEXT .
+
+    $default  reduce using rule 112 (named_attribute_list)
+
+
+state 244
+
+  123 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' . expression ']' ')' ';'
+
+    INUMBER     shift, and go to state 18
+    FNUMBER     shift, and go to state 19
+    NAME        shift, and go to state 74
+    TOSTRING    shift, and go to state 21
+    TEXT        shift, and go to state 22
+    ISANSWERED  shift, and go to state 27
+    '('         shift, and go to state 29
+    '-'         shift, and go to state 31
+    NOT         shift, and go to state 32
+    COUNT       shift, and go to state 33
+
+    expression  go to state 271
+
+
+state 245
+
+  122 stub_manip_stmts: SETDEL '(' NAME ',' NAME ')' . ';'
+
+    ';'  shift, and go to state 272
+
+
+state 246
+
+  127 stub_manip_stmts: SETDEL '(' NAME ',' range_allowed_values ')' . ';'
+
+    ';'  shift, and go to state 273
+
+
+state 247
+
+  125 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' . expression ']' ')' ';'
+
+    INUMBER     shift, and go to state 18
+    FNUMBER     shift, and go to state 19
+    NAME        shift, and go to state 74
+    TOSTRING    shift, and go to state 21
+    TEXT        shift, and go to state 22
+    ISANSWERED  shift, and go to state 27
+    '('         shift, and go to state 29
+    '-'         shift, and go to state 31
+    NOT         shift, and go to state 32
+    COUNT       shift, and go to state 33
+
+    expression  go to state 274
+
+
+state 248
+
+  124 stub_manip_stmts: SETADD '(' NAME ',' NAME ')' . ';'
+
+    ';'  shift, and go to state 275
+
+
+state 249
+
+  126 stub_manip_stmts: SETADD '(' NAME ',' range_allowed_values ')' . ';'
+
+    ';'  shift, and go to state 276
+
+
+state 250
 
    24 decl_stmt: datatype NAME '[' expression ']' ';' .
 
     $default  reduce using rule 24 (decl_stmt)
 
 
-state 242
+state 251
 
    22 decl_stmt: type_qual datatype NAME '=' expression ';' .
 
     $default  reduce using rule 22 (decl_stmt)
 
 
-state 243
+state 252
 
-  104 range: INUMBER '-' INUMBER .
+  106 range: INUMBER '-' INUMBER .
 
-    $default  reduce using rule 104 (range)
-
-
-state 244
-
-  103 range_list: range_list ',' range .
-
-    $default  reduce using rule 103 (range_list)
+    $default  reduce using rule 106 (range)
 
 
-state 245
+state 253
+
+  105 range_list: range_list ',' range .
+
+    $default  reduce using rule 105 (range_list)
+
+
+state 254
 
     8 var_decl: datatype NAME '[' INUMBER ']' .
 
     $default  reduce using rule 8 (var_decl)
 
 
-state 246
+state 255
 
-   62 attribute: HIDDEN .
+   58 text_expr: NAME '.' STUBS_LIST '[' expression ']' .
 
-    $default  reduce using rule 62 (attribute)
-
-
-state 247
-
-   63 attribute: ALLOW_BLANK .
-
-    $default  reduce using rule 63 (attribute)
+    $default  reduce using rule 58 (text_expr)
 
 
-state 248
+state 256
 
-   59 attribute_list: ':' attributes .
-   61 attributes: attributes . attribute
+   64 attribute: HIDDEN .
 
-    HIDDEN       shift, and go to state 246
-    ALLOW_BLANK  shift, and go to state 247
-
-    $default  reduce using rule 59 (attribute_list)
-
-    attribute  go to state 265
+    $default  reduce using rule 64 (attribute)
 
 
-state 249
+state 257
 
-   60 attributes: attribute .
+   65 attribute: ALLOW_BLANK .
 
-    $default  reduce using rule 60 (attributes)
+    $default  reduce using rule 65 (attribute)
 
 
-state 250
+state 258
+
+   61 attribute_list: ':' attributes .
+   63 attributes: attributes . attribute
+
+    HIDDEN       shift, and go to state 256
+    ALLOW_BLANK  shift, and go to state 257
+
+    $default  reduce using rule 61 (attribute_list)
+
+    attribute  go to state 277
+
+
+state 259
+
+   62 attributes: attribute .
+
+    $default  reduce using rule 62 (attributes)
+
+
+state 260
 
    53 question: NAME text_expr_list qtype datatype NAME attribute_list ';' .
 
     $default  reduce using rule 53 (question)
 
 
-state 251
+state 261
 
-   99 mutex_range: INUMBER '-' . INUMBER
+  101 mutex_range: INUMBER '-' . INUMBER
 
-    INUMBER  shift, and go to state 266
-
-
-state 252
-
-   96 mutex_range: MUTEX '(' . mutex_range_list ')'
-
-    INUMBER  shift, and go to state 224
-    MUTEX    shift, and go to state 225
-
-    mutex_range       go to state 267
-    mutex_range_list  go to state 268
+    INUMBER  shift, and go to state 278
 
 
-state 253
+state 262
+
+   98 mutex_range: MUTEX '(' . mutex_range_list ')'
+
+    INUMBER  shift, and go to state 231
+    MUTEX    shift, and go to state 232
+
+    mutex_range       go to state 279
+    mutex_range_list  go to state 280
+
+
+state 263
 
    51 question: NAME text_expr_list qtype datatype range_allowed_values attribute_list ';' .
 
     $default  reduce using rule 51 (question)
 
 
-state 254
+state 264
 
    52 question: NAME text_expr_list qtype datatype range_allowed_values mutex_range attribute_list . ';'
 
-    ';'  shift, and go to state 269
+    ';'  shift, and go to state 281
 
 
-state 255
+state 265
 
    40 for_loop_stmt: FOR '(' expression ';' expression ';' expression . ')' $@2 cmpd_stmt
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
 
     IN      shift, and go to state 90
-    ')'     shift, and go to state 270
+    ')'     shift, and go to state 282
     '='     shift, and go to state 91
     LOGOR   shift, and go to state 92
     LOGAND  shift, and go to state 93
@@ -3771,262 +3920,310 @@ state 255
     '%'     shift, and go to state 104
 
 
-state 256
+state 266
 
    48 clear_stmt: CLEAR '(' NAME '[' expression ']' ')' . ';'
 
-    ';'  shift, and go to state 271
+    ';'  shift, and go to state 283
 
 
-state 257
+state 267
 
    44 if_stmt: IF '(' expression ')' stmt ELSE stmt .
 
     $default  reduce using rule 44 (if_stmt)
 
 
-state 258
-
-  114 stub: TEXT INUMBER MUTEX .
-
-    $default  reduce using rule 114 (stub)
-
-
-state 259
-
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
-  116 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' expression . ']' ')' ';'
-
-    IN      shift, and go to state 90
-    ']'     shift, and go to state 272
-    '='     shift, and go to state 91
-    LOGOR   shift, and go to state 92
-    LOGAND  shift, and go to state 93
-    NOEQ    shift, and go to state 94
-    ISEQ    shift, and go to state 95
-    '<'     shift, and go to state 96
-    '>'     shift, and go to state 97
-    GEQ     shift, and go to state 98
-    LEQ     shift, and go to state 99
-    '-'     shift, and go to state 100
-    '+'     shift, and go to state 101
-    '*'     shift, and go to state 102
-    '/'     shift, and go to state 103
-    '%'     shift, and go to state 104
-
-
-state 260
-
-  115 stub_manip_stmts: SETDEL '(' NAME ',' NAME ')' ';' .
-
-    $default  reduce using rule 115 (stub_manip_stmts)
-
-
-state 261
-
-  120 stub_manip_stmts: SETDEL '(' NAME ',' range_allowed_values ')' ';' .
-
-    $default  reduce using rule 120 (stub_manip_stmts)
-
-
-state 262
-
-   64 expression: expression . '+' expression
-   65           | expression . '-' expression
-   66           | expression . '*' expression
-   67           | expression . '/' expression
-   68           | expression . '%' expression
-   70           | expression . '<' expression
-   71           | expression . '>' expression
-   72           | expression . LEQ expression
-   73           | expression . GEQ expression
-   74           | expression . ISEQ expression
-   75           | expression . NOEQ expression
-   76           | expression . LOGOR expression
-   77           | expression . LOGAND expression
-   78           | expression . '=' expression
-   87           | expression . IN range_allowed_values
-   89           | expression . IN NAME
-  118 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' expression . ']' ')' ';'
-
-    IN      shift, and go to state 90
-    ']'     shift, and go to state 273
-    '='     shift, and go to state 91
-    LOGOR   shift, and go to state 92
-    LOGAND  shift, and go to state 93
-    NOEQ    shift, and go to state 94
-    ISEQ    shift, and go to state 95
-    '<'     shift, and go to state 96
-    '>'     shift, and go to state 97
-    GEQ     shift, and go to state 98
-    LEQ     shift, and go to state 99
-    '-'     shift, and go to state 100
-    '+'     shift, and go to state 101
-    '*'     shift, and go to state 102
-    '/'     shift, and go to state 103
-    '%'     shift, and go to state 104
-
-
-state 263
-
-  117 stub_manip_stmts: SETADD '(' NAME ',' NAME ')' ';' .
-
-    $default  reduce using rule 117 (stub_manip_stmts)
-
-
-state 264
-
-  119 stub_manip_stmts: SETADD '(' NAME ',' range_allowed_values ')' ';' .
-
-    $default  reduce using rule 119 (stub_manip_stmts)
-
-
-state 265
-
-   61 attributes: attributes attribute .
-
-    $default  reduce using rule 61 (attributes)
-
-
-state 266
-
-   99 mutex_range: INUMBER '-' INUMBER .
-
-    $default  reduce using rule 99 (mutex_range)
-
-
-state 267
-
-   97 mutex_range_list: mutex_range .
-
-    $default  reduce using rule 97 (mutex_range_list)
-
-
 state 268
 
-   96 mutex_range: MUTEX '(' mutex_range_list . ')'
-   98 mutex_range_list: mutex_range_list . ',' mutex_range
+  116 simple_stub: TEXT INUMBER MUTEX .
 
-    ')'  shift, and go to state 274
-    ','  shift, and go to state 275
+    $default  reduce using rule 116 (simple_stub)
 
 
 state 269
+
+  119 stub: STUB_GROUP NAME $@4 . '{' stub_list '}'
+
+    '{'  shift, and go to state 284
+
+
+state 270
+
+  114 simple_stub_list: simple_stub_list ',' simple_stub .
+
+    $default  reduce using rule 114 (simple_stub_list)
+
+
+state 271
+
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+  123 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' expression . ']' ')' ';'
+
+    IN      shift, and go to state 90
+    ']'     shift, and go to state 285
+    '='     shift, and go to state 91
+    LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
+
+
+state 272
+
+  122 stub_manip_stmts: SETDEL '(' NAME ',' NAME ')' ';' .
+
+    $default  reduce using rule 122 (stub_manip_stmts)
+
+
+state 273
+
+  127 stub_manip_stmts: SETDEL '(' NAME ',' range_allowed_values ')' ';' .
+
+    $default  reduce using rule 127 (stub_manip_stmts)
+
+
+state 274
+
+   66 expression: expression . '+' expression
+   67           | expression . '-' expression
+   68           | expression . '*' expression
+   69           | expression . '/' expression
+   70           | expression . '%' expression
+   72           | expression . '<' expression
+   73           | expression . '>' expression
+   74           | expression . LEQ expression
+   75           | expression . GEQ expression
+   76           | expression . ISEQ expression
+   77           | expression . NOEQ expression
+   78           | expression . LOGOR expression
+   79           | expression . LOGAND expression
+   80           | expression . '=' expression
+   89           | expression . IN range_allowed_values
+   91           | expression . IN NAME
+  125 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' expression . ']' ')' ';'
+
+    IN      shift, and go to state 90
+    ']'     shift, and go to state 286
+    '='     shift, and go to state 91
+    LOGOR   shift, and go to state 92
+    LOGAND  shift, and go to state 93
+    NOEQ    shift, and go to state 94
+    ISEQ    shift, and go to state 95
+    '<'     shift, and go to state 96
+    '>'     shift, and go to state 97
+    GEQ     shift, and go to state 98
+    LEQ     shift, and go to state 99
+    '-'     shift, and go to state 100
+    '+'     shift, and go to state 101
+    '*'     shift, and go to state 102
+    '/'     shift, and go to state 103
+    '%'     shift, and go to state 104
+
+
+state 275
+
+  124 stub_manip_stmts: SETADD '(' NAME ',' NAME ')' ';' .
+
+    $default  reduce using rule 124 (stub_manip_stmts)
+
+
+state 276
+
+  126 stub_manip_stmts: SETADD '(' NAME ',' range_allowed_values ')' ';' .
+
+    $default  reduce using rule 126 (stub_manip_stmts)
+
+
+state 277
+
+   63 attributes: attributes attribute .
+
+    $default  reduce using rule 63 (attributes)
+
+
+state 278
+
+  101 mutex_range: INUMBER '-' INUMBER .
+
+    $default  reduce using rule 101 (mutex_range)
+
+
+state 279
+
+   99 mutex_range_list: mutex_range .
+
+    $default  reduce using rule 99 (mutex_range_list)
+
+
+state 280
+
+   98 mutex_range: MUTEX '(' mutex_range_list . ')'
+  100 mutex_range_list: mutex_range_list . ',' mutex_range
+
+    ')'  shift, and go to state 287
+    ','  shift, and go to state 288
+
+
+state 281
 
    52 question: NAME text_expr_list qtype datatype range_allowed_values mutex_range attribute_list ';' .
 
     $default  reduce using rule 52 (question)
 
 
-state 270
+state 282
 
    40 for_loop_stmt: FOR '(' expression ';' expression ';' expression ')' . $@2 cmpd_stmt
 
     $default  reduce using rule 39 ($@2)
 
-    $@2  go to state 276
+    $@2  go to state 289
 
 
-state 271
+state 283
 
    48 clear_stmt: CLEAR '(' NAME '[' expression ']' ')' ';' .
 
     $default  reduce using rule 48 (clear_stmt)
 
 
-state 272
+state 284
 
-  116 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' expression ']' . ')' ';'
+  119 stub: STUB_GROUP NAME $@4 '{' . stub_list '}'
 
-    ')'  shift, and go to state 277
+    TEXT        shift, and go to state 205
+    STUB_GROUP  shift, and go to state 206
 
-
-state 273
-
-  118 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' expression ']' . ')' ';'
-
-    ')'  shift, and go to state 278
-
-
-state 274
-
-   96 mutex_range: MUTEX '(' mutex_range_list ')' .
-
-    $default  reduce using rule 96 (mutex_range)
+    simple_stub_list  go to state 207
+    simple_stub       go to state 208
+    stub              go to state 209
+    stub_list         go to state 290
 
 
-state 275
+state 285
 
-   98 mutex_range_list: mutex_range_list ',' . mutex_range
+  123 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' expression ']' . ')' ';'
 
-    INUMBER  shift, and go to state 224
-    MUTEX    shift, and go to state 225
-
-    mutex_range  go to state 279
+    ')'  shift, and go to state 291
 
 
-state 276
+state 286
+
+  125 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' expression ']' . ')' ';'
+
+    ')'  shift, and go to state 292
+
+
+state 287
+
+   98 mutex_range: MUTEX '(' mutex_range_list ')' .
+
+    $default  reduce using rule 98 (mutex_range)
+
+
+state 288
+
+  100 mutex_range_list: mutex_range_list ',' . mutex_range
+
+    INUMBER  shift, and go to state 231
+    MUTEX    shift, and go to state 232
+
+    mutex_range  go to state 293
+
+
+state 289
 
    40 for_loop_stmt: FOR '(' expression ';' expression ';' expression ')' $@2 . cmpd_stmt
 
     '{'  shift, and go to state 12
 
-    cmpd_stmt   go to state 280
+    cmpd_stmt   go to state 294
     open_curly  go to state 14
 
 
-state 277
+state 290
 
-  116 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' expression ']' ')' . ';'
+  119 stub: STUB_GROUP NAME $@4 '{' stub_list . '}'
+  121 stub_list: stub_list . stub
 
-    ';'  shift, and go to state 281
+    TEXT        shift, and go to state 205
+    STUB_GROUP  shift, and go to state 206
+    '}'         shift, and go to state 295
 
-
-state 278
-
-  118 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' expression ']' ')' . ';'
-
-    ';'  shift, and go to state 282
-
-
-state 279
-
-   98 mutex_range_list: mutex_range_list ',' mutex_range .
-
-    $default  reduce using rule 98 (mutex_range_list)
+    simple_stub_list  go to state 207
+    simple_stub       go to state 208
+    stub              go to state 242
 
 
-state 280
+state 291
+
+  123 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' expression ']' ')' . ';'
+
+    ';'  shift, and go to state 296
+
+
+state 292
+
+  125 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' expression ']' ')' . ';'
+
+    ';'  shift, and go to state 297
+
+
+state 293
+
+  100 mutex_range_list: mutex_range_list ',' mutex_range .
+
+    $default  reduce using rule 100 (mutex_range_list)
+
+
+state 294
 
    40 for_loop_stmt: FOR '(' expression ';' expression ';' expression ')' $@2 cmpd_stmt .
 
     $default  reduce using rule 40 (for_loop_stmt)
 
 
-state 281
+state 295
 
-  116 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' expression ']' ')' ';' .
+  119 stub: STUB_GROUP NAME $@4 '{' stub_list '}' .
 
-    $default  reduce using rule 116 (stub_manip_stmts)
+    $default  reduce using rule 119 (stub)
 
 
-state 282
+state 296
 
-  118 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' expression ']' ')' ';' .
+  123 stub_manip_stmts: SETDEL '(' NAME ',' NAME '[' expression ']' ')' ';' .
 
-    $default  reduce using rule 118 (stub_manip_stmts)
+    $default  reduce using rule 123 (stub_manip_stmts)
+
+
+state 297
+
+  125 stub_manip_stmts: SETADD '(' NAME ',' NAME '[' expression ']' ')' ';' .
+
+    $default  reduce using rule 125 (stub_manip_stmts)

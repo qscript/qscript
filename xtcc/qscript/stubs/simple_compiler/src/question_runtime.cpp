@@ -453,7 +453,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn
 	// , DataType l_dt , vector<stub_pair>* l_stub_ptr
-	, DataType l_dt, named_range * l_nr_ptr
+	, DataType l_dt, NamedRangeGroup * l_nrg_ptr
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
 	, QuestionAttributes  l_question_attributes
@@ -463,7 +463,7 @@ NamedStubQuestion::NamedStubQuestion(
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes, l_isStartOfBlock
 		)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
+	, nrg_ptr (l_nrg_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 {
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
@@ -770,7 +770,7 @@ NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn
-	, DataType l_dt, named_range * l_nr_ptr
+	, DataType l_dt, NamedRangeGroup * l_nrg_ptr
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):

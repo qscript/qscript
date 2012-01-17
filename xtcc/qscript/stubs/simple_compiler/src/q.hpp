@@ -77,11 +77,12 @@
      IF = 293,
      ELSE = 294,
      STUBS_LIST = 295,
-     NAMED_ATTRIBUTES = 296,
-     SETDEL = 297,
-     SETADD = 298,
-     UNSET = 299,
-     SETALL = 300
+     STUB_GROUP = 296,
+     NAMED_ATTRIBUTES = 297,
+     SETDEL = 298,
+     SETADD = 299,
+     UNSET = 300,
+     SETALL = 301
    };
 #endif
 
@@ -92,7 +93,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 54 "src/q.ypp"
+#line 58 "src/q.ypp"
 
 	type_qualifier type_qual;
 	int32_t ival;
@@ -105,13 +106,13 @@ typedef union YYSTYPE
 	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 	struct FunctionParameter * v_list;
-
+	struct AbstractNamedRange * nr_ptr;
 
 
 
 
 /* Line 1676 of yacc.c  */
-#line 115 "src/q.hpp"
+#line 116 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

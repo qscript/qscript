@@ -17,7 +17,7 @@
 #include "debug_mem.h"
 #include "stmt.h"
 #include "question.h"
-#include "named_range.h"
+#include "new_named_range.h"
 #include "qscript_parser.h"
 #include "symtab.h"
 #include "qscript_debug.h"
@@ -1268,7 +1268,7 @@ VariableList::VariableList(DataType type, char * name, int32_t len)
 
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
-				       , named_range * l_named_range
+				       , NamedRangeGroup * l_named_range
 				       , AbstractQuestion * l_question
 				       , AbstractExpression * larr_index
 	)
@@ -1302,7 +1302,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
-				       , named_range * l_named_range
+				       , NamedRangeGroup * l_named_range
 				       , XtccSet & xs
 	)
 	: AbstractStatement(dtype, lline_number)

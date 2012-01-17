@@ -1390,7 +1390,7 @@ NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
-	, named_range* l_nr_ptr
+	, NamedRangeGroup* l_nrg_ptr
 	, vector<AbstractExpression*>& l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
@@ -1400,7 +1400,7 @@ NamedStubQuestion::NamedStubQuestion(
 			 , l_q_type, l_no_mpn, l_dt
 			 , l_for_bounds_stack, l_enclosing_scope, l_av_info, l_question_attributes)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0)
+	, nrg_ptr(l_nrg_ptr), stub_ptr(0)
 	, displayData_()
 	, currentPage_(0)
 {
@@ -1419,7 +1419,7 @@ NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
 	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
-	, named_range* l_nr_ptr
+	, NamedRangeGroup * l_nrg_ptr
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
@@ -1428,7 +1428,7 @@ NamedStubQuestion::NamedStubQuestion(
 		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, l_question_attributes
 		)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0)
+	, nrg_ptr(l_nrg_ptr), stub_ptr(0)
 	, displayData_()
 	, currentPage_(0)
 { 

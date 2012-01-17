@@ -9,7 +9,7 @@
 #include "user_navigation.h"
 #include "UserResponse.h"
 #include "question.h"
-#include "named_range.h"
+#include "new_named_range.h"
 
 #define CTL_LEFT 	0x1bb
 #define CTL_RIGHT 	0x1bc
@@ -357,7 +357,7 @@ void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * da
 
 
 		//vector<stub_pair> & vec= *stub_ptr;
-		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+		vector<AbstractNamedRange*> & vec= (nq->nrg_ptr->stub_grp_vec);
 		int total_pages = (vec.size() / page_size) + 1;
 		int32_t currXpos = 1, currYpos = 2;
 		if (total_pages > 1 && page_size < vec.size() && nq->currentPage_ < total_pages) {

@@ -85,7 +85,7 @@ namespace qscript_parser
 	int32_t check_parameters(struct AbstractExpression* e, struct VariableList* v);
 
         vector <string> attribute_list;
-	vector <named_range*> named_stubs_list;
+	vector <NamedRangeGroup*> named_stubs_list;
 	vector <named_attribute_list> named_attributes_list;
         vector <stub_pair> stub_list;
 	int32_t if_line_no = -1;
@@ -795,10 +795,10 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	int32_t index = -1;
 	bool question_stub = false, range_stub=false;
 	NamedStubQuestion * lhs_question = 0, * rhs_question=0;
-	named_range * lhs_stub = 0;
+	NamedRangeGroup * lhs_stub = 0;
 	for(int32_t i = 0; i < named_stubs_list.size(); ++i){
-		named_range * nr_ptr = named_stubs_list[i];
-		if(nr_ptr->name == stub_list_name){
+		NamedRangeGroup * nr_ptr = named_stubs_list[i];
+		if(nr_ptr->groupName_ == stub_list_name){
 			index = i;
 			range_stub = true;
 			lhs_stub = nr_ptr;
@@ -862,10 +862,11 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	// At this point 2nd argument  is valid
 
 	if (range_stub == true) {
-		if(!(rhs_question->nr_ptr->name == stub_list_name) ){
+		if(!(rhs_question->nrg_ptr->groupName_ == stub_list_name) ){
 			stringstream err_text;
 			err_text << "Question: " << question_name
-				<< " named range: " << rhs_question->nr_ptr->name
+				<< " named range: " 
+				<< rhs_question->nrg_ptr->groupName_
 				<< " and named stub is : " << stub_list_name
 				<< " do not match"
 				<< endl;
@@ -883,13 +884,17 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			return st_ptr;
 		}
 	} else if (question_stub == true) {
-		if(!(rhs_question->nr_ptr->name == lhs_question->nr_ptr->name) ){
+		if(!(rhs_question->nrg_ptr->groupName_ == lhs_question->nrg_ptr->groupName_) ){
 			stringstream err_text;
-			err_text << "1st arg Question: " << lhs_question->questionName_
-				<< " named range: " << lhs_question->nr_ptr->name
+			err_text << "1st arg Question: " 
+				<< lhs_question->questionName_
+				<< " named range: " 
+				<< lhs_question->nrg_ptr->groupName_
 				<< " and : " 
-				<< " 2nd arg Question: " << rhs_question->questionName_
-				<< " named range: " << rhs_question->nr_ptr->name
+				<< " 2nd arg Question: " 
+				<< rhs_question->questionName_
+				<< " named range: " 
+				<< rhs_question->nrg_ptr->groupName_
 				<< " do not match" << endl;
 			print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
@@ -915,8 +920,8 @@ AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 {
 	int32_t index = -1;
 	for(int32_t i = 0; i < named_stubs_list.size(); ++i){
-		named_range * nr_ptr = named_stubs_list[i];
-		if(nr_ptr->name == stub_list_name){
+		NamedRangeGroup * nr_ptr = named_stubs_list[i];
+		if(nr_ptr->groupName_ == stub_list_name){
 			index = i;
 			break;
 		}
@@ -946,10 +951,10 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	int32_t index = -1;
 	bool question_stub = false, range_stub=false;
 	NamedStubQuestion * lhs_question = 0;
-	named_range * lhs_stub = 0;
+	NamedRangeGroup * lhs_stub = 0;
 	for (int32_t i = 0; i < named_stubs_list.size(); ++i) {
-		named_range * nr_ptr = named_stubs_list[i];
-		if(nr_ptr->name == stub_list_name){
+		NamedRangeGroup * nr_ptr = named_stubs_list[i];
+		if(nr_ptr->groupName_ == stub_list_name){
 			index = i;
 			range_stub = true;
 			lhs_stub = nr_ptr;

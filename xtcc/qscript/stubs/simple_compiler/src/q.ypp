@@ -25,7 +25,8 @@
 #include "expr.h"
 #include "stmt.h"
 #include "named_attributes.h"
-#include "named_range.h"
+//#include "named_range.h"
+#include "new_named_range.h"
 #include "question.h"
 #include "QuestionAttributes.h"
 
@@ -46,6 +47,9 @@
 	set< int> set_duplicate_stub_entry_check;
 	vector<TextExpression*> text_expr_vec;
 	vector<string> vec_named_attribute_list;
+	bool check_duplicate_stub_entry (const string & stub_text, int code);
+	bool check_duplicate_code_entry (int code);
+	vector <int> stub_number;
 
 
 %}
@@ -63,7 +67,7 @@
 	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 	struct FunctionParameter * v_list;
-
+	struct AbstractNamedRange * nr_ptr;
 
 }
 
@@ -137,10 +141,14 @@
 %type <stmt> stub_manip_stmts
 %type <v_list> var_decl
 %type <v_list> decl_comma_list
+%type <nr_ptr> stub
+%type <nr_ptr> stub_list
+
 
 %token IF ELSE
 
 %token STUBS_LIST
+%token STUB_GROUP
 %token NAMED_ATTRIBUTES
 %token SETDEL
 %token SETADD
@@ -937,7 +945,8 @@ range: 	INUMBER '-' INUMBER {
 stubs:     STUBS_LIST NAME {
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
-		stub_list.resize(0);
+		stub_list.resize (0);
+		stub_number.push_back (0);
 		map_duplicate_stub_entry_check.clear();
 		set_duplicate_stub_entry_check.clear();
 	}'=' stub_list ';'{
@@ -946,11 +955,36 @@ stubs:     STUBS_LIST NAME {
 		using qscript_parser:: named_stubs_list;
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=$2;
-		struct named_range* nr_ptr= new named_range(NAMED_RANGE
-				, line_no, stub_name,stub_list);
-		named_stubs_list.push_back(nr_ptr);
+		NamedRangeGroup * nrg = new NamedRangeGroup(line_no,
+					stub_name, stub_number.back());
 		//$$=0;
-		$$ = nr_ptr;
+		//$$ = nr_ptr;
+
+		// ==========
+		AbstractNamedRange * nr_ptr = $5;
+		//cout << "climbing up the chain" << endl;
+		while (nr_ptr->prev_nr) {
+			//cout << "." ;
+			nr_ptr = nr_ptr->prev_nr;
+		}
+		//cout << endl;
+		nrg->groupPtr_ = nr_ptr;
+		$$ = nrg;
+
+		//int highest_stub_number_in_group = stub_number.back() ;
+		 
+		//cout << "stub_number.size(): "  << stub_number.size()
+		//	<< endl;
+		stub_number.pop_back(); 
+		//cout << "highest_stub_number_in_group: " 
+		//	<< $2 << ": " 
+		//	<< highest_stub_number_in_group
+		//	<< endl;
+		if (stub_number.size() != 0) {
+			cerr << "Error in parsing assumptions: stub_number.size should be 0 at this point"
+				<< endl;
+		}
+		named_stubs_list.push_back(nrg);
 	}
 	;
 
@@ -971,19 +1005,20 @@ named_attribute_list: TEXT {
 	}
 	;
 	
-
-
-stub_list: stub
-	| stub_list stub
+simple_stub_list: simple_stub
+	| simple_stub_list ',' simple_stub
 	;
 
-stub:	TEXT INUMBER {
+
+simple_stub:	TEXT INUMBER {
 		using qscript_parser::stub_list;
 		string s1=$1;
 		int32_t code=$2;
-		struct stub_pair pair1(s1,code);
-		stub_list.push_back(pair1);
+		++stub_number[stub_number.size()-1];
+		struct stub_pair pair1 (s1, code, stub_number.back());
+		stub_list.push_back (pair1);
 
+		/*
 		map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(s1);
 		//cout << "searching for : " << s1 << " in map" << endl;
 		if (map_iter != map_duplicate_stub_entry_check.end()) {
@@ -996,7 +1031,10 @@ stub:	TEXT INUMBER {
 		} else {
 			map_duplicate_stub_entry_check[s1] = code;
 		}
+		*/
+		check_duplicate_stub_entry (s1, code);
 
+		/*
 		set<int>::iterator set_iter = set_duplicate_stub_entry_check.find (code);
 		if (set_iter != set_duplicate_stub_entry_check.end()) {
 			std::stringstream err_msg;
@@ -1006,14 +1044,18 @@ stub:	TEXT INUMBER {
 		} else {
 			set_duplicate_stub_entry_check.insert(code);
 		}
+		*/
+		check_duplicate_code_entry (code);
+
 	}
 	| TEXT INUMBER MUTEX {
 		using qscript_parser::stub_list;
 		string s1=$1;
 		int32_t code=$2;
-		struct stub_pair pair1(s1,code, true);
+		++stub_number[stub_number.size()-1];
+		struct stub_pair pair1 (s1, code, true, stub_number.back());
 		stub_list.push_back(pair1);
-		//cout << "chaining stublist" << endl;
+
 		
 		map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(s1);
 		//cout << "searching for : " << s1 << " in map" << endl;
@@ -1037,6 +1079,59 @@ stub:	TEXT INUMBER {
 		} else {
 			set_duplicate_stub_entry_check.insert(code);
 		}
+	}
+	;
+
+
+stub: simple_stub_list {
+		NamedRangeList * nrl = new NamedRangeList (qscript_parser::line_no);
+		nrl->stubs = qscript_parser::stub_list;
+		qscript_parser::stub_list.clear();
+		$$ = nrl;
+	}
+	| STUB_GROUP NAME { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); } '{' stub_list  '}' {
+		/* continue from here:
+		   treat this as a named compound statement - just like in the main qscript grammar
+		   */
+		/*
+		if (stub_list.size() > 0) {
+			active_named_range.set_stubs(stub_list);
+			stub_list.resize(0);
+			active_named_range.stubs_come_first = true;
+		}
+		++stub_group_nest_level;
+		active_named_range_stack.push_back (active_named_range);
+		active_named_range->sub_group_ptr = new named_range (NAMED_RANGE, line_no, $2);
+		active_named_range = active_named_range->sub_group_ptr;
+		*/
+		AbstractNamedRange * nr_ptr = $5;
+		//cout << "climbing up the chain" << endl;
+		while (nr_ptr->prev_nr) {
+			//cout << "." ;
+			nr_ptr = nr_ptr->prev_nr;
+		}
+		//cout << endl;
+
+		NamedRangeGroup * nrg = new NamedRangeGroup (qscript_parser::line_no, $2, stub_number[stub_number.size()-2]);
+		nrg->groupPtr_ = nr_ptr;
+		$$ = nrg;
+		//int highest_stub_number_in_group = stub_number.back() ;
+		 
+		stub_number.pop_back(); 
+		//cout << "highest_stub_number_in_group: " 
+		//	<< $2 << ": " 
+		//	<< highest_stub_number_in_group
+		//	<< endl
+	}
+	;
+
+
+
+stub_list: stub
+	| stub_list stub {
+		$1->next_nr = $2;
+		$2->prev_nr = $1;
+		$$ = $1;
 	}
 	;
 
@@ -1353,20 +1448,20 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	PrintActiveVariablesAtScope(active_scope_list, av_info);
 
 	bool found=false;
-	struct named_range* nr_ptr = 0;
-	for(uint32_t i=0; i<named_stubs_list.size(); ++i){
-		nr_ptr = named_stubs_list[i];
-		if(nr_ptr->name==attribute_list_name){
+	struct NamedRangeGroup* nrg_ptr = 0;
+	for(uint32_t i=0; i<named_stubs_list.size(); ++i) {
+		nrg_ptr = named_stubs_list[i];
+		if (nrg_ptr->groupName_ == attribute_list_name) {
 			found=true; break;
 		}
 	}
-	if(!found){
+	if (! found) {
 		print_err(compiler_sem_err, string("named_stubs_list ")
 			+ attribute_list_name + string(" not found \n"), line_no,
 			__LINE__, __FILE__);
 	}
 
-	if(stack_cmpd_stmt.size()==0){
+	if (stack_cmpd_stmt.size()==0) {
 		print_err(compiler_internal_error, "compound statement stack "
 			"is 0 when parsing a AbstractQuestion... exiting"
 			, line_no, __LINE__, __FILE__  );
@@ -1381,14 +1476,14 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
 		q=new NamedStubQuestion(QUESTION_ARR_TYPE, line_no
-				, name, ::text_expr_vec, q_type, no_mpn, dt , nr_ptr
+				, name, ::text_expr_vec, q_type, no_mpn, dt , nrg_ptr
 				,qscript_parser::for_loop_max_counter_stack
 				, cmpd_stmt_ptr, av_info, question_attributes);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q));
 	} else {
-		q=new NamedStubQuestion(QUESTION_TYPE,
-			line_no, name, ::text_expr_vec, q_type, no_mpn, dt, nr_ptr
+		q = new NamedStubQuestion(QUESTION_TYPE,
+			line_no, name, ::text_expr_vec, q_type, no_mpn, dt, nrg_ptr
 			, cmpd_stmt_ptr, av_info, question_attributes);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 				active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q));
@@ -1412,6 +1507,42 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 
 	return q;
 }
+
+// this functions have to be moved to a suitable place later
+bool check_duplicate_stub_entry (const string & stub_text, int code)
+{
+	map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(stub_text);
+	//cout << "searching for : " << stub_text << " in map" << endl;
+	if (map_iter != map_duplicate_stub_entry_check.end()) {
+		std::stringstream err_msg;
+		err_msg << "the stub text: \"" << stub_text
+			<< "\" with code: " << code
+			<< " already exists with a code value of : "
+			<< map_iter->second;
+		print_err(compiler_syntax_err, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		return true;
+	} else {
+		map_duplicate_stub_entry_check[stub_text] = code;
+		return false;
+	}
+}
+
+// this functions have to be moved to a suitable place later
+bool check_duplicate_code_entry (int code)
+{
+	set<int>::iterator set_iter = set_duplicate_stub_entry_check.find (code);
+	if (set_iter != set_duplicate_stub_entry_check.end()) {
+		std::stringstream err_msg;
+		err_msg << "the code: " << code
+			<< " already exists in the stub list: ";
+		print_err(compiler_syntax_err, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		return true;
+	} else {
+		set_duplicate_stub_entry_check.insert(code);
+		return false;
+	}
+}
+
 
 // Close namespace
 }
