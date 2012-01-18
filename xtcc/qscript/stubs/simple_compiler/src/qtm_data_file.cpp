@@ -220,6 +220,7 @@ void QtmDataDiskMap::print_map(fstream & map_file)
 	}
 
 	if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+		/*
 		for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
 			map_file << full_question_name.str();
 			map_file << ",			";
@@ -231,6 +232,11 @@ void QtmDataDiskMap::print_map(fstream & map_file)
 				<< n_q->nr_ptr->stubs[i].stub_text ;
 			map_file << "\n";
 		}
+		*/
+		cerr << "FIX ME : does not report errors using print_err  "
+		     << ", line: " << __LINE__
+		     << ", file: " << __FILE__
+		     << ", function: " << __PRETTY_FUNCTION__ << endl;
 	} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
 			map_file << full_question_name.str();
 			map_file << ",			";
@@ -251,13 +257,29 @@ void QtmDataDiskMap::print_map(fstream & map_file)
 
 void QtmDataDiskMap::print_qin(string setup_dir)
 {
+
+	cerr << "FIX ME : does not report errors using print_err  "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 	NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q);
 	stringstream fname;
 	// assume that setup_dir is already created
 	if (n_q->no_mpn>1) {
-		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".min";
+		//fname << setup_dir << "/" <<n_q->nr_ptr->name << ".min";
+
+		cerr << "FIX ME : does not report errors using print_err  "
+		     << ", line: " << __LINE__
+		     << ", file: " << __FILE__
+		     << ", function: " << __PRETTY_FUNCTION__ << endl;
 	} else {
-		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".sin";
+		//fname << setup_dir << "/" <<n_q->nr_ptr->name << ".sin";
+
+		cerr << "FIX ME : does not report errors using print_err  "
+		     << ", line: " << __LINE__
+		     << ", file: " << __FILE__
+		     << ", function: " << __PRETTY_FUNCTION__ << endl;
 	}
 	fstream qtm_include_file (fname.str().c_str(), 
 			std::ios_base::out | std::ios_base::trunc);
@@ -580,6 +602,7 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 		qtm_include_file << "*include mean.qin" << endl;
 	}
 	qtm_include_files.insert(n_q->nr_ptr->name);
+#endif /* 0 */
 }
 
 void QtmDataDiskMap::print_run(string jno)
@@ -703,6 +726,13 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 			if (q->loop_index_values.size() == 1) {
 				l_base_text << "\"" << q->loop_index_values[0] << "\" i.e. ";
 				NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (baseText_.dynamicBaseQuestion_);
+
+
+				cerr << "FIX ME : does not report errors using print_err  "
+				     << ", line: " << __LINE__
+				     << ", file: " << __FILE__
+				     << ", function: " << __PRETTY_FUNCTION__ << endl;
+				/*
 				if (nq) {
 					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 					for (int i=0; i<vec.size(); ++i) {
@@ -712,6 +742,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 						}
 					}
 				}
+				*/
 				l_base_text << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
 			}
 		}
@@ -772,6 +803,12 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 
 			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
 				print_qin(setup_dir);
+
+				cerr << "FIX ME : does not report errors using print_err  "
+				     << ", line: " << __LINE__
+				     << ", file: " << __FILE__
+				     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 				if (n_q->nr_ptr) {
 					if (n_q->no_mpn>1) {
 						qax_file << "*include " << n_q->nr_ptr->name << ".min;"
@@ -783,6 +820,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 						<< endl;
 					}
 				}
+#endif /* 0 */
 			} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
 				qax_file << "*include " << q->questionName_ << ".qin;"
 					//<< "col(a)=" << startPosition_ + 1 << ";"
@@ -840,6 +878,13 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 			if (q->loop_index_values.size() == 1) {
 				qax_file << "\"" << q->loop_index_values[0] << "\" i.e. ";
 				NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (baseText_.dynamicBaseQuestion_);
+
+
+				cerr << "FIX ME : does not report errors using print_err  "
+				     << ", line: " << __LINE__
+				     << ", file: " << __FILE__
+				     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 				if (nq) {
 					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 					for (int i=0; i<vec.size(); ++i) {
@@ -849,12 +894,18 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 						}
 					}
 				}
+#endif /*  0 */
 				qax_file << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
 			}
 		}
 
 		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
 			print_qin(setup_dir);
+		cerr << "FIX ME : "
+		     << ", line: " << __LINE__
+		     << ", file: " << __FILE__
+		     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 			if (n_q->nr_ptr) {
 				if (n_q->no_mpn>1) {
 					qax_file << "*include " << n_q->nr_ptr->name << ".min;"
@@ -866,6 +917,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 					<< endl;
 				}
 			}
+#endif /*  0 */
 		} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(q)) {
 			qax_file << "*include " << q->questionName_ << ".qin;"
 				<< "col(a)=" << startPosition_ + 1

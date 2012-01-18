@@ -43,6 +43,11 @@ friend std::ostream & operator<<(std::ostream &os, LatexDocument &d)
 
 void LatexDocument::package(std::ostream &os, int i, int j)
 {
+	cerr << "FIX ME : "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 	// std::cout << "ENTER: " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ << std::endl;
 	using std::stringstream;
 	using std::cout;
@@ -182,6 +187,7 @@ void LatexDocument::package(std::ostream &os, int i, int j)
 
 
 	// std::cout << "EXIT: " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ << std::endl;
+#endif /*  0 */
 }
 
 std::string LatexDocument::safe(const std::string &s)
@@ -363,6 +369,11 @@ LatexDocument::~LatexDocument()
 
 void LatexDocument::ProcessQuestions()
 {
+	cerr << "FIX ME : "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 	if (qv.size() > 0) {
 		FOR(i,questionProcessedUpto_,qv.size()-1) {
 			int j=i;
@@ -416,4 +427,5 @@ void LatexDocument::ProcessQuestions()
 		}
 		questionProcessedUpto_ = qv.size() - 1 ;
 	}
+#endif /* 0 */
 }

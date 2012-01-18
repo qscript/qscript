@@ -347,7 +347,7 @@ class NamedStubQuestion: public AbstractQuestion
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
-		, DataType l_dt, named_range * l_nr_ptr
+		, DataType l_dt, NamedRangeGroup * l_nrg_ptr
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
 		, QuestionAttributes  l_question_attributes

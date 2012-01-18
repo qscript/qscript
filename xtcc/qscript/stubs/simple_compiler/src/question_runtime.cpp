@@ -4,7 +4,7 @@
 #include <fstream>
 #include <Wt/WString>
 #include "question.h"
-#include "named_range.h"
+#include "new_named_range.h"
 #include "qscript_readline.h"
 #include "user_navigation.h"
 #include "utils.h"
@@ -288,6 +288,11 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
+	cerr << "FIX ME : "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 	if (displayData_.begin() == displayData_.end()) {
 		vector<stub_pair> & vec= (nr_ptr->stubs);
 		if (vec.size() == 0) {
@@ -425,24 +430,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 	}
 	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
 
-	/*
-get_data_again:
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
-	stringstream mesg; mesg << "user_resp: " << user_resp;
-	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
-		<< mesg.str() << endl;
-	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
-		// valid response if blanks are allowed but dont do isAnswered_ = true 
-		// because otherwise when visiting the questionnaire it will skip this 
-		// question and data entry will have an off by 1 error everytime they 
-		// are reviewing this question - since blank is a valid answer
-	} else if (user_resp == user_response::UserEnteredData) {
-	} else if (user_resp == user_response::UserEnteredNavigation
-		&& user_navigation == NAVIGATE_PREVIOUS) {
-	} else {
-		goto get_data_again;
-	}
-	*/
+#endif /*  0 */
 
 }
 
@@ -473,6 +461,13 @@ NamedStubQuestion::NamedStubQuestion(
 		}
 	}
 #endif /* 0 */
+
+
+	cerr << "FIX ME : does not report errors using print_err  "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
 			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
@@ -481,6 +476,7 @@ NamedStubQuestion::NamedStubQuestion(
 			maxCode_ = nr_ptr->stubs[i].code;
 		}
 	}
+#endif /*  0 */
 }
 
 
@@ -778,16 +774,13 @@ NamedStubQuestion::NamedStubQuestion(
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes
 			 , l_isStartOfBlock)
 	, named_list()
-	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
+	, nrg_ptr(l_nrg_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 { 
+	cerr << "FIX ME : "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
 #if 0
-	vector <stub_pair> & v= *stub_ptr;
-	for (int i=0; i<v.size(); ++i) {
-		if (maxCode_ < v[i].code) {
-			maxCode_ = v[i].code;
-		}
-	}
-#endif /* 0 */
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
 			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
@@ -796,6 +789,7 @@ NamedStubQuestion::NamedStubQuestion(
 			maxCode_ = nr_ptr->stubs[i].code;
 		}
 	}
+#endif /*  0 */
 }
 
 // a question can lose integrity because of modification to a previous question
@@ -849,7 +843,7 @@ Wt::WString NamedStubQuestion::PrintSelectedAnswers()
 	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
 			inp_data_iter != input_data.end(); ++inp_data_iter) {
 		stringstream mesg_key;
-		mesg_key << nr_ptr->name << "_" << *inp_data_iter - 1;
+		mesg_key << nrg_ptr->groupName_ << "_" << *inp_data_iter - 1;
 		if (first_time) {
 			//select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
 			cout << "searching for : " << mesg_key.str() << endl;
@@ -882,7 +876,7 @@ Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
 	//	}
 	//}
 	stringstream mesg_key;
-	mesg_key << nr_ptr->name << "_" << code_index ;
+	mesg_key << nrg_ptr->groupName_ << "_" << code_index ;
 	//select_answers_text << nr_ptr->stubs[code_index].stub_text;
 	//select_answers_text << WString::tr(mesg_key.str());
 	//return select_answers_text.str();

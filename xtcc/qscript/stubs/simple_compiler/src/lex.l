@@ -223,6 +223,13 @@ stubs	{
 		return STUBS_LIST;
 	}
 
+stub_group {
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+	return STUB_GROUP;
+}
+
 named_attribute {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);

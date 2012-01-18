@@ -47,7 +47,7 @@ void NamedRangeGroup::AddStub (string p_text, int p_code, int p_index_in_group)
 			ptr_AbstractNamedRange = ptr_AbstractNamedRange->next_nr;
 		}
 		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (ptr_AbstractNamedRange)) {
-			NamedRangeList * nl = new NamedRangeList();
+			NamedRangeList * nl = new NamedRangeList(0);
 			struct stub_pair pair1 (p_text, p_code, true, p_index_in_group);
 			nl->stubs.push_back (pair1);
 			ptr_AbstractNamedRange->next_nr  = nl;
@@ -58,7 +58,7 @@ void NamedRangeGroup::AddStub (string p_text, int p_code, int p_index_in_group)
 			cout << "adding stub: " << p_text << " to group: " << groupName_ << endl;
 		}
 	} else {
-		NamedRangeList * nl = new NamedRangeList();
+		NamedRangeList * nl = new NamedRangeList (0);
 		struct stub_pair pair1 (p_text, p_code, true, p_index_in_group);
 		nl->stubs.push_back (pair1);
 		//next_nr  = nl;
@@ -76,7 +76,7 @@ void NamedRangeGroup::AddGroup (NamedRangeGroup & p_group, int p_index_in_group)
 		<< endl;
 	if (next_nr== 0 && groupPtr_==0) {
 		//groupPtr_ = & p_group;
-		NamedRangeGroup * nrg = new NamedRangeGroup (p_group.groupName_, p_index_in_group);
+		NamedRangeGroup * nrg = new NamedRangeGroup (p_group.lineNo_, p_group.groupName_, p_index_in_group);
 		nrg->groupPtr_ = p_group.groupPtr_;
 		//groupPtr_ = p_group.groupPtr_;
 		groupPtr_ = nrg;
@@ -88,7 +88,7 @@ void NamedRangeGroup::AddGroup (NamedRangeGroup & p_group, int p_index_in_group)
 			ptr_AbstractNamedRange = ptr_AbstractNamedRange->next_nr;
 		}
 		//ptr_AbstractNamedRange->next_nr = & p_group;
-		NamedRangeGroup * nrg = new NamedRangeGroup (p_group.groupName_, p_index_in_group);
+		NamedRangeGroup * nrg = new NamedRangeGroup (p_group.lineNo_, p_group.groupName_, p_index_in_group);
 		nrg->groupPtr_ = p_group.groupPtr_;
 		ptr_AbstractNamedRange->next_nr = nrg;
 	}
@@ -102,7 +102,7 @@ void NamedRangeList::AddStub (string p_text, int p_code, int p_index_in_group)
 			ptr_AbstractNamedRange = ptr_AbstractNamedRange->next_nr;
 		}
 		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (next_nr)) {
-			NamedRangeList * nl = new NamedRangeList();
+			NamedRangeList * nl = new NamedRangeList (0);
 			struct stub_pair pair1 (p_text, p_code, true, p_index_in_group);
 			nl->stubs.push_back (pair1);
 			ptr_AbstractNamedRange->next_nr = nl;
@@ -131,7 +131,7 @@ void NamedRangeList::AddGroup (NamedRangeGroup & p_group, int p_index_in_group)
 void NamedRangeList::Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec)
 {
 	for (int i=0; i<stubs.size(); ++i) {
-		p_stub_grp_vec.push_back (new NamedRangeStub (stubs[i].stub_text, stubs[i].code));
+		p_stub_grp_vec.push_back (new NamedRangeStub (0, stubs[i].stub_text, stubs[i].code));
 	}
 	if (next_nr) {
 		next_nr -> Vectorize (invoker, p_stub_grp_vec);

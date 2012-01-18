@@ -1541,6 +1541,11 @@ void Binary2Expression::PrintExpressionText(ostringstream & s)
 			if (un2expr->exprOperatorType_ == oper_num ) {
 				s << " All Respondents who have coded \\\"" << un2expr->intSemanticValue_ << "\\\" i.e. ";
 				if (nq) {
+				cerr << "FIX ME : "
+				     << ", line: " << __LINE__
+				     << ", file: " << __FILE__
+				     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 					for (int i=0; i<vec.size(); ++i) {
 						if (vec[i].code == un2expr->intSemanticValue_) {
@@ -1548,6 +1553,7 @@ void Binary2Expression::PrintExpressionText(ostringstream & s)
 							break;
 						}
 					}
+#endif /*  0 */
 				}
 				s << " at " << rhsQuestion_->questionName_;
 			} else if (un2expr->exprOperatorType_ == oper_name) {
