@@ -1273,7 +1273,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , AbstractExpression * larr_index
 	)
 	: AbstractStatement(dtype, lline_number)
-	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
+	  , questionName_(l_question->questionName_), namedStub_(l_named_range->groupName_)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
 	  , xtccSet_(), arrIndex_(larr_index)
 { }
@@ -1306,7 +1306,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , XtccSet & xs
 	)
 	: AbstractStatement(dtype, lline_number)
-	  , questionName_(), namedStub_(l_named_range->name)
+	  , questionName_(), namedStub_(l_named_range->groupName_)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(0)
 	  , xtccSet_(xs), arrIndex_(0)
 { }
@@ -1892,7 +1892,7 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 				string l_question_name)
 	: AbstractStatement(l_type, l_line_number),
-	  symbolTableEntry_(0), arrIndex_(0)
+	  symbolTableEntry_(0), arrIndex_(0), errorMessage_()
 {
 #if 0
 	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);

@@ -353,6 +353,7 @@ void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * da
 	int32_t maxWinX, maxWinY;
 	getmaxyx(stubListWindow_, maxWinY, maxWinX);
 	int page_size = maxWinY - 3;
+#if 0
 	if (page_size>0) {
 
 
@@ -385,6 +386,7 @@ void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * da
 			++nq->currentPage_;
 		}
 	}
+#endif /*  0 */
 }
 
 
@@ -393,6 +395,7 @@ void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * data
 	int32_t maxWinX, maxWinY;
 	getmaxyx(stubListWindow_, maxWinY, maxWinX);
 	int page_size = maxWinY - 4;
+#if 0
 	if (page_size>0) {
 		//vector<stub_pair> & vec= *stub_ptr;
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
@@ -423,4 +426,5 @@ void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * data
 			--nq->currentPage_;
 		}
 	}
+#endif /* 0 */
 }

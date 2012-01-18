@@ -128,6 +128,11 @@ namespace qscript_parser
 
 	extern vector<TextExpression*> text_expr_vec;
 
+	extern map <string, int> map_duplicate_stub_entry_check;
+	extern set< int> set_duplicate_stub_entry_check;
+	bool check_duplicate_stub_entry (string  stub_text, int code);
+	bool check_duplicate_code_entry (int code);
+
 }
 
 #endif /* qscript_parser_h */

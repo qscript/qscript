@@ -16,7 +16,7 @@
 
 #include "expr.h"
 #include "question.h"
-#include "named_range.h"
+#include "new_named_range.h"
 #include "scope.h"
 #include "qscript_parser.h"
 #include "user_navigation.h"
@@ -1314,7 +1314,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		<< q_type_str << ","
 		<< no_mpn << ","
 		<< datatype_str << ",&"
-		<< nr_ptr->name;
+		<< nrg_ptr->groupName_;
 	if(for_bounds_stack.size() >0 ){
 		quest_decl << ", stack_of_loop_indices "
 			<< ", dum_" << questionName_;
@@ -1404,14 +1404,21 @@ NamedStubQuestion::NamedStubQuestion(
 	, displayData_()
 	, currentPage_(0)
 {
-	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
-		if (nr_ptr->stubs[i].is_mutex) {
-			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
+
+	cerr << "FIX ME : "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
+	for(int i=0; i<nrg_ptr->stubs.size(); ++i) {
+		if (nrg_ptr->stubs[i].is_mutex) {
+			mutexCodeList_.add_indiv(nrg_ptr->stubs[i].code);
 		}
-		if (maxCode_ < nr_ptr->stubs[i].code) {
-			maxCode_ = nr_ptr->stubs[i].code;
+		if (maxCode_ < nrg_ptr->stubs[i].code) {
+			maxCode_ = nrg_ptr->stubs[i].code;
 		}
 	}
+#endif /*  0 */
 }
 
 	//! this is only called in the compile time environment
@@ -1432,6 +1439,11 @@ NamedStubQuestion::NamedStubQuestion(
 	, displayData_()
 	, currentPage_(0)
 { 
+	cerr << "FIX ME : "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+	/* 
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
 			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
@@ -1440,6 +1452,7 @@ NamedStubQuestion::NamedStubQuestion(
 			maxCode_ = nr_ptr->stubs[i].code;
 		}
 	}
+	*/
 }
 #if 0
 NamedStubQuestion::NamedStubQuestion(

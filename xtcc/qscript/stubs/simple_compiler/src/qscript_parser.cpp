@@ -4224,6 +4224,43 @@ void print_Wt_support_code(FILE * script)
 }
 
 
+	map <string, int> map_duplicate_stub_entry_check;
+	set< int> set_duplicate_stub_entry_check;
+// this functions have to be moved to a suitable place later
+bool check_duplicate_stub_entry (string  stub_text, int code)
+{
+	map <string,int>::iterator map_iter = map_duplicate_stub_entry_check.find(stub_text);
+	//cout << "searching for : " << stub_text << " in map" << endl;
+	if (map_iter != map_duplicate_stub_entry_check.end()) {
+		std::stringstream err_msg;
+		err_msg << "the stub text: \"" << stub_text
+			<< "\" with code: " << code
+			<< " already exists with a code value of : "
+			<< map_iter->second;
+		print_err(compiler_syntax_err, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		return true;
+	} else {
+		map_duplicate_stub_entry_check[stub_text] = code;
+		return false;
+	}
+}
+
+// this functions have to be moved to a suitable place later
+bool check_duplicate_code_entry (int code)
+{
+	set<int>::iterator set_iter = set_duplicate_stub_entry_check.find (code);
+	if (set_iter != set_duplicate_stub_entry_check.end()) {
+		std::stringstream err_msg;
+		err_msg << "the code: " << code
+			<< " already exists in the stub list: ";
+		print_err(compiler_syntax_err, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+		return true;
+	} else {
+		set_duplicate_stub_entry_check.insert(code);
+		return false;
+	}
+}
+
 
 /* end of namespace */
 }
