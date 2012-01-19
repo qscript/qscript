@@ -3153,7 +3153,7 @@ yyreduce:
     {
 		(yyvsp[(1) - (2)].nr_ptr)->next_nr = (yyvsp[(2) - (2)].nr_ptr);
 		(yyvsp[(2) - (2)].nr_ptr)->prev_nr = (yyvsp[(1) - (2)].nr_ptr);
-		(yyval.nr_ptr) = (yyvsp[(1) - (2)].nr_ptr);
+		(yyval.nr_ptr) = (yyvsp[(2) - (2)].nr_ptr);
 	;}
     break;
 

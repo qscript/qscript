@@ -1131,7 +1131,7 @@ stub_list: stub
 	| stub_list stub {
 		$1->next_nr = $2;
 		$2->prev_nr = $1;
-		$$ = $1;
+		$$ = $2;
 	}
 	;
 
