@@ -305,12 +305,12 @@ void print_header(FILE* script, bool ncurses_flag)
 	//fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"AbstractStatement.h\"\n");
-	fprintf(script, "#include \"named_range.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
 	fprintf(script, "#include \"datatype.h\"\n");
 	fprintf(script, "#include \"qscript_lib.h\"\n");
 	fprintf(script, "#include \"question_disk_data.h\"\n");
 	fprintf(script, "#include \"question.h\"\n");
+	fprintf(script, "#include \"new_named_range.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
 	fprintf(script, "#include \"qtm_data_file.h\"\n");
 	fprintf(script, "#include \"qtm_datafile_conf_parser.h\"\n");
@@ -2472,6 +2472,11 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "		int n_digits = 0;\n");
 	fprintf (script, "		int rat_scale = 0;\n");
 	fprintf (script, "		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {\n");
+	fprintf (script, "cerr << \"FIX ME : \"");
+	fprintf (script, "     << \", line: \" << __LINE__");
+	fprintf (script, "     << \", file: \" << __FILE__");
+	fprintf (script, "     << \", function: \" << __PRETTY_FUNCTION__ << endl;\n");
+#if 0
 	fprintf (script, "			if (n_q->nr_ptr) {\n");
 	fprintf (script, "				string & stub_name = n_q->nr_ptr->name;\n");
 	fprintf (script, "				int multiplier = 1;\n");
@@ -2486,6 +2491,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "					}\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "			}\n");
+#endif /*  0  */
 	fprintf (script, "		}\n");
 	fprintf (script, "		if (n_digits > 0) {\n");
 	fprintf (script, "			string include_file_name;\n");

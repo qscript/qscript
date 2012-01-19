@@ -201,6 +201,11 @@ class AsciiFlatFileQuestionDiskMap
 					spss_syn_file << var_name.str();
 				}
 				spss_syn_file << endl;
+				cerr << "FIX ME : "
+				     << ", line: " << __LINE__
+				     << ", file: " << __FILE__
+				     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 0
 				for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
 					spss_syn_file 
 						<< n_q->nr_ptr->stubs[i].code
@@ -209,6 +214,7 @@ class AsciiFlatFileQuestionDiskMap
 						<< " \""
 						<< endl;
 				}
+#endif /*  0 */
 				spss_syn_file << "." << endl; 
 
 			}

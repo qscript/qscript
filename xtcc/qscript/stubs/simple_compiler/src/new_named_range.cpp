@@ -205,3 +205,145 @@ void NamedRangeGroup::SaveRandomizedOrderToDisk()
 		cout << "; }  ";
 	}
 }
+
+/*  This function has been badly hacked together to get the :
+ *  declaration of the NamedRangeGroup into the class definition area
+ *  and out of the constructor in the last case when the stack is unwinding
+ *  */
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str,
+		vector <string> & group_list,
+		vector <string> & defns,
+		stringstream & final_answer)
+{
+	//cerr << "Enter: " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+	//cerr << "group_str.size(): " << group_str.size() << endl;
+	//cerr << "group_list.size(): " << group_list.size() << endl;
+	bool added_to_stack = false;
+	if (nr) {
+		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (nr)) {
+			string s (ng->groupName_);
+			group_list.push_back ( s);
+
+			//cout << "Adding group: " << s 
+			//	<< " onto the stack" << endl;
+			if (group_str.size() > 0) {
+				//cout << "inside if clause" << __LINE__
+				//	<< ": group_str.size(): "
+				//	<< group_str.size() << endl;
+				//cout << "inside if clause" << __LINE__
+				//	<< ": group_list.size(): "
+				//	<< group_list.size() << endl;
+				group_str[group_str.size() - 1] 
+					+=  group_list[group_list.size()-2]
+						+ ".AddGroup(" 
+						+ s + ", 0 /*  this should be the line number of the group, but get it to compile for now */"
+						+ ");\n";
+				//defns[defns.size() - 1] 
+				//	+=  group_list[group_list.size()-2]
+				//		+ ".AddGroup(" 
+				//		+ s
+				//		+ ");\n";
+			}
+			
+			stringstream tmp1;
+			tmp1 << "NamedRangeGroup " << s << "(" 
+				<< ng->lineNo_ 
+				<< ", \"" << s << "\", "
+				<< ng->index_in_group
+				<< ")" << "; // " 
+				<< "group_str.size(): " << group_str.size()  
+				<< "group_list.size(): " << group_list.size()  
+				<< "final_answer.str().length() : " << final_answer.str().length()
+				<< endl;
+			//group_str.push_back (tmp1.str());
+			//group_str.push_back("NamedRangeGroup " + s + "(\"" + s + "\")" +";\n");
+			if (group_str.size() == 0 && group_list.size()==1 && final_answer.str().length() == 0) {
+				//cerr << "group_str.size() = 0, NamedRangeGroup: " << s << endl;
+			} else {
+				group_str.push_back (tmp1.str());
+			}
+			defns.push_back("NamedRangeGroup " + s + "(\"" + s + "\")" +";\n");
+			//if (ng->groupPtr_)
+			//cout << " before call to PrintNamedRange: " << __LINE__ << endl;
+			PrintNamedRange (ng->groupPtr_, group_str, group_list, defns, final_answer);
+			added_to_stack = true;
+		} else if (NamedRangeList * nl = dynamic_cast<NamedRangeList*> (nr)) {
+			//group_str[group_str.size() -1 ] += string("|");
+			for (int i = 0; i < nl->stubs.size(); ++i) {
+				//group_str[group_str.size() - 1] += string("|") + nl->stubs[i].stub_text;
+				stringstream s1;
+				s1 << group_list[group_list.size()-1]
+					<< string(".AddStub( \"") << nl->stubs[i].stub_text
+					<< string("\", ")
+					<< nl->stubs[i].code
+					<< string(", ") << nl->stubs[i].index_in_group 
+					<< string(");\n");
+				//group_str[group_str.size() - 1] 
+				//	+= s1.str();
+				//cerr << "defns.size(): " << defns.size() << endl;
+				//if (defns.size() == 1) {
+				//	cout << "defns[0]: "  << defns[0] << endl;
+				//}
+				// ----------
+				// This is a real hack and should be cleaned up
+				// at some point. It just about works for now
+				// but I would prefer If I came up with a more
+				// elegant solution
+				if (group_str.size() > 0) {
+					group_str[group_str.size() - 1] 
+						+= s1.str();
+				} else {
+					if (defns.size() == 1) {
+						group_str.push_back (s1.str());
+					}
+				}
+				// ---------------
+				//cerr << "reached here: " << endl;
+			}
+		}
+		//nr = nr->next_nr;
+	}
+	//if (group_str.size() > 0) 
+	if (added_to_stack) {
+		//cerr << "reached here: " << endl;
+		if (group_str.size() > 0)
+			final_answer << group_str.back() << endl;
+		if (group_str.size() != 0)
+			group_str.pop_back();
+		group_list.pop_back();
+		defns.pop_back();
+	}
+	//cout << "before next recursive call nr: " << nr << endl;
+	if (nr->next_nr) {
+		PrintNamedRange (nr->next_nr, group_str, group_list, defns, final_answer);
+	}
+}
+
+
+void NamedRangeGroup::GenerateCode(StatementCompiledCode & code)
+{
+	code.quest_defns << "// invoked: " << __PRETTY_FUNCTION__ << endl;
+	vector <string> group_str;
+	vector <string> group_list;
+	vector <string> defns;
+	stringstream final_answer;
+	PrintNamedRange (this, group_str, group_list, defns, final_answer);
+	code.quest_defns << "NamedRangeGroup " << groupName_ << ";" << endl;
+	code.quest_defns_init_code << final_answer.str() << endl;
+	if (code.quest_defns_constructor.str().length() > 0) {
+		code.quest_defns_constructor <<  "," 
+			<< groupName_
+			<< "(" << lineNo_ << ", " 
+			<<  "\"" << groupName_ << "\"" << ", 0" << ")";
+	} else {
+		//code.quest_defns_constructor <<  ":" << groupName_ << "(\"" << groupName_ << "\")";
+		code.quest_defns_constructor <<  ":" 
+			<< groupName_
+			<< "(" << lineNo_ << ", " 
+			<<  "\"" << groupName_ << "\"" << ", 0" << ")";
+	}
+
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}

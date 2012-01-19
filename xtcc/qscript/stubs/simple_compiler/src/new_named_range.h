@@ -39,8 +39,7 @@ struct AbstractNamedRange: public AbstractStatement
 		AbstractStatement (NAMED_RANGE, p_line_no),
 		next_nr(0), prev_nr(0)
 	{ }
-	void GenerateCode(StatementCompiledCode & code)
-	{ }
+	virtual void GenerateCode(StatementCompiledCode & code)=0;
 	virtual void Print ()=0;
 	virtual void SimplePrint ()=0;
 	virtual void AddStub (string p_text, int p_code, int p_index_in_group)=0;
@@ -60,6 +59,8 @@ struct NamedRangeList: public AbstractNamedRange
 	NamedRangeList (int p_line_no):
 		AbstractNamedRange (p_line_no),
 		stubs ()
+	{ }
+	void GenerateCode(StatementCompiledCode & code)
 	{ }
 	void Print() {
 		for (int i=0; i<stubs.size(); ++i) {
@@ -111,6 +112,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 		stub_grp_vec(), randomized_order(),
 		index_in_group (p_index_in_group)
 	{ }
+	void GenerateCode(StatementCompiledCode & code);
 	void Print()
 	{
 		cout << groupName_
@@ -192,6 +194,8 @@ struct NamedRangeStub : public AbstractNamedRange
 	{
 		Print();
 	}
+	void GenerateCode(StatementCompiledCode & code)
+	{ }
 
 };
 
