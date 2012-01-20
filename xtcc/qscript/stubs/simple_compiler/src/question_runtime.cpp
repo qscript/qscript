@@ -292,6 +292,11 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 	     << ", line: " << __LINE__
 	     << ", file: " << __FILE__
 	     << ", function: " << __PRETTY_FUNCTION__ << endl;
+	if (displayData_.begin() == displayData_.end()) {
+		int start_code = -1, previous_code = -1, current_code = -1;
+		create_display_data_units (nrg_ptr, start_code, previous_code, current_code);
+	}
+	create_display_stubs (nrg_ptr);
 #if 0
 	if (displayData_.begin() == displayData_.end()) {
 		vector<stub_pair> & vec= (nr_ptr->stubs);
@@ -332,6 +337,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			previous_code = current_code;
 		}
 	}
+#endif /*  0 */
 	if (question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0) {
 		cout << questionName_ << ".";
 		if (loop_index_values.size()>0) {
@@ -344,11 +350,17 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 
 		//cout << questionName_ << "." << questionText_ << endl << endl;
 		//vector<stub_pair> vec= *stub_ptr;
-		vector<stub_pair> & vec= (nr_ptr->stubs);
+		cerr << "FIX ME : "
+		     << ", line: " << __LINE__
+		     << ", file: " << __FILE__
+		     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 1
+		vector<stub_pair> & vec= display_result;
 		for (uint32_t i = 0; i< vec.size(); ++i) {
 			if( vec[i].mask)
 				cout << vec[i].stub_text << ": " << vec[i].code << endl;
 		}
+#endif /*  0 */
 
 		if (input_data.begin() != input_data.end()) {
 			cout << "Current data values: ";
@@ -403,7 +415,12 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		++currYpos; currXpos = 1;
 
 		//vector<stub_pair> & vec= *stub_ptr;
-		vector<stub_pair> & vec= (nr_ptr->stubs);
+		cerr << "FIX ME : "
+		     << ", line: " << __LINE__
+		     << ", file: " << __FILE__
+		     << ", function: " << __PRETTY_FUNCTION__ << endl;
+#if 1
+		vector<stub_pair> & vec= display_result;
 		for(uint32_t i = 0; i< vec.size(); ++i){
 			if( vec[i].mask) {
 				//cout << vec[i].stub_text << ": " << vec[i].code << endl;
@@ -422,6 +439,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				++currYpos;
 			}
 		}
+#endif /* 0 */
 
 		//wrefresh(stub_list_window);
 		update_panels();
@@ -430,7 +448,6 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 	}
 	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
 
-#endif /*  0 */
 
 }
 
@@ -893,4 +910,90 @@ Wt::WString RangeQuestion::PrintSelectedAnswers()
 Wt::WString RangeQuestion::PrintSelectedAnswers (int code_index)
 {
 	return Wt::WString("hello");
+}
+
+
+void NamedStubQuestion::create_display_stubs (AbstractNamedRange * nr_ptr)
+{
+	NamedRangeGroup * nrg_ptr = dynamic_cast <NamedRangeGroup*>
+					(nr_ptr);
+	if (nrg_ptr) {
+		create_display_stubs (nrg_ptr->groupPtr_);
+	}
+	
+	NamedRangeList * nrl_ptr = dynamic_cast <NamedRangeList*>
+					(nr_ptr);
+	if (nrl_ptr) {
+		vector <stub_pair> & vec = nrl_ptr->stubs;
+		for (int i=0; i < vec.size(); ++i) {
+			display_result.push_back (vec[i]);
+		}
+	}
+
+	if (nr_ptr->next_nr) {
+		create_display_stubs (nr_ptr->next_nr);
+	}
+}
+
+void NamedStubQuestion::create_display_data_units (AbstractNamedRange * nr_ptr,
+		int start_code, int previous_code, int current_code)
+{
+#if 1
+	//vector<stub_pair> & vec= (nr_ptr->stubs);
+	//if (vec.size() == 0) {
+	//	cerr << "runtime error: Impossible !!! stubs with no codes: "
+	//		<< __LINE__ << ", " << __FILE__ << __PRETTY_FUNCTION__
+	//		<< " question name: " << questionName_ << endl;
+	//	exit(1);
+	//}
+	NamedRangeGroup * nrg_ptr = dynamic_cast <NamedRangeGroup*>
+					(nr_ptr);
+	if (nrg_ptr) {
+		create_display_data_units (nrg_ptr->groupPtr_, start_code, previous_code, current_code);
+	}
+	
+	NamedRangeList * nrl_ptr = dynamic_cast <NamedRangeList*>
+					(nr_ptr);
+	if (nrl_ptr) {
+		vector<stub_pair> & vec= (nrl_ptr->stubs);
+		if (start_code == -1) {
+			start_code = vec[0].code;
+			previous_code = start_code;
+			current_code = start_code;
+		}
+
+		for (int32_t i=0; i<vec.size(); ++i) {
+			current_code = vec[i].code;
+			if (current_code - previous_code > 1) {
+				if (start_code < previous_code) {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+					start_code = current_code;
+					previous_code = current_code;
+				} else {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code));
+					start_code = current_code;
+					previous_code = current_code;
+				}
+			}
+			if (i>0) {
+				previous_code = current_code;
+			}
+			//displayData_.push_back(display_data::DisplayDataUnit(vec[i].code));
+		}
+		if (start_code < previous_code) {
+			displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+			start_code = current_code;
+			previous_code = current_code;
+		} else {
+			displayData_.push_back(display_data::DisplayDataUnit(start_code));
+			start_code = current_code;
+			previous_code = current_code;
+		}
+	}
+	if (nr_ptr->next_nr) {
+		create_display_data_units (nr_ptr->next_nr, start_code, previous_code, current_code);
+	}
+
+#endif /*  0 */
+
 }

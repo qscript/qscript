@@ -29,6 +29,7 @@
 #include "QuestionAttributes.h"
 #include "UserResponse.h"
 #include "named_attributes.h"
+#include "new_named_range.h"
 
 using std::ostringstream;
 using std::ofstream;
@@ -300,6 +301,7 @@ class NamedStubQuestion: public AbstractQuestion
 	//named_range * nr_ptr;
 	NamedRangeGroup * nrg_ptr;
 	vector<stub_pair> * stub_ptr;
+	vector<stub_pair> display_result;
 	vector<display_data::DisplayDataUnit> displayData_;
 	int currentPage_;
 	//! this is only called in the compile time environment
@@ -345,7 +347,8 @@ class NamedStubQuestion: public AbstractQuestion
 	//! only called in the runtime environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
-		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec
+		, QuestionType l_q_type, int32_t l_no_mpn
 		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		, DataType l_dt, NamedRangeGroup * l_nrg_ptr
 		, const vector<int32_t> & l_loop_index_values
@@ -389,6 +392,9 @@ class NamedStubQuestion: public AbstractQuestion
 		}
 	}
 
+	void create_display_data_units(AbstractNamedRange * nr_ptr,
+		int start_code, int previous_code, int current_code);
+	void create_display_stubs (AbstractNamedRange * nr_ptr);
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
 		NamedStubQuestion (const NamedStubQuestion&);
