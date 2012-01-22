@@ -395,6 +395,7 @@ class NamedStubQuestion: public AbstractQuestion
 	void create_display_data_units(AbstractNamedRange * nr_ptr,
 		int start_code, int previous_code, int current_code);
 	void create_display_stubs (AbstractNamedRange * nr_ptr);
+	void constructor_helper();
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
 		NamedStubQuestion (const NamedStubQuestion&);

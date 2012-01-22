@@ -36,7 +36,7 @@
 #include "stmt.h"
 #include "expr.h"
 #include "scope.h"
-#include "named_range.h"
+#include "new_named_range.h"
 #include "qscript_parser.h"
 #include "question.h"
 #include "qscript_debug.h"
@@ -1541,19 +1541,13 @@ void Binary2Expression::PrintExpressionText(ostringstream & s)
 			if (un2expr->exprOperatorType_ == oper_num ) {
 				s << " All Respondents who have coded \\\"" << un2expr->intSemanticValue_ << "\\\" i.e. ";
 				if (nq) {
-				cerr << "FIX ME : "
-				     << ", line: " << __LINE__
-				     << ", file: " << __FILE__
-				     << ", function: " << __PRETTY_FUNCTION__ << endl;
-#if 0
-					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+					vector<stub_pair> & vec= (nq->display_result);
 					for (int i=0; i<vec.size(); ++i) {
 						if (vec[i].code == un2expr->intSemanticValue_) {
 							s << vec[i].stub_text;
 							break;
 						}
 					}
-#endif /*  0 */
 				}
 				s << " at " << rhsQuestion_->questionName_;
 			} else if (un2expr->exprOperatorType_ == oper_name) {

@@ -170,3 +170,25 @@ Wt::WString DummyArrayQuestion::PrintSelectedAnswers(int code_index)
 {
 	return Wt::WString();
 }
+
+void NamedStubQuestion::create_display_stubs (AbstractNamedRange * nr_ptr)
+{
+	NamedRangeGroup * nrg_ptr = dynamic_cast <NamedRangeGroup*>
+					(nr_ptr);
+	if (nrg_ptr) {
+		create_display_stubs (nrg_ptr->groupPtr_);
+	}
+
+	NamedRangeList * nrl_ptr = dynamic_cast <NamedRangeList*>
+					(nr_ptr);
+	if (nrl_ptr) {
+		vector <stub_pair> & vec = nrl_ptr->stubs;
+		for (int i=0; i < vec.size(); ++i) {
+			display_result.push_back (vec[i]);
+		}
+	}
+	if (nr_ptr->next_nr) {
+		create_display_stubs (nr_ptr->next_nr);
+	}
+}
+

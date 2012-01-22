@@ -1331,7 +1331,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	//}
 
 	if (array_mode) {
-		quest_decl << "question_list.push_back(" << questionName_.c_str() << ");\n";
+		quest_decl << "question_list.push_back(" << questionName_ << ");\n";
 		quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
@@ -1404,21 +1404,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, displayData_()
 	, currentPage_(0)
 {
-
-	cerr << "FIX ME : "
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function: " << __PRETTY_FUNCTION__ << endl;
-#if 0
-	for(int i=0; i<nrg_ptr->stubs.size(); ++i) {
-		if (nrg_ptr->stubs[i].is_mutex) {
-			mutexCodeList_.add_indiv(nrg_ptr->stubs[i].code);
-		}
-		if (maxCode_ < nrg_ptr->stubs[i].code) {
-			maxCode_ = nrg_ptr->stubs[i].code;
-		}
-	}
-#endif /*  0 */
+	constructor_helper ();
 }
 
 	//! this is only called in the compile time environment
@@ -1439,21 +1425,22 @@ NamedStubQuestion::NamedStubQuestion(
 	, displayData_()
 	, currentPage_(0)
 { 
-	cerr << "FIX ME : "
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function: " << __PRETTY_FUNCTION__ << endl;
-	/* 
-	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
-		if (nr_ptr->stubs[i].is_mutex) {
-			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
+	constructor_helper ();
+}
+
+void NamedStubQuestion::constructor_helper()
+{
+	create_display_stubs (nrg_ptr->groupPtr_);
+	for(int i=0; i < display_result.size(); ++i) {
+		if (display_result[i].is_mutex) {
+			mutexCodeList_.add_indiv (display_result[i].code);
 		}
-		if (maxCode_ < nr_ptr->stubs[i].code) {
-			maxCode_ = nr_ptr->stubs[i].code;
+		if (maxCode_ < display_result[i].code) {
+			maxCode_ = display_result[i].code;
 		}
 	}
-	*/
 }
+
 #if 0
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
@@ -1539,7 +1526,7 @@ void AbstractQuestion::print_q_type(string &s)
 
 
 
-void AbstractQuestion::print_data_type(string &s)
+void AbstractQuestion::print_data_type (string &s)
 {
 	stringstream mesg;
 	mesg << "Is this functionality already duplicated somewhere else?"
