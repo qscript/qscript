@@ -262,28 +262,19 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 	     << ", line: " << __LINE__
 	     << ", file: " << __FILE__
 	     << ", function: " << __PRETTY_FUNCTION__ << endl;
-#if 0
+#if 1
 	NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q);
 	stringstream fname;
 	// assume that setup_dir is already created
+	fname << setup_dir << "/" <<n_q->nrg_ptr->groupName_;
 	if (n_q->no_mpn>1) {
-		//fname << setup_dir << "/" <<n_q->nr_ptr->name << ".min";
-
-		cerr << "FIX ME : does not report errors using print_err  "
-		     << ", line: " << __LINE__
-		     << ", file: " << __FILE__
-		     << ", function: " << __PRETTY_FUNCTION__ << endl;
+		fname << ".min";
 	} else {
-		//fname << setup_dir << "/" <<n_q->nr_ptr->name << ".sin";
-
-		cerr << "FIX ME : does not report errors using print_err  "
-		     << ", line: " << __LINE__
-		     << ", file: " << __FILE__
-		     << ", function: " << __PRETTY_FUNCTION__ << endl;
+		fname << ".sin";
 	}
 	fstream qtm_include_file (fname.str().c_str(), 
 			std::ios_base::out | std::ios_base::trunc);
-	string range_name = n_q->nr_ptr->name;
+	string range_name = n_q->nrg_ptr->groupName_;
 	int rat_scale = 0;
 	int factor = 1;
 	bool flag_scale_is_reversed = false;
@@ -301,15 +292,15 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 		}
 	}
 	if (!flag_is_a_rating_scale) {
-		for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
+		for (int i=0; i<n_q->display_result.size(); ++i) {
 			qtm_include_file << "n01"
-				<< n_q->nr_ptr->stubs[i].stub_text
+				<< n_q->display_result[i].stub_text
 				<< "; c=c";
-			int the_code = n_q->nr_ptr->stubs[i].code;
+			int the_code = n_q->display_result[i].code;
 			if (n_q->no_mpn>1) {
 				qtm_include_file << "a";
-				int dividend = the_code/10;
-				int remainder = the_code%10;
+				int dividend = the_code / 10;
+				int remainder = the_code % 10;
 				if (remainder == 0) {
 					qtm_include_file 
 						<< dividend - 1 << "'"
@@ -349,12 +340,12 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 		}
 	} else {
 		if (flag_scale_is_reversed == false) {
-			vector<stub_pair>  stubs= (n_q->nr_ptr->stubs);
+			vector<stub_pair>   stubs = (n_q->display_result);
 			// qtm_include_file << "/* before sort\n";
 			// for(int i=0; i<stubs.size(); ++i) {
 			// 	qtm_include_file << stubs[i].stub_text << endl;
 			// }
-			sort(stubs.begin(), stubs.end(), stub_pair_order_asc());
+			sort (stubs.begin(), stubs.end(), stub_pair_order_asc());
 			// qtm_include_file << "/* after sort\n";
 			// for(int i=0; i<stubs.size(); ++i) {
 			// 	qtm_include_file << stubs[i].stub_text << endl;
@@ -601,7 +592,7 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 
 		qtm_include_file << "*include mean.qin" << endl;
 	}
-	qtm_include_files.insert(n_q->nr_ptr->name);
+	qtm_include_files.insert (n_q->nrg_ptr->groupName_);
 #endif /* 0 */
 }
 
@@ -901,18 +892,14 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 
 		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
 			print_qin(setup_dir);
-		cerr << "FIX ME : "
-		     << ", line: " << __LINE__
-		     << ", file: " << __FILE__
-		     << ", function: " << __PRETTY_FUNCTION__ << endl;
-#if 0
-			if (n_q->nr_ptr) {
-				if (n_q->no_mpn>1) {
-					qax_file << "*include " << n_q->nr_ptr->name << ".min;"
+#if 1
+			if (n_q -> nrg_ptr) {
+				if (n_q -> no_mpn > 1) {
+					qax_file << "*include " << n_q->nrg_ptr->groupName_ << ".min;"
 					<< "col(a)=" << startPosition_ + 1
 					<< endl;
 				} else {
-					qax_file << "*include " << n_q->nr_ptr->name << ".sin;"
+					qax_file << "*include " << n_q->nrg_ptr->groupName_ << ".sin;"
 					<< "col(a)=" << startPosition_ + 1
 					<< endl;
 				}

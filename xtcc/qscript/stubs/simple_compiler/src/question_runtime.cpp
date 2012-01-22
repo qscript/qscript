@@ -288,56 +288,13 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
-	cerr << "FIX ME : "
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function: " << __PRETTY_FUNCTION__ << endl;
 	if (displayData_.begin() == displayData_.end()) {
 		int start_code = -1, previous_code = -1, current_code = -1;
 		create_display_data_units (nrg_ptr, start_code, previous_code, current_code);
 	}
-	create_display_stubs (nrg_ptr);
-#if 0
-	if (displayData_.begin() == displayData_.end()) {
-		vector<stub_pair> & vec= (nr_ptr->stubs);
-		if (vec.size() == 0) {
-			cerr << "runtime error: Impossible !!! stubs with no codes: "
-				<< __LINE__ << ", " << __FILE__ << __PRETTY_FUNCTION__
-				<< " question name: " << questionName_ << endl;
-			exit(1);
-		}
-		int start_code = vec[0].code;
-		int previous_code = start_code;
-		int current_code = start_code;
-		for (int32_t i=0; i<vec.size(); ++i) {
-			current_code = vec[i].code;
-			if (current_code - previous_code > 1) {
-				if (start_code < previous_code) {
-					displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
-					start_code = current_code;
-					previous_code = current_code;
-				} else {
-					displayData_.push_back(display_data::DisplayDataUnit(start_code));
-					start_code = current_code;
-					previous_code = current_code;
-				}
-			}
-			if (i>0) {
-				previous_code = current_code;
-			}
-			//displayData_.push_back(display_data::DisplayDataUnit(vec[i].code));
-		}
-		if (start_code < previous_code) {
-			displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
-			start_code = current_code;
-			previous_code = current_code;
-		} else {
-			displayData_.push_back(display_data::DisplayDataUnit(start_code));
-			start_code = current_code;
-			previous_code = current_code;
-		}
-	}
-#endif /*  0 */
+	if (display_result.size() == 0)
+		create_display_stubs (nrg_ptr);
+
 	if (question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0) {
 		cout << questionName_ << ".";
 		if (loop_index_values.size()>0) {
@@ -345,19 +302,12 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				cout << loop_index_values[i]+1 << ".";
 			}
 		}
-		//cout << questionText_ << endl << endl;
 		cout << textExprVec_[0]->text_ << endl << endl;
 
-		//cout << questionName_ << "." << questionText_ << endl << endl;
-		//vector<stub_pair> vec= *stub_ptr;
-		cerr << "FIX ME : "
-		     << ", line: " << __LINE__
-		     << ", file: " << __FILE__
-		     << ", function: " << __PRETTY_FUNCTION__ << endl;
 #if 1
-		vector<stub_pair> & vec= display_result;
+		vector<stub_pair> & vec = display_result;
 		for (uint32_t i = 0; i< vec.size(); ++i) {
-			if( vec[i].mask)
+			if (vec[i].mask)
 				cout << vec[i].stub_text << ": " << vec[i].code << endl;
 		}
 #endif /*  0 */
@@ -365,7 +315,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		if (input_data.begin() != input_data.end()) {
 			cout << "Current data values: ";
 
-			for(set<int32_t>::iterator iter = input_data.begin();
+			for (set<int32_t>::iterator iter = input_data.begin();
 				iter != input_data.end(); ++iter){
 				cout << *iter << " ";
 			}
@@ -375,66 +325,60 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
 
 	} else {
-		wclear(question_window);
-		box(question_window, 0, 0);
-		wclear(stub_list_window);
-		box(stub_list_window, 0, 0);
-		wclear(data_entry_window);
-		box(data_entry_window, 0, 0);
-		mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
-		int len_qno = questionName_.length()+2;
-		if(loop_index_values.size()>0){
-			for(uint32_t i=0; i<loop_index_values.size(); ++i){
+		wclear (question_window);
+		box (question_window, 0, 0);
+		wclear (stub_list_window);
+		box (stub_list_window, 0, 0);
+		wclear (data_entry_window);
+		box (data_entry_window, 0, 0);
+		mvwprintw (question_window, 1, 1, "%s.", questionName_.c_str());
+		int len_qno = questionName_.length() + 2;
+		if (loop_index_values.size() > 0) {
+			for (uint32_t i=0; i<loop_index_values.size(); ++i) {
 				//cout << loop_index_values[i]+1 << ".";
-				mvwprintw(question_window, 1, len_qno, "%d.", loop_index_values[i]+1);
-				if (loop_index_values[i]+1<10) {
+				mvwprintw (question_window, 1, len_qno, "%d.", loop_index_values[i] + 1);
+				if (loop_index_values[i] + 1 < 10) {
 					len_qno += 1;
-				} else if (loop_index_values[i]+1<100) {
+				} else if (loop_index_values[i] + 1 < 100) {
 					len_qno += 2;
-				} else if (loop_index_values[i]+1<1000) {
+				} else if (loop_index_values[i] + 1 < 1000) {
 					len_qno += 3;
-				} else if (loop_index_values[i]+1<10000) {
+				} else if (loop_index_values[i] + 1 < 10000) {
 					len_qno += 4;
 				}
 				len_qno += 1; // for the "."
 			}
 		}
-		//mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
-		//wrefresh(question_window);
-		//mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
-		mvwprintw(question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
+		mvwprintw (question_window, 1, len_qno + 1, " %s", textExprVec_[0]->text_.c_str());
 		for (int i=1; i<textExprVec_.size(); ++i) {
-			mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
+			mvwprintw (question_window, 2 + i, 1, " %s", textExprVec_[i]->text_.c_str());
 		}
 		update_panels();
 		doupdate();
 		int32_t maxWinX, maxWinY;
-		getmaxyx(data_entry_window, maxWinY, maxWinX);
+		getmaxyx (data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
 		Print_DisplayDataUnitVector (stub_list_window, displayData_, currXpos, currYpos, maxWinX);
 		++currYpos; currXpos = 1;
 
-		//vector<stub_pair> & vec= *stub_ptr;
-		cerr << "FIX ME : "
-		     << ", line: " << __LINE__
-		     << ", file: " << __FILE__
-		     << ", function: " << __PRETTY_FUNCTION__ << endl;
 #if 1
 		vector<stub_pair> & vec= display_result;
-		for(uint32_t i = 0; i< vec.size(); ++i){
-			if( vec[i].mask) {
-				//cout << vec[i].stub_text << ": " << vec[i].code << endl;
-				//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
-				mvwprintw(stub_list_window, currYpos, currXpos, "%s: ", vec[i].stub_text.c_str());
-				set<int32_t>::iterator found= input_data.find(vec[i].code);
-				if (found != input_data.end() ){
-					wattroff(stub_list_window, COLOR_PAIR(2));
-					wattron(stub_list_window, COLOR_PAIR(4));
-					mvwprintw(stub_list_window, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
-					wattroff(stub_list_window, COLOR_PAIR(4));
-					wattron(stub_list_window, COLOR_PAIR(2));
+		for (uint32_t i = 0; i < vec.size(); ++i) {
+			if (vec[i].mask) {
+				mvwprintw (stub_list_window, currYpos, currXpos, "%s: ", vec[i].stub_text.c_str());
+				set<int32_t>::iterator found = input_data.find (vec[i].code);
+				if (found != input_data.end()) {
+					wattroff (stub_list_window, COLOR_PAIR(2));
+					wattron (stub_list_window, COLOR_PAIR(4));
+					mvwprintw (stub_list_window, currYpos,
+							currXpos + vec[i].stub_text.length() + 3
+							, "%d ", vec[i].code);
+					wattroff (stub_list_window, COLOR_PAIR(4));
+					wattron (stub_list_window, COLOR_PAIR(2));
 				} else {
-					mvwprintw(stub_list_window, currYpos, currXpos + vec[i].stub_text.length() + 3, "%d ", vec[i].code);
+					mvwprintw (stub_list_window, currYpos,
+							currXpos + vec[i].stub_text.length() + 3, "%d ",
+							vec[i].code);
 				}
 				++currYpos;
 			}
@@ -446,9 +390,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		doupdate();
 		// AbstractQuestion::GetDataFromUser(data_entry_window);
 	}
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
-
-
+	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser (question_window, stub_list_window, data_entry_window);
 }
 
 
@@ -470,34 +412,22 @@ NamedStubQuestion::NamedStubQuestion(
 	, named_list()
 	, nrg_ptr (l_nrg_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 {
-#if 0
-	vector <stub_pair> & v= *stub_ptr;
-	for (int i=0; i<v.size(); ++i) {
-		if (maxCode_ < v[i].code) {
-			maxCode_ = v[i].code;
+#if 1
+	for(int i=0; i < display_result.size(); ++i) {
+		if (display_result[i].is_mutex) {
+			mutexCodeList_.add_indiv (display_result[i].code);
 		}
-	}
-#endif /* 0 */
-
-
-	cerr << "FIX ME : does not report errors using print_err  "
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function: " << __PRETTY_FUNCTION__ << endl;
-#if 0
-	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
-		if (nr_ptr->stubs[i].is_mutex) {
-			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
-		}
-		if (maxCode_ < nr_ptr->stubs[i].code) {
-			maxCode_ = nr_ptr->stubs[i].code;
+		if (maxCode_ < display_result[i].code) {
+			maxCode_ = display_result[i].code;
 		}
 	}
 #endif /*  0 */
 }
 
 
-user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window)
+user_response::UserResponseType 
+AbstractQuestion::GetDataFromUser(WINDOW * question_window,
+		WINDOW * stub_list_window, WINDOW * data_entry_window)
 {
 	// cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
 	string err_mesg, re_arranged_buffer;
@@ -516,19 +446,17 @@ ask_again:
 			// NxD: 16-Feb-2011
 			// handle User Data response here - blank as well as valid data
 			if (user_resp == user_response::UserClearedData) {
-				input_data.erase(input_data.begin(), input_data.end());
+				input_data.erase (input_data.begin(), input_data.end());
 				isAnswered_ = false;
 				goto ask_again;
 			}
-			invalid_code = VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data, &data);
+			invalid_code = VerifyData (err_mesg, re_arranged_buffer, pos_1st_invalid_data, &data);
 			prompt = err_mesg;
 
-			if(invalid_code == false){
-				input_data.erase(input_data.begin(), input_data.end());
-				for(uint32_t i = 0; i < data.size(); ++i){
+			if (invalid_code == false) {
+				input_data.erase (input_data.begin(), input_data.end());
+				for (uint32_t i = 0; i < data.size(); ++i) {
 					input_data.insert(data[i]);
-					//cout 	<< "storing: " << data[i]
-					//	<< " into input_data" << endl;
 				}
 				isAnswered_ = true;
 			}
@@ -585,8 +513,6 @@ label_ask_again:
 				input_data.erase(input_data.begin(), input_data.end());
 				for(uint32_t i = 0; i < data.size(); ++i){
 					input_data.insert(data[i]);
-					//cout << "storing: " << data[i]
-					//	<< " into input_data" << endl;
 				}
 				isAnswered_ = true;
 			}
@@ -641,11 +567,10 @@ bool AbstractQuestion::VerifyData(
 	vector <int> & data = * data_ptr;
 	bool invalid_code=false, has_invalid_data_flag = false;
 	stringstream valid_data, invalid_data;
-	for(uint32_t i = 0; i < data.size(); ++i){
-		//cout << "Testing data exists: " << data[i] << endl;
-		invalid_code = !IsValid(data[i]);
-		if(invalid_code == true){
-			if(!has_invalid_data_flag)
+	for (uint32_t i = 0; i < data.size(); ++i) {
+		invalid_code = !IsValid (data[i]);
+		if (invalid_code == true) {
+			if (!has_invalid_data_flag)
 				has_invalid_data_flag = true;
 			invalid_data << data[i] << " ";
 		} else {
@@ -659,20 +584,20 @@ bool AbstractQuestion::VerifyData(
 		goto end;
 	}
 
-	if(has_invalid_data_flag) {
+	if (has_invalid_data_flag) {
 		err_mesg = "Input contained some invalid data.. " + invalid_data.str() +  " Re-enter Data\n";
 		pos_1st_invalid_data = valid_data.str().length(); // it already has a space appended to it
 		re_arranged_buffer = valid_data.str() + invalid_data.str();
 		invalid_code = true;
 		goto end;
 	}
-	if(q_type == spn && data.size()>1) {
+	if (q_type == spn && data.size() > 1) {
 		err_mesg = "Single coded Question - please enter only 1 code:";
 		invalid_code = true;
 		data.clear();
 	} else if (q_type == mpn) {
 		//cout << "reached here: " << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
-		if (data.size() > no_mpn){
+		if (data.size() > no_mpn) {
 			err_mesg = "Multi coded Question, no values exceed max allowed:  ";
 			invalid_code = true;
 			cerr << "should I clear this? - the DE operator has done hard work entering this data"
@@ -680,13 +605,13 @@ bool AbstractQuestion::VerifyData(
 			data.clear();
 		}
 		int count_mutex_data = 0;
-		for(int i=0; i<data.size(); ++i) {
+		for (int i=0; i<data.size(); ++i) {
 			if (mutexCodeList_.exists(data[i])){
 				// cout << "mutexCodeList_ contains: " << data[i];
 				++count_mutex_data;
 			}
 		}
-		if (data.size()>1 && count_mutex_data >= 1) {
+		if (data.size() > 1 && count_mutex_data >= 1) {
 			err_mesg = "Mutex code entered with other codes";
 			invalid_code = true;
 			cerr << "should I clear this? - the DE operator has done hard work entering this data"
@@ -793,17 +718,13 @@ NamedStubQuestion::NamedStubQuestion(
 	, named_list()
 	, nrg_ptr(l_nrg_ptr), stub_ptr(0), displayData_(), currentPage_(0)
 { 
-	cerr << "FIX ME : "
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function: " << __PRETTY_FUNCTION__ << endl;
-#if 0
-	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
-		if (nr_ptr->stubs[i].is_mutex) {
-			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
+#if 1
+	for(int i=0; i<display_result.size(); ++i) {
+		if (display_result[i].is_mutex) {
+			mutexCodeList_.add_indiv(display_result[i].code);
 		}
-		if (maxCode_ < nr_ptr->stubs[i].code) {
-			maxCode_ = nr_ptr->stubs[i].code;
+		if (maxCode_ < display_result[i].code) {
+			maxCode_ = display_result[i].code;
 		}
 	}
 #endif /*  0 */
@@ -817,7 +738,7 @@ bool AbstractQuestion::VerifyQuestionIntegrity()
 
 	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
 			inp_data_iter != input_data.end(); ++inp_data_iter) {
-		bool invalid_code = !IsValid(*inp_data_iter);
+		bool invalid_code = !IsValid (*inp_data_iter);
 		if (invalid_code) {
 			has_integrity = false;
 			break;
@@ -939,6 +860,10 @@ void NamedStubQuestion::create_display_data_units (AbstractNamedRange * nr_ptr,
 		int start_code, int previous_code, int current_code)
 {
 #if 1
+	cerr << "FIX ME : "
+	     << ", line: " << __LINE__
+	     << ", file: " << __FILE__
+	     << ", function: " << __PRETTY_FUNCTION__ << endl;
 	//vector<stub_pair> & vec= (nr_ptr->stubs);
 	//if (vec.size() == 0) {
 	//	cerr << "runtime error: Impossible !!! stubs with no codes: "

@@ -92,20 +92,14 @@ void DummyArrayQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 { }
 
 
-bool NamedStubQuestion::IsValid(int32_t value)
+bool NamedStubQuestion::IsValid (int32_t value)
 {
-	cerr << "FIX ME : "
-	     << ", line: " << __LINE__
-	     << ", file: " << __FILE__
-	     << ", function: " << __PRETTY_FUNCTION__ << endl;
-	/* 
-	vector<stub_pair> & vec= (nrg_ptr->stubs);
+	vector<stub_pair> & vec = display_result;
 	for (uint32_t j = 0; j < vec.size(); ++j) {
 		if (vec[j].code == value && vec[j].mask) {
 			return true;
 		}
 	}
-	*/
 	return false;
 }
 

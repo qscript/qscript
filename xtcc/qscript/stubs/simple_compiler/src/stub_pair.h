@@ -35,4 +35,24 @@ struct	stub_pair
 	{ }
 };
 
+struct stub_pair_order_asc
+{
+public:
+       bool operator() (const stub_pair & p, const stub_pair & q)
+       {
+               return p.code < q.code;
+       }
+};
+
+
+struct stub_pair_order_desc
+{
+public:
+       bool operator() (const stub_pair & p, const stub_pair & q)
+       {
+               return p.code > q.code;
+       }
+};
+
+
 #endif /* xtcc_stub_pair_h */
