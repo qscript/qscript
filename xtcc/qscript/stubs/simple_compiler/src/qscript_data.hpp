@@ -55,16 +55,17 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 35 "src/qscript_data.ypp"
+#line 44 "qscript_data.ypp"
 
 	int ival;
 	double dval;
 	char name[/* kept getting an error not defined MY_STR_MAX */ 4095];
+	struct AbstractNamedRange * nr_ptr;
 
 
 
 /* Line 1676 of yacc.c  */
-#line 68 "src/qscript_data.hpp"
+#line 69 "qscript_data.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

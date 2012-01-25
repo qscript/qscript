@@ -8,6 +8,9 @@
 #include "question_disk_data.h"
 #include "qscript_data.hpp"
 #include "const_defs.h"
+#include "new_named_range.h"
+#include "stub_pair.h" 
+
 
 
 	//static vector<int> data;
@@ -23,6 +26,12 @@
 		vector<int>* data,
 		vector<int>* array_index_list,
 		const char * s);
+	// All these 3 global variables have to be parameters 
+	// otherwise we are not a re-entrant parser
+	vector <int> no_vec;
+	vector <int> stub_number;
+        vector <stub_pair> stub_list;
+
 %}
 
 %define api.pure
@@ -36,12 +45,19 @@
 	int ival;
 	double dval;
 	char name[/* kept getting an error not defined MY_STR_MAX */ 4095];
+	struct AbstractNamedRange * nr_ptr;
 }
 
 %token <name> NAME
 %token COLON DOLLAR BOUNDS
 %token <ival> INUMBER
 %token  NEWL
+
+%type <nr_ptr> randomized_data_order
+%type <nr_ptr> randomized_data_list
+%type <nr_ptr> randomized_data
+%type <nr_ptr> simple_number_list
+
 
 
 %%
@@ -132,7 +148,94 @@ question: NAME COLON numberlist NEWL {
 		data.clear();
 		//cout << " Got bounds for: " << qno << endl;
 	}
+	| randomized_data_order NEWL {
+	}
 	;
+
+
+randomized_data_order: '{' NAME COLON { cout << "reached here" << endl; ++stub_number[stub_number.size()-1]; stub_number.push_back(0);   } randomized_data_list '}' {
+#if 1
+		AbstractNamedRange * nr_ptr = $5;
+		//cout << "climbing up the chain" << endl;
+		while (nr_ptr->prev_nr) {
+			//cout << "." ;
+			nr_ptr = nr_ptr->prev_nr;
+		}
+		//cout << endl;
+		string grp_name = $2;
+		/* the 0 passed here is the line no. It's important when reporting
+		* syntax errors to the user, but it seems
+		* not so important when reading the randomized order from
+		* the data file
+		*/
+		NamedRangeGroup * nrg = new NamedRangeGroup (0, grp_name, stub_number[stub_number.size()-2]);
+		nrg->groupPtr_ = nr_ptr;
+		$$ = nrg;
+		cout << "NamedRangeGroup: " << grp_name << endl;
+		stub_number.pop_back();
+#endif /* 0 */
+	}
+	;
+
+randomized_data_list: randomized_data {
+#if 1
+			    $$ = $1;
+#endif /* 0 */
+		}
+		| randomized_data_list randomized_data {
+#if 1
+			$1->next_nr = $2;
+			$2->prev_nr = $1;
+			AbstractNamedRange * nr = $2;
+			NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (nr);
+			if (nrg) {
+				cout << "chaining: " << nrg->groupName_ << endl;
+			}
+			$$ = $2;
+#endif /* 0 */
+		}
+		;
+
+
+randomized_data:    simple_number_list ';' {
+		/* the 0 passed here is the line no. It's important when reporting
+		* syntax errors to the user, but it seems
+		* not so important when reading the randomized order from
+		* the data file
+		*/
+#if 1
+			cout << "got randomized_data" << endl;
+			NamedRangeList * nrl = new NamedRangeList(0);
+			nrl->stubs = stub_list;
+			stub_list.clear();
+			$$ = nrl;
+#endif /* 0 */
+		    }
+		    | randomized_data_order   {
+#if 1
+			$$ = $1;
+			cout << " got nested randomized_data_order: " << endl;
+#endif /* 0 */
+		    }
+		    ;
+
+simple_number_list: INUMBER {
+			//no_vec.push_back ($1);
+			string s1 = "dummy";
+			int32_t code=$1;
+			++stub_number[stub_number.size()-1];
+			struct stub_pair pair1 (s1, code, stub_number.back());
+			stub_list.push_back (pair1);
+		  }
+		  | simple_number_list INUMBER {
+			//no_vec.push_back ($2);
+			string s1 = "dummy";
+			int32_t code=$2;
+			++stub_number[stub_number.size()-1];
+			struct stub_pair pair1 (s1, code, stub_number.back());
+			stub_list.push_back (pair1);
+		  }
+		  ;
 
 numberlist: INUMBER {
 		vector<int>& data = * data_ptr;

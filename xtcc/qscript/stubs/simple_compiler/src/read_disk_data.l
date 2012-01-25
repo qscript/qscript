@@ -53,6 +53,30 @@
 	return DOLLAR;
 }
 
+
+"{"	{
+		//if (show_lex_error_context)
+		//	lex_location.AddToCurrentDisplayLine(yytext);
+		//lex_location.IncrementColumn(yyleng);
+		return '{';
+	}
+
+"}"	{
+		//if (show_lex_error_context)
+		//	lex_location.AddToCurrentDisplayLine(yytext);
+		//lex_location.IncrementColumn(yyleng);
+		return '}';
+	}
+
+";" 	{
+		//if (show_lex_error_context)
+		//	lex_location.AddToCurrentDisplayLine(yytext);
+		//lex_location.IncrementColumn(yyleng);
+		return ';';
+	}
+
+
+
 [ \t]+	; /* ignore */
 
 BOUNDS {

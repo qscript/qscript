@@ -347,7 +347,7 @@ extern int read_disk_datalex \
 #undef YY_DECL
 #endif
 
-#line 74 "src/read_disk_data.l"
+#line 99 "read_disk_data.l"
 
 
 #line 354 "read_disk_data_flex_prototypes.h"

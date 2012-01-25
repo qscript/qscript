@@ -1,6 +1,6 @@
-#line 2 "src/read_disk_data.cpp"
+#line 2 "read_disk_data.cpp"
 
-#line 4 "src/read_disk_data.cpp"
+#line 4 "read_disk_data.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -358,8 +358,8 @@ static void yy_fatal_error (yyconst char msg[] ,yyscan_t yyscanner );
 	*yy_cp = '\0'; \
 	yyg->yy_c_buf_p = yy_cp;
 
-#define YY_NUM_RULES 8
-#define YY_END_OF_BUFFER 9
+#define YY_NUM_RULES 11
+#define YY_END_OF_BUFFER 12
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -367,10 +367,11 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static yyconst flex_int16_t yy_accept[21] =
+static yyconst flex_int16_t yy_accept[24] =
     {   0,
-        0,    0,    9,    8,    5,    2,    4,    1,    3,    7,
-        7,    5,    1,    7,    7,    7,    7,    7,    6,    0
+        0,    0,   12,   11,    8,    2,    4,    1,    3,    7,
+       10,   10,    5,    6,    8,    1,   10,   10,   10,   10,
+       10,    9,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -380,15 +381,15 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    2,    1,    1,    1,    4,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    5,    5,    5,
-        5,    5,    5,    5,    5,    5,    5,    6,    1,    1,
-        1,    1,    1,    1,    7,    8,    7,    9,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,   10,   11,    7,
-        7,    7,   12,    7,   13,    7,    7,    7,    7,    7,
-        1,    1,    1,    1,    7,    1,    7,    7,    7,    7,
+        5,    5,    5,    5,    5,    5,    5,    6,    7,    1,
+        1,    1,    1,    1,    8,    9,    8,   10,    8,    8,
+        8,    8,    8,    8,    8,    8,    8,   11,   12,    8,
+        8,    8,   13,    8,   14,    8,    8,    8,    8,    8,
+        1,    1,    1,    1,    8,    1,    8,    8,    8,    8,
 
-        7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
-        7,    7,    7,    7,    7,    7,    7,    7,    7,    7,
-        7,    7,    1,    1,    1,    1,    1,    1,    1,    1,
+        8,    8,    8,    8,    8,    8,    8,    8,    8,    8,
+        8,    8,    8,    8,    8,    8,    8,    8,    8,    8,
+        8,    8,   15,    1,   16,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -405,40 +406,42 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static yyconst flex_int32_t yy_meta[14] =
+static yyconst flex_int32_t yy_meta[17] =
     {   0,
-        1,    1,    1,    1,    2,    1,    2,    2,    2,    2,
-        2,    2,    2
+        1,    1,    1,    1,    2,    1,    1,    2,    2,    2,
+        2,    2,    2,    2,    1,    1
     } ;
 
-static yyconst flex_int16_t yy_base[22] =
+static yyconst flex_int16_t yy_base[25] =
     {   0,
-        0,    0,   24,   25,   21,   25,   25,   17,   25,    0,
-       10,   18,   14,    0,    5,    7,    7,    3,    0,   25,
-       12
+        0,    0,   27,   28,   24,   28,   28,   20,   28,   28,
+        0,   12,   28,   28,   21,   17,    0,    7,    9,    9,
+        5,    0,   28,   15
     } ;
 
-static yyconst flex_int16_t yy_def[22] =
+static yyconst flex_int16_t yy_def[25] =
     {   0,
-       20,    1,   20,   20,   20,   20,   20,   20,   20,   21,
-       21,   20,   20,   21,   21,   21,   21,   21,   21,    0,
-       20
+       23,    1,   23,   23,   23,   23,   23,   23,   23,   23,
+       24,   24,   23,   23,   23,   23,   24,   24,   24,   24,
+       24,   24,    0,   23
     } ;
 
-static yyconst flex_int16_t yy_nxt[39] =
+static yyconst flex_int16_t yy_nxt[45] =
     {   0,
-        4,    5,    6,    7,    8,    9,   10,   11,   10,   10,
-       10,   10,   10,   14,   19,   18,   17,   16,   13,   12,
-       15,   13,   12,   20,    3,   20,   20,   20,   20,   20,
-       20,   20,   20,   20,   20,   20,   20,   20
+        4,    5,    6,    7,    8,    9,   10,   11,   12,   11,
+       11,   11,   11,   11,   13,   14,   17,   22,   21,   20,
+       19,   16,   15,   18,   16,   15,   23,    3,   23,   23,
+       23,   23,   23,   23,   23,   23,   23,   23,   23,   23,
+       23,   23,   23,   23
     } ;
 
-static yyconst flex_int16_t yy_chk[39] =
+static yyconst flex_int16_t yy_chk[45] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    1,   21,   18,   17,   16,   15,   13,   12,
-       11,    8,    5,    3,   20,   20,   20,   20,   20,   20,
-       20,   20,   20,   20,   20,   20,   20,   20
+        1,    1,    1,    1,    1,    1,   24,   21,   20,   19,
+       18,   16,   15,   12,    8,    5,    3,   23,   23,   23,
+       23,   23,   23,   23,   23,   23,   23,   23,   23,   23,
+       23,   23,   23,   23
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -448,8 +451,8 @@ static yyconst flex_int16_t yy_chk[39] =
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
-#line 1 "src/read_disk_data.l"
-#line 2 "src/read_disk_data.l"
+#line 1 "read_disk_data.l"
+#line 2 "read_disk_data.l"
 
 #include "const_defs.h"
 #include "qscript_data.hpp"
@@ -471,7 +474,7 @@ static yyconst flex_int16_t yy_chk[39] =
 		vector<int>* array_index_list_ptr);
 	int read_disk_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
 
-#line 475 "src/read_disk_data.cpp"
+#line 478 "read_disk_data.cpp"
 
 #define INITIAL 0
 
@@ -707,10 +710,10 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 33 "src/read_disk_data.l"
+#line 33 "read_disk_data.l"
 
 
-#line 714 "src/read_disk_data.cpp"
+#line 717 "read_disk_data.cpp"
 
     yylval = yylval_param;
 
@@ -765,13 +768,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 21 )
+				if ( yy_current_state >= 24 )
 					yy_c = yy_meta[(unsigned int) yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_current_state != 20 );
+		while ( yy_current_state != 23 );
 		yy_cp = yyg->yy_last_accepting_cpos;
 		yy_current_state = yyg->yy_last_accepting_state;
 
@@ -793,7 +796,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 35 "src/read_disk_data.l"
+#line 35 "read_disk_data.l"
 {
 	//read_disk_datalval.ival = atoi(read_disk_datatext);
 	yylval_param->ival = atoi(yytext);
@@ -804,7 +807,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 42 "src/read_disk_data.l"
+#line 42 "read_disk_data.l"
 {
 	//cout << "got NEWL" << endl;
 	return NEWL;
@@ -812,7 +815,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 47 "src/read_disk_data.l"
+#line 47 "read_disk_data.l"
 {
 	//cout << "got COLON" << endl;
 	return COLON;
@@ -820,26 +823,56 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 52 "src/read_disk_data.l"
+#line 52 "read_disk_data.l"
 {
 	return DOLLAR;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 56 "src/read_disk_data.l"
-; /* ignore */
+#line 57 "read_disk_data.l"
+{
+		//if (show_lex_error_context)
+		//	lex_location.AddToCurrentDisplayLine(yytext);
+		//lex_location.IncrementColumn(yyleng);
+		return '{';
+	}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 58 "src/read_disk_data.l"
+#line 64 "read_disk_data.l"
+{
+		//if (show_lex_error_context)
+		//	lex_location.AddToCurrentDisplayLine(yytext);
+		//lex_location.IncrementColumn(yyleng);
+		return '}';
+	}
+	YY_BREAK
+case 7:
+YY_RULE_SETUP
+#line 71 "read_disk_data.l"
+{
+		//if (show_lex_error_context)
+		//	lex_location.AddToCurrentDisplayLine(yytext);
+		//lex_location.IncrementColumn(yyleng);
+		return ';';
+	}
+	YY_BREAK
+case 8:
+YY_RULE_SETUP
+#line 80 "read_disk_data.l"
+; /* ignore */
+	YY_BREAK
+case 9:
+YY_RULE_SETUP
+#line 82 "read_disk_data.l"
 {
 	return BOUNDS;
 }
 	YY_BREAK
-case 7:
+case 10:
 YY_RULE_SETUP
-#line 62 "src/read_disk_data.l"
+#line 86 "read_disk_data.l"
 {
 	//if(read_disk_dataleng < MY_STR_MAX) 
 	if(yyleng < MY_STR_MAX) {
@@ -853,12 +886,12 @@ YY_RULE_SETUP
 	}
 }
 	YY_BREAK
-case 8:
+case 11:
 YY_RULE_SETUP
-#line 75 "src/read_disk_data.l"
+#line 99 "read_disk_data.l"
 ECHO;
 	YY_BREAK
-#line 862 "src/read_disk_data.cpp"
+#line 895 "read_disk_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1153,7 +1186,7 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 21 )
+			if ( yy_current_state >= 24 )
 				yy_c = yy_meta[(unsigned int) yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
@@ -1182,11 +1215,11 @@ static int yy_get_next_buffer (yyscan_t yyscanner)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 21 )
+		if ( yy_current_state >= 24 )
 			yy_c = yy_meta[(unsigned int) yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 20);
+	yy_is_jam = (yy_current_state == 23);
 
 	return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1984,7 +2017,7 @@ void read_disk_datafree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 75 "src/read_disk_data.l"
+#line 99 "read_disk_data.l"
 
 
 
