@@ -1,0 +1,57 @@
+test_fix_and_recode
+{
+
+stubs brand_list =
+	"brand 1" 1
+	"brand 2" 2
+	"brand 3" 3
+	"brand 4" 4
+	"brand 5" 5
+	"brand 6" 6
+	"brand 7" 7
+	"brand 8" 8
+	"brand 9" 9
+	"brand 10" 10
+	"brand 11" 11
+	;
+	setall (brand_list);
+
+q1	"Primary Brand"
+	sp int32_t brand_list;
+
+	setdel (brand_list, q1);
+
+q2	"Secondary Brand"
+	sp int32_t brand_list;
+
+q3	"Rate your primary brand"
+	sp int32_t (1-5);
+
+q4	"Rate your Secondary brand"
+	sp int32_t (1-5);
+
+	int32_t i1=0;
+
+	for (i1 = 0; i1 < 10; i1 = i1 + 1) {
+
+q5		"Attribute battery: Primary brand"
+		sp int32_t (1-5);
+
+	}
+
+	for (i1 = 0; i1 < 10; i1 = i1 + 1) {
+
+q6		"Attribute battery: Secondary brand"
+		sp int32_t (1-5);
+
+	}
+
+q7	"Recommend your primary brand"
+	sp int32_t (1-5);
+
+q8	"Recommend your Secondary brand"
+	sp int32_t (1-5);
+
+	fix q3 q4 q5 q6 q7 q8 drivers q1 q2;
+
+}
