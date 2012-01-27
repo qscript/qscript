@@ -44,7 +44,10 @@
 	QuestionAttributes question_attributes;
 	map <string, int> map_duplicate_stub_entry_check;
 	set< int> set_duplicate_stub_entry_check;
-
+	vector <std::string> name_list;
+	vector <std::string> recode_list;
+	vector <std::string> driver_list;
+	
 
 %}
 
@@ -90,6 +93,8 @@
 %token COLUMN
 %token ISANSWERED
 %token NEWCARD
+%token FIX
+%token DRIVERS
 
 
 %token '['
@@ -124,6 +129,7 @@
 %type <stmt> goto_stmt
 %type <stmt> clear_stmt
 %type <stmt> column_stmt
+%type <stmt> fix_and_recode_stmt
 %type <stmt> newcard_stmt
  /*%type <stmt> attributes	*/
 %type <stmt> stubs
@@ -303,6 +309,7 @@ stmt:	question
 	| goto_stmt
 	| clear_stmt
 	| column_stmt
+	| fix_and_recode_stmt
 	| newcard_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
@@ -975,7 +982,26 @@ stub_manip_stmts:
 	}
 	;
 
+fix_and_recode_stmt: FIX name_list { recode_list = name_list; name_list.clear(); } DRIVERS name_list ';' 
+	{
+		driver_list = name_list ;
+		using qscript_parser::line_no;
+		if (recode_list.size() % driver_list.size() != 0) {
+			ostringstream err_mesg;
+			err_mesg << "No of variables in recode list should be exactly divisible by no of variables in driver_list ";
+			print_err(compiler_sem_err,
+					err_mesg.str().c_str(),
+					qscript_parser::line_no, __LINE__, __FILE__);
+		}
+		$$ = new FixAndRecodeStatement (
+			FIX_AND_RECODE_STMT, line_no,
+			recode_list, driver_list);
+	}
+	;
 
+name_list: NAME { name_list.push_back($1); }
+	| name_list NAME { name_list.push_back($2); }
+	;
 
 
 %%

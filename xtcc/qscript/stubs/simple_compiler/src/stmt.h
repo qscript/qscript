@@ -581,5 +581,25 @@ struct NewCardStatement: public AbstractStatement
 	NewCardStatement(const NewCardStatement&);
 };
 
+struct FixAndRecodeStatement: public AbstractStatement
+{
+	vector <string> recode_vec,
+			driver_vec;
+	FixAndRecodeStatement(DataType l_type,
+			int32_t l_line_number,
+			vector <string> l_recode_name_vec,
+			vector <string> l_driver_vec)
+		: AbstractStatement (l_type, l_line_number),
+		  recode_vec (l_recode_name_vec),
+		  driver_vec (l_driver_vec)
+	{ }
+	void GenerateCode(StatementCompiledCode & code)
+	{
+		if (next_) {
+			next_->GenerateCode (code);
+		}
+	}
+};
+
 
 #endif /* stmt_h */
