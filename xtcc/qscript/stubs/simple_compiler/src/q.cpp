@@ -587,7 +587,7 @@ static const yytype_uint16 yyrline[] =
      769,   787,   788,   793,   799,   804,   809,   810,   814,   825,
      831,   835,   836,   839,   851,   857,   857,   878,   879,   882,
      913,   948,   952,   956,   960,   964,   970,   977,   980,   985,
-     985,  1002,  1003
+     985,  1004,  1005
 };
 #endif
 
@@ -3000,30 +3000,32 @@ yyreduce:
 					err_mesg.str().c_str(),
 					qscript_parser::line_no, __LINE__, __FILE__);
 		}
-		(yyval.stmt) = new FixAndRecodeStatement (
+		FixAndRecodeStatement * fix_and_recode_stmt = new FixAndRecodeStatement (
 			FIX_AND_RECODE_STMT, line_no,
 			recode_list, driver_list);
+		qscript_parser::recode_driver_vec.push_back (fix_and_recode_stmt);
+		(yyval.stmt) = fix_and_recode_stmt;
 	;}
     break;
 
   case 121:
 
 /* Line 1455 of yacc.c  */
-#line 1002 "src/q.ypp"
+#line 1004 "src/q.ypp"
     { name_list.push_back((yyvsp[(1) - (1)].name)); ;}
     break;
 
   case 122:
 
 /* Line 1455 of yacc.c  */
-#line 1003 "src/q.ypp"
+#line 1005 "src/q.ypp"
     { name_list.push_back((yyvsp[(2) - (2)].name)); ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 3027 "src/q.cpp"
+#line 3029 "src/q.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3235,7 +3237,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 1007 "src/q.ypp"
+#line 1009 "src/q.ypp"
 
 
 
