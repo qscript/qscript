@@ -1580,6 +1580,8 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 {
 	recode_edit.program_code 
+		<< "\t\tstring variable_defns_fname (string(\"variable\"));\n"
+		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring edit_file_name (string(\"edit.qin\"));\n"
 		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		;
@@ -1601,11 +1603,21 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 				recode_edit.program_code
 					<< "\t\tfor (int i=0; i < " << driver_question_name 
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
-					<< "\t\t\t edit_file << " 
+					<< "\t\t\t variable_file << " 
 					<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
 					<< " << " << driver_question_name 
 					<< "->nr_ptr->stubs[i].stub_text << endl;\n"
+
+					<< "\t\t\t edit_file << \"\tif (\" << " << driver_question_name << "->questionName_ << \" .eq. \"" 
+					<< " << " << driver_question_name 
+					<< "->nr_ptr->stubs[i].code << \")\\n\"" << endl
+					<< "\t\t\t << \"++\\t\"" << " <<  \"" 
+					<< rec_question_name << "="
+					<< rec_question_name 
+					<< "\"" << endl
+					<< "\t\t\t<< endl;\n"
 					<< "\t\t}\n";
+
 			}
 		}
 	}
