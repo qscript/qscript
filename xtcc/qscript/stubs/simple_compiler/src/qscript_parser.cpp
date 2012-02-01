@@ -140,6 +140,7 @@ void print_summary_axis(FILE * script);
 void print_prompt_user_for_serial_no(FILE * script);
 void print_ncurses_include_files (FILE * script);
 void print_ncurses_func_prototypes (FILE * script);
+void print_GetQuestionMapEntry(FILE * script);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -207,6 +208,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
+	print_GetQuestionMapEntry(script);
+
 	//print_close(script, code.program_code, ncurses_flag);
 
 	if (program_options_ns::ncurses_flag)
@@ -346,7 +349,8 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
-
+	fprintf(script, "qtm_data_file_ns::QtmDataDiskMap* GetQuestionMapEntry(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,\n");
+	fprintf(script, "		string name);\n");
 	fprintf(script, "	WINDOW 	* question_window = 0,\n"
 			"		* stub_list_window = 0,\n"
 			"		* data_entry_window = 0,\n"
@@ -1597,6 +1601,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 			for (int j2=0; j2 < driver_vec.size(); ++j2) {
 				string driver_question_name = driver_vec[j2];
 				string rec_question_name = recode_vec[j2 + j1];
+
 				cout << __PRETTY_FUNCTION__ << endl
 					<< "rec_question_name: " << rec_question_name
 					<< endl;
@@ -1608,6 +1613,66 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 					<< " << " << driver_question_name 
 					<< "->nr_ptr->stubs[i].stub_text << endl;\n"
 
+
+					<< "\t\t\tvariable_file << \""
+					<< rec_question_name
+					<< "\" << \"_\" << "
+					<< driver_question_name
+					<< "->nr_ptr->stubs[i].stub_text << endl;" 
+					<< endl
+					<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+					<< driver_question_name
+					<< "_map_entry =\n"
+					<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+					<< driver_question_name << "->questionName_);" << endl
+					<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+					<< rec_question_name
+					<< "_map_entry =\n"
+					<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+					<< rec_question_name << "->questionName_);" << endl
+					<< "\t\t\tif (" << driver_question_name << "_map_entry"
+					<< " && " << rec_question_name << "_map_entry) {\n"
+
+					<< "\t\t\t\tedit_file << \"/* \" << "
+					<< driver_question_name
+					<< "->questionName_ \n"
+					<< "\t\t\t\t\t<< \" column: c(\" << "
+					<< driver_question_name << "_map_entry->startPosition_ + 1\n"
+					<< "\t\t\t\t\t<< \", \" << "
+					<< driver_question_name << "_map_entry->startPosition_ + "
+					<< driver_question_name << "_map_entry->totalLength_\n"
+					<< "\t\t\t\t\t<< \")\"" << endl
+					<< "\t\t\t\t\t<< endl;" << endl
+					<< "\t\t\t\tedit_file << \"	if ( \"" << endl
+					<< "\t\t\t\t\t<< \"c(\" " << endl
+					<< "\t\t\t\t\t<< " << driver_question_name
+					<< "_map_entry->startPosition_ + 1" << endl
+					<< "\t\t\t\t\t<< \", \"" << endl
+					<< "\t\t\t\t\t<< " 
+					<< driver_question_name << "_map_entry->startPosition_ + "
+					<< driver_question_name 
+					<< "_map_entry->totalLength_ << \")\"" << endl
+					<< "\t\t\t\t\t<< \" .eq. \" << "
+					<< driver_question_name
+					<< "->nr_ptr->stubs[i].code" << endl
+					<< "\t\t\t\t\t<< \")\\n\"" << endl
+					<< "\t\t\t\t\t<< \"++\\t\" <<  \""
+					<< rec_question_name << "_\"" << endl
+					<< "\t\t\t\t\t<< "
+					<< driver_question_name
+					<< "->nr_ptr->stubs[i].stub_text " << endl
+					<< "\t\t\t\t\t<< \"=\"" << endl
+					<< "\t\t\t\t\t<< \"c(\" " << endl
+					<< "\t\t\t\t\t<< "
+					<< rec_question_name
+					<< "_map_entry->startPosition_ + 1" << endl
+					<< "\t\t\t\t\t<< \", \"" << endl
+					<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry->startPosition_ + "
+					<< rec_question_name << "_map_entry->totalLength_ << \")\"" << endl
+					<< "\t\t\t\t\t<< endl;" << endl 
+				/*
+					;
+
 					<< "\t\t\t edit_file << \"\tif (\" << " << driver_question_name << "->questionName_ << \" .eq. \"" 
 					<< " << " << driver_question_name 
 					<< "->nr_ptr->stubs[i].code << \")\\n\"" << endl
@@ -1616,6 +1681,8 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 					<< rec_question_name 
 					<< "\"" << endl
 					<< "\t\t\t<< endl;\n"
+					*/
+					<< "\t\t}\n"
 					<< "\t\t}\n";
 
 			}
@@ -2312,7 +2379,21 @@ void print_ncurses_func_prototypes (FILE * script)
 	fprintf(script, "void define_some_pd_curses_keys();\n");
 }
 
+void print_GetQuestionMapEntry(FILE * script)
+{
 
+	fprintf(script, "qtm_data_file_ns::QtmDataDiskMap* GetQuestionMapEntry(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,\n");
+	fprintf(script, "			string name)\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	for (int i=0; i < qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf(script, "		if (qtm_datafile_question_disk_map[i]->q->questionName_ == name) {\n");
+	fprintf(script, "			return qtm_datafile_question_disk_map[i];\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	return 0;\n");
+	fprintf(script, "}\n");
+
+}
 
 
 /* end of namespace */
