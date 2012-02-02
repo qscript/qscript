@@ -58,7 +58,7 @@ q9	"Recommend your primary brand"
 q10	"Recommend your Secondary brand"
 	mp(10) int32_t (1-99);
 
-	//fix q3 q4 q5 q6 q7 q8 drivers q1 q2;
-	fix q3 q4 q7 q8 q9 q10 drivers q1 q2;
+	fix q3 q4 q5 q6 q7 q8 q9 q10 drivers q1 q2;
+	//fix q3 q4 q7 q8 q9 q10 drivers q1 q2;
 
 }

@@ -65,6 +65,7 @@ struct Scope
 	AbstractStatement* insert(const char * name, DataType dt, AbstractQuestion * l_q /*, int32_t line_no*/);
 	void print_scope(const string & stack_name, vector<string> &push_stack, vector<string>& pop_stack);
 	void print_scope(vector<ActiveVariableInfo*> & output_info);
+	SymbolTableEntry * find (string name);
 	~Scope();
 };
 

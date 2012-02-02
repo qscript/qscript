@@ -8,6 +8,7 @@
 #include "qscript_debug.h"
 #include "TempNameGenerator.h"
 #include "utils.h"
+#include "scope.h"
 
 
 namespace program_options_ns {
@@ -141,6 +142,7 @@ void print_prompt_user_for_serial_no(FILE * script);
 void print_ncurses_include_files (FILE * script);
 void print_ncurses_func_prototypes (FILE * script);
 void print_GetQuestionMapEntry(FILE * script);
+void print_GetQuestionMapEntryArrayQ (FILE * script);
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -209,6 +211,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	//fflush(script);
 	fprintf(script, "};\n");
 	print_GetQuestionMapEntry(script);
+	print_GetQuestionMapEntryArrayQ(script);
 
 	//print_close(script, code.program_code, ncurses_flag);
 
@@ -350,6 +353,8 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 	fprintf(script, "qtm_data_file_ns::QtmDataDiskMap* GetQuestionMapEntry(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,\n");
+	fprintf(script, "		string name);\n");
+	fprintf(script, "qtm_data_file_ns::QtmDataDiskMap* GetQuestionMapEntryArrayQ(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,\n");
 	fprintf(script, "		string name);\n");
 	fprintf(script, "	WINDOW 	* question_window = 0,\n"
 			"		* stub_list_window = 0,\n"
@@ -1596,94 +1601,136 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 
 		vector <string> & recode_vec = recode_driver_vec[i]->recode_vec,
 				& driver_vec = recode_driver_vec[i]->driver_vec;
-		int no_loops_in_qnre = recode_vec.size() / driver_vec.size();
+		int no_loops_in_qnre =  driver_vec.size();
 		for (int j1 = 0; j1 < recode_vec.size(); j1 += no_loops_in_qnre) {
 			for (int j2=0; j2 < driver_vec.size(); ++j2) {
 				string driver_question_name = driver_vec[j2];
 				string rec_question_name = recode_vec[j2 + j1];
+				SymbolTableEntry * se = active_scope_list[0]->find (rec_question_name);
+				if (se) {
+					recode_edit.program_code << "/* "
+						<< "found : " << rec_question_name
+						<< " in symbol table: " ;
+					if (se->type_ == QUESTION_TYPE) {
+						/* If you need more than 3 levels of indentation
+						   you're screwed and need to re-think your function
+						   - Linux Kernel Documentation, indentation rules
+						   ....
+						   so I definitely need to refactor this into a function later
+						   */
+						recode_edit.program_code 
+							<< " normal question" << endl;
+						recode_edit.program_code << "*/" << endl;
+
+						recode_edit.program_code
+							<< "\t\tfor (int i=0; i < " << driver_question_name 
+							<< "->nr_ptr->stubs.size(); ++i) {\n"
+							<< "\t\t\t variable_file << " 
+							<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
+							<< " << " << driver_question_name 
+							<< "->nr_ptr->stubs[i].stub_text << endl;\n"
+							<< "\t\t\tvariable_file << \""
+							<< rec_question_name
+							<< "\" << \"_\" << "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text << endl;" 
+							<< endl
+							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+							<< driver_question_name
+							<< "_map_entry =\n"
+							<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+							<< driver_question_name << "->questionName_);" << endl
+							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+							<< rec_question_name
+							<< "_map_entry =\n"
+							<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+							<< rec_question_name << "->questionName_);" << endl
+							<< "\t\t\tif (" << driver_question_name << "_map_entry"
+							<< " && " << rec_question_name << "_map_entry) {\n"
+							<< "\t\t\t\tedit_file << \"/* \" << "
+							<< driver_question_name
+							<< "->questionName_ \n"
+							<< "\t\t\t\t\t<< \" column: c(\" << "
+							<< driver_question_name << "_map_entry->startPosition_ + 1\n"
+							<< "\t\t\t\t\t<< \", \" << "
+							<< driver_question_name << "_map_entry->startPosition_ + "
+							<< driver_question_name << "_map_entry->totalLength_\n"
+							<< "\t\t\t\t\t<< \")\"" << endl
+							<< "\t\t\t\t\t<< endl;" << endl
+							<< "\t\t\t\tedit_file << \"	if ( \"" << endl
+							<< "\t\t\t\t\t<< \"c(\" " << endl
+							<< "\t\t\t\t\t<< " << driver_question_name
+							<< "_map_entry->startPosition_ + 1" << endl
+							<< "\t\t\t\t\t<< \", \"" << endl
+							<< "\t\t\t\t\t<< " 
+							<< driver_question_name << "_map_entry->startPosition_ + "
+							<< driver_question_name 
+							<< "_map_entry->totalLength_ << \")\"" << endl
+							<< "\t\t\t\t\t<< \" .eq. \" << "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].code" << endl
+							<< "\t\t\t\t\t<< \")\\n\"" << endl
+							<< "\t\t\t\t\t<< \"++\\t\" <<  \""
+							<< rec_question_name << "_\"" << endl
+							<< "\t\t\t\t\t<< "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text " << endl
+							<< "\t\t\t\t\t<< \"=\"" << endl
+							<< "\t\t\t\t\t<< \"c(\" " << endl
+							<< "\t\t\t\t\t<< "
+							<< rec_question_name
+							<< "_map_entry->startPosition_ + 1" << endl
+							<< "\t\t\t\t\t<< \", \"" << endl
+							<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry->startPosition_ + "
+							<< rec_question_name << "_map_entry->totalLength_ << \")\"" << endl
+							<< "\t\t\t\t\t<< endl;" << endl 
+							<< "\t\t\t}\n"
+							<< "\t\t}\n";
+					} else if (se->type_ == QUESTION_ARR_TYPE) {
+						recode_edit.program_code 
+							<< " array question" << endl;
+						recode_edit.program_code << "*/" << endl;
+
+						recode_edit.program_code
+							<< "\t\tfor (int i=0; i < " << driver_question_name 
+							<< "->nr_ptr->stubs.size(); ++i) {\n"
+							<< "\t\t\t variable_file << " 
+							<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
+							<< " << " << driver_question_name 
+							<< "->nr_ptr->stubs[i].stub_text << endl;\n"
+							<< "\t\t\tvariable_file << \""
+							<< rec_question_name
+							<< "\" << \"_\" << "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text << endl;" 
+							<< endl
+							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+							<< driver_question_name
+							<< "_map_entry =\n"
+							<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+							<< driver_question_name << "->questionName_);" << endl
+							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+							<< rec_question_name
+							<< "_map_entry =\n"
+							<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+							<< rec_question_name << "->questionName_);" << endl
+							<< "\t\t}\n";
+					} else {
+						recode_edit.program_code 
+							<< " not a  question" << endl;
+						recode_edit.program_code << "*/" << endl;
+					}
+				} else {
+					recode_edit.program_code << "/* "
+						<< "NOT found : " << rec_question_name
+						<< " in symbol table: " 
+						<< "*/"
+						<< endl ;
+				}
 
 				cout << __PRETTY_FUNCTION__ << endl
 					<< "rec_question_name: " << rec_question_name
 					<< endl;
-				recode_edit.program_code
-					<< "\t\tfor (int i=0; i < " << driver_question_name 
-					<< "->nr_ptr->stubs.size(); ++i) {\n"
-					<< "\t\t\t variable_file << " 
-					<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
-					<< " << " << driver_question_name 
-					<< "->nr_ptr->stubs[i].stub_text << endl;\n"
-
-
-					<< "\t\t\tvariable_file << \""
-					<< rec_question_name
-					<< "\" << \"_\" << "
-					<< driver_question_name
-					<< "->nr_ptr->stubs[i].stub_text << endl;" 
-					<< endl
-					<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
-					<< driver_question_name
-					<< "_map_entry =\n"
-					<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
-					<< driver_question_name << "->questionName_);" << endl
-					<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
-					<< rec_question_name
-					<< "_map_entry =\n"
-					<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
-					<< rec_question_name << "->questionName_);" << endl
-					<< "\t\t\tif (" << driver_question_name << "_map_entry"
-					<< " && " << rec_question_name << "_map_entry) {\n"
-
-					<< "\t\t\t\tedit_file << \"/* \" << "
-					<< driver_question_name
-					<< "->questionName_ \n"
-					<< "\t\t\t\t\t<< \" column: c(\" << "
-					<< driver_question_name << "_map_entry->startPosition_ + 1\n"
-					<< "\t\t\t\t\t<< \", \" << "
-					<< driver_question_name << "_map_entry->startPosition_ + "
-					<< driver_question_name << "_map_entry->totalLength_\n"
-					<< "\t\t\t\t\t<< \")\"" << endl
-					<< "\t\t\t\t\t<< endl;" << endl
-					<< "\t\t\t\tedit_file << \"	if ( \"" << endl
-					<< "\t\t\t\t\t<< \"c(\" " << endl
-					<< "\t\t\t\t\t<< " << driver_question_name
-					<< "_map_entry->startPosition_ + 1" << endl
-					<< "\t\t\t\t\t<< \", \"" << endl
-					<< "\t\t\t\t\t<< " 
-					<< driver_question_name << "_map_entry->startPosition_ + "
-					<< driver_question_name 
-					<< "_map_entry->totalLength_ << \")\"" << endl
-					<< "\t\t\t\t\t<< \" .eq. \" << "
-					<< driver_question_name
-					<< "->nr_ptr->stubs[i].code" << endl
-					<< "\t\t\t\t\t<< \")\\n\"" << endl
-					<< "\t\t\t\t\t<< \"++\\t\" <<  \""
-					<< rec_question_name << "_\"" << endl
-					<< "\t\t\t\t\t<< "
-					<< driver_question_name
-					<< "->nr_ptr->stubs[i].stub_text " << endl
-					<< "\t\t\t\t\t<< \"=\"" << endl
-					<< "\t\t\t\t\t<< \"c(\" " << endl
-					<< "\t\t\t\t\t<< "
-					<< rec_question_name
-					<< "_map_entry->startPosition_ + 1" << endl
-					<< "\t\t\t\t\t<< \", \"" << endl
-					<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry->startPosition_ + "
-					<< rec_question_name << "_map_entry->totalLength_ << \")\"" << endl
-					<< "\t\t\t\t\t<< endl;" << endl 
-				/*
-					;
-
-					<< "\t\t\t edit_file << \"\tif (\" << " << driver_question_name << "->questionName_ << \" .eq. \"" 
-					<< " << " << driver_question_name 
-					<< "->nr_ptr->stubs[i].code << \")\\n\"" << endl
-					<< "\t\t\t << \"++\\t\"" << " <<  \"" 
-					<< rec_question_name << "="
-					<< rec_question_name 
-					<< "\"" << endl
-					<< "\t\t\t<< endl;\n"
-					*/
-					<< "\t\t}\n"
-					<< "\t\t}\n";
 
 			}
 		}
@@ -2394,6 +2441,57 @@ void print_GetQuestionMapEntry(FILE * script)
 	fprintf(script, "}\n");
 
 }
+
+void print_GetQuestionMapEntryArrayQ (FILE * script)
+{
+	fprintf (script, "\n");
+	fprintf (script, "vector <qtm_data_file_ns::QtmDataDiskMap*> GetQuestionMapEntryArrayQ\n");
+	fprintf (script, "	(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,\n");
+	fprintf (script, "			string name)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	string dummy_output_filename (string(\"dummy.output\"));\n");
+	fprintf (script, "	fstream dummy_output_file(dummy_output_filename.c_str(), ios_base::out|ios_base::app);\n");
+	fprintf (script, "	dummy_output_file << \"searching for : \" << name << endl;\n");
+	fprintf (script, "	vector <qtm_data_file_ns::QtmDataDiskMap*> result ;\n");
+	fprintf (script, "	for (int i=0; i < qtm_datafile_question_disk_map.size(); ++i) {\n");
+	fprintf (script, "		string s1 = qtm_datafile_question_disk_map[i]->q->questionName_ ;\n");
+	fprintf (script, "		dummy_output_file << \"questionName_: \" << s1 << endl;\n");
+	fprintf (script, "		string s3 = \"\";\n");
+	fprintf (script, "		if (s1.length() > name.length()) {\n");
+	fprintf (script, "			s3 = s1.substr(0, name.length());\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "		dummy_output_file << s3 << endl;\n");
+	fprintf (script, "		if (qtm_datafile_question_disk_map[i]->q->questionName_ == name) {\n");
+	fprintf (script, "			result.push_back(qtm_datafile_question_disk_map[i]);\n");
+	fprintf (script, "			dummy_output_file << \"added to result\" << endl;\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	return result;\n");
+	fprintf (script, "}\n");
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* end of namespace */

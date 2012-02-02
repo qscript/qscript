@@ -303,3 +303,15 @@ void Scope::print_scope(vector<ActiveVariableInfo*> & output_info)
 		output_info.push_back(sym_ptr->GetVarInfo());
 	}
 }
+
+SymbolTableEntry * Scope::find (string name)
+{
+	
+	map<string,SymbolTableEntry*>::iterator se_entry_iter =  SymbolTable.find (name);
+	if (se_entry_iter == SymbolTable.end()) {
+		return 0;
+	} else {
+		return se_entry_iter->second;
+	}
+}
+
