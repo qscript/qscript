@@ -354,7 +354,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 	fprintf(script, "qtm_data_file_ns::QtmDataDiskMap* GetQuestionMapEntry(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,\n");
 	fprintf(script, "		string name);\n");
-	fprintf(script, "qtm_data_file_ns::QtmDataDiskMap* GetQuestionMapEntryArrayQ(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,\n");
+	fprintf(script, "vector<qtm_data_file_ns::QtmDataDiskMap*> GetQuestionMapEntryArrayQ(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,\n");
 	fprintf(script, "		string name);\n");
 	fprintf(script, "	WINDOW 	* question_window = 0,\n"
 			"		* stub_list_window = 0,\n"
@@ -1709,11 +1709,11 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "_map_entry =\n"
 							<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
 							<< driver_question_name << "->questionName_);" << endl
-							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+							<< "\t\t\tvector<qtm_data_file_ns::QtmDataDiskMap *> "
 							<< rec_question_name
 							<< "_map_entry =\n"
-							<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
-							<< rec_question_name << "->questionName_);" << endl
+							<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
+							<< rec_question_name << "\");" << endl
 							<< "\t\t}\n";
 					} else {
 						recode_edit.program_code 
