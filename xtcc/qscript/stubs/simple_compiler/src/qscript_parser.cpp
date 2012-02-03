@@ -1628,12 +1628,12 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t variable_file << " 
 							<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
 							<< " << " << driver_question_name 
-							<< "->nr_ptr->stubs[i].stub_text << endl;\n"
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;\n"
 							<< "\t\t\tvariable_file << \""
 							<< rec_question_name
 							<< "\" << \"_\" << "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text << endl;" 
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;" 
 							<< endl
 							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
 							<< driver_question_name
@@ -1674,7 +1674,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name << "_\"" << endl
 							<< "\t\t\t\t\t<< "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text " << endl
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() " << endl
 							<< "\t\t\t\t\t<< \"=\"" << endl
 							<< "\t\t\t\t\t<< \"c(\" " << endl
 							<< "\t\t\t\t\t<< "
@@ -1697,12 +1697,12 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t variable_file << " 
 							<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
 							<< " << " << driver_question_name 
-							<< "->nr_ptr->stubs[i].stub_text << endl;\n"
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;\n"
 							<< "\t\t\tvariable_file << \""
 							<< rec_question_name
 							<< "\" << \"_\" << "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text << endl;" 
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;" 
 							<< endl
 							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
 							<< driver_question_name
@@ -1754,7 +1754,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 						recode_edit.program_code
 							<< "\t\t\t\t\tedit_file << \"_\" << "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text " << endl
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() " << endl
 							<< "\t\t\t\t\t<< \"=\"" << endl
 							<< "\t\t\t\t\t<< \"c(\" " << endl
 							<< "\t\t\t\t\t<< "

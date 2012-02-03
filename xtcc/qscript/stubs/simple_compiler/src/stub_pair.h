@@ -9,6 +9,8 @@
 
 #include <sys/types.h>
 #include <string>
+#include <cctype>
+
 using std::string;
 struct	stub_pair
 {
@@ -39,6 +41,20 @@ struct	stub_pair
 		return *this;
 	}
 	*/
+	string stub_text_as_var_name()
+	{
+		string var_name;
+		for (int i=0; i<stub_text.length(); ++i) {
+			if (isalnum (stub_text[i])) {
+				var_name.push_back (stub_text[i]);
+			} else if (ispunct (stub_text[i])) {
+			} else if (isspace (stub_text[i])) {
+				var_name.push_back ('_');
+			} else {
+			}
+		}
+		return var_name;
+	}
 };
 
 struct stub_pair_order_asc
