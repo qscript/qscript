@@ -1714,6 +1714,58 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "_map_entry =\n"
 							<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
 							<< rec_question_name << "\");" << endl
+							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
+							<< "_map_entry.size(); ++i1) {" << endl
+							<< "\t\t\t\t\tif (" << driver_question_name << "_map_entry"
+							<< " && " << rec_question_name << "_map_entry.size() > 0) {\n"
+							<< "\t\t\t\t\tedit_file << \"/* \" << "
+							<< driver_question_name
+							<< "->questionName_ \n"
+							<< "\t\t\t\t\t<< \" column: c(\" << "
+							<< driver_question_name << "_map_entry->startPosition_ + 1\n"
+							<< "\t\t\t\t\t<< \", \" << "
+							<< driver_question_name << "_map_entry->startPosition_ + "
+							<< driver_question_name << "_map_entry->totalLength_\n"
+							<< "\t\t\t\t\t<< \")\"" << endl
+							<< "\t\t\t\t\t<< endl;" << endl
+							<< "\t\t\t\t\tedit_file << \"	if ( \"" << endl
+							<< "\t\t\t\t\t<< \"c(\" " << endl
+							<< "\t\t\t\t\t<< " << driver_question_name
+							<< "_map_entry->startPosition_ + 1" << endl
+							<< "\t\t\t\t\t<< \", \"" << endl
+							<< "\t\t\t\t\t<< " 
+							<< driver_question_name << "_map_entry->startPosition_ + "
+							<< driver_question_name 
+							<< "_map_entry->totalLength_ << \")\"" << endl
+							<< "\t\t\t\t\t<< \" .eq. \" << "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].code" << endl
+							<< "\t\t\t\t\t<< \")\\n\"" << endl
+							<< "\t\t\t\t\t<< \"++\\t\" <<  \""
+							<< rec_question_name << "\";" << endl;
+						recode_edit.program_code 
+							<< "\t\t\t\t\tfor (int i2=0; i2 < "
+							<< rec_question_name << "_map_entry[i1]->"
+							<< "q->loop_index_values.size(); ++i2) {\n"
+							<< "\t\t\t\t\t\tedit_file << \"_\" << "
+							<< rec_question_name << "_map_entry[i1]->q->"
+							<< "loop_index_values[i2];\n"
+							<< "\t\t\t\t\t}\n";
+						recode_edit.program_code
+							<< "\t\t\t\t\tedit_file << \"_\""
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text " << endl
+							<< "\t\t\t\t\t<< \"=\"" << endl
+							<< "\t\t\t\t\t<< \"c(\" " << endl
+							<< "\t\t\t\t\t<< "
+							<< rec_question_name
+							<< "_map_entry[i1]->startPosition_ + 1" << endl
+							<< "\t\t\t\t\t<< \", \"" << endl
+							<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry[i1]->startPosition_ + "
+							<< rec_question_name << "_map_entry[i1]->totalLength_ << \")\"" << endl
+							<< "\t\t\t\t\t<< endl;" << endl 
+							<< "\t\t\t\t}" << endl
+							<< "\t\t\t}" << endl
 							<< "\t\t}\n";
 					} else {
 						recode_edit.program_code 
