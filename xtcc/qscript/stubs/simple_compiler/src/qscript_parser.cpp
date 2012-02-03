@@ -1752,7 +1752,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "loop_index_values[i2];\n"
 							<< "\t\t\t\t\t}\n";
 						recode_edit.program_code
-							<< "\t\t\t\t\tedit_file << \"_\""
+							<< "\t\t\t\t\tedit_file << \"_\" << "
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].stub_text " << endl
 							<< "\t\t\t\t\t<< \"=\"" << endl
