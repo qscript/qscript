@@ -1687,7 +1687,10 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< leader_rec_question_name << "_\"" << endl
 							<< "\t\t\t\t\t<< "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() " << endl
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
+							<< rec_question_name 
+							<< "_map_entry->totalLength_"
+							<< " << \")\" "
 							<< "\t\t\t\t\t<< \"=\"" << endl
 							<< "\t\t\t\t\t<< \"c(\" " << endl
 							<< "\t\t\t\t\t<< "
@@ -1783,7 +1786,10 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 						recode_edit.program_code
 							<< "\t\t\t\t\tedit_file << \"_\" << "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() " << endl
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
+							<< rec_question_name 
+							<< "_map_entry[i1]->totalLength_"
+							<< " << \")\" "
 							<< "\t\t\t\t\t<< \"=\"" << endl
 							<< "\t\t\t\t\t<< \"c(\" " << endl
 							<< "\t\t\t\t\t<< "
