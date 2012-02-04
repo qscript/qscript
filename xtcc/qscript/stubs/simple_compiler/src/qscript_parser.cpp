@@ -1631,7 +1631,10 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;\n"
 							<< "\t\t\tvariable_file << \""
 							<< rec_question_name
-							<< "\" << \"_\" << "
+							<< "\" << \"_\" << ";
+
+						recode_edit.program_code 
+
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;" 
 							<< endl
@@ -1694,16 +1697,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 						recode_edit.program_code
 							<< "\t\tfor (int i=0; i < " << driver_question_name 
 							<< "->nr_ptr->stubs.size(); ++i) {\n"
-							<< "\t\t\t variable_file << " 
-							<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
-							<< " << " << driver_question_name 
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;\n"
-							<< "\t\t\tvariable_file << \""
-							<< rec_question_name
-							<< "\" << \"_\" << "
-							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;" 
-							<< endl
+
 							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
 							<< driver_question_name
 							<< "_map_entry =\n"
@@ -1714,8 +1708,29 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "_map_entry =\n"
 							<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
 							<< rec_question_name << "\");" << endl
+							//<< "\t\t\t variable_file << " 
+							//<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
+							//<< " << " << driver_question_name 
+							//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;\n"
+
 							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
-							<< "_map_entry.size(); ++i1) {" << endl
+							<< "_map_entry.size(); ++i1) {" << endl;
+
+						recode_edit.program_code 
+							<< "\t\t\tvariable_file << \""
+							<< rec_question_name << "\";\n" << endl
+							<< "\t\t\t\t\tfor (int i2=0; i2 < "
+							<< rec_question_name << "_map_entry[i1]->"
+							<< "q->loop_index_values.size(); ++i2) {\n"
+							<< "\t\t\t\t\t\t variable_file << \"_\" << "
+							<< rec_question_name << "_map_entry[i1]->q->"
+							<< "loop_index_values[i2];\n"
+							<< "\t\t\t\t\t}\n";
+						recode_edit.program_code 
+							<< "\t\t\t\t\tvariable_file << \"_\" << "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;" 
+							<< endl
 							<< "\t\t\t\t\tif (" << driver_question_name << "_map_entry"
 							<< " && " << rec_question_name << "_map_entry.size() > 0) {\n"
 							<< "\t\t\t\t\tedit_file << \"/* \" << "
