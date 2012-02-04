@@ -143,6 +143,8 @@ void print_ncurses_include_files (FILE * script);
 void print_ncurses_func_prototypes (FILE * script);
 void print_GetQuestionMapEntry(FILE * script);
 void print_GetQuestionMapEntryArrayQ (FILE * script);
+void print_recode_edit_qax (FILE * script);
+
 
 string ExtractBaseFileName(const string & fname)
 {
@@ -212,6 +214,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "};\n");
 	print_GetQuestionMapEntry(script);
 	print_GetQuestionMapEntryArrayQ(script);
+
+	print_recode_edit_qax (script);
 
 	//print_close(script, code.program_code, ncurses_flag);
 
@@ -1589,10 +1593,14 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 {
 	recode_edit.program_code 
-		<< "\t\tstring variable_defns_fname (string(\"variable\"));\n"
+		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
 		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
-		<< "\t\tstring edit_file_name (string(\"edit.qin\"));\n"
+		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-recode-edit.qin\"));\n"
 		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-recode-edit.qax\"));\n"
+		<< "\t\tfstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		<< endl;
+
 		;
 	
 	for (int i=0; i<recode_driver_vec.size(); ++i) {
@@ -1700,6 +1708,11 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry->startPosition_ + "
 							<< rec_question_name << "_map_entry->totalLength_ << \")\"" << endl
 							<< "\t\t\t\t\t<< endl;" << endl 
+							<< "\t\t\t\t\trecode_edit_qax_file\n"
+							<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
+							<< driver_question_name << "_map_entry, "
+							<< rec_question_name << "_map_entry, i);\n" << endl
+
 							<< "\t\t\t}\n"
 							<< "\t\t}\n";
 					} else if (se->type_ == QUESTION_ARR_TYPE) {
@@ -2511,6 +2524,7 @@ void print_ncurses_func_prototypes (FILE * script)
 			"			PANEL * & error_msg_panel,\n"
 			"			PANEL * & help_panel);\n");
 	fprintf(script, "void define_some_pd_curses_keys();\n");
+	fprintf (script, "string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int i);\n");
 }
 
 void print_GetQuestionMapEntry(FILE * script)
@@ -2558,8 +2572,24 @@ void print_GetQuestionMapEntryArrayQ (FILE * script)
 
 }
 
+void print_recode_edit_qax (FILE * script)
+{
 
-
+	fprintf (script, "string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int i)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	stringstream ax;\n");
+	fprintf (script, "	ax << \"l \";\n");
+	fprintf (script, "	NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (driver_q->q);\n");
+	fprintf (script, "	if (nq) {\n");
+	fprintf (script, "		ax << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[i].stub_text_as_var_name();\n");
+	fprintf (script, "		ax << \"; c=\" << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \"<< recode_q->totalLength_ << \") u $ $\\n\"\n");
+	fprintf (script, "			<< endl;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		ax << \" driver question does not have named stubs, this should be an input file error\" << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	return ax.str();\n");
+	fprintf (script, "}\n");
+}
 
 
 
