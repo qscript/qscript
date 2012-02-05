@@ -1691,7 +1691,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].code" << endl
 							<< "\t\t\t\t\t<< \")\\n\"" << endl
-							<< "\t\t\t\t\t<< \"++\\t\" <<  \""
+							<< "\t\t\t\t\t<< \"+\\t\" <<  \""
 							<< leader_rec_question_name << "_\"" << endl
 							<< "\t\t\t\t\t<< "
 							<< driver_question_name
@@ -1786,7 +1786,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].code" << endl
 							<< "\t\t\t\t\t<< \")\\n\"" << endl
-							<< "\t\t\t\t\t<< \"++\\t\" <<  \""
+							<< "\t\t\t\t\t<< \"+\\t\" <<  \""
 							<< leader_rec_question_name << "\";" << endl;
 						recode_edit.program_code 
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
