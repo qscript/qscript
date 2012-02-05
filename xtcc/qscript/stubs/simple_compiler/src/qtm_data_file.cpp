@@ -693,9 +693,76 @@ void QtmDataDiskMap::print_run(string jno)
 
 }
 
+// assumes that we wont have more than 4 chunks
+// this wont cause a core dump, just a syntax error in the
+// generated quantum code
+vector <string> split_into_smaller_chunks (string s, int chunk_size)
+{
+	vector <string> result;
+	if (s.length() > chunk_size) {
+		int n_pieces = s.length() / chunk_size + 1; //(q->questionText_.size()/TEXT_LEN_BREAK_AT) + 1;
+		int i=0;
+		for (i=0; i < n_pieces ; ++i) {
+			stringstream ttl_string;
+			if (i==0) {
+				ttl_string << "qt1it=" << s.substr(i * chunk_size, (i+1) * chunk_size > s.length()
+					? s.length() : (i+1) * chunk_size) << endl;
+				result.push_back (ttl_string.str());
+			} else {
+				ttl_string << "+qt" << i+1 << "it=" 
+					<< s.substr(i * chunk_size, (i+1) * chunk_size > s.length() 
+					? s.length() : (i+1) * chunk_size) 
+					<< ";act" << i+1 << "t=;"
+					<< endl;
+				result.push_back (ttl_string.str());
+			}
+		}
+	} else {
+		stringstream ttl_string1;
+		ttl_string1 << "qt1it=" << s << ";" << endl;
+		result.push_back (ttl_string1.str()); 
+
+		stringstream ttl_string2;
+		ttl_string2 << "+qt2it=;" << "act2t=/*" << endl;
+		result.push_back (ttl_string2.str()); 
+
+		stringstream ttl_string3;
+		ttl_string3 << "+qt3it=;" << "act3t=/*" << endl;
+		result.push_back (ttl_string3.str()); 
+
+		stringstream ttl_string4;
+		ttl_string4 << "+qt4it=;" << "act4t=/*" << endl;
+		result.push_back (ttl_string4.str()); 
+	}
+	return result;
+}
+
+string print_dynamic_base_text(AbstractQuestion * q, BaseText & base_text)
+{
+	stringstream l_base_text;
+	l_base_text << "All those respondents who coded ";
+	if (q->loop_index_values.size() == 1) {
+		l_base_text << "\"" << q->loop_index_values[0] << "\" i.e. ";
+		NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (base_text.dynamicBaseQuestion_);
+		if (nq) {
+			vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+			for (int i=0; i<vec.size(); ++i) {
+				if (vec[i].code == q->loop_index_values[0]+1) {
+					l_base_text << vec[i].stub_text;
+					break;
+				}
+			}
+			l_base_text << " at " << nq->questionName_ << endl;
+		} else {
+			l_base_text << " error : dynamicBaseQuestion_ is not NamedStubQuestion, this should have been caught during compilation" << endl;
+		}
+	}
+	return l_base_text.str();
+}
+   
 void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 {
-
+#if 0
 	stringstream ttl_string;
 	const int TEXT_LEN_BREAK_AT = 120;
 	if (q->questionText_.size() > TEXT_LEN_BREAK_AT) {
@@ -722,12 +789,22 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 		ttl_string << "+qt3it=;" << "act3t=/*" << endl;
 		ttl_string << "+qt4it=;" << "act4t=/*" << endl;
 	}
+#endif /* 0 */
+	const int TEXT_LEN_BREAK_AT = 120;
+	vector <string> smaller_ttls = split_into_smaller_chunks (q->questionText_, TEXT_LEN_BREAK_AT);
+	stringstream ttl_string;
+	for (int i=0; i<smaller_ttls.size(); ++i) {
+		ttl_string << smaller_ttls[i];
+	}
 
 	if (q->loop_index_values.size() > 0) {
 		stringstream l_base_text;
 		if (baseText_.isDynamicBaseText_ == false) {
 			l_base_text << baseText_.baseText_ << endl;
 		} else {
+
+			l_base_text << print_dynamic_base_text (q, baseText_);
+#if 0
 			l_base_text << "All those respondents who coded ";
 			if (q->loop_index_values.size() == 1) {
 				l_base_text << "\"" << q->loop_index_values[0] << "\" i.e. ";
@@ -743,6 +820,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 				}
 				l_base_text << " at " << baseText_.dynamicBaseQuestion_->questionName_ << endl;
 			}
+#endif /* 0 */
 		}
 
 		if (q->loop_index_values.size()==1) {
@@ -761,7 +839,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 				<< ";qlno=" << q->loop_index_values[0] << "_" << q->loop_index_values[1] 
 				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;"
 				<< ";qat2t=&bt" << q->loop_index_values[0] << "t;att2t=;" << endl
-				<< "+btxt=" << l_base_text
+				<< "+btxt=" << l_base_text.str()
 				<< endl
 				<< endl;
 		}

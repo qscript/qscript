@@ -16,49 +16,89 @@ stubs brand_list =
 	;
 	setall (brand_list);
 
-q1	"Primary Brand"
+q1a	"Primary Brand"
 	sp int32_t brand_list;
 
-	setdel (brand_list, q1);
+	setdel (brand_list, q1a);
 
-q2	"Secondary Brand"
+q1b	"Secondary Brand"
 	sp int32_t brand_list;
 
-q3	"Rate your primary brand"
+	setdel (brand_list, q1b);
+
+q1c	"Tertiary Brand: This is a relatively long text so that we can test the new, refactored, line-breaking function just added to qtm_data_file.cpp "
+	sp int32_t brand_list;
+
+q2a	"Rate your primary brand"
 	sp int32_t (1-5);
 
-q4	"Rate your Secondary brand"
+q2b	"Rate your Secondary brand"
+	sp int32_t (1-5);
+
+q2c	"Rate your Tertiary brand"
 	sp int32_t (1-5);
 
 	int32_t i1=0;
 
 	for (i1 = 0; i1 < 10; i1 = i1 + 1) {
 
-q5		"Attribute battery: Primary brand"
+q5a		"Attribute battery: Primary brand"
 		sp int32_t (1-5);
 
 	}
 
 	for (i1 = 0; i1 < 10; i1 = i1 + 1) {
 
-q6		"Attribute battery: Secondary brand"
+q5b		"Attribute battery: Secondary brand"
 		sp int32_t (1-5);
 
 	}
 
-q7	"Recommend your primary brand"
+	for (i1 = 0; i1 < 10; i1 = i1 + 1) {
+
+q5c		"Attribute battery: Tertiary brand"
+		sp int32_t (1-5);
+
+	}
+
+stubs services =
+	"service 1" 1
+	"service 2" 2
+	"service 3" 3
+	"service 4" 4;
+
+q6a 	"Which services do you use?"
+	mp(4) int32_t services;
+
+	for (i1 = 0; i1 < 4; i1 = i1+1) {
+		int32_t code = i1+1;
+		if ( code in q6a) {
+q6b			"rate service on a scale of 1 - 5"
+			sp int32_t (1-5);
+		} else {
+			1;
+		}
+
+	}
+q7a	"Recommend your primary brand"
 	sp int32_t (1-5);
 
-q8	"Recommend your Secondary brand"
+q7b	"Recommend your Secondary brand"
 	sp int32_t (1-5);
 
-q9	"Recommend your primary brand"
+q7c	"Recommend your Tertiary brand"
+	sp int32_t (1-5);
+
+q9a	"Complaints about your primary brand"
 	mp(10) int32_t (1-99);
 
-q10	"Recommend your Secondary brand"
+q9b	"Complaints about your Secondary brand"
 	mp(10) int32_t (1-99);
 
-	fix q3 q4 q5 q6 q7 q8 q9 q10 drivers q1 q2;
+q9c	"Complaints about your Tertiary brand"
+	mp(10) int32_t (1-99);
+
+	fix q2a q2b q2c q5a q5b q5c q7a q7b q7c q9a q9b q9c drivers q1a q1b q1c;
 	//fix q3 q4 q7 q8 q9 q10 drivers q1 q2;
 
 }

@@ -109,6 +109,8 @@ extern std::fstream qtm_data_file_writer_log;
 // log writer file
 void init();
 
+vector <string> split_into_smaller_chunks (string s, int chunk_size);
+string print_dynamic_base_text(AbstractQuestion * q, BaseText & base_text);
 
 } /* close namespace qtm_data_file */
 
