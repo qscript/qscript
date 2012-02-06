@@ -1758,7 +1758,11 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << " 
 							<< rec_question_name << "_map_entry[i1]->totalLength_ " << " << \"s\\n\";\n"
-							<< endl;
+							<< "\t\t\t\t\trecode_edit_qax_file\n"
+							<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
+							<< driver_question_name << "_map_entry, "
+							<< rec_question_name << "_map_entry[i1], i);\n" << endl;
+
 						}
 						recode_edit.program_code 
 							<< "\t\t\t\t\tif (" << driver_question_name << "_map_entry"
@@ -2581,7 +2585,7 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int index)\n");
 	fprintf (script, "{\n");
 	fprintf (script, "	stringstream ax;\n");
-	fprintf (script, "	ax << \"l \";\n");
+	//fprintf (script, "	ax << \"l \";\n");
 	fprintf (script, "	string setup_dir( string(\"setup-\") + jno + string (\"/\"));\n");
 	fprintf (script, "	NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (driver_q->q);\n");
 	fprintf (script, "	if (nq) {\n");
@@ -2595,32 +2599,32 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "	if (recode_q->q->loop_index_values.size() > 0) {\n");
 	fprintf (script, "		stringstream l_base_text;\n");
 	fprintf (script, "		if (recode_q->baseText_.isDynamicBaseText_ == false) {\n");
-	fprintf (script, "			l_base_text << recode_q->baseText_.baseText_ << endl;\n");
+	fprintf (script, "			l_base_text << recode_q->baseText_.baseText_ ;\n");
 	fprintf (script, "		} else {\n");
 	fprintf (script, "			l_base_text << qtm_data_file_ns::print_dynamic_base_text (recode_q->q, recode_q->baseText_);\n");
 	fprintf (script, "		}\n");
+	fprintf (script, "		l_base_text << \" who use : \" << nq->nr_ptr->stubs[index].stub_text << endl;\n");
 
 	fprintf (script, "		if (recode_q->q->loop_index_values.size()==1) {\n");
-	fprintf (script, "			ax <<\"*include\" << recode_q->q->questionName_ \n");
-	fprintf (script, "				<<\".qa\"\n");
-	fprintf (script, "				<<\";qlno\" << recode_q->q->loop_index_values[0] \n");
-	fprintf (script, "				<<\";col(a)\" << recode_q->startPosition_ + 1\n");
-	fprintf (script, "				<<\";qat1t=&a\" << recode_q->q->loop_index_values[0] <<\"t;att1t=;qat2t=;att2t=/\" << endl\n");
-	fprintf (script, "				<<\"+btxt\" << l_base_text.str()\n");
+	fprintf (script, "			ax << \"*include \" << \"r_\" << recode_q->q->questionName_ \n");
+	fprintf (script, "				<<\".qax\"\n");
+	fprintf (script, "				<<\";qlno=\" << recode_q->q->loop_index_values[0] << \";var_name=\" << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name()\n");
+	fprintf (script, "				<<\";col(a)=\" << recode_q->q->loop_index_values[0] + 1\n");
+	fprintf (script, "				<<\";qat1t=&a\" << recode_q->q->loop_index_values[0] <<\"t;att1t=;qat2t=;att2t=/*;\"\n");
+	fprintf (script, "				<<\"\\n+btxt=\" << l_base_text.str()\n");
 	fprintf (script, "				<< endl\n");
 	fprintf (script, "				<< endl;\n");
 	fprintf (script, "		} else {\n");
-	fprintf (script, "			ax <<\"*include\" << recode_q->q->questionName_ \n");
-	fprintf (script, "				<<\".qa\"\n");
-	fprintf (script, "				<<\";col(a)\" << recode_q->startPosition_ + 1\n");
-	fprintf (script, "				<<\";qlno\" << recode_q->q->loop_index_values[0] <<\"\" << recode_q->q->loop_index_values[1] \n");
+	fprintf (script, "			ax <<\"*include \" << recode_q->q->questionName_\n");
+	fprintf (script, "				<<\".qax\"\n");
+	fprintf (script, "				<<\";col(a)=\" << recode_q->q->loop_index_values[0] + 1\n");
+	fprintf (script, "				<<\";qlno=\" << recode_q->q->loop_index_values[0] <<\"_\" << recode_q->q->loop_index_values[1] << \";var_name=\"  << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name()\n");
 	fprintf (script, "				<<\";qat1t=&a\" << recode_q->q->loop_index_values[0] <<\"t;att1t=\"\n");
 	fprintf (script, "				<<\";qat2t=&b\" << recode_q->q->loop_index_values[0] <<\"t;att2t=\" << endl\n");
-	fprintf (script, "				<<\"+btxt\" << l_base_text.str()\n");
+	fprintf (script, "				<<\"\\n+btxt = \" << l_base_text.str()\n");
 	fprintf (script, "				<< endl\n");
 	fprintf (script, "				<< endl;\n");
 	fprintf (script, "		}\n");
-	fprintf (script, "\n");
 	fprintf (script, "\n");
 	fprintf (script, "		bool is_1st_iter = true;\n");
 	fprintf (script, "		for (int32_t i=0; i<recode_q->q->loop_index_values.size(); ++i) {\n");
@@ -2633,40 +2637,40 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "			// make questionName_ . qax file\n");
 	fprintf (script, "			stringstream qax_fname;\n");
 	fprintf (script, "			qax_fname << setup_dir <<\"\";\n");
-	fprintf (script, "			qax_fname << recode_q->q->questionName_ <<\".qax\";\n");
+	fprintf (script, "			qax_fname << \"r_\" << recode_q->q->questionName_ <<\".qax\";\n");
 	fprintf (script, "			fstream ax(qax_fname.str().c_str(), std::ios_base::out | std::ios_base::trunc);\n");
-	fprintf (script, "			ax <<\"l\" << recode_q->q->questionName_ <<\"_&qlno;c=c(a\";\n");
+	fprintf (script, "			ax <<\"l\" << recode_q->q->questionName_ <<\"_&qlno;c=&var_name(a0\";\n");
 	fprintf (script, "			if (recode_q->width_>0) {\n");
-	fprintf (script, "				ax <<\",\" << recode_q->width_-1 ;\n");
+	fprintf (script, "				ax <<\",a\" << recode_q->width_-1 ;\n");
 	fprintf (script, "			} \n");
 	fprintf (script, "			ax <<\") u $ $\" << endl;\n");
-	fprintf (script, "			ax <<\"*include qttl.qin\" \n");
+	fprintf (script, "			ax <<\"*include qttl.qin;\" \n");
 	fprintf (script, "				<< ttl_string.str() << endl\n");
 	fprintf (script, "				<<\"*include base.qin\" << endl;\n");
 	fprintf (script, "\n");
 	fprintf (script, "			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(recode_q->q)) {\n");
-	fprintf (script, "				recode_q->print_qin(setup_dir);\n");
+	fprintf (script, "				recode_q->print_qin(setup_dir, \"&var_name\");\n");
 	fprintf (script, "				if (n_q->nr_ptr) {\n");
 	fprintf (script, "					if (n_q->no_mpn>1) {\n");
-	fprintf (script, "						ax <<\"*include\" << n_q->nr_ptr->name <<\".min\"\n");
+	fprintf (script, "						ax <<\"*include \" << n_q->nr_ptr->name <<\".min\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "					} else {\n");
-	fprintf (script, "						ax <<\"*include\" << n_q->nr_ptr->name <<\".sin\"\n");
+	fprintf (script, "						ax <<\"*include \" << n_q->nr_ptr->name <<\".sin\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "					}\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "			} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(recode_q->q)) {\n");
-	fprintf (script, "				ax <<\"*include\" << recode_q->q->questionName_ <<\".qin\"\n");
+	fprintf (script, "				ax <<\"*include \" << \"r_\" << recode_q->q->questionName_ <<\".qin\"\n");
 	fprintf (script, "					<< endl;\n");
 	fprintf (script, "				stringstream fname;\n");
-	fprintf (script, "				fname << setup_dir <<\"\" << recode_q->q->questionName_ <<\".qin\";\n");
+	fprintf (script, "				fname << setup_dir << \"r_\" << recode_q->q->questionName_ <<\".qin\";\n");
 	fprintf (script, "				fstream qtm_include_file (fname.str().c_str(), \n");
 	fprintf (script, "						std::ios_base::out | std::ios_base::trunc);\n");
 	fprintf (script, "				if (recode_q->width_ == 1) {\n");
-	fprintf (script, "					qtm_include_file <<\"val c(a0);i;\" \n");
+	fprintf (script, "					qtm_include_file <<\"val &var_name(a0);i;\" \n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				} else {\n");
-	fprintf (script, "					qtm_include_file <<\"val c(a0\"\n");
+	fprintf (script, "					qtm_include_file <<\"val &var_name(a0\"\n");
 	fprintf (script, "						<<\"\" << recode_q->width_ - 1 <<\");i;\" \n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
@@ -2674,6 +2678,7 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "				\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "	} else {\n");
+	fprintf (script, "		ax << \"l \";\n");
 	fprintf (script, "		ax << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name();\n");
 	fprintf (script, "		ax << \"; c=\" << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << \"(1, \"<< recode_q->totalLength_ << \") u $ $\\n\"\n");
 	fprintf (script, "			<< endl;\n");
@@ -2707,7 +2712,7 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "		}\n");
 	fprintf (script, "\n");
 	fprintf (script, "		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(recode_q->q)) {\n");
-	fprintf (script, "			recode_q->print_qin(setup_dir);\n");
+	fprintf (script, "			recode_q->print_qin (setup_dir, \"&var_name\");\n");
 	fprintf (script, "			if (n_q->nr_ptr) {\n");
 	fprintf (script, "				if (n_q->no_mpn>1) {\n");
 	fprintf (script, "					ax <<\"*include r_\" << n_q->nr_ptr->name <<\".min;\"\n");
@@ -2729,10 +2734,10 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "			fstream qtm_include_file (fname.str().c_str(), \n");
 	fprintf (script, "					std::ios_base::out | std::ios_base::trunc);\n");
 	fprintf (script, "			if (recode_q->width_ == 1) {\n");
-	fprintf (script, "				qtm_include_file <<\"val c(a0);i;\" \n");
+	fprintf (script, "				qtm_include_file <<\"val &var_name(a0);i;\" \n");
 	fprintf (script, "					<< endl;\n");
 	fprintf (script, "			} else {\n");
-	fprintf (script, "				qtm_include_file <<\"val c(a0\"\n");
+	fprintf (script, "				qtm_include_file <<\"val &var_name(a0\"\n");
 	fprintf (script, "					<<\"\" << recode_q->width_ - 1 <<\");i;\" \n");
 	fprintf (script, "					<< endl;\n");
 	fprintf (script, "			}\n");
@@ -2749,6 +2754,8 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "	return ax.str();\n");
 	fprintf (script, "}\n");
 }
+
+
 
 
 

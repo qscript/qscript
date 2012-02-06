@@ -281,18 +281,24 @@ void QtmDataDiskMap::print_map(fstream & map_file)
 	}
 }
 
-void QtmDataDiskMap::print_qin(string setup_dir)
+void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 {
 	NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q);
 	stringstream fname;
 	// assume that setup_dir is already created
 	if (n_q->no_mpn>1) {
-		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".min";
+		fname << setup_dir << "/" 
+			<< (var_name == string("c") ? string(""): string("r_") )
+			<< n_q->nr_ptr->name << ".min";
 	} else {
-		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".sin";
+		fname << setup_dir << "/" 
+			<< (var_name == string("c") ? string(""): string("r_") )
+			<< n_q->nr_ptr->name << ".sin";
 	}
 	fstream qtm_include_file (fname.str().c_str(), 
 			std::ios_base::out | std::ios_base::trunc);
+	//qtm_include_file << var_name << __FILE__ << __LINE__ << __PRETTY_FUNCTION__ << endl;
+
 	string range_name = n_q->nr_ptr->name;
 	int rat_scale = 0;
 	int factor = 1;
@@ -314,10 +320,10 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 		for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
 			qtm_include_file << "n01"
 				<< n_q->nr_ptr->stubs[i].stub_text
-				<< "; c=c";
+				<< "; c=" << var_name;
 			int the_code = n_q->nr_ptr->stubs[i].code;
 			if (n_q->no_mpn>1) {
-				qtm_include_file << "a";
+				qtm_include_file << "(a";
 				int dividend = the_code/10;
 				int remainder = the_code%10;
 				if (remainder == 0) {
@@ -331,7 +337,7 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 				}
 			} else {
 				if (width_==1) {
-					qtm_include_file << "a0'";
+					qtm_include_file << "(a0)'";
 					if (the_code < 10) {
 						qtm_include_file << the_code
 							<< "'";
@@ -380,20 +386,20 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 
 					qtm_include_file << "n01"
 						<< stubs[i].stub_text
-						<< "; c=c";
+						<< "; c=" << var_name;
 					int the_code = stubs[i].code;
 					if (width_==1) {
-						qtm_include_file << "a0'";
+						qtm_include_file << "(a0)'";
 						if (the_code < 10) {
 							qtm_include_file << the_code
 								<< "'" << endl;
 						} else {
 							if (the_code == 10) {
-								qtm_include_file << "'0'";
+								qtm_include_file << "0'";
 							} else if (the_code == 11) {
-								qtm_include_file << "'-'";
+								qtm_include_file << "-'";
 							} else if (the_code == 12) {
-								qtm_include_file << "'&'";
+								qtm_include_file << "&'";
 							} else {
 								stringstream error_str;
 								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
@@ -415,11 +421,11 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 					}
 				}
 				if (width_==1)
-					qtm_include_file << "n25;inc=c(a0);c=c(a0).in.(1:5);\n";
+					qtm_include_file << "n25;inc=" << var_name << "(a0);c=" << var_name << "(a0).in.(1:5);\n";
 				else 
 					qtm_include_file << "n25;inc=" 
-						<< "c(a0,a" << width_ - 1 << ");"
-						<< "c=c(a0,a" << width_ - 1 << ").in.(1:5);\n";
+						<< var_name << "(a0,a" << width_ - 1 << ");"
+						<< "c=" << var_name << "(a0,a" << width_ - 1 << ").in.(1:5);\n";
 			}
 			if (rat_scale == 7) {
 				for (int i=stubs.size()-1; i>=0; --i) {
@@ -436,20 +442,20 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 
 					qtm_include_file << "n01"
 						<< stubs[i].stub_text
-						<< "; c=c";
+						<< "; c=" << var_name;
 					int the_code = stubs[i].code;
 					if (width_==1) {
-						qtm_include_file << "a0'";
+						qtm_include_file << "(a0)'";
 						if (the_code < 10) {
 							qtm_include_file << the_code
 								<< "'" << endl;
 						} else {
 							if (the_code == 10) {
-								qtm_include_file << "'0'";
+								qtm_include_file << "0'";
 							} else if (the_code == 11) {
-								qtm_include_file << "'-'";
+								qtm_include_file << "-'";
 							} else if (the_code == 12) {
-								qtm_include_file << "'&'";
+								qtm_include_file << "&'";
 							} else {
 								stringstream error_str;
 								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
@@ -476,11 +482,11 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 					}
 				}
 				if (width_==1)
-					qtm_include_file << "n25;inc=c=c(a0);c=c(a0).in.(1:7);\n";
+					qtm_include_file << "n25;inc=" << var_name << "(a0);c=" << var_name <<"(a0).in.(1:7);\n";
 				else 
 					qtm_include_file << "n25;inc="
-						<< "c(a0,a" << width_ - 1 << ");"
-						<< "c=c(a0,a" << width_ - 1 << ").in.(1:7);\n";
+						<< var_name << "(a0,a" << width_ - 1 << ");"
+						<< ";c=" << var_name << "(a0,a" << width_ - 1 << ").in.(1:7);\n";
 			}
 			if (rat_scale == 10) {
 				for (int i=stubs.size()-1; i>=0; --i) {
@@ -497,20 +503,20 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 
 					qtm_include_file << "n01"
 						<< stubs[i].stub_text
-						<< "; c=c";
+						<< "; c=" << var_name;
 					int the_code = stubs[i].code;
 					if (width_==1) {
-						qtm_include_file << "a0'";
+						qtm_include_file << "(a0)'";
 						if (the_code < 10) {
 							qtm_include_file << the_code
 								<< "'" << endl;
 						} else {
 							if (the_code == 10) {
-								qtm_include_file << "'0'";
+								qtm_include_file << "0'";
 							} else if (the_code == 11) {
-								qtm_include_file << "'-'";
+								qtm_include_file << "-'";
 							} else if (the_code == 12) {
-								qtm_include_file << "'&'";
+								qtm_include_file << "&'";
 							} else {
 								stringstream error_str;
 								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
@@ -540,8 +546,8 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 					qtm_include_file << "Error - width is 1 for 10 point scale;\n";
 				else 
 					qtm_include_file << "n25;inc="
-						<< "c(a0,a" << width_ - 1 << ");"
-						<< "c=c(a0,a" << width_ - 1 << ").in.(1:10);\n";
+						<< var_name << "(a0,a" << width_ - 1 << ");"
+						<< "c=" << var_name << "(a0,a" << width_ - 1 << ").in.(1:10);\n";
 			}
 			cerr << "reached here: " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
 				<< " rat_scale: " << rat_scale
@@ -564,17 +570,17 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 						<< "; c=c";
 					int the_code = stubs[i].code;
 					if (width_==1) {
-						qtm_include_file << "a0'";
+						qtm_include_file << "(a0)'";
 						if (the_code < 10) {
 							qtm_include_file << the_code
 								<< "'" << endl;
 						} else {
 							if (the_code == 10) {
-								qtm_include_file << "'0'";
+								qtm_include_file << "0'";
 							} else if (the_code == 11) {
-								qtm_include_file << "'-'";
+								qtm_include_file << "-'";
 							} else if (the_code == 12) {
-								qtm_include_file << "'&'";
+								qtm_include_file << "&'";
 							} else {
 								stringstream error_str;
 								error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
@@ -601,11 +607,13 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 					}
 				}
 				if (width_==1)
-					qtm_include_file << "n25;inc=c(a0);c=c(a0).in.(1:9);\n";
+					qtm_include_file << "n25;inc=" 
+						<< var_name << "(a0);"
+						<< "c=" << var_name << "(a0).in.(1:9);\n";
 				else 
 					qtm_include_file << "n25;inc=" 
-						<< "c(a0,a" << width_ - 1 << ");"
-						<< "c=c(a0,a" << width_ - 1 << ").in.(1:9);\n";
+						<< var_name <<"(a0,a" << width_ - 1 << ");"
+						<< "c=" << var_name << "(a0,a" << width_ - 1 << ").in.(1:9);\n";
 			}
 		}
 
@@ -878,7 +886,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 				<< "*include base.qin" << endl;
 
 			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
-				print_qin(setup_dir);
+				print_qin (setup_dir, "c");
 				if (n_q->nr_ptr) {
 					if (n_q->no_mpn>1) {
 						qax_file << "*include " << n_q->nr_ptr->name << ".min;"
@@ -961,7 +969,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 		}
 
 		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
-			print_qin(setup_dir);
+			print_qin (setup_dir, "c");
 			if (n_q->nr_ptr) {
 				if (n_q->no_mpn>1) {
 					qax_file << "*include " << n_q->nr_ptr->name << ".min;"

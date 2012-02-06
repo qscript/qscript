@@ -93,7 +93,7 @@ public:
 	void print_run(string jno);
 	void print_map(std::fstream & map_file);
 	void print_qax(std::fstream & qax_file, std::string setup_dir);
-	void print_qin(std::string setup_dir);
+	void print_qin (std::string setup_dir, string var_name);
 	std::vector <CodeBucket> codeBucketVec_;
 	void AllocateCards();
 	void Reset();
