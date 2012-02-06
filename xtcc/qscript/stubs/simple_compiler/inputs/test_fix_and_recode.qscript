@@ -29,35 +29,50 @@ q1b	"Secondary Brand"
 q1c	"Tertiary Brand: This is a relatively long text so that we can test the new, refactored, line-breaking function just added to qtm_data_file.cpp "
 	sp int32_t brand_list;
 
+stubs excel_5=
+	"1  Not Good at all, but I have no choice" 1
+	"2  Not good, but just works" 2
+	"3  Works well for me" 3
+	"4  Great Brand" 4
+	"5  Excellent" 5;
+
 q2a	"Rate your primary brand"
-	sp int32_t (1-5);
+	sp int32_t excel_5;
 
 q2b	"Rate your Secondary brand"
-	sp int32_t (1-5);
+	sp int32_t excel_5;
 
 q2c	"Rate your Tertiary brand"
-	sp int32_t (1-5);
+	sp int32_t excel_5;
+
+
+stubs agree_5=
+	"1  Strongly Disagree" 1
+	"2  Disagree" 2
+	"3  Neutral" 3
+	"4  Agree" 4
+	"5  Strongly Agree" 5;
 
 	int32_t i1=0;
 
 	for (i1 = 0; i1 < 10; i1 = i1 + 1) {
 
 q5a		"Attribute battery: Primary brand"
-		sp int32_t (1-5);
+		sp int32_t agree_5;
 
 	}
 
 	for (i1 = 0; i1 < 10; i1 = i1 + 1) {
 
 q5b		"Attribute battery: Secondary brand"
-		sp int32_t (1-5);
+		sp int32_t agree_5;
 
 	}
 
 	for (i1 = 0; i1 < 10; i1 = i1 + 1) {
 
 q5c		"Attribute battery: Tertiary brand"
-		sp int32_t (1-5);
+		sp int32_t agree_5;
 
 	}
 
