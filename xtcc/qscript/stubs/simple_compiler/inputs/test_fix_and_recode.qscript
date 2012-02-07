@@ -16,7 +16,7 @@ stubs brand_list =
 	;
 	setall (brand_list);
 
-q1a	"Primary Brand"
+q1a	"Primary Brand: This is a relatively long text so that we can test the new, refactored, line-breaking function just added to qtm_data_file.cpp "
 	sp int32_t brand_list;
 
 	setdel (brand_list, q1a);

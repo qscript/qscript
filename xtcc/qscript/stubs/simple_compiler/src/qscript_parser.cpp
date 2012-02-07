@@ -1668,6 +1668,16 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							//<< ""
 							//<< endl
 
+						recode_edit.program_code 
+							<< "edit_file << \"clear "
+							<< leader_rec_question_name << "_\"" << endl
+							<< "\t\t\t\t\t<< "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
+							<< rec_question_name 
+							<< "_map_entry->totalLength_"
+							<< " << \");\\n\";\n";
+
 
 						recode_edit.program_code 
 							<< "\t\t\tif (" << driver_question_name << "_map_entry"
@@ -1764,6 +1774,23 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name << "_map_entry[i1], i);\n" << endl;
 
 						}
+						recode_edit.program_code 
+							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;
+						recode_edit.program_code 
+							<< "\t\t\t\t\tfor (int i2=0; i2 < "
+							<< rec_question_name << "_map_entry[i1]->"
+							<< "q->loop_index_values.size(); ++i2) {\n"
+							<< "\t\t\t\t\t\tedit_file << \"_\" << "
+							<< rec_question_name << "_map_entry[i1]->q->"
+							<< "loop_index_values[i2];\n"
+							<< "\t\t\t\t\t}\n";
+						recode_edit.program_code
+							<< "\t\t\t\t\tedit_file << \"_\" << "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
+							<< rec_question_name 
+							<< "_map_entry[i1]->totalLength_"
+							<< " << \");\\n\";\n";
 						recode_edit.program_code 
 							<< "\t\t\t\t\tif (" << driver_question_name << "_map_entry"
 							<< " && " << rec_question_name << "_map_entry.size() > 0) {\n"
@@ -2590,7 +2617,7 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "	NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (driver_q->q);\n");
 	fprintf (script, "	if (nq) {\n");
 	fprintf (script, "		const int TEXT_LEN_BREAK_AT = 120;\n");
-	fprintf (script, "		vector <string> smaller_ttls = qtm_data_file_ns::split_into_smaller_chunks (nq->questionText_, TEXT_LEN_BREAK_AT);\n");
+	fprintf (script, "		vector <string> smaller_ttls = qtm_data_file_ns::split_into_smaller_chunks (recode_q->q->questionText_, TEXT_LEN_BREAK_AT);\n");
 	fprintf (script, "		stringstream ttl_string;\n");
 	fprintf (script, "		for (int i=0; i<smaller_ttls.size(); ++i) {\n");
 	fprintf (script, "			ttl_string << smaller_ttls[i];\n");
@@ -2681,7 +2708,7 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "			ax << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name();\n");
 	fprintf (script, "			ax << \"; c=\" << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << \"(1, \"<< recode_q->totalLength_ << \") u $ $\\n\"\n");
 	fprintf (script, "				<< endl;\n");
-	fprintf (script, "			ax << \"*include qttl.qin;qno=\" ;\n");
+	fprintf (script, "			ax << \"*include qttl.qin;qno=\" << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << \";\";\n");
 	fprintf (script, "	\n");
 	fprintf (script, "	\n");
 	fprintf (script, "			ax << ttl_string.str();\n");
@@ -2729,7 +2756,7 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "					<<\"\"\n");
 	fprintf (script, "					<< endl;\n");
 	fprintf (script, "				stringstream fname;\n");
-	fprintf (script, "				fname << setup_dir <<\"\" << recode_q->q->questionName_ <<\".qin;\";\n");
+	fprintf (script, "				fname << setup_dir << \"r_\" << recode_q->q->questionName_ <<\".qin;\";\n");
 	fprintf (script, "				fstream qtm_include_file (fname.str().c_str(), \n");
 	fprintf (script, "						std::ios_base::out | std::ios_base::trunc);\n");
 	fprintf (script, "				if (recode_q->width_ == 1) {\n");

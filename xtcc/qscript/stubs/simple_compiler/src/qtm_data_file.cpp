@@ -328,11 +328,11 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 				int remainder = the_code%10;
 				if (remainder == 0) {
 					qtm_include_file 
-						<< dividend - 1 << "'"
+						<< dividend - 1 << ")'"
 						<< remainder << "'";
 				} else {
 					qtm_include_file 
-						<< dividend  << "'"
+						<< dividend  << ")'"
 						<< remainder << "'";
 				}
 			} else {
@@ -707,23 +707,29 @@ void QtmDataDiskMap::print_run(string jno)
 vector <string> split_into_smaller_chunks (string s, int chunk_size)
 {
 	vector <string> result;
-	if (s.length() > chunk_size) {
-		int n_pieces = s.length() / chunk_size + 1; //(q->questionText_.size()/TEXT_LEN_BREAK_AT) + 1;
+	if (s.size() > chunk_size) {
+		int n_pieces = s.size() / chunk_size + 1; //(q->questionText_.size()/TEXT_LEN_BREAK_AT) + 1;
 		int i=0;
 		for (i=0; i < n_pieces ; ++i) {
 			stringstream ttl_string;
 			if (i==0) {
-				ttl_string << "qt1it=" << s.substr(i * chunk_size, (i+1) * chunk_size > s.length()
-					? s.length() : (i+1) * chunk_size) << endl;
+				ttl_string << "qt1it=" 
+					<< (s.substr(i * chunk_size, (i+1) * chunk_size > s.size()
+					? s.size() : (i+1) * chunk_size) ) << endl;
 				result.push_back (ttl_string.str());
 			} else {
 				ttl_string << "+qt" << i+1 << "it=" 
-					<< s.substr(i * chunk_size, (i+1) * chunk_size > s.length() 
-					? s.length() : (i+1) * chunk_size) 
+					<< (s.substr(i * chunk_size, (i+1) * chunk_size > s.size() 
+					? s.size() : (i+1) * chunk_size) )
 					<< ";act" << i+1 << "t=;"
 					<< endl;
 				result.push_back (ttl_string.str());
 			}
+		}
+		for (; i<4; ++i) {
+			stringstream ttl_string;
+			ttl_string << "+qt" << i+1 << "it=;" << "act" << i+1 << "t=/*;" << endl;
+			result.push_back (ttl_string.str());
 		}
 	} else {
 		stringstream ttl_string1;
