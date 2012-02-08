@@ -2636,13 +2636,22 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "			if (recode_q->q->loop_index_values.size()==1) {\n");
 	fprintf (script, "				ax << \"*include \" << \"r_\" << recode_q->q->questionName_ \n");
 	fprintf (script, "					<<\".qax\"\n");
-	fprintf (script, "					<<\";qlno=\" << recode_q->q->loop_index_values[0] << \";var_name=\" << recode_q->q->questionName_ << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name()\n");
-	fprintf (script, "					<<\";col(a)=\" << recode_q->q->loop_index_values[0] + 1\n");
+	fprintf (script, "					<<\";qlno=\" << recode_q->q->loop_index_values[0] << \";var_name=\" << recode_q->q->questionName_ ;\n");
+	
+	fprintf (script, "\t\t\t\t\tfor (int i2=0; i2 < recode_q->q->loop_index_values.size(); ++i2) {\n");
+
+	fprintf (script, "\t\t\t\t\t\t ax << \"_\" << recode_q->q->loop_index_values[i2];\n");
+	fprintf (script, "\t\t\t\t\t\t}\n");
+	fprintf (script, " 				ax << \"_\" << nq->nr_ptr->stubs[index].stub_text_as_var_name()\n");
+	fprintf (script, "					<<\";col(a)=\" << 1\n");
 	fprintf (script, "					<<\";qat1t=&a\" << recode_q->q->loop_index_values[0] <<\"t;att1t=;qat2t=;att2t=/*;\"\n");
 	fprintf (script, "					<<\"\\n+btxt=\" << l_base_text.str()\n");
 	fprintf (script, "					<< endl\n");
 	fprintf (script, "					<< endl;\n");
 	fprintf (script, "			} else {\n");
+	/* the same code using the for loop above with index variable i2 has to be used here : for double arrays this 
+	   recode edit code generation has not been fixed
+	   */
 	fprintf (script, "				ax <<\"*include r_\" << recode_q->q->questionName_\n");
 	fprintf (script, "					<<\".qax\"\n");
 	fprintf (script, "					<<\";col(a)=\" << recode_q->q->loop_index_values[0] + 1\n");
