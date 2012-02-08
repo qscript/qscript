@@ -1658,6 +1658,16 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 								<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
 								<< driver_question_name << "_map_entry, "
 								<< rec_question_name << "_map_entry, i);\n" << endl;
+
+							recode_edit.program_code 
+								<< "edit_file << \"clear "
+								<< leader_rec_question_name << "_\"" << endl
+								<< "\t\t\t\t\t<< "
+								<< driver_question_name
+								<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
+								<< rec_question_name 
+								<< "_map_entry->totalLength_"
+								<< " << \");\\n\";\n";
 						}
 
 							//<< "\t\t\tvariable_file << \""
@@ -1667,16 +1677,6 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;" 
 							//<< ""
 							//<< endl
-
-						recode_edit.program_code 
-							<< "edit_file << \"clear "
-							<< leader_rec_question_name << "_\"" << endl
-							<< "\t\t\t\t\t<< "
-							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-							<< rec_question_name 
-							<< "_map_entry->totalLength_"
-							<< " << \");\\n\";\n";
 
 
 						recode_edit.program_code 
@@ -1773,7 +1773,6 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< driver_question_name << "_map_entry, "
 							<< rec_question_name << "_map_entry[i1], i);\n" << endl;
 
-						}
 						recode_edit.program_code 
 							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;
 						recode_edit.program_code 
@@ -1791,6 +1790,9 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name 
 							<< "_map_entry[i1]->totalLength_"
 							<< " << \");\\n\";\n";
+
+						}
+
 						recode_edit.program_code 
 							<< "\t\t\t\t\tif (" << driver_question_name << "_map_entry"
 							<< " && " << rec_question_name << "_map_entry.size() > 0) {\n"
