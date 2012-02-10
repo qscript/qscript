@@ -996,6 +996,8 @@ fix_and_recode_stmt: FIX name_list { recode_list = name_list; name_list.clear();
 		FixAndRecodeStatement * fix_and_recode_stmt = new FixAndRecodeStatement (
 			FIX_AND_RECODE_STMT, line_no,
 			recode_list, driver_list);
+		recode_list.clear();
+		driver_list.clear();
 		qscript_parser::recode_driver_vec.push_back (fix_and_recode_stmt);
 		$$ = fix_and_recode_stmt;
 	}
