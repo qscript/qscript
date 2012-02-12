@@ -25,20 +25,30 @@
 		map <string, question_disk_data*>* qdd_map_ptr,
 		vector<int>* data,
 		vector<int>* array_index_list,
+		vector <int>* stub_number_ptr,
+		vector <stub_pair>* stub_list_ptr,
+		vector <NamedRangeGroup*> * vec_nrg_ptr,
 		const char * s);
 	// All these 3 global variables have to be parameters 
 	// otherwise we are not a re-entrant parser
-	vector <int> no_vec;
-	vector <int> stub_number;
-        vector <stub_pair> stub_list;
+	// : one was deleted and the other 2 are now parse-param (s)
+	//vector <int> stub_number;
+        //vector <stub_pair> stub_list;
 
 %}
 
 %define api.pure
 %parse-param	{ yyscan_t yyscanner }
+/* this is actually an output parameter */
 %parse-param 	{ map <string, question_disk_data*>* qdd_map_ptr }
 %parse-param 	{ vector<int>* data_ptr }
 %parse-param 	{ vector<int>* array_index_list_ptr }
+
+%parse-param 	{ 	vector <int>* stub_number_ptr }
+%parse-param 	{ 	vector <stub_pair>* stub_list_ptr }
+/* this is actually an output parameter */
+%parse-param 	{ 	vector <NamedRangeGroup*> * vec_nrg_ptr }
+
 %lex-param	{ yyscan_t yyscanner }
 
 %union {
@@ -149,11 +159,21 @@ question: NAME COLON numberlist NEWL {
 		//cout << " Got bounds for: " << qno << endl;
 	}
 	| randomized_data_order NEWL {
+		vector <NamedRangeGroup*> & vec_nrg = *vec_nrg_ptr;
+		NamedRangeGroup * nrg_ptr = dynamic_cast <NamedRangeGroup*> ($1);
+		vec_nrg.push_back (nrg_ptr);
 	}
 	;
 
 
-randomized_data_order: '{' NAME COLON { cout << "reached here" << endl; ++stub_number[stub_number.size()-1]; stub_number.push_back(0);   } randomized_data_list '}' {
+randomized_data_order: '{' 
+		     NAME COLON { 
+		     // WARNING: this is a mid-rule-action
+		     cout << "reached here" << endl; 
+		     vector <int> & stub_number = * stub_number_ptr;
+		     ++stub_number[stub_number.size()-1]; 
+		     stub_number.push_back(0);   
+		     } randomized_data_list '}' {
 #if 1
 		AbstractNamedRange * nr_ptr = $5;
 		//cout << "climbing up the chain" << endl;
@@ -168,6 +188,7 @@ randomized_data_order: '{' NAME COLON { cout << "reached here" << endl; ++stub_n
 		* not so important when reading the randomized order from
 		* the data file
 		*/
+		vector<int> & stub_number = * stub_number_ptr;
 		NamedRangeGroup * nrg = new NamedRangeGroup (0, grp_name, stub_number[stub_number.size()-2]);
 		nrg->groupPtr_ = nr_ptr;
 		$$ = nrg;
@@ -206,6 +227,7 @@ randomized_data:    simple_number_list ';' {
 #if 1
 			cout << "got randomized_data" << endl;
 			NamedRangeList * nrl = new NamedRangeList(0);
+			vector <stub_pair> & stub_list = * stub_list_ptr;
 			nrl->stubs = stub_list;
 			stub_list.clear();
 			$$ = nrl;
@@ -220,19 +242,21 @@ randomized_data:    simple_number_list ';' {
 		    ;
 
 simple_number_list: INUMBER {
-			//no_vec.push_back ($1);
 			string s1 = "dummy";
 			int32_t code=$1;
+			vector <int> & stub_number = * stub_number_ptr;
 			++stub_number[stub_number.size()-1];
 			struct stub_pair pair1 (s1, code, stub_number.back());
+			vector <stub_pair> & stub_list = * stub_list_ptr;
 			stub_list.push_back (pair1);
 		  }
 		  | simple_number_list INUMBER {
-			//no_vec.push_back ($2);
 			string s1 = "dummy";
 			int32_t code=$2;
+			vector <int> & stub_number = * stub_number_ptr;
 			++stub_number[stub_number.size()-1];
 			struct stub_pair pair1 (s1, code, stub_number.back());
+			vector <stub_pair> & stub_list = * stub_list_ptr;
 			stub_list.push_back (pair1);
 		  }
 		  ;

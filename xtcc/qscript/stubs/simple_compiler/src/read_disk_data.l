@@ -3,6 +3,8 @@
 #include "const_defs.h"
 #include "qscript_data.hpp"
 #include "question_disk_data.h"
+#include "stub_pair.h"
+#include "new_named_range.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -14,10 +16,21 @@
 	//void read_disk_dataerror(const char * s);
 	//int line_no;
 	//extern int no_errors;
+	// This was the older form of the function without 
+	// the randomized data reader form
+	//int read_disk_dataparse(yyscan_t yyscanner, 
+	//	std::map <string, question_disk_data*>* qdd_map_ptr,
+	//	std::vector<int>* data_ptr,
+	//	vector<int>* array_index_list_ptr);
+
 	int read_disk_dataparse(yyscan_t yyscanner, 
 		std::map <string, question_disk_data*>* qdd_map_ptr,
 		std::vector<int>* data_ptr,
-		vector<int>* array_index_list_ptr);
+		vector<int>* array_index_list_ptr,
+		vector<int>* stub_number_ptr,
+		vector<stub_pair>* stub_list_ptr,
+		vector<NamedRangeGroup*> * vec_nrg_ptr
+		);
 	int read_disk_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
 
 %}
@@ -98,10 +111,21 @@ BOUNDS {
 
 %%
 
-	void read_disk_dataerror (yyscan_t scanner, 
+	// This was the old form of the function,
+	// without the randomized data reader
+	//void read_disk_dataerror (yyscan_t scanner, 
+	//	map <string, question_disk_data*>* qdd_map_ptr,
+	//	vector<int>* data_ptr,
+	//	vector<int>* array_index_list_ptr,
+	//	const char * s)
+
+	void read_disk_dataerror(yyscan_t scanner,
 		map <string, question_disk_data*>* qdd_map_ptr,
-		vector<int>* data_ptr,
-		vector<int>* array_index_list_ptr,
+		vector<int>* data,
+		vector<int>* array_index_list,
+		vector <int>* stub_number_ptr,
+		vector <stub_pair>* stub_list_ptr,
+		vector <NamedRangeGroup*> * vec_nrg_ptr,
 		const char * s)
 	{
 		//++no_errors;

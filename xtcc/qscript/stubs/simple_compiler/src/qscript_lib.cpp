@@ -45,7 +45,11 @@ int32_t check_if_reg_file_exists(string jno, int32_t ser_no)
 int read_disk_dataparse(yyscan_t yyscanner, 
 	std::map <string, question_disk_data*>* qdd_map_ptr,
 	std::vector<int>* data_ptr,
-	vector<int>* array_index_list_ptr);
+	vector<int>* array_index_list_ptr,
+	vector<int>* stub_number_ptr,
+	vector<stub_pair>* stub_list_ptr,
+	vector<NamedRangeGroup*> * vec_nrg_ptr
+	);
 int read_disk_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
 
 void read_disk_data_init();
@@ -67,7 +71,8 @@ void clear_previous_data()
 */
 
 int32_t load_data(string jno, int32_t ser_no, 
-		map <string, question_disk_data*> * qdd_map_ptr)
+		map <string, question_disk_data*> * qdd_map_ptr,
+		vector <NamedRangeGroup*> * vec_nrg_ptr)
 {
 	cout << __FILE__ 
 		<< ", " << __LINE__
@@ -87,7 +92,13 @@ int32_t load_data(string jno, int32_t ser_no,
 		read_disk_dataset_in (read_disk_datain, scanner);
 		vector <int> data;
 		vector <int> array_index_list;
-		if (! read_disk_dataparse (scanner, qdd_map_ptr, &data, &array_index_list)) {
+		vector <int> stub_number;
+
+		stub_number.push_back (0);
+		vector <stub_pair> stub_list;
+		if (! read_disk_dataparse (scanner, qdd_map_ptr,
+					&data, &array_index_list,
+					&stub_number, &stub_list, vec_nrg_ptr)) {
 			//return 1;
 			map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
 			for (map<string, question_disk_data*>:: iterator it 
@@ -180,10 +191,11 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * &
 int main()
 {
 	cout << "MAIN" << endl;
-	extern vector<int> stub_number;
-	stub_number.push_back (0);
+	//extern vector<int> stub_number;
+	//stub_number.push_back (0);
 	map <string, question_disk_data*>  qdd_map;
-	load_data ("randomized_test_data", 1, &qdd_map);
+	vector <NamedRangeGroup*> vec_nrg;
+	load_data ("randomized_test_data", 1, &qdd_map, &vec_nrg);
 
 }
 

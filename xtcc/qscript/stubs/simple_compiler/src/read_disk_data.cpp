@@ -457,6 +457,8 @@ static yyconst flex_int16_t yy_chk[45] =
 #include "const_defs.h"
 #include "qscript_data.hpp"
 #include "question_disk_data.h"
+#include "stub_pair.h"
+#include "new_named_range.h"
 
 #include <iostream>
 #include <cstdlib>
@@ -468,13 +470,24 @@ static yyconst flex_int16_t yy_chk[45] =
 	//void read_disk_dataerror(const char * s);
 	//int line_no;
 	//extern int no_errors;
+	// This was the older form of the function without 
+	// the randomized data reader form
+	//int read_disk_dataparse(yyscan_t yyscanner, 
+	//	std::map <string, question_disk_data*>* qdd_map_ptr,
+	//	std::vector<int>* data_ptr,
+	//	vector<int>* array_index_list_ptr);
+
 	int read_disk_dataparse(yyscan_t yyscanner, 
 		std::map <string, question_disk_data*>* qdd_map_ptr,
 		std::vector<int>* data_ptr,
-		vector<int>* array_index_list_ptr);
+		vector<int>* array_index_list_ptr,
+		vector<int>* stub_number_ptr,
+		vector<stub_pair>* stub_list_ptr,
+		vector<NamedRangeGroup*> * vec_nrg_ptr
+		);
 	int read_disk_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
 
-#line 478 "read_disk_data.cpp"
+#line 491 "read_disk_data.cpp"
 
 #define INITIAL 0
 
@@ -710,10 +723,10 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 33 "read_disk_data.l"
+#line 46 "read_disk_data.l"
 
 
-#line 717 "read_disk_data.cpp"
+#line 730 "read_disk_data.cpp"
 
     yylval = yylval_param;
 
@@ -796,7 +809,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 35 "read_disk_data.l"
+#line 48 "read_disk_data.l"
 {
 	//read_disk_datalval.ival = atoi(read_disk_datatext);
 	yylval_param->ival = atoi(yytext);
@@ -807,7 +820,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 42 "read_disk_data.l"
+#line 55 "read_disk_data.l"
 {
 	//cout << "got NEWL" << endl;
 	return NEWL;
@@ -815,7 +828,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 47 "read_disk_data.l"
+#line 60 "read_disk_data.l"
 {
 	//cout << "got COLON" << endl;
 	return COLON;
@@ -823,14 +836,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 52 "read_disk_data.l"
+#line 65 "read_disk_data.l"
 {
 	return DOLLAR;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 57 "read_disk_data.l"
+#line 70 "read_disk_data.l"
 {
 		//if (show_lex_error_context)
 		//	lex_location.AddToCurrentDisplayLine(yytext);
@@ -840,7 +853,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 64 "read_disk_data.l"
+#line 77 "read_disk_data.l"
 {
 		//if (show_lex_error_context)
 		//	lex_location.AddToCurrentDisplayLine(yytext);
@@ -850,7 +863,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 71 "read_disk_data.l"
+#line 84 "read_disk_data.l"
 {
 		//if (show_lex_error_context)
 		//	lex_location.AddToCurrentDisplayLine(yytext);
@@ -860,19 +873,19 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 80 "read_disk_data.l"
+#line 93 "read_disk_data.l"
 ; /* ignore */
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 82 "read_disk_data.l"
+#line 95 "read_disk_data.l"
 {
 	return BOUNDS;
 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 86 "read_disk_data.l"
+#line 99 "read_disk_data.l"
 {
 	//if(read_disk_dataleng < MY_STR_MAX) 
 	if(yyleng < MY_STR_MAX) {
@@ -888,10 +901,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 99 "read_disk_data.l"
+#line 112 "read_disk_data.l"
 ECHO;
 	YY_BREAK
-#line 895 "read_disk_data.cpp"
+#line 908 "read_disk_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2017,14 +2030,25 @@ void read_disk_datafree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 99 "read_disk_data.l"
+#line 112 "read_disk_data.l"
 
 
 
-	void read_disk_dataerror (yyscan_t scanner, 
+	// This was the old form of the function,
+	// without the randomized data reader
+	//void read_disk_dataerror (yyscan_t scanner, 
+	//	map <string, question_disk_data*>* qdd_map_ptr,
+	//	vector<int>* data_ptr,
+	//	vector<int>* array_index_list_ptr,
+	//	const char * s)
+
+	void read_disk_dataerror(yyscan_t scanner,
 		map <string, question_disk_data*>* qdd_map_ptr,
-		vector<int>* data_ptr,
-		vector<int>* array_index_list_ptr,
+		vector<int>* data,
+		vector<int>* array_index_list,
+		vector <int>* stub_number_ptr,
+		vector <stub_pair>* stub_list_ptr,
+		vector <NamedRangeGroup*> * vec_nrg_ptr,
 		const char * s)
 	{
 		//++no_errors;
