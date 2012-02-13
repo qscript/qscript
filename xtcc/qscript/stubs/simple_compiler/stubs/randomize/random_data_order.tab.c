@@ -68,7 +68,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 189 of yacc.c  */
-#line 1 "random_data_order.y"
+#line 4 "random_data_order.y"
 
 #include <iostream>
 #include <vector>
@@ -140,7 +140,7 @@ typedef union YYSTYPE
 {
 
 /* Line 214 of yacc.c  */
-#line 32 "random_data_order.y"
+#line 35 "random_data_order.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -452,8 +452,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    58,    58,    63,    66,    73,    79,    79,    96,    99,
-     112,   118,   124,   132
+       0,    61,    61,    66,    69,    76,    82,    82,    99,   102,
+     115,   121,   127,   135
 };
 #endif
 
@@ -1358,7 +1358,7 @@ yyreduce:
         case 2:
 
 /* Line 1455 of yacc.c  */
-#line 58 "random_data_order.y"
+#line 61 "random_data_order.y"
     {
 		root = (yyvsp[(1) - (1)].stmt);
 	;}
@@ -1367,7 +1367,7 @@ yyreduce:
   case 3:
 
 /* Line 1455 of yacc.c  */
-#line 63 "random_data_order.y"
+#line 66 "random_data_order.y"
     {
 	 	//$$ = $1;
 	;}
@@ -1376,7 +1376,7 @@ yyreduce:
   case 4:
 
 /* Line 1455 of yacc.c  */
-#line 66 "random_data_order.y"
+#line 69 "random_data_order.y"
     {
 		//$1->next_=$2;
 		//$2->prev_=$1;
@@ -1387,9 +1387,9 @@ yyreduce:
   case 5:
 
 /* Line 1455 of yacc.c  */
-#line 73 "random_data_order.y"
+#line 76 "random_data_order.y"
     {
-    	(yyval.stmt) = (yyvsp[(1) - (1)].nr_ptr);
+	(yyval.stmt) = (yyvsp[(1) - (1)].nr_ptr);
 	cout << "parsed randomized_data_order" << endl;
 	;}
     break;
@@ -1397,14 +1397,14 @@ yyreduce:
   case 6:
 
 /* Line 1455 of yacc.c  */
-#line 79 "random_data_order.y"
+#line 82 "random_data_order.y"
     { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); ;}
     break;
 
   case 7:
 
 /* Line 1455 of yacc.c  */
-#line 79 "random_data_order.y"
+#line 82 "random_data_order.y"
     {
 		AbstractNamedRange * nr_ptr = (yyvsp[(5) - (6)].nr_ptr);
 		//cout << "climbing up the chain" << endl;
@@ -1418,14 +1418,14 @@ yyreduce:
 		nrg->groupPtr_ = nr_ptr;
 		(yyval.nr_ptr) = nrg;
 		cout << "NamedRangeGroup: " << grp_name << endl;
-		stub_number.pop_back(); 
+		stub_number.pop_back();
 	;}
     break;
 
   case 8:
 
 /* Line 1455 of yacc.c  */
-#line 96 "random_data_order.y"
+#line 99 "random_data_order.y"
     {
 			    (yyval.nr_ptr) = (yyvsp[(1) - (1)].nr_ptr);
 		;}
@@ -1434,23 +1434,23 @@ yyreduce:
   case 9:
 
 /* Line 1455 of yacc.c  */
-#line 99 "random_data_order.y"
+#line 102 "random_data_order.y"
     {
-		    (yyvsp[(1) - (2)].nr_ptr)->next_nr = (yyvsp[(2) - (2)].nr_ptr);
-		    (yyvsp[(2) - (2)].nr_ptr)->prev_nr = (yyvsp[(1) - (2)].nr_ptr);
-		    AbstractNamedRange * nr = (yyvsp[(2) - (2)].nr_ptr);
-		    NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (nr);
-		    if (nrg) {
-		    	cout << "chaining: " << nrg->groupName_ << endl;
-		    }
-		    (yyval.nr_ptr) = (yyvsp[(2) - (2)].nr_ptr);
+			(yyvsp[(1) - (2)].nr_ptr)->next_nr = (yyvsp[(2) - (2)].nr_ptr);
+			(yyvsp[(2) - (2)].nr_ptr)->prev_nr = (yyvsp[(1) - (2)].nr_ptr);
+			AbstractNamedRange * nr = (yyvsp[(2) - (2)].nr_ptr);
+			NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (nr);
+			if (nrg) {
+				cout << "chaining: " << nrg->groupName_ << endl;
+			}
+			(yyval.nr_ptr) = (yyvsp[(2) - (2)].nr_ptr);
 		;}
     break;
 
   case 10:
 
 /* Line 1455 of yacc.c  */
-#line 112 "random_data_order.y"
+#line 115 "random_data_order.y"
     {
 			NamedRangeList * nrl = new NamedRangeList();
 			nrl->stubs = stub_list;
@@ -1462,9 +1462,9 @@ yyreduce:
   case 11:
 
 /* Line 1455 of yacc.c  */
-#line 118 "random_data_order.y"
+#line 121 "random_data_order.y"
     {
-		    	(yyval.nr_ptr) = (yyvsp[(1) - (1)].nr_ptr);
+			(yyval.nr_ptr) = (yyvsp[(1) - (1)].nr_ptr);
 			cout << " got nested randomized_data_order: " << endl;
 		    ;}
     break;
@@ -1472,7 +1472,7 @@ yyreduce:
   case 12:
 
 /* Line 1455 of yacc.c  */
-#line 124 "random_data_order.y"
+#line 127 "random_data_order.y"
     {
 			//no_vec.push_back ($1);
 			string s1 = "dummy";
@@ -1486,7 +1486,7 @@ yyreduce:
   case 13:
 
 /* Line 1455 of yacc.c  */
-#line 132 "random_data_order.y"
+#line 135 "random_data_order.y"
     {
 			//no_vec.push_back ($2);
 			string s1 = "dummy";
@@ -1712,7 +1712,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 143 "random_data_order.y"
+#line 146 "random_data_order.y"
 
 
 #include <cstdio>
