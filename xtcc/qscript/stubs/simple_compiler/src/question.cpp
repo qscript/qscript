@@ -399,6 +399,7 @@ const char *  AbstractQuestion::CurrentResponseToCharString()
 	return currentResponse_.c_str();
 }
 
+#if 0
 void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & code)
 {
 	for(int32_t i = 0; i< for_bounds_stack.size(); ++i){
@@ -420,7 +421,7 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 			code.quest_defns << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
 			code.quest_defns <<	"){" << endl;
 			if(i == 0){
-				code.quest_defns << "vector<int32_t> stack_of_loop_indices;\n";
+				code.quest_defns << "vector<int32_t> stack_of_loop_indices;/*  -# */\n";
 					//<< "(" <<  for_bounds_stack.size() << ");\n";
 			}
 			code.quest_defns << "stack_of_loop_indices.push_back(";
@@ -437,6 +438,7 @@ void AbstractQuestion::PrintQuestionArrayInitialisation(StatementCompiledCode & 
 		}
 	}
 }
+#endif /*  0 */
 
 #if 0
 // re_arranged_buffer will contain the data like this: valid_data invalid_data

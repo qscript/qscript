@@ -130,8 +130,8 @@ struct AbstractQuestion: public AbstractStatement
 	bool VerifyResponse(user_response::UserResponseType user_resp);
 	// void PrintArrayDeclarations(ostringstream & quest_defns);
 	void PrintArrayDeclarations(StatementCompiledCode & code);
-	void PrintQuestionArrayInitialisation(
-		StatementCompiledCode & code);
+	//void PrintQuestionArrayInitialisation(
+	//	StatementCompiledCode & code);
 	std::string PrintCodeSaveArrayQuestionNotInTheSameBlock(AbstractQuestion * save_array_quest);
 	std::string PrintCodeRestoreArrayQuestionNotInTheSameBlock(AbstractQuestion * restore_array_quest);
 	string PrintSaveArrayQuestion(ActiveVariableInfo * av_info);

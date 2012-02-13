@@ -272,6 +272,8 @@ struct ForStatement: public AbstractStatement
 	virtual ~ForStatement();
 	void GenerateQuestionArrayInitLoopOpen(StatementCompiledCode &code);
 	void GenerateQuestionArrayInitLoopClose(StatementCompiledCode &code);
+	void GetQuestionNames(vector<string> & question_list,
+			      AbstractStatement * endStatement);
 	private:
 	ForStatement& operator=(const ForStatement&);
 	ForStatement(const ForStatement&);
@@ -601,5 +603,6 @@ struct FixAndRecodeStatement: public AbstractStatement
 	}
 };
 
+string helper_GenerateArrayInitLoopOpen (vector<AbstractExpression*> & for_bounds_stack);
 
 #endif /* stmt_h */
