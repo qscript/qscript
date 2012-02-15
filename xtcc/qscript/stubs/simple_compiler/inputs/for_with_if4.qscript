@@ -1,0 +1,35 @@
+for_with_if {
+
+q1 	"driver for if condition"
+	sp int32_t (1-5);
+
+	if (q1 in (1)) {
+		1;
+	
+q2 		"before for loop inside if condition"
+		sp int32_t (1-5);
+
+q4 		"after for loop inside if condition"
+		sp int32_t (1-4);
+		
+	} else {
+
+		int32_t i1 = 0;	
+		int32_t i2 = 0;	
+		int32_t i3 = 0;	
+		for (i1=0; i1 < 2; i1 = i1 + 1) {
+			for (i2=0; i2 < 3; i2 = i2 + 1) {
+				for (i3=0; i3 < 4; i3 = i3 + 1) {
+					
+q3 					"q3 in a for loop"
+					sp int32_t (1-4);
+					
+				}
+			}
+		}
+	}
+
+q5 	"q5 after the if condition"
+	sp int32_t (1-4);
+
+}
