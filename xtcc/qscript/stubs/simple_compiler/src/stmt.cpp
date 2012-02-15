@@ -206,6 +206,45 @@ struct IfStatementStackElement
 	{ }
 };
 
+string Generate_false_code_for_questions_in_other_block (string question_name)
+{
+	stringstream code;
+	SymbolTableEntry * se = active_scope->find (question_name);
+	if (se && se->type_ == QUESTION_ARR_TYPE) {
+		code << "/* generate for loop code here */" << endl;
+		for (int32_t i1=0; i1< se->question_->for_bounds_stack.size(); ++i1) {
+			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(se->question_->for_bounds_stack[i1]);
+			if (bin_expr_ptr) {
+				AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+				ExpressionCompiledCode s1, s2;
+				lhs->PrintExpressionCode(s1);
+				rhs->PrintExpressionCode(s2);
+				code
+					<< "for (int32_t " 
+					<< s1.code_expr.str() << "= 0;"
+					<< s1.code_expr.str() << " < " << s2.code_expr.str()
+					<< "; ++ " << s1.code_expr.str()
+					<< ") {" << endl;
+			}
+		}
+		code
+			<< se->question_->questionName_ << "_list.questionList["
+			<< PrintConsolidatedForLoopIndex (se->question_->for_bounds_stack)
+			<< "]->isAnswered_ = false;\n";
+		for (int32_t i1=0; i1< se->question_->for_bounds_stack.size(); ++i1) {
+			code << "}\n";
+		}
+		
+	} else {
+		code
+			<<  question_name
+			<< "->isAnswered_ = false;/* %- */"
+			<< endl;
+	}
+	return code.str();
+}
+
 void IfStatement::GenerateCode(StatementCompiledCode &code)
 {
 	//cerr << "ENTER: IfStatement::GenerateCode()" << endl;
@@ -280,9 +319,11 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		// LOG_MAINTAINER_MESSAGE(mesg.str());
 	}
 	for(int32_t i = 0; i < question_list_else_body.size(); ++i) {
-		code.program_code <<  question_list_else_body[i]
-			<< "->isAnswered_ = false;/* ## */"
-			<< endl;
+
+		code.program_code << Generate_false_code_for_questions_in_other_block (question_list_else_body[i]);
+		//code.program_code <<  question_list_else_body[i]
+		//	<< "->isAnswered_ = false;/* ## */"
+		//	<< endl;
 	}
 	ifBody_->GenerateCode(code);
 	code.program_code << " }" << endl;
@@ -328,6 +369,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			code.program_code << "/* question_list_if_body.size(): "
 				<< question_list_if_body.size() << " */ \n";
 			for(int32_t i = 0; i < question_list_if_body.size(); ++i){
+				code.program_code << Generate_false_code_for_questions_in_other_block(question_list_if_body[i]);
+#if 0
 				SymbolTableEntry * se = active_scope->find (question_list_if_body[i]);
 				if (se && se->type_ == QUESTION_ARR_TYPE) {
 					code.program_code << "/* generate for loop code here */" << endl;
@@ -360,6 +403,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 						<< "->isAnswered_ = false;/* %- */"
 						<< endl;
 				}
+#endif /*  0 */
 			}
 			code.program_code << "// **************** \n";
 		}
