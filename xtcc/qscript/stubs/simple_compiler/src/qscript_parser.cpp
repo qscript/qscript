@@ -773,7 +773,8 @@ const char * file_exists_check_code()
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\tif (exists == 1) {\n"
 	"\t\t	map <string, question_disk_data*>  qdd_map;\n"
-	"\t\t	load_data (jno, ser_no, &qdd_map);\n"
+	"\t\t	vector <NamedRangeGroup*>  named_range_group_vec;\n"
+	"\t\t	load_data (jno, ser_no, &qdd_map, &named_range_group_vec);\n"
 	"\t\t	//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
 	"\t\t	merge_disk_data_into_questions2 (qscript_stdout, last_question_answered, last_question_visited, this->question_list, &qdd_map);\n"
 	"\t\t}\n\t}\n";
@@ -1705,7 +1706,9 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "			if(exists == 1)\n");
 	fprintf(script, "			{\n");
 	fprintf(script, " 				map <string, question_disk_data*>  qdd_map;\n");
-	fprintf(script, "				load_data (theQuestionnaire.jno, theQuestionnaire.ser_no, &qdd_map);\n");
+	fprintf(script, " 				vector <NamedRangeGroup*>  named_range_group_vec;\n");
+	fprintf(script, "				load_data (theQuestionnaire.jno, theQuestionnaire.ser_no, &qdd_map, &named_range_group_vec);\n");
+	//fprintf(script, "				load_data (theQuestionnaire.jno, theQuestionnaire.ser_no, &qdd_map);\n");
 	fprintf(script, "				merge_disk_data_into_questions2(qscript_stdout, theQuestionnaire.last_question_answered, theQuestionnaire.last_question_visited, theQuestionnaire.question_list, &qdd_map);\n");
 	fprintf(script, "			}\n");
 	fprintf(script, "		}\n");
@@ -2305,7 +2308,9 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
 	fprintf (script, " 		map <string, question_disk_data*>  qdd_map;\n");
-	fprintf (script, "	    load_data(jno, file_ser_no, &qdd_map);\n");
+	fprintf (script, " 		vector <NamedRangeGroup*>  named_range_group_vec;\n");
+	fprintf (script, "		load_data (jno, ser_no, &qdd_map, &named_range_group_vec);\n");
+	//fprintf (script, "	    load_data(jno, file_ser_no, &qdd_map);\n");
 	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited, this->question_list, &qdd_map);\n");
 	fprintf (script, "		for (map<string, question_disk_data*>:: iterator it \n");
 	fprintf (script, "				= qdd_map.begin();\n");
