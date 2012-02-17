@@ -598,5 +598,18 @@ struct NewCardStatement: public AbstractStatement
 	NewCardStatement(const NewCardStatement&);
 };
 
+struct RandomizeStatement : public AbstractStatement
+{
+	string stubGroupName_;
+	NamedRangeGroup * nrg_;
+	RandomizeStatement (DataType l_type, int32_t l_line_number, 
+			string l_stub_list_name);
+	void GenerateCode(StatementCompiledCode & code);
+};
+
+
+
+
+
 
 #endif /* stmt_h */

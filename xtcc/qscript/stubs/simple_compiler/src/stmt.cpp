@@ -2209,3 +2209,48 @@ void NewCardStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+
+RandomizeStatement::RandomizeStatement(DataType l_type, int32_t l_line_number,
+                       string l_stub_list_name)
+       : AbstractStatement(l_type, l_line_number),
+         stubGroupName_(l_stub_list_name), nrg_ (0)
+{
+
+	using qscript_parser:: named_stubs_list;
+	/*
+	if ( (struct SymbolTableEntry * stub = active_scope->SymbolTable.find(stubGroupName_))
+		       == active_scope->SymbolTable.end()) {
+	       stringstream s;
+	       s << "Unable to find :  " << stubGroupName_ << " in symbol table" << endl;
+	       print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+	}
+	*/
+	bool found = false; 
+	for (int i=0; i<named_stubs_list.size(); ++i) {
+		if (named_stubs_list[i]->groupName_ == stubGroupName_) {
+			found = true;
+			nrg_ = named_stubs_list[i];
+			break;
+		}
+	}
+	if (!nrg_) {
+	       stringstream s;
+	       s << "Unable to find :  " << stubGroupName_ << " in symbol table" << endl;
+	       print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		// put other checks here if necessary : everything good for now
+	}
+}
+
+void RandomizeStatement::GenerateCode (StatementCompiledCode & code)
+{
+	code.quest_defns_init_code 
+		<< stubGroupName_ << ".Vectorize (&"
+		<< stubGroupName_ << ", " << stubGroupName_ << ".stub_grp_vec);"
+		<< endl
+		<< stubGroupName_ << ".Randomize ();"
+		<< endl;
+	if (next_) {
+		next_->GenerateCode(code);
+	}
+}

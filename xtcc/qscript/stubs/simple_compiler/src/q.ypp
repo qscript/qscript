@@ -94,6 +94,7 @@
 %token COLUMN
 %token ISANSWERED
 %token NEWCARD
+%token RANDOMIZE
 
 
 %token '['
@@ -129,6 +130,7 @@
 %type <stmt> clear_stmt
 %type <stmt> column_stmt
 %type <stmt> newcard_stmt
+%type <stmt> randomize_stmt
  /*%type <stmt> attributes	*/
 %type <stmt> stubs
 %type <stmt> named_attributes
@@ -315,6 +317,7 @@ stmt:	question
 	| clear_stmt
 	| column_stmt
 	| newcard_stmt
+	| randomize_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
 		std::stringstream err_msg;
@@ -449,6 +452,10 @@ newcard_stmt: NEWCARD '(' expression ')' ';' {
 	}
 	;
 
+randomize_stmt: RANDOMIZE STUBS_LIST NAME ';'{
+               $$ = new RandomizeStatement (RANDOMIZE_STMT, qscript_parser::line_no, string($3));
+       }
+       ;
 
 question: NAME text_expr_list qtype datatype range_allowed_values attribute_list';' {
 		// Warning : xs is a global variable that is used here

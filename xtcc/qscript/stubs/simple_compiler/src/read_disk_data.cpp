@@ -1,6 +1,6 @@
-#line 2 "read_disk_data.cpp"
+#line 2 "src/read_disk_data.cpp"
 
-#line 4 "read_disk_data.cpp"
+#line 4 "src/read_disk_data.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -451,8 +451,8 @@ static yyconst flex_int16_t yy_chk[45] =
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
-#line 1 "read_disk_data.l"
-#line 2 "read_disk_data.l"
+#line 1 "src/read_disk_data.l"
+#line 2 "src/read_disk_data.l"
 
 #include "const_defs.h"
 #include "qscript_data.hpp"
@@ -487,7 +487,7 @@ static yyconst flex_int16_t yy_chk[45] =
 		);
 	int read_disk_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
 
-#line 491 "read_disk_data.cpp"
+#line 491 "src/read_disk_data.cpp"
 
 #define INITIAL 0
 
@@ -723,10 +723,10 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 46 "read_disk_data.l"
+#line 46 "src/read_disk_data.l"
 
 
-#line 730 "read_disk_data.cpp"
+#line 730 "src/read_disk_data.cpp"
 
     yylval = yylval_param;
 
@@ -809,7 +809,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 48 "read_disk_data.l"
+#line 48 "src/read_disk_data.l"
 {
 	//read_disk_datalval.ival = atoi(read_disk_datatext);
 	yylval_param->ival = atoi(yytext);
@@ -820,7 +820,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 55 "read_disk_data.l"
+#line 55 "src/read_disk_data.l"
 {
 	//cout << "got NEWL" << endl;
 	return NEWL;
@@ -828,7 +828,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 60 "read_disk_data.l"
+#line 60 "src/read_disk_data.l"
 {
 	//cout << "got COLON" << endl;
 	return COLON;
@@ -836,14 +836,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 65 "read_disk_data.l"
+#line 65 "src/read_disk_data.l"
 {
 	return DOLLAR;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 70 "read_disk_data.l"
+#line 70 "src/read_disk_data.l"
 {
 		//if (show_lex_error_context)
 		//	lex_location.AddToCurrentDisplayLine(yytext);
@@ -853,7 +853,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 77 "read_disk_data.l"
+#line 77 "src/read_disk_data.l"
 {
 		//if (show_lex_error_context)
 		//	lex_location.AddToCurrentDisplayLine(yytext);
@@ -863,7 +863,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 84 "read_disk_data.l"
+#line 84 "src/read_disk_data.l"
 {
 		//if (show_lex_error_context)
 		//	lex_location.AddToCurrentDisplayLine(yytext);
@@ -873,19 +873,19 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 93 "read_disk_data.l"
+#line 93 "src/read_disk_data.l"
 ; /* ignore */
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 95 "read_disk_data.l"
+#line 95 "src/read_disk_data.l"
 {
 	return BOUNDS;
 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 99 "read_disk_data.l"
+#line 99 "src/read_disk_data.l"
 {
 	//if(read_disk_dataleng < MY_STR_MAX) 
 	if(yyleng < MY_STR_MAX) {
@@ -901,10 +901,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 112 "read_disk_data.l"
+#line 112 "src/read_disk_data.l"
 ECHO;
 	YY_BREAK
-#line 908 "read_disk_data.cpp"
+#line 908 "src/read_disk_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2030,7 +2030,7 @@ void read_disk_datafree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 112 "read_disk_data.l"
+#line 112 "src/read_disk_data.l"
 
 
 
