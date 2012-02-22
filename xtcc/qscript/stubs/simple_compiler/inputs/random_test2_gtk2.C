@@ -91,7 +91,7 @@ void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_li
 void load_languages_available(vector<string> & vec_language);
 int SetupGTK (int argc, char * argv[]);
 int32_t ValidateSerialNo (const gchar * entry_text);
-
+string GenerateSessionId();
 int process_options(int argc, char * argv[]);
 WINDOW  * question_window = 0,
 * stub_list_window = 0,
@@ -1227,7 +1227,7 @@ struct Session
 	/**
 	 * Unique ID for this session.
 	 */
-	char sid[33];
+	char sid[50];
 	/**
 	 * Reference counter giving the number of connections
 	 * currently using this session.
@@ -2137,7 +2137,7 @@ void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 	gtk_window_set_title (GTK_WINDOW (window), "Paned Windows");
 	/* Sets the border width of the window. */
 	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
-	gtk_widget_set_size_request (GTK_WIDGET (window), 450, 400);
+	gtk_widget_set_size_request (GTK_WIDGET (window), 800, 600);
 	g_signal_connect (G_OBJECT (window), "delete_event",
 		G_CALLBACK (delete_event), NULL);
 	/* Here we connect the "destroy" event to a signal handler.
@@ -2160,6 +2160,12 @@ void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 	gtk_widget_show (window);
 	// ============================
 	get_serial_no_gtk(); 
+
+	// Setup the session
+	string sess_id = GenerateSessionId();
+	this_users_session = new Session();
+	strcpy (this_users_session->sid, sess_id.c_str());
+	wt_sessions.push_back(this_users_session);
 }
 
 
@@ -2181,7 +2187,8 @@ void GtkQuestionnaireApplication::get_serial_no_gtk ()
 
 
 	vbox = gtk_vbox_new (FALSE, 0);
-	gtk_container_add (GTK_CONTAINER (top_half), vbox);
+	//gtk_container_add (GTK_CONTAINER (top_half), vbox);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), vbox);
 	gtk_widget_show (vbox);
 
 	entry = gtk_entry_new ();
@@ -2236,11 +2243,197 @@ void GtkQuestionnaireApplication::ValidateSerialNo()
 					delete it->second;
 				}
 			}
-			//DoQuestionnaire();
+			DoQuestionnaire();
 		}
 		else
 		{
 			//le_data_->setText("You have entered a  negative number");
 		}
 	}
+}
+
+string GenerateSessionId()
+{
+	srand(time(0));
+	char buffer[50];
+	sprintf (buffer, "%010d%010d%010d%010d", rand(), rand(), rand(), rand());
+	return string(buffer);
+}
+
+
+void GtkQuestionnaireApplication::DoQuestionnaire()
+{
+	//if (!wt_questionText_) {
+	//	wt_questionText_ = new WText(root());
+	//}
+	cout << "Data for ser_no: " << ser_no << endl;
+	for(int32_t i = 0; i < this_users_session->questionnaire->question_list.size(); ++i)
+	{
+		cout << this_users_session->questionnaire->question_list[i]->questionName_;
+		for( set<int32_t>::iterator iter = this_users_session->questionnaire->question_list[i]->input_data.begin();
+			iter != this_users_session->questionnaire->question_list[i]->input_data.end(); ++iter)
+		{
+			cout << " " << *iter;
+		}
+		cout << "\n";
+	}
+	static int counter = 0;
+	stringstream s;
+	s << "reached DoQuestionnaire: " << counter++;
+#if 0
+	wt_debug_->setText(s.str());
+	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
+	string display_text = string("Session Id:") + sess_id;
+	wt_questionText_->setText(display_text);
+	// put this code later
+	string err_mesg, re_arranged_buffer;
+	int32_t pos_1st_invalid_data;
+	s << "last_question_served: " << this_users_session->last_question_served;
+	wt_debug_->setText(s.str());
+	if (this_users_session->last_question_served)
+	{
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session->last_question_served))
+		{
+			AbstractQuestion * last_question_served = this_users_session->last_question_served;
+			vector<int32_t> data;
+			bool isAnswered = false;
+			cout << "returned back data from question: " << nq->questionName_ << endl;
+			if (last_question_served->no_mpn == 1)
+			{
+				if ( wt_rb_container_->selectedButtonIndex() != -1)
+				{
+					isAnswered = true;
+					int code = wt_rb_container_->checkedId();
+					cout << "no_mpn == 1, code: " << code << endl;
+					data.push_back(code);
+				}
+				else
+				{
+					isAnswered = false;
+				}
+			}
+			else
+			{
+				cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
+				for (int i = 0; i < vec_cb.size(); ++i)
+				{
+					if (vec_cb[i]->checkState() == Wt::Checked)
+					{
+						int code = map_cb_code_index[i];
+						data.push_back(code);
+						cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
+						isAnswered = true;
+					}
+				}
+			}
+			if (isAnswered)
+			{
+				bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+					&data);
+				if (invalid_code == false)
+				{
+					//last_question_served->input_data.erase
+					//	(last_question_served->input_data.begin(),
+					//	last_question_served->input_data.end());
+					last_question_served->input_data.clear();
+					for(uint32_t i = 0; i < data.size(); ++i)
+					{
+						last_question_served->input_data.insert(data[i]);
+						cout << "storing: " << data[i]
+							<< " into input_data" << endl;
+					}
+					last_question_served->isAnswered_ = true;
+					data.clear();
+				}
+			}
+			// do something with isAnswered_ == false here and resend the
+			// qnre to the respondent
+		}
+		else
+		{
+
+			string last_question_visited_str = wt_lastQuestionVisited_->text().narrow();
+			string current_question_response = le_data_->text().narrow();
+			AbstractQuestion * last_question_served = this_users_session->last_question_served;
+			if (last_question_visited_str != "" && current_question_response != "" && last_question_served->no_mpn==1)
+			{
+				UserNavigation user_nav=NOT_SET;
+				user_response::UserResponseType user_resp=user_response::NotSet;
+				vector<int32_t> data;
+				bool parse_success = verify_web_data (current_question_response, user_nav, user_resp, &data);
+				if (parse_success)
+				{
+					cout << "successfully parsed data = ";
+					for (int i=0; i<data.size(); ++i)
+					{
+						cout << data[i] << ", ";
+					}
+					cout << endl;
+				}
+				// the call below will be required at some later stage
+				//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+				// right now we go along with the happy path
+				bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+					&data);
+				if (invalid_code == false)
+				{
+					last_question_served->input_data.erase
+						(last_question_served->input_data.begin(),
+						last_question_served->input_data.end());
+					for(uint32_t i = 0; i < data.size(); ++i)
+					{
+						last_question_served->input_data.insert(data[i]);
+						//cout << "storing: " << data[i]
+						//	<< " into input_data" << endl;
+					}
+					last_question_served->isAnswered_ = true;
+					data.clear();
+				}
+				else
+				{
+					ConstructQuestionForm(last_question_served, this_users_session);
+					return;
+				}
+			}
+			else if (last_question_visited_str != "" && current_question_response != "" && last_question_served->no_mpn > 1)
+			{
+				string utf8_response = le_data_->text().toUTF8();
+				if (utf8_response != "")
+				{
+					stringstream file_name_str;
+					file_name_str << last_question_served->questionName_ << "."
+						<< jno << "_" << ser_no << ".dat";
+
+					fstream open_end_resp(file_name_str.str().c_str(), ios_base::out|ios_base::ate);
+					open_end_resp << utf8_response << endl;
+					last_question_served->input_data.insert(96);
+					last_question_served->isAnswered_ = true;
+				}
+				else
+				{
+					ConstructQuestionForm(last_question_served, this_users_session);
+					return;
+				}
+			}
+		}
+	}
+	{
+		TheQuestionnaire * qnre = this_users_session->questionnaire;
+		qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
+	}
+	AbstractQuestion * q =
+		this_users_session->questionnaire->eval2(
+		qnre_navigation_mode);
+	this_users_session->last_question_served = q;
+	if (q)
+	{
+		ConstructQuestionForm(q, this_users_session);
+	}
+	else
+	{
+		TheQuestionnaire * qnre = this_users_session->questionnaire;
+		qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
+		ConstructThankYouPage();
+	}
+#endif /* 0 */
 }
