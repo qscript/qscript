@@ -183,7 +183,7 @@ struct TheQuestionnaire
 		simple_stub.set_range_data("simple_stub", qscript_temp_8);
 		{
 			vector<TextExpression *> text_expr_vec;
-			text_expr_vec.push_back(new TextExpression(string("q1")));
+			text_expr_vec.push_back(new TextExpression(string("q1. This is the text for Question 1.")));
 			q1 = new NamedStubQuestion(QUESTION_TYPE, 30,string( "q1"), text_expr_vec,spn,1,INT32_TYPE,&suvidha_kendra, QuestionAttributes(false , false), true);
 			print_question_messages(q1);
 		}
@@ -1287,6 +1287,9 @@ class GtkQuestionnaireApplication
 		GtkWidget * wt_lastQuestionVisited_;
 		GtkWidget * wt_cb_rb_container_;
 		GtkWidget * wt_rb_container_;
+
+		GtkWidget * questionTextLabel_;
+
 		vector<GtkWidget*> vec_rb;
 		vector<GtkWidget*> vec_cb;
 		std::map<int, int> map_cb_code_index;
@@ -1294,12 +1297,17 @@ class GtkQuestionnaireApplication
 
 		GtkWidget *vbox , *hbox ;
 		GtkWidget * entry ;
-		GtkWidget * button ;
+		//GtkWidget * button ;
 		GtkWidget * check ;
+		GtkWidget * rb ;
 
 		GtkWidget * viewPort_;
 		GtkWidget * currentForm_;
 		GtkWidget * formContainer_;
+		GSList * gtkRadioButtonGroup_;
+
+		GtkWidget * bottomHalfVBox_;
+
 		int ser_no;
 		GtkWidget * serialPage_;
 		bool flagSerialPageRemoved_;
@@ -1315,6 +1323,7 @@ class GtkQuestionnaireApplication
 			AbstractQuestion *q, Session * this_users_session);
 		void ConstructThankYouPage();
 		const char * software_info();
+		void CreateBottomHalf();
 	public:
 		void ValidateSerialNo();
 		//virtual ~GtkQuestionnaireApplication();
@@ -2108,21 +2117,24 @@ GtkWidget * CreateTopHalf()
 	return scrolled_window;
 }
 
-GtkWidget * CreateBottomHalf()
+void GtkQuestionnaireApplication::CreateBottomHalf()
 {
-	GtkWidget *scrolled_window;
-	GtkWidget *view;
-	GtkTextBuffer *buffer;
-	view = gtk_text_view_new ();
-	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
-	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+	//GtkWidget *scrolled_window;
+	//GtkWidget *view;
+	//GtkTextBuffer *buffer;
+	//view = gtk_text_view_new ();
+	//buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+	bottom_half = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (bottom_half),
 				GTK_POLICY_AUTOMATIC,
 				GTK_POLICY_AUTOMATIC);
-	gtk_container_add (GTK_CONTAINER (scrolled_window), view);
+	//gtk_container_add (GTK_CONTAINER (scrolled_window), view);
+	bottomHalfVBox_ = gtk_vbox_new (FALSE, 0);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfVBox_);
+	gtk_widget_show (bottomHalfVBox_);
 	//insert_text (buffer);
-	gtk_widget_show_all (scrolled_window);
-	return scrolled_window;
+	gtk_widget_show_all (bottom_half);
+	//return scrolled_window;
 }
 
 GtkQuestionnaireApplication::GtkQuestionnaireApplication (int argc, char * argv[])
@@ -2154,7 +2166,7 @@ void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 	/* GtkWidget *  */ top_half = CreateTopHalf ();
 	gtk_paned_add1 (GTK_PANED (vpaned), top_half);
 	gtk_widget_show (top_half);
-	/*  GtkWidget *  */ bottom_half = CreateBottomHalf ();
+	/*  GtkWidget *   bottom_half =*/ CreateBottomHalf ();
 	gtk_paned_add2 (GTK_PANED (vpaned), bottom_half);
 	gtk_widget_show (bottom_half);
 	gtk_widget_show (window);
@@ -2280,9 +2292,9 @@ void GtkQuestionnaireApplication::DoQuestionnaire()
 	static int counter = 0;
 	stringstream s;
 	s << "reached DoQuestionnaire: " << counter++;
-#if 0
-	wt_debug_->setText(s.str());
+	//wt_debug_->setText(s.str());
 	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
+#if 0
 	string display_text = string("Session Id:") + sess_id;
 	wt_questionText_->setText(display_text);
 	// put this code later
@@ -2421,6 +2433,7 @@ void GtkQuestionnaireApplication::DoQuestionnaire()
 		TheQuestionnaire * qnre = this_users_session->questionnaire;
 		qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
 	}
+#endif /* 0 */
 	AbstractQuestion * q =
 		this_users_session->questionnaire->eval2(
 		qnre_navigation_mode);
@@ -2431,9 +2444,168 @@ void GtkQuestionnaireApplication::DoQuestionnaire()
 	}
 	else
 	{
-		TheQuestionnaire * qnre = this_users_session->questionnaire;
-		qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
-		ConstructThankYouPage();
+		//TheQuestionnaire * qnre = this_users_session->questionnaire;
+		//qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
+		//ConstructThankYouPage();
 	}
+}
+
+void GtkQuestionnaireApplication::ConstructQuestionForm(
+	AbstractQuestion *q, Session * this_users_session)
+{
+#if 0
+	WContainerWidget * new_form = new WContainerWidget();
+	vec_rb.clear();				 // memory leak introduced here? no it seems
+	vec_cb.clear();				 // memory leak introduced here? no it seems
+	map_cb_code_index.clear();
+
+	wt_questionText_ = new WText();
+	//wt_questionText_->setText(q->textExprVec_[0]->text_);
+	//stringstream question_text;
+	stringstream part_mesg_id;
+	WString question_text;
+	part_mesg_id << q->questionName_;
+	for (int i=0; i<q->loop_index_values.size(); ++i)
+	{
+		part_mesg_id << "_" << q->loop_index_values[i];
+	}
+	WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);
+	for (int i=0; i<q->textExprVec_.size(); ++i)
+	{
+		question_text += "<p>";
+		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
+		{
+			stringstream mesg_id;
+			mesg_id << part_mesg_id.str() << "_" << i;
+			question_text += WString::tr(mesg_id.str().c_str());
+		}
+		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
+		{
+			stringstream named_attribute_key;
+			named_attribute_key << q->textExprVec_[i]->naPtr_->name;
+			named_attribute_key << "_" << q->textExprVec_[i]->naIndex_;
+			question_text += WString::tr(named_attribute_key.str().c_str());
+		}
+		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)
+		{
+			if (q->textExprVec_[i]->codeIndex_ != -1)
+			{
+				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);
+			}
+			else
+			{
+				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+			}
+		}
+		question_text += "</p>";
+	}
+	wt_questionText_->setText(question_text);
+
+	new_form->addWidget(wt_questionText_);
+	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
+	{
+		new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());
+		if (q->no_mpn==1)
+		{
+			wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
+		}
+		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+		for (int i=0; i<vec.size(); ++i)
+		{
+			stringstream named_range_key;
+			named_range_key << nq->nr_ptr->name << "_" << i;
+			if (q->no_mpn==1 && vec[i].mask)
+			{
+				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
+				WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+				wt_rb_container_->addButton(wt_rb, vec[i].code);
+				new WBreak(wt_cb_rb_container_);
+				vec_rb.push_back(wt_rb);
+			}
+			else if (q->no_mpn>1 && vec[i].mask)
+			{
+				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
+				WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+				vec_cb.push_back(wt_cb);
+				cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
+				map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+			}
+		}
+		new_form->addWidget(wt_cb_rb_container_);
+	}
+	else
+	{
+		le_data_ = new WLineEdit();
+		new_form->addWidget(le_data_);
+	}
+
+	wt_lastQuestionVisited_ = new WText();
+	if (this_users_session->last_question_answered)
+		wt_lastQuestionVisited_->setText(q->questionName_);
+	new_form->addWidget(wt_lastQuestionVisited_);
+
+	// create a button
+	WPushButton *b = new WPushButton("Next");
+	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);
+	new_form->addWidget(b);
+
+	setCentralWidget(new_form);
 #endif /* 0 */
+	//gtk_widget_hide_all (top_half);
+	gtk_widget_hide( entry);
+
+	questionTextLabel_ = gtk_label_new (q->textExprVec_[0]->text_.c_str());
+	//gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), questionTextLabel_);
+	gtk_box_pack_start (GTK_BOX (vbox), questionTextLabel_, TRUE, TRUE, 0);
+	gtk_widget_show(questionTextLabel_);
+	gtk_widget_show (top_half);
+
+	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
+	{
+		//new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());
+		//if (q->no_mpn==1)
+		//{
+		//	wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
+		//}
+		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+		bool rb_group_was_created = false;
+		if (vec_rb.size() > 0) {
+			// put clear / destroy previous widget code here
+		}
+		for (int i=0; i<vec.size(); ++i)
+		{
+			stringstream named_range_key;
+			named_range_key << nq->nr_ptr->name << "_" << i;
+			if (q->no_mpn == 1 && vec[i].mask)
+			{
+				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
+				//WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+				//wt_rb_container_->addButton(wt_rb, vec[i].code);
+				//new WBreak(wt_cb_rb_container_);
+				if (!rb_group_was_created) {
+					rb = gtk_radio_button_new_with_label (NULL, "button1");
+					gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+					gtk_widget_show (rb);
+					gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+					rb_group_was_created = true;
+				} else {
+					rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), "button2");
+					gtk_widget_show (rb);
+					gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+				}
+				vec_rb.push_back (rb);
+			}
+#if 0
+			if (q->no_mpn>1 && vec[i].mask)
+			{
+				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
+				WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+				vec_cb.push_back(wt_cb);
+				cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
+				map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+			}
+#endif /*  0 */
+		}
+		//new_form->addWidget(wt_cb_rb_container_);
+	}
 }
