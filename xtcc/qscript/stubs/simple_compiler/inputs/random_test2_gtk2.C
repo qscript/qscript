@@ -2583,13 +2583,13 @@ void GtkQuestionnaireApplication::ConstructQuestionForm(
 				//wt_rb_container_->addButton(wt_rb, vec[i].code);
 				//new WBreak(wt_cb_rb_container_);
 				if (!rb_group_was_created) {
-					rb = gtk_radio_button_new_with_label (NULL, "button1");
+					rb = gtk_radio_button_new_with_label (NULL, vec[i].stub_text.c_str());
 					gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
 					gtk_widget_show (rb);
 					gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
 					rb_group_was_created = true;
 				} else {
-					rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), "button2");
+					rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), vec[i].stub_text.c_str());
 					gtk_widget_show (rb);
 					gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
 				}
