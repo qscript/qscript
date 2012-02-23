@@ -422,7 +422,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
 	fprintf(script, "void load_languages_available(vector<string> & vec_language);\n");
 	fprintf (script, "int SetupGTK (int argc, char * argv[]);\n");
-	fprintf (script, "int32_t ValidateSerialNo (const gchar * entry_text);\n");
+	//fprintf (script, "int32_t ValidateSerialNo (const gchar * entry_text);\n");
 	fprintf (script, "string GenerateSessionId();\n");
 
 
