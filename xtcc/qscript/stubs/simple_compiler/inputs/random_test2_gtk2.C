@@ -1274,12 +1274,24 @@ static struct Session *sessions;
 vector <Session*> wt_sessions;
 using namespace Wt;
 
+class GtkQuestionnaireApplication;
+
+struct GtkRadioButtonData
+{
+	int selectedCode_;
+	GtkQuestionnaireApplication * qApp_;
+	GtkRadioButtonData (int data, GtkQuestionnaireApplication * p_qapp)
+		: selectedCode_ (data), qApp_ (p_qapp)
+	{ }
+};
+
 class GtkQuestionnaireApplication
 {
 	public:
 		GtkWidget * window , * top_half , * bottom_half ;
 		GtkQuestionnaireApplication (int argc, char * argv[]);
 	void SetupGTK (int argc, char * argv[]);
+		int rb_selected_code;
 	private:
 		GtkWidget * wt_debug_;
 		GtkWidget * wt_questionText_;
@@ -1291,6 +1303,7 @@ class GtkQuestionnaireApplication
 		GtkWidget * questionTextLabel_;
 
 		vector<GtkWidget*> vec_rb;
+		vector<GtkRadioButtonData*> rbData_;
 		vector<GtkWidget*> vec_cb;
 		std::map<int, int> map_cb_code_index;
 		std::vector<GtkWidget *> languageSelects_;
@@ -1300,13 +1313,14 @@ class GtkQuestionnaireApplication
 		//GtkWidget * button ;
 		GtkWidget * check ;
 		GtkWidget * rb ;
+		GtkWidget * next_button ;
 
 		GtkWidget * viewPort_;
 		GtkWidget * currentForm_;
 		GtkWidget * formContainer_;
 		GSList * gtkRadioButtonGroup_;
 
-		GtkWidget * bottomHalfVBox_;
+		GtkWidget * bottomHalfVBox_, * bottomHalfNavigationBox_;
 
 		int ser_no;
 		GtkWidget * serialPage_;
@@ -1315,7 +1329,6 @@ class GtkQuestionnaireApplication
 		string sess_id ;
 
 		void display();
-		void DoQuestionnaire() ;
 		void setCentralWidget(WContainerWidget * new_question_form);
 		void changeLanguage();
 		void setLanguage(const std::string lang);
@@ -1325,6 +1338,7 @@ class GtkQuestionnaireApplication
 		const char * software_info();
 		void CreateBottomHalf();
 	public:
+		void DoQuestionnaire() ;
 		void ValidateSerialNo();
 		//virtual ~GtkQuestionnaireApplication();
 		void get_serial_no_gtk ();
@@ -2135,6 +2149,9 @@ void GtkQuestionnaireApplication::CreateBottomHalf()
 	//insert_text (buffer);
 	gtk_widget_show_all (bottom_half);
 	//return scrolled_window;
+	bottomHalfNavigationBox_ = gtk_vbox_new (FALSE, 0);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfNavigationBox_);
+	gtk_widget_show (bottomHalfNavigationBox_);
 }
 
 GtkQuestionnaireApplication::GtkQuestionnaireApplication (int argc, char * argv[])
@@ -2450,6 +2467,19 @@ void GtkQuestionnaireApplication::DoQuestionnaire()
 	}
 }
 
+void next_button_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp)
+{
+	//g_print ("Next button was pressed", (char *) data);
+	qapp->DoQuestionnaire();
+}
+
+void toggle_rb_button_event (GtkWidget *widget, GtkRadioButtonData * rb_data)
+{
+	rb_data->qApp_->rb_selected_code  = rb_data -> selectedCode_;
+	
+	g_print ("Toggle event occured %d",  rb_data -> selectedCode_);
+}
+
 void GtkQuestionnaireApplication::ConstructQuestionForm(
 	AbstractQuestion *q, Session * this_users_session)
 {
@@ -2585,11 +2615,19 @@ void GtkQuestionnaireApplication::ConstructQuestionForm(
 				if (!rb_group_was_created) {
 					rb = gtk_radio_button_new_with_label (NULL, vec[i].stub_text.c_str());
 					gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+					GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
+					rbData_.push_back (rb_data);
+					g_signal_connect (G_OBJECT (rb), "toggled",
+						G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
 					gtk_widget_show (rb);
 					gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
 					rb_group_was_created = true;
 				} else {
 					rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), vec[i].stub_text.c_str());
+					GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
+					rbData_.push_back (rb_data);
+					g_signal_connect (G_OBJECT (rb), "toggled",
+						G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
 					gtk_widget_show (rb);
 					gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
 				}
@@ -2608,4 +2646,12 @@ void GtkQuestionnaireApplication::ConstructQuestionForm(
 		}
 		//new_form->addWidget(wt_cb_rb_container_);
 	}
+	next_button = gtk_button_new_with_label ("Next");
+	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), next_button, TRUE, TRUE, 0);
+	gtk_widget_show (next_button);
+
+/* When the button is clicked, we call the "callback" function
+* with a pointer to "button 1" as its argument */
+	g_signal_connect (G_OBJECT (next_button), "clicked",
+		G_CALLBACK (next_button_callback), (gpointer) this);
 }
