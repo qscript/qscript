@@ -39,6 +39,7 @@ namespace program_options_ns {
 	bool web_server_flag = false;
 	bool microhttpd_flag = false;
 	bool wt_flag = false;
+	bool gtk_flag = false;
 	int32_t fname_flag = 0;
 	bool  no_question_save_restore_optimization;
 	bool flag_nice_map;
@@ -316,11 +317,12 @@ void process_options (int32_t argc, char* argv[])
 			{ "static", no_argument, 0, 's'},
 			{ "ncurses-exe", no_argument, 0, 'n'},
 			{ "web-exe", required_argument, 0, 'w'},
-			{ "filename", required_argument, 0, 'f'}
+			{ "filename", required_argument, 0, 'f'},
+			{ "gtk", required_argument, 0, 'g'}
 		};
 	int option_index = 0;
 	while (1) {
-		c = getopt_long (argc, argv, "molcsnw:f:", long_options, &option_index);
+		c = getopt_long (argc, argv, "molcsngw:f:", long_options, &option_index);
 		if (c == -1) {
 			break;
 		}
@@ -351,6 +353,9 @@ void process_options (int32_t argc, char* argv[])
 			case 'f':
 				fname = optarg;
 				program_options_ns::fname_flag = 1;
+				break;
+			case 'g':
+				program_options_ns::gtk_flag = true;
 				break;
 			case 'l':
 				program_options_ns::latex_flag = true;
