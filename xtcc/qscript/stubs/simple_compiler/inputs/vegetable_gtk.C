@@ -1796,12 +1796,33 @@ class GtkQuestionnaireApplication
 		void ConstructThankYouPage();
 		const char * software_info();
 		void CreateBottomHalf();
+		void DestroyPreviousWidgets ();
 	public:
 		void DoQuestionnaire() ;
 		void ValidateSerialNo();
 		//virtual ~GtkQuestionnaireApplication();
 		void get_serial_no_gtk ();
 };
+
+void GtkQuestionnaireApplication::DestroyPreviousWidgets ()
+{
+	if (vec_rb.size() > 0)
+	{
+		// put clear / destroy previous widget code here
+		for (int i=0; i<vec_rb.size(); ++i) {
+			gtk_widget_destroy (vec_rb[i]);
+		}
+	}
+	if (vec_cb.size() > 0)
+	{
+		// put clear / destroy previous widget code here
+		for (int i=0; i<vec_cb.size(); ++i) {
+			gtk_widget_destroy (vec_cb[i]);
+		}
+	}
+	if (next_button)
+		gtk_widget_destroy (next_button);
+}
 
 gint delete_event (GtkWidget *widget, GdkEvent *event, gpointer data)
 {
@@ -1871,6 +1892,7 @@ GtkQuestionnaireApplication::GtkQuestionnaireApplication (int argc, char * argv[
 
 void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 {
+	next_button = 0;
 	gtk_init (&argc, &argv);
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title (GTK_WINDOW (window), "Paned Windows");
@@ -2027,7 +2049,9 @@ void GtkQuestionnaireApplication::DoQuestionnaire()
 	// put this code later
 	string err_mesg, re_arranged_buffer;
 	int32_t pos_1st_invalid_data;
-	s << "last_question_served: " << this_users_session->last_question_served;
+	if (this_users_session->last_question_served) 
+		s << "last_question_served: " << this_users_session->last_question_served->questionName_ ;
+	cout << s.str() << endl;
 	//wt_debug_->setText(s.str());
 	if (this_users_session->last_question_served)
 	{
@@ -2051,22 +2075,26 @@ void GtkQuestionnaireApplication::DoQuestionnaire()
 					isAnswered = false;
 				}
 			}
-			#if 0
 			else
 			{
 				cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
 				for (int i = 0; i < vec_cb.size(); ++i)
 				{
-					if (vec_cb[i]->checkState() == Wt::Checked)
-					{
+					//if (vec_cb[i]->checkState() == Wt::Checked)
+					//{
+					//	int code = map_cb_code_index[i];
+					//	data.push_back(code);
+					//	cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
+					//	isAnswered = true;
+					//}
+					if (gtk_toggle_button_get_active ((GtkToggleButton *) vec_cb[i]) ) {
 						int code = map_cb_code_index[i];
 						data.push_back(code);
-						cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
 						isAnswered = true;
+						cout << "button is toggled: " << code << endl;
 					}
 				}
 			}
-			#endif				 /*  0 */
 			if (isAnswered)
 			{
 				bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
@@ -2204,11 +2232,11 @@ void toggle_rb_button_event (GtkWidget *widget, GtkRadioButtonData * rb_data)
 void GtkQuestionnaireApplication::ConstructQuestionForm(
 AbstractQuestion *q, Session * this_users_session)
 {
+	map_cb_code_index.clear();
 	#if 0
 	WContainerWidget * new_form = new WContainerWidget();
 	vec_rb.clear();				 // memory leak introduced here? no it seems
 	vec_cb.clear();				 // memory leak introduced here? no it seems
-	map_cb_code_index.clear();
 
 	wt_questionText_ = new WText();
 	//wt_questionText_->setText(q->textExprVec_[0]->text_);
@@ -2321,20 +2349,7 @@ AbstractQuestion *q, Session * this_users_session)
 		}
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		bool rb_group_was_created = false;
-		if (vec_rb.size() > 0)
-		{
-			// put clear / destroy previous widget code here
-			for (int i=0; i<vec_rb.size(); ++i) {
-				gtk_widget_destroy (vec_rb[i]);
-			}
-		}
-		if (vec_cb.size() > 0)
-		{
-			// put clear / destroy previous widget code here
-			for (int i=0; i<vec_cb.size(); ++i) {
-				gtk_widget_destroy (vec_cb[i]);
-			}
-		}
+		DestroyPreviousWidgets ();
 		for (int i=0; i<vec.size(); ++i)
 		{
 			stringstream named_range_key;
@@ -2375,7 +2390,6 @@ AbstractQuestion *q, Session * this_users_session)
 				//WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
 				//vec_cb.push_back(wt_cb);
 				//cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
-				//map_cb_code_index[vec_cb.size()-1] = vec[i].code;
 				GtkWidget * cb = gtk_check_button_new_with_label (vec[i].stub_text.c_str());
 				GtkRadioButtonData * cb_data = new GtkRadioButtonData (vec[i].code, this);
 				rbData_.push_back (cb_data);
@@ -2383,7 +2397,10 @@ AbstractQuestion *q, Session * this_users_session)
 					G_CALLBACK (toggle_rb_button_event), (gpointer) cb_data);
 				gtk_widget_show (cb);
 				gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), cb, TRUE, TRUE, 0);
+				//!! Warning - the 2 statements below have to be in this order
+				// and are not interchangeable
 				vec_cb.push_back (cb);
+				map_cb_code_index[vec_cb.size()-1] = vec[i].code;
 			}
 		}
 		//new_form->addWidget(wt_cb_rb_container_);
