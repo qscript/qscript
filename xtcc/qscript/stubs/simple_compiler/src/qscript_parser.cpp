@@ -1418,6 +1418,18 @@ test_script.o: test_script.C
 #else
 			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime");
 #endif /* _WIN32 */
+	} else if (program_options_ns::gtk_flag) {
+		cout << "reached here: " << endl;
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string(" `pkg-config --libs --cflags gtk+-2.0` ")
+			+ string(" -lqscript_runtime -lpanel")
+			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME
+			+ string (" -lwt -lboost_filesystem ");
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
@@ -4906,6 +4918,70 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "	//return WRun (argc, argv, &createApplication);\n");
 	fprintf (script, "}\n");
 	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "void load_languages_available(vector<string> & vec_language)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	DIR * directory_ptr = opendir(\".\");\n");
+	fprintf (script, "	vec_language.push_back(\"en\");\n");
+	fprintf (script, "	struct dirent *directory_entry = readdir(directory_ptr);\n");
+	fprintf (script, "	while (directory_entry)\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "		string dir_entry_name(directory_entry->d_name);\n");
+	fprintf (script, "		int len_entry = dir_entry_name.length();\n");
+	fprintf (script, "		if (len_entry > 4 &&\n");
+	fprintf (script, "			dir_entry_name[len_entry - 1] == 'l' &&\n");
+	fprintf (script, "			dir_entry_name[len_entry - 2] == 'm' &&\n");
+	fprintf (script, "			dir_entry_name[len_entry - 3] == 'x' &&\n");
+	fprintf (script, "			dir_entry_name[len_entry - 4] == '.' )\n");
+	fprintf (script, "		{\n");
+	fprintf (script, "			// the names we are looking for are of the form\n");
+	fprintf (script, "			// jno + \"[a-z][a-z].xml\"\n");
+	fprintf (script, "			bool is_our_file = true;\n");
+	fprintf (script, "			if (len_entry != jno.length() + 7)\n");
+	fprintf (script, "			{\n");
+	fprintf (script, "				is_our_file = false;\n");
+	fprintf (script, "				// the above doesnt matter actually,\n");
+	fprintf (script, "				// continue takes us back to the top\n");
+	fprintf (script, "				goto read_another_entry;\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "			else\n");
+	fprintf (script, "			{\n");
+	fprintf (script, "				// possibly what we are looking for\n");
+	fprintf (script, "				//\n");
+	fprintf (script, "				for (int i = 0; i < jno.length(); ++i)\n");
+	fprintf (script, "				{\n");
+	fprintf (script, "					if (!(jno[i] == dir_entry_name[i]))\n");
+	fprintf (script, "					{\n");
+	fprintf (script, "						// cannot be our data file\n");
+	fprintf (script, "						is_our_file = false;\n");
+	fprintf (script, "						goto read_another_entry;\n");
+	fprintf (script, "					}\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "				char first_letter = dir_entry_name[jno.length() + 1];\n");
+	fprintf (script, "				if (! isalpha (first_letter))\n");
+	fprintf (script, "				{\n");
+	fprintf (script, "					is_our_file = false;\n");
+	fprintf (script, "					goto read_another_entry;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "				char second_letter = dir_entry_name[jno.length() + 2];\n");
+	fprintf (script, "				if (! isalpha (second_letter))\n");
+	fprintf (script, "				{\n");
+	fprintf (script, "					is_our_file = false;\n");
+	fprintf (script, "					goto read_another_entry;\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "				string a_language;\n");
+	fprintf (script, "				a_language.push_back(first_letter);\n");
+	fprintf (script, "				a_language.push_back(second_letter);\n");
+	fprintf (script, "				vec_language.push_back(a_language);\n");
+	fprintf (script, "				//cout << \"found an language traslation file: \"\n");
+	fprintf (script, "				//	<< dir_entry_name << endl;\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "		read_another_entry:\n");
+	fprintf (script, "		directory_entry = readdir(directory_ptr);\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	closedir(directory_ptr);\n");
+	fprintf (script, "}\n");
 
 
 #endif /*  0 */
