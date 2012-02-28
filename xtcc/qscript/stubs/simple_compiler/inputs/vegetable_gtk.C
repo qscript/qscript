@@ -2224,6 +2224,7 @@ void toggle_rb_button_event (GtkWidget *widget, GtkRadioButtonData * rb_data)
 		rb_data->qApp_->rb_selected_code  = rb_data -> selectedCode_;
 	} else {
 		/* If control reaches here, the toggle button is up */
+		//rb_data->qApp_->rb_selected_code  = rb_data -> selectedCode_;
 	}
 	g_print ("Toggle event occured %d",  rb_data -> selectedCode_);
 }
@@ -2339,6 +2340,7 @@ AbstractQuestion *q, Session * this_users_session)
 	gtk_widget_show(questionTextLabel_);
 	gtk_widget_show (top_half);
 
+	DestroyPreviousWidgets ();
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
 	{
 		//new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());
@@ -2346,10 +2348,18 @@ AbstractQuestion *q, Session * this_users_session)
 		{
 			//wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
 			rb_selected_code = -1;
+			rb = gtk_radio_button_new_with_label (NULL, "Dummy - for default unselected - should never display");
+			gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+			GtkRadioButtonData * rb_data = new GtkRadioButtonData (0, this);
+			rbData_.push_back (rb_data);
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb), TRUE);
+			gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+			//g_signal_connect (G_OBJECT (rb), "toggled",
+			//	G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
+			// purposely dont do a show . Make it default selected 
 		}
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		bool rb_group_was_created = false;
-		DestroyPreviousWidgets ();
 		for (int i=0; i<vec.size(); ++i)
 		{
 			stringstream named_range_key;
@@ -2360,28 +2370,28 @@ AbstractQuestion *q, Session * this_users_session)
 				//WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
 				//wt_rb_container_->addButton(wt_rb, vec[i].code);
 				//new WBreak(wt_cb_rb_container_);
-				if (!rb_group_was_created)
-				{
-					rb = gtk_radio_button_new_with_label (NULL, vec[i].stub_text.c_str());
+				//if (!rb_group_was_created)
+				//{
+					rb = gtk_radio_button_new_with_label (gtkRadioButtonGroup_, vec[i].stub_text.c_str());
 					gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
 					GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
 					rbData_.push_back (rb_data);
 					g_signal_connect (G_OBJECT (rb), "toggled",
 						G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
 					gtk_widget_show (rb);
-					gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
-					rb_group_was_created = true;
-				}
-				else
-				{
-					rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), vec[i].stub_text.c_str());
-					GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
-					rbData_.push_back (rb_data);
-					g_signal_connect (G_OBJECT (rb), "toggled",
-						G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
-					gtk_widget_show (rb);
-					gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
-				}
+					//gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+					//rb_group_was_created = true;
+				//}
+				//else
+				//{
+				//	rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), vec[i].stub_text.c_str());
+				//	GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
+				//	rbData_.push_back (rb_data);
+				//	g_signal_connect (G_OBJECT (rb), "toggled",
+				//		G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
+				//	gtk_widget_show (rb);
+				//	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+				//}
 				vec_rb.push_back (rb);
 			}
 			if (q->no_mpn>1 && vec[i].mask)
