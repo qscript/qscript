@@ -29,8 +29,8 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 	for(int32_t i = 0; i<stubs.size(); ++i){
 		code.quest_defns_init_code
 			<< qscript_parser::temp_name_generator.GetCurrentName()
-			<< ".push_back( stub_pair(\"" << stubs[i].stub_text
-			<< "\", " << stubs[i].code << "));"
+			<< ".push_back( stub_pair(gettext(\"" << stubs[i].stub_text
+			<< "\"), " << stubs[i].code << "));"
 			<< endl;
 	}
 
