@@ -4459,6 +4459,15 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "	qapp->ValidateSerialNo ();\n");
 	fprintf (script, "	//theQuestionnaire.eval();\n");
 	fprintf (script, "}\n");
+	fprintf (script, "void line_edit_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	const gchar *entry_text;\n");
+	fprintf (script, "	entry_text = gtk_entry_get_text (GTK_ENTRY (widget));\n");
+	fprintf (script, "	printf(\"Entry contents: %%s\\n\", entry_text);\n");
+	fprintf (script, "\n");
+	fprintf (script, "	//theQuestionnaire.eval();\n");
+	fprintf (script, "}\n");
+
 #if 1
 	fprintf (script, "\n");
 	fprintf (script, "\n");
@@ -4543,6 +4552,10 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "}\n");
 	fprintf (script, "\n");
 	fprintf (script, "\n");
+	fprintf (script, "bool verify_web_data (std::string p_question_data, \n");
+	fprintf (script, "		UserNavigation p_user_navigation,\n");
+	fprintf (script, "		user_response::UserResponseType p_the_user_response,\n");
+	fprintf (script, "		std::vector<int> * data_ptr);\n");
 	fprintf (script, "void GtkQuestionnaireApplication::DoQuestionnaire()\n");
 	fprintf (script, "{\n");
 	fprintf (script, "	//if (!wt_questionText_) {\n");
@@ -4638,14 +4651,15 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "			// do something with isAnswered_ == false here and resend the\n");
 	fprintf (script, "			// qnre to the respondent\n");
 	fprintf (script, "		}\n");
-	fprintf (script, "#if 0\n");
+	//fprintf (script, "#if 0\n");
 	fprintf (script, "		else\n");
 	fprintf (script, "		{\n");
 	fprintf (script, "\n");
-	fprintf (script, "			string last_question_visited_str = wt_lastQuestionVisited_->text().narrow();\n");
-	fprintf (script, "			string current_question_response = le_data_->text().narrow();\n");
+	fprintf (script, "\t\t\tconst gchar *entry_text = gtk_entry_get_text (GTK_ENTRY (le_data_));\n");
+	//fprintf (script, "			string last_question_visited_str = wt_lastQuestionVisited_->text().narrow();\n");
+	fprintf (script, "			string current_question_response (entry_text);\n");
 	fprintf (script, "			AbstractQuestion * last_question_served = this_users_session->last_question_served;\n");
-	fprintf (script, "			if (last_question_visited_str != \"\" && current_question_response != \"\" && last_question_served->no_mpn==1)\n");
+	fprintf (script, "			if (/* last_question_visited_str != \"\" &&  */ current_question_response != \"\" && last_question_served->no_mpn==1)\n");
 	fprintf (script, "			{\n");
 	fprintf (script, "				UserNavigation user_nav=NOT_SET;\n");
 	fprintf (script, "				user_response::UserResponseType user_resp=user_response::NotSet;\n");
@@ -4685,8 +4699,9 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "					return;\n");
 	fprintf (script, "				}\n");
 	fprintf (script, "			}\n");
-	fprintf (script, "			else if (last_question_visited_str != \"\" && current_question_response != \"\" && last_question_served->no_mpn > 1)\n");
+	fprintf (script, "			else if (/* last_question_visited_str != \"\" &&  */ current_question_response != \"\" && last_question_served->no_mpn > 1)\n");
 	fprintf (script, "			{\n");
+	fprintf (script, "#if 0\n");
 	fprintf (script, "				string utf8_response = le_data_->text().toUTF8();\n");
 	fprintf (script, "				if (utf8_response != \"\")\n");
 	fprintf (script, "				{\n");
@@ -4704,9 +4719,9 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "					ConstructQuestionForm(last_question_served, this_users_session);\n");
 	fprintf (script, "					return;\n");
 	fprintf (script, "				}\n");
+	fprintf (script, "#endif /* 0 */\n");
 	fprintf (script, "			}\n");
 	fprintf (script, "		}\n");
-	fprintf (script, "#endif /* 0 */\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "	{\n");
 	fprintf (script, "		TheQuestionnaire * qnre = this_users_session->questionnaire;\n");
@@ -4928,6 +4943,15 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "			}\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "		//new_form->addWidget(wt_cb_rb_container_);\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	else\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "		le_data_ = gtk_entry_new ();\n");
+	fprintf (script, "\t\tgtk_entry_set_max_length (GTK_ENTRY (entry), 50);\n");
+	fprintf (script, "\t\tg_signal_connect (G_OBJECT (le_data_), \"activate\", G_CALLBACK (line_edit_callback), (gpointer) this);\n");
+	fprintf (script, "		gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), le_data_, TRUE, TRUE, 0);\n");
+	fprintf (script, "\t\tgtk_widget_show (le_data_);\n");
+
 	fprintf (script, "	}\n");
 	fprintf (script, "	next_button = gtk_button_new_with_label (\"Next\");\n");
 	fprintf (script, "	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), next_button, TRUE, TRUE, 0);\n");
