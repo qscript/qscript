@@ -3126,30 +3126,34 @@ std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(Abs
 	return s.str();
 }
 
-Wt::WString NamedStubQuestion::PrintSelectedAnswers()
-{
-	//return string();
-	return Wt::WString();
-}
-
-
-Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
-{
-	//return string();
-	return Wt::WString();
-}
-
-Wt::WString RangeQuestion::PrintSelectedAnswers()
+//Wt::WString NamedStubQuestion::PrintSelectedAnswers()
+string NamedStubQuestion::PrintSelectedAnswers()
 {
 	return string();
-	return Wt::WString();
+	//return Wt::WString();
 }
 
 
-Wt::WString RangeQuestion::PrintSelectedAnswers(int code_index)
+//Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
+string NamedStubQuestion::PrintSelectedAnswers(int code_index)
 {
-	//return string();
-	return Wt::WString();
+	return string();
+	//return Wt::WString();
+}
+
+//Wt::WString RangeQuestion::PrintSelectedAnswers()
+string RangeQuestion::PrintSelectedAnswers()
+{
+	return string();
+	//return Wt::WString();
+}
+
+
+//Wt::WString RangeQuestion::PrintSelectedAnswers(int code_index)
+string RangeQuestion::PrintSelectedAnswers(int code_index)
+{
+	return string();
+	//return Wt::WString();
 }
 
 // TextExpression::TextExpression(string text)

@@ -9,6 +9,8 @@
 #include "user_navigation.h"
 #include "utils.h"
 
+enum UI_Mode { NCurses_Mode, Microhttpd_Mode, Wt_Mode, Gtk_Mode};
+extern UI_Mode ui_mode;
 using namespace std;
 //extern vector<int32_t> data;
 extern UserNavigation user_navigation;
@@ -840,11 +842,13 @@ void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 }
 
 
-Wt::WString NamedStubQuestion::PrintSelectedAnswers()
+//Wt::WString NamedStubQuestion::PrintSelectedAnswers()
+string NamedStubQuestion::PrintSelectedAnswers()
 {
 	//return string("hello");
 	//stringstream select_answers_text;
-	Wt::WString select_answers_text;
+	//Wt::WString select_answers_text;
+	string select_answers_text;
 	bool first_time = true;
 	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
 			inp_data_iter != input_data.end(); ++inp_data_iter) {
@@ -853,12 +857,23 @@ Wt::WString NamedStubQuestion::PrintSelectedAnswers()
 		if (first_time) {
 			//select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
 			cout << "searching for : " << mesg_key.str() << endl;
-			select_answers_text += Wt::WString::tr(mesg_key.str());
+			if (ui_mode == Wt_Mode) {
+				Wt::WString w_str = Wt::WString::tr(mesg_key.str());
+				select_answers_text += w_str.toUTF8();
+			} else {
+				//select_answers_text += gettext(mesg_key.str().c_str());
+				select_answers_text += gettext(nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str());
+			}
 			first_time = false;
 		} else {
 			//select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
 			cout << "searching for : " << mesg_key.str() << endl;
-			select_answers_text += Wt::WString(", ") +  Wt::WString::tr(mesg_key.str());
+			if (ui_mode == Wt_Mode) {
+				select_answers_text += Wt::WString(", ").toUTF8() +  Wt::WString::tr(mesg_key.str()).toUTF8();
+			} else {
+				//select_answers_text += gettext(mesg_key.str().c_str());
+				select_answers_text += gettext(nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str());
+			}
 		}
 	}
 	//select_answers_text << nr_ptr->stubs[codeIndex_].stub_text;
@@ -867,7 +882,8 @@ Wt::WString NamedStubQuestion::PrintSelectedAnswers()
 }
 
 
-Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
+//Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
+string NamedStubQuestion::PrintSelectedAnswers(int code_index)
 {
 	//return string("hello");
 	Wt::WString select_answers_text;
@@ -886,17 +902,27 @@ Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
 	//select_answers_text << nr_ptr->stubs[code_index].stub_text;
 	//select_answers_text << WString::tr(mesg_key.str());
 	//return select_answers_text.str();
-	return Wt::WString::tr(mesg_key.str());
+	if (ui_mode == Wt_Mode) {
+		Wt::WString w_str = Wt::WString::tr(mesg_key.str());
+		return w_str.toUTF8();
+	} else {
+		//return string (gettext(mesg_key.str().c_str()));
+		return string (gettext( nr_ptr->stubs[code_index].stub_text.c_str() ));
+	}
 }
 
 
-Wt::WString RangeQuestion::PrintSelectedAnswers()
+//Wt::WString RangeQuestion::PrintSelectedAnswers()
+string RangeQuestion::PrintSelectedAnswers()
 {
-	return Wt::WString("hello");
+	//return Wt::WString("hello");
+	return string("hello");
 }
 
 
-Wt::WString RangeQuestion::PrintSelectedAnswers (int code_index)
+//Wt::WString RangeQuestion::PrintSelectedAnswers (int code_index)
+string RangeQuestion::PrintSelectedAnswers (int code_index)
 {
-	return Wt::WString("hello");
+	//return Wt::WString("hello");
+	return string("hello");
 }

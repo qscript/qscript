@@ -440,6 +440,7 @@ void print_header(FILE* script, bool ncurses_flag)
 			"		* help_panel = 0;\n");
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "vector <string> vec_language;\n");
+	fprintf(script, "enum UI_Mode { NCurses_Mode, Microhttpd_Mode, Wt_Mode, Gtk_Mode};\n");
 
 	// fprintf(script, "struct TheQuestionnaire\n{\n");
 	// fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
@@ -1649,6 +1650,8 @@ void PrintPrintMapHeader(FILE * script)
 
 void PrintNCursesMain (FILE * script, bool ncurses_flag)
 {
+
+	fprintf(script, "UI_Mode ui_mode = NCurses_Mode ;\n");
 	fprintf(script, "int32_t main(int argc, char * argv[]){\n");
 	fprintf(script, "\tprocess_options(argc, argv);\n");
 	//fprintf(script, "\tDIR * directory_ptr = 0;\n");
@@ -3962,9 +3965,13 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)\n"); 
 	fprintf(script, "		{\n"); 
 	fprintf(script, "			if (q->textExprVec_[i]->codeIndex_ != -1) {\n"); 
-	fprintf(script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);\n"); 
+	fprintf(script, "				//question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);\n"); 
+	fprintf(script, "				WString w_str = Wt::WString::fromUTF8(q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_));\n");
+	fprintf(script, "				question_text += w_str;\n");
 	fprintf(script, "			} else {\n"); 
-	fprintf(script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();\n"); 
+	fprintf(script, "				//question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();\n"); 
+	fprintf(script, "				WString w_str = Wt::WString::fromUTF8 (q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers());\n");
+	fprintf(script, " 				question_text += w_str;\n");
 	fprintf(script, "			}\n"); 
 	fprintf(script, "		}\n"); 
 	fprintf(script, "		question_text += \"</p>\";\n"); 
@@ -4164,6 +4171,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	return ptr;\n"); 
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
+	fprintf(script, "UI_Mode ui_mode = Wt_Mode ;\n");
 	fprintf(script, "int main(int argc, char ** argv)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	//process_options(argc, argv);\n");
@@ -4329,6 +4337,7 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "void GtkQuestionnaireApplication::DestroyPreviousWidgets ()\n");
 	fprintf (script, "{\n");
+	fprintf (script, " 	cout << __PRETTY_FUNCTION__ << endl;\n");
 	fprintf (script, "	if (questionTextLabel_) {\n");
 	fprintf (script, "		gtk_widget_destroy (questionTextLabel_) ;\n");
 	fprintf (script, "		questionTextLabel_ = 0;\n");
@@ -4778,39 +4787,40 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "void GtkQuestionnaireApplication::ConstructQuestionForm(\n");
 	fprintf (script, "	AbstractQuestion *q, Session * this_users_session)\n");
 	fprintf (script, "{\n");
+	// shouldnt that go inside DestroyPreviousWidgets() ?
 	fprintf(script, "	map_cb_code_index.clear();\n"); 
-	fprintf (script, "#if 0\n");
-	fprintf (script, "	WContainerWidget * new_form = new WContainerWidget();\n");
-	fprintf (script, "	vec_rb.clear();				 // memory leak introduced here? no it seems\n");
-	fprintf (script, "	vec_cb.clear();				 // memory leak introduced here? no it seems\n");
-	fprintf (script, "	map_cb_code_index.clear();\n");
+	fprintf (script, "	//WContainerWidget * new_form = new WContainerWidget();\n");
+	fprintf (script, "	//vec_rb.clear();				 // memory leak introduced here? no it seems\n");
+	fprintf (script, "	//vec_cb.clear();				 // memory leak introduced here? no it seems\n");
+	fprintf (script, "	//map_cb_code_index.clear();\n");
 	fprintf (script, "\n");
-	fprintf (script, "	wt_questionText_ = new WText();\n");
+	fprintf (script, "	//wt_questionText_ = new WText();\n");
 	fprintf (script, "	//wt_questionText_->setText(q->textExprVec_[0]->text_);\n");
-	fprintf (script, "	//stringstream question_text;\n");
+	fprintf (script, "	string question_text;\n");
 	fprintf (script, "	stringstream part_mesg_id;\n");
-	fprintf (script, "	WString question_text;\n");
+	fprintf (script, "	//WString question_text;\n");
 	fprintf (script, "	part_mesg_id << q->questionName_;\n");
 	fprintf (script, "	for (int i=0; i<q->loop_index_values.size(); ++i)\n");
 	fprintf (script, "	{\n");
 	fprintf (script, "		part_mesg_id << \"_\" << q->loop_index_values[i];\n");
 	fprintf (script, "	}\n");
-	fprintf (script, "	WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);\n");
+	fprintf (script, "	//WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);\n");
 	fprintf (script, "	for (int i=0; i<q->textExprVec_.size(); ++i)\n");
 	fprintf (script, "	{\n");
-	fprintf (script, "		question_text += \"<p>\";\n");
+	fprintf (script, "		//question_text += \"<p>\";\n");
 	fprintf (script, "		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)\n");
 	fprintf (script, "		{\n");
 	fprintf (script, "			stringstream mesg_id;\n");
 	fprintf (script, "			mesg_id << part_mesg_id.str() << \"_\" << i;\n");
-	fprintf (script, "			question_text += WString::tr(mesg_id.str().c_str());\n");
+	fprintf (script, "			//question_text += string (gettext(mesg_id.str().c_str()));\n");
+	fprintf (script, "			question_text += string (gettext(q->textExprVec_[0]->text_.c_str()));\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)\n");
 	fprintf (script, "		{\n");
 	fprintf (script, "			stringstream named_attribute_key;\n");
 	fprintf (script, "			named_attribute_key << q->textExprVec_[i]->naPtr_->name;\n");
 	fprintf (script, "			named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n");
-	fprintf (script, "			question_text += WString::tr(named_attribute_key.str().c_str());\n");
+	fprintf (script, "			question_text += string(gettext(named_attribute_key.str().c_str()));\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)\n");
 	fprintf (script, "		{\n");
@@ -4823,8 +4833,9 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();\n");
 	fprintf (script, "			}\n");
 	fprintf (script, "		}\n");
-	fprintf (script, "		question_text += \"</p>\";\n");
+	fprintf (script, "		//question_text += \"</p>\";\n");
 	fprintf (script, "	}\n");
+	fprintf (script, "#if 0\n");
 	fprintf (script, "	wt_questionText_->setText(question_text);\n");
 	fprintf (script, "\n");
 	fprintf (script, "	new_form->addWidget(wt_questionText_);\n");
@@ -4881,7 +4892,8 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "	gtk_widget_hide( entry);\n");
 	fprintf (script, "\n");
 	fprintf (script, "	DestroyPreviousWidgets ();\n");
-	fprintf (script, "	questionTextLabel_ = gtk_label_new (q->textExprVec_[0]->text_.c_str());\n");
+	//fprintf (script, "	questionTextLabel_ = gtk_label_new (q->textExprVec_[0]->text_.c_str());\n");
+	fprintf (script, "	questionTextLabel_ = gtk_label_new (question_text.c_str());\n");
 	fprintf (script, "	//gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), questionTextLabel_);\n");
 	fprintf (script, "	gtk_box_pack_start (GTK_BOX (vbox), questionTextLabel_, TRUE, TRUE, 0);\n");
 	fprintf (script, "	gtk_widget_show(questionTextLabel_);\n");
@@ -4979,6 +4991,7 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "}\n");
 
 	fprintf (script, "\n");
+	fprintf(script, "UI_Mode ui_mode = Gtk_Mode ;\n");
 	fprintf (script, "int main(int argc, char ** argv)\n");
 	fprintf (script, "{\n");
 	fprintf (script, "\tsetlocale( LC_ALL, \"\" );\n");
