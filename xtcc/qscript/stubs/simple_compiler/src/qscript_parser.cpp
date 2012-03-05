@@ -4817,10 +4817,11 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "		}\n");
 	fprintf (script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)\n");
 	fprintf (script, "		{\n");
-	fprintf (script, "			stringstream named_attribute_key;\n");
-	fprintf (script, "			named_attribute_key << q->textExprVec_[i]->naPtr_->name;\n");
-	fprintf (script, "			named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n");
-	fprintf (script, "			question_text += string(gettext(named_attribute_key.str().c_str()));\n");
+	fprintf (script, "			//stringstream named_attribute_key;\n");
+	fprintf (script, "			//named_attribute_key << q->textExprVec_[i]->naPtr_->name;\n");
+	fprintf (script, "			//named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n");
+	fprintf (script, "			//question_text += string(gettext(named_attribute_key.str().c_str()));\n");
+	fprintf (script, "			question_text += string(gettext(this_users_session->questionnaire->veg_seg_att.attribute[(q->textExprVec_[i]->naIndex_)].c_str()));\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)\n");
 	fprintf (script, "		{\n");

@@ -30,8 +30,8 @@ void named_attribute_list::GenerateCode(StatementCompiledCode & code)
 		<< name << ".name = \"" << name << "\";\n";
 	for (int i=0; i<attribute.size(); ++i) {
 		code.quest_defns_init_code 
-			<<  name << ".attribute.push_back (string(\"" << attribute[i]
-				<< "\"));\n";
+			<<  name << ".attribute.push_back (string(gettext(\"" << attribute[i]
+				<< "\")));\n";
 	}
 	code.quest_defns_init_code
 		<< "\tif (write_messages_flag) {\n"
