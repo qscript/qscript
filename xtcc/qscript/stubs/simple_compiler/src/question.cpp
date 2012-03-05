@@ -1132,9 +1132,9 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		}
 		*/
 		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) { 
-			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(gettext(\""
 				<< textExprVec_[i]->text_
-				<< "\")));\n";
+				<< "\"))));\n";
 		} else if (textExprVec_[i]->teType_ == TextExpression::named_attribute_type) {
 			ExpressionCompiledCode expr_code;
 			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
@@ -1271,9 +1271,9 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 	for (int i=0; i < textExprVec_.size(); ++i) {
 		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) { 
-			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
+			quest_decl << "text_expr_vec.push_back(new TextExpression(string(gettext(\""
 				<< textExprVec_[i]->text_
-				<< "\")));\n";
+				<< "\"))));\n";
 		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
 			
 			if (textExprVec_[i]->questionIndexExpr_ ) {

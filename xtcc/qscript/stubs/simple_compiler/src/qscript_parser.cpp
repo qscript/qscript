@@ -292,6 +292,8 @@ void print_header(FILE* script, bool ncurses_flag)
 	}
 	if (program_options_ns::gtk_flag) {
 		fprintf (script, "#include <gtk/gtk.h>\n");
+		fprintf (script, "#include <locale.h>\n");
+		fprintf (script, "#include <libintl.h>\n");
 	}
 	fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
@@ -1428,9 +1430,9 @@ test_script.o: test_script.C
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 			+ string(" `pkg-config --libs --cflags gtk+-2.0` ")
-			+ string(" -lqscript_runtime -lpanel")
+			+ string(" -lqscript_runtime -lqscript_gtk_runtime -lpanel")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME
-			+ string (" -lwt -lboost_filesystem ");
+			+ string (" -lboost_filesystem ");
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;

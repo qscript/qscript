@@ -841,7 +841,7 @@ void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 	}
 }
 
-
+#if 0
 //Wt::WString NamedStubQuestion::PrintSelectedAnswers()
 string NamedStubQuestion::PrintSelectedAnswers()
 {
@@ -910,6 +910,7 @@ string NamedStubQuestion::PrintSelectedAnswers(int code_index)
 		return string (gettext( nr_ptr->stubs[code_index].stub_text.c_str() ));
 	}
 }
+#endif /*  0 */
 
 
 //Wt::WString RangeQuestion::PrintSelectedAnswers()

@@ -18,7 +18,7 @@
 //#include <fstream>
 #include <iostream>
 #include <string>
-#include <Wt/WString>
+//#include <Wt/WString>
 
 #include "stmt.h"
 #include "expr.h"
