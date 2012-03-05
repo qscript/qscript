@@ -1417,9 +1417,9 @@ test_script.o: test_script.C
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 #ifndef _WIN32
-			+ string(" -lwt -lwthttp -lpanel -lncurses -lqscript_runtime");
+			+ string(" -lwt -lwthttp -lqscript_runtime -lboost_filesystem -lboost_signals -lpanel -lncurses -lqscript_wt_runtime ");
 #else
-			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime");
+			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime -lboost_signals -lboost_filesystem -lqscript_wt_runtime ");
 #endif /* _WIN32 */
 	} else if (program_options_ns::gtk_flag) {
 		cout << "reached here: " << endl;
