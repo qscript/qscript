@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <utility>
+#include <fstream>
 #include "compiled_code.h"
 #include "qscript_parser.h"
 #include "config_parser.h"
@@ -294,6 +295,8 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf (script, "#include <gtk/gtk.h>\n");
 		fprintf (script, "#include <locale.h>\n");
 		fprintf (script, "#include <libintl.h>\n");
+		fprintf (script, "#define random rand\n");
+		fprintf (script, "#define srandom srand\n");
 	}
 	fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
@@ -467,8 +470,10 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 			PrintDefineSomePDCursesKeys(script);
 		}
 	}
+#ifndef _WIN32
 	PrintSignalHandler(script, ncurses_flag);
 	PrintSetupSignalHandler(script);
+#endif /* _WIN32 */
 	PrintProcessOptions(script);
 	PrintPrintMapHeader(script);
 }
@@ -1423,6 +1428,8 @@ test_script.o: test_script.C
 #endif /* _WIN32 */
 	} else if (program_options_ns::gtk_flag) {
 		cout << "reached here: " << endl;
+
+#ifndef _WIN32
 		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
@@ -1433,6 +1440,34 @@ test_script.o: test_script.C
 			+ string(" -lqscript_runtime -lqscript_gtk_runtime -lpanel")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME
 			+ string (" -lboost_filesystem ");
+#else
+		cout << "GTK exe, Compilation on Windows, you must have pkg-config installed" << endl;
+		using namespace std;
+		string get_gtk_compile_flags_cmd = "pkg-config --cflags gtk+-2.0 > gtk_cflags_file";
+		system (get_gtk_compile_flags_cmd.c_str());
+		fstream gtk_cflags_file("gtk_cflags_file", ios_base::in);
+		string gtk_compile_flags ;
+		getline (gtk_cflags_file, gtk_compile_flags);
+
+		string get_gtk_compile_flags_cmd2 = "pkg-config --libs gtk+-2.0 > gtk_libs_file";
+		system (get_gtk_compile_flags_cmd2.c_str());
+		fstream gtk_libs_file("gtk_libs_file", ios_base::in);
+		string gtk_compile_libs ;
+		getline (gtk_libs_file, gtk_compile_libs);
+
+		cout << "compile flags are: " << gtk_compile_flags << endl;
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string (" ") + gtk_compile_flags
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string (" ") + gtk_compile_libs
+			+ string(" -lqscript_runtime -lqscript_gtk_runtime ")
+			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+
+#endif /* _WIN32 */
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
@@ -1689,7 +1724,9 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 		fprintf(script, "		return 1;\n");
 		fprintf(script, "	}\n");
 	}
+#ifndef _WIN32
 	fprintf(script, "	SetupSignalHandler();\n");
+#endif /* _WIN32 */
 	fprintf(script, "TheQuestionnaire theQuestionnaire;\n"
 			"theQuestionnaire.base_text_vec.push_back(BaseText(\"All Respondents\"));\n"
 			"theQuestionnaire.compute_flat_file_map_and_init();\n"
@@ -5015,7 +5052,9 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "	load_languages_available(vec_language);\n");
 	fprintf (script, "	bool using_ncurses = true;\n");
 	fprintf (script, "	qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
+#ifndef _WIN32
 	fprintf (script, "	SetupSignalHandler();\n");
+#endif /* _WIN32 */ 
 	fprintf (script, "	GtkQuestionnaireApplication gtkQuestionnaireApplication (argc, argv);\n");
 	fprintf (script, "	//TheQuestionnaire theQuestionnaire;\n");
 	fprintf (script, "	//get_serial_no_gtk (theQuestionnaire);\n");

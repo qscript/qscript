@@ -8,7 +8,8 @@ CXX_LINK_LIBS = -lpdcurses
 SOURCE_DIR=src
 BUILD_DIR=make-build-dir
 CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
-EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp
+EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp src/qtm_data_file.cpp src/question_gtk_runtime.cpp src/question_wt_runtime.cpp
+
 CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
 OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(CPP_SOURCES))
 OBJECTS := $(OBJECTS:.cpp=.o)
@@ -33,6 +34,7 @@ OBJECTS += $(YACC_OBJECTS)
 LEX_SOURCES = $(wildcard $(SOURCE_DIR)/*.l)
 EXCLUDE_FILE=src/read_disk_data.l
 LEX_SOURCES := $(filter-out $(EXCLUDE_FILE),$(LEX_SOURCES))
+LEX_OUTPUTS  = $(LEX_SOURCES:.l=.cpp)	# added ne wby NxD on 23-sep-2010 - need to check if it works then delete this statement
 LEX_OBJECTS = $(LEX_SOURCES)
 LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
 LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
@@ -54,9 +56,9 @@ QSCRIPT_MINOR_VERSION_NUMBER=12
 #	echo "LEX OBJECTS $(LEX_OBJECTS)"
 
 $(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
-	echo "cpp sources: $(CPP_SOURCES)" 
-	echo "yacc sources: $(YACC_SOURCES)" 
-	echo "lex sources: $(LEX_SOURCES)" 
+#	echo "cpp sources: $(CPP_SOURCES)" 
+#	echo "yacc sources: $(YACC_SOURCES)" 
+#	echo "lex sources: $(LEX_SOURCES)" 
 	$(CC) -static -L $(WIN_LIB_DIR) $(CXX_LINK_FLAGS) -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
 
 yacc_deps: $(YACC_OUTPUTS)
@@ -114,7 +116,8 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/qtm_data_file.cpp
 		$(SOURCE_DIR)/qtm_datafile_conf_parser.cpp $(SOURCE_DIR)/qtm_datafile_conf_lex.cpp \
 		$(SOURCE_DIR)/AbstractStatement.cpp \
 		$(SOURCE_DIR)/question_runtime.cpp $(SOURCE_DIR)/question_common.cpp \
-		$(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/named_range.cpp
+		$(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/named_range.cpp \
+		$(SOURCE_DIR)/named_attributes.cpp 
 #$(SOURCE_DIR)/question.cpp \
 #$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/lex.cpp \
 #$(SOURCE_DIR)/expr.cpp \
@@ -146,6 +149,10 @@ COMPILETIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp
 COMPILETIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/compiletime_lib,$(COMPILETIME_LIB_SOURCES) )
 COMPILETIME_LIB_OBJECTS := $(COMPILETIME_LIB_OBJECTS:.cpp=.o)
 
+RUNTIME_GTK_LIB_SOURCES = $(SOURCE_DIR)/question_gtk_runtime.cpp 
+RUNTIME_GTK_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_GTK_LIB_SOURCES) )
+RUNTIME_GTK_LIB_OBJECTS := $(RUNTIME_GTK_LIB_OBJECTS:.cpp=.o)
+
 COMPILETIME_STATIC_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/compiletime_static_lib,$(COMPILETIME_LIB_SOURCES) )
 COMPILETIME_STATIC_LIB_OBJECTS := $(COMPILETIME_STATIC_LIB_OBJECTS:.cpp=.o)
 #ld -g --unresolved-symbols=ignore-in-shared-libs -shared --allow-shlib-undefined -soname libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
@@ -154,6 +161,13 @@ runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
 #	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
 #	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
 	$(CXX) -L$(WIN_LIB_DIR) -g -shared -Wl,--allow-shlib-undefined -Wl,--unresolved-symbols,ignore-in-shared-libs -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS) $(CXX_LINK_LIBS)
+
+runtime_gtk_lib: $(RUNTIME_GTK_LIB_SOURCES) $(RUNTIME_GTK_LIB_OBJECTS)
+	$(CXX) -g -shared -Wl,-soname,libqscript_gtk_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_gtk_runtime.so.1.0.1 $(RUNTIME_GTK_LIB_OBJECTS)
+
+runtime_static_gtk_lib: $(RUNTIME_GTK_LIB_SOURCES) $(RUNTIME_GTK_LIB_OBJECTS)
+#	$(CXX) -g -shared -Wl,-soname,libqscript_gtk_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_gtk_runtime.so.1.0.1 $(RUNTIME_GTK_LIB_OBJECTS)
+	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_gtk_runtime.a $(RUNTIME_GTK_LIB_OBJECTS)
 
 # --unresolved-symbols=<method>
 #                              How to handle unresolved symbols.  <method> is:
@@ -245,10 +259,11 @@ clean:
 #	copy $(BUILD_DIR)\runtime_static_lib\libqscript_runtime.a lib
 #	copy $(BUILD_DIR)\compiletime_static_lib\libqscript_compiletime.a lib
 #	copy ${SOURCE_DIR}\*.h include
-local_install: $(BUILD_DIR)/qscript runtime_static_lib compiletime_static_lib 
+local_install: $(BUILD_DIR)/qscript runtime_static_lib compiletime_static_lib runtime_static_gtk_lib
 	cp $(BUILD_DIR)/qscript.exe bin
 	cp $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a lib
 	cp $(BUILD_DIR)/compiletime_static_lib/libqscript_compiletime.a lib
+	cp $(BUILD_DIR)/runtime_static_lib/libqscript_gtk_runtime.a lib
 	cp ${SOURCE_DIR}/*.h include
 
 tags:
