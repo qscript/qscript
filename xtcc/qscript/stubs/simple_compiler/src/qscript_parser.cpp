@@ -291,10 +291,10 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf (script, "#include <Wt/WStringUtil>\n");
 
 	}
+	fprintf (script, "#include <locale.h>\n");
+	fprintf (script, "#include <libintl.h>\n");
 	if (program_options_ns::gtk_flag) {
 		fprintf (script, "#include <gtk/gtk.h>\n");
-		fprintf (script, "#include <locale.h>\n");
-		fprintf (script, "#include <libintl.h>\n");
 		fprintf (script, "#define random rand\n");
 		fprintf (script, "#define srandom srand\n");
 	}
@@ -1528,14 +1528,60 @@ test_script.o: test_script.C
 	*/
 
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
-	string cpp_compile_command = string("g++ -static -g -o ")
+
+	string cpp_compile_command;
+	if (program_options_ns::ncurses_flag) {
+		cpp_compile_command = string("g++ -static -g -o ")
+				+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+				+ string(" -I") + QSCRIPT_INCLUDE_DIR
+				+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+				+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+				+ string(" ") + intermediate_file_name
+				+ string(" -lqscript_runtime ")
+				+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+	} else if (program_options_ns::gtk_flag) {
+		cout << "reached here: " << endl;
+
+#ifndef _WIN32
+		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime ")
+			+ string(" `pkg-config --libs --cflags gtk+-2.0` ")
+			+ string(" -lqscript_runtime -lqscript_gtk_runtime -lpanel")
+			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME
+			+ string (" -lboost_filesystem ");
+#else
+		cout << "GTK exe, Compilation on Windows, you must have pkg-config installed" << endl;
+		using namespace std;
+		string get_gtk_compile_flags_cmd = "pkg-config --cflags gtk+-2.0 > gtk_cflags_file";
+		system (get_gtk_compile_flags_cmd.c_str());
+		fstream gtk_cflags_file("gtk_cflags_file", ios_base::in);
+		string gtk_compile_flags ;
+		getline (gtk_cflags_file, gtk_compile_flags);
+
+		string get_gtk_compile_flags_cmd2 = "pkg-config --libs gtk+-2.0 > gtk_libs_file";
+		system (get_gtk_compile_flags_cmd2.c_str());
+		fstream gtk_libs_file("gtk_libs_file", ios_base::in);
+		string gtk_compile_libs ;
+		getline (gtk_libs_file, gtk_compile_libs);
+
+		cout << "compile flags are: " << gtk_compile_flags << endl;
+		cpp_compile_command = string("g++ -static -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string (" ") + gtk_compile_flags
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string (" ") + gtk_compile_libs
+			+ string(" -lqscript_runtime -lqscript_gtk_runtime ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+
+#endif /* _WIN32 */
+	}
 
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
