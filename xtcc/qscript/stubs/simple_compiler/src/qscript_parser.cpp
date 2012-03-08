@@ -1394,6 +1394,7 @@ test_script.o: test_script.C
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
 	string cpp_compile_command ;
 	if (program_options_ns::ncurses_flag) {
+#ifndef _WIN32
 		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
@@ -1402,6 +1403,17 @@ test_script.o: test_script.C
 			+ string(" ") + intermediate_file_name
 			+ string(" -lqscript_runtime -lpanel -lwt -lboost_filesystem ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+#else
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" -L f:/libraries/lib ") 
+			+ string(" ") + intermediate_file_name
+			+ string(" -lqscript_runtime -lqscript_ncurses_runtime -lintl ")
+			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+#endif /* _WIN32 */
 	} else if (program_options_ns::microhttpd_flag) {
 		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
@@ -1537,7 +1549,7 @@ test_script.o: test_script.C
 				+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 				+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 				+ string(" ") + intermediate_file_name
-				+ string(" -lqscript_runtime ")
+				+ string(" -lqscript_runtime -lintl ")
 				+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 	} else if (program_options_ns::gtk_flag) {
 		cout << "reached here: " << endl;
