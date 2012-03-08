@@ -243,7 +243,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	PrintGetUserResponse(script);
 	print_write_qtm_data_to_disk(script);
 	print_write_ascii_data_to_disk(script);
-	print_prompt_user_for_serial_no(script);
+	if (program_options_ns::ncurses_flag)
+		print_prompt_user_for_serial_no(script);
 	print_write_xtcc_data_to_disk(script);
 	print_do_freq_counts(script);
 	//print_close(script, code.program_code, ncurses_flag);
@@ -295,8 +296,10 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf (script, "#include <libintl.h>\n");
 	if (program_options_ns::gtk_flag) {
 		fprintf (script, "#include <gtk/gtk.h>\n");
+		fprintf (script, "#ifdef _WIN32\n");
 		fprintf (script, "#define random rand\n");
 		fprintf (script, "#define srandom srand\n");
+		fprintf (script, "#endif /*  _WIN32*/\n");
 	}
 	fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
@@ -434,15 +437,17 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
-	fprintf(script, "	WINDOW 	* question_window = 0,\n"
-			"		* stub_list_window = 0,\n"
-			"		* data_entry_window = 0,\n"
-			"		* help_window = 0;\n"
-			);
-	fprintf(script, "	PANEL 	* question_panel = 0,\n"
-			"		* stub_list_panel = 0,\n"
-			"		* data_entry_panel = 0,\n"
-			"		* help_panel = 0;\n");
+	if (program_options_ns::ncurses_flag) {
+		fprintf(script, "	WINDOW 	* question_window = 0,\n"
+				"		* stub_list_window = 0,\n"
+				"		* data_entry_window = 0,\n"
+				"		* help_window = 0;\n"
+				);
+		fprintf(script, "	PANEL 	* question_panel = 0,\n"
+				"		* stub_list_panel = 0,\n"
+				"		* data_entry_panel = 0,\n"
+				"		* help_panel = 0;\n");
+	}
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "vector <string> vec_language;\n");
 	fprintf(script, "enum UI_Mode { NCurses_Mode, Microhttpd_Mode, Wt_Mode, Gtk_Mode};\n");
@@ -1401,7 +1406,7 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime -lpanel -lwt -lboost_filesystem ")
+			+ string(" -lqscript_runtime -lpanel -lqscript_ncurses_runtime ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 #else
 		cpp_compile_command = string("g++ -g -o ")

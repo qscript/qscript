@@ -8,7 +8,7 @@ CXX_LINK_LIBS = -lpanel -lncurses -lwt -lboost_filesystem
 SOURCE_DIR=src
 BUILD_DIR=make-build-dir
 CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
-EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp src/qtm_data_file.cpp src/question_gtk_runtime.cpp src/question_wt_runtime.cpp
+EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp src/qtm_data_file.cpp src/question_gtk_runtime.cpp src/question_wt_runtime.cpp src/question_ncurses_runtime.cpp
 CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
 OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(CPP_SOURCES))
 OBJECTS := $(OBJECTS:.cpp=.o)
@@ -50,7 +50,7 @@ QSCRIPT_MINOR_VERSION_NUMBER=14
 #	echo "LEX OBJECTS $(LEX_OBJECTS)"
 
 $(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
-#echo "cpp sources: $(CPP_SOURCES)" 
+#	echo "cpp sources: $(CPP_SOURCES)" 
 #	echo "yacc sources: $(YACC_SOURCES)" 
 #	echo "lex sources: $(LEX_SOURCES)" 
 	$(CC) $(CXX_LINK_FLAGS) -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
@@ -157,6 +157,17 @@ runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
 runtime_gtk_lib: $(RUNTIME_GTK_LIB_SOURCES) $(RUNTIME_GTK_LIB_OBJECTS)
 	$(CXX) -g -shared -Wl,-soname,libqscript_gtk_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_gtk_runtime.so.1.0.1 $(RUNTIME_GTK_LIB_OBJECTS)
 
+runtime_static_gtk_lib: $(RUNTIME_GTK_LIB_SOURCES) $(RUNTIME_GTK_LIB_OBJECTS)
+#	$(CXX) -g -shared -Wl,-soname,libqscript_gtk_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_gtk_runtime.so.1.0.1 $(RUNTIME_GTK_LIB_OBJECTS)
+	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_gtk_runtime.a $(RUNTIME_GTK_LIB_OBJECTS)
+
+runtime_static_ncurses_lib: $(RUNTIME_NCURSES_LIB_SOURCES) $(RUNTIME_NCURSES_LIB_OBJECTS)
+#	$(CXX) -g -shared -Wl,-soname,libqscript_ncurses_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_ncurses_runtime.so.1.0.1 $(RUNTIME_NCURSES_LIB_OBJECTS)
+	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_ncurses_runtime.a $(RUNTIME_NCURSES_LIB_OBJECTS)
+
+runtime_ncurses_lib: $(RUNTIME_NCURSES_LIB_SOURCES) $(RUNTIME_NCURSES_LIB_OBJECTS)
+	$(CXX) -g -shared -Wl,-soname,libqscript_ncurses_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_ncurses_runtime.so.1.0.1 $(RUNTIME_NCURSES_LIB_OBJECTS)
+
 
 RUNTIME_Wt_LIB_SOURCES = $(SOURCE_DIR)/question_wt_runtime.cpp 
 RUNTIME_Wt_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_Wt_LIB_SOURCES) )
@@ -177,6 +188,12 @@ compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
 #echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
 #	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
 	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
+
+RUNTIME_STATIC_GTK_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_static_lib,$(RUNTIME_GTK_LIB_SOURCES) )
+RUNTIME_STATIC_GTK_LIB_OBJECTS := $(RUNTIME_STATIC_GTK_LIB_OBJECTS:.cpp=.o)
+
+runtime_static_gtk_lib: $(RUNTIME_GTK_LIB_SOURCES) $(RUNTIME_STATIC_GTK_LIB_OBJECTS)
+	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_gtk_runtime.a $(RUNTIME_STATIC_GTK_LIB_OBJECTS)
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 	$(CC) $(CFLAGS) -o $@ $<
@@ -238,7 +255,7 @@ clean:
 		$(BUILD_DIR)/compiletime_lib/*.so  \
 		inputs/*.C inputs/*.exe src/tags src/TAGS src/*.output
 
-local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib runtime_gtk_lib runtime_wt_lib
+local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib runtime_gtk_lib runtime_wt_lib runtime_ncurses_lib
 	cp $(BUILD_DIR)/qscript bin
 	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib
 	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so.1
@@ -246,6 +263,9 @@ local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib runtime_gtk_lib 
 	cp $(BUILD_DIR)/runtime_lib/libqscript_gtk_runtime.so.1.0.1 lib
 	cp $(BUILD_DIR)/runtime_lib/libqscript_gtk_runtime.so.1.0.1 lib/libqscript_gtk_runtime.so.1
 	cp $(BUILD_DIR)/runtime_lib/libqscript_gtk_runtime.so.1.0.1 lib/libqscript_gtk_runtime.so
+	cp $(BUILD_DIR)/runtime_lib/libqscript_ncurses_runtime.so.1.0.1 lib
+	cp $(BUILD_DIR)/runtime_lib/libqscript_ncurses_runtime.so.1.0.1 lib/libqscript_ncurses_runtime.so.1
+	cp $(BUILD_DIR)/runtime_lib/libqscript_ncurses_runtime.so.1.0.1 lib/libqscript_ncurses_runtime.so
 	cp $(BUILD_DIR)/runtime_lib/libqscript_wt_runtime.so.1.0.1 lib
 	cp $(BUILD_DIR)/runtime_lib/libqscript_wt_runtime.so.1.0.1 lib/libqscript_wt_runtime.so.1
 	cp $(BUILD_DIR)/runtime_lib/libqscript_wt_runtime.so.1.0.1 lib/libqscript_wt_runtime.so
