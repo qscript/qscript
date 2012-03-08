@@ -161,6 +161,10 @@ runtime_static_gtk_lib: $(RUNTIME_GTK_LIB_SOURCES) $(RUNTIME_GTK_LIB_OBJECTS)
 #	$(CXX) -g -shared -Wl,-soname,libqscript_gtk_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_gtk_runtime.so.1.0.1 $(RUNTIME_GTK_LIB_OBJECTS)
 	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_gtk_runtime.a $(RUNTIME_GTK_LIB_OBJECTS)
 
+RUNTIME_NCURSES_LIB_SOURCES = $(SOURCE_DIR)/question_ncurses_runtime.cpp 
+RUNTIME_NCURSES_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/runtime_lib,$(RUNTIME_NCURSES_LIB_SOURCES) )
+RUNTIME_NCURSES_LIB_OBJECTS := $(RUNTIME_NCURSES_LIB_OBJECTS:.cpp=.o)
+
 runtime_static_ncurses_lib: $(RUNTIME_NCURSES_LIB_SOURCES) $(RUNTIME_NCURSES_LIB_OBJECTS)
 #	$(CXX) -g -shared -Wl,-soname,libqscript_ncurses_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_ncurses_runtime.so.1.0.1 $(RUNTIME_NCURSES_LIB_OBJECTS)
 	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_ncurses_runtime.a $(RUNTIME_NCURSES_LIB_OBJECTS)
