@@ -46,6 +46,9 @@ q3 		"Which veg dou eat?"
 q4 		"Which is ur fav veg?" : q3
 		sp int32_t veg;
 
+q4_1 		"Why do you like this vegetable so much"
+		mp(5) int32_t (1-100);
+
 		int32_t sum=0;
 		int32_t iter_no=0;
 		for (i1=0; i1<5; i1=i1+1) {
@@ -76,6 +79,7 @@ q6				"In a week what perc of your veggies are (piping not yet implemented): "
 q5			"Please state your agreement with these statements" : veg_seg_att[i1]
 			sp int32_t agree_5;
 		}
+
 
 }
 

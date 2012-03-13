@@ -4923,7 +4923,12 @@ void print_gtk_support_code (FILE * script)
 	fprintf (script, "			//named_attribute_key << q->textExprVec_[i]->naPtr_->name;\n");
 	fprintf (script, "			//named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n");
 	fprintf (script, "			//question_text += string(gettext(named_attribute_key.str().c_str()));\n");
-	fprintf (script, "			question_text += string(gettext(this_users_session->questionnaire->veg_seg_att.attribute[(q->textExprVec_[i]->naIndex_)].c_str()));\n");
+	cerr << " FIXME : BUG that I didnt notice. Need to create a map of string, named_attribute_list  to solve this problem" << endl;
+	//fprintf (script, "			question_text += string(gettext(this_users_session->questionnaire->veg_seg_att.attribute[(q->textExprVec_[i]->naIndex_)].c_str()));\n");
+	//fprintf (script, "			question_text += string(gettext(this_users_session->questionnaire->");
+	//fprintf (script, " "
+	//fprintf (script, "	.attribute[(q->textExprVec_[i]->naIndex_)].c_str()));\n");
+	fprintf (script, " 			question_text += string(\" FIXME : BUG that I didnt notice. Need to create a map of <string, named_attribute_list>   to solve this problem, where the first string is the name of the named_attribute_list\");\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)\n");
 	fprintf (script, "		{\n");
