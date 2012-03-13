@@ -1,0 +1,24 @@
+for_with_if5 {
+
+	
+q1 	"q1"
+	mp(4) int32_t (1-5);
+
+	int32_t i1 = 0;
+	for (i1 = 0; i1 < 5; i1 = i1 + 1) {
+		int32_t code = i1 + 1;
+		if (code in q1) {
+
+q2			"q2"
+			sp int32_t (1-5);
+			
+		} else {
+			1;
+		}
+	}
+
+q3	"q3"
+	sp int32_t (1,2);
+
+
+}
