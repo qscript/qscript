@@ -206,36 +206,115 @@ struct IfStatementStackElement
 	{ }
 };
 
-string Generate_false_code_for_questions_in_other_block (string question_name)
+string Generate_false_code_for_questions_in_other_block (string question_name, IfStatement * p_if_stmt, bool if_mode_1_else_mode_0)
 {
 	stringstream code;
 	SymbolTableEntry * se = active_scope->find (question_name);
+	code << "// reached here: " << question_name << endl;
+	CompoundStatement * cmpd_stmt1 =  dynamic_cast< CompoundStatement * > ( p_if_stmt->ifBody_);
+	CompoundStatement * cmpd_stmt = 0;
+	if (cmpd_stmt1->nestedCompoundStatementStack_.size() > 1) {
+		// note that cmpd_stmt1->nestedCompoundStatementStack_[size()-1] == us , the if statement
+		cmpd_stmt =  dynamic_cast< CompoundStatement * > ( 
+				cmpd_stmt1->nestedCompoundStatementStack_[cmpd_stmt1->nestedCompoundStatementStack_.size()-2]);
+	}
+	stringstream mesg;
+	mesg << " need to check the nestedCompoundStatementStack_ that we dont have interleaving for and if statements, otherwise there are many cases where we will be generating incorrect code";
+	LOG_MAINTAINER_MESSAGE(mesg.str());
 	if (se && se->type_ == QUESTION_ARR_TYPE) {
-		code << "/* generate for loop code here */" << endl;
-		for (int32_t i1=0; i1< se->question_->for_bounds_stack.size(); ++i1) {
-			BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(se->question_->for_bounds_stack[i1]);
-			if (bin_expr_ptr) {
-				AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
-				AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
-				ExpressionCompiledCode s1, s2;
-				lhs->PrintExpressionCode(s1);
-				rhs->PrintExpressionCode(s2);
-				code
-					<< "for (int32_t " 
-					<< s1.code_expr.str() << "= 0;"
-					<< s1.code_expr.str() << " < " << s2.code_expr.str()
-					<< "; ++ " << s1.code_expr.str()
-					<< ") {" << endl;
+		//IfStatement * if_stmt =  dynamic_cast< IfStatement * > (se->question_->enclosingCompoundStatement_);
+		//ForStatement * for_stmt =  dynamic_cast< ForStatement * > (se->question_->enclosingCompoundStatement_);
+		//CompoundStatement * cmpd_stmt =  dynamic_cast< CompoundStatement * > (se->question_->enclosingCompoundStatement_);
+
+		if (cmpd_stmt && cmpd_stmt->flagIsAForBody_) {
+			//if (for_stmt) {
+				code << "// enclosingCompoundStatement_ is ForStatement " << endl;
+			//}
+			if (cmpd_stmt) {
+				code << "// enclosingCompoundStatement_ is CompoundStatement " << endl;
+				if (cmpd_stmt->flagIsAForBody_) {
+					code << "// and enclosingCompoundStatement_ is part of a for loop " << endl;
+				}
 			}
-		}
-		code
-			<< se->question_->questionName_ << "_list.questionList["
-			<< PrintConsolidatedForLoopIndex (se->question_->for_bounds_stack)
-			<< "]->isAnswered_ = false;\n";
-		for (int32_t i1=0; i1< se->question_->for_bounds_stack.size(); ++i1) {
-			code << "}\n";
-		}
-		
+			code
+				<< se->question_->questionName_ << "_list.questionList["
+				//<< se->question_->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+				<< PrintConsolidatedForLoopIndex (se->question_->for_bounds_stack)
+				<< "]->isAnswered_ = false;\n";
+		} /*  else if (se->question_->enclosingCompoundStatement_ == 0) {
+			stringstream err_msg;
+			err_msg << " enclosingCompoundStatement_ is 0: exiting" ;
+			print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			exit(1);
+		} else {
+			stringstream err_msg;
+			err_msg << " unhandled case in if else code generation " ;
+			print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			exit(1);
+			
+		}*/
+
+		else  /* if (cmpd_stmt && cmpd_stmt->flagIsAIfBody_) */ {
+			code << "/* generate for loop code here */" << endl;
+			code << "// enclosingCompoundStatement_ is IfStatement " << endl;
+			for (int32_t i1=0; i1< se->question_->for_bounds_stack.size(); ++i1) {
+				BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(se->question_->for_bounds_stack[i1]);
+				if (bin_expr_ptr) {
+					AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+					AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+					ExpressionCompiledCode s1, s2;
+					lhs->PrintExpressionCode(s1);
+					rhs->PrintExpressionCode(s2);
+					code
+						<< "for (int32_t " 
+						<< s1.code_expr.str() << "= 0;"
+						<< s1.code_expr.str() << " < " << s2.code_expr.str()
+						<< "; ++ " << s1.code_expr.str()
+						<< ") {" << endl;
+				}
+			}
+			code
+				<< se->question_->questionName_ << "_list.questionList["
+				//<< se->question_->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+				<< PrintConsolidatedForLoopIndex (se->question_->for_bounds_stack)
+				<< "]->isAnswered_ = false;\n";
+			for (int32_t i1=0; i1< se->question_->for_bounds_stack.size(); ++i1) {
+					code << "}\n";
+			}
+		} 
+
+		//if (for_stmt) {
+		//	code << "// enclosingCompoundStatement_ is ForStatement " << endl;
+		//}
+		//if (cmpd_stmt) {
+		//	code << "// enclosingCompoundStatement_ is CompoundStatement " << endl;
+		//}
+		//code << "/* generate for loop code here */" << endl;
+		//for (int32_t i1=0; i1< se->question_->for_bounds_stack.size(); ++i1) {
+		//	BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(se->question_->for_bounds_stack[i1]);
+		//	if (bin_expr_ptr) {
+		//		AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+		//		AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+		//		ExpressionCompiledCode s1, s2;
+		//		lhs->PrintExpressionCode(s1);
+		//		rhs->PrintExpressionCode(s2);
+		//		code
+		//			<< "for (int32_t " 
+		//			<< s1.code_expr.str() << "= 0;"
+		//			<< s1.code_expr.str() << " < " << s2.code_expr.str()
+		//			<< "; ++ " << s1.code_expr.str()
+		//			<< ") {" << endl;
+		//	}
+		//}
+		//code
+		//	<< se->question_->questionName_ << "_list.questionList["
+		//	<< se->question_->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
+		//	//<< PrintConsolidatedForLoopIndex (se->question_->for_bounds_stack)
+		//	<< "]->isAnswered_ = false;\n";
+		//for (int32_t i1=0; i1< se->question_->for_bounds_stack.size(); ++i1) {
+		//	code << "}\n";
+		//}
+
 	} else {
 		code
 			<<  question_name
@@ -319,8 +398,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 		// LOG_MAINTAINER_MESSAGE(mesg.str());
 	}
 	for(int32_t i = 0; i < question_list_else_body.size(); ++i) {
-
-		code.program_code << Generate_false_code_for_questions_in_other_block (question_list_else_body[i]);
+		bool if_mode_1_else_mode_0 = true;
+		code.program_code << Generate_false_code_for_questions_in_other_block (question_list_else_body[i], this, if_mode_1_else_mode_0);
 		//code.program_code <<  question_list_else_body[i]
 		//	<< "->isAnswered_ = false;/* ## */"
 		//	<< endl;
@@ -369,7 +448,8 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 			code.program_code << "/* question_list_if_body.size(): "
 				<< question_list_if_body.size() << " */ \n";
 			for(int32_t i = 0; i < question_list_if_body.size(); ++i){
-				code.program_code << Generate_false_code_for_questions_in_other_block(question_list_if_body[i]);
+				bool if_mode_1_else_mode_0 = false;
+				code.program_code << Generate_false_code_for_questions_in_other_block(question_list_if_body[i], this, false);
 #if 0
 				SymbolTableEntry * se = active_scope->find (question_list_if_body[i]);
 				if (se && se->type_ == QUESTION_ARR_TYPE) {

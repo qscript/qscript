@@ -82,9 +82,12 @@ AbstractQuestion::AbstractQuestion(
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
 	, isStartOfBlock_(false)
 {
+	cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 			, qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		cout << "enclosingCompoundStatement_: " << enclosingCompoundStatement_ << endl;
 	}
 }
 
@@ -137,9 +140,12 @@ AbstractQuestion::AbstractQuestion(
 	  , maxCode_(0)
 	, isStartOfBlock_(false)
 {
+	cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 			, qscript_parser::line_no, __LINE__, __FILE__);
+	} else {
+		cout << "enclosingCompoundStatement_: " << enclosingCompoundStatement_ << endl;
 	}
 }
 

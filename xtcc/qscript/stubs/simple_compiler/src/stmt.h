@@ -186,6 +186,9 @@ struct DeclarationStatement: public AbstractStatement
 
 */
 
+struct IfStatement;
+struct ForStatement;
+
 struct CompoundStatement: public AbstractStatement
 {
 	static int32_t counter_;
@@ -222,6 +225,10 @@ struct CompoundStatement: public AbstractStatement
 	vector<CompoundStatement*> nestedCompoundStatementStack_;
 	vector<string> ConsolidatedForLoopIndexStack_;
 	int32_t flagIsAIfBody_;
+
+	struct IfStatement  * ifStatement_;
+	struct IfStatement  * elseStatement_;
+	struct ForStatement * forStatement_;
 	public:
 	CompoundStatement(DataType dtype, int32_t lline_number
 			  , int32_t l_flag_cmpd_stmt_is_a_func_body

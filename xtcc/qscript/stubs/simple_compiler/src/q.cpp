@@ -579,15 +579,15 @@ static const yytype_uint16 yyrline[] =
      233,   242,   250,   259,   267,   268,   269,   270,   271,   272,
      273,   276,   281,   284,   286,   289,   299,   300,   301,   302,
      303,   306,   307,   308,   309,   310,   311,   312,   313,   314,
-     331,   331,   346,   351,   361,   376,   404,   423,   428,   432,
-     436,   439,   445,   450,   456,   464,   472,   479,   480,   484,
-     485,   488,   491,   497,   506,   515,   524,   533,   542,   551,
-     560,   569,   578,   587,   596,   605,   614,   623,   632,   641,
-     650,   658,   666,   674,   728,   735,   742,   751,   757,   763,
-     769,   787,   788,   793,   799,   804,   809,   810,   814,   825,
-     831,   835,   836,   839,   851,   857,   857,   878,   879,   882,
-     913,   948,   952,   956,   960,   964,   970,   977,   980,   985,
-     985,  1006,  1007
+     331,   331,   346,   351,   361,   378,   417,   436,   441,   445,
+     449,   452,   458,   463,   469,   477,   485,   492,   493,   497,
+     498,   501,   504,   510,   519,   528,   537,   546,   555,   564,
+     573,   582,   591,   600,   609,   618,   627,   636,   645,   654,
+     663,   671,   679,   687,   741,   748,   755,   764,   770,   776,
+     782,   800,   801,   806,   812,   817,   822,   823,   827,   838,
+     844,   848,   849,   852,   864,   870,   870,   891,   892,   895,
+     926,   961,   965,   969,   973,   977,   983,   990,   993,   998,
+     998,  1019,  1020
 };
 #endif
 
@@ -2051,9 +2051,11 @@ yyreduce:
 		CompoundStatement * cmpd_stmt = dynamic_cast<CompoundStatement*>((yyvsp[(5) - (5)].stmt));
 		if (cmpd_stmt!=0) {
 			cmpd_stmt->flagIsAIfBody_ = 1;
-			(yyval.stmt)=new IfStatement(IFE_STMT,if_line_no,(yyvsp[(3) - (5)].expr),cmpd_stmt,0);
+			IfStatement * if_stmt = new IfStatement (IFE_STMT, if_line_no, (yyvsp[(3) - (5)].expr), cmpd_stmt, 0);
+			cmpd_stmt->ifStatement_ = if_stmt;
+			(yyval.stmt) = if_stmt;
 		} else 
-			(yyval.stmt)=new IfStatement(IFE_STMT,if_line_no,(yyvsp[(3) - (5)].expr),(yyvsp[(5) - (5)].stmt),0);
+			(yyval.stmt)=new IfStatement (IFE_STMT, if_line_no, (yyvsp[(3) - (5)].expr), (yyvsp[(5) - (5)].stmt), 0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, line_no);
 		}
@@ -2063,7 +2065,7 @@ yyreduce:
   case 45:
 
 /* Line 1455 of yacc.c  */
-#line 376 "src/q.ypp"
+#line 378 "src/q.ypp"
     {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
@@ -2076,14 +2078,25 @@ yyreduce:
 		if (cmpd_stmt_else_body) {
 			cmpd_stmt_else_body->flagIsAIfBody_ = 1;
 		}
+
+		IfStatement * if_else_stmt = 0;
 		if (cmpd_stmt_if_body==0 && cmpd_stmt_else_body==0)
-			(yyval.stmt)=new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
+			if_else_stmt = new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),(yyvsp[(7) - (7)].stmt));
 		else if (cmpd_stmt_if_body != 0 && cmpd_stmt_else_body !=0 ) 
-			(yyval.stmt)=new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),cmpd_stmt_if_body,cmpd_stmt_else_body);
+			if_else_stmt = new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),cmpd_stmt_if_body,cmpd_stmt_else_body);
 		else if (cmpd_stmt_else_body !=0 && cmpd_stmt_if_body==0) 
-			(yyval.stmt)=new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),cmpd_stmt_else_body);
+			if_else_stmt = new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),(yyvsp[(5) - (7)].stmt),cmpd_stmt_else_body);
 		else 
-			(yyval.stmt)=new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),cmpd_stmt_if_body,(yyvsp[(7) - (7)].stmt));
+			if_else_stmt = new IfStatement(IFE_STMT,qscript_parser::if_line_no,(yyvsp[(3) - (7)].expr),cmpd_stmt_if_body,(yyvsp[(7) - (7)].stmt));
+		
+		(yyval.stmt) = if_else_stmt;
+
+		if (cmpd_stmt_if_body) {
+			cmpd_stmt_if_body->ifStatement_ = if_else_stmt;
+		}
+		if (cmpd_stmt_else_body) {
+			cmpd_stmt_else_body->ifStatement_ = if_else_stmt;
+		}
 
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.stmt), __LINE__, __FILE__, qscript_parser::line_no);
@@ -2094,7 +2107,7 @@ yyreduce:
   case 46:
 
 /* Line 1455 of yacc.c  */
-#line 405 "src/q.ypp"
+#line 418 "src/q.ypp"
     {
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
@@ -2116,7 +2129,7 @@ yyreduce:
   case 47:
 
 /* Line 1455 of yacc.c  */
-#line 423 "src/q.ypp"
+#line 436 "src/q.ypp"
     {
 		(yyval.stmt) = new GotoStatement(GOTO_STMT, qscript_parser::line_no, (yyvsp[(2) - (3)].name));
 		// free($2); ? is this required here
@@ -2126,7 +2139,7 @@ yyreduce:
   case 48:
 
 /* Line 1455 of yacc.c  */
-#line 428 "src/q.ypp"
+#line 441 "src/q.ypp"
     {
 		// free($3); ? is this required here
 		(yyval.stmt) = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, (yyvsp[(3) - (5)].name));
@@ -2136,7 +2149,7 @@ yyreduce:
   case 49:
 
 /* Line 1455 of yacc.c  */
-#line 432 "src/q.ypp"
+#line 445 "src/q.ypp"
     {
 		(yyval.stmt) = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, (yyvsp[(3) - (8)].name), (yyvsp[(5) - (8)].expr));
 		// free($3); ? is this required here
@@ -2146,7 +2159,7 @@ yyreduce:
   case 50:
 
 /* Line 1455 of yacc.c  */
-#line 436 "src/q.ypp"
+#line 449 "src/q.ypp"
     {
 		(yyval.stmt) = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, (yyvsp[(3) - (10)].name), (yyvsp[(8) - (10)].text_buf));
 	;}
@@ -2155,7 +2168,7 @@ yyreduce:
   case 51:
 
 /* Line 1455 of yacc.c  */
-#line 439 "src/q.ypp"
+#line 452 "src/q.ypp"
     {
 		// free($3); ? is this required here
 		(yyval.stmt) = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].text_buf));
@@ -2165,7 +2178,7 @@ yyreduce:
   case 52:
 
 /* Line 1455 of yacc.c  */
-#line 445 "src/q.ypp"
+#line 458 "src/q.ypp"
     {
 		(yyval.stmt) = new ColumnStatement(COLUMN_STMT, qscript_parser::line_no, (yyvsp[(3) - (5)].expr));
 	;}
@@ -2174,7 +2187,7 @@ yyreduce:
   case 53:
 
 /* Line 1455 of yacc.c  */
-#line 450 "src/q.ypp"
+#line 463 "src/q.ypp"
     {
 		(yyval.stmt) = new NewCardStatement(COLUMN_STMT, qscript_parser::line_no, (yyvsp[(3) - (5)].expr));
 	;}
@@ -2183,7 +2196,7 @@ yyreduce:
   case 54:
 
 /* Line 1455 of yacc.c  */
-#line 456 "src/q.ypp"
+#line 469 "src/q.ypp"
     {
 		// Warning : xs is a global variable that is used here
 		(yyval.stmt) = qscript_parser::ProcessRangeQuestion((yyvsp[(1) - (7)].name), (yyvsp[(2) - (7)].text_buf), (yyvsp[(4) - (7)].dt));
@@ -2197,7 +2210,7 @@ yyreduce:
   case 55:
 
 /* Line 1455 of yacc.c  */
-#line 464 "src/q.ypp"
+#line 477 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::ProcessRangeQuestion((yyvsp[(1) - (8)].name), (yyvsp[(2) - (8)].text_buf), (yyvsp[(4) - (8)].dt));
 		//cout << "parsed range question : " << $1 << endl;
@@ -2211,7 +2224,7 @@ yyreduce:
   case 56:
 
 /* Line 1455 of yacc.c  */
-#line 472 "src/q.ypp"
+#line 485 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::ProcessNamedQuestion((yyvsp[(1) - (7)].name), (yyvsp[(2) - (7)].text_buf), (yyvsp[(4) - (7)].dt), (yyvsp[(5) - (7)].name));
 		//cout << "parsed named question : " << $1 << endl;
@@ -2222,7 +2235,7 @@ yyreduce:
   case 61:
 
 /* Line 1455 of yacc.c  */
-#line 488 "src/q.ypp"
+#line 501 "src/q.ypp"
     {
 		question_attributes.setHidden();
 	;}
@@ -2231,7 +2244,7 @@ yyreduce:
   case 62:
 
 /* Line 1455 of yacc.c  */
-#line 491 "src/q.ypp"
+#line 504 "src/q.ypp"
     {
 		question_attributes.setAllowBlank();
 	;}
@@ -2240,7 +2253,7 @@ yyreduce:
   case 63:
 
 /* Line 1455 of yacc.c  */
-#line 497 "src/q.ypp"
+#line 510 "src/q.ypp"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
@@ -2255,7 +2268,7 @@ yyreduce:
   case 64:
 
 /* Line 1455 of yacc.c  */
-#line 506 "src/q.ypp"
+#line 519 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2270,7 +2283,7 @@ yyreduce:
   case 65:
 
 /* Line 1455 of yacc.c  */
-#line 515 "src/q.ypp"
+#line 528 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2285,7 +2298,7 @@ yyreduce:
   case 66:
 
 /* Line 1455 of yacc.c  */
-#line 524 "src/q.ypp"
+#line 537 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2300,7 +2313,7 @@ yyreduce:
   case 67:
 
 /* Line 1455 of yacc.c  */
-#line 533 "src/q.ypp"
+#line 546 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2315,7 +2328,7 @@ yyreduce:
   case 68:
 
 /* Line 1455 of yacc.c  */
-#line 542 "src/q.ypp"
+#line 555 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2330,7 +2343,7 @@ yyreduce:
   case 69:
 
 /* Line 1455 of yacc.c  */
-#line 551 "src/q.ypp"
+#line 564 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2345,7 +2358,7 @@ yyreduce:
   case 70:
 
 /* Line 1455 of yacc.c  */
-#line 560 "src/q.ypp"
+#line 573 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2360,7 +2373,7 @@ yyreduce:
   case 71:
 
 /* Line 1455 of yacc.c  */
-#line 569 "src/q.ypp"
+#line 582 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2375,7 +2388,7 @@ yyreduce:
   case 72:
 
 /* Line 1455 of yacc.c  */
-#line 578 "src/q.ypp"
+#line 591 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2390,7 +2403,7 @@ yyreduce:
   case 73:
 
 /* Line 1455 of yacc.c  */
-#line 587 "src/q.ypp"
+#line 600 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2405,7 +2418,7 @@ yyreduce:
   case 74:
 
 /* Line 1455 of yacc.c  */
-#line 596 "src/q.ypp"
+#line 609 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2420,7 +2433,7 @@ yyreduce:
   case 75:
 
 /* Line 1455 of yacc.c  */
-#line 605 "src/q.ypp"
+#line 618 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2435,7 +2448,7 @@ yyreduce:
   case 76:
 
 /* Line 1455 of yacc.c  */
-#line 614 "src/q.ypp"
+#line 627 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2450,7 +2463,7 @@ yyreduce:
   case 77:
 
 /* Line 1455 of yacc.c  */
-#line 623 "src/q.ypp"
+#line 636 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2465,7 +2478,7 @@ yyreduce:
   case 78:
 
 /* Line 1455 of yacc.c  */
-#line 632 "src/q.ypp"
+#line 645 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2480,7 +2493,7 @@ yyreduce:
   case 79:
 
 /* Line 1455 of yacc.c  */
-#line 641 "src/q.ypp"
+#line 654 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2495,7 +2508,7 @@ yyreduce:
   case 80:
 
 /* Line 1455 of yacc.c  */
-#line 650 "src/q.ypp"
+#line 663 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2509,7 +2522,7 @@ yyreduce:
   case 81:
 
 /* Line 1455 of yacc.c  */
-#line 658 "src/q.ypp"
+#line 671 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::line_no;
@@ -2523,7 +2536,7 @@ yyreduce:
   case 82:
 
 /* Line 1455 of yacc.c  */
-#line 666 "src/q.ypp"
+#line 679 "src/q.ypp"
     {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
@@ -2537,7 +2550,7 @@ yyreduce:
   case 83:
 
 /* Line 1455 of yacc.c  */
-#line 674 "src/q.ypp"
+#line 687 "src/q.ypp"
     {
 		using qscript_parser::mem_addr;
 		using qscript_parser::named_stubs_list;
@@ -2597,7 +2610,7 @@ yyreduce:
   case 84:
 
 /* Line 1455 of yacc.c  */
-#line 728 "src/q.ypp"
+#line 741 "src/q.ypp"
     {
 		using qscript_parser::line_no;
 		(yyval.expr) = new Unary2Expression(strdup((yyvsp[(1) - (1)].text_buf)), oper_text_expr);
@@ -2610,7 +2623,7 @@ yyreduce:
   case 85:
 
 /* Line 1455 of yacc.c  */
-#line 735 "src/q.ypp"
+#line 748 "src/q.ypp"
     {
 		using qscript_parser::line_no;
 		(yyval.expr) = new UnaryExpression((yyvsp[(2) - (3)].expr), oper_parexp );
@@ -2623,7 +2636,7 @@ yyreduce:
   case 86:
 
 /* Line 1455 of yacc.c  */
-#line 742 "src/q.ypp"
+#line 755 "src/q.ypp"
     {
 		using qscript_parser::xs;
 		using qscript_parser::line_no;
@@ -2638,7 +2651,7 @@ yyreduce:
   case 87:
 
 /* Line 1455 of yacc.c  */
-#line 751 "src/q.ypp"
+#line 764 "src/q.ypp"
     {
 		(yyval.expr) = new Unary2Expression((yyvsp[(3) - (4)].name), oper_to_string);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
@@ -2650,7 +2663,7 @@ yyreduce:
   case 88:
 
 /* Line 1455 of yacc.c  */
-#line 757 "src/q.ypp"
+#line 770 "src/q.ypp"
     {
 		(yyval.expr) = new Binary2Expression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].name), oper_in);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
@@ -2662,7 +2675,7 @@ yyreduce:
   case 89:
 
 /* Line 1455 of yacc.c  */
-#line 763 "src/q.ypp"
+#line 776 "src/q.ypp"
     {
 		(yyval.expr) = new Unary2Expression ((yyvsp[(3) - (4)].name), oper_isanswered);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
@@ -2674,7 +2687,7 @@ yyreduce:
   case 90:
 
 /* Line 1455 of yacc.c  */
-#line 769 "src/q.ypp"
+#line 782 "src/q.ypp"
     {
 		(yyval.expr) = new Unary2Expression ((yyvsp[(3) - (4)].name), oper_count);
 		if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
@@ -2686,14 +2699,14 @@ yyreduce:
   case 91:
 
 /* Line 1455 of yacc.c  */
-#line 787 "src/q.ypp"
+#line 800 "src/q.ypp"
     { (yyval.expr)=(yyvsp[(1) - (1)].expr); ;}
     break;
 
   case 92:
 
 /* Line 1455 of yacc.c  */
-#line 788 "src/q.ypp"
+#line 801 "src/q.ypp"
     {
 		(yyval.expr)=qscript_parser::link_chain((yyvsp[(1) - (3)].expr),(yyvsp[(3) - (3)].expr));
 	;}
@@ -2702,7 +2715,7 @@ yyreduce:
   case 93:
 
 /* Line 1455 of yacc.c  */
-#line 793 "src/q.ypp"
+#line 806 "src/q.ypp"
     { 
 	       qscript_parser::q_type = spn; 
 	       // we need this =1 when generating
@@ -2714,7 +2727,7 @@ yyreduce:
   case 94:
 
 /* Line 1455 of yacc.c  */
-#line 799 "src/q.ypp"
+#line 812 "src/q.ypp"
     { qscript_parser::q_type = mpn;
 		qscript_parser::no_mpn = (yyvsp[(3) - (4)].ival);
 	;}
@@ -2723,7 +2736,7 @@ yyreduce:
   case 95:
 
 /* Line 1455 of yacc.c  */
-#line 804 "src/q.ypp"
+#line 817 "src/q.ypp"
     { 
 		     qscript_parser::has_mutex_range = true;
 	     ;}
@@ -2732,7 +2745,7 @@ yyreduce:
   case 98:
 
 /* Line 1455 of yacc.c  */
-#line 814 "src/q.ypp"
+#line 827 "src/q.ypp"
     {
 		using qscript_parser::line_no;
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
@@ -2749,7 +2762,7 @@ yyreduce:
   case 99:
 
 /* Line 1455 of yacc.c  */
-#line 825 "src/q.ypp"
+#line 838 "src/q.ypp"
     {
 		qscript_parser::mutex_range_set.add_indiv((yyvsp[(1) - (1)].ival));
 	;}
@@ -2758,14 +2771,14 @@ yyreduce:
   case 100:
 
 /* Line 1455 of yacc.c  */
-#line 831 "src/q.ypp"
+#line 844 "src/q.ypp"
     { ;}
     break;
 
   case 103:
 
 /* Line 1455 of yacc.c  */
-#line 839 "src/q.ypp"
+#line 852 "src/q.ypp"
     {
 		using qscript_parser::line_no;
 		if((yyvsp[(3) - (3)].ival)<=(yyvsp[(1) - (3)].ival)){
@@ -2783,7 +2796,7 @@ yyreduce:
   case 104:
 
 /* Line 1455 of yacc.c  */
-#line 851 "src/q.ypp"
+#line 864 "src/q.ypp"
     {
 		//qscript_parser::xs.indiv.insert($1);
 		qscript_parser::xs.add_indiv((yyvsp[(1) - (1)].ival));
@@ -2793,7 +2806,7 @@ yyreduce:
   case 105:
 
 /* Line 1455 of yacc.c  */
-#line 857 "src/q.ypp"
+#line 870 "src/q.ypp"
     {
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
@@ -2806,7 +2819,7 @@ yyreduce:
   case 106:
 
 /* Line 1455 of yacc.c  */
-#line 863 "src/q.ypp"
+#line 876 "src/q.ypp"
     {
 		using qscript_parser::line_no;
 		using qscript_parser:: stub_list;
@@ -2824,7 +2837,7 @@ yyreduce:
   case 109:
 
 /* Line 1455 of yacc.c  */
-#line 882 "src/q.ypp"
+#line 895 "src/q.ypp"
     {
 		using qscript_parser::stub_list;
 		string s1=(yyvsp[(1) - (2)].text_buf);
@@ -2861,7 +2874,7 @@ yyreduce:
   case 110:
 
 /* Line 1455 of yacc.c  */
-#line 913 "src/q.ypp"
+#line 926 "src/q.ypp"
     {
 		using qscript_parser::stub_list;
 		string s1=(yyvsp[(1) - (3)].text_buf);
@@ -2899,7 +2912,7 @@ yyreduce:
   case 111:
 
 /* Line 1455 of yacc.c  */
-#line 948 "src/q.ypp"
+#line 961 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
@@ -2909,7 +2922,7 @@ yyreduce:
   case 112:
 
 /* Line 1455 of yacc.c  */
-#line 952 "src/q.ypp"
+#line 965 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, (yyvsp[(3) - (10)].name), (yyvsp[(5) - (10)].name), (yyvsp[(7) - (10)].expr));
@@ -2919,7 +2932,7 @@ yyreduce:
   case 113:
 
 /* Line 1455 of yacc.c  */
-#line 956 "src/q.ypp"
+#line 969 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, (yyvsp[(3) - (7)].name), (yyvsp[(5) - (7)].name));
@@ -2929,7 +2942,7 @@ yyreduce:
   case 114:
 
 /* Line 1455 of yacc.c  */
-#line 960 "src/q.ypp"
+#line 973 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, (yyvsp[(3) - (10)].name), (yyvsp[(5) - (10)].name), (yyvsp[(7) - (10)].expr));
@@ -2939,7 +2952,7 @@ yyreduce:
   case 115:
 
 /* Line 1455 of yacc.c  */
-#line 964 "src/q.ypp"
+#line 977 "src/q.ypp"
     {
 		using qscript_parser::xs;
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
@@ -2951,7 +2964,7 @@ yyreduce:
   case 116:
 
 /* Line 1455 of yacc.c  */
-#line 970 "src/q.ypp"
+#line 983 "src/q.ypp"
     {
 		using qscript_parser::xs;
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
@@ -2964,7 +2977,7 @@ yyreduce:
   case 117:
 
 /* Line 1455 of yacc.c  */
-#line 977 "src/q.ypp"
+#line 990 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_UNSET_ALL, (yyvsp[(3) - (5)].name));
 	;}
@@ -2973,7 +2986,7 @@ yyreduce:
   case 118:
 
 /* Line 1455 of yacc.c  */
-#line 980 "src/q.ypp"
+#line 993 "src/q.ypp"
     {
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_SET_ALL, (yyvsp[(3) - (5)].name));
 	;}
@@ -2982,14 +2995,14 @@ yyreduce:
   case 119:
 
 /* Line 1455 of yacc.c  */
-#line 985 "src/q.ypp"
+#line 998 "src/q.ypp"
     { recode_list = name_list; name_list.clear(); ;}
     break;
 
   case 120:
 
 /* Line 1455 of yacc.c  */
-#line 986 "src/q.ypp"
+#line 999 "src/q.ypp"
     {
 		driver_list = name_list ;
 		using qscript_parser::line_no;
@@ -3013,21 +3026,21 @@ yyreduce:
   case 121:
 
 /* Line 1455 of yacc.c  */
-#line 1006 "src/q.ypp"
+#line 1019 "src/q.ypp"
     { name_list.push_back((yyvsp[(1) - (1)].name)); ;}
     break;
 
   case 122:
 
 /* Line 1455 of yacc.c  */
-#line 1007 "src/q.ypp"
+#line 1020 "src/q.ypp"
     { name_list.push_back((yyvsp[(2) - (2)].name)); ;}
     break;
 
 
 
 /* Line 1455 of yacc.c  */
-#line 3031 "src/q.cpp"
+#line 3044 "src/q.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -3239,7 +3252,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 1011 "src/q.ypp"
+#line 1024 "src/q.ypp"
 
 
 

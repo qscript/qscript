@@ -8,6 +8,11 @@
 
 using namespace std;
 
+namespace qscript_parser {
+
+	extern int32_t line_no;
+}
+
 
 #if 1
 AbstractQuestion::AbstractQuestion(
@@ -29,10 +34,11 @@ AbstractQuestion::AbstractQuestion(
 	  , mutexCodeList_()
 	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
 {
-	//if(enclosingCompoundStatement_ == 0){
-	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
-	//		, qscript_parser::line_no, __LINE__, __FILE__  );
-	//}
+	cout << "creating AbstractQuestion: " << questionName_ << endl;
+	if(enclosingCompoundStatement_ == 0){
+		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
+			, qscript_parser::line_no, __LINE__, __FILE__  );
+	}
 }
 #endif /* 0 */
 
