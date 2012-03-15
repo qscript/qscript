@@ -106,7 +106,9 @@ struct AbstractQuestion: public AbstractStatement
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 	void init_arr(int32_t n, AbstractQuestion* q);
-	virtual void WriteDataToDisk(ofstream & data_file, string time_stamp, string jno, int ser_no)=0;
+	virtual void WriteDataToDisk(ofstream & data_file, string time_stamp, string jno, int ser_no);
+	string GetDataFileQuestionName();
+	string GetResponseForDataFile();
 	void PrintSetupBackJump(StatementCompiledCode &code);
 	void SetupSimpleQuestionSave(StatementCompiledCode &code);
 	void SetupSimpleQuestionRestore(StatementCompiledCode &code);

@@ -953,6 +953,9 @@ get_data_again:
 }
 #endif /* 0 */
 
+void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+{ }
+
 void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
 { }
 

@@ -901,12 +901,90 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 { }
 
-void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
 {
 
 
-	if (loop_index_values.size() > 0) {
+	//if (loop_index_values.size() > 0) {
+	//	data_file << questionName_;
+	//	for(int32_t i = 0; i< loop_index_values.size(); ++i){
+	//		data_file << "$" << loop_index_values[i];
+	//	}
+	//} else {
+	//	data_file << questionName_;
+	//}
+	data_file << GetDataFileQuestionName();
+	data_file << ":";
+	if (isAnswered_) {
+		//for (set<int32_t>::iterator iter = input_data.begin();
+		//		iter != input_data.end(); ++iter) {
+		//	data_file << *iter << " ";
+		//}
+		data_file << GetResponseForDataFile();
+	}
+	data_file << endl;
+	//stringstream mesg;
+	//mesg << "I think this is the wrong place to clear - should be done at the end of main while loop in generated code, when user loads a new serial number";
+	//LOG_MAINTAINER_MESSAGE(mesg.str());
+	//input_data.clear();
+	// clean file
+	stringstream fname_clean_str;
+	fname_clean_str << jno << "_clean_" << ser_no << "_" << time_stamp << ".dat";
+	std::ofstream clean_data_file;
+	clean_data_file.exceptions(std::ios::failbit | std::ios::badbit);
+	clean_data_file.open(fname_clean_str.str().c_str(), ios_base::out| ios_base::app);
+	//if (loop_index_values.size() > 0) {
+	//	clean_data_file << questionName_;
+	//	for(int32_t i = 0; i< loop_index_values.size(); ++i){
+	//		clean_data_file << "$" << loop_index_values[i];
+	//	}
+	//} else {
+	//	clean_data_file << questionName_;
+	//}
+	clean_data_file << GetDataFileQuestionName();
+	clean_data_file << ":";
+	if (isAnswered_) {
+		//for (set<int32_t>::iterator iter = input_data.begin();
+		//		iter != input_data.end(); ++iter) {
+		//	clean_data_file << *iter << " ";
+		//}
+		clean_data_file << GetResponseForDataFile();
+	}
+	clean_data_file << endl;
 
+	//
+	//
+	//
+	// dirty file
+	//
+	stringstream fname_dirty_str;
+	fname_dirty_str << jno << "_dirty_" << ser_no << "_" << time_stamp << ".dat";
+	std::ofstream dirty_data_file;
+	dirty_data_file.exceptions(std::ios::failbit | std::ios::badbit);
+	dirty_data_file.open(fname_dirty_str.str().c_str(), ios_base::out| ios_base::app);
+	//if (loop_index_values.size() > 0) {
+	//	dirty_data_file << questionName_;
+	//	for(int32_t i = 0; i< loop_index_values.size(); ++i){
+	//		dirty_data_file << "$" << loop_index_values[i];
+	//	}
+	//} else {
+	//	dirty_data_file << questionName_;
+	//}
+	dirty_data_file << GetDataFileQuestionName();
+	dirty_data_file << ":";
+	//for (set<int32_t>::iterator iter = input_data.begin();
+	//		iter != input_data.end(); ++iter) {
+	//	dirty_data_file << *iter << " ";
+	//}
+	dirty_data_file << GetResponseForDataFile();
+	dirty_data_file << endl;
+}
+
+void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+{
+	AbstractQuestion::WriteDataToDisk(data_file, time_stamp, jno, ser_no);
+#if 0
+	if (loop_index_values.size() > 0) {
 		data_file << questionName_;
 		for(int32_t i = 0; i< loop_index_values.size(); ++i){
 			data_file << "$" << loop_index_values[i];
@@ -973,6 +1051,7 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, 
 		dirty_data_file << *iter << " ";
 	}
 	dirty_data_file << endl;
+#endif /*  0 */
 }
 
 void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
@@ -986,6 +1065,8 @@ void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp,
 
 void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
 {
+	AbstractQuestion::WriteDataToDisk(data_file, time_stamp, jno, ser_no);
+#if 0
 	if(loop_index_values.size()>0){
 		data_file << questionName_;
 		for(int32_t i = 0; i< loop_index_values.size(); ++i){
@@ -1008,6 +1089,7 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, stri
 	//	<< " right now if the user presses 's' 2ice - we lose data" << endl;
 	//LOG_MAINTAINER_MESSAGE(mesg.str());
 	//input_data.clear();
+#endif /* 0 */
 }
 
 
@@ -1084,4 +1166,30 @@ void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 		xPos += s.str().length() + 1;
 	}
 	//wmove(data_entry_window, 1, 1);
+}
+
+string AbstractQuestion::GetDataFileQuestionName()
+{
+	stringstream disk_question_name;
+	if (loop_index_values.size() > 0) {
+		disk_question_name << questionName_;
+		for(int32_t i = 0; i< loop_index_values.size(); ++i){
+			disk_question_name << "$" << loop_index_values[i];
+		}
+	} else {
+		disk_question_name << questionName_;
+	}
+	return disk_question_name.str();
+}
+
+// Note to myself: when i add floating questions 
+// will need to extract this by the type in the question
+string AbstractQuestion::GetResponseForDataFile()
+{
+	stringstream question_response;
+	for (set<int32_t>::iterator iter = input_data.begin();
+			iter != input_data.end(); ++iter) {
+		question_response << *iter << " ";
+	}
+	return question_response.str();
 }
