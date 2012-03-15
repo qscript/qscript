@@ -244,6 +244,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <dirent.h>\n");
 	fprintf(script, "#include <cctype>\n");
 	fprintf(script, "#include <unistd.h>\n");
+	fprintf(script, "#include <time.h>\n");
 	//fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"AbstractStatement.h\"\n");
@@ -950,9 +951,24 @@ const char * write_data_to_disk_code()
 	"\t	std::ofstream data_file;\n"
 	"\t	data_file.exceptions(std::ios::failbit | std::ios::badbit);\n"
 	"\t	data_file.open(fname_str.str().c_str(), ios_base::ate);\n"
+	"\tchar outstr[500];\n"
+	"\tmemset (outstr, 0, 500);\n"
+	"\ttime_t t = time(NULL);\n"
+	"\tstruct tm *tmp = localtime(&t);\n"
+	"\tif (tmp == NULL) {\n"
+	"\tperror(\"localtime\");\n"
+	"\texit(EXIT_FAILURE);\n"
+	"\t}\n"
+                                                           
+	"\tif (strftime(outstr, sizeof(outstr), \"%Y%m%d_%H%M%S\", tmp) == 0) {\n"
+	"\tfprintf(stderr, \"strftime returned 0\");\n"
+	"\texit(EXIT_FAILURE);\n"
+	"\t}\n"
+
+
 	"\t\n"
 	"\t	for(int32_t i = 0; i < question_list.size(); ++i){\n"
-	"\t		question_list[i]->WriteDataToDisk(data_file);\n"
+	"\t		question_list[i]->WriteDataToDisk(data_file, string(outstr), jno, ser_no);\n"
 	"\t		/*\n"
 	"\t		fprintf(fptr, \"%s: \", question_list[i]->name.c_str());\n"
 	"\t		for( set<int32_t>::iterator iter = question_list[i]->input_data.begin();\n"

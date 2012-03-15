@@ -106,7 +106,7 @@ struct AbstractQuestion: public AbstractStatement
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 	void init_arr(int32_t n, AbstractQuestion* q);
-	virtual void WriteDataToDisk(ofstream & data_file)=0;
+	virtual void WriteDataToDisk(ofstream & data_file, string time_stamp, string jno, int ser_no)=0;
 	void PrintSetupBackJump(StatementCompiledCode &code);
 	void SetupSimpleQuestionSave(StatementCompiledCode &code);
 	void SetupSimpleQuestionRestore(StatementCompiledCode &code);
@@ -221,7 +221,7 @@ struct RangeQuestion: public AbstractQuestion
 		  , /*qs_ncurses::*/WINDOW* data_entry_window
 		  , WINDOW * error_msg_window
 		  );
-	void WriteDataToDisk(ofstream& data_file);
+	void WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no);
 	//AbstractQuestion*  IsAQuestionStatement(){
 	//	return this;
 	//}
@@ -312,7 +312,7 @@ class NamedStubQuestion: public AbstractQuestion
 		  , /*qs_ncurses::*/WINDOW* data_entry_window
 		  , WINDOW * error_msg_window
 		  );
-	void WriteDataToDisk(ofstream& data_file);
+	void WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no);
 	//AbstractQuestion* IsAQuestionStatement(){
 	//	return this;
 	//}
@@ -340,7 +340,7 @@ class DummyArrayQuestion: public AbstractQuestion{
 	DummyArrayQuestion(string l_qno, 
 			vector<int32_t> l_array_bounds);
 
-	void WriteDataToDisk(ofstream& data_file);
+	void WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no);
 	//void eval(){}
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window

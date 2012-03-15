@@ -82,12 +82,12 @@ AbstractQuestion::AbstractQuestion(
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
 	, isStartOfBlock_(false)
 {
-	cout << "creating AbstractQuestion: " << questionName_ << endl;
+	//cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 			, qscript_parser::line_no, __LINE__, __FILE__);
 	} else {
-		cout << "enclosingCompoundStatement_: " << enclosingCompoundStatement_ << endl;
+		//cout << "enclosingCompoundStatement_: " << enclosingCompoundStatement_ << endl;
 	}
 }
 
@@ -140,14 +140,42 @@ AbstractQuestion::AbstractQuestion(
 	  , maxCode_(0)
 	, isStartOfBlock_(false)
 {
-	cout << "creating AbstractQuestion: " << questionName_ << endl;
+	// cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 			, qscript_parser::line_no, __LINE__, __FILE__);
 	} else {
-		cout << "enclosingCompoundStatement_: " << enclosingCompoundStatement_ << endl;
+		// cout << "enclosingCompoundStatement_: " << enclosingCompoundStatement_ << endl;
 	}
 }
+
+#if 1
+AbstractQuestion::AbstractQuestion(
+	DataType l_type, int32_t l_no, string l_name, string l_text
+	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
+	, QuestionAttributes  l_question_attributes
+	, bool l_isStartOfBlock
+	)
+	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	, questionText_(l_text)
+	, questionDiskName_(l_name)
+	, q_type(l_q_type)
+	, no_mpn(l_no_mpn), dt(l_dt), input_data()
+	, for_bounds_stack(0), loop_index_values(0)
+	, isAnswered_(false), isModified_(false)
+	, enclosingCompoundStatement_(0), activeVarInfo_(0)
+	, dummyArrayQuestion_(0), currentResponse_()
+	, question_attributes(l_question_attributes)
+	  , mutexCodeList_()
+	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
+{
+	//cout << "creating AbstractQuestion: " << questionName_ << endl;
+	if(enclosingCompoundStatement_ == 0){
+		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
+			, qscript_parser::line_no, __LINE__, __FILE__  );
+	}
+}
+#endif /* 0 */
 
 #if 0
 // this is only called from the runtime
@@ -925,7 +953,7 @@ get_data_again:
 }
 #endif /* 0 */
 
-void RangeQuestion::WriteDataToDisk(ofstream& data_file)
+void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
 { }
 
 #if 0
@@ -1450,7 +1478,7 @@ void AbstractQuestion::print_data_type(string &s)
 }
 
 
-void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
+void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
 { }
 #if 0
 void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
@@ -1621,7 +1649,7 @@ RangeQuestion::~RangeQuestion()
 // DummyArrayQuestion
 
 
-void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
+void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
 { }
 
 #if 0

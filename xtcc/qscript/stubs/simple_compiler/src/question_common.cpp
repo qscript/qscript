@@ -14,7 +14,7 @@ namespace qscript_parser {
 }
 
 
-#if 1
+#if 0
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
@@ -34,7 +34,7 @@ AbstractQuestion::AbstractQuestion(
 	  , mutexCodeList_()
 	  , maxCode_(0), isStartOfBlock_(l_isStartOfBlock)
 {
-	cout << "creating AbstractQuestion: " << questionName_ << endl;
+	//cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 			, qscript_parser::line_no, __LINE__, __FILE__  );

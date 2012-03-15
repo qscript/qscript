@@ -369,7 +369,7 @@ void IfStatement::GenerateCode(StatementCompiledCode &code)
 	if (ifStatementStack.size() > 0) {
 		for(int32_t i = 0; i < ifStatementStack.size(); ++i){
 			if (ifStatementStack[i]->nestLevel_ == if_nest_level) {
-				cout << ifStatementStack[i]->ifStatementPtr_->PrintIdentity() << endl;
+				//cout << ifStatementStack[i]->ifStatementPtr_->PrintIdentity() << endl;
 				ifStatementStack[i]->ifStatementPtr_->ifBody_
 					->GetQuestionNames
 					(question_list_else_body, this);
