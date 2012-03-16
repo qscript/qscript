@@ -1926,6 +1926,14 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "_list.questionList[0]);\n";
 
 				create_1_0_data_edit.program_code
+					<< "\t\t\tvector<qtm_data_file_ns::QtmDataDiskMap *> "
+					<< rec_question_name
+					<< "_map_entry =\n"
+					<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
+					<< rec_question_name << "\");" << endl;
+
+
+				create_1_0_data_edit.program_code
 					<< "\t\tfor (int i=0; i < " << rec_question_name 
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
 					<< "variable_file << \"data \" <<  \"" 
@@ -1934,7 +1942,7 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
 					<< "<< \" \" << " << rec_question_name << "_list.arrayBounds[0]"
-					<< "<< endl;" << endl;
+					<< "<< endl;" << endl
 					<< "edit_file << \"clear \" <<  \"" 
 					<< rec_question_name 
 					<< "\" << \"_\" << "
@@ -1943,9 +1951,59 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "<< \" (1, \" << " << rec_question_name << "_list.arrayBounds[0]"
 					<< "<< \")\""
 					<< "<< endl;"
-
-
 					<< "}\n";
+				create_1_0_data_edit.program_code
+					<< "edit_file << \"output_col = 1\" << endl;"
+					<< "edit_file << \"do 10 input_col=\";";
+				create_1_0_data_edit.program_code
+					<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
+					<< "_map_entry.size(); ++i1) {" << endl;
+				//create_1_0_data_edit.program_code 
+				//	<< "\t\t\t\t\tfor (int i2=0; i2 < "
+				//	<< rec_question_name << "_map_entry[i1]->"
+				//	<< "q->loop_index_values.size(); ++i2) {\n"
+				//	<< "\t\t\t\t\t\tedit_file << \"_\" << "
+				//	<< rec_question_name << "_map_entry[i1]->q->"
+				//	<< "loop_index_values[i2];\n"
+				//	<< "\t\t\t\t\t}\n";
+				create_1_0_data_edit.program_code
+					<< "edit_file << "
+					<< rec_question_name 
+					<< "_map_entry[i1]->startPosition_ + 1;\n";
+				create_1_0_data_edit.program_code
+					<< "if (i1+1 < " << rec_question_name	
+					//<< "_map_entry.size() ) edit_file << \":\"<< i1 << \",\";\n";
+					<<   "_map_entry.size() ) edit_file               << \",\";\n";
+
+				create_1_0_data_edit.program_code 
+					<< "}\n";
+				create_1_0_data_edit.program_code
+					<< "edit_file << endl;";
+				create_1_0_data_edit.program_code
+					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "->nr_ptr->stubs.size(); ++i) {\n"
+					<< "edit_file << "
+					<< " \"\tif c(input_col+\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].code/10"
+					<< " << \")'\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].code%10"
+					<< "<< \"' \""
+					<< "<< \"" 
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name()"
+					<< "<< \"(output_col)=$1$\""
+					<< "<< endl;"
+					<< "}\n";
+
+
+				create_1_0_data_edit.program_code
+					<< "edit_file << \"\toutput_col = output_col+1;\" << endl;"
+					<< "edit_file << \"10 continue;\";";
+
 			} else {
 				cerr << "symbol: " << rec_question_name << " is not QUESTION_ARR_TYPE ... create_1_0_data_edit_stmt ... unhandled case... exiting\n";
 				exit(1); 
