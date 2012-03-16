@@ -1061,6 +1061,28 @@ void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp,
 		data_file << " "<< array_bounds[i];
 	}
 	data_file << endl;
+
+	stringstream fname_clean_str;
+	fname_clean_str << jno << "_clean_" << ser_no << "_" << time_stamp << ".dat";
+	std::ofstream clean_data_file;
+	clean_data_file.exceptions(std::ios::failbit | std::ios::badbit);
+	clean_data_file.open(fname_clean_str.str().c_str(), ios_base::out| ios_base::app);
+	clean_data_file << questionName_ << " BOUNDS";
+	for(int32_t i = 0; i < array_bounds.size(); ++i){
+		clean_data_file << " "<< array_bounds[i];
+	}
+	clean_data_file << endl;
+
+	stringstream fname_dirty_str;
+	fname_dirty_str << jno << "_dirty_" << ser_no << "_" << time_stamp << ".dat";
+	std::ofstream dirty_data_file;
+	dirty_data_file.exceptions(std::ios::failbit | std::ios::badbit);
+	dirty_data_file.open(fname_dirty_str.str().c_str(), ios_base::out| ios_base::app);
+	dirty_data_file << questionName_ << " BOUNDS";
+	for(int32_t i = 0; i < array_bounds.size(); ++i){
+		dirty_data_file << " "<< array_bounds[i];
+	}
+	dirty_data_file << endl;
 }
 
 void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
