@@ -396,6 +396,12 @@ drivers {
 	return DRIVERS;
 }
 
+create_1_0_data_edit {
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return CREATE_1_0_EDIT;
+	}
 
 [0-9]+	{
 		if (qscript_parser::show_lex_error_context)

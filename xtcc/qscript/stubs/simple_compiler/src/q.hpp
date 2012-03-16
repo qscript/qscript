@@ -65,24 +65,25 @@
      NEWCARD = 281,
      FIX = 282,
      DRIVERS = 283,
-     CONST = 284,
-     LOGOR = 285,
-     LOGAND = 286,
-     NOEQ = 287,
-     ISEQ = 288,
-     GEQ = 289,
-     LEQ = 290,
-     NOT = 291,
-     UMINUS = 292,
-     COUNT = 293,
-     FUNC_CALL = 294,
-     IF = 295,
-     ELSE = 296,
-     STUBS_LIST = 297,
-     SETDEL = 298,
-     SETADD = 299,
-     UNSET = 300,
-     SETALL = 301
+     CREATE_1_0_EDIT = 284,
+     CONST = 285,
+     LOGOR = 286,
+     LOGAND = 287,
+     NOEQ = 288,
+     ISEQ = 289,
+     GEQ = 290,
+     LEQ = 291,
+     NOT = 292,
+     UMINUS = 293,
+     COUNT = 294,
+     FUNC_CALL = 295,
+     IF = 296,
+     ELSE = 297,
+     STUBS_LIST = 298,
+     SETDEL = 299,
+     SETADD = 300,
+     UNSET = 301,
+     SETALL = 302
    };
 #endif
 
@@ -112,7 +113,7 @@ typedef union YYSTYPE
 
 
 /* Line 1676 of yacc.c  */
-#line 116 "src/q.hpp"
+#line 117 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

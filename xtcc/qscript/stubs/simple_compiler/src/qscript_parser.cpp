@@ -99,6 +99,7 @@ namespace qscript_parser
 	//TempNameGenerator temp_set_name_generator("qscript_temp_xtcc_set_");
 	//TempNameGenerator temp_name_generator("qscript_temp_");
 	vector < FixAndRecodeStatement* > recode_driver_vec;
+	vector < Create_1_0_DataEditStatement* > create_1_0_edit_vec;
 
 }
 
@@ -129,6 +130,7 @@ void PrintProcessOptions(FILE * script);
 void PrintNCursesMain(FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void PrintRecodeEdit(StatementCompiledCode & recode_edit);
+void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
 void print_write_qtm_data_to_disk(FILE *script);
 void print_write_ascii_data_to_disk(FILE *script);
@@ -1525,7 +1527,11 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 	StatementCompiledCode recode_edit;
 	PrintRecodeEdit (recode_edit);
-	compute_flat_map_code.program_code << recode_edit.program_code.str();
+	compute_flat_map_code.program_code << "{" <<recode_edit.program_code.str() << "}"  << endl;
+
+	StatementCompiledCode create_1_0_data_edit;
+	PrintCreate_1_0_DataEdit(create_1_0_data_edit);
+	compute_flat_map_code.program_code << "{" << create_1_0_data_edit.program_code.str() << "}" << endl;
 
 	compute_flat_map_code.program_code << "\t\tstring qtm_qax_file_name( string(\"setup-\")+jno+string(\"/\") + jno + string(\".qax\"));\n";
 	compute_flat_map_code.program_code << "\t\tfstream qtm_qax_file(qtm_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
@@ -1882,6 +1888,72 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 					<< endl;
 
 			}
+		}
+	}
+}
+
+
+
+void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
+{
+	create_1_0_data_edit.program_code 
+		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
+		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
+		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-1_0-edit.qin\"));\n"
+		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-1_0-edit.qax\"));\n"
+		<< "\t\tfstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		<< endl;
+	for (int i = 0; i < create_1_0_edit_vec.size(); ++i) {
+		string rec_question_name = create_1_0_edit_vec[i]->questionName_;
+		SymbolTableEntry * se = active_scope_list[0]->find (rec_question_name);
+		if (se) {
+			NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*>(se->question_);
+			if (!nq) {
+				cerr << "question: " << rec_question_name << " is not a NamedStubQuestion, this recode will not work ... exiting\n";
+				exit(1); 
+			}
+			if (se->type_ == QUESTION_ARR_TYPE) {
+				create_1_0_data_edit.program_code
+					<< "if (" << rec_question_name << "_list.arrayBounds.size() > 1) {\n"
+					<< "\t cerr << \" this edit will not work for QUESTION_ARR_TYPE having dimensions > 1\" << endl;\n"
+					<< "\t exit(1);\n"
+					<< "}\n";
+				create_1_0_data_edit.program_code
+					<< "NamedStubQuestion * " << rec_question_name 
+					<<  "= dynamic_cast<NamedStubQuestion*> ("
+					<< rec_question_name 
+					<< "_list.questionList[0]);\n";
+
+				create_1_0_data_edit.program_code
+					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "->nr_ptr->stubs.size(); ++i) {\n"
+					<< "variable_file << \"data \" <<  \"" 
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
+					<< "<< \" \" << " << rec_question_name << "_list.arrayBounds[0]"
+					<< "<< endl;" << endl;
+					<< "edit_file << \"clear \" <<  \"" 
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
+					<< "<< \" (1, \" << " << rec_question_name << "_list.arrayBounds[0]"
+					<< "<< \")\""
+					<< "<< endl;"
+
+
+					<< "}\n";
+			} else {
+				cerr << "symbol: " << rec_question_name << " is not QUESTION_ARR_TYPE ... create_1_0_data_edit_stmt ... unhandled case... exiting\n";
+				exit(1); 
+			}
+
+		} else {
+			cerr << "symbol: " << rec_question_name << " not found in symbol table... create_1_0_data_edit_stmt ... exiting\n";
+			exit(1); 
 		}
 	}
 }

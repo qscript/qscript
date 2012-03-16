@@ -610,6 +610,25 @@ struct FixAndRecodeStatement: public AbstractStatement
 	}
 };
 
+struct Create_1_0_DataEditStatement: public AbstractStatement
+{
+	string questionName_;
+	Create_1_0_DataEditStatement(DataType l_type,
+			int32_t l_line_number,
+			string question_name
+			)
+		: AbstractStatement (l_type, l_line_number),
+		  questionName_(question_name)
+	{ }
+	void GenerateCode(StatementCompiledCode & code)
+	{
+		if (next_) {
+			next_->GenerateCode (code);
+		}
+	}
+};
+
+
 string helper_GenerateArrayInitLoopOpen (vector<AbstractExpression*> & for_bounds_stack);
 
 #endif /* stmt_h */
