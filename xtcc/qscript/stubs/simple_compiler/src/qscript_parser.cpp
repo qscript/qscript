@@ -1953,6 +1953,26 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "<< endl;"
 					<< "}\n";
 				create_1_0_data_edit.program_code
+					<< "edit_file << \"do 9 t1=1,\" << " 
+					<< rec_question_name << "_list.arrayBounds[0] << \",1\" << endl"
+					<< ";";
+
+				create_1_0_data_edit.program_code
+					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "->nr_ptr->stubs.size(); ++i) {\n"
+					<< "edit_file << \"\t\" <<  \"" 
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
+					<< "<< \" (t1)=$0$ \""
+					<< "<< endl;"
+					<< "}\n";
+
+				create_1_0_data_edit.program_code
+					<< "edit_file << \"9 continue;\" << endl;";
+
+				create_1_0_data_edit.program_code
 					<< "edit_file << \"output_col = 1\" << endl;"
 					<< "edit_file << \"do 10 input_col=\";";
 				create_1_0_data_edit.program_code
@@ -2001,8 +2021,51 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 
 
 				create_1_0_data_edit.program_code
-					<< "edit_file << \"\toutput_col = output_col+1;\" << endl;"
-					<< "edit_file << \"10 continue;\";";
+					<< "edit_file << \"\toutput_col = output_col+1;\" << endl;\n"
+					<< "edit_file << \"10 continue;\" << endl;\n";
+
+				create_1_0_data_edit.program_code
+					<< "int max_card  =  qtm_datafile_question_disk_map[0]->qtmDataFile_.fileXcha_.currentCard_ + 1 ;\n"
+					<< "int recode_start_card  =  max_card + 10 + 10-max_card%10 ;\n"
+					<< "edit_file << \"/*Max card: \" << max_card << \"*/\"<< endl;\n"
+					<< "edit_file << \"spss array write start card: \" << recode_start_card << \"*/\" << endl;\n" ;
+
+				create_1_0_data_edit.program_code
+					<< "int n_stmts = " << rec_question_name << "_list.arrayBounds[0];\n"
+					<< "int blk_size = n_stmts +10 + 10-n_stmts%10;\n"
+					<< "int n_brands = " << rec_question_name << "->nr_ptr->stubs.size();\n"
+					<< "edit_file "
+					<< " << \"n_stmts: \" << n_stmts << endl\n"
+					<< " << \"blk_size: \" << blk_size << endl\n"
+					<< " << \"n_brands: \" << n_brands << endl\n"
+					<< " << \"r b c(\" << recode_start_card*100\n"
+					<< " << \", \" <<  recode_start_card*100 + (n_brands+1) * blk_size"
+					<< " << \") $ cards used for SPSS edit data xfer$\\n\";\n"
+					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "->nr_ptr->stubs.size(); ++i) {\n"
+					<< "\t edit_file << " 
+					<< " \"c(\""
+					<< " << recode_start_card*100 + (i+1) * blk_size"
+					<< " << \", \""
+					<< " << recode_start_card*100 + (i+1) * blk_size+n_stmts"
+					<< " << \") = \""
+					<< " << \"" 
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name 
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name()  "
+					<< " << \"(1, \" << n_stmts << \")\" << endl;"
+					<< "}\n"
+					<< "edit_file << \"filedef " << qscript_parser::project_name << "_\"" << "<< \"" << rec_question_name << "\" << \".dat data len=\" << ((n_brands+1) * blk_size) << endl;\n"
+					<< "edit_file << \"write " << qscript_parser::project_name << "_\"" << "<< \"" << rec_question_name << "\" << \".dat c(\""
+
+					<< " << recode_start_card*100\n"
+					<< " << \", \" <<  recode_start_card*100 + (n_brands+1) * blk_size"
+					<< " << \") \"<< endl;\n"
+					<< endl
+					;
+
+
 
 			} else {
 				cerr << "symbol: " << rec_question_name << " is not QUESTION_ARR_TYPE ... create_1_0_data_edit_stmt ... unhandled case... exiting\n";
