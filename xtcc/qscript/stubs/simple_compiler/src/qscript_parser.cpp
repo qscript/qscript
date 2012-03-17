@@ -2062,7 +2062,79 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< " << recode_start_card*100\n"
 					<< " << \", \" <<  recode_start_card*100 + (n_brands+1) * blk_size"
 					<< " << \") \"<< endl;\n"
+					<< " fstream " << rec_question_name << "_sps("
+					<< "\"" << rec_question_name << ".sps\", "
+					<< " ios_base::out);"
 					<< endl
+					<< rec_question_name << "_sps << "
+					<< "\"DATA LIST FILE=='\" << \"" << rec_question_name << "\" << \".dat\" " << " << \"'\" << endl;"
+					<< endl;
+
+				create_1_0_data_edit.program_code
+					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "->nr_ptr->stubs.size(); ++i) {\n"
+					<< rec_question_name << "_sps << \""
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
+					<< " << \"_1 to "
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"_\""
+					<< " << n_stmts << endl;"
+					<< "}\n"
+					<< rec_question_name << "_sps << \".\" << endl"
+					<< "<< \"exe.\" << endl;" 
+					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "->nr_ptr->stubs.size(); ++i) {\n"
+					<< "\t\tfor (int i1=0; i1 < n_stmts; ++i1) {\n"
+					<< rec_question_name << "_sps << \"variable label \" << \""
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
+					<< " << \"_\""
+					<< " << i1+1 << \" \\\"\" "
+					<< "<< \"" << rec_question_name
+					<< " \" << i1+1 << \".\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
+					<< "<< \":\\\".\" "
+
+					<< "<< endl;"
+					<< "}\n"
+					<< rec_question_name << "_sps <<  endl;"
+					<< "}\n"
+					<< rec_question_name << "_sps << \"value label \";"
+					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "->nr_ptr->stubs.size(); ++i) {\n"
+					<< rec_question_name << "_sps << \""
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
+					<< " << \"_1 to "
+					<< rec_question_name 
+					<< "\" << \"_\" << "
+					<< rec_question_name
+					<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"_\""
+					<< " << n_stmts << \" \" ;"
+					<< "}\n"
+					<< rec_question_name << "_sps  "
+					<< "<< endl\n"
+					<< "<< \"0 \\\"No\\\" \" << endl" 
+					<< "<< \"1 \\\"Yes\\\".\" << endl" 
+					<< endl
+					<< "<< \"exe.\" << endl"
+					//<< "<< \"save outfile=\\\""
+					//<< qscript_parser::project_name 
+					//<< "\\\"\""
+					//<< " << \"_\" << \"" << rec_question_name 
+					//<< "\" <<  \".sav\""
+					//<< "\\\"\""
+					<< "<< endl;"
 					;
 
 
