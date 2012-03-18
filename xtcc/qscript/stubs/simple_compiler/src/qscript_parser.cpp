@@ -1934,9 +1934,13 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 
 
 				create_1_0_data_edit.program_code
+					<< "variable_file "
+					<< "<< \"int input_col 1\" << endl\n"
+					<< "<< \"int output_col 1\" << endl;\n"
 					<< "\t\tfor (int i=0; i < " << rec_question_name 
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
-					<< "variable_file << \"data \" <<  \"" 
+					<< "variable_file "
+					<< "<< \"data \" <<  \"" 
 					<< rec_question_name 
 					<< "\" << \"_\" << "
 					<< rec_question_name
@@ -1974,7 +1978,7 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 
 				create_1_0_data_edit.program_code
 					<< "edit_file << \"output_col = 1\" << endl;"
-					<< "edit_file << \"do 10 input_col=\";";
+					<< "edit_file << \"do 10 input_col=(\";";
 				create_1_0_data_edit.program_code
 					<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
 					<< "_map_entry.size(); ++i1) {" << endl;
@@ -1998,18 +2002,18 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 				create_1_0_data_edit.program_code 
 					<< "}\n";
 				create_1_0_data_edit.program_code
-					<< "edit_file << endl;";
+					<< "edit_file << \")\" << endl;";
 				create_1_0_data_edit.program_code
 					<< "\t\tfor (int i=0; i < " << rec_question_name 
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
 					<< "edit_file << "
-					<< " \"\tif c(input_col+\" << "
+					<< " \"\tif (c(input_col+\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].code/10"
 					<< " << \")'\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].code%10"
-					<< "<< \"' \""
+					<< "<< \"') \""
 					<< "<< \"" 
 					<< rec_question_name 
 					<< "\" << \"_\" << "
@@ -2028,16 +2032,16 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "int max_card  =  qtm_datafile_question_disk_map[0]->qtmDataFile_.fileXcha_.currentCard_ + 1 ;\n"
 					<< "int recode_start_card  =  max_card + 10 + 10-max_card%10 ;\n"
 					<< "edit_file << \"/*Max card: \" << max_card << \"*/\"<< endl;\n"
-					<< "edit_file << \"spss array write start card: \" << recode_start_card << \"*/\" << endl;\n" ;
+					<< "edit_file << \"/*spss array write start card: \" << recode_start_card << \"*/\" << endl;\n" ;
 
 				create_1_0_data_edit.program_code
 					<< "int n_stmts = " << rec_question_name << "_list.arrayBounds[0];\n"
 					<< "int blk_size = n_stmts +10 + 10-n_stmts%10;\n"
 					<< "int n_brands = " << rec_question_name << "->nr_ptr->stubs.size();\n"
 					<< "edit_file "
-					<< " << \"n_stmts: \" << n_stmts << endl\n"
-					<< " << \"blk_size: \" << blk_size << endl\n"
-					<< " << \"n_brands: \" << n_brands << endl\n"
+					<< " << \"/*n_stmts: \" << n_stmts << \"*/\" << endl\n"
+					<< " << \"/*blk_size: \" << blk_size << \"*/\" << endl\n"
+					<< " << \"/*n_brands: \" << n_brands << \"*/\" << endl\n"
 					<< " << \"r b c(\" << recode_start_card*100\n"
 					<< " << \", \" <<  recode_start_card*100 + (n_brands+1) * blk_size"
 					<< " << \") $ cards used for SPSS edit data xfer$\\n\";\n"
@@ -2045,7 +2049,7 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
 					<< "\t edit_file << " 
 					<< " \"c(\""
-					<< " << recode_start_card*100 + (i+1) * blk_size"
+					<< " << recode_start_card*100 + (i+1) * blk_size+1"
 					<< " << \", \""
 					<< " << recode_start_card*100 + (i+1) * blk_size+n_stmts"
 					<< " << \") = \""
@@ -2057,17 +2061,28 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< " << \"(1, \" << n_stmts << \")\" << endl;"
 					<< "}\n"
 					<< "edit_file << \"filedef " << qscript_parser::project_name << "_\"" << "<< \"" << rec_question_name << "\" << \".dat data len=\" << ((n_brands+1) * blk_size) << endl;\n"
+					<< "edit_file "
+					<< " << \"c(\""
+					<< " << recode_start_card*100+1\n"
+					<< " << \",\" << recode_start_card*100 + qtm_datafile_conf_parser_ns::ser_end\n"
+					<< " << \")=\" "
+					<< " << \"c(\""
+					<< " << 100+1\n"
+					<< " << \",\" << 100 + qtm_datafile_conf_parser_ns::ser_end\n"
+					<< " << \")\""
+					<< " << endl;\n"
 					<< "edit_file << \"write " << qscript_parser::project_name << "_\"" << "<< \"" << rec_question_name << "\" << \".dat c(\""
 
-					<< " << recode_start_card*100\n"
-					<< " << \", \" <<  recode_start_card*100 + (n_brands+1) * blk_size"
+					<< " << recode_start_card*100+1\n"
+					<< " << \",\" <<  recode_start_card*100 + (n_brands+1) * blk_size"
 					<< " << \") \"<< endl;\n"
 					<< " fstream " << rec_question_name << "_sps("
 					<< "\"" << rec_question_name << ".sps\", "
 					<< " ios_base::out);"
 					<< endl
 					<< rec_question_name << "_sps << "
-					<< "\"DATA LIST FILE=='\" << \"" << rec_question_name << "\" << \".dat\" " << " << \"'\" << endl;"
+					<< "\"DATA LIST FILE=='\" << \"" << rec_question_name << "\" << \".dat\" " << " << \"'\" << endl" << endl
+					<< "<< \"/RESP_ID 1-\" << qtm_datafile_conf_parser_ns::ser_end  <<  endl;"
 					<< endl;
 
 				create_1_0_data_edit.program_code
@@ -2128,13 +2143,13 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "<< \"1 \\\"Yes\\\".\" << endl" 
 					<< endl
 					<< "<< \"exe.\" << endl"
-					//<< "<< \"save outfile=\\\""
-					//<< qscript_parser::project_name 
+					<< "<< \"save outfile=\\\""
+					<< qscript_parser::project_name 
+					<< "\" << \"_\" << \"" << rec_question_name 
+					<< "\" <<  \".sav\""
+					<< "<< \"\\\"\""
 					//<< "\\\"\""
-					//<< " << \"_\" << \"" << rec_question_name 
-					//<< "\" <<  \".sav\""
-					//<< "\\\"\""
-					<< "<< endl;"
+					<< "<< endl;" << endl
 					;
 
 
