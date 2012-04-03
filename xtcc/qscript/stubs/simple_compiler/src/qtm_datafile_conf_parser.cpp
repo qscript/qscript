@@ -136,7 +136,7 @@ int32_t load_config_file(string jno)
 			exit(1);
 		}
 		if (auto_determine_data_start_col) {
-			data_start_col = crd_start + 1;
+			data_start_col = crd_end ;
 		}
 		if (data_end_col <= data_start_col) {
 			stringstream err_mesg;

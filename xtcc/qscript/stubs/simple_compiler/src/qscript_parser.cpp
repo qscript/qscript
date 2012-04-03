@@ -146,6 +146,7 @@ void print_ncurses_func_prototypes (FILE * script);
 void print_GetQuestionMapEntry(FILE * script);
 void print_GetQuestionMapEntryArrayQ (FILE * script);
 void print_recode_edit_qax (FILE * script);
+void print_find_q (FILE * script);
 
 
 string ExtractBaseFileName(const string & fname)
@@ -405,6 +406,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	PrintSetupSignalHandler(script);
 	PrintProcessOptions(script);
 	PrintPrintMapHeader(script);
+	print_find_q(script);
 }
 
 void print_navigation_support_functions(FILE * script)
@@ -1535,18 +1537,116 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 	compute_flat_map_code.program_code << "\t\tstring qtm_qax_file_name( string(\"setup-\")+jno+string(\"/\") + jno + string(\".qax\"));\n";
 	compute_flat_map_code.program_code << "\t\tfstream qtm_qax_file(qtm_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
-		"\t\tmap <string, vector<qtm_data_file_ns::QtmDataDiskMap*> > summary_tables;\n";
-	compute_flat_map_code.program_code << "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
-		<< "\t\t\tqtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file, string(\"setup-\")+jno);\n"
+		<< "\t\tmap <string, vector<qtm_data_file_ns::QtmDataDiskMap*> > summary_tables;\n"
+		<< "\t\tstring prev_question, current_question;\n"
+		;
+
+	compute_flat_map_code.program_code 
+		<< "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
+
+		<< "\t\t\tif (i==0) {\n"
+		<< "\t\t\t	current_question = prev_question = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
+		<< "\t\t\t} else {\n"
+		<< "\t\t\t	current_question = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
+		<< "\t\t\t}\n"
+		<< "\t\t\tstringstream qax_program_text;\n"
 		<< "\t\t\tstring questionName = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
 		<< "\t\t\tif (qtm_datafile_question_disk_map[i]->q->loop_index_values.size() > 0) {\n"
 		<< "\t\t\t\tsummary_tables[questionName].push_back(qtm_datafile_question_disk_map[i]);\n"
 		<< "\t\t\t}\n"
+		<< "\t\t\tif (current_question != prev_question) {\n"
+		<< "\t\t\t	bool is_1st_iter = true;\n"
+		<< "\t\t\t	AbstractQuestion * & q =qtm_datafile_question_disk_map[i]->q;\n"
+		<< "\t\t\t	if (q->loop_index_values.size() > 0) {\n"
+		<< "\t\t\t		for (int32_t j=0; j<q->loop_index_values.size(); ++j) {\n"
+		<< "\t\t\t			if (q->loop_index_values[j] != 0) {\n"
+		<< "\t\t\t				is_1st_iter = false;\n"
+		<< "\t\t\t				break;\n"
+		<< "\t\t\t			}\n"
+		<< "\t\t\t		}\n"
+		<< "\t\t\t		if (is_1st_iter) {\n"
+		<< "\t\t\t			string dum_q_name = q->questionName_ ;\n"
+		<< "\t\t\t			DummyArrayQuestion * dumq = find_q(question_list, dum_q_name, qax_program_text);\n"
+		<< "\t\t\t			if (dumq) {\n"
+		<< "\t\t\t				if (dumq->array_bounds.size() == 1) {\n"
+		<< "\t\t\t					for (int i=0; i<dumq->array_bounds[0]; ++i) {\n"
+		<< "\t\t\t						qax_program_text << \"*def at\" << i \n"
+		<< "\t\t\t							<< \"t=Code \" << i+1\n"
+		<< "\t\t\t							<< endl;\n"
+		<< "\t\t\t					}\n"
+		<< "\t\t\t					qax_program_text\n"
+		<< "\t\t\t							<< endl\n"
+		<< "\t\t\t							<< endl\n"
+		<< "\t\t\t							<< endl;\n"
+		<< "\t\t\t				}\n"
+		<< "\t\t\t			}\n"
+		<< "\t\t\t		}\n"
+		<< "\t\t\t	}\n"
+		<< "\t\t\t}\n"
+		<< "\t\t\tqax_program_text << qtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file, string(\"setup-\")+jno);\n"
+		<< "\t\t\tqtm_qax_file << qax_program_text.str() ;\n"
+		<< "\t\t\tif (current_question == prev_question) {\n"
+		<< "\t\t\t	AbstractQuestion * & q =qtm_datafile_question_disk_map[i]->q;\n"
+		<< "\t\t\t	if (q->loop_index_values.size()>0) {\n"
+		<< "\t\t\t		string dum_q_name = q->questionName_ ;\n"
+		<< "\t\t\t		DummyArrayQuestion * dumq = find_q(question_list, dum_q_name, qax_program_text);\n"
+		<< "\t\t\t		if (dumq) {\n"
+		<< "\t\t\t			bool is_last_iter = false;\n"
+		<< "\t\t\t			if (q->loop_index_values.size() == 1 && q->loop_index_values[0] == dumq->array_bounds[0]-1)\n"
+		<< "\t\t\t			{\n"
+		<< "\t\t\t				is_last_iter = true;\n"
+		<< "\t\t\t			}\n"
+		<< "\t\t\t			if (is_last_iter) {\n"
+		<< "\t\t\t				vector<qtm_data_file_ns::QtmDataDiskMap*> v1 = summary_tables[questionName];\n"
+		<< "\t\t\t				qtm_qax_file << endl;\n"
+		<< "\t\t\t				qtm_qax_file << endl;\n"
+		<< "\t\t\t				print_summary_axis(v1, qtm_qax_file);\n"
+		<< "\t\t\t			}\n"
+		<< "\t\t\t		}\n"
+		<< "\t\t\t	}\n"
+		<< "\t\t\t}\n"
+		<< "\t\t\tif (i>0) {\n"
+		<< "\t\t\t	prev_question = current_question;\n"
+		<< "\t\t\t}\n"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		<< "\t\t}\n"
-		<< "\t\tfor ( map <string, vector<qtm_data_file_ns::QtmDataDiskMap*> >::iterator it= summary_tables.begin();\n"
-		<< "\t\t		it != summary_tables.end(); ++it) {\n"
-		<< "\t\t	print_summary_axis(it->second, qtm_qax_file);\n"
-		<< "\t\t}\n";
+		<< "\t\t//for ( map <string, vector<qtm_data_file_ns::QtmDataDiskMap*> >::iterator it= summary_tables.begin();\n"
+		<< "\t\t//		it != summary_tables.end(); ++it) {\n"
+		<< "\t\t//	print_summary_axis(it->second, qtm_qax_file);\n"
+		<< "\t\t//}\n";
 	compute_flat_map_code.program_code 
 		<< "\t\tqtm_datafile_question_disk_map[0]->print_run(jno);"
 		<< endl;
@@ -2611,7 +2711,9 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_<< \" - Summary of Top Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
+
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2621,7 +2723,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top2\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Top 2 Box\" << endl ;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2632,7 +2735,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Bottom Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2642,7 +2746,10 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot2\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Bottom 2 Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
+
+
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2652,21 +2759,23 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_mn\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Means\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
 	fprintf (script, "						<< \";myrange=(\" << 1 << \":\" << 5 << \")\"\n");
 	fprintf (script, "						<< endl;\n");
 	fprintf (script, "				}\n");
-	fprintf (script, "\n");
+	fprintf (script, "			qtm_qax_file << endl;\n");
 	fprintf (script, "			}\n");
 
 	fprintf (script, "			else if (rat_scale == 7) {\n");
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Top Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2676,7 +2785,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top2\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Top 2 Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2686,7 +2796,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top3\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Top 3 Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2696,7 +2807,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ <<  \" - Summary of Bottom Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2706,7 +2818,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot2\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Bottom 2 Box\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2716,7 +2828,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_mn\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Means\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2726,7 +2839,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot3\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Bottom 3 Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2740,7 +2854,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Top Box\"<< endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2750,7 +2865,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top2\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Top 2 Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2760,7 +2876,7 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_top3\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Top 3 Box\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2770,7 +2886,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Bottom Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2780,7 +2897,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot2\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Bottom 2 Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2790,7 +2908,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_mn\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Means\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << mean_score_include_file\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2800,7 +2919,8 @@ void print_summary_axis(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "				qtm_qax_file << \"/* summary table for: \" << v[0]->q->questionName_ << endl;\n");
 	fprintf (script, "				qtm_qax_file << \"l \" << q->questionName_ << \"_bot3\" << endl;\n");
-	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"ttl\" << q->questionName_ << \".\" << v[0]->q->questionText_ << \" - Summary of Bottom 3 Box\" << endl;\n");
+	fprintf (script, "				qtm_qax_file << \"*include base.qin;btxt=All Respondents\" << endl;\n");
 	fprintf (script, "				for (int i=0; i<v.size(); ++i) {\n");
 	fprintf (script, "					qtm_qax_file << \"*include \" << include_file_name\n");
 	fprintf (script, "						<< \";qatt=&at\" << i << \"t;\" << \"col(a)=\" << v[i]->startPosition_+1 \n");
@@ -2854,6 +2974,9 @@ void print_ncurses_func_prototypes (FILE * script)
 			"			PANEL * & help_panel);\n");
 	fprintf (script, "void define_some_pd_curses_keys();\n");
 	fprintf (script, "string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int index);\n");
+
+	fprintf (script, "DummyArrayQuestion * find_q( vector <AbstractQuestion*> & question_list, string qname, stringstream & qax_stream);\n");
+
 }
 
 void print_GetQuestionMapEntry(FILE * script)
@@ -3088,7 +3211,21 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "}\n");
 }
 
-
+void print_find_q (FILE * script)
+{
+	fprintf (script, "DummyArrayQuestion * find_q( vector <AbstractQuestion*> & question_list, string qname, stringstream & qax_stream)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	for (int i=0; i<question_list.size(); ++i) {\n");
+	fprintf (script, "		if (question_list[i]->questionName_ == qname) {\n");
+	fprintf (script, "			DummyArrayQuestion * dq1 = dynamic_cast<DummyArrayQuestion*>(question_list[i]);\n");
+	fprintf (script, "			if (dq1) {\n");
+	fprintf (script, "				return dq1;\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	return 0;\n");
+	fprintf (script, "}\n");
+}
 
 
 
