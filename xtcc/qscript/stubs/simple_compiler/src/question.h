@@ -56,6 +56,7 @@ struct AbstractQuestion: public AbstractStatement
 	XtccSet mutexCodeList_;
 	int maxCode_;
 	bool isStartOfBlock_;
+	int nestLevel_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, string l_text
@@ -64,6 +65,7 @@ struct AbstractQuestion: public AbstractStatement
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
+		, int l_nest_level
 		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
 
@@ -80,6 +82,7 @@ struct AbstractQuestion: public AbstractStatement
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
+		, int l_nest_level
 		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
 
@@ -183,6 +186,7 @@ struct RangeQuestion: public AbstractQuestion
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList
+		, int l_nest_level
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
@@ -202,6 +206,7 @@ struct RangeQuestion: public AbstractQuestion
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList
+		, int l_nest_level
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
@@ -265,6 +270,7 @@ class NamedStubQuestion: public AbstractQuestion
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
+		, int l_nest_level
 		);
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
@@ -274,6 +280,7 @@ class NamedStubQuestion: public AbstractQuestion
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
+		, int l_nest_level
 		);
 
 	NamedStubQuestion(

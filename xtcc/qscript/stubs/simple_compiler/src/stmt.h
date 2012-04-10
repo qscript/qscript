@@ -229,11 +229,13 @@ struct CompoundStatement: public AbstractStatement
 	struct IfStatement  * ifStatement_;
 	struct IfStatement  * elseStatement_;
 	struct ForStatement * forStatement_;
+	int nestLevel_;
 	public:
 	CompoundStatement(DataType dtype, int32_t lline_number
 			  , int32_t l_flag_cmpd_stmt_is_a_func_body
 			  , int32_t l_flag_cmpd_stmt_is_a_for_body
 			  , vector<AbstractExpression*>& l_for_bounds_stack
+			  , int l_nest_level
 		);
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);

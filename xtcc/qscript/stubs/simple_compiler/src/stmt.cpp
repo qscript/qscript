@@ -210,7 +210,7 @@ string Generate_false_code_for_questions_in_other_block (string question_name, I
 {
 	stringstream code;
 	SymbolTableEntry * se = active_scope->find (question_name);
-	code << "// reached here: " << question_name << endl;
+	//code << "// reached here: " << question_name << endl;
 	CompoundStatement * cmpd_stmt1 =  dynamic_cast< CompoundStatement * > ( p_if_stmt->ifBody_);
 	CompoundStatement * cmpd_stmt = 0;
 	if (cmpd_stmt1->nestedCompoundStatementStack_.size() > 1) {
@@ -227,20 +227,87 @@ string Generate_false_code_for_questions_in_other_block (string question_name, I
 		//CompoundStatement * cmpd_stmt =  dynamic_cast< CompoundStatement * > (se->question_->enclosingCompoundStatement_);
 
 		if (cmpd_stmt && cmpd_stmt->flagIsAForBody_) {
-			//if (for_stmt) {
-				code << "// enclosingCompoundStatement_ is ForStatement " << endl;
-			//}
+			code 	<< "// IfStatement nestLevel_: " << cmpd_stmt1->nestLevel_ << endl
+				<< "// " << se->question_->questionName_ << ": " << ", nestLevel_: "
+				<< se->question_->nestLevel_ << endl; 
+			int cmpd_stmt1_nest_level = cmpd_stmt1->nestLevel_ ;
+			int question_nest_level = se->question_->nestLevel_;
+
 			if (cmpd_stmt) {
 				code << "// enclosingCompoundStatement_ is CompoundStatement " << endl;
 				if (cmpd_stmt->flagIsAForBody_) {
 					code << "// and enclosingCompoundStatement_ is part of a for loop " << endl;
 				}
 			}
+
+			if (cmpd_stmt1_nest_level < question_nest_level) {
+				code << "// output the for loop for this question: " 
+					<< se->question_->questionName_
+					<< endl;
+				AbstractQuestion * q = se->question_;
+				int height = question_nest_level - cmpd_stmt1_nest_level;
+				vector<AbstractExpression*> for_bounds_stack = q->for_bounds_stack;
+				for (int i=height; i < for_bounds_stack.size(); ++i) {
+					BinaryExpression * test_expr =
+						dynamic_cast<BinaryExpression*>(
+							for_bounds_stack[i]);
+				}
+
+				for (int32_t i = height; i< for_bounds_stack.size(); ++i) {
+					code << "for(int32_t ";
+					BinaryExpression * bin_expr_ptr = dynamic_cast<BinaryExpression*>(for_bounds_stack[i]);
+					if (bin_expr_ptr) {
+						//AbstractExpression * rhs = bin_expr_ptr->rightOperand_;
+						AbstractExpression * lhs = bin_expr_ptr->leftOperand_;
+						ExpressionCompiledCode expr_code1;
+						lhs->PrintExpressionCode(expr_code1);
+						code << expr_code1.code_bef_expr.str() << expr_code1.code_expr.str();
+						code << " = 0;";
+						ExpressionCompiledCode expr_code2;
+						for_bounds_stack[i]->PrintExpressionCode(expr_code2);
+						code << expr_code2.code_bef_expr.str() << expr_code2.code_expr.str();
+						code << "; ++";
+						ExpressionCompiledCode expr_code3;
+						lhs->PrintExpressionCode(expr_code3);
+						code << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
+						code <<	") {" << endl;
+						//if (i == 0){
+						//	code.array_quest_init_area << "vector<int32_t> stack_of_loop_indices;/*  %# */\n";
+						//		//<< "(" <<  for_bounds_stack.size() << ");\n";
+						//}
+						//code.array_quest_init_area << "stack_of_loop_indices.push_back(";
+						////lhs->PrintExpressionCode(array_quest_init_area, array_quest_init_area); // note this is already stored in expr_code3
+						//code.array_quest_init_area << expr_code3.code_bef_expr.str() << expr_code3.code_expr.str();
+						//code.array_quest_init_area << ");\n";
+
+					} else {
+						ExpressionCompiledCode expr_code;
+						for_bounds_stack[i]->PrintExpressionCode(expr_code);
+						code << expr_code.code_bef_expr.str() << expr_code.code_expr.str();
+						print_err(compiler_sem_err
+							, "for loop index condition is not a binary expression"
+							, 0, __LINE__, __FILE__);
+					}
+				}
+
+			}
 			code
 				<< se->question_->questionName_ << "_list.questionList["
 				//<< se->question_->enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 				<< PrintConsolidatedForLoopIndex (se->question_->for_bounds_stack)
 				<< "]->isAnswered_ = false;\n";
+
+			if (cmpd_stmt1_nest_level < question_nest_level) {
+				code << "// output the for loop for this question: " 
+					<< se->question_->questionName_
+					<< endl;
+				AbstractQuestion * q = se->question_;
+				int height = question_nest_level - cmpd_stmt1_nest_level;
+				vector<AbstractExpression*> for_bounds_stack = q->for_bounds_stack;
+				for (int32_t i = height; i< for_bounds_stack.size(); ++i) {
+					code <<	"}" << endl;
+				}
+			}
 		} /*  else if (se->question_->enclosingCompoundStatement_ == 0) {
 			stringstream err_msg;
 			err_msg << " enclosingCompoundStatement_ is 0: exiting" ;
@@ -635,6 +702,7 @@ CompoundStatement::CompoundStatement(
 	DataType dtype, int32_t lline_number, int32_t l_flag_cmpd_stmt_is_a_func_body
 	, int32_t l_flag_cmpd_stmt_is_a_for_body
 	, vector<AbstractExpression*>& l_for_bounds_stack
+	, int l_nest_level
 	):
 	AbstractStatement(dtype, lline_number)
 	, compoundBody_(0), scope_(0)
@@ -644,7 +712,7 @@ CompoundStatement::CompoundStatement(
 	, flagGeneratedQuestionDefinitions_(false)
 	, for_bounds_stack(l_for_bounds_stack), questionsInBlock_(0)
 	, nestedCompoundStatementStack_(0), ConsolidatedForLoopIndexStack_(0)
-	, flagIsAIfBody_(0)
+	, flagIsAIfBody_(0), nestLevel_(l_nest_level)
 {
 	compoundStatementNumber_ = CompoundStatement::counter_++;
 }

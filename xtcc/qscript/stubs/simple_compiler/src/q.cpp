@@ -589,7 +589,7 @@ static const yytype_uint16 yyrline[] =
      779,   785,   803,   804,   809,   815,   820,   825,   826,   830,
      841,   847,   851,   852,   855,   867,   873,   873,   894,   895,
      898,   929,   964,   968,   972,   976,   980,   986,   993,   996,
-    1001,  1001,  1022,  1023,  1026
+    1001,  1001,  1022,  1023,  1027
 };
 #endif
 
@@ -3043,7 +3043,7 @@ yyreduce:
   case 124:
 
 /* Line 1455 of yacc.c  */
-#line 1026 "src/q.ypp"
+#line 1027 "src/q.ypp"
     {
 		using qscript_parser::line_no;
 		Create_1_0_DataEditStatement * create_1_0_data_edit = new Create_1_0_DataEditStatement(
@@ -3269,7 +3269,7 @@ yyreturn:
 
 
 /* Line 1675 of yacc.c  */
-#line 1037 "src/q.ypp"
+#line 1038 "src/q.ypp"
 
 
 
@@ -3351,7 +3351,7 @@ CompoundStatement* ProcessOpenCurly()
 	++nest_lev;
 	CompoundStatement * cmpdStmt= new CompoundStatement(CMPD_STMT,
 			line_no, flagIsAFunctionBody_,
-			flagIsAForBody_, for_loop_max_counter_stack);
+			flagIsAForBody_, for_loop_max_counter_stack, nest_lev);
 	stack_cmpd_stmt.push_back(cmpdStmt);
 	cmpdStmt->nestedCompoundStatementStack_=stack_cmpd_stmt;
 	void *ptr=cmpdStmt;
@@ -3471,6 +3471,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 			//, arr_sz
 			, qscript_parser::for_loop_max_counter_stack
 			, cmpd_stmt_ptr, av_info, question_attributes, mutex_range_set
+			, nest_lev
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q));
@@ -3481,6 +3482,7 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 		q= new RangeQuestion(QUESTION_TYPE, line_no,
 			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr, av_info
 			, question_attributes, mutex_range_set
+			, nest_lev
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q));
@@ -3572,13 +3574,17 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 		q=new NamedStubQuestion(QUESTION_ARR_TYPE, line_no
 				, name, q_txt, q_type, no_mpn, dt , nr_ptr
 				,qscript_parser::for_loop_max_counter_stack
-				, cmpd_stmt_ptr, av_info, question_attributes);
+				, cmpd_stmt_ptr, av_info, question_attributes
+				, nest_lev
+				);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q));
 	} else {
 		q=new NamedStubQuestion(QUESTION_TYPE,
 			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr
-			, cmpd_stmt_ptr, av_info, question_attributes);
+			, cmpd_stmt_ptr, av_info, question_attributes
+			, nest_lev
+			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 				active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q));
 	}

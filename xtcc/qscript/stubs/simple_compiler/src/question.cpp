@@ -65,6 +65,7 @@ AbstractQuestion::AbstractQuestion(
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info, QuestionAttributes  l_question_attributes
+	, int l_nest_level
 	, const XtccSet & p_mutexCodeList
 	)
 	: 
@@ -81,6 +82,7 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
 	, isStartOfBlock_(false)
+	, nestLevel_(l_nest_level)
 {
 	//cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
@@ -123,6 +125,7 @@ AbstractQuestion::AbstractQuestion(
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
+	, int l_nest_level
 	, const XtccSet & p_mutexCodeList
 	)
 	: AbstractStatement(l_type, l_no), questionName_(l_name)
@@ -137,8 +140,9 @@ AbstractQuestion::AbstractQuestion(
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList)
-	  , maxCode_(0)
+	, maxCode_(0)
 	, isStartOfBlock_(false)
+	, nestLevel_(l_nest_level)
 {
 	// cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
@@ -712,12 +716,14 @@ RangeQuestion::RangeQuestion(
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
+	, int l_nest_level
 	)
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
 			   , l_enclosing_scope, l_av_info, l_question_attributes
-			   , p_mutexCodeList)
+			   , l_nest_level, p_mutexCodeList )
 			, r_data(new XtccSet(l_r_data)), displayData_()
+	
 { 
 	maxCode_ = r_data->GetMax();
 }
@@ -748,11 +754,12 @@ RangeQuestion::RangeQuestion(
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
+	, int l_nest_level
 	)
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt
 			   , l_enclosing_scope, l_av_info, l_question_attributes
-			   , p_mutexCodeList
+			   , l_nest_level, p_mutexCodeList 
 			   )
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { 
@@ -1311,10 +1318,11 @@ NamedStubQuestion::NamedStubQuestion(
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
+	, int l_nest_level
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			 , l_q_type, l_no_mpn, l_dt
-			 , l_for_bounds_stack, l_enclosing_scope, l_av_info, l_question_attributes)
+			 , l_for_bounds_stack, l_enclosing_scope, l_av_info, l_question_attributes, l_nest_level)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
 	, displayData_(), currentPage_(0)
@@ -1338,9 +1346,11 @@ NamedStubQuestion::NamedStubQuestion(
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
+	, int l_nest_level
 	):
 	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, l_question_attributes
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, l_question_attributes,
+		l_nest_level
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
