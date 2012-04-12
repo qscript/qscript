@@ -1,0 +1,40 @@
+
+for_with_if8 {
+
+q1 	"q1"
+	mp(4) int32_t (1-5);
+
+q1_1 	"q1"
+	mp(4) int32_t (1-5);
+
+	int32_t i1 = 0;
+	for (i1 = 0; i1 < 5; i1 = i1 + 1) {
+		int32_t code = i1 + 1;
+		if (code in q1) {
+
+q2_1 			"q2_1"
+			sp int32_t (1-5);
+
+			if (code in q1_1) {
+
+				int32_t i2 = 0;
+				for (i2 = 0; i2 < 4; i2 = i2 + 1) {
+
+q2_2 					"q2_2"
+					sp int32_t (1-5);
+
+				}
+			} else {
+				1;
+			}
+			
+		} else {
+			1;
+		}
+
+	}
+
+
+q3	"q3"
+	sp int32_t (1,2);
+}
