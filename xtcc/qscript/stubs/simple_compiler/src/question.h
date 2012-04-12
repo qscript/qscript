@@ -56,39 +56,45 @@ struct AbstractQuestion: public AbstractStatement
 	XtccSet mutexCodeList_;
 	int maxCode_;
 	bool isStartOfBlock_;
-	int nestLevel_;
+	//int nestLevel_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
-		DataType l_type,int32_t l_no, string l_name, string l_text
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, string l_text
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
-		, int l_nest_level
 		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
 
 	AbstractQuestion(
-		DataType l_type,int32_t l_no, string l_name, string l_text
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, string l_text
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
 		);
 	//! this is only called in the compile time environment
 	AbstractQuestion(
-		DataType l_type,int32_t l_no, string l_name, string l_text
+		DataType l_type,int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, string l_text
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
-		, int l_nest_level
 		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
 
 	//! this is only called in the runtime environment
 	AbstractQuestion(
-		DataType l_type,int32_t l_no, string l_name, string l_text
+		DataType l_type, int32_t l_no
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name, string l_text
 		, QuestionType l_q_type, int32_t l_no_mpn , DataType l_dt
 		, const vector<int32_t>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
@@ -178,7 +184,9 @@ struct RangeQuestion: public AbstractQuestion
 	vector<display_data::DisplayDataUnit> displayData_;
 	//! this is only called in the compile time environment
 	RangeQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, vector<AbstractExpression*>& l_for_bounds_stack
@@ -186,7 +194,6 @@ struct RangeQuestion: public AbstractQuestion
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList
-		, int l_nest_level
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
@@ -199,14 +206,15 @@ struct RangeQuestion: public AbstractQuestion
 
 	//! this is only called in the compile time environment
 	RangeQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList
-		, int l_nest_level
 		);
 	//! this is only called in the runtime environment
 	RangeQuestion(
@@ -263,24 +271,26 @@ class NamedStubQuestion: public AbstractQuestion
 	int stubStartYIndex_;
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
-		, int l_nest_level
 		);
 	//! this is only called in the compile time environment
 	NamedStubQuestion(
-		DataType this_stmt_type, int32_t line_number, string l_name
+		DataType this_stmt_type, int32_t line_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, string l_name
 		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
-		, int l_nest_level
 		);
 
 	NamedStubQuestion(

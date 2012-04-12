@@ -13,6 +13,15 @@
 #include "compiled_code.h"
 
 struct AbstractQuestion;
+
+//!AbstractStatement  Pure virtual base class - all statement classes inherit from this class except for class FunctionInformation
+/*!
+  All language statements classes are derived from the AbstractStatement class
+  the AbstractStatement class - contains members (
+  AbstractStatement * prev_, *next_ pointers to chain other statements).
+  It also contains line and filename information
+  about the statement being parsed
+*/
 struct AbstractStatement
 {
 	//! chainers to the previous and next_ statement
@@ -20,9 +29,13 @@ struct AbstractStatement
 	//! statement type
 	DataType type_;
 	int32_t lineNo_;
+	int32_t nestLevel_;
+	int32_t forNestLevel_;
 	//! Constructor - statement type and line number of the statement in the source code
-	AbstractStatement(DataType l_type, int32_t l_line_no):
-		prev_(0), next_(0), type_(l_type), lineNo_(l_line_no)
+	AbstractStatement(DataType l_type, int32_t l_line_no, 
+			  int32_t l_nest_level, int32_t l_for_nest_level)
+	: prev_(0), next_(0), type_(l_type), 
+	  lineNo_(l_line_no), nestLevel_(l_nest_level), forNestLevel_(l_for_nest_level)
 	{ }
 	//! GenerateConsolidatedForLoopIndexes() - has to be called before GenerateCode
 	//! sets up the loop indices in various compound bodies for later use

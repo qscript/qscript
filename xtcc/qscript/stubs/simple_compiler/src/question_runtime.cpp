@@ -24,7 +24,8 @@ RangeQuestion::RangeQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	: AbstractQuestion(this_stmt_type, line_number, 0, 0
+			, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes
 			   , l_isStartOfBlock)
 	, r_data(new XtccSet(l_r_data)), displayData_()
@@ -34,12 +35,15 @@ RangeQuestion::RangeQuestion(
 
 #if 1
 AbstractQuestion::AbstractQuestion(
-	DataType l_type, int32_t l_no, string l_name, string l_text
+	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
+	, questionName_(l_name)
 	, questionText_(l_text)
 	, questionDiskName_(l_name)
 	, q_type(l_q_type)
@@ -94,8 +98,10 @@ RangeQuestion::RangeQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
+	AbstractQuestion(this_stmt_type, line_number, 0, 0
+			, l_name, l_q_text
+			, l_q_type, l_no_mpn, l_dt
+			, l_loop_index_values, l_dummy_array
 		, l_question_attributes, l_isStartOfBlock
 		)
 	, r_data(new XtccSet(l_r_data)), displayData_()
@@ -290,7 +296,9 @@ get_data_again:
 
 // this is only called from the runtime
 AbstractQuestion::AbstractQuestion(
-	DataType l_type, int32_t l_no, string l_name
+	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name
 	, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, const vector<int32_t>& l_loop_index_values
@@ -298,7 +306,8 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
+	, questionName_(l_name)
 	, questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0)
@@ -650,7 +659,9 @@ NamedStubQuestion::NamedStubQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
+	AbstractQuestion(this_stmt_type, line_number
+			, 0, 0
+			, l_name, l_q_text,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes, l_isStartOfBlock
 		)
 	, named_list()
@@ -1123,8 +1134,9 @@ NamedStubQuestion::NamedStubQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
-			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes
+	AbstractQuestion(this_stmt_type, line_number, 0, 0
+			 , l_name, l_q_text
+			 , l_q_type, l_no_mpn, l_dt, l_question_attributes
 			 , l_isStartOfBlock)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)

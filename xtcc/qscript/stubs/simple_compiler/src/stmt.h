@@ -29,57 +29,9 @@ using std::string;
 using std::ostringstream;
 
 
-//!AbstractStatement  Pure virtual base class - all statement classes inherit from this class except for class FunctionInformation
-/*!
-  All language statements classes are derived from the AbstractStatement class
-  the AbstractStatement class - contains members (
-  AbstractStatement * prev_, *next_ pointers to chain other statements).
-  It also contains line and filename information
-  about the statement being parsed
-*/
 
-#if 0
-struct AbstractQuestion;
-
-struct AbstractStatement
-{
-	//! chainers to the previous and next_ statement
-	struct AbstractStatement * prev_, *next_;
-	//! statement type
-	DataType type_;
-	int32_t lineNo_;
-	//! Constructor - statement type and line number of the statement in the source code
-	AbstractStatement(DataType l_type, int32_t l_line_no):
-		prev_(0), next_(0), type_(l_type), lineNo_(l_line_no)
-	{ }
-	//! GenerateConsolidatedForLoopIndexes() - has to be called before GenerateCode
-	//! sets up the loop indices in various compound bodies for later use
-	//! by GenerateCode
-	virtual void GenerateConsolidatedForLoopIndexes();
-	//! GenerateCode(): Pure virtual functions takes 2 streams as parameters.
-	//! Compiler generated code is written to both the streams.
-	//! The code to the quest_defns stream appears before code written to
-	//! the program_code stream in the generated compiled code
-	//virtual void GenerateCode(ostringstream& quest_defns
-	//		, ostringstream& program_code)=0;
-	virtual void GenerateCode(StatementCompiledCode & code)=0;
-	virtual ~AbstractStatement();
-	//virtual AbstractQuestion* IsAQuestionStatement();
-	virtual void GetQuestionNames(vector<string> & question_list,
-				      AbstractStatement * endStatement);
-	virtual void GetQuestionsInBlock(vector<AbstractQuestion*> & question_list
-					 , AbstractStatement * stop_at);
-	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
-	private:
-		AbstractStatement& operator=(const AbstractStatement&);
-		AbstractStatement (const AbstractStatement&);
-};
-#endif /* 0 */
-
-//#include "named_range.h"
 
 struct named_range;
-//#include "question.h"
 
 
 //!ExpressionStatement Parsed expressions statements become object instanstiations of this class
@@ -95,8 +47,9 @@ struct ExpressionStatement: public AbstractStatement
 {
 	struct AbstractExpression* expression_;
 	ExpressionStatement(DataType l_type, int32_t l_line_number
+			    , int32_t l_nest_level, int32_t l_for_nest_level
 			    , struct AbstractExpression* e)
-		: AbstractStatement(l_type, l_line_number), expression_(e)
+		: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level), expression_(e)
 	{ }
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
@@ -113,8 +66,9 @@ struct ExpressionStatement: public AbstractStatement
 struct DeclarationStatement: public AbstractStatement
 {
 	struct SymbolTableEntry* symbolTableEntry_;
-	DeclarationStatement( DataType dtype, int32_t lline_number)
-		: AbstractStatement(dtype, lline_number), symbolTableEntry_(0)
+	DeclarationStatement( DataType dtype, int32_t lline_number,
+				  int32_t l_nest_level, int32_t l_for_nest_level)
+		: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level), symbolTableEntry_(0)
 	{ }
 	~DeclarationStatement();
 	//void GenerateCode(ostringstream & quest_defns
@@ -232,10 +186,10 @@ struct CompoundStatement: public AbstractStatement
 	int nestLevel_;
 	public:
 	CompoundStatement(DataType dtype, int32_t lline_number
+			  , int32_t l_nest_level, int32_t l_for_nest_level
 			  , int32_t l_flag_cmpd_stmt_is_a_func_body
 			  , int32_t l_flag_cmpd_stmt_is_a_for_body
 			  , vector<AbstractExpression*>& l_for_bounds_stack
-			  , int l_nest_level
 		);
 	//void GenerateCode(ostringstream & quest_defns
 	//		, ostringstream& program_code);
@@ -267,6 +221,7 @@ struct ForStatement: public AbstractStatement
 		, * testExpression_, *incrementExpression_;
 	CompoundStatement * forBody_;
 	ForStatement(DataType dtype, int32_t lline_number
+		     , int32_t l_nest_level, int32_t l_for_nest_level
 		     , AbstractExpression* l_init
 		     , AbstractExpression* l_test
 		     , AbstractExpression* l_incr
@@ -300,6 +255,7 @@ struct IfStatement : public AbstractStatement
 	struct AbstractStatement * ifBody_;
 	struct AbstractStatement * elseBody_;
 	IfStatement( DataType dtype, int32_t lline_number
+		     , int32_t l_nest_level, int32_t l_for_nest_level
 		     , AbstractExpression * lcondition
 		     , AbstractStatement * lif_body
 		     , AbstractStatement * lelse_body=0);
@@ -363,26 +319,31 @@ struct StubManipStatement: public AbstractStatement
 	//StubManipStatement( DataType dtype, int32_t lline_number
 	//		    , string l_named_stub, string l_question_name, AbstractExpression * arr_index);
 	StubManipStatement( DataType dtype, int32_t lline_number
+			    , int32_t l_nest_level, int32_t l_for_nest_level
 			    , string l_named_stub);
 
 	//StubManipStatement(DataType dtype, int32_t lline_number
 	//			       , named_range * l_named_range
 	//			       , AbstractQuestion * l_question);
 	StubManipStatement(DataType dtype, int32_t lline_number
-				       , named_range * l_named_range
-				       , AbstractQuestion * l_question
-				       , AbstractExpression * larr_index = 0);
+			   , int32_t l_nest_level, int32_t l_for_nest_level
+			   , named_range * l_named_range
+			   , AbstractQuestion * l_question
+			   , AbstractExpression * larr_index = 0);
 	StubManipStatement(DataType dtype, int32_t lline_number
-				       , AbstractQuestion * l_question_lhs
-				       , AbstractQuestion * l_question_rhs
-				       , AbstractExpression * larr_index = 0);
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			   , AbstractQuestion * l_question_lhs
+			   , AbstractQuestion * l_question_rhs
+			   , AbstractExpression * larr_index = 0);
 
 	StubManipStatement(DataType dtype, int32_t lline_number
-			       , named_range * l_named_range
-			       , XtccSet & xs);
+			   , int32_t l_nest_level, int32_t l_for_nest_level
+			   , named_range * l_named_range
+			   , XtccSet & xs);
 	StubManipStatement(DataType dtype, int32_t lline_number
-			       , AbstractQuestion * l_question_lhs
-			       , XtccSet & xs);
+			   , int32_t l_nest_level, int32_t l_for_nest_level
+			   , AbstractQuestion * l_question_lhs
+			   , XtccSet & xs);
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);
@@ -425,7 +386,10 @@ struct FunctionDeclarationStatement: public AbstractStatement
 	struct FunctionInformation * funcInfo_;
 
 	FunctionDeclarationStatement( DataType dtype
-				      , int32_t lline_number, char * & name
+				      , int32_t lline_number
+				      , int32_t l_nest_level
+				      , int32_t l_for_nest_level
+				      , char * & name
 				      , FunctionParameter* & v_list
 				      , DataType returnType_);
 	//void GenerateCode(FILE * & fptr);
@@ -446,6 +410,7 @@ struct FunctionStatement: public AbstractStatement
 	DataType returnType_;
 
 	FunctionStatement ( DataType dtype, int32_t lline_number
+			    , int32_t l_nest_level, int32_t l_for_nest_level
 			    , struct Scope * &scope_
 			    , struct FunctionParameter * & v_list
 			    , struct AbstractStatement* & lfunc_body
@@ -520,7 +485,9 @@ private:
 
 struct ErrorStatement: public AbstractStatement
 {
-	ErrorStatement( int lline_number);
+	ErrorStatement( int lline_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			);
 	void GenerateCode(StatementCompiledCode & code);
 	private:
 	ErrorStatement& operator=(const ErrorStatement&);
@@ -531,6 +498,7 @@ struct GotoStatement: public AbstractStatement
 {
 	string gotoLabel_;
 	GotoStatement(DataType l_type, int32_t l_line_number
+		      , int32_t l_nest_level, int32_t l_for_nest_level
 		      , string l_gotoLabel);
 	void GenerateCode(StatementCompiledCode & code);
 	private:
@@ -540,16 +508,20 @@ struct GotoStatement: public AbstractStatement
 
 struct ClearStatement: public AbstractStatement 
 {
-	ClearStatement(DataType l_type, int32_t l_line_number,
-			string l_question_name);
-	ClearStatement(DataType l_type, int32_t l_line_number,
-			string l_question_name, string err_msg);
-	ClearStatement(DataType l_type, int32_t l_line_number,
-			string l_array_question_name,
-			AbstractExpression *e);
-	ClearStatement(DataType l_type, int32_t l_line_number,
-			string l_array_question_name,
-			AbstractExpression *e, string err_msg);
+	ClearStatement(DataType l_type, int32_t l_line_number
+		       , int32_t l_nest_level, int32_t l_for_nest_level
+		       , string l_question_name);
+	ClearStatement(DataType l_type, int32_t l_line_number
+			    , int32_t l_nest_level, int32_t l_for_nest_level
+			, string l_question_name, string err_msg);
+	ClearStatement(DataType l_type, int32_t l_line_number
+		       , int32_t l_nest_level, int32_t l_for_nest_level
+		       , string l_array_question_name
+		       , AbstractExpression *e);
+	ClearStatement(DataType l_type, int32_t l_line_number
+		       , int32_t l_nest_level, int32_t l_for_nest_level
+		       , string l_array_question_name
+		       , AbstractExpression *e, string err_msg);
 	void GenerateCode(StatementCompiledCode & code);
 	bool VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index);
 	SymbolTableEntry* symbolTableEntry_ ;
@@ -566,8 +538,9 @@ struct ColumnStatement: public AbstractStatement
 {
 	AbstractExpression * columnExpression_;
 
-	ColumnStatement(DataType l_type, int32_t l_line_number,
-					AbstractExpression * expr);
+	ColumnStatement(DataType l_type, int32_t l_line_number
+			, int32_t l_nest_level, int32_t l_for_nest_level
+			, AbstractExpression * expr);
 	void GenerateCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	friend bool RunColumnExpressionChecks();
@@ -582,8 +555,9 @@ struct NewCardStatement: public AbstractStatement
 {
 	AbstractExpression * cardExpression_;
 
-	NewCardStatement(DataType l_type, int32_t l_line_number,
-					AbstractExpression * expr);
+	NewCardStatement(DataType l_type, int32_t l_line_number
+			 , int32_t l_nest_level, int32_t l_for_nest_level
+			 , AbstractExpression * expr);
 	void GenerateCode(StatementCompiledCode & code);
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
 	friend bool RunColumnExpressionChecks();
@@ -596,11 +570,11 @@ struct FixAndRecodeStatement: public AbstractStatement
 {
 	vector <string> recode_vec,
 			driver_vec;
-	FixAndRecodeStatement(DataType l_type,
-			int32_t l_line_number,
+	FixAndRecodeStatement(DataType l_type, int32_t l_line_number,
+			      int32_t l_nest_level, int32_t l_for_nest_level,
 			vector <string> l_recode_name_vec,
 			vector <string> l_driver_vec)
-		: AbstractStatement (l_type, l_line_number),
+		: AbstractStatement (l_type, l_line_number, l_nest_level, l_for_nest_level),
 		  recode_vec (l_recode_name_vec),
 		  driver_vec (l_driver_vec)
 	{ }
@@ -616,10 +590,11 @@ struct Create_1_0_DataEditStatement: public AbstractStatement
 {
 	string questionName_;
 	Create_1_0_DataEditStatement(DataType l_type,
-			int32_t l_line_number,
-			string question_name
-			)
-		: AbstractStatement (l_type, l_line_number),
+				     int32_t l_line_number,
+				     int32_t l_nest_level, int32_t l_for_nest_level,
+				     string question_name
+				     )
+		: AbstractStatement (l_type, l_line_number, l_nest_level, l_for_nest_level),
 		  questionName_(question_name)
 	{ }
 	void GenerateCode(StatementCompiledCode & code)

@@ -7,7 +7,7 @@ using std::endl;
 named_attribute_list::named_attribute_list(DataType dt, int32_t lline_no
 					   , string l_name
 					   , vector<string> l_attr)
-	: AbstractStatement(dt, lline_no)
+	: AbstractStatement(dt, lline_no, 0, 0)
 	, name(l_name), attribute(l_attr), symp(0)
 { }
 void print_stmt_lst(FILE * & fptr)

@@ -53,12 +53,15 @@ using qscript_parser::line_no;
 using qscript_parser::no_errors;
 using qscript_parser::debug_log_file;
 using qscript_parser::mem_addr;
+using qscript_parser::nest_lev;
+using qscript_parser::flagIsAForBody_;
 
 
 AbstractStatement* Scope::insert(const char * name, DataType dt/*, int32_t line_no*/)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt);
 		//se->name = strdup(name.c_str());
@@ -88,7 +91,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 		     << endl;
 	}
 	*/
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
 	if (SymbolTable.find(name) == SymbolTable.end()) {
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, l_q);
 		//se->name = strdup(name.c_str());
@@ -109,7 +113,9 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 				 , int32_t arr_size	 /*, int32_t line_no*/)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_
+			);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt);
 		se->n_elms = arr_size;
@@ -130,7 +136,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 				 , AbstractExpression *e)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, e);
 		if(is_of_noun_type(e->type_)){
@@ -168,7 +175,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt
 				 , AbstractExpression *e, type_qualifier tq)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+				nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, e, tq);
 		if(is_of_noun_type(e->type_)){
@@ -219,7 +227,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int32_t arr_siz
 		cerr << "length of TEXT < array size line_no:" << line_no << endl;
 		++no_errors;
 	}
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, arr_size, text);
 		//se->n_elms = arr_size;
@@ -241,7 +250,8 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, int32_t arr_siz
 
 AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
 {
-	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no);
+	DeclarationStatement * st_ptr = new DeclarationStatement(dt, line_no,
+			nest_lev, flagIsAForBody_);
 	if ( SymbolTable.find(name) == SymbolTable.end() ){
 		XtccSet * xs = new XtccSet(*lxs);
 		SymbolTableEntry* se = new SymbolTableEntry(name, dt, xs);

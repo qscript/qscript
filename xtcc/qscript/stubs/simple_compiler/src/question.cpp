@@ -60,16 +60,18 @@ extern vector<string> consolidated_for_loop_index_stack;
 
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(
-	DataType l_type, int32_t l_no, string l_name, string l_text
+	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, vector<AbstractExpression*> & l_for_bounds_stack
 	, CompoundStatement * l_enclosing_scope
-	, vector<ActiveVariableInfo* > l_av_info, QuestionAttributes  l_question_attributes
-	, int l_nest_level
+	, vector<ActiveVariableInfo* > l_av_info
+	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
 	: 
-	AbstractStatement(l_type, l_no)
+	AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
 	, questionName_(l_name), questionText_(l_text)
 	, questionDiskName_()
 	, q_type(l_q_type)
@@ -82,7 +84,6 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
 	, isStartOfBlock_(false)
-	, nestLevel_(l_nest_level)
 {
 	//cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
@@ -120,15 +121,15 @@ AbstractQuestion::AbstractQuestion(
 	//! this is only called in the compile time environment
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
-	, int l_nest_level
 	, const XtccSet & p_mutexCodeList
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level), questionName_(l_name)
 	, questionText_(l_text)
 	, questionDiskName_()
 	, q_type(l_q_type)
@@ -142,7 +143,6 @@ AbstractQuestion::AbstractQuestion(
 	, mutexCodeList_(p_mutexCodeList)
 	, maxCode_(0)
 	, isStartOfBlock_(false)
-	, nestLevel_(l_nest_level)
 {
 	// cout << "creating AbstractQuestion: " << questionName_ << endl;
 	if(enclosingCompoundStatement_ == 0){
@@ -155,12 +155,15 @@ AbstractQuestion::AbstractQuestion(
 
 #if 1
 AbstractQuestion::AbstractQuestion(
-	DataType l_type, int32_t l_no, string l_name, string l_text
+	DataType l_type, int32_t l_no
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
+	, questionName_(l_name)
 	, questionText_(l_text)
 	, questionDiskName_(l_name)
 	, q_type(l_q_type)
@@ -709,6 +712,7 @@ void AbstractQuestion::PrintArrayDeclarations(StatementCompiledCode & code)
 //! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
+	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt, XtccSet& l_r_data
 	, vector<AbstractExpression*> & l_for_bounds_stack
@@ -716,12 +720,13 @@ RangeQuestion::RangeQuestion(
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
-	, int l_nest_level
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	: AbstractQuestion(this_stmt_type, line_number
+			, l_nest_level, l_for_nest_level
+			, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt , l_for_bounds_stack
 			   , l_enclosing_scope, l_av_info, l_question_attributes
-			   , l_nest_level, p_mutexCodeList )
+			   , p_mutexCodeList )
 			, r_data(new XtccSet(l_r_data)), displayData_()
 	
 { 
@@ -748,18 +753,20 @@ RangeQuestion::RangeQuestion(
 	//! this is only called in the compile time environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
+	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
-	, int l_nest_level
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	: AbstractQuestion(this_stmt_type, line_number
+			   , l_nest_level, l_for_nest_level
+			, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt
 			   , l_enclosing_scope, l_av_info, l_question_attributes
-			   , l_nest_level, p_mutexCodeList 
+			   , p_mutexCodeList 
 			   )
 	, r_data(new XtccSet(l_r_data)), displayData_()
 { 
@@ -1311,6 +1318,7 @@ void NamedStubQuestion::GenerateCode(StatementCompiledCode &code)
 	//! this is only called in the compile time environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
+	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name, string l_q_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, named_range* l_nr_ptr
@@ -1318,11 +1326,14 @@ NamedStubQuestion::NamedStubQuestion(
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
-	, int l_nest_level
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
+	AbstractQuestion(this_stmt_type, line_number
+			 , l_nest_level, l_for_nest_level
+			, l_name, l_q_text
 			 , l_q_type, l_no_mpn, l_dt
-			 , l_for_bounds_stack, l_enclosing_scope, l_av_info, l_question_attributes, l_nest_level)
+			 , l_for_bounds_stack, l_enclosing_scope, l_av_info
+			 , l_question_attributes
+			 )
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
 	, displayData_(), currentPage_(0)
@@ -1340,17 +1351,19 @@ NamedStubQuestion::NamedStubQuestion(
 	//! this is only called in the compile time environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
+	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name, string l_q_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, named_range* l_nr_ptr
 	, CompoundStatement * l_enclosing_scope
 	, vector<ActiveVariableInfo* > l_av_info
 	, QuestionAttributes  l_question_attributes
-	, int l_nest_level
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text,
-		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, l_question_attributes,
-		l_nest_level
+	AbstractQuestion(this_stmt_type, line_number,
+		l_nest_level, l_for_nest_level,
+		l_name, l_q_text,
+		l_q_type, l_no_mpn, l_dt, l_enclosing_scope, l_av_info, 
+		l_question_attributes
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)

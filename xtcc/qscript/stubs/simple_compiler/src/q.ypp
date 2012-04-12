@@ -185,8 +185,10 @@ func_defn:
 					qscript_parser::line_no, __LINE__, __FILE__  );
 		}
 	} cmpd_stmt {
+		using qscript_parser::flagIsAForBody_;
+		using qscript_parser::nest_lev;
 		struct /* Statement:: */ CompoundStatement* c_stmt= $7;
-		if(c_stmt==0){
+		if (c_stmt==0) {
 			cerr << "INTERNAL COMPILER ERROR: c_stmt==0" << endl;
 		} else {
 			//cout << "funcBody_: is valid " << endl;
@@ -196,7 +198,7 @@ func_defn:
 		struct /*Statement::*/ AbstractStatement* funcBody_=$7;
 		string search_for=$2;
 		DataType returnType_=$1;
-		$$=new /*Statement::*/ FunctionStatement(FUNC_DEFN, qscript_parser::line_no, scope_, v_list, funcBody_, search_for, returnType_);
+		$$=new /*Statement::*/ FunctionStatement(FUNC_DEFN, qscript_parser::line_no, nest_lev, flagIsAForBody_, scope_, v_list, funcBody_, search_for, returnType_);
 		// Note that the declaration already has a parameter list
 		// the constructor uses the parameter list - name and type to verify everything
 		// but doesnt need the parameter list any more - so we should delete it
@@ -259,9 +261,9 @@ stmt_list: stmt {
 
 	}
 	| stmt_list stmt{
-		$1->next_=$2;
-		$2->prev_=$1;
-		$$=$2;
+		$1 -> next_ = $2;
+		$2 -> prev_ = $1;
+		$$ = $2;
 	}
 	;
 
@@ -326,7 +328,10 @@ stmt:	question
 			, err_msg.str()
 			, qscript_parser::lex_location.lineNo_, __LINE__, __FILE__);
 		yyerrok;
-		$$ = new ErrorStatement(qscript_parser::line_no);
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new ErrorStatement(qscript_parser::line_no, 
+				nest_lev, flagIsAForBody_);
 	}
 	;
 
@@ -336,7 +341,9 @@ for_loop_stmt:
 		qscript_parser::for_loop_max_counter_stack.push_back($5);
 	} cmpd_stmt {
 		using qscript_parser::line_no;
-		$$ = new ForStatement(FOR_STMT, line_no, $3, $5, $7, $10);
+		using qscript_parser::flagIsAForBody_;
+		using qscript_parser::nest_lev;
+		$$ = new ForStatement(FOR_STMT, line_no, nest_lev, flagIsAForBody_, $3, $5, $7, $10);
 
 		--qscript_parser::flagIsAForBody_;
 		qscript_parser::for_loop_max_counter_stack.pop_back();
@@ -362,6 +369,8 @@ open_curly:	'{' {
 
 
 if_stmt:  IF '(' expression ')' stmt {
+		using qscript_parser::flagIsAForBody_;
+		using qscript_parser::nest_lev;
 		using qscript_parser::if_line_no;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
@@ -369,17 +378,19 @@ if_stmt:  IF '(' expression ')' stmt {
 		CompoundStatement * cmpd_stmt = dynamic_cast<CompoundStatement*>($5);
 		if (cmpd_stmt!=0) {
 			cmpd_stmt->flagIsAIfBody_ = 1;
-			IfStatement * if_stmt = new IfStatement (IFE_STMT, if_line_no, $3, cmpd_stmt, 0);
+			IfStatement * if_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, cmpd_stmt, 0);
 			cmpd_stmt->ifStatement_ = if_stmt;
 			$$ = if_stmt;
 		} else 
-			$$=new IfStatement (IFE_STMT, if_line_no, $3, $5, 0);
+			$$=new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, $5, 0);
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
 	| IF '(' expression ')' stmt ELSE stmt {
 		using qscript_parser::if_line_no;
+		using qscript_parser::flagIsAForBody_;
+		using qscript_parser::nest_lev;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		CompoundStatement * cmpd_stmt_if_body = dynamic_cast<CompoundStatement*>($5);
@@ -393,13 +404,13 @@ if_stmt:  IF '(' expression ')' stmt {
 
 		IfStatement * if_else_stmt = 0;
 		if (cmpd_stmt_if_body==0 && cmpd_stmt_else_body==0)
-			if_else_stmt = new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,$5,$7);
+			if_else_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3 , $5, $7);
 		else if (cmpd_stmt_if_body != 0 && cmpd_stmt_else_body !=0 ) 
-			if_else_stmt = new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,cmpd_stmt_if_body,cmpd_stmt_else_body);
+			if_else_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, cmpd_stmt_if_body, cmpd_stmt_else_body);
 		else if (cmpd_stmt_else_body !=0 && cmpd_stmt_if_body==0) 
-			if_else_stmt = new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,$5,cmpd_stmt_else_body);
+			if_else_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, $5, cmpd_stmt_else_body);
 		else 
-			if_else_stmt = new IfStatement(IFE_STMT,qscript_parser::if_line_no,$3,cmpd_stmt_if_body,$7);
+			if_else_stmt = new IfStatement (IFE_STMT, if_line_no, nest_lev, flagIsAForBody_, $3, cmpd_stmt_if_body, $7);
 		
 		$$ = if_else_stmt;
 
@@ -420,16 +431,18 @@ if_stmt:  IF '(' expression ')' stmt {
 expr_stmt:	expression ';'
 	{
 		using qscript_parser::if_line_no;
+		using qscript_parser::flagIsAForBody_;
+		using qscript_parser::nest_lev;
 		using qscript_parser::line_no;
 		using qscript_parser::no_errors;
 		if($1->IsValid()){
-			$$ = new ExpressionStatement(TEXPR_STMT, line_no, $1);
-			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			$$ = new ExpressionStatement(TEXPR_STMT, line_no, nest_lev, flagIsAForBody_, $1);
+			if(qscript_parser::XTCC_DEBUG_MEM_USAGE) {
 				mem_log($$, __LINE__, __FILE__, line_no);
 			}
 		} else {
-			$$ = new ExpressionStatement(ERROR_TYPE, line_no, $1);
-			if(qscript_parser::XTCC_DEBUG_MEM_USAGE){
+			$$ = new ExpressionStatement(ERROR_TYPE, line_no, nest_lev, flagIsAForBody_, $1);
+			if(qscript_parser::XTCC_DEBUG_MEM_USAGE) {
 				mem_log($$, __LINE__, __FILE__, line_no);
 			}
 		}
@@ -437,34 +450,48 @@ expr_stmt:	expression ';'
 	;
 
 goto_stmt: GOTO NAME ';' {
-		$$ = new GotoStatement(GOTO_STMT, qscript_parser::line_no, $2);
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new GotoStatement(GOTO_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $2);
 		// free($2); ? is this required here
 	}
 
 clear_stmt: CLEAR '(' NAME ')' ';' {
 		// free($3); ? is this required here
-		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3);
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3);
 	}
 	| CLEAR '(' NAME '[' expression ']' ')'';' {
-		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3, $5);
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3, $5);
 		// free($3); ? is this required here
 	}
 	| CLEAR '(' NAME '[' expression ']' ',' TEXT ')'';' {
-		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3, $8);
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3, $8);
 	}
 	|  CLEAR '(' NAME  ',' TEXT ')' ';' {
 		// free($3); ? is this required here
-		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, $3, $5);
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new ClearStatement(CLEAR_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3, $5);
 	}
 	;
 
 column_stmt: COLUMN '(' expression ')' ';' {
-		$$ = new ColumnStatement(COLUMN_STMT, qscript_parser::line_no, $3);
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new ColumnStatement(COLUMN_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3);
 	}
 	;
 
 newcard_stmt: NEWCARD '(' expression ')' ';' {
-		$$ = new NewCardStatement(COLUMN_STMT, qscript_parser::line_no, $3);
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+		$$ = new NewCardStatement(COLUMN_STMT, qscript_parser::line_no, nest_lev, flagIsAForBody_, $3);
 	}
 	;
 
@@ -880,10 +907,12 @@ stubs:     STUBS_LIST NAME {
 		using qscript_parser::line_no;
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=$2;
 		struct named_range* nr_ptr= new named_range(NAMED_RANGE
-				, line_no, stub_name,stub_list);
+				, line_no, stub_name, stub_list);
 		named_stubs_list.push_back(nr_ptr);
 		//$$=0;
 		$$ = nr_ptr;
@@ -1002,6 +1031,8 @@ fix_and_recode_stmt: FIX name_list { recode_list = name_list; name_list.clear();
 	{
 		driver_list = name_list ;
 		using qscript_parser::line_no;
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
 		if (recode_list.size() % driver_list.size() != 0) {
 			ostringstream err_mesg;
 			err_mesg << "No of variables in recode list should be exactly divisible by no of variables in driver_list ";
@@ -1010,7 +1041,7 @@ fix_and_recode_stmt: FIX name_list { recode_list = name_list; name_list.clear();
 					qscript_parser::line_no, __LINE__, __FILE__);
 		}
 		FixAndRecodeStatement * fix_and_recode_stmt = new FixAndRecodeStatement (
-			FIX_AND_RECODE_STMT, line_no,
+			FIX_AND_RECODE_STMT, line_no, nest_lev, flagIsAForBody_,
 			recode_list, driver_list);
 		recode_list.clear();
 		driver_list.clear();
@@ -1026,8 +1057,10 @@ name_list: NAME { name_list.push_back($1); }
 
 create_1_0_data_edit_stmt: CREATE_1_0_EDIT NAME ';' {
 		using qscript_parser::line_no;
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
 		Create_1_0_DataEditStatement * create_1_0_data_edit = new Create_1_0_DataEditStatement(
-			CREATE_1_0_EDIT_STMT, line_no, string($2)
+			CREATE_1_0_EDIT_STMT, line_no, nest_lev, flagIsAForBody_, string($2)
 			);
 		qscript_parser::create_1_0_edit_vec.push_back (create_1_0_data_edit);
 		$$ = create_1_0_data_edit;
@@ -1113,10 +1146,13 @@ AbstractExpression * recurse_for_index(int32_t stack_index){
 
 CompoundStatement* ProcessOpenCurly()
 {
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
 	++nest_lev;
 	CompoundStatement * cmpdStmt= new CompoundStatement(CMPD_STMT,
-			line_no, flagIsAFunctionBody_,
-			flagIsAForBody_, for_loop_max_counter_stack, nest_lev);
+			line_no, nest_lev, flagIsAForBody_,
+			flagIsAFunctionBody_,
+			flagIsAForBody_, for_loop_max_counter_stack);
 	stack_cmpd_stmt.push_back(cmpdStmt);
 	cmpdStmt->nestedCompoundStatementStack_=stack_cmpd_stmt;
 	void *ptr=cmpdStmt;
@@ -1232,11 +1268,11 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
 		q= new RangeQuestion(QUESTION_ARR_TYPE, line_no,
-			name, q_text, q_type, no_mpn, dt, xs
-			//, arr_sz
-			, qscript_parser::for_loop_max_counter_stack
-			, cmpd_stmt_ptr, av_info, question_attributes, mutex_range_set
-			, nest_lev
+				nest_lev, flagIsAForBody_,
+				name, q_text, q_type, no_mpn, dt, xs,
+				qscript_parser::for_loop_max_counter_stack,
+				cmpd_stmt_ptr, av_info, question_attributes,
+				mutex_range_set
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q));
@@ -1245,9 +1281,10 @@ AbstractStatement * ProcessRangeQuestion(const string &name
 		//cerr << "s1: " << s1.str() << ", s2: " << s2.str() << endl;
 	} else {
 		q= new RangeQuestion(QUESTION_TYPE, line_no,
-			name, q_text, q_type, no_mpn, dt, xs, cmpd_stmt_ptr, av_info
-			, question_attributes, mutex_range_set
-			, nest_lev
+				nest_lev, flagIsAForBody_,
+				name, q_text, q_type, no_mpn, dt, xs, 
+				cmpd_stmt_ptr, av_info, 
+				question_attributes, mutex_range_set
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q));
@@ -1337,18 +1374,18 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 		arr_sz = qscript_parser::recurse_for_index(
 			qscript_parser::for_loop_max_counter_stack.size()-1);
 		q=new NamedStubQuestion(QUESTION_ARR_TYPE, line_no
+				, nest_lev, flagIsAForBody_
 				, name, q_txt, q_type, no_mpn, dt , nr_ptr
-				,qscript_parser::for_loop_max_counter_stack
+				, qscript_parser::for_loop_max_counter_stack
 				, cmpd_stmt_ptr, av_info, question_attributes
-				, nest_lev
 				);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 			active_scope_list[0]->insert(name.c_str(), QUESTION_ARR_TYPE, q));
 	} else {
-		q=new NamedStubQuestion(QUESTION_TYPE,
-			line_no, name, q_txt, q_type, no_mpn, dt, nr_ptr
+		q=new NamedStubQuestion(QUESTION_TYPE, line_no
+			, nest_lev, flagIsAForBody_
+			, name, q_txt, q_type, no_mpn, dt, nr_ptr
 			, cmpd_stmt_ptr, av_info, question_attributes
-			, nest_lev
 			);
 		qscript_parser::delete_manually_in_cleanup.push_back(
 				active_scope_list[0]->insert(name.c_str(), QUESTION_TYPE, q));

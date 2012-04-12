@@ -52,7 +52,7 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 }
 
 named_range::named_range(named_range & nr)
-	: AbstractStatement(nr.type_, nr.lineNo_),
+	: AbstractStatement(nr.type_, nr.lineNo_, 0, 0),
 	name (nr.name),  stubs (nr.stubs)
 {
 }

@@ -737,6 +737,8 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char * question_name
 					 , AbstractExpression * l_arr_index /* =0 */)
 {
+	using qscript_parser::nest_lev;
+	using qscript_parser::flagIsAForBody_;
 	int32_t index = -1;
 	bool question_stub = false, range_stub=false;
 	NamedStubQuestion * lhs_question = 0, * rhs_question=0;
@@ -762,7 +764,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					"is not a named stub Question";
 				print_err(compiler_sem_err, err_text.str(),
 					line_no, __LINE__, __FILE__);
-				return new ErrorStatement(line_no);
+				return new ErrorStatement(line_no, 0, 0);
 			}
 			break;
 		}
@@ -773,7 +775,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		err_text << "named stub list does not exist: " << stub_list_name;
 		print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
-		return new ErrorStatement(line_no);
+		return new ErrorStatement(line_no, 0, 0);
 	}
 	// at this point
 	// 	1. if lhs_question is not null it is valid and
@@ -791,7 +793,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					"is not a named stub Question";
 				print_err(compiler_sem_err, err_text.str(),
 					line_no, __LINE__, __FILE__);
-				return new ErrorStatement(line_no);
+				return new ErrorStatement(line_no, 0, 0);
 			}
 			break;
 		}
@@ -802,7 +804,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		err_text << "Question does not exist: " << question_name;
 		print_err(compiler_sem_err, err_text.str(),
 			line_no, __LINE__, __FILE__);
-		return new ErrorStatement(line_no);
+		return new ErrorStatement(line_no, 0, 0);
 	} 
 	// At this point 2nd argument  is valid
 
@@ -816,15 +818,15 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				<< endl;
 			print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
-			return new ErrorStatement(line_no);
+			return new ErrorStatement(line_no, 0, 0);
 		}
 		if (l_arr_index==0) {
 			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, lhs_stub, rhs_question);
+				line_no, nest_lev, flagIsAForBody_, lhs_stub, rhs_question);
 			return st_ptr;
 		} else {
 			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, lhs_stub, rhs_question, l_arr_index);
+				line_no, nest_lev, flagIsAForBody_, lhs_stub, rhs_question, l_arr_index);
 			return st_ptr;
 		}
 	} else if (question_stub == true) {
@@ -838,20 +840,26 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				<< " do not match" << endl;
 			print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
-			return new ErrorStatement(line_no);
+			return new ErrorStatement(line_no, 0, 0);
 		}
 		if (l_arr_index==0) {
-			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, lhs_question, rhs_question);
+			struct AbstractStatement* st_ptr = new StubManipStatement (
+				dt,
+				line_no, 
+				/* nest_lev */ 0, 
+				/* flagIsAForBody_ */ 0, 
+				lhs_question, rhs_question);
 			return st_ptr;
 		} else {
-			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, lhs_question, rhs_question, l_arr_index);
+			struct AbstractStatement* st_ptr = 
+				new StubManipStatement (dt,
+				line_no, /* nest_lev */ 0,
+				/* flagIsAForBody_ */ 0, lhs_question, rhs_question, l_arr_index);
 			return st_ptr;
 		}
 
 	}
-	return new ErrorStatement(line_no);
+	return new ErrorStatement(line_no, 0, 0);
 }
 
 
@@ -873,7 +881,7 @@ AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 			line_no, __LINE__, __FILE__);
 	}
 	struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-		line_no, stub_list_name);
+		line_no, nest_lev, flagIsAForBody_, stub_list_name);
 
 	return st_ptr;
 }
@@ -913,7 +921,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 					"is not a named stub Question";
 				print_err(compiler_sem_err, err_text.str(),
 					line_no, __LINE__, __FILE__);
-				return new ErrorStatement(line_no);
+				return new ErrorStatement(line_no, 0, 0);
 			}
 			break;
 		}
@@ -924,21 +932,25 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		err_text << "named stub list does not exist: " << stub_list_name;
 		print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
-		return new ErrorStatement(line_no);
+		return new ErrorStatement(line_no, 0, 0);
 	}
 	// at this point
 	// 	1. if lhs_question is not null it is valid and
 	// 	2. we need not do any more checks on the 1st argument
 	if (range_stub == true) {
 		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-						line_no, lhs_stub, l_xs);
+						line_no, 
+						nest_lev, flagIsAForBody_,
+						lhs_stub, l_xs);
 		return st_ptr;
 	} else if (question_stub == true) {
 		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-						line_no, lhs_question, l_xs);
+						line_no, 
+						nest_lev, flagIsAForBody_,
+						lhs_question, l_xs);
 		return st_ptr;
 	}
-	return new ErrorStatement(line_no);
+	return new ErrorStatement(line_no, 0, 0);
 }
 
 const char * write_data_to_disk_code()

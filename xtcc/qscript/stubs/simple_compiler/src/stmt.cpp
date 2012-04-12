@@ -170,10 +170,11 @@ DeclarationStatement::~DeclarationStatement()
 }
 
 IfStatement::IfStatement(DataType dtype, int32_t lline_number
+		     	 , int32_t l_nest_level, int32_t l_for_nest_level
 			 , AbstractExpression * lcondition
 			 , AbstractStatement * lif_body
 			 , AbstractStatement * lelse_body)
-	: AbstractStatement(dtype, lline_number)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	, ifCondition_(lcondition), ifBody_(lif_body), elseBody_(lelse_body)
 {
 	if (lcondition->type_ == VOID_TYPE || lcondition->type_ == ERROR_TYPE){
@@ -228,10 +229,12 @@ string Generate_false_code_for_questions_in_other_block (string question_name, I
 
 		if (cmpd_stmt && cmpd_stmt->flagIsAForBody_) {
 			code 	<< "// IfStatement nestLevel_: " << cmpd_stmt1->nestLevel_ << endl
+				<< "// IfStatement forNestLevel_: " << cmpd_stmt1->forNestLevel_ << endl
 				<< "// " << se->question_->questionName_ << ": " << ", nestLevel_: "
-				<< se->question_->nestLevel_ << endl; 
-			int cmpd_stmt1_nest_level = cmpd_stmt1->nestLevel_ ;
-			int question_nest_level = se->question_->nestLevel_;
+				<< "// " << se->question_->questionName_ << ": " << ", forNestLevel_: "
+				<< se->question_->forNestLevel_ << endl; 
+			int cmpd_stmt1_nest_level = cmpd_stmt1->forNestLevel_ ;
+			int question_nest_level = se->question_->forNestLevel_;
 
 			if (cmpd_stmt) {
 				code << "// enclosingCompoundStatement_ is CompoundStatement " << endl;
@@ -699,12 +702,13 @@ IfStatement:: ~IfStatement()
 vector<string> consolidated_for_loop_index_stack;
 
 CompoundStatement::CompoundStatement(
-	DataType dtype, int32_t lline_number, int32_t l_flag_cmpd_stmt_is_a_func_body
+	DataType dtype, int32_t lline_number
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, int32_t l_flag_cmpd_stmt_is_a_func_body
 	, int32_t l_flag_cmpd_stmt_is_a_for_body
 	, vector<AbstractExpression*>& l_for_bounds_stack
-	, int l_nest_level
 	):
-	AbstractStatement(dtype, lline_number)
+	AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	, compoundBody_(0), scope_(0)
 	, flagIsAFunctionBody_(l_flag_cmpd_stmt_is_a_func_body)
 	, flagIsAForBody_(l_flag_cmpd_stmt_is_a_for_body)
@@ -1028,11 +1032,12 @@ AbstractQuestion* find_in_question_list(string name)
 
 
 ForStatement::ForStatement(DataType dtype, int32_t lline_number
+		     	, int32_t l_nest_level, int32_t l_for_nest_level
 			   , AbstractExpression * l_init
 			   , AbstractExpression * l_test
 			   , AbstractExpression* l_incr
 			   , CompoundStatement * l_for_body)
-	: AbstractStatement(dtype, lline_number)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	, initializationExpression_(l_init)
 	, testExpression_(l_test), incrementExpression_(l_incr)
 	, forBody_(l_for_body)
@@ -1574,11 +1579,12 @@ VariableList::VariableList(DataType type, char * name, int32_t len)
 
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+			    	       , int32_t l_nest_level, int32_t l_for_nest_level
 				       , named_range * l_named_range
 				       , AbstractQuestion * l_question
 				       , AbstractExpression * larr_index
 	)
-	: AbstractStatement(dtype, lline_number)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
 	  , xtccSet_(), arrIndex_(larr_index)
@@ -1596,11 +1602,12 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 { }
 */
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+			    		, int32_t l_nest_level, int32_t l_for_nest_level
 				       , AbstractQuestion * l_question_lhs
 				       , AbstractQuestion * l_question_rhs
 				       , AbstractExpression * larr_index
 	)
-	: AbstractStatement(dtype, lline_number)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question_rhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(l_question_rhs)
 	  , xtccSet_(), arrIndex_(0)
@@ -1608,20 +1615,22 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+			    		, int32_t l_nest_level, int32_t l_for_nest_level
 				       , named_range * l_named_range
 				       , XtccSet & xs
 	)
-	: AbstractStatement(dtype, lline_number)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(0)
 	  , xtccSet_(xs), arrIndex_(0)
 { }
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+			    		, int32_t l_nest_level, int32_t l_for_nest_level
 				       , AbstractQuestion * l_question_lhs
 				       , XtccSet & xs
 	)
-	: AbstractStatement(dtype, lline_number)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question_lhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(0)
 	  , xtccSet_(xs), arrIndex_(0)
@@ -1640,8 +1649,9 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 #endif /* 0 */
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+			    	       , int32_t l_nest_level, int32_t l_for_nest_level
 				       , string l_named_stub)
-	: AbstractStatement(dtype, lline_number)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	, questionName_(), namedStub_(l_named_stub)
 	, namedRange_(0), lhs_(0), rhs_(0), xtccSet_(), arrIndex_(0)
 { }
@@ -1980,12 +1990,16 @@ FunctionParameter::FunctionParameter(DataType type, char * name, int32_t len): v
 }
 
 FunctionDeclarationStatement::FunctionDeclarationStatement(
-	DataType dtype, int32_t lline_number, char * & name
+	DataType dtype, int32_t lline_number
+	, int32_t l_nest_level, int32_t l_for_nest_level
+	, char * & name
 	, FunctionParameter* & v_list, DataType returnType_)
-	: AbstractStatement(dtype, lline_number), funcInfo_(0)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
+	  , funcInfo_(0)
 {
 	//cout << "load_func_into_symbol_table : " << "name: " << name << endl;
-	if (active_scope->SymbolTable.find(name) == active_scope->SymbolTable.end() ){
+	if (active_scope->SymbolTable.find(name) == active_scope->SymbolTable.end())
+	{
 		//cout << "got func_decl" << endl;
 		DataType myreturn_type = returnType_;
 		FunctionInformation* fi = new FunctionInformation(name
@@ -2039,11 +2053,13 @@ FunctionDeclarationStatement::~FunctionDeclarationStatement()
 }
 
 FunctionStatement:: FunctionStatement(DataType dtype, int32_t lline_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
 		, Scope * &scope_, FunctionParameter * & v_list
 		, AbstractStatement* & lfunc_body
 		, string func_name, DataType lreturn_type
 		)
-	: AbstractStatement(dtype, lline_number), funcInfo_(0)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
+	, funcInfo_(0)
 	  , functionBody_(lfunc_body), returnType_(lreturn_type)
 {
 	int32_t index = search_for_func(func_name);
@@ -2162,8 +2178,10 @@ FunctionInformation::~FunctionInformation()
 	if (functionScope_) { delete functionScope_; functionScope_ = 0; }
 }
 
-ErrorStatement::ErrorStatement( int lline_number)
-	: AbstractStatement(ERROR_TYPE, lline_number)
+ErrorStatement::ErrorStatement (int lline_number 
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		)
+	: AbstractStatement(ERROR_TYPE, lline_number, l_nest_level, l_for_nest_level)
 {}
 
 
@@ -2174,8 +2192,9 @@ void ErrorStatement::GenerateCode(StatementCompiledCode & code)
 }
 
 GotoStatement::GotoStatement(DataType l_type, int32_t l_line_number
+			    , int32_t l_nest_level, int32_t l_for_nest_level
 			     , string l_gotoLabel)
-	: AbstractStatement(l_type, l_line_number)
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level)
 	, gotoLabel_(l_gotoLabel) 
 {
 	if (find_in_question_list(gotoLabel_)){
@@ -2202,8 +2221,9 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 }
 
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			    	int32_t l_nest_level, int32_t l_for_nest_level,
 				string l_question_name)
-	: AbstractStatement(l_type, l_line_number),
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
 	  symbolTableEntry_(0), arrIndex_(0),
 	  errorMessage_()
 {
@@ -2236,9 +2256,10 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 }
 
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			     int32_t l_nest_level, int32_t l_for_nest_level,
 			string l_array_question_name,
 			AbstractExpression *arr_index)
-	: AbstractStatement(l_type, l_line_number),
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
 	  symbolTableEntry_(0), arrIndex_(0),
 	  errorMessage_()
 {
@@ -2372,17 +2393,19 @@ bool ClearStatement::VerifyForClearStatement(string l_question_name, AbstractExp
 
 
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			     int32_t l_nest_level, int32_t l_for_nest_level,
 			string l_question_name, string err_msg)
-	: AbstractStatement(l_type, l_line_number),
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
 	  symbolTableEntry_(0), arrIndex_(0), errorMessage_ (err_msg)
 {
 	VerifyForClearStatement(l_question_name, 0);
 }
 
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			     int32_t l_nest_level, int32_t l_for_nest_level,
 			string l_array_question_name,
 			AbstractExpression *e, string err_msg)
-	: AbstractStatement(l_type, l_line_number),
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
 	  symbolTableEntry_(0), arrIndex_(0), errorMessage_ (err_msg)
 {
 	VerifyForClearStatement(l_array_question_name, e);
@@ -2423,8 +2446,9 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 
 
 ColumnStatement::ColumnStatement(DataType l_type, int32_t l_line_number,
-				AbstractExpression * expr)
-	: AbstractStatement(l_type, l_line_number),
+			    	 int32_t l_nest_level, int32_t l_for_nest_level,
+				 AbstractExpression * expr)
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
 	  columnExpression_(expr)
 {
 	RunColumnExpressionChecks(this);
@@ -2500,8 +2524,9 @@ void ColumnStatement::GenerateCode(StatementCompiledCode & code)
 
 
 NewCardStatement::NewCardStatement(DataType l_type, int32_t l_line_number,
-				AbstractExpression * expr)
-	: AbstractStatement(l_type, l_line_number),
+			    	 int32_t l_nest_level, int32_t l_for_nest_level
+				, AbstractExpression * expr)
+	: AbstractStatement(l_type, l_line_number, l_nest_level, l_for_nest_level),
 	  cardExpression_(expr)
 {
 	RunNewCardExpressionChecks(this);

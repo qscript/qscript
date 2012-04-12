@@ -22,12 +22,12 @@ struct named_range: public AbstractStatement
 	//named_range(): name(""), stubs(){}
 	void GenerateCode(StatementCompiledCode & code);
 	named_range()
-		: AbstractStatement(NAMED_RANGE, 0)
+		: AbstractStatement(NAMED_RANGE, 0, 0, 0)
 		  , name(), stubs()
 	{ }
 	named_range(DataType l_type, int32_t l_line_number
 		    , std::string l_name, std::vector <stub_pair>& l_stubs )
-		: AbstractStatement(l_type, l_line_number)
+		: AbstractStatement(l_type, l_line_number, 0, 0)
 		, name(l_name), stubs(l_stubs)
 	{
 		//cout << "named_range: constructor" << endl;

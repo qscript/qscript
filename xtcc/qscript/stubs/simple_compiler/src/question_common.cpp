@@ -83,7 +83,7 @@ RangeQuestion::~RangeQuestion()
 }
 
 DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
-	: AbstractQuestion(QUESTION_TYPE, 0, l_qno, string(l_qno + "_dummy"), spn, 0
+	: AbstractQuestion(QUESTION_TYPE, 0, 0, 0, l_qno, string(l_qno + "_dummy"), spn, 0
 			   , INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
 { }
