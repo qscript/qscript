@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <fstream>
 #include "new_named_range.h"
 
 //ptrdiff_t (*p_myrandom)(ptrdiff_t) = myrandom;
@@ -347,3 +348,29 @@ void NamedRangeGroup::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+
+//extern fstream new_named_range_debug_out;
+
+void NamedRangeGroup::CreateDisplayStubs (AbstractNamedRange * invoker
+			, vector<stub_pair> & display_result)
+{
+	//{
+	//	new_named_range_debug_out << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+	//	new_named_range_debug_out << " randomized_order.size: " << randomized_order.size() << endl;
+	//	new_named_range_debug_out << " stub_grp_vec.size: " << stub_grp_vec.size() << endl;
+	//	new_named_range_debug_out << "display_result.size: " << display_result.size() << endl;
+	//}
+	if (randomized_order.size() == 0) {
+		for (int i=0; i < stub_grp_vec.size(); ++i) {
+			stub_grp_vec[i]->CreateDisplayStubs (invoker,
+					display_result);
+		}
+	} else {
+		for (int i=0; i < randomized_order.size(); ++i) {
+			stub_grp_vec[randomized_order[i]] ->
+				CreateDisplayStubs(invoker,
+						display_result);
+		}
+	}
+}
+

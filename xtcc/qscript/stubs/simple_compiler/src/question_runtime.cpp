@@ -295,6 +295,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 	if (display_result.size() == 0)
 		create_display_stubs (nrg_ptr);
 
+	cout << "display_result.size(): " << display_result.size() << endl;
+
 	if (question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0) {
 		cout << questionName_ << ".";
 		if (loop_index_values.size()>0) {

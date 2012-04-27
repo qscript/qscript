@@ -1,7 +1,8 @@
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 #include "question.h"
-#include "named_range.h"
+#include "new_named_range.h"
 #include "utils.h"
 #include "UserResponse.h"
 #include "expr.h"
@@ -171,24 +172,32 @@ Wt::WString DummyArrayQuestion::PrintSelectedAnswers(int code_index)
 	return Wt::WString();
 }
 
+//	fstream new_named_range_debug_out("new_named_range_debug.log", ios_base::out|ios_base::ate);
+
 void NamedStubQuestion::create_display_stubs (AbstractNamedRange * nr_ptr)
 {
-	NamedRangeGroup * nrg_ptr = dynamic_cast <NamedRangeGroup*>
-					(nr_ptr);
+	NamedRangeGroup * nrg_ptr = dynamic_cast<NamedRangeGroup*>(nr_ptr);
 	if (nrg_ptr) {
-		create_display_stubs (nrg_ptr->groupPtr_);
+		//new_named_range_debug_out << " randomized_order.size: " << nrg_ptr->randomized_order.size() << endl;
+		//new_named_range_debug_out << " stub_grp_vec.size: " << nrg_ptr->stub_grp_vec.size() << endl;
+		nr_ptr->CreateDisplayStubs(nr_ptr, display_result);
+		//new_named_range_debug_out << " randomized_order.size: " << nrg_ptr->randomized_order.size() << endl;
+		//new_named_range_debug_out << " stub_grp_vec.size: " << nrg_ptr->stub_grp_vec.size() << endl;
+		//new_named_range_debug_out << "display_result.size: " << display_result.size() << endl;
 	}
 
-	NamedRangeList * nrl_ptr = dynamic_cast <NamedRangeList*>
-					(nr_ptr);
-	if (nrl_ptr) {
-		vector <stub_pair> & vec = nrl_ptr->stubs;
-		for (int i=0; i < vec.size(); ++i) {
-			display_result.push_back (vec[i]);
-		}
-	}
-	if (nr_ptr->next_nr) {
-		create_display_stubs (nr_ptr->next_nr);
+}
+
+
+void NamedRangeList::CreateDisplayStubs (AbstractNamedRange * invoker, vector<stub_pair> & display_result) 
+{
+	for (int i=0; i<stubs.size(); ++i) {
+		display_result.push_back (stubs[i]);
 	}
 }
 
+
+void NamedRangeStub::CreateDisplayStubs (AbstractNamedRange * invoker, vector<stub_pair> & display_result) 
+{
+	display_result.push_back(stub);
+}

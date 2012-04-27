@@ -46,6 +46,7 @@ struct AbstractNamedRange: public AbstractStatement
 	virtual void AddGroup (NamedRangeGroup & p_group, int p_index_in_group)=0;
 	virtual void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) = 0;
 	virtual void VectorizePrint (AbstractNamedRange * invoker) = 0;
+	virtual void CreateDisplayStubs (AbstractNamedRange * invoker, vector<stub_pair> & display_result) = 0;
 	private:
 		AbstractNamedRange& operator=(const AbstractNamedRange&);
 		AbstractNamedRange (const AbstractNamedRange&);
@@ -97,6 +98,8 @@ struct NamedRangeList: public AbstractNamedRange
 				<< endl;
 		}
 	}
+	void CreateDisplayStubs (AbstractNamedRange * invoker, vector<stub_pair> & display_result);
+
 };
 
 struct NamedRangeGroup: public AbstractNamedRange
@@ -155,6 +158,8 @@ struct NamedRangeGroup: public AbstractNamedRange
 			}
 		//}
 	}
+	void CreateDisplayStubs (AbstractNamedRange * invoker
+			, vector<stub_pair> & display_result);
 	// Warning : this function should only be called
 	// after calling Vectorize on the group
 	void Randomize();
@@ -196,6 +201,8 @@ struct NamedRangeStub : public AbstractNamedRange
 	}
 	void GenerateCode(StatementCompiledCode & code)
 	{ }
+
+	void CreateDisplayStubs (AbstractNamedRange * invoker, vector<stub_pair> & display_result);
 
 };
 
