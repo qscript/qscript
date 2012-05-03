@@ -101,7 +101,9 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * &
 		map<string,question_disk_data*>::iterator it=  qdd_map.find (q->questionDiskName_);
 		if (  it != qdd_map.end()) {
 			question_disk_data * q_disk = it->second;
-			q->input_data.erase(q->input_data.begin(), q->input_data.end());
+			if (q->input_data.begin() != q->input_data.end()) {
+				q->input_data.erase(q->input_data.begin(), q->input_data.end());
+			}
 			if (q_disk->data.size() > 0) {
 				for (int32_t k = 0; k<q_disk->data.size(); ++k) {
 					if (qscript_debug::DEBUG_LoadData) {
