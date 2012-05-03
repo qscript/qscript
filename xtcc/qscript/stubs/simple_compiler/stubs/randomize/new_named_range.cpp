@@ -96,6 +96,7 @@ void NamedRangeGroup::AddGroup (NamedRangeGroup & p_group, int p_index_in_group)
 
 void NamedRangeList::AddStub (string p_text, int p_code, int p_index_in_group)
 {
+	cout << "Enter: " << __FILE__ << ", " << __PRETTY_FUNCTION__ << endl;
 	if (next_nr) {
 		AbstractNamedRange * ptr_AbstractNamedRange = next_nr;
 		while (ptr_AbstractNamedRange->next_nr) {
@@ -106,11 +107,18 @@ void NamedRangeList::AddStub (string p_text, int p_code, int p_index_in_group)
 			struct stub_pair pair1 (p_text, p_code, true, p_index_in_group);
 			nl->stubs.push_back (pair1);
 			ptr_AbstractNamedRange->next_nr = nl;
+		} else {
+			cerr << "unhandled case: " << __FILE__ << ", "
+				<< __LINE__ << ", "
+				<< __PRETTY_FUNCTION__ 
+				<< endl;
+			exit(1);
 		}
 	} else {
 		struct stub_pair pair1 (p_text, p_code, true, p_index_in_group);
 		stubs.push_back (pair1);
 	}
+	cout << "Exit: " << __FILE__ << ", " << __PRETTY_FUNCTION__ << endl;
 }
 
 void NamedRangeList::AddGroup (NamedRangeGroup & p_group, int p_index_in_group)
