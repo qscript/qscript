@@ -181,9 +181,9 @@ void NamedRangeGroup::SaveRandomizedOrderToDisk()
 {
 	cout << "{ " << groupName_ << ": ";
 	bool last_item_was_nrg = true; // I am the last Item and I am an NRG
-	//{ grp_2: { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }   }
+	//{ grp_2: { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }
 	// other wise the output would be like this
-	//{ grp_2: ; { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }   }
+	//{ grp_2: ; { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }
 	//         ^
 	//         | ---- this is wrong
 	for (int i=0; i<randomized_order.size(); ++i) {
@@ -205,6 +205,40 @@ void NamedRangeGroup::SaveRandomizedOrderToDisk()
 	} else {
 		cout << "; }  ";
 	}
+}
+
+string NamedRangeGroup::GetRandomizedOrder()
+{
+	stringstream randomized_order_str;
+	randomized_order_str << "{ " << groupName_ << ": ";
+	bool last_item_was_nrg = true; // I am the last Item and I am an NRG
+	//{ grp_2: { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }
+	// other wise the output would be like this
+	//{ grp_2: ; { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }
+	//         ^
+	//         | ---- this is wrong
+	for (int i=0; i<randomized_order.size(); ++i) {
+		NamedRangeGroup * nrg = dynamic_cast<NamedRangeGroup*> (stub_grp_vec[randomized_order[i]]);
+		if (nrg) {
+			if (last_item_was_nrg) {
+			} else {
+				randomized_order_str << "; ";
+			}
+			string s1 = nrg->GetRandomizedOrder();
+			randomized_order_str << s1;
+			last_item_was_nrg = true;
+		} else {
+			randomized_order_str << " " << randomized_order[i];
+			last_item_was_nrg = false;
+		}
+	}
+	if (last_item_was_nrg) {
+		randomized_order_str << " }  ";
+	} else {
+		randomized_order_str << "; }  ";
+	}
+
+	return randomized_order_str.str();
 }
 
 /*  This function has been badly hacked together to get the :

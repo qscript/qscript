@@ -164,6 +164,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 	// after calling Vectorize on the group
 	void Randomize();
 	void SaveRandomizedOrderToDisk();
+	string GetRandomizedOrder();
 	private:
 		NamedRangeGroup& operator=(const NamedRangeGroup&);
 		NamedRangeGroup (const NamedRangeGroup&);

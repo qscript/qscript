@@ -180,20 +180,22 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
 
-	fprintf(script, "struct TheQuestionnaire\n{\n");
-	fprintf(script, "AbstractQuestion * last_question_answered;\n");
-	fprintf(script, "AbstractQuestion * last_question_visited;\n");
-	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
-	fprintf(script, "fstream messages;\n");
-	fprintf(script, "bool back_jump;\n");
-	fprintf(script, "string jno;\n" );
-	fprintf(script, "int ser_no;\n");
-	fprintf(script, "bool stopAtNextQuestion;\n");
-	fprintf(script, "int32_t questions_start_from_here_index;\n" );
-	fprintf(script, "int ser_no_pos;\n");
+	fprintf (script, "struct TheQuestionnaire\n{\n");
+	fprintf (script, "AbstractQuestion * last_question_answered;\n");
+	fprintf (script, "AbstractQuestion * last_question_visited;\n");
+	fprintf (script, "vector <AbstractQuestion*> question_list;\n");
+	fprintf (script, "fstream messages;\n");
+	fprintf (script, "bool back_jump;\n");
+	fprintf (script, "string jno;\n" );
+	fprintf (script, "int ser_no;\n");
+	fprintf (script, "bool stopAtNextQuestion;\n");
+	fprintf (script, "int32_t questions_start_from_here_index;\n");
+	fprintf (script, "int ser_no_pos;\n");
 	fprintf (script, " 	string jumpToQuestion;\n");
 	fprintf (script, " 	int32_t jumpToIndex;\n");
-	fprintf(script, "vector <BaseText> base_text_vec;\n");
+	fprintf (script, "vector <BaseText> base_text_vec;\n");
+	fprintf (script, "map<string, NamedRangeGroup*> nrg_stub_map;\n");
+
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
 	fprintf(script, " /* length(): %d */", code.quest_defns_constructor.str().length() );
@@ -1029,6 +1031,12 @@ const char * write_data_to_disk_code()
 	"\t		question_list[i]->input_data.clear();\n"
 	"\t		*/\n"
 	"\t	}\n"
+	"\tfor (map<string, NamedRangeGroup *> ::iterator it = nrg_stub_map.begin();\n"
+	"\t			it != nrg_stub_map.end(); ++it) {\n"
+	"\t		string random_order = it->second->GetRandomizedOrder();\n"
+	"\t		data_file << random_order << endl;\n"
+	"\t	}\n"
+
 	"\t	data_file.flush();\n"
 	"\t	data_file.close();\n"
 	"\t	//fclose(fptr);\n"
