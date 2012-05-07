@@ -2248,7 +2248,8 @@ void RandomizeStatement::GenerateCode (StatementCompiledCode & code)
 		<< stubGroupName_ << ".Vectorize (&"
 		<< stubGroupName_ << ", " << stubGroupName_ << ".stub_grp_vec);"
 		<< endl
-		<< stubGroupName_ << ".Randomize ();"
+		<< stubGroupName_ << ".Randomize ();\n"
+		<< "nrg_stub_map[\""<< stubGroupName_ << "\"] = &" << stubGroupName_  << ";\n"
 		<< endl;
 	if (next_) {
 		next_->GenerateCode(code);
