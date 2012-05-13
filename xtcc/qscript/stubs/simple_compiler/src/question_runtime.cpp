@@ -590,6 +590,7 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 			     , /*qs_ncurses::*/WINDOW* data_entry_window
 			     , WINDOW * error_msg_window)
 {
+	//fstream file_display_stubs_log("file_display_stubs.log", ios_base::out|ios_base::app);
 
 	int32_t currXpos = 1, currYpos = stubStartYIndex_;
 	
@@ -609,9 +610,10 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 	//wmove(data_entry_window, 1, 1);
 	update_panels ();
 	doupdate ();
+	//file_display_stubs_log << "currentPage_: " << currentPage_ << endl;
 	for (uint32_t i = pageIndices_[currentPage_].first; i <= pageIndices_[currentPage_].second; ++i) {
 		if (vec[i].mask) {
-			//cout << vec[i].stub_text << ": " << vec[i].code << endl;
+			//file_display_stubs_log << vec[i].stub_text << ": " << vec[i].code << endl;
 			//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
 			set<int32_t>::iterator found = input_data.find(vec[i].code);
 			if (found != input_data.end()) {
