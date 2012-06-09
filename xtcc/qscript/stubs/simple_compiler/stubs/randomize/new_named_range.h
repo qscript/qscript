@@ -47,6 +47,7 @@ struct AbstractNamedRange: public AbstractStatement
 	virtual void AddGroup (NamedRangeGroup & p_group, int p_index_in_group)=0;
 	virtual void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) = 0;
 	virtual void VectorizePrint (AbstractNamedRange * invoker) = 0;
+	virtual void TransferRandomizationOrder(vector<int> & p_randomized_order) = 0;
 };
 
 
@@ -65,6 +66,21 @@ struct NamedRangeList: public AbstractNamedRange
 		if (next_nr) {
 			next_nr->Print();
 		}
+	}
+
+	void TransferRandomizationOrder(vector<int> & p_randomized_order)
+	{
+		cout << "ENTER: " << __PRETTY_FUNCTION__ << endl;
+		for (int i=0; i<stubs.size(); ++i) {
+			cout << stubs[i].stub_text << ", " << stubs[i].code 
+				<< ", index_in_group: " << stubs[i].index_in_group
+				<< endl;
+			p_randomized_order.push_back(stubs[i].code);
+		}
+		if (next_nr) {
+			next_nr->TransferRandomizationOrder(p_randomized_order);
+		}
+		cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
 	}
 
 	//void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
@@ -91,6 +107,7 @@ struct NamedRangeList: public AbstractNamedRange
 				<< endl;
 		}
 	}
+
 };
 
 struct NamedRangeGroup: public AbstractNamedRange
@@ -116,6 +133,19 @@ struct NamedRangeGroup: public AbstractNamedRange
 		if (next_nr) {
 			next_nr->Print();
 		}
+	}
+
+	void TransferRandomizationOrder(vector<int> & p_randomized_order)
+	{
+		cout << "ENTER: " << __PRETTY_FUNCTION__ << endl;
+		if (groupPtr_) {
+			groupPtr_->TransferRandomizationOrder(p_randomized_order);
+		}
+		cout << "======" << endl;
+		if (next_nr) {
+			next_nr->TransferRandomizationOrder(p_randomized_order);
+		}
+		cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
 	}
 
 	void SimplePrint()
@@ -150,6 +180,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 	// after calling Vectorize on the group
 	void Randomize();
 	void SaveRandomizedOrderToDisk();
+
 };
 
 struct NamedRangeStub : public AbstractNamedRange
@@ -180,6 +211,10 @@ struct NamedRangeStub : public AbstractNamedRange
 	void VectorizePrint (AbstractNamedRange * invoker)
 	{
 		Print();
+	}
+	void TransferRandomizationOrder(vector<int> & p_randomized_order)
+	{
+
 	}
 
 };
