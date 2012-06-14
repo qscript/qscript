@@ -27,7 +27,7 @@
 [ \t\r]+	; /* ignore */
 \n	{ ++qtm_datafile_conf_parser_ns::line_no; }
 
-[1-9][0-9]*	{
+[0-9]+	{
 	qtm_datafile_conf_lval.ival = atoi(yytext);
 	return INUMBER;
 }

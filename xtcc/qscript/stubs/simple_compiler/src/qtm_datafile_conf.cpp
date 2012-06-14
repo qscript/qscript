@@ -1401,7 +1401,7 @@ yyreduce:
 /* Line 1455 of yacc.c  */
 #line 50 "src/qtm_datafile_conf.ypp"
     {
-		if (! ((yyvsp[(3) - (4)].ival) == 1 || (yyvsp[(3) - (4)].ival) == 2 || (yyvsp[(3) - (4)].ival) == 3) ) {
+		if (! ((yyvsp[(3) - (4)].ival) == 0 || (yyvsp[(3) - (4)].ival) == 1 || (yyvsp[(3) - (4)].ival) == 2) ) {
 			std::cerr << "READ_EQ mode can be 0, 1 or 2 only\n";
 			exit(1);
 		} else {
