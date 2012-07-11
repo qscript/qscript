@@ -830,17 +830,23 @@ YY_RULE_SETUP
 	//cout << "buff: " <<buff << endl;
 	string s = pre_sym_tab[buff];
 	//cout << s << endl;
-	cout << s ;
+	cout 	//<< "|" 
+		<< s 
+		//<< "|" 
+		;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 55 "xtpp.l"
-{ ECHO; }
+#line 58 "xtpp.l"
+{ 
+	//cout << "."; 
+	ECHO; 
+	}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 57 "xtpp.l"
+#line 63 "xtpp.l"
 {
 	//cout << "ign ' ' and TAB in INCLUDE mode\n";
 }
@@ -848,7 +854,7 @@ YY_RULE_SETUP
 case 7:
 /* rule 7 can match eol */
 YY_RULE_SETUP
-#line 61 "xtpp.l"
+#line 67 "xtpp.l"
 {
 	cerr << "#include directive without FILENAME\n";
 	++pre_proc_err;
@@ -858,7 +864,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 68 "xtpp.l"
+#line 74 "xtpp.l"
 {
 	//cout << "lexer: FILENAME\n";
 	if(yyleng < MAX_BUF){
@@ -872,7 +878,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 80 "xtpp.l"
+#line 86 "xtpp.l"
 {
 	BEGIN SUBST_ONE;
 	return SEMI_COLON;
@@ -881,15 +887,16 @@ YY_RULE_SETUP
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 85 "xtpp.l"
+#line 91 "xtpp.l"
 {
 	BEGIN 0;
+	ECHO;
 	return NEWL;
 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 90 "xtpp.l"
+#line 97 "xtpp.l"
 {
 	BEGIN SUBST_TWO;
 	//cout << "lexer: SUBST_ID\n";
@@ -905,23 +912,29 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 103 "xtpp.l"
+#line 110 "xtpp.l"
 {}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 105 "xtpp.l"
+#line 112 "xtpp.l"
 {
 	return EQUALS;
 }
 	YY_BREAK
+/*<SUBST_TWO>"\""[^"\n]*"\""	*/
 case 14:
 YY_RULE_SETUP
-#line 109 "xtpp.l"
+#line 117 "xtpp.l"
 {
 	//cout << "lexer: SUBST_TEXT\n";
+	//cout << "|" << yytext << "|" << endl;
 	if(yyleng < MAX_BUF){
-		strcpy(yylval.subst_txt, yytext);
+		strncpy(yylval.subst_txt, yytext+1, yyleng-2);
+		yylval.subst_txt[yyleng-2]='\0';
+
+		string s (yylval.subst_txt);
+		//cout << "subst text(xtpp.l): " <<  "|" << s  << "|" << endl;
 	} else {
 		cout << "id name too long\n";
 		exit(1);
@@ -931,7 +944,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 120 "xtpp.l"
+#line 133 "xtpp.l"
 {
 	BEGIN SUBST_ONE;
 	return SEMI_COLON;
@@ -940,7 +953,7 @@ YY_RULE_SETUP
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 125 "xtpp.l"
+#line 138 "xtpp.l"
 {
 	BEGIN 0;
 	return NEWL;
@@ -950,7 +963,7 @@ case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(INCLUDE):
 case YY_STATE_EOF(SUBST_ONE):
 case YY_STATE_EOF(SUBST_TWO):
-#line 130 "xtpp.l"
+#line 143 "xtpp.l"
 {
 	if(--incl_stk_ptr <0){
 		yyterminate();
@@ -962,10 +975,10 @@ case YY_STATE_EOF(SUBST_TWO):
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 139 "xtpp.l"
+#line 152 "xtpp.l"
 ECHO;
 	YY_BREAK
-#line 969 "lex.yy.c"
+#line 982 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1961,7 +1974,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 139 "xtpp.l"
+#line 152 "xtpp.l"
 
 
 

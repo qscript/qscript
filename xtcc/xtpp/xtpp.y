@@ -88,6 +88,7 @@ subst_list:	subst
 	;
 
 subst:	SUBST_ID EQUALS SUBST_TEXT SEMI_COLON {
+     		//cout << "storing : " << $1 << "=" << $3 << endl;
 		pre_sym_tab[$1]=$3;
 	}
 	;

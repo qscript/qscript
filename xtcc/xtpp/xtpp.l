@@ -49,10 +49,16 @@
 	//cout << "buff: " <<buff << endl;
 	string s = pre_sym_tab[buff];
 	//cout << s << endl;
-	cout << s ;
+	cout 	//<< "|" 
+		<< s 
+		//<< "|" 
+		;
 }
 
-.	{ ECHO; }
+.	{ 
+	//cout << "."; 
+	ECHO; 
+	}
 
 <INCLUDE>[ \t]+	{
 	//cout << "ign ' ' and TAB in INCLUDE mode\n";
@@ -84,6 +90,7 @@
 
 <SUBST_ONE>\n	{
 	BEGIN 0;
+	ECHO;
 	return NEWL;
 }
 
@@ -106,10 +113,16 @@
 	return EQUALS;
 }
 
+	/*<SUBST_TWO>"\""[^"\n]*"\""	*/
 <SUBST_TWO>"\""[^"\n]*"\""	{
 	//cout << "lexer: SUBST_TEXT\n";
+	//cout << "|" << yytext << "|" << endl;
 	if(yyleng < MAX_BUF){
-		strcpy(yylval.subst_txt, yytext);
+		strncpy(yylval.subst_txt, yytext+1, yyleng-2);
+		yylval.subst_txt[yyleng-2]='\0';
+
+		string s (yylval.subst_txt);
+		//cout << "subst text(xtpp.l): " <<  "|" << s  << "|" << endl;
 	} else {
 		cout << "id name too long\n";
 		exit(1);
