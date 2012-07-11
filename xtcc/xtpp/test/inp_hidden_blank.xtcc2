@@ -1,0 +1,72 @@
+data_struct;rec_len=101;
+ed_start
+	int32_t edit_data();
+	int32_t all;
+	int32_t ser_no;
+int32_t q1_1_data;
+int32_t q1_2_arr[6];
+int32_t q1_3_arr[6];
+int32_t q_tot_aw_arr[6];
+int32_t q2_1_arr[6];
+int32_t q2_2_arr[6];
+	int32_t edit_data()
+{
+	all = 1;
+	ser_no = c[0,3];
+	q1_1_data = c [4, 7];
+	fld q1_2_arr = c (8, 27) : 4;
+	fld q1_3_arr = c (28, 47) : 4;
+	fld q_tot_aw_arr = c (48, 67) : 4;
+	fld q2_1_arr = c (68, 83) : 4;
+	fld q2_2_arr = c (84, 99) : 4;
+	}
+ed_end
+tabstart {
+tab q1_1 tot_ax;
+tab q1_2 tot_ax;
+tab q1_3 tot_ax;
+tab q_tot_aw tot_ax;
+tab q2_1 tot_ax;
+tab q2_2 tot_ax;
+}
+axstart {
+ax tot_ax;
+ttl; "Total";
+cnt; "All"; c= all==1;
+
+ax q1_1;
+ttl; "q1_1. Q1.1 Which brands are you aware of - unaided TOM";
+
+#include base.xin;btxt="Total";
+#include brand_list.sin; var1="q1_1_data";
+
+ax q1_2;
+ttl; "q1_2. Q1.2 Which brands are you aware of - unaided other mentions";
+
+#include base.xin;btxt="Total";
+#include brand_list.min; var1="q1_2_arr";
+
+ax q1_3;
+ttl; "q1_3. Q1. Which brands are you aware of - aided";
+
+#include base.xin;btxt="Total";
+#include brand_list.min; var1="q1_3_arr";
+
+ax q_tot_aw;
+ttl; "q_tot_aw. Total awareness of brands";
+
+#include base.xin;btxt="Total";
+#include brand_list.min; var1="q_tot_aw_arr";
+
+ax q2_1;
+ttl; "q2_1. Which brands do you use";
+
+#include base.xin;btxt="Total";
+#include brand_list.min; var1="q2_1_arr";
+
+ax q2_2;
+ttl; "q2_2. Which brands do you use most often";
+
+#include base.xin;btxt="Total";
+#include brand_list.min; var1="q2_2_arr";
+}
