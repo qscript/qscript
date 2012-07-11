@@ -1,0 +1,5 @@
+cnt; "Brand 1"; c= $var1; [1] > 0;
+cnt; "Brand 2"; c= $var1; [2] > 0;
+cnt; "Brand 3"; c= $var1; [3] > 0;
+cnt; "Brand 4"; c= $var1; [4] > 0;
+cnt; "Brand 5"; c= $var1; [5] > 0;
