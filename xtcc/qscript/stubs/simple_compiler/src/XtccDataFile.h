@@ -107,6 +107,243 @@ public:
 		map_file << start_pos << ",	";
 		map_file << start_pos + totalLength_ -1  << "\n";
 	}
+	void print_xtcc_include_file (fstream & xtcc_ax_file, string setup_dir)
+	{
+		static set<string, less<string> > set_include_file;
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
+			if (set_include_file.find (nq->nr_ptr->name) != set_include_file.end()) {
+			} else {
+				string inc_file_name(setup_dir + nq->nr_ptr->name);
+				if (nq->no_mpn == 1) {
+					inc_file_name += ".sin";
+				} else {
+					inc_file_name += ".min";
+				}
+				fstream inc_file (inc_file_name.c_str(), std::ios_base::out | std::ios_base::ate);
+				for (int i=0; i<nq->nr_ptr->stubs.size(); ++i) {
+					inc_file << "cnt; " << "\""
+						<< nq->nr_ptr->stubs[i].stub_text
+						<< "\""
+						<< "; c=";
+					/* 
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							inc_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					 */
+					if (nq->no_mpn==1) { 
+						inc_file 
+							// << "_data"
+							<< " $var1; " 
+							<< " == "
+							<< nq->nr_ptr->stubs[i].code 
+							<< ";" 
+							<< endl;
+					} else {
+						inc_file 
+							// << "_arr["
+							//<< nq->nr_ptr->stubs[i].code 
+							//<< "]"
+							<< " $var1; " 
+							<< "["
+							<< nq->nr_ptr->stubs[i].code 
+							<< "]"
+							<< " > 0"
+							<< ";" 
+							<< endl;
+					}
+				}
+
+				set_include_file.insert(inc_file_name);
+			}
+		}
+	}
+
+	void print_xtcc_ax2(fstream & xtcc_ax_file, string setup_dir)
+	{
+		xtcc_ax_file 
+			<< endl
+			<< "ax " << q_->questionName_ ;
+
+		if (q_->loop_index_values.size())
+		{
+			for (int i=0; i< q_->loop_index_values.size(); ++i)
+			{
+				xtcc_ax_file << "_" << q_->loop_index_values[i];
+			}
+		}
+		xtcc_ax_file << ";" << endl
+			<< "ttl; " << "\"" << q_->questionName_ 
+			<< "." 
+			<< q_->questionText_ 
+			<< "\";" 
+			<< endl << endl;
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
+			//xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
+			xtcc_ax_file << "#include base.xin;btxt=\"Total\";" << endl;
+			print_xtcc_include_file (xtcc_ax_file, setup_dir);
+			named_range * nr_ptr = nq->nr_ptr;
+			if (nq->no_mpn == 1) {
+				xtcc_ax_file << "#include " << nr_ptr->name << ".sin;" ;
+			} else {
+				xtcc_ax_file << "#include " << nr_ptr->name << ".min;" ;
+			}
+			/*
+			for (int i=0; i<nr_ptr->stubs.size(); ++i) {
+			*/
+				xtcc_ax_file 
+					//<< "cnt; " << "\""
+					//<< nr_ptr->stubs[i].stub_text
+					//<< "\""
+					//<< "; c="
+					//<< "; c="
+					<< " var1=\""
+					<< q_->questionName_;
+				if (q_->loop_index_values.size())
+				{
+					for (int i=0; i< q_->loop_index_values.size(); ++i)
+					{
+						xtcc_ax_file << "_" << q_->loop_index_values[i];
+					}
+				}
+				if (nq->no_mpn==1) { 
+					//xtcc_ax_file << "_data == "
+					//	<< nr_ptr->stubs[i].code 
+					//	<< ";" 
+					//	<< endl;
+
+					xtcc_ax_file << "_data\""
+						//<< nr_ptr->stubs[i].code 
+						<< ";" 
+						<< endl;
+				} else {
+					//xtcc_ax_file << "_arr["
+					//	<< nr_ptr->stubs[i].code 
+					//	<< "]"
+					//	<< " > 0"
+					//	<< ";" 
+					//	<< endl;
+
+					xtcc_ax_file << "_arr\""
+						<< ";" 
+						<< endl;
+				}
+			/*
+			}
+			*/
+		} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q_)) {
+			xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
+			set<int32_t> & indiv = rq->r_data->indiv;
+			for (set<int32_t>::iterator it1 = indiv.begin();
+					it1 != indiv.end(); ++it1) {
+				xtcc_ax_file << "cnt; " << "\""
+					<< *it1 
+					<< "\""
+					<< "; c="
+					<< q_->questionName_;
+				if (q_->loop_index_values.size())
+				{
+					for (int i=0; i< q_->loop_index_values.size(); ++i)
+					{
+						xtcc_ax_file << "_" << q_->loop_index_values[i];
+					}
+				}
+				//xtcc_ax_file << "_data == "
+				//	<< *it1
+				//	<< ";" 
+				//	<< endl;
+				if (rq->no_mpn==1) { 
+					xtcc_ax_file << "_data == "
+						<< *it1
+						<< ";" 
+						<< endl;
+				} else {
+					xtcc_ax_file << "_arr["
+						<< *it1
+						<< "]"
+						<< " == "
+						<< *it1
+						<< ";" 
+						<< endl;
+				}
+			}
+			vector < pair<int32_t,int32_t> > range
+				= rq->r_data->range;
+			if (rq->no_mpn==1) {
+				for (int i=0; i<range.size(); ++i) {
+					xtcc_ax_file << "cnt; " << "\""
+						<< range[i].first 
+						<< " - "
+						<< range[i].second
+						<< "\""
+						<< "; c="
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							xtcc_ax_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					xtcc_ax_file << "_data >= "
+						<< range[i].first
+						<< " && "
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							xtcc_ax_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					xtcc_ax_file << "_data <= "
+						<< range[i].second
+						<< ";" 
+						<< endl;
+				}
+			} else {
+				xtcc_ax_file << "cnt; " << "\"all\"; c= all == 1;\n";
+				/*
+
+				for (int i=0; i<range.size(); ++i) {
+					xtcc_ax_file << "cnt; " << "\""
+						<< range[i].first 
+						<< " - "
+						<< range[i].second
+						<< "\""
+						<< "; c="
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							xtcc_ax_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					xtcc_ax_file << "_arr >= "
+						<< range[i].first
+						<< " && "
+						<< q_->questionName_;
+					if (q_->loop_index_values.size())
+					{
+						for (int i=0; i< q_->loop_index_values.size(); ++i)
+						{
+							xtcc_ax_file << "_" << q_->loop_index_values[i];
+						}
+					}
+					xtcc_ax_file << "_arr <= "
+						<< range[i].second
+						<< ";" 
+						<< endl;
+				}
+				*/
+			}
+		}
+	}
 
 	void print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir)
 	{
