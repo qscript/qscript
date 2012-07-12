@@ -745,6 +745,8 @@ void	generate_edit_section_code()
 	fprintf(global_vars, "#include <sys/types.h>\n");
 	fprintf(global_vars, "#include <map>\n using namespace std;\n");
 	fprintf(global_vars, "#include \"mean_stddev_struct.h\"\n");
+	fprintf (global_vars, "#include <cstdlib>\n");
+	fprintf (global_vars, "FILE * runtime_errors = 0;\n");
 	fprintf(global_vars, "void print_list_counts();\n");
 	fprintf(global_vars, "void tab_compute();\n");
 	fprintf(global_vars, "void tab_summ();\n");

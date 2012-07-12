@@ -14,6 +14,7 @@ int read_data(int fd, struct stat &file_info_stat, int rec_len);
 int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len);
 int main(int argc, char * argv[]){
 	xtcc_stdout=fopen(xtcc_stdout_fname.c_str(), "w");
+	runtime_errors = fopen("runtime_errors.log", "w");
 	if(xtcc_stdout==0){
 		cerr << "Unable to open " << xtcc_stdout_fname.c_str() << " as stdout exiting" << endl;
 		exit(1);

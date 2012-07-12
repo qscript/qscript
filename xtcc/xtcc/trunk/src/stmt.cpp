@@ -775,11 +775,16 @@ void FieldStatement::GenerateCode(FILE * & fptr)
 	}
 	fprintf(fptr,"\t\tif(tmp>=1 && tmp <=%d){\n", lhsSymbolTableEntry_->n_elms);
 	fprintf(fptr,"\t\t\t++%s[tmp];\n", lhsSymbolTableEntry_->name_);
+	// in arr position 0 incr 1 if this variable has any data.
+	// hence position 0 will have a count of how many responses were there
+	// this is used in the axes section to tabulate - as a total answering base
+	fprintf(fptr,"\t\t\t++%s[0];\n", lhsSymbolTableEntry_->name_);
 	fprintf(fptr,"\t\t} else if (tmp == 0) {\n");
 	// ignore tmp == 0 for now - later maybe create a blank variable indicator or something
 	fprintf(fptr,"\t\t} else {\n");
-	fprintf(fptr,"\t\t\tprintf(\" runtime warning: code: %%d at variable: %s too big to fit in array. ser_no: %%d incrementing count in position 0 of array \\n\", tmp, ser_no);\n", lhsSymbolTableEntry_->name_);
-	fprintf(fptr,"\t\t\t++%s[0];\n", lhsSymbolTableEntry_->name_);
+	fprintf(fptr,"\t\t\tfprintf(runtime_errors, \" runtime warning: code: %%d at variable: %s too big to fit in array. ser_no: %%d \\n\", tmp, ser_no);\n", lhsSymbolTableEntry_->name_);
+	// this technique is not used anymore - instead we log an entry into runtime errors
+	//fprintf(fptr,"\t\t\t++%s[0];\n", lhsSymbolTableEntry_->name_);
 	fprintf(fptr,"\t\t}\n;");
 	
 	fprintf(fptr, "}} \n");
