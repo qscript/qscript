@@ -110,15 +110,16 @@ public:
 	void print_xtcc_include_file (fstream & xtcc_ax_file, string setup_dir)
 	{
 		static set<string, less<string> > set_include_file;
+
 		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
-			if (set_include_file.find (nq->nr_ptr->name) != set_include_file.end()) {
+			string inc_file_name(setup_dir + nq->nr_ptr->name);
+			if (nq->no_mpn == 1) {
+				inc_file_name += ".sin";
 			} else {
-				string inc_file_name(setup_dir + nq->nr_ptr->name);
-				if (nq->no_mpn == 1) {
-					inc_file_name += ".sin";
-				} else {
-					inc_file_name += ".min";
-				}
+				inc_file_name += ".min";
+			}
+			if (set_include_file.find (inc_file_name) != set_include_file.end()) {
+			} else {
 				fstream inc_file (inc_file_name.c_str(), std::ios_base::out | std::ios_base::ate);
 				for (int i=0; i<nq->nr_ptr->stubs.size(); ++i) {
 					inc_file << "cnt; " << "\""
@@ -163,6 +164,35 @@ public:
 		}
 	}
 
+	string print_xtcc_ax_data_variable_name()
+	{
+		stringstream ax_data_variable_name;
+
+		ax_data_variable_name	<< q_->questionName_;
+		if (q_->loop_index_values.size()) {
+			for (int i=0; i< q_->loop_index_values.size(); ++i)
+			{
+				ax_data_variable_name << "_" << q_->loop_index_values[i];
+			}
+		}
+		if (q_->no_mpn==1) { 
+			//xtcc_ax_file << "_data == "
+			//	<< nr_ptr->stubs[i].code 
+			//	<< ";" 
+			//	<< endl;
+			ax_data_variable_name << "_data" ;
+		} else {
+			//xtcc_ax_file << "_arr["
+			//	<< nr_ptr->stubs[i].code 
+			//	<< "]"
+			//	<< " > 0"
+			//	<< ";" 
+			//	<< endl;
+			ax_data_variable_name << "_arr";
+		}
+		return ax_data_variable_name.str();
+	}
+
 	void print_xtcc_ax2(fstream & xtcc_ax_file, string setup_dir)
 	{
 		xtcc_ax_file 
@@ -171,12 +201,22 @@ public:
 
 		if (q_->loop_index_values.size())
 		{
-			for (int i=0; i< q_->loop_index_values.size(); ++i)
-			{
+			for (int i=0; i< q_->loop_index_values.size(); ++i) {
 				xtcc_ax_file << "_" << q_->loop_index_values[i];
 			}
 		}
-		xtcc_ax_file << ";" << endl
+		string ax_data_variable_name = print_xtcc_ax_data_variable_name();
+		if (q_->no_mpn == 1) {
+			xtcc_ax_file << "; c=" 
+				<< ax_data_variable_name << " > 0 ;"
+				<< endl;
+		} else {
+			xtcc_ax_file << "; c=" 
+				<< ax_data_variable_name << "[0]" << " > 0 ;"
+				<< endl;
+		}
+
+		xtcc_ax_file
 			<< "ttl; " << "\"" << q_->questionName_ 
 			<< "." 
 			<< q_->questionText_ 
@@ -195,43 +235,18 @@ public:
 			/*
 			for (int i=0; i<nr_ptr->stubs.size(); ++i) {
 			*/
-				xtcc_ax_file 
-					//<< "cnt; " << "\""
-					//<< nr_ptr->stubs[i].stub_text
-					//<< "\""
-					//<< "; c="
-					//<< "; c="
-					<< " var1=\""
-					<< q_->questionName_;
-				if (q_->loop_index_values.size())
-				{
-					for (int i=0; i< q_->loop_index_values.size(); ++i)
-					{
-						xtcc_ax_file << "_" << q_->loop_index_values[i];
-					}
-				}
-				if (nq->no_mpn==1) { 
-					//xtcc_ax_file << "_data == "
-					//	<< nr_ptr->stubs[i].code 
-					//	<< ";" 
-					//	<< endl;
 
-					xtcc_ax_file << "_data\""
-						//<< nr_ptr->stubs[i].code 
-						<< ";" 
-						<< endl;
-				} else {
-					//xtcc_ax_file << "_arr["
-					//	<< nr_ptr->stubs[i].code 
-					//	<< "]"
-					//	<< " > 0"
-					//	<< ";" 
-					//	<< endl;
+			xtcc_ax_file 
+				//<< "cnt; " << "\""
+				//<< nr_ptr->stubs[i].stub_text
+				//<< "\""
+				//<< "; c="
+				//<< "; c="
+				<< " var1=\""
+				<< ax_data_variable_name
+				<< "\";"
+				<< endl;
 
-					xtcc_ax_file << "_arr\""
-						<< ";" 
-						<< endl;
-				}
 			/*
 			}
 			*/
@@ -259,7 +274,7 @@ public:
 				if (rq->no_mpn==1) { 
 					xtcc_ax_file << "_data == "
 						<< *it1
-						<< ";" 
+						<< ";/*  ------------------- */" 
 						<< endl;
 				} else {
 					xtcc_ax_file << "_arr["
@@ -267,7 +282,7 @@ public:
 						<< "]"
 						<< " == "
 						<< *it1
-						<< ";" 
+						<< "; /*  =================== */" 
 						<< endl;
 				}
 			}
