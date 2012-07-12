@@ -371,9 +371,38 @@ void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
 			fprintf(op, "} tab_%s_%s;\n",
 				map_iter_s->first.c_str(), map_iter_b->first.c_str()
 				);
-			fprintf(tab_drv_func, "\ttab_%s_%s.compute();\n",
-				map_iter_s->first.c_str(), map_iter_b->first.c_str()
-				);
+			if (map_iter_s->second->filter && map_iter_b->second->filter) {
+				ostringstream code_bef_expr1, code_expr1;
+				map_iter_s->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
+				
+				ostringstream code_bef_expr2, code_expr2;
+				map_iter_b->second->filter->PrintExpressionCode (code_bef_expr2, code_expr2);
+				fprintf (tab_drv_func, "if ( %s && %s ) { \n", code_expr1.str().c_str(), code_expr2.str().c_str());
+				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+					map_iter_s->first.c_str(), map_iter_b->first.c_str()
+					);
+				fprintf (tab_drv_func, "}\n");
+			} else if (map_iter_s->second->filter) {
+				ostringstream code_bef_expr1, code_expr1;
+				map_iter_s->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
+				fprintf (tab_drv_func, "if ( %s ) { \n", code_expr1.str().c_str());
+				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+					map_iter_s->first.c_str(), map_iter_b->first.c_str()
+					);
+				fprintf (tab_drv_func, "}\n");
+			} else if (map_iter_b->second->filter) {
+				ostringstream code_bef_expr1, code_expr1;
+				map_iter_b->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
+				fprintf (tab_drv_func, "if ( %s ) { \n", code_expr1.str().c_str());
+				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+					map_iter_s->first.c_str(), map_iter_b->first.c_str()
+					);
+				fprintf (tab_drv_func, "}\n");
+			} else {
+				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+					map_iter_s->first.c_str(), map_iter_b->first.c_str()
+					);
+			}
 		}
 	}
 
@@ -471,7 +500,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func)
 	fprintf(op, "#include \"ax_stmt_type.h\"\n");
 	fprintf(op, "using namespace std;\n" );
 	fprintf(axes_drv_func, "#include \"my_axes.C\"\n");
-	fprintf(axes_drv_func, "void ax_compute(){\n");
+	fprintf(axes_drv_func, "void ax_compute() /* :-)  */{\n");
 	for(CMAPITER it=ax_map.begin(); it!=ax_map.end(); ++it){
 		//struct ax* l_ax = *it;
 		//cout << "Processing axis: " << it->first.c_str() << endl;
@@ -627,6 +656,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func)
 		*/
 		fprintf(op, "\t}\n");
 		axis_code_str_cpp << "\t}\n";
+		fprintf(op, "\tvoid reset(){\n\t\tflag.reset();\n\t}");
 		fprintf(op, "\tvoid compute(){\n\t\tflag.reset();\n");
 		axis_code_str_h 
 			<< "\tvoid " 
@@ -682,7 +712,18 @@ void print_axis_code(FILE * op, FILE * axes_drv_func)
 		axis_code_str_h
 			<< "} ax_" << it->first
 			<< ";\n";
-		fprintf(axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
+		if (it->second->filter) {
+			//fprintf (axes_drv_func, "/* axis HAS a filter  \n");
+			ostringstream code_bef_expr, code_expr;
+			it->second->filter->PrintExpressionCode (code_bef_expr, code_expr);
+			fprintf (axes_drv_func, "if ( %s ) { \n", code_expr.str().c_str());
+			fprintf (axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
+			fprintf (axes_drv_func, "} else { ax_%s.reset(); }\n", it->first.c_str());
+			fprintf (axes_drv_func, "\n");
+		} else {
+			fprintf (axes_drv_func, "/* axis DOES NOT have a filter  */\n");
+			fprintf(axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
+		}
 		string ax_file_h_name=work_dir+string("/ax_") + it->first + string(".h");
 		FILE * ax_file_h =fopen(ax_file_h_name.c_str(), "wb");
 		fprintf(ax_file_h, "%s\n", axis_code_str_h.str().c_str());
