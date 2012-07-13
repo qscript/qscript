@@ -88,7 +88,7 @@ extern int line_no;
 	using std::cerr;
 /* This is a callback function. The data arguments are ignored
 * in this example. More on callbacks below. */
-GtkWidget * setup_tree_view();
+GtkWidget * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection);
 void hello( GtkWidget *widget, gpointer data )
 {
 	g_print ("Hello World\n");
@@ -117,10 +117,11 @@ void destroy (GtkWidget *widget, gpointer data)
 {
 	gtk_main_quit ();
 }
+
+	void setup_gui();
 int main (int argc, char *argv[])
 {
 	/* GtkWidget is the storage type for widgets */
-	GtkWidget *window;
 	GtkWidget *button;
 	/* This is called in all GTK applications. Arguments are parsed
 	* from the command line and are returned to the application. */
@@ -249,43 +250,8 @@ int main (int argc, char *argv[])
 
 
 	/* create a new window */
-	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	/* When the window is given the "delete_event" signal (this is given
-	* by the window manager, usually by the "close" option, or on the
-	* titlebar), we ask it to call the delete_event () function
-	* as defined above. The data passed to the callback
-	* function is NULL and is ignored in the callback function. */
-	g_signal_connect (G_OBJECT (window), "delete_event",
-	G_CALLBACK (delete_event), NULL);
-	/* Here we connect the "destroy" event to a signal handler.
-	* This event occurs when we call gtk_widget_destroy() on the window,
-	* or if we return FALSE in the "delete_event" callback. */
-	g_signal_connect (G_OBJECT (window), "destroy",
-				G_CALLBACK (destroy), NULL);
-	/* Sets the border width of the window. */
-	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
-	/* Creates a new button with the label "Hello World". */
-	button = gtk_button_new_with_label ("Hello World");
-	GtkWidget * tree = setup_tree_view ();
-	/* When the button receives the "clicked" signal, it will call the
-	* function hello() passing it NULL as its argument. The hello()
-	* function is defined above. */
-	g_signal_connect (G_OBJECT (button), "clicked",
-				G_CALLBACK (hello), NULL);
-	/* This will cause the window to be destroyed by calling
-	* gtk_widget_destroy(window) when "clicked". Again, the destroy
-	* signal could come from here, or the window manager. */
-	g_signal_connect_swapped (G_OBJECT (button), "clicked",
-		G_CALLBACK (gtk_widget_destroy),
-		G_OBJECT (window));
-	/* This packs the button into the window (a gtk container). */
-	gtk_container_add (GTK_CONTAINER (window), tree);
-	gtk_container_add (GTK_CONTAINER (window), button);
-	/* The final step is to display this newly created widget. */
-	gtk_widget_show (button);
-	gtk_widget_show (tree);
-	/* and the window */
-	gtk_widget_show (window);
+	setup_gui();
+
 	/* All GTK applications must have a gtk_main(). Control ends here
 	* and waits for an event to occur (like a key press or
 	* mouse event). */
@@ -293,43 +259,6 @@ int main (int argc, char *argv[])
 	return 0;
 }
 
-#include "Tab.h"
-GtkWidget * setup_tree_view()
-{
-	enum { AXIS_COLUMN, N_COLUMNS };
-	GtkTreeStore * store = gtk_tree_store_new (N_COLUMNS,
-							G_TYPE_STRING);
-
-	GtkTreeIter iter_parent, iter_child;
-
-	extern map <string, Table::ax*> ax_map;
-
-	/* 
-	Table::CMAPITER it = ax_map.begin();
-	if (it != ax_map.end()) {
-		gtk_tree_store_append (store, &iter_parent, NULL);
-		gtk_tree_store_set (store, &iter_parent, 
-					AXIS_COLUMN, it->first.c_str(),
-					-1);
-	}
-	*/
-	for (Table::CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
-		//gtk_tree_store_append (store, &iter_child, &iter_parent);
-		gtk_tree_store_append (store, &iter_parent, NULL);
-		gtk_tree_store_set (store, &iter_parent, 
-					AXIS_COLUMN, it->first.c_str(),
-					-1);
-	}
-
-	GtkWidget * tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
-
-	GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
-	GtkTreeViewColumn * column = gtk_tree_view_column_new_with_attributes ("Axis",
-					renderer, "text", AXIS_COLUMN, NULL);
-	gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
-	gtk_widget_show (tree);
-	return tree;
-}
 void	print_memory_leaks(){
 	using std::cout;
 	using std::endl;
@@ -564,3 +493,253 @@ void print_weighting_code()
 		return;
 	}
 }
+/*  ================ GUI ==================== */
+
+enum { AXIS_COLUMN, N_COLUMNS };
+// Bad !!! global variables, I hope I can get away with this
+GtkTreeStore * main_axes_store;
+GtkTreeStore * side_axes_store;
+GtkTreeStore * top_axes_store;
+GtkTreeSelection * main_axes_selection;
+GtkTreeSelection * side_axes_selection;
+GtkTreeSelection * top_axes_selection;
+
+void add_axes ( GtkWidget *widget, gpointer data)
+{
+        GtkTreeIter iter;
+        GtkTreeModel *model;
+        gchar *ax_name;
+	/* 
+        if (gtk_tree_selection_get_selected (main_axes_selection, &model, &iter))
+        {
+                gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
+                g_print ("You selected axis: %s\n", ax_name);
+                g_free (ax_name);
+        } */
+	GtkTreeSelection * selection = main_axes_selection;
+	if (gtk_tree_selection_count_selected_rows (selection) ) {
+		GList * selected_tree_path = gtk_tree_selection_get_selected_rows (selection, &model);
+		for (GList * gl = selected_tree_path; gl; gl=gl->next) {
+			//GtkTreeRowReference * row_ref = gtk_tree_row_reference_new (model, GtkTreePath (gl->data));
+			int arr_sz = 0;
+			gint * indices = gtk_tree_path_get_indices_with_depth ( (GtkTreePath *) gl->data, &arr_sz);
+			//cout << "arr_sz:" << arr_sz << endl;
+			//for (int i=0; i < arr_sz; ++i) {
+			//	cout << "Path: " << indices[i] << endl;
+			//}
+			if (gtk_tree_model_get_iter (model, &iter, (GtkTreePath *) gl->data)) {
+				gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
+				g_print ("You selected axis: %s\n", ax_name);
+
+				GtkTreeIter iter_parent;
+				gtk_tree_store_append (side_axes_store, &iter_parent, NULL);
+				gtk_tree_store_set (side_axes_store, &iter_parent, 
+							AXIS_COLUMN, ax_name,
+							-1);
+			}
+		}
+	}
+
+}
+
+void remove_axes ( GtkWidget *widget, gpointer data )
+{
+	//g_print ("Hello World\n");
+        GtkTreeIter iter;
+        GtkTreeModel *model;
+        gchar *ax_name;
+	GtkTreeSelection * selection = side_axes_selection;
+	if (gtk_tree_selection_count_selected_rows (selection) ) {
+		GList * selected_tree_path = gtk_tree_selection_get_selected_rows (selection, &model);
+		for (GList * gl = selected_tree_path; gl; gl=gl->next) {
+			//GtkTreeRowReference * row_ref = gtk_tree_row_reference_new (model, GtkTreePath (gl->data));
+			int arr_sz = 0;
+			gint * indices = gtk_tree_path_get_indices_with_depth ( (GtkTreePath *) gl->data, &arr_sz);
+			//cout << "arr_sz:" << arr_sz << endl;
+			//for (int i=0; i < arr_sz; ++i) {
+			//	cout << "Path: " << indices[i] << endl;
+			//}
+			if (gtk_tree_model_get_iter (model, &iter, (GtkTreePath *) gl->data)) {
+				gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
+				// works correctly, doesnt seem to print the right value on screen though
+				//g_print ("You removed axis: %s\n", ax_name);
+				gtk_tree_store_remove (side_axes_store, &iter);
+			}
+		}
+	}
+}
+
+
+void setup_gui()
+{
+	GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size ( (GtkWindow *) window, 460, 620);
+	GtkWidget *scr_window = gtk_scrolled_window_new (NULL, NULL);
+
+
+	GtkWidget* table = gtk_table_new (6, 6, TRUE);
+	/* When the window is given the "delete_event" signal (this is given
+	* by the window manager, usually by the "close" option, or on the
+	* titlebar), we ask it to call the delete_event () function
+	* as defined above. The data passed to the callback
+	* function is NULL and is ignored in the callback function. */
+	g_signal_connect (G_OBJECT (window), "delete_event",
+				G_CALLBACK (delete_event), NULL);
+	/* Here we connect the "destroy" event to a signal handler.
+	* This event occurs when we call gtk_widget_destroy() on the window,
+	* or if we return FALSE in the "delete_event" callback. */
+	g_signal_connect (G_OBJECT (window), "destroy",
+				G_CALLBACK (destroy), NULL);
+	/* Sets the border width of the window. */
+	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+	/* Creates a new button with the label "Hello World". */
+	//button = gtk_button_new_with_label ("Hello World");
+	GtkWidget * main_axes_tree = setup_tree_view (main_axes_store, main_axes_selection);
+	GtkWidget * side_axes_tree = setup_tree_view (side_axes_store, side_axes_selection);
+	GtkWidget * top_axes_tree = setup_tree_view (top_axes_store, top_axes_selection);
+
+	/* Load the main axes store */
+	GtkTreeIter iter_parent, iter_child;
+	for (Table::CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
+		//gtk_tree_store_append (store, &iter_child, &iter_parent);
+		gtk_tree_store_append (main_axes_store, &iter_parent, NULL);
+		gtk_tree_store_set (main_axes_store, &iter_parent, 
+					AXIS_COLUMN, it->first.c_str(),
+					-1);
+	}
+
+	/* When the button receives the "clicked" signal, it will call the
+	* function hello() passing it NULL as its argument. The hello()
+	* function is defined above. */
+	//g_signal_connect (G_OBJECT (button), "clicked",
+	//			G_CALLBACK (hello), NULL);
+	/* This will cause the window to be destroyed by calling
+	* gtk_widget_destroy(window) when "clicked". Again, the destroy
+	* signal could come from here, or the window manager. */
+	//g_signal_connect_swapped (G_OBJECT (button), "clicked",
+	//	G_CALLBACK (gtk_widget_destroy),
+	//	G_OBJECT (window));
+	/* This packs the button into the window (a gtk container). */
+	gtk_container_add (GTK_CONTAINER (window), scr_window);
+	gtk_container_add (GTK_CONTAINER (scr_window), table);
+
+
+	gtk_table_attach_defaults (GTK_TABLE (table), main_axes_tree, 0, 1, 1, 5);
+
+	GtkWidget * add_to_side_tab_button = gtk_button_new_with_label ("Side =>");
+	g_signal_connect (G_OBJECT (add_to_side_tab_button), "clicked",
+				G_CALLBACK (add_axes), NULL);
+	gtk_table_attach_defaults (GTK_TABLE (table), add_to_side_tab_button, 1, 2, 1, 2);
+	gtk_widget_show (add_to_side_tab_button);
+	GtkWidget * remove_from_side_tab_button = gtk_button_new_with_label ("Side <=");
+	gtk_table_attach_defaults (GTK_TABLE (table), remove_from_side_tab_button, 1, 2, 2, 3);
+	g_signal_connect (G_OBJECT (remove_from_side_tab_button), "clicked",
+				G_CALLBACK (remove_axes), NULL);
+	gtk_widget_show (remove_from_side_tab_button);
+
+	gtk_table_attach_defaults (GTK_TABLE (table), side_axes_tree, 2, 3, 1, 5);
+	gtk_table_attach_defaults (GTK_TABLE (table), top_axes_tree,  3, 4, 1, 5);
+
+	//gtk_container_add (GTK_CONTAINER (scr_window), table);
+	//gtk_container_add (GTK_CONTAINER (window), button);
+	/* The final step is to display this newly created widget. */
+	//gtk_widget_show (button);
+	gtk_widget_show (main_axes_tree);
+	gtk_widget_show (side_axes_tree);
+	gtk_widget_show (top_axes_tree);
+	/* and the window */
+	gtk_widget_show (scr_window);
+	gtk_widget_show (window);
+	gtk_widget_show (table);
+
+}
+
+
+#include "Tab.h"
+static void tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data);
+GtkWidget * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection)
+{
+	store = gtk_tree_store_new (N_COLUMNS,
+							G_TYPE_STRING);
+
+	GtkTreeIter iter_parent, iter_child;
+
+
+	/* 
+	extern map <string, Table::ax*> ax_map;
+	Table::CMAPITER it = ax_map.begin();
+	if (it != ax_map.end()) {
+		gtk_tree_store_append (store, &iter_parent, NULL);
+		gtk_tree_store_set (store, &iter_parent, 
+					AXIS_COLUMN, it->first.c_str(),
+					-1);
+	}
+	*/
+
+	/*
+	for (Table::CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
+		//gtk_tree_store_append (store, &iter_child, &iter_parent);
+		gtk_tree_store_append (store, &iter_parent, NULL);
+		gtk_tree_store_set (store, &iter_parent, 
+					AXIS_COLUMN, it->first.c_str(),
+					-1);
+	}
+	*/
+	GtkWidget * tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+
+	GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
+	GtkTreeViewColumn * column = gtk_tree_view_column_new_with_attributes ("Axis",
+					renderer, "text", AXIS_COLUMN, NULL);
+	gtk_tree_view_append_column (GTK_TREE_VIEW (tree), column);
+
+
+	/*  setup the callback selection handlers */
+
+
+/* Prototype for selection handler callback */
+
+/* Setup the selection handler */
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (tree));
+	//gtk_tree_selection_set_mode (main_axes_selection, GTK_SELECTION_SINGLE);
+	gtk_tree_selection_set_mode (selection, GTK_SELECTION_MULTIPLE);
+	g_signal_connect (G_OBJECT (selection), "changed",
+			  G_CALLBACK (tree_selection_changed_cb),
+			  NULL);
+
+	gtk_widget_show (tree);
+	return tree;
+}
+
+static void tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data)
+{
+        GtkTreeIter iter;
+        GtkTreeModel *model;
+        gchar *ax_name;
+
+	/* 
+        if (gtk_tree_selection_get_selected (selection, &model, &iter)) {
+                gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
+                g_print ("You selected axis: %s\n", ax_name);
+                g_free (ax_name);
+        }
+
+	if (gtk_tree_selection_count_selected_rows (selection) ) {
+		GList * selected_tree_path = gtk_tree_selection_get_selected_rows (selection, &model);
+		for (GList * gl = selected_tree_path; gl; gl=gl->next) {
+			//GtkTreeRowReference * row_ref = gtk_tree_row_reference_new (model, GtkTreePath (gl->data));
+			int arr_sz = 0;
+			gint * indices = gtk_tree_path_get_indices_with_depth ( (GtkTreePath *) gl->data, &arr_sz);
+			cout << "arr_sz:" << arr_sz << endl;
+			for (int i=0; i < arr_sz; ++i) {
+				cout << "Path: " << indices[i] << endl;
+			}
+			if (gtk_tree_model_get_iter (model, &iter, (GtkTreePath *) gl->data)) {
+				gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
+				g_print ("You selected axis: %s\n", ax_name);
+			}
+		}
+	}
+	*/
+
+}
+
