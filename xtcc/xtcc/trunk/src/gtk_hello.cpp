@@ -497,6 +497,13 @@ void print_weighting_code()
 
 enum { AXIS_COLUMN, N_COLUMNS };
 // Bad !!! global variables, I hope I can get away with this
+//
+
+struct GUIAxData {
+	GtkTreeStore * axes_store;
+	GtkTreeSelection * axes_selection;
+};
+
 GtkTreeStore * main_axes_store;
 GtkTreeStore * side_axes_store;
 GtkTreeStore * top_axes_store;
@@ -504,7 +511,7 @@ GtkTreeSelection * main_axes_selection;
 GtkTreeSelection * side_axes_selection;
 GtkTreeSelection * top_axes_selection;
 
-void add_axes ( GtkWidget *widget, gpointer data)
+void add_axes( GtkWidget *widget, gpointer data)
 {
         GtkTreeIter iter;
         GtkTreeModel *model;
@@ -517,6 +524,7 @@ void add_axes ( GtkWidget *widget, gpointer data)
                 g_free (ax_name);
         } */
 	GtkTreeSelection * selection = main_axes_selection;
+	GtkTreeStore * store = (GtkTreeStore *) data; 
 	if (gtk_tree_selection_count_selected_rows (selection) ) {
 		GList * selected_tree_path = gtk_tree_selection_get_selected_rows (selection, &model);
 		for (GList * gl = selected_tree_path; gl; gl=gl->next) {
@@ -532,8 +540,12 @@ void add_axes ( GtkWidget *widget, gpointer data)
 				g_print ("You selected axis: %s\n", ax_name);
 
 				GtkTreeIter iter_parent;
-				gtk_tree_store_append (side_axes_store, &iter_parent, NULL);
-				gtk_tree_store_set (side_axes_store, &iter_parent, 
+				//gtk_tree_store_append (side_axes_store, &iter_parent, NULL);
+				gtk_tree_store_append (store, &iter_parent, NULL);
+				//gtk_tree_store_set (side_axes_store, &iter_parent, 
+				//			AXIS_COLUMN, ax_name,
+				//			-1);
+				gtk_tree_store_set (store, &iter_parent, 
 							AXIS_COLUMN, ax_name,
 							-1);
 			}
@@ -542,28 +554,81 @@ void add_axes ( GtkWidget *widget, gpointer data)
 
 }
 
-void remove_axes ( GtkWidget *widget, gpointer data )
+void remove_axes_side( GtkWidget *widget, gpointer data )
 {
 	//g_print ("Hello World\n");
         GtkTreeIter iter;
         GtkTreeModel *model;
         gchar *ax_name;
 	GtkTreeSelection * selection = side_axes_selection;
+	//GtkTreeStore * store = (GtkTreeStore *) data; 
+	GtkTreeStore * store = side_axes_store; 
+	vector <GtkTreePath*> path_vec;
 	if (gtk_tree_selection_count_selected_rows (selection) ) {
 		GList * selected_tree_path = gtk_tree_selection_get_selected_rows (selection, &model);
 		for (GList * gl = selected_tree_path; gl; gl=gl->next) {
 			//GtkTreeRowReference * row_ref = gtk_tree_row_reference_new (model, GtkTreePath (gl->data));
 			int arr_sz = 0;
 			gint * indices = gtk_tree_path_get_indices_with_depth ( (GtkTreePath *) gl->data, &arr_sz);
-			//cout << "arr_sz:" << arr_sz << endl;
-			//for (int i=0; i < arr_sz; ++i) {
-			//	cout << "Path: " << indices[i] << endl;
+			cout << "arr_sz:" << arr_sz << endl;
+			for (int i=0; i < arr_sz; ++i) {
+				cout << "Path: " << indices[i] << endl;
+			}
+			//if (gtk_tree_model_get_iter (model, &iter, (GtkTreePath *) gl->data)) {
+			//	gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
+			//	// works correctly, doesnt seem to print the right value on screen though
+			//	g_print ("You removed axis: %s\n", ax_name);
+			//	gtk_tree_store_remove (store, &iter);
 			//}
-			if (gtk_tree_model_get_iter (model, &iter, (GtkTreePath *) gl->data)) {
+			path_vec.push_back ( (GtkTreePath*) gl->data);
+		}
+		// delete in reverse order, or we invalidate the iterators
+		for (int i=path_vec.size()-1 ; i>=0; --i) {
+			if (gtk_tree_model_get_iter (model, &iter,  path_vec[i])) {
 				gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
 				// works correctly, doesnt seem to print the right value on screen though
-				//g_print ("You removed axis: %s\n", ax_name);
-				gtk_tree_store_remove (side_axes_store, &iter);
+				g_print ("You removed axis: %s\n", ax_name);
+				gtk_tree_store_remove (store, &iter);
+			}
+		}
+	}
+}
+
+void remove_axes_top( GtkWidget *widget, gpointer data )
+{
+	//g_print ("Hello World\n");
+        GtkTreeIter iter;
+        GtkTreeModel *model;
+        gchar *ax_name;
+	GtkTreeSelection * selection = top_axes_selection;
+	//GtkTreeStore * store = (GtkTreeStore *) data; 
+	GtkTreeStore * store = top_axes_store; 
+	vector <GtkTreePath*> path_vec;
+	if (gtk_tree_selection_count_selected_rows (selection) ) {
+		GList * selected_tree_path = gtk_tree_selection_get_selected_rows (selection, &model);
+		for (GList * gl = selected_tree_path; gl; gl=gl->next) {
+			//GtkTreeRowReference * row_ref = gtk_tree_row_reference_new (model, GtkTreePath (gl->data));
+			int arr_sz = 0;
+			gint * indices = gtk_tree_path_get_indices_with_depth ( (GtkTreePath *) gl->data, &arr_sz);
+			cout << "arr_sz:" << arr_sz << endl;
+			for (int i=0; i < arr_sz; ++i) {
+				cout << "Path: " << indices[i] << endl;
+			}
+			//if (gtk_tree_model_get_iter (model, &iter, (GtkTreePath *) gl->data)) {
+			//	gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
+			//	// works correctly, doesnt seem to print the right value on screen though
+			//	g_print ("You removed axis: %s\n", ax_name);
+			//	gtk_tree_store_remove (store, &iter);
+			//}
+			path_vec.push_back ( (GtkTreePath*) gl->data);
+		}
+		// delete in reverse order, or we invalidate the iterators
+		for (int i=path_vec.size()-1 ; i>=0; --i) {
+			if (gtk_tree_model_get_iter (model, &iter,  path_vec[i])) {
+				gtk_tree_model_get (model, &iter, AXIS_COLUMN, &ax_name, -1);
+				// works correctly, doesnt seem to print the right value on screen though
+				g_print ("You removed axis: %s\n", ax_name);
+				gtk_tree_store_remove (store, &iter);
 			}
 		}
 	}
@@ -628,14 +693,25 @@ void setup_gui()
 
 	GtkWidget * add_to_side_tab_button = gtk_button_new_with_label ("Side =>");
 	g_signal_connect (G_OBJECT (add_to_side_tab_button), "clicked",
-				G_CALLBACK (add_axes), NULL);
+				G_CALLBACK (add_axes), (gpointer) side_axes_store);
 	gtk_table_attach_defaults (GTK_TABLE (table), add_to_side_tab_button, 1, 2, 1, 2);
 	gtk_widget_show (add_to_side_tab_button);
 	GtkWidget * remove_from_side_tab_button = gtk_button_new_with_label ("Side <=");
 	gtk_table_attach_defaults (GTK_TABLE (table), remove_from_side_tab_button, 1, 2, 2, 3);
 	g_signal_connect (G_OBJECT (remove_from_side_tab_button), "clicked",
-				G_CALLBACK (remove_axes), NULL);
+				G_CALLBACK (remove_axes_side), (gpointer) side_axes_store);
 	gtk_widget_show (remove_from_side_tab_button);
+
+	GtkWidget * add_to_top_tab_button = gtk_button_new_with_label ("Top =>");
+	g_signal_connect (G_OBJECT (add_to_top_tab_button), "clicked",
+				G_CALLBACK (add_axes), (gpointer) top_axes_store);
+	gtk_table_attach_defaults (GTK_TABLE (table), add_to_top_tab_button, 1, 2, 3, 4);
+	gtk_widget_show (add_to_top_tab_button);
+	GtkWidget * remove_from_top_tab_button = gtk_button_new_with_label ("Top <=");
+	gtk_table_attach_defaults (GTK_TABLE (table), remove_from_top_tab_button, 1, 2, 4, 5);
+	g_signal_connect (G_OBJECT (remove_from_top_tab_button), "clicked",
+				G_CALLBACK (remove_axes_top), (gpointer) NULL);
+	gtk_widget_show (remove_from_top_tab_button);
 
 	gtk_table_attach_defaults (GTK_TABLE (table), side_axes_tree, 2, 3, 1, 5);
 	gtk_table_attach_defaults (GTK_TABLE (table), top_axes_tree,  3, 4, 1, 5);
@@ -659,8 +735,7 @@ void setup_gui()
 static void tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data);
 GtkWidget * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection)
 {
-	store = gtk_tree_store_new (N_COLUMNS,
-							G_TYPE_STRING);
+	store = gtk_tree_store_new (N_COLUMNS, G_TYPE_STRING);
 
 	GtkTreeIter iter_parent, iter_child;
 
