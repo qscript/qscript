@@ -10,7 +10,7 @@ CXX_LINK_FLAGS = -g
 SOURCE_DIR=src
 BUILD_DIR=make-build-dir
 CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
-EXCLUDE_FILE=src/gtk_hello.cpp 
+EXCLUDE_FILE=src/main.cpp 
 CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
 #EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp
 #CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
@@ -53,11 +53,11 @@ XTCC_MINOR_VERSION_NUMBER=5
 #	echo "YACC OBJECTS $(YACC_OBJECTS)"
 #	echo "LEX OBJECTS $(LEX_OBJECTS)"
 
-$(BUILD_DIR)/xtcc: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
+$(BUILD_DIR)/xtcc_gtk: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
 #echo "cpp sources: $(CPP_SOURCES)" 
 #	echo "yacc sources: $(YACC_SOURCES)" 
 #	echo "lex sources: $(LEX_SOURCES)" 
-	$(CC) $(CXX_LINK_FLAGS) -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
+	$(CC) $(CXX_LINK_FLAGS)  -o $@ $(OBJECTS) `pkg-config --libs gtk+-2.0` $(CXX_LINK_LIBS) 
 
 yacc_deps: $(YACC_OUTPUTS)
 
@@ -91,6 +91,8 @@ $(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
 		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
 		rm -f $@.$$$$
 
+$(BUILD_DIR)/gtk_hello.o: $(SOURCE_DIR)/gtk_hello.cpp;
+	$(CC) $(CFLAGS) `pkg-config --cflags gtk+-2.0` -o $@ $<
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 	echo "making target $@"
@@ -137,8 +139,8 @@ clean:
 		bin/qscript include/*.h \
 		inputs/*.exe src/*.output
 
-local_install: $(BUILD_DIR)/xtcc 
-	cp $(BUILD_DIR)/xtcc bin
+local_install: $(BUILD_DIR)/xtcc_gtk 
+	cp $(BUILD_DIR)/xtcc_gtk bin
 	cp ${SOURCE_DIR}/*.h include
 
 #nsiqcppstyle:
