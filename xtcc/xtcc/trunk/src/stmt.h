@@ -264,8 +264,10 @@ struct FunctionDeclarationStatement: public AbstractStatement
 struct DeclarationStatement: public AbstractStatement
 {
 	struct SymbolTableEntry* symbolTableEntry_;
-	DeclarationStatement( DataType dtype, int lline_number)
-		:AbstractStatement(dtype, lline_number), symbolTableEntry_(0)
+	int nestLevel_;
+	DeclarationStatement (DataType dtype, int lline_number, int l_nest_level)
+		: AbstractStatement (dtype, lline_number), symbolTableEntry_ (0),
+		  nestLevel_ (l_nest_level)
 	{}
 	void GenerateCode(FILE * & fptr);
 	~DeclarationStatement();

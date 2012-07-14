@@ -52,17 +52,17 @@ extern std::vector<mem_addr_tab> mem_addr;
 extern Scope* active_scope;
 
 
-Statement::AbstractStatement* Scope::insert(const char * name, DataType dt)
+Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, int nest_level)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no, nest_level);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
-		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
+		SymbolTableEntry* se = new SymbolTableEntry(name, dt, nest_level);
 		//se->name = strdup(name.c_str());
 		//se->type_=dt;
 		string s(name);
@@ -79,43 +79,43 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt)
 }
 
 
-Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, int arr_size)
+Statement::AbstractStatement* Scope::insert (const char * name, DataType dt, int arr_size, int nest_level)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
-	if(st_ptr){
+	Statement::DeclarationStatement * st_ptr = new Statement::DeclarationStatement(dt, line_no, nest_level);
+	if (st_ptr) {
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
-	if ( sym_tab.find(name) == sym_tab.end() ){
-		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
-		se->n_elms=arr_size;
+	if ( sym_tab.find(name) == sym_tab.end() ) {
+		SymbolTableEntry* se = new SymbolTableEntry (name, dt, nest_level);
+		se->n_elms = arr_size;
 		string s(name);
 		sym_tab[s] = se;
-		st_ptr->type_=dt;
-		st_ptr->symbolTableEntry_=se;
+		st_ptr->type_= dt;
+		st_ptr->symbolTableEntry_ = se;
 	} else {
 		cerr << " array NAME failed:" << line_no << endl;
 		cerr << name << " already present in symbol table" << endl;
-		st_ptr->type_=ERROR_TYPE;
+		st_ptr->type_ = ERROR_TYPE;
 		++no_errors;
 	}
 	return st_ptr;
 }
 
 Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
-		, Expression::AbstractExpression *e)
+		, Expression::AbstractExpression *e, int nest_level)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
-	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no, nest_level);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
-		SymbolTableEntry* se=new SymbolTableEntry(name, dt, e);
+		SymbolTableEntry* se = new SymbolTableEntry(name, dt, e, nest_level);
 		if(is_of_noun_type(e->type_)){
 			if (Util::check_type_compat(dt,e->type_)){
 				string s(name);
@@ -152,7 +152,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 }
 
 Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
-		, int arr_size,  char *text_)
+		, int arr_size,  char *text_, int nest_level)
 {
 	// we have to handle a case here where symbol is a function name: - this is not allowed
 	if(dt!=INT8_ARR_TYPE){
@@ -172,14 +172,14 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 			<< line_no << endl;
 		++no_errors;
 	}
-	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no, nest_level);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
 		exit(1);
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
-		SymbolTableEntry* se=new SymbolTableEntry(name, dt);
+		SymbolTableEntry* se=new SymbolTableEntry(name, dt, nest_level);
 		se->n_elms=arr_size;
 		if(text_)
 			se->text_=strdup(text_);
@@ -199,9 +199,9 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt
 	return st_ptr;
 }
 
-Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
+Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs, int nest_level)
 {
-	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no);
+	Statement::DeclarationStatement * st_ptr=new Statement::DeclarationStatement(dt, line_no, nest_level);
 	if(st_ptr){
 	} else {
 		cerr << "Memory allocation failed : line_no" << line_no << endl;
@@ -209,7 +209,7 @@ Statement::AbstractStatement* Scope::insert(const char * name, DataType dt, Xtcc
 	}
 	if ( sym_tab.find(name) == sym_tab.end() ){
 		XtccSet * xs=new XtccSet(*lxs);
-		SymbolTableEntry* se=new SymbolTableEntry(name, dt, xs);
+		SymbolTableEntry* se = new SymbolTableEntry(name, dt, xs, nest_level);
 		string s(name);
 		sym_tab[s] = se;
 		st_ptr->type_=dt;

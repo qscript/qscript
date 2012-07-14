@@ -20,6 +20,7 @@ extern vector <Statement::FunctionInformation*> func_info_table;
 extern ofstream debug_log_file;
 extern int if_line_no;
 extern Scope* active_scope;
+extern FILE* global_vars;
 
 
 extern char * work_dir;
@@ -547,11 +548,19 @@ void DeclarationStatement::GenerateCode(FILE * & fptr)
 		}
 		if(type_ >= INT8_TYPE && type_ <=DOUBLE_TYPE){
 			fprintf(fptr,"%s %s", noun_list[type_].sym, symbolTableEntry_->name_);
+			if (nestLevel_ == 0) {
+				fprintf(global_vars, "extern %s %s;\n", noun_list[type_].sym, symbolTableEntry_->name_);
+			}
 		} else if (type_ >=INT8_ARR_TYPE && type_ <=DOUBLE_ARR_TYPE){
 			DataType tdt=DataType(INT8_TYPE + type_-INT8_ARR_TYPE);
 			fprintf(fptr,"%s %s [ %d ]"
 					, noun_list[tdt].sym, symbolTableEntry_->name_
 					, symbolTableEntry_->n_elms);
+			if (nestLevel_ == 0) {
+				fprintf(global_vars,"extern %s %s [ %d ];\n"
+					, noun_list[tdt].sym, symbolTableEntry_->name_
+					, symbolTableEntry_->n_elms);
+			}
 		} else if (type_ >=INT8_REF_TYPE&& type_ <=DOUBLE_REF_TYPE){
 			DataType tdt=DataType(INT8_TYPE + type_-INT8_REF_TYPE);
 			fprintf(fptr,"%s & %s", noun_list[tdt].sym
@@ -561,7 +570,7 @@ void DeclarationStatement::GenerateCode(FILE * & fptr)
 			fprintf(fptr,"=%s", code_expr1.str().c_str());
 			//symbolTableEntry_->e->PrintExpressionCode(fptr);
 		}
-		fprintf(fptr, ";\n");
+		fprintf(fptr, "; /*  nest_lev:  %d */\n", nestLevel_);
 		if(next_) next_->GenerateCode(fptr);
 	}
 }

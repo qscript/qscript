@@ -20,6 +20,7 @@ void flex_finish();
 extern vector <Scope*> active_scope_list;
 extern Scope* active_scope;
 extern vector <Statement::FunctionInformation*> func_info_table;
+extern FILE * global_vars;
 
 extern int errno;
 bool flag_compile_only;
@@ -180,6 +181,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	}
 	if(!no_errors){
 		generate_edit_section_code();
+		fclose (global_vars);
 	} else {
 		cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
 		exit(1);
@@ -241,11 +243,10 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	fclose(tab_summ_func);
 	//bool my_compile_flag=true;
 	//bool my_compile_flag=false;
-	printf("parsing over\n about to begin compiling\n");
 	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
 
-	string gfname=work_dir+string("/global.C");
-	FILE * global_vars=fopen(gfname.c_str(), "a+");
+	string gfname=work_dir+string("/global.h");
+	global_vars=fopen(gfname.c_str(), "a+");
 	if (!global_vars) {
 		cerr << "cannot open global.C for writing" << endl;
 		exit(1);
@@ -253,7 +254,21 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H--*/\n");
 	fclose(global_vars);
 
-	if(flag_compile_only==false && !compile(XTCC_HOME, work_dir)){
+	int compile_result = -1;
+	if (flag_compile_only == true) {
+		cout << "reached here" << endl;
+		compile_result = compile (XTCC_HOME, work_dir);
+	} else {
+		printf("parsing over\n about to begin compiling c++ code\n");
+		compile_result = compile (XTCC_HOME, work_dir);
+		if (compile_result) {
+			cerr << "error compiling file ... exiting" << endl;
+			exit(1);
+		}
+	}
+
+
+	if (flag_compile_only==false && !compile_result){
 		//char * endptr=0;
 		//int convert_to_base=10;
 		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
@@ -362,13 +377,23 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	string cmd=string("rm ") + string(work_dir) + string("/temp.C");
 	//system("rm xtcc_work/temp.C");
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
+	/* 
 	const char * file_list[]={
 		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
 		"my_tab_drv_func.C", "temp.C" 
 	};
-	const char * copy_file_list[] = {"/stubs/ax_stmt_type.h",
-					"/stubs/mean_stddev_struct.h"
+	 */
+	const char * file_list[]={
+		"edit_out.c", "my_axes_drv_func.C", "main_loop.C", 
+		"my_tab_drv_func.C", "list_summ_template.C",
+		"temp.C" 
 	};
+	const char * copy_file_list[] = {
+					"/stubs/ax_stmt_type.h",
+					"/stubs/mean_stddev_struct.h",
+					"/stubs/list_summ_template.C",
+					"/stubs/main_loop.C"
+				};
 
 	for(int i=0; i<(sizeof(copy_file_list)/sizeof(copy_file_list[0])); ++i) {
 		string cmd0="cp "; 
@@ -382,18 +407,27 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	}
 	string cmd1="cat "; 
 	const int main_loop_file_index=2;
-	const int temp_file_index=4;
+	const int temp_file_index=5;
 
+	//for(int i=0; i<(sizeof(file_list)/sizeof(file_list[0]))-1; ++i){
+	//	if (i==main_loop_file_index){
+	//		cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
+	//	} else {
+	//		cmd1 += my_work_dir + string(file_list[i])+string(" ");
+	//	}
+	//}
+	//cerr << "(sizeof(file_list)/sizeof(file_list[0])): " << (sizeof(file_list)/sizeof(file_list[0])) << endl;
 	for(int i=0; i<(sizeof(file_list)/sizeof(file_list[0]))-1; ++i){
-		if (i==main_loop_file_index){
-			cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
-		} else {
+		//if (i==main_loop_file_index){
+		//	cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
+		//} else {
 			cmd1 += my_work_dir + string(file_list[i])+string(" ");
-		}
+		//}
 	}
 	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
-	string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
-	cmd1 += cmd3;
+	//string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
+	//string cmd3=string("; echo \"#include \"list_summ_template.C\" >> "  + my_work_dir + string("/temp.C");
+	//cmd1 += cmd3;
 
 #endif /* GNU/UNIX */
 #if __WIN32__

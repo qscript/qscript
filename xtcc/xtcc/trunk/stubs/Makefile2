@@ -1,0 +1,27 @@
+OBJS = main_loop.o my_axes_drv_func.o my_tab_drv_func.o list_summ_template.o edit_out.o
+test.exe: $(OBJS)
+	g++ -o $@ $(OBJS) 
+
+main_loop.o: main_loop.C
+	g++ -c $<
+
+#my_table.C
+my_tab_drv_func.o: my_tab_drv_func.C
+	g++ -c $<
+
+edit_out.o: edit_out.c
+	g++ -c $<
+
+#my_axes.C
+my_axes_drv_func.o: my_axes_drv_func.C
+	g++ -c $<
+
+
+list_summ_template.o: list_summ_template.C
+	g++ -c $<
+
+#print_list_counts.C
+#temp.C
+# my_tab_summ.C
+# print_list_counts.C
+#temp.C

@@ -3,15 +3,25 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <cstdlib>
+#include <cstdio>
+#include <iostream>
 #include "ax_stmt_type.h"
 //#include <sys/mman.h>
 
+int32_t edit_data();
+void ax_compute();
+void tab_compute();
+
 using namespace std;
 int fread_data(FILE * & inp_data_file , int file_size, int rec_len);
-
+FILE * runtime_errors = 0;
+extern FILE * xtcc_stdout;
+extern string xtcc_stdout_fname;
+extern int8_t c[];
 int read_data(int fd, struct stat &file_info_stat, int rec_len);
 int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len);
+void print_list_counts();
+void tab_summ();
 int main(int argc, char * argv[]){
 	xtcc_stdout=fopen(xtcc_stdout_fname.c_str(), "w");
 	runtime_errors = fopen("runtime_errors.log", "w");
@@ -170,7 +180,7 @@ int fread_data(FILE * & inp_data_file , int file_size, int rec_len){
 		if (n_records % 100 == 0) {
 			cout << ".";
 		}
-		if (n_records % 50 == 0) {
+		if (n_records % 4000 == 0) {
 			cout << "\n";
 		}
 	}

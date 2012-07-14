@@ -27,9 +27,11 @@ extern int no_errors;
 extern int line_no;
 extern vector<Table::table*>	table_list;
 extern map <string, Table::ax*> ax_map;
+FILE * global_vars;
 #include <cstdio>
 //void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list);
 //void print_latex_print(FILE* op, int table_index);
+set <string> ax_defns;
 
 void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list)
 {
@@ -40,6 +42,28 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 	fprintf(op, "#include <vector>\nusing namespace std;\n");
 	fprintf(tab_drv_func, "#include \"my_table.C\"\n");
 	fprintf(tab_drv_func, "void tab_compute(){\n");
+	for (unsigned int i=0; i<table_list.size(); i++) {
+		CMAPITER map_iter_s= ax_map.find(table_list[i]->side);
+		CMAPITER map_iter_b= ax_map.find(table_list[i]->banner);
+		string s1 = "ax_" + map_iter_b->first;
+		if (ax_defns.find (s1) == ax_defns.end()) {
+			fprintf(op, "#include \"ax_%s.h\"\n",
+						map_iter_b->first.c_str ());
+			fprintf (op, "extern struct axis_%s ax_%s;\n",
+					map_iter_b->first.c_str(),
+					map_iter_b->first.c_str());
+			ax_defns.insert(s1);
+		}
+		string s2 = "ax_" + map_iter_s->first;
+		if (ax_defns.find (s2) == ax_defns.end()) {
+			fprintf(op, "#include \"ax_%s.h\"\n",
+						map_iter_s->first.c_str());
+			fprintf (op, "extern struct axis_%s ax_%s;\n",
+					map_iter_s->first.c_str(),
+					map_iter_s->first.c_str());
+			ax_defns.insert(s2);
+		}
+	}
 	for (unsigned int i=0; i<table_list.size(); i++) {
 		CMAPITER map_iter_s= ax_map.find(table_list[i]->side);
 		CMAPITER map_iter_b= ax_map.find(table_list[i]->banner);
@@ -107,8 +131,12 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 				//cout << "generate_code: i: " << i << endl;
 				AbstractCountableAxisStatement* banner_stmt=map_iter_b->second->count_ax_stmt_start;
 				if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
-					string global_vars_fname=work_dir+string("/global.C");
-					FILE * global_vars=fopen(global_vars_fname.c_str(), "a+b");
+					//string global_vars_fname=work_dir+string("/global.C");
+					//global_vars = fopen(global_vars_fname.c_str(), "a+b");
+					//if (!global_vars) {
+					//	cerr << "Unable to open file: " << global_vars_fname << " for writing ... exiting \n";
+					//	exit(1);
+					//}
 					fprintf (global_vars, "vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
 							map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
 					fclose(global_vars);
@@ -497,10 +525,13 @@ void print_axis_code(FILE * op, FILE * axes_drv_func)
 		stringstream axis_code_str_h;
 		stringstream axis_code_str_cpp;
 		axis_code_str_h 
-			<< "#include <bitset>\n"
+			<< "#ifndef xtcc_ax_" << it->first << "_h" << endl
+			<< "#define xtcc_ax_" << it->first << "_h" << endl
+			<< "#include <bitset>\n" 
 			<< "#include <string>\n"
 			<< "#include <vector>\n"
 			<< "#include \"ax_stmt_type.h\"\n"
+			<< "#include \"global.h\"\n"
 			<< "using namespace std;\n";
 
 		axis_code_str_cpp 
@@ -700,8 +731,11 @@ void print_axis_code(FILE * op, FILE * axes_drv_func)
 			<< "\t} /* close compute func */\n";
 		fprintf(op, "} ax_%s;\n", it->first.c_str()) ;
 		axis_code_str_h
-			<< "} ax_" << it->first
-			<< ";\n";
+			<< "} " 
+			//<< "ax_" << it->first
+			<< ";\n"
+			<< "#endif /*  xtcc_ax_" << it->first << "_h */ " 
+			<< endl;
 		if (it->second->filter) {
 			//fprintf (axes_drv_func, "/* axis HAS a filter  \n");
 			ostringstream code_bef_expr, code_expr;
@@ -729,26 +763,32 @@ void print_axis_code(FILE * op, FILE * axes_drv_func)
 void	generate_edit_section_code();
 void	generate_edit_section_code()
 {
-	string fname=work_dir+string("/global.C");
-	FILE * global_vars=fopen(fname.c_str(), "wb");
-	fprintf(global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
-	fprintf(global_vars, "#include <sys/types.h>\n");
-	fprintf(global_vars, "#include <map>\n using namespace std;\n");
-	fprintf(global_vars, "#include \"mean_stddev_struct.h\"\n");
+	string global_vars_fname = work_dir+string("/global.h");
+	global_vars = fopen(global_vars_fname.c_str(), "wb");
+	if (!global_vars) {
+		cerr << "Unable to open file: " << global_vars_fname << " for writing ... exiting \n";
+		exit(1);
+	}
+	fprintf (global_vars, "#ifndef __NxD_GLOB_VARS_H\n#define __NxD_GLOB_VARS_H\n");
+	fprintf (global_vars, "#include <sys/types.h>\n");
+	fprintf (global_vars, "#include <map>\n using namespace std;\n");
+	fprintf (global_vars, "#include \"mean_stddev_struct.h\"\n");
 	fprintf (global_vars, "#include <cstdlib>\n");
-	fprintf (global_vars, "FILE * runtime_errors = 0;\n");
-	fprintf(global_vars, "void print_list_counts();\n");
-	fprintf(global_vars, "void tab_compute();\n");
-	fprintf(global_vars, "void tab_summ();\n");
-	fprintf(global_vars, "void ax_compute();\n");
-	fclose(global_vars);
-	fname=work_dir+string("/print_list_counts.C");
-	FILE * print_list_counts=fopen(fname.c_str(), "wb");
-	fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(map<T,int> &m, string var_name, string text);\n");
+	fprintf (global_vars, "#include <cstdio>\n");
+	fprintf (global_vars, "extern FILE * runtime_errors ;\n");
+	fprintf (global_vars, "void print_list_counts();\n");
+	fprintf (global_vars, "void tab_compute();\n");
+	fprintf (global_vars, "void tab_summ();\n");
+	fprintf (global_vars, "void ax_compute();\n");
+	string list_counts_fname = work_dir + string("/print_list_counts.C");
+	FILE * print_list_counts=fopen(list_counts_fname.c_str(), "wb");
+	fprintf(print_list_counts, "#include <map>\n");
+	fprintf(print_list_counts, "#include <string>\n");
+	fprintf(print_list_counts, "template <class T>\nvoid print_list_summ(std::map<T,int> &m, std::string var_name, std::string text);\n");
 	fprintf(print_list_counts, "void print_list_counts(){\n");
 	fclose(print_list_counts);
-	fname=work_dir+string( "/edit_out.c");
-	FILE * edit_out= fopen(fname.c_str(), "w+b");
+	string edit_out_fname=work_dir+string( "/edit_out.c");
+	FILE * edit_out= fopen(edit_out_fname.c_str(), "w+b");
 	if(edit_out==0){
 		printf("could not open edit_out.c for writing\n");
 		exit(1);
@@ -763,13 +803,13 @@ void	generate_edit_section_code()
 	fprintf(edit_out, "FILE * xtcc_stdout=0;\n");
 	fprintf(edit_out, "#include <sys/types.h>\n" );
 	fprintf(edit_out, "int8_t c[%d];\n", rec_len );
-	fprintf(edit_out, "#include \"global.C\"\n" );
+	fprintf(edit_out, "#include \"global.h\"\n" );
 	cout << "printing edit:" << endl;
 	tree_root->GenerateCode(edit_out);
 	fclose(edit_out);
 
-	fname=work_dir+string("/print_list_counts.C");
-	print_list_counts=fopen(fname.c_str(), "a+");
+	string list_fname=work_dir+string("/print_list_counts.C");
+	print_list_counts=fopen(list_fname.c_str(), "a+");
 	fprintf(print_list_counts, "}\n");
 	fclose(print_list_counts);
 
@@ -780,7 +820,7 @@ void generate_make_file()
 {
 	using namespace Table;
 	string makefile_name=work_dir+string("/") + string("Makefile");
-	FILE * makefile =fopen(makefile_name.c_str(), "a+b");
+	FILE * makefile =fopen(makefile_name.c_str(), "wb");
 	stringstream source_cpp_str;
 	stringstream source_h_str;
 	stringstream individual_dep_str;

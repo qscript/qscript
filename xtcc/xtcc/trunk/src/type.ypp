@@ -315,17 +315,17 @@ func_defn:
 
 
 decl:	xtcc_type NAME ';' {
-		$$ = active_scope->insert($2, $1/*, line_no*/);
+		$$ = active_scope->insert($2, $1/*, line_no*/, nest_lev);
 		free($2);
 	} 
 	| xtcc_type NAME '=' expression ';'{
-		$$ = active_scope->insert($2, $1, $4);
+		$$ = active_scope->insert($2, $1, $4, nest_lev);
 
 	}
 	|	xtcc_type NAME '[' INUMBER ']' ';' {
 		/* NxD: I have ordered the types in DataType so that this hack is possible I hope */
 		DataType dt=DataType(INT8_ARR_TYPE+($1-INT8_TYPE));
-		$$ = active_scope->insert($2, dt, $4/*, line_no*/);
+		$$ = active_scope->insert($2, dt, $4/*, line_no*/, nest_lev);
 		free($2);
 	}
 	/*
@@ -337,7 +337,7 @@ decl:	xtcc_type NAME ';' {
 	}
 	*/
 	| DEFINELIST NAME '=' range_list ';' {
-		$$ = active_scope->insert($2, RANGE_DECL_STMT, &xs);
+		$$ = active_scope->insert($2, RANGE_DECL_STMT, &xs, nest_lev);
 		//$$ = new decl_stmt($2, RANGE_DECL_STMT, &xs );
 		xs.reset();
 	}
@@ -908,7 +908,7 @@ attributes:     ATTRIBUTE_LIST NAME '=' {
 		//named_attributes_list.push_back(attr_list);
 		if(active_scope_list[0]->sym_tab.find($2) == active_scope_list[0]->sym_tab.end()){
 			string s(attr_list_name);
-			SymbolTableEntry* se=new SymbolTableEntry($2, NAMED_ATTRIBUTE_TYPE);
+			SymbolTableEntry* se=new SymbolTableEntry($2, NAMED_ATTRIBUTE_TYPE, nest_lev);
 			active_scope_list[0]->sym_tab[s] = se;
 			n_attr_stmt->symbolTableEntry_ = se;
 		}
