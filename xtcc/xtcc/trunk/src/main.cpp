@@ -7,6 +7,7 @@
 #include "stmt.h"
 #include "Tab.h"
 #include "code_output_files.h"
+#include "generate_code.hpp"
 
 template<class T> T* link_chain(T* & elem1, T* & elem2);
 template<class T> T* trav_chain(T* & elem1);
@@ -28,9 +29,9 @@ int check_parameters(struct AbstractExpression* e, struct FunctionParameter* v);
 bool check_type_compat(DataType typ1, DataType typ2);
 int	compile( char * const XTCC_HOME, char * const work_dir);
 int	run(char * data_file_name, int rec_len);
-void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
+//void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list);
 void print_weighting_code();
-void print_axis_code(FILE * op, FILE * axes_drv_func);
+//void print_axis_code(FILE * op, FILE * axes_drv_func);
 void clean_up();
 
 void	generate_edit_section_code();
@@ -227,7 +228,8 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	}
 	
 	flex_finish();
-	print_table_code(table_op, tab_drv_func, tab_summ_func);
+	extern vector<Table::table*>	table_list;
+	print_table_code (table_op, tab_drv_func, tab_summ_func, table_list);
 	print_axis_code(axes_op, axes_drv_func);
 	print_weighting_code();
 	generate_make_file();

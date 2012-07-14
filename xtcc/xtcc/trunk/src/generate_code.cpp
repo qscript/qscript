@@ -28,10 +28,10 @@ extern int line_no;
 extern vector<Table::table*>	table_list;
 extern map <string, Table::ax*> ax_map;
 #include <cstdio>
-void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
-void print_latex_print(FILE* op, int table_index);
+//void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list);
+//void print_latex_print(FILE* op, int table_index);
 
-void print_table_code(FILE * op, FILE * tab_drv_func, FILE * tab_summ_func)
+void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list)
 {
 	using namespace Table;
 	fprintf(op, "#include <iostream>\n");
@@ -489,7 +489,6 @@ void print_latex_print(FILE* op, int table_index)
 }
 
 
-void print_axis_code(FILE * op, FILE * axes_drv_func);
 void print_axis_code(FILE * op, FILE * axes_drv_func)
 {
 	using namespace Table;
