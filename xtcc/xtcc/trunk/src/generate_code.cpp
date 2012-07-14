@@ -420,9 +420,9 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 				<< endl;
 			++ no_errors;
 		} else {
-			fprintf(tab_drv_func, "\ttab_%s_%s.print();\n",
-			map_iter_s->first.c_str(), map_iter_b->first.c_str()
-			);
+			fprintf (tab_drv_func, "\ttab_%s_%s.print();\n",
+				map_iter_s->first.c_str(), map_iter_b->first.c_str()
+				);
 			/*
 			fprintf(tab_drv_func, "\ttab_%s_%s.print_latex();\n",
 			map_iter_s->first.c_str(), map_iter_b->first.c_str()
@@ -431,15 +431,6 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 		}
 	}
 	fprintf(tab_drv_func, "}\n");
-
-	string fname=work_dir+string("/global.C");
-	FILE * global_vars=fopen(fname.c_str(), "a+");
-	if (!global_vars) {
-		cerr << "cannot open global.C for writing" << endl;
-		exit(1);
-	}
-	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H*/\n");
-	fclose(global_vars);
 
 }
 

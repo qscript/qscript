@@ -187,11 +187,11 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 
 	string fname = string(work_dir) + string("/my_table.C");
 	FILE * table_op=fopen( fname.c_str(), "w");
-
 	fname = string(work_dir) + string("/my_tab_drv_func.C");
 	FILE * tab_drv_func=fopen(fname.c_str(), "w");	
 	fname = string(work_dir) + string("/my_tab_summ.C");
 	FILE * tab_summ_func=fopen(fname.c_str(), "w");	
+
 	if(!(table_op&&tab_drv_func&&tab_summ_func)){
 		cerr << "Unable to open file for output of table classes" << endl;
 		exit(1);
@@ -243,9 +243,19 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 	//bool my_compile_flag=false;
 	printf("parsing over\n about to begin compiling\n");
 	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
+
+	string gfname=work_dir+string("/global.C");
+	FILE * global_vars=fopen(gfname.c_str(), "a+");
+	if (!global_vars) {
+		cerr << "cannot open global.C for writing" << endl;
+		exit(1);
+	}
+	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H--*/\n");
+	fclose(global_vars);
+
 	if(flag_compile_only==false && !compile(XTCC_HOME, work_dir)){
-		char * endptr=0;
-		int convert_to_base=10;
+		//char * endptr=0;
+		//int convert_to_base=10;
 		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
 		//bool run_flag=true;
 		int rval=0;

@@ -51,7 +51,8 @@ using std::map;
 
 	struct Scope{
 		map<string,SymbolTableEntry*> sym_tab;
-		Scope()	{
+		Scope()	: sym_tab()
+		{
 			//cout << " constructing Scope(): this: " << this << endl;
 		}
 		Statement::AbstractStatement* insert(const char * name, DataType dt/*, int line_no*/);

@@ -62,6 +62,9 @@ struct table
 		: side(s), banner(t),line_no(lline_no),filter(f)
 	{ }
 	~table();
+	private:
+		table& operator=(const table&);
+		table(const table&);
 };
 
 
@@ -98,6 +101,9 @@ class AbstractPrintableAxisStatement
 	virtual void print(fstream& f)=0;
 	virtual string ax_text()=0;
 	virtual ~AbstractPrintableAxisStatement();
+	private:
+	AbstractPrintableAxisStatement & operator = (const AbstractPrintableAxisStatement&);
+	AbstractPrintableAxisStatement (const AbstractPrintableAxisStatement&);
 };
 
 class TitleStatement: public AbstractPrintableAxisStatement
@@ -129,6 +135,9 @@ class AbstractCountableAxisStatement
 	virtual void print_axis_constructor_text(FILE *  f, unsigned int start_index)=0;
 	virtual bool CustomCountExpression();
 	virtual ~AbstractCountableAxisStatement() ;
+	private:
+	AbstractCountableAxisStatement & operator = (const AbstractCountableAxisStatement&);
+	AbstractCountableAxisStatement (const AbstractCountableAxisStatement&);
 };
 
 class count_ax_stmt: public AbstractCountableAxisStatement
@@ -141,6 +150,9 @@ class count_ax_stmt: public AbstractCountableAxisStatement
 			, unsigned int start_index);
 	virtual string ax_text();
 	~count_ax_stmt();
+	private:
+		count_ax_stmt & operator = (const count_ax_stmt&);
+		count_ax_stmt (const count_ax_stmt&);
 };
 
 class tot_ax_stmt: public AbstractCountableAxisStatement
@@ -155,6 +167,9 @@ class tot_ax_stmt: public AbstractCountableAxisStatement
 	virtual void print_axis_constructor_text(FILE * f
 			, unsigned int start_index);
 	~tot_ax_stmt();
+	private:
+	tot_ax_stmt & operator = (const tot_ax_stmt&);
+	tot_ax_stmt (const tot_ax_stmt&);
 };
 
 class inc_ax_stmt: public AbstractCountableAxisStatement
@@ -174,6 +189,9 @@ class inc_ax_stmt: public AbstractCountableAxisStatement
 	virtual bool CustomCountExpression();
 	void PrintIncrExpression(FILE* op);
 	~inc_ax_stmt();
+	private:
+	inc_ax_stmt & operator = (const inc_ax_stmt&);
+	inc_ax_stmt (const inc_ax_stmt&);
 };
 
 struct stub {
@@ -181,6 +199,9 @@ struct stub {
 	int code;
 	struct stub* prev_, *next_;
 	stub(string l_text, int l_code);
+	private:
+	stub& operator=(const stub&);	
+	stub(const stub&);	
 };
 
 #include <string>
@@ -214,6 +235,9 @@ class fld_ax_stmt : public AbstractCountableAxisStatement {
 		f << "\n";
 		
 	}
+	private:
+	fld_ax_stmt & operator = (const fld_ax_stmt&);
+	fld_ax_stmt (const fld_ax_stmt&);
 };
 
 
@@ -244,6 +268,9 @@ class ax
 	{ }
 
 	~ax();
+	private:
+	ax& operator=(const ax&);	
+	ax(const ax&);	
 };
 
 
@@ -271,6 +298,9 @@ struct internal_table{
 	Expression::AbstractExpression* side_filter;
 	int base;
 	int index;
+	private:
+	internal_table& operator=(const internal_table&);	
+	internal_table(const internal_table&);	
 };
 
 struct weight_axis {

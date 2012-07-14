@@ -39,6 +39,8 @@ extern Scope* active_scope;
 extern vector <Statement::FunctionInformation*> func_info_table;
 
 extern int errno;
+char * XTCC_HOME;
+char * data_file ;
 bool flag_compile_only;
 //void print_expr(FILE* edit_out, AbstractExpression * e);
 
@@ -89,7 +91,7 @@ extern int line_no;
 	using std::cerr;
 /* This is a callback function. The data arguments are ignored
 * in this example. More on callbacks below. */
-GtkWidget * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection);
+GtkTreeView * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection);
 void hello( GtkWidget *widget, gpointer data )
 {
 	g_print ("Hello World\n");
@@ -123,7 +125,7 @@ void destroy (GtkWidget *widget, gpointer data)
 int main (int argc, char *argv[])
 {
 	/* GtkWidget is the storage type for widgets */
-	GtkWidget *button;
+	//GtkWidget *button;
 	/* This is called in all GTK applications. Arguments are parsed
 	* from the command line and are returned to the application. */
 	gtk_init (&argc, &argv);
@@ -135,8 +137,8 @@ int main (int argc, char *argv[])
 	}
 
 	char * inp_file = argv[1];
-	char * data_file = argv[2];
-	char * XTCC_HOME=getenv("XTCC_HOME");
+	data_file = argv[2];
+	XTCC_HOME=getenv("XTCC_HOME");
 	active_scope=new Scope();
 	active_scope_list.push_back(active_scope);
 
@@ -191,17 +193,16 @@ int main (int argc, char *argv[])
 		exit(1);
 	}
 
-	string fname = string(work_dir) + string("/my_table.C");
-	FILE * table_op=fopen( fname.c_str(), "w");
-
-	fname = string(work_dir) + string("/my_tab_drv_func.C");
-	FILE * tab_drv_func=fopen(fname.c_str(), "w");	
-	fname = string(work_dir) + string("/my_tab_summ.C");
-	FILE * tab_summ_func=fopen(fname.c_str(), "w");	
-	if(!(table_op&&tab_drv_func&&tab_summ_func)){
-		cerr << "Unable to open file for output of table classes" << endl;
-		exit(1);
-	}
+	//string fname = string(work_dir) + string("/my_table.C");
+	//FILE * table_op=fopen( fname.c_str(), "w");
+	//fname = string(work_dir) + string("/my_tab_drv_func.C");
+	//FILE * tab_drv_func=fopen(fname.c_str(), "w");	
+	//fname = string(work_dir) + string("/my_tab_summ.C");
+	//FILE * tab_summ_func=fopen(fname.c_str(), "w");	
+	//if(!(table_op&&tab_drv_func&&tab_summ_func)){
+	//	cerr << "Unable to open file for output of table classes" << endl;
+	//	exit(1);
+	//}
 	if(int rval=yyparse()){
 		cerr << "parsing tables section failed:" << endl;
 		exit(rval);
@@ -213,7 +214,7 @@ int main (int argc, char *argv[])
 		cout << "Successfully parsed tabulation section" << endl;
 	}
 
-	fname = string(work_dir)+ ("/my_axes.C");
+	string fname = string(work_dir)+ ("/my_axes.C");
 	FILE * axes_op=fopen(fname.c_str(), "w");	
 	fname = string(work_dir) + string("/my_axes_drv_func.C");
 	FILE * axes_drv_func=fopen(fname.c_str(), "w");	
@@ -234,21 +235,30 @@ int main (int argc, char *argv[])
 	}
 	
 	flex_finish();
-	extern vector<Table::table*>	table_list;
-	print_table_code(table_op, tab_drv_func, tab_summ_func, table_list);
+	//extern vector<Table::table*>	table_list;
+	//print_table_code(table_op, tab_drv_func, tab_summ_func, table_list);
 	print_axis_code(axes_op, axes_drv_func);
 	print_weighting_code();
 	generate_make_file();
 	fclose(yyin); yyin=0;
-	fclose(table_op);
-	fclose(tab_drv_func);
+	//fclose(table_op);
+	//fclose(tab_drv_func);
+	//fclose(tab_summ_func);
 	fclose(axes_op); 
 	fclose(axes_drv_func);
-	fclose(tab_summ_func);
 	//bool my_compile_flag=true;
 	//bool my_compile_flag=false;
 	printf("parsing over\n about to begin compiling\n");
 	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
+
+	string gfname=work_dir+string("/global.C");
+	FILE * global_vars=fopen(gfname.c_str(), "a+");
+	if (!global_vars) {
+		cerr << "cannot open global.C for writing" << endl;
+		exit(1);
+	}
+	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H--*/\n");
+	fclose(global_vars);
 
 
 	/* create a new window */
@@ -342,6 +352,7 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 #if !defined(__WIN32__) && !defined(MAC_TCL) /* GNU/UNIX */
 	string cmd=string("rm ") + string(work_dir) + string("/temp.C");
 	//system("rm xtcc_work/temp.C");
+	system(cmd.c_str());
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
 	const char * file_list[]={
 		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
@@ -506,6 +517,9 @@ struct GUIAxData {
 	GtkTreeSelection * axes_selection;
 };
 
+GtkTreeView * main_axes_tree;
+GtkTreeView * side_axes_tree;
+GtkTreeView * top_axes_tree;
 GtkTreeStore * main_axes_store;
 GtkTreeStore * side_axes_store;
 GtkTreeStore * top_axes_store;
@@ -531,8 +545,8 @@ void add_axes( GtkWidget *widget, gpointer data)
 		GList * selected_tree_path = gtk_tree_selection_get_selected_rows (selection, &model);
 		for (GList * gl = selected_tree_path; gl; gl=gl->next) {
 			//GtkTreeRowReference * row_ref = gtk_tree_row_reference_new (model, GtkTreePath (gl->data));
-			int arr_sz = 0;
-			gint * indices = gtk_tree_path_get_indices_with_depth ( (GtkTreePath *) gl->data, &arr_sz);
+			//int arr_sz = 0;
+			//gint * indices = gtk_tree_path_get_indices_with_depth ( (GtkTreePath *) gl->data, &arr_sz);
 			//cout << "arr_sz:" << arr_sz << endl;
 			//for (int i=0; i < arr_sz; ++i) {
 			//	cout << "Path: " << indices[i] << endl;
@@ -636,10 +650,93 @@ void remove_axes_top( GtkWidget *widget, gpointer data )
 	}
 }
 
+void run_tables (GtkWidget *widget, gpointer data)
+{
+	GtkTreeIter iter;
+	/* Get the first iter in the list */
+	GtkTreeModel * model = gtk_tree_view_get_model (side_axes_tree); 
+	gboolean valid = gtk_tree_model_get_iter_first (model, &iter);
+	vector <string> side_axes;
+	gint row_count = 0;
+	while (valid) {
+		/* Walk through the list, reading each row */
+		gchar *str_data;
+		/* Make sure you terminate calls to gtk_tree_model_get()
+		* with a '-1' value
+		*/
+		gtk_tree_model_get (model, &iter,
+				  AXIS_COLUMN, &str_data,
+				  -1);
+		/* Do something with the data */
+		//g_print ("Row %d: |%s|\n", row_count, str_data);
+		side_axes.push_back (str_data);
+		g_free (str_data);
+		row_count ++;
+		valid = gtk_tree_model_iter_next (model, &iter);
+	}
+	/* Get the first iter in the list */
+	model = gtk_tree_view_get_model (top_axes_tree); 
+	valid = gtk_tree_model_get_iter_first (model, &iter);
+	vector <string> ban_axes;
+	row_count = 0;
+	while (valid) {
+		/* Walk through the list, reading each row */
+		gchar *str_data;
+		/* Make sure you terminate calls to gtk_tree_model_get()
+		* with a '-1' value
+		*/
+		gtk_tree_model_get (model, &iter,
+				  AXIS_COLUMN, &str_data,
+				  -1);
+		/* Do something with the data */
+		//g_print ("Row %d: |%s|\n", row_count, str_data);
+		ban_axes.push_back (str_data);
+		g_free (str_data);
+		row_count ++;
+		valid = gtk_tree_model_iter_next (model, &iter);
+	}
+	if (side_axes.size() == 0) {
+		g_print ("No axes in side: \n");
+	} else if (ban_axes.size() == 0) {
+		g_print ("No axes in banner: \n");
+	} else {
+		g_print ("Ok to tabulate: \n");
+		vector<Table::table*>	table_list;
+		for (int i=0; i < side_axes.size(); ++i) {
+			for (int j=0; j < ban_axes.size(); ++j) {
+				Table::table * tbl = new Table::table (side_axes[i], ban_axes[j], 0);
+				table_list.push_back (tbl);
+			}
+		}
+		g_print( "work_dir: %s\n", work_dir);
+		string fname = string(work_dir) + string("/my_table.C");
+		FILE * table_op=fopen( fname.c_str(), "w");
+		fname = string(work_dir) + string("/my_tab_drv_func.C");
+		FILE * tab_drv_func=fopen(fname.c_str(), "w");	
+		fname = string(work_dir) + string("/my_tab_summ.C");
+		FILE * tab_summ_func=fopen(fname.c_str(), "w");	
+		if(!(table_op&&tab_drv_func&&tab_summ_func)){
+			cerr << "Unable to open file for output of table classes" << endl;
+			exit(1);
+		}
+		print_table_code (table_op, tab_drv_func, tab_summ_func, table_list);
+		fclose(table_op);
+		fclose(tab_drv_func);
+		fclose(tab_summ_func);
+		if (!compile(XTCC_HOME, work_dir)) {
+			int rval = run(data_file, rec_len);
+			cout << "xtcc run complete" << endl;
+		}
+		for (int i=0; i < table_list.size(); ++i) {
+			delete table_list[i];
+		}
+	}
+}
 
 void setup_gui()
 {
 	GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	/*  20 pixels short of vga on both sides */
 	gtk_window_set_default_size ( (GtkWindow *) window, 460, 620);
 	GtkWidget *scr_window = gtk_scrolled_window_new (NULL, NULL);
 
@@ -661,12 +758,14 @@ void setup_gui()
 	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
 	/* Creates a new button with the label "Hello World". */
 	//button = gtk_button_new_with_label ("Hello World");
-	GtkWidget * main_axes_tree = setup_tree_view (main_axes_store, main_axes_selection);
-	GtkWidget * side_axes_tree = setup_tree_view (side_axes_store, side_axes_selection);
-	GtkWidget * top_axes_tree = setup_tree_view (top_axes_store, top_axes_selection);
+	main_axes_tree = setup_tree_view (main_axes_store, main_axes_selection);
+	side_axes_tree = setup_tree_view (side_axes_store, side_axes_selection);
+	top_axes_tree = setup_tree_view (top_axes_store, top_axes_selection);
 
 	/* Load the main axes store */
-	GtkTreeIter iter_parent, iter_child;
+	GtkTreeIter iter_parent
+		//, iter_child
+		;
 	for (Table::CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
 		//gtk_tree_store_append (store, &iter_child, &iter_parent);
 		gtk_tree_store_append (main_axes_store, &iter_parent, NULL);
@@ -691,7 +790,7 @@ void setup_gui()
 	gtk_container_add (GTK_CONTAINER (scr_window), table);
 
 
-	gtk_table_attach_defaults (GTK_TABLE (table), main_axes_tree, 0, 1, 1, 5);
+	gtk_table_attach_defaults (GTK_TABLE (table), GTK_WIDGET (main_axes_tree), 0, 1, 1, 5);
 
 	GtkWidget * add_to_side_tab_button = gtk_button_new_with_label ("Side =>");
 	g_signal_connect (G_OBJECT (add_to_side_tab_button), "clicked",
@@ -715,16 +814,23 @@ void setup_gui()
 				G_CALLBACK (remove_axes_top), (gpointer) NULL);
 	gtk_widget_show (remove_from_top_tab_button);
 
-	gtk_table_attach_defaults (GTK_TABLE (table), side_axes_tree, 2, 3, 1, 5);
-	gtk_table_attach_defaults (GTK_TABLE (table), top_axes_tree,  3, 4, 1, 5);
+	gtk_table_attach_defaults (GTK_TABLE (table), GTK_WIDGET (side_axes_tree), 2, 3, 1, 5);
+	gtk_table_attach_defaults (GTK_TABLE (table), GTK_WIDGET (top_axes_tree),  3, 4, 1, 5);
+
+	GtkWidget * run_button = gtk_button_new_with_label ("Run");
+	g_signal_connect (G_OBJECT (run_button), "clicked",
+				G_CALLBACK (run_tables), (gpointer) NULL);
+	gtk_widget_show (run_button);
+	gtk_table_attach_defaults (GTK_TABLE (table), run_button,  4, 5, 1, 2);
+
 
 	//gtk_container_add (GTK_CONTAINER (scr_window), table);
 	//gtk_container_add (GTK_CONTAINER (window), button);
 	/* The final step is to display this newly created widget. */
 	//gtk_widget_show (button);
-	gtk_widget_show (main_axes_tree);
-	gtk_widget_show (side_axes_tree);
-	gtk_widget_show (top_axes_tree);
+	gtk_widget_show (GTK_WIDGET(main_axes_tree));
+	gtk_widget_show (GTK_WIDGET(side_axes_tree));
+	gtk_widget_show (GTK_WIDGET(top_axes_tree));
 	/* and the window */
 	gtk_widget_show (scr_window);
 	gtk_widget_show (window);
@@ -735,11 +841,11 @@ void setup_gui()
 
 #include "Tab.h"
 static void tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data);
-GtkWidget * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection)
+GtkTreeView * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection)
 {
 	store = gtk_tree_store_new (N_COLUMNS, G_TYPE_STRING);
 
-	GtkTreeIter iter_parent, iter_child;
+	//GtkTreeIter iter_parent, iter_child;
 
 
 	/* 
@@ -762,7 +868,7 @@ GtkWidget * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selecti
 					-1);
 	}
 	*/
-	GtkWidget * tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
+	GtkTreeView * tree = (GtkTreeView*) gtk_tree_view_new_with_model (GTK_TREE_MODEL (store));
 
 	GtkCellRenderer *renderer = gtk_cell_renderer_text_new ();
 	GtkTreeViewColumn * column = gtk_tree_view_column_new_with_attributes ("Axis",
@@ -783,15 +889,15 @@ GtkWidget * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selecti
 			  G_CALLBACK (tree_selection_changed_cb),
 			  NULL);
 
-	gtk_widget_show (tree);
+	gtk_widget_show (GTK_WIDGET(tree));
 	return tree;
 }
 
 static void tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data)
 {
-        GtkTreeIter iter;
-        GtkTreeModel *model;
-        gchar *ax_name;
+        //GtkTreeIter iter;
+        //GtkTreeModel *model;
+        //gchar *ax_name;
 
 	/* 
         if (gtk_tree_selection_get_selected (selection, &model, &iter)) {

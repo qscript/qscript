@@ -63,6 +63,9 @@ struct AbstractExpression {
 	virtual int isvalid();
 	virtual bool is_lvalue()=0;
 	virtual ~AbstractExpression();
+	private:
+	AbstractExpression& operator=(const AbstractExpression&);	
+	AbstractExpression(const AbstractExpression&);	
 };
 
 //extern int no_errors;
@@ -79,6 +82,9 @@ struct UnaryExpression : public AbstractExpression
 	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 			, ostringstream & code_expr);
 	virtual ~UnaryExpression();
+	private:
+	UnaryExpression& operator=(const UnaryExpression&);	
+	UnaryExpression(const UnaryExpression&);	
 };
 
 
@@ -106,6 +112,9 @@ struct Binary2Expression: public AbstractExpression
 	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 			, ostringstream & code_expr);
 	~Binary2Expression();
+	private:
+	Binary2Expression& operator=(const Binary2Expression&);	
+	Binary2Expression(const Binary2Expression&);	
 };
 
 //! BinaryExpression holds expressions operated on by binary operators. For example a +b , a-b etc
@@ -123,6 +132,9 @@ struct BinaryExpression: public AbstractExpression
 	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 			, ostringstream & code_expr);
 	~BinaryExpression();
+	private:
+	BinaryExpression& operator=(const BinaryExpression&);	
+	BinaryExpression(const BinaryExpression&);	
 };
 
 
@@ -168,6 +180,9 @@ struct Unary2Expression : public AbstractExpression
 		(ostringstream& code_bef_expr, ostringstream & code_expr);
 	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 			, ostringstream & code_expr);
+	private:
+	Unary2Expression& operator=(const Unary2Expression&);	
+	Unary2Expression(const Unary2Expression&);	
 };
 
 } /* close namespace Expression */

@@ -197,6 +197,9 @@ struct FieldStatement: public AbstractStatement
 	void GenerateCode(FILE * & fptr);
 	~FieldStatement()
 	{}
+	private:
+	FieldStatement& operator=(const FieldStatement&);	
+	FieldStatement(const FieldStatement&);	
 };
 		 
 
