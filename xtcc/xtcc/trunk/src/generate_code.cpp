@@ -40,6 +40,7 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 	fprintf(op, "#include <fstream>\n");
 	fprintf(op, "#include <sstream>\n");
 	fprintf(op, "#include <vector>\nusing namespace std;\n");
+	fprintf(tab_drv_func, "#include \"global.h\"\n");
 	fprintf(tab_drv_func, "#include \"my_table.C\"\n");
 	fprintf(tab_drv_func, "void tab_compute(){\n");
 	for (unsigned int i=0; i<table_list.size(); i++) {
@@ -517,6 +518,7 @@ void print_axis_code(FILE * op, FILE * axes_drv_func)
 	fprintf(op, "#include <vector>\n" );
 	fprintf(op, "#include \"ax_stmt_type.h\"\n");
 	fprintf(op, "using namespace std;\n" );
+	fprintf(axes_drv_func, "#include \"global.h\"\n");
 	fprintf(axes_drv_func, "#include \"my_axes.C\"\n");
 	fprintf(axes_drv_func, "void ax_compute() /* :-)  */{\n");
 	for(CMAPITER it=ax_map.begin(); it!=ax_map.end(); ++it){
@@ -750,11 +752,13 @@ void print_axis_code(FILE * op, FILE * axes_drv_func)
 		}
 		string ax_file_h_name=work_dir+string("/ax_") + it->first + string(".h");
 		FILE * ax_file_h =fopen(ax_file_h_name.c_str(), "wb");
-		fprintf(ax_file_h, "%s\n", axis_code_str_h.str().c_str());
+		fprintf (ax_file_h, "%s\n", axis_code_str_h.str().c_str());
+		fclose (ax_file_h);
 		string ax_file_cpp_name=work_dir+string("/ax_") + it->first + string(".cpp");
 		FILE * ax_file_cpp =fopen(ax_file_cpp_name.c_str(), "wb");
-		fprintf(ax_file_cpp, "#include \"ax_%s.h\"\n", it->first.c_str());
-		fprintf(ax_file_cpp, "%s\n", axis_code_str_cpp.str().c_str());
+		fprintf (ax_file_cpp, "#include \"ax_%s.h\"\n", it->first.c_str());
+		fprintf (ax_file_cpp, "%s\n", axis_code_str_cpp.str().c_str());
+		fclose (ax_file_cpp);
 	}
 	fprintf(axes_drv_func, "}\n");
 }

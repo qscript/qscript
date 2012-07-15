@@ -266,7 +266,20 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 			exit(1);
 		}
 	}
-
+	{
+		cout << "compilation successful" << endl;
+		std::ostringstream cmd2;
+		cmd2 << work_dir << "/test.exe " << data_file  << " " << rec_len;
+		cout << "cmd2: " << cmd2.str() << endl;
+		int rval = system(cmd2.str().c_str());
+		if (rval == 0) {
+			cout << "generated tables successfully " << endl;
+		} else {
+			cout << "unable to generate tables" << endl;
+		}
+	}
+	cerr << " stopping here after run" << endl;
+	return 0;
 
 	if (flag_compile_only==false && !compile_result){
 		//char * endptr=0;
@@ -276,7 +289,7 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		int rval=0;
 		//if(run_flag){
 		//if(!flag_compile_only){
-			rval= run(data_file, rec_len);
+			rval = run (data_file, rec_len);
 		//}
 		if(tree_root) {
 			delete tree_root;
@@ -295,7 +308,8 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 }
 
 
-void	print_memory_leaks(){
+void	print_memory_leaks()
+{
 	using std::cout;
 	using std::endl;
 	using std::cerr;
@@ -392,7 +406,8 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 					"/stubs/ax_stmt_type.h",
 					"/stubs/mean_stddev_struct.h",
 					"/stubs/list_summ_template.C",
-					"/stubs/main_loop.C"
+					"/stubs/main_loop.C",
+					"/stubs/Makefile2"
 				};
 
 	for(int i=0; i<(sizeof(copy_file_list)/sizeof(copy_file_list[0])); ++i) {
@@ -405,7 +420,7 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 			return rval;
 		}
 	}
-	string cmd1="cat "; 
+	string cmd1="g++ -c "; 
 	const int main_loop_file_index=2;
 	const int temp_file_index=5;
 
@@ -417,13 +432,46 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	//	}
 	//}
 	//cerr << "(sizeof(file_list)/sizeof(file_list[0])): " << (sizeof(file_list)/sizeof(file_list[0])) << endl;
-	for(int i=0; i<(sizeof(file_list)/sizeof(file_list[0]))-1; ++i){
+#if 0
+	int n_files = (sizeof(file_list)/sizeof(file_list[0]));
+	cerr << "n_files: " << n_files << endl;
+	for (int i=0; i<n_files-1; ++i) {
 		//if (i==main_loop_file_index){
 		//	cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
 		//} else {
-			cmd1 += my_work_dir + string(file_list[i])+string(" ");
+			//cmd1 += my_work_dir + string(file_list[i]) + string(" ");
+			cmd1 = string("g++ -g -c ") + my_work_dir + string(file_list[i]);
+			cout << cmd1.c_str() << endl;
+			rval = system(cmd1.c_str());
+			if (rval != 0) {
+				cerr << "command failed... exiting\n";
+				exit(1);
+			} else {
+				cout << "compilation successful" << endl;
+			}
 		//}
 	}
+#endif /*  0  */
+	cmd1 = string("cd ") + my_work_dir + string("; make -f Makefile2 ");
+	rval = system(cmd1.c_str());
+	if (rval != 0) {
+		cerr << "command failed... exiting\n";
+		exit(1);
+	} else {
+		/* 
+		cout << "compilation successful" << endl;
+		std::ostringstream cmd2;
+		cmd2 << "myedit.exe " << data_file  << " " << rec_len;
+		rval = system(cmd1.c_str());
+		if (rval == 0) {
+			cout << "generated tables successfully " << endl;
+		} else {
+			cout << "unable to generate tables" << endl;
+		} */
+	}
+	cerr << "stopping here for the moment" << endl;
+	return rval;
+	//exit (1);
 	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
 	//string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
 	//string cmd3=string("; echo \"#include \"list_summ_template.C\" >> "  + my_work_dir + string("/temp.C");
