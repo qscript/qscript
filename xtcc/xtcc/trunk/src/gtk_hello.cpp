@@ -2,17 +2,8 @@
  * =====================================================================================
  *
  *       Filename:  gtk_hello.cpp
- *
- *    Description:  
- *
- *        Version:  1.0
- *        Created:  Friday 13 July 2012 10:01:19  IST
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  YOUR NAME (), 
+ *         Author:  Neil Xavier D'Souza
  *        Company:  
- *
  * =====================================================================================
  */
 #include <cstdlib>
@@ -48,7 +39,6 @@ int check_parameters(struct AbstractExpression* e, struct FunctionParameter* v);
 bool check_type_compat(DataType typ1, DataType typ2);
 int	compile( char * const XTCC_HOME, char * const work_dir);
 int	run(char * data_file_name, int rec_len);
-//void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func);
 void print_weighting_code();
 //void print_axis_code(FILE * op, FILE * axes_drv_func);
 void clean_up();
@@ -89,37 +79,6 @@ extern int line_no;
 	using std::cout;
 	using std::endl;
 	using std::cerr;
-/* This is a callback function. The data arguments are ignored
-* in this example. More on callbacks below. */
-GtkTreeView * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection);
-void hello( GtkWidget *widget, gpointer data )
-{
-	g_print ("Hello World\n");
-}
-gint delete_event( GtkWidget *widget,
-	GdkEvent *event, gpointer data) 
-{
-	/*
-	*
-	*
-	*
-	*
-	If you return FALSE in the "delete_event" signal handler,
-	GTK will emit the "destroy" signal. Returning TRUE means
-	you don’t want the window to be destroyed.
-	This is useful for popping up ’are you sure you want to quit?’
-	type dialogs. */
-	g_print ("delete event occurred\n");
-	/* Change TRUE to FALSE and the main window will be destroyed with
-	* a "delete_event". */
-	//return TRUE
-	return FALSE;
-}
-/* Another callback */
-void destroy (GtkWidget *widget, gpointer data)
-{
-	gtk_main_quit ();
-}
 
 	void setup_gui();
 int main (int argc, char *argv[])
@@ -271,7 +230,8 @@ int main (int argc, char *argv[])
 	return 0;
 }
 
-void	print_memory_leaks(){
+void	print_memory_leaks()
+{
 	using std::cout;
 	using std::endl;
 	using std::cerr;
@@ -354,13 +314,29 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	//system("rm xtcc_work/temp.C");
 	system(cmd.c_str());
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
+	/*
 	const char * file_list[]={
 		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
 		"my_tab_drv_func.C", "temp.C" 
 	};
+	 */
+	const char * file_list[]={
+		"edit_out.c", "my_axes_drv_func.C", "main_loop.C", 
+		"my_tab_drv_func.C", "list_summ_template.C",
+		"temp.C" 
+	};
+	/*
 	const char * copy_file_list[] = {"/stubs/ax_stmt_type.h",
 					"/stubs/mean_stddev_struct.h"
 	};
+	*/
+	const char * copy_file_list[] = {
+					"/stubs/ax_stmt_type.h",
+					"/stubs/mean_stddev_struct.h",
+					"/stubs/list_summ_template.C",
+					"/stubs/main_loop.C",
+					"/stubs/Makefile2"
+				};
 
 	for(int i=0; i<(sizeof(copy_file_list)/sizeof(copy_file_list[0])); ++i) {
 		string cmd0="cp "; 
@@ -372,17 +348,29 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 			return rval;
 		}
 	}
-	string cmd1="cat "; 
+	string cmd1="g++ -c "; 
 	const int main_loop_file_index=2;
-	const int temp_file_index=4;
+	const int temp_file_index=5;
 
-	for(int i=0; i<(sizeof(file_list)/sizeof(file_list[0]))-1; ++i){
-		if (i==main_loop_file_index){
-			cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
+	cmd1 = string("cd ") + my_work_dir + string("; make -f Makefile2 ");
+	rval = system(cmd1.c_str());
+	if (rval != 0) {
+		cerr << "command failed... exiting\n";
+		exit(1);
+	} else {
+		/* 
+		cout << "compilation successful" << endl;
+		std::ostringstream cmd2;
+		cmd2 << "myedit.exe " << data_file  << " " << rec_len;
+		rval = system(cmd1.c_str());
+		if (rval == 0) {
+			cout << "generated tables successfully " << endl;
 		} else {
-			cmd1 += my_work_dir + string(file_list[i])+string(" ");
-		}
+			cout << "unable to generate tables" << endl;
+		} */
 	}
+	cerr << "stopping here for the moment" << endl;
+	return rval;
 	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
 	string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
 	cmd1 += cmd3;
@@ -516,6 +504,34 @@ struct GUIAxData {
 	GtkTreeStore * axes_store;
 	GtkTreeSelection * axes_selection;
 };
+
+/* This is a callback function. The data arguments are ignored
+* in this example. More on callbacks below. */
+GtkTreeView * setup_tree_view(GtkTreeStore  *& store, GtkTreeSelection * & selection);
+gint delete_event( GtkWidget *widget,
+	GdkEvent *event, gpointer data) 
+{
+	/*
+	*
+	*
+	*
+	*
+	If you return FALSE in the "delete_event" signal handler,
+	GTK will emit the "destroy" signal. Returning TRUE means
+	you don’t want the window to be destroyed.
+	This is useful for popping up ’are you sure you want to quit?’
+	type dialogs. */
+	g_print ("delete event occurred\n");
+	/* Change TRUE to FALSE and the main window will be destroyed with
+	* a "delete_event". */
+	//return TRUE
+	return FALSE;
+}
+/* Another callback */
+void destroy (GtkWidget *widget, gpointer data)
+{
+	gtk_main_quit ();
+}
 
 GtkTreeView * main_axes_tree;
 GtkTreeView * side_axes_tree;

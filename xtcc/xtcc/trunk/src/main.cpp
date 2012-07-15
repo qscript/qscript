@@ -1,3 +1,11 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  main.cpp
+ *         Author:  Neil Xavier D'Souza
+ *        Company:  
+ * =====================================================================================
+ */
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
@@ -30,7 +38,6 @@ int check_parameters(struct AbstractExpression* e, struct FunctionParameter* v);
 bool check_type_compat(DataType typ1, DataType typ2);
 int	compile( char * const XTCC_HOME, char * const work_dir);
 int	run(char * data_file_name, int rec_len);
-//void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list);
 void print_weighting_code();
 //void print_axis_code(FILE * op, FILE * axes_drv_func);
 void clean_up();
@@ -61,7 +68,8 @@ CodeOutputFiles code_output_files;
 
 extern int no_errors;
 extern int line_no;
-int main(int argc, char* argv[]/*, char* envp[]*/){
+int main (int argc, char* argv[])
+{
 	using std::cout;
 	using std::endl;
 	using std::cerr;
@@ -266,7 +274,8 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 			exit(1);
 		}
 	}
-	{
+
+	if (flag_compile_only == false && !compile_result){
 		cout << "compilation successful" << endl;
 		std::ostringstream cmd2;
 		cmd2 << work_dir << "/test.exe " << data_file  << " " << rec_len;
@@ -277,19 +286,14 @@ int main(int argc, char* argv[]/*, char* envp[]*/){
 		} else {
 			cout << "unable to generate tables" << endl;
 		}
-	}
-	cerr << " stopping here after run" << endl;
-	return 0;
-
-	if (flag_compile_only==false && !compile_result){
 		//char * endptr=0;
 		//int convert_to_base=10;
 		//int rec_len=strtol(argv[3],&endptr, convert_to_base);
 		//bool run_flag=true;
-		int rval=0;
+		//int rval=0;
 		//if(run_flag){
 		//if(!flag_compile_only){
-			rval = run (data_file, rec_len);
+		//	rval = run (data_file, rec_len);
 		//}
 		if(tree_root) {
 			delete tree_root;
@@ -424,34 +428,6 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	const int main_loop_file_index=2;
 	const int temp_file_index=5;
 
-	//for(int i=0; i<(sizeof(file_list)/sizeof(file_list[0]))-1; ++i){
-	//	if (i==main_loop_file_index){
-	//		cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
-	//	} else {
-	//		cmd1 += my_work_dir + string(file_list[i])+string(" ");
-	//	}
-	//}
-	//cerr << "(sizeof(file_list)/sizeof(file_list[0])): " << (sizeof(file_list)/sizeof(file_list[0])) << endl;
-#if 0
-	int n_files = (sizeof(file_list)/sizeof(file_list[0]));
-	cerr << "n_files: " << n_files << endl;
-	for (int i=0; i<n_files-1; ++i) {
-		//if (i==main_loop_file_index){
-		//	cmd1 += MY_XTCC_HOME + string(file_list[i])+ string(" ");
-		//} else {
-			//cmd1 += my_work_dir + string(file_list[i]) + string(" ");
-			cmd1 = string("g++ -g -c ") + my_work_dir + string(file_list[i]);
-			cout << cmd1.c_str() << endl;
-			rval = system(cmd1.c_str());
-			if (rval != 0) {
-				cerr << "command failed... exiting\n";
-				exit(1);
-			} else {
-				cout << "compilation successful" << endl;
-			}
-		//}
-	}
-#endif /*  0  */
 	cmd1 = string("cd ") + my_work_dir + string("; make -f Makefile2 ");
 	rval = system(cmd1.c_str());
 	if (rval != 0) {
@@ -471,6 +447,7 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	}
 	cerr << "stopping here for the moment" << endl;
 	return rval;
+
 	//exit (1);
 	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
 	//string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
