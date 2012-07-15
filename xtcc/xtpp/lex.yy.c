@@ -1978,15 +1978,16 @@ void yyfree (void * ptr )
 
 
 
-void pre_proc_open_file(char * const fname){
-	if( incl_stk_ptr >= MAX_INCL_DEPTH ){
+void pre_proc_open_file(char * const fname) {
+	if (incl_stk_ptr >= MAX_INCL_DEPTH) {
 		printf("includes nested too deep\n");
 		exit(1);
 	}
-	include_stack[incl_stk_ptr++]=YY_CURRENT_BUFFER;
-	yyin=fopen(fname, "r");
-	if(!yyin){
+	include_stack[incl_stk_ptr++] = YY_CURRENT_BUFFER;
+	yyin = fopen(fname, "r");
+	if (!yyin) {
 		printf("failed to open include file: %s\n", fname);
+		exit(1);
 	}
 	yy_switch_to_buffer(yy_create_buffer(yyin,YY_BUF_SIZE) );
 	
