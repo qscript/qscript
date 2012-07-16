@@ -5,8 +5,12 @@
  */
 #include "TreeViewExample.h"
 
+
 #include <iostream>
 #include <boost/lexical_cast.hpp>
+#include <cstdlib>
+#include <cstdio>
+#include <sstream>
 
 #include <Wt/WApplication>
 #include <Wt/WContainerWidget>
@@ -18,6 +22,7 @@
 #include <Wt/WText>
 #include <Wt/WTreeView>
 #include <Wt/WHBoxLayout>
+#include <Wt/Http/Response>
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
@@ -390,8 +395,13 @@ void TreeViewExample:: run_tables ()
 		fclose(tab_drv_func);
 		fclose(tab_summ_func);
 		if (!compile(XTCC_HOME, work_dir)) {
+			using namespace std;
 			int rval = run(data_file, rec_len);
 			cout << "xtcc run complete" << endl;
+
+			//Wt::Http::Response resp;
+			//resp.addHeader ("Content-Type", "binary/octet-stream");
+			//ostringstream  size_str ;
 		}
 		for (int i=0; i < table_list.size(); ++i) {
 			delete table_list[i];

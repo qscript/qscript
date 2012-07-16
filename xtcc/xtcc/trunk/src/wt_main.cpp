@@ -81,8 +81,13 @@ extern int line_no;
 
 	void setup_gui();
 
+
+#include <Wt/WServer>
+#include <Wt/WResource>
+#include <Wt/Http/Response>
 #include <Wt/WApplication>
 #include <Wt/WText>
+#include "rest_get_hello.h"
 
 #include "TreeViewExample.h"
 
@@ -278,7 +283,17 @@ int main (int argc, char *argv[])
 
 
 	/* create a new window */
-	WRun (argc, argv, &createApplication);
+	//WRun (argc, argv, &createApplication);
+	WServer server(argv[0]);
+	server.setServerConfiguration(argc, argv);
+	RestGetHello getHello;
+	server.addResource(&getHello, "/hello");
+	server.addEntryPoint(Wt::Application, createApplication);
+
+	if (server.start()) {
+		WServer::waitForShutdown();
+		server.stop();
+	}
 
 	/* All GTK applications must have a gtk_main(). Control ends here
 	* and waits for an event to occur (like a key press or

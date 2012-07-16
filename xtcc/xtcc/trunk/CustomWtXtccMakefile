@@ -6,11 +6,11 @@ CXX_SHARED_LIB_FLAGS = -fPIC
 CXX_LINK_FLAGS = -g
 #CXX_LINK_LIBS = /usr/lib/libstlport_gcc.so.4.6
 #CXX_LINK_LIBS = -lstlport_gcc
-#CXX_LINK_LIBS = 
+CXX_LINK_LIBS = -lwt -lwthttp -lboost_signals
 SOURCE_DIR=src
 BUILD_DIR=make-build-dir
 CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
-EXCLUDE_FILE=src/main.cpp src/wt_main.cpp
+EXCLUDE_FILE=src/main.cpp src/gtk_main.cpp
 CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
 #EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp
 #CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
@@ -38,6 +38,7 @@ LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
 LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
 OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
+OBJECTS := $(OBJECTS) $(BUILD_DIR)/TreeViewExample.o 
 
 XTCC_MAJOR_VERSION_NUMBER=0
 XTCC_MINOR_VERSION_NUMBER=5
@@ -53,11 +54,11 @@ XTCC_MINOR_VERSION_NUMBER=5
 #	echo "YACC OBJECTS $(YACC_OBJECTS)"
 #	echo "LEX OBJECTS $(LEX_OBJECTS)"
 
-$(BUILD_DIR)/xtcc_gtk: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
+$(BUILD_DIR)/xtcc_wt: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
 #echo "cpp sources: $(CPP_SOURCES)" 
 #	echo "yacc sources: $(YACC_SOURCES)" 
 #	echo "lex sources: $(LEX_SOURCES)" 
-	$(CC) $(CXX_LINK_FLAGS)  -o $@ $(OBJECTS) `pkg-config --libs gtk+-2.0` $(CXX_LINK_LIBS) 
+	$(CC) $(CXX_LINK_FLAGS)  -o $@ $(OBJECTS) $(CXX_LINK_LIBS) 
 
 yacc_deps: $(YACC_OUTPUTS)
 
@@ -91,10 +92,13 @@ $(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
 		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
 		rm -f $@.$$$$
 
-$(BUILD_DIR)/gtk_main.o: $(SOURCE_DIR)/gtk_main.cpp;
-	$(CC) $(CFLAGS) `pkg-config --cflags gtk+-2.0` -o $@ $<
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
+	echo "making target $@"
+	$(CC) $(CFLAGS) -o $@ $<
+#echo "dir of target: $(@D), filename of target $(@F)"
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.C;
 	echo "making target $@"
 	$(CC) $(CFLAGS) -o $@ $<
 #echo "dir of target: $(@D), filename of target $(@F)"
@@ -139,8 +143,8 @@ clean:
 		bin/qscript include/*.h \
 		inputs/*.exe src/*.output
 
-local_install: $(BUILD_DIR)/xtcc_gtk 
-	cp $(BUILD_DIR)/xtcc_gtk bin
+local_install: $(BUILD_DIR)/xtcc_wt 
+	cp $(BUILD_DIR)/xtcc_wt bin
 	cp ${SOURCE_DIR}/*.h include
 
 #nsiqcppstyle:
