@@ -1,7 +1,7 @@
 /*
  * =====================================================================================
  *
- *       Filename:  gtk_hello.cpp
+ *       Filename:  wt_hello.cpp
  *         Author:  Neil Xavier D'Souza
  *        Company:  
  * =====================================================================================
@@ -73,7 +73,6 @@ extern int line_no;
 
 
 
-#include <gtk/gtk.h>
 #include <iostream>
 #include <cstdlib>
 	using std::cout;
@@ -81,22 +80,80 @@ extern int line_no;
 	using std::cerr;
 
 	void setup_gui();
+
+#include <Wt/WApplication>
+#include <Wt/WText>
+
+#include "TreeViewExample.h"
+
+using namespace Wt;
+
+class TreeViewApplication: public WApplication
+{
+public:
+  TreeViewApplication(const WEnvironment &env):
+    WApplication(env)
+  {
+    WStandardItemModel *main_model = TreeViewExample::create_main_axes_model(true, this);
+    WStandardItemModel *side_model = TreeViewExample::create_side_axes_model(true, this);
+    WStandardItemModel *top_model  = TreeViewExample::create_side_axes_model(true, this);
+
+    root()->addWidget
+      (new TreeViewExample (main_model, side_model, top_model, /* WString::tr("treeview-introduction") */this)); 
+
+    /*
+     * Stub for the drink info
+     */
+    aboutDrink_ = new WText("", root());
+    
+    internalPathChanged().connect(this, &TreeViewApplication::handlePathChange);
+  }
+private:
+  WText *aboutDrink_;
+
+  void handlePathChange() {
+    if (internalPathMatches("/drinks/")) {
+      std::string drink = internalPathNextPart("/drinks/");
+      aboutDrink_->setText(WString::tr("drink-" + drink));
+    }
+  }
+
+};
+
+WApplication *createApplication(const WEnvironment& env)
+{
+  WApplication *app = new TreeViewApplication(env);
+  app->setTitle("WTreeView example");
+  app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
+  app->styleSheet().addRule("button", "margin: 2px");
+  //app->useStyleSheet("treeview.css");
+  
+  return app;
+}
+
+/* 
+int main(int argc, char **argv)
+{
+  return WRun(argc, argv, &createApplication);
+}
+*/
+
+
 int main (int argc, char *argv[])
 {
 	/* GtkWidget is the storage type for widgets */
 	//GtkWidget *button;
 	/* This is called in all GTK applications. Arguments are parsed
 	* from the command line and are returned to the application. */
-	gtk_init (&argc, &argv);
-	if (argc < 2) {
-		cout << "Usage: " << argv[0] << " <prog-name> <data-file>" << endl << endl;
+	if (argc != 9) {
+		cout << "Usage: " << argv[0] << " --http-port <port> --http-address <address> --docroot <document root directory> <prog-name> <data-file>" << endl << endl;
 		exit(1);
 	} else {
-		cout << "Program name: " << argv[1] << ", Data file: " << argv[2] << endl;
+		cout << "Program name: " << argv[7] << ", Data file: " << argv[8] << endl;
 	}
 
-	char * inp_file = argv[1];
-	data_file = argv[2];
+	char * inp_file = argv[7];
+	data_file = argv[8];
 	XTCC_HOME=getenv("XTCC_HOME");
 	active_scope=new Scope();
 	active_scope_list.push_back(active_scope);
@@ -210,24 +267,22 @@ int main (int argc, char *argv[])
 	printf("parsing over\n about to begin compiling\n");
 	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
 
-	string gfname=work_dir+string("/global.h");
+	string gfname=work_dir+string("/global.C");
 	FILE * global_vars=fopen(gfname.c_str(), "a+");
 	if (!global_vars) {
 		cerr << "cannot open global.C for writing" << endl;
 		exit(1);
 	}
 	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H--*/\n");
-	fflush (global_vars);
 	fclose(global_vars);
 
 
 	/* create a new window */
-	setup_gui();
+	WRun (argc, argv, &createApplication);
 
 	/* All GTK applications must have a gtk_main(). Control ends here
 	* and waits for an event to occur (like a key press or
 	* mouse event). */
-	gtk_main ();
 	return 0;
 }
 
@@ -373,8 +428,8 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	cerr << "stopping here for the moment" << endl;
 	return rval;
 	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
-	//string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
-	//cmd1 += cmd3;
+	string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
+	cmd1 += cmd3;
 
 #endif /* GNU/UNIX */
 #if __WIN32__
@@ -497,6 +552,7 @@ void print_weighting_code()
 }
 /*  ================ GUI ==================== */
 
+#if 0
 enum { AXIS_COLUMN, N_COLUMNS };
 // Bad !!! global variables, I hope I can get away with this
 //
@@ -943,3 +999,4 @@ static void tree_selection_changed_cb (GtkTreeSelection *selection, gpointer dat
 
 }
 
+#endif /*  0 */

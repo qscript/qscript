@@ -395,7 +395,7 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	string cmd=string("rm ") + string(work_dir) + string("/temp.C");
 	//system("rm xtcc_work/temp.C");
 	cout << "XTCC_HOME is = " << XTCC_HOME << endl;
-	/* 
+	/*
 	const char * file_list[]={
 		"edit_out.c", "my_axes_drv_func.C", "/stubs/main_loop.C", 
 		"my_tab_drv_func.C", "temp.C" 

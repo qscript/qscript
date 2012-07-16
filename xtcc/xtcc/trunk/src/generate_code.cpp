@@ -132,12 +132,12 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 				//cout << "generate_code: i: " << i << endl;
 				AbstractCountableAxisStatement* banner_stmt=map_iter_b->second->count_ax_stmt_start;
 				if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
-					//string global_vars_fname=work_dir+string("/global.C");
-					//global_vars = fopen(global_vars_fname.c_str(), "a+b");
-					//if (!global_vars) {
-					//	cerr << "Unable to open file: " << global_vars_fname << " for writing ... exiting \n";
-					//	exit(1);
-					//}
+					string global_vars_fname=work_dir+string("/global.h");
+					global_vars = fopen(global_vars_fname.c_str(), "a+b");
+					if (!global_vars) {
+						cerr << "Unable to open file: " << global_vars_fname << " for writing ... exiting \n";
+						exit(1);
+					}
 					fprintf (global_vars, "vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
 							map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
 					fclose(global_vars);
@@ -816,6 +816,7 @@ void	generate_edit_section_code()
 	print_list_counts=fopen(list_fname.c_str(), "a+");
 	fprintf(print_list_counts, "}\n");
 	fclose(print_list_counts);
+	fclose(global_vars);
 
 }
 
