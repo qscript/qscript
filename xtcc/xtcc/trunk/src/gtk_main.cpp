@@ -446,7 +446,7 @@ int run(char * data_file_name, int rec_len){
 	string cmd0 = "date +hour:%l:minute:%M:second:%S:nanosecond:%N";
 	rval=system(cmd0.c_str());
 
-	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/myedit.exe " << data_file_name  << " " << rec_len;
+	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/test.exe " << data_file_name  << " " << rec_len;
 #endif /* UNIX */
 	std::cout << "executing : " 
 		<< cmd1.str() << std::endl;

@@ -267,7 +267,7 @@ int main (int argc, char *argv[])
 	printf("parsing over\n about to begin compiling\n");
 	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
 
-	string gfname=work_dir+string("/global.C");
+	string gfname=work_dir+string("/global.h");
 	FILE * global_vars=fopen(gfname.c_str(), "a+");
 	if (!global_vars) {
 		cerr << "cannot open global.C for writing" << endl;
@@ -501,7 +501,7 @@ int run(char * data_file_name, int rec_len){
 	string cmd0 = "date +hour:%l:minute:%M:second:%S:nanosecond:%N";
 	rval=system(cmd0.c_str());
 
-	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/myedit.exe " << data_file_name  << " " << rec_len;
+	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/test.exe " << data_file_name  << " " << rec_len;
 #endif /* UNIX */
 	std::cout << "executing : " 
 		<< cmd1.str() << std::endl;
