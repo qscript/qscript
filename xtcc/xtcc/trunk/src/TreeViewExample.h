@@ -11,6 +11,11 @@
 #include <Wt/WString>
 #include <string>
 #include <vector>
+#include <set>
+
+using std::string;
+using std::vector;
+using std::set;
 
 enum WeatherIcon {
   Sun,
@@ -34,8 +39,9 @@ public:
 	TreeViewExample (Wt::WStandardItemModel *model,
 			 Wt::WStandardItemModel *side_model,
 			 Wt::WStandardItemModel *top_model,
-		      /* const Wt::WString& titleText */
-		  WObject * parent);
+			 std::set<string> & p_side_axes_set,
+			 std::set<string> & p_top_axes_set,
+			 WObject * parent);
 
   Wt::WTreeView *treeView() const { return main_axes_tree; }
 
@@ -45,30 +51,26 @@ public:
 						 WObject *parent);
 
 private:
-  Wt::WStandardItem      *belgium_;
-  Wt::WStandardItemModel *main_axes_model;
-  Wt::WTreeView          *main_axes_tree;
-  Wt::WStandardItemModel *side_axes_model;
-  Wt::WTreeView          *side_axes_tree;
-  Wt::WStandardItemModel *top_axes_model;
-  Wt::WTreeView          *top_axes_tree;
+	Wt::WStandardItemModel *main_axes_model;
+	Wt::WTreeView          *main_axes_tree;
+	Wt::WStandardItemModel *side_axes_model;
+	Wt::WTreeView          *side_axes_tree;
+	Wt::WStandardItemModel *top_axes_model;
+	Wt::WTreeView          *top_axes_tree;
+	std::set<string> & side_axes_set;
+	std::set<string> & top_axes_set;
 
-  static Wt::WStandardItem *continentItem(const std::string& continent);
-  static Wt::WStandardItem *countryItem(const std::string& country,
-					const std::string& code);
-  static std::vector<Wt::WStandardItem *> cityItems(const std::string& city,
-						    WeatherIcon weather,
-						    const std::string& drink,
-						    bool useInternalPath,
-						    bool visited);
-  void add_axes();
+	static Wt::WStandardItem *continentItem(const std::string& continent);
+
+	void add_axes();
+	void remove_axes_from_side();
+	void remove_axes_from_top();
 	void add_axes_to_top();
 	void run_tables ();
 
-  void toggleRowHeight();
-  void toggleStripes();
-  void toggleRoot();
-  void addRows();
+	void toggleRowHeight();
+	void toggleStripes();
+	void toggleRoot();
 };
 
 #endif

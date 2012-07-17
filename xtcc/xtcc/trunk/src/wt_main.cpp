@@ -99,12 +99,14 @@ public:
   TreeViewApplication(const WEnvironment &env):
     WApplication(env)
   {
-    WStandardItemModel *main_model = TreeViewExample::create_main_axes_model(true, this);
-    WStandardItemModel *side_model = TreeViewExample::create_side_axes_model(true, this);
-    WStandardItemModel *top_model  = TreeViewExample::create_side_axes_model(true, this);
+    WStandardItemModel *main_model = TreeViewExample::create_main_axes_model (true, this);
+    WStandardItemModel *side_model = TreeViewExample::create_side_axes_model (true, this);
+    WStandardItemModel *top_model  = TreeViewExample::create_side_axes_model (true, this);
 
     root()->addWidget
-      (new TreeViewExample (main_model, side_model, top_model, /* WString::tr("treeview-introduction") */this)); 
+      (new TreeViewExample (main_model, side_model, top_model, 
+			    side_axes_set, top_axes_set,
+			    this)); 
 
     /*
      * Stub for the drink info
@@ -115,6 +117,7 @@ public:
   }
 private:
   WText *aboutDrink_;
+    set<string> side_axes_set, top_axes_set;
 
   void handlePathChange() {
     if (internalPathMatches("/drinks/")) {

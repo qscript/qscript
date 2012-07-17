@@ -22,6 +22,7 @@
 #include <Wt/WText>
 #include <Wt/WTreeView>
 #include <Wt/WHBoxLayout>
+#include <Wt/WVBoxLayout>
 #include <Wt/Http/Response>
 #include <cstdlib>
 #include <cstdio>
@@ -56,11 +57,16 @@ static const char *weatherIcons[] = {
 TreeViewExample::TreeViewExample (WStandardItemModel *model,
 			 	  WStandardItemModel *side_model,
 			 	  WStandardItemModel *top_model,
+				  set<string> & p_side_axes_set,
+				  set<string> & p_top_axes_set,
 				  /* const WString& titleText */
-				WObject * parent)
-  : main_axes_model (model), main_axes_tree (0), 
-	side_axes_model (side_model), side_axes_tree (0),
-	top_axes_model (top_model), top_axes_tree (0)
+				  WObject * parent)
+	: 	main_axes_model (model), main_axes_tree (0), 
+		side_axes_model (side_model), side_axes_tree (0),
+		top_axes_model (top_model), top_axes_tree (0),
+		side_axes_set (p_side_axes_set),
+		top_axes_set (p_top_axes_set)
+		
 {
 #if 0
 	WStandardItemModel *main_axes_model = new WStandardItemModel(0, 1, parent);
@@ -73,75 +79,100 @@ TreeViewExample::TreeViewExample (WStandardItemModel *model,
 	}
 #endif /* 0 */
 
-  //belgium_ = main_axes_model->item(0, 0)->child(0, 0);
 
-  //new WText(titleText, this);
 
-  /*
-   * Now create the view
-   */
-  WPanel *panel1 = new WPanel(this);
-  panel1->resize(150, 300);
-  panel1->setCentralWidget(main_axes_tree = new WTreeView());
+	/*
+	 * Now create the view
+	 */
+	WPanel *panel1 = new WPanel(this);
+	panel1->resize(150, 300);
+	panel1->setCentralWidget(main_axes_tree = new WTreeView());
 
-  WPanel *panel2 = new WPanel(this);
-  panel2->resize(150, 300);
-  panel2->setCentralWidget(side_axes_tree = new WTreeView());
-  side_axes_tree->setModel(side_axes_model);
-  side_axes_tree->setSelectionMode (ExtendedSelection);
+	WPanel *panel2 = new WPanel(this);
+	panel2->resize(150, 300);
+	panel2->setCentralWidget(side_axes_tree = new WTreeView());
+	side_axes_tree->setModel(side_axes_model);
+	side_axes_tree->setSelectionMode (ExtendedSelection);
 
-  WPanel *panel3 = new WPanel(this);
-  panel3->resize(150, 300);
-  panel3->setCentralWidget(top_axes_tree = new WTreeView());
-  top_axes_tree->setModel(top_axes_model);
-  top_axes_tree->setSelectionMode (ExtendedSelection);
+	WPanel *panel3 = new WPanel(this);
+	panel3->resize(150, 300);
+	panel3->setCentralWidget(top_axes_tree = new WTreeView());
+	top_axes_tree->setModel(top_axes_model);
+	top_axes_tree->setSelectionMode (ExtendedSelection);
 
-  WContainerWidget  * w  = new WContainerWidget(this);
-  WHBoxLayout * hbl = new WHBoxLayout ();
-  hbl->addWidget (panel1 );
-  hbl->addWidget (panel2);
-  hbl->addWidget (panel3);
-  w->setLayout (hbl, AlignTop | AlignJustify);
+	WContainerWidget  * w  = new WContainerWidget(this);
+	WHBoxLayout * hbl = new WHBoxLayout ();
+	hbl->addWidget (panel1 );
 
-  if (!WApplication::instance()->environment().ajax()) {
-    main_axes_tree->resize(WLength::Auto, 90);
-    side_axes_tree->resize(WLength::Auto, 90);
-  }
-  //main_axes_tree->setSelectionBehaviour (SelectRows);
-  main_axes_tree->setSelectionMode (ExtendedSelection);
-  main_axes_tree->setAlternatingRowColors(true);
-  main_axes_tree->setRowHeight(25);
-  main_axes_tree->setModel(main_axes_model);
 
-  main_axes_tree->setColumnWidth(1, WLength(40));
-  main_axes_tree->setColumnAlignment(1, AlignCenter);
+	WContainerWidget *wc = new WContainerWidget();
+	WVBoxLayout * vbl = new WVBoxLayout ();
+	WPushButton *b;
+
+	b = new WPushButton("Side =>", this);
+	b->clicked().connect(this, &TreeViewExample::add_axes);
+	b->setToolTip("Add axes to side");
+	vbl->addWidget (b);
+
+	b = new WPushButton("<= Side", this);
+	b->clicked().connect(this, &TreeViewExample::remove_axes_from_side);
+	b->setToolTip("Remove axes from side");
+	vbl->addWidget (b);
+
+	b = new WPushButton("Top =>", this);
+	b->clicked().connect(this, &TreeViewExample::add_axes_to_top);
+	b->setToolTip("Add axes to banner");
+	vbl->addWidget (b);
+
+	b = new WPushButton("<= Top", this);
+	b->clicked().connect(this, &TreeViewExample::remove_axes_from_top);
+	b->setToolTip("Remove axes from banner");
+	vbl->addWidget (b);
+
+	b = new WPushButton("Run", this);
+	b->clicked().connect(this, &TreeViewExample::run_tables);
+	b->setToolTip("Run the tables");
+	vbl->addWidget (b);
+	wc->setLayout (vbl, AlignTop);
+	hbl->addWidget (wc);
+
+
+	hbl->addWidget (panel2);
+	hbl->addWidget (panel3);
+
+	WPanel *panel4 = new WPanel(this);
+	panel4->resize(150, 300);
+	hbl->addWidget (panel4);
+	//panel4->setCentralWidget(top_axes_tree = new WTreeView());
+	//w->setLayout (hbl, AlignTop | AlignJustify);
+
+	if (!WApplication::instance()->environment().ajax()) {
+		main_axes_tree->resize(WLength::Auto, 90);
+		side_axes_tree->resize(WLength::Auto, 90);
+	}
+	//main_axes_tree->setSelectionBehaviour (SelectRows);
+	main_axes_tree->setSelectionMode (ExtendedSelection);
+	main_axes_tree->setAlternatingRowColors(true);
+	main_axes_tree->setRowHeight(25);
+	main_axes_tree->setModel(main_axes_model);
+
+	main_axes_tree->setColumnWidth(1, WLength(40));
+	main_axes_tree->setColumnAlignment(1, AlignCenter);
+
   //main_axes_tree->setColumnWidth(3, WLength(100));
   //main_axes_tree->setColumnAlignment(3, AlignCenter);
 
   /*
    * Expand the first (and single) top level node
    */
-  main_axes_tree->setExpanded(main_axes_model->index(0, 0), true);
+	main_axes_tree->setExpanded(main_axes_model->index(0, 0), true);
   //main_axes_tree->setExpanded(main_axes_model->index(0, 0, main_axes_model->index(0, 0)), true);
 
   /*
    * Setup some buttons to manipulate the view and the model.
    */
 #if 1
-  WContainerWidget *wc = new WContainerWidget();
-  hbl->addWidget (wc);
-  WPushButton *b;
-  
-  b = new WPushButton("Side =>", wc);
-  b->clicked().connect(this, &TreeViewExample::add_axes);
-  //b->setToolTip("Toggles row height between 31px and 25px");
-  b = new WPushButton("Top =>", wc);
-  b->clicked().connect(this, &TreeViewExample::add_axes_to_top);
-  b->setToolTip("Toggle alternating row colors");
-  
-  b = new WPushButton("Run", wc);
-  b->clicked().connect(this, &TreeViewExample::run_tables);
-  b->setToolTip("Toggles root item between all and the first continent.");
+	w->setLayout (hbl, AlignTop | AlignLeft);
 
 #if 0 
   b = new WPushButton("Add rows", wc);
@@ -182,55 +213,6 @@ WStandardItemModel *TreeViewExample::create_side_axes_model(bool useInternalPath
 	return result;
 }
 
-WStandardItem *TreeViewExample::continentItem(const std::string& continent)
-{
-  WStandardItem *result = new WStandardItem(continent);
-  result->setColumnCount(4);
-  return result;
-}
-
-WStandardItem *TreeViewExample::countryItem(const std::string& country,
-					    const std::string& code)
-{
-  WStandardItem *result = new WStandardItem(WString::fromUTF8(country));
-  result->setIcon("icons/flag_" + code + ".png");
-  
-  return result;
-}
-
-std::vector<WStandardItem *>
-TreeViewExample::cityItems(const std::string& city,
-			   WeatherIcon weather,
-			   const std::string& drink,
-			   bool useInternalPath, bool visited)
-{
-  std::vector<WStandardItem *> result;
-  WStandardItem *item;
-  
-  // column 0: country
-  item = new WStandardItem(WString::fromUTF8(city));
-  result.push_back(item);
-  
-  // column 1: weather
-  item = new WStandardItem();
-  item->setIcon(std::string("icons/") + weatherIcons[weather]);
-  result.push_back(item);
-  
-  // column 2: drink
-  item = new WStandardItem(drink);
-  if (useInternalPath)
-    item->setInternalPath("/drinks/" + drink);
-  result.push_back(item);
-  
-  // column 3: visited
-  item = new WStandardItem();
-  item->setCheckable(true);
-  item->setChecked(visited);
-  result.push_back(item);
-  
-  return result;
-}
-
 void TreeViewExample::toggleRowHeight()
 {
   if (main_axes_tree->rowHeight() == WLength(31))
@@ -247,11 +229,76 @@ void TreeViewExample::add_axes()
 			it != sel_indx.end(); ++it) {
 		WStandardItem *data = main_axes_model->itemFromIndex(*it);
 		std::cout << data->text() << std::endl;
-		WStandardItem * data2 = new WStandardItem (data->text());
-		side_axes_model -> appendRow ( data2) ;
+		if (side_axes_set.find( data->text().toUTF8()) == side_axes_set.end()) {
+			WStandardItem * data2 = new WStandardItem (data->text());
+			side_axes_model -> appendRow ( data2) ;
+			side_axes_set.insert (data->text().toUTF8());
+		} else {
+			std::cout << data->text() << "already exists in side axes" << std::endl;
+		}
 		++ n_axes;
 	}
 	std::cout << "selectedIndexes: " << n_axes << std::endl;
+}
+
+void TreeViewExample::remove_axes_from_side()
+{
+	WModelIndexSet sel_indx = side_axes_tree->selectedIndexes();
+	int n_axes = 0;
+	vector <WModelIndex> vec_indxes;
+	for (set<WModelIndex>::iterator it = sel_indx.begin();
+			it != sel_indx.end(); ++it) {
+		WStandardItem *data = side_axes_model -> itemFromIndex(*it);
+		std::cout << data->text() << std::endl;
+		if (side_axes_set.find (data->text().toUTF8()) != side_axes_set.end()) {
+			vec_indxes.push_back (*it);
+			side_axes_set.erase (data->text().toUTF8());
+			//WStandardItem * data2 = new WStandardItem (data->text());
+			//side_axes_model -> appendRow ( data2) ;
+			//side_axes_set.insert (data->text().toUTF8());
+		} else {
+			std::cout << data->text() << "does not exists in side axes" << std::endl;
+		}
+		++ n_axes;
+	}
+	std::cout << "selectedIndexes: " << n_axes << std::endl;
+	using namespace std;
+	if (vec_indxes.size() > 0) {
+		for (int i = vec_indxes.size()-1; i >= 0; --i) {
+			cout << "row no to be removed: " << vec_indxes[i].row() << endl;
+			side_axes_model->removeRow (vec_indxes[i].row());
+		}
+	}
+}
+
+void TreeViewExample::remove_axes_from_top()
+{
+	WModelIndexSet sel_indx = top_axes_tree->selectedIndexes();
+	int n_axes = 0;
+	vector <WModelIndex> vec_indxes;
+	for (set<WModelIndex>::iterator it = sel_indx.begin();
+			it != sel_indx.end(); ++it) {
+		WStandardItem *data = top_axes_model -> itemFromIndex(*it);
+		std::cout << data->text() << std::endl;
+		if (top_axes_set.find (data->text().toUTF8()) != top_axes_set.end()) {
+			vec_indxes.push_back (*it);
+			top_axes_set.erase (data->text().toUTF8());
+			//WStandardItem * data2 = new WStandardItem (data->text());
+			//top_axes_model -> appendRow ( data2) ;
+			//top_axes_set.insert (data->text().toUTF8());
+		} else {
+			std::cout << data->text() << "does not exists in top axes" << std::endl;
+		}
+		++ n_axes;
+	}
+	std::cout << "selectedIndexes: " << n_axes << std::endl;
+	using namespace std;
+	if (vec_indxes.size() > 0) {
+		for (int i = vec_indxes.size()-1; i >= 0; --i) {
+			cout << "row no to be removed: " << vec_indxes[i].row() << endl;
+			top_axes_model->removeRow (vec_indxes[i].row());
+		}
+	}
 }
 
 
@@ -263,43 +310,31 @@ void TreeViewExample::add_axes_to_top()
 			it != sel_indx.end(); ++it) {
 		WStandardItem *data = main_axes_model->itemFromIndex(*it);
 		std::cout << data->text() << std::endl;
-		WStandardItem * data2 = new WStandardItem (data->text());
-		top_axes_model -> appendRow ( data2) ;
+		if (top_axes_set.find( data->text().toUTF8()) == top_axes_set.end()) {
+			WStandardItem * data2 = new WStandardItem (data->text());
+			top_axes_model -> appendRow ( data2) ;
+			top_axes_set.insert (data->text().toUTF8());
+		} else {
+			std::cout << data->text() << "already exists in top axes" << std::endl;
+		}
 		++ n_axes;
 	}
-	std::cout << "selectedIndexes: " << n_axes << std::endl;
+	std::cout << "n selected axes: " << n_axes << std::endl;
 }
+
 void TreeViewExample::toggleStripes()
 {
-  main_axes_tree->setAlternatingRowColors(!main_axes_tree->alternatingRowColors());
+	main_axes_tree->setAlternatingRowColors(!main_axes_tree->alternatingRowColors());
 }
 
 void TreeViewExample::toggleRoot()
 {
-  if (main_axes_tree->rootIndex() == WModelIndex())
-    main_axes_tree->setRootIndex(main_axes_model->index(0, 0));
-  else
-    main_axes_tree->setRootIndex(WModelIndex());
+	if (main_axes_tree->rootIndex() == WModelIndex())
+		main_axes_tree->setRootIndex(main_axes_model->index(0, 0));
+	else
+		main_axes_tree->setRootIndex(WModelIndex());
 }
 
-void TreeViewExample::addRows()
-{
-#if 0
-  static int COUNT = 10;
-
-  for (int i = 0; i < COUNT; ++i) {
-    std::string cityName = "City "
-      + boost::lexical_cast<std::string>(belgium_->rowCount() + 1);
-    
-    bool useInternalPath = false;
-    belgium_->appendRow(cityItems(cityName, Storm, "Juice", useInternalPath,
-				  false));
-  }
-
-  main_axes_tree->scrollTo(belgium_->child(belgium_->rowCount() -COUNT )->index(),
-		      WAbstractItemView::PositionAtTop);
-#endif /*  0  */
-}
 
 
 void TreeViewExample:: run_tables ()
