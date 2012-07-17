@@ -31,7 +31,6 @@ FILE * global_vars;
 #include <cstdio>
 //void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list);
 //void print_latex_print(FILE* op, int table_index);
-set <string> ax_defns;
 
 void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list)
 {
@@ -43,6 +42,7 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 	fprintf(tab_drv_func, "#include \"global.h\"\n");
 	fprintf(tab_drv_func, "#include \"my_table.C\"\n");
 	fprintf(tab_drv_func, "void tab_compute(){\n");
+	set <string> ax_defns;
 	for (unsigned int i=0; i<table_list.size(); i++) {
 		CMAPITER map_iter_s= ax_map.find(table_list[i]->side);
 		CMAPITER map_iter_b= ax_map.find(table_list[i]->banner);

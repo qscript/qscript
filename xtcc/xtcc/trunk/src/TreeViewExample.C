@@ -381,19 +381,19 @@ void TreeViewExample:: run_tables ()
 		}
 		cout <<  "work_dir: %s\n"  << work_dir << endl;
 		string fname = string(work_dir) + string("/my_table.C");
-		FILE * table_op=fopen( fname.c_str(), "w");
-		fname = string(work_dir) + string("/my_tab_drv_func.C");
-		FILE * tab_drv_func=fopen(fname.c_str(), "w");	
-		fname = string(work_dir) + string("/my_tab_summ.C");
-		FILE * tab_summ_func=fopen(fname.c_str(), "w");	
-		if(!(table_op&&tab_drv_func&&tab_summ_func)){
+		FILE * table_op = fopen (fname.c_str(), "wb");
+		fname = string (work_dir) + string("/my_tab_drv_func.C");
+		FILE * tab_drv_func = fopen (fname.c_str(), "wb");	
+		fname = string (work_dir) + string("/my_tab_summ.C");
+		FILE * tab_summ_func = fopen (fname.c_str(), "wb");	
+		if (! (table_op && tab_drv_func && tab_summ_func) ) {
 			std::cerr << "Unable to open file for output of table classes" << std::endl;
 			exit(1);
 		}
 		print_table_code (table_op, tab_drv_func, tab_summ_func, table_list);
-		fclose(table_op);
-		fclose(tab_drv_func);
-		fclose(tab_summ_func);
+		fclose (table_op);
+		fclose (tab_drv_func);
+		fclose (tab_summ_func);
 		if (!compile(XTCC_HOME, work_dir)) {
 			using namespace std;
 			int rval = run(data_file, rec_len);
