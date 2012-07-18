@@ -70,29 +70,26 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 		top_axes_set (p_top_axes_set)
 		
 {
-	WPanel *panel1 = new WPanel(this);
+	WContainerWidget  * w  = new WContainerWidget (this);
+	WHBoxLayout * hbl = new WHBoxLayout ();
+
+	WPanel *panel1 = new WPanel();
 	panel1->resize(150, 300);
 	panel1->setCentralWidget(main_axes_tree = new WTreeView());
-
-	WPanel *panel2 = new WPanel();
-	panel2->resize(150, 300);
-	panel2->setCentralWidget(side_axes_tree = new WTreeView());
-	side_axes_tree->setModel(side_axes_model);
-	side_axes_tree->setSelectionMode (ExtendedSelection);
-
-	WPanel *panel3 = new WPanel();
-	panel3->resize(150, 300);
-	panel3->setCentralWidget(top_axes_tree = new WTreeView());
-	top_axes_tree->setModel(top_axes_model);
-	top_axes_tree->setSelectionMode (ExtendedSelection);
-
-	WContainerWidget  * w  = new WContainerWidget(this);
-	WHBoxLayout * hbl = new WHBoxLayout ();
+	main_axes_tree->setSelectionMode (ExtendedSelection);
+	main_axes_tree->setAlternatingRowColors (true);
+	main_axes_tree->setRowHeight (25);
+	main_axes_tree->setModel (main_axes_model);
+	/*
+	 * Expand the first (and single) top level node
+	 */
+	main_axes_tree->setExpanded(main_axes_model->index(0, 0), true);
+	//main_axes_tree->setExpanded(main_axes_model->index(0, 0, main_axes_model->index(0, 0)), true);
 	hbl->addWidget (panel1 );
 
-
-	WContainerWidget *wc = new WContainerWidget();
-	WVBoxLayout * vbl = new WVBoxLayout ();
+	// ======================
+	WContainerWidget * wc = new WContainerWidget(this);
+	WVBoxLayout * vbl = new WVBoxLayout (wc);
 	WPushButton *b;
 
 	b = new WPushButton("Side =>" );
@@ -121,9 +118,21 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	vbl->addWidget (b);
 	wc->setLayout (vbl, AlignTop);
 	hbl->addWidget (wc);
+	// ======================
 
 
+	WPanel *panel2 = new WPanel();
+	panel2->resize(150, 300);
+	panel2->setCentralWidget(side_axes_tree = new WTreeView());
+	side_axes_tree->setModel(side_axes_model);
+	side_axes_tree->setSelectionMode (ExtendedSelection);
 	hbl->addWidget (panel2);
+
+	WPanel *panel3 = new WPanel();
+	panel3->resize(150, 300);
+	panel3->setCentralWidget(top_axes_tree = new WTreeView());
+	top_axes_tree->setModel(top_axes_model);
+	top_axes_tree->setSelectionMode (ExtendedSelection);
 	hbl->addWidget (panel3);
 
 	WPanel *panel4 = new WPanel(this);
@@ -132,27 +141,17 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	panel4->setCentralWidget (messages_container = new WContainerWidget());
 	messages_container->setStyleClass("chat-msgs");
 
-
 	mesg_cont_layout = new WVBoxLayout ();
 	messages_container->setLayout (mesg_cont_layout);
-	messages_container->setOverflow(WContainerWidget::OverflowAuto);
+	messages_container->setOverflow (WContainerWidget::OverflowAuto);
 
 	if (!WApplication::instance()->environment().ajax()) {
-		main_axes_tree->resize(WLength::Auto, 90);
-		side_axes_tree->resize(WLength::Auto, 90);
+		main_axes_tree->resize (WLength::Auto, 90);
+		side_axes_tree->resize (WLength::Auto, 90);
 	}
-	main_axes_tree->setSelectionMode (ExtendedSelection);
-	main_axes_tree->setAlternatingRowColors(true);
-	main_axes_tree->setRowHeight(25);
-	main_axes_tree->setModel(main_axes_model);
-
-
-
-	/*
-	 * Expand the first (and single) top level node
-	 */
-	main_axes_tree->setExpanded(main_axes_model->index(0, 0), true);
-	//main_axes_tree->setExpanded(main_axes_model->index(0, 0, main_axes_model->index(0, 0)), true);
+#if 0
+#endif /*  0  */
+	w->setLayout (hbl, AlignTop);
 
 }
 
