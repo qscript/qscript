@@ -6,10 +6,19 @@
 #include <Wt/Http/Response>
 #include <sstream>
 #include <string>
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+
+using std::cout;
+using std::endl;
+using std::cerr;
 
 class RestGetHello : public Wt::WResource
 {
 	public:
+	RestGetHello()
+	{ }
 	virtual ~RestGetHello()
 	{
 		beingDeleted();

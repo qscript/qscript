@@ -9,6 +9,7 @@
 
 #include <Wt/WContainerWidget>
 #include <Wt/WString>
+#include <Wt/WVBoxLayout>
 #include <string>
 #include <vector>
 #include <set>
@@ -59,6 +60,9 @@ private:
 	Wt::WTreeView          *top_axes_tree;
 	std::set<string> & side_axes_set;
 	std::set<string> & top_axes_set;
+	Wt::WContainerWidget * messages_container;
+	Wt::WVBoxLayout * mesg_cont_layout;
+	//Wt::Ext::Panel * messages_container ;
 
 	static Wt::WStandardItem *continentItem(const std::string& continent);
 

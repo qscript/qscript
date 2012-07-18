@@ -1,0 +1,156 @@
+html {
+  font-family:arial,sans-serif;
+  overflow-x: hidden;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+h2, h3, h4, h5 {
+  color: #505050;
+}
+
+h2 {
+  padding-left: 30px;
+  border-bottom: 1px solid #000;
+}
+
+h2 span {
+  border-bottom: 0.2em solid #000;
+}
+
+
+button {
+  padding-left: 5px;
+  padding-right: 5px;
+  font-size: smaller;
+}
+
+.chat {
+  border: 2px solid #CCCCCC;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 85%;
+  height: 300px;
+}
+
+span.chat-info {
+  font-style: oblique;
+  color: gray;
+}
+
+textarea.chat-noedit {
+  border: 2px solid #73A6FF;
+}
+
+.chat-user {
+  color: #DD7200;
+  font-weight: bold;
+  padding-right: 0.2em;
+}
+
+.chat-users label {
+  margin-left: 0.2em;
+}
+
+.chat-self {
+  color: #B42600;
+  font-weight: bold;
+  padding-right: 0.2em;
+}
+
+.chat-highlight {
+  font-weight: bold;
+}
+
+.chat-msgs {
+  margin: 0px 1px;
+}
+
+.chat-users {
+  width: 12ex;
+}
+
+.chat-msg {
+  padding: 2px;
+}
+
+.chat-users div {
+  margin: 3px 3px 3px 6px;
+}
+
+.chat-users div .chat-self {
+  font-weight: bold;
+}
+
+/* =============== */
+.chat-widget {
+    position: fixed;
+    right: 5px;
+    bottom: 0px;    
+    border: 1px solid #BBB;
+    border-bottom: 0px;
+    z-index: 100;
+    background-color: white;
+}
+
+.chat-minimized {
+    width: 170px;
+    height: 20px;
+}
+
+.chat-maximized {
+    width: 200px;
+    height: 250px;
+}
+
+.chat-bar {
+    height: 21px;
+    padding: 2px 5px;
+    background-color: #70bd1A;
+    color: white;
+}
+
+.chat-bar .chat-minmax {
+    float: right;
+    width: 16px;
+    height: 16px;
+}
+
+.chat-maximized .chat-bar .chat-minmax {
+    background: url(icons/minimize.png) no-repeat center center;
+}
+
+.chat-minimized .chat-bar .chat-minmax {
+    background: url(icons/maximize.png) no-repeat center center;
+}
+
+.chat-self {
+  color: #B42600;
+  font-weight: bold;
+  padding-right: 0.2em;
+}
+
+.chat-highlight {
+  font-weight: bold;
+}
+
+*.chat-msg {
+  padding: 0px 3px;
+  line-height: 1.03;
+  color: gray;
+}
+
+.chat-info {
+  font-style: oblique;
+  color: gray;
+}
+
+.chat-user {
+  color: #DD7200;
+  font-weight: bold;
+  padding-right: 0.2em;
+}

@@ -865,10 +865,10 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 				no_inc_ax_elems,
 				$5);
 		
-		std::cout << "got axis: " << $2 
-			<< "no_tot_ax_elems: " << no_tot_ax_elems 
-			<< ", no_count_ax_elems: " << no_count_ax_elems
-			<< endl;
+		//std::cout << "got axis: " << $2 
+		//	<< "no_tot_ax_elems: " << no_tot_ax_elems 
+		//	<< ", no_count_ax_elems: " << no_count_ax_elems
+		//	<< endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}

@@ -2872,10 +2872,10 @@ yyreduce:
 				no_inc_ax_elems,
 				(yyvsp[(5) - (8)].expr));
 		
-		std::cout << "got axis: " << (yyvsp[(2) - (8)].name) 
-			<< "no_tot_ax_elems: " << no_tot_ax_elems 
-			<< ", no_count_ax_elems: " << no_count_ax_elems
-			<< endl;
+		//std::cout << "got axis: " << $2 
+		//	<< "no_tot_ax_elems: " << no_tot_ax_elems 
+		//	<< ", no_count_ax_elems: " << no_count_ax_elems
+		//	<< endl;
 		if(XTCC_DEBUG_MEM_USAGE){
 			mem_log((yyval.ax), __LINE__, __FILE__, line_no);
 		}

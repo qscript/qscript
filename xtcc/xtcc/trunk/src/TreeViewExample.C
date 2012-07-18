@@ -4,6 +4,7 @@
  * See the LICENSE file for terms of use.
  */
 #include "TreeViewExample.h"
+#include "rest_get_hello.h"
 
 
 #include <iostream>
@@ -13,9 +14,17 @@
 #include <sstream>
 
 #include <Wt/WApplication>
+#include <Wt/WAnchor>
+#include <Wt/WResource>
 #include <Wt/WContainerWidget>
 #include <Wt/WEnvironment>
 #include <Wt/WPanel>
+#include <Wt/WLabel>
+#include <Wt/WText>
+#include <Wt/WScrollArea>
+#include <Wt/WScrollArea>
+#include <Wt/WFitLayout>
+#include <Wt/Ext/Panel>
 #include <Wt/WPushButton>
 #include <Wt/WStandardItem>
 #include <Wt/WStandardItemModel>
@@ -36,6 +45,7 @@
 #include "code_output_files.h"
 #include "generate_code.hpp"
 
+std:: string read_file_contents (string file_name_with_path);
 extern map <string, Table::ax*> ax_map;
 using namespace Wt;
 int	compile( char * const XTCC_HOME, char * const work_dir);
@@ -140,10 +150,22 @@ TreeViewExample::TreeViewExample (WStandardItemModel *model,
 	hbl->addWidget (panel2);
 	hbl->addWidget (panel3);
 
+	//messages_container = new Ext::Panel();
+	//messages_container->setLayout (new Wt::WFitLayout());
+
 	WPanel *panel4 = new WPanel(this);
-	panel4->resize(150, 300);
+	panel4->resize(300, 300);
 	hbl->addWidget (panel4);
-	//panel4->setCentralWidget(top_axes_tree = new WTreeView());
+	panel4->setCentralWidget (messages_container = new WContainerWidget());
+	messages_container->setStyleClass("chat-msgs");
+
+
+	mesg_cont_layout = new WVBoxLayout ();
+	//WScrollArea * scr_area = new WScrollArea (messages_container);
+	//scr_area->setWidget (messages_container);
+	messages_container->setLayout (mesg_cont_layout);
+	messages_container->setOverflow(WContainerWidget::OverflowAuto);
+
 	//w->setLayout (hbl, AlignTop | AlignJustify);
 
 	if (!WApplication::instance()->environment().ajax()) {
@@ -431,8 +453,26 @@ void TreeViewExample:: run_tables ()
 		fclose (tab_summ_func);
 		if (!compile(XTCC_HOME, work_dir)) {
 			using namespace std;
-			int rval = run(data_file, rec_len);
+			string output = read_file_contents ( "command_output.log");
+			cout << "command output" << endl
+				<< output 
+				<< endl;
+			int rval = run (data_file, rec_len);
 			cout << "xtcc run complete" << endl;
+			// WLabel * info_label = new WLabel (output, messages_container);
+			WText * info_label = new WText (output, messages_container);
+			info_label->setStyleClass ("chat-msg");
+			mesg_cont_layout -> addWidget (info_label);
+
+			//WAnchor * a = new WAnchor(this);
+			//a->setRefInternalPath("/hello");
+			//   and listen to the corresponding change in internal path
+			//WApplication::instance()->internalPathChanged().connect(this, &DocsListWidget::onInternalPathChange);
+
+			Wt::WResource *r = new RestGetHello(); // serializes to a PDF file.
+			WAnchor *  a = new WAnchor(r, "/hello", messages_container);
+			a->setTarget(TargetNewWindow);
+			mesg_cont_layout -> addWidget (a);
 
 			//Wt::Http::Response resp;
 			//resp.addHeader ("Content-Type", "binary/octet-stream");

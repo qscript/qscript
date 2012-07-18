@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
+#include <sstream>
 #include "expr.h"
 //#include "tree.h"
 #include "debug_mem.h"
@@ -28,6 +29,7 @@ void flex_finish();
 extern vector <Scope*> active_scope_list;
 extern Scope* active_scope;
 extern vector <Statement::FunctionInformation*> func_info_table;
+std:: string read_file_contents (string file_name_with_path);
 
 extern int errno;
 char * XTCC_HOME;
@@ -98,10 +100,12 @@ class TreeViewApplication: public WApplication
 public:
   TreeViewApplication(const WEnvironment &env):
     WApplication(env)
-  {
-    WStandardItemModel *main_model = TreeViewExample::create_main_axes_model (true, this);
-    WStandardItemModel *side_model = TreeViewExample::create_side_axes_model (true, this);
-    WStandardItemModel *top_model  = TreeViewExample::create_side_axes_model (true, this);
+   {
+
+	useStyleSheet("gui.css");
+	WStandardItemModel *main_model = TreeViewExample::create_main_axes_model (true, this);
+	WStandardItemModel *side_model = TreeViewExample::create_side_axes_model (true, this);
+	WStandardItemModel *top_model  = TreeViewExample::create_side_axes_model (true, this);
 
     root()->addWidget
       (new TreeViewExample (main_model, side_model, top_model, 
@@ -327,7 +331,8 @@ void	print_memory_leaks()
 
 
 
-void clean_up(){
+void clean_up ()
+{
 	using std::cout;
 	using std::endl;
 	using std::cerr;
@@ -422,11 +427,11 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 			return rval;
 		}
 	}
-	string cmd1="g++ -c "; 
+	//string cmd1="g++ -c "; 
 	const int main_loop_file_index=2;
 	const int temp_file_index=5;
 
-	cmd1 = string("cd ") + my_work_dir + string("; make -f Makefile2 ");
+	string cmd1 = string("cd ") + my_work_dir + string("; make -f Makefile2 ");
 	rval = system(cmd1.c_str());
 	if (rval != 0) {
 		cerr << "command failed... exiting\n";
@@ -509,7 +514,8 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 }
 
 #include <sstream>
-int run(char * data_file_name, int rec_len){
+int run (char * data_file_name, int rec_len)
+{
 	int rval;
 	std::ostringstream cmd1;
 #if	__WIN32__
@@ -519,14 +525,17 @@ int run(char * data_file_name, int rec_len){
 	string cmd0 = "date +hour:%l:minute:%M:second:%S:nanosecond:%N";
 	rval=system(cmd0.c_str());
 
-	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/test.exe " << data_file_name  << " " << rec_len;
+	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/test.exe " << data_file_name  << " " << rec_len 
+		<< " > command_output.log " ;
+		;
 #endif /* UNIX */
 	std::cout << "executing : " 
 		<< cmd1.str() << std::endl;
-	rval=system(cmd1.str().c_str());
+	rval = system (cmd1.str().c_str());
+	
 	if (!rval) {
 		string cmd0 = "date +hour:%l:minute:%M:second:%S:nanosecond:%N";
-		rval=system(cmd0.c_str());
+		rval = system (cmd0.c_str()) ;
 	}
 	return rval;
 }
@@ -568,6 +577,66 @@ void print_weighting_code()
 		return;
 	}
 }
+
+std:: string read_file_contents (string file_name_with_path)
+{
+	//std::string tab_fname = "tab_.csv";
+	std::stringstream res;
+	FILE * tab_ = fopen (file_name_with_path.c_str(), "rb");
+	if (!tab_) {
+		cout << "Unable to open" 
+			<<  file_name_with_path
+			<< " for reading" << endl;
+		return res.str();
+	}
+	fseek (tab_, 0, SEEK_END);
+	long int length = ftell (tab_);
+	fseek (tab_, 0, SEEK_SET);
+	std::ostringstream size_str;
+	//response.addHeader ("Content-Type", "binary/octet-stream");
+	size_str << "attachment; filename=tab_.csv; size=" 
+		<< length;
+		//<< 13
+		;
+	cout << "length: " << length << endl;
+	//response.addHeader ("Content-Disposition", size_str.str());
+	//response.addHeader ("Content-Disposition", size_str.str());
+	//response.out() << "HELLO,World!\n";
+	const int bufsz = 4096;
+	char buffer [bufsz];
+	int tot_read = 0;
+	bool breakout = false;
+	do {
+		memset (buffer, 0, bufsz);
+		int n_read = fread (buffer, 1, bufsz, tab_);
+		tot_read += n_read;
+		if (n_read < bufsz) {
+			if ( feof(tab_) ) {
+				if (tot_read != length) {
+					cout << "we have a problem reading the file: "
+						<< "tot_read: " << tot_read
+						<< ", length: " << length 
+						<< endl;
+				} 
+				breakout = true;
+			} else if ( ferror(tab_) ) {
+				cout << "we have an ERROR reading the file";
+				breakout = true;
+			} else {
+				cout << "Unhandled case in " 
+					<< __PRETTY_FUNCTION__ << ", " << __FILE__ 
+					<< ", " << __LINE__ << endl;
+				breakout = true;
+			}
+		}
+		string s(buffer);
+		//response.out() << s;
+		res << s;
+	} while (tot_read < length && !breakout);
+	fclose (tab_);
+	return res.str();
+}
+
 /*  ================ GUI ==================== */
 
 #if 0
