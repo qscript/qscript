@@ -17,6 +17,7 @@
 #include "Tab.h"
 #include "code_output_files.h"
 #include "generate_code.hpp"
+#include "xtcc_wt_ui.h"
 
 template<class T> T* link_chain(T* & elem1, T* & elem2);
 template<class T> T* trav_chain(T* & elem1);
@@ -89,39 +90,78 @@ extern int line_no;
 #include <Wt/Http/Response>
 #include <Wt/WApplication>
 #include <Wt/WText>
+#include <Wt/WStandardItemModel>
 #include "rest_get_hello.h"
 
-#include "TreeViewExample.h"
 
 using namespace Wt;
 
-class TreeViewApplication: public WApplication
+//using namespace Wt;
+
+
+
+
+#if 1
+class TreeViewApplication2: public WApplication
 {
 public:
-  TreeViewApplication(const WEnvironment &env):
-    WApplication(env)
+  TreeViewApplication2(const WEnvironment &env):
+    WApplication(env),
+	    main_model(0), side_model(0), top_model(0)
    {
-
-	useStyleSheet("gui.css");
-	WStandardItemModel *main_model = TreeViewExample::create_main_axes_model (true, this);
-	WStandardItemModel *side_model = TreeViewExample::create_side_axes_model (true, this);
-	WStandardItemModel *top_model  = TreeViewExample::create_side_axes_model (true, this);
-
-    root()->addWidget
-      (new TreeViewExample (main_model, side_model, top_model, 
-			    side_axes_set, top_axes_set,
-			    this)); 
 
     /*
      * Stub for the drink info
      */
-    aboutDrink_ = new WText("", root());
-    
-    internalPathChanged().connect(this, &TreeViewApplication::handlePathChange);
+	//main_model = new WStandardItemModel (0, 1, this);
+	//side_model = new WStandardItemModel (0, 1, this);
+	//side_model->setHeaderData (0, Horizontal, std::string("Side"));
+	//top_model = new WStandardItemModel (0, 1, this);
+	//top_model->setHeaderData (0, Horizontal, std::string("Top"));
+	//aboutDrink_ = new WText("", root());
+	//internalPathChanged().connect(this, &TreeViewApplication2::handlePathChange);
+	WStandardItemModel *main_model = XtccWtUI::create_main_axes_model (true, this);
+	WStandardItemModel *side_model = XtccWtUI::create_side_axes_model (true, this);
+	WStandardItemModel *top_model  = XtccWtUI::create_side_axes_model (true, this);
+	XtccWtUI * ex = new XtccWtUI (main_model, side_model, top_model, 
+				    side_axes_set, top_axes_set,
+				    this);
+	root()->addWidget (ex);
+	useStyleSheet("gui.css");
   }
+  ~TreeViewApplication2() 
+  {
+	cerr << "TreeViewApplication2 was destroyed" << endl;
+  }
+#if 0
+  void init()
+  {
+
+	useStyleSheet("gui.css");
+	WStandardItemModel *main_model = XtccWtUI::create_main_axes_model (true, this);
+	WStandardItemModel *side_model = XtccWtUI::create_side_axes_model (true, this);
+	WStandardItemModel *top_model  = XtccWtUI::create_side_axes_model (true, this);
+
+	//WStandardItemModel *model = new Wt::WStandardItemModel(0, 1, this );
+	//model = new Wt::WStandardItemModel(0, 1, this );
+	//main_model = XtccWtUI::create_main_axes_model (true, this);
+	//XtccWtUI::create_main_axes_model (true, main_model, this);
+	//side_model = XtccWtUI::create_side_axes_model (true, this);
+	//top_model  = XtccWtUI::create_side_axes_model (true, this);
+
+	XtccWtUI * ex = new XtccWtUI (main_model, side_model, top_model, 
+				    side_axes_set, top_axes_set,
+				    this);
+	root()->addWidget (ex);
+
+  }
+#endif /* 0 */
 private:
-  WText *aboutDrink_;
-    set<string> side_axes_set, top_axes_set;
+	WText *aboutDrink_;
+	set<string> side_axes_set, top_axes_set;
+	WStandardItemModel *main_model;
+	WStandardItemModel *side_model;
+	WStandardItemModel *top_model;
 
   void handlePathChange() {
     if (internalPathMatches("/drinks/")) {
@@ -132,23 +172,20 @@ private:
 
 };
 
-WApplication *createApplication(const WEnvironment& env)
+WApplication *createApplication2(const WEnvironment& env)
 {
-  WApplication *app = new TreeViewApplication(env);
-  app->setTitle("WTreeView example");
-  app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
-  app->styleSheet().addRule("button", "margin: 2px");
-  //app->useStyleSheet("treeview.css");
-  
-  return app;
+	cout << "Create Application was called" << endl;
+	TreeViewApplication2 * tv_ptr = new TreeViewApplication2(env);
+	//tv_ptr->init();
+	WApplication *app = tv_ptr;
+	app->setTitle("WTreeView example");
+	app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
+	app->styleSheet().addRule("button", "margin: 2px");
+	//app->useStyleSheet("treeview.css");
+	return app;
 }
+#endif /*  0 */
 
-/* 
-int main(int argc, char **argv)
-{
-  return WRun(argc, argv, &createApplication);
-}
-*/
 
 
 int main (int argc, char *argv[])
@@ -157,16 +194,18 @@ int main (int argc, char *argv[])
 	//GtkWidget *button;
 	/* This is called in all GTK applications. Arguments are parsed
 	* from the command line and are returned to the application. */
-	if (argc != 9) {
+	//if (argc != 9) {
 		cout << "Usage: " << argv[0] << " --http-port <port> --http-address <address> --docroot <document root directory> <prog-name> <data-file>" << endl << endl;
-		exit(1);
-	} else {
-		cout << "Program name: " << argv[7] << ", Data file: " << argv[8] << endl;
-	}
+	//	exit(1);
+	//} else {
+	//	cout << "Program name: " << argv[7] << ", Data file: " << argv[8] << endl;
+	//}	
 
-	char * inp_file = argv[7];
-	data_file = argv[8];
-	XTCC_HOME=getenv("XTCC_HOME");
+	//char * inp_file = argv[7];
+	//data_file = argv[8];
+	char * inp_file = argv [argc - 2];
+	data_file = argv [argc - 1];
+	XTCC_HOME = getenv("XTCC_HOME");
 	active_scope=new Scope();
 	active_scope_list.push_back(active_scope);
 
@@ -290,17 +329,17 @@ int main (int argc, char *argv[])
 
 
 	/* create a new window */
-	//WRun (argc, argv, &createApplication);
-	WServer server(argv[0]);
-	server.setServerConfiguration(argc, argv);
-	RestGetHello getHello;
-	server.addResource(&getHello, "/hello");
-	server.addEntryPoint(Wt::Application, createApplication);
+	WRun (argc, argv, &createApplication2);
+	//WServer server(argv[0]);
+	//server.setServerConfiguration(argc, argv);
+	//RestGetHello getHello;
+	//server.addResource(&getHello, "/hello");
+	//server.addEntryPoint(Wt::Application, createApplication);
 
-	if (server.start()) {
-		WServer::waitForShutdown();
-		server.stop();
-	}
+	//if (server.start()) {
+	//	WServer::waitForShutdown();
+	//	server.stop();
+	//}
 
 	/* All GTK applications must have a gtk_main(). Control ends here
 	* and waits for an event to occur (like a key press or

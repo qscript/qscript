@@ -1,3 +1,4 @@
+CXX = g++-4.6
 CC = $(CXX)
 #CC = clang
 CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
@@ -10,7 +11,7 @@ CXX_LINK_LIBS = -lwt -lwthttp -lboost_signals
 SOURCE_DIR=src
 BUILD_DIR=make-build-dir
 CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
-EXCLUDE_FILE=src/main.cpp src/gtk_main.cpp
+EXCLUDE_FILE=src/main.cpp src/gtk_main.cpp 
 CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
 #EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp
 #CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
@@ -38,7 +39,6 @@ LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
 LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
 OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
-OBJECTS := $(OBJECTS) $(BUILD_DIR)/TreeViewExample.o 
 
 XTCC_MAJOR_VERSION_NUMBER=0
 XTCC_MINOR_VERSION_NUMBER=5

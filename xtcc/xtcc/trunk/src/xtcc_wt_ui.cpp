@@ -3,7 +3,7 @@
  *
  * See the LICENSE file for terms of use.
  */
-#include "TreeViewExample.h"
+#include "xtcc_wt_ui.h"
 #include "rest_get_hello.h"
 
 
@@ -55,22 +55,14 @@ extern char * data_file ;
 extern int rec_len;
 extern char * work_dir;
 
-static const char *weatherIcons[] = {
-  "sun01.png",
-  "cloudy01.png",
-  "w_cloud.png",
-  "rain.png",
-  "storm.png",
-  "snow.png"
-};
 
-TreeViewExample::TreeViewExample (WStandardItemModel *model,
-			 	  WStandardItemModel *side_model,
-			 	  WStandardItemModel *top_model,
-				  set<string> & p_side_axes_set,
-				  set<string> & p_top_axes_set,
-				  /* const WString& titleText */
-				  WObject * parent)
+XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
+			 Wt::WStandardItemModel * & side_model,
+			 Wt::WStandardItemModel * & top_model,
+			 std::set<string> & p_side_axes_set,
+			 std::set<string> & p_top_axes_set,
+			 WObject * parent)
+
 	: 	main_axes_model (model), main_axes_tree (0), 
 		side_axes_model (side_model), side_axes_tree (0),
 		top_axes_model (top_model), top_axes_tree (0),
@@ -78,33 +70,17 @@ TreeViewExample::TreeViewExample (WStandardItemModel *model,
 		top_axes_set (p_top_axes_set)
 		
 {
-#if 0
-	WStandardItemModel *main_axes_model = new WStandardItemModel(0, 1, parent);
-	main_axes_model->setHeaderData(0, Horizontal, std::string("Axes"));
-	for (Table::CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
-		//gtk_tree_store_append (store, &iter_child, &iter_parent);
-		WStandardItem * data = new WStandardItem(it->first);
-		data->setColumnCount(1);
-		main_axes_model -> appendRow (data);
-	}
-#endif /* 0 */
-
-
-
-	/*
-	 * Now create the view
-	 */
 	WPanel *panel1 = new WPanel(this);
 	panel1->resize(150, 300);
 	panel1->setCentralWidget(main_axes_tree = new WTreeView());
 
-	WPanel *panel2 = new WPanel(this);
+	WPanel *panel2 = new WPanel();
 	panel2->resize(150, 300);
 	panel2->setCentralWidget(side_axes_tree = new WTreeView());
 	side_axes_tree->setModel(side_axes_model);
 	side_axes_tree->setSelectionMode (ExtendedSelection);
 
-	WPanel *panel3 = new WPanel(this);
+	WPanel *panel3 = new WPanel();
 	panel3->resize(150, 300);
 	panel3->setCentralWidget(top_axes_tree = new WTreeView());
 	top_axes_tree->setModel(top_axes_model);
@@ -119,28 +95,28 @@ TreeViewExample::TreeViewExample (WStandardItemModel *model,
 	WVBoxLayout * vbl = new WVBoxLayout ();
 	WPushButton *b;
 
-	b = new WPushButton("Side =>", this);
-	b->clicked().connect(this, &TreeViewExample::add_axes);
+	b = new WPushButton("Side =>" );
+	b->clicked().connect(this, &XtccWtUI::add_axes);
 	b->setToolTip("Add axes to side");
 	vbl->addWidget (b);
 
-	b = new WPushButton("<= Side", this);
-	b->clicked().connect(this, &TreeViewExample::remove_axes_from_side);
+	b = new WPushButton("<= Side");
+	b->clicked().connect(this, &XtccWtUI::remove_axes_from_side);
 	b->setToolTip("Remove axes from side");
 	vbl->addWidget (b);
 
-	b = new WPushButton("Top =>", this);
-	b->clicked().connect(this, &TreeViewExample::add_axes_to_top);
+	b = new WPushButton("Top =>");
+	b->clicked().connect(this, &XtccWtUI::add_axes_to_top);
 	b->setToolTip("Add axes to banner");
 	vbl->addWidget (b);
 
-	b = new WPushButton("<= Top", this);
-	b->clicked().connect(this, &TreeViewExample::remove_axes_from_top);
+	b = new WPushButton("<= Top");
+	b->clicked().connect(this, &XtccWtUI::remove_axes_from_top);
 	b->setToolTip("Remove axes from banner");
 	vbl->addWidget (b);
 
-	b = new WPushButton("Run", this);
-	b->clicked().connect(this, &TreeViewExample::run_tables);
+	b = new WPushButton("Run");
+	b->clicked().connect(this, &XtccWtUI::run_tables);
 	b->setToolTip("Run the tables");
 	vbl->addWidget (b);
 	wc->setLayout (vbl, AlignTop);
@@ -150,9 +126,6 @@ TreeViewExample::TreeViewExample (WStandardItemModel *model,
 	hbl->addWidget (panel2);
 	hbl->addWidget (panel3);
 
-	//messages_container = new Ext::Panel();
-	//messages_container->setLayout (new Wt::WFitLayout());
-
 	WPanel *panel4 = new WPanel(this);
 	panel4->resize(300, 300);
 	hbl->addWidget (panel4);
@@ -161,81 +134,51 @@ TreeViewExample::TreeViewExample (WStandardItemModel *model,
 
 
 	mesg_cont_layout = new WVBoxLayout ();
-	//WScrollArea * scr_area = new WScrollArea (messages_container);
-	//scr_area->setWidget (messages_container);
 	messages_container->setLayout (mesg_cont_layout);
 	messages_container->setOverflow(WContainerWidget::OverflowAuto);
-
-	//w->setLayout (hbl, AlignTop | AlignJustify);
 
 	if (!WApplication::instance()->environment().ajax()) {
 		main_axes_tree->resize(WLength::Auto, 90);
 		side_axes_tree->resize(WLength::Auto, 90);
 	}
-	//main_axes_tree->setSelectionBehaviour (SelectRows);
 	main_axes_tree->setSelectionMode (ExtendedSelection);
 	main_axes_tree->setAlternatingRowColors(true);
 	main_axes_tree->setRowHeight(25);
 	main_axes_tree->setModel(main_axes_model);
 
-	main_axes_tree->setColumnWidth(1, WLength(40));
-	main_axes_tree->setColumnAlignment(1, AlignCenter);
 
-  //main_axes_tree->setColumnWidth(3, WLength(100));
-  //main_axes_tree->setColumnAlignment(3, AlignCenter);
 
-  /*
-   * Expand the first (and single) top level node
-   */
+	/*
+	 * Expand the first (and single) top level node
+	 */
 	main_axes_tree->setExpanded(main_axes_model->index(0, 0), true);
-  //main_axes_tree->setExpanded(main_axes_model->index(0, 0, main_axes_model->index(0, 0)), true);
+	//main_axes_tree->setExpanded(main_axes_model->index(0, 0, main_axes_model->index(0, 0)), true);
 
-  /*
-   * Setup some buttons to manipulate the view and the model.
-   */
-#if 1
-	w->setLayout (hbl, AlignTop | AlignLeft);
-
-#if 0 
-  b = new WPushButton("Add rows", wc);
-  b->clicked().connect(this, &TreeViewExample::addRows);
-  b->setToolTip("Adds some cities to Belgium");
-#endif /*  0 */
-#endif /*  0 */
 }
 
-#if 1
-WStandardItemModel *TreeViewExample::create_main_axes_model(bool useInternalPath,
-						 WObject *parent)
+WStandardItemModel *XtccWtUI::create_main_axes_model(bool useInternalPath
+		//, WStandardItemModel * & model
+						 , WObject *parent )
 {
-  WStandardItemModel *result = new WStandardItemModel(0, 1, parent);
-  result->setHeaderData(0, Horizontal, std::string("Axes"));
-  /*
-   * ... and data
-   */
+	WStandardItemModel *model = new WStandardItemModel (0, 1, parent);
+	model->setHeaderData (0, Horizontal, std::string("Axes"));
 	for (Table::CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
-		//gtk_tree_store_append (store, &iter_child, &iter_parent);
 		WStandardItem * data = new WStandardItem(it->first);
 		data->setColumnCount(1);
-		result -> appendRow (data);
-		//gtk_tree_store_append (main_axes_store, &iter_parent, NULL);
-		//gtk_tree_store_set (main_axes_store, &iter_parent, 
-		//			AXIS_COLUMN, it->first.c_str(),
-		//			-1);
+		model -> appendRow (data);
 	}
-  return result;
+	return model;
 }
-#endif /* 0 */
 
-WStandardItemModel *TreeViewExample::create_side_axes_model(bool useInternalPath,
-						 WObject *parent)
+WStandardItemModel *XtccWtUI::create_side_axes_model(bool useInternalPath ,
+						 WObject *parent )
 {
-	WStandardItemModel *result = new WStandardItemModel(0, 1, parent);
+	WStandardItemModel *result = new WStandardItemModel(0, 1 , parent);
 	result->setHeaderData(0, Horizontal, std::string("Side Axes"));
 	return result;
 }
 
-void TreeViewExample::toggleRowHeight()
+void XtccWtUI::toggleRowHeight()
 {
   if (main_axes_tree->rowHeight() == WLength(31))
     main_axes_tree->setRowHeight(25);
@@ -243,7 +186,7 @@ void TreeViewExample::toggleRowHeight()
     main_axes_tree->setRowHeight(31);
 }
 
-void TreeViewExample::add_axes()
+void XtccWtUI::add_axes()
 {
 	WModelIndexSet sel_indx = main_axes_tree->selectedIndexes();
 	int n_axes = 0;
@@ -263,7 +206,7 @@ void TreeViewExample::add_axes()
 	std::cout << "selectedIndexes: " << n_axes << std::endl;
 }
 
-void TreeViewExample::remove_axes_from_side()
+void XtccWtUI::remove_axes_from_side()
 {
 	WModelIndexSet sel_indx = side_axes_tree->selectedIndexes();
 	int n_axes = 0;
@@ -275,9 +218,6 @@ void TreeViewExample::remove_axes_from_side()
 		if (side_axes_set.find (data->text().toUTF8()) != side_axes_set.end()) {
 			vec_indxes.push_back (*it);
 			side_axes_set.erase (data->text().toUTF8());
-			//WStandardItem * data2 = new WStandardItem (data->text());
-			//side_axes_model -> appendRow ( data2) ;
-			//side_axes_set.insert (data->text().toUTF8());
 		} else {
 			std::cout << data->text() << "does not exists in side axes" << std::endl;
 		}
@@ -293,7 +233,7 @@ void TreeViewExample::remove_axes_from_side()
 	}
 }
 
-void TreeViewExample::remove_axes_from_top()
+void XtccWtUI::remove_axes_from_top()
 {
 	WModelIndexSet sel_indx = top_axes_tree->selectedIndexes();
 	int n_axes = 0;
@@ -324,7 +264,7 @@ void TreeViewExample::remove_axes_from_top()
 }
 
 
-void TreeViewExample::add_axes_to_top()
+void XtccWtUI::add_axes_to_top()
 {
 	WModelIndexSet sel_indx = main_axes_tree->selectedIndexes();
 	int n_axes = 0;
@@ -344,12 +284,12 @@ void TreeViewExample::add_axes_to_top()
 	std::cout << "n selected axes: " << n_axes << std::endl;
 }
 
-void TreeViewExample::toggleStripes()
+void XtccWtUI::toggleStripes()
 {
 	main_axes_tree->setAlternatingRowColors(!main_axes_tree->alternatingRowColors());
 }
 
-void TreeViewExample::toggleRoot()
+void XtccWtUI::toggleRoot()
 {
 	if (main_axes_tree->rootIndex() == WModelIndex())
 		main_axes_tree->setRootIndex(main_axes_model->index(0, 0));
@@ -359,7 +299,7 @@ void TreeViewExample::toggleRoot()
 
 
 
-void TreeViewExample:: run_tables ()
+void XtccWtUI:: run_tables ()
 {
 	using std::cout;
 	using std::endl;
@@ -378,51 +318,6 @@ void TreeViewExample:: run_tables ()
 		WStandardItem * item = top_axes_model->item (i);
 		ban_axes.push_back (item->text().toUTF8());
 	}
-#if 0
-	GtkTreeIter iter;
-	/* Get the first iter in the list */
-	GtkTreeModel * model = gtk_tree_view_get_model (side_axes_tree); 
-	gboolean valid = gtk_tree_model_get_iter_first (model, &iter);
-	vector <string> side_axes;
-	gint row_count = 0;
-	while (valid) {
-		/* Walk through the list, reading each row */
-		gchar *str_data;
-		/* Make sure you terminate calls to gtk_tree_model_get()
-		* with a '-1' value
-		*/
-		gtk_tree_model_get (model, &iter,
-				  AXIS_COLUMN, &str_data,
-				  -1);
-		/* Do something with the data */
-		//g_print ("Row %d: |%s|\n", row_count, str_data);
-		side_axes.push_back (str_data);
-		g_free (str_data);
-		row_count ++;
-		valid = gtk_tree_model_iter_next (model, &iter);
-	}
-	/* Get the first iter in the list */
-	model = gtk_tree_view_get_model (top_axes_tree); 
-	valid = gtk_tree_model_get_iter_first (model, &iter);
-	vector <string> ban_axes;
-	row_count = 0;
-	while (valid) {
-		/* Walk through the list, reading each row */
-		gchar *str_data;
-		/* Make sure you terminate calls to gtk_tree_model_get()
-		* with a '-1' value
-		*/
-		gtk_tree_model_get (model, &iter,
-				  AXIS_COLUMN, &str_data,
-				  -1);
-		/* Do something with the data */
-		//g_print ("Row %d: |%s|\n", row_count, str_data);
-		ban_axes.push_back (str_data);
-		g_free (str_data);
-		row_count ++;
-		valid = gtk_tree_model_iter_next (model, &iter);
-	}
-#endif /* 0 */
 	if (side_axes.size() == 0) {
 		cout << "No axes in side: \n";
 	} else if (ban_axes.size() == 0) {

@@ -4,12 +4,13 @@
  *
  * See the LICENSE file for terms of use.
  */
-#ifndef TREEVIEWEXAMPLE_H_
-#define TREEVIEWEXAMPLE_H_
+#ifndef XTCC_WT_UI
+#define XTCC_WT_UI
 
 #include <Wt/WContainerWidget>
 #include <Wt/WString>
 #include <Wt/WVBoxLayout>
+#include <Wt/WStandardItemModel>
 #include <string>
 #include <vector>
 #include <set>
@@ -18,14 +19,6 @@ using std::string;
 using std::vector;
 using std::set;
 
-enum WeatherIcon {
-  Sun,
-  SunCloud,
-  Cloud,
-  Rain,
-  Storm,
-  Snow
-};
 
 namespace Wt {
   class WStandardItem;
@@ -34,22 +27,26 @@ namespace Wt {
   class WText;
 }
 
-class TreeViewExample : public Wt::WContainerWidget
+class XtccWtUI : public Wt::WContainerWidget
 {
 public:
-	TreeViewExample (Wt::WStandardItemModel *model,
-			 Wt::WStandardItemModel *side_model,
-			 Wt::WStandardItemModel *top_model,
+	XtccWtUI (Wt::WStandardItemModel * & model,
+			 Wt::WStandardItemModel * & side_model,
+			 Wt::WStandardItemModel * & top_model,
 			 std::set<string> & p_side_axes_set,
 			 std::set<string> & p_top_axes_set,
 			 WObject * parent);
 
   Wt::WTreeView *treeView() const { return main_axes_tree; }
 
-  static Wt::WStandardItemModel *create_main_axes_model(bool useInternalPath,
-					     WObject *parent);
-  static Wt::WStandardItemModel *create_side_axes_model(bool useInternalPath,
-						 WObject *parent);
+  static Wt::WStandardItemModel *create_main_axes_model(bool useInternalPath ,
+		  				//Wt::WStandardItemModel * & model, 
+						WObject *parent );
+//  Wt::WStandardItemModel *create_main_axes_model(bool useInternalPath ,
+//		  				Wt::WStandardItemModel * & model 
+//					      , WObject *parent );
+  static Wt::WStandardItemModel *create_side_axes_model(bool useInternalPath
+		  				 , WObject *parent );
 
 private:
 	Wt::WStandardItemModel *main_axes_model;
