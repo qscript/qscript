@@ -11,6 +11,7 @@
 #include <Wt/WString>
 #include <Wt/WVBoxLayout>
 #include <Wt/WStandardItemModel>
+#include <Wt/WHBoxLayout>
 #include <string>
 #include <vector>
 #include <set>
@@ -49,6 +50,10 @@ public:
 		  				 , WObject *parent );
 
 private:
+	WContainerWidget  * w  ;
+	//Wt::WVBoxLayout  * vbl1  ;
+	Wt::WHBoxLayout * hbl ;
+	//Wt::WHBoxLayout * hbl2 ;
 	Wt::WStandardItemModel *main_axes_model;
 	Wt::WTreeView          *main_axes_tree;
 	Wt::WStandardItemModel *side_axes_model;

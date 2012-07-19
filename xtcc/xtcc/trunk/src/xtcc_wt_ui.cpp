@@ -5,6 +5,7 @@
  */
 #include "xtcc_wt_ui.h"
 #include "rest_get_hello.h"
+#include "CsvUtil.h"
 
 
 #include <iostream>
@@ -28,11 +29,17 @@
 #include <Wt/WPushButton>
 #include <Wt/WStandardItem>
 #include <Wt/WStandardItemModel>
+#include <Wt/WItemDelegate>
 #include <Wt/WText>
 #include <Wt/WTreeView>
+#include <Wt/WTableView>
 #include <Wt/WHBoxLayout>
 #include <Wt/WVBoxLayout>
 #include <Wt/Http/Response>
+#include <Wt/Chart/WCartesianChart>
+#include <Wt/Chart/WPieChart>
+
+
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
@@ -54,6 +61,7 @@ extern char * XTCC_HOME;
 extern char * data_file ;
 extern int rec_len;
 extern char * work_dir;
+void loadDataIntoModel (WStandardItemModel * & m, TableData & tbl);
 
 
 XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
@@ -70,8 +78,8 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 		top_axes_set (p_top_axes_set)
 		
 {
-	WContainerWidget  * w  = new WContainerWidget (this);
-	WHBoxLayout * hbl = new WHBoxLayout ();
+	w  = new WContainerWidget (this);
+	hbl = new WHBoxLayout ();
 
 	WPanel *panel1 = new WPanel();
 	panel1->resize(150, 300);
@@ -135,15 +143,15 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	top_axes_tree->setSelectionMode (ExtendedSelection);
 	hbl->addWidget (panel3);
 
-	WPanel *panel4 = new WPanel(this);
+	WPanel *panel4 = new WPanel();
 	panel4->resize(300, 300);
-	hbl->addWidget (panel4);
 	panel4->setCentralWidget (messages_container = new WContainerWidget());
 	messages_container->setStyleClass("chat-msgs");
 
 	mesg_cont_layout = new WVBoxLayout ();
 	messages_container->setLayout (mesg_cont_layout);
 	messages_container->setOverflow (WContainerWidget::OverflowAuto);
+	hbl->addWidget (panel4);
 
 	if (!WApplication::instance()->environment().ajax()) {
 		main_axes_tree->resize (WLength::Auto, 90);
@@ -372,6 +380,52 @@ void XtccWtUI:: run_tables ()
 			//   and listen to the corresponding change in internal path
 			//WApplication::instance()->internalPathChanged().connect(this, &DocsListWidget::onInternalPathChange);
 
+			ifstream csv_file(fname_date_time_buff);
+			vector <TableData> tbl_data_vec;
+			if (csv_file) {
+				for (int i = 0; i < table_list.size(); ++i) {
+					tbl_data_vec.push_back (TableData());
+					readFromCsv (csv_file, tbl_data_vec[tbl_data_vec.size()-1]);
+					cout << "nRows: " << tbl_data_vec[tbl_data_vec.size()-1].nRows << endl;
+					WStandardItemModel * wsm = new WStandardItemModel (tbl_data_vec[i].nRows, tbl_data_vec[i].nCols + 1, w);
+					loadDataIntoModel (wsm, tbl_data_vec[i]);
+					WTableView * tbl = new WTableView ();
+					tbl->setModel (wsm);
+					WItemDelegate *delegate = new WItemDelegate(tbl);
+					delegate->setTextFormat("%.2f");
+					tbl->setItemDelegate(delegate);
+
+					hbl->addWidget (tbl);
+					cout << "Looping i:" << i << endl;
+					using namespace Wt::Chart;
+
+					WCartesianChart *chart = new WCartesianChart(w);
+					// chart->setPreferredMethod(WPaintedWidget::PngImage);
+					chart->setModel(wsm);        // set the model
+					chart->setXSeriesColumn(0);    // set the column that holds the categories
+					chart->setLegendEnabled(true); // enable the legend
+
+					// Provide space for the X and Y axis and title. 
+					chart->setPlotAreaPadding(80, Left);
+					chart->setPlotAreaPadding(40, Top | Bottom);
+
+					/*
+					* Add all (but first) column as bar series
+					*/
+					for (int i = 1; i < wsm->columnCount(); ++i) {
+						WDataSeries s(i, BarSeries);
+						s.setShadow(WShadow(3, 3, WColor(0, 0, 0, 127), 3));
+						chart->addSeries(s);
+					}
+
+					chart->resize(800, 400);
+					chart->setMargin(10, Top | Bottom);
+					chart->setMargin(WLength::Auto, Left | Right);
+					hbl->addWidget (chart);
+
+				}
+			}
+
 			Wt::WResource *r = new RestGetHello (fname_date_time_buff); // serializes to a PDF file.
 			WAnchor *  a = new WAnchor(r, fname_date_time_buff, messages_container);
 			a->setTarget(TargetNewWindow);
@@ -387,4 +441,26 @@ void XtccWtUI:: run_tables ()
 #if 0
 #endif /*  0 */
 	}
+}
+
+void loadDataIntoModel (WStandardItemModel * & m, TableData & tbl)
+{
+	for (int i = 0; i < tbl.nCols; ++i) {
+		m->setHeaderData (i+1, boost::any (Wt::WString::fromUTF8 (tbl.column_text[i])));
+	}
+#if 1
+	for (int i = 0; i < tbl.nRows-1; ++i) {		
+		cout << "setting row text: " <<(Wt::WString::fromUTF8 (tbl.row_text[i])) << endl;
+		boost::any data = boost::any (Wt::WString::fromUTF8 (tbl.row_text[i]));
+		m->setData (i, 0, data);
+		for (int j = 0; j < tbl.nCols ; ++j) {
+			boost::any data2 = boost::any (tbl.row_pc[i*tbl.nCols+j]);
+			cout << "(" << i << ", " << j << ")"
+				<< ": " << (tbl.row_pc[i*tbl.nCols+j]);
+			m->setData (i, j+1, data2);
+		}
+		cout << endl;
+	}
+#endif /*  0  */
+	cout << "EXIT " << __PRETTY_FUNCTION__ << endl;
 }
