@@ -736,7 +736,7 @@ void run_tables (GtkWidget *widget, gpointer data)
 			cerr << "Unable to open file for output of table classes" << endl;
 			exit(1);
 		}
-		print_table_code (table_op, tab_drv_func, tab_summ_func, table_list);
+		print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
 		fclose(table_op);
 		fclose(tab_drv_func);
 		fclose(tab_summ_func);

@@ -17,7 +17,9 @@ using std::cerr;
 class RestGetHello : public Wt::WResource
 {
 	public:
-	RestGetHello()
+	std::string tab_fname;
+	RestGetHello (std::string l_tab_fname)
+		: tab_fname (l_tab_fname)
 	{ }
 	virtual ~RestGetHello()
 	{
@@ -27,7 +29,6 @@ class RestGetHello : public Wt::WResource
 	virtual void handleRequest(const Wt::Http::Request &request,
 			Wt::Http::Response &response)
 	{
-		std::string tab_fname = "tab_.csv";
 		FILE * tab_ = fopen (tab_fname.c_str(), "rb");
 		if (!tab_) {
 			cout << "Unable to open tab_ for reading";
@@ -38,7 +39,8 @@ class RestGetHello : public Wt::WResource
 		fseek (tab_, 0, SEEK_SET);
 		std::ostringstream size_str;
 		response.addHeader ("Content-Type", "binary/octet-stream");
-		size_str << "attachment; filename=tab_.csv; size=" 
+		size_str << "attachment; filename=" << tab_fname
+			<< "; size=" 
 			<< length;
 			//<< 13
 			;

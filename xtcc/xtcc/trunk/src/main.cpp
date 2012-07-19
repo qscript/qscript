@@ -239,7 +239,7 @@ int main (int argc, char* argv[])
 	
 	flex_finish();
 	extern vector<Table::table*>	table_list;
-	print_table_code (table_op, tab_drv_func, tab_summ_func, table_list);
+	print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
 	print_axis_code(axes_op, axes_drv_func);
 	print_weighting_code();
 	generate_make_file();

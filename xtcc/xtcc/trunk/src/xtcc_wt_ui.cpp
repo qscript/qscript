@@ -341,7 +341,16 @@ void XtccWtUI:: run_tables ()
 			std::cerr << "Unable to open file for output of table classes" << std::endl;
 			exit(1);
 		}
-		print_table_code (table_op, tab_drv_func, tab_summ_func, table_list);
+		struct tm utc_time_result;
+		time_t current_time_in_epoch_secs;
+		time (&current_time_in_epoch_secs);
+
+		gmtime_r (&current_time_in_epoch_secs, &utc_time_result); 
+		char fname_date_time_buff[100];
+		memset (fname_date_time_buff, 0, sizeof(fname_date_time_buff));
+		strftime (fname_date_time_buff, sizeof(fname_date_time_buff),
+				"tab_UTC_Y-M-D_H-M-S_%Y-%m-%d_%H-%M-%S.csv", &utc_time_result);
+		print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, string(fname_date_time_buff));
 		fclose (table_op);
 		fclose (tab_drv_func);
 		fclose (tab_summ_func);
@@ -363,8 +372,8 @@ void XtccWtUI:: run_tables ()
 			//   and listen to the corresponding change in internal path
 			//WApplication::instance()->internalPathChanged().connect(this, &DocsListWidget::onInternalPathChange);
 
-			Wt::WResource *r = new RestGetHello(); // serializes to a PDF file.
-			WAnchor *  a = new WAnchor(r, "/hello", messages_container);
+			Wt::WResource *r = new RestGetHello (fname_date_time_buff); // serializes to a PDF file.
+			WAnchor *  a = new WAnchor(r, fname_date_time_buff, messages_container);
 			a->setTarget(TargetNewWindow);
 			mesg_cont_layout -> addWidget (a);
 

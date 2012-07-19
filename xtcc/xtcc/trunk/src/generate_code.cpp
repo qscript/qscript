@@ -32,7 +32,7 @@ FILE * global_vars;
 //void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list);
 //void print_latex_print(FILE* op, int table_index);
 
-void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list)
+void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list, string tab_fname)
 {
 	using namespace Table;
 	fprintf(op, "#include <iostream>\n");
@@ -224,7 +224,7 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 			}
 #endif /* 0 */
 			fprintf(op, "\tvoid print(){\n\t\tint rci=0, cci=0; /* row counter index , col ... */\n");
-			fprintf(op, "\t\tofstream tab_op(\"tab_.csv\", ios_base::out|ios_base::app);\n");
+			fprintf(op, "\t\tofstream tab_op(\"%s\", ios_base::out|ios_base::app);\n", tab_fname.c_str());
 			fprintf(op, "\t\ttab_op << \"rows: \" << rows << \"cols: \" << cols << endl;\n");
 			fprintf(op, "\t\ttab_op << \"\\\"\" << ax_%s.ttl_stmt_text[0] << \"\\\"\" << \" x \" <<  \"\\\"\" << ax_%s.ttl_stmt_text[0] << \"\\\"\"  << endl;\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
