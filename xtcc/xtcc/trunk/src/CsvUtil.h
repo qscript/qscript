@@ -30,8 +30,8 @@ namespace Wt {
  */
 
 struct TableData {
-	string side_ttl;
 	string ban_ttl;
+	string side_ttl;
 	int nRows, nCols;
 	vector <string> row_text;
 	vector <string> column_text;
@@ -41,7 +41,11 @@ struct TableData {
 				   // there will be real data
 	vector <double> row_pc;
 	vector <double> col_pc;
-	TableData()
+	TableData():
+		ban_ttl(), side_ttl(),
+		nRows (0), nCols (0), row_text(), column_text(),
+		col_totals (), abs_int_data (), row_pc (),
+		col_pc()
 	{}
 	void Print()
 	{

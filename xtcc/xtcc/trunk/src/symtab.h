@@ -62,6 +62,7 @@ struct SymbolTableEntry {
 	SymbolTableEntry()
 		: name_(0), text_(0), dval(0)
 		, type_(uninit), n_elms(0), created_by_me(false),e(0), xs(0)
+		, nest_level (0)
 	{ }
 	SymbolTableEntry (const char * lname, DataType ldt, int l_nest_level):
 		name_(strdup(lname)), text_(0), dval(0)

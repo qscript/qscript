@@ -16,6 +16,7 @@
 #include <sstream>
 
 #include <Wt/WApplication>
+#include <Wt/WSelectionBox>
 #include <Wt/WAnchor>
 #include <Wt/WResource>
 #include <Wt/WContainerWidget>
@@ -72,15 +73,34 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 			 std::set<string> & p_top_axes_set,
 			 WObject * parent)
 
-	: 	main_axes_model (model), main_axes_tree (0), 
+	: 	
+		filteredAxes (0), regexpFilter (0), w (0),
+		vbl1 (0), hbl (0),
+		main_axes_model (model), main_axes_tree (0), 
 		side_axes_model (side_model), side_axes_tree (0),
 		top_axes_model (top_model), top_axes_tree (0),
 		side_axes_set (p_side_axes_set),
-		top_axes_set (p_top_axes_set)
+		top_axes_set (p_top_axes_set),
+		messages_container (0), mesg_cont_layout (0),
+		wt_tbl_cont(0), wt_tbl (0)
 		
 {
 	w  = new WContainerWidget (this);
+	vbl1 = new WVBoxLayout ();
+
+	new WText("<b>Filter regular expression: </b>");
+	regexpFilter = new WLineEdit();
+	regexpFilter -> setText(".*");
+	regexpFilter -> enterPressed().
+		connect(this, &XtccWtUI::changeRegexp);
+	WPushButton *filter = new WPushButton ("Apply");
+	filter -> clicked().
+		connect (this, &XtccWtUI::changeRegexp);
+
 	hbl = new WHBoxLayout ();
+	hbl -> addWidget (regexpFilter, AlignLeft);
+	hbl -> addWidget (filter, AlignLeft);
+	vbl1 -> addLayout (hbl);
 
 	WPanel *panel1 = new WPanel();
 	panel1->resize(150, 300);
@@ -93,8 +113,27 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	 * Expand the first (and single) top level node
 	 */
 	main_axes_tree->setExpanded(main_axes_model->index(0, 0), true);
+
+
+
 	//main_axes_tree->setExpanded(main_axes_model->index(0, 0, main_axes_model->index(0, 0)), true);
+	hbl = new WHBoxLayout ();
 	hbl->addWidget (panel1 );
+	//
+	// now the filtered selection box
+
+	filteredAxes = new WSortFilterProxyModel();
+	filteredAxes->setSourceModel(main_axes_model);
+	filteredAxes->setDynamicSortFilter(true);
+	filteredAxes->setFilterKeyColumn(0);
+	filteredAxes->setFilterRole(Wt::DisplayRole);
+	filteredAxes->setFilterRegExp(regexpFilter->text());
+
+	selected_axes_view = new WSelectionBox();
+	selected_axes_view -> setModel (filteredAxes);
+	selected_axes_view -> setVerticalSize (10);
+	selected_axes_view -> setSelectionMode (ExtendedSelection);
+	hbl -> addWidget (selected_axes_view);
 
 	// ======================
 	WContainerWidget * wc = new WContainerWidget(this);
@@ -160,7 +199,6 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	}
 #if 0
 #endif /*  0  */
-	vbl1 = new WVBoxLayout ();
 	vbl1->addLayout (hbl);
 	//vbl1->addWidget (wt_tbl_cont = new WContainerWidget());
 	//wt_tbl_cont ->addWidget (wt_tbl = new WTable(wt_tbl_cont));
@@ -206,21 +244,48 @@ void XtccWtUI::toggleRowHeight()
 void XtccWtUI::add_axes()
 {
 	WModelIndexSet sel_indx = main_axes_tree->selectedIndexes();
-	int n_axes = 0;
-	for (set<WModelIndex>::iterator it = sel_indx.begin();
-			it != sel_indx.end(); ++it) {
-		WStandardItem *data = main_axes_model->itemFromIndex(*it);
-		std::cout << data->text() << std::endl;
-		if (side_axes_set.find( data->text().toUTF8()) == side_axes_set.end()) {
-			WStandardItem * data2 = new WStandardItem (data->text());
-			side_axes_model -> appendRow ( data2) ;
-			side_axes_set.insert (data->text().toUTF8());
-		} else {
-			std::cout << data->text() << "already exists in side axes" << std::endl;
+	if (sel_indx.begin () != sel_indx.end()) {
+		int n_axes = 0;
+		for (set<WModelIndex>::iterator it = sel_indx.begin();
+				it != sel_indx.end(); ++it) {
+			WStandardItem *data = main_axes_model->itemFromIndex(*it);
+			std::cout << data->text() << std::endl;
+			if (side_axes_set.find( data->text().toUTF8()) == side_axes_set.end()) {
+				WStandardItem * data2 = new WStandardItem (data->text());
+				side_axes_model -> appendRow ( data2) ;
+				side_axes_set.insert (data->text().toUTF8());
+			} else {
+				std::cout << data->text() << "already exists in side axes" << std::endl;
+			}
+			++ n_axes;
 		}
-		++ n_axes;
+		std::cout << "selectedIndexes: " << n_axes << std::endl;
+	} else {
+		set <int> sel_indxs = selected_axes_view->selectedIndexes();
+		WAbstractItemModel * abs_model	= selected_axes_view->model();
+		//WSortFilterProxyModel * model  = static_cast <WSortFilterProxyModel*> (abs_model);
+		for (set <int>::iterator it = sel_indxs.begin(); it != sel_indxs.end(); ++it) {
+			if (filteredAxes->hasIndex (*it, 0)) {
+				WModelIndex midx = filteredAxes->index (*it, 0);
+				WModelIndex midx2 = filteredAxes->mapToSource (midx);
+				WStandardItem *data = main_axes_model->itemFromIndex(midx2);
+				std::cout << data->text() << std::endl;
+				if (side_axes_set.find( data->text().toUTF8()) == side_axes_set.end()) {
+					WStandardItem * data2 = new WStandardItem (data->text());
+					side_axes_model -> appendRow ( data2) ;
+					side_axes_set.insert (data->text().toUTF8());
+				} else {
+					std::cout << data->text() << "already exists in side axes" << std::endl;
+				}
+				//boost::any my_data = filteredAxes->data (*it, 0);
+				cerr << "reached here" << endl;
+				//std::cerr << boost::any_cast<std::string> (my_data) << std::endl;
+
+			} else {
+				cerr << "undrlying model does not have index: " << *it << endl;
+			}
+		}
 	}
-	std::cout << "selectedIndexes: " << n_axes << std::endl;
 }
 
 void XtccWtUI::remove_axes_from_side()

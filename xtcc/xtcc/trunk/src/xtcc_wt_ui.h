@@ -16,6 +16,9 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <Wt/WSortFilterProxyModel>
+#include <Wt/WLineEdit>
+
 
 using std::string;
 using std::vector;
@@ -51,6 +54,10 @@ public:
 		  				 , WObject *parent );
 
 private:
+	Wt::WSortFilterProxyModel *filteredAxes;
+	Wt::WLineEdit *regexpFilter;
+
+
 	WContainerWidget  * w  ;
 	Wt::WVBoxLayout  * vbl1  ;
 	Wt::WHBoxLayout * hbl ;
@@ -68,6 +75,7 @@ private:
 	Wt::WContainerWidget * wt_tbl_cont;
 	Wt::WTable *wt_tbl ;
 	int wt_tbl_element_count;
+	Wt::WSelectionBox * selected_axes_view ;
 	//Wt::Ext::Panel * messages_container ;
 
 	static Wt::WStandardItem *continentItem(const std::string& continent);
@@ -81,6 +89,13 @@ private:
 	void toggleRowHeight();
 	void toggleStripes();
 	void toggleRoot();
+	void changeRegexp() {
+		filteredAxes->setFilterRegExp(regexpFilter->text());
+		//filteredSortedCocktails->setFilterRegExp(regexpFilter->text());
+	}
+	XtccWtUI& operator = (XtccWtUI &);
+	XtccWtUI (XtccWtUI &);
+
 };
 
 #endif
