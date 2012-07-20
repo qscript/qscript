@@ -37,6 +37,7 @@ LEX_OBJECTS = $(LEX_SOURCES)
 LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
 LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
 OBJECTS += $(LEX_OBJECTS)
+OBJECTS += make-build-dir/CsvUtil.o make-build-dir/ChartConfig.o make-build-dir/PanelList.o 
 OBJECTS := $(sort $(OBJECTS) )
 
 XTCC_MAJOR_VERSION_NUMBER=0
