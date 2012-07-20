@@ -12,6 +12,7 @@
 #include <Wt/WVBoxLayout>
 #include <Wt/WStandardItemModel>
 #include <Wt/WHBoxLayout>
+#include <Wt/WTable>
 #include <string>
 #include <vector>
 #include <set>
@@ -51,7 +52,7 @@ public:
 
 private:
 	WContainerWidget  * w  ;
-	//Wt::WVBoxLayout  * vbl1  ;
+	Wt::WVBoxLayout  * vbl1  ;
 	Wt::WHBoxLayout * hbl ;
 	//Wt::WHBoxLayout * hbl2 ;
 	Wt::WStandardItemModel *main_axes_model;
@@ -64,6 +65,9 @@ private:
 	std::set<string> & top_axes_set;
 	Wt::WContainerWidget * messages_container;
 	Wt::WVBoxLayout * mesg_cont_layout;
+	Wt::WContainerWidget * wt_tbl_cont;
+	Wt::WTable *wt_tbl ;
+	int wt_tbl_element_count;
 	//Wt::Ext::Panel * messages_container ;
 
 	static Wt::WStandardItem *continentItem(const std::string& continent);

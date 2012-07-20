@@ -6,6 +6,7 @@
 #include "xtcc_wt_ui.h"
 #include "rest_get_hello.h"
 #include "CsvUtil.h"
+#include "ChartConfig.h"
 
 
 #include <iostream>
@@ -159,8 +160,17 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	}
 #if 0
 #endif /*  0  */
-	w->setLayout (hbl, AlignTop);
-
+	vbl1 = new WVBoxLayout ();
+	vbl1->addLayout (hbl);
+	//vbl1->addWidget (wt_tbl_cont = new WContainerWidget());
+	//wt_tbl_cont ->addWidget (wt_tbl = new WTable(wt_tbl_cont));
+	WContainerWidget * tmp1 = new WContainerWidget();
+	tmp1->setLayout (vbl1, AlignTop|AlignJustify);
+	w->addWidget(tmp1);
+	w->addWidget (wt_tbl_cont = new WContainerWidget());
+	//wt_tbl_cont ->addWidget (wt_tbl = new WTable(wt_tbl_cont));
+	//w->setLayout (vbl1, AlignTop|AlignJustify);
+	//wt_tbl_element_count = 0;
 }
 
 WStandardItemModel *XtccWtUI::create_main_axes_model(bool useInternalPath
@@ -391,15 +401,28 @@ void XtccWtUI:: run_tables ()
 					loadDataIntoModel (wsm, tbl_data_vec[i]);
 					WTableView * tbl = new WTableView ();
 					tbl->setModel (wsm);
+					tbl->resize (800, 20 + (tbl_data_vec[i].nRows + 1) * 22 );
 					WItemDelegate *delegate = new WItemDelegate(tbl);
 					delegate->setTextFormat("%.2f");
 					tbl->setItemDelegate(delegate);
+					//wt_tbl->elementAt (wt_tbl_element_count++, 0)->addWidget (tbl);
+					//wt_tbl->elementAt (wt_tbl_element_count++, 0)->addWidget (tbl);
+					WContainerWidget * w1 = new WContainerWidget();
+					WText * title = new WText (tbl_data_vec[i].side_ttl);
+					w1->addWidget (title);
+					w1->addWidget (tbl);
+					wt_tbl_cont->addWidget (w1);
+					//wt_tbl->elementAt (wt_tbl_element_count++, 0)->addWidget (new WText("dummy"));
 
-					hbl->addWidget (tbl);
+
+					//vbl1->addWidget (tbl, 1);
 					cout << "Looping i:" << i << endl;
 					using namespace Wt::Chart;
+					//Wt::WHBoxLayout * myhbl3 = new WHBoxLayout ();
+					//myhbl3->addWidget (tbl, 1);
+					//vbl1->addLayout (myhbl3, 1);
 
-					WCartesianChart *chart = new WCartesianChart(w);
+					WCartesianChart *chart = new WCartesianChart();
 					// chart->setPreferredMethod(WPaintedWidget::PngImage);
 					chart->setModel(wsm);        // set the model
 					chart->setXSeriesColumn(0);    // set the column that holds the categories
@@ -408,6 +431,7 @@ void XtccWtUI:: run_tables ()
 					// Provide space for the X and Y axis and title. 
 					chart->setPlotAreaPadding(80, Left);
 					chart->setPlotAreaPadding(40, Top | Bottom);
+					//chart->setTitle (tbl_data_vec[i].side_ttl);
 
 					/*
 					* Add all (but first) column as bar series
@@ -418,11 +442,30 @@ void XtccWtUI:: run_tables ()
 						chart->addSeries(s);
 					}
 
-					chart->resize(800, 400);
-					chart->setMargin(10, Top | Bottom);
+					chart->resize(800, 600);
+					chart->setMargin(50, Top | Bottom);
 					chart->setMargin(WLength::Auto, Left | Right);
-					hbl->addWidget (chart);
-
+					//WPanel * pan = new WPanel();
+					//pan->resize (600, 400);
+					//pan->setCentralWidget (chart);
+					//myhbl->addWidget (chart);
+					//vbl1->addWidget (pan, 1);
+					//Wt::WHBoxLayout * myhbl1 = new WHBoxLayout ();
+					//myhbl1->addWidget (chart, 1);
+					//wt_tbl->elementAt (wt_tbl_element_count++, 0)->addWidget (chart);
+					WContainerWidget * w2 = new WContainerWidget();
+					w2->addWidget (chart);
+					wt_tbl_cont->addWidget (w2);
+					
+					//myhbl->addWidget (new ChartConfig (chart, w));
+					//Wt::WHBoxLayout * myhbl2 = new WHBoxLayout ();
+					//myhbl2 -> addWidget(new ChartConfig (chart), 1);
+					//vbl1->addLayout (myhbl2, 1);
+					//vbl1->addLayout (myhbl1, 1);
+					//wt_tbl->elementAt (wt_tbl_element_count++, 0)->addWidget (new ChartConfig(chart));
+					WContainerWidget * w3 = new WContainerWidget();
+					w3->addWidget (new ChartConfig(chart));
+					wt_tbl_cont->addWidget (w3);
 				}
 			}
 
