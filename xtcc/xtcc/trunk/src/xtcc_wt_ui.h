@@ -51,7 +51,7 @@ public:
 //		  				Wt::WStandardItemModel * & model 
 //					      , WObject *parent );
   static Wt::WStandardItemModel *create_side_axes_model(bool useInternalPath
-		  				 , WObject *parent );
+		  				 , WObject *parent, std::string text);
 
 private:
 	Wt::WSortFilterProxyModel *filteredAxes;

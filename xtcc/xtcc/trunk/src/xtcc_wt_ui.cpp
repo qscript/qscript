@@ -88,7 +88,7 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	w  = new WContainerWidget (this);
 	vbl1 = new WVBoxLayout ();
 
-	new WText("<b>Filter regular expression: </b>");
+	WText * txt = new WText("axes name here : regular expressions (example q.*) work");
 	regexpFilter = new WLineEdit();
 	regexpFilter -> setText(".*");
 	regexpFilter -> enterPressed().
@@ -98,6 +98,7 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 		connect (this, &XtccWtUI::changeRegexp);
 
 	hbl = new WHBoxLayout ();
+	hbl -> addWidget (txt, AlignLeft);
 	hbl -> addWidget (regexpFilter, AlignLeft);
 	hbl -> addWidget (filter, AlignLeft);
 	vbl1 -> addLayout (hbl);
@@ -226,10 +227,10 @@ WStandardItemModel *XtccWtUI::create_main_axes_model(bool useInternalPath
 }
 
 WStandardItemModel *XtccWtUI::create_side_axes_model(bool useInternalPath ,
-						 WObject *parent )
+						 WObject *parent, string text)
 {
 	WStandardItemModel *result = new WStandardItemModel(0, 1 , parent);
-	result->setHeaderData(0, Horizontal, std::string("Side Axes"));
+	result->setHeaderData (0, Horizontal, text);
 	return result;
 }
 
@@ -349,21 +350,48 @@ void XtccWtUI::remove_axes_from_top()
 void XtccWtUI::add_axes_to_top()
 {
 	WModelIndexSet sel_indx = main_axes_tree->selectedIndexes();
-	int n_axes = 0;
-	for (set<WModelIndex>::iterator it = sel_indx.begin();
-			it != sel_indx.end(); ++it) {
-		WStandardItem *data = main_axes_model->itemFromIndex(*it);
-		std::cout << data->text() << std::endl;
-		if (top_axes_set.find( data->text().toUTF8()) == top_axes_set.end()) {
-			WStandardItem * data2 = new WStandardItem (data->text());
-			top_axes_model -> appendRow ( data2) ;
-			top_axes_set.insert (data->text().toUTF8());
-		} else {
-			std::cout << data->text() << "already exists in top axes" << std::endl;
+	if (sel_indx.begin () != sel_indx.end()) {
+		int n_axes = 0;
+		for (set<WModelIndex>::iterator it = sel_indx.begin();
+				it != sel_indx.end(); ++it) {
+			WStandardItem *data = main_axes_model->itemFromIndex(*it);
+			std::cout << data->text() << std::endl;
+			if (top_axes_set.find( data->text().toUTF8()) == top_axes_set.end()) {
+				WStandardItem * data2 = new WStandardItem (data->text());
+				top_axes_model -> appendRow ( data2) ;
+				top_axes_set.insert (data->text().toUTF8());
+			} else {
+				std::cout << data->text() << "already exists in top axes" << std::endl;
+			}
+			++ n_axes;
 		}
-		++ n_axes;
+		std::cout << "n selected axes: " << n_axes << std::endl;
+	} else {
+		set <int> sel_indxs = selected_axes_view->selectedIndexes();
+		WAbstractItemModel * abs_model	= selected_axes_view->model();
+		//WSortFilterProxyModel * model  = static_cast <WSortFilterProxyModel*> (abs_model);
+		for (set <int>::iterator it = sel_indxs.begin(); it != sel_indxs.end(); ++it) {
+			if (filteredAxes->hasIndex (*it, 0)) {
+				WModelIndex midx = filteredAxes->index (*it, 0);
+				WModelIndex midx2 = filteredAxes->mapToSource (midx);
+				WStandardItem *data = main_axes_model->itemFromIndex(midx2);
+				std::cout << data->text() << std::endl;
+				if (top_axes_set.find( data->text().toUTF8()) == top_axes_set.end()) {
+					WStandardItem * data2 = new WStandardItem (data->text());
+					top_axes_model -> appendRow ( data2) ;
+					top_axes_set.insert (data->text().toUTF8());
+				} else {
+					std::cout << data->text() << "already exists in top axes" << std::endl;
+				}
+				//boost::any my_data = filteredAxes->data (*it, 0);
+				cerr << "reached here" << endl;
+				//std::cerr << boost::any_cast<std::string> (my_data) << std::endl;
+
+			} else {
+				cerr << "undrlying model does not have index: " << *it << endl;
+			}
+		}
 	}
-	std::cout << "n selected axes: " << n_axes << std::endl;
 }
 
 void XtccWtUI::toggleStripes()

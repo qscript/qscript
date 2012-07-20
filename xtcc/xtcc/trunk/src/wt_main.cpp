@@ -121,8 +121,8 @@ public:
 	//aboutDrink_ = new WText("", root());
 	//internalPathChanged().connect(this, &TreeViewApplication2::handlePathChange);
 	WStandardItemModel *main_model = XtccWtUI::create_main_axes_model (true, this);
-	WStandardItemModel *side_model = XtccWtUI::create_side_axes_model (true, this);
-	WStandardItemModel *top_model  = XtccWtUI::create_side_axes_model (true, this);
+	WStandardItemModel *side_model = XtccWtUI::create_side_axes_model (true, this, "side");
+	WStandardItemModel *top_model  = XtccWtUI::create_side_axes_model (true, this, "banner");
 	XtccWtUI * ex = new XtccWtUI (main_model, side_model, top_model, 
 				    side_axes_set, top_axes_set,
 				    this);
