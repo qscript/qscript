@@ -15,6 +15,7 @@
 #include <Wt/Chart/WCartesianChart>
 #include <Wt/WTable>
 #include <Wt/WTableView>
+#include <Wt/WTabWidget>
 #include <string>
 #include <vector>
 #include <set>
@@ -60,7 +61,8 @@ private:
 	Wt::WLineEdit *regexpFilter;
 
 
-	WContainerWidget  * w  ;
+	Wt::WTabWidget  * tab_widget;
+	Wt::WContainerWidget  * w  ;
 	Wt::WVBoxLayout  * vbl1  ;
 	Wt::WHBoxLayout * hbl ;
 	//Wt::WHBoxLayout * hbl2 ;

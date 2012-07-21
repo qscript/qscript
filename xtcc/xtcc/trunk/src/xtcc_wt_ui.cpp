@@ -86,6 +86,8 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 		
 {
 	w  = new WContainerWidget (this);
+	tab_widget = new WTabWidget(w);
+	tab_widget -> addTab (w  = new WContainerWidget (), "Console");
 	vbl1 = new WVBoxLayout ();
 
 	WText * txt = new WText("axes name here : regular expressions (example q.*) work");
@@ -206,7 +208,8 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	WContainerWidget * tmp1 = new WContainerWidget();
 	tmp1->setLayout (vbl1, AlignTop|AlignJustify);
 	w->addWidget(tmp1);
-	w->addWidget (wt_tbl_cont = new WContainerWidget());
+	//w->addWidget (wt_tbl_cont = new WContainerWidget());
+	tab_widget -> addTab (wt_tbl_cont  = new WContainerWidget (), "Output");
 	//wt_tbl_cont ->addWidget (wt_tbl = new WTable(wt_tbl_cont));
 	//w->setLayout (vbl1, AlignTop|AlignJustify);
 	//wt_tbl_element_count = 0;
