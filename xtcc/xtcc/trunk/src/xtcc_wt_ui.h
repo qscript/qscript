@@ -12,7 +12,9 @@
 #include <Wt/WVBoxLayout>
 #include <Wt/WStandardItemModel>
 #include <Wt/WHBoxLayout>
+#include <Wt/Chart/WCartesianChart>
 #include <Wt/WTable>
+#include <Wt/WTableView>
 #include <string>
 #include <vector>
 #include <set>
@@ -76,6 +78,9 @@ private:
 	Wt::WTable *wt_tbl ;
 	int wt_tbl_element_count;
 	Wt::WSelectionBox * selected_axes_view ;
+	vector <Wt::Chart::WCartesianChart*> charts;
+	vector <Wt::WTableView*> tables;
+	vector <Wt::WContainerWidget*> containers;
 	//Wt::Ext::Panel * messages_container ;
 
 	static Wt::WStandardItem *continentItem(const std::string& continent);

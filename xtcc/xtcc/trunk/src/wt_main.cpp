@@ -344,6 +344,7 @@ int main (int argc, char *argv[])
 	/* All GTK applications must have a gtk_main(). Control ends here
 	* and waits for an event to occur (like a key press or
 	* mouse event). */
+	//clean_up ();
 	return 0;
 }
 
@@ -389,6 +390,9 @@ void clean_up ()
 		delete table_list[i];
 	}
 	debug_log_file << "Exited function clean_up()" << endl;
+	if (tree_root) {
+		// recursively delete the tree here
+	}
 			
 }
 

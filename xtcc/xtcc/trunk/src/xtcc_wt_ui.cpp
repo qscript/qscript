@@ -485,10 +485,38 @@ void XtccWtUI:: run_tables ()
 
 			ifstream csv_file(fname_date_time_buff);
 			vector <TableData> tbl_data_vec;
+			if (containers.size() > 0) {
+				cerr << "tables.size(): " << tables.size() << endl;
+				cerr << "charts.size(): " << charts.size() << endl;
+				cerr << "containers.size(): " << containers.size() << endl;
+				for (int i = containers.size()-1 ; i >= 0 ; --i) {
+					wt_tbl_cont->removeWidget (containers[i]);
+					delete containers[i];
+#if 0
+					wt_tbl_cont->removeWidget (containers[i*2]);
+					wt_tbl_cont->removeWidget (containers[i*2+1]);
+				//	containers[i*3]->removeWidget (tables[i]);
+				//	containers[i*3+1]->removeWidget (charts[i]);
+				//	containers[i*3+2]->removeWidget (charts[i]);
+				//	delete tables[i];
+				//	delete charts[i];
+					delete containers[i*2];
+					delete containers[i*2+1];
+					containers.resize(0);
+					tables.resize(0);
+					charts.resize(0);
+#endif /*  0 */
+				}
+				containers.resize(0);
+			}
 			if (csv_file) {
 				for (int i = 0; i < table_list.size(); ++i) {
 					tbl_data_vec.push_back (TableData());
-					readFromCsv (csv_file, tbl_data_vec[tbl_data_vec.size()-1]);
+					if (csv_file) {
+						readFromCsv (csv_file, tbl_data_vec[tbl_data_vec.size()-1]);
+					} else {
+						break;
+					}
 					cout << "nRows: " << tbl_data_vec[tbl_data_vec.size()-1].nRows << endl;
 					WStandardItemModel * wsm = new WStandardItemModel (tbl_data_vec[i].nRows, tbl_data_vec[i].nCols + 1, w);
 					loadDataIntoModel (wsm, tbl_data_vec[i]);
@@ -505,6 +533,10 @@ void XtccWtUI:: run_tables ()
 					w1->addWidget (title);
 					w1->addWidget (tbl);
 					wt_tbl_cont->addWidget (w1);
+					containers.push_back (w1);
+					tables.push_back (tbl);
+
+
 					//wt_tbl->elementAt (wt_tbl_element_count++, 0)->addWidget (new WText("dummy"));
 
 
@@ -548,7 +580,9 @@ void XtccWtUI:: run_tables ()
 					//wt_tbl->elementAt (wt_tbl_element_count++, 0)->addWidget (chart);
 					WContainerWidget * w2 = new WContainerWidget();
 					w2->addWidget (chart);
+					charts.push_back (chart);
 					wt_tbl_cont->addWidget (w2);
+					containers.push_back (w2);
 					
 					//myhbl->addWidget (new ChartConfig (chart, w));
 					//Wt::WHBoxLayout * myhbl2 = new WHBoxLayout ();
@@ -559,6 +593,7 @@ void XtccWtUI:: run_tables ()
 					WContainerWidget * w3 = new WContainerWidget();
 					w3->addWidget (new ChartConfig(chart));
 					wt_tbl_cont->addWidget (w3);
+					containers.push_back (w3);
 				}
 			}
 
