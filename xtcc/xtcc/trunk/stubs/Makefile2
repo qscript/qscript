@@ -1,6 +1,7 @@
 #CC=g++-4.6
 CC=g++
-OBJS = main_loop.o my_axes_drv_func.o my_tab_drv_func.o list_summ_template.o edit_out.o
+#OBJS = main_loop.o my_axes_drv_func.o my_tab_drv_func.o list_summ_template.o edit_out.o global.C
+OBJS = main_loop.o my_axes_drv_func.o my_tab_drv_func.o edit_out.o global.C
 test.exe: $(OBJS)
 	$(CC)  -o $@ $(OBJS) 
 
@@ -19,7 +20,10 @@ my_axes_drv_func.o: my_axes_drv_func.C
 	$(CC)  -c $<
 
 
-list_summ_template.o: list_summ_template.C
+#list_summ_template.o: list_summ_template.C
+#	$(CC)  -c $<
+
+global.o: global.C
 	$(CC)  -c $<
 
 #print_list_counts.C

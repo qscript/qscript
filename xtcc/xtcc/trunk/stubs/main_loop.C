@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <iostream>
 #include "ax_stmt_type.h"
+#include "global.h"
 //#include <sys/mman.h>
 
 int32_t edit_data();
@@ -147,6 +148,8 @@ int mmap_read_data(int fd, struct stat &file_info_stat, int rec_len){
 //#endif  UNIX_H 
 */
 
+// -- new : 23-jul-2012
+#include "list_summ_template.C"
 #include "print_list_counts.C"
 /*#include "../stubs/list_summ_template.C"*/
 int fread_data(FILE * & inp_data_file , int file_size, int rec_len){

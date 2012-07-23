@@ -387,41 +387,47 @@ void ContinueStatement::GenerateCode(FILE * & fptr)
 
 void ListStatement::GenerateCode(FILE * & fptr)
 {
-	fflush(fptr);
-	string my_work_dir=string(work_dir)+string("/");
+	fflush (fptr);
+	string my_work_dir = string(work_dir) + string("/");
 
-	if(fptr){
+	if (fptr) {
 		switch(type_){
 		case LISTA_BASIC_TYPE_STMT:{
-			static int counter_number=0;			   
-			string fname= my_work_dir+ string("global.C");
-			FILE * global_vars=fopen(fname.c_str(), "a+b");
-			fname=my_work_dir+ string("print_list_counts.C");
-			FILE * print_list_counts=fopen(fname.c_str(), "a+b");
-			if(!(global_vars&&print_list_counts)){
+			static int counter_number = 0;
+			//string fname = my_work_dir + string("global.h");
+			//FILE * global_vars_h = fopen (fname.c_str(), "a+b");
+			string fname = my_work_dir + string("global.C");
+			FILE * global_vars_C = fopen (fname.c_str(), "a+b");
+			fname = my_work_dir + string ("print_list_counts.C");
+			FILE * print_list_counts = fopen (fname.c_str(), "a+b");
+			if ( !(global_vars_C && print_list_counts) ) {
 				cerr << "Unable to open global.C or print_list_counts.C for append... exiting" << endl;
 				exit(1);
 			}
-			if(symbolTableEntry_){
+			if (symbolTableEntry_) {
 				DataType dt=symbolTableEntry_->get_type();
-				if( is_of_noun_type(dt) 
+				if (is_of_noun_type(dt) 
 					|| is_of_noun_ref_type(dt)){
-					fprintf(global_vars
-						, "map<%s,int> list%d;\n", 
-						noun_list[dt].sym
+					fprintf (global_vars_C
+						, "map<%s,int> list%d;\n"
+						, noun_list[dt].sym
 						, counter_number);
-					fprintf(fptr, "list%d [%s]++;\n"
+					fprintf (global_vars
+						, "extern map<%s,int> list%d;\n"
+						, noun_list[dt].sym
+						, counter_number);
+					fprintf (fptr, "list%d [%s]++;\n"
 							, counter_number
 							, symbolTableEntry_->name_);
-					fprintf(print_list_counts
-						, "print_list_summ(list%d, string(\"%s\"), string(%s) );\n"
-						, counter_number, symbolTableEntry_->name_
-						, list_text.c_str());
+					fprintf (print_list_counts
+						 , "print_list_summ(list%d, string(\"%s\"), string(%s) );\n"
+						 , counter_number, symbolTableEntry_->name_
+						 , list_text.c_str());
 				}
 
 				++counter_number;
 			}
-			fclose(global_vars);
+			fclose(global_vars_C);
 			fclose(print_list_counts);
 		}
 		break;
@@ -429,17 +435,17 @@ void ListStatement::GenerateCode(FILE * & fptr)
 			static int counter_number=0;			   
 			//FILE * global_vars=fopen("xtcc_work/global.C", "a+b");
 			//FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+b");
-			string fname= my_work_dir+ string("global.C");
-			FILE * global_vars=fopen(fname.c_str(), "a+b");
-			fname=my_work_dir+ string("print_list_counts.C");
-			FILE * print_list_counts=fopen(fname.c_str(), "a+b");
-			if(!global_vars){
+			string fname = my_work_dir+ string("global.C");
+			FILE * global_vars = fopen (fname.c_str(), "a+b");
+			fname = my_work_dir + string ("print_list_counts.C");
+			FILE * print_list_counts = fopen(fname.c_str(), "a+b");
+			if (!global_vars) {
 				cerr << "Unable to open global.C for append" << endl;
 			}
-			if(symbolTableEntry_){
+			if (symbolTableEntry_) {
 				DataType dt=symbolTableEntry_->get_type();
-				if(dt>=INT8_ARR_TYPE&& dt<=DOUBLE_ARR_TYPE){
-					fprintf(global_vars
+				if (dt >= INT8_ARR_TYPE && dt <= DOUBLE_ARR_TYPE) {
+					fprintf (global_vars
 						, "map<%s,int> list1_%d;\n"
 						, noun_list[dt].sym
 						, counter_number);
@@ -458,33 +464,33 @@ void ListStatement::GenerateCode(FILE * & fptr)
 				}
 				++counter_number;
 			}
-			fclose(global_vars);
-			fclose(print_list_counts);
+			fclose (global_vars);
+			fclose (print_list_counts);
 		}
 		break;
 		case LISTA_BASIC_ARRTYPE_STMT_2INDEX:{
-			static int counter_number=0;			   
+			static int counter_number = 0;			   
 			//FILE * global_vars=fopen("xtcc_work/global.C", "a+b");
 			//FILE * print_list_counts=fopen("xtcc_work/print_list_counts.C", "a+b");
-			string fname= my_work_dir+ string("global.C");
+			string fname = my_work_dir + string("global.C");
 			FILE * global_vars=fopen(fname.c_str(), "a+b");
-			fname=my_work_dir+ string("print_list_counts.C");
+			fname = my_work_dir + string("print_list_counts.C");
 			FILE * print_list_counts=fopen(fname.c_str(), "a+b");
-			if(!global_vars){
+			if (!global_vars) {
 				cerr << "Unable to open global.C for append" << endl;
 			}
-			if(symbolTableEntry_){
+			if (symbolTableEntry_) {
 				DataType dt=symbolTableEntry_->get_type();
 				switch(dt){
 				case INT8_ARR_TYPE:	
 					{
-					fprintf(global_vars, "map<%s,int> list2_%d;\n", 
+					fprintf (global_vars, "map<%s,int> list2_%d;\n", 
 							noun_list[dt].sym, counter_number);
 					/*fprintf(fptr, "list2_%d [%s[%d]]++;\n", counter_number, symbolTableEntry_->name,
 							arr_start);
 					fprintf(print_list_counts, "print_list_summ(list2_%d );\n", counter_number);
 					*/
-					fprintf(print_list_counts, "printf(\"LISTA_BASIC_ARRTYPE_STMT_2INDEX: to be implemented\");\\n\n");
+					fprintf (print_list_counts, "printf(\"LISTA_BASIC_ARRTYPE_STMT_2INDEX: to be implemented\");\\n\n");
 
 					}
 				break;		      
@@ -493,14 +499,13 @@ void ListStatement::GenerateCode(FILE * & fptr)
 				}
 				++counter_number;
 			}
-			fclose(print_list_counts);
-			fclose(global_vars);
+			fclose (print_list_counts);
+			fclose (global_vars);
 		}
 		default:
 			fprintf(fptr, "Unhandled lista statement: \n");	
 		}
-		if(next_) next_->GenerateCode(fptr);
-
+		if (next_) next_ -> GenerateCode(fptr);
 	}
 }
 

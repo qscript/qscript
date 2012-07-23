@@ -187,9 +187,15 @@ int main (int argc, char* argv[])
 			<< "xtcc uses this directory to create its temporary files - please rename." << endl;
 		exit(1);
 	}
-	if(!no_errors){
+	if (!no_errors) {
+		string fname = work_dir + string ("/global.C");
+		FILE * global_vars_C = fopen (fname.c_str(), "wb");
+		fprintf (global_vars_C, "#include <map>\n#include <string>\n#include <vector>\n"
+					"#include \"mean_stddev_struct.h\"\n"
+					"using std::map; using std::string; using std::vector;\n");
+		fclose (global_vars_C);
 		generate_edit_section_code();
-		fclose (global_vars);
+		//fclose (global_vars);
 	} else {
 		cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
 		exit(1);
@@ -240,8 +246,8 @@ int main (int argc, char* argv[])
 	flex_finish();
 	extern vector<Table::table*>	table_list;
 	print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
-	print_axis_code(axes_op, axes_drv_func);
-	print_weighting_code();
+	print_axis_code (axes_op, axes_drv_func);
+	print_weighting_code ();
 	generate_make_file();
 	fclose(yyin); yyin=0;
 	fclose(table_op);
@@ -253,14 +259,14 @@ int main (int argc, char* argv[])
 	//bool my_compile_flag=false;
 	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
 
-	string gfname=work_dir+string("/global.h");
-	global_vars=fopen(gfname.c_str(), "a+");
+	string gfname = work_dir + string("/global.h");
+	global_vars = fopen (gfname.c_str(), "a+");
 	if (!global_vars) {
-		cerr << "cannot open global.C for writing" << endl;
+		cerr << "cannot open"  << gfname << "for writing" << endl;
 		exit(1);
 	}
-	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H--*/\n");
-	fclose(global_vars);
+	fprintf (global_vars, "#endif /* __NxD_GLOB_VARS_H--*/\n");
+	fclose (global_vars);
 
 	int compile_result = -1;
 	if (flag_compile_only == true) {

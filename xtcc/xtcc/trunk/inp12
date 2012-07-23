@@ -41,7 +41,7 @@ int32_t edit_data()
 
 	float myfloat2;
 	myfloat2=c[84,87]; // this data will automatically be converted to type float
-	lista myfloat2 "myfloat2";
+	//lista myfloat2 "myfloat2";
 
 	first_4byte_int=c[40,43];
 	if(first_4byte_int in (1,2,4,202)){
@@ -74,19 +74,19 @@ int32_t edit_data()
 
 	int32_t fld_1;
 	fld_1	= c[120,123];
-	lista fld_1 "fld_1";
+	//lista fld_1 "fld_1";
 	int32_t fld_2;
 	fld_2 = c[124,127];
-	lista fld_2 "fld_2";
+	//lista fld_2 "fld_2";
 	int32_t fld_3;
 	fld_3 = c[128,131];
-	lista fld_3 "fld_3";
+	//lista fld_3 "fld_3";
 	int32_t fld_4;
 	fld_4 = c[132,135];
-	lista fld_4 "fld_4";
+	//lista fld_4 "fld_4";
 	int32_t fld_5;
 	fld_5 = c[136,139];
-	lista fld_5 "fld_5";
+	//lista fld_5 "fld_5";
 
 }
 
@@ -112,8 +112,8 @@ ed_end  // This marks the end if the edit program
 tabstart 	{
 	tab q1 q2;
 	tab q1 q3;
-	tab q4 q4;
-	tab q5 q4;
+	tab q4 q3;
+	tab q5 q3;
 	tab q5 q5;
 }
 
@@ -151,7 +151,7 @@ cnt; " from 221 to 249"; c= first_4byte_int>=220 && first_4byte_int < 250;
 cnt; " from 250 to 289"; c= first_4byte_int>=250 && first_4byte_int < 290;
 cnt; " from 290 to 369"; c= first_4byte_int>=290 && first_4byte_int < 370;
 cnt; " from 370 to 500"; c= first_4byte_int>=370 && first_4byte_int < 501;
-inc; "inc test"; global_val; c= first_4byte_int >= 201 && first_4byte_int <220;
+inc;  global_val; c= first_4byte_int >= 201 && first_4byte_int <220;
 //inc; "inc test"; ser_no; c= first_4byte_int >= 201 && first_4byte_int <220;
 
 
