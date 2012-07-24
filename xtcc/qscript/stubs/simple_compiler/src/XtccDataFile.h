@@ -5,6 +5,12 @@
 #include <sstream>
 #include <string>
 #include "question.h"
+#include "named_range.h"
+
+#include <fstream>
+#include <cstdlib>
+
+using namespace std;
 
 class XtccDataFileDiskMap
 {
@@ -107,6 +113,8 @@ public:
 		map_file << start_pos << ",	";
 		map_file << start_pos + totalLength_ -1  << "\n";
 	}
+	void print_xtcc_include_file (fstream & xtcc_ax_file, string setup_dir);
+#if 0
 	void print_xtcc_include_file (fstream & xtcc_ax_file, string setup_dir)
 	{
 		static set<string, less<string> > set_include_file;
@@ -120,6 +128,8 @@ public:
 			}
 			if (set_include_file.find (inc_file_name) != set_include_file.end()) {
 			} else {
+				string range_name = n_q->nr_ptr->name;
+
 				fstream inc_file (inc_file_name.c_str(), std::ios_base::out | std::ios_base::ate);
 				for (int i=0; i<nq->nr_ptr->stubs.size(); ++i) {
 					inc_file << "cnt; " << "\""
@@ -163,6 +173,7 @@ public:
 			}
 		}
 	}
+#endif /*  0 */
 
 	string print_xtcc_ax_data_variable_name()
 	{
