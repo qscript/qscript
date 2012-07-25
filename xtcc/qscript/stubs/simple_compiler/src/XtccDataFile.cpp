@@ -187,3 +187,45 @@ void XtccDataFileDiskMap::print_xtcc_include_file (fstream & xtcc_ax_file, strin
 		}
 	}
 }
+
+
+XtccDataFileDiskMap* GetXtccQuestionMapEntry(vector <XtccDataFileDiskMap*> & qtm_datafile_question_disk_map,
+string name)
+{
+	for (int i=0; i < qtm_datafile_question_disk_map.size(); ++i)
+	{
+		if (qtm_datafile_question_disk_map[i]->q_->questionName_ == name)
+		{
+			return qtm_datafile_question_disk_map[i];
+		}
+	}
+	return 0;
+}
+
+
+vector <XtccDataFileDiskMap*> GetXtccQuestionMapEntryArrayQ
+	(vector <XtccDataFileDiskMap*> & qtm_datafile_question_disk_map,
+	string name)
+{
+	string dummy_output_filename (string("dummy.output"));
+	fstream dummy_output_file(dummy_output_filename.c_str(), ios_base::out|ios_base::app);
+	dummy_output_file << "searching for : " << name << endl;
+	vector <XtccDataFileDiskMap*> result ;
+	for (int i=0; i < qtm_datafile_question_disk_map.size(); ++i)
+	{
+		string s1 = qtm_datafile_question_disk_map[i]->q_->questionName_ ;
+		dummy_output_file << "questionName_: " << s1 << endl;
+		string s3 = "";
+		if (s1.length() > name.length())
+		{
+			s3 = s1.substr(0, name.length());
+		}
+		dummy_output_file << s3 << endl;
+		if (qtm_datafile_question_disk_map[i]->q_->questionName_ == name)
+		{
+			result.push_back(qtm_datafile_question_disk_map[i]);
+			dummy_output_file << "added to result" << endl;
+		}
+	}
+	return result;
+}

@@ -114,6 +114,8 @@ public:
 		map_file << start_pos + totalLength_ -1  << "\n";
 	}
 	void print_xtcc_include_file (fstream & xtcc_ax_file, string setup_dir);
+
+
 #if 0
 	void print_xtcc_include_file (fstream & xtcc_ax_file, string setup_dir)
 	{
@@ -634,6 +636,13 @@ public:
 	}
 
 };
+XtccDataFileDiskMap* GetXtccQuestionMapEntry(vector <XtccDataFileDiskMap*> & qtm_datafile_question_disk_map,
+string name);
+
+vector <XtccDataFileDiskMap*> GetXtccQuestionMapEntryArrayQ
+	(vector <XtccDataFileDiskMap*> & qtm_datafile_question_disk_map,
+	string name);
+
 
 
 #endif /* XTCCDATAFILE_H */
