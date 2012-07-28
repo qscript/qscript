@@ -1927,7 +1927,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 						recode_edit.program_code 
 							<< " array question" << endl;
 						recode_edit.program_code << "*/" << endl;
-#if 0
+#if 1
 
 						recode_edit.program_code
 							<< "\t\tfor (int i=0; i < " << driver_question_name 
@@ -1943,6 +1943,10 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "_map_entry =\n"
 							<< "\t\t\t\t GetXtccQuestionMapEntryArrayQ (xtcc_question_disk_map, \""
 							<< rec_question_name << "\");" << endl
+							<< "\t\t\t vector< XtccDataFileDiskMap *> "
+							<< "leader_rec_q_map_entry = GetXtccQuestionMapEntryArrayQ (xtcc_question_disk_map, \""
+							<< leader_rec_question_name << "\");\n" 
+							<< endl
 							//<< "\t\t\t variable_file << " 
 							//<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
 							//<< " << " << driver_question_name 
@@ -1953,6 +1957,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 
 						if (j2 == 0) {
 						recode_edit.program_code 
+							/* 
 							<< "\t\t\tvariable_file << \"data "
 							<< rec_question_name << "\";\n" << endl
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
@@ -1972,6 +1977,12 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							//<< driver_question_name << "_map_entry, "
 							//<< rec_question_name << "_map_entry[i1], i);\n" 
 							<< endl;
+							*/
+							<< "variable_file <<  print_recode_edit_xtcc_var_defn ("
+							<< driver_question_name << "_map_entry, "
+							<< rec_question_name << "_map_entry[i1], i);" 
+							<< endl;
+
 
 						recode_edit.program_code 
 							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;

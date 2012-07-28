@@ -214,6 +214,7 @@ string print_recode_edit_xtcc_var_defn (XtccDataFileDiskMap * driver_q, XtccData
 string print_recode_edit_xtcc_var_init (XtccDataFileDiskMap * driver_q, XtccDataFileDiskMap * recode_q, int index);
 string print_recode_edit_xtcc_data_xfer (XtccDataFileDiskMap * driver_q, XtccDataFileDiskMap * leader_recode_q, 
 		XtccDataFileDiskMap * recode_q, int index);
+string print_recode_edit_xtcc_var_defn_arrayq (XtccDataFileDiskMap * driver_q, vector<XtccDataFileDiskMap *> & recode_q_vec, int index);
 
 
 

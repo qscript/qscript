@@ -675,22 +675,76 @@ void XtccDataFileDiskMap::print_xtcc_ax2(fstream & xtcc_ax_file, string setup_di
 	}
 }
 
+#if 0
+string print_recode_edit_xtcc_var_defn_arrayq (XtccDataFileDiskMap * driver_q, XtccDataFileDiskMap *  recode_q_vec, int index)
+{
+	stringstream var_defn;
+	var_defn << "int32_t "
+		<< recode_q_vec[0]->q_->questionName_ << endl;
+
+	for (int i2=0; i2 < recode_q_vec.size(); ++i2) {
+		var_defn << "_" << recode_q_vec->q_->loop_index_values[i2];
+	}
+
+	//<< rec_question_name << "_map_entry[i1]->"
+	//<< "q_->loop_index_values.size(); ++i2) {\n"
+	//<< "\t\t\t\t\t\t variable_file << \"_\" << "
+	//<< rec_question_name << "_map_entry[i1]->q_->"
+	//<< "loop_index_values[i2];\n"
+	//<< "\t\t\t\t\t}\n"
+	
+	//<< "\t\t\t\t\tvariable_file << \"_\" << "
+	//<< driver_question_name
+	//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << " 
+	//<< rec_question_name << "_map_entry[i1]->totalLength_ " << " << \"s\\n\";\n"
+	NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (driver_q->q_);
+	var_defn 
+		<< "_" << nq -> nr_ptr->stubs[index].stub_text_as_var_name()
+		<< ";" << endl;
+
+	//<< "\t\t\t\t\trecode_edit_qax_file\n"
+	//<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
+	//<< driver_question_name << "_map_entry, "
+	//<< rec_question_name << "_map_entry[i1], i);\n" 
+	//<< endl;
+	return var_defn.str();
+}
+#endif /* 0 */
+
 string print_recode_edit_xtcc_var_defn (XtccDataFileDiskMap * driver_q, XtccDataFileDiskMap * recode_q, int index)
 {
 	stringstream defn;
 
 	NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (driver_q->q_);
-	if (recode_q->q_-> no_mpn == 1) {
+	//if (recode_q->q_-> no_mpn == 1) {
 		//defn << recode_q->q_->questionName_ << " is single coded" << endl;
 		defn
-			<< "int32_t " << recode_q->q_->questionName_ << "_"
-			<< nq->nr_ptr->stubs[index].stub_text_as_var_name() << "_data;"
+			<< "int32_t " << recode_q->q_->questionName_;
+
+		//if (recode_q->q_
+		for (int i = 0; i < recode_q->q_->loop_index_values.size(); 
+				++i) {
+			defn << "_" << recode_q->q_->loop_index_values[i];
+		}
+		defn	
+			<< "_"
+			<< nq->nr_ptr->stubs[index].stub_text_as_var_name();
+		
+	//} else {
+		//defn << recode_q->q_->questionName_ << " is multi coded" << endl;
+		//defn
+		//	<< "int32_t " << recode_q->q_->questionName_ << "_"
+		//	<< nq->nr_ptr->stubs[index].stub_text_as_var_name() << "_arr["
+		//	<< recode_q->q_-> no_mpn << "];"
+		//	<< endl;
+	//}
+	if (recode_q->q_-> no_mpn == 1) {
+		defn
+			<< "_data;"
 			<< endl;
 	} else {
-		//defn << recode_q->q_->questionName_ << " is multi coded" << endl;
 		defn
-			<< "int32_t " << recode_q->q_->questionName_ << "_"
-			<< nq->nr_ptr->stubs[index].stub_text_as_var_name() << "_arr["
+			<< "_arr["
 			<< recode_q->q_-> no_mpn << "];"
 			<< endl;
 	}
