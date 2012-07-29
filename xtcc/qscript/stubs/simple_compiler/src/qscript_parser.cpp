@@ -1979,6 +1979,11 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "variable_file <<  print_recode_edit_xtcc_var_defn ("
 							<< driver_question_name << "_map_entry, "
 							<< rec_question_name << "_map_entry[i1], i);" 
+							<< endl
+							<< "\t\t\t\t\trecode_edit_qax_file\n"
+							<< "\t\t\t\t\t\t	<< print_recode_edit_xtcc_ax ("
+							<< driver_question_name << "_map_entry, "
+							<< rec_question_name << "_map_entry[i1], i);\n"
 							<< endl;
 
 

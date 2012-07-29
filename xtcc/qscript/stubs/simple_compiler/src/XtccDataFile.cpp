@@ -342,6 +342,10 @@ void XtccDataFileDiskMap::print_edit_var_defns(fstream & xtcc_ax_file, string se
 
 string print_recode_edit_xtcc_ax (XtccDataFileDiskMap * driver_q, XtccDataFileDiskMap * recode_q, int index)
 {
+	// One fine day - revisit this and do it right
+	// with the axes code normalized - but for now
+	// get it to work
+#if 0
 	stringstream ax;
 	extern string jno;
 	string setup_dir( string("setup-") + jno + string ("/"));
@@ -506,13 +510,266 @@ string print_recode_edit_xtcc_ax (XtccDataFileDiskMap * driver_q, XtccDataFileDi
 		ax << " driver question does not have named stubs, this should be an input file error" << endl;
 	}
 	return ax.str();
+#endif /*  0 */
+	stringstream ax;
+	//cerr << "index: " << index << endl;
+
+	NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (driver_q->q_);
+
+	ax 	<< "ax "
+		<< print_recode_edit_xtcc_combined_ax_name
+			(driver_q, recode_q, index)
+			<< endl;
+
+
+	//string combined_ax_data_variable_name = 
+	//	print_recode_edit_xtcc_combined_ax_var_name 
+	//		(recode_q, driver_q, index);
+	//
+	stringstream s1;
+	s1 << 	print_recode_edit_xtcc_combined_ax_var_name
+			(driver_q, recode_q, index);
+	string combined_ax_data_variable_name = s1.str();
+	if (recode_q->q_->no_mpn == 1) {
+		ax << "; c=" 
+			<< combined_ax_data_variable_name << " > 0 ;"
+			<< endl;
+	} else {
+		ax << "; c=" 
+			<< combined_ax_data_variable_name << "[0]" << " > 0 ;"
+			<< endl;
+	}
+
+#if 1
+	ax
+		<< "ttl; " << "\"" << recode_q->q_->questionName_ 
+		<< "." 
+		<< recode_q->q_->questionText_ 
+		<< ":"
+		<< nq->nr_ptr->stubs[index].stub_text
+		<< "\";" 
+		<< endl ;
+
+	if (NamedStubQuestion * r_nq = dynamic_cast<NamedStubQuestion*> (recode_q->q_)) {
+		//xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
+		ax << "#include base.xin;btxt=\"Total\";" << endl;
+		//print_xtcc_include_file (xtcc_ax_file, setup_dir);
+		named_range * nr_ptr = r_nq->nr_ptr;
+		if (r_nq->no_mpn == 1) {
+			ax << "#include " << nr_ptr->name << ".sin;" ;
+		} else {
+			ax << "#include " << nr_ptr->name << ".min;" ;
+		}
+		/*
+		for (int i=0; i<nr_ptr->stubs.size(); ++i) {
+		*/
+
+		ax 
+			//<< "cnt; " << "\""
+			//<< nr_ptr->stubs[i].stub_text
+			//<< "\""
+			//<< "; c="
+			//<< "; c="
+			<< " var1=\""
+			<< combined_ax_data_variable_name
+			<< "\";"
+			<< endl;
+
+		/*
+		}
+		*/
+	} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(recode_q->q_)) {
+		ax << "tot; " << "\"" << "Total" << "\";" << endl;
+		set<int32_t> & indiv = rq->r_data->indiv;
+		for (set<int32_t>::iterator it1 = indiv.begin();
+				it1 != indiv.end(); ++it1) {
+			ax << "cnt; " << "\""
+				<< *it1 
+				<< "\""
+				<< "; c="
+				<< recode_q->q_->questionName_;
+			if (recode_q->q_->loop_index_values.size())
+			{
+				for (int i=0; i< recode_q->q_->loop_index_values.size(); ++i)
+				{
+					ax << "_" << recode_q->q_->loop_index_values[i];
+				}
+			}
+			//ax << "_data == "
+			//	<< *it1
+			//	<< ";" 
+			//	<< endl;
+			if (rq->no_mpn==1) { 
+				ax << "_data == "
+					<< *it1
+					<< ";/*  ------------------- */" 
+					<< endl;
+			} else {
+				ax << "_arr["
+					<< *it1
+					<< "]"
+					<< " == "
+					<< *it1
+					<< "; /*  =================== */" 
+					<< endl;
+			}
+		}
+		vector < pair<int32_t,int32_t> > range
+			= rq->r_data->range;
+		if (rq->no_mpn==1) {
+			for (int i=0; i<range.size(); ++i) {
+				ax << "cnt; " << "\""
+					<< range[i].first 
+					<< " - "
+					<< range[i].second
+					<< "\""
+					<< "; c="
+					<< recode_q->q_->questionName_;
+				if (recode_q->q_->loop_index_values.size())
+				{
+					for (int i = 0; i< recode_q->q_->loop_index_values.size(); ++i)
+					{
+						ax << "_" << recode_q->q_->loop_index_values[i];
+					}
+				}
+				ax << "_data >= "
+					<< range[i].first
+					<< " && "
+					<< recode_q->q_->questionName_;
+				if (recode_q->q_->loop_index_values.size())
+				{
+					for (int i=0; i< recode_q->q_->loop_index_values.size(); ++i)
+					{
+						ax << "_" << recode_q->q_->loop_index_values[i];
+					}
+				}
+				ax << "_data <= "
+					<< range[i].second
+					<< ";" 
+					<< endl;
+			}
+		} else {
+			ax << "cnt; " << "\"all\"; c= all == 1;\n";
+			/*
+
+			for (int i=0; i<range.size(); ++i) {
+				ax << "cnt; " << "\""
+					<< range[i].first 
+					<< " - "
+					<< range[i].second
+					<< "\""
+					<< "; c="
+					<< q_->questionName_;
+				if (q_->loop_index_values.size())
+				{
+					for (int i=0; i< q_->loop_index_values.size(); ++i)
+					{
+						ax << "_" << q_->loop_index_values[i];
+					}
+				}
+				ax << "_arr >= "
+					<< range[i].first
+					<< " && "
+					<< q_->questionName_;
+				if (q_->loop_index_values.size())
+				{
+					for (int i=0; i< q_->loop_index_values.size(); ++i)
+					{
+						ax << "_" << q_->loop_index_values[i];
+					}
+				}
+				ax << "_arr <= "
+					<< range[i].second
+					<< ";" 
+					<< endl;
+			}
+			*/
+		}
+	}
+#endif /*  0 */
+	ax << endl << endl;
+	return ax.str();
+}
+
+string print_recode_edit_xtcc_combined_name
+	(XtccDataFileDiskMap * driver_q,
+	 XtccDataFileDiskMap * recode_q, int index)
+{
+	stringstream defn;
+
+	NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> 
+					(driver_q->q_);
+	//if (recode_q->q_-> no_mpn == 1) {
+		//defn << recode_q->q_->questionName_ << " is single coded" << endl;
+	defn
+		<< recode_q->q_->questionName_;
+
+		//if (recode_q->q_
+	for (int i = 0; i < recode_q->q_->loop_index_values.size(); 
+			++i) {
+		defn << "_" << recode_q->q_->loop_index_values[i];
+	}
+	defn	
+		<< "_"
+		<< nq->nr_ptr->stubs[index].stub_text_as_var_name();
+		
+	//} else {
+		//defn << recode_q->q_->questionName_ << " is multi coded" << endl;
+		//defn
+		//	<< "int32_t " << recode_q->q_->questionName_ << "_"
+		//	<< nq->nr_ptr->stubs[index].stub_text_as_var_name() << "_arr["
+		//	<< recode_q->q_-> no_mpn << "];"
+		//	<< endl;
+	//}
+#if 0	
+	if (recode_q->q_-> no_mpn == 1) {
+		defn
+			<< "_data;"
+			<< endl;
+	} else {
+		defn
+			<< "_arr["
+			<< recode_q->q_-> no_mpn << "];"
+			<< endl;
+	}
+#endif /*  0 */
+	return defn.str();
+}
+
+string print_recode_edit_xtcc_combined_ax_name 
+	(XtccDataFileDiskMap * driver_q,
+	 XtccDataFileDiskMap * recode_q, int index)
+{
+	string s;
+	s = print_recode_edit_xtcc_combined_name 
+		(driver_q, recode_q, index);
+	return s;
+}
+
+string print_recode_edit_xtcc_combined_ax_var_name 
+	(XtccDataFileDiskMap * driver_q,
+	 XtccDataFileDiskMap * recode_q, int index)
+{
+
+	string s;
+	//stringstream var_name;
+	s =  print_recode_edit_xtcc_combined_name
+		(driver_q, recode_q, index);
+	if (recode_q->q_-> no_mpn == 1) {
+		s += "_data";
+	} else {
+		s += "_arr";
+	}
+	return s;
 }
 
 void XtccDataFileDiskMap::print_xtcc_ax2(fstream & xtcc_ax_file, string setup_dir)
 {
 	xtcc_ax_file 
 		<< endl
-		<< "ax " << q_->questionName_ ;
+		<< "ax ";
+#if 0
+	<< q_->questionName_ ;
 
 	if (q_->loop_index_values.size())
 	{
@@ -520,6 +777,8 @@ void XtccDataFileDiskMap::print_xtcc_ax2(fstream & xtcc_ax_file, string setup_di
 			xtcc_ax_file << "_" << q_->loop_index_values[i];
 		}
 	}
+#endif /*  0 */
+	xtcc_ax_file << print_xtcc_ax_name();
 	string ax_data_variable_name = print_xtcc_ax_data_variable_name();
 	if (q_->no_mpn == 1) {
 		xtcc_ax_file << "; c=" 
@@ -824,7 +1083,9 @@ string print_recode_edit_xtcc_data_xfer (XtccDataFileDiskMap * driver_q, XtccDat
 			<< "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name()
 			<< "_data"
 			<< " = "
-			<< recode_q->q_->questionName_ << "_data;\n";
+			<< recode_q->print_xtcc_ax_data_variable_name()
+			<< ";\n";
+			//<< recode_q->q_->questionName_ << "_data;\n";
 	} else {
 		//data_xfer_recode << "multi code recode" << endl;
 		data_xfer_recode 
@@ -851,11 +1112,15 @@ string print_recode_edit_xtcc_data_xfer (XtccDataFileDiskMap * driver_q, XtccDat
 }
 
 
-void XtccDataFileDiskMap::print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir)
+void XtccDataFileDiskMap::print_xtcc_ax (fstream & xtcc_ax_file,
+		string setup_dir)
 {
 	xtcc_ax_file 
 		<< endl
-		<< "ax " << q_->questionName_ ;
+		<< "ax ";
+	
+#if 0
+	<< q_->questionName_ ;
 
 	if (q_->loop_index_values.size())
 	{
@@ -864,20 +1129,23 @@ void XtccDataFileDiskMap::print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir
 			xtcc_ax_file << "_" << q_->loop_index_values[i];
 		}
 	}
+#endif /* 0 */
+	xtcc_ax_file << print_xtcc_ax_name();
 	xtcc_ax_file << ";" << endl
 		<< "ttl; " << "\"" << q_->questionName_ 
 		<< "." 
 		<< q_->questionText_ 
 		<< "\";" 
 		<< endl << endl;
+	xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
 	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
-		xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
 		named_range * nr_ptr = nq->nr_ptr;
 		for (int i=0; i<nr_ptr->stubs.size(); ++i) {
 			xtcc_ax_file << "cnt; " << "\""
 				<< nr_ptr->stubs[i].stub_text
 				<< "\""
-				<< "; c="
+				<< "; c=";
+#if 0
 				<< q_->questionName_;
 			if (q_->loop_index_values.size())
 			{
@@ -886,13 +1154,18 @@ void XtccDataFileDiskMap::print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir
 					xtcc_ax_file << "_" << q_->loop_index_values[i];
 				}
 			}
+#endif /*  0 */
+			xtcc_ax_file << 
+				print_xtcc_ax_data_variable_name();
 			if (nq->no_mpn==1) { 
-				xtcc_ax_file << "_data == "
+				//xtcc_ax_file << "_data == "
+				xtcc_ax_file << " == "
 					<< nr_ptr->stubs[i].code 
 					<< ";" 
 					<< endl;
 			} else {
-				xtcc_ax_file << "_arr["
+				//xtcc_ax_file << "_arr["
+				xtcc_ax_file << "["
 					<< nr_ptr->stubs[i].code 
 					<< "]"
 					<< " > 0"
@@ -901,7 +1174,6 @@ void XtccDataFileDiskMap::print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir
 			}
 		}
 	} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q_)) {
-		xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
 		set<int32_t> & indiv = rq->r_data->indiv;
 		for (set<int32_t>::iterator it1 = indiv.begin();
 				it1 != indiv.end(); ++it1) {
@@ -1010,3 +1282,63 @@ void XtccDataFileDiskMap::print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir
 	}
 }
 
+string XtccDataFileDiskMap::print_xtcc_ax_name()
+{
+	stringstream ax_data_variable_name;
+	ax_data_variable_name	<< q_->questionName_;
+	if (q_->loop_index_values.size()) {
+		for (int i = 0; i < q_->loop_index_values.size(); ++i) {
+			ax_data_variable_name << "_" << q_->loop_index_values[i];
+		}
+	}
+#if 0
+	if (q_->no_mpn==1) { 
+		//xtcc_ax_file << "_data == "
+		//	<< nr_ptr->stubs[i].code 
+		//	<< ";" 
+		//	<< endl;
+		ax_data_variable_name << "_data" ;
+	} else {
+		//xtcc_ax_file << "_arr["
+		//	<< nr_ptr->stubs[i].code 
+		//	<< "]"
+		//	<< " > 0"
+		//	<< ";" 
+		//	<< endl;
+		ax_data_variable_name << "_arr";
+	}
+#endif /* 0 */
+	return ax_data_variable_name.str();
+}
+
+string XtccDataFileDiskMap::print_xtcc_ax_data_variable_name()
+{
+	stringstream ax_data_variable_name;
+#if 0
+	ax_data_variable_name	<< q_->questionName_;
+	if (q_->loop_index_values.size()) {
+		for (int i=0; i< q_->loop_index_values.size(); ++i)
+		{
+			ax_data_variable_name << "_" << q_->loop_index_values[i];
+		}
+	}
+#endif /*  0 */
+
+	ax_data_variable_name << print_xtcc_ax_name() ;
+	if (q_->no_mpn == 1) { 
+		//xtcc_ax_file << "_data == "
+		//	<< nr_ptr->stubs[i].code 
+		//	<< ";" 
+		//	<< endl;
+		ax_data_variable_name << "_data" ;
+	} else {
+		//xtcc_ax_file << "_arr["
+		//	<< nr_ptr->stubs[i].code 
+		//	<< "]"
+		//	<< " > 0"
+		//	<< ";" 
+		//	<< endl;
+		ax_data_variable_name << "_arr";
+	}
+	return ax_data_variable_name.str();
+}

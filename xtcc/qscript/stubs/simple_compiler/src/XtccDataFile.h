@@ -117,34 +117,8 @@ public:
 
 
 
-	string print_xtcc_ax_data_variable_name()
-	{
-		stringstream ax_data_variable_name;
-
-		ax_data_variable_name	<< q_->questionName_;
-		if (q_->loop_index_values.size()) {
-			for (int i=0; i< q_->loop_index_values.size(); ++i)
-			{
-				ax_data_variable_name << "_" << q_->loop_index_values[i];
-			}
-		}
-		if (q_->no_mpn==1) { 
-			//xtcc_ax_file << "_data == "
-			//	<< nr_ptr->stubs[i].code 
-			//	<< ";" 
-			//	<< endl;
-			ax_data_variable_name << "_data" ;
-		} else {
-			//xtcc_ax_file << "_arr["
-			//	<< nr_ptr->stubs[i].code 
-			//	<< "]"
-			//	<< " > 0"
-			//	<< ";" 
-			//	<< endl;
-			ax_data_variable_name << "_arr";
-		}
-		return ax_data_variable_name.str();
-	}
+	string print_xtcc_ax_name();
+	string print_xtcc_ax_data_variable_name();
 
 	void print_xtcc_ax2(fstream & xtcc_ax_file, string setup_dir);
 	void print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir);
@@ -209,6 +183,19 @@ string name);
 vector <XtccDataFileDiskMap*> GetXtccQuestionMapEntryArrayQ
 	(vector <XtccDataFileDiskMap*> & qtm_datafile_question_disk_map,
 	string name);
+
+string print_recode_edit_xtcc_combined_ax_name 
+	(XtccDataFileDiskMap * driver_q,
+	 XtccDataFileDiskMap * recode_q, int index);
+
+string print_recode_edit_xtcc_combined_ax_var_name 
+	(XtccDataFileDiskMap * driver_q,
+	 XtccDataFileDiskMap * recode_q, int index);
+
+string print_recode_edit_xtcc_combined_name 
+	(XtccDataFileDiskMap * driver_q,
+	 XtccDataFileDiskMap * recode_q, int index);
+
 string print_recode_edit_xtcc_ax (XtccDataFileDiskMap * driver_q, XtccDataFileDiskMap * recode_q, int index);
 string print_recode_edit_xtcc_var_defn (XtccDataFileDiskMap * driver_q, XtccDataFileDiskMap * recode_q, int index);
 string print_recode_edit_xtcc_var_init (XtccDataFileDiskMap * driver_q, XtccDataFileDiskMap * recode_q, int index);
