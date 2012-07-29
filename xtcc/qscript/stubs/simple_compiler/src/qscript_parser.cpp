@@ -1892,7 +1892,6 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< " && " << rec_question_name << "_map_entry) {\n"
 
 							<< "\t\t\t\tedit_file << \"\\nif ( "
-
 							<< driver_question_name << "\"" << endl
 							//<< "\")\"" << endl
 							<< "\t\t\t\t\t<< \"_data  == \" << "
@@ -1912,7 +1911,6 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							// ==================
 							<< "<< print_recode_edit_xtcc_data_xfer ("
 							<< driver_question_name << "_map_entry, "
-							//<< rec_question_name << "_map_entry, i)\n" 
 							<< "leader_rec_q_map_entry, "
 							<< rec_question_name << "_map_entry, " 
 							<< "i)\n" 
@@ -1985,6 +1983,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 
 
 						recode_edit.program_code 
+#if 0
 							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;
 						recode_edit.program_code 
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
@@ -2001,65 +2000,87 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name 
 							<< "_map_entry[i1]->totalLength_"
 							<< " << \");\\n\";\n";
+#endif /* 0 */
+								<< "edit_file << print_recode_edit_xtcc_var_init ("
+								<< driver_question_name << "_map_entry, "
+								<< rec_question_name << "_map_entry[i1], i);" 
+								<< endl;
 
 						}
 
 						recode_edit.program_code 
 							<< "\t\t\t\t\tif (" << driver_question_name << "_map_entry"
-							<< " && " << rec_question_name << "_map_entry.size() > 0) {\n"
-							<< "\t\t\t\t\tedit_file << \"/* \" << "
-							<< driver_question_name
-							<< "->questionName_ \n"
-							<< "\t\t\t\t\t<< \" column: c(\" << "
-							<< driver_question_name << "_map_entry->start_pos + 1\n"
-							<< "\t\t\t\t\t<< \", \" << "
-							<< driver_question_name << "_map_entry->start_pos + "
-							<< driver_question_name << "_map_entry->totalLength_\n"
-							<< "\t\t\t\t\t<< \")\"" << endl
-							<< "\t\t\t\t\t<< endl;" << endl
-							<< "\t\t\t\t\tedit_file << \"	if ( \"" << endl
-							<< "\t\t\t\t\t<< \"c(\" " << endl
-							<< "\t\t\t\t\t<< " << driver_question_name
-							<< "_map_entry->start_pos + 1" << endl
-							<< "\t\t\t\t\t<< \", \"" << endl
-							<< "\t\t\t\t\t<< " 
-							<< driver_question_name << "_map_entry->start_pos + "
-							<< driver_question_name 
-							<< "_map_entry->totalLength_ << \")\"" << endl
-							<< "\t\t\t\t\t<< \" .eq. \" << "
+							<< " && " << rec_question_name << "_map_entry.size() > 0) /* ###---###  */{\n"
+#if 1
+							//<< "\t\t\t\t\tedit_file << "
+							//<< "\"/* \" << "
+							//<< driver_question_name
+							//<< "->questionName_ \n"
+							//<< "\t\t\t\t\t<< \" column: c(\" << "
+							//<< driver_question_name << "_map_entry->start_pos + 1\n"
+							//<< "\t\t\t\t\t<< \", \" << "
+							//<< driver_question_name << "_map_entry->start_pos + "
+							//<< driver_question_name << "_map_entry->totalLength_\n"
+							//<< "\t\t\t\t\t<< \")\"" << endl
+							//<< "\t\t\t\t\t<< endl;" << endl
+							//<< "\t\t\t\t\tedit_file << \"	if ( \"" << endl
+							//<< "\t\t\t\t\t<< \"c(\" " << endl
+							//<< "\t\t\t\t\t<< " << driver_question_name
+							//<< "_map_entry->start_pos + 1" << endl
+							//<< "\t\t\t\t\t<< \", \"" << endl
+							//<< "\t\t\t\t\t<< " 
+							//<< driver_question_name << "_map_entry->start_pos + "
+							//<< driver_question_name 
+							//<< "_map_entry->totalLength_ << \")\"" << endl
+							//<< "\t\t\t\t\t<< \" .eq. \" << "
+							//<< driver_question_name
+							//<< "->nr_ptr->stubs[i].code" << endl
+							//<< "\t\t\t\t\t<< \")\\n\"" << endl
+							<< "\t\t\t\tedit_file << \"\\nif ( "
+							<< driver_question_name << "\"" << endl
+							//<< "\")\"" << endl
+							<< "\t\t\t\t\t<< \"_data  == \" << "
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].code" << endl
-							<< "\t\t\t\t\t<< \")\\n\"" << endl
-							<< "\t\t\t\t\t<< \"+\\t\" <<  \""
-							<< leader_rec_question_name << "\";" << endl;
-						recode_edit.program_code 
-							<< "\t\t\t\t\tfor (int i2=0; i2 < "
-							<< rec_question_name << "_map_entry[i1]->"
-							<< "q_->loop_index_values.size(); ++i2) {\n"
-							<< "\t\t\t\t\t\tedit_file << \"_\" << "
-							<< rec_question_name << "_map_entry[i1]->q_->"
-							<< "loop_index_values[i2];\n"
-							<< "\t\t\t\t\t}\n";
-						recode_edit.program_code
-							<< "\t\t\t\t\tedit_file << \"_\" << "
-							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-							<< rec_question_name 
-							<< "_map_entry[i1]->totalLength_"
-							<< " << \")\" "
-							<< "\t\t\t\t\t<< \"=\"" << endl
-							<< "\t\t\t\t\t<< \"c(\" " << endl
-							<< "\t\t\t\t\t<< "
-							<< rec_question_name
-							<< "_map_entry[i1]->start_pos + 1" << endl
-							<< "\t\t\t\t\t<< \", \"" << endl
-							<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry[i1]->start_pos + "
-							<< rec_question_name << "_map_entry[i1]->totalLength_ << \")\"" << endl
-							<< "\t\t\t\t\t<< endl;" << endl 
-							<< "\t\t\t\t}" << endl
+							<< "\t\t\t\t\t<< \") {\\n\";" << endl
+							//<< "\t\t\t\t\t<< \"+\\t\" <<  \""
+							//<< leader_rec_question_name << "\";" << endl;
+						//recode_edit.program_code 
+						//	<< "\t\t\t\t\tfor (int i2=0; i2 < "
+						//	<< rec_question_name << "_map_entry[i1]->"
+						//	<< "q_->loop_index_values.size(); ++i2) {\n"
+						//	<< "\t\t\t\t\t\tedit_file << \"_\" << "
+						//	<< rec_question_name << "_map_entry[i1]->q_->"
+						//	<< "loop_index_values[i2];\n"
+						//	<< "\t\t\t\t\t}\n";
+						//recode_edit.program_code
+						//	<< "\t\t\t\t\tedit_file << \"_\" << "
+						//	<< driver_question_name
+						//	<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
+						//	<< rec_question_name 
+						//	<< "_map_entry[i1]->totalLength_"
+						//	<< " << \")\" "
+						//	<< "\t\t\t\t\t<< \"=\"" << endl
+						//	<< "\t\t\t\t\t<< \"c(\" " << endl
+						//	<< "\t\t\t\t\t<< "
+						//	<< rec_question_name
+						//	<< "_map_entry[i1]->start_pos + 1" << endl
+						//	<< "\t\t\t\t\t<< \", \"" << endl
+						//	<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry[i1]->start_pos + "
+						//	<< rec_question_name << "_map_entry[i1]->totalLength_ << \")\"" << endl
+						//	<< "\t\t\t\t\t<< endl;" << endl 
+#endif /* 0 */
+							<< "\t\t\t\t\tedit_file " << endl
+							<< "<< print_recode_edit_xtcc_data_xfer ("
+							<< driver_question_name << "_map_entry, "
+							<< "leader_rec_q_map_entry[i1], "
+							<< rec_question_name << "_map_entry[i1], " 
+							<< "i) << \"}\" << endl;"
+							<< endl
+							<< "\t\t\t\t}\n/*  ###---### */" << endl
+#endif /* 0 */
 							<< "\t\t\t}" << endl
 							<< "\t\t}\n";
-#endif /* 0 */
 					} else {
 						recode_edit.program_code 
 							<< " not a  question" << endl;

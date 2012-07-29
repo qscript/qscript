@@ -762,8 +762,22 @@ string print_recode_edit_xtcc_var_init (XtccDataFileDiskMap * driver_q, XtccData
 		//<< driver_question_name
 		//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"_data = 0;\\n\" ;" << endl;
 
+		/*
+		 * The below block of code should be extracted out into a pure
+		 * function : print_combined_variable - and used throughout
+		 * wherever the pattern is seen
+		 * I am too fatigued out to do it right now
+		 */
+
 		init_code 
-			<< recode_q->q_->questionName_ << "_" 
+			<< recode_q->q_->questionName_ ;
+		for (int i = 0; i < recode_q->q_->loop_index_values.size(); 
+				++i) {
+			init_code << "_" << recode_q->q_->loop_index_values[i];
+		}
+
+		init_code 
+			<< "_" 
 			<< nq->nr_ptr->stubs[index].stub_text_as_var_name() 
 			<< "_data = 0;"
 			<< endl;
@@ -773,7 +787,14 @@ string print_recode_edit_xtcc_var_init (XtccDataFileDiskMap * driver_q, XtccData
 			<< "for (xtcc_i1=0; xtcc_i1 < "
 			<< recode_q->q_->no_mpn 
 			<< ";  xtcc_i1 = xtcc_i1 + 1) {\n\t"
-			<< recode_q->q_->questionName_ << "_" 
+			<< recode_q->q_->questionName_ ;
+
+		for (int i = 0; i < recode_q->q_->loop_index_values.size(); 
+				++i) {
+			init_code << "_" << recode_q->q_->loop_index_values[i];
+		}
+		init_code
+			<< "_" 
 			<< nq->nr_ptr->stubs[index].stub_text_as_var_name() 
 			<< "_arr[xtcc_i1] = 0;"
 			<< "}\n"
@@ -793,8 +814,14 @@ string print_recode_edit_xtcc_data_xfer (XtccDataFileDiskMap * driver_q, XtccDat
 		//data_xfer_recode << "single code recode" << endl;
 		data_xfer_recode 
 			<< "\t"
-			<< leader_recode_q->q_->questionName_ << "_" 
-			<< nq->nr_ptr->stubs[index].stub_text_as_var_name()
+			<< leader_recode_q->q_->questionName_ ;
+		for (int i = 0; i < recode_q->q_->loop_index_values.size(); 
+				++i) {
+			data_xfer_recode << "_" << recode_q->q_->loop_index_values[i];
+		}
+
+		data_xfer_recode
+			<< "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name()
 			<< "_data"
 			<< " = "
 			<< recode_q->q_->questionName_ << "_data;\n";
@@ -806,8 +833,13 @@ string print_recode_edit_xtcc_data_xfer (XtccDataFileDiskMap * driver_q, XtccDat
 			<< "for (xtcc_i1=0; xtcc_i1 < "
 			<< recode_q->q_->no_mpn 
 			<< ";  xtcc_i1 = xtcc_i1 + 1) {\n\t"
-			<< leader_recode_q->q_->questionName_ << "_" 
-			<< nq->nr_ptr->stubs[index].stub_text_as_var_name() 
+			<< leader_recode_q->q_->questionName_ 
+			<< "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name();
+		for (int i = 0; i < recode_q->q_->loop_index_values.size(); 
+				++i) {
+			data_xfer_recode << "_" << recode_q->q_->loop_index_values[i];
+		}
+		data_xfer_recode
 			<< "_arr[xtcc_i1] = "
 			<< recode_q->q_->questionName_ << "_arr[xtcc_i1];\n" 
 			<< "}\n"
