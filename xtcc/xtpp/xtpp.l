@@ -145,6 +145,7 @@
 		yyterminate();
 	} else {
 		yy_delete_buffer(YY_CURRENT_BUFFER);
+		fclose (yyin);
 		yy_switch_to_buffer(include_stack[incl_stk_ptr]);
 	}
 }

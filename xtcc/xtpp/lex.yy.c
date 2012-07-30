@@ -969,16 +969,17 @@ case YY_STATE_EOF(SUBST_TWO):
 		yyterminate();
 	} else {
 		yy_delete_buffer(YY_CURRENT_BUFFER);
+		fclose (yyin);
 		yy_switch_to_buffer(include_stack[incl_stk_ptr]);
 	}
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 152 "xtpp.l"
+#line 153 "xtpp.l"
 ECHO;
 	YY_BREAK
-#line 982 "lex.yy.c"
+#line 983 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -1974,7 +1975,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 152 "xtpp.l"
+#line 153 "xtpp.l"
 
 
 
