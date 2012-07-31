@@ -789,14 +789,25 @@ void XtccDataFileDiskMap::print_xtcc_ax2(fstream & xtcc_ax_file, string setup_di
 			<< ax_data_variable_name << "[0]" << " > 0 ;"
 			<< endl;
 	}
-
+	NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_);
+	if (nq) {
+		xtcc_ax_file << nq->nr_ptr->name
+			<< " mp = " << nq->no_mpn
+			<< ";"
+			<< endl;
+	} else {
+		xtcc_ax_file << "RangeQuestion"
+			<< " mp = " << q_->no_mpn
+			<< ";"
+			<< endl;
+	}
 	xtcc_ax_file
 		<< "ttl; " << "\"" << q_->questionName_ 
 		<< "." 
 		<< q_->questionText_ 
 		<< "\";" 
 		<< endl << endl;
-	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
+	if (nq) {
 		//xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
 		xtcc_ax_file << "#include base.xin;btxt=\"Total\";" << endl;
 		print_xtcc_include_file (xtcc_ax_file, setup_dir);
@@ -1131,6 +1142,7 @@ void XtccDataFileDiskMap::print_xtcc_ax (fstream & xtcc_ax_file,
 	}
 #endif /* 0 */
 	xtcc_ax_file << print_xtcc_ax_name();
+	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
 	xtcc_ax_file << ";" << endl
 		<< "ttl; " << "\"" << q_->questionName_ 
 		<< "." 
@@ -1138,7 +1150,6 @@ void XtccDataFileDiskMap::print_xtcc_ax (fstream & xtcc_ax_file,
 		<< "\";" 
 		<< endl << endl;
 	xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
-	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
 		named_range * nr_ptr = nq->nr_ptr;
 		for (int i=0; i<nr_ptr->stubs.size(); ++i) {
 			xtcc_ax_file << "cnt; " << "\""
