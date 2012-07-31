@@ -245,8 +245,8 @@ int main (int argc, char* argv[])
 	
 	flex_finish();
 	extern vector<Table::table*>	table_list;
-	print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
 	print_axis_code (axes_op, axes_drv_func);
+	print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
 	print_weighting_code ();
 	generate_make_file();
 	fclose(yyin); yyin=0;
@@ -301,6 +301,12 @@ int main (int argc, char* argv[])
 		//if(!flag_compile_only){
 		//	rval = run (data_file, rec_len);
 		//}
+		cout << "Re-enable deleting the parse tree"
+			<< " at a later point" << endl
+			<< " this should go into DEBUG build"
+			<< " but not into production build"
+			<< endl;
+#if 0
 		if(tree_root) {
 			delete tree_root;
 			tree_root=0;
@@ -310,6 +316,7 @@ int main (int argc, char* argv[])
 		// fi was allocated by us - the "hand installed printf function"
 		delete fi;
 		print_memory_leaks();
+#endif /* 0 */
 		cout << "xtcc run complete" << endl;
 		return rval;
 	}

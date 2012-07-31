@@ -251,20 +251,29 @@ class ax
 	int no_count_ax_elems;
 	int no_tot_ax_elems;
 	int no_inc_ax_elems;
+	int no_mpn;
 	vector <bool> condn_flags;
 	Expression::AbstractExpression* filter;
+	string stub_hint;
+	string stub_hint_axis;
+	map <string, SymbolTableEntry*> name_list;
 	//fld_ax_stmt * fld_stmt;
 	ax (AbstractPrintableAxisStatement * ttl_s
 			, AbstractCountableAxisStatement* cnt_ax_s
 			, int l_no_count_ax_elems, int l_no_tot_ax_elems
 			, int l_no_inc_ax_elems
-			, Expression::AbstractExpression* f=0)
+			, int p_no_mpn 
+			, Expression::AbstractExpression* f=0
+			, string p_stub_hint=string())
 		: 
 		ttl_ax_stmt_start (ttl_s),  count_ax_stmt_start (cnt_ax_s)
 		, no_count_ax_elems (l_no_count_ax_elems)
 		, no_tot_ax_elems (l_no_tot_ax_elems)
 		, no_inc_ax_elems (l_no_inc_ax_elems)
-		, condn_flags(l_no_count_ax_elems), filter(f) 
+		, no_mpn (p_no_mpn)
+		, condn_flags(l_no_count_ax_elems), filter (f)
+		, stub_hint (p_stub_hint), name_list ()
+		, stub_hint_axis ()
 	{ }
 
 	~ax();

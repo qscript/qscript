@@ -444,8 +444,17 @@ void XtccWtUI:: run_tables ()
 				table_list.push_back (tbl);
 			}
 		}
-		cout <<  "work_dir: %s\n"  << work_dir << endl;
-		string fname = string(work_dir) + string("/my_table.C");
+
+		cout <<  "work_dir: "  << work_dir << endl;
+
+		string fname = work_dir + string ("/global.C");
+		FILE * global_vars_C = fopen (fname.c_str(), "wb");
+		fprintf (global_vars_C, "#include <map>\n#include <string>\n#include <vector>\n"
+					"#include \"mean_stddev_struct.h\"\n"
+					"using std::map; using std::string; using std::vector; /*  -- */\n");
+		fclose (global_vars_C);
+
+		fname = string(work_dir) + string("/my_table.C");
 		FILE * table_op = fopen (fname.c_str(), "wb");
 		fname = string (work_dir) + string("/my_tab_drv_func.C");
 		FILE * tab_drv_func = fopen (fname.c_str(), "wb");	

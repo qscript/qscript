@@ -32,6 +32,7 @@ FILE * global_vars;
 //void print_table_code(FILE * op, FILE *tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list);
 //void print_latex_print(FILE* op, int table_index);
 
+	map <string, string> stubname_axis_map;
 void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list, string tab_fname)
 {
 	using namespace Table;
@@ -45,23 +46,40 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 	set <string> ax_defns;
 	for (unsigned int i=0; i<table_list.size(); i++) {
 		CMAPITER map_iter_s= ax_map.find(table_list[i]->side);
-		CMAPITER map_iter_b= ax_map.find(table_list[i]->banner);
+		CMAPITER map_iter_b= ax_map.find (table_list[i]->banner);
 		string s1 = "ax_" + map_iter_b->first;
 		if (ax_defns.find (s1) == ax_defns.end()) {
-			fprintf(op, "#include \"ax_%s.h\"\n",
-						map_iter_b->first.c_str ());
-			fprintf (op, "extern struct axis_%s ax_%s;\n",
-					map_iter_b->first.c_str(),
-					map_iter_b->first.c_str());
+			if (map_iter_b->second->stub_hint_axis == string()) {
+				fprintf (op, "#include \"ax_%s.h\"\n",
+							map_iter_b->first.c_str ());
+				fprintf (op, "extern struct axis_%s ax_%s;\n",
+						map_iter_b->first.c_str(),
+						map_iter_b->first.c_str());
+			} else {
+				fprintf (op, "extern struct axis_%s ax_%s;\n",
+						map_iter_b->second->stub_hint_axis.c_str(),
+						map_iter_b->first.c_str()
+						);
+			}
 			ax_defns.insert(s1);
 		}
 		string s2 = "ax_" + map_iter_s->first;
 		if (ax_defns.find (s2) == ax_defns.end()) {
-			fprintf(op, "#include \"ax_%s.h\"\n",
+			if (map_iter_s->second->stub_hint_axis == string()) {
+				fprintf (op, "#include \"ax_%s.h\"\n",
+							map_iter_s->first.c_str());
+				fprintf (op, "/* stub_hint_axis is empty  */\n");
+				fprintf (op, "extern struct axis_%s ax_%s;\n",
+						map_iter_s->first.c_str(),
 						map_iter_s->first.c_str());
-			fprintf (op, "extern struct axis_%s ax_%s;\n",
-					map_iter_s->first.c_str(),
-					map_iter_s->first.c_str());
+			} else {
+				fprintf (op, "/* stub_hint_axis has data : %s*/\n",
+						map_iter_s->second->stub_hint_axis.c_str());
+				fprintf (op, "extern struct axis_%s ax_%s;\n",
+						map_iter_s->second->stub_hint_axis.c_str(),
+						map_iter_s->first.c_str()
+						);
+			}
 			ax_defns.insert(s2);
 		}
 	}
@@ -519,257 +537,566 @@ void print_latex_print(FILE* op, int table_index)
 	fprintf(op, "\t}\n");
 }
 
+//using namespace Table;
+void print_constructor_code ( string ax_name,  Table::ax* axis, FILE * op, FILE * axes_drv_func
+		, std::stringstream & constructor_header
+		, std::stringstream & constructor_body
+		, map <string, SymbolTableEntry*> name_list
+		)
+{
+
+	// ===================================
+	fprintf (op, "\taxis_%s(",
+			ax_name.c_str());
+	{
+	int count = 0;
+	for (map<string, SymbolTableEntry*>::iterator it1 = name_list.begin();
+			it1 != name_list.end(); ++it1, ++count) {
+		//fprintf (op, "/* generate reference defn for  %s \n",
+				//it1 -> first.c_str());
+		if (count > 0) {
+			fprintf (op, ", ");
+		}
+		if (it1 -> second -> type_ == INT32_TYPE) {
+			fprintf (op, "int32_t & p_%s\n",
+					it1 -> first.c_str());
+		}
+		if (it1 -> second -> type_ == INT32_ARR_TYPE) {
+			fprintf (op, "int32_t (&  p_%s)[%d]\n",
+					it1 -> first.c_str(), it1 -> second -> n_elms);
+		}
+		//fprintf (op, " */\n");
+	}
+	fprintf (op, ")\n");
+	}
+
+	fprintf (op, "\t:ttl_stmt_text(%d),count_stmt_text(%d), axis_stmt_type_print(%d), axis_stmt_type_count(%d) \n"
+			, axis->no_tot_ax_elems - axis->no_count_ax_elems
+			, axis->no_count_ax_elems
+			, axis->no_tot_ax_elems - axis->no_count_ax_elems
+			, axis->no_count_ax_elems
+			) ;
+
+	{
+	for (map<string, SymbolTableEntry*>::iterator it1 = name_list.begin();
+			it1 != name_list.end(); ++it1 ) {
+		//fprintf (op, "/* generate reference defn for  %s \n",
+				//it1 -> first.c_str());
+		fprintf (op, ", ");
+		fprintf (op, "%s (p_%s)",
+				it1 -> first.c_str(),
+				it1 -> first.c_str()
+				);
+	}
+	}
+	fprintf (op, "{");
+
+	constructor_header << "\taxis_" << ax_name << "();" << endl;
+	constructor_body 
+		<< "axis_" << ax_name
+		<< "::axis_" << ax_name
+		<<	"():ttl_stmt_text(" << axis->no_tot_ax_elems - axis->no_count_ax_elems
+		<<	    "),count_stmt_text(" << axis->no_count_ax_elems
+		<<	    "), axis_stmt_type_print(" << axis->no_tot_ax_elems - axis->no_count_ax_elems
+		<<	    "), axis_stmt_type_count(" << axis->no_count_ax_elems
+		<<	    ") {\n";
+
+	int my_counter=0;
+	for (Table::AbstractPrintableAxisStatement* ax_stmt_iter = axis->ttl_ax_stmt_start; 
+			ax_stmt_iter; ax_stmt_iter = ax_stmt_iter->next_,
+			++my_counter) {
+		fprintf (op, "\t\tttl_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
+		constructor_body
+			<< "\t\tttl_stmt_text[" 
+			<<  my_counter
+			<< "]="
+			<< ax_stmt_iter->ax_text()
+			<< ";\n"; 
+		if (ax_stmt_iter->axtype == Table::txt_axstmt) {
+			fprintf(op, "\t\t axis_stmt_type_print[%d]=Table::txt_axstmt;\n", my_counter);
+			constructor_body 
+				<< "\t\t axis_stmt_type_print["
+				<< my_counter 
+				<< "]=Table::txt_axstmt;\n";
+		} else {
+			fprintf (op, "\t\t axis_stmt_type_print[%d]= cause a compile error;\n", my_counter);
+			constructor_body << "\t\t axis_stmt_type_print["
+				<< my_counter << "]= cause a compile error;\n";
+			print_err (Util::compiler_internal_error, "Error generating code for axes - unknown type for print stmt"
+						, line_no, __LINE__, __FILE__);
+			++no_errors;
+		}
+
+		/*
+		if(ax_stmt_iter->axtype<=txt_axstmt){
+			fprintf(op, "\tis_a_count_text[%d]=false;\n", my_counter);
+		} else {
+			fprintf(op, "\tis_a_count_text[%d]=true;\n", my_counter);
+		}
+		*/
+	}
+	my_counter=0;
+	for (Table::AbstractCountableAxisStatement* ax_stmt_iter = axis->count_ax_stmt_start; 
+			ax_stmt_iter; ax_stmt_iter = ax_stmt_iter->next_,
+			++my_counter){
+		//fprintf(op, "\tcount_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
+		ax_stmt_iter->print_axis_constructor_text (op, my_counter);
+		if (Table::tot_ax_stmt * my_tot_ax_stmt = dynamic_cast<Table::tot_ax_stmt*> (ax_stmt_iter)) {
+			fprintf (op, "\ttot_elem_pos_vec.push_back(%d);\n", ax_stmt_iter->position_);
+			constructor_body 
+				<< "\ttot_elem_pos_vec.push_back("
+				<< ax_stmt_iter->position_
+				<< ");\n";
+		}
+		if (ax_stmt_iter->axtype == Table::tot_axstmt) {
+			fprintf (op, "\t\t axis_stmt_type_count[%d]=Table::tot_axstmt;\n", my_counter);
+			constructor_body 
+				<< "\t\t axis_stmt_type_count["
+				<< my_counter << "]=Table::tot_axstmt;\n";
+		} else if (ax_stmt_iter->axtype == Table::cnt_axstmt) {
+			fprintf (op, "\t\t axis_stmt_type_count[%d]=Table::cnt_axstmt;\n", my_counter);
+			constructor_body
+				<< "\t\t axis_stmt_type_count["
+				<< my_counter 
+				<< "]=Table::cnt_axstmt;\n";
+		} else if (ax_stmt_iter->axtype == Table::fld_axstmt) {
+			fprintf (op, "\t\t axis_stmt_type_count[%d]=Table::fld_axstmt;\n", my_counter);
+			constructor_body 
+				<< "\t\t axis_stmt_type_count["
+				<< my_counter 
+				<< "]=Table::fld_axstmt;\n";
+		} else if (ax_stmt_iter->axtype == Table::inc_axstmt) {
+			fprintf (op, "\t\t axis_stmt_type_count[%d]=Table::inc_axstmt;\n", my_counter);
+			constructor_body
+				<< "\t\t axis_stmt_type_count["
+				<< my_counter 
+				<< "]=Table::inc_axstmt;\n";
+		} else {
+			fprintf (op, "\t\tttl_stmt_text[%d]= cause a compile error;\n", my_counter);
+			constructor_body 
+				<< "\t\tttl_stmt_text["
+				<< my_counter 
+				<< "]= cause a compile error;\n";
+			print_err (Util::compiler_internal_error, "Error generating code for axes - unknown type for print stmt"
+						, line_no, __LINE__, __FILE__);
+			++no_errors;
+		}
+		
+		/*
+		if(ax_stmt_iter->axtype<=txt_axstmt){
+			fprintf(op, "\tis_a_count_text[%d]=false;\n", my_counter);
+		} else {
+			fprintf(op, "\tis_a_count_text[%d]=true;\n", my_counter);
+		}
+		*/
+	}
+
+	// cout << "after basic_ax_stmt loop " << endl;
+	/*
+	for(unsigned int i=0; 
+		axis->fld_stmt &&
+			i< axis->fld_stmt->stub_list.size(); ++i){
+		fprintf(op, "\tbit_stmt_text[%d]=%s;\n", i, 
+			axis->fld_stmt->stub_list[i]->text.c_str());
+	}
+	*/
+	fprintf (op, "\t}/*  close constructor */\n");
+	// ===================================
+
+}
 
 void print_axis_code(FILE * op, FILE * axes_drv_func)
 {
 	using namespace Table;
 
-	fprintf(op, "#include <bitset>\n" );
-	fprintf(op, "#include <string>\n" );
-	fprintf(op, "#include <vector>\n" );
-	fprintf(op, "#include \"ax_stmt_type.h\"\n");
-	fprintf(op, "using namespace std;\n" );
-	fprintf(axes_drv_func, "#include \"global.h\"\n");
-	fprintf(axes_drv_func, "#include \"my_axes.C\"\n");
-	fprintf(axes_drv_func, "void ax_compute() /* :-)  */{\n");
-	for(CMAPITER it=ax_map.begin(); it!=ax_map.end(); ++it){
+	fprintf (op, "#include <bitset>\n" );
+	fprintf (op, "#include <string>\n" );
+	fprintf (op, "#include <vector>\n" );
+	fprintf (op, "#include \"ax_stmt_type.h\"\n");
+	fprintf (op, "using namespace std;\n" );
+	fprintf (axes_drv_func, "#include \"global.h\"\n");
+	fprintf (axes_drv_func, "#include \"my_axes.C\"\n");
+	fprintf (axes_drv_func, "void ax_compute() {\n");
+	for (CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
 		//struct ax* l_ax = *it;
 		//cout << "Processing axis: " << it->first.c_str() << endl;
-		stringstream axis_code_str_h;
-		stringstream axis_code_str_cpp;
-		axis_code_str_h 
-			<< "#ifndef xtcc_ax_" << it->first << "_h" << endl
-			<< "#define xtcc_ax_" << it->first << "_h" << endl
-			<< "#include <bitset>\n" 
-			<< "#include <string>\n"
-			<< "#include <vector>\n"
-			<< "#include \"ax_stmt_type.h\"\n"
-			<< "#include \"global.h\"\n"
-			<< "using namespace std;\n";
+		//bool found_stub_hint = false;
+		bool can_use_stub_hint = false;
+		map<string, string>::iterator stubname_axis_map_iter = stubname_axis_map.end();
+		CMAPITER axmap_it2 = ax_map.end();
 
-		axis_code_str_cpp 
-			<< "extern int "
-			<< it->first << "_data;\n";
+		if (it->second->stub_hint != string()) {
+			stubname_axis_map_iter 
+				=  stubname_axis_map.find (it->second->stub_hint);
+			if (stubname_axis_map_iter != stubname_axis_map.end()) {
+				fprintf (op, "/* searching for axis: %s  */\n",
+					stubname_axis_map_iter->second.c_str());
+				axmap_it2 = ax_map.find (stubname_axis_map_iter->second);
+				if (axmap_it2 != ax_map.end()) {
+					if ( (axmap_it2->second->no_mpn == 1
+						&& it->second->no_mpn == 1)
+							||
+					      (axmap_it2->second->no_mpn > 1
+						&& it->second->no_mpn > 1)) {
+						can_use_stub_hint = true;
+					}
 
-
-		fprintf(op, "struct axis_%s{\n", it->first.c_str() );
-		axis_code_str_h << "struct axis_" << it->first << " {\n";
-		fprintf(op, "\tbitset<%d> flag;\n", it->second->no_count_ax_elems );
-		axis_code_str_h << "\tbitset<" << it->second->no_count_ax_elems  << "> flag;\n" ;
-		fprintf(op, "\tvector<string> ttl_stmt_text;\n");
-		fprintf(op, "\tvector<string> count_stmt_text;\n");
-		fprintf(op, "\tvector<int> tot_elem_pos_vec;\n");
-		axis_code_str_h 
-			<<  "\tvector<string> ttl_stmt_text;\n"
-			<<  "\tvector<string> count_stmt_text;\n"
-			<<  "\tvector<int> tot_elem_pos_vec;\n";
-
-		fprintf(op, "\tbitset<%d> is_a_count_text;\n", it->second->no_tot_ax_elems);
-		axis_code_str_h <<  "\tbitset<" 
-			<< it->second->no_tot_ax_elems
-			<< "> is_a_count_text;\n";
-		fprintf(op, "\tvector<Table::axstmt_type> axis_stmt_type_print;\n");
-		fprintf(op, "\tvector<Table::axstmt_type> axis_stmt_type_count;\n");
-		axis_code_str_h << "\tvector<Table::axstmt_type> axis_stmt_type_print;\n"
-				<< "\tvector<Table::axstmt_type> axis_stmt_type_count;\n";
-		fprintf(op, "\taxis_%s():ttl_stmt_text(%d),count_stmt_text(%d), axis_stmt_type_print(%d), axis_stmt_type_count(%d) {\n"
-				, it->first.c_str()
-				, it->second->no_tot_ax_elems - it->second->no_count_ax_elems
-				, it->second->no_count_ax_elems
-				, it->second->no_tot_ax_elems - it->second->no_count_ax_elems
-				, it->second->no_count_ax_elems
-				) ;
-		axis_code_str_h << "\taxis_" << it->first << "();" << endl;
-		axis_code_str_cpp 
-			<< "axis_" << it->first
-			<< "::axis_" << it->first
-			<<	"():ttl_stmt_text(" << it->second->no_tot_ax_elems - it->second->no_count_ax_elems
-			<<	    "),count_stmt_text(" << it->second->no_count_ax_elems
-			<<	    "), axis_stmt_type_print(" << it->second->no_tot_ax_elems - it->second->no_count_ax_elems
-			<<	    "), axis_stmt_type_count(" << it->second->no_count_ax_elems
-			<<	    ") {\n";
-
-		int my_counter=0;
-		for(AbstractPrintableAxisStatement* ax_stmt_iter=it->second->ttl_ax_stmt_start; 
-				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next_,
-				++my_counter){
-			fprintf(op, "\t\tttl_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
-			axis_code_str_cpp
-				<< "\t\tttl_stmt_text[" 
-				<<  my_counter
-				<< "]="
-				<< ax_stmt_iter->ax_text()
-				<< ";\n"; 
-			if (ax_stmt_iter->axtype == Table::txt_axstmt) {
-				fprintf(op, "\t\t axis_stmt_type_print[%d]=Table::txt_axstmt;\n", my_counter);
-				axis_code_str_cpp 
-					<< "\t\t axis_stmt_type_print["
-					<< my_counter 
-					<< "]=Table::txt_axstmt;\n";
-			} else {
-				fprintf(op, "\t\t axis_stmt_type_print[%d]= cause a compile error;\n", my_counter);
-				axis_code_str_cpp << "\t\t axis_stmt_type_print["
-					<< my_counter << "]= cause a compile error;\n";
-				print_err(Util::compiler_internal_error, "Error generating code for axes - unknown type for print stmt"
-							, line_no, __LINE__, __FILE__);
-				++no_errors;
-			}
-
-			/*
-			if(ax_stmt_iter->axtype<=txt_axstmt){
-				fprintf(op, "\tis_a_count_text[%d]=false;\n", my_counter);
-			} else {
-				fprintf(op, "\tis_a_count_text[%d]=true;\n", my_counter);
-			}
-			*/
-		}
-		my_counter=0;
-		for( AbstractCountableAxisStatement* ax_stmt_iter=it->second->count_ax_stmt_start; 
-				ax_stmt_iter; ax_stmt_iter=ax_stmt_iter->next_,
-				++my_counter){
-			//fprintf(op, "\tcount_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
-			ax_stmt_iter->print_axis_constructor_text(op, my_counter);
-			if (tot_ax_stmt * my_tot_ax_stmt = dynamic_cast<tot_ax_stmt*>(ax_stmt_iter)) {
-				fprintf(op, "\ttot_elem_pos_vec.push_back(%d);\n", ax_stmt_iter->position_);
-				axis_code_str_cpp 
-					<< "\ttot_elem_pos_vec.push_back("
-					<< ax_stmt_iter->position_
-					<< ");\n";
-			}
-			if (ax_stmt_iter->axtype == Table::tot_axstmt) {
-				fprintf(op, "\t\t axis_stmt_type_count[%d]=Table::tot_axstmt;\n", my_counter);
-				axis_code_str_cpp 
-					<< "\t\t axis_stmt_type_count["
-					<< my_counter << "]=Table::tot_axstmt;\n";
-			} else if (ax_stmt_iter->axtype == Table::cnt_axstmt) {
-				fprintf(op, "\t\t axis_stmt_type_count[%d]=Table::cnt_axstmt;\n", my_counter);
-				axis_code_str_cpp
-					<< "\t\t axis_stmt_type_count["
-					<< my_counter 
-					<< "]=Table::cnt_axstmt;\n";
-			} else if (ax_stmt_iter->axtype == Table::fld_axstmt) {
-				fprintf(op, "\t\t axis_stmt_type_count[%d]=Table::fld_axstmt;\n", my_counter);
-				axis_code_str_cpp 
-					<< "\t\t axis_stmt_type_count["
-					<< my_counter 
-					<< "]=Table::fld_axstmt;\n";
-			} else if (ax_stmt_iter->axtype == Table::inc_axstmt) {
-				fprintf(op, "\t\t axis_stmt_type_count[%d]=Table::inc_axstmt;\n", my_counter);
-				axis_code_str_cpp
-					<< "\t\t axis_stmt_type_count["
-					<< my_counter 
-					<< "]=Table::inc_axstmt;\n";
-			} else {
-				fprintf(op, "\t\tttl_stmt_text[%d]= cause a compile error;\n", my_counter);
-				axis_code_str_cpp 
-					<< "\t\tttl_stmt_text["
-					<< my_counter 
-					<< "]= cause a compile error;\n";
-				print_err(Util::compiler_internal_error, "Error generating code for axes - unknown type for print stmt"
-							, line_no, __LINE__, __FILE__);
-				++no_errors;
-			}
-			
-			/*
-			if(ax_stmt_iter->axtype<=txt_axstmt){
-				fprintf(op, "\tis_a_count_text[%d]=false;\n", my_counter);
-			} else {
-				fprintf(op, "\tis_a_count_text[%d]=true;\n", my_counter);
-			}
-			*/
-		}
-
-		// cout << "after basic_ax_stmt loop " << endl;
-		/*
-		for(unsigned int i=0; 
-			it->second->fld_stmt &&
-				i< it->second->fld_stmt->stub_list.size(); ++i){
-			fprintf(op, "\tbit_stmt_text[%d]=%s;\n", i, 
-				it->second->fld_stmt->stub_list[i]->text.c_str());
-		}
-		*/
-		fprintf(op, "\t}\n");
-		axis_code_str_cpp << "\t}\n";
-		fprintf(op, "\tvoid reset(){\n\t\tflag.reset();\n\t}");
-		fprintf(op, "\tvoid compute(){\n\t\tflag.reset();\n");
-		axis_code_str_h 
-			<< "\tvoid " 
-			<< "compute();\n";
-		axis_code_str_cpp 
-			<< "\tvoid axis_" 
-			<< it->first
-			<< "::compute(){\n\t\tflag.reset();\n";
-
-		AbstractCountableAxisStatement* iter=it->second->count_ax_stmt_start;
-		int counter=0;
-		while(iter){
-			iter->generate_code(op, axis_code_str_cpp, counter);
-			++counter;
-			iter=iter->next_;
-		}
-		/*
-		while(iter){
-			if(iter->axtype>=tot_axstmt){
-				AbstractCountableAxisStatement * bc=dynamic_cast<AbstractCountableAxisStatement *> (iter);
-					
-				if(bc->condn){
-					fprintf(op, "\tif (");
-					bc->condn->print_expr(op);
-					fprintf(op, " ){\n");
-					fprintf(op, "\t\tflag[%d]=true;\n", counter);
-					fprintf(op, "\t}\n");
-				} else {
-					fprintf(op, "\tflag[%d]=true;\n", counter);
 				}
-				++counter;
 			}
-			iter=iter->next_;
 		}
-		*/
-		/*
-		cout << "after basic_ax_stmt if condition code " << endl;
-		for(unsigned int i=0; 
-			it->second->fld_stmt &&
-				i< it->second->fld_stmt->stub_list.size(); ++i){
-			fprintf(op, "if( %s[%d]){\n",  it->second->fld_stmt->symp->name,
-				it->second->fld_stmt->stub_list[i]->code
+		// re-enable this section after demo with Gita Zhankar
+#if 0
+		if (can_use_stub_hint == true) {
+			it->second->stub_hint_axis = axmap_it2->first;
+			fprintf (op, "/* set stub_hint_axis for: %s to %s: found in stubname_axis_map */\n",
+					it->first.c_str(), it->second->stub_hint_axis.c_str()
 					);
-			fprintf(op, "\t fld_flag[%d]=true;\n}\n", it->second->fld_stmt->stub_list[i]->code);
-		}
-		cout << "after fld_stmt if condition code " << endl;
-		*/
+			fprintf (op, "struct axis_%s ax_%s(", stubname_axis_map_iter->second.c_str()
+					, it->first.c_str() 
+					);
+			AbstractCountableAxisStatement* iter = it->second->count_ax_stmt_start;
+			int counter = 0;
+			map <string, SymbolTableEntry*> name_list ;
+			while (iter) {
+				//iter -> generate_code (op, axis_code_str_cpp, counter);
+				tot_ax_stmt * tot_stmt = dynamic_cast <tot_ax_stmt*> (iter);
+				count_ax_stmt * cnt_stmt = dynamic_cast <count_ax_stmt*> (iter);
+				if (tot_stmt || cnt_stmt) {
+					 hunt_for_names_in_expression (iter->condn, name_list);
+				}
+				++ counter;
+				iter = iter -> next_;
+			}
+			// store it - as we need it 
+			// for other axes that have the same
+			// stub list generated using stub_hint(s)
+			it->second->name_list = name_list;
+			//CMAPITER axis_iter2 = ax_map.find (stubname_axis_map_iter->second);
+			//if (axis_iter2 != ax_map.end())
+			//{
+			//ax * axis_1 = axis_iter2->second;
+			counter = 0;
+			for (map<string, SymbolTableEntry*>::iterator it1 = name_list.begin();
+					it1 != name_list.end(); ++it1, ++counter) {
+				if (counter) {
+					fprintf (op, ", ");
+				}
+				fprintf (op, "%s",
+						it1 -> first.c_str());
+			}
+			//}
+			fprintf (op, ");\n");
 
-		fprintf(op, "\t} /* close compute func */\n");
-		axis_code_str_cpp 
-			<< "\t} /* close compute func */\n";
-		fprintf(op, "} ax_%s;\n", it->first.c_str()) ;
-		axis_code_str_h
-			<< "} " 
-			//<< "ax_" << it->first
-			<< ";\n"
-			<< "#endif /*  xtcc_ax_" << it->first << "_h */ " 
-			<< endl;
-		if (it->second->filter) {
-			//fprintf (axes_drv_func, "/* axis HAS a filter  \n");
-			ostringstream code_bef_expr, code_expr;
-			it->second->filter->PrintExpressionCode (code_bef_expr, code_expr);
-			fprintf (axes_drv_func, "if ( %s ) { \n", code_expr.str().c_str());
-			fprintf (axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
-			fprintf (axes_drv_func, "} else { ax_%s.reset(); }\n", it->first.c_str());
-			fprintf (axes_drv_func, "\n");
+			fflush (op);
 		} else {
-			fprintf (axes_drv_func, "/* axis DOES NOT have a filter  */\n");
-			fprintf(axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
+#endif /*  0 */
+
+			stringstream axis_code_str_h;
+			stringstream axis_code_str_cpp;
+			axis_code_str_h 
+				<< "#ifndef xtcc_ax_" << it->first << "_h" << endl
+				<< "#define xtcc_ax_" << it->first << "_h" << endl
+				<< "#include <bitset>\n" 
+				<< "#include <string>\n"
+				<< "#include <vector>\n"
+				<< "#include \"ax_stmt_type.h\"\n"
+				<< "#include \"global.h\"\n"
+				<< "using namespace std;\n";
+
+			axis_code_str_cpp 
+				<< "extern int "
+				<< it->first << "_data;\n";
+
+
+			fprintf (op, "struct  axis_%s{\n", it->first.c_str() );
+			axis_code_str_h << "struct axis_" << it->first << " {\n";
+			fprintf (op, "\tbitset<%d> flag;\n", it->second->no_count_ax_elems );
+			axis_code_str_h << "\tbitset<" << it->second->no_count_ax_elems  << "> flag;\n" ;
+			fprintf (op, "\tvector<string> ttl_stmt_text;\n");
+			fprintf (op, "\tvector<string> count_stmt_text;\n");
+			fprintf (op, "\tvector<int> tot_elem_pos_vec;\n");
+			axis_code_str_h 
+				<<  "\tvector<string> ttl_stmt_text;\n"
+				<<  "\tvector<string> count_stmt_text;\n"
+				<<  "\tvector<int> tot_elem_pos_vec;\n";
+
+			fprintf (op, "\tbitset<%d> is_a_count_text;\n", it->second->no_tot_ax_elems);
+			axis_code_str_h <<  "\tbitset<" 
+				<< it->second->no_tot_ax_elems
+				<< "> is_a_count_text;\n";
+			fprintf (op, "\tvector<Table::axstmt_type> axis_stmt_type_print;\n");
+			fprintf (op, "\tvector<Table::axstmt_type> axis_stmt_type_count;\n");
+			axis_code_str_h << "\tvector<Table::axstmt_type> axis_stmt_type_print;\n"
+					<< "\tvector<Table::axstmt_type> axis_stmt_type_count;\n";
+			string ax_name (it->first);
+
+			//print_constructor_code ( ax_name,  it->second, op, axes_drv_func
+			//		, constructor_header, constructor_body
+			//		);
+			// ===================================
+#if 1
+			fprintf (op, "\taxis_%s():ttl_stmt_text(%d),count_stmt_text(%d), axis_stmt_type_print(%d), axis_stmt_type_count(%d) {\n"
+					, it->first.c_str()
+					, it->second->no_tot_ax_elems - it->second->no_count_ax_elems
+					, it->second->no_count_ax_elems
+					, it->second->no_tot_ax_elems - it->second->no_count_ax_elems
+					, it->second->no_count_ax_elems
+					) ;
+			axis_code_str_h << "\taxis_" << it->first << "();" << endl;
+			axis_code_str_cpp 
+				<< "axis_" << it->first
+				<< "::axis_" << it->first
+				<<	"():ttl_stmt_text(" << it->second->no_tot_ax_elems - it->second->no_count_ax_elems
+				<<	    "),count_stmt_text(" << it->second->no_count_ax_elems
+				<<	    "), axis_stmt_type_print(" << it->second->no_tot_ax_elems - it->second->no_count_ax_elems
+				<<	    "), axis_stmt_type_count(" << it->second->no_count_ax_elems
+				<<	    ") {\n";
+
+			int my_counter=0;
+			for (AbstractPrintableAxisStatement* ax_stmt_iter = it->second->ttl_ax_stmt_start; 
+					ax_stmt_iter; ax_stmt_iter = ax_stmt_iter->next_,
+					++my_counter) {
+				fprintf (op, "\t\tttl_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
+				axis_code_str_cpp
+					<< "\t\tttl_stmt_text[" 
+					<<  my_counter
+					<< "]="
+					<< ax_stmt_iter->ax_text()
+					<< ";\n"; 
+				if (ax_stmt_iter->axtype == Table::txt_axstmt) {
+					fprintf(op, "\t\t axis_stmt_type_print[%d]=Table::txt_axstmt;\n", my_counter);
+					axis_code_str_cpp 
+						<< "\t\t axis_stmt_type_print["
+						<< my_counter 
+						<< "]=Table::txt_axstmt;\n";
+				} else {
+					fprintf (op, "\t\t axis_stmt_type_print[%d]= cause a compile error;\n", my_counter);
+					axis_code_str_cpp << "\t\t axis_stmt_type_print["
+						<< my_counter << "]= cause a compile error;\n";
+					print_err (Util::compiler_internal_error, "Error generating code for axes - unknown type for print stmt"
+								, line_no, __LINE__, __FILE__);
+					++no_errors;
+				}
+
+				/*
+				if(ax_stmt_iter->axtype<=txt_axstmt){
+					fprintf(op, "\tis_a_count_text[%d]=false;\n", my_counter);
+				} else {
+					fprintf(op, "\tis_a_count_text[%d]=true;\n", my_counter);
+				}
+				*/
+			}
+			my_counter=0;
+			for (AbstractCountableAxisStatement* ax_stmt_iter = it->second->count_ax_stmt_start; 
+					ax_stmt_iter; ax_stmt_iter = ax_stmt_iter->next_,
+					++my_counter){
+				//fprintf(op, "\tcount_stmt_text[%d]=%s;\n", my_counter, ax_stmt_iter->ax_text().c_str());
+				ax_stmt_iter->print_axis_constructor_text (op, my_counter);
+				if (tot_ax_stmt * my_tot_ax_stmt = dynamic_cast<tot_ax_stmt*> (ax_stmt_iter)) {
+					fprintf (op, "\ttot_elem_pos_vec.push_back(%d);\n", ax_stmt_iter->position_);
+					axis_code_str_cpp 
+						<< "\ttot_elem_pos_vec.push_back("
+						<< ax_stmt_iter->position_
+						<< ");\n";
+				}
+				if (ax_stmt_iter->axtype == Table::tot_axstmt) {
+					fprintf (op, "\t\t axis_stmt_type_count[%d]=Table::tot_axstmt;\n", my_counter);
+					axis_code_str_cpp 
+						<< "\t\t axis_stmt_type_count["
+						<< my_counter << "]=Table::tot_axstmt;\n";
+				} else if (ax_stmt_iter->axtype == Table::cnt_axstmt) {
+					fprintf (op, "\t\t axis_stmt_type_count[%d]=Table::cnt_axstmt;\n", my_counter);
+					axis_code_str_cpp
+						<< "\t\t axis_stmt_type_count["
+						<< my_counter 
+						<< "]=Table::cnt_axstmt;\n";
+				} else if (ax_stmt_iter->axtype == Table::fld_axstmt) {
+					fprintf (op, "\t\t axis_stmt_type_count[%d]=Table::fld_axstmt;\n", my_counter);
+					axis_code_str_cpp 
+						<< "\t\t axis_stmt_type_count["
+						<< my_counter 
+						<< "]=Table::fld_axstmt;\n";
+				} else if (ax_stmt_iter->axtype == Table::inc_axstmt) {
+					fprintf (op, "\t\t axis_stmt_type_count[%d]=Table::inc_axstmt;\n", my_counter);
+					axis_code_str_cpp
+						<< "\t\t axis_stmt_type_count["
+						<< my_counter 
+						<< "]=Table::inc_axstmt;\n";
+				} else {
+					fprintf (op, "\t\tttl_stmt_text[%d]= cause a compile error;\n", my_counter);
+					axis_code_str_cpp 
+						<< "\t\tttl_stmt_text["
+						<< my_counter 
+						<< "]= cause a compile error;\n";
+					print_err (Util::compiler_internal_error, "Error generating code for axes - unknown type for print stmt"
+								, line_no, __LINE__, __FILE__);
+					++no_errors;
+				}
+				
+				/*
+				if(ax_stmt_iter->axtype<=txt_axstmt){
+					fprintf(op, "\tis_a_count_text[%d]=false;\n", my_counter);
+				} else {
+					fprintf(op, "\tis_a_count_text[%d]=true;\n", my_counter);
+				}
+				*/
+			}
+
+			// cout << "after basic_ax_stmt loop " << endl;
+			/*
+			for(unsigned int i=0; 
+				it->second->fld_stmt &&
+					i< it->second->fld_stmt->stub_list.size(); ++i){
+				fprintf(op, "\tbit_stmt_text[%d]=%s;\n", i, 
+					it->second->fld_stmt->stub_list[i]->text.c_str());
+			}
+			*/
+			fprintf (op, "\t}/*  close constructor */\n");
+#endif /* 0 */
+			// ===================================
+
+			axis_code_str_cpp << "\t}\n";
+			fprintf (op, "\tvoid reset(){\n\t\tflag.reset();\n\t}");
+			fprintf (op, "\tvoid compute(){\n\t\tflag.reset();\n");
+			axis_code_str_h 
+				<< "\tvoid " 
+				<< "compute();\n";
+			axis_code_str_cpp 
+				<< "\tvoid axis_" 
+				<< it->first
+				<< "::compute(){\n\t\tflag.reset();\n";
+
+			AbstractCountableAxisStatement* iter = it->second->count_ax_stmt_start;
+			int counter = 0;
+			map <string, SymbolTableEntry*> name_list ;
+			while (iter) {
+				iter -> generate_code (op, axis_code_str_cpp, counter);
+				tot_ax_stmt * tot_stmt = dynamic_cast <tot_ax_stmt*> (iter);
+				count_ax_stmt * cnt_stmt = dynamic_cast <count_ax_stmt*> (iter);
+				if (tot_stmt || cnt_stmt) {
+					 hunt_for_names_in_expression (iter->condn, name_list);
+				}
+				++ counter;
+				iter = iter -> next_;
+			}
+			// store it - as we need it 
+			// for other axes that have the same
+			// stub list generated using stub_hint(s)
+			it->second->name_list = name_list;
+
+			/*
+			while(iter){
+				if(iter->axtype>=tot_axstmt){
+					AbstractCountableAxisStatement * bc=dynamic_cast<AbstractCountableAxisStatement *> (iter);
+						
+					if(bc->condn){
+						fprintf(op, "\tif (");
+						bc->condn->print_expr(op);
+						fprintf(op, " ){\n");
+						fprintf(op, "\t\tflag[%d]=true;\n", counter);
+						fprintf(op, "\t}\n");
+					} else {
+						fprintf(op, "\tflag[%d]=true;\n", counter);
+					}
+					++counter;
+				}
+				iter=iter->next_;
+			}
+			*/
+			/*
+			cout << "after basic_ax_stmt if condition code " << endl;
+			for(unsigned int i=0; 
+				it->second->fld_stmt &&
+					i< it->second->fld_stmt->stub_list.size(); ++i){
+				fprintf(op, "if( %s[%d]){\n",  it->second->fld_stmt->symp->name,
+					it->second->fld_stmt->stub_list[i]->code
+						);
+				fprintf(op, "\t fld_flag[%d]=true;\n}\n", it->second->fld_stmt->stub_list[i]->code);
+			}
+			cout << "after fld_stmt if condition code " << endl;
+			*/
+
+			fprintf (op, "\t} /* close compute func */\n");
+#if 0
+			for (map<string, SymbolTableEntry*>::iterator it1 = name_list.begin();
+					it1 != name_list.end(); ++it1) {
+				fprintf (op, "/* generate reference defn for  %s */\n",
+						it1 -> first.c_str());
+				if (it1 -> second -> type_ == INT32_TYPE) {
+					fprintf (op, "int32_t & %s;\n",
+							it1 -> first.c_str());
+				}
+				if (it1 -> second -> type_ == INT32_ARR_TYPE) {
+					fprintf (op, "int32_t (&  %s)[%d];\n",
+							it1 -> first.c_str(), it1 -> second -> n_elms);
+				}
+			}
+#endif /*  0 */
+
+			//std::stringstream  constructor_header;
+			//std::stringstream  constructor_body;
+			//print_constructor_code ( ax_name,  it->second, op, axes_drv_func
+			//		, constructor_header, constructor_body
+			//		, name_list
+
+			//		);
+			axis_code_str_cpp 
+				<< "\t} /* close compute func */\n";
+			fprintf (op, "} ax_%s;\n", it->first.c_str()) ;
+		// re-enable this section after demo with Gita Zhankar
+#if 0
+			fprintf (op, "} ax_%s(", it->first.c_str()) ;
+
+			{
+			int counter = 0;
+			for (map<string, SymbolTableEntry*>::iterator it1 = name_list.begin();
+					it1 != name_list.end(); ++it1, ++counter) {
+				if (counter) {
+					fprintf (op, ", ");
+				}
+				fprintf (op, "%s",
+						it1 -> first.c_str());
+			}
+			}
+			fprintf (op, ");\n");
+#endif /*  0 */
+
+
+
+			axis_code_str_h
+				<< "} " 
+				//<< "ax_" << it->first
+				<< ";\n"
+				<< "#endif /*  xtcc_ax_" << it->first << "_h */ " 
+				<< endl;
+			if (it->second->filter) {
+				//fprintf (axes_drv_func, "/* axis HAS a filter  \n");
+				ostringstream code_bef_expr, code_expr;
+				it -> second -> filter -> PrintExpressionCode (code_bef_expr, code_expr);
+				fprintf (axes_drv_func, "if ( %s ) { \n", code_expr.str().c_str());
+				fprintf (axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
+				fprintf (axes_drv_func, "} else { ax_%s.reset(); }\n", it->first.c_str());
+				fprintf (axes_drv_func, "\n");
+			} else {
+				fprintf (axes_drv_func, "/* axis DOES NOT have a filter  */\n");
+				fprintf (axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
+			}
+			string ax_file_h_name = work_dir + string("/ax_") + it->first + string(".h");
+			FILE * ax_file_h = fopen (ax_file_h_name.c_str(), "wb");
+			fprintf (ax_file_h, "%s\n", axis_code_str_h.str().c_str());
+			fclose (ax_file_h);
+			string ax_file_cpp_name = work_dir + string("/ax_") + it->first + string(".cpp");
+			FILE * ax_file_cpp = fopen(ax_file_cpp_name.c_str(), "wb");
+			fprintf (ax_file_cpp, "#include \"ax_%s.h\"\n", it->first.c_str());
+			fprintf (ax_file_cpp, "%s\n", axis_code_str_cpp.str().c_str());
+			fclose (ax_file_cpp);
+			if (it->second->stub_hint != string()) {
+				stubname_axis_map [it -> second -> stub_hint] = it->first;
+			}
+		// re-enable this section after demo with Gita Zhankar
+#if 0
 		}
-		string ax_file_h_name=work_dir+string("/ax_") + it->first + string(".h");
-		FILE * ax_file_h =fopen(ax_file_h_name.c_str(), "wb");
-		fprintf (ax_file_h, "%s\n", axis_code_str_h.str().c_str());
-		fclose (ax_file_h);
-		string ax_file_cpp_name=work_dir+string("/ax_") + it->first + string(".cpp");
-		FILE * ax_file_cpp =fopen(ax_file_cpp_name.c_str(), "wb");
-		fprintf (ax_file_cpp, "#include \"ax_%s.h\"\n", it->first.c_str());
-		fprintf (ax_file_cpp, "%s\n", axis_code_str_cpp.str().c_str());
-		fclose (ax_file_cpp);
+#endif /*  0 */
 	}
 	fprintf(axes_drv_func, "}\n");
 }

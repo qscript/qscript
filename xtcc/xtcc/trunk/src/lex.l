@@ -87,8 +87,13 @@ lista 	{
 axstart {
 	return AXSTART;
 }
+
 tab {
 	return TAB;
+}
+
+mp {
+	return MP;
 }
 
 tabstart {

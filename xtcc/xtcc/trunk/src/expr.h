@@ -28,6 +28,7 @@
 #define xtcc_expr_h
 #include <iosfwd>
 #include <sstream>
+#include <map>
 //#include "tree.h"
 #include "xtcc_set.h"
 
@@ -73,7 +74,7 @@ struct AbstractExpression {
 
 struct UnaryExpression : public AbstractExpression
 {
-	protected:
+	public:
 	AbstractExpression* operand_;
 	public:
 	UnaryExpression( AbstractExpression * l_operand=0
@@ -102,7 +103,7 @@ using std::stringstream;
 //! holds expressions of the form  a in (1,2,4) - where a can be a varible or an integral expression and the right hand side of operator "in" is a set 
 struct Binary2Expression: public AbstractExpression
 {
-	protected:
+	public:
 	AbstractExpression * leftOperand_;
 	XtccSet *xs;
 	public:
@@ -120,7 +121,7 @@ struct Binary2Expression: public AbstractExpression
 //! BinaryExpression holds expressions operated on by binary operators. For example a +b , a-b etc
 struct BinaryExpression: public AbstractExpression
 {
-	protected:
+	public:
 	AbstractExpression *leftOperand_, *rightOperand_;
 	public:
 	BinaryExpression(AbstractExpression* llop
@@ -146,7 +147,7 @@ struct BinaryExpression: public AbstractExpression
 */
 struct Unary2Expression : public AbstractExpression
 {
-	protected:
+	public:
 	struct SymbolTableEntry * symbolTableEntry_;
 	int isem_value;
 	double dsem_value;
@@ -184,6 +185,8 @@ struct Unary2Expression : public AbstractExpression
 	Unary2Expression& operator=(const Unary2Expression&);	
 	Unary2Expression(const Unary2Expression&);	
 };
+
+void hunt_for_names_in_expression (AbstractExpression *e, std::map<string, SymbolTableEntry*> & name_list );
 
 } /* close namespace Expression */
 #endif /* xtcc_expr_h */

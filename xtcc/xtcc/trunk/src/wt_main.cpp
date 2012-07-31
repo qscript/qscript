@@ -179,7 +179,7 @@ WApplication *createApplication2(const WEnvironment& env)
 	//tv_ptr->init();
 	WApplication *app = tv_ptr;
 	app->setTitle("WTreeView example");
-	app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
+	//app->messageResourceBundle().use(WApplication::appRoot() + "drinks");
 	app->styleSheet().addRule("button", "margin: 2px");
 	//app->useStyleSheet("treeview.css");
 	return app;
@@ -254,6 +254,12 @@ int main (int argc, char *argv[])
 	}
 	
 	if(!no_errors){
+		//string fname = work_dir + string ("/global.C");
+		//FILE * global_vars_C = fopen (fname.c_str(), "wb");
+		//fprintf (global_vars_C, "#include <map>\n#include <string>\n#include <vector>\n"
+		//			"#include \"mean_stddev_struct.h\"\n"
+		//			"using std::map; using std::string; using std::vector;\n");
+		//fclose (global_vars_C);
 		generate_edit_section_code();
 	} else {
 		cerr << "Errors in Parse:  Total errors: " << no_errors << endl;
@@ -911,7 +917,16 @@ void run_tables (GtkWidget *widget, gpointer data)
 				table_list.push_back (tbl);
 			}
 		}
-		g_print( "work_dir: %s\n", work_dir);
+		g_print( "--work_dir: %s--\n", work_dir);
+		cout << "--word_dir--: " << work_dir << endl;
+
+		string fname = work_dir + string ("/global.C");
+		FILE * global_vars_C = fopen (fname.c_str(), "wb");
+		fprintf (global_vars_C, "#include <map>\n#include <string>\n#include <vector>\n"
+					"#include \"mean_stddev_struct.h\"\n"
+					"using std::map; using std::string; using std::vector; /*  -- */\n");
+		fclose (global_vars_C);
+
 		string fname = string(work_dir) + string("/my_table.C");
 		FILE * table_op=fopen( fname.c_str(), "w");
 		fname = string(work_dir) + string("/my_tab_drv_func.C");

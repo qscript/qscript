@@ -90,13 +90,14 @@ UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 		Util::print_err(Util::compiler_sem_err
 				, "oper_blk_arr_assgn: cannot be used with unary operators : line_no:",
 			line_no, __LINE__, __FILE__);
-	} else if(l_operand->type_==VOID_TYPE){
-		switch(l_operand->exprOperatorType_){
+	} else if (l_operand->type_ == VOID_TYPE) {
+		switch (l_operand->exprOperatorType_) {
 			case oper_umin:
 			case oper_not:
 				cerr << "operator Unary minus(-): ";
 				Util::print_err(Util::compiler_sem_err
-						, " unary operator applied to function of type void ", 
+						, " unary operator applied"
+						  " to function of type void", 
 						line_no, __LINE__, __FILE__);
 			break;
 			default: 
@@ -105,7 +106,7 @@ UnaryExpression::UnaryExpression( AbstractExpression * l_operand
 					line_no, __LINE__, __FILE__);
 		}
 	} else {
-		switch(exprOperatorType_){
+		switch (exprOperatorType_) {
 			case oper_umin:
 				type_ = l_operand->type_;
 			break;
@@ -870,6 +871,64 @@ string get_temp_name()
 	//cout << s << endl;
 	string s1="temp_"+s;
 	return s1;
+}
+/*
+ * I expect to call this function in the axes code generation
+ * If it has to be called from another place - it will have to be
+ * refactored as there are too many assumptions about what
+ * conditions are valid in the axes section.
+ *
+ * many expression statements that would be valid in the edit section
+ * are treated as invalid here 
+ */
+
+void hunt_for_names_in_expression (AbstractExpression *e, map<string, SymbolTableEntry*> & name_list )
+{
+	if (!e) {
+		return;
+	}
+	UnaryExpression * ue = dynamic_cast <UnaryExpression*>(e);
+	Binary2Expression * b2e = dynamic_cast <Binary2Expression*>(e);
+	BinaryExpression * be = dynamic_cast <BinaryExpression*>(e);
+	Unary2Expression * u2e = dynamic_cast <Unary2Expression*>(e);
+	if (ue) {
+		hunt_for_names_in_expression (ue -> operand_, name_list);
+	} else if (b2e) {
+		// most Binary2Expression s are like terminal nodes
+		// however I have not thought about how to deal 
+		// with this expression in the axes statements
+		// so return an error here
+		Util::print_err (Util::compiler_internal_error, "unhandled Binary2Expression in axes statement case", 
+				 line_no, __LINE__, __FILE__);
+		return;
+	} else if (be) {
+		hunt_for_names_in_expression (be -> leftOperand_, name_list);
+		hunt_for_names_in_expression (be -> rightOperand_, name_list);
+	} else if (u2e) {
+		if (u2e -> exprOperatorType_ == oper_name) {
+			if (name_list.find (u2e->symbolTableEntry_->name_) == name_list.end()) {
+				name_list[u2e->symbolTableEntry_->name_] = 
+					u2e->symbolTableEntry_;
+			}
+		} else if (u2e -> exprOperatorType_ == oper_arrderef) {
+			if (name_list.find (u2e->symbolTableEntry_->name_) == name_list.end()) {
+				name_list[u2e->symbolTableEntry_->name_] =
+					u2e->symbolTableEntry_;
+			}
+		} else if (u2e -> exprOperatorType_ == oper_num) {
+			// atom - not relevant to us
+		} else if (u2e -> exprOperatorType_ == oper_float) {
+		} else {
+			Util::print_err (Util::compiler_internal_error, "unhandled Unary2Expression in axes statement case", 
+					 line_no, __LINE__, __FILE__);
+		}
+	} else {
+		std::stringstream err_mesg;
+		err_mesg << "unhandled AbstractExpression case: fix me: exprOperatorType_: "
+			<< e->exprOperatorType_ ;
+		Util::print_err(Util::compiler_internal_error, err_mesg.str().c_str(), 
+				line_no, __LINE__, __FILE__);
+	}
 }
 
 } /* close namespace Expression */
