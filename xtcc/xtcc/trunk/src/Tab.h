@@ -289,7 +289,7 @@ int yylex ( void );
 
 void construct_tables(map<string, ax*>& ax_map, vector<table*> & table_list);
 
-typedef map<string, ax*>::const_iterator CMAPITER;
+typedef map<string, Table::ax*>::const_iterator CMAPITER;
 
 void construct_internal_table(map<string, ax*>& ax_map
 		, vector<table*>& table_list);

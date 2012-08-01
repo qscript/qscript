@@ -270,7 +270,8 @@ int main (int argc, char* argv[])
 
 	int compile_result = -1;
 	if (flag_compile_only == true) {
-		cout << "reached here" << endl;
+		cout << "compiling only" << endl;
+		exit(1);
 		compile_result = compile (XTCC_HOME, work_dir);
 	} else {
 		printf("parsing over\n about to begin compiling c++ code\n");
