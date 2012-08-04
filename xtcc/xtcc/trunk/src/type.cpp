@@ -639,9 +639,9 @@ static const yytype_uint16 yyrline[] =
      619,   625,   631,   637,   643,   649,   655,   661,   667,   673,
      679,   686,   692,   698,   705,   712,   751,   757,   763,   777,
      778,   781,   790,   795,   800,   808,   816,   824,   831,   833,
-     837,   859,   883,   909,   913,   922,   922,   946,   950,   956,
-     982,   989,   992,   997,   998,  1003,  1012,  1013,  1018,  1028,
-    1031,  1036,  1046,  1055,  1064,  1075,  1078
+     837,   859,   883,   914,   918,   927,   927,   951,   955,   961,
+     987,   994,   997,  1002,  1003,  1008,  1017,  1018,  1023,  1033,
+    1036,  1041,  1051,  1060,  1069,  1080,  1083
 };
 #endif
 
@@ -2920,26 +2920,31 @@ yyreduce:
 				no_inc_ax_elems,
 				no_mpn,
 				(yyvsp[(5) - (13)].expr), stub_hint);
-		
-		//std::cout << "got axis: " << $2 
-		//	<< "no_tot_ax_elems: " << no_tot_ax_elems 
-		//	<< ", no_count_ax_elems: " << no_count_ax_elems
-		//	<< endl;
-		if(XTCC_DEBUG_MEM_USAGE){
-			mem_log((yyval.ax), __LINE__, __FILE__, line_no);
+		string name = (yyvsp[(2) - (13)].name);
+		/*
+		if (name == "qc6a_Al_Inma_Bank") {
+			std::cout << "got axis: " << name 
+				<< ", no_tot_ax_elems: " << no_tot_ax_elems 
+				<< ", no_count_ax_elems: " << no_count_ax_elems
+				<< ", stub_hint: " << stub_hint 
+				<< endl;
 		}
-		ax_map[(yyvsp[(2) - (13)].name)]=(yyval.ax);
+		*/
+		if (XTCC_DEBUG_MEM_USAGE) {
+			mem_log ((yyval.ax), __LINE__, __FILE__, line_no);
+		}
+		ax_map [(yyvsp[(2) - (13)].name)] = (yyval.ax);
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
 		no_inc_ax_elems = 0;
-		free((yyvsp[(2) - (13)].name));
+		free ((yyvsp[(2) - (13)].name));
 	}
     break;
 
   case 93:
 
 /* Line 1806 of yacc.c  */
-#line 909 "src/type.ypp"
+#line 914 "src/type.ypp"
     {
 		Table::weight_axis_group wt_axis_grp ((yyvsp[(2) - (4)].name), wt_axis_vec);
 		wt_axis_group_vec .push_back (wt_axis_grp);
@@ -2949,7 +2954,7 @@ yyreduce:
   case 94:
 
 /* Line 1806 of yacc.c  */
-#line 913 "src/type.ypp"
+#line 918 "src/type.ypp"
     {
 		cerr << "Error in axis section line: " <<
 			line_no << endl;
@@ -2962,7 +2967,7 @@ yyreduce:
   case 95:
 
 /* Line 1806 of yacc.c  */
-#line 922 "src/type.ypp"
+#line 927 "src/type.ypp"
     {
 		attribute_list.resize(0);
 		//cout << "resize attribute_list to 0\n";
@@ -2972,7 +2977,7 @@ yyreduce:
   case 96:
 
 /* Line 1806 of yacc.c  */
-#line 925 "src/type.ypp"
+#line 930 "src/type.ypp"
     {
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		//$$=0;
@@ -2997,7 +3002,7 @@ yyreduce:
   case 97:
 
 /* Line 1806 of yacc.c  */
-#line 946 "src/type.ypp"
+#line 951 "src/type.ypp"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		attribute_list.push_back(s1);
@@ -3007,7 +3012,7 @@ yyreduce:
   case 98:
 
 /* Line 1806 of yacc.c  */
-#line 950 "src/type.ypp"
+#line 955 "src/type.ypp"
     {
 		string s1=(yyvsp[(2) - (3)].text_buf);
 		attribute_list.push_back(s1);
@@ -3017,7 +3022,7 @@ yyreduce:
   case 99:
 
 /* Line 1806 of yacc.c  */
-#line 956 "src/type.ypp"
+#line 961 "src/type.ypp"
     {
 		string wt_ax_name((yyvsp[(1) - (3)].name));
 		Table::weight_axis wt_ax (wt_ax_name, weight_vec);
@@ -3049,7 +3054,7 @@ yyreduce:
   case 100:
 
 /* Line 1806 of yacc.c  */
-#line 982 "src/type.ypp"
+#line 987 "src/type.ypp"
     {
 		Table::weight_axis wt_ax ((yyvsp[(2) - (4)].name), weight_vec);
 		wt_axis_vec.push_back (wt_ax);
@@ -3060,7 +3065,7 @@ yyreduce:
   case 101:
 
 /* Line 1806 of yacc.c  */
-#line 989 "src/type.ypp"
+#line 994 "src/type.ypp"
     {
 		weight_vec.push_back ((yyvsp[(1) - (1)].dval));
 	}
@@ -3069,7 +3074,7 @@ yyreduce:
   case 102:
 
 /* Line 1806 of yacc.c  */
-#line 992 "src/type.ypp"
+#line 997 "src/type.ypp"
     {
 		weight_vec.push_back ((yyvsp[(2) - (2)].dval));
 	}
@@ -3078,7 +3083,7 @@ yyreduce:
   case 104:
 
 /* Line 1806 of yacc.c  */
-#line 998 "src/type.ypp"
+#line 1003 "src/type.ypp"
     {
 		//$$=link_chain($1, $2);
 	}
@@ -3087,7 +3092,7 @@ yyreduce:
   case 105:
 
 /* Line 1806 of yacc.c  */
-#line 1003 "src/type.ypp"
+#line 1008 "src/type.ypp"
     {
 		using Table::stub;
 		(yyval.stub)=new stub((yyvsp[(1) - (4)].text_buf), (yyvsp[(3) - (4)].ival));
@@ -3100,14 +3105,14 @@ yyreduce:
   case 106:
 
 /* Line 1806 of yacc.c  */
-#line 1012 "src/type.ypp"
+#line 1017 "src/type.ypp"
     { (yyval.print_stmt)=(yyvsp[(1) - (1)].print_stmt); }
     break;
 
   case 107:
 
 /* Line 1806 of yacc.c  */
-#line 1013 "src/type.ypp"
+#line 1018 "src/type.ypp"
     {
 		(yyval.print_stmt)=link_chain((yyvsp[(1) - (2)].print_stmt), (yyvsp[(2) - (2)].print_stmt));
 	}
@@ -3116,7 +3121,7 @@ yyreduce:
   case 108:
 
 /* Line 1806 of yacc.c  */
-#line 1018 "src/type.ypp"
+#line 1023 "src/type.ypp"
     {
 		using Table::TitleStatement;
 		(yyval.print_stmt) = new TitleStatement (Table::txt_axstmt,(yyvsp[(3) - (4)].text_buf));
@@ -3130,7 +3135,7 @@ yyreduce:
   case 109:
 
 /* Line 1806 of yacc.c  */
-#line 1028 "src/type.ypp"
+#line 1033 "src/type.ypp"
     {
 		(yyval.count_stmt) = (yyvsp[(1) - (1)].count_stmt);
 	}
@@ -3139,7 +3144,7 @@ yyreduce:
   case 110:
 
 /* Line 1806 of yacc.c  */
-#line 1031 "src/type.ypp"
+#line 1036 "src/type.ypp"
     {
 		(yyval.count_stmt)=link_chain((yyvsp[(1) - (2)].count_stmt), (yyvsp[(2) - (2)].count_stmt));
 	}
@@ -3148,7 +3153,7 @@ yyreduce:
   case 111:
 
 /* Line 1806 of yacc.c  */
-#line 1036 "src/type.ypp"
+#line 1041 "src/type.ypp"
     {
 		using Table::tot_ax_stmt;
 		++no_count_ax_elems;	
@@ -3164,7 +3169,7 @@ yyreduce:
   case 112:
 
 /* Line 1806 of yacc.c  */
-#line 1046 "src/type.ypp"
+#line 1051 "src/type.ypp"
     {
 		using Table::tot_ax_stmt;
 		++no_count_ax_elems;	
@@ -3179,7 +3184,7 @@ yyreduce:
   case 113:
 
 /* Line 1806 of yacc.c  */
-#line 1055 "src/type.ypp"
+#line 1060 "src/type.ypp"
     {
 		using Table::count_ax_stmt;
 		++no_count_ax_elems;	
@@ -3194,7 +3199,7 @@ yyreduce:
   case 114:
 
 /* Line 1806 of yacc.c  */
-#line 1064 "src/type.ypp"
+#line 1069 "src/type.ypp"
     {
 		if (no_inc_ax_elems > 0) {
 			stringstream err_msg;
@@ -3211,7 +3216,7 @@ yyreduce:
   case 116:
 
 /* Line 1806 of yacc.c  */
-#line 1078 "src/type.ypp"
+#line 1083 "src/type.ypp"
     {
 		using Table::fld_ax_stmt;
 		//stub * stub_ptr = trav_chain($4);
@@ -3224,7 +3229,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 3228 "src/type.cpp"
+#line 3233 "src/type.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -3455,7 +3460,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 1087 "src/type.ypp"
+#line 1092 "src/type.ypp"
 
 
 

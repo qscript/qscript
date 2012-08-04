@@ -892,19 +892,24 @@ ax_defn:	AX NAME ';' ttl_ax_stmt_list count_ax_stmt_list {
 				no_inc_ax_elems,
 				no_mpn,
 				$5, stub_hint);
-		
-		//std::cout << "got axis: " << $2 
-		//	<< "no_tot_ax_elems: " << no_tot_ax_elems 
-		//	<< ", no_count_ax_elems: " << no_count_ax_elems
-		//	<< endl;
-		if(XTCC_DEBUG_MEM_USAGE){
-			mem_log($$, __LINE__, __FILE__, line_no);
+		string name = $2;
+		/*
+		if (name == "qc6a_Al_Inma_Bank") {
+			std::cout << "got axis: " << name 
+				<< ", no_tot_ax_elems: " << no_tot_ax_elems 
+				<< ", no_count_ax_elems: " << no_count_ax_elems
+				<< ", stub_hint: " << stub_hint 
+				<< endl;
 		}
-		ax_map[$2]=$$;
+		*/
+		if (XTCC_DEBUG_MEM_USAGE) {
+			mem_log ($$, __LINE__, __FILE__, line_no);
+		}
+		ax_map [$2] = $$;
 		no_count_ax_elems=0;	
 		no_tot_ax_elems=0;
 		no_inc_ax_elems = 0;
-		free($2);
+		free ($2);
 	}
 	| WT NAME ';' axes_and_weights {
 		Table::weight_axis_group wt_axis_grp ($2, wt_axis_vec);

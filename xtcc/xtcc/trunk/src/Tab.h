@@ -132,7 +132,7 @@ class AbstractCountableAxisStatement
 	virtual void print(fstream& f)=0;
 	virtual string ax_text()=0;
 	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)=0;
-	virtual void print_axis_constructor_text(FILE *  f, unsigned int start_index)=0;
+	virtual void print_axis_constructor_text(FILE *  f, std::stringstream & constructor_body, unsigned int start_index)=0;
 	virtual bool CustomCountExpression();
 	virtual ~AbstractCountableAxisStatement() ;
 	private:
@@ -147,6 +147,7 @@ class count_ax_stmt: public AbstractCountableAxisStatement
 	virtual void print(fstream& f);
 	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
+			, std::stringstream & constructor_body
 			, unsigned int start_index);
 	virtual string ax_text();
 	~count_ax_stmt();
@@ -165,6 +166,7 @@ class tot_ax_stmt: public AbstractCountableAxisStatement
 	virtual string ax_text();
 	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
+			, std::stringstream & constructor_body
 			, unsigned int start_index);
 	~tot_ax_stmt();
 	private:
@@ -185,9 +187,10 @@ class inc_ax_stmt: public AbstractCountableAxisStatement
 	virtual string ax_text();
 	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index);
 	virtual void print_axis_constructor_text(FILE * f
+			, std::stringstream & constructor_body
 			, unsigned int start_index);
 	virtual bool CustomCountExpression();
-	void PrintIncrExpression(FILE* op);
+	void PrintIncrExpression (FILE* op, stringstream & code);
 	~inc_ax_stmt();
 	private:
 	inc_ax_stmt & operator = (const inc_ax_stmt&);
@@ -215,14 +218,20 @@ class fld_ax_stmt : public AbstractCountableAxisStatement {
 	fld_ax_stmt(axstmt_type ltype ,string field_name
 			, vector<stub*> l_stub_list);
 	virtual void generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index);
-	virtual void print_axis_constructor_text(FILE * f
-			, unsigned int start_index){
-		cout << "came to print_axis_constructor_text in fld_ax_stmt" 
-			<< endl;
+	virtual void print_axis_constructor_text (FILE * f
+			, std::stringstream & constructor_body
+			, unsigned int start_index) {
+		//cout << "came to print_axis_constructor_text in fld_ax_stmt" 
+		//	<< endl;
 		for(int i=0; i<stub_list.size(); ++i) {
 			fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
 					, i+start_index
 					, stub_list[i]->text.c_str());
+			constructor_body << "\t\tcount_stmt_text["
+				<< i + start_index
+				<< "]="
+				<< stub_list[i]->text
+				<< ";\n";
 		}
 		cout << "exited print_axis_constructor_text in fld_ax_stmt" 
 			<< endl;

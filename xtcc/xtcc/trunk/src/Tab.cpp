@@ -460,11 +460,11 @@ void count_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, un
 	ostringstream code_expr1, code_bef_expr1;
 	if (condn) {
 		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-		fprintf(f, "%s", code_bef_expr1.str().c_str());
-		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-		fprintf(f, " ){\n");
-		fprintf(f, "\t\tflag[%d]=true;\n", index);
-		fprintf(f, "\t}\n");
+		//fprintf(f, "%s", code_bef_expr1.str().c_str());
+		//fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		//fprintf(f, " ){\n");
+		//fprintf(f, "\t\tflag[%d]=true;\n", index);
+		//fprintf(f, "\t}\n");
 
 		cpp_code_str << code_bef_expr1.str();
 		cpp_code_str << "\tif ( " << code_expr1.str();
@@ -473,7 +473,7 @@ void count_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, un
 			<< index << "]=true;\n";
 		cpp_code_str << "\t}\n";
 	} else {
-		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		//fprintf(f, "\t\tflag[%d]=true;\n", index);
 		cpp_code_str 
 			<< "\t\tflag["
 			<< index
@@ -491,10 +491,17 @@ string count_ax_stmt::ax_text()
 }
 
 void count_ax_stmt::print_axis_constructor_text(FILE * f
+			, std::stringstream & constructor_body
 		, unsigned int start_index)
 {
-	fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
-			, start_index, ax_text().c_str());
+	//fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+	//		, start_index, ax_text().c_str());
+	constructor_body 
+		<< "\t\tcount_stmt_text["
+		<< start_index
+		<< "]="
+		<< ax_text()
+		<< ";\n";
 }
 
 count_ax_stmt::~count_ax_stmt(){
@@ -532,11 +539,11 @@ void tot_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsi
 	ostringstream code_expr1, code_bef_expr1;
 	if (condn) {
 		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-		fprintf(f, "%s", code_bef_expr1.str().c_str());
-		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-		fprintf(f, " ){\n");
-		fprintf(f, "\t\tflag[%d]=true;\n", index);
-		fprintf(f, "\t}\n");
+		//fprintf(f, "%s", code_bef_expr1.str().c_str());
+		//fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		//fprintf(f, " ){\n");
+		//fprintf(f, "\t\tflag[%d]=true;\n", index);
+		//fprintf(f, "\t}\n");
 
 		cpp_code_str << code_bef_expr1.str();
 		cpp_code_str << "\tif ( " << code_expr1.str();
@@ -546,7 +553,7 @@ void tot_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsi
 		cpp_code_str << "\t}\n";
 
 	} else {
-		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		//fprintf(f, "\t\tflag[%d]=true;\n", index);
 		cpp_code_str 
 			<< "\t\tflag["
 			<< index
@@ -556,10 +563,16 @@ void tot_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsi
 
 
 void tot_ax_stmt::print_axis_constructor_text(FILE * f
+		, std::stringstream & constructor_body
 		, unsigned int start_index)
 {
-	fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
-			, start_index, ax_text().c_str());
+	//fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+	//		, start_index, ax_text().c_str());
+	constructor_body <<  "\t\tcount_stmt_text["
+		<< start_index
+		<< "]="
+		<<  ax_text()
+		<< ";\n";
 }
 
 tot_ax_stmt::~tot_ax_stmt()
@@ -605,11 +618,11 @@ void inc_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsi
 	ostringstream code_expr1, code_bef_expr1;
 	if (condn) {
 		condn->PrintExpressionCode(code_bef_expr1, code_expr1);
-		fprintf(f, "%s", code_bef_expr1.str().c_str());
-		fprintf(f, "\tif ( %s", code_expr1.str().c_str());
-		fprintf(f, " ){\n");
-		fprintf(f, "\t\tflag[%d]=true;\n", index);
-		fprintf(f, "\t}\n");
+		//fprintf(f, "%s", code_bef_expr1.str().c_str());
+		//fprintf(f, "\tif ( %s", code_expr1.str().c_str());
+		//fprintf(f, " ){\n");
+		//fprintf(f, "\t\tflag[%d]=true;\n", index);
+		//fprintf(f, "\t}\n");
 
 		cpp_code_str << code_bef_expr1.str();
 		cpp_code_str << "\tif ( " << code_expr1.str();
@@ -618,7 +631,7 @@ void inc_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsi
 			<< index << "]=true;\n";
 		cpp_code_str << "\t}\n";
 	} else {
-		fprintf(f, "\t\tflag[%d]=true;\n", index);
+		//fprintf(f, "\t\tflag[%d]=true;\n", index);
 		cpp_code_str 
 			<< "\t\tflag["
 			<< index
@@ -629,10 +642,17 @@ void inc_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsi
 }
 
 void inc_ax_stmt::print_axis_constructor_text(FILE * f
+		, std::stringstream & constructor_body
 		, unsigned int start_index)
 {
-	fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
-			, start_index, ax_text().c_str());
+	//fprintf(f, "\t\tcount_stmt_text[%d]=%s;\n"
+	//		, start_index, ax_text().c_str());
+	constructor_body 
+		<< "\t\tcount_stmt_text["
+		<< start_index
+		<< "]="
+		<<  ax_text()
+		<< ";\n";
 }
 
 inc_ax_stmt::~inc_ax_stmt()
@@ -646,12 +666,13 @@ inc_ax_stmt::~inc_ax_stmt()
 	}
 }
 
-void inc_ax_stmt::PrintIncrExpression(FILE* op)
+void inc_ax_stmt::PrintIncrExpression(FILE* op, stringstream & code)
 {
 	//cout << "inc_ax_stmt::PrintIncrExpression " << endl;
 	ostringstream code_bef_expr, code_expr;
 	incrementExpression_->PrintExpressionCode(code_bef_expr, code_expr);
 	fprintf(op, " %s ", code_expr.str().c_str());
+	code << code_expr.str();
 }
 
 // -------------------------------------------
@@ -726,14 +747,14 @@ fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_s
 void fld_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)
 {
 	for(unsigned int i=0; i< stub_list.size(); ++i){
-		fprintf(f, "\t\tif (%s[%d]){\n"
-				, symp->name_, stub_list[i]->code-1);
+		//fprintf(f, "\t\tif (%s[%d]){\n"
+		//		, symp->name_, stub_list[i]->code-1);
 		cpp_code_str 
 			<< "\t\tif ("
 			<< symp->name_ << "["
 			<< stub_list[i]->code-1 << "]){\n" ;
-		fprintf(f, "\t\t\t flag[%d]=true;\n\t\t}\n"
-				, index+stub_list[i]->code-1);
+		//fprintf(f, "\t\t\t flag[%d]=true;\n\t\t}\n"
+		//		, index+stub_list[i]->code-1);
 		cpp_code_str << "\t\t\t flag["
 			<< index+stub_list[i]->code-1 << "]=true;\n\t\t}\n";
 	}

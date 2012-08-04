@@ -223,20 +223,25 @@ int main (int argc, char* argv[])
 		cout << "Successfully parsed tabulation section" << endl;
 	}
 
-	fname = string(work_dir)+ ("/my_axes.C");
-	FILE * axes_op=fopen(fname.c_str(), "w");	
-	fname = string(work_dir) + string("/my_axes_drv_func.C");
-	FILE * axes_drv_func=fopen(fname.c_str(), "w");	
-	if(!(axes_op&&axes_drv_func)){
+	fname = string (work_dir) + ("/my_axes.h");
+	FILE * axes_h = fopen (fname.c_str(), "wb");
+	fname = string (work_dir) + ("/my_axes.C");
+	FILE * axes_cpp = fopen (fname.c_str(), "wb");
+	fname = string (work_dir) + string("/my_axes_drv_func.C");
+	FILE * axes_drv_func = fopen (fname.c_str(), "wb");
+	if (!(axes_h && axes_cpp && axes_drv_func) ) {
 		cerr << "Unable to open file for output of axes classes" << endl;
 		exit(1);
+	} else {
+		fprintf (axes_cpp, "#include \"my_axes.h\"\n");
+		fprintf (axes_cpp, "#include \"global.h\"\n");
 	}
-	if(int rval=yyparse()){
+	if (int rval=yyparse()) {
 		cerr << "parsing axes section failed:" << endl;
 		exit(rval);
 	} 
 
-	if(no_errors >0 ){
+	if (no_errors > 0) {
 		cerr << "Errors in axes section: " << no_errors << endl;
 		exit(1);
 	} else {
@@ -245,14 +250,14 @@ int main (int argc, char* argv[])
 	
 	flex_finish();
 	extern vector<Table::table*>	table_list;
-	print_axis_code (axes_op, axes_drv_func);
+	print_axis_code (axes_h, axes_cpp, axes_drv_func);
 	print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
 	print_weighting_code ();
 	generate_make_file();
 	fclose(yyin); yyin=0;
 	fclose(table_op);
 	fclose(tab_drv_func);
-	fclose(axes_op); 
+	fclose(axes_cpp); 
 	fclose(axes_drv_func);
 	fclose(tab_summ_func);
 	//bool my_compile_flag=true;
