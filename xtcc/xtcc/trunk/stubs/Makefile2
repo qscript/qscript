@@ -1,7 +1,7 @@
 #CC=g++-4.6
 CC=g++
 #OBJS = main_loop.o my_axes_drv_func.o my_tab_drv_func.o list_summ_template.o edit_out.o global.C
-OBJS = main_loop.o my_axes_drv_func.o my_tab_drv_func.o edit_out.o global.C
+OBJS = main_loop.o my_axes_drv_func.o my_tab_drv_func.o edit_out.o global.o
 test.exe: $(OBJS)
 	$(CC)  -o $@ $(OBJS) 
 

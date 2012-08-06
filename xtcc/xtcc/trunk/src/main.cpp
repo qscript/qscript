@@ -202,13 +202,15 @@ int main (int argc, char* argv[])
 	}
 
 	string fname = string(work_dir) + string("/my_table.C");
-	FILE * table_op=fopen( fname.c_str(), "w");
+	FILE * table_cpp= fopen( fname.c_str(), "w");
+	fname = string(work_dir) + string("/my_table.h");
+	FILE * table_h = fopen( fname.c_str(), "w");
 	fname = string(work_dir) + string("/my_tab_drv_func.C");
 	FILE * tab_drv_func=fopen(fname.c_str(), "w");	
 	fname = string(work_dir) + string("/my_tab_summ.C");
 	FILE * tab_summ_func=fopen(fname.c_str(), "w");	
 
-	if(!(table_op&&tab_drv_func&&tab_summ_func)){
+	if(!(table_cpp&&tab_drv_func&&tab_summ_func)){
 		cerr << "Unable to open file for output of table classes" << endl;
 		exit(1);
 	}
@@ -251,11 +253,11 @@ int main (int argc, char* argv[])
 	flex_finish();
 	extern vector<Table::table*>	table_list;
 	print_axis_code (axes_h, axes_cpp, axes_drv_func);
-	print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
+	print_table_code (table_h, table_cpp, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
 	print_weighting_code ();
 	generate_make_file();
 	fclose(yyin); yyin=0;
-	fclose(table_op);
+	fclose(table_cpp);
 	fclose(tab_drv_func);
 	fclose(axes_cpp); 
 	fclose(axes_drv_func);

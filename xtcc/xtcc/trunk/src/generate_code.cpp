@@ -33,16 +33,22 @@ FILE * global_vars;
 //void print_latex_print(FILE* op, int table_index);
 
 	map <string, string> stubname_axis_map;
-void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list, string tab_fname)
+void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list, string tab_fname)
 {
 	using namespace Table;
-	fprintf(op, "#include <iostream>\n");
-	fprintf(op, "#include <fstream>\n");
-	fprintf(op, "#include <sstream>\n");
-	fprintf(op, "#include <vector>\nusing namespace std;\n");
-	fprintf(tab_drv_func, "#include \"global.h\"\n");
-	fprintf(tab_drv_func, "#include \"my_table.C\"\n");
-	fprintf(tab_drv_func, "void tab_compute(){\n");
+	fprintf (table_h, "#ifndef MY_TABLE_H\n");
+	fprintf (table_h, "#define MY_TABLE_H\n");
+	fprintf (table_h, "#include <iostream>\n");
+	fprintf (table_h, "#include <fstream>\n");
+	fprintf (table_h, "#include <sstream>\n");
+	fprintf (table_h, "#include <vector>\nusing namespace std;\n");
+	fprintf (table_h, "#include \"global.h\"\n");
+	fprintf (table_h, "#include \"my_axes.h\"\n");
+	fprintf (table_cpp, "#include \"my_table.h\"\n");
+	fprintf (tab_drv_func, "#include \"global.h\"\n");
+	fprintf (tab_drv_func, "#include \"my_axes.h\"\n");
+	fprintf (tab_drv_func, "#include \"my_table.C\"\n");
+	fprintf (tab_drv_func, "void tab_compute(){\n");
 	set <string> ax_defns;
 	for (unsigned int i=0; i<table_list.size(); i++) {
 		CMAPITER map_iter_s= ax_map.find(table_list[i]->side);
@@ -50,13 +56,13 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 		string s1 = "ax_" + map_iter_b->first;
 		if (ax_defns.find (s1) == ax_defns.end()) {
 			if (map_iter_b->second->stub_hint_axis == string()) {
-				fprintf (op, "#include \"ax_%s.h\"\n",
-							map_iter_b->first.c_str ());
-				fprintf (op, "extern struct axis_%s ax_%s;\n",
+				//fprintf (table_h, "#include \"ax_%s.h\"\n",
+				//			map_iter_b->first.c_str ());
+				fprintf (table_h, "extern struct axis_%s ax_%s;\n",
 						map_iter_b->first.c_str(),
 						map_iter_b->first.c_str());
 			} else {
-				fprintf (op, "extern struct axis_%s ax_%s;\n",
+				fprintf (table_h, "extern struct axis_%s ax_%s;\n",
 						map_iter_b->second->stub_hint_axis.c_str(),
 						map_iter_b->first.c_str()
 						);
@@ -66,16 +72,16 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 		string s2 = "ax_" + map_iter_s->first;
 		if (ax_defns.find (s2) == ax_defns.end()) {
 			if (map_iter_s->second->stub_hint_axis == string()) {
-				fprintf (op, "#include \"ax_%s.h\"\n",
-							map_iter_s->first.c_str());
-				fprintf (op, "/* stub_hint_axis is empty  */\n");
-				fprintf (op, "extern struct axis_%s ax_%s;\n",
+				//fprintf (table_h, "#include \"ax_%s.h\"\n",
+				//			map_iter_s->first.c_str());
+				fprintf (table_h, "/* stub_hint_axis is empty  */\n");
+				fprintf (table_h, "extern struct axis_%s ax_%s;\n",
 						map_iter_s->first.c_str(),
 						map_iter_s->first.c_str());
 			} else {
-				fprintf (op, "/* stub_hint_axis has data : %s*/\n",
+				fprintf (table_h, "/* stub_hint_axis has data : %s*/\n",
 						map_iter_s->second->stub_hint_axis.c_str());
-				fprintf (op, "extern struct axis_%s ax_%s;\n",
+				fprintf (table_h, "extern struct axis_%s ax_%s;\n",
 						map_iter_s->second->stub_hint_axis.c_str(),
 						map_iter_s->first.c_str()
 						);
@@ -94,376 +100,393 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 				<< endl;
 			++ no_errors;
 		} else {
-			Expression::AbstractExpression* f= table_list[i]->filter;
+			Expression::AbstractExpression * f = table_list[i] -> filter;
 			// cout << "table: " <<
 			// 	map_iter_b->first << " by " <<
 			// 	map_iter_s->first << endl;
-			if ( f ){
-				cout << " Filter: " ;
-			}
-			fprintf(op, "struct table_%s_%s {\n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str ());
-			fprintf(op, "\tconst int rows, cols;\n");
-			fprintf(op, "\tvector <int> counter;\n");
-			fprintf(op, "\ttable_%s_%s():rows(%d), cols(%d),counter(%d*%d){\n\t\tfor (int i=0;i<counter.size();++i) counter[i]=0; \n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-					map_iter_s->second->no_count_ax_elems,
-					map_iter_b->second->no_count_ax_elems,
-					map_iter_s->second->no_count_ax_elems,
-					map_iter_b->second->no_count_ax_elems
-					);
-			if (map_iter_s->second->no_inc_ax_elems > 0 || 
-						map_iter_b->second->no_inc_ax_elems > 0) {
-				fprintf(op, "\t\tfor (int i=0; i<mean_inc_%s_%s.size(); ++i) {\n\t\t\tmean_inc_%s_%s[i].sum_n=0.0; mean_inc_%s_%s[i].n=0.0;\n\t\t}\n",
+			//if ( f ){
+			//	cout << " Filter: " ;
+			//}
+			if (map_iter_s -> second -> stub_hint_axis != string()
+					&& map_iter_s -> second -> stub_hint != string("RangeQuestion") ) {
+					fprintf (table_cpp, "\t/* stub_hint: %s */\n", map_iter_s->second->stub_hint_axis.c_str());
+					fprintf (table_cpp, "struct table_%s_%s tab_%s_%s(ax_%s);\n",
+							map_iter_s->second->stub_hint_axis.c_str(),
+							map_iter_b->first.c_str(),
+							map_iter_s->first.c_str(),
+							map_iter_b->first.c_str(),
+							map_iter_s->first.c_str());
+			} else {
+				fprintf(table_h, "struct table_%s_%s {\n",
+						map_iter_s->first.c_str(), map_iter_b->first.c_str ());
+				fprintf(table_h, "\tstruct axis_%s & ax_%s;\n", map_iter_s->first.c_str(), map_iter_s->first.c_str());
+				fprintf(table_h, "\tconst int rows, cols;\n");
+				fprintf(table_h, "\tvector <int> counter;\n");
+				fprintf(table_h, "\ttable_%s_%s (struct axis_%s & p_ax_%s):rows(%d), cols(%d),counter(%d*%d), ax_%s(p_ax_%s){\n\t\tfor (int i=0;i<counter.size();++i) counter[i]=0; \n",
 						map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-						map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-						//map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-						//map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-						//map_iter_s->first.c_str(), map_iter_b->first.c_str (),
-						map_iter_s->first.c_str(), map_iter_b->first.c_str ()
+						map_iter_s->first.c_str(), map_iter_s->first.c_str (),
+						map_iter_s->second->no_count_ax_elems,
+						map_iter_b->second->no_count_ax_elems,
+						map_iter_s->second->no_count_ax_elems,
+						map_iter_b->second->no_count_ax_elems,
+						map_iter_s->first.c_str(), map_iter_s->first.c_str ()
 						);
-			}
-			fprintf(op, "\t}\n");
-
-			/*
-			fprintf(op, "\tvoid compute(){\n");
-			fprintf(op, "\t\tfor(int i=0; i<rows; ++i){\n");
-			fprintf(op, "\t\t\tfor(int j=0; j<cols; ++j){\n");
-			fprintf(op, "\t\t\t\tif(");
-			fprintf(op, "ax_%s.flag[i]", map_iter_s->first.c_str());
-			fprintf(op, " && " );
-			fprintf(op, "ax_%s.flag[j]){\n", map_iter_b->first.c_str());
-			fprintf(op, "\t\t\t\t\t++counter[i*cols+j];\n");
-			fprintf(op, "\t\t\t\t} \n");
-			fprintf(op, "\t\t\t} \n");
-			fprintf(op, "\t\t}\n");
-			fprintf(op, "\t} \n");
-			*/
-
-			fprintf(op, "\tvoid compute(){\n");
-
-			int rows=map_iter_s->second->no_count_ax_elems;
-			int cols=map_iter_b->second->no_count_ax_elems;
-			AbstractCountableAxisStatement* side_stmt=map_iter_s->second->count_ax_stmt_start;
-			int inc_stmt_count=0;
-			for (int i=0; i<rows; ++i) {
-				//cout << "generate_code: i: " << i << endl;
-				AbstractCountableAxisStatement* banner_stmt = map_iter_b->second->count_ax_stmt_start;
-				if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
-					string global_vars_fname_C = work_dir + string("/global.C");
-					FILE * global_vars_C = fopen (global_vars_fname_C.c_str(), "a+b");
-					string global_vars_fname = work_dir + string("/global.h");
-					FILE * global_vars_h = fopen (global_vars_fname.c_str(), "a+b");
-					if (! (global_vars_h||global_vars_C) ) {
-						cerr << "Unable to open file: " << global_vars_fname 
-							<< " or " << global_vars_fname_C
-							<< " for writing ... exiting \n"
-							<< endl;
-						exit(1);
-					}
-					fprintf (global_vars_h, "extern vector<MeanStdDevInc> mean_inc_%s_%s;\n",
-							map_iter_s->first.c_str(), map_iter_b->first.c_str());
-					fprintf (global_vars_C, "vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
-							map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
-					//printf  ("vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
-					//		map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
-					fclose (global_vars_h);
-					fclose (global_vars_C);
-					++inc_stmt_count;
+				if (map_iter_s->second->no_inc_ax_elems > 0 || 
+							map_iter_b->second->no_inc_ax_elems > 0) {
+					fprintf(table_h, "\t\tfor (int i=0; i<mean_inc_%s_%s.size(); ++i) {\n\t\t\tmean_inc_%s_%s[i].sum_n=0.0; mean_inc_%s_%s[i].n=0.0;\n\t\t}\n",
+							map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+							map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+							//map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+							//map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+							//map_iter_s->first.c_str(), map_iter_b->first.c_str (),
+							map_iter_s->first.c_str(), map_iter_b->first.c_str ()
+							);
 				}
-				for (int j = 0; j < cols; ++j) {
-					//cout << "generate_code: j: " << j << endl;
-					fprintf(op, "\t\tif(");
-					fprintf(op, "ax_%s.flag[%d]", map_iter_s->first.c_str(), i);
-					fprintf(op, " && " );
-					fprintf(op, "ax_%s.flag[%d]){\n", map_iter_b->first.c_str(), j);
-					if (!banner_stmt || ! side_stmt) {
-						// handles the case of fld_stmt
-						fprintf(op, "\t\t\t++counter[%d*cols+%d];\n",
-								i, j);
-					} else if(side_stmt->CustomCountExpression() == false
-						&& banner_stmt->CustomCountExpression() == false) {
-						fprintf(op, "\t\t\t++counter[%d*cols+%d];\n",
-								i, j);
-					} else if(side_stmt->CustomCountExpression() == true
-						&& banner_stmt->CustomCountExpression() == false) {
-						// cout << "side is inc_axstmt" << endl;
-						// fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
-						// 		i, j);
-						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
-						//inc_st_ptr->PrintIncrExpression(op);
-						//fprintf(op, ";\n");
+				fprintf(table_h, "\t}\n");
 
-						fprintf(op, "\t\t\t mean_inc_%s_%s[%d*cols+%d].sum_n +=",
-								map_iter_s->first.c_str(), map_iter_b->first.c_str(),
-								inc_stmt_count-1, j);
-						//inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
-						stringstream code;
-						inc_st_ptr->PrintIncrExpression (op, code);
-						fprintf(op, ";\n");
-						fprintf(op, "\t\t\t mean_inc_%s_%s[%d*cols+%d].n +=1",
-								map_iter_s->first.c_str(), map_iter_b->first.c_str(), 
-								inc_stmt_count-1, j);
-						fprintf(op, ";\n");
-					} else if ( side_stmt->CustomCountExpression() == false
-							&& banner_stmt->CustomCountExpression() == true) {
-						cout << "banner is inc_axstmt" << endl;
-						fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
-								i, j);
-						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(banner_stmt);
-						stringstream code;
-						inc_st_ptr->PrintIncrExpression (op, code);
-						fprintf(op, ";\n");
-					} else if (side_stmt == banner_stmt && 
-							side_stmt->CustomCountExpression() == true) {
-						cout << "  axis by axis -> diagonal table" << endl;
-						// axis by axis -> diagonal table
-						fprintf(op, "\t\t\tcounter[%d*cols+%d]+=",
-								i, j);
-						inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
-						stringstream code;
-						inc_st_ptr->PrintIncrExpression (op, code);
-						fprintf(op, ";\n");
-					} else {
-						print_err(Util::compiler_sem_err, "Error: trying to tabulate inc axis statement with inc axis statement"
-							, line_no, __LINE__, __FILE__);
+				/*
+				fprintf(table_h, "\tvoid compute(){\n");
+				fprintf(table_h, "\t\tfor(int i=0; i<rows; ++i){\n");
+				fprintf(table_h, "\t\t\tfor(int j=0; j<cols; ++j){\n");
+				fprintf(table_h, "\t\t\t\tif(");
+				fprintf(table_h, "ax_%s.flag[i]", map_iter_s->first.c_str());
+				fprintf(table_h, " && " );
+				fprintf(table_h, "ax_%s.flag[j]){\n", map_iter_b->first.c_str());
+				fprintf(table_h, "\t\t\t\t\t++counter[i*cols+j];\n");
+				fprintf(table_h, "\t\t\t\t} \n");
+				fprintf(table_h, "\t\t\t} \n");
+				fprintf(table_h, "\t\t}\n");
+				fprintf(table_h, "\t} \n");
+				*/
+
+				fprintf(table_h, "\tvoid compute(){\n");
+
+				int rows=map_iter_s->second->no_count_ax_elems;
+				int cols=map_iter_b->second->no_count_ax_elems;
+				AbstractCountableAxisStatement* side_stmt=map_iter_s->second->count_ax_stmt_start;
+				int inc_stmt_count=0;
+				for (int i=0; i<rows; ++i) {
+					//cout << "generate_code: i: " << i << endl;
+					AbstractCountableAxisStatement* banner_stmt = map_iter_b->second->count_ax_stmt_start;
+					if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
+						string global_vars_fname_C = work_dir + string("/global.C");
+						FILE * global_vars_C = fopen (global_vars_fname_C.c_str(), "a+b");
+						string global_vars_fname = work_dir + string("/global.h");
+						FILE * global_vars_h = fopen (global_vars_fname.c_str(), "a+b");
+						if (! (global_vars_h||global_vars_C) ) {
+							cerr << "Unable to open file: " << global_vars_fname 
+								<< " or " << global_vars_fname_C
+								<< " for writing ... exiting \n"
+								<< endl;
+							exit(1);
+						}
+						fprintf (global_vars_h, "extern vector<MeanStdDevInc> mean_inc_%s_%s;\n",
+								map_iter_s->first.c_str(), map_iter_b->first.c_str());
+						fprintf (global_vars_C, "vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
+								map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
+						//printf  ("vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
+						//		map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
+						fclose (global_vars_h);
+						fclose (global_vars_C);
+						++inc_stmt_count;
+					}
+					for (int j = 0; j < cols; ++j) {
+						//cout << "generate_code: j: " << j << endl;
+						fprintf(table_h, "\t\tif(");
+						fprintf(table_h, "ax_%s.flag[%d]", map_iter_s->first.c_str(), i);
+						fprintf(table_h, " && " );
+						fprintf(table_h, "ax_%s.flag[%d]){\n", map_iter_b->first.c_str(), j);
+						if (!banner_stmt || ! side_stmt) {
+							// handles the case of fld_stmt
+							fprintf(table_h, "\t\t\t++counter[%d*cols+%d];\n",
+									i, j);
+						} else if(side_stmt->CustomCountExpression() == false
+							&& banner_stmt->CustomCountExpression() == false) {
+							fprintf(table_h, "\t\t\t++counter[%d*cols+%d];\n",
+									i, j);
+						} else if(side_stmt->CustomCountExpression() == true
+							&& banner_stmt->CustomCountExpression() == false) {
+							// cout << "side is inc_axstmt" << endl;
+							// fprintf(table_h, "\t\t\tcounter[%d*cols+%d]+=",
+							// 		i, j);
+							inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
+							//inc_st_ptr->PrintIncrExpression(table_h);
+							//fprintf(table_h, ";\n");
+
+							fprintf(table_h, "\t\t\t mean_inc_%s_%s[%d*cols+%d].sum_n +=",
+									map_iter_s->first.c_str(), map_iter_b->first.c_str(),
+									inc_stmt_count-1, j);
+							//inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
+							stringstream code;
+							inc_st_ptr->PrintIncrExpression (table_h, code);
+							fprintf(table_h, ";\n");
+							fprintf(table_h, "\t\t\t mean_inc_%s_%s[%d*cols+%d].n +=1",
+									map_iter_s->first.c_str(), map_iter_b->first.c_str(), 
+									inc_stmt_count-1, j);
+							fprintf(table_h, ";\n");
+						} else if ( side_stmt->CustomCountExpression() == false
+								&& banner_stmt->CustomCountExpression() == true) {
+							cout << "banner is inc_axstmt" << endl;
+							fprintf(table_h, "\t\t\tcounter[%d*cols+%d]+=",
+									i, j);
+							inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(banner_stmt);
+							stringstream code;
+							inc_st_ptr->PrintIncrExpression (table_h, code);
+							fprintf(table_h, ";\n");
+						} else if (side_stmt == banner_stmt && 
+								side_stmt->CustomCountExpression() == true) {
+							cout << "  axis by axis -> diagonal table" << endl;
+							// axis by axis -> diagonal table
+							fprintf(table_h, "\t\t\tcounter[%d*cols+%d]+=",
+									i, j);
+							inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
+							stringstream code;
+							inc_st_ptr->PrintIncrExpression (table_h, code);
+							fprintf(table_h, ";\n");
+						} else {
+							print_err(Util::compiler_sem_err, "Error: trying to tabulate inc axis statement with inc axis statement"
+								, line_no, __LINE__, __FILE__);
+						}
+						// handles the case of fld_stmt
+						if(banner_stmt)
+							banner_stmt=banner_stmt->next_;
+						fprintf(table_h, "\t\t}\n");
 					}
 					// handles the case of fld_stmt
-					if(banner_stmt)
-						banner_stmt=banner_stmt->next_;
-					fprintf(op, "\t\t}\n");
+					if(side_stmt)
+						side_stmt=side_stmt->next_;
 				}
-				// handles the case of fld_stmt
-				if(side_stmt)
-					side_stmt=side_stmt->next_;
-			}
-			fprintf(op, "\t} \n");
+				fprintf(table_h, "\t} /*  close compute */\n");
 
 
 #if 0
-			ax * side_ax = map_iter_s->second;
-			if( side_ax->ax_stmt_start && side_ax->fld_stmt==0) {
-				fprintf(op, "ax_%s.flag[i]", map_iter_s->first.c_str());
-			} else if ( side_ax->ax_stmt_start==0 && side_ax->fld_stmt) {
-				fprintf(op, "ax_%s.fld_flag[i]", map_iter_s->first.c_str());
-			}
-			fprintf(op, " && " );
-			ax * banner_ax = map_iter_b->second;
-			if( banner_ax->ax_stmt_start && banner_ax->fld_stmt==0) {
-				fprintf(op, "ax_%s.flag[i]){", map_iter_b->first.c_str());
-			} else if ( banner_ax->ax_stmt_start==0 && banner_ax->fld_stmt) {
-				fprintf(op, "ax_%s.fld_flag[i]){", map_iter_b->first.c_str());
-			}
-#endif /* 0 */
-			fprintf(op, "\tvoid print(){\n\t\tint rci=0, cci=0; /* row counter index , col ... */\n");
-			fprintf(op, "\t\tofstream tab_op(\"%s\", ios_base::out|ios_base::app);\n", tab_fname.c_str());
-			fprintf(op, "\t\ttab_op << \"rows\" << \",\" << rows << \",cols\" << \",\" << cols << endl;\n");
-			fprintf(op, "\t\ttab_op << \"\\\"\" << ax_%s.ttl_stmt_text[0] << \"\\\"\" << \",\" <<  \"\\\"\" << ax_%s.ttl_stmt_text[0] << \"\\\"\"  << endl;\n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str()
-					);
-			fprintf(op, "\t\ttab_op << \",,\";\n");
-			fprintf(op, "\t\tfor(int j=0; j<ax_%s.count_stmt_text.size(); ++j){\n", 
-					map_iter_b->first.c_str());
-			fprintf(op, "\t\t\t tab_op << \"\\\"\" << ax_%s.count_stmt_text[j] << \"\\\"\"  << \",\" ;\n", 
-					map_iter_b->first.c_str()); 
-			fprintf(op, "\t\t}\n");
-
-#if 0
-			if( banner_ax->ax_stmt_start && banner_ax->fld_stmt==0) {
-				fprintf(op, "\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n", 
-						map_iter_b->first.c_str());
-				fprintf(op, "\t\t\tif(ax_%s.is_a_count_text[j]){\n", map_iter_b->first.c_str());
-				fprintf(op, "\t\t\t\t tab_op << ax_%s.stmt_text[j] << \",\" ;\n", 
-						map_iter_b->first.c_str()); 
-				fprintf(op, "\t\t\t}\n");
-				fprintf(op, "\t\t}\n");
-			} else if ( banner_ax->ax_stmt_start==0 && banner_ax->fld_stmt) {
-				fprintf(op, "\t\tfor(int j=0; j<ax_%s.bit_stmt_text.size(); ++j){\n", map_iter_b->first.c_str());
-				fprintf(op, "\t\t\t tab_op << ax_%s.bit_stmt_text[j] << \",\" ;\n", 
-						map_iter_b->first.c_str()); 
-				fprintf(op, "\t\t}\n");
-			}
-#endif /* 0 */
-
-			fprintf(op, "\t\ttab_op << endl;\n");
-			fprintf(op, "\t\tint inc_counter=0;\n");
-			fprintf(op, "\t\tfor (int i=0; i<ax_%s.count_stmt_text.size(); ++i) {\n",
-					map_iter_s->first.c_str());
-			fprintf(op, "\t\t\ttab_op << \",\";\n");
-			fprintf(op, "\t\t\tstringstream col_perc_str;\n");
-			fprintf(op, "\t\t\tstringstream row_perc_str;\n");
-			fprintf(op, "\t\t\tcol_perc_str << \",,\";\n");
-			fprintf(op, "\t\t\trow_perc_str << \",,\";\n");
-			fprintf(op, "\t\t\tcci=0;\n");
-			fprintf(op, "\t\t\ttab_op << \"\\\"\" << ax_%s.count_stmt_text[i] << \"\\\"\" << \",\";\n", map_iter_s->first.c_str()); 
-			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
-			fprintf(op, "\t\t\t\t\t++inc_counter;\n");
-			fprintf(op, "\t\t\t\t}\n");
-			fprintf(op, "\t\t\tfor (int j=0; j<ax_%s.count_stmt_text.size(); ++j) {\n",
-				map_iter_b->first.c_str());
-			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::cnt_axstmt) {\n", map_iter_s->first.c_str());
-			fprintf(op, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
-			fprintf(op, "\t\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_s->first.c_str() );
-			fprintf(op, "\t\t\t\t\t\tcol_perc_str << (((double) counter[cci+rci*cols]) / counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) * 100 <<\",\";\n", map_iter_s->first.c_str() );
-			//fprintf(op, "\t\t\t\t\tcol_perc_str << ( counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) <<\",\";\n", map_iter_s->first.c_str() );
-			fprintf(op, "\t\t\t\t\t}\n");
-			fprintf(op, "\t\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_b->first.c_str() );
-			//fprintf(op, "\t\t\t\t\trow_perc_str << ax_%s.tot_elem_pos_vec[0] << \"|\" << ( counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) <<\",\";\n", map_iter_b->first.c_str(), map_iter_b->first.c_str() );
-			fprintf(op, "\t\t\t\t\t\trow_perc_str << (((double) counter[cci+rci*cols]) / counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) * 100 <<\",\";\n", map_iter_b->first.c_str() );
-			fprintf(op, "\t\t\t\t\t}\n");
-			fprintf(op, "\t\t\t\t}\n");
-			fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::tot_axstmt) {\n", map_iter_s->first.c_str());
-			fprintf(op, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
-			fprintf(op, "\t\t\t\t}\n");
-
-			if (map_iter_s->second->no_inc_ax_elems > 0 || 
-						map_iter_b->second->no_inc_ax_elems > 0) {
-				fprintf(op, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
-				fprintf(op, "\t\t\t\t\ttab_op << mean_inc_%s_%s[(inc_counter-1)*cols+cci].sum_n / mean_inc_%s_%s[(inc_counter-1)*cols+cci].n  << \",\";\n", map_iter_s->first.c_str(), map_iter_b->first.c_str(), map_iter_s->first.c_str(), map_iter_b->first.c_str() );
-			fprintf(op, "\t\t\t\t}\n");
-			}
-			fprintf(op, "\t\t\t\t++cci;\n");
-			fprintf(op, "\t\t\t}\n");
-			fprintf(op, "\t\t\t++rci;\n");
-			fprintf(op, "\t\t\ttab_op << endl;\n");
-			fprintf(op, "\t\t\ttab_op << col_perc_str.str() << endl;\n");
-			fprintf(op, "\t\t\ttab_op << row_perc_str.str() << endl;\n");
-			fprintf(op, "\t\t}\n");
-			fprintf(op, "\t\ttab_op << endl;\n");
-			//fprintf(op, "\t\t}\n");
-			fprintf(op, "\t\ttab_op.close();\n");
-			fprintf(op, "\t}\n");
-
-#if 0
-			if( side_ax->ax_stmt_start && side_ax->fld_stmt==0) {
-				fprintf(op, "\t\tfor(int i=1; i<ax_%s.stmt_text.size(); ++i){\n",
-						map_iter_s->first.c_str());
-				fprintf(op, "\t\t\tcci=0;\n");
-				fprintf(op, "\t\t\ttab_op << ax_%s.stmt_text[i] << \",\";\n", map_iter_s->first.c_str()); 
-				fprintf(op, "\t\t\tif(ax_%s.is_a_count_text[i]){\n", map_iter_s->first.c_str());
-				if( banner_ax->ax_stmt_start && banner_ax->fld_stmt==0) {
-					fprintf(op, "//Side is a normal axis, banner is normal\n");
-					fprintf(op, "\t\t\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n",
-						map_iter_b->first.c_str());
-					fprintf(op, "\t\t\t\t\tif(ax_%s.is_a_count_text[j]){\n", map_iter_b->first.c_str());
-					fprintf(op, "\t\t\t\t\t\t//tab_op << \"rci:\" << rci << \"cci:\" << cci << endl;\n");
-					fprintf(op, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
-					fprintf(op, "\t\t\t\t\t\t++cci;\n");
-					fprintf(op, "\t\t\t\t\t}\n");
-					fprintf(op, "\t\t\t\t}\n");
-					fprintf(op, "\t\t\t\t++rci;\n");
-					fprintf(op, "\t\t\t}\n");
-					fprintf(op, "\t\t\ttab_op << endl;\n");
-					fprintf(op, "\t\t}\n");
-					fprintf(op, "\ttab_op.close();\n");
-					fprintf(op, "\t}\n");
-				} else if ( banner_ax->ax_stmt_start==0 && banner_ax ->fld_stmt) {
-					fprintf(op, "//Side is a normal axis, banner is fld\n");
-					fprintf(op, "\t\t\t\tfor(int j=0; j<ax_%s.bit_stmt_text.size(); ++j){\n",
-						map_iter_b->first.c_str());
-					fprintf(op, "\t\t\t\t\t\t//tab_op << \"rci:\" << rci << \"cci:\" << cci << endl;\n");
-					fprintf(op, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
-					fprintf(op, "\t\t\t\t\t\t++cci;\n");
-					fprintf(op, "\t\t\t\t}\n");
-					fprintf(op, "\t\t\t\t++rci;\n");
-					fprintf(op, "\t\t\t}\n");
-					fprintf(op, "\t\t\ttab_op << endl;\n");
-					fprintf(op, "\t\t}\n");
-					fprintf(op, "\ttab_op.close();\n");
-					fprintf(op, "\t}\n");
+				ax * side_ax = map_iter_s->second;
+				if( side_ax->ax_stmt_start && side_ax->fld_stmt==0) {
+					fprintf(table_h, "ax_%s.flag[i]", map_iter_s->first.c_str());
+				} else if ( side_ax->ax_stmt_start==0 && side_ax->fld_stmt) {
+					fprintf(table_h, "ax_%s.fld_flag[i]", map_iter_s->first.c_str());
 				}
-			} else if ( side_ax->ax_stmt_start==0 && side_ax->fld_stmt) {
-				// Neil : Work starts from here
-				// add :fprintf(op, "\t\t\tif(ax_%s.is_a_count_text[i]){\n", map_iter_s->first.c_str());
-				// to the case where not an fld statement
-				fprintf(op, "\t\tfor(int i=1; i<ax_%s.bit_stmt_text.size(); ++i){\n",
-					map_iter_s->first.c_str());
-				fprintf(op, "\t\t\tcci=0;\n");
-				fprintf(op, "\t\t\ttab_op << ax_%s.bit_stmt_text[i] << \",\";\n", 
-						map_iter_s->first.c_str()); 
+				fprintf(table_h, " && " );
+				ax * banner_ax = map_iter_b->second;
 				if( banner_ax->ax_stmt_start && banner_ax->fld_stmt==0) {
-					fprintf(op, "//Side is a fld axis, banner is normal\n");
-					fprintf(op, "\t\t\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n",
-						map_iter_b->first.c_str());
-					fprintf(op, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
-					fprintf(op, "\t\t\t\t\t++cci;\n");
-					fprintf(op, "\t\t\t\t}\n");
+					fprintf(table_h, "ax_%s.flag[i]){", map_iter_b->first.c_str());
 				} else if ( banner_ax->ax_stmt_start==0 && banner_ax->fld_stmt) {
-					fprintf(op, "//Side is a fld axis, banner is fld\n");
-					fprintf(op, "\t\t\t\tfor(int j=0; j<ax_%s.bit_stmt_text.size(); ++j){\n",
-						map_iter_b->first.c_str());
-					fprintf(op, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
-					fprintf(op, "\t\t\t\t\t\t++cci;\n");
-					fprintf(op, "\t\t\t\t\t}\n");
+					fprintf(table_h, "ax_%s.fld_flag[i]){", map_iter_b->first.c_str());
 				}
+#endif /* 0 */
+				fprintf(table_h, "\tvoid print(){\n\t\tint rci=0, cci=0; /* row counter index , col ... */\n");
+				fprintf(table_h, "\t\tofstream tab_op(\"%s\", ios_base::out|ios_base::app);\n", tab_fname.c_str());
+				fprintf(table_h, "\t\ttab_op << \"rows\" << \",\" << rows << \",cols\" << \",\" << cols << endl;\n");
+				fprintf(table_h, "\t\ttab_op << \"\\\"\" << ax_%s.ttl_stmt_text[0] << \"\\\"\" << \",\" <<  \"\\\"\" << ax_%s.ttl_stmt_text[0] << \"\\\"\"  << endl;\n",
+						map_iter_s->first.c_str(), map_iter_b->first.c_str()
+						);
+				fprintf(table_h, "\t\ttab_op << \",,\";\n");
+				fprintf(table_h, "\t\tfor(int j=0; j<ax_%s.count_stmt_text.size(); ++j){\n", 
+						map_iter_b->first.c_str());
+				fprintf(table_h, "\t\t\t tab_op << \"\\\"\" << ax_%s.count_stmt_text[j] << \"\\\"\"  << \",\" ;\n", 
+						map_iter_b->first.c_str()); 
+				fprintf(table_h, "\t\t}\n");
 
-				fprintf(op, "\t\t\t\t++rci;\n");
-				//fprintf(op, "\t\t\t}\n");
-				fprintf(op, "\t\t\ttab_op << endl;\n");
-				fprintf(op, "\t\t}\n");
-				fprintf(op, "\t\ttab_op.close();\n");
-				fprintf(op, "\t}\n");
-
-			}
+#if 0
+				if( banner_ax->ax_stmt_start && banner_ax->fld_stmt==0) {
+					fprintf(table_h, "\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n", 
+							map_iter_b->first.c_str());
+					fprintf(table_h, "\t\t\tif(ax_%s.is_a_count_text[j]){\n", map_iter_b->first.c_str());
+					fprintf(table_h, "\t\t\t\t tab_op << ax_%s.stmt_text[j] << \",\" ;\n", 
+							map_iter_b->first.c_str()); 
+					fprintf(table_h, "\t\t\t}\n");
+					fprintf(table_h, "\t\t}\n");
+				} else if ( banner_ax->ax_stmt_start==0 && banner_ax->fld_stmt) {
+					fprintf(table_h, "\t\tfor(int j=0; j<ax_%s.bit_stmt_text.size(); ++j){\n", map_iter_b->first.c_str());
+					fprintf(table_h, "\t\t\t tab_op << ax_%s.bit_stmt_text[j] << \",\" ;\n", 
+							map_iter_b->first.c_str()); 
+					fprintf(table_h, "\t\t}\n");
+				}
 #endif /* 0 */
 
-			//fprintf(op, "\t\t\tif(ax_%s.is_a_count_text[i]){\n", map_iter_s->first.c_str());
-			//fprintf(op, "\t\t\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n",
-			//		map_iter_b->first.c_str());
-			/*
-			fprintf(op, "\t\t\t\t\tif(ax_%s.is_a_count_text[j]){\n", map_iter_b->first.c_str());
-			fprintf(op, "\t\t\t\t\t\t//tab_op << \"rci:\" << rci << \"cci:\" << cci << endl;\n");
-			fprintf(op, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
-			fprintf(op, "\t\t\t\t\t\t++cci;\n");
-			fprintf(op, "\t\t\t\t\t}\n");
-			*/
+				fprintf(table_h, "\t\ttab_op << endl;\n");
+				fprintf(table_h, "\t\tint inc_counter=0;\n");
+				fprintf(table_h, "\t\tfor (int i=0; i<ax_%s.count_stmt_text.size(); ++i) {\n",
+						map_iter_s->first.c_str());
+				fprintf(table_h, "\t\t\ttab_op << \",\";\n");
+				fprintf(table_h, "\t\t\tstringstream col_perc_str;\n");
+				fprintf(table_h, "\t\t\tstringstream row_perc_str;\n");
+				fprintf(table_h, "\t\t\tcol_perc_str << \",,\";\n");
+				fprintf(table_h, "\t\t\trow_perc_str << \",,\";\n");
+				fprintf(table_h, "\t\t\tcci=0;\n");
+				fprintf(table_h, "\t\t\ttab_op << \"\\\"\" << ax_%s.count_stmt_text[i] << \"\\\"\" << \",\";\n", map_iter_s->first.c_str()); 
+				fprintf(table_h, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
+				fprintf(table_h, "\t\t\t\t\t++inc_counter;\n");
+				fprintf(table_h, "\t\t\t\t}\n");
+				fprintf(table_h, "\t\t\tfor (int j=0; j<ax_%s.count_stmt_text.size(); ++j) {\n",
+					map_iter_b->first.c_str());
+				fprintf(table_h, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::cnt_axstmt) {\n", map_iter_s->first.c_str());
+				fprintf(table_h, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+				fprintf(table_h, "\t\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_s->first.c_str() );
+				fprintf(table_h, "\t\t\t\t\t\tcol_perc_str << (((double) counter[cci+rci*cols]) / counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) * 100 <<\",\";\n", map_iter_s->first.c_str() );
+				//fprintf(table_h, "\t\t\t\t\tcol_perc_str << ( counter[cci+ax_%s.tot_elem_pos_vec[0]*cols]) <<\",\";\n", map_iter_s->first.c_str() );
+				fprintf(table_h, "\t\t\t\t\t}\n");
+				fprintf(table_h, "\t\t\t\t\tif (ax_%s.tot_elem_pos_vec.size()>0) {\n", map_iter_b->first.c_str() );
+				//fprintf(table_h, "\t\t\t\t\trow_perc_str << ax_%s.tot_elem_pos_vec[0] << \"|\" << ( counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) <<\",\";\n", map_iter_b->first.c_str(), map_iter_b->first.c_str() );
+				fprintf(table_h, "\t\t\t\t\t\trow_perc_str << (((double) counter[cci+rci*cols]) / counter[ax_%s.tot_elem_pos_vec[0]+cols*rci]) * 100 <<\",\";\n", map_iter_b->first.c_str() );
+				fprintf(table_h, "\t\t\t\t\t}\n");
+				fprintf(table_h, "\t\t\t\t}\n");
+				fprintf(table_h, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::tot_axstmt) {\n", map_iter_s->first.c_str());
+				fprintf(table_h, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+				fprintf(table_h, "\t\t\t\t}\n");
 
-			/*
-			fprintf(op, "\t\t\t\t}\n");
-			fprintf(op, "\t\t\t\t++rci;\n");
-			fprintf(op, "\t\t\t}\n");
-			fprintf(op, "\t\t\ttab_op << endl;\n");
-			fprintf(op, "\t\t}\n");
-			fprintf(op, "\ttab_op.close();\n");
-			fprintf(op, "\t}\n");
-			*/
+				if (map_iter_s->second->no_inc_ax_elems > 0 || 
+							map_iter_b->second->no_inc_ax_elems > 0) {
+					fprintf(table_h, "\t\t\t\tif (ax_%s.axis_stmt_type_count[rci] == Table::inc_axstmt) {\n", map_iter_s->first.c_str());
+					fprintf(table_h, "\t\t\t\t\ttab_op << mean_inc_%s_%s[(inc_counter-1)*cols+cci].sum_n / mean_inc_%s_%s[(inc_counter-1)*cols+cci].n  << \",\";\n", map_iter_s->first.c_str(), map_iter_b->first.c_str(), map_iter_s->first.c_str(), map_iter_b->first.c_str() );
+				fprintf(table_h, "\t\t\t\t}\n");
+				}
+				fprintf(table_h, "\t\t\t\t++cci;\n");
+				fprintf(table_h, "\t\t\t}\n");
+				fprintf(table_h, "\t\t\t++rci;\n");
+				fprintf(table_h, "\t\t\ttab_op << endl;\n");
+				fprintf(table_h, "\t\t\ttab_op << col_perc_str.str() << endl;\n");
+				fprintf(table_h, "\t\t\ttab_op << row_perc_str.str() << endl;\n");
+				fprintf(table_h, "\t\t}\n");
+				fprintf(table_h, "\t\ttab_op << endl;\n");
+				//fprintf(table_h, "\t\t}\n");
+				fprintf(table_h, "\t\ttab_op.close();\n");
+				fprintf(table_h, "\t} /*  close print */\n");
 
-			//print_latex_print(op, i);
-			fprintf(op, "} tab_%s_%s;\n",
-				map_iter_s->first.c_str(), map_iter_b->first.c_str()
-				);
-			if (map_iter_s->second->filter && map_iter_b->second->filter) {
-				ostringstream code_bef_expr1, code_expr1;
-				map_iter_s->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
-				
-				ostringstream code_bef_expr2, code_expr2;
-				map_iter_b->second->filter->PrintExpressionCode (code_bef_expr2, code_expr2);
-				fprintf (tab_drv_func, "if ( %s && %s ) { \n", code_expr1.str().c_str(), code_expr2.str().c_str());
-				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str()
-					);
-				fprintf (tab_drv_func, "}\n");
-			} else if (map_iter_s->second->filter) {
-				ostringstream code_bef_expr1, code_expr1;
-				map_iter_s->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
-				fprintf (tab_drv_func, "if ( %s ) { \n", code_expr1.str().c_str());
-				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str()
-					);
-				fprintf (tab_drv_func, "}\n");
-			} else if (map_iter_b->second->filter) {
-				ostringstream code_bef_expr1, code_expr1;
-				map_iter_b->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
-				fprintf (tab_drv_func, "if ( %s ) { \n", code_expr1.str().c_str());
-				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str()
-					);
-				fprintf (tab_drv_func, "}\n");
-			} else {
-				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str()
-					);
-			}
+#if 0
+				if( side_ax->ax_stmt_start && side_ax->fld_stmt==0) {
+					fprintf(table_h, "\t\tfor(int i=1; i<ax_%s.stmt_text.size(); ++i){\n",
+							map_iter_s->first.c_str());
+					fprintf(table_h, "\t\t\tcci=0;\n");
+					fprintf(table_h, "\t\t\ttab_op << ax_%s.stmt_text[i] << \",\";\n", map_iter_s->first.c_str()); 
+					fprintf(table_h, "\t\t\tif(ax_%s.is_a_count_text[i]){\n", map_iter_s->first.c_str());
+					if( banner_ax->ax_stmt_start && banner_ax->fld_stmt==0) {
+						fprintf(table_h, "//Side is a normal axis, banner is normal\n");
+						fprintf(table_h, "\t\t\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n",
+							map_iter_b->first.c_str());
+						fprintf(table_h, "\t\t\t\t\tif(ax_%s.is_a_count_text[j]){\n", map_iter_b->first.c_str());
+						fprintf(table_h, "\t\t\t\t\t\t//tab_op << \"rci:\" << rci << \"cci:\" << cci << endl;\n");
+						fprintf(table_h, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+						fprintf(table_h, "\t\t\t\t\t\t++cci;\n");
+						fprintf(table_h, "\t\t\t\t\t}\n");
+						fprintf(table_h, "\t\t\t\t}\n");
+						fprintf(table_h, "\t\t\t\t++rci;\n");
+						fprintf(table_h, "\t\t\t}\n");
+						fprintf(table_h, "\t\t\ttab_op << endl;\n");
+						fprintf(table_h, "\t\t}\n");
+						fprintf(table_h, "\ttab_op.close();\n");
+						fprintf(table_h, "\t}\n");
+					} else if ( banner_ax->ax_stmt_start==0 && banner_ax ->fld_stmt) {
+						fprintf(table_h, "//Side is a normal axis, banner is fld\n");
+						fprintf(table_h, "\t\t\t\tfor(int j=0; j<ax_%s.bit_stmt_text.size(); ++j){\n",
+							map_iter_b->first.c_str());
+						fprintf(table_h, "\t\t\t\t\t\t//tab_op << \"rci:\" << rci << \"cci:\" << cci << endl;\n");
+						fprintf(table_h, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+						fprintf(table_h, "\t\t\t\t\t\t++cci;\n");
+						fprintf(table_h, "\t\t\t\t}\n");
+						fprintf(table_h, "\t\t\t\t++rci;\n");
+						fprintf(table_h, "\t\t\t}\n");
+						fprintf(table_h, "\t\t\ttab_op << endl;\n");
+						fprintf(table_h, "\t\t}\n");
+						fprintf(table_h, "\ttab_op.close();\n");
+						fprintf(table_h, "\t}\n");
+					}
+				} else if ( side_ax->ax_stmt_start==0 && side_ax->fld_stmt) {
+					// Neil : Work starts from here
+					// add :fprintf(table_h, "\t\t\tif(ax_%s.is_a_count_text[i]){\n", map_iter_s->first.c_str());
+					// to the case where not an fld statement
+					fprintf(table_h, "\t\tfor(int i=1; i<ax_%s.bit_stmt_text.size(); ++i){\n",
+						map_iter_s->first.c_str());
+					fprintf(table_h, "\t\t\tcci=0;\n");
+					fprintf(table_h, "\t\t\ttab_op << ax_%s.bit_stmt_text[i] << \",\";\n", 
+							map_iter_s->first.c_str()); 
+					if( banner_ax->ax_stmt_start && banner_ax->fld_stmt==0) {
+						fprintf(table_h, "//Side is a fld axis, banner is normal\n");
+						fprintf(table_h, "\t\t\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n",
+							map_iter_b->first.c_str());
+						fprintf(table_h, "\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+						fprintf(table_h, "\t\t\t\t\t++cci;\n");
+						fprintf(table_h, "\t\t\t\t}\n");
+					} else if ( banner_ax->ax_stmt_start==0 && banner_ax->fld_stmt) {
+						fprintf(table_h, "//Side is a fld axis, banner is fld\n");
+						fprintf(table_h, "\t\t\t\tfor(int j=0; j<ax_%s.bit_stmt_text.size(); ++j){\n",
+							map_iter_b->first.c_str());
+						fprintf(table_h, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+						fprintf(table_h, "\t\t\t\t\t\t++cci;\n");
+						fprintf(table_h, "\t\t\t\t\t}\n");
+					}
+
+					fprintf(table_h, "\t\t\t\t++rci;\n");
+					//fprintf(table_h, "\t\t\t}\n");
+					fprintf(table_h, "\t\t\ttab_op << endl;\n");
+					fprintf(table_h, "\t\t}\n");
+					fprintf(table_h, "\t\ttab_op.close();\n");
+					fprintf(table_h, "\t}\n");
+
+				}
+#endif /* 0 */
+
+				//fprintf(table_h, "\t\t\tif(ax_%s.is_a_count_text[i]){\n", map_iter_s->first.c_str());
+				//fprintf(table_h, "\t\t\t\tfor(int j=0; j<ax_%s.stmt_text.size(); ++j){\n",
+				//		map_iter_b->first.c_str());
+				/*
+				fprintf(table_h, "\t\t\t\t\tif(ax_%s.is_a_count_text[j]){\n", map_iter_b->first.c_str());
+				fprintf(table_h, "\t\t\t\t\t\t//tab_op << \"rci:\" << rci << \"cci:\" << cci << endl;\n");
+				fprintf(table_h, "\t\t\t\t\t\ttab_op << counter[cci+rci*cols]<<\",\";\n");
+				fprintf(table_h, "\t\t\t\t\t\t++cci;\n");
+				fprintf(table_h, "\t\t\t\t\t}\n");
+				*/
+
+				/*
+				fprintf(table_h, "\t\t\t\t}\n");
+				fprintf(table_h, "\t\t\t\t++rci;\n");
+				fprintf(table_h, "\t\t\t}\n");
+				fprintf(table_h, "\t\t\ttab_op << endl;\n");
+				fprintf(table_h, "\t\t}\n");
+				fprintf(table_h, "\ttab_op.close();\n");
+				fprintf(table_h, "\t}\n");
+				*/
+
+				//print_latex_print(table_h, i);
+				fprintf (table_h, "} ;\n");
+				fprintf (table_cpp, "table_%s_%s tab_%s_%s (ax_%s);\n",
+					 map_iter_s->first.c_str(), map_iter_b->first.c_str(),
+					 map_iter_s->first.c_str(), map_iter_b->first.c_str(),
+					 map_iter_s->first.c_str()
+					 );
+				if (map_iter_s->second->filter && map_iter_b->second->filter) {
+					ostringstream code_bef_expr1, code_expr1;
+					map_iter_s->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
+					
+					ostringstream code_bef_expr2, code_expr2;
+					map_iter_b->second->filter->PrintExpressionCode (code_bef_expr2, code_expr2);
+					fprintf (tab_drv_func, "if ( %s && %s ) { \n", code_expr1.str().c_str(), code_expr2.str().c_str());
+					fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+						map_iter_s->first.c_str(), map_iter_b->first.c_str()
+						);
+					fprintf (tab_drv_func, "}\n");
+				} else if (map_iter_s->second->filter) {
+					ostringstream code_bef_expr1, code_expr1;
+					map_iter_s->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
+					fprintf (tab_drv_func, "if ( %s ) { \n", code_expr1.str().c_str());
+					fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+						map_iter_s->first.c_str(), map_iter_b->first.c_str()
+						);
+					fprintf (tab_drv_func, "}\n");
+				} else if (map_iter_b->second->filter) {
+					ostringstream code_bef_expr1, code_expr1;
+					map_iter_b->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
+					fprintf (tab_drv_func, "if ( %s ) { \n", code_expr1.str().c_str());
+					fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+						map_iter_s->first.c_str(), map_iter_b->first.c_str()
+						);
+					fprintf (tab_drv_func, "}\n");
+				} else {
+					fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+						map_iter_s->first.c_str(), map_iter_b->first.c_str()
+						);
+				}
+				}
 		}
 	}
 
@@ -492,7 +515,9 @@ void print_table_code (FILE * op, FILE * tab_drv_func, FILE * tab_summ_func, vec
 		}
 	}
 	fprintf(tab_drv_func, "}\n");
-
+	fprintf(table_h, "#endif /*  MY_TABLE_H */\n");
+	fflush (table_h);
+	fflush (table_cpp);
 }
 
 void print_latex_print(FILE* op, int table_index)
@@ -746,13 +771,13 @@ void print_axes_object_defn_with_constructor (std::stringstream & _cpp, std::str
 		Table::CMAPITER  current_axis_iter,
 		Table::CMAPITER  hint_axis_iter)
 {
-	// note: SIDE EFFECT
 	//if (hint_axis_iter->first == "qc4a") {
 	//	_cpp << "/*  hint axis == qc4a */" << endl;
 	//}
 	//if (current_axis_iter->first == "qc6a_Al_Inma_Bank") {
 	//	_cpp << "/*  current_axis_iter axis == qc6a_Al_Inma_Bank */" << endl;
 	//}
+	// note: SIDE EFFECT
 	current_axis_iter->second->stub_hint_axis = hint_axis_iter->first;
 	//fprintf (op, "/* set stub_hint_axis for: %s to %s: found in stubname_axis_map */\n",
 	//		current_axis_iter->first.c_str(), current_axis_iter->second->stub_hint_axis.c_str()
@@ -874,6 +899,8 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 	//fprintf (axes_h, "using namespace std;\n" );
 	stringstream h_includes, cpp_includes;
 	print_axis_class_includes (h_includes, cpp_includes);
+	fprintf (axes_h, "#ifndef MY_AXES_H\n");
+	fprintf (axes_h, "#define MY_AXES_H\n");
 	fprintf (axes_h, "%s", h_includes.str().c_str());
 
 	fprintf (axes_drv_func, "#include \"global.h\"\n");
@@ -891,7 +918,8 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 			obj_defn << "qb3b_0: stub_hint: " << it->second->stub_hint;
 		}
 
-		if (it->second->stub_hint != string()) {
+		if (it->second->stub_hint != string() && 
+				it->second->stub_hint != string("RangeQuestion") ) {
 			stubname_axis_map_iter 
 				=  stubname_axis_map.find (it->second->stub_hint);
 			if (stubname_axis_map_iter != stubname_axis_map.end()) {
@@ -1142,6 +1170,10 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 			axis_code_str_cpp 
 				<< "\tvoid axis_" 
 				<< it->first
+				<< "::reset(){\n\t\tflag.reset();\n\t}\n";
+			axis_code_str_cpp 
+				<< "\tvoid axis_" 
+				<< it->first
 				<< "::compute(){\n\t\tflag.reset();\n";
 
 			AbstractCountableAxisStatement* iter = it->second->count_ax_stmt_start;
@@ -1257,15 +1289,15 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 				fprintf (axes_drv_func, "/* axis DOES NOT have a filter  */\n");
 				fprintf (axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
 			}
-			string ax_file_h_name = work_dir + string("/ax_") + it->first + string(".h");
-			FILE * ax_file_h = fopen (ax_file_h_name.c_str(), "wb");
-			fprintf (ax_file_h, "%s\n", axis_code_str_h.str().c_str());
-			fclose (ax_file_h);
-			string ax_file_cpp_name = work_dir + string("/ax_") + it->first + string(".cpp");
-			FILE * ax_file_cpp = fopen(ax_file_cpp_name.c_str(), "wb");
-			fprintf (ax_file_cpp, "#include \"ax_%s.h\"\n", it->first.c_str());
-			fprintf (ax_file_cpp, "%s\n", axis_code_str_cpp.str().c_str());
-			fclose (ax_file_cpp);
+			//string ax_file_h_name = work_dir + string("/ax_") + it->first + string(".h");
+			//FILE * ax_file_h = fopen (ax_file_h_name.c_str(), "wb");
+			//fprintf (ax_file_h, "%s\n", axis_code_str_h.str().c_str());
+			//fclose (ax_file_h);
+			//string ax_file_cpp_name = work_dir + string("/ax_") + it->first + string(".cpp");
+			//FILE * ax_file_cpp = fopen (ax_file_cpp_name.c_str(), "wb");
+			//fprintf (ax_file_cpp, "#include \"ax_%s.h\"\n", it->first.c_str());
+			//fprintf (ax_file_cpp, "%s\n", axis_code_str_cpp.str().c_str());
+			//fclose (ax_file_cpp);
 			if (it->second->stub_hint != string()) {
 				stubname_axis_map [it -> second -> stub_hint] = it->first;
 			}
@@ -1274,7 +1306,10 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 		}
 #endif /*  0 */
 	}
-	fprintf(axes_drv_func, "}\n");
+	fprintf (axes_drv_func, "}\n");
+	fprintf (axes_h, "#endif /* MY_AXES_H */\n");
+	fflush (axes_h);
+	fflush (axes_cpp);
 }
 
 
