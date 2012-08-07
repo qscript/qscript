@@ -539,6 +539,33 @@ string print_recode_edit_xtcc_ax (XtccDataFileDiskMap * driver_q, XtccDataFileDi
 			<< combined_ax_data_variable_name << "[0]" << " > 0 ;"
 			<< endl;
 	}
+	NamedStubQuestion * nq2 = dynamic_cast <NamedStubQuestion*> (recode_q->q_);
+	if (nq2) {
+		if (nq2->no_mpn == 1) {
+			ax << nq2->nr_ptr->name
+				<< " mp = 1" 
+				<< ";"
+				<< endl;
+			
+		} else {
+			ax << nq2->nr_ptr->name
+				<< " mp = " << nq2->maxCode_
+				<< ";"
+				<< endl;
+		}
+	} else {
+		if (recode_q->q_->no_mpn == 1) {
+			ax << "RangeQuestion"
+				<< " mp = 1" 
+				<< ";"
+				<< endl;
+		} else {
+			ax << "RangeQuestion"
+				<< " mp = " << recode_q->q_->maxCode_
+				<< ";"
+				<< endl;
+		}
+	}
 
 #if 1
 	ax
@@ -624,7 +651,9 @@ string print_recode_edit_xtcc_ax (XtccDataFileDiskMap * driver_q, XtccDataFileDi
 					<< range[i].second
 					<< "\""
 					<< "; c="
-					<< recode_q->q_->questionName_;
+					//<< recode_q->q_->questionName_;
+					<< combined_ax_data_variable_name << " >="
+#if 0
 				if (recode_q->q_->loop_index_values.size())
 				{
 					for (int i = 0; i< recode_q->q_->loop_index_values.size(); ++i)
@@ -633,8 +662,10 @@ string print_recode_edit_xtcc_ax (XtccDataFileDiskMap * driver_q, XtccDataFileDi
 					}
 				}
 				ax << "_data >= "
+#endif /*  0 */
 					<< range[i].first
 					<< " && "
+#if 0
 					<< recode_q->q_->questionName_;
 				if (recode_q->q_->loop_index_values.size())
 				{
@@ -644,6 +675,8 @@ string print_recode_edit_xtcc_ax (XtccDataFileDiskMap * driver_q, XtccDataFileDi
 					}
 				}
 				ax << "_data <= "
+#endif /*  0 */
+					<< combined_ax_data_variable_name << " <="
 					<< range[i].second
 					<< ";" 
 					<< endl;
@@ -791,15 +824,29 @@ void XtccDataFileDiskMap::print_xtcc_ax2(fstream & xtcc_ax_file, string setup_di
 	}
 	NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_);
 	if (nq) {
-		xtcc_ax_file << nq->nr_ptr->name
-			<< " mp = " << nq->no_mpn
-			<< ";"
-			<< endl;
+		if (q_->no_mpn == 1) {
+			xtcc_ax_file << nq->nr_ptr->name
+				<< " mp = 1" 
+				<< ";"
+				<< endl;
+		} else {
+			xtcc_ax_file << nq->nr_ptr->name
+				<< " mp = " << nq->maxCode_
+				<< ";"
+				<< endl;
+		}
 	} else {
-		xtcc_ax_file << "RangeQuestion"
-			<< " mp = " << q_->no_mpn
-			<< ";"
-			<< endl;
+		if (q_->no_mpn == 1) {
+			xtcc_ax_file << "RangeQuestion"
+				<< " mp = 1" 
+				<< ";"
+				<< endl;
+		} else {
+			xtcc_ax_file << "RangeQuestion"
+				<< " mp = " << q_->maxCode_
+				<< ";"
+				<< endl;
+		}
 	}
 	xtcc_ax_file
 		<< "ttl; " << "\"" << q_->questionName_ 
@@ -1015,7 +1062,7 @@ string print_recode_edit_xtcc_var_defn (XtccDataFileDiskMap * driver_q, XtccData
 	} else {
 		defn
 			<< "_arr["
-			<< recode_q->q_-> no_mpn << "];"
+			<< recode_q->q_-> maxCode_+1 << "];"
 			<< endl;
 	}
 	return defn.str();
