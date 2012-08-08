@@ -690,10 +690,14 @@ void print_constructor_code ( string ax_name,  Table::ax* axis, FILE * op, FILE 
 	constructor_body 
 		//<< "axis_" << ax_name
 		//<< "::axis_" << ax_name
-		<<	":ttl_stmt_text(" << axis->no_tot_ax_elems - axis->no_count_ax_elems
-		<<	    "),count_stmt_text(" << axis->no_count_ax_elems
-		<<	    "), axis_stmt_type_print(" << axis->no_tot_ax_elems - axis->no_count_ax_elems
-		<<	    "), axis_stmt_type_count(" << axis->no_count_ax_elems
+		<<	":ttl_stmt_text (" 
+		//<< 		/* axis->no_tot_ax_elems - axis->no_count_ax_elems */ 
+		<< 		")"
+		<<	    ", count_stmt_text (" << axis->no_count_ax_elems << ")"
+		<<	    ", axis_stmt_type_print (" 
+		//<< 		/* axis->no_tot_ax_elems - axis->no_count_ax_elems */ 
+		<< 		")"
+		<<	    ", axis_stmt_type_count (" << axis->no_count_ax_elems
 		<<	    ") \n";
 
 	{
@@ -712,7 +716,6 @@ void print_constructor_code ( string ax_name,  Table::ax* axis, FILE * op, FILE 
 				<< " (p_"
 				<< it1 -> first
 				<< ")";
-
 		}
 	}
 	//fprintf (op, "{\n");
@@ -758,8 +761,9 @@ void print_constructor_code ( string ax_name,  Table::ax* axis, FILE * op, FILE 
 	}
 #endif /*  0 */
 	constructor_body
-		<< "for (const char ** a_ptr = p_text_ttls; *a_ptr != (char *) 0; ++a_ptr) {\n"
-		<< "\tttl_stmt_text.push_back (string(*a_ptr));\n"
+		<< "\tfor (const char ** a_ptr = p_text_ttls; *a_ptr != (char *) 0; ++a_ptr) {\n"
+		<< "\t\tttl_stmt_text.push_back (string(*a_ptr));\n"
+		<< "\t\taxis_stmt_type_print.push_back (Table::txt_axstmt);\n"
 		<< "\t}\n";
 
 
