@@ -83,10 +83,15 @@ RangeQuestion::~RangeQuestion()
 }
 
 DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
-	: AbstractQuestion(QUESTION_TYPE, 0, 0, 0, l_qno, string(l_qno + "_dummy"), spn, 0
+	: AbstractQuestion(QUESTION_TYPE, 0, 0, 0, l_qno
+			, vector <TextExpression*> () //string(l_qno + "_dummy")
+			, spn, 0
 			   , INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
-{ }
+{ 
+	TextExpression * t_expr = new TextExpression(l_qno + string("dummy"));
+	textExprVec_.push_back (t_expr);
+}
 
 void DummyArrayQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
@@ -112,6 +117,57 @@ bool RangeQuestion::IsValid(int32_t value)
 {
 	return (r_data->exists(value))? true: false;
 }
+
+
+TextExpression::TextExpression(string text)
+	: teType_(TextExpression::simple_text_type), 
+	  text_(text), nameExpr_(0),
+	  naPtr_(0), naIndex_(-1),
+	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
+{ }
+
+TextExpression::TextExpression(Unary2Expression * expr)
+	: teType_(TextExpression::named_attribute_type), 
+	  text_(), nameExpr_(expr),
+	  naPtr_(0), naIndex_(-1),
+	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
+{ }
+// for DummyArrayQuestion
+TextExpression::TextExpression()
+	: teType_(TextExpression::simple_text_type), 
+	  text_(), nameExpr_(0),
+	  naPtr_(0), naIndex_(0),
+	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
+{ }
+
+TextExpression::TextExpression(named_attribute_list * na_ptr, int na_index)
+	: teType_(TextExpression::named_attribute_type),
+	  text_(), nameExpr_(0),
+	  naPtr_(na_ptr), naIndex_(na_index),
+	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
+{ }
+
+TextExpression::TextExpression(AbstractQuestion * q, int code_index)
+	: teType_(TextExpression::question_type),
+	  text_(), nameExpr_(0),
+	  naPtr_(0), naIndex_(0),
+	  pipedQuestion_(q), questionIndexExpr_(0), codeIndex_ (code_index)
+{ }
+
+TextExpression::TextExpression (AbstractQuestion * q, AbstractExpression * expr)
+	: teType_ (TextExpression::question_type), 
+	  text_(), nameExpr_(0),
+	  naPtr_ (0), naIndex_ (-1),
+	  pipedQuestion_ (q), questionIndexExpr_ (expr), codeIndex_ (-1)
+{ }
+
+TextExpression::TextExpression (AbstractQuestion * q)
+	: teType_ (TextExpression::question_type), 
+	  text_(), nameExpr_(0),
+	  naPtr_ (0), naIndex_ (-1),
+	  pipedQuestion_ (q), questionIndexExpr_ (0), codeIndex_ (-1)
+{ }
+
 
 
 void DummyArrayQuestion::GetQuestionNames(vector<string> & question_list
@@ -170,4 +226,16 @@ void  RangeQuestion::GetQuestionNames(vector<string> & question_list,
 	if (next_) {
 		next_->GetQuestionNames(question_list,endStatement);
 	}
+}
+
+
+std::string DummyArrayQuestion::PrintSelectedAnswers()
+{
+	return std::string();
+}
+
+
+std::string DummyArrayQuestion::PrintSelectedAnswers(int code_index)
+{
+	return std::string();
 }

@@ -111,6 +111,7 @@ void init();
 
 vector <string> split_into_smaller_chunks (string s, int chunk_size);
 string print_dynamic_base_text(AbstractQuestion * q, BaseText & base_text);
+void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);
 
 } /* close namespace qtm_data_file */
 

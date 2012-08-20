@@ -20,10 +20,15 @@ struct named_attribute_list: public AbstractStatement
 {
 	string name;
 	vector<string> attribute;
-	struct symtab_ent* symp;
+	struct SymbolTableEntry* symbolTableEntry_;
 
-	named_attribute_list(DataType dt, int32_t lline_no,  string l_name, vector<string> l_attr);
-	void print_stmt_lst(FILE * & fptr);
+	named_attribute_list(DataType dt, int32_t lline_no,  string l_name
+					   , int32_t l_nest_level
+					   , int32_t l_for_nest_level
+					   , vector<string> l_attr);
+	named_attribute_list();
+	virtual ~named_attribute_list();
+	virtual void GenerateCode(StatementCompiledCode & code);
 	private:
 		named_attribute_list& operator=(const named_attribute_list&);
 		named_attribute_list (const named_attribute_list&);

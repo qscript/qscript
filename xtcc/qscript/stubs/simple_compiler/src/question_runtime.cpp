@@ -19,13 +19,13 @@ void Print_DisplayDataUnitVector (WINDOW * stub_list_window,
 	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt , XtccSet& l_r_data
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
 	: AbstractQuestion(this_stmt_type, line_number, 0, 0
-			, l_name, l_q_text
+			, l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes
 			   , l_isStartOfBlock)
 	, r_data(new XtccSet(l_r_data)), displayData_()
@@ -37,14 +37,16 @@ RangeQuestion::RangeQuestion(
 AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no
 	, int32_t l_nest_level, int32_t l_for_nest_level
-	, string l_name, string l_text
+	, string l_name
+	//, string l_text
+	, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
 	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
 	, questionName_(l_name)
-	, questionText_(l_text)
+	, textExprVec_ (text_expr_vec)
 	, questionDiskName_(l_name)
 	, q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
@@ -91,7 +93,7 @@ AbstractQuestion::AbstractQuestion(
 	//! this is only called from the runtime environment
 RangeQuestion::RangeQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text, QuestionType l_q_type
+	, string l_name, vector<TextExpression*> text_expr_vec, QuestionType l_q_type
 	, int32_t l_no_mpn, DataType l_dt,	XtccSet& l_r_data
 	, const vector<int32_t> & l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
@@ -99,7 +101,7 @@ RangeQuestion::RangeQuestion(
 	, bool l_isStartOfBlock
 	):
 	AbstractQuestion(this_stmt_type, line_number, 0, 0
-			, l_name, l_q_text
+			, l_name, text_expr_vec
 			, l_q_type, l_no_mpn, l_dt
 			, l_loop_index_values, l_dummy_array
 		, l_question_attributes, l_isStartOfBlock
@@ -139,7 +141,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				cout << loop_index_values[i]+1 << ".";
 			}
 		}
-		cout << questionText_ << endl << endl;
+		//cout << questionText_ << endl << endl;
+		cout << textExprVec_[0]->text_ << endl << endl;
 		//for(	set<int32_t>::iterator it = displayData_.begin();
 		//		it != displayData_.end(); ++it)
 		for(	vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
@@ -204,7 +207,47 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				len_qno += 1; // for the "."
 			}
 		}
-		mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
+	
+		string question_text;
+		for (int i=0; i<textExprVec_.size(); ++i)
+		{
+			question_text += "<p>";
+			if (textExprVec_[i]->teType_ == TextExpression::simple_text_type)
+			{
+				//stringstream mesg_id;
+				//mesg_id << part_mesg_id.str() << "_" << i;
+				//question_text += WString::tr(mesg_id.str().c_str());
+				question_text += textExprVec_[i]->text_;
+			}
+			else if (textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
+			{
+				//stringstream named_attribute_key;
+				//named_attribute_key << textExprVec_[i]->naPtr_->name;
+				//named_attribute_key << "_" << textExprVec_[i]->naIndex_;
+				//question_text += WString::tr(named_attribute_key.str().c_str());
+				question_text += textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+			}
+			else if (textExprVec_[i]->teType_ == TextExpression::question_type)
+			{
+				if (textExprVec_[i]->codeIndex_ != -1)
+				{
+					question_text += textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(textExprVec_[i]->codeIndex_);
+				}
+				else
+				{
+					question_text += textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+				}
+			}
+			question_text += "</p>";
+		}
+		mvwprintw(question_window, 1, len_qno+1, " %s", question_text.c_str() );
+
+		//for (int i=1; i<textExprVec_.size(); ++i) {
+		//	mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
+		//}	
+
+
+
 		mvwprintw(data_entry_window, 1, 1, " ");
 		wmove(data_entry_window, 1, 1);
 		//wrefresh(question_window);
@@ -299,7 +342,7 @@ AbstractQuestion::AbstractQuestion(
 	DataType l_type, int32_t l_no
 	, int32_t l_nest_level, int32_t l_for_nest_level
 	, string l_name
-	, string l_text
+	, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, const vector<int32_t>& l_loop_index_values
 	, DummyArrayQuestion * l_dummy_array
@@ -308,7 +351,7 @@ AbstractQuestion::AbstractQuestion(
 	)
 	: AbstractStatement(l_type, l_no, l_nest_level, l_for_nest_level)
 	, questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type)
+	, textExprVec_(text_expr_vec), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
@@ -385,7 +428,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 				cout << loop_index_values[i]+1 << ".";
 			}
 		}
-		cout << questionText_ << endl << endl;
+		//cout << questionText_ << endl << endl;
+		cout << "fix me: questionText_" << endl << endl;
 
 		//cout << questionName_ << "." << questionText_ << endl << endl;
 		//vector<stub_pair> vec= *stub_ptr;
@@ -448,7 +492,50 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 		//mvwprintw(question_window,1,1, "%s. %s", questionName_.c_str(), questionText_.c_str() );
 		//wrefresh(question_window);
-		mvwprintw (question_window, 1, len_qno + 1, " %s", questionText_.c_str() );
+		//mvwprintw (question_window, 1, len_qno + 1, " %s", questionText_.c_str() );
+		//mvwprintw(question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
+		//for (int i=1; i<textExprVec_.size(); ++i) {
+		//	mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
+		//}
+	
+		string question_text;
+		for (int i=0; i<textExprVec_.size(); ++i)
+		{
+			question_text += "<p>";
+			if (textExprVec_[i]->teType_ == TextExpression::simple_text_type)
+			{
+				//stringstream mesg_id;
+				//mesg_id << part_mesg_id.str() << "_" << i;
+				//question_text += WString::tr(mesg_id.str().c_str());
+				question_text += textExprVec_[i]->text_;
+			}
+			else if (textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
+			{
+				//stringstream named_attribute_key;
+				//named_attribute_key << textExprVec_[i]->naPtr_->name;
+				//named_attribute_key << "_" << textExprVec_[i]->naIndex_;
+				//question_text += WString::tr(named_attribute_key.str().c_str());
+				question_text += textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+			}
+			else if (textExprVec_[i]->teType_ == TextExpression::question_type)
+			{
+				if (textExprVec_[i]->codeIndex_ != -1)
+				{
+					question_text += textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(textExprVec_[i]->codeIndex_);
+				}
+				else
+				{
+					question_text += textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+				}
+			}
+			question_text += "</p>";
+		}
+		mvwprintw(question_window, 1, len_qno+1, " %s", question_text.c_str() );
+
+		//for (int i=1; i<textExprVec_.size(); ++i) {
+		//	mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
+		//}	
+
 		mvwprintw (data_entry_window, 1, 1, " ");
 		wmove (data_entry_window, 1, 1);
 		update_panels ();
@@ -652,7 +739,7 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 //! only called in the runtime environment
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn
 	// , DataType l_dt , vector<stub_pair>* l_stub_ptr
 	, DataType l_dt, named_range * l_nr_ptr
@@ -663,7 +750,7 @@ NamedStubQuestion::NamedStubQuestion(
 	):
 	AbstractQuestion(this_stmt_type, line_number
 			, 0, 0
-			, l_name, l_q_text,
+			, l_name, text_expr_vec,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes, l_isStartOfBlock
 		)
 	, named_list()
@@ -1130,14 +1217,14 @@ void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, stri
 
 NamedStubQuestion::NamedStubQuestion(
 	DataType this_stmt_type, int32_t line_number
-	, string l_name, string l_q_text
+	, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn
 	, DataType l_dt, named_range * l_nr_ptr
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
 	AbstractQuestion(this_stmt_type, line_number, 0, 0
-			 , l_name, l_q_text
+			 , l_name, text_expr_vec
 			 , l_q_type, l_no_mpn, l_dt, l_question_attributes
 			 , l_isStartOfBlock)
 	, named_list()
@@ -1228,4 +1315,66 @@ string AbstractQuestion::GetResponseForDataFile()
 		question_response << *iter << " ";
 	}
 	return question_response.str();
+}
+
+
+std::string NamedStubQuestion::PrintSelectedAnswers()
+{
+	//return string("hello");
+	//stringstream select_answers_text;
+	std::string select_answers_text;
+	bool first_time = true;
+	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
+			inp_data_iter != input_data.end(); ++inp_data_iter) {
+		stringstream mesg_key;
+		mesg_key << nr_ptr->name << "_" << *inp_data_iter - 1;
+		if (first_time) {
+			//select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
+			cout << "searching for : " << mesg_key.str() << endl;
+			select_answers_text += nr_ptr->stubs[*inp_data_iter-1].stub_text;
+			first_time = false;
+		} else {
+			//select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
+			cout << "searching for : " << mesg_key.str() << endl;
+			select_answers_text += std::string(", ") +  nr_ptr->stubs[*inp_data_iter-1].stub_text;
+		}
+	}
+	//select_answers_text << nr_ptr->stubs[codeIndex_].stub_text;
+	//return select_answers_text.str();
+	return select_answers_text;
+}
+
+
+std::string NamedStubQuestion::PrintSelectedAnswers(int code_index)
+{
+	//return string("hello");
+	std::string select_answers_text;
+	bool first_time = true;
+	//for (set<int32_t>::iterator inp_data_iter = input_data.begin();
+	//		inp_data_iter != input_data.end(); ++inp_data_iter) {
+	//	if (first_time) {
+	//		select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
+	//		first_time = false;
+	//	} else {
+	//		select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
+	//	}
+	//}
+	stringstream mesg_key;
+	mesg_key << nr_ptr->name << "_" << code_index ;
+	return nr_ptr->stubs[code_index].stub_text;
+	//select_answers_text << WString::tr(mesg_key.str());
+	//return select_answers_text.str();
+	//return std::string::tr(mesg_key.str());
+}
+
+
+std::string RangeQuestion::PrintSelectedAnswers()
+{
+	return std::string("hello");
+}
+
+
+std::string RangeQuestion::PrintSelectedAnswers (int code_index)
+{
+	return std::string("hello");
 }

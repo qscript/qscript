@@ -194,7 +194,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
 	fprintf(script, "}\n\n");
-	print_summary_axis(script);
+	//print_summary_axis(script);
 	// 5-apr-2011 , 0:12 (am)
 	// continue from here - put the compute_flat_map_code into
 	// a write data function - commiting this 
@@ -219,7 +219,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_GetQuestionMapEntry(script);
 	print_GetQuestionMapEntryArrayQ(script);
 
-	print_recode_edit_qax (script);
+	//print_recode_edit_qax (script);
 
 	//print_close(script, code.program_code, ncurses_flag);
 

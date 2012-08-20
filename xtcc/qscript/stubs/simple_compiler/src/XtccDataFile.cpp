@@ -571,7 +571,7 @@ string print_recode_edit_xtcc_ax (XtccDataFileDiskMap * driver_q, XtccDataFileDi
 	ax
 		<< "ttl; " << "\"" << recode_q->q_->questionName_ 
 		<< "." 
-		<< recode_q->q_->questionText_ 
+		<< "Fix me" // recode_q->q_->questionText_ 
 		<< ":"
 		<< nq->nr_ptr->stubs[index].stub_text
 		<< "\";" 
@@ -851,7 +851,7 @@ void XtccDataFileDiskMap::print_xtcc_ax2(fstream & xtcc_ax_file, string setup_di
 	xtcc_ax_file
 		<< "ttl; " << "\"" << q_->questionName_ 
 		<< "." 
-		<< q_->questionText_ 
+		<< "Fix me" // q_->questionText_ 
 		<< "\";" 
 		<< endl << endl;
 	if (nq) {
@@ -1193,7 +1193,7 @@ void XtccDataFileDiskMap::print_xtcc_ax (fstream & xtcc_ax_file,
 	xtcc_ax_file << ";" << endl
 		<< "ttl; " << "\"" << q_->questionName_ 
 		<< "." 
-		<< q_->questionText_ 
+		<< "Fix me" //q_->questionText_ 
 		<< "\";" 
 		<< endl << endl;
 	xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;

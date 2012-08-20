@@ -641,6 +641,19 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			//operand_->PrintExpressionCode(code);
 			//code.code_expr << "]->input_data.begin())";
 		}
+		else if (type_ == NAMED_ATTRIBUTE_TYPE) {
+			//ExpressionCompiledCode code1;
+			//operand_->PrintExpressionCode(code1);
+			//code.code_bef_expr << code1.code_bef_expr.str()
+			//		   << code1.code_expr.str();
+
+			//code.code_expr << symbolTableEntry_->name_ << ".attribute[";
+			//operand_->PrintExpressionCode(code);
+			//code.code_expr << "]";
+
+			code.code_expr << "&" << symbolTableEntry_->name_ << ", ";
+			operand_->PrintExpressionCode(code);
+		}
 	}
 		break;
 
@@ -1161,7 +1174,12 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 			}
 		}
 		DataType l_e_type = arr_index->type_;
-		if (is_of_int_type(l_e_type)){
+		if (se->type_ == NAMED_ATTRIBUTE_TYPE) {
+			std::stringstream mesg;
+			mesg << "We need to put a bounds check on the indexing expression -> esp if it is a simple variable like i" << "\n";
+			LOG_MAINTAINER_MESSAGE(mesg.str());
+			type_ = NAMED_ATTRIBUTE_TYPE;
+		} else  if (is_of_int_type(l_e_type)){
 			DataType nametype =arr_deref_type(se->type_);
 			if (nametype == ERROR_TYPE) {
 				std::stringstream s;

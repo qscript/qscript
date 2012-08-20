@@ -19,24 +19,54 @@
 #include <iostream>
 #include <string>
 #include "stmt.h"
+#include "expr.h"
 #include "compiled_code.h"
 #include "curses_namespace.h"
 #include "qscript_debug.h"
 #include "display_data.h"
 #include "QuestionAttributes.h"
 #include "UserResponse.h"
+#include "named_attributes.h"
 
 using std::ostringstream;
 using std::ofstream;
 struct named_range;
 struct DummyArrayQuestion;
 
+	struct TextExpression
+	{
+		enum TextExpressionType {
+			simple_text_type, named_attribute_type, question_type
+		};
+		TextExpressionType teType_;
+
+		string text_;
+		Unary2Expression * nameExpr_;
+		named_attribute_list* naPtr_;
+		int32_t naIndex_;
+
+		AbstractQuestion * pipedQuestion_;
+		AbstractExpression * questionIndexExpr_;
+		int32_t codeIndex_;
+		TextExpression(string text);
+		TextExpression(Unary2Expression * expr );
+		TextExpression(named_attribute_list * na_ptr, int na_index);
+		TextExpression(AbstractQuestion * q, AbstractExpression * expr);
+		TextExpression(AbstractQuestion * q, int code_index);
+		TextExpression (AbstractQuestion * q);
+		TextExpression(); // for DummyArrayQuestion
+	private:
+		TextExpression& operator=(const TextExpression&);
+		TextExpression (const TextExpression&);
+	};
+
 
 //! The AbstractQuestion pure virtual base class - inherits from AbstractStatement
 struct AbstractQuestion: public AbstractStatement
 {
 	string questionName_;
-	string questionText_;
+	//string questionText_;
+	vector <TextExpression*> textExprVec_;
 	string questionDiskName_;
 	QuestionType q_type;
 	int32_t no_mpn;
@@ -61,7 +91,7 @@ struct AbstractQuestion: public AbstractStatement
 	AbstractQuestion(
 		DataType l_type, int32_t l_no
 		, int32_t l_nest_level, int32_t l_for_nest_level
-		, string l_name, string l_text
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
@@ -73,7 +103,7 @@ struct AbstractQuestion: public AbstractStatement
 	AbstractQuestion(
 		DataType l_type, int32_t l_no
 		, int32_t l_nest_level, int32_t l_for_nest_level
-		, string l_name, string l_text
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
@@ -82,7 +112,7 @@ struct AbstractQuestion: public AbstractStatement
 	AbstractQuestion(
 		DataType l_type,int32_t l_no
 		, int32_t l_nest_level, int32_t l_for_nest_level
-		, string l_name, string l_text
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
@@ -94,7 +124,7 @@ struct AbstractQuestion: public AbstractStatement
 	AbstractQuestion(
 		DataType l_type, int32_t l_no
 		, int32_t l_nest_level, int32_t l_for_nest_level
-		, string l_name, string l_text
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn , DataType l_dt
 		, const vector<int32_t>& l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
@@ -163,6 +193,9 @@ struct AbstractQuestion: public AbstractStatement
 	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
 	int32_t GetMaxCode();
 	bool VerifyQuestionIntegrity();
+	virtual std::string PrintSelectedAnswers()=0;
+	virtual std::string PrintSelectedAnswers(int code_index)=0;
+
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
@@ -187,7 +220,7 @@ struct RangeQuestion: public AbstractQuestion
 		DataType this_stmt_type, int32_t line_number
 		, int32_t l_nest_level, int32_t l_for_nest_level
 		, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
@@ -198,7 +231,7 @@ struct RangeQuestion: public AbstractQuestion
 	//! this is only called in the runtime environment
 	RangeQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
@@ -209,7 +242,7 @@ struct RangeQuestion: public AbstractQuestion
 		DataType this_stmt_type, int32_t line_number
 		, int32_t l_nest_level, int32_t l_for_nest_level
 		, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
@@ -219,7 +252,7 @@ struct RangeQuestion: public AbstractQuestion
 	//! this is only called in the runtime environment
 	RangeQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, XtccSet& l_r_data
 		, const vector<int32_t> & l_loop_index_values
 		, DummyArrayQuestion * l_dummy_array
@@ -244,6 +277,9 @@ struct RangeQuestion: public AbstractQuestion
 			       AbstractStatement* endStatement);
 
 	~RangeQuestion();
+	std::string PrintSelectedAnswers();
+	std::string PrintSelectedAnswers(int code_index);
+
 	private:
 		RangeQuestion& operator=(const RangeQuestion&);
 		RangeQuestion (const RangeQuestion&);
@@ -274,7 +310,7 @@ class NamedStubQuestion: public AbstractQuestion
 		DataType this_stmt_type, int32_t line_number
 		, int32_t l_nest_level, int32_t l_for_nest_level
 		, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
 		, CompoundStatement * l_enclosing_scope
@@ -286,7 +322,7 @@ class NamedStubQuestion: public AbstractQuestion
 		DataType this_stmt_type, int32_t line_number
 		, int32_t l_nest_level, int32_t l_for_nest_level
 		, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, CompoundStatement * l_enclosing_scope
 		, vector<ActiveVariableInfo* > l_av_info
@@ -295,7 +331,7 @@ class NamedStubQuestion: public AbstractQuestion
 
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		, DataType l_dt, named_range * l_nr_ptr
 		, vector<AbstractExpression*>& l_for_bounds_stack
@@ -304,7 +340,7 @@ class NamedStubQuestion: public AbstractQuestion
 		);
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number
-		, string l_name , string l_q_text
+		, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn
 		, DataType l_dt, named_range * l_nr_ptr
 		, QuestionAttributes  l_question_attributes
@@ -313,7 +349,7 @@ class NamedStubQuestion: public AbstractQuestion
 	//! only called in the runtime environment
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
-		, string l_q_text, QuestionType l_q_type, int32_t l_no_mpn
+		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
 		//, DataType l_dt, vector<stub_pair> * l_stub_ptr
 		, DataType l_dt, named_range * l_nr_ptr
 		, const vector<int32_t> & l_loop_index_values
@@ -346,6 +382,9 @@ class NamedStubQuestion: public AbstractQuestion
 				     , /*qs_ncurses::*/WINDOW* stub_list_window
 				     , /*qs_ncurses::*/WINDOW* data_entry_window
 				     , WINDOW * error_msg_window);
+	std::string PrintSelectedAnswers();
+	std::string PrintSelectedAnswers(int code_index);
+
 
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
@@ -372,6 +411,8 @@ class DummyArrayQuestion: public AbstractQuestion{
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode){}
 	void GetQuestionNames(vector<string> & question_list
 			      , AbstractStatement* endStatement);
+	std::string PrintSelectedAnswers();
+	std::string PrintSelectedAnswers(int code_index);
 
 	private:
 		DummyArrayQuestion& operator=(const DummyArrayQuestion&);

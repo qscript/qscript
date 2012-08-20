@@ -6,11 +6,48 @@ using std::endl;
 
 named_attribute_list::named_attribute_list(DataType dt, int32_t lline_no
 					   , string l_name
+					   , int32_t l_nest_level
+					   , int32_t l_for_nest_level
 					   , vector<string> l_attr)
-	: AbstractStatement(dt, lline_no, 0, 0)
-	, name(l_name), attribute(l_attr), symp(0)
+	: AbstractStatement(dt, lline_no, l_nest_level, l_for_nest_level)
+	, name(l_name), attribute(l_attr), symbolTableEntry_(0)
 { }
-void print_stmt_lst(FILE * & fptr)
+
+named_attribute_list::named_attribute_list()
+	: AbstractStatement(NAMED_ATTRIBUTE_TYPE, 0, -1, -1)
+	, name(), attribute(), symbolTableEntry_(0)
+{ }
+
+named_attribute_list::~named_attribute_list()
+{ }
+
+void named_attribute_list::GenerateCode(StatementCompiledCode & code)
 {
-	cout << "named_attribute_list: not yet implemented" << endl;
+	code.program_code << "/* "
+		<< __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ 
+		<< "*/" << endl;
+	code.quest_defns << "named_attribute_list " 
+		<<  name << ";\n";
+	code.quest_defns_init_code
+		<< name << ".name = \"" << name << "\";\n";
+	for (int i=0; i<attribute.size(); ++i) {
+		code.quest_defns_init_code 
+			<<  name << ".attribute.push_back (string(\"" << attribute[i]
+				<< "\"));\n";
+	}
+#if 0
+	code.quest_defns_init_code
+		<< "\tif (write_messages_flag) {\n"
+		<< "\tfor (int i=0; i<"
+		<< name << ".attribute.size(); ++i) {\n"
+		<< "\tmessages << \"<message id=\\\"\" << \"" << name  << "\" << \"_\" << i << \"\\\">\""
+		<<	" << "
+		<< name
+		<< ".attribute[i] << \"</message>\\n\" << endl;\n"
+		<< "\t}\n"
+		<< "}\n";
+#endif /*  0 */
+	if (next_) {
+		next_->GenerateCode(code);
+	}
 }

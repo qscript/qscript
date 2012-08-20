@@ -80,7 +80,7 @@ void LatexDocument::package(std::ostream &os, int i, int j)
 			os << "\\textcolor{red}{" 
 				<< safe(qv[k]->questionName_) 
 				<< "} & \\textcolor{blue}{" 
-				<< safe(qv[k]->questionText_) 
+				//<< safe(qv[k]->questionText_) 
 				<< "}\\\\\n";
 		}
 		os << "\\end{tabulary}\n"
@@ -161,7 +161,7 @@ void LatexDocument::package(std::ostream &os, int i, int j)
 			os << "\\textcolor{red}{" 
 				<< safe(qv[k]->questionName_) 
 				<< "} & \\textcolor{blue}{" 
-				<< safe(qv[k]->questionText_) 
+				//<< safe(qv[k]->questionText_) 
 				<< "}\\\\\n";
 		}
 		os << "\\end{tabulary}\n"

@@ -39,6 +39,8 @@
 #include "scope.h"
 #include "question.h"
 #include "qscript_debug.h"
+#include "named_attributes.h"
+
 //using namespace std;
 using std::cerr;
 using std::endl;
@@ -268,6 +270,31 @@ AbstractStatement* Scope::insert(const char * name, DataType dt, XtccSet *lxs)
 	return st_ptr;
 }
 
+AbstractStatement* Scope::insert(const char * name, DataType dt, int l_line_no
+		, int32_t l_nest_level
+		, int32_t l_for_nest_level
+		, vector<string> l_vec_named_attribute_list)
+{
+	named_attribute_list * na = new named_attribute_list
+			(NAMED_ATTRIBUTE_TYPE, l_line_no, name
+			 , l_nest_level
+			 , l_for_nest_level
+			 , l_vec_named_attribute_list);
+	if ( SymbolTable.find(name) == SymbolTable.end() ){
+
+		SymbolTableEntry* se = new SymbolTableEntry(name, dt, na);
+		string s(name);
+		SymbolTable[s] = se;
+		//na->type_ = dt;
+		na->symbolTableEntry_ = se;
+	} else {
+		stringstream s;
+		s << " IDENTIFIER: " << name << "  already present in symbol table" << endl;
+		print_err(compiler_sem_err, s.str(), line_no, __LINE__, __FILE__);
+		na->type_ = ERROR_TYPE;
+	}
+	return na;
+}
 Scope::~Scope()
 {
 	debug_log_file <<"deleting Scope" << endl;

@@ -809,7 +809,7 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 	}
 #endif /* 0 */
 	const int TEXT_LEN_BREAK_AT = 120;
-	vector <string> smaller_ttls = split_into_smaller_chunks (q->questionText_, TEXT_LEN_BREAK_AT);
+	vector <string> smaller_ttls = split_into_smaller_chunks ("Fix me"/* q->questionText_ */, TEXT_LEN_BREAK_AT);
 	stringstream ttl_string;
 	for (int i=0; i<smaller_ttls.size(); ++i) {
 		ttl_string << smaller_ttls[i];
@@ -1557,4 +1557,567 @@ void QtmFileCharacteristics::Initialize()
 	qtm_data_file_writer_log << "cardDataStartAt_: " << cardDataStartAt_ << endl;
 }
 
+enum SummaryTableType { TOP_BOX, TOP_2_BOX, TOP_3_BOX, BOT_BOX, BOT_2_BOX, BOT_3_BOX, MN };
+
+string print_summary_axis_helpers_helper (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
+		, fstream & qtm_qax_file, int scale
+		, string include_file_name
+		, string mean_score_include_file
+		, SummaryTableType sm_type
+		)
+{
+	stringstream result;
+
+	stringstream range_string;
+	if (scale == 5 && sm_type == TOP_BOX) {
+		range_string << "5";
+		
+	}
+
+	AbstractQuestion * q = v[0]->q;
+	result << "/* summary table for: " << v[0]->q->questionName_ << endl;
+	result << "l " << q->questionName_ << "_top" << endl;
+	result << "ttl" << q->questionName_ << "." 
+		//<< v[0]->q->questionText_
+		<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+		<< ", " << __PRETTY_FUNCTION__ 
+		<< " - Summary of Top Box" << endl;
+	result << "*include base.qin;btxt=All Respondents" << endl;
+	for (int i=0; i<v.size(); ++i) {
+		result << "*include " << include_file_name
+			<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+			<< ";myrange=(" << range_string.str() << ")"
+			<< endl;
+	}
+	return result.str();
+
+}
+
+void print_summary_axis_helper (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
+		, fstream & qtm_qax_file, int scale
+		, string include_file_name
+		, string mean_score_include_file
+		)
+{
+	if (scale == 5)
+	{
+
+#if 0
+		qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+		qtm_qax_file << "l " << q->questionName_ << "_top" << endl;
+		qtm_qax_file << "ttl" << q->questionName_ << "." 
+			<< v[0]->q->questionText_
+			<< " - Summary of Top Box" << endl;
+		qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+		for (int i=0; i<v.size(); ++i) {
+			qtm_qax_file << "*include " << include_file_name
+				<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+				<< ";myrange=(" << 5 << ")"
+				<< endl;
+		}
+#endif /*  0 */
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, TOP_BOX);
+#if 0
+		qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+		qtm_qax_file << "l " << q->questionName_ << "_top2" << endl;
+		qtm_qax_file << "ttl" << q->questionName_ << "." 
+			<< v[0]->q->questionText_ 
+			<< " - Summary of Top 2 Box" << endl ;
+		qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+		for (int i=0; i<v.size(); ++i) {
+			qtm_qax_file << "*include " << include_file_name
+				<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+				<< ";myrange=(" << 5 << ", " << 4 << ")"
+				<< endl;
+		}
+
+
+		qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+		qtm_qax_file << "l " << q->questionName_ << "_bot" << endl;
+		qtm_qax_file << "ttl" << q->questionName_ 
+			<< "." << v[0]->q->questionText_ 
+			<< " - Summary of Bottom Box" << endl;
+		qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+		for (int i=0; i<v.size(); ++i) {
+			qtm_qax_file << "*include " << include_file_name
+				<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+				<< ";myrange=(" << 1 << ")"
+				<< endl;
+		}
+
+		qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+		qtm_qax_file << "l " << q->questionName_ << "_bot2" << endl;
+		qtm_qax_file << "ttl" << q->questionName_ << "." 
+			<< v[0]->q->questionText_ 
+			<< " - Summary of Bottom 2 Box" << endl;
+		qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+		for (int i=0; i<v.size(); ++i) {
+			qtm_qax_file << "*include " << include_file_name
+				<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+				<< ";myrange=(" << 1 << ", " << 2 << ")"
+				<< endl;
+		}
+
+		qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+		qtm_qax_file << "l " << q->questionName_ << "_mn" << endl;
+		qtm_qax_file << "ttl" << q->questionName_ << "." 
+			<< v[0]->q->questionText_ 
+			<< " - Summary of Means" << endl;
+		qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+		for (int i=0; i<v.size(); ++i) {
+			qtm_qax_file << "*include " << mean_score_include_file
+				<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+				<< ";myrange=(" << 1 << ":" << 5 << ")"
+				<< endl;
+		}
+		qtm_qax_file << endl;
+#endif /*  0 */
+	}
+
+}
+
+void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, fstream & qtm_qax_file
+		)
+{
+	AbstractQuestion * q = v[0]->q;
+	if (q->q_type == spn) {
+		int n_digits = 0;
+		int rat_scale = 0;
+		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+			if (n_q->nr_ptr) {
+				string & stub_name = n_q->nr_ptr->name;
+				int multiplier = 1;
+				for (int i=stub_name.length()-1; i>0; --i) {
+					if ( isdigit(stub_name[i]) ) {
+						int c = stub_name[i] - '0';
+						++n_digits;
+						rat_scale = rat_scale + c * multiplier;
+						multiplier *= 10;
+					} else {
+						break;
+					}
+				}
+			}
+		}
+		if (n_digits > 0) {
+			string include_file_name;
+			string mean_score_include_file;
+			if (v[0]->width_ == 1) {
+				include_file_name = "rat1c.qin";
+				mean_score_include_file = "mn1c.qin";
+			} else if (v[0]->width_ == 2) {
+				include_file_name = "rat2c.qin";
+				mean_score_include_file = "mn2c.qin";
+			} else if (v[0]->width_ == 3) {
+				include_file_name = "rat3c.qin";
+				mean_score_include_file = "mn3c.qin";
+			} else {
+				include_file_name = "unhandled width syntax error";
+				mean_score_include_file = "unhandled width syntax error";
+			}
+			print_summary_axis_helper (v
+				, qtm_qax_file, rat_scale
+				, include_file_name
+				, mean_score_include_file);
+
+#if 0
+			if (rat_scale == 5) {
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_top" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_<< " - Summary of Top Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 5 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_top2" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 2 Box" << endl ;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 5 << ", " << 4 << ")"
+						<< endl;
+				}
+
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_bot" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_bot2" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 2 Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ", " << 2 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_mn" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Means" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << mean_score_include_file
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ":" << 5 << ")"
+						<< endl;
+				}
+			qtm_qax_file << endl;
+			}
+			else if (rat_scale == 7) {
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_top" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 7 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_top2" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 2 Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 7 << ", " << 6 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_top3" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 3 Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 5 << ":" << 7 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_bot" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ <<  " - Summary of Bottom Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_bot2" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 2 Box" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ", " << 2 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_mn" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Means" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << mean_score_include_file
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ":" << 7 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_bot3" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 3 Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ":" << 3 << ")"
+						<< endl;
+				}
+
+			}
+			else if (rat_scale == 10) {
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_top" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top Box"<< endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 10 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_top2" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 2 Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 10 << ", " << 9 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_top3" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 3 Box" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 8 << ":" << 10 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_bot" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_bot2" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 2 Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ", " << 2 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_mn" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Means" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << mean_score_include_file
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ":" << 10 << ")"
+						<< endl;
+				}
+
+				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+				qtm_qax_file << "l " << q->questionName_ << "_bot3" << endl;
+				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 3 Box" << endl;
+				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
+				for (int i=0; i<v.size(); ++i) {
+					qtm_qax_file << "*include " << include_file_name
+						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+						<< ";myrange=(" << 1 << ":" << 3 << ")"
+						<< endl;
+				}
+
+			}
+#endif /*  0 */
+		} else {
+			qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
+			qtm_qax_file << "/*l " << q->questionName_ << "_sum" << endl;
+			qtm_qax_file << "/*ttl" << q->questionName_ << "." 
+				//<< v[0]->q->questionText_ 
+				<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+				<< ", " << __PRETTY_FUNCTION__ 
+				<< endl;
+			for (int i=0; i<v.size(); ++i) {
+				qtm_qax_file << "/**include summ.qin;qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 << endl;
+			}
+		}
+	}
+	cout << endl;
+}
+
+//" There is a lot of code duplication between print_recode_edit_qax and 
+// function (QtmDataDiskMap::print_qax) . This duplicated code has to be re-visited and normalized" << endl;
+string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int index
+		, string jno)
+{
+	stringstream ax;
+	string setup_dir( string("setup-") + jno + string ("/"));
+	NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (driver_q->q);
+	if (nq) {
+		const int TEXT_LEN_BREAK_AT = 120;
+		vector <string> smaller_ttls = qtm_data_file_ns::split_into_smaller_chunks (
+				//recode_q->q->questionText_
+				 "FIX me dummy questionText_ " 
+				, TEXT_LEN_BREAK_AT);
+		stringstream ttl_string;
+		for (int i=0; i<smaller_ttls.size(); ++i) {
+			ttl_string << smaller_ttls[i];
+		}
+		if (recode_q->q->loop_index_values.size() > 0) {
+			stringstream l_base_text;
+			if (recode_q->baseText_.isDynamicBaseText_ == false) {
+				l_base_text << recode_q->baseText_.baseText_ ;
+			} else {
+				l_base_text << qtm_data_file_ns::print_dynamic_base_text (recode_q->q, recode_q->baseText_);
+			}
+			l_base_text << " who use : " << nq->nr_ptr->stubs[index].stub_text << endl;
+			if (recode_q->q->loop_index_values.size()==1) {
+				ax << "*include " << "r_" << recode_q->q->questionName_ 
+					<<".qax"
+					<<";qlno=" << recode_q->q->loop_index_values[0] << ";var_name=" << recode_q->q->questionName_ ;
+					for (int i2=0; i2 < recode_q->q->loop_index_values.size(); ++i2) {
+						 ax << "_" << recode_q->q->loop_index_values[i2];
+						}
+ 				ax << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name()
+					<<";col(a)=" << 1
+					<<";qat1t=&a" << recode_q->q->loop_index_values[0] <<"t;att1t=;qat2t=;att2t=/*;"
+					<<"\n+btxt=" << l_base_text.str()
+					<< endl
+					<< endl;
+			} else {
+				ax <<"*include r_" << recode_q->q->questionName_
+					<<".qax"
+					<<";col(a)=" << recode_q->q->loop_index_values[0] + 1
+					<<";qlno=" << recode_q->q->loop_index_values[0] <<"_" << recode_q->q->loop_index_values[1] << ";var_name="  << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name()
+					<<";qat1t=&a" << recode_q->q->loop_index_values[0] <<"t;att1t="
+					<<";qat2t=&b" << recode_q->q->loop_index_values[0] <<"t;att2t=" << endl
+					<<"\n+btxt = " << l_base_text.str()
+					<< endl
+					<< endl;
+			}
+	
+			bool is_1st_iter = true;
+			for (int32_t i=0; i<recode_q->q->loop_index_values.size(); ++i) {
+				if (recode_q->q->loop_index_values[i] != 0) {
+					is_1st_iter = false;
+					break;
+				}
+			}
+			if (is_1st_iter == true) {
+				// make questionName_ . qax file
+				stringstream qax_fname;
+				qax_fname << setup_dir <<"";
+				qax_fname << "r_" << recode_q->q->questionName_ <<".qax";
+				fstream ax(qax_fname.str().c_str(), std::ios_base::out | std::ios_base::trunc);
+				ax <<"l " << recode_q->q->questionName_ <<"_&qlno;c=&var_name(a0";
+				if (recode_q->width_>0) {
+					ax <<",a" << recode_q->width_-1 ;
+				} 
+				ax <<") u $ $" << endl;
+				ax <<"*include qttl.qin;" 
+					<< ttl_string.str() << endl
+					<<"*include base.qin" << endl;
+	
+				if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(recode_q->q)) {
+					recode_q->print_qin(setup_dir, "&var_name");
+					if (n_q->nr_ptr) {
+						if (n_q->no_mpn>1) {
+							ax <<"*include r_" << n_q->nr_ptr->name <<".min"
+							<< endl;
+						} else {
+							ax <<"*include r_" << n_q->nr_ptr->name <<".sin"
+							<< endl;
+						}
+					}
+				} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(recode_q->q)) {
+					ax <<"*include " << "r_" << recode_q->q->questionName_ <<".qin"
+						<< endl;
+					stringstream fname;
+					fname << setup_dir << "r_" << recode_q->q->questionName_ <<".qin";
+					fstream qtm_include_file (fname.str().c_str(), 
+							std::ios_base::out | std::ios_base::trunc);
+					if (recode_q->width_ == 1) {
+						qtm_include_file <<"val &var_name(a0);i;" 
+							<< endl;
+					} else {
+						qtm_include_file <<"val &var_name(a0"
+							<<"" << recode_q->width_ - 1 <<");i;" 
+							<< endl;
+					}
+				}
+					
+			}
+		} else {
+			ax << "l ";
+			ax << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name();
+			ax << "; c=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << "(1, "<< recode_q->totalLength_ << ") u $ $\n"
+				<< endl;
+			ax << "*include qttl.qin;qno=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";";
+	
+	
+			ax << ttl_string.str();
+	
+			ax << "+q1att=;att1t=/*" << endl;
+			ax << "+q2att=;att2t=/*" << endl;
+	
+			if (recode_q->baseText_.isDynamicBaseText_ == false) {
+				ax <<"*include base.qin;btxt=" << recode_q->baseText_.baseText_ << " who use : " << nq->nr_ptr->stubs[index].stub_text << endl;
+			} else {
+				ax <<"*include base.qin;btxt= Unexpected case non-array questions should not have dynamicBaseQuestion_ : 3548, src/qscript_parser.cpp, void qscript_parser::print_recode_edit_qax(FILE*) ";
+			}
+	
+			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(recode_q->q)) {
+				recode_q->print_qin (setup_dir, "&var_name");
+				if (n_q->nr_ptr) {
+					if (n_q->no_mpn>1) {
+						ax <<"*include r_" << n_q->nr_ptr->name <<".min;"
+						<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
+						<< endl;
+					} else {
+						ax <<"*include r_" << n_q->nr_ptr->name <<".sin;"
+						<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
+						<< endl;
+					}
+				}
+			} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(recode_q->q)) {
+				ax <<"*include r_" << recode_q->q->questionName_ <<".qin;"
+					<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
+					<<""
+					<< endl;
+				stringstream fname;
+				fname << setup_dir << "r_" << recode_q->q->questionName_ <<".qin;";
+				fstream qtm_include_file (fname.str().c_str(), 
+						std::ios_base::out | std::ios_base::trunc);
+				if (recode_q->width_ == 1) {
+					qtm_include_file <<"val &var_name(a0);i;" 
+						<< endl;
+				} else {
+					qtm_include_file <<"val &var_name(a0"
+						<<"" << recode_q->width_ - 1 <<");i;" 
+						<< endl;
+				}
+			}
+	
+			ax << endl;
+		}
+	} else {
+		ax << " driver question does not have named stubs, this should be an input file error" << endl;
+	}
+	return ax.str();
+}
+ 
 }
