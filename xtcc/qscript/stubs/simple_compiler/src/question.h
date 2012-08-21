@@ -195,6 +195,9 @@ struct AbstractQuestion: public AbstractStatement
 	bool VerifyQuestionIntegrity();
 	virtual std::string PrintSelectedAnswers()=0;
 	virtual std::string PrintSelectedAnswers(int code_index)=0;
+	string PrepareQuestionTitle();
+	string AxPrepareQuestionTitle();
+	string getNamedAttributeText();
 
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);

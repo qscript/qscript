@@ -111,6 +111,43 @@ RangeQuestion::RangeQuestion(
 	maxCode_ = r_data->GetMax();
 }
 
+string AbstractQuestion::getNamedAttributeText()
+{
+	string question_text;
+	for (int i=0; i<textExprVec_.size(); ++i)
+	{
+		//question_text += "<p>";
+		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type)
+		{
+			//stringstream mesg_id;
+			//mesg_id << part_mesg_id.str() << "_" << i;
+			//question_text += WString::tr(mesg_id.str().c_str());
+			//question_text += textExprVec_[i]->text_;
+		}
+		else if (textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
+		{
+			//stringstream named_attribute_key;
+			//named_attribute_key << textExprVec_[i]->naPtr_->name;
+			//named_attribute_key << "_" << textExprVec_[i]->naIndex_;
+			//question_text += WString::tr(named_attribute_key.str().c_str());
+			question_text += textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+		}
+		else if (textExprVec_[i]->teType_ == TextExpression::question_type)
+		{
+			if (textExprVec_[i]->codeIndex_ != -1)
+			{
+				question_text += textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(textExprVec_[i]->codeIndex_);
+			}
+			else
+			{
+				question_text += textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+			}
+		}
+		//question_text += "</p>";
+	}
+	return question_text;
+}
+
 //void RangeQuestion::eval()
 void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window

@@ -1569,26 +1569,101 @@ string print_summary_axis_helpers_helper (vector<qtm_data_file_ns::QtmDataDiskMa
 	stringstream result;
 
 	stringstream range_string;
-	if (scale == 5 && sm_type == TOP_BOX) {
+	string part_ax_name;
+	string incl_file;
+	string summary_text;
+
+	if (sm_type == MN) {
+		incl_file = include_file_name;
+	} else {
+		incl_file = mean_score_include_file;
+	}
+
+	if (sm_type == TOP_BOX) {
+		summary_text = " - Summary of Top Box";
+		part_ax_name = "_top";
+	} else if (sm_type == TOP_2_BOX) {
+		summary_text = " - Summary of Top 2 Box";
+		part_ax_name = "_top2";
+	} else if (sm_type == TOP_3_BOX) {
+		summary_text = " - Summary of Top 3 Box";
+		part_ax_name = "_top3";
+	} else if (sm_type == BOT_BOX) {
+		summary_text = " - Summary of Bottom Box";
+		part_ax_name = "_bot";
+	} else if (sm_type == BOT_2_BOX) {
+		summary_text = " - Summary of Bottom 2 Box";
+		part_ax_name = "_bot2";
+	} else if (sm_type == BOT_3_BOX) {
+		summary_text = " - Summary of Bottom 3 Box";
+		part_ax_name = "_bot3";
+	} else if (sm_type == MN) {
+		summary_text = " - Summary of Means";
+		part_ax_name = "_mn";
+	}
+
+	if        (scale == 5 && sm_type == TOP_BOX) {
 		range_string << "5";
-		
+	} else if (scale == 5 && sm_type == TOP_2_BOX) {
+		range_string << "5,4";
+	} else if (scale == 5 && sm_type == BOT_BOX) {
+		range_string << "1";
+	} else if (scale == 5 && sm_type == BOT_2_BOX) {
+		range_string << "1,2";
+	} else if (scale == 5 && sm_type == MN) {
+		range_string << "1:5";
+	}
+
+	if        (scale == 7 && sm_type == TOP_BOX) {
+		range_string << "7";
+	} else if (scale == 7 && sm_type == TOP_2_BOX) {
+		range_string << "7,6";
+	} else if (scale == 7 && sm_type == TOP_3_BOX) {
+		range_string << "7,6,5";
+	} else if (scale == 7 && sm_type == BOT_BOX) {
+		range_string << "1";
+	} else if (scale == 7 && sm_type == BOT_2_BOX) {
+		range_string << "1,2";
+	} else if (scale == 7 && sm_type == BOT_3_BOX) {
+		range_string << "1,2,3";
+	} else if (scale == 7 && sm_type == MN) {
+		range_string << "1:7";
+	}
+
+
+	if        (scale == 10 && sm_type == TOP_BOX) {
+		range_string << "10";
+	} else if (scale == 10 && sm_type == TOP_2_BOX) {
+		range_string << "10,9";
+	} else if (scale == 10 && sm_type == TOP_3_BOX) {
+		range_string << "10,9,8";
+	} else if (scale == 10 && sm_type == BOT_BOX) {
+		range_string << "1";
+	} else if (scale == 10 && sm_type == BOT_2_BOX) {
+		range_string << "1,2";
+	} else if (scale == 10 && sm_type == BOT_3_BOX) {
+		range_string << "1,2,3";
+	} else if (scale == 10 && sm_type == MN) {
+		range_string << "1:10";
 	}
 
 	AbstractQuestion * q = v[0]->q;
 	result << "/* summary table for: " << v[0]->q->questionName_ << endl;
-	result << "l " << q->questionName_ << "_top" << endl;
-	result << "ttl" << q->questionName_ << "." 
+	result << "l " << q->questionName_ << part_ax_name << endl;
+	result << "ttl" << q->questionName_ << "."  << part_ax_name << "."
 		//<< v[0]->q->questionText_
-		<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
-		<< ", " << __PRETTY_FUNCTION__ 
-		<< " - Summary of Top Box" << endl;
+		//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+		//<< ", " << __PRETTY_FUNCTION__ 
+		<< q->AxPrepareQuestionTitle()
+		<< summary_text << endl;
 	result << "*include base.qin;btxt=All Respondents" << endl;
 	for (int i=0; i<v.size(); ++i) {
-		result << "*include " << include_file_name
+		result << "*include " << incl_file
 			<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
 			<< ";myrange=(" << range_string.str() << ")"
 			<< endl;
 	}
+	result << endl;
 	return result.str();
 
 }
@@ -1599,8 +1674,38 @@ void print_summary_axis_helper (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
 		, string mean_score_include_file
 		)
 {
-	if (scale == 5)
-	{
+	if (scale == 5) {
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, TOP_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, TOP_2_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, BOT_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, BOT_2_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, MN);
+
 
 #if 0
 		qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
@@ -1616,11 +1721,6 @@ void print_summary_axis_helper (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
 				<< endl;
 		}
 #endif /*  0 */
-		qtm_qax_file << 
-			print_summary_axis_helpers_helper ( v
-				,  qtm_qax_file, scale
-				, include_file_name
-				, mean_score_include_file, TOP_BOX);
 #if 0
 		qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
 		qtm_qax_file << "l " << q->questionName_ << "_top2" << endl;
@@ -1676,6 +1776,51 @@ void print_summary_axis_helper (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
 		}
 		qtm_qax_file << endl;
 #endif /*  0 */
+	} else if (scale == 7 || scale == 10) {
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, TOP_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, TOP_2_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, TOP_3_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, BOT_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, BOT_2_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, BOT_3_BOX);
+
+		qtm_qax_file << 
+			print_summary_axis_helpers_helper ( v
+				,  qtm_qax_file, scale
+				, include_file_name
+				, mean_score_include_file, MN);
+
+
 	}
 
 }
@@ -1948,8 +2093,7 @@ void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, fstream 
 			qtm_qax_file << "/*l " << q->questionName_ << "_sum" << endl;
 			qtm_qax_file << "/*ttl" << q->questionName_ << "." 
 				//<< v[0]->q->questionText_ 
-				<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
-				<< ", " << __PRETTY_FUNCTION__ 
+				<< q->AxPrepareQuestionTitle()
 				<< endl;
 			for (int i=0; i<v.size(); ++i) {
 				qtm_qax_file << "/**include summ.qin;qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 << endl;
@@ -1971,7 +2115,7 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 		const int TEXT_LEN_BREAK_AT = 120;
 		vector <string> smaller_ttls = qtm_data_file_ns::split_into_smaller_chunks (
 				//recode_q->q->questionText_
-				 "FIX me dummy questionText_ " 
+				  nq->AxPrepareQuestionTitle()
 				, TEXT_LEN_BREAK_AT);
 		stringstream ttl_string;
 		for (int i=0; i<smaller_ttls.size(); ++i) {

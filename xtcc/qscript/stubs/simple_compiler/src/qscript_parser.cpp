@@ -1597,10 +1597,14 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t\t			DummyArrayQuestion * dumq = find_q(question_list, dum_q_name, qax_program_text);\n"
 		<< "\t\t\t			if (dumq) {\n"
 		<< "\t\t\t				if (dumq->array_bounds.size() == 1) {\n"
-		<< "\t\t\t					for (int i=0; i<dumq->array_bounds[0]; ++i) {\n"
-		<< "\t\t\t						qax_program_text << \"*def at\" << i \n"
-		<< "\t\t\t							<< \"t=Code \" << i+1\n"
-		<< "\t\t\t							<< endl;\n"
+		<< "\t\t\t					for (int i1=0; i1<dumq->array_bounds[0]; ++i1) {\n"
+		<< "\t\t\t						qax_program_text << \"*def at\" << i1 \n"
+		<< "\t\t\t							<< \"t=\";"
+		<< "\t\t\t 							//<< \"Code \" << i1+1\n"
+		<< "\t\t\t 						stringstream s1; s1 << \"Code \" << i1+1;\n"
+		<< "\t\t\t 						AbstractQuestion * & q1 =qtm_datafile_question_disk_map[i+i1]->q;\n"
+		<< "\t\t\t						qax_program_text << (q1->getNamedAttributeText()==string(\"\") ? s1.str() : q1->getNamedAttributeText());\n"
+		<< "\t\t\t						qax_program_text << endl;\n"
 		<< "\t\t\t					}\n"
 		<< "\t\t\t					qax_program_text\n"
 		<< "\t\t\t							<< endl\n"
@@ -1636,40 +1640,6 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t\tif (i>0) {\n"
 		<< "\t\t\t	prev_question = current_question;\n"
 		<< "\t\t\t}\n"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		<< "\t\t}\n"
 		<< "\t\t//for ( map <string, vector<qtm_data_file_ns::QtmDataDiskMap*> >::iterator it= summary_tables.begin();\n"
 		<< "\t\t//		it != summary_tables.end(); ++it) {\n"
@@ -2175,7 +2145,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 								<< "\t\t\t\t\trecode_edit_qax_file\n"
 								<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
 								<< driver_question_name << "_map_entry, "
-								<< rec_question_name << "_map_entry, i);\n" << endl;
+								<< rec_question_name << "_map_entry, i, jno);\n" << endl;
 
 							recode_edit.program_code 
 								<< "edit_file << \"clear "
@@ -2289,7 +2259,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\trecode_edit_qax_file\n"
 							<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
 							<< driver_question_name << "_map_entry, "
-							<< rec_question_name << "_map_entry[i1], i);\n" << endl;
+							<< rec_question_name << "_map_entry[i1], i, jno);\n" << endl;
 
 						recode_edit.program_code 
 							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;
@@ -3369,7 +3339,7 @@ void print_ncurses_func_prototypes (FILE * script)
 			"			PANEL * & error_msg_panel,\n"
 			"			PANEL * & help_panel);\n");
 	fprintf (script, "void define_some_pd_curses_keys();\n");
-	fprintf (script, "string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int index);\n");
+	//fprintf (script, "string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int index, string jno);\n");
 
 	fprintf (script, "DummyArrayQuestion * find_q( vector <AbstractQuestion*> & question_list, string qname, stringstream & qax_stream);\n");
 

@@ -1166,8 +1166,8 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	}
 #endif /* 0 */
 	quest_decl << "{\n";
+#if 0
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
-
 	for (int i=0; i < textExprVec_.size(); ++i) {
 		/* 
 		if (textExprVec_[i]->nameExpr_ == 0) { 
@@ -1215,6 +1215,8 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		}
 
 	}
+#endif /* 0 */
+	quest_decl << PrepareQuestionTitle();
 
 	if (array_mode) {
 		quest_decl << "RangeQuestion * " << questionName_;
@@ -1313,6 +1315,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	ostringstream quest_decl;
 
 	quest_decl << "{\n";
+#if 0
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 	for (int i=0; i < textExprVec_.size(); ++i) {
 		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) { 
@@ -1342,6 +1345,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 				<< "));\n";
 		}
 	}
+#endif /*  0 */
+	quest_decl << PrepareQuestionTitle();
 
 	if (array_mode) 
 		quest_decl << "NamedStubQuestion * " << questionName_;
