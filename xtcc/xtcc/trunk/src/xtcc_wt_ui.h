@@ -16,6 +16,7 @@
 #include <Wt/WTable>
 #include <Wt/WTableView>
 #include <Wt/WTabWidget>
+#include <Wt/WApplication>
 #include <string>
 #include <vector>
 #include <set>
@@ -43,7 +44,7 @@ public:
 			 Wt::WStandardItemModel * & top_model,
 			 std::set<string> & p_side_axes_set,
 			 std::set<string> & p_top_axes_set,
-			 WObject * parent);
+			 Wt::WApplication * parent);
 
   Wt::WTreeView *treeView() const { return main_axes_tree; }
 
@@ -83,6 +84,7 @@ private:
 	vector <Wt::Chart::WCartesianChart*> charts;
 	vector <Wt::WTableView*> tables;
 	vector <Wt::WContainerWidget*> containers;
+	Wt::WApplication * app_;
 	//Wt::Ext::Panel * messages_container ;
 
 	static Wt::WStandardItem *continentItem(const std::string& continent);
@@ -100,6 +102,7 @@ private:
 		filteredAxes->setFilterRegExp(regexpFilter->text());
 		//filteredSortedCocktails->setFilterRegExp(regexpFilter->text());
 	}
+
 	XtccWtUI& operator = (XtccWtUI &);
 	XtccWtUI (XtccWtUI &);
 

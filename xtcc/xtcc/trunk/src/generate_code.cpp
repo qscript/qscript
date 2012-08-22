@@ -33,7 +33,8 @@ FILE * global_vars;
 //void print_latex_print(FILE* op, int table_index);
 
 	map <string, string> stubname_axis_map;
-void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list, string tab_fname)
+void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list, string tab_fname,
+		string session_id)
 {
 	using namespace Table;
 	fprintf (table_h, "#ifndef MY_TABLE_H\n");
@@ -44,10 +45,10 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 	fprintf (table_h, "#include <vector>\nusing namespace std;\n");
 	fprintf (table_h, "#include \"global.h\"\n");
 	fprintf (table_h, "#include \"my_axes.h\"\n");
-	fprintf (table_cpp, "#include \"my_table.h\"\n");
+	fprintf (table_cpp, "#include \"%s_my_table.h\"\n", session_id.c_str());
 	fprintf (tab_drv_func, "#include \"global.h\"\n");
 	fprintf (tab_drv_func, "#include \"my_axes.h\"\n");
-	fprintf (tab_drv_func, "#include \"my_table.C\"\n");
+	fprintf (tab_drv_func, "#include \"%s_my_table.C\"\n", session_id.c_str());
 	fprintf (tab_drv_func, "void tab_compute(){\n");
 	set <string> ax_defns;
 	for (unsigned int i=0; i<table_list.size(); i++) {
@@ -1523,4 +1524,35 @@ void generate_make_file()
 	fprintf(makefile, "%s\n", makefile_str.str().c_str());
 	fclose(makefile);
 
+}
+
+
+std::string print_session_makefile (std::string session_id) 
+{
+	
+	std::stringstream s;
+	s << "CC=g++" << endl;
+	s << "OBJS = "
+		//<< session_id 
+		<< "main_loop.o "
+		//<< session_id 
+		<< "my_axes_drv_func.o "
+		<< session_id << "_my_tab_drv_func.o "
+		<< "edit_out.o "
+		<< "global.o"
+		<< endl
+		<< endl
+		<< session_id << "_test.exe: $(OBJS)" << endl
+		<< "\t$(CC)  -o $@ $(OBJS)" << endl << endl
+		<< "main_loop.o: main_loop.C" << endl
+		<< "\t$(CC)  -c $<" << endl << endl
+		<< "my_axes_drv_func.o: my_axes_drv_func.C" << endl
+		<< "\t$(CC)  -c $<"  << endl << endl
+		<< session_id << "_my_tab_drv_func.o: " << session_id << "_my_tab_drv_func.C" << endl
+		<< "\t$(CC)  -c $<" << endl << endl
+		<< "edit_out.o: "   << "edit_out.c" << endl
+		<< "\t$(CC)  -c $<" << endl << endl
+		<< "global.o: " << "global.C" << endl
+		<< "\t$(CC)  -c $<" << endl << endl;
+	return s.str();
 }

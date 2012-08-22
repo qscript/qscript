@@ -201,16 +201,16 @@ int main (int argc, char* argv[])
 		exit(1);
 	}
 
-	string fname = string(work_dir) + string("/my_table.C");
+	string fname = string(work_dir) + string("/dummy_my_table.C");
 	FILE * table_cpp= fopen( fname.c_str(), "w");
-	fname = string(work_dir) + string("/my_table.h");
+	fname = string(work_dir) + string("/dummy_my_table.h");
 	FILE * table_h = fopen( fname.c_str(), "w");
-	fname = string(work_dir) + string("/my_tab_drv_func.C");
+	fname = string(work_dir) + string("/dummy_my_tab_drv_func.C");
 	FILE * tab_drv_func=fopen(fname.c_str(), "w");	
-	fname = string(work_dir) + string("/my_tab_summ.C");
+	fname = string(work_dir) + string("/dummy_my_tab_summ.C");
 	FILE * tab_summ_func=fopen(fname.c_str(), "w");	
 
-	if(!(table_cpp&&tab_drv_func&&tab_summ_func)){
+	if (! (table_cpp && tab_drv_func && tab_summ_func) ){
 		cerr << "Unable to open file for output of table classes" << endl;
 		exit(1);
 	}
@@ -253,15 +253,18 @@ int main (int argc, char* argv[])
 	flex_finish();
 	extern vector<Table::table*>	table_list;
 	print_axis_code (axes_h, axes_cpp, axes_drv_func);
-	print_table_code (table_h, table_cpp, tab_drv_func, tab_summ_func, table_list, "tab_.csv");
+	print_table_code (table_h, table_cpp, tab_drv_func, tab_summ_func, table_list, "tab_.csv", "dummy");
 	print_weighting_code ();
 	generate_make_file();
 	fclose(yyin); yyin=0;
+	fclose(table_h);
 	fclose(table_cpp);
 	fclose(tab_drv_func);
-	fclose(axes_cpp); 
-	fclose(axes_drv_func);
 	fclose(tab_summ_func);
+	
+	fclose(axes_cpp); 
+	fclose(axes_h); 
+	fclose(axes_drv_func);
 	//bool my_compile_flag=true;
 	//bool my_compile_flag=false;
 	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
@@ -292,7 +295,7 @@ int main (int argc, char* argv[])
 	if (flag_compile_only == false && !compile_result){
 		cout << "compilation successful" << endl;
 		std::ostringstream cmd2;
-		cmd2 << work_dir << "/test.exe " << data_file  << " " << rec_len;
+		cmd2 << work_dir << "/dummy_test.exe " << data_file  << " " << rec_len;
 		cout << "cmd2: " << cmd2.str() << endl;
 		int rval = system(cmd2.str().c_str());
 		if (rval == 0) {
@@ -404,6 +407,9 @@ template<class T> T* trav_chain(T* & elem1){
 }
 
 #include <cstdlib>
+// the functions run and compile
+// should be moved out of here and into
+// the generate_code.cpp file
 int compile(char * const XTCC_HOME, char * const work_dir)
 {
 	using std::cout;
@@ -448,8 +454,17 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	string cmd1="g++ -c "; 
 	const int main_loop_file_index=2;
 	const int temp_file_index=5;
+	string session_id("dummy");
 
-	cmd1 = string("cd ") + my_work_dir + string("; make -f Makefile2 ");
+	string fname = work_dir + string("/") + session_id 
+		+ string("_Makefile");
+	std::fstream makefile(fname.c_str(), std::ios_base::out);
+	makefile << print_session_makefile (session_id) ;
+	makefile.close();
+
+	cmd1 = string("cd ") + my_work_dir + string("; make -f ")
+		+ session_id + string("_Makefile ")
+		;
 	rval = system(cmd1.c_str());
 	if (rval != 0) {
 		cerr << "command failed... exiting\n";
@@ -535,6 +550,9 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 }
 
 #include <sstream>
+// the functions run and compile
+// should be moved out of here and into
+// the generate_code.cpp file
 int run(char * data_file_name, int rec_len){
 	int rval;
 	std::ostringstream cmd1;

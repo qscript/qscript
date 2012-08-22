@@ -57,13 +57,14 @@
 std:: string read_file_contents (string file_name_with_path);
 extern map <string, Table::ax*> ax_map;
 using namespace Wt;
-int	compile( char * const XTCC_HOME, char * const work_dir);
-int	run(char * data_file_name, int rec_len);
+int	compile (char * const XTCC_HOME, char * const work_dir, std::string session_id);
+int	run (char * data_file_name, int rec_len, std::string session_id);
 extern char * XTCC_HOME;
 extern char * data_file ;
 extern int rec_len;
 extern char * work_dir;
 void loadDataIntoModel (WStandardItemModel * & m, TableData & tbl);
+string print_session_makefile (std::string session_id) ;
 
 
 XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
@@ -71,7 +72,7 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 			 Wt::WStandardItemModel * & top_model,
 			 std::set<string> & p_side_axes_set,
 			 std::set<string> & p_top_axes_set,
-			 WObject * parent)
+			 Wt::WApplication * parent)
 
 	: 	
 		filteredAxes (0), regexpFilter (0), w (0),
@@ -82,7 +83,7 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 		side_axes_set (p_side_axes_set),
 		top_axes_set (p_top_axes_set),
 		messages_container (0), mesg_cont_layout (0),
-		wt_tbl_cont(0), wt_tbl (0)
+		wt_tbl_cont(0), wt_tbl (0), app_(parent)
 		
 {
 	w  = new WContainerWidget (this);
@@ -153,12 +154,12 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	b->setToolTip("Remove axes from side");
 	vbl->addWidget (b);
 
-	b = new WPushButton("Top =>");
+	b = new WPushButton("Banner =>");
 	b->clicked().connect(this, &XtccWtUI::add_axes_to_top);
 	b->setToolTip("Add axes to banner");
 	vbl->addWidget (b);
 
-	b = new WPushButton("<= Top");
+	b = new WPushButton("<= Banner");
 	b->clicked().connect(this, &XtccWtUI::remove_axes_from_top);
 	b->setToolTip("Remove axes from banner");
 	vbl->addWidget (b);
@@ -453,14 +454,18 @@ void XtccWtUI:: run_tables ()
 					"#include \"mean_stddev_struct.h\"\n"
 					"using std::map; using std::string; using std::vector; /*  -- */\n");
 		fclose (global_vars_C);
+		string session_id = app_->sessionId();
 
-		fname = string(work_dir) + string("/my_table.C");
-		FILE * table_op = fopen (fname.c_str(), "wb");
-		fname = string (work_dir) + string("/my_tab_drv_func.C");
-		FILE * tab_drv_func = fopen (fname.c_str(), "wb");	
-		fname = string (work_dir) + string("/my_tab_summ.C");
-		FILE * tab_summ_func = fopen (fname.c_str(), "wb");	
-		if (! (table_op && tab_drv_func && tab_summ_func) ) {
+		fname = string(work_dir) + string("/") + session_id + string("_my_table.C");
+		FILE * table_cpp= fopen( fname.c_str(), "wb");
+		fname = string(work_dir) + string("/") + session_id + string("_my_table.h");
+		FILE * table_h = fopen( fname.c_str(), "wb");
+		fname = string(work_dir) + string("/") + session_id + string("_my_tab_drv_func.C");
+		FILE * tab_drv_func=fopen(fname.c_str(), "wb");	
+		fname = string(work_dir) + string("/") + session_id + string("_my_tab_summ.C");
+		FILE * tab_summ_func=fopen(fname.c_str(), "wb");	
+
+		if (! (table_cpp && tab_drv_func && tab_summ_func) ) {
 			std::cerr << "Unable to open file for output of table classes" << std::endl;
 			exit(1);
 		}
@@ -473,22 +478,33 @@ void XtccWtUI:: run_tables ()
 		memset (fname_date_time_buff, 0, sizeof(fname_date_time_buff));
 		strftime (fname_date_time_buff, sizeof(fname_date_time_buff),
 				"tab_UTC_Y-M-D_H-M-S_%Y-%m-%d_%H-%M-%S.csv", &utc_time_result);
-		print_table_code (table_op, tab_drv_func, tab_summ_func, table_list, string(fname_date_time_buff));
-		fclose (table_op);
+		print_table_code (table_h, table_cpp, tab_drv_func, tab_summ_func, table_list, string (fname_date_time_buff), session_id);
+		fclose (table_h);
+		fclose (table_cpp);
 		fclose (tab_drv_func);
 		fclose (tab_summ_func);
-		if (!compile(XTCC_HOME, work_dir)) {
+		fname = work_dir + string("/") + session_id 
+			+ string("_Makefile");
+		std::fstream makefile(fname.c_str(), std::ios_base::out);
+		makefile << print_session_makefile (session_id) ;
+		makefile.close();
+		WText * info_label1 = new WText ("Compiling ...<br/>", messages_container);
+		info_label1->setStyleClass ("chat-msg");
+		mesg_cont_layout -> addWidget (info_label1);
+		if (!compile(XTCC_HOME, work_dir, session_id)) {
 			using namespace std;
-			string output = read_file_contents ( "command_output.log");
+			string output = read_file_contents (work_dir + string("/") + session_id + string("_make_output.log"));
 			cout << "command output" << endl
 				<< output 
 				<< endl;
-			int rval = run (data_file, rec_len);
+			WText * info_label2 = new WText ("Running tables ...<br/>", messages_container);
+			info_label2->setStyleClass ("chat-msg");
+			mesg_cont_layout -> addWidget (info_label2);
+			int rval = run (data_file, rec_len, session_id);
 			cout << "xtcc run complete" << endl;
 			// WLabel * info_label = new WLabel (output, messages_container);
-			WText * info_label = new WText (output, messages_container);
-			info_label->setStyleClass ("chat-msg");
-			mesg_cont_layout -> addWidget (info_label);
+			//WText * info_label = new WText (output, messages_container);
+			//info_label->setStyleClass ("chat-msg");
 
 			//WAnchor * a = new WAnchor(this);
 			//a->setRefInternalPath("/hello");
@@ -647,3 +663,4 @@ void loadDataIntoModel (WStandardItemModel * & m, TableData & tbl)
 #endif /*  0  */
 	cout << "EXIT " << __PRETTY_FUNCTION__ << endl;
 }
+

@@ -125,7 +125,8 @@ public:
 	WStandardItemModel *top_model  = XtccWtUI::create_side_axes_model (true, this, "banner");
 	XtccWtUI * ex = new XtccWtUI (main_model, side_model, top_model, 
 				    side_axes_set, top_axes_set,
-				    this);
+				    static_cast<WApplication*> (this)
+			);
 	root()->addWidget (ex);
 	useStyleSheet("gui.css");
   }
@@ -218,10 +219,10 @@ int main (int argc, char *argv[])
 
 	FILE * yyin=fopen(inp_file,"r");
 	if(!yyin) {
-		cerr << "Unable to open file: " << argv[1] << " for read ...exiting" << endl; exit(1);
+		cerr << "Unable to open file: " << inp_file << " for read ...exiting" << endl; exit(1);
 	}
 	yyrestart(yyin);
-	if(yyparse()){
+	if (yyparse()) {
 		cout << "Errors in parsing edit: " << no_errors << endl;
 		exit(1);
 	} 
@@ -253,7 +254,7 @@ int main (int argc, char *argv[])
 		exit(1);
 	}
 	
-	if(!no_errors){
+	if (!no_errors) {
 		//string fname = work_dir + string ("/global.C");
 		//FILE * global_vars_C = fopen (fname.c_str(), "wb");
 		//fprintf (global_vars_C, "#include <map>\n#include <string>\n#include <vector>\n"
@@ -276,31 +277,37 @@ int main (int argc, char *argv[])
 	//	cerr << "Unable to open file for output of table classes" << endl;
 	//	exit(1);
 	//}
-	if(int rval=yyparse()){
+	if (int rval=yyparse()) {
 		cerr << "parsing tables section failed:" << endl;
 		exit(rval);
 	}
-	if(no_errors >0 ){
+	if (no_errors > 0) {
 		cerr << "Error(s) in the tabulation section: " << no_errors << endl;
 		exit(1);
 	} else {
 		cout << "Successfully parsed tabulation section" << endl;
 	}
 
-	string fname = string(work_dir)+ ("/my_axes.C");
-	FILE * axes_op=fopen(fname.c_str(), "w");	
-	fname = string(work_dir) + string("/my_axes_drv_func.C");
-	FILE * axes_drv_func=fopen(fname.c_str(), "w");	
-	if(!(axes_op&&axes_drv_func)){
+	string fname;
+	fname = string (work_dir) + ("/my_axes.h");
+	FILE * axes_h = fopen (fname.c_str(), "wb");
+	fname = string (work_dir) + ("/my_axes.C");
+	FILE * axes_cpp = fopen (fname.c_str(), "wb");
+	fname = string (work_dir) + string("/my_axes_drv_func.C");
+	FILE * axes_drv_func = fopen (fname.c_str(), "wb");
+	if (!(axes_h && axes_cpp && axes_drv_func) ) {
 		cerr << "Unable to open file for output of axes classes" << endl;
 		exit(1);
+	} else {
+		fprintf (axes_cpp, "#include \"my_axes.h\"\n");
+		fprintf (axes_cpp, "#include \"global.h\"\n");
 	}
-	if(int rval=yyparse()){
+	if (int rval=yyparse()) {
 		cerr << "parsing axes section failed:" << endl;
 		exit(rval);
 	} 
 
-	if(no_errors >0 ){
+	if (no_errors > 0) {
 		cerr << "Errors in axes section: " << no_errors << endl;
 		exit(1);
 	} else {
@@ -308,30 +315,31 @@ int main (int argc, char *argv[])
 	}
 	
 	flex_finish();
+	print_axis_code (axes_h, axes_cpp, axes_drv_func);
 	//extern vector<Table::table*>	table_list;
 	//print_table_code(table_op, tab_drv_func, tab_summ_func, table_list);
-	print_axis_code(axes_op, axes_drv_func);
-	print_weighting_code();
-	generate_make_file();
+	print_weighting_code ();
+	//generate_make_file();
 	fclose(yyin); yyin=0;
 	//fclose(table_op);
 	//fclose(tab_drv_func);
 	//fclose(tab_summ_func);
-	fclose(axes_op); 
+	fclose(axes_cpp);
+	fclose(axes_h);
 	fclose(axes_drv_func);
 	//bool my_compile_flag=true;
 	//bool my_compile_flag=false;
 	printf("parsing over\n about to begin compiling\n");
 	//if(my_compile_flag&&!compile(XTCC_HOME, work_dir))
 
-	string gfname=work_dir+string("/global.h");
-	FILE * global_vars=fopen(gfname.c_str(), "a+");
+	string gfname = work_dir + string("/global.h");
+	FILE * global_vars = fopen (gfname.c_str(), "a+");
 	if (!global_vars) {
-		cerr << "cannot open global.C for writing" << endl;
+		cerr << "cannot open"  << gfname << "for writing" << endl;
 		exit(1);
 	}
-	fprintf(global_vars, "#endif /* __NxD_GLOB_VARS_H--*/\n");
-	fclose(global_vars);
+	fprintf (global_vars, "#endif /* __NxD_GLOB_VARS_H--*/\n");
+	fclose (global_vars);
 
 
 	/* create a new window */
@@ -429,7 +437,10 @@ template<class T> T* trav_chain(T* & elem1){
 }
 
 #include <cstdlib>
-int compile(char * const XTCC_HOME, char * const work_dir)
+// the functions run and compile
+// should be moved out of here and into
+// the generate_code.cpp file
+int compile(char * const XTCC_HOME, char * const work_dir, string session_id)
 {
 	using std::cout;
 	using std::endl;
@@ -480,7 +491,10 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	const int main_loop_file_index=2;
 	const int temp_file_index=5;
 
-	string cmd1 = string("cd ") + my_work_dir + string("; make -f Makefile2 ");
+	string cmd1 = string("cd ") + my_work_dir + string("; make --dry-run -f ")
+				+ session_id + string("_Makefile > ")
+				+ session_id + string ("_make_output.log; make -f ")
+				+ session_id + string ("_Makefile ");
 	rval = system(cmd1.c_str());
 	if (rval != 0) {
 		cerr << "command failed... exiting\n";
@@ -499,6 +513,8 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 	}
 	cerr << "stopping here for the moment" << endl;
 	return rval;
+	// Yes the next set of code is not used.
+	// Also I wonder when I will compiler Wt on windows
 	cmd1 += string (" > ") + my_work_dir + string(file_list[temp_file_index]);
 	string cmd3=string("; echo \"#include <" ) + string (XTCC_HOME) + string("/stubs/list_summ_template.C>\" >> ") + my_work_dir + string("/temp.C");
 	cmd1 += cmd3;
@@ -563,7 +579,10 @@ int compile(char * const XTCC_HOME, char * const work_dir)
 }
 
 #include <sstream>
-int run (char * data_file_name, int rec_len)
+// the functions run and compile
+// should be moved out of here and into
+// the generate_code.cpp file
+int run (char * data_file_name, int rec_len, string session_id)
 {
 	int rval;
 	std::ostringstream cmd1;
@@ -574,8 +593,11 @@ int run (char * data_file_name, int rec_len)
 	string cmd0 = "date +hour:%l:minute:%M:second:%S:nanosecond:%N";
 	rval=system(cmd0.c_str());
 
-	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/test.exe " << data_file_name  << " " << rec_len 
-		<< " > command_output.log " ;
+	cmd1 <<  "echo \"executing exe\"; time " << work_dir << "/"
+		<< session_id << "_test.exe " << data_file_name  << " " << rec_len 
+		<< " > "
+		<< session_id
+		<< "_command_output.log " ;
 		;
 #endif /* UNIX */
 	std::cout << "executing : " 
@@ -951,6 +973,7 @@ void run_tables (GtkWidget *widget, gpointer data)
 	}
 }
 
+#if 0
 void setup_gui()
 {
 	GtkWidget *window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -1055,6 +1078,7 @@ void setup_gui()
 	gtk_widget_show (table);
 
 }
+#endif /* 0 */
 
 
 #include "Tab.h"
