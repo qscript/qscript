@@ -119,6 +119,63 @@ string print_variable_defns (map<string, SymbolTableEntry*> & name_list,
 	return s.str();
 }
 
+string print_mean_variable_defns (Table::CMAPITER map_iter_s, Table::CMAPITER map_iter_b)
+{
+	std::stringstream res;
+	Table::AbstractCountableAxisStatement* side_stmt = 
+		map_iter_s->second->count_ax_stmt_start;
+	int cols=map_iter_b->second->no_count_ax_elems;
+
+	int inc_ax_count = 0;
+	//for (; side_stmt; side_stmt = side_stmt -> next_) {
+	//	if (inc_ax_stmt * inc_st_ptr = 
+	//		dynamic_cast<inc_ax_stmt*> (side_stmt)) {
+	if (map_iter_s->second->no_inc_ax_elems > 0) {
+		res << "vector<MeanStdDevInc> mean_inc_"
+			<< map_iter_s->first
+			<< "_"
+			<< map_iter_b->first
+			// << "("
+			// <<  cols * map_iter_s->second->no_inc_ax_elems
+			// << ")"
+			//<< ";\n"
+			;
+	}
+		//}
+	//}
+	return res.str();
+}
+
+/* 
+void print_mean_variable_defns (Table::CMAPITER map_iter_s, Table::CMAPITER map_iter_b)
+{
+	string global_vars_fname_C = work_dir + string("/global.C");
+	FILE * global_vars_C = fopen (global_vars_fname_C.c_str(), "a+b");
+	string global_vars_fname = work_dir + string("/global.h");
+	FILE * global_vars_h = fopen (global_vars_fname.c_str(), "a+b");
+	if (! (global_vars_h||global_vars_C) ) {
+		cerr << "Unable to open file: " << global_vars_fname 
+			<< " or " << global_vars_fname_C
+			<< " for writing ... exiting \n"
+			<< endl;
+		exit(1);
+	}
+	int rows=map_iter_s->second->no_count_ax_elems;
+	int cols=map_iter_b->second->no_count_ax_elems;
+	cerr << LOG_MESSAGE("fix mean_inc_ defn - there should be one for each table or maybe one for each axis")
+		<< endl;
+	fprintf (global_vars_h, "extern vector<MeanStdDevInc> mean_inc_%s_%s;\n",
+			map_iter_s->first.c_str(), map_iter_b->first.c_str());
+	fprintf (global_vars_C, "vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
+			map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
+	//printf  ("vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
+	//		map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
+	fclose (global_vars_h);
+	fclose (global_vars_C);
+}
+*/
+
+
 	map <string, string> stubname_axis_map;
 void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FILE * tab_summ_func, vector<Table::table*> & table_list, string tab_fname,
 		string session_id)
@@ -268,6 +325,19 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 				//	<< endl;
 				total_no_of_cells += 	map_iter_s->second->no_count_ax_elems *
 							map_iter_b->second->no_count_ax_elems;
+				/* 
+				{
+					AbstractCountableAxisStatement* side_stmt=map_iter_s->second->count_ax_stmt_start;
+					int rows=map_iter_s->second->no_count_ax_elems;
+					for (int i=0; i<rows; ++i) {
+						if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
+							print_mean_variable_defns (map_iter_s, map_iter_b);
+						}
+						if (side_stmt) {
+							side_stmt=side_stmt->next_;
+						}
+					}
+				} */
 			} else {
 				fprintf(table_h, "struct table_%s_%s {\n",
 						map_iter_s->first.c_str(), map_iter_b->first.c_str ());
@@ -296,6 +366,10 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 				}
 				fprintf (table_h, "\tconst int rows, cols;\n");
 				fprintf (table_h, "\tvector <int> counter;\n");
+				string mean_score_defns = print_mean_variable_defns (map_iter_s, map_iter_b);
+				if (map_iter_s->second->no_inc_ax_elems > 0) {
+					fprintf (table_h, "\t%s;\n", mean_score_defns.c_str());
+				}
 				fprintf (table_h, "\ttable_%s_%s (struct axis_%s & p_ax_%s",
 						map_iter_s->first.c_str(), map_iter_b->first.c_str (),
 						map_iter_s->first.c_str(), map_iter_s->first.c_str ());
@@ -353,6 +427,15 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 					fprintf (table_h, " %s", s.str().c_str());
 				}
 #endif /*  0 */
+				if (map_iter_s->second->no_inc_ax_elems > 0) {
+					fprintf (table_h, ", mean_inc_%s_%s (%d)"
+						, map_iter_s->first.c_str()
+						, map_iter_b->first.c_str()
+						, map_iter_b->second->no_count_ax_elems 
+						  * map_iter_s->second->no_inc_ax_elems
+					);
+				}
+
 
 				fprintf (table_h, "\n\t{\n\t\tfor (int i=0;i<counter.size();++i) counter[i]=0; \n");
 				if (map_iter_s->second->no_inc_ax_elems > 0 || 
@@ -393,27 +476,7 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 					//cout << "generate_code: i: " << i << endl;
 					AbstractCountableAxisStatement* banner_stmt = map_iter_b->second->count_ax_stmt_start;
 					if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
-						string global_vars_fname_C = work_dir + string("/global.C");
-						FILE * global_vars_C = fopen (global_vars_fname_C.c_str(), "a+b");
-						string global_vars_fname = work_dir + string("/global.h");
-						FILE * global_vars_h = fopen (global_vars_fname.c_str(), "a+b");
-						if (! (global_vars_h||global_vars_C) ) {
-							cerr << "Unable to open file: " << global_vars_fname 
-								<< " or " << global_vars_fname_C
-								<< " for writing ... exiting \n"
-								<< endl;
-							exit(1);
-						}
-						cerr << LOG_MESSAGE("fix mean_inc_ defn - there should be one for each table or maybe one for each axis")
-							<< endl;
-						fprintf (global_vars_h, "extern vector<MeanStdDevInc> mean_inc_%s_%s;\n",
-								map_iter_s->first.c_str(), map_iter_b->first.c_str());
-						fprintf (global_vars_C, "vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
-								map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
-						//printf  ("vector<MeanStdDevInc> mean_inc_%s_%s(%d);\n",
-						//		map_iter_s->first.c_str(), map_iter_b->first.c_str(), cols * map_iter_s->second->no_inc_ax_elems);
-						fclose (global_vars_h);
-						fclose (global_vars_C);
+						print_mean_variable_defns (map_iter_s, map_iter_b);
 						++inc_stmt_count;
 					}
 					for (int j = 0; j < cols; ++j) {
@@ -479,8 +542,9 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 						fprintf(table_h, "\t\t}\n");
 					}
 					// handles the case of fld_stmt
-					if(side_stmt)
+					if (side_stmt) {
 						side_stmt=side_stmt->next_;
+					}
 				}
 				fprintf(table_h, "\t} /*  close compute */\n");
 
