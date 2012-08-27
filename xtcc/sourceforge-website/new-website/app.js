@@ -8,5 +8,12 @@ $('.bs-docs-sidenav').affix({
       }
 });
 
+    $('.tooltip-demo').tooltip({
+      selector: "a[rel=tooltip]"
+    })
+    $('.code-tooltip').tooltip({
+      selector: "a[rel=tooltip]"
+    })
+
 
 });

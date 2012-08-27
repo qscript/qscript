@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>QScript HomePage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="assets/css/docs.css" rel="stylesheet">
+    <link href="assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+		
+  </head>	
+	<body  data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="./index.html">QScript</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="./index.html">QScript Home</a>
+              </li>
+              <li class="active">
+                <a href="./qscript-tutorial.html">QScript Tutorial</a>
+              </li>
+              <li class="">
+                <a href="./qscript-installation.html">QScript Installation</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-index.html">Xtcc Home</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-tutorial.html">Xtcc Tutorial</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-installation.html">Xtcc Installation</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <div class="container">
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span3 bs-docs-sidebar">
+        <ul class="nav nav-list bs-docs-sidenav">
+          <li><a href="#question_statement_format"><i class="icon-chevron-right"></i> Question Statement Format </a> </li>
+          <li><a href="#first_example"><i class="icon-chevron-right"></i> First Example</a> </li>
+          <li><a href="#second_example"><i class="icon-chevron-right"></i> Second Example: Mutually Exclusive Stubs</a></li>
+          <li><a href="#simple_if_condition"><i class="icon-chevron-right"></i> Simple Routing using the "if" conditional</a></li>
+          <li><a href="#for_loops"><i class="icon-chevron-right"></i> For Loops</a></li>
+          <li><a href="#for_more_complicated_example"><i class="icon-chevron-right"></i> For Loop, with if condition, a bit more complicated</a></li>
+          <li><a href="#masking"><i class="icon-chevron-right"></i> Masking Stubs</a></li>
+          <li><a href="#compiling"><i class="icon-chevron-right"></i> How to compile a script</a></li>
+        </ul>
+      </div>
+      <div class="span9">
+        <section id="question_statement_format">
+          <div class="page-header">
+            <h1>Question Statement Format</h1>
+          </div>
+	  <div>
+		  Have a look at the notes in the comments below, which are //... . However your mouse over the links, to see an explanation for each items.
+	<code>
+	<div class="code-tooltip">
+			inp_simple_example { <br/>
+                                <br/>
+				// define a "stubs" variable which will be used throughtout a survey<br />
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Language keyword">stubs </a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="variable name - see q3 below where it is used"> stuff </a>
+				= <br />
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="One particular stub definition"> "USB pen drive" 1</a><br />
+				"Keys" 2<br />
+				"Wallet" 3<br />
+				"Mobile Phone" 4<br />
+				"Pen" 5
+				;<br /><br />
+				//All question statements have a similar format<br />
+				//Question &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;Question &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Accept Single or&nbsp;&nbsp;&nbsp;Size on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number Range or <br />
+				//Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Text &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Multiple Answers&nbsp;&nbsp;&nbsp;Disk&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Named Stub<br />
+				<a href="#" rel="tooltip" data-placement="top" title="Name of the question variable in the data file">&nbsp;&nbsp;&nbsp;q1</a> 
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Question text that will be seen">"Q1. A Single Answer Named Stub Question"</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Whether the question will accept a single or multiple answers. Can also be mp(NUMBER) see next example">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Data Type on disk">&nbsp;&nbsp;&nbsp;int32_t </a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Range of codes that are allowed"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stuff</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Yes this is a semicolon terminated language">;</a><br />
+				//&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^<br />
+				//&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br />
+				//Question &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;Question &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Accept Single or&nbsp;&nbsp;&nbsp;Size on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number Range or <br />
+				//Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Text &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Multiple Answers&nbsp;&nbsp;&nbsp;Disk&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Named Stub<br />
+				//&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br />
+				//&nbsp;V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V<br />
+				<a href="#" rel="tooltip" data-placement="top" title="Name of the question variable in the data file">&nbsp;&nbsp;&nbsp;q2</a> 
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Question text that will be seen">"Q2. This is a Single Answer Range Question"</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Whether the question will accept a single or multiple answers. Can also be mp(NUMBER) see next example">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Data Type on disk">&nbsp;&nbsp;&nbsp;int32_t </a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Range of codes that are allowed"> (5-8, 1-2, 9-10, 11, 16)</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Yes this is a semicolon terminated language">;</a><br />
+				<br /><br />
+				q3 "Q3. This is a Multi Answer Range Question"
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="This question will accept upto 5 simultaneous answers">mp(5)</a>
+				int32_t (5-8, 1-2, 9-10, 11, 16);<br />
+				<br />
+				<br />
+				q4 "Q4. Which of these things are usually in your pocket, when on the move?"<br />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mp(3) int32_t 
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="The stubs variable 'stuff' defined above has been used here">stuff</a>
+				;<br />
+
+			}
+		</div>
+		</code>
+		</section>
+ 
+
+
+        <section id="first_example">
+          <div class="page-header">
+            <h1>First Example</h1>
+          </div>
+	  <div>
+	<p>Here is a very simple example of a qscript program. It demonstrates 2 types of questions: 
+	<ul>
+	<li>Range Questions</li>
+	<li>Named Stub Questions</li>
+	</ul>
+
+	<pre>
+	simple_example_1 {
+	q1 "q1. This is a Range Question"
+		sp int32_t (1-3, 4, 7-9);
+
+	stubs agree5 = 
+			" strongly disagree" 1
+			" disagree " 2
+			" neutral " 3
+			" agree " 4
+			"strongly agree" 5;
+	q2 "q2. This is a named stub question"
+		sp int32_t agree5;
+
+	q3 "q3. This is a multicoded Range stub question"
+		mp(5) int32_t (1-20);
+
+	stubs vegetables =
+		"egg plant/brinjal" 1
+		"tomatoes" 2
+		"potatoes" 3
+		"carrots" 4
+		"okra" 5
+		"cauliflower" 6
+		"beetroot" 7;
+
+
+	q4 "q4. This is a multicoded Named stub question"
+		mp(3) int32_t vegetables;
+	}
+	</pre>
+	</p>
+	<p>As you can see in the above example - all questions have the same format:
+		<ul>
+		<li>
+		question name - for example q1
+		</li>
+		<li>
+		question text - "q1. This is a Range Question", which is what will be displayed on the screen
+		</li>
+		<li>Question type - sp: single coded  or mp: multi coded. If a question is multicoded, then the number of allowed responses in put in parenthesis - see q3 or q4 in the above example
+		</li>
+		<li>Data type on disk - it can be int8_t, int16_t, int32_t 
+		</li>
+		<li>Allowed range: 
+			<ul>
+			<li>for Range question this is a range of number specified in parenthesis - for example for q1 it is (1-3, 4, 7-9). This also demonstrates that ranges can be specified as start_number - end_number, example: 1-3 or individually separated by commas, example (8, 9, 11).
+			</li>
+			<li>
+			for Named Stub questions this is a predefined stub list. The 5 point agree scale : agree5 and vegetables list are examples of stub lists and show how to define them
+			</li>
+			</ul>
+		</ul>
+          </div>
+	  </section>
+
+
+
+        <section id="second_example">
+          <div class="page-header">
+            <h1>Second Example: Mutually Exclusive Codes</h1>
+          </div>
+          <div>
+	<p>Sometimes, even in a multiple answer question, you want certain responses to be answered exclusively. The following, demonstrates how to setup mutually exclusive codes for Range and Named Stub Questions
+	<pre>
+	inp_mutex {
+
+	q1 "Q1. This is question 1" mp(4) int32_t (1,2,3,4, 97, 98, 99) mutex (98, 99);
+
+
+	stubs vegetables =
+		"egg plant/brinjal" 1
+		"tomatoes" 2
+		"potatoes" 3
+		"carrots" 4
+		"okra" 5
+		"cauliflower" 6
+		"beetroot" 7
+		"I dont eat vegetables" 98 mutex
+		;
+
+	q2 "Q2. Which of these vegetables do you eat?" mp(4) int32_t vegetables;
+
+	}
+	</pre>
+
+	In the above example - the codes 98 and 99 will not be allowed with any other code, although q1 and q2 are multi-coded questions.
+
+	</p>
+          </div>
+	  </section>
+
+        <section id="simple_if_condition">
+          <div class="page-header">
+            <h1>Simple If Conditions</h1>
+          </div>
+	  <div>
+	<p>
+
+	<pre>
+	inp_if_else_branches {
+		// test to see how to handle
+		// undo / redo , visit previous questions 
+		// in case of if conditions
+
+		stubs excel_5 = 
+				"Horrible " 1
+				" " 2
+				" Alright, nothing to complain about " 3
+				" " 4
+				"Excellent " 5;
+
+		q3 "q3. Overall, How would you rate your primary bank?"
+			sp int32_t excel_5;
+
+
+		if(q3 in (1,2)) {
+			q3_bad "Q3. Why do you have a negative disposition towards your primary bank?" 
+			mp(5) int32_t (1-100) mutex 99;
+		} else if (q3 in (3)) {
+			q3_alright "Q3. Why is your bank just about alright?" 
+			mp(5) int32_t (1-100) mutex 99;
+		} else {
+			q3_good "Q3. Why does your primary bank deserve a positive score?" 
+		}
+
+	}
+	</pre>
+
+	<p>The above example introduces the "if" conditional and the operator "in". The syntax for the if conditional is just like "C"-syntax. In the above example, on the right hand side of operator "in" we have a range set. The left hand side has the question being tested. It is best to use this syntax when the question is single coded - as is the case for "q1".</p>
+
+	<p>
+	In the if condition for question q3_2, you can see a redundant else clause which just contains "1;" in the else block. This redundant else clause is necessary for now, to help the compiler generate the correct code to clear the answer at q3_2 if the question was not taken. If this else block is not put by the programmer, the compiler will flag an error, displaying the if condition which is missing the else block and suggest the above fix.
+	</p>
+
+	<p>The if conditions on q4 demonstrate "else if" clauses.
+	</p>
+          </div>
+	  </section>
+
+
+        <section id="for_loops">
+          <div class="page-header">
+            <h1>For Loops</h1>
+          </div>
+	  <div>
+
+	<pre>
+	inp_for {
+		int32_t i1=0;
+		int32_t i2=0;
+
+		for(i1=0; i1 &lt; 5; i1=i1+1){
+			if (i1 &gt; 2) {
+				for(i2=0; i2 &lt; 2; i2=i2+1){
+					q1 "Q1. This is question 1" sp int32_t (1,2,3,4);
+				}
+			}
+			for(i2=0; i2 &lt;3; i2=i2+1){
+				q2 "Q2. This is question 1" sp int32_t (1,2,3,4);
+			}
+
+			q3 "Q1. This is question 3" sp int32_t (1,2,3,4);
+		}
+	}
+	</pre>
+
+
+	<p>The above example demonstrates a for loop. It also shows how to declare an integer variable and initialize it. As you can see, it is possible to nest for loops and the language can handle this. There is a restriction on the bounds of the for loop - it has to be a constant integer, a variable will not do.
+	So, for example this will work 
+	<pre>
+	for (i=0; i&lt;2*3; i=i+1)
+	</pre> 
+	but this will not work 
+	<pre>
+	int32_t bounds=10;
+	for (i=0; i&lt;bounds; i=i+1)
+	</pre>
+	because "bounds" is a not a constant.
+	
+	<p>In the above example, note the condition on i1 - greater than 2 i.e. q1 gets asked when i1 == 3. Also note that arrays count from zero and i1==0 in the loop initially. Hence, q1 will only be asked on the 4th (i1==3) and 5th (i1==3) iterations of the loop. Also, q1 will have a total of 10 iterations, q2 a total of 15 iterations and q3 a total of 5 iterations.</p>
+          </div>
+	  </section>
+
+        <section id="for_more_complicated_example">
+          <div class="page-header">
+            <h1>For Loop, with if condition, a bit more complicated</h1>
+          </div>
+	  <div>
+
+	<pre>
+inp_for_more_complicated_example {
+
+stubs fuel_types=	
+"Diesel" 1
+"Petrol" 2
+"CNG" 3
+"LPG" 4;
+
+S5	"What fuel do you use in your vehicle? What is the average monthly consumption ?"
+	mp(4) int32_t fuel_types;
+	int32_t i1=0;
+
+	for (i1=0; i1 &lt; 4; i1=i1+1) {
+		int32_t code = i1+1;
+		if ( (code) in S5 ) {
+s5_1			"Average litres/kgs"
+			sp int32_t (1-10000);
+s5_2			"Average Price"
+			sp int32_t (1-1000000);
+		} else {
+			1;
+		}
+	}
+
+
+	int32_t sum=0;
+	for (i1=0; i1 &lt; 6; i1=i1+1) {
+q1		"what is the approximate percentage share of different oil companies?"
+		sp int32_t (0-100);
+		sum = sum + q1[i1];
+	}
+	if (sum != 100) {
+		clear (q1[0]);
+	}
+}
+
+	</pre>
+
+	<p>In the above example, code we want to probe further, if a respondent is using a certain type of fuel. The for loop indices run from 0 to 3, but the codes for qs5 are from 1 to 4. we create a variable "code" that is set to the value that we want. Also note that you can create variables like "i1" anywhere in the script. 
+	</p>
+
+	<p> Note, that in the above example, in the test 
+	<pre>
+		if ( (code) in S5 ) 
+	</pre>
+		"code" appears on the left hand side of operator "in" and the question on the right hand side. To understand operator "in", it always checks the left hand side is a subset of the right hand side. In this example, S5 is a multi-coded question. Contrast this case with the <a href="#simple_if_condition">Simple If Condition</a> demo, where we had "q1 in (1,2)" but q1 was single coded. In, this particular case "(code) in S5" the expression "(code)" is not a SET, like in the Simple If Condition, rather it is an expression. So if we want to check multiple codes, we need to split it up into multiple tests.
+
+		i.e. this will not compile
+		<pre>
+			if ( (code1, code2) in S5) 
+		</pre>
+		It needs to be split up like this:
+		<pre>
+			if ( (code1) in S5 &amp;&amp; (code2) in S5)
+		</pre>
+	</p>
+
+
+	<p>In the second part of the above example, we want to ensure that the percentages add up to 100. The comparison of sum with 100 and clearing the response if it doesn't match is enough to achieve this functionality. At this point of time you cannot add an error message to the clear statement, but a future version will allow you to pass an error message. Also note that single coded questions can directly be used in arithmetic operations - for example:
+		<pre> sum = sum + q1[i1] </pre>
+	</p>
+	</section>
+
+        <section id="masking">
+          <div class="page-header">
+            <h1>Masking Stubs</h1>
+          </div>
+	  <div>
+
+
+	<a name="masking">Masking Stubs</a>
+
+	<pre>
+	inp_mask_stubs {
+
+		stubs make =
+			"toy " 1
+			"nis " 2
+			"gm " 3
+			"frd " 4
+			"vlv " 5;
+
+		stubs model = 
+			"cor " 1
+			"ech " 2
+			"yrs " 3
+			"tii " 4
+			"snny" 5
+			"optr" 6
+			"vctr" 7
+			"ikn" 8
+			"endv" 9
+			"s40" 10
+			"s60" 11;
+		unset(model);
+
+	q1	"q1"
+		sp int32_t (1-4);
+
+	q2	"q2:make"
+		sp int32_t make;
+
+		if (q2==1) {
+			setadd(model, (1-3));
+		}
+		if (q2==2) {
+			setadd(model, (4,5));
+		}
+		if (q2==3) {
+			setadd(model, (6,7));
+		}
+		if (q2==4) {
+			setadd(model, (8,9));
+		}
+		if (q2==4) {
+			setadd(model, (10,11));
+		}
+
+	q3	"q3:model"
+		sp int32_t model;
+
+	q4	"q4"
+		sp int32_t (5-8);
+
+	}
+	</pre>
+
+	<p>Consider the above example: in automotive studies, an often used technique is to ask for the make, and then the model. The setadd model allows you to selectively enable a code. First, you unmask all codes in the stub list using the "unset" statement: in the above example it is <b>unset(model)</b>. Then, looking at the response at q1, we selectively set the mask for model, before q2.</p>
+
+	<p>There is also an setdel statement, which you can find the "inputs" directory distributed along with the compiler source code. </p>
+          </div>
+	  </section>
+
+
+    <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+    <script src="assets/js/jquery.js"></script>
+    <script src="assets/js/google-code-prettify/prettify.js"></script>
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+    <script src="assets/js/bootstrap-affix.js"></script>
+    <!--<script src="assets/js/application.js"></script>-->
+		<script src="app.js"></script>
+
+	</body>
+</html>

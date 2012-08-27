@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Scaffolding · Twitter Bootstrap</title>
+    <title>QScript HomePage</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -16,6 +16,43 @@
   </head>	
 	<body  data-spy="scroll" data-target=".bs-docs-sidebar">
 
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="./index.html">QScript</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active">
+                <a href="./index.html">QScript Home</a>
+              </li>
+              <li class="">
+                <a href="./qscript-tutorial.html">QScript Tutorial</a>
+              </li>
+              <li class="">
+                <a href="./qscript-installation.html">QScript Installation</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-index.html">Xtcc Home</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-tutorial.html">Xtcc Tutorial</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-installation.html">Xtcc Installation</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
 <!--
 <header class="jumbotron subhead" id="overview">
   <div class="container">
@@ -26,7 +63,6 @@
 -->
 
   <div class="container">
-
     <!-- Docs nav
     ================================================== -->
     <div class="row">
@@ -52,10 +88,11 @@
           </div>
 
           <div>
-				 <p>QScript is a language to help script questionnaires for market research for data entry. 
+				 <p>QScript is a language to help script questionnaires for market research for data collection. 
 				 The language supports routing of questions using conditional logic,
 				 simple looping, masking of codes based on answers to previous questions
-				 and mutually exclusive codes.<p>
+				 and mutually exclusive codes.
+				 <p>
 
           </div>
         </section>
@@ -100,11 +137,9 @@
 				  </div>
 				  <div>
 			 <p>
-			 <ul>
-				<li>
-			 While generating the above data file, the exe will also generate the
+			 The compiled exe, generated from the script will also generate the
 			 appropriate tabulation program/scripts.
-				</li>
+			 <ul>
 
 				 <li>
 			 While generating a quantum data file, it generates specs for the
@@ -149,32 +184,88 @@
 					<p>Here is a small script to give you a feel for the language</p>
 
 					<a name="example">Example Script</a>
-					<pre>
-			inp_simple_example {
-				q1 "Q1. This is question 1" sp int32_t (5-8, 1-2, 9-10, 11, 16);
+					<code>
+						<div class="code-tooltip">
+			inp_simple_example { <br/>
+                                <br/>
 
-				stubs agree5 = 
-						" strongly disagree" 1
-						" disagree " 2
-						" neutral " 3
-						" agree " 4
-						"strongly agree" 5;
-				if (q1 in (1) ) {
-					q2_1 "Q2.1 This is question 2_1" sp int32_t agree5;
-				} else {
-					q2_2 "Q2.2 This is question 2_2" sp int32_t agree5;
-				}
+				<a href="#" rel="tooltip" data-placement="top" title="Name of the question variable in the data file">q1</a> 
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Question text that will be seen">"Q1. This is question 1"</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Whether the question will accept a single or multiple answers. Can also be mp(NUMBER) see next example">sp</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Data Type on disk">int32_t </a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Range of codes that are allowed"> (5-8, 1-2, 9-10, 11, 16)</a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Yes this is a semicolon terminated language">;</a><br />
+				<br /><br />
+				q2 "Q2. This is question 2"
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="This question will accept upto 5 simultaneous answers">mp(5)</a>
+				int32_t (5-8, 1-2, 9-10, 11, 16);<br />
+				<br />
+				// define a stubs variable which will be used throughtout a survey<br />
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="Language keyword">stubs </a>
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="variable name - see q3 below where it is used"> stuff </a>
+				= <br />
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="One particular stub definition"> "USB pen drive" 1</a><br />
+				"Keys" 2<br />
+				"Wallet" 3<br />
+				"Mobile Phone" 4<br />
+				"Pen" 5
+				;<br />
+				<br />
+				q3 "Q3. Which of these things are usually in your pocket, when on the move?"<br />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mp(3) int32_t 
+				<a href="#" rel="tooltip" data-placement="top" 
+					title="The stubs variable 'stuff' defined above has been used here">stuff</a>
+				;<br />
+				<a href="#" rel="tooltip" data-placement="top" 
+				title="The stubs variable 'stuff' defined above has been used here"> unset </a>
+				(stuff);<br />
+				setadd (stuff, q3);<br />
+				q4 "Q4. And which of these irritate you the most when in your pocket?"<br />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mp(3) int32_t 
+				stuff
+				;<br />
 
-				stubs stuff = 
-					"USB pen drive" 1
-					"Keys" 2
-					"Wallet" 3
-					"Watch" 4
-					"Pen" 5;
 
-				q3 "Q3. This is question 3" mp(3) int32_t stuff;
+			
+				<br />
+				<br />
+				stubs agree5 = <br />
+				" strongly disagree" 1<br />
+				" disagree " 2<br />
+				" neutral " 3<br />
+				" agree " 4<br />
+				"strongly agree" 5;<br />
+				<br />
+				if (q1 in (1) ) {<br />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;q2_1 "Q2.1 This is question 2_1" sp int32_t agree5;<br />
+				} else {<br />
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;q2_2 "Q2.2 This is question 2_2" sp int32_t agree5;<br />
+				}<br />
+
 			}
-					</pre>
+						</div>
+		</code>
+          <h3>Four directions</h3>
+          <div class="bs-docs-example tooltip-demo">
+            <ul class="bs-docs-tooltip-examples">
+              <li><a href="#" rel="tooltip" data-placement="top" title="Name of the question variable in the data file">Tooltip on top</a></li>
+              <li><a href="#" rel="tooltip" data-placement="right" title="Tooltip on right">Tooltip on right</a></li>
+              <li><a href="#" rel="tooltip" data-placement="bottom" title="Tooltip on bottom">Tooltip on bottom</a></li>
+              <li><a href="#" rel="tooltip" data-placement="left" title="Tooltip on left">Tooltip on left</a></li>
+            </ul>
+          </div>
+
+
+
 					<a name="compile">Compiling a script</a>
 				<p>Compiling the above script. Suppose the file is named inp_simple_example. It can be compiled to an exe with the following commands</p>
 
@@ -224,9 +315,7 @@
 		<script src="bootstrap/js/bootstrap.min.js"></script>
 		<script src="app.js"></script>
 	-->
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
+
     <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
     <script src="assets/js/jquery.js"></script>
     <script src="assets/js/google-code-prettify/prettify.js"></script>
