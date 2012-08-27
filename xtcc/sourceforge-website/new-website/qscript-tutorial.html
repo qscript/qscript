@@ -323,11 +323,15 @@
 	if (1 in q1) {
 		q1_1 "Can you please rate the quality of the Salary Account service for your bank"
 		     sp int32_t excel_5;
+	} else {
+		1;
 	}
 
 	if (2 in q1) {
-		q1_1 "Can you please rate the quality of the Savings Account service for your bank"
+		q1_2 "Can you please rate the quality of the Savings Account service for your bank"
 		     sp int32_t excel_5;
+	} else {
+		1;
 	}
 
 	.
@@ -356,10 +360,11 @@
 	</p>
 
 	<p>
-	In the if condition for question q3_2, you can see a redundant else clause which just contains "1;" in the else block. This redundant else clause is necessary for now, to help the compiler generate the correct code to clear the answer at q3_2 if the question was not taken. If this else block is not put by the programmer, the compiler will flag an error, displaying the if condition which is missing the else block and suggest the above fix.
+	In the if condition for question q1, you can see a redundant else clause which just contains "1;" in the else block. This redundant else clause is necessary for now, to help the compiler generate the correct code to clear the answer at q1_1 if the question was not taken, i.e. skipped. </p>
+	<p>How could something like this happen? Suppose when entering data the operator realises he has made a mistake. The generated exe program for data entry allows you to navigate backwards through the questionnaire using Ctrl-P(revious). He can go back to q1 and delete code 1. In the earlier pass, q1_1 was visited and had a valid answer, however now, since 1 is not present in q1, it will be skipped and pass through the else clause. The compiler generated code in the else clause, will clear out the answer  in q1_1 and the data will still be consistent. This is done automatically. If this else block is not put by the programmer, the compiler will flag an error, displaying the if condition which is missing the else block and suggest the above fix. 
 	</p>
 
-	<p>The if conditions on q4 demonstrate "else if" clauses.
+	<!-- <p>The if conditions on q4 demonstrate "else if" clauses. -->
 	</p>
           </div>
 	  </section>
