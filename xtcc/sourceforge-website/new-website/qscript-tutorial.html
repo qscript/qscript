@@ -75,7 +75,7 @@
             <h1>Question Statement Format</h1>
           </div>
 	  <div>
-		  Have a look at the notes in the comments below, which are //... . However your mouse over the links, to see an explanation for each items.
+		  Before we start with the tutorial proper, let's first look at one of the most important statements in the qscript language - the question definition statement.  Please have a look at the notes in the comments below, which are // ... . Hover your mouse over the links, to see an explanation for each item. On a first reading, you just need to be familiar with the structure of the question definition.  
 	<code>
 	<div class="code-tooltip">
 			inp_simple_example { <br/>
@@ -84,7 +84,7 @@
 				<a href="#" rel="tooltip" data-placement="top" 
 					title="Language keyword">stubs </a>
 				<a href="#" rel="tooltip" data-placement="top" 
-					title="variable name - see q3 below where it is used"> stuff </a>
+					title="variable name - see q1 and q4 below where it is used"> stuff </a>
 				= <br />
 				<a href="#" rel="tooltip" data-placement="top" 
 					title="One particular stub definition"> "USB pen drive" 1</a><br />
@@ -104,7 +104,7 @@
 				<a href="#" rel="tooltip" data-placement="top" 
 					title="Data Type on disk">&nbsp;&nbsp;&nbsp;int32_t </a>
 				<a href="#" rel="tooltip" data-placement="top" 
-					title="Range of codes that are allowed"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stuff</a>
+					title="the 'stuff' variable defined above has been used here "> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stuff</a>
 				<a href="#" rel="tooltip" data-placement="top" 
 					title="Yes this is a semicolon terminated language">;</a><br />
 				//&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^<br />
@@ -195,13 +195,13 @@
 		<li>
 		question text - "q1. This is a Range Question", which is what will be displayed on the screen
 		</li>
-		<li>Question type - sp: single coded  or mp: multi coded. If a question is multicoded, then the number of allowed responses in put in parenthesis - see q3 or q4 in the above example
+		<li>Question type - sp: single coded  or mp: multi coded. If a question is multicoded, then the number of allowed responses is put in parenthesis after the keyword mp - see q3 or q4 in the above example
 		</li>
 		<li>Data type on disk - it can be int8_t, int16_t, int32_t 
 		</li>
 		<li>Allowed range: 
 			<ul>
-			<li>for Range question this is a range of number specified in parenthesis - for example for q1 it is (1-3, 4, 7-9). This also demonstrates that ranges can be specified as start_number - end_number, example: 1-3 or individually separated by commas, example (8, 9, 11).
+			<li>for Range question this is a range of numbers specified in parenthesis - for example for q1 it is (1-3, 4, 7-9). This also demonstrates that ranges can be specified as start_number - end_number, example: 1-3 or individually separated by commas, example (8, 9, 11).
 			</li>
 			<li>
 			for Named Stub questions this is a predefined stub list. The 5 point agree scale : agree5 and vegetables list are examples of stub lists and show how to define them
@@ -256,9 +256,6 @@
 
 	<pre>
 	inp_if_else_branches {
-		// test to see how to handle
-		// undo / redo , visit previous questions 
-		// in case of if conditions
 
 		stubs excel_5 = 
 				"Horrible " 1
@@ -271,7 +268,7 @@
 			sp int32_t excel_5;
 
 
-		if(q3 in (1,2)) {
+		if (q3 in (1,2)) {
 			q3_bad "Q3. Why do you have a negative disposition towards your primary bank?" 
 			mp(5) int32_t (1-100) mutex 99;
 		} else if (q3 in (3)) {
@@ -279,12 +276,84 @@
 			mp(5) int32_t (1-100) mutex 99;
 		} else {
 			q3_good "Q3. Why does your primary bank deserve a positive score?" 
+			mp(5) int32_t (1-100) mutex 99;
 		}
 
 	}
 	</pre>
 
-	<p>The above example introduces the "if" conditional and the operator "in". The syntax for the if conditional is just like "C"-syntax. In the above example, on the right hand side of operator "in" we have a range set. The left hand side has the question being tested. It is best to use this syntax when the question is single coded - as is the case for "q1".</p>
+	<p>The above example introduces the "if" conditional and the operator "in". The syntax for the if conditional is just like "C"-syntax. In the above example, on the right hand side of operator "in" we have a range set. The left hand side has the question being tested.
+	<pre id="lhs_oper_in">
+		   q3            in             (1, 2)
+	     //    ^	         ^                ^
+	     //    |             |                |
+	     // question      operator      Range Set
+	     // name                         Right Hand Side
+	     // Left Hand 
+	     //  Side 
+	     // Single coded
+	     // question
+
+	</pre>
+
+
+	
+	This syntax is to be used when the question is single coded - as is the case for "q3".</p>
+
+	<p>When the question accepts multiple answers, there is a different syntax using operator "in" given below.
+	<pre>
+	stubs bank_services =
+		"Salary Account" 1
+		"Savings Account" 2
+		"Credit Card" 3
+		"Loan Account" 4;
+
+	q1 "Which of the following Banking services do you use?"
+	   int32_t mp (4) bank_services;
+
+
+	stubs excel_5 = 
+			"Horrible " 1
+			" " 2
+			" Alright, nothing to complain about " 3
+			" " 4
+			"Excellent " 5;
+	
+
+	if (1 in q1) {
+		q1_1 "Can you please rate the quality of the Salary Account service for your bank"
+		     sp int32_t excel_5;
+	}
+
+	if (2 in q1) {
+		q1_1 "Can you please rate the quality of the Savings Account service for your bank"
+		     sp int32_t excel_5;
+	}
+
+	.
+	.
+	.
+
+	</pre>
+
+	In the above example, note that q1 accepts multiple answers. Also note that the code appears on the left hand side of operator "in" and the question appears on the right hand side of operator in.
+	    Contrast this with diagram <a href="#lhs_oper_in">above</a> - explanation below
+	<pre id="rhs_oper_in">
+	    // 
+		    1               in             q3       
+	     //     ^               ^              ^	    
+	     //     |               |              |        
+	     // Constant         operator       question    
+	     // Expresssion 1     name        
+	     // on Left                         Right Hand 
+	     //  Hand Side                       Side 
+	     //                                  Multiple coded
+	     //                                  question    
+	</pre>
+	Also, note that the number 1 appears without parenthesis around it. This is because, it is an expression and not a "set", as in the previous example. This will be clear in the example after the "for" loop is explained. We will see, that, you can replace the number "1" with an expression like "i" which is a variable in the program and still have the test work. We, will also see that we can express the above code much more elegantly.
+	
+
+	</p>
 
 	<p>
 	In the if condition for question q3_2, you can see a redundant else clause which just contains "1;" in the else block. This redundant else clause is necessary for now, to help the compiler generate the correct code to clear the answer at q3_2 if the question was not taken. If this else block is not put by the programmer, the compiler will flag an error, displaying the if condition which is missing the else block and suggest the above fix.
