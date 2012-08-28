@@ -344,7 +344,7 @@
 	    Contrast this with diagram <a href="#lhs_oper_in">above</a> - explanation below
 	<pre id="rhs_oper_in">
 	    // 
-		    1               in             q3       
+		    1               in             q1       
 	     //     ^               ^              ^	    
 	     //     |               |              |        
 	     // Constant         operator       question    
@@ -375,6 +375,63 @@
             <h1>For Loops</h1>
           </div>
 	  <div>
+		  <p> First, a simple loop for questions which have a similar structure. Sometimes you have a segmentation section in a questionnaire. Sometimes you have a brand imagery section or an Ad-Impact section, which has statements like this.  </p>
+		<pre>
+		named_attribute ad_imagery = {
+		  	"Makes me think more positively about brand",
+			"Makes me think brand creates high quality products",
+			"Makes me think brand creates well researched products",
+			"Makes me want to try brand products"
+		};
+
+		stubs agree_5 = 
+		"Strongly Agree" 5,
+		"Agree" 4,
+		"Neutral  " 3,
+		"Disagree  " 2,
+		"Strongly Disagree" 1;
+
+		
+
+			 int32_t i1 = 0;
+			 for (i1 = 0; i1 &lt; 4; i1=i1+1) {
+		q2 		"After seeing this ad, please tell me on a scale of 1 to 5, your agreement with this statement" 
+				: ad_imagery[i1]
+				sp int32_t agree_5;
+			 }
+		</pre>
+
+		  For the moment, please ignore the named_attribute statement above. This is also the first time that you would have seen the definition of a variable "i1". Variables can be defined anywhere in the program. It looks like this:
+		  <p><code>
+			  int32_t i1 = 0;
+		  </code>
+		  </p>
+
+		  <p>
+		  This variable, will be used as the index of the for loop. When there is a question inside the body of a for loop, it has a very strict format, and the compiler will complain if anything deviates from this syntax. In the above example q2, is inside the body of the for loop.
+		  </p>
+		  <p>
+		  <code>
+			  for (i1 = 0; i1 &lt; 4; i1 = i1 + 1) {<br />
+			  }<br />
+		  </code>
+		  <p>
+		  Above, is the for loop itself. The above format is very strict, once the variable i1 is used, it has to be consistently used througout the loop. There is a restriction on the bounds of the for loop - it has to be a constant integer, a variable will not do. The number "4" could be any integer or an integer expression like 2 * 3, but it must be an integer constant. 
+
+
+	So, for example this will work 
+	<pre>
+	for (i=0; i&lt;2*3; i=i+1)
+	</pre> 
+	but this will not work 
+	<pre>
+	int32_t bounds=10;
+	for (i=0; i&lt;bounds; i=i+1) // illegal - this will not compile
+	</pre>
+	because "bounds" is a not a constant.
+		  The increment form must also be in the above format i.e. <code>&lt;index_varname&gt; =  &lt;index_varname&gt; + 1 </code>, i.e. for the above case it must be <br /><code>i1 = i1 + 1</code>. 
+		  </p>
+
 
 	<pre>
 	inp_for {
@@ -397,18 +454,8 @@
 	</pre>
 
 
-	<p>The above example demonstrates a for loop. It also shows how to declare an integer variable and initialize it. As you can see, it is possible to nest for loops and the language can handle this. There is a restriction on the bounds of the for loop - it has to be a constant integer, a variable will not do.
-	So, for example this will work 
-	<pre>
-	for (i=0; i&lt;2*3; i=i+1)
-	</pre> 
-	but this will not work 
-	<pre>
-	int32_t bounds=10;
-	for (i=0; i&lt;bounds; i=i+1)
-	</pre>
-	because "bounds" is a not a constant.
-	
+		  <p>The above example demonstrates a for loop. It also shows how to declare an integer variable and initialize it. As you can see, it is possible to nest for loops and the language can handle this. 
+
 	<p>In the above example, note the condition on i1 - greater than 2 i.e. q1 gets asked when i1 == 3. Also note that arrays count from zero and i1==0 in the loop initially. Hence, q1 will only be asked on the 4th (i1==3) and 5th (i1==3) iterations of the loop. Also, q1 will have a total of 10 iterations, q2 a total of 15 iterations and q3 a total of 5 iterations.</p>
           </div>
 	  </section>
