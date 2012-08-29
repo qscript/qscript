@@ -223,8 +223,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 	//print_close(script, code.program_code, ncurses_flag);
 
-	if (program_options_ns::ncurses_flag)
-		PrintNCursesMain(script, ncurses_flag);
+	//if (program_options_ns::ncurses_flag)
+	PrintNCursesMain(script, ncurses_flag);
 	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
 	if(qscript_debug::DEBUG_qscript_parser)
@@ -241,6 +241,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include <cstdlib>\n");
 	fprintf(script, "#include <errno.h>\n");
+	fprintf(script, "#include <time.h>\n");
 	if (program_options_ns::ncurses_flag) {
 		print_ncurses_include_files(script);
 	}
@@ -288,6 +289,8 @@ void print_header(FILE* script, bool ncurses_flag)
 
 
 	fprintf(script, "int ser_no = 0;\n");
+	fprintf(script, "bool rdg_mode_flag = false;\n");
+	fprintf(script, "int n_rdg_iters;\n");
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "string qscript_stdout_fname(\"qscript_stdout.log\");\n");
 	fprintf(script, "FILE * qscript_stdout = 0;\n");
@@ -338,6 +341,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	if (program_options_ns::ncurses_flag) {
 		print_ncurses_func_prototypes(script);
 	}
+	fprintf (script, "DummyArrayQuestion * find_q( vector <AbstractQuestion*> & question_list, string qname, stringstream & qax_stream);\n");
 	fprintf(script, "void SetupSignalHandler();\n");
 	fprintf(script, "static void sig_usr(int32_t signo);\n");
 	fprintf(script, "int32_t ComputeJumpToIndex(AbstractQuestion * q);\n");
@@ -1165,6 +1169,12 @@ test_script.o: test_script.C
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime");
+	} else {
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" ") + intermediate_file_name
+			+ string(" -lqscript_runtime ");
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
@@ -1204,7 +1214,7 @@ test_script.o: test_script.C
 	string executable_file_name = ExtractBaseFileName(src_file_name);
 	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += ".exe";
-	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
 	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
 	if (contains_space != string::npos) {
 		QSCRIPT_HOME.erase(contains_space);
@@ -1318,7 +1328,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "	extern int32_t optind, opterr, optopt;\n");
 	fprintf(script, "	extern char * optarg;\n");
 	fprintf(script, "	int c;\n");
-	fprintf(script, "	while ( (c = getopt(argc, argv, \"s::x::w::q::\")) != -1) {\n");
+	fprintf(script, "	while ( (c = getopt(argc, argv, \"r:s::x::w::q::\")) != -1) {\n");
 	fprintf(script, "		char ch = optopt;\n");
 	fprintf(script, "		switch (c) {\n");
 
@@ -1355,11 +1365,12 @@ void PrintProcessOptions(FILE * script)
 
 	fprintf(script, "		case 's': {\n");
 	fprintf(script, "			  only_setup_flag = true;\n");
-	fprintf(script, "			  if (optarg) {\n");
-	fprintf(script, "				  output_qtm_data_file_name = optarg;\n");
-	fprintf(script, "			  } else {\n");
-	fprintf(script, "				  output_qtm_data_file_name = \"qtm_datafile.dat\";\n");
-	fprintf(script, "			  }\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		break;\n");
+
+	fprintf(script, "		case 'r': {\n");
+	fprintf(script, "			  rdg_mode_flag = true;\n");
+	fprintf(script, " 			  n_rdg_iters = atoi (optarg);\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "		break;\n");
 
@@ -1402,6 +1413,8 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t	}\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "bool using_ncurses = %s;\n", (ncurses_flag) ?  "true": "false");
+	fprintf(script, "if (rdg_mode_flag) srandom(time(0));\n");
+
 	fprintf(script, "qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
 	fprintf(script, "	using namespace std;\n");
 
@@ -2648,6 +2661,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\t}\n");
 	}
 
+	fprintf(script, "int rdg_counter = 0;\n");
 	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)){\n");
 	// code-frag/open-eval-while-loop-code-frag.cpp 
 
@@ -2668,6 +2682,10 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t} else if (write_xtcc_data_file_flag) {\n");
 	fprintf(script, "\t\t cout << \"write_xtcc_data_file_flag is set\\n\";\n");
 	fprintf(script, "\t\t write_xtcc_data_to_disk();\n");
+	fprintf(script, "\t} else if (rdg_mode_flag ) {\n");
+	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
+	fprintf(script, "\t ser_no = random(); ser_no = ser_no % 1000000;\n");
+	fprintf(script, "\tif (++rdg_counter > n_rdg_iters) break;\n");
 	fprintf(script, "\t} else {\n");
 	fprintf(script, "\tchar end_of_question_navigation;\n");
 	fprintf(script, "label_end_of_qnre_navigation:\n");
@@ -2713,7 +2731,8 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\treset_questionnaire();\n");
 	} else {
 		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
-		fprintf(script, "\tcin >> ser_no;cin.get(newl);\n");
+		fprintf(script, "\tcin >> ser_no; { char newl; cin.get(newl); }\n");
+		fprintf(script, "\t}\n");
 		fprintf(script, "\treset_questionnaire();\n");
 	}
 	fprintf(script, "\n\t} /* close while */\n");
@@ -3341,7 +3360,6 @@ void print_ncurses_func_prototypes (FILE * script)
 	fprintf (script, "void define_some_pd_curses_keys();\n");
 	//fprintf (script, "string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int index, string jno);\n");
 
-	fprintf (script, "DummyArrayQuestion * find_q( vector <AbstractQuestion*> & question_list, string qname, stringstream & qax_stream);\n");
 
 }
 

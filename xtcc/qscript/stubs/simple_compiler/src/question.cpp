@@ -352,7 +352,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
 		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
 		<< questionName_ << "->isAnswered_ == false " 
-		<< ")"
+		<< ") || rdg_mode_flag"
 	        << ") {" << endl;
 	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
 		<< " ) {\n\tstopAtNextQuestion = false; "
@@ -366,11 +366,39 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	//	<< "}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
-		<< "if ( " << questionName_ << "->question_attributes.hidden_==false) {\n"
+		<< "if ( " << questionName_ << "->question_attributes.hidden_==false && !rdg_mode_flag) {\n"
 		// new: 12-may-2011
 		<< "\t\t stopAtNextQuestion = false;\n"
-		<< questionName_.c_str()
-		<< "->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n";
+		<< questionName_
+		<< "->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n"
+		<< " else {\n"
+		<< "\t// rdg_mode code goes here\n"
+		<< "\tint n_random_answers = 0;\n"
+		<< "\tif (" << questionName_ << "->no_mpn < 6) {\n"
+		<< "\t\tn_random_answers = " << questionName_ << "->no_mpn;\n"
+		<< "\t} else {\n"
+		<< "\t\tn_random_answers = " << questionName_ << "->no_mpn/2;\n"
+		<< "\t\t}\n"
+		<< "\tset <int> random_answers;\n"
+		<< "\tfor (int qscript_r=0; 	qscript_r< n_random_answers; ++qscript_r) {\n"
+		<< "\t\tlabel_random_" << questionName_ << ":\n"
+		<< "\t\tlong int answer = random ();\n"
+		<< "\t\tanswer = answer % " << questionName_ << "->maxCode_+1;\n"
+		<< "\t\tif (random_answers.find (answer) != random_answers.end()) {\n"
+		<< "\t\t\tgoto label_random_" << questionName_ << ";\n"
+		<< "\t\t} else {\n"
+		<< "\t\t\trandom_answers.insert (answer);\n"
+		<< "\t\t}\n"
+		<< "\t}\n"
+		<< "\tfor (set<int>::iterator qscript_r_it = random_answers.begin();\n"
+		<< "\t\tqscript_r_it != random_answers.end();\n"
+		<< "\t\t++qscript_r_it) {\n"
+		<< "\t\t" << questionName_ << "->input_data.insert (*qscript_r_it);\n"
+		<< "\t}\n"
+		<< questionName_ << "->isAnswered_ = true;\t\n"
+		<< "}\n";
+
+
 	PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }
@@ -1734,10 +1762,11 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< ") ||" << endl
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " << endl
 		<< "  && !(" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
-		<< "->question_attributes.isAllowBlank()) &&"
+		<< "->question_attributes.isAllowBlank()) &&\n"
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
 		<< "->isAnswered_ == false " 
-		<< ")"
+		<< ")||\n"
+		<< "rdg_mode_flag\n"
 		<< ") {\n";
 	code.program_code << "label_eval_" << questionName_ << ":\n";
 	code.program_code << "if( jumpToQuestion == \"" << questionName_
@@ -1751,7 +1780,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	code.program_code	<< "if ( " 
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "]->" 
-		<< "question_attributes.hidden_==false) {\n";
+		<< "question_attributes.hidden_==false && !rdg_mode_flag) {\n";
 	code.program_code << "fprintf( qscript_stdout, \" reached : " 
 		<< questionName_
 		<< "  because\" );\n"
@@ -1769,12 +1798,40 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< ") {" 
 		<< "fprintf(qscript_stdout, \" failed VerifyQuestionIntegrity \\n\");\n"
 		<< "}\n";
+
 	// new: 12-may-2011
 	code.program_code << "\t\t stopAtNextQuestion = false;\n";
 	code.program_code << "\t\t" << questionName_ << "_list.questionList[";
 	// ---------------------------------
 	code.program_code << consolidated_for_loop_index;
-	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n";
+	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n"
+		<< "else {\n"
+		<< "\t// rdg_mode code goes here\n"
+		<< "\tint n_random_answers = 0;\n"
+		<< "\tif (" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->no_mpn <6) {\n" 
+		<< "\t\tn_random_answers = " << questionName_ << "_list.questionList[" << consolidated_for_loop_index <<  "]->no_mpn;\n"
+		<< "\t} else {\n"
+		<< "\t\tn_random_answers = " << questionName_ << "_list.questionList[" << consolidated_for_loop_index <<  "]->no_mpn/2;\n"
+		<< "\t\t}\n"
+		<< "\tset <int> random_answers;\n"
+		<< "\tfor (int qscript_r=0; 	qscript_r< n_random_answers; ++qscript_r) {\n"
+		<< "\t\tlabel_random_" << questionName_ << ":\n"
+		<< "\t\tlong int answer = random ();\n"
+		<< "\t\tanswer = answer % "  << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"<< "->maxCode_ + 1;\n"
+		<< "\t\tif (random_answers.find (answer) != random_answers.end()) {\n"
+		<< "\t\t\tgoto label_random_" << questionName_ << ";\n"
+		<< "\t\t} else {\n"
+		<< "\t\t\trandom_answers.insert (answer);\n"
+		<< "\t\t}\n"
+		<< "\t}\n"
+		<< "\tfor (set<int>::iterator qscript_r_it = random_answers.begin();\n"
+		<< "\t\tqscript_r_it != random_answers.end();\n"
+		<< "\t\t++qscript_r_it) {\n"
+		<< "\t\t" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->input_data.insert (*qscript_r_it);\n"
+		<< "\t}\n"
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]" <<"->isAnswered_ = true;\t\n"
+		// closing brace of rdg block
+		<< "}\n";
 	PrintUserNavigationArrayQuestion(code.program_code);
 
 	code.program_code << "}\n";
