@@ -308,3 +308,188 @@ string AbstractQuestion::PrepareQuestionTitle()
 	}
 	return quest_decl.str();
 }
+
+
+#include <cstdlib>
+
+set<int> pick_random_values_from_these_answers (vector<int> valid_answers, int no_mpn, string qno, XtccSet& mutex_code_list)
+{
+	cout << __PRETTY_FUNCTION__  << "qno: " << qno 
+		<< "valid_answers.size(): " << valid_answers.size() 
+		<< endl;
+	set<int> input_data;
+	int n_mutex_codes = mutex_code_list.count();
+
+	if (valid_answers.size() == 1) {
+		input_data.insert (valid_answers[0]);
+		cout << "setting "  
+			<< qno
+			<< " input_data with only answer available"
+			<< valid_answers[0] << endl;
+	} else {
+		int n_random_answers = 1;
+		if (no_mpn > 1) {
+			n_random_answers = random() % no_mpn;
+			// yup - a bias introduced here, sue me
+			if (n_random_answers == 0) {
+				n_random_answers = 1; 
+			}
+			// if we dont do this we could have an infinite loop
+			if (n_random_answers > valid_answers.size() - n_mutex_codes) {
+				n_random_answers = valid_answers.size() - n_mutex_codes;
+				cout << "setting n_random_answers to valid_answers.size() : "
+					<< valid_answers.size() << " -  n_mutex_codes: "
+					<< n_mutex_codes
+					<< endl;
+			}
+			// after this adjustment n_random_answers can still be 1
+			// consider this case
+			// q1 "q1" mp(3) int32_t (1, 98, 99) mutex (98, 99)
+			// above n_random_answers can start at 3
+			// but then n_random_answers is set to 3 - 2 = 1
+			// if we didnt do the above
+			// we could have n_random_answers = 3
+			// but preventing mutexes would prevent us from
+			// filling up more answers - resulting in an
+			// infinite loop
+		}
+		if (n_random_answers == 1) {
+			// see comment above
+			int rvi = static_cast<int>  ( random() % valid_answers.size());
+			input_data.insert (valid_answers[rvi]);
+		} else if (n_random_answers == no_mpn && no_mpn > 1) {
+			for (int i = 0; i < valid_answers.size(); ++i) {
+				input_data.insert ( valid_answers[i]);
+			}
+		} else {
+			set<int> already_inserted;
+			bool is_first_answer = true;
+			for (int i = 0; i < n_random_answers; ++i) {
+get_another_random_value:
+				int rvi = static_cast<int>  ( random() % valid_answers.size());
+				if        (is_first_answer == true  && mutex_code_list.exists (valid_answers[rvi])) {
+					input_data.insert (valid_answers[rvi]);
+					break;
+				} else if (is_first_answer == false && mutex_code_list.exists (valid_answers[rvi])) {
+					cout << "preventing mutex value to be allowed with normal answers as it was not selected as the 1st answer"
+						<< endl;
+					// we have taken care of inifinite loop prevention
+					// by adjusting n_random_answers = valid_answers - n_mutex_codes
+					goto get_another_random_value;
+				} else {
+					// is_first_answer == true  and not a mutex code
+					// is_first_answer == false and not a mutex code
+					if (already_inserted.find (rvi) == already_inserted.end()) {
+						input_data.insert (valid_answers[rvi]);
+						already_inserted.insert (rvi);
+					} else {
+						goto get_another_random_value;
+					}
+					input_data.insert (valid_answers[rvi]);
+					is_first_answer = false;
+				}
+			}
+		}
+	}
+	return input_data;
+}
+
+void RangeQuestion::generateRandomAnswers()
+{
+	vector<int> valid_answers;
+	cout << questionName_ << ": putting into valid_answers : ";
+	for (int i = 0; i < r_data->range.size(); ++i) {
+		for (int lb = r_data->range[i].first;
+				lb <= r_data->range[i].second; ++lb) {
+			cout << " " << lb;
+			valid_answers.push_back (lb);
+		}
+	}
+	
+
+	cout << " | ";
+	for (set<int>::iterator it = r_data->indiv.begin();
+			it != r_data->indiv.end(); ++it) {
+		cout << " " << *it;
+		valid_answers.push_back (*it);
+	}
+
+	cout << endl;
+
+#if 0
+	if (valid_answers.size() == 1) {
+		input_data.insert (valid_answers[0]);
+	} else {
+		int n_random_answers = random() % no_mpn;
+		if (n_random_answers > valid_answers.size()) {
+			n_random_answers = valid_answers.size();
+		}
+		// yup - a bias introduced here, sue me
+		if (n_random_answers == 0) {
+			n_random_answers = 1; 
+		}
+		if (n_random_answers == no_mpn) {
+			for (int i = 0; i < valid_answers.size(); ++i) {
+				input_data.insert ( valid_answers[i]);
+			}
+		} else {
+			set<int> already_inserted;
+			for (int i = 0; i < n_random_answers; ++i) {
+get_another_random_value:
+				int rvi = static_cast<int>  ( random() % valid_answers.size());
+				if (already_inserted.find (rvi) == already_inserted.end()) {
+					input_data.insert (valid_answers[rvi]);
+					already_inserted.insert (rvi);
+				} else {
+					goto get_another_random_value;
+				}
+			}
+		}
+	}
+#endif /*  0 */
+#if 0
+		int n_random_answers = random() % no_mpn;
+		if (n_random_answers > valid_answers.size()) {
+			n_random_answers = valid_answers.size();
+		}
+		// yup - a bias introduced here, sue me
+		if (n_random_answers == 0) {
+			n_random_answers = 1; 
+		}
+#endif /*  0 */
+	input_data = pick_random_values_from_these_answers (valid_answers, no_mpn, questionName_, mutexCodeList_);
+
+}
+
+void NamedStubQuestion::generateRandomAnswers()
+{
+	vector<int> valid_answers;
+	vector<stub_pair> & vec = (nr_ptr->stubs);
+	for (uint32_t j = 0; j < vec.size(); ++j) {
+		if (vec[j].mask) {
+			valid_answers.push_back (vec[j].code);
+		}
+	}
+#if 0
+	if (valid_answers.size() == 1) {
+		input_data.insert (valid_answers[0]);
+	} else {
+
+		int n_random_answers = random() % no_mpn;
+		if (n_random_answers > valid_answers.size()) {
+			n_random_answers = valid_answers.size();
+		}
+		// yup - a bias introduced here, sue me
+		if (n_random_answers == 0) {
+			n_random_answers = 1; 
+		}
+
+	}
+#endif
+	input_data = pick_random_values_from_these_answers (valid_answers, no_mpn, questionName_, mutexCodeList_);
+}
+
+void DummyArrayQuestion::generateRandomAnswers()
+{
+
+}

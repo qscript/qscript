@@ -40,6 +40,7 @@ struct XtccSet {
 	string print_replicate_code(string set_name);
 	int32_t GetMax();
 	bool isEmpty();
+	int count() const;
 };
 
 #endif /* xtcc_set_h */

@@ -244,6 +244,20 @@ int32_t XtccSet::GetMax()
 
 }
 
+int XtccSet::count() const
+{
+	int32_t n = 0; 
+	for(	set<int32_t>::iterator it = indiv.begin();
+			it != indiv.end(); ++it) {
+		++n;
+	}
+	for(uint32_t i = 0; i < range.size(); ++i) {
+		n += (range[i].second - 
+			range[i].first) + 1;
+	}
+	return n;
+}
+
 bool XtccSet::isEmpty()
 {
 	if (indiv.begin() != indiv.end()) {

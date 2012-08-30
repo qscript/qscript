@@ -373,6 +373,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n"
 		<< " else {\n"
 		<< "\t// rdg_mode code goes here\n"
+#if 0
 		<< "\tint n_random_answers = 0;\n"
 		<< "\tif (" << questionName_ << "->no_mpn < 6) {\n"
 		<< "\t\tn_random_answers = " << questionName_ << "->no_mpn;\n"
@@ -395,6 +396,8 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "\t\t++qscript_r_it) {\n"
 		<< "\t\t" << questionName_ << "->input_data.insert (*qscript_r_it);\n"
 		<< "\t}\n"
+#endif /*  0 */
+		<< questionName_ << "->generateRandomAnswers();\t\n"
 		<< questionName_ << "->isAnswered_ = true;\t\n"
 		<< "}\n";
 
@@ -1807,6 +1810,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 	code.program_code << "]->eval(question_window, stub_list_window, data_entry_window, error_msg_window);\n\t}\n"
 		<< "else {\n"
 		<< "\t// rdg_mode code goes here\n"
+#if 0
 		<< "\tint n_random_answers = 0;\n"
 		<< "\tif (" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->no_mpn <6) {\n" 
 		<< "\t\tn_random_answers = " << questionName_ << "_list.questionList[" << consolidated_for_loop_index <<  "]->no_mpn;\n"
@@ -1829,7 +1833,9 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "\t\t++qscript_r_it) {\n"
 		<< "\t\t" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->input_data.insert (*qscript_r_it);\n"
 		<< "\t}\n"
-		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]" <<"->isAnswered_ = true;\t\n"
+#endif /* 0 */
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->generateRandomAnswers();\t\n"
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_ = true;\t\n"
 		// closing brace of rdg block
 		<< "}\n";
 	PrintUserNavigationArrayQuestion(code.program_code);

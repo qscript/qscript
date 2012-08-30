@@ -198,6 +198,7 @@ struct AbstractQuestion: public AbstractStatement
 	string PrepareQuestionTitle();
 	string AxPrepareQuestionTitle();
 	string getNamedAttributeText();
+	virtual void generateRandomAnswers()=0;
 
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
@@ -282,6 +283,7 @@ struct RangeQuestion: public AbstractQuestion
 	~RangeQuestion();
 	std::string PrintSelectedAnswers();
 	std::string PrintSelectedAnswers(int code_index);
+	void generateRandomAnswers();
 
 	private:
 		RangeQuestion& operator=(const RangeQuestion&);
@@ -387,6 +389,7 @@ class NamedStubQuestion: public AbstractQuestion
 				     , WINDOW * error_msg_window);
 	std::string PrintSelectedAnswers();
 	std::string PrintSelectedAnswers(int code_index);
+	void generateRandomAnswers();
 
 
 	private:
@@ -416,6 +419,7 @@ class DummyArrayQuestion: public AbstractQuestion{
 			      , AbstractStatement* endStatement);
 	std::string PrintSelectedAnswers();
 	std::string PrintSelectedAnswers(int code_index);
+	void generateRandomAnswers();
 
 	private:
 		DummyArrayQuestion& operator=(const DummyArrayQuestion&);
