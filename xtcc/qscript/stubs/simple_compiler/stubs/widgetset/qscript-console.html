@@ -1,0 +1,81 @@
+<html>
+<head>
+<title>Embedded Wt/CodeMirror 2: JavaScript mode</title>
+  <style type="text/css">
+    .widget { 
+      width: 400px;
+      height: 200px;
+      margin: 10px auto;
+      padding: 4px;
+      border: 4px solid gray;
+    }
+
+    .IE-hidden-iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1px; height: 1px;
+      visibility: hidden;
+    }
+  </style>
+    <link rel="stylesheet" href="code-mirror/codemirror.css">
+    <script src="code-mirror/codemirror.js"></script>
+    <script src="code-mirror/mode/javascript/javascript.js"></script>
+    <link rel="stylesheet" href="code-mirror/theme/default.css">
+    <link rel="stylesheet" href="code-mirror/css/docs.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+</head>
+<body>
+
+<input id="Wt-history-field" type="hidden"/>
+<div>
+	<input id="get_the_code" type="button" value="Transfer Code"> 
+</div>
+<div id="put_code_here">
+</div>
+
+
+	<script type="text/javascript">
+	var myCodeMirror = CodeMirror(document.body, {
+	  value: "function myScript(){return 100;}\n",
+	  mode:  "javascript"
+	});
+	myCodeMirror.id = "code_mirror_text_editor";
+	</script>
+
+
+
+
+<!-- End hidden fields for Wt's internal path API -->
+
+<!--
+   We need a place holder for every widget to which we want to bind
+   a WContainerWidget in Wt
+  -->
+<div id="hello" class="widget">
+</div>
+
+<!--
+   As the last step, we load our application.
+  -->
+<script src="http://127.0.0.1:8080/qscript-console.js?div=hello&amp;Wt-history=Wt-history"></script>
+
+	<script type="text/javascript">
+	var get_the_code = document.getElementById("get_the_code");
+	get_the_code.onclick = function () {
+		var put_code_here = document.getElementById("put_code_here");
+		var the_code =  myCodeMirror.getValue();
+		put_code_here.innerHTML = the_code;
+		// This doesnt work although I thought it should
+		if (this.Wt) {
+			alert("this.Wt: " + this.Wt);
+		}
+		if (this.Wt3_2_1) {
+			alert("this.Wt: " + this.Wt);
+		}
+		// I thought this would work but it doesnt
+		Wt.emit(Wt, 'getTheCode', the_code);
+	}
+	</script>
+
+</body>
+</html>
