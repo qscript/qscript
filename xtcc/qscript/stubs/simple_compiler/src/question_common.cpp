@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <cstdlib>
 #include "question.h"
 #include "named_range.h"
 #include "utils.h"
@@ -329,7 +330,7 @@ set<int> pick_random_values_from_these_answers (vector<int> valid_answers, int n
 	} else {
 		int n_random_answers = 1;
 		if (no_mpn > 1) {
-			n_random_answers = random() % no_mpn;
+			n_random_answers = rand() % no_mpn;
 			// yup - a bias introduced here, sue me
 			if (n_random_answers == 0) {
 				n_random_answers = 1; 
@@ -355,7 +356,7 @@ set<int> pick_random_values_from_these_answers (vector<int> valid_answers, int n
 		}
 		if (n_random_answers == 1) {
 			// see comment above
-			int rvi = static_cast<int>  ( random() % valid_answers.size());
+			int rvi = static_cast<int>  ( rand() % valid_answers.size());
 			input_data.insert (valid_answers[rvi]);
 		} else if (n_random_answers == no_mpn && no_mpn > 1) {
 			for (int i = 0; i < valid_answers.size(); ++i) {
@@ -366,7 +367,7 @@ set<int> pick_random_values_from_these_answers (vector<int> valid_answers, int n
 			bool is_first_answer = true;
 			for (int i = 0; i < n_random_answers; ++i) {
 get_another_random_value:
-				int rvi = static_cast<int>  ( random() % valid_answers.size());
+				int rvi = static_cast<int>  ( rand() % valid_answers.size());
 				if        (is_first_answer == true  && mutex_code_list.exists (valid_answers[rvi])) {
 					input_data.insert (valid_answers[rvi]);
 					break;
@@ -420,7 +421,7 @@ void RangeQuestion::generateRandomAnswers()
 	if (valid_answers.size() == 1) {
 		input_data.insert (valid_answers[0]);
 	} else {
-		int n_random_answers = random() % no_mpn;
+		int n_random_answers = rand() % no_mpn;
 		if (n_random_answers > valid_answers.size()) {
 			n_random_answers = valid_answers.size();
 		}
@@ -436,7 +437,7 @@ void RangeQuestion::generateRandomAnswers()
 			set<int> already_inserted;
 			for (int i = 0; i < n_random_answers; ++i) {
 get_another_random_value:
-				int rvi = static_cast<int>  ( random() % valid_answers.size());
+				int rvi = static_cast<int>  ( rand() % valid_answers.size());
 				if (already_inserted.find (rvi) == already_inserted.end()) {
 					input_data.insert (valid_answers[rvi]);
 					already_inserted.insert (rvi);
@@ -448,7 +449,7 @@ get_another_random_value:
 	}
 #endif /*  0 */
 #if 0
-		int n_random_answers = random() % no_mpn;
+		int n_random_answers = rand() % no_mpn;
 		if (n_random_answers > valid_answers.size()) {
 			n_random_answers = valid_answers.size();
 		}
@@ -475,7 +476,7 @@ void NamedStubQuestion::generateRandomAnswers()
 		input_data.insert (valid_answers[0]);
 	} else {
 
-		int n_random_answers = random() % no_mpn;
+		int n_random_answers = rand() % no_mpn;
 		if (n_random_answers > valid_answers.size()) {
 			n_random_answers = valid_answers.size();
 		}
