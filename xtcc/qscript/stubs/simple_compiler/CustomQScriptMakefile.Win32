@@ -1,5 +1,5 @@
-CXX = g++
-CC = $(CXX) 
+
+CC = $(CXX)
 CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
 CXX_SHARED_LIB_FLAGS = -fPIC
 CXX_LINK_FLAGS = -g
@@ -34,6 +34,7 @@ OBJECTS += $(YACC_OBJECTS)
 LEX_SOURCES = $(wildcard $(SOURCE_DIR)/*.l)
 EXCLUDE_FILE=src/read_disk_data.l
 LEX_SOURCES := $(filter-out $(EXCLUDE_FILE),$(LEX_SOURCES))
+LEX_OUTPUTS  = $(LEX_SOURCES:.l=.cpp)	# added ne wby NxD on 23-sep-2010 - need to check if it works then delete this statement
 LEX_OBJECTS = $(LEX_SOURCES)
 LEX_OBJECTS := $(subst $(SOURCE_DIR),$(BUILD_DIR),$(LEX_OBJECTS))
 LEX_OBJECTS := $(LEX_OBJECTS:.l=.o)
@@ -99,6 +100,7 @@ $(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
 		rm -f $@.$$$$
 
 RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/qtm_data_file.cpp \
+		$(SOURCE_DIR)/XtccDataFile.cpp \
 		$(SOURCE_DIR)/scan_data.cpp $(SOURCE_DIR)/qscript_readline.cpp \
 		$(SOURCE_DIR)/QuestionAttributes.cpp \
 		$(SOURCE_DIR)/data_entry.cpp \
@@ -115,7 +117,9 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/qtm_data_file.cpp
 		$(SOURCE_DIR)/qtm_datafile_conf_parser.cpp $(SOURCE_DIR)/qtm_datafile_conf_lex.cpp \
 		$(SOURCE_DIR)/AbstractStatement.cpp \
 		$(SOURCE_DIR)/question_runtime.cpp $(SOURCE_DIR)/question_common.cpp \
-		$(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/named_range.cpp
+		$(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/named_range.cpp \
+		$(SOURCE_DIR)/named_attributes.cpp 
+
 #$(SOURCE_DIR)/question.cpp \
 #$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/lex.cpp \
 #$(SOURCE_DIR)/expr.cpp \
