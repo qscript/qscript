@@ -13,6 +13,8 @@
 #include <Wt/WJavaScript>
 
 #include <fstream>
+#include <cstdlib>
+#include <cstring>
 
 class HelloApplication : public Wt::WApplication
 {
@@ -26,12 +28,13 @@ private:
   void getTheCode(std::string p_the_code);
   Wt::JSlot my_js_slot;
   Wt::WLineEdit *filename_ ;
+  Wt::WText * compilerMessages_ ;
 
 };
 
 HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
   : WApplication(env), getTheCodeSignal_(this, "getTheCode"), my_js_slot(),
-	filename_(0)
+	filename_(0), compilerMessages_(0)
 {
   using namespace std;
   Wt::WContainerWidget *top;
@@ -86,7 +89,7 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
   //  my_js_slot.setJavaScript (string("function() { alert('my_js_slot');") 
   //	+ string("Wt.emit('") + b->id() + string("','getTheCode',myCodeMirror.getValue()); }"));
   // this one works
-  my_js_slot.setJavaScript (string("function () { alert('my_js_slot');") 
+  my_js_slot.setJavaScript (string("function () {\n") 
 		  	+ getTheCodeSignal_.createCall ("myCodeMirror.getValue()") 
 			+ string ("}")
 			);
@@ -105,14 +108,50 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
    * Connect signals with slots
    */
   b->clicked().connect(this, &HelloApplication::transferCode);
+  compilerMessages_ = new Wt::WText( top);
 }
 
 
 void HelloApplication::getTheCode (std::string p_the_code)
 {
   using namespace std;
-  fstream save_file (filename_->text().toUTF8().c_str(), ios::out);
+  string sys_filename = filename_->text().toUTF8();
+  fstream save_file (sys_filename.c_str(), ios::out);
   save_file << p_the_code << endl;
+  stringstream cmd;
+  cmd << "qscript -o -m -n -f " << sys_filename << " 2>&1 > op";
+  system (cmd.str().c_str());
+  fstream op ("op", ios::in);
+  stringstream cc_errs;
+  while (!op.eof()) {
+	char buffer[4097];
+	memset (buffer, 0, 4097);
+	op.read (buffer, 4096);
+	// why? - because read does put the trailing '\0'
+	cc_errs << buffer;
+	int n = cc_errs.gcount();
+	//buffer[n] = '\0';
+  }
+  cout << cc_errs.str() << endl;
+  string errs = cc_errs.str();
+  {
+	  string::size_type found = errs.find (string(" "));
+	  while (found != string::npos) {
+		errs.replace (found, 1, "&nbsp;");
+		found = errs.find (string(" "));
+	  }
+	  found = errs.find (string("\n"));
+	  while (found != string::npos) {
+		errs.replace (found, 1, "<br />\n");
+		found = errs.find (string("\n"), found + 9);
+	  }
+
+  }
+  cout << errs << endl;
+  stringstream simple_htmlize;
+  simple_htmlize << "<div>" << errs << "</div>" << endl;
+  compilerMessages_->setTextFormat (Wt::XHTMLText);
+  compilerMessages_->setText (simple_htmlize.str());
 }
 
 void HelloApplication::transferCode()
