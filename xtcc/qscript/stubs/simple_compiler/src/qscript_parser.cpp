@@ -1413,7 +1413,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t	}\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "bool using_ncurses = %s;\n", (ncurses_flag) ?  "true": "false");
-	fprintf(script, "if (rdg_mode_flag) srandom(time(0));\n");
+	fprintf(script, "if (rdg_mode_flag) srand(time(0));\n");
 
 	fprintf(script, "qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
 	fprintf(script, "	using namespace std;\n");
@@ -2684,7 +2684,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t\t write_xtcc_data_to_disk();\n");
 	fprintf(script, "\t} else if (rdg_mode_flag ) {\n");
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
-	fprintf(script, "\t ser_no = random(); ser_no = ser_no % 1000000;\n");
+	fprintf(script, "\t ser_no = rand(); ser_no = ser_no %% 1000000;\n");
 	fprintf(script, "\tif (++rdg_counter > n_rdg_iters) break;\n");
 	fprintf(script, "\t} else {\n");
 	fprintf(script, "\tchar end_of_question_navigation;\n");
