@@ -1,12 +1,18 @@
 
 #include <Wt/WApplication>
 #include <Wt/WBreak>
+#include <Wt/WRegExpValidator>
+#include <Wt/WLabel>
+#include <Wt/WLineEdit>
 #include <Wt/WContainerWidget>
 #include <Wt/WEnvironment>
 #include <Wt/WPushButton>
 #include <Wt/WServer>
 #include <Wt/WText>
+#include <Wt/WTextEdit>
 #include <Wt/WJavaScript>
+
+#include <fstream>
 
 class HelloApplication : public Wt::WApplication
 {
@@ -19,11 +25,13 @@ private:
   Wt::JSignal<std::string> getTheCodeSignal_;
   void getTheCode(std::string p_the_code);
   Wt::JSlot my_js_slot;
+  Wt::WLineEdit *filename_ ;
 
 };
 
 HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
-  : WApplication(env), getTheCodeSignal_(this, "getTheCode"), my_js_slot()
+  : WApplication(env), getTheCodeSignal_(this, "getTheCode"), my_js_slot(),
+	filename_(0)
 {
   using namespace std;
   Wt::WContainerWidget *top;
@@ -64,6 +72,12 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
     }
   }
  
+  Wt::WContainerWidget *w = new Wt::WContainerWidget(top);
+  Wt::WLabel *label = new Wt::WLabel("Filename:", w);
+  Wt::WRegExpValidator *file_name_validator = new Wt::WRegExpValidator("[a-zA-Z0-9_][a-zA-Z0-9._]+");
+  filename_ = new Wt::WLineEdit("<filename>", w);
+  filename_->setValidator(file_name_validator);
+  label->setBuddy(filename_);
   Wt::WPushButton *b = new Wt::WPushButton("Transfer Code To Server.", top);
   b->setMargin(5, Wt::Left);
   // My initial attempts that failed
@@ -97,7 +111,8 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded)
 void HelloApplication::getTheCode (std::string p_the_code)
 {
   using namespace std;
-  cout << p_the_code << endl;
+  fstream save_file (filename_->text().toUTF8().c_str(), ios::out);
+  save_file << p_the_code << endl;
 }
 
 void HelloApplication::transferCode()
