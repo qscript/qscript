@@ -809,7 +809,10 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 	}
 #endif /* 0 */
 	const int TEXT_LEN_BREAK_AT = 120;
-	vector <string> smaller_ttls = split_into_smaller_chunks ("Fix me"/* q->questionText_ */, TEXT_LEN_BREAK_AT);
+	vector <string> smaller_ttls = split_into_smaller_chunks (
+			//"Fix me"/* q->questionText_ */
+			q->AxPrepareQuestionTitle()
+			, TEXT_LEN_BREAK_AT);
 	stringstream ttl_string;
 	for (int i=0; i<smaller_ttls.size(); ++i) {
 		ttl_string << smaller_ttls[i];
@@ -1574,9 +1577,9 @@ string print_summary_axis_helpers_helper (vector<qtm_data_file_ns::QtmDataDiskMa
 	string summary_text;
 
 	if (sm_type == MN) {
-		incl_file = include_file_name;
-	} else {
 		incl_file = mean_score_include_file;
+	} else {
+		incl_file = include_file_name;
 	}
 
 	if (sm_type == TOP_BOX) {
