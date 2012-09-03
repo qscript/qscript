@@ -1400,7 +1400,7 @@ test_script.o: test_script.C
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 #ifndef _WIN32
-			+ string(" -lwt -lwthttp -lpanel -lncurses -lqscript_runtime");
+			+ string(" -lwt -lwthttp -lqscript_runtime -lboost_signals -lpanel -lncurses ");
 #else
 			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime");
 #endif /* _WIN32 */
