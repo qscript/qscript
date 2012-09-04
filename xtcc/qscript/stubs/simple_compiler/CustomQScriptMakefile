@@ -153,7 +153,7 @@ runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
 #	echo "RUNTIME_LIB_SOURCES $(RUNTIME_STATIC_LIB_OBJECTS)"
 #	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_STATIC_LIB_OBJECTS)"
 #$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
-	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_runtime.a $(RUNTIME_STATIC_LIB_OBJECTS)
+	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_runtime_wq2.a $(RUNTIME_STATIC_LIB_OBJECTS)
 
 
 compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
