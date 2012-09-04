@@ -49,7 +49,7 @@ QSCRIPT_MINOR_VERSION_NUMBER=14
 #	echo "YACC OBJECTS $(YACC_OBJECTS)"
 #	echo "LEX OBJECTS $(LEX_OBJECTS)"
 
-$(BUILD_DIR)/qscript: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
+$(BUILD_DIR)/qscript_wq2: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
 #echo "cpp sources: $(CPP_SOURCES)" 
 #	echo "yacc sources: $(YACC_SOURCES)" 
 #	echo "lex sources: $(LEX_SOURCES)" 
@@ -146,7 +146,7 @@ COMPILETIME_LIB_OBJECTS := $(COMPILETIME_LIB_OBJECTS:.cpp=.o)
 runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
 #	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
 #	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
-	$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
+	$(CXX) -g -shared -Wl,-soname,libqscript_runtime_wq2.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
 
 
 runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
@@ -159,7 +159,7 @@ runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
 compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
 #echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
 #	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
-	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
+	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime_wq2.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 	$(CC) $(CFLAGS) -o $@ $<
@@ -212,24 +212,24 @@ release: clean
 .PHONY: clean tags
 
 clean:
-	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/qscript  \
+	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/qscript_wq2  \
 		$(BUILD_DIR)/runtime_lib/*.o \
 		$(BUILD_DIR)/runtime_lib/*.so \
-		lib/*.so bin/qscript include/*.h \
+		lib/*.so bin/qscript_wq2 include/*.h \
 		$(BUILD_DIR)/compiletime_lib/*.o  \
 		$(BUILD_DIR)/compiletime_lib/*.so  \
 		inputs/*.C inputs/*.exe src/tags src/TAGS src/*.output
 
-local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
-	cp $(BUILD_DIR)/qscript bin
-	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib
-	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so.1
-	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so.1
-	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so.1
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so.1
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib/libqscript_compiletime.so
+local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
+	cp $(BUILD_DIR)/qscript_wq2 bin
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so
+	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib
+	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
+	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
+	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so
 	cp ${SOURCE_DIR}/*.h include
 
 nsiqcppstyle:
