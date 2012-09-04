@@ -1381,7 +1381,7 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime -lpanel -lwt -lboost_filesystem ")
+			+ string(" -lqscript_runtime_wq2 -lpanel -lwt -lboost_filesystem ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 	} else if (program_options_ns::microhttpd_flag) {
 		cpp_compile_command = string("g++ -g -o ")
@@ -1391,9 +1391,9 @@ test_script.o: test_script.C
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 #ifndef _WIN32
-			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime");
+			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime_wq2");
 #else
-			+ string(" -lmicrohttpd -lpdcurses -lqscript_runtime");
+			+ string(" -lmicrohttpd -lpdcurses -lqscript_runtime_wq2");
 #endif /* _WIN32 */
 	} else if (program_options_ns::wt_flag) {
 		cpp_compile_command = string("g++ -g -o ")
@@ -1404,9 +1404,9 @@ test_script.o: test_script.C
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 #ifndef _WIN32
-			+ string(" -lwt -lwthttp -lqscript_runtime -lboost_signals -lpanel -lncurses ");
+			+ string(" -lwt -lwthttp -lqscript_runtime_wq2 -lboost_signals -lpanel -lncurses ");
 #else
-			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime");
+			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime_wq2");
 #endif /* _WIN32 */
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
