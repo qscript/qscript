@@ -241,6 +241,40 @@ std::string DummyArrayQuestion::PrintSelectedAnswers(int code_index)
 	return std::string();
 }
 
+string AbstractQuestion::AxPrepareQuestionTitleSPSS()
+{
+	stringstream quest_decl;
+	for (int i=0; i < textExprVec_.size(); ++i) {
+		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) { 
+			quest_decl 
+				<< textExprVec_[i]->text_
+				;
+		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
+			if (textExprVec_[i]->questionIndexExpr_ ) {
+				ExpressionCompiledCode expr_code;
+				textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+						<< textExprVec_[i]->pipedQuestion_->questionName_
+						<< ", "
+						<< expr_code.code_expr.str()
+						<< ") ); /*  -NxD- */\n";
+			} else {
+				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+						<< textExprVec_[i]->pipedQuestion_->questionName_
+						<< ") ); /*  -NxD- */\n";
+			}
+		} else if (textExprVec_[i]->teType_ == TextExpression::named_attribute_type) {
+			quest_decl << textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+		} else {
+			ExpressionCompiledCode expr_code;
+			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
+			quest_decl << "text_expr_vec.push_back(new TextExpression("
+				<< expr_code.code_expr.str()
+				<< "));\n";
+		}
+	}
+	return quest_decl.str();
+}
 
 string AbstractQuestion::AxPrepareQuestionTitle()
 {

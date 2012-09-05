@@ -197,6 +197,7 @@ struct AbstractQuestion: public AbstractStatement
 	virtual std::string PrintSelectedAnswers(int code_index)=0;
 	string PrepareQuestionTitle();
 	string AxPrepareQuestionTitle();
+	string AxPrepareQuestionTitleSPSS();
 	string getNamedAttributeText();
 	virtual void generateRandomAnswers()=0;
 
