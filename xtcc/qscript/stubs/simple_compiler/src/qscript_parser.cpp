@@ -1372,7 +1372,7 @@ test_script.o: test_script.C
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
 
-	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include_wq2";
 	string cpp_compile_command ;
 	if (program_options_ns::ncurses_flag) {
 		cpp_compile_command = string("g++ -g -o ")
@@ -1467,7 +1467,7 @@ test_script.o: test_script.C
 				+ string(" -lqscript_runtime -lpdcurses ");
 	*/
 
-	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include_wq2";
 	string cpp_compile_command = string("g++ -static -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR

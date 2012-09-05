@@ -193,7 +193,7 @@ release: clean
 		$(RELEASE_DIR)/make-build-dir/runtime_static_lib \
 		$(RELEASE_DIR)/make-build-dir/compiletime_static_lib  \
 		$(RELEASE_DIR)/testsuite/qscript.test $(RELEASE_DIR)/testsuite/config \
-		$(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include \
+		$(RELEASE_DIR)/inputs $(RELEASE_DIR)/resources $(RELEASE_DIR)/include_wq2 \
 		$(RELEASE_DIR)/config
 	cp config/qscript.config $(RELEASE_DIR)/config
 	cp   src/* $(RELEASE_DIR)/src 
@@ -215,7 +215,7 @@ clean:
 	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.dep $(BUILD_DIR)/*.so.* $(BUILD_DIR)/qscript_wq2  \
 		$(BUILD_DIR)/runtime_lib/*.o $(BUILD_DIR)/runtime_lib/*.dep \
 		$(BUILD_DIR)/runtime_lib/*.so.* \
-		lib/*.so.* bin/qscript_wq2 include/*.h \
+		lib/*.so.* bin/qscript_wq2 include_wq2/*.h \
 		$(BUILD_DIR)/compiletime_lib/*.o $(BUILD_DIR)/compiletime_lib/*.dep  \
 		$(BUILD_DIR)/compiletime_lib/*.so.*  \
 		inputs/*.C inputs/*.exe src/tags src/TAGS src/*.output
@@ -230,7 +230,7 @@ local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so
-	cp ${SOURCE_DIR}/*.h include
+	cp ${SOURCE_DIR}/*.h include_wq2
 
 nsiqcppstyle:
 	cd src; make -f Makefile.nsiqcppstyle; cd ..
