@@ -1144,7 +1144,7 @@ test_script.o: test_script.C
 	*/
 	string executable_file_name = ExtractBaseFileName(src_file_name);
 	string intermediate_file_name = executable_file_name + ".C";
-	executable_file_name += ".exe";
+	executable_file_name += "-rdg.exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
 	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
@@ -1213,7 +1213,7 @@ test_script.o: test_script.C
 	*/
 	string executable_file_name = ExtractBaseFileName(src_file_name);
 	string intermediate_file_name = executable_file_name + ".C";
-	executable_file_name += ".exe";
+	executable_file_name += "-rdg.exe";
 	string QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
 	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
 	if (contains_space != string::npos) {
