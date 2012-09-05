@@ -212,12 +212,12 @@ release: clean
 .PHONY: clean tags
 
 clean:
-	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/qscript_wq2  \
-		$(BUILD_DIR)/runtime_lib/*.o \
-		$(BUILD_DIR)/runtime_lib/*.so \
-		lib/*.so bin/qscript_wq2 include/*.h \
-		$(BUILD_DIR)/compiletime_lib/*.o  \
-		$(BUILD_DIR)/compiletime_lib/*.so  \
+	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.dep $(BUILD_DIR)/*.so.* $(BUILD_DIR)/qscript_wq2  \
+		$(BUILD_DIR)/runtime_lib/*.o $(BUILD_DIR)/runtime_lib/*.dep \
+		$(BUILD_DIR)/runtime_lib/*.so.* \
+		lib/*.so.* bin/qscript_wq2 include/*.h \
+		$(BUILD_DIR)/compiletime_lib/*.o $(BUILD_DIR)/compiletime_lib/*.dep  \
+		$(BUILD_DIR)/compiletime_lib/*.so.*  \
 		inputs/*.C inputs/*.exe src/tags src/TAGS src/*.output
 
 local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
