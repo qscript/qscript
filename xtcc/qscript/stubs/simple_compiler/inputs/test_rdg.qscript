@@ -1,0 +1,42 @@
+test_rdg {
+
+	stubs brd_list = 
+		"brd 1" 1
+		"brd 2" 2
+		"brd 3" 3
+		"brd 4" 4
+		"brd 5" 5
+		"brd 6" 6
+		"brd 7" 7
+		"brd 8" 8
+		"brd 9" 9
+		;
+
+	setall (brd_list);
+
+q1 	"Brands aware: TOM"
+	sp int32_t brd_list;
+
+	setdel (brd_list, q1);
+q2 	"Brands aware: SPONT"
+	mp(5) int32_t brd_list;
+
+q_sp_aw 	"SPONT Awareness"
+	mp(6) int32_t brd_list: hide;
+
+	setadd (q_sp_aw, q1);
+	setadd (q_sp_aw, q2);
+
+
+	setdel (brd_list, q2);
+q3 	"Brands aware: Aided"
+	mp(5) int32_t brd_list;
+
+q_tot_aw 	"TOTAL Awareness"
+		mp(6) int32_t brd_list: hide;
+
+	setadd (q_tot_aw, q1);
+	setadd (q_tot_aw, q2);
+	setadd (q_tot_aw, q3);
+
+}

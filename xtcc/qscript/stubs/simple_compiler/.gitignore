@@ -1,8 +1,16 @@
 include
+include-rdg
+include_wq2
 make-build-dir
+make-build-dir-rdg
+make-build-dir-wq2
 bin
 inputs/*.C
 inputs/*.h
+inputs/*.po*
+inputs/*.xml
+inputs/*.sps
+inputs/setup-*
 src/cpplint-violations.txt
 src/nsiqcpp-style-violations.txt
 *.log

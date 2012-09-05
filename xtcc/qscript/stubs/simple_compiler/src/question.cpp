@@ -397,7 +397,9 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "\t\t" << questionName_ << "->input_data.insert (*qscript_r_it);\n"
 		<< "\t}\n"
 #endif /*  0 */
-		<< questionName_ << "->generateRandomAnswers();\t\n"
+		<< "\tif ( " << questionName_ << "->question_attributes.hidden_==false ) {\n"
+		<< "\t\t" << questionName_ << "->generateRandomAnswers();\t\n"
+		<< "\t}\n"
 		<< questionName_ << "->isAnswered_ = true;\t\n"
 		<< "}\n";
 
@@ -1839,7 +1841,12 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "\t\t" << questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->input_data.insert (*qscript_r_it);\n"
 		<< "\t}\n"
 #endif /* 0 */
+		<< "if ( " 
+		<< questionName_ << "_list.questionList["
+		<< consolidated_for_loop_index << "]->" 
+		<< "question_attributes.hidden_==false) {\n"
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->generateRandomAnswers();\t\n"
+		<< "}\n"
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_ = true;\t\n"
 		// closing brace of rdg block
 		<< "}\n";

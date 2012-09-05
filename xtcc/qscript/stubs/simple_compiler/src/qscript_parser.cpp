@@ -1150,7 +1150,7 @@ test_script.o: test_script.C
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
 
-	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include-rdg";
 	string cpp_compile_command ;
 	if (program_options_ns::ncurses_flag) {
 		cpp_compile_command = string("g++ -g -o ")
@@ -1159,7 +1159,7 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime -lpanel ")
+			+ string(" -lqscript_runtime_rdg -lpanel ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 	} else if (program_options_ns::web_server_flag) {
 		cpp_compile_command = string("g++ -g -o ")
@@ -1168,13 +1168,13 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime");
+			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime_rdg");
 	} else {
 		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime ");
+			+ string(" -lqscript_runtime_rdg ");
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
@@ -1234,14 +1234,14 @@ test_script.o: test_script.C
 				+ string(" -lqscript_runtime -lpdcurses ");
 	*/
 
-	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include-rdg";
 	string cpp_compile_command = string("g++ -static -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime ")
+			+ string(" -lqscript_runtime_rdg ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
@@ -2650,10 +2650,14 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "void eval()\n{\n");
 	// fprintf(script, "\tint ser_no = 0;\n");
 	if(ncurses_flag) {
-		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
-		fprintf(script, "\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
-		fprintf(script, "\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-		fprintf(script, "\t}\n");
+		fprintf (script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
+		fprintf (script, "\t\tif (rdg_mode_flag==false) {\n");
+		fprintf (script, "\t\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
+		fprintf (script, "\t\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
+		fprintf (script, "\t\t} else {\n");
+		fprintf (script, "\t\t\t ser_no = rand(); ser_no = ser_no %% 1000000;\n");
+		fprintf (script, "\t\t}");
+		fprintf (script, "\t}\n");
 	} else	{
 		fprintf(script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
 		fprintf(script, "\t\tcout << \"Enter Serial No (0) to exit: \" << flush;\n");
