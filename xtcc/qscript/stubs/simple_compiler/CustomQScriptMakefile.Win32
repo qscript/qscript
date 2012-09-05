@@ -244,7 +244,7 @@ release:
 
 #	-del /q /f $(BUILD_DIR)\*.* $(BUILD_DIR)\runtime_lib\*.* lib\*.* bin\qscript include\*.* $(BUILD_DIR)\compiletime_lib\*.* $(BUILD_DIR)\runtime_static_lib\*.* $(BUILD_DIR)\compiletime_static_lib\*.*
 clean:
-	-$(MSYS_HOME)/rm.exe -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.exe $(BUILD_DIR)/runtime_lib/*.a lib/*.a bin/qscript.exe include/*.h $(BUILD_DIR)/compiletime_lib/*.a $(BUILD_DIR)/runtime_static_lib/*.a $(BUILD_DIR)/compiletime_static_lib/*.a
+	-$(MSYS_HOME)/rm.exe -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.exe $(BUILD_DIR)/runtime_lib/*.a lib/*.a bin/qscript.exe include/*.h $(BUILD_DIR)/compiletime_lib/*.a $(BUILD_DIR)/compiletime_static_lib/*.o   $(BUILD_DIR)/runtime_static_lib/*.o  $(BUILD_DIR)/runtime_static_lib/*.a $(BUILD_DIR)/compiletime_static_lib/*.a
 #	-cmd /c "del /f $(BUILD_DIR)\\*.o $(BUILD_DIR)\\*.exe $(bin)\\qscript.exe include\\* $(BUILD_DIR)\\compiletime_lib\\*.* $(BUILD_DIR)\\runtime_static_lib\\*.* $(BUILD_DIR)\\compiletime_static_lib\\*.*"
 #cd make-build-dir && del /y *.*
 #	cd make-build-dir/compiletime_static_lib && del /y *.*
