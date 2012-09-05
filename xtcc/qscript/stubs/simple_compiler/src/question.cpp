@@ -1247,18 +1247,19 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	}
 	quest_decl << ");\n";
 
-	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
-	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
-
 	if (array_mode) {
 		quest_decl << "question_list.push_back(" << questionName_
 			<< ");\n";
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
+		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		quest_decl << "}\n";
 	} else {
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		quest_decl << "}\n";
 	}
 
@@ -1385,14 +1386,18 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
 		quest_decl << questionName_ << "_list.questionList.push_back(" << questionName_ << ");"
 			<< endl;
+		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		quest_decl << "}\n";
 	} else {
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
+		//string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+		//quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		quest_decl << "}\n";
 	}
 
-	string mutex_range_set_name(questionName_ + "->mutexCodeList_");
-	quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
+	//string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+	//quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 
 	if(for_bounds_stack.size() == 0){
 		// code.quest_defns << quest_decl.str();
