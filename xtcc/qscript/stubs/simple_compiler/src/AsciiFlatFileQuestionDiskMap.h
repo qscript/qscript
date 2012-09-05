@@ -171,18 +171,18 @@ class AsciiFlatFileQuestionDiskMap
 					spss_syn_file << "variable label ";
 					spss_syn_file << var_name.str() << "_" << i+1;
 					spss_syn_file << " \"" 
-						//<< q->questionText_ 
-						<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
-						<< ", " << __PRETTY_FUNCTION__ 
+						<< q->AxPrepareQuestionTitleSPSS() 
+						//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+						//<< ", " << __PRETTY_FUNCTION__ 
 						<< "\"." << endl;
 				}
 			} else {
 				spss_syn_file << "variable label ";
 				spss_syn_file << var_name.str();
 				spss_syn_file << " \"" 
-					//<< q->questionText_ 
-					<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
-					<< ", " << __PRETTY_FUNCTION__ 
+					<< q->AxPrepareQuestionTitleSPSS() 
+					//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+					//<< ", " << __PRETTY_FUNCTION__ 
 					<< "\"." << endl;
 			}
 
