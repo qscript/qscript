@@ -196,7 +196,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "vector <BaseText> base_text_vec;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
-	fprintf(script, " /* length(): %d */", code.quest_defns_constructor.str().length() );
+	fprintf(script, " /* length(): %ld */", code.quest_defns_constructor.str().length() );
 	if (code.quest_defns_constructor.str().length() == 0) {
 		fprintf(script, ":");
 	} else {
@@ -1474,7 +1474,7 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime ")
+			+ string(" -lqscript_runtime_wq2 ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
