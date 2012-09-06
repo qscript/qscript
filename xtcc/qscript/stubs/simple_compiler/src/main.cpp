@@ -67,7 +67,7 @@ int32_t main(int32_t argc, char* argv[])
 	using qscript_parser::fname;
 	bool exit_flag = false;
 
-	while( (c = getopt(argc, argv, "molcsnf:")) != -1 ){
+	while ( (c = getopt(argc, argv, "molcsnf:")) != -1 ) {
 		char ch = optopt;
 		switch(c){
 		case 'c':
@@ -249,6 +249,16 @@ int32_t main(int32_t argc, char* argv[])
 				qscript_parser::CompileGeneratedCodeStatic(fname);
 			else
 				qscript_parser::CompileGeneratedCode(fname);
+			string output_file_name = qscript_parser::ExtractBaseFileName(qscript_parser::fname);
+			std::ofstream qtm_conf_file ( (output_file_name + ".qtm_data.conf").c_str());
+			qtm_conf_file 	<< "CARD_NO_COLS = 9,10;\n"
+					<< "SER_NO_COLS = 1,8;\n"
+					<< "DATA_START_COL_NO = AUTO;\n"
+					<< "DATA_END_COL_NO = 80;\n"
+					<< "READ_EQ = 2;" << endl;
+			qtm_conf_file.close();
+			std::ofstream asc_conf_file ( (output_file_name + ".asc_data.conf").c_str());
+			asc_conf_file 	<< "SER_NO_COLS = 8;" << endl;
 		}
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
