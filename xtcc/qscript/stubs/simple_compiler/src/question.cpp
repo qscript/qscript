@@ -1255,6 +1255,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 			<< endl;
 		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
 		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
+		//cerr << "mutex_range_set_name: " << mutex_range_set_name << endl;
 		quest_decl << "}\n";
 	} else {
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
@@ -1391,8 +1392,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		quest_decl << "}\n";
 	} else {
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
-		//string mutex_range_set_name(questionName_ + "->mutexCodeList_");
-		//quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
+		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		quest_decl << "}\n";
 	}
 
@@ -1464,6 +1465,8 @@ NamedStubQuestion::NamedStubQuestion(
 {
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
+			//cerr << "adding code : " << nr_ptr->stubs[i].code
+			//	<< " to mutex list" << endl;
 			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
 		}
 		if (maxCode_ < nr_ptr->stubs[i].code) {
@@ -1495,6 +1498,8 @@ NamedStubQuestion::NamedStubQuestion(
 { 
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
+			//cerr << "adding code : " << nr_ptr->stubs[i].code
+			//	<< " to mutex list" << endl;
 			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
 		}
 		if (maxCode_ < nr_ptr->stubs[i].code) {
