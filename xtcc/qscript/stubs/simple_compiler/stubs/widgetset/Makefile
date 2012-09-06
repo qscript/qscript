@@ -1,6 +1,11 @@
+OBJS = WCodeMirror.o qscript-console2.o
 
-qscript-console.exe: qscript-console.o
-	g++ -g -o $@ $< -lwthttp -lwt -lboost_signals
+qscript-console2.exe: $(OBJS)
+	g++ -g -o $@ $(OBJS) -lwthttp -lwt -lboost_signals
 
-qscript-console.o: qscript-console.C
+WCodeMirror.o: WCodeMirror.cpp WCodeMirror.h
+	g++ -c $<
+
+qscript-console2.o: qscript-console2.cpp
 	g++ -g -c $<
+
