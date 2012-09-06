@@ -125,6 +125,7 @@ HelloApplication::HelloApplication(const Wt::WEnvironment& env, bool embedded
 	pbGenerateRandomData_ = new Wt::WPushButton ("Generate Random Data", top);
 	pbGenerateRandomData_->setMargin(5, Wt::Left);
 	pbGenerateRandomData_->disable();
+	pbGenerateRandomData_->clicked().connect(this, &HelloApplication::generateRandomData);
 
 	pbExportQuantumAxes_ = new Wt::WPushButton ("Export Quantum Axes", top);
 	pbExportQuantumAxes_->setMargin(5, Wt::Left);
@@ -167,7 +168,8 @@ void HelloApplication::createRDG()
 	using  std::endl;
 	std::string sys_filename = filename_->text().toUTF8();
 	std::stringstream cmd;
-	cmd << "qscript -o -m -n -f " << sys_filename << " 2>&1 >op";
+	cmd << "qscript-rdg -o -m -n -f " << sys_filename << " 2>&1 >op";
+	compilerMessages_->setText("compiling generator with command: " + cmd.str());
 	system (cmd.str().c_str());
 	std::fstream op ("op", std::ios::in);
 	stringstream cc_errs;
@@ -179,7 +181,20 @@ void HelloApplication::createRDG()
 
 void HelloApplication::generateRandomData()
 {
-
+	using  std::string;
+	using  std::stringstream;
+	using  std::cout;
+	using  std::endl;
+	cout << __PRETTY_FUNCTION__ << endl;
+	std::string sys_filename = filename_->text().toUTF8();
+	std::stringstream cmd;
+	cmd << "./" << sys_filename << "-rdg.exe -r 200 2>&1 >op";
+	compilerMessages_->setText("generating 200 records of random data with cmd: " + cmd.str());
+	system (cmd.str().c_str());
+	std::fstream op ("op", std::ios::in);
+	stringstream cc_errs;
+	readFile (op, cc_errs);
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 
