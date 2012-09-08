@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CodeMirror: C-like mode</title>
+    <link rel="stylesheet" href="../../lib/codemirror.css">
+    <script src="../../lib/codemirror.js"></script>
+    <script src="clike.js"></script>
+    <link rel="stylesheet" href="../../doc/docs.css">
+    <style>.CodeMirror {border: 2px inset #dee;}</style>
+  </head>
+  <body>
+    <h1>CodeMirror: C-like mode</h1>
+
+<form><textarea id="code" name="code">
+vegetable {
+ int32_t i1;
+ stubs yn=	"Yes" 1
+ "No" 2;
+ 
+ q1 	"Eat veg?"
+ 	sp int32_t yn;
+ 
+ stubs agree_5 = 
+ "agree strongly" 5
+ "agree somewhat" 4
+ "Neutral" 3
+ "Disagree " 2
+ "Disagree strongly" 1;	
+ 
+ stubs veg=	
+ "Tomates" 1
+ "Potatoes" 2
+ "Capsicum" 3
+ "Brinjal/Egg plant" 4
+ "Okra/Lady Finger" 5
+ ;
+ named_attribute veg_seg_att = " Vegetables are good for health",
+ " I buy fresh vegetables often",
+ " Greens are good source of dietary fibre",
+ " I would like to be vegetarian some day"
+ ;
+ 
+ 
+ 	if (q1==1) {
+ 		setall(veg);
+ 
+ 
+ q2 		"Which veg u r aware of?"
+		mp(5) int32_t veg;
+ 
+		 unset(veg);
+ 		setadd(veg, q2);
+ q3 		"Which veg dou eat?"
+ 		mp(5) int32_t veg;
+ 
+ 
+		 unset(veg);
+ 		setadd(veg, q3);
+ q4 		"Which is ur fav veg?" : q3
+ 		sp int32_t veg;
+ 
+ 		int32_t sum=0;
+ 		int32_t iter_no=0;
+	 	for (i1=0; i1<5; i1=i1+1) {
+			 int32_t code = i1+1;
+ 
+			 if (code in q3) {
+ q6				 "In a week what perc of your veggies are : "
+ 				: q3 . stubs [i1]
+ 				sp int32_t (0-100);
+ 				sum=sum+q6[i1];
+				 iter_no=i1;
+			 } else {
+ 				1;
+			}
+		 }
+ 		if (sum != 100) {
+ 			clear (q6[iter_no]);
+		 }
+ 
+ 
+ 
+	 } else {
+	 	1;
+	}
+ 
+ 
+ 	for (i1=0; i1<4; i1=i1+1) {
+ q5		"Please state your agreement with these statements" : veg_seg_att[i1]
+		sp int32_t agree_5;
+	}
+ 
+ }
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "text/x-qscript"
+      });
+    </script>
+
+    <p>Simple mode that tries to handle C-like languages as well as it
+    can. Takes two configuration parameters: <code>keywords</code>, an
+    object whose property names are the keywords in the language,
+    and <code>useCPP</code>, which determines whether C preprocessor
+    directives are recognized.</p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-csrc</code>
+    (C code), <code>text/x-c++src</code> (C++
+    code), <code>text/x-java</code> (Java
+    code), <code>text/x-csharp</code> (C#).</p>
+  </body>
+</html>
