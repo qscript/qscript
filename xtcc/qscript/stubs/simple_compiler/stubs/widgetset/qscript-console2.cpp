@@ -28,6 +28,11 @@
 #include <Wt/WText>
 #include <Wt/WTextEdit>
 #include <Wt/WJavaScript>
+#include <Wt/WVBoxLayout>
+#include <Wt/WAnchor>
+#include <Wt/WFileResource>
+#include <Wt/WTabWidget>
+
 
 #include "WCodeMirror.h"
 
@@ -49,13 +54,25 @@ struct QScriptConsole : public Wt::WApplication
 	void getTheCode();
 	void createRDG();
 	void createDataWriter();
+	void createQuantumDataAndPrograms();
+	void createSPSSDataAndPrograms();
+	void createXtccDataAndPrograms();
 	void generateRandomData();
 	void readFile (std::fstream & file, std::stringstream & data);
 
-	Wt::WCodeMirrorTextArea * cmta_;
-	Wt::WLineEdit *filename_ ;
-	Wt::WText * compilerMessages_ ;
 	Wt::WServer & server_ ;
+	Wt::WContainerWidget * top_ ;
+	Wt::WCodeMirrorTextArea * cmta_;
+	Wt::WTabWidget * tabWidget_;
+
+
+	Wt::WContainerWidget * compilerConsole_;
+	Wt::WContainerWidget * rdgConsole_;
+	Wt::WContainerWidget * dataExportConsole_;
+	Wt::WContainerWidget * xtccConsole_;
+
+	Wt::WLineEdit *filename_ ;
+	Wt::WLabel *label ;
 	std::string launchedProcessNumber_;
 	Wt::WPushButton * pbSaveAndCompile_;
 
@@ -71,6 +88,20 @@ struct QScriptConsole : public Wt::WApplication
 	Wt::WPushButton * pbExportXtccScript_;
 
 	Wt::WPushButton * pbLaunchXtccWUI_;
+
+	Wt::WVBoxLayout * compilerMessagesLayout_;
+	Wt::WContainerWidget * compilerMesgContainer_;
+	Wt::WText * compilerMessages_ ;
+
+	Wt::WVBoxLayout * rdgMessagesLayout_;
+	Wt::WContainerWidget * rdgMesgContainer_;
+	Wt::WText * rdgMessages_ ;
+	Wt::WVBoxLayout * dataExportMessagesLayout_;
+	Wt::WContainerWidget * dataExportMesgContainer_;
+	Wt::WText * dataExportMessages_ ;
+	Wt::WText * xtccMessages_ ;
+
+
 
 
 };
@@ -89,61 +120,188 @@ void QScriptConsole::readFile (std::fstream & file, std::stringstream & data)
 	}
 }
 
+void QScriptConsole::createQuantumDataAndPrograms()
+{
+	using  std::string;
+	using  std::stringstream;
+	using  std::cout;
+	using  std::endl;
+	std::string sys_filename = filename_->text().toUTF8();
+	std::stringstream cmd;
+	cmd <<  "./" << sys_filename << ".exe -q ";
+	dataExportMessages_->setText("creating quantum datafile with command: " + cmd.str());
+	system (cmd.str().c_str());
+	stringstream  zip_file_cmd;
+	zip_file_cmd << "zip -r "
+		<< sys_filename
+		<< "-qtm-setup.zip setup-"
+		<< sys_filename << " "
+		<< sys_filename << ".qdat " 
+		<< sys_filename << ".freq_count.csv ";
+	system (zip_file_cmd.str().c_str());
+	string zip_file_name = sys_filename + string("-qtm-setup.zip");
+	Wt::WFileResource *zipFile = new Wt::WFileResource ("application/zip", zip_file_name);
+	zipFile->suggestFileName (zip_file_name);
+	Wt::WAnchor *anchor = new Wt::WAnchor (zipFile, zip_file_name + " Quantum Setup + data + frequency counts");
+	anchor->setTarget (Wt::TargetNewWindow);
+	dataExportMesgContainer_ -> addWidget (anchor);
+}
+
+void QScriptConsole::createSPSSDataAndPrograms()
+{
+	using  std::string;
+	using  std::stringstream;
+	using  std::cout;
+	using  std::endl;
+	std::string sys_filename = filename_->text().toUTF8();
+	std::stringstream cmd;
+	cmd <<  "./" << sys_filename << ".exe -w ";
+	dataExportMessages_->setText("creating spss datafile with command: " + cmd.str());
+	system (cmd.str().c_str());
+	stringstream  zip_file_cmd;
+	zip_file_cmd << "zip -r "
+		<< sys_filename
+		<< "-spss-setup.zip setup-"
+		<< sys_filename << " "
+		<< sys_filename << ".qdat " 
+		<< sys_filename << ".freq_count.csv ";
+	system (zip_file_cmd.str().c_str());
+	string zip_file_name = sys_filename + string("-spss-setup.zip");
+	Wt::WFileResource *zipFile = new Wt::WFileResource ("application/zip", zip_file_name);
+	zipFile->suggestFileName (zip_file_name);
+	Wt::WAnchor *anchor = new Wt::WAnchor (zipFile, zip_file_name + " SPSS Setup + data + frequency counts");
+	anchor->setTarget (Wt::TargetNewWindow);
+	dataExportMesgContainer_ -> addWidget (anchor);
+}
+
+void QScriptConsole::createXtccDataAndPrograms()
+{
+	using  std::string;
+	using  std::stringstream;
+	using  std::cout;
+	using  std::endl;
+	std::string sys_filename = filename_->text().toUTF8();
+	std::stringstream cmd;
+	cmd <<  "./" << sys_filename << ".exe -x ";
+	dataExportMessages_->setText("creating xtcc datafile with command: " + cmd.str());
+	system (cmd.str().c_str());
+	stringstream  zip_file_cmd;
+	zip_file_cmd << "zip -r "
+		<< sys_filename
+		<< "-xtcc-setup.zip setup-"
+		<< sys_filename << " "
+		<< sys_filename << ".xdat " 
+		<< sys_filename << ".freq_count.csv ";
+	system (zip_file_cmd.str().c_str());
+	string zip_file_name = sys_filename + string("-xtcc-setup.zip");
+	Wt::WFileResource *zipFile = new Wt::WFileResource ("application/zip", zip_file_name);
+	zipFile->suggestFileName (zip_file_name);
+	Wt::WAnchor *anchor = new Wt::WAnchor (zipFile, zip_file_name + " Xtcc Setup + data + frequency counts");
+	anchor->setTarget (Wt::TargetNewWindow);
+	dataExportMesgContainer_ -> addWidget (anchor);
+}
+
 QScriptConsole::QScriptConsole(const Wt::WEnvironment& env, bool embedded
 		, Wt::WServer & serv
 		)
 	: WApplication(env), 
-	  filename_(0), compilerMessages_(0), server_(serv), cmta_(new Wt::WCodeMirrorTextArea(this->root()))
+	  server_(serv), 
+	  top_ (root()),
+	  cmta_ (new Wt::WCodeMirrorTextArea(top_) ),
+	  tabWidget_ ( new Wt::WTabWidget (top_) ),
+	  compilerConsole_ ( new Wt::WContainerWidget() ), 
+	  rdgConsole_ ( new Wt::WContainerWidget() ),
+	  dataExportConsole_ ( new Wt::WContainerWidget()),
+	  xtccConsole_ ( new Wt::WContainerWidget()),
+	  // compilerConsole_ =================
+	  label (new Wt::WLabel ("Filename:", compilerConsole_) ),
+	  filename_  (new Wt::WLineEdit("vegetable", compilerConsole_)),
+	  pbSaveAndCompile_ ( new Wt::WPushButton ("Save & Compile", compilerConsole_)),
+	  pbLaunch_ (new Wt::WPushButton ("Launch", compilerConsole_)),
+	  compilerMessages_ ( new Wt::WText( compilerConsole_)),
+	  compilerMessagesLayout_ ( new Wt::WVBoxLayout ()),
+	  compilerMesgContainer_ ( new Wt::WContainerWidget (compilerConsole_)),
+	  // rdgConsole_ ==============
+	  pbCreateRDGenerator_( new Wt::WPushButton ("Create Random Data Generator", rdgConsole_)),
+	  pbGenerateRandomData_ ( new Wt::WPushButton ("Generate Random Data", rdgConsole_)),
+	  rdgMessages_ ( new Wt::WText( rdgConsole_)),
+	  rdgMessagesLayout_ ( new Wt::WVBoxLayout ()),
+	  rdgMesgContainer_ ( new Wt::WContainerWidget (rdgConsole_)),
+	  // dataExportConsole_ ==================
+	  pbCreateDataWriter_ ( new Wt::WPushButton ("Create Data Writer", dataExportConsole_)),
+	  pbExportQuantumAxes_ ( new Wt::WPushButton ("Export Quantum Axes", dataExportConsole_)),
+	  pbExportSPSSScript_ ( new Wt::WPushButton ("Export SPSS Script", dataExportConsole_)),
+	  pbExportXtccScript_ ( new Wt::WPushButton ("Export Xtcc Script", dataExportConsole_)),
+	  dataExportMessages_ ( new Wt::WText (dataExportConsole_)),
+	  dataExportMessagesLayout_ ( new Wt::WVBoxLayout ()),
+	  dataExportMesgContainer_ ( new Wt::WContainerWidget (dataExportConsole_)),
+	  // xtccConsole_ ==================
+	  xtccMessages_ ( new Wt::WText (xtccConsole_))
 {
 	using namespace std;
-	Wt::WContainerWidget *top = root();
+	//Wt::WContainerWidget *top_ = root();
 	//Wt::WContainerWidget * code_mirror_text_editor;
 	   
 	setTitle("QScript Console");
 
-	Wt::WContainerWidget *w = new Wt::WContainerWidget(top);
-	Wt::WLabel *label = new Wt::WLabel("Filename:", w);
-	Wt::WRegExpValidator *file_name_validator = new Wt::WRegExpValidator("[a-zA-Z0-9_][a-zA-Z0-9._]+");
-	filename_ = new Wt::WLineEdit("vegetable", w);
-	filename_->setValidator(file_name_validator);
-	label->setBuddy(filename_);
-	pbSaveAndCompile_ = new Wt::WPushButton ("Save & Compile", top);
+	//tabWidget_ = new Wt::WTabWidget (top_);
+
+
+	//Wt::WContainerWidget *w ;
+	tabWidget_ -> addTab (compilerConsole_ , "Compiler/Web Launcher Console");
+	tabWidget_ -> addTab (rdgConsole_ , "RDG Console");
+	tabWidget_ -> addTab (dataExportConsole_, "Data Export Console");
+	tabWidget_ -> addTab (xtccConsole_, "Xtcc UI Console");
+	Wt::WRegExpValidator * file_name_validator = new Wt::WRegExpValidator("[a-zA-Z0-9_][a-zA-Z0-9._]+");
+	label->setBuddy (filename_);
+	filename_ -> setValidator (file_name_validator);
+	//filename_ = new Wt::WLineEdit("vegetable", compilerConsole_);
+	//pbSaveAndCompile_ = new Wt::WPushButton ("Save & Compile", compilerConsole_);
 	pbSaveAndCompile_->setMargin(5, Wt::Left);
 	pbSaveAndCompile_->clicked().connect(this, &QScriptConsole::getTheCode);
-	pbLaunch_ = new Wt::WPushButton ("Launch", top);
+	//pbLaunch_ = new Wt::WPushButton ("Launch", compilerConsole_);
 	pbLaunch_->setMargin(5, Wt::Left);
 	pbLaunch_->disable();
 	pbLaunch_->clicked().connect(this, &QScriptConsole::launch);
 
-	pbCreateRDGenerator_= new Wt::WPushButton ("Create Random Data Generator", top);
+	//pbCreateRDGenerator_= new Wt::WPushButton ("Create Random Data Generator", rdgConsole_);
 	pbCreateRDGenerator_->setMargin(5, Wt::Left);
 	pbCreateRDGenerator_->disable();
 	pbCreateRDGenerator_->clicked().connect(this, &QScriptConsole::createRDG);
 
-	pbGenerateRandomData_ = new Wt::WPushButton ("Generate Random Data", top);
+	//pbGenerateRandomData_ = new Wt::WPushButton ("Generate Random Data", rdgConsole_);
 	pbGenerateRandomData_->setMargin(5, Wt::Left);
 	pbGenerateRandomData_->disable();
 	pbGenerateRandomData_->clicked().connect(this, &QScriptConsole::generateRandomData);
 
-	pbCreateDataWriter_= new Wt::WPushButton ("Create Random Data Writer", top);
+	//pbCreateDataWriter_= new Wt::WPushButton ("Create Data Writer", rdgConsole_);
 	pbCreateDataWriter_->setMargin(5, Wt::Left);
 	pbCreateDataWriter_->disable();
 	pbCreateDataWriter_->clicked().connect(this, &QScriptConsole::createDataWriter);
 
-	pbExportQuantumAxes_ = new Wt::WPushButton ("Export Quantum Axes", top);
+	//pbExportQuantumAxes_ = new Wt::WPushButton ("Export Quantum Axes", dataExportConsole_);
 	pbExportQuantumAxes_->setMargin(5, Wt::Left);
 	pbExportQuantumAxes_->disable();
+	pbExportQuantumAxes_->clicked().connect(this, &QScriptConsole::createQuantumDataAndPrograms);
 
-	pbExportSPSSScript_ = new Wt::WPushButton ("Export SPSS Script", top);
+
+	//pbExportSPSSScript_ = new Wt::WPushButton ("Export SPSS Script", dataExportConsole_);
 	pbExportSPSSScript_->setMargin(5, Wt::Left);
 	pbExportSPSSScript_->disable();
+	pbExportSPSSScript_->clicked().connect(this, &QScriptConsole::createSPSSDataAndPrograms);
 
-	pbExportXtccScript_ = new Wt::WPushButton ("Export Xtcc Script", top);
+	//pbExportXtccScript_ = new Wt::WPushButton ("Export Xtcc Script", dataExportConsole_);
 	pbExportXtccScript_->setMargin(5, Wt::Left);
 	pbExportXtccScript_->disable();
+	pbExportXtccScript_->clicked().connect(this, &QScriptConsole::createXtccDataAndPrograms);
 
-	top->addWidget(new Wt::WBreak());
-	compilerMessages_ = new Wt::WText( top);
+	compilerConsole_->addWidget(new Wt::WBreak());
+	//compilerMessages_ = new Wt::WText( compilerConsole_);
+	//rdgMessages_ = new Wt::WText( rdgConsole_);
+	//dataExportMessages_ = new Wt::WText (dataExportConsole_);
+	//xtccMessages_ = new Wt::WText (xtccConsole_);
+	
+
 	//compilerMessages_->addStyleClass("font-family:monospace;");
 	//compilerMessages_->addCssRule (compilerMessages_->jsRef(), "font-family:monospace;");
 	// preload the cmta_ with a script
@@ -151,6 +309,12 @@ QScriptConsole::QScriptConsole(const Wt::WEnvironment& env, bool embedded
 	std::fstream fs_sample_code ("vegetable", std::ios::in);
 	readFile (fs_sample_code, sample_code);
 	cmta_->setText (sample_code.str());
+
+	compilerMessagesLayout_ = new Wt::WVBoxLayout ();
+	compilerMesgContainer_ = new Wt::WContainerWidget (compilerConsole_);
+	compilerMesgContainer_->setLayout (compilerMessagesLayout_);
+	compilerMesgContainer_->setOverflow (Wt::WContainerWidget::OverflowAuto);
+
 }
 
 void QScriptConsole::createDataWriter()
@@ -162,13 +326,16 @@ void QScriptConsole::createDataWriter()
 	std::string sys_filename = filename_->text().toUTF8();
 	std::stringstream cmd;
 	cmd << "qscript -o -m -n -f " << sys_filename << " 2>&1 >op";
-	compilerMessages_->setText("compiling generator with command: " + cmd.str());
+	
+	dataExportMessages_->setText("compiling generator with command: " + cmd.str());
 	system (cmd.str().c_str());
 	std::fstream op ("op", std::ios::in);
 	stringstream cc_errs;
 	readFile (op, cc_errs);
 	if (cc_errs.str().find ("Generated executable. You can run it by") != string::npos) {
-		pbGenerateRandomData_->enable();
+		pbExportQuantumAxes_->enable();
+		pbExportSPSSScript_->enable();
+		pbExportXtccScript_->enable();
 	}
 }
 
@@ -181,7 +348,7 @@ void QScriptConsole::createRDG()
 	std::string sys_filename = filename_->text().toUTF8();
 	std::stringstream cmd;
 	cmd << "qscript-rdg -o -m -n -f " << sys_filename << " 2>&1 >op";
-	compilerMessages_->setText("compiling generator with command: " + cmd.str());
+	rdgMessages_->setText("compiling generator with command: " + cmd.str());
 	system (cmd.str().c_str());
 	std::fstream op ("op", std::ios::in);
 	stringstream cc_errs;
@@ -201,12 +368,13 @@ void QScriptConsole::generateRandomData()
 	std::string sys_filename = filename_->text().toUTF8();
 	std::stringstream cmd;
 	cmd << "./" << sys_filename << "-rdg.exe -r 200 2>&1 >op";
-	compilerMessages_->setText("generating 200 records of random data with cmd: " + cmd.str());
+	rdgMessages_->setText("generating 200 records of random data with cmd: " + cmd.str());
 	system (cmd.str().c_str());
 	std::fstream op ("op", std::ios::in);
 	stringstream cc_errs;
 	readFile (op, cc_errs);
 	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+	pbCreateDataWriter_->enable();
 }
 
 

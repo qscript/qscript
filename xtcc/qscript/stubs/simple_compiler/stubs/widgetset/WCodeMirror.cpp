@@ -25,7 +25,7 @@ WCodeMirrorTextArea::WCodeMirrorTextArea (WContainerWidget * parent)
 	//
 	app->useStyleSheet(app->resolveRelativeUrl("CodeMirror-2.33/lib/codemirror.css"));
 	app->require(app->resolveRelativeUrl("CodeMirror-2.33/lib/codemirror.js"));
-	app->require(app->resolveRelativeUrl("CodeMirror-2.33/mode/javascript/javascript.js"));
+	app->require(app->resolveRelativeUrl("CodeMirror-2.33/mode/qscript/clike.js"));
 	app->useStyleSheet(app->resolveRelativeUrl("CodeMirror-2.33/doc/docs.css"));
 
 	//TODO:
@@ -43,6 +43,8 @@ WCodeMirrorTextArea::WCodeMirrorTextArea (WContainerWidget * parent)
 	    "        editor.save();" +
 	    "    }," +
 	    "    lineNumbers: true, " +
+            "matchBrackets: true,"
+	    "mode: \"text/x-qscript\","
 	    "    value: \"var v1; function f2 (p1, p2, p3) { var v2; }\" " +
 	    "    });" +
 	    "var self = " + this->jsRef() + ";" +
