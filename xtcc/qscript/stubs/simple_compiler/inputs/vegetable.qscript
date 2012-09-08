@@ -55,7 +55,10 @@ q4 		"Which is ur fav veg?" : q3
 q6				"In a week what perc of your veggies are (piping not yet implemented): "
 				: q3 . stubs [i1]
 				sp int32_t (0-100);
-				sum=sum+q6[i1];
+				sum = sum + q6[i1];
+				if (sum > 100) {
+					clear (q6[i1]);
+				}
 				iter_no=i1;
 			} else {
 				1;

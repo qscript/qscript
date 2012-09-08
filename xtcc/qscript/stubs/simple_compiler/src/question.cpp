@@ -397,10 +397,12 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "\t\t" << questionName_ << "->input_data.insert (*qscript_r_it);\n"
 		<< "\t}\n"
 #endif /*  0 */
-		<< "\tif ( " << questionName_ << "->question_attributes.hidden_==false ) {\n"
+		<< "\tif ( " << questionName_ << "->question_attributes.hidden_==false && "
+		<< questionName_ << "->isAnswered_ == false"
+		<< ") {\n"
 		<< "\t\t" << questionName_ << "->generateRandomAnswers();\t\n"
-		<< "\t}\n"
 		<< questionName_ << "->isAnswered_ = true;\t\n"
+		<< "\t}\n"
 		<< "}\n";
 
 
@@ -1844,10 +1846,12 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< "if ( " 
 		<< questionName_ << "_list.questionList["
 		<< consolidated_for_loop_index << "]->" 
-		<< "question_attributes.hidden_==false) {\n"
+		<< "question_attributes.hidden_==false && "
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_ == false"
+		<< ") {\n"
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->generateRandomAnswers();\t\n"
-		<< "}\n"
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_ = true;\t\n"
+		<< "}\n"
 		// closing brace of rdg block
 		<< "}\n";
 	PrintUserNavigationArrayQuestion(code.program_code);
