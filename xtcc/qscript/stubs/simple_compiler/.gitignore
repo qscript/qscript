@@ -1,5 +1,8 @@
 include
 make-build-dir
+make-build-dir-wq2
+include_wq2
+include-rdg
 bin
 inputs/*.C
 inputs/*.h
