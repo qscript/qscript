@@ -15,7 +15,7 @@ stubs agree_5 =
 	"Disagree strongly" 1;	
 
  stubs veg=	
- 		"Tomates" 1
+		"Tomates" 1
 		"Potatoes" 2
 		"Capsicum" 3
 		"Brinjal/Egg plant" 4
@@ -40,7 +40,7 @@ q2 		"Which veg u r aware of?"
 q3 		"Which veg dou eat?"
 		mp(5) int32_t veg;
 
- 	
+ 
 		unset(veg);
 		setadd(veg, q3);
 q4 		"Which is ur fav veg?" : q3
@@ -52,7 +52,7 @@ q4 		"Which is ur fav veg?" : q3
 			int32_t code = i1+1;
 
 			if (code in q3) {
-q6				"In a week what perc of your veggies are (piping not yet implemented): "
+q6				"In a week what perc of your veggies are : "
 				: q3 . stubs [i1]
 				sp int32_t (0-100);
 				sum = sum + q6[i1];
