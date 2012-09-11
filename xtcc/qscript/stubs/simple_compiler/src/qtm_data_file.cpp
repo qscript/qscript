@@ -149,6 +149,7 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 	}
 	qtm_data_file_writer_log << "qno: " << q->questionName_ 
 		<< ", startPosition_: " << startPosition_ << ", width_: " << width_
+		<< ", currentColumn_: " << qtmDataFile_.fileXcha_.currentColumn_
 		<< endl;
 }
 
@@ -160,6 +161,7 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 	mesg << "MAINTAINTER NOTE:  move bufferBetweenQuestions to config file as a paramater ";
 	cerr << mesg.str() << ", line: " <<  __LINE__ << ", " << __FILE__ << ", func: " 
 		<< __PRETTY_FUNCTION__ << endl;
+	qtm_data_file_writer_log << __PRETTY_FUNCTION__ << ", question : " << q->questionName_ << endl;
 	if (qtmFileMode_ != READ_EQ_0) {
 		if (width_ > (cardDataWrapAroundAt_ - cardDataStartAt_)) {
 			cerr << " the question" 
@@ -235,11 +237,18 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 		currentColumn_ += add_displacement ;
 
 		if (currentColumn_ > cardDataWrapAroundAt_ || currentColumn_ + width_ > cardDataWrapAroundAt_) {
+			qtm_data_file_writer_log << ", question : " << q->questionName_ 
+				<< " currentColumn_: " << currentColumn_
+				<< " is being re-adjusted to cardDataWrapAroundAt_: " << cardDataWrapAroundAt_
+				<< endl;
+			currentColumn_ -= add_displacement;
+			currentColumn_ = cardDataWrapAroundAt_;
 			NextCard();
 		}
 	}
 	int question_pos = GetCurrentColumnPosition();
 	currentColumn_ += width_;
+	qtm_data_file_writer_log << q->questionName_ << ", question_pos: " << question_pos << endl;
 	return question_pos;
 }
 
@@ -1115,6 +1124,11 @@ QtmDataFile::QtmDataFile()
 void QtmDataFile::write_multi_code_data (int column, vector<int> & data,
 		AbstractQuestion * q)
 {
+	qtm_data_file_writer_log << "ENTER: " <<  __PRETTY_FUNCTION__ << endl;
+
+	qtm_data_file_writer_log << "column: " << column << endl;
+	qtm_data_file_writer_log << "question: " << q->questionName_ << endl;
+
 	bool valid_col_ref = CheckForValidColumnRef (column);
 	if (!valid_col_ref) {
 		stringstream s;
@@ -1231,6 +1245,10 @@ void QtmDataFile::write_record_to_disk(std::fstream & disk_file, int ser_no)
 	qtm_data_file_writer_log << LOG_MESSAGE(mesg.str());
 	for (int i=0; i<cardVec_.size(); ++i) {
 		char * the_single_coded_data = new char [cardVec_[i].data_.size()+1];
+
+		qtm_data_file_writer_log << "writing card: " << i+1 <<  " to datafile, length:" 
+			<< cardVec_[i].data_.size()
+			<< endl;
 		the_single_coded_data[cardVec_[i].data_.size()] = '\0';
 		using std::copy;
 		copy (cardVec_[i].data_.begin(), cardVec_[i].data_.end(), the_single_coded_data);
