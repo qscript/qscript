@@ -144,7 +144,7 @@ void QScriptConsole::createQuantumDataAndPrograms()
 	zipFile->suggestFileName (zip_file_name);
 	Wt::WAnchor *anchor = new Wt::WAnchor (zipFile, zip_file_name + " Quantum Setup + data + frequency counts");
 	anchor->setTarget (Wt::TargetNewWindow);
-	dataExportMesgContainer_ -> addWidget (anchor);
+	dataExportMessagesLayout_ -> addWidget (anchor);
 }
 
 void QScriptConsole::createSPSSDataAndPrograms()
@@ -161,9 +161,9 @@ void QScriptConsole::createSPSSDataAndPrograms()
 	stringstream  zip_file_cmd;
 	zip_file_cmd << "zip -r "
 		<< sys_filename
-		<< "-spss-setup.zip setup-"
-		<< sys_filename << " "
-		<< sys_filename << ".qdat " 
+		<< "-spss-setup.zip "
+		<< sys_filename << "-flat-ascii.sps "
+		<< sys_filename << ".dat " 
 		<< sys_filename << ".freq_count.csv ";
 	system (zip_file_cmd.str().c_str());
 	string zip_file_name = sys_filename + string("-spss-setup.zip");
@@ -171,7 +171,7 @@ void QScriptConsole::createSPSSDataAndPrograms()
 	zipFile->suggestFileName (zip_file_name);
 	Wt::WAnchor *anchor = new Wt::WAnchor (zipFile, zip_file_name + " SPSS Setup + data + frequency counts");
 	anchor->setTarget (Wt::TargetNewWindow);
-	dataExportMesgContainer_ -> addWidget (anchor);
+	dataExportMessagesLayout_ -> addWidget (anchor);
 }
 
 void QScriptConsole::createXtccDataAndPrograms()
@@ -198,7 +198,7 @@ void QScriptConsole::createXtccDataAndPrograms()
 	zipFile->suggestFileName (zip_file_name);
 	Wt::WAnchor *anchor = new Wt::WAnchor (zipFile, zip_file_name + " Xtcc Setup + data + frequency counts");
 	anchor->setTarget (Wt::TargetNewWindow);
-	dataExportMesgContainer_ -> addWidget (anchor);
+	dataExportMessagesLayout_ -> addWidget (anchor);
 }
 
 QScriptConsole::QScriptConsole(const Wt::WEnvironment& env, bool embedded
@@ -310,10 +310,17 @@ QScriptConsole::QScriptConsole(const Wt::WEnvironment& env, bool embedded
 	readFile (fs_sample_code, sample_code);
 	cmta_->setText (sample_code.str());
 
-	compilerMessagesLayout_ = new Wt::WVBoxLayout ();
-	compilerMesgContainer_ = new Wt::WContainerWidget (compilerConsole_);
+	//compilerMessagesLayout_ = new Wt::WVBoxLayout ();
+	//compilerMesgContainer_ = new Wt::WContainerWidget (compilerConsole_);
 	compilerMesgContainer_->setLayout (compilerMessagesLayout_);
 	compilerMesgContainer_->setOverflow (Wt::WContainerWidget::OverflowAuto);
+
+	rdgMesgContainer_ ->setLayout (rdgMessagesLayout_);
+	rdgMesgContainer_ ->setOverflow (Wt::WContainerWidget::OverflowAuto);
+
+	dataExportMesgContainer_->setLayout (dataExportMessagesLayout_);
+	dataExportMesgContainer_->setOverflow (Wt::WContainerWidget::OverflowAuto);
+
 
 }
 
@@ -348,7 +355,8 @@ void QScriptConsole::createRDG()
 	std::string sys_filename = filename_->text().toUTF8();
 	std::stringstream cmd;
 	cmd << "qscript-rdg -o -m -n -f " << sys_filename << " 2>&1 >op";
-	rdgMessages_->setText("compiling generator with command: " + cmd.str());
+	//rdgMessages_->setText("compiling generator with command: " + cmd.str());
+	rdgMessages_ = new Wt::WText("compiling generator with command: " + cmd.str());
 	system (cmd.str().c_str());
 	std::fstream op ("op", std::ios::in);
 	stringstream cc_errs;
@@ -356,6 +364,7 @@ void QScriptConsole::createRDG()
 	if (cc_errs.str().find ("Generated executable. You can run it by") != string::npos) {
 		pbGenerateRandomData_->enable();
 	}
+	rdgMessagesLayout_->addWidget (rdgMessages_);
 }
 
 void QScriptConsole::generateRandomData()
@@ -368,7 +377,9 @@ void QScriptConsole::generateRandomData()
 	std::string sys_filename = filename_->text().toUTF8();
 	std::stringstream cmd;
 	cmd << "./" << sys_filename << "-rdg.exe -r 200 2>&1 >op";
-	rdgMessages_->setText("generating 200 records of random data with cmd: " + cmd.str());
+	//rdgMessages_->setText("generating 200 records of random data with cmd: " + cmd.str());
+	rdgMessages_ = new Wt::WText ("generating 200 records of random data with cmd: " + cmd.str());
+	rdgMessagesLayout_->addWidget (rdgMessages_);
 	system (cmd.str().c_str());
 	std::fstream op ("op", std::ios::in);
 	stringstream cc_errs;
