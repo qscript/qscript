@@ -387,6 +387,9 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 			// for(int i=0; i<stubs.size(); ++i) {
 			// 	qtm_include_file << stubs[i].stub_text << endl;
 			// }
+// ======================
+// Old style include files - with net in the middle
+#if 0
 			if (rat_scale == 5) {
 				for (int i=stubs.size()-1; i>=0; --i) {
 					if (i==stubs.size()-1) {
@@ -561,9 +564,10 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 						<< var_name << "(a0,a" << width_ - 1 << ");"
 						<< "c=" << var_name << "(a0,a" << width_ - 1 << ").in.(1:10);\n";
 			}
-			cerr << "reached here: " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
-				<< " rat_scale: " << rat_scale
-				<< endl;
+
+			//cerr << "reached here: " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+			//	<< " rat_scale: " << rat_scale
+			//	<< endl;
 			if (rat_scale == 9) {
 				for (int i=stubs.size()-1; i>=0; --i) {
 					if (i==stubs.size()-1) {
@@ -627,9 +631,194 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 						<< var_name <<"(a0,a" << width_ - 1 << ");"
 						<< "c=" << var_name << "(a0,a" << width_ - 1 << ").in.(1:9);\n";
 			}
+#endif /* 0 */
+			for (int i=stubs.size()-1; i>=0; --i) {
+				qtm_include_file << "n01"
+					<< stubs[i].stub_text
+					<< "; c=" << var_name;
+				int the_code = stubs[i].code;
+				if (width_==1) {
+					qtm_include_file << "(a0)'";
+					if (the_code < 10) {
+						qtm_include_file << the_code
+							<< "'" << endl;
+					} else {
+						if (the_code == 10) {
+							qtm_include_file << "0'";
+						} else if (the_code == 11) {
+							qtm_include_file << "-'";
+						} else if (the_code == 12) {
+							qtm_include_file << "&'";
+						} else {
+							stringstream error_str;
+							error_str << "RUNTIME ERROR code for single coded qtm data exceeds 12... exiting " << endl;
+							cerr << LOG_MESSAGE(error_str.str());
+							exit(1);
+						}
+					}
+				} else {
+					qtm_include_file << "(a0,a"
+						<< width_-1 << ").eq."
+						<< the_code << endl;
+				}
+
+			}
+			qtm_include_file << endl;
+			if (rat_scale == 5) {
+				qtm_include_file << "n01Top 2 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.(4,5);"
+						<< endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.(4,5);"
+						<< endl;
+				}
+				qtm_include_file << "n01Bottom 2 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.("
+						<< stubs[0].code << "," << stubs[1].code
+						<< ");" << endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.("
+						<< stubs[0].code << "," << stubs[1].code
+						<< ");" << endl;
+				}
+
+				if (width_ == 1) {
+					qtm_include_file << "n25;inc=" << var_name << "(a0);c=" << var_name << "(a0).in.("
+						<< stubs[0].code << ":5);\n";
+				} else {
+					qtm_include_file << "n25;inc=" 
+						<< var_name << "(a0,a" << width_ - 1 << ");"
+						<< "c=" << var_name << "(a0,a" << width_ - 1 << ").in.("
+						<< stubs[0].code <<  ":5);\n";
+				}
+			} else if (rat_scale == 7) {
+				qtm_include_file << "n01Top 2 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.(6,7);"
+						<< endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.(6,7);"
+						<< endl;
+				}
+
+				qtm_include_file << "n01Top 3 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.(6,7);"
+						<< endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.(5:7);"
+						<< endl;
+				}
+
+				qtm_include_file << "n01Bottom 2 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.("
+						<< stubs[0].code << "," << stubs[1].code
+						<< ");" << endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.("
+						<< stubs[0].code << "," << stubs[1].code
+						<< ");" << endl;
+				}
+
+				qtm_include_file << "n01Bottom 3 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.("
+						<< stubs[0].code << ":" << stubs[2].code
+						<< ");" << endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.("
+						<< stubs[0].code << ":" << stubs[2].code
+						<< ");" << endl;
+				}
+
+				if (width_ == 1) {
+					qtm_include_file << "n25;inc=" << var_name << "(a0);c=" << var_name << "(a0).in.("
+						<< stubs[0].code << ":7);\n";
+				} else {
+					qtm_include_file << "n25;inc=" 
+						<< var_name << "(a0,a" << width_ - 1 << ");"
+						<< "c=" << var_name << "(a0,a" << width_ - 1 << ").in.("
+						<< stubs[0].code <<  ":7);\n";
+				}
+			} else if (rat_scale == 10) {
+				qtm_include_file << "n01Top 2 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "Unhandled width == 1 for 10 point scale"
+						<< endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.(9,10);"
+						<< endl;
+				}
+
+				qtm_include_file << "n01Top 3 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.(8:10);"
+						<< endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.(8:10);"
+						<< endl;
+				}
+
+				qtm_include_file << "n01Bottom 2 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.("
+						<< stubs[0].code << "," << stubs[1].code
+						<< ");" << endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.("
+						<< stubs[0].code << "," << stubs[1].code
+						<< ");" << endl;
+				}
+
+				qtm_include_file << "n01Bottom 3 Box (Net); c=";
+				if (width_ == 1) {
+					qtm_include_file << "(a0).in.("
+						<< stubs[0].code << ":" << stubs[2].code
+						<< ");" << endl;
+				} else {
+					qtm_include_file << "(a0,"
+						<< width_ - 1 
+						<< ").in.("
+						<< stubs[0].code << ":" << stubs[2].code
+						<< ");" << endl;
+				}
+
+				if (width_ == 1) {
+					qtm_include_file << "n25;inc=" << var_name << "(a0);c=" << var_name << "(a0).in.("
+						<< stubs[0].code << ":10);\n";
+				} else {
+					qtm_include_file << "n25;inc=" 
+						<< var_name << "(a0,a" << width_ - 1 << ");"
+						<< "c=" << var_name << "(a0,a" << width_ - 1 << ").in.("
+						<< stubs[0].code <<  ":10);\n";
+				}
+			}
 		}
+		qtm_include_file << endl;
 
 		qtm_include_file << "*include mean.qin" << endl;
+		qtm_include_file << "*include bot.qin" << endl;
 	}
 	qtm_include_files.insert(n_q->nr_ptr->name);
 }
@@ -789,6 +978,7 @@ string print_dynamic_base_text(AbstractQuestion * q, BaseText & base_text)
 string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 {
 	std::stringstream qax_program_text;
+	//qax_program_text << "ENTER: " << __PRETTY_FUNCTION__ << endl;
 #if 0
 	stringstream ttl_string;
 	const int TEXT_LEN_BREAK_AT = 120;
@@ -858,7 +1048,7 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 				<< ".qax"
 				<< ";qlno=" << q->loop_index_values[0] 
 				<< ";col(a)=" << startPosition_ + 1
-				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;qat2t=;att2t=/*" << endl
+				<< ";q1att=&at" << q->loop_index_values[0] << "t;att1t=;q2att=;att2t=/*" << endl
 				//<< "+btxt=" << l_base_text.str()
 				//<< endl
 				//<< endl
@@ -868,8 +1058,8 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 				<< ".qax"
 				<< ";col(a)=" << startPosition_ + 1
 				<< ";qlno=" << q->loop_index_values[0] << "_" << q->loop_index_values[1] 
-				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;"
-				<< ";qat2t=&bt" << q->loop_index_values[0] << "t;att2t=;" << endl
+				<< ";q1att=&at" << q->loop_index_values[0] << "t;att1t=;"
+				<< ";q2att=&bt" << q->loop_index_values[0] << "t;att2t=;" << endl
 				<< "+btxt=" << l_base_text.str()
 				<< endl
 				<< endl;
@@ -1026,6 +1216,7 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 
 		qax_program_text << endl;
 	}
+	//qax_program_text << "EXIT: " << __PRETTY_FUNCTION__ << endl;
 	return qax_program_text.str();
 }
 
@@ -2159,7 +2350,7 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 						}
  				ax << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name()
 					<<";col(a)=" << 1
-					<<";qat1t=&a" << recode_q->q->loop_index_values[0] <<"t;att1t=;qat2t=;att2t=/*;"
+					<<";q1att=&a" << recode_q->q->loop_index_values[0] <<"t;att1t=;q2att=;att2t=/*;"
 					<<"\n+btxt=" << l_base_text.str()
 					<< endl
 					<< endl;
@@ -2168,8 +2359,8 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 					<<".qax"
 					<<";col(a)=" << recode_q->q->loop_index_values[0] + 1
 					<<";qlno=" << recode_q->q->loop_index_values[0] <<"_" << recode_q->q->loop_index_values[1] << ";var_name="  << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name()
-					<<";qat1t=&a" << recode_q->q->loop_index_values[0] <<"t;att1t="
-					<<";qat2t=&b" << recode_q->q->loop_index_values[0] <<"t;att2t=" << endl
+					<<";q1att=&a" << recode_q->q->loop_index_values[0] <<"t;att1t="
+					<<";q2att=&b" << recode_q->q->loop_index_values[0] <<"t;att2t=" << endl
 					<<"\n+btxt = " << l_base_text.str()
 					<< endl
 					<< endl;
@@ -2283,6 +2474,169 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 		ax << " driver question does not have named stubs, this should be an input file error" << endl;
 	}
 	return ax.str();
+}
+
+// refactored out of the compiled cpp file and into the library
+// there are some coding horror jewels in here like
+// re-building the list of axes for summary tables 2ice etc.
+// seems to work - for now and needs to be revisited when 
+// Im in a saner / less BF'd state
+// The reason why this landed up here is because
+// the older logic did not work when axes were nested in for loops
+// Anyway the generated code is a lot cleaner
+void top_level_write_qax(string jno, 
+		const vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map)
+{
+	string qtm_qax_file_name( string("setup-")+jno+string("/") + jno + string(".qax"));
+	fstream qtm_qax_file(qtm_qax_file_name.c_str(), std::ios_base::out|std::ios_base::ate);
+	map <string, vector<qtm_data_file_ns::QtmDataDiskMap*> > summary_tables;
+	string prev_question, current_question;
+
+
+
+	set <string> already_processed;
+	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {
+		if (i==0)
+		{
+			current_question = prev_question = qtm_datafile_question_disk_map[i]->q->questionName_;
+		}
+		else
+		{
+			current_question = qtm_datafile_question_disk_map[i]->q->questionName_;
+		}
+
+		if (qtm_datafile_question_disk_map[i]->q->loop_index_values.size() > 0 && 
+				already_processed.find (current_question) == already_processed.end()) {
+			qtm_qax_file << "/*  current_question: " << current_question << " */" << endl;
+			vector <qtm_data_file_ns::QtmDataDiskMap*> temp_qtm_datafile_question_disk_map;
+			for (int j=i; j < qtm_datafile_question_disk_map.size(); ++j) {
+				if (qtm_datafile_question_disk_map[j]->q->questionName_ 
+						== current_question) {
+					temp_qtm_datafile_question_disk_map.push_back (qtm_datafile_question_disk_map[j]);
+					//qtm_qax_file << " pushing into temp map: " << endl;
+				}
+			}
+			//qtm_qax_file << "temp_qtm_datafile_question_disk_map.size(): " << temp_qtm_datafile_question_disk_map.size()
+			//	<< endl;
+			for (int i1=0; i1 < temp_qtm_datafile_question_disk_map.size(); ++i1) 
+			{
+				stringstream qax_program_text1;
+				qax_program_text1 << "*def at" << i1
+					 //<< "Code " << i1+1
+					<< "t=";
+				stringstream s1; s1 << "Code " << i1+1;
+				AbstractQuestion * & q1 =temp_qtm_datafile_question_disk_map[i1]->q;
+				qax_program_text1 << (q1->getNamedAttributeText()==string("") 
+							?  s1.str() : q1->getNamedAttributeText());
+				qax_program_text1 << endl;
+				qtm_qax_file << qax_program_text1.str() ;
+				//string questionName = qtm_datafile_question_disk_map[i]->q->questionName_;
+				summary_tables[current_question].push_back(temp_qtm_datafile_question_disk_map[i1]);
+			}
+			for (int j=0; j < temp_qtm_datafile_question_disk_map.size(); ++j) {
+				stringstream qax_program_text1;
+				qax_program_text1 
+					<< temp_qtm_datafile_question_disk_map[j]->print_qax(qtm_qax_file, string("setup-")+jno);
+				qtm_qax_file 
+					//<< "/* ===== j = " << j << " */" << endl 
+					<< qax_program_text1.str() ;
+
+			}
+			already_processed.insert (current_question);
+			cerr << "reached here" << endl;
+
+			vector<qtm_data_file_ns::QtmDataDiskMap*> v1 = summary_tables[current_question];
+			qtm_qax_file << endl;
+			qtm_qax_file << endl;
+			print_summary_axis (v1, qtm_qax_file);
+		}
+
+		stringstream qax_program_text;
+		string questionName = qtm_datafile_question_disk_map[i]->q->questionName_;
+		if (qtm_datafile_question_disk_map[i]->q->loop_index_values.size() > 0)
+		{
+			summary_tables[questionName].push_back(qtm_datafile_question_disk_map[i]);
+		}
+#if 0
+		if (current_question != prev_question)
+		{
+			bool is_1st_iter = true;
+			AbstractQuestion * & q =qtm_datafile_question_disk_map[i]->q;
+			if (q->loop_index_values.size() > 0)
+			{
+				for (int32_t j=0; j<q->loop_index_values.size(); ++j)
+				{
+					if (q->loop_index_values[j] != 0)
+					{
+						is_1st_iter = false;
+						break;
+					}
+				}
+				if (is_1st_iter)
+				{
+					string dum_q_name = q->questionName_ ;
+					DummyArrayQuestion * dumq = find_q(question_list, dum_q_name, qax_program_text);
+					if (dumq)
+					{
+						if (dumq->array_bounds.size() == 1)
+						{
+							for (int i1=0; i1<dumq->array_bounds[0]; ++i1)
+							{
+								qax_program_text << "*def at" << i1
+					 //<< "Code " << i1+1
+									<< "t=";
+								stringstream s1; s1 << "Code " << i1+1;
+								AbstractQuestion * & q1 =qtm_datafile_question_disk_map[i+i1]->q;
+								qax_program_text << (q1->getNamedAttributeText()==string("") ? s1.str() : q1->getNamedAttributeText());
+								qax_program_text << endl;
+							}
+							qax_program_text
+								<< endl
+								<< endl
+								<< endl;
+						}
+					}
+				}
+			}
+		}
+#endif /* 0 */
+		if (already_processed.find (current_question) == already_processed.end()) {
+			qax_program_text << qtm_datafile_question_disk_map[i]->print_qax(qtm_qax_file, string("setup-")+jno);
+			qtm_qax_file << qax_program_text.str() ;
+			already_processed.insert (current_question);
+		}
+		/* 
+		if (current_question == prev_question)
+		{
+			AbstractQuestion * & q =qtm_datafile_question_disk_map[i]->q;
+			if (q->loop_index_values.size()>0)
+			{
+				string dum_q_name = q->questionName_ ;
+				DummyArrayQuestion * dumq = find_q(question_list, dum_q_name, qax_program_text);
+				if (dumq)
+				{
+					bool is_last_iter = false;
+					if (q->loop_index_values.size() == 1 && q->loop_index_values[0] == dumq->array_bounds[0]-1)
+					{
+						is_last_iter = true;
+					}
+					if (is_last_iter)
+					{
+						vector<qtm_data_file_ns::QtmDataDiskMap*> v1 = summary_tables[questionName];
+						qtm_qax_file << endl;
+						qtm_qax_file << endl;
+						print_summary_axis(v1, qtm_qax_file);
+					}
+				}
+			}
+		}
+		 */
+		if (i>0)
+		{
+			prev_question = current_question;
+		}
+	}
+
 }
  
 }

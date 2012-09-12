@@ -1563,6 +1563,9 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	PrintCreate_1_0_DataEdit(create_1_0_data_edit);
 	compute_flat_map_code.program_code << "{" << create_1_0_data_edit.program_code.str() << "}" << endl;
 
+	compute_flat_map_code.program_code << "top_level_write_qax(jno, qtm_datafile_question_disk_map);" << endl;
+
+#if 0
 	compute_flat_map_code.program_code << "\t\tstring qtm_qax_file_name( string(\"setup-\")+jno+string(\"/\") + jno + string(\".qax\"));\n";
 	compute_flat_map_code.program_code << "\t\tfstream qtm_qax_file(qtm_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tmap <string, vector<qtm_data_file_ns::QtmDataDiskMap*> > summary_tables;\n"
@@ -1645,6 +1648,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t//		it != summary_tables.end(); ++it) {\n"
 		<< "\t\t//	print_summary_axis(it->second, qtm_qax_file);\n"
 		<< "\t\t//}\n";
+#endif /* 0 */
 	compute_flat_map_code.program_code 
 		<< "\t\tqtm_datafile_question_disk_map[0]->print_run(jno);"
 		<< endl;
