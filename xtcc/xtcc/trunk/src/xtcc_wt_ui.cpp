@@ -71,25 +71,32 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 			 Wt::WStandardItemModel * & side_model,
 			 Wt::WStandardItemModel * & top_model,
 			 std::set<string> & p_side_axes_set,
-			 std::set<string> & p_top_axes_set,
-			 Wt::WApplication * parent)
+			 std::set<string> & p_top_axes_set
+			 //, Wt::WApplication * parent
+			 )
 
 	: 	
-		filteredAxes (0), regexpFilter (0), w (0),
-		vbl1 (0), hbl (0),
+		filteredAxes (0), regexpFilter (0),
+		tab_widget (0),
+		//, w (0), vbl1 (0), hbl (0),
 		main_axes_model (model), main_axes_tree (0), 
 		side_axes_model (side_model), side_axes_tree (0),
 		top_axes_model (top_model), top_axes_tree (0),
 		side_axes_set (p_side_axes_set),
 		top_axes_set (p_top_axes_set),
 		messages_container (0), mesg_cont_layout (0),
-		wt_tbl_cont(0), wt_tbl (0), app_(parent)
+		wt_tbl_cont(0), wt_tbl (0),
+		// =======
+		topLevel_(0), console_(0), threeStoreyedBuilding_(0),
+		thirdFloor_(0), secondFloor_(0), firstFloor_(0)
+		
+
 		
 {
-	w  = new WContainerWidget (this);
-	tab_widget = new WTabWidget(w);
-	tab_widget -> addTab (w  = new WContainerWidget (), "Console");
-	vbl1 = new WVBoxLayout ();
+	topLevel_  = new WContainerWidget (this);
+	tab_widget = new WTabWidget(topLevel_);
+	tab_widget -> addTab (console_  = new WContainerWidget (), "Console");
+	threeStoreyedBuilding_ = new WVBoxLayout ();
 
 	WText * txt = new WText("axes name here : regular expressions (example q.*) work");
 	regexpFilter = new WLineEdit();
@@ -100,29 +107,16 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	filter -> clicked().
 		connect (this, &XtccWtUI::changeRegexp);
 
-	hbl = new WHBoxLayout ();
-	hbl -> addWidget (txt, AlignLeft);
-	hbl -> addWidget (regexpFilter, AlignLeft);
-	hbl -> addWidget (filter, AlignLeft);
-	vbl1 -> addLayout (hbl);
-
-	WPanel *panel1 = new WPanel();
-	panel1->resize(150, 300);
-	panel1->setCentralWidget(main_axes_tree = new WTreeView());
-	main_axes_tree->setSelectionMode (ExtendedSelection);
-	main_axes_tree->setAlternatingRowColors (true);
-	main_axes_tree->setRowHeight (25);
-	main_axes_tree->setModel (main_axes_model);
-	/*
-	 * Expand the first (and single) top level node
-	 */
-	main_axes_tree->setExpanded(main_axes_model->index(0, 0), true);
+	thirdFloor_ = new WHBoxLayout ();
+	thirdFloor_ -> addWidget (txt, AlignLeft);
+	thirdFloor_ -> addWidget (regexpFilter, AlignLeft);
+	thirdFloor_ -> addWidget (filter, AlignLeft);
+	threeStoreyedBuilding_ -> addLayout (thirdFloor_);
 
 
 
 	//main_axes_tree->setExpanded(main_axes_model->index(0, 0, main_axes_model->index(0, 0)), true);
-	hbl = new WHBoxLayout ();
-	hbl->addWidget (panel1 );
+	secondFloor_ = new WHBoxLayout ();
 	//
 	// now the filtered selection box
 
@@ -137,7 +131,7 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	selected_axes_view -> setModel (filteredAxes);
 	selected_axes_view -> setVerticalSize (10);
 	selected_axes_view -> setSelectionMode (ExtendedSelection);
-	hbl -> addWidget (selected_axes_view);
+	secondFloor_ -> addWidget (selected_axes_view);
 
 	// ======================
 	WContainerWidget * wc = new WContainerWidget(this);
@@ -169,7 +163,7 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	b->setToolTip("Run the tables");
 	vbl->addWidget (b);
 	wc->setLayout (vbl, AlignTop);
-	hbl->addWidget (wc);
+	secondFloor_->addWidget (wc);
 	// ======================
 
 
@@ -178,14 +172,14 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	panel2->setCentralWidget(side_axes_tree = new WTreeView());
 	side_axes_tree->setModel(side_axes_model);
 	side_axes_tree->setSelectionMode (ExtendedSelection);
-	hbl->addWidget (panel2);
+	secondFloor_->addWidget (panel2);
 
 	WPanel *panel3 = new WPanel();
 	panel3->resize(150, 300);
 	panel3->setCentralWidget(top_axes_tree = new WTreeView());
 	top_axes_tree->setModel(top_axes_model);
 	top_axes_tree->setSelectionMode (ExtendedSelection);
-	hbl->addWidget (panel3);
+	secondFloor_->addWidget (panel3);
 
 	WPanel *panel4 = new WPanel();
 	panel4->resize(300, 300);
@@ -195,7 +189,7 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	mesg_cont_layout = new WVBoxLayout ();
 	messages_container->setLayout (mesg_cont_layout);
 	messages_container->setOverflow (WContainerWidget::OverflowAuto);
-	hbl->addWidget (panel4);
+	secondFloor_->addWidget (panel4);
 
 	if (!WApplication::instance()->environment().ajax()) {
 		main_axes_tree->resize (WLength::Auto, 90);
@@ -203,16 +197,34 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	}
 #if 0
 #endif /*  0  */
-	vbl1->addLayout (hbl);
-	//vbl1->addWidget (wt_tbl_cont = new WContainerWidget());
-	//wt_tbl_cont ->addWidget (wt_tbl = new WTable(wt_tbl_cont));
+	threeStoreyedBuilding_->addLayout (secondFloor_);
+	//threeStoreyedBuilding_->addWidget (wt_tbl_cont = new WContainerWidget());
+	
+
+	firstFloor_ = new WHBoxLayout ();
+
+	WPanel *panel1 = new WPanel();
+	panel1->resize(WLength::Auto, 300);
+	panel1->setCentralWidget(main_axes_tree = new WTreeView());
+	main_axes_tree->setSelectionMode (ExtendedSelection);
+	main_axes_tree->setAlternatingRowColors (true);
+	main_axes_tree->setRowHeight (25);
+	main_axes_tree->setModel (main_axes_model);
+	/*
+	 * Expand the first (and single) top level node
+	 */
+	main_axes_tree->setExpanded(main_axes_model->index(0, 0), true);
+	firstFloor_->addWidget (panel1 );
+	threeStoreyedBuilding_->addLayout (firstFloor_, AlignJustify);
+	
 	WContainerWidget * tmp1 = new WContainerWidget();
-	tmp1->setLayout (vbl1, AlignTop|AlignJustify);
-	w->addWidget(tmp1);
+	tmp1->setLayout (threeStoreyedBuilding_, AlignTop|AlignJustify);
+	//w->addWidget(tmp1);
+	console_->addWidget(tmp1);
 	//w->addWidget (wt_tbl_cont = new WContainerWidget());
 	tab_widget -> addTab (wt_tbl_cont  = new WContainerWidget (), "Output");
 	//wt_tbl_cont ->addWidget (wt_tbl = new WTable(wt_tbl_cont));
-	//w->setLayout (vbl1, AlignTop|AlignJustify);
+	//w->setLayout (threeStoreyedBuilding_, AlignTop|AlignJustify);
 	//wt_tbl_element_count = 0;
 }
 
@@ -220,12 +232,29 @@ WStandardItemModel *XtccWtUI::create_main_axes_model(bool useInternalPath
 		//, WStandardItemModel * & model
 						 , WObject *parent )
 {
-	WStandardItemModel *model = new WStandardItemModel (0, 1, parent);
+	WStandardItemModel *model = new WStandardItemModel (0, 4, parent);
 	model->setHeaderData (0, Horizontal, std::string("Axes"));
+	model->setHeaderData (1, Horizontal, std::string("Title 1"));
+	model->setHeaderData (2, Horizontal, std::string("Title 2"));
 	for (Table::CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
-		WStandardItem * data = new WStandardItem(it->first);
-		data->setColumnCount(1);
-		model -> appendRow (data);
+		vector <Wt::WStandardItem*> aRow;
+		int col_count  = 1;
+		WStandardItem * ax_name = new WStandardItem(it->first);
+		aRow.push_back (ax_name);
+		ax_name->setColumnCount(col_count);
+		Table::ax * ax_ptr = it->second;
+		std::stringstream ttl_text;
+		for (Table::AbstractPrintableAxisStatement* ax_stmt_iter = ax_ptr->ttl_ax_stmt_start; 
+				ax_stmt_iter; ax_stmt_iter = ax_stmt_iter->next_
+				) {
+			//ttl_text << ax_stmt_iter->ax_text() << ",\n"; 
+			WStandardItem * ax_text = new WStandardItem ( string(ax_stmt_iter->ax_text()) );
+			ax_text->setColumnCount (++col_count);
+			aRow.push_back (ax_text);
+		}
+		
+		model -> appendRow (aRow);
+
 	}
 	return model;
 }
@@ -454,7 +483,8 @@ void XtccWtUI:: run_tables ()
 					"#include \"mean_stddev_struct.h\"\n"
 					"using std::map; using std::string; using std::vector; /*  -- */\n");
 		fclose (global_vars_C);
-		string session_id = app_->sessionId();
+		//string session_id = app_->sessionId();
+		string session_id = WApplication::instance() ->sessionId();
 
 		fname = string(work_dir) + string("/") + session_id + string("_my_table.C");
 		FILE * table_cpp= fopen( fname.c_str(), "wb");
@@ -546,7 +576,7 @@ void XtccWtUI:: run_tables ()
 						break;
 					}
 					cout << "nRows: " << tbl_data_vec[tbl_data_vec.size()-1].nRows << endl;
-					WStandardItemModel * wsm = new WStandardItemModel (tbl_data_vec[i].nRows, tbl_data_vec[i].nCols + 1, w);
+					WStandardItemModel * wsm = new WStandardItemModel (tbl_data_vec[i].nRows, tbl_data_vec[i].nCols + 1, wt_tbl_cont);
 					loadDataIntoModel (wsm, tbl_data_vec[i]);
 					WTableView * tbl = new WTableView ();
 					tbl->setModel (wsm);

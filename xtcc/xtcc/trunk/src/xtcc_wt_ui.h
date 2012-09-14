@@ -43,8 +43,9 @@ public:
 			 Wt::WStandardItemModel * & side_model,
 			 Wt::WStandardItemModel * & top_model,
 			 std::set<string> & p_side_axes_set,
-			 std::set<string> & p_top_axes_set,
-			 Wt::WApplication * parent);
+			 std::set<string> & p_top_axes_set
+			 //, Wt::WApplication * parent
+			 );
 
   Wt::WTreeView *treeView() const { return main_axes_tree; }
 
@@ -61,11 +62,12 @@ private:
 	Wt::WSortFilterProxyModel *filteredAxes;
 	Wt::WLineEdit *regexpFilter;
 
+	// =========
 
 	Wt::WTabWidget  * tab_widget;
-	Wt::WContainerWidget  * w  ;
-	Wt::WVBoxLayout  * vbl1  ;
-	Wt::WHBoxLayout * hbl ;
+	//Wt::WContainerWidget  * w  ;
+	//Wt::WVBoxLayout  * vbl1  ;
+	//Wt::WHBoxLayout * hbl ;
 	//Wt::WHBoxLayout * hbl2 ;
 	Wt::WStandardItemModel *main_axes_model;
 	Wt::WTreeView          *main_axes_tree;
@@ -84,8 +86,16 @@ private:
 	vector <Wt::Chart::WCartesianChart*> charts;
 	vector <Wt::WTableView*> tables;
 	vector <Wt::WContainerWidget*> containers;
-	Wt::WApplication * app_;
+	//Wt::WApplication * app_;
 	//Wt::Ext::Panel * messages_container ;
+
+	// ===============
+	Wt::WContainerWidget  * topLevel_  ;
+	Wt::WContainerWidget  * console_  ;
+	Wt::WVBoxLayout  * threeStoreyedBuilding_  ;
+	Wt::WHBoxLayout * thirdFloor_ ;
+	Wt::WHBoxLayout * secondFloor_ ;
+	Wt::WHBoxLayout * firstFloor_ ;
 
 	static Wt::WStandardItem *continentItem(const std::string& continent);
 
