@@ -227,14 +227,14 @@ local_install: $(BUILD_DIR)/qscript-rdg runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/qscript-rdg bin
 	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_rdg.so.1.0.1 lib
 	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_rdg.so.1.0.1 lib/libqscript_runtime_rdg.so.1
-	ln -s lib/libqscript_runtime_rdg.so.1.0.1 lib/libqscript_runtime_rdg.so.1
+	cd lib; ln -s libqscript_runtime_rdg.so.1.0.1 libqscript_runtime_rdg.so.1; cd ..
 	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_rdg.so.1.0.1 lib/libqscript_runtime_rdg.so
-	ln -s lib/libqscript_runtime_rdg.so.1.0.1 lib/libqscript_runtime_rdg.so
+	cd lib; ln -s libqscript_runtime_rdg.so.1.0.1 libqscript_runtime_rdg.so; cd ..
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_rdg.so.1.0.1 lib
 	#cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_rdg.so.1.0.1 lib/libqscript_compiletime_rdg.so.1
-	ln -s lib/libqscript_compiletime_rdg.so.1.0.1 lib/libqscript_compiletime_rdg.so.1
+	cd lib; ln -s libqscript_compiletime_rdg.so.1.0.1 libqscript_compiletime_rdg.so.1; cd ..
 	#cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_rdg.so.1.0.1 lib/libqscript_compiletime_rdg.so
-	ln -s lib/libqscript_compiletime_rdg.so.1.0.1 lib/libqscript_compiletime_rdg.so
+	cd lib; ln -s libqscript_compiletime_rdg.so.1.0.1 libqscript_compiletime_rdg.so; cd ..
 	cp ${SOURCE_DIR}/*.h include-rdg
 
 nsiqcppstyle:
