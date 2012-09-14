@@ -210,6 +210,9 @@ XtccWtUI::XtccWtUI (Wt::WStandardItemModel * & model,
 	main_axes_tree->setAlternatingRowColors (true);
 	main_axes_tree->setRowHeight (25);
 	main_axes_tree->setModel (main_axes_model);
+	//main_axes_tree->setColumnWidth (5, Wt::WLength(100, Wt::WLength::Percentage));
+	main_axes_tree->setColumnWidth (0, Wt::WLength(100, Wt::WLength::Pixel));
+	main_axes_tree->setColumnWidth (1, Wt::WLength(500, Wt::WLength::Pixel));
 	/*
 	 * Expand the first (and single) top level node
 	 */
