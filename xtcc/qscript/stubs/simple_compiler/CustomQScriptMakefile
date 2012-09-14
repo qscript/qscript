@@ -1,5 +1,5 @@
 
-CC = $(CXX)
+#CC = $(CXX)
 CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
 CXX_SHARED_LIB_FLAGS = -fPIC
 CXX_LINK_FLAGS = -g
@@ -212,7 +212,9 @@ release: clean
 .PHONY: clean tags
 
 clean:
-	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.dep $(BUILD_DIR)/*.so.* $(BUILD_DIR)/qscript_wq2  \
+	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/*.dep $(BUILD_DIR)/libqscript_runtime_wq2.so $(BUILD_DIR)/libqscript_runtime_wq2.so.* \
+		$(BUILD_DIR)/libqscript_compiletime_wq2.so* $(BUILD_DIR)/libqscript_compiletime_wq2.so \
+		$(BUILD_DIR)/qscript_wq2  \
 		$(BUILD_DIR)/runtime_lib/*.o $(BUILD_DIR)/runtime_lib/*.dep \
 		$(BUILD_DIR)/runtime_lib/*.so.* \
 		lib/*.so.* bin/qscript_wq2 include_wq2/*.h \
@@ -223,13 +225,15 @@ clean:
 local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/qscript_wq2 bin
 	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib
-	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1
-	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1
-	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so
+	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1
+	ln -s lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1
+	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so
+	ln -s lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so
+	#cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
+	ln -s lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
+	#cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so
+	ln -s lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so
 	cp ${SOURCE_DIR}/*.h include_wq2
 
 nsiqcppstyle:
