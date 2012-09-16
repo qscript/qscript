@@ -244,14 +244,14 @@ std::string DummyArrayQuestion::PrintSelectedAnswers(int code_index)
 }
 
 // Will be called in the runtime mode - 
-string AbstractQuestion::AxPrepareQuestionTitleXtcc()
+vector<string> AbstractQuestion::AxPrepareQuestionTitleXtcc()
 {
-	stringstream quest_decl;
+	//stringstream quest_decl;
+	vector <string> result;
 	for (int i=0; i < textExprVec_.size(); ++i) {
 		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) { 
-			quest_decl 
-				<< textExprVec_[i]->text_
-				;
+			// quest_decl << textExprVec_[i]->text_ ;
+			result.push_back (textExprVec_[i]->text_);
 		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
 			// since we are called in runtime env
 			// questionIndexExpr_ will be null - instead codeIndex_ will be active
@@ -264,9 +264,11 @@ string AbstractQuestion::AxPrepareQuestionTitleXtcc()
 				//		<< expr_code.code_expr.str()
 				//		<< ") ); /*  -NxD- */\n";
 			if (textExprVec_[i]->codeIndex_ != -1) {
-				quest_decl << textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(textExprVec_[i]->codeIndex_);
+				//quest_decl << textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(textExprVec_[i]->codeIndex_);
+				result.push_back( textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(textExprVec_[i]->codeIndex_));
 			} else {
-				quest_decl << textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+				//quest_decl << textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+				result.push_back ( textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers());
 			}
 			//} else {
 			//	quest_decl << "text_expr_vec.push_back( new TextExpression(" 
@@ -290,16 +292,20 @@ string AbstractQuestion::AxPrepareQuestionTitleXtcc()
 			}
 #endif /*  0 */
 		} else if (textExprVec_[i]->teType_ == TextExpression::named_attribute_type) {
-			quest_decl << textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+			//quest_decl << textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_];
+			result.push_back (textExprVec_[i]->naPtr_->attribute[textExprVec_[i]->naIndex_]);
 		} else {
 			ExpressionCompiledCode expr_code;
 			textExprVec_[i]->nameExpr_->PrintExpressionCode(expr_code);
+			stringstream quest_decl;
 			quest_decl << "text_expr_vec.push_back(new TextExpression("
 				<< expr_code.code_expr.str()
 				<< "));\n";
+			result.push_back (quest_decl.str());
 		}
 	}
-	return quest_decl.str();
+	//return quest_decl.str();
+	return result;
 }
 
 string AbstractQuestion::AxPrepareQuestionTitleSPSS()

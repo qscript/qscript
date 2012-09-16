@@ -198,7 +198,7 @@ struct AbstractQuestion: public AbstractStatement
 	string PrepareQuestionTitle();
 	string AxPrepareQuestionTitle();
 	string AxPrepareQuestionTitleSPSS();
-	string AxPrepareQuestionTitleXtcc();
+	vector<string> AxPrepareQuestionTitleXtcc();
 	string getNamedAttributeText();
 
 	private:

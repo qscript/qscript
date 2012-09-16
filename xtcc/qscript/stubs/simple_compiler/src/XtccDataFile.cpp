@@ -850,13 +850,31 @@ void XtccDataFileDiskMap::print_xtcc_ax2(fstream & xtcc_ax_file, string setup_di
 				<< endl;
 		}
 	}
+	//xtcc_ax_file
+	//	<< "ttl; " << "\"" << q_->questionName_ 
+	//	<< "." 
+	//	//<< "Fix me" // q_->questionText_ 
+	//	<< q_->AxPrepareQuestionTitleXtcc()
+	//	<< "\";" 
+	//	<< endl << endl;
 	xtcc_ax_file
-		<< "ttl; " << "\"" << q_->questionName_ 
-		<< "." 
-		//<< "Fix me" // q_->questionText_ 
-		<< q_->AxPrepareQuestionTitleXtcc()
-		<< "\";" 
-		<< endl << endl;
+		<< "ttl; " << "\"" << q_->questionName_ ;
+	vector <string> ttl_vec = q_->AxPrepareQuestionTitleXtcc();
+	for (int i = 0; i < ttl_vec.size(); ++i) {
+		if (i == 0) {
+			xtcc_ax_file 
+				<< "."
+				<< ttl_vec[i]
+				<< "\";" 
+				<< endl;
+		} else {
+			xtcc_ax_file << "ttl; \""
+				<< ttl_vec[i]
+				<< "\";" 
+				<< endl;
+		}
+	}
+
 	if (nq) {
 		//xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
 		xtcc_ax_file << "#include base.xin;btxt=\"Total\";" << endl;
