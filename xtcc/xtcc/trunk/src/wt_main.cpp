@@ -173,6 +173,8 @@ private:
 
 };
 
+Wt::WServer server;
+
 WApplication *createApplication2(const WEnvironment& env)
 {
 	cout << "Create Application was called" << endl;
@@ -343,7 +345,50 @@ int main (int argc, char *argv[])
 
 
 	/* create a new window */
-	WRun (argc, argv, &createApplication2);
+	//WRun (argc, argv, &createApplication2);
+	{
+		try
+		{
+			// use argv[0] as the application name to match a suitable entry
+			// in the Wt configuration file, and use the default configuration
+			// file (which defaults to /etc/wt/wt_config.xml unless the environment
+			// variable WT_CONFIG_XML is set)
+			// WServer server(argv[0]);
+
+			// WTHTTP_CONFIGURATION is e.g. "/etc/wt/wthttpd"
+			server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
+
+			// add a single entry point, at the default location (as determined
+			// by the server configuration's deploy-path)
+			server.addEntryPoint(Wt::Application, createApplication2);
+			if (server.start()) {
+				std::string port_number_fname = inp_file + string("_xtcc_port_number");
+				std::fstream port_number(port_number_fname.c_str(), std::ios_base::out);
+				port_number << server.httpPort();
+				port_number << ' ' << getpid() << std::endl;     std::cout << server.httpPort() << std::endl;
+				port_number.flush();
+				int sig = WServer::waitForShutdown(argv[0]);
+
+				std::cerr << "Shutdown (signal = " << sig << ")" << std::endl;
+				server.stop();
+
+				//if (sig == SIGHUP)
+				//	WServer::restart(argc, argv, environ);
+			}
+		}
+		catch (WServer::Exception& e)
+		{
+			std::cerr << e.what() << std::endl;
+			return 1;
+		}
+		catch (std::exception& e)
+		{
+			std::cerr << "exception: " << e.what() << std::endl;
+			return 1;
+		}
+	}
+
+
 	//WServer server(argv[0]);
 	//server.setServerConfiguration(argc, argv);
 	//RestGetHello getHello;
