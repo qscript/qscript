@@ -213,21 +213,25 @@ release: clean
 
 .PHONY: clean tags
 
-clean:
+lib_clean:
+	-rm -f lib/libqscript_runtime.so.* lib/libqscript_runtime.so \
+		lib/libqscript_compiletime.so.* lib/libqscript_compiletime.so 
+
+clean: lib_clean
+	#lib/libqscript_runtime.so.* lib/libqscript_runtime.so 
+	#lib/libqscript_compiletime.so.* lib/libqscript_compiletime.so 
 	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/runtime_lib/*.o \
-		lib/libqscript_runtime.so.* lib/libqscript_runtime.so \
-		lib/libqscript_compiletime.so.* lib/libqscript_compiletime.so \
 		bin/qscript include/*.h $(BUILD_DIR)/compiletime_lib/*.o \
 		$(BUILD_DIR)/qscript $(BUILD_DIR)/*.dep $(BUILD_DIR)/runtime_lib/*.dep $(BUILD_DIR)/compiletime_lib/*.dep \
 		$(BUILD_DIR)/runtime_lib/libqscript_runtime.so.* \
 		$(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.* \
 		inputs/*.exe inputs/*.C src/*.output
 
-local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib
+local_install: $(BUILD_DIR)/qscript runtime_lib compiletime_lib lib_clean
 	cp $(BUILD_DIR)/qscript bin
 	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib
 	cd lib; ln -s libqscript_runtime.so.1.0.1 libqscript_runtime.so.1 ; cd ..
-	cd lib; ln -s $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 lib/libqscript_runtime.so; cd ..
+	cd lib; ln -s libqscript_runtime.so.1.0.1 libqscript_runtime.so; cd ..
 	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib
 	cd lib; ln -s libqscript_compiletime.so.1.0.1 libqscript_compiletime.so.1; cd ..
 	cd lib; ln -s libqscript_compiletime.so.1.0.1 libqscript_compiletime.so; cd ..
