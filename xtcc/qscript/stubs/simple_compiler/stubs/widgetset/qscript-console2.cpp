@@ -51,6 +51,7 @@ struct QScriptConsole : public Wt::WApplication
 
 	//void transferCode();
 	void launch();
+	void launchXtcc();
 	void getTheCode();
 	void createRDG();
 	void createDataWriter();
@@ -74,6 +75,7 @@ struct QScriptConsole : public Wt::WApplication
 	Wt::WLineEdit *filename_ ;
 	Wt::WLabel *label ;
 	std::string launchedProcessNumber_;
+	std::string launchedXtccProcessNumber_;
 	Wt::WPushButton * pbSaveAndCompile_;
 
 	Wt::WPushButton * pbLaunch_;
@@ -199,6 +201,7 @@ void QScriptConsole::createXtccDataAndPrograms()
 	Wt::WAnchor *anchor = new Wt::WAnchor (zipFile, zip_file_name + " Xtcc Setup + data + frequency counts");
 	anchor->setTarget (Wt::TargetNewWindow);
 	dataExportMessagesLayout_ -> addWidget (anchor);
+	pbLaunchXtccWUI_->enable();
 }
 
 QScriptConsole::QScriptConsole(const Wt::WEnvironment& env, bool embedded
@@ -236,7 +239,8 @@ QScriptConsole::QScriptConsole(const Wt::WEnvironment& env, bool embedded
 	  dataExportMessagesLayout_ ( new Wt::WVBoxLayout ()),
 	  dataExportMesgContainer_ ( new Wt::WContainerWidget (dataExportConsole_)),
 	  // xtccConsole_ ==================
-	  xtccMessages_ ( new Wt::WText (xtccConsole_))
+	  xtccMessages_ ( new Wt::WText (xtccConsole_)),
+	  pbLaunchXtccWUI_ (new Wt::WPushButton ("Launch Xtcc", xtccConsole_))
 {
 	using namespace std;
 	//Wt::WContainerWidget *top_ = root();
@@ -321,6 +325,11 @@ QScriptConsole::QScriptConsole(const Wt::WEnvironment& env, bool embedded
 	dataExportMesgContainer_->setLayout (dataExportMessagesLayout_);
 	dataExportMesgContainer_->setOverflow (Wt::WContainerWidget::OverflowAuto);
 
+	pbLaunchXtccWUI_->setMargin(5, Wt::Left);
+	cerr << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ << " uncomment after testing"
+		<< endl;
+	//pbLaunchXtccWUI_->disable();
+	pbLaunchXtccWUI_->clicked().connect(this, &QScriptConsole::launchXtcc);
 
 }
 
@@ -440,6 +449,52 @@ void QScriptConsole::getTheCode ()
 	}
 }
 
+
+void QScriptConsole::launchXtcc()
+{
+	using  std::string;
+	using  std::stringstream;
+	using  std::cout;
+	using  std::endl;
+	string sys_filename = filename_->text().toUTF8();
+	stringstream cmd;
+	//cmd << "./" << sys_filename << ".exe --http-address=127.0.0.1 "
+	//cmd << "./" << sys_filename << ".exe --http-address=115.241.206.132 "
+	cmd << "cd setup-" << sys_filename
+		<< "; xtpp < " << sys_filename << ".xtcc2  > "
+		<<  sys_filename << ".xtcc_pp; cd ..;";
+	cout << "running command : " << cmd.str() << endl;
+	system (cmd.str().c_str());
+	cout << "sys_filename: " << sys_filename << endl;
+
+	cmd << "cd setup-" << sys_filename << "; "
+		<< "xtcc_wt  --http-address=" << http_address
+		<< "--http-port=0 --docroot=. " 
+		<< sys_filename << ".xtcc_pp ../" << sys_filename << ".xdat &"
+		<< endl;
+	std::cerr << "running command : " << cmd.str() << endl;
+	system (cmd.str().c_str());
+	sleep(1);
+	string port_number_fname = string("setup-") + sys_filename + "/" + sys_filename + ".xtcc_pp_xtcc_port_number";
+	std::cerr << "port_number_fname: " << port_number_fname << endl;
+	std::ifstream port_number_file(port_number_fname.c_str());
+	string port_number ;
+	port_number_file >> port_number;
+	port_number_file >> launchedXtccProcessNumber_;
+	stringstream launched_mesg;
+	//launched_mesg << "launched at http://115.241.206.132 http://127.0.0.1:" << port_number << endl;
+	launched_mesg << "launched at <a href=\"http://"
+		<< http_address  << ":"  << port_number 
+		<< "\">"
+		<< http_address  << ":"  << port_number 
+		<< "</a>"
+		<< endl;
+	cout << launched_mesg.str() << endl;
+	cout << "Process number: " << launchedXtccProcessNumber_ << endl;
+	xtccMessages_->setText(launched_mesg.str());
+	//compilerMessages_->setText(cmd.str());
+	xtccMessages_->setTextFormat(Wt::XHTMLText);
+}
 
 void QScriptConsole::launch()
 {
