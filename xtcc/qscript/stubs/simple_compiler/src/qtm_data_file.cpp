@@ -375,6 +375,7 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 			}
 			qtm_include_file << endl;
 		}
+		qtm_include_file << "*include bot.qin" << endl;
 	} else {
 		if (flag_scale_is_reversed == false) {
 			vector<stub_pair>  stubs= (n_q->nr_ptr->stubs);
@@ -665,27 +666,27 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 			}
 			qtm_include_file << endl;
 			if (rat_scale == 5) {
-				qtm_include_file << "n01Top 2 Box (Net); c=";
+				qtm_include_file << "n01Top 2 Box (Net); c=" << var_name;
 				if (width_ == 1) {
-					qtm_include_file << "(a0).in.(4,5);"
+					qtm_include_file << "(a0).in.(4,5);ntot;"
 						<< endl;
 				} else {
 					qtm_include_file << "(a0,"
 						<< width_ - 1 
-						<< ").in.(4,5);"
+						<< ").in.(4,5);ntot;"
 						<< endl;
 				}
-				qtm_include_file << "n01Bottom 2 Box (Net); c=";
+				qtm_include_file << "n01Bottom 2 Box (Net); c=" << var_name;
 				if (width_ == 1) {
 					qtm_include_file << "(a0).in.("
 						<< stubs[0].code << "," << stubs[1].code
-						<< ");" << endl;
+						<< ");ntot;" << endl;
 				} else {
 					qtm_include_file << "(a0,"
 						<< width_ - 1 
 						<< ").in.("
 						<< stubs[0].code << "," << stubs[1].code
-						<< ");" << endl;
+						<< ");ntot;" << endl;
 				}
 
 				if (width_ == 1) {
@@ -698,52 +699,52 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 						<< stubs[0].code <<  ":5);\n";
 				}
 			} else if (rat_scale == 7) {
-				qtm_include_file << "n01Top 2 Box (Net); c=";
+				qtm_include_file << "n01Top 2 Box (Net); c=" << var_name;
 				if (width_ == 1) {
-					qtm_include_file << "(a0).in.(6,7);"
+					qtm_include_file << "(a0).in.(6,7);ntot;"
 						<< endl;
 				} else {
 					qtm_include_file << "(a0,"
 						<< width_ - 1 
-						<< ").in.(6,7);"
+						<< ").in.(6,7);ntot;"
 						<< endl;
 				}
 
 				qtm_include_file << "n01Top 3 Box (Net); c=";
 				if (width_ == 1) {
-					qtm_include_file << "(a0).in.(6,7);"
+					qtm_include_file << "(a0).in.(5:7);ntot;"
 						<< endl;
 				} else {
 					qtm_include_file << "(a0,"
 						<< width_ - 1 
-						<< ").in.(5:7);"
+						<< ").in.(5:7);ntot;"
 						<< endl;
 				}
 
-				qtm_include_file << "n01Bottom 2 Box (Net); c=";
+				qtm_include_file << "n01Bottom 2 Box (Net); c=" << var_name;
 				if (width_ == 1) {
 					qtm_include_file << "(a0).in.("
 						<< stubs[0].code << "," << stubs[1].code
-						<< ");" << endl;
+						<< ");ntot;" << endl;
 				} else {
 					qtm_include_file << "(a0,"
 						<< width_ - 1 
 						<< ").in.("
 						<< stubs[0].code << "," << stubs[1].code
-						<< ");" << endl;
+						<< ");ntot;" << endl;
 				}
 
-				qtm_include_file << "n01Bottom 3 Box (Net); c=";
+				qtm_include_file << "n01Bottom 3 Box (Net); c=" << var_name;
 				if (width_ == 1) {
 					qtm_include_file << "(a0).in.("
 						<< stubs[0].code << ":" << stubs[2].code
-						<< ");" << endl;
+						<< ");ntot;" << endl;
 				} else {
 					qtm_include_file << "(a0,"
 						<< width_ - 1 
 						<< ").in.("
 						<< stubs[0].code << ":" << stubs[2].code
-						<< ");" << endl;
+						<< ");ntot;" << endl;
 				}
 
 				if (width_ == 1) {
@@ -756,57 +757,65 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 						<< stubs[0].code <<  ":7);\n";
 				}
 			} else if (rat_scale == 10) {
-				qtm_include_file << "n01Top 2 Box (Net); c=";
+				qtm_include_file << "n01Top 2 Box (Net); c=" << var_name;
 				if (width_ == 1) {
 					qtm_include_file << "Unhandled width == 1 for 10 point scale"
 						<< endl;
 				} else {
-					qtm_include_file << "(a0,"
+					qtm_include_file << "(a0,a"
 						<< width_ - 1 
-						<< ").in.(9,10);"
+						<< ").in.(9,10);ntot;"
 						<< endl;
 				}
 
 				qtm_include_file << "n01Top 3 Box (Net); c=";
 				if (width_ == 1) {
-					qtm_include_file << "(a0).in.(8:10);"
+					//qtm_include_file << "(a0).in.(8:10);ntot;"
+					//	<< endl;
+					qtm_include_file << "Unhandled width == 1 for 10 point scale"
 						<< endl;
 				} else {
-					qtm_include_file << "(a0,"
+					qtm_include_file << "(a0,a"
 						<< width_ - 1 
-						<< ").in.(8:10);"
+						<< ").in.(8:10);ntot;"
 						<< endl;
 				}
 
-				qtm_include_file << "n01Bottom 2 Box (Net); c=";
+				qtm_include_file << "n01Bottom 2 Box (Net); c=" << var_name;
 				if (width_ == 1) {
-					qtm_include_file << "(a0).in.("
-						<< stubs[0].code << "," << stubs[1].code
-						<< ");" << endl;
+					//qtm_include_file << "(a0).in.("
+					//	<< stubs[0].code << "," << stubs[1].code
+					//	<< ");" << endl;
+					qtm_include_file << "Unhandled width == 1 for 10 point scale"
+						<< endl;
 				} else {
-					qtm_include_file << "(a0,"
+					qtm_include_file << "(a0,a"
 						<< width_ - 1 
 						<< ").in.("
 						<< stubs[0].code << "," << stubs[1].code
-						<< ");" << endl;
+						<< ");ntot;" << endl;
 				}
 
 				qtm_include_file << "n01Bottom 3 Box (Net); c=";
 				if (width_ == 1) {
-					qtm_include_file << "(a0).in.("
-						<< stubs[0].code << ":" << stubs[2].code
-						<< ");" << endl;
+					//qtm_include_file << "(a0).in.("
+					//	<< stubs[0].code << ":" << stubs[2].code
+					//	<< ");" << endl;
+					qtm_include_file << "Unhandled width == 1 for 10 point scale"
+						<< endl;
 				} else {
-					qtm_include_file << "(a0,"
+					qtm_include_file << "(a0,a"
 						<< width_ - 1 
 						<< ").in.("
 						<< stubs[0].code << ":" << stubs[2].code
-						<< ");" << endl;
+						<< ");ntot;" << endl;
 				}
 
 				if (width_ == 1) {
-					qtm_include_file << "n25;inc=" << var_name << "(a0);c=" << var_name << "(a0).in.("
-						<< stubs[0].code << ":10);\n";
+					//qtm_include_file << "n25;inc=" << var_name << "(a0);c=" << var_name << "(a0).in.("
+					//	<< stubs[0].code << ":10);\n";
+					qtm_include_file << "Unhandled width == 1 for 10 point scale"
+						<< endl;
 				} else {
 					qtm_include_file << "n25;inc=" 
 						<< var_name << "(a0,a" << width_ - 1 << ");"
