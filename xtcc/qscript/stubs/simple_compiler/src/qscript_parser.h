@@ -89,7 +89,10 @@ namespace qscript_parser
 	extern int32_t check_parameters(struct AbstractExpression* e, struct VariableList* v);
 
         extern vector <string> attribute_list;
+	// at some point - for performance reasons, this is 
+	// going to become a map
 	extern vector <named_range*> named_stubs_list;
+	named_range * named_stub_exists (string p_name);
 	extern vector <named_attribute_list> named_attributes_list;
         extern vector <stub_pair> stub_list;
 	extern int32_t if_line_no;
@@ -98,10 +101,15 @@ namespace qscript_parser
 	extern int32_t yywrap();
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
-			, char* stub_list_name, char * question_name, AbstractExpression * l_arr_index=0);
+			, char* stub_list_name
+			, AbstractExpression * l_l_arr_index
+			, char * question_name
+			, AbstractExpression * l_r_arr_index);
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
-			 , char* stub_list_name , XtccSet & l_xs);
+			 , char* stub_list_name 
+			, AbstractExpression * l_l_arr_index
+			 , XtccSet & l_xs);
 	extern AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 			, char* stub_list_name);
 

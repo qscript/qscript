@@ -1,0 +1,13 @@
+err_same_q_named_stub {
+	stubs q1 = 	"this " 1
+			"should" 2
+			"clash" 3
+			"with" 4
+			"question" 5;
+
+	q1 "same name as stubs"
+		sp int32_t q1;
+
+	q1 "same name as stubs"
+		sp int32_t q1;
+}

@@ -736,8 +736,9 @@ const char * file_exists_check_code()
 
 AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
+					 , AbstractExpression * l_l_arr_index
 					 , char * question_name
-					 , AbstractExpression * l_arr_index /* =0 */)
+					 , AbstractExpression * l_r_arr_index)
 {
 	using qscript_parser::nest_lev;
 	using qscript_parser::flagIsAForBody_;
@@ -745,9 +746,9 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	bool question_stub = false, range_stub=false;
 	NamedStubQuestion * lhs_question = 0, * rhs_question=0;
 	named_range * lhs_stub = 0;
-	for(int32_t i = 0; i < named_stubs_list.size(); ++i){
+	for (int32_t i = 0; i < named_stubs_list.size(); ++i) {
 		named_range * nr_ptr = named_stubs_list[i];
-		if(nr_ptr->name == stub_list_name){
+		if (nr_ptr->name == stub_list_name) {
 			index = i;
 			range_stub = true;
 			lhs_stub = nr_ptr;
@@ -755,8 +756,8 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		}
 	}
 	// at this point lhs_stub is valid
-	for(int32_t i = 0; i < question_list.size(); ++i){
-		if(question_list[i]->questionName_  ==  stub_list_name){
+	for (int32_t i = 0; i < question_list.size(); ++i) {
+		if (question_list[i]->questionName_  ==  stub_list_name) {
 			index = i;
 			question_stub = true;
 			lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
@@ -772,7 +773,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		}
 	}
 
-	if(index == -1){
+	if (index == -1) {
 		stringstream err_text;
 		err_text << "named stub list does not exist: " << stub_list_name;
 		print_err(compiler_sem_err, err_text.str(),
@@ -785,7 +786,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 
 
 	int32_t index_question = -1;
-	for(int32_t i = 0; i < question_list.size(); ++i){
+	for (int32_t i = 0; i < question_list.size(); ++i) {
 		if(question_list[i]->questionName_  ==  question_name){
 			index_question = i;
 			rhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
@@ -801,7 +802,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		}
 	}
 	// 	At this point if rhs_question is not null it is a named stub question
-	if(index_question == -1){
+	if (index_question == -1) {
 		stringstream err_text;
 		err_text << "Question does not exist: " << question_name;
 		print_err(compiler_sem_err, err_text.str(),
@@ -822,17 +823,17 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				line_no, __LINE__, __FILE__);
 			return new ErrorStatement(line_no, 0, 0);
 		}
-		if (l_arr_index==0) {
+		if (l_r_arr_index==0) {
 			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
 				line_no, nest_lev, flagIsAForBody_, lhs_stub, rhs_question);
 			return st_ptr;
 		} else {
 			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-				line_no, nest_lev, flagIsAForBody_, lhs_stub, rhs_question, l_arr_index);
+				line_no, nest_lev, flagIsAForBody_, lhs_stub, rhs_question, l_r_arr_index);
 			return st_ptr;
 		}
 	} else if (question_stub == true) {
-		if(!(rhs_question->nr_ptr->name == lhs_question->nr_ptr->name) ){
+		if (!(rhs_question->nr_ptr->name == lhs_question->nr_ptr->name) ) {
 			stringstream err_text;
 			err_text << "1st arg Question: " << lhs_question->questionName_
 				<< " named range: " << lhs_question->nr_ptr->name
@@ -844,7 +845,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				line_no, __LINE__, __FILE__);
 			return new ErrorStatement(line_no, 0, 0);
 		}
-		if (l_arr_index==0) {
+		if (l_r_arr_index==0) {
 			struct AbstractStatement* st_ptr = new StubManipStatement (
 				dt,
 				line_no, 
@@ -856,7 +857,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			struct AbstractStatement* st_ptr = 
 				new StubManipStatement (dt,
 				line_no, /* nest_lev */ 0,
-				/* flagIsAForBody_ */ 0, lhs_question, rhs_question, l_arr_index);
+				/* flagIsAForBody_ */ 0, lhs_question, rhs_question, l_r_arr_index);
 			return st_ptr;
 		}
 
@@ -888,8 +889,10 @@ AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
 	return st_ptr;
 }
 
+
 AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
+					 , AbstractExpression * l_l_arr_index
 					 , XtccSet & l_xs)
 {
 	stringstream warn_mesg;
@@ -913,7 +916,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	}
 	// at this point lhs_stub is valid
 	for (int32_t i = 0; i < question_list.size(); ++i) {
-		if(question_list[i]->questionName_  ==  stub_list_name){
+		if (question_list[i]->questionName_  ==  stub_list_name) {
 			index = i;
 			question_stub = true;
 			lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[i]);
@@ -929,12 +932,20 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		}
 	}
 
-	if(index == -1){
+	if (index == -1) {
 		stringstream err_text;
 		err_text << "named stub list does not exist: " << stub_list_name;
 		print_err(compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
 		return new ErrorStatement(line_no, 0, 0);
+	}
+	if (l_l_arr_index != 0) {
+		if (lhs_question ->type_ != QUESTION_ARR_TYPE ) {
+			std::stringstream err_mesg;
+			err_mesg << "error question being indexed: "
+				<< stub_list_name << " is not an array question";
+			return new ErrorStatement(line_no, 0, 0);
+		}
 	}
 	// at this point
 	// 	1. if lhs_question is not null it is valid and
@@ -946,11 +957,19 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 						lhs_stub, l_xs);
 		return st_ptr;
 	} else if (question_stub == true) {
-		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+		if (l_l_arr_index == 0) {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
 						line_no, 
 						nest_lev, flagIsAForBody_,
 						lhs_question, l_xs);
-		return st_ptr;
+			return st_ptr;
+		} else {
+			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
+						line_no, 
+						nest_lev, flagIsAForBody_,
+						lhs_question, l_l_arr_index, l_xs);
+			return st_ptr;
+		}
 	}
 	return new ErrorStatement(line_no, 0, 0);
 }
@@ -3598,6 +3617,16 @@ void print_find_q (FILE * script)
 }
 
 
+named_range * named_stub_exists (string p_name)
+{
+	using qscript_parser::named_stubs_list;
+	for (int i=0; i < named_stubs_list.size(); ++i) {
+		if (named_stubs_list[i]->name == p_name) {
+			return named_stubs_list[i];
+		}
+	}
+	return 0;
+}
 
 
 

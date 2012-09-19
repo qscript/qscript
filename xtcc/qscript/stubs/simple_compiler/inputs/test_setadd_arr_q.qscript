@@ -1,0 +1,25 @@
+test_setadd_arr_q {
+
+	int32_t i = 0;
+
+	stubs agree =
+		"Agree " 1
+		"Neutral " 2
+		"Disagree " 3;
+
+	for (i=0; i < 3; i = i + 1) {
+
+q1 		" dummy"
+		sp int32_t agree;
+
+		setadd (q1[i], (2));
+
+	}
+
+q2 	" q2"
+	mp(5) int32_t agree;
+
+	setadd (q2, (2));
+	setadd (q2, (3));
+
+}

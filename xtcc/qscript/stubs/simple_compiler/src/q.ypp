@@ -996,6 +996,21 @@ stubs:     STUBS_LIST NAME {
 		using qscript_parser:: stub_list;
 		using qscript_parser:: named_stubs_list;
 		stub_list.resize(0);
+                string name ($2);
+                if (qscript_parser::active_scope_list[0]->find (name)) {
+                        std::stringstream s;
+                        s << "variable " << name << " already present in symbol table" << endl;
+                        print_err (compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
+                }
+                if (qscript_parser::named_stub_exists (name)) {
+                        std::stringstream err_mesg;
+                        err_mesg << "stub by this name already exist: "
+                                << $2;
+                        print_err (compiler_sem_err, 
+                                err_mesg.str().c_str(),
+                                qscript_parser::line_no, __LINE__,
+                                        __FILE__);
+                }
 		map_duplicate_stub_entry_check.clear();
 		set_duplicate_stub_entry_check.clear();
 	}'=' stub_list ';'{
@@ -1006,6 +1021,13 @@ stubs:     STUBS_LIST NAME {
 		using qscript_parser::flagIsAForBody_;
 		//cout <<"got attribute_list size: " << attribute_list.size() << endl;
 		string stub_name=$2;
+
+                std::stringstream mesg;
+                mesg << " put a check for duplicate name in stub list";
+                LOG_MAINTAINER_MESSAGE (mesg.str());
+                mesg.str().clear();
+                mesg << " make variables in for loop in quest_defns_init_code area unique by prepending qscript_";
+                LOG_MAINTAINER_MESSAGE (mesg.str());
 		struct named_range* nr_ptr= new named_range(NAMED_RANGE
 				, line_no, stub_name,stub_list);
 		named_stubs_list.push_back(nr_ptr);
@@ -1108,30 +1130,36 @@ stub:	TEXT INUMBER {
 stub_manip_stmts:
 	  SETDEL '(' NAME ',' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
-				, $3, $5);
+				, $3, 0, $5, 0);
 	}
 	| SETDEL '(' NAME ',' NAME '[' expression ']' ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
-				, $3, $5, $7);
+				, $3, 0, $5, $7);
 	}
 	| SETADD '(' NAME ',' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
-				, $3, $5);
+				, $3, 0, $5, 0);
 	}
 	| SETADD '(' NAME ',' NAME '[' expression ']' ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
-				, $3, $5, $7);
+				, $3, 0, $5, $7);
 	}
+	| SETADD '(' NAME '[' expression ']' ',' range_allowed_values ')' ';' {
+		using qscript_parser::xs;
+		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
+				, $3, $5, xs);
+		xs.reset();
+        }
 	| SETADD '(' NAME ',' range_allowed_values ')' ';' {
 		using qscript_parser::xs;
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
-				, $3, xs);
+				, $3, 0, xs);
 		xs.reset();
 	}
 	| SETDEL '(' NAME ',' range_allowed_values ')' ';' {
 		using qscript_parser::xs;
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
-				, $3, xs);
+				, $3, 0, xs);
 		using qscript_parser::xs;
 		xs.reset();
 	}
@@ -1311,18 +1339,18 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 	if(blk_start_flag.size() > 0) {
 		flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
 	}
-	if (blk_question_start_flag.size()>0) {
+	if (blk_question_start_flag.size() > 0) {
 		//flag_next_question_start_of_block = blk_question_start_flag[blk_question_start_flag.size()-1];
 		blk_question_start_flag.pop_back();
 		flag_next_question_start_of_block = blk_question_start_flag.back();
 	}
-	if(  head_of_this_chain==0){
+	if (head_of_this_chain == 0) {
 		//cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
 		//++no_errors;
 		print_err(compiler_internal_error
 			, "Error: head_of_this_chain == 0 in "
-			"ProcessCompoundStatement : should never happen :"
-			"... exiting"
+			  "ProcessCompoundStatement : should never happen :"
+			  "... exiting"
 			, line_no, __LINE__, __FILE__  );
 		exit(1);
 	} else {
@@ -1461,21 +1489,28 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	vector <ActiveVariableInfo* > av_info;
 	PrintActiveVariablesAtScope(active_scope_list, av_info);
 
+#if 0
 	bool found=false;
 	struct named_range* nr_ptr = 0;
-	for(uint32_t i=0; i<named_stubs_list.size(); ++i){
+	for (uint32_t i=0; i<named_stubs_list.size(); ++i) {
 		nr_ptr = named_stubs_list[i];
-		if(nr_ptr->name==attribute_list_name){
+		if (nr_ptr->name==attribute_list_name) {
 			found=true; break;
 		}
 	}
-	if(!found){
+#endif /* 0 */
+	struct named_range* nr_ptr = named_stub_exists (attribute_list_name);
+        //mesg << " improve the code here - modify named_stub_exists to take a parameter and return a point to named_stub if valid";
+        //LOG_MAINTAINER_MESSAGE (mesg.str());
+	if (!nr_ptr) {
 		print_err(compiler_sem_err, string("named_stubs_list ")
 			+ attribute_list_name + string(" not found \n"), line_no,
 			__LINE__, __FILE__);
+                return  new ErrorStatement(qscript_parser::line_no, 
+				nest_lev, flagIsAForBody_);
 	}
 
-	if(stack_cmpd_stmt.size()==0){
+	if (stack_cmpd_stmt.size() == 0) {
 		print_err(compiler_internal_error, "compound statement stack "
 			"is 0 when parsing a AbstractQuestion... exiting"
 			, line_no, __LINE__, __FILE__  );

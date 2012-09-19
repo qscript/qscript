@@ -1,0 +1,4 @@
+*.sps
+*.conf
+*.po
+setup-*

@@ -1587,7 +1587,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
-	  , xtccSet_(), arrIndex_(larr_index)
+	  , xtccSet_(), arrIndex_(larr_index), arrLIndex_(0)
 { }
 
 /*
@@ -1610,7 +1610,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question_rhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(l_question_rhs)
-	  , xtccSet_(), arrIndex_(0)
+	  , xtccSet_(), arrIndex_(0), arrLIndex_(0)
 { }
 
 
@@ -1622,7 +1622,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(0)
-	  , xtccSet_(xs), arrIndex_(0)
+	  , xtccSet_(xs), arrIndex_(0), arrLIndex_(0)
 { }
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
@@ -1633,8 +1633,22 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question_lhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(0)
-	  , xtccSet_(xs), arrIndex_(0)
+	  , xtccSet_(xs), arrIndex_(0), arrLIndex_(0)
 { }
+
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+			    		, int32_t l_nest_level, int32_t l_for_nest_level
+				        , AbstractQuestion * l_question_lhs
+			   		, AbstractExpression * l_arr_index
+				        , XtccSet & xs
+	)
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
+	  , questionName_(l_question_lhs->questionName_), namedStub_()
+	  , namedRange_(0), lhs_(l_question_lhs), rhs_(0)
+	  , xtccSet_(xs), arrIndex_(0), arrLIndex_ (l_arr_index)
+{ 
+	cout << "=============== arrLIndex_: " << l_arr_index << endl;
+}
 
 // This constructor is deprecated and should be deleted at a later stage
 #if 0
@@ -1665,7 +1679,7 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 	code.program_code << "{" << endl;
 
 
-	if (type_ == STUB_MANIP_DEL || type_ == STUB_MANIP_ADD){
+	if (type_ == STUB_MANIP_DEL || type_ == STUB_MANIP_ADD) {
 		if (namedRange_ && rhs_) {
 			code.program_code << "set<int32_t>::iterator set_iter = "
 				<< questionName_;
@@ -1823,15 +1837,38 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 						++it) {
 					if (lhs_->IsValid(*it)) {
 						if (type_ == STUB_MANIP_DEL) {
+							if (arrLIndex_) {
+								ExpressionCompiledCode expr_code1;
+								arrLIndex_->PrintExpressionCode(expr_code1);
+								code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+							}
 							code.program_code << lhs_->questionName_ << "->input_data.erase(" 
 								<< *it << ");\n";
 						} else if (type_ == STUB_MANIP_ADD) {
-							code.program_code << "if ("
-								<< lhs_->questionName_
+							code.program_code << "/*  NxD */if ("
+								<< lhs_->questionName_;
+							if (arrLIndex_) {
+								ExpressionCompiledCode expr_code1;
+								arrLIndex_->PrintExpressionCode(expr_code1);
+								code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+							}
+							code.program_code
 								<< "->q_type == spn) " 
-								<<  lhs_->questionName_
+								<<  lhs_->questionName_;
+							if (arrLIndex_) {
+								ExpressionCompiledCode expr_code1;
+								arrLIndex_->PrintExpressionCode(expr_code1);
+								code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+							}
+							code.program_code
 								<< "->input_data.clear();\n" ;
-							code.program_code << lhs_->questionName_ << "->input_data.insert(" 
+							code.program_code << lhs_->questionName_ ;
+							if (arrLIndex_) {
+								ExpressionCompiledCode expr_code1;
+								arrLIndex_->PrintExpressionCode(expr_code1);
+								code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+							}
+							code.program_code << "->input_data.insert(" 
 								<< *it << ");\n";
 						}
 						//	lhs->input_data.insert(*it);
@@ -1867,7 +1904,13 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 
 					}
 				}
-				code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
+				code.program_code << lhs_->questionName_ ;
+				if (arrLIndex_) {
+					ExpressionCompiledCode expr_code1;
+					arrLIndex_->PrintExpressionCode(expr_code1);
+					code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+				}
+				code.program_code << "->isAnswered_ = true;\n";
 			}
 			//print_err(compiler_internal_error, s.str() , qscript_parser::line_no, __LINE__, __FILE__);
 		} else {

@@ -1,0 +1,6 @@
+range_mp {
+
+q1 	"q1. Range mp question"
+	mp(5) int32_t (1-100);
+
+}
