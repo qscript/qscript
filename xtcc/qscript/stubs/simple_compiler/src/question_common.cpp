@@ -123,28 +123,28 @@ TextExpression::TextExpression(string text)
 	: teType_(TextExpression::simple_text_type), 
 	  text_(text), nameExpr_(0),
 	  naPtr_(0), naIndex_(-1),
-	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
+	  pipedQuestion_(0), questionStubIndexExpr_(0), codeIndex_(-1)
 { }
 
 TextExpression::TextExpression(Unary2Expression * expr)
 	: teType_(TextExpression::named_attribute_type), 
 	  text_(), nameExpr_(expr),
 	  naPtr_(0), naIndex_(-1),
-	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
+	  pipedQuestion_(0), questionStubIndexExpr_(0), codeIndex_(-1)
 { }
 // for DummyArrayQuestion
 TextExpression::TextExpression()
 	: teType_(TextExpression::simple_text_type), 
 	  text_(), nameExpr_(0),
 	  naPtr_(0), naIndex_(0),
-	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
+	  pipedQuestion_(0), questionStubIndexExpr_(0), codeIndex_(-1)
 { }
 
 TextExpression::TextExpression(named_attribute_list * na_ptr, int na_index)
 	: teType_(TextExpression::named_attribute_type),
 	  text_(), nameExpr_(0),
 	  naPtr_(na_ptr), naIndex_(na_index),
-	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
+	  pipedQuestion_(0), questionStubIndexExpr_(0), codeIndex_(-1)
 { }
 
 // Used in runtime mode
@@ -152,23 +152,24 @@ TextExpression::TextExpression(AbstractQuestion * q, int code_index)
 	: teType_(TextExpression::question_type),
 	  text_(), nameExpr_(0),
 	  naPtr_(0), naIndex_(0),
-	  pipedQuestion_(q), questionIndexExpr_(0), codeIndex_ (code_index)
+	  pipedQuestion_(q), questionStubIndexExpr_(0), codeIndex_ (code_index)
 { }
 
 
 // Used in compilation mode
-TextExpression::TextExpression (AbstractQuestion * q, AbstractExpression * expr)
+TextExpression::TextExpression (AbstractQuestion * q, AbstractExpression * p_q_arr_index, AbstractExpression * expr)
 	: teType_ (TextExpression::question_type), 
 	  text_(), nameExpr_(0),
 	  naPtr_ (0), naIndex_ (-1),
-	  pipedQuestion_ (q), questionIndexExpr_ (expr), codeIndex_ (-1)
+	  pipedQuestion_ (q), questionStubIndexExpr_ (expr), codeIndex_ (-1),
+	  questionArrayIndexExpr_ (p_q_arr_index)
 { }
 
 TextExpression::TextExpression (AbstractQuestion * q)
 	: teType_ (TextExpression::question_type), 
 	  text_(), nameExpr_(0),
 	  naPtr_ (0), naIndex_ (-1),
-	  pipedQuestion_ (q), questionIndexExpr_ (0), codeIndex_ (-1)
+	  pipedQuestion_ (q), questionStubIndexExpr_ (0), codeIndex_ (-1)
 { }
 
 
@@ -254,10 +255,10 @@ vector<string> AbstractQuestion::AxPrepareQuestionTitleXtcc()
 			result.push_back (textExprVec_[i]->text_);
 		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
 			// since we are called in runtime env
-			// questionIndexExpr_ will be null - instead codeIndex_ will be active
-			// if (textExprVec_[i]->questionIndexExpr_ ) {
+			// questionStubIndexExpr_ will be null - instead codeIndex_ will be active
+			// if (textExprVec_[i]->questionStubIndexExpr_ ) {
 				//ExpressionCompiledCode expr_code;
-				//textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+				//textExprVec_[i]->questionStubIndexExpr_->PrintExpressionCode(expr_code);
 				//quest_decl << "text_expr_vec.push_back( new TextExpression(" 
 				//		<< textExprVec_[i]->pipedQuestion_->questionName_
 				//		<< ", "
@@ -277,9 +278,9 @@ vector<string> AbstractQuestion::AxPrepareQuestionTitleXtcc()
 			//}
 
 #if 0
-			if (textExprVec_[i]->questionIndexExpr_ ) {
+			if (textExprVec_[i]->questionStubIndexExpr_ ) {
 				ExpressionCompiledCode expr_code;
-				textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+				textExprVec_[i]->questionStubIndexExpr_->PrintExpressionCode(expr_code);
 				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
 						<< textExprVec_[i]->pipedQuestion_->questionName_
 						<< ", "
@@ -317,9 +318,9 @@ string AbstractQuestion::AxPrepareQuestionTitleSPSS()
 				<< textExprVec_[i]->text_
 				;
 		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
-			// if (textExprVec_[i]->questionIndexExpr_ ) {
+			// if (textExprVec_[i]->questionStubIndexExpr_ ) {
 				//ExpressionCompiledCode expr_code;
-				//textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+				//textExprVec_[i]->questionStubIndexExpr_->PrintExpressionCode(expr_code);
 				//quest_decl << "text_expr_vec.push_back( new TextExpression(" 
 				//		<< textExprVec_[i]->pipedQuestion_->questionName_
 				//		<< ", "
@@ -360,9 +361,9 @@ string AbstractQuestion::AxPrepareQuestionTitle()
 				<< textExprVec_[i]->text_
 				;
 		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
-			//if (textExprVec_[i]->questionIndexExpr_ ) {
+			//if (textExprVec_[i]->questionStubIndexExpr_ ) {
 			//	ExpressionCompiledCode expr_code;
-			//	textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
+			//	textExprVec_[i]->questionStubIndexExpr_->PrintExpressionCode(expr_code);
 			//	quest_decl << "text_expr_vec.push_back( new TextExpression(" 
 			//			<< textExprVec_[i]->pipedQuestion_->questionName_
 			//			<< ", "
@@ -395,14 +396,27 @@ string AbstractQuestion::PrepareQuestionTitle()
 				<< "\")));\n";
 		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
 			
-			if (textExprVec_[i]->questionIndexExpr_ ) {
+			if (textExprVec_[i]->questionStubIndexExpr_ ) {
 				ExpressionCompiledCode expr_code;
-				textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
-				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
-						<< textExprVec_[i]->pipedQuestion_->questionName_
-						<< ", "
-						<< expr_code.code_expr.str()
-						<< ") ); /*  -NxD- */\n";
+				textExprVec_[i]->questionStubIndexExpr_->PrintExpressionCode(expr_code);
+				if (textExprVec_[i]->pipedQuestion_ ->type_ == QUESTION_TYPE) {
+					quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+							<< textExprVec_[i]->pipedQuestion_->questionName_
+							<< ", "
+							<< expr_code.code_expr.str()
+							<< ") ); /*  -NxD- */\n";
+				} else /*  QUESTION_ARR_TYPE */ {
+					ExpressionCompiledCode expr_code1;
+					textExprVec_[i]->questionArrayIndexExpr_->PrintExpressionCode(expr_code1);
+					quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+							<< textExprVec_[i]->pipedQuestion_->questionName_
+							<< "_list.questionList["
+							<< expr_code1.code_expr.str()
+							<< "]"
+							<< ", "
+							<< expr_code.code_expr.str()
+							<< ") ); /*  -NxD- */\n";
+				}
 			} else {
 				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
 						<< textExprVec_[i]->pipedQuestion_->questionName_

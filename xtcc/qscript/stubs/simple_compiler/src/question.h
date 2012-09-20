@@ -46,12 +46,13 @@ struct DummyArrayQuestion;
 		int32_t naIndex_;
 
 		AbstractQuestion * pipedQuestion_;
-		AbstractExpression * questionIndexExpr_;
+		AbstractExpression * questionStubIndexExpr_;
+		AbstractExpression * questionArrayIndexExpr_;
 		int32_t codeIndex_;
 		TextExpression(string text);
 		TextExpression(Unary2Expression * expr );
 		TextExpression(named_attribute_list * na_ptr, int na_index);
-		TextExpression(AbstractQuestion * q, AbstractExpression * expr);
+		TextExpression(AbstractQuestion * q, AbstractExpression * p_q_arr_index, AbstractExpression * expr);
 		TextExpression(AbstractQuestion * q, int code_index);
 		TextExpression (AbstractQuestion * q);
 		TextExpression(); // for DummyArrayQuestion

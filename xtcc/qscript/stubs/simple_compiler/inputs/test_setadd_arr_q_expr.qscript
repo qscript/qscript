@@ -73,7 +73,7 @@ q2_h   		"q2_h"
 	for (i = 0; i < 21; i = i + 1) {
 		int32_t code = i + 1;
 		if (code in q2_h[i]) {
-q3			"q3"
+q3			"q3" : : q2_h[i] . stubs [i]
 			sp int32_t (1-5);
 		} else {
 			1;
