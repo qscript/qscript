@@ -21,7 +21,18 @@ enum compiler_err_category
 	, compiler_code_generation_error
 };
 
+enum compiler_warning_category
+{	
+	better_coding_style
+};
+
 void print_err(compiler_err_category cmp_err
+		, string err_msg
+		, int32_t line_no
+		, int32_t compiler_line_no
+		, string compiler_file_name);
+
+void print_warning (compiler_warning_category cmp_err
 		, string err_msg
 		, int32_t line_no
 		, int32_t compiler_line_no

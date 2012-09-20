@@ -72,6 +72,7 @@ namespace qscript_parser
 	extern int32_t yylex();
 	extern void yyerror(const char * s);
 	extern int32_t no_errors;
+	extern int32_t no_warnings;
 
 	extern struct AbstractStatement* tree_root;
 	extern string project_name;
@@ -93,12 +94,18 @@ namespace qscript_parser
 	// going to become a map
 	extern vector <named_range*> named_stubs_list;
 	named_range * named_stub_exists (string p_name);
+	int question_exists (string p_name);
 	extern vector <named_attribute_list> named_attributes_list;
         extern vector <stub_pair> stub_list;
 	extern int32_t if_line_no;
 	extern vector < FixAndRecodeStatement* > recode_driver_vec;
 	extern vector < Create_1_0_DataEditStatement* > create_1_0_edit_vec;
 	extern int32_t yywrap();
+	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
+					 , char* stub_list_name
+					 , Unary2Expression * arr_index
+					 , Unary2Expression * p_mask_expr
+					 );
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
 			, char* stub_list_name

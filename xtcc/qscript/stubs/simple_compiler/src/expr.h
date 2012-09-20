@@ -134,6 +134,7 @@ struct Binary2Expression: public AbstractExpression
 	public:
 	Unary2Expression * leftOperand_;
 	AbstractExpression * leftOperand2_;
+	AbstractExpression * rightOperandArrIndex_;
 	XtccSet *xs;
 	AbstractQuestion * rhsQuestion_;
 	public:
@@ -142,6 +143,7 @@ struct Binary2Expression: public AbstractExpression
 
 	Binary2Expression(AbstractExpression* llop
 					     , string name
+					     , AbstractExpression * l_arr_index
 					     , ExpressionOperatorType letype);
 	bool IsLValue(){ return false; }
 	virtual bool IsConst();

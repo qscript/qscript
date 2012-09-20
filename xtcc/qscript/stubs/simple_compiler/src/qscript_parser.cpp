@@ -733,19 +733,73 @@ const char * file_exists_check_code()
 	return file_check_code;
 }
 
+AbstractStatement* setup_stub_manip_stmt(DataType dt
+					 , char* stub_list_name
+					 , Unary2Expression * p_arr_index
+					 , Unary2Expression * p_mask_expr
+					 )
+{
+	bool range_stub = false, question_stub = false;
+	named_range * lhs_stub =  named_stub_exists (stub_list_name);
+	if (lhs_stub) {
+		range_stub = true;
+	}
+	NamedStubQuestion * lhs_question = 0;
+	int32_t index = question_exists (stub_list_name);
+	if (index >= 0) {
+		question_stub = true;
+		lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[index]);
+		if (!lhs_question) {
+			stringstream err_text;
+			err_text << "Question : " << stub_list_name 
+				<< "is not a named stub Question";
+			print_err (compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+			return new ErrorStatement(line_no, 0, 0);
+		}
+	} else  if (index == -1 && lhs_stub == 0)  {
+		stringstream err_text;
+		err_text << "named stub list does not exist: " << stub_list_name;
+		print_err (compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+		return new ErrorStatement(line_no, 0, 0);
+	}
+	struct AbstractStatement* st_ptr  = 0;
+	if (range_stub) {
+		st_ptr = new StubManipStatement(dt,
+				line_no, nest_lev, flagIsAForBody_, 
+				lhs_stub, p_mask_expr);
+	} else {
+		st_ptr = new StubManipStatement(dt,
+				line_no, nest_lev, flagIsAForBody_, 
+				lhs_question, p_arr_index,
+				p_mask_expr);
+	}
+	return st_ptr;
+}
+
 
 AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
-					 , AbstractExpression * l_l_arr_index
+					 , AbstractExpression * l_l_arr_index 
 					 , char * question_name
 					 , AbstractExpression * l_r_arr_index)
 {
+	std::stringstream warn_mesg;
+	warn_mesg << __PRETTY_FUNCTION__ 
+		<< "looks like param l_l_arr_index is not at all used in this function"
+		<< " please revisit";
+
+	LOG_MAINTAINER_MESSAGE(warn_mesg.str());
 	using qscript_parser::nest_lev;
 	using qscript_parser::flagIsAForBody_;
-	int32_t index = -1;
 	bool question_stub = false, range_stub=false;
 	NamedStubQuestion * lhs_question = 0, * rhs_question=0;
-	named_range * lhs_stub = 0;
+	named_range * lhs_stub =  named_stub_exists (stub_list_name);
+	if (lhs_stub) {
+		range_stub = true;
+	}
+#if 0
 	for (int32_t i = 0; i < named_stubs_list.size(); ++i) {
 		named_range * nr_ptr = named_stubs_list[i];
 		if (nr_ptr->name == stub_list_name) {
@@ -755,7 +809,9 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			break;
 		}
 	}
+#endif /* 0  */
 	// at this point lhs_stub is valid
+#if 0
 	for (int32_t i = 0; i < question_list.size(); ++i) {
 		if (question_list[i]->questionName_  ==  stub_list_name) {
 			index = i;
@@ -772,11 +828,23 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			break;
 		}
 	}
-
-	if (index == -1) {
+#endif /*  0 */
+	int32_t index = question_exists (stub_list_name);
+	if (index >= 0) {
+		question_stub = true;
+		lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[index]);
+		if (!lhs_question) {
+			stringstream err_text;
+			err_text << "Question : " << stub_list_name 
+				<< "is not a named stub Question";
+			print_err (compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+			return new ErrorStatement(line_no, 0, 0);
+		}
+	} else  if (index == -1 && lhs_stub == 0)  {
 		stringstream err_text;
 		err_text << "named stub list does not exist: " << stub_list_name;
-		print_err(compiler_sem_err, err_text.str(),
+		print_err (compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
 		return new ErrorStatement(line_no, 0, 0);
 	}
@@ -785,6 +853,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	// 	2. we need not do any more checks on the 1st argument
 
 
+#if 0
 	int32_t index_question = -1;
 	for (int32_t i = 0; i < question_list.size(); ++i) {
 		if(question_list[i]->questionName_  ==  question_name){
@@ -801,6 +870,21 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			break;
 		}
 	}
+#endif /*  0  */
+
+	int32_t index_question = question_exists (question_name);
+	if (index_question >= 0) {
+		rhs_question = dynamic_cast<NamedStubQuestion*>(question_list[index_question]);
+		if (!rhs_question) {
+			stringstream err_text;
+			err_text << "Question : " << question_name <<
+				"is not a named stub Question";
+			print_err(compiler_sem_err, err_text.str(),
+				line_no, __LINE__, __FILE__);
+			return new ErrorStatement(line_no, 0, 0);
+		}
+	}
+		
 	// 	At this point if rhs_question is not null it is a named stub question
 	if (index_question == -1) {
 		stringstream err_text;
@@ -3628,7 +3712,17 @@ named_range * named_stub_exists (string p_name)
 	return 0;
 }
 
-
+int question_exists (string p_name)
+{
+	int index = -1;
+	for (int32_t i = 0; i < question_list.size(); ++i) {
+		if (question_list[i]->questionName_  ==  p_name) {
+			index = i;
+			break;
+		}
+	}
+	return index;
+}
 
 
 

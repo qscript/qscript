@@ -1,4 +1,10 @@
 *.sps
 *.conf
+*.mo
 *.po
+*.po1
+*.po2
+*.pot
 setup-*
+*.xml
+*.swo

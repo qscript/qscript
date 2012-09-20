@@ -643,9 +643,20 @@ void IfStatement::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 		code.program_code << "base_text_vec.push_back(BaseText(\"" << base_text.str() << "\"));\n";
 	} else {
 		code.program_code 
-			<< "BaseText btxt(\"" << base_text.str() << "\", true," 
-			<< qscript_parser::dynamic_base_text_question->questionName_ << " );\n"
-			<< "base_text_vec.push_back(btxt);\n";
+			<< "/* -- */BaseText btxt(\"" << base_text.str() << "\", true," ;
+		if (qscript_parser::dynamic_base_text_question->type_ == QUESTION_ARR_TYPE) {
+			code.program_code
+				<< qscript_parser::dynamic_base_text_question->questionName_ 
+				<< "_list.questionList[0]"
+				;
+		} else {
+			code.program_code
+				<< qscript_parser::dynamic_base_text_question->questionName_ ;
+		}
+		code.program_code
+			<< " );\n"
+			<< "base_text_vec.push_back(btxt);"
+			<< endl;
 	}
 	qscript_parser::flag_dynamic_base_text = false;
 	ifBody_->Generate_ComputeFlatFileMap(code);
@@ -1587,7 +1598,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question->questionName_), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(l_question)
-	  , xtccSet_(), arrIndex_(larr_index), arrLIndex_(0)
+	  , xtccSet_(), arrIndex_(larr_index), arrLIndex_(0), maskExpr_(0)
 { }
 
 /*
@@ -1610,7 +1621,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question_rhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(l_question_rhs)
-	  , xtccSet_(), arrIndex_(0), arrLIndex_(0)
+	  , xtccSet_(), arrIndex_(0), arrLIndex_(0), maskExpr_(0)
 { }
 
 
@@ -1622,7 +1633,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(), namedStub_(l_named_range->name)
 	  , namedRange_(l_named_range), lhs_(0), rhs_(0)
-	  , xtccSet_(xs), arrIndex_(0), arrLIndex_(0)
+	  , xtccSet_(xs), arrIndex_(0), arrLIndex_(0), maskExpr_(0)
 { }
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
@@ -1633,7 +1644,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question_lhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(0)
-	  , xtccSet_(xs), arrIndex_(0), arrLIndex_(0)
+	  , xtccSet_(xs), arrIndex_(0), arrLIndex_(0), maskExpr_(0)
 { }
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
@@ -1645,7 +1656,7 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	  , questionName_(l_question_lhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(0)
-	  , xtccSet_(xs), arrIndex_(0), arrLIndex_ (l_arr_index)
+	  , xtccSet_(xs), arrIndex_(0), arrLIndex_ (l_arr_index), maskExpr_(0)
 { 
 	cout << "=============== arrLIndex_: " << l_arr_index << endl;
 }
@@ -1667,7 +1678,31 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 				       , string l_named_stub)
 	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
 	, questionName_(), namedStub_(l_named_stub)
-	, namedRange_(0), lhs_(0), rhs_(0), xtccSet_(), arrIndex_(0)
+	, namedRange_(0), lhs_(0), rhs_(0), xtccSet_(), arrIndex_(0), maskExpr_(0)
+{ }
+
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+			    	       , int32_t l_nest_level, int32_t l_for_nest_level
+				       , named_range * l_named_range
+				       , Unary2Expression * p_name_expr
+				       )
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
+	, questionName_(), namedStub_()
+	, namedRange_(l_named_range), lhs_(0), rhs_(0), xtccSet_(), arrIndex_(0), maskExpr_(0)
+{ }
+
+StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
+			    	       , int32_t l_nest_level, int32_t l_for_nest_level
+				       , AbstractQuestion * l_name_stub_question
+				       , Unary2Expression * p_arr_index
+				       , Unary2Expression * p_name_expr
+				       )
+	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
+	, questionName_(), namedStub_()
+	, namedRange_(0), lhs_(l_name_stub_question)
+	, rhs_(0), xtccSet_(), arrIndex_(0), maskExpr_(p_name_expr)
+	, arrLIndex_(p_arr_index)
+
 { }
 
 void StubManipStatement::GenerateCode(StatementCompiledCode & code)
@@ -1815,6 +1850,62 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << "}\n";
 
 			// ==================
+		} else if (lhs_ && maskExpr_ && rhs_ == 0 && namedRange_ == 0) {
+			NamedStubQuestion * nq = dynamic_cast < NamedStubQuestion *> (lhs_);
+			code.program_code << "/*  NxD */if ("
+				<< nq->questionName_;
+			if (arrLIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrLIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code
+				<< "->q_type == spn) "
+				<<  nq->questionName_;
+			if (arrLIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrLIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code
+				<< "->input_data.clear();\n";
+			if (nq->q_type == spn) {
+				stringstream warning_mesg;
+				warning_mesg << "Warning: Using setadd to set a single coded question";
+				print_warning (better_coding_style
+						, warning_mesg.str().c_str(), qscript_parser::line_no, __LINE__, __FILE__);
+			}
+			{
+				// changes go here
+				ExpressionCompiledCode expr_code1;
+				maskExpr_->PrintExpressionCode(expr_code1);
+				code.program_code  
+					<< " if ( " << expr_code1.code_expr.str()
+					<< " < " << nq->nr_ptr->minCode_
+					<< " || " << expr_code1.code_expr.str()
+					<< " > " << nq->nr_ptr->maxCode_
+					<< ") {\n  cerr << \"runtime error - \" << \"" 
+					<< __PRETTY_FUNCTION__ 
+					<< ", expression code is < or > than code range that question accepts ... exiting\""
+					<< " << endl;\n\t exit(1); } ";
+				code.program_code << lhs_->questionName_ ;
+				if (arrLIndex_) {
+					ExpressionCompiledCode expr_code2;
+					arrLIndex_->PrintExpressionCode(expr_code2);
+					code.program_code << "_list.questionList[" << expr_code2.code_expr.str() << "]";
+				}
+				code.program_code << "->input_data.insert(" 
+					<< expr_code1.code_expr.str();
+				code.program_code	<< ");\n";
+				code.program_code << lhs_->questionName_ ;
+				if (arrLIndex_) {
+					ExpressionCompiledCode expr_code1;
+					arrLIndex_->PrintExpressionCode(expr_code1);
+					code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+				}
+				code.program_code << "->isAnswered_ = true;\n";
+			}
+			
 		} else if (lhs_ && rhs_ == 0 && namedRange_ == 0) {
 			//stringstream s;
 			//s << "/* not yet programmed : "

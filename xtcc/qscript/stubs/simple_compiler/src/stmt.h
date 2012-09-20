@@ -303,6 +303,7 @@ struct Parameter
 
 struct AbstractQuestion;
 AbstractQuestion* find_in_question_list(string name);
+struct Unary2Expression;
 
 struct named_range;
 struct StubManipStatement: public AbstractStatement
@@ -315,6 +316,7 @@ struct StubManipStatement: public AbstractStatement
 	XtccSet xtccSet_;
 	AbstractExpression * arrIndex_;
 	AbstractExpression * arrLIndex_;
+	AbstractExpression * maskExpr_;
 	//StubManipStatement( DataType dtype, int32_t lline_number
 	//		    , string l_named_stub, string l_question_name);
 	//StubManipStatement( DataType dtype, int32_t lline_number
@@ -351,6 +353,21 @@ struct StubManipStatement: public AbstractStatement
 			   , AbstractQuestion * l_question_lhs
 			   , AbstractExpression * l_arr_index
 			   , XtccSet & xs);
+
+	StubManipStatement(DataType dtype, int32_t lline_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, named_range * l_named_range
+		, Unary2Expression * p_name_expr
+		);
+
+	StubManipStatement(DataType dtype, int32_t lline_number
+		, int32_t l_nest_level, int32_t l_for_nest_level
+		, AbstractQuestion * l_named_range
+		, Unary2Expression * p_arr_index
+		, Unary2Expression * p_name_expr
+		);
+
+
 //	void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code);
 	virtual void GenerateCode(StatementCompiledCode & code);

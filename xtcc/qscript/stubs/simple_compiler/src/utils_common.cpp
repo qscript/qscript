@@ -10,6 +10,26 @@ using std::endl;
 using std::stringstream;
 using qscript_parser::no_errors;
 
+void print_warning(compiler_warning_category cmp_warn, string err_msg,
+	int32_t line_no, int32_t compiler_line_no, string compiler_file_name)
+{
+	++qscript_parser::no_warnings;
+	cerr << "xtcc ";
+	switch (cmp_warn) {
+	case better_coding_style:
+		cerr << "better coding style: ";
+		break;
+
+	default:
+		cerr << "internal compiler error - warning code category missing in switch statement: compiler file: "
+		     << __PRETTY_FUNCTION__ << ", "
+		     << __FILE__ << " compiler src code lineno: " << __LINE__ << endl
+		     ;
+	}
+	cerr << " line_no: " << line_no << " "<< err_msg << ", compiler line_no: "
+		<< compiler_line_no << ", compiler_file_name: " << compiler_file_name << endl;
+}
+
 void print_err(compiler_err_category cmp_err, string err_msg,
 	int32_t line_no, int32_t compiler_line_no, string compiler_file_name)
 {

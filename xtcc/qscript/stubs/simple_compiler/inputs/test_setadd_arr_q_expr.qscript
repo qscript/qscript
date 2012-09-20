@@ -1,0 +1,83 @@
+test_setadd_arr_q_expr {
+
+	stubs veggies =
+		"Tomato" 1
+		"Cauliflower" 2
+		"Okra" 3
+		"Egg Plant/Aubergines" 4
+		"Carrots" 5
+		"Green Peas" 6
+		"French beans" 7
+		;
+
+	stubs veggies2 =
+		"Ordinary : Tomato" 1
+		"Ordinary : Cauliflower" 2
+		"Ordinary : Okra" 3
+		"Ordinary : Egg Plant/Aubergines" 4
+		"Ordinary : Carrots" 5
+		"Ordinary : Green Peas" 6
+		"Ordinary : French beans" 7
+		"Organic : Tomato" 8
+		"Organic : Cauliflower" 9
+		"Organic : Okra" 10
+		"Organic : Egg Plant/Aubergines" 11
+		"Organic : Carrots" 12
+		"Organic : Green Peas" 13
+		"Organic : French beans" 14
+
+		;
+
+q1 	"q1"
+	mp(5) int32_t veggies;
+
+q1_h 	"q2_1"
+	mp(5) int32_t veggies: hide;
+
+q2_1 	"q2_1"
+	mp(5) int32_t veggies;
+
+q2_2 	"q2_2"
+	mp(5) int32_t veggies;
+
+	int32_t i = 0;
+
+	for (i = 0; i < 10; i = i + 1) {
+		int32_t code = i + 1;
+		if (code in q1) {
+			setadd (q1_h, (code));
+		}
+	}
+
+	for (i = 0; i < 21; i = i + 1) {
+q2_h   		"q2_h"
+		sp int32_t veggies2: hide;
+	}
+
+	for (i = 0; i < 7; i = i + 1) {
+		int32_t code = i + 1;
+		if (code in q2_1) {
+			setadd (q2_h[i], (code));
+		}
+	}
+
+	for (i = 0; i < 7; i = i + 1) {
+		int32_t code = i + 1;
+		if (code in q2_2) {
+			int32_t new_code = 7 + code;
+			int32_t new_index = 7  + i;
+			setadd (q2_h[new_index], (new_code));
+		}
+	}
+
+	for (i = 0; i < 21; i = i + 1) {
+		int32_t code = i + 1;
+		if (code in q2_h[i]) {
+q3			"q3"
+			sp int32_t (1-5);
+		} else {
+			1;
+		}
+	}
+
+}

@@ -1324,13 +1324,16 @@ bool Binary2Expression::IsIntegralExpression()
 	return false;
 }
 
+// expression IN NAME
+// expression IN NAME '[' expression ']'
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , string name
+					, AbstractExpression * l_arr_index
 				     , ExpressionOperatorType letype)
 	: AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
-	  , xs(0), rhsQuestion_(0)
+	  , xs(0), rhsQuestion_(0), rightOperandArrIndex_(l_arr_index)
 {
-	switch(exprOperatorType_){
+	switch (exprOperatorType_) {
 		case oper_in: {
 			leftOperand2_=llop;
 			AbstractQuestion* q = find_in_question_list(name);
@@ -1342,9 +1345,14 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 				type_ = ERROR_TYPE;
 			}  else {
 				rhsQuestion_ = q;
+				if (rightOperandArrIndex_ && q->type_ != QUESTION_ARR_TYPE) {
+					stringstream err_msg ;
+					err_msg <<  "Trying to index a non array question : " << name;
+					print_err(compiler_sem_err, err_msg.str(),
+						line_no, __LINE__, __FILE__);
+					type_ = ERROR_TYPE;
+				}
 			}
-
-
 			type_ = BOOL_TYPE;
 		}
 		break;
@@ -1359,21 +1367,22 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 	}
 }
 
+//  expression IN range_allowed_values 
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , XtccSet& l_rd
 				     , ExpressionOperatorType letype)
-	:AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
+	: AbstractExpression(letype), leftOperand_(0), leftOperand2_(0)
 	 		, xs(0), rhsQuestion_(0)
 {
 	//cerr << "Binary2Expression::Binary2Expression" << endl;
-	switch(exprOperatorType_){
+	switch (exprOperatorType_) {
 		case oper_in:
-			switch( llop->exprOperatorType_){
+			switch (llop->exprOperatorType_) {
 			case oper_name:
 			case oper_arrderef:
 				type_ = BOOL_TYPE;
 				//cerr << "Binary2Expression::static_cast" << endl;
-				leftOperand_=
+				leftOperand_ =
 					static_cast<Unary2Expression*>(llop);
 				xs = new XtccSet(l_rd);
 				break;
@@ -1701,9 +1710,21 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 			<< ", " << __FILE__ 
 			<< "   ";
 		code.code_expr << " */" << endl;
-		code.code_expr << rhsQuestion_->questionName_ << "->input_data.find(";
+		code.code_expr << rhsQuestion_->questionName_;
+		if (rightOperandArrIndex_) {
+			ExpressionCompiledCode expr_code2;
+			rightOperandArrIndex_->PrintExpressionCode(expr_code2);
+			code.code_expr << "_list.questionList[" << expr_code2.code_expr.str() << "]";
+		}
+		code.code_expr << "->input_data.find(";
 		leftOperand2_->PrintExpressionCode(code);
-		code.code_expr << ") != " << rhsQuestion_->questionName_ << "->input_data.end()";
+		code.code_expr << ") != " << rhsQuestion_->questionName_ ;
+		if (rightOperandArrIndex_) {
+			ExpressionCompiledCode expr_code2;
+			rightOperandArrIndex_->PrintExpressionCode(expr_code2);
+			code.code_expr << "_list.questionList[" << expr_code2.code_expr.str() << "]";
+		}
+		code.code_expr << "->input_data.end()";
 	}
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_expr << "/* EXIT Binary2Expression::PrintExpressionCode */" << endl;
