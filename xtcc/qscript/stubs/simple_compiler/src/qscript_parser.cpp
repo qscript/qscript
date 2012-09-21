@@ -3724,7 +3724,28 @@ int question_exists (string p_name)
 	return index;
 }
 
-
+void ParseSpecialCaseAndAttachMaxBounds (AbstractExpression * p_loopCondition)
+{
+	BinaryExpression * test_expr = dynamic_cast<BinaryExpression*>(p_loopCondition);
+	if (test_expr == 0) {
+		return;
+	} else {
+		if (test_expr->rightOperand_->IsIntegralExpression()
+			    && test_expr->rightOperand_->IsConst()
+			    && (test_expr->exprOperatorType_ == oper_lt)
+			    && (test_expr->leftOperand_->exprOperatorType_ == oper_name)
+			    ) {
+			// form is : i < 20 [ pathological case i < 2 * 3 (forget this for now) ]
+			//std::cout << " loop max bounds = " << test_expr->rightOperand_->intSemanticValue_ << std::endl;
+			Unary2Expression * r_op = dynamic_cast<Unary2Expression*> (test_expr->rightOperand_);
+			if (r_op) {
+				std::cout << " loop max bounds = " << r_op->intSemanticValue_ << std::endl;
+			}
+			Unary2Expression * l_op = dynamic_cast<Unary2Expression*> (test_expr->leftOperand_);
+			l_op->setMaxBounds (r_op->intSemanticValue_);
+		}
+	}
+}
 
 
 

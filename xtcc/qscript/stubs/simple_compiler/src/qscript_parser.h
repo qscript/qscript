@@ -106,6 +106,7 @@ namespace qscript_parser
 					 , Unary2Expression * arr_index
 					 , Unary2Expression * p_mask_expr
 					 );
+	void ParseSpecialCaseAndAttachMaxBounds (AbstractExpression * p_loopCondition);
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
 			, char* stub_list_name

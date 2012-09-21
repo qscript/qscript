@@ -200,6 +200,7 @@ struct Unary2Expression : public AbstractExpression
 	int32_t column_no;
 	AbstractExpression* operand_;
 	AbstractExpression* operand2_;
+	int32_t maxBounds_;
 	// This is a hack - I have to fix this by putting line number in the base class
 	bool IsLValue();
 	virtual bool IsConst();
@@ -229,6 +230,15 @@ struct Unary2Expression : public AbstractExpression
 //	virtual void PrintExpressionCode(ostringstream& code_bef_expr
 //			, ostringstream & code_expr);
 	virtual void PrintExpressionCode(ExpressionCompiledCode & code);
+	void setMaxBounds (int p_max_bounds) {
+		maxBounds_ = p_max_bounds;
+	}
+	int32_t getMaxBounds (int p_max_bounds) {
+		return maxBounds_;
+	}
+	void unSetMaxBounds () {
+		maxBounds_ = 0;
+	}
 	private:
 		Unary2Expression& operator=(const Unary2Expression&);
 		Unary2Expression (const Unary2Expression&);

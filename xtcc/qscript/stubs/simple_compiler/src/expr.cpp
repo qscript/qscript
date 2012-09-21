@@ -1020,6 +1020,7 @@ Unary2Expression::Unary2Expression(struct SymbolTableEntry * lsymp)
 	, symbolTableEntry_(lsymp), intSemanticValue_(0)
 	, doubleSemanticValue_(0), func_index_in_table(-1)
 	, text(0), column_no(-1), operand_(0), operand2_(0)
+	  , maxBounds_(0)
 { }
 
 map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
@@ -1028,6 +1029,7 @@ Unary2Expression::Unary2Expression(char* ltxt, ExpressionOperatorType le_type)
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(-1), text(0), column_no(-1)
 	, operand_(0), operand2_(0)
+	  , maxBounds_(0)
 {
 	if(qscript_debug::DEBUG_Unary2Expression)
 		cerr << __PRETTY_FUNCTION__ << endl;
@@ -1146,6 +1148,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 	, intSemanticValue_(0)
 	, doubleSemanticValue_(0), func_index_in_table(-1), text(0)
 	, column_no(-1), operand_(arr_index),  operand2_(0)
+	  , maxBounds_(0)
 {
 	//cerr << "ENTER Unary2Expression::Unary2Expression :name" << name
 	//	<< " with arr_index" << endl;
@@ -1204,6 +1207,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type, string name
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(-1), text(0)
 	, column_no(-1), operand_(arr_index), operand2_(arr_index2)
+	  , maxBounds_(0)
 {
 	SymbolTableEntry* se = 0;
 	map<string,SymbolTableEntry*>::iterator sym_it1 = find_in_symtab(name);
@@ -1266,6 +1270,7 @@ Unary2Expression::Unary2Expression(int32_t l_isem_value)
 	: AbstractExpression(oper_num), symbolTableEntry_(0)
 	, intSemanticValue_(l_isem_value), doubleSemanticValue_(0), func_index_in_table(-1)
 	, text(0), column_no(-1), operand_(0), operand2_(0)
+	  , maxBounds_(0)
 {
 	if (intSemanticValue_ >= SCHAR_MIN && intSemanticValue_ <= SCHAR_MAX){
 		type_ = INT8_TYPE;
@@ -1289,6 +1294,7 @@ Unary2Expression::Unary2Expression(ExpressionOperatorType le_type
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(lfunc_index_in_table)
 	, text(0), column_no(-1), operand_(e_list), operand2_(0)
+	  , maxBounds_(0)
 {}
 
 Unary2Expression::Unary2Expression(double l_dsem_value)
@@ -1296,6 +1302,7 @@ Unary2Expression::Unary2Expression(double l_dsem_value)
 	, intSemanticValue_(0), doubleSemanticValue_(l_dsem_value)
 	, func_index_in_table(-1), text(0), column_no(-1)
 	, operand_(0), operand2_(0)
+	  , maxBounds_(0)
 {}
 
 Unary2Expression::Unary2Expression(DataType d)
@@ -1303,6 +1310,7 @@ Unary2Expression::Unary2Expression(DataType d)
 	, intSemanticValue_(0), doubleSemanticValue_(0)
 	, func_index_in_table(-1), text(0)
 	, column_no(-1), operand_(0), operand2_(0)
+	  , maxBounds_(0)
 {}
 
 

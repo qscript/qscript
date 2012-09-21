@@ -344,7 +344,8 @@ stmt:	question
 for_loop_stmt:
 	FOR '(' expression ';' expression ';' expression ')' {
 		++qscript_parser::flagIsAForBody_;
-		qscript_parser::for_loop_max_counter_stack.push_back($5);
+		qscript_parser::for_loop_max_counter_stack.push_back ($5);
+	        qscript_parser::ParseSpecialCaseAndAttachMaxBounds ($5);
 	} cmpd_stmt {
 		using qscript_parser::line_no;
 		using qscript_parser::flagIsAForBody_;
