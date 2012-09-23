@@ -1,4 +1,4 @@
-
+#CXX = clang --analyze
 CC = $(CXX)
 CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
 CXX_SHARED_LIB_FLAGS = -fPIC
