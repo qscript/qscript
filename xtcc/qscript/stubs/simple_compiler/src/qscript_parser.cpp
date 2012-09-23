@@ -2596,15 +2596,20 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 				<< "\t<< endl;\n"
 				<< "}\n"
 				<< "edit_file "
+				<< " << endl"
 				<< " << \"do 10 t1=1,10,1\" << endl" << endl
-				<< " << \"rnk_col = " << driver_brand_rank_question << "_cols(t1)\" << endl" << endl
-				<< " << \"brd_col = " << driver_brand_question << "_cols(t1)\" << endl;\n" << endl
+				<< " << \"\trnk_col = " << driver_brand_rank_question << "_cols(t1)\" << endl" << endl
+				<< " << \"\tbrd_col = " << driver_brand_question << "_cols(t1)\" << endl;\n" << endl
 				<< "edit_file << endl << endl;" << endl
 				<< "for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {\n"
 				<< "	edit_file " << endl << "\t\t"
-				<< " 	<< \"if (c(brd_col, brd_col+1).eq.1)\" <<  \"" << driver_brand_question 
-				<< "\" << \"_\" << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1\"" 
-				<< " << \")\""
+				<< " 	<< \"\tif (c(brd_col, brd_col+1).eq.\""
+				<< " 	<< nq->nr_ptr->stubs[i].code << "
+				<< "\")\t\t\" <<  \"" << driver_brand_question 
+				<< "\" << \"_\" << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " 
+				<<  driver_brand_question << "_map_entry" 
+				<< "->totalLength_ << \")\""
+				//<< " << \")\""
 				<< " << \" = c(rnk_col, rnk_col+1)\\n\";\n"
 				//<< " << \"_\""
 				//<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (1, \" << "
@@ -2612,7 +2617,7 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 				//<< "->totalLength_ << \")\""
 				//<< "\t<< endl;\n"
 				<< "}\n"
-				<< endl
+				<< "edit_file << \"10 continue\" << endl;" << endl
 
 
 				<< endl;
@@ -2669,6 +2674,29 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 			}
 		}
 #endif /*  0  */
+		for (int j=0; j < recode_vec.size(); ++j) {
+			recode_edit.program_code 
+				<< "edit_file << endl << endl;" << endl
+				<< "{" << endl
+				<< "NamedStubQuestion * rnq = dynamic_cast <NamedStubQuestion*> ("
+				<< recode_vec[j]
+				<< "_list.questionList[0]);\n" 
+				<< "\t\t\tvector<qtm_data_file_ns::QtmDataDiskMap *> "
+				<< recode_vec[j]
+				<< "_map_entry =\n"
+				<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
+				<< recode_vec[j] << "\");" << endl
+				<< "for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {\n"
+				<< "	edit_file " << endl << "\t\t"
+				<< "		<< \"clear \" << \"" << recode_vec[j] << "\" << \"_\""
+				<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (1, \" << "
+				<<  recode_vec[j] << "_map_entry.size()" 
+				<< " << \")\""
+				<< "\t<< endl;\n"
+				<< "}\n"
+				<< "}\n"
+				<< endl;
+		}
 	}
 	recode_edit.program_code 
 		<< "}\n" << endl;
