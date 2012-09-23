@@ -396,6 +396,14 @@ fix	{
 	return FIX;
 }
 
+
+brand_rank	{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+	return BRAND_RANK;
+}
+
 drivers {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);

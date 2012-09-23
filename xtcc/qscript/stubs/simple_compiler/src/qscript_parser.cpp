@@ -98,6 +98,7 @@ namespace qscript_parser
 	struct LexLocation lex_location;
 	//TempNameGenerator temp_set_name_generator("qscript_temp_xtcc_set_");
 	//TempNameGenerator temp_name_generator("qscript_temp_");
+	vector < BrandRankRecodeStatement* > brand_rank_recode_driver_vec;
 	vector < FixAndRecodeStatement* > recode_driver_vec;
 	vector < Create_1_0_DataEditStatement* > create_1_0_edit_vec;
 
@@ -130,6 +131,7 @@ void PrintProcessOptions(FILE * script);
 void PrintNCursesMain(FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void PrintRecodeEdit(StatementCompiledCode & recode_edit);
+void PrintBrandRankEdit (StatementCompiledCode & recode_edit);
 void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit);
 void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
@@ -1658,8 +1660,11 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 	StatementCompiledCode recode_edit;
 	PrintRecodeEdit (recode_edit);
+	StatementCompiledCode brand_rank_recode_edit;
+	PrintBrandRankEdit (brand_rank_recode_edit);
 	compute_flat_map_code.program_code 
-		<< "{" <<recode_edit.program_code.str() << "}"  
+		<< "{" << recode_edit.program_code.str() << "}"  
+		<< "{// PrintBrandRankEdit\n" << brand_rank_recode_edit.program_code.str() << "}"
 		<< endl;
 
 	StatementCompiledCode create_1_0_data_edit;
@@ -2185,6 +2190,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 	}
 }
 
+
 void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 {
 	recode_edit.program_code 
@@ -2465,7 +2471,184 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 	}
 }
 
+void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
+{
+	recode_edit.program_code 
+		<< "{\n"
+		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
+		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
+		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-brand-rank-recode-edit.qin\"));\n"
+		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-brand-rank-recode-edit.qax\"));\n"
+		<< "\t\tfstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		<< endl;
 
+	//extern vector < BrandRankRecodeStatement* > brand_rank_recode_driver_vec;
+	for (int i = 0; i < brand_rank_recode_driver_vec.size(); ++i) {
+		vector <string> & recode_vec = brand_rank_recode_driver_vec[i]->recode_vec,
+				& driver_vec = brand_rank_recode_driver_vec[i]->driver_vec;
+		int n_ranks = brand_rank_recode_driver_vec[i]->nRanks_;
+		string driver_brand_question ;
+		string driver_brand_rank_question ;
+		if (driver_vec.size() != 2) {
+			stringstream err_text;
+			err_text << "expected 2 questions to be driver for brand rank" ;
+			print_err(compiler_sem_err, err_text.str(),
+					line_no, __LINE__, __FILE__);
+			exit(1);
+		} else {
+			driver_brand_question = driver_vec[0];
+			driver_brand_rank_question = driver_vec[1];
+			cout << "driver_brand_question: " << driver_brand_question << endl;
+#if 0
+			recode_edit.program_code
+							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+							<< driver_question_name
+							<< "_map_entry =\n"
+							<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+							<< driver_question_name << "->questionName_);" << endl
+							<< "\t\t\tvector<qtm_data_file_ns::QtmDataDiskMap *> "
+							<< rec_question_name
+							<< "_map_entry =\n"
+							<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
+							<< rec_question_name << "\");" << endl
+							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
+							<< "_map_entry.size(); ++i1) {" << endl;
+						recode_edit.program_code 
+							<< "\t\t\tvariable_file << \"data "
+							<< rec_question_name << "\";\n" << endl
+							<< "\t\t\t\t\tfor (int i2=0; i2 < "
+							<< rec_question_name << "_map_entry[i1]->"
+							<< "q->loop_index_values.size(); ++i2) {\n"
+							<< "\t\t\t\t\t\t variable_file << \"_\" << "
+							<< rec_question_name << "_map_entry[i1]->q->"
+							<< "loop_index_values[i2];\n"
+							<< "\t\t\t\t\t}\n"
+							
+							<< "\t\t\t\t\tvariable_file << \"_\" << "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << " 
+							<< rec_question_name << "_map_entry[i1]->totalLength_ " << " << \"s\\n\";\n"
+							<< "\t\t\t\t\trecode_edit_qax_file\n"
+							<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
+							<< driver_question_name << "_map_entry, "
+							<< rec_question_name << "_map_entry[i1], i, jno);\n" << endl;
+
+						recode_edit.program_code 
+							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;
+						recode_edit.program_code 
+							<< "\t\t\t\t\tfor (int i2=0; i2 < "
+							<< rec_question_name << "_map_entry[i1]->"
+							<< "q->loop_index_values.size(); ++i2) {\n"
+							<< "\t\t\t\t\t\tedit_file << \"_\" << "
+							<< rec_question_name << "_map_entry[i1]->q->"
+							<< "loop_index_values[i2];\n"
+							<< "\t\t\t\t\t}\n";
+						recode_edit.program_code
+							<< "\t\t\t\t\tedit_file << \"_\" << "
+							<< driver_question_name
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
+							<< rec_question_name 
+							<< "_map_entry[i1]->totalLength_"
+							<< " << \");\\n\";\n";
+#endif /*  0 */
+
+
+			recode_edit.program_code
+				<< "for (int i=0, j=0;  i < qtm_datafile_question_disk_map.size(); ++i) {\n"
+				<< "	if (\"" <<driver_brand_question << "\" == qtm_datafile_question_disk_map[i]->q->questionName_) {\n"
+				<< "	++j; "
+				<< "	edit_file "
+				<< "		<< \"" << driver_brand_question << "\" << \"_cols(\" << j << \")\" \n"
+				<< "		<< \" = \" << qtm_datafile_question_disk_map[i]->startPosition_ + 1\n"
+				<< "		<< endl;\n"
+				<< "\t}\n"
+				<< "}\n"
+				<< "edit_file << endl;\n"
+				<< "edit_file << endl;\n"
+				<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+				<< 				driver_brand_question
+				<< 				"_map_entry = 0;\n"
+				<< "for (int i=0, j=0;  i < qtm_datafile_question_disk_map.size(); ++i) {\n"
+				<< "	if (\"" << driver_brand_rank_question << "\" == qtm_datafile_question_disk_map[i]->q->questionName_) {\n"
+				<< "	++j; "
+				<< "	if (j == 1) {\n"
+				<< "	\t" << driver_brand_question << "_map_entry = qtm_datafile_question_disk_map[i];\n" 
+				<< "	}\n"
+				<< "	edit_file "
+				<< "		<< \"" << driver_brand_rank_question << "\" << \"_cols(\" << j << \")\" \n"
+				<< "		<< \" = \" << qtm_datafile_question_disk_map[i]->startPosition_ + 1\n"
+				<< "		<< endl;\n"
+				<< "\t}\n"
+				<< "}\n"
+				<< "for (int i=0, j=0;  i < qtm_datafile_question_disk_map.size(); ++i) {\n"
+				<< "	if (\"" << driver_brand_rank_question << "\" == qtm_datafile_question_disk_map[i]->q->questionName_) {\n"
+				<< "	++j; "
+				<< "	edit_file "
+				<< "		<< \"clear \" << \"" << driver_brand_rank_question << "\" << \"_cols(\" << j << \")\" \n"
+				<< "		<< \" = \" << qtm_datafile_question_disk_map[i]->startPosition_ + 1\n"
+				<< "		<< endl;\n"
+				<< "\t}\n"
+				<< "}\n"
+				<< endl;
+
+			cout << "driver_brand_rank_question: " << driver_brand_rank_question << endl;
+			cout << "n_ranks: " << n_ranks << endl;
+		}
+
+		cout << " recode_vec.size(): " << recode_vec.size() << endl;
+#if 0
+		for (int j = 0; j < recode_vec.size(); ++j) {
+			recode_edit.program_code  << "// reached here" << endl;
+			string rec_question_name = recode_vec[j];
+			SymbolTableEntry * se = active_scope_list[0]->find (rec_question_name);
+			if (se) {
+				if (se->type_ == QUESTION_TYPE) {
+					recode_edit.program_code 
+						<< "/* "
+						<< "found : " << rec_question_name
+						<< " in symbol table: QUESTION_TYPE" 
+						<< "*/" << endl;
+				}  else if (se->type_ == QUESTION_ARR_TYPE) {
+					recode_edit.program_code 
+						<< "/* "
+						<< "found " 
+						<< rec_question_name
+						<< " QUESTION_ARR_TYPE "
+						<< "*/" << endl;
+
+					recode_edit.program_code
+						<< "\t\tfor (int i=0; i < " << driver_brand_question 
+						<< "->nr_ptr->stubs.size(); ++i) {\n"
+						<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+						<< driver_brand_question
+						<< "_map_entry =\n"
+						<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+						<< driver_brand_question << "->questionName_);" << endl
+						<< "\t\t\tvector<qtm_data_file_ns::QtmDataDiskMap *> "
+						<< driver_brand_question
+						<< "_map_entry =\n"
+						<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
+						<< driver_brand_question << "\");" << endl
+						;
+
+				} else {
+					recode_edit.program_code 
+						<< "/* "
+						<< "did not find symbol " 
+						<< rec_question_name
+						<< " "
+						<< "*/" << endl;
+
+				}
+			}
+		}
+#endif /*  0  */
+	}
+	recode_edit.program_code 
+		<< "}\n" << endl;
+
+}
 
 void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 {

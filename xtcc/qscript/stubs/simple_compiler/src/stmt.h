@@ -610,6 +610,30 @@ struct FixAndRecodeStatement: public AbstractStatement
 	}
 };
 
+
+struct BrandRankRecodeStatement: public AbstractStatement
+{
+	vector <string> recode_vec,
+			driver_vec;
+	int32_t nRanks_;
+	BrandRankRecodeStatement(DataType l_type, int32_t l_line_number,
+			      int32_t l_nest_level, int32_t l_for_nest_level,
+			vector <string> l_recode_name_vec,
+			vector <string> l_driver_vec,
+			int32_t p_n_ranks)
+		: AbstractStatement (l_type, l_line_number, l_nest_level, l_for_nest_level),
+		  recode_vec (l_recode_name_vec),
+		  driver_vec (l_driver_vec),
+		  nRanks_(p_n_ranks)
+	{ }
+	void GenerateCode(StatementCompiledCode & code)
+	{
+		if (next_) {
+			next_->GenerateCode (code);
+		}
+	}
+};
+
 struct Create_1_0_DataEditStatement: public AbstractStatement
 {
 	string questionName_;

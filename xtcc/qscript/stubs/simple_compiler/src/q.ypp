@@ -97,6 +97,7 @@
 %token ISANSWERED
 %token NEWCARD
 %token FIX
+%token BRAND_RANK
 %token DRIVERS
 %token CREATE_1_0_EDIT
 
@@ -135,6 +136,7 @@
 %type <stmt> column_stmt
 %type <stmt> fix_and_recode_stmt
 %type <stmt> create_1_0_data_edit_stmt
+%type <stmt> brand_rank_recode_stmt
 %type <stmt> newcard_stmt
  /*%type <stmt> attributes	*/
 %type <stmt> stubs
@@ -321,6 +323,7 @@ stmt:	question
 	| column_stmt
 	| fix_and_recode_stmt
 	| create_1_0_data_edit_stmt
+        | brand_rank_recode_stmt 
 	| newcard_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
@@ -825,7 +828,7 @@ expression: expression '+' expression {
 			mem_log($$, __LINE__, __FILE__, line_no);
 		}
 	}
-	| 	NAME '[' expression ']' %prec FUNC_CALL {
+	| 	NAME '[' expression ']' {
 		using qscript_parser::line_no;
 		using qscript_parser::mem_addr;
 		$$ = new Unary2Expression(oper_arrderef, $1,$3);
@@ -1213,6 +1216,30 @@ stub_manip_stmts:
 		$$ = qscript_parser::setup_stub_manip_stmt_set_unset( STUB_MANIP_SET_ALL, $3);
 	}
 	;
+
+brand_rank_recode_stmt: BRAND_RANK name_list { recode_list = name_list; name_list.clear(); } DRIVERS name_list ':' INUMBER ';' 
+        {
+		driver_list = name_list ;
+		using qscript_parser::line_no;
+		using qscript_parser::nest_lev;
+		using qscript_parser::flagIsAForBody_;
+                /*
+		if (recode_list.size() % driver_list.size() != 0) {
+			ostringstream err_mesg;
+			err_mesg << "No of variables in recode list should be exactly divisible by no of variables in driver_list ";
+			print_err(compiler_sem_err,
+					err_mesg.str().c_str(),
+					qscript_parser::line_no, __LINE__, __FILE__);
+		}
+                */
+		BrandRankRecodeStatement * brand_rank_recode_stmt = new BrandRankRecodeStatement (
+			BRAND_RANK_STMT, line_no, nest_lev, flagIsAForBody_,
+			recode_list, driver_list, $7);
+		recode_list.clear();
+		driver_list.clear();
+		qscript_parser::brand_rank_recode_driver_vec.push_back (brand_rank_recode_stmt);
+		$$ = brand_rank_recode_stmt;
+	}
 
 fix_and_recode_stmt: FIX name_list { recode_list = name_list; name_list.clear(); } DRIVERS name_list ';' 
 	{
