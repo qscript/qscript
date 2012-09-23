@@ -2581,15 +2581,40 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 				<< "		<< endl;\n"
 				<< "\t}\n"
 				<< "}\n"
-				<< "for (int i=0, j=0;  i < qtm_datafile_question_disk_map.size(); ++i) {\n"
-				<< "	if (\"" << driver_brand_rank_question << "\" == qtm_datafile_question_disk_map[i]->q->questionName_) {\n"
-				<< "	++j; "
-				<< "	edit_file "
-				<< "		<< \"clear \" << \"" << driver_brand_rank_question << "\" << \"_cols(\" << j << \")\" \n"
-				<< "		<< \" = \" << qtm_datafile_question_disk_map[i]->startPosition_ + 1\n"
-				<< "		<< endl;\n"
-				<< "\t}\n"
+				<< "NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> ("
+				<< driver_brand_question
+				<< "_list.questionList[0]" 
+				<< ");\n"
+				<< "edit_file << endl << endl;" << endl
+				<< "for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {\n"
+				<< "	edit_file " << endl << "\t\t"
+				<< "		<< \"clear \" << \"" << driver_brand_question 
+				<< "\" << \"_\""
+				<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (1, \" << "
+				<<  driver_brand_question << "_map_entry" 
+				<< "->totalLength_ << \")\""
+				<< "\t<< endl;\n"
 				<< "}\n"
+				<< "edit_file "
+				<< " << \"do 10 t1=1,10,1\" << endl" << endl
+				<< " << \"rnk_col = " << driver_brand_rank_question << "_cols(t1)\" << endl" << endl
+				<< " << \"brd_col = " << driver_brand_question << "_cols(t1)\" << endl;\n" << endl
+				<< "edit_file << endl << endl;" << endl
+				<< "for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {\n"
+				<< "	edit_file " << endl << "\t\t"
+				<< " 	<< \"if (c(brd_col, brd_col+1).eq.1)\" <<  \"" << driver_brand_question 
+				<< "\" << \"_\" << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1\"" 
+				<< " << \")\""
+				<< " << \" = c(rnk_col, rnk_col+1)\\n\";\n"
+				//<< " << \"_\""
+				//<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (1, \" << "
+				//<<  driver_brand_question << "_map_entry" 
+				//<< "->totalLength_ << \")\""
+				//<< "\t<< endl;\n"
+				<< "}\n"
+				<< endl
+
+
 				<< endl;
 
 			cout << "driver_brand_rank_question: " << driver_brand_rank_question << endl;
