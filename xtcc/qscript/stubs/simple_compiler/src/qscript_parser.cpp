@@ -218,8 +218,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
 	fprintf(script, "};\n");
-	print_GetQuestionMapEntry(script);
-	print_GetQuestionMapEntryArrayQ(script);
+	//print_GetQuestionMapEntry(script);
+	//print_GetQuestionMapEntryArrayQ(script);
 
 	//print_recode_edit_qax (script);
 

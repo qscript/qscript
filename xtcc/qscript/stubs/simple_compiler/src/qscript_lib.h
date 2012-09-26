@@ -19,4 +19,11 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 		, vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map
 		, int n_ranks
 		);
+
+qtm_data_file_ns::QtmDataDiskMap* 
+GetQuestionMapEntry(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,
+	string name);
+vector <qtm_data_file_ns::QtmDataDiskMap*> GetQuestionMapEntryArrayQ
+	(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,
+	string name);
 #endif /* qscript_lib_h */
