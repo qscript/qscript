@@ -404,3 +404,258 @@ void merge_disk_data_into_questions(FILE * qscript_stdout, AbstractQuestion * & 
 	}
 }
 #endif  /* 0 */
+
+#include <fstream>
+#include "qtm_data_file.h"
+
+qtm_data_file_ns::QtmDataDiskMap* GetQuestionMapEntry(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,
+string name)
+{
+	for (int i=0; i < qtm_datafile_question_disk_map.size(); ++i)
+	{
+		if (qtm_datafile_question_disk_map[i]->q->questionName_ == name)
+		{
+			return qtm_datafile_question_disk_map[i];
+		}
+	}
+	return 0;
+}
+
+
+vector <qtm_data_file_ns::QtmDataDiskMap*> GetQuestionMapEntryArrayQ
+(vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map,
+string name)
+{
+	string dummy_output_filename (string("dummy.output"));
+	fstream dummy_output_file(dummy_output_filename.c_str(), ios_base::out|ios_base::app);
+	dummy_output_file << "searching for : " << name << endl;
+	vector <qtm_data_file_ns::QtmDataDiskMap*> result ;
+	for (int i=0; i < qtm_datafile_question_disk_map.size(); ++i)
+	{
+		string s1 = qtm_datafile_question_disk_map[i]->q->questionName_ ;
+		dummy_output_file << "questionName_: " << s1 << endl;
+		string s3 = "";
+		if (s1.length() > name.length())
+		{
+			s3 = s1.substr(0, name.length());
+		}
+		dummy_output_file << s3 << endl;
+		if (qtm_datafile_question_disk_map[i]->q->questionName_ == name)
+		{
+			result.push_back(qtm_datafile_question_disk_map[i]);
+			dummy_output_file << "added to result" << endl;
+		}
+	}
+	return result;
+}
+
+#include "named_range.h"
+
+void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_question, string driver_brand_rank_question
+		, vector <string> recode_questions_list
+		, vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map
+		, int n_ranks
+		)
+{
+	using std::fstream;
+	string variable_defns_fname (string("setup-") + jno + string("/") + string("variable"));
+	fstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);
+	string edit_file_name (string("setup-") + jno + string("/") + jno + string("-brand-rank-recode-edit.qin"));
+	fstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);
+
+	vector<qtm_data_file_ns::QtmDataDiskMap *> q13_brd_map_entry_vec =
+		GetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, driver_brand_question);
+	for (int i=0;  i < q13_brd_map_entry_vec.size(); ++i) {
+		edit_file
+			<< driver_brand_question << "_cols(" << i + 1 << ")"
+			<< " = " << q13_brd_map_entry_vec[i]->startPosition_ + 1
+			<< endl;
+	}
+	edit_file << endl;
+	edit_file << endl;
+	vector<qtm_data_file_ns::QtmDataDiskMap *> q13_brd_rnk_map_entry_vec =
+		GetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, driver_brand_rank_question);
+	for (int i=0;  i < q13_brd_rnk_map_entry_vec.size(); ++i) {
+		edit_file
+			<< driver_brand_rank_question  << "_cols(" << i + 1 << ")"
+			<< " = "
+			<< q13_brd_rnk_map_entry_vec[i]->startPosition_ + 1
+			<< endl;
+	}
+#if 0
+	for (int i=0, j=0;  i < q13_brd_map_entry_vec.size(); ++i) {
+		if (driver_brand_rank_question == qtm_datafile_question_disk_map[i]->q->questionName_) {
+			++j;
+			if (j == 1) {
+				q13_brd_map_entry = qtm_datafile_question_disk_map[i];
+			}
+			edit_file
+				<< driver_brand_rank_question  << "_cols(" << j << ")"
+				<< " = "
+				<< qtm_datafile_question_disk_map[i]->startPosition_ + 1
+				<< endl;
+		}
+	}
+#endif /* 0 */
+	//NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (q13_brd_list.questionList[0]);
+	NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> 
+		(
+		 q13_brd_map_entry_vec[0]->q
+		 );
+
+
+
+	edit_file << endl << endl;
+	qtm_data_file_ns::QtmDataDiskMap * q13_brd_map_entry = q13_brd_map_entry_vec[0];
+	for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
+		edit_file
+			<< "clear " 
+			<< driver_brand_question 
+			<< "_" 
+			<< nq->nr_ptr->stubs[i].stub_text_as_var_name() 
+			<< " (1, " 
+			<< q13_brd_map_entry->totalLength_ << ")"    << endl;
+	}
+	edit_file  
+		<< endl 
+		<< "do 10 t1=1,10,1" << endl
+		<< "	rnk_col = " << driver_brand_rank_question << "_cols(t1)" << endl
+		<< "	brd_col = " << driver_brand_question << "_cols(t1)" << endl;
+
+	edit_file << endl << endl;
+	for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
+		edit_file
+			<< "	if (c(brd_col, brd_col+1).eq."     
+			<< nq->nr_ptr->stubs[i].code << ")\t\t" 
+			<< driver_brand_question
+			<< "_" << nq->nr_ptr->stubs[i].stub_text_as_var_name() 
+			<< "(1, " << q13_brd_map_entry->totalLength_ << ")" << " = c(rnk_col, rnk_col+1)\n";
+	}
+	edit_file << "10 continue" << endl;
+
+	edit_file << endl << endl;
+	{
+		vector<qtm_data_file_ns::QtmDataDiskMap *> q15_map_entry_vec =
+			GetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, recode_questions_list[0]);
+		//NamedStubQuestion * rnq = dynamic_cast <NamedStubQuestion*> (q15_list.questionList[0]);
+		NamedStubQuestion * rnq = dynamic_cast <NamedStubQuestion*> (q15_map_entry_vec[0]->q);
+		for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
+			edit_file
+				<< "clear "
+				<< "q15"
+				<< "_"
+				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
+				<< " (1, "
+				<< q15_map_entry_vec.size()
+				<< ")"
+				<< endl;
+		}
+		edit_file << endl << endl;
+		edit_file << "do 9 output_col_no=1," << q15_map_entry_vec.size() << endl;
+		for (int i=0;  i < q15_map_entry_vec.size(); ++i) {
+			edit_file
+				<< "	if (" << nq->questionName_
+				<< "_" << nq->nr_ptr->stubs[i].stub_text_as_var_name()
+				<< " (1, " << q13_brd_map_entry->totalLength_
+				<< ") .in. (1: " << n_ranks << "))"
+				<< "	" << "q15" << "_"
+				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
+				<< " (output_col_no  "
+				<< ") = 0\n";
+		}
+		edit_file << "9 continue;\n" << endl;
+		edit_file << "output_col_no = 1\n";
+		edit_file << "do 20 input_col_no = (";
+		for (int i=0;  i < q15_map_entry_vec.size(); ++i) {
+			edit_file << q15_map_entry_vec[i]->startPosition_+1 << " ";
+			if (i < q15_map_entry_vec.size()-1) edit_file << ", ";
+		}
+		edit_file  << ")" << endl;
+		edit_file << "	t3 = 1;" << endl;
+		edit_file << "	do 25 'punch' = (";
+		for (int i=1;  i <= 12; ++i) {
+			edit_file << "'" << i % 10 << "' "; if (i < 12) edit_file << ", ";
+		}
+		edit_file << "	)" << endl;
+#if 0
+#endif /*  0 */
+		for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
+			edit_file
+				<< "		if (c(input_col_no)'punch' .and.  q13_brd"
+				<< "_"  << nq->nr_ptr->stubs[i].stub_text_as_var_name()
+				<< " (1, "
+				<< q13_brd_map_entry->totalLength_
+				<< ").eq.t3)		"
+				<< "q15" << "_"
+				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
+				<< " (output_col_no)=1 "
+				<< endl;
+		}
+		edit_file << "	t3=t3+1;" << endl;
+		edit_file << "	25 continue" << endl;
+		edit_file << "20 continue" << endl;
+	}
+
+	string q13_brd_qin_fname (string("setup-") + jno + string("/br-") 
+			+ nq->questionName_ + string(".qin"));
+	fstream q13_brd_qin_file (q13_brd_qin_fname.c_str(), ios_base::out|ios_base::ate);
+	for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
+		q13_brd_qin_file
+			<< "n01"
+			<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
+			<< ";c="
+			<< nq->questionName_ << "_"
+			<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
+			<< "(1, "
+			<< q13_brd_map_entry->totalLength_
+			<< ").in.(&rnk)"
+			<< endl;
+	}
+
+	string recode_edit_qax_file_name (string("setup-") + jno + string("/") +jno + string("-brand-rank-recode-edit.qax"));
+	fstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);
+
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
+		<< "ttl Rank 1" << endl
+		<< "n10Total" << endl
+		<< "#include br-" << nq->questionName_ << ".qin;rnk=1;"
+		<< endl
+		<< endl;
+
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_12"
+		<< "ttl Rank 1 and 2" << endl
+		<< "n10Total" << endl
+		<< "#include br-" << nq->questionName_ << ".qin;rnk=1:2;"
+		<< endl
+		<< endl;
+
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_123"
+		<< "ttl Rank 1, 2 and 3" << endl
+		<< "n10Total" << endl
+		<< "#include br-" << nq->questionName_ << ".qin;rnk=1:3;"
+		<< endl
+		<< endl;
+
+
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
+		<< "ttl Rank 10" << endl
+		<< "n10Total" << endl
+		<< "#include br-" << nq->questionName_ << ".qin;rnk=10;"
+		<< endl
+		<< endl;
+
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
+		<< "ttl Rank 9, 10" << endl
+		<< "n10Total" << endl
+		<< "#include br-" << nq->questionName_ << ".qin;rnk=9:10;"
+		<< endl
+		<< endl;
+
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
+		<< "ttl Rank 8, 9 and 10" << endl
+		<< "n10Total" << endl
+		<< "#include br-" << nq->questionName_ << ".qin;rnk=8:10;"
+		<< endl
+		<< endl;
+
+}

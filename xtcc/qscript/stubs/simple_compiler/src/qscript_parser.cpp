@@ -2485,6 +2485,40 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 
 	//extern vector < BrandRankRecodeStatement* > brand_rank_recode_driver_vec;
 	for (int i = 0; i < brand_rank_recode_driver_vec.size(); ++i) {
+		recode_edit.program_code << "{" << endl;
+		vector <string> & recode_vec = brand_rank_recode_driver_vec[i]->recode_vec,
+				& driver_vec = brand_rank_recode_driver_vec[i]->driver_vec;
+
+		recode_edit.program_code 
+			<< "string driver_brand_question = \"" << driver_vec[0] << "\";" << endl
+			<< "string driver_brand_rank_question = \"" << driver_vec[1] << "\";" << endl
+			<< "vector <string> recode_questions_list;"
+			<< endl;
+		for (int j=0; j < recode_vec.size(); ++j) {
+			recode_edit.program_code
+				<< "recode_questions_list.push_back(\""
+				<< recode_vec[j]
+				<< "\");"
+				<< endl;
+		}
+		recode_edit.program_code
+			<< "int n_ranks = " << brand_rank_recode_driver_vec[i]->nRanks_
+			<< ";"
+			<< endl;
+
+		recode_edit.program_code
+			<< "print_brand_rank_recode_edit_and_qax (jno, driver_brand_question, driver_brand_rank_question"
+			<< ", recode_questions_list"
+			<< ", qtm_datafile_question_disk_map"
+			<< ", n_ranks"
+			<< ");\n";
+
+		recode_edit.program_code << "}" << endl;
+	}
+
+	
+#if 0
+	for (int i = 0; i < brand_rank_recode_driver_vec.size(); ++i) {
 		vector <string> & recode_vec = brand_rank_recode_driver_vec[i]->recode_vec,
 				& driver_vec = brand_rank_recode_driver_vec[i]->driver_vec;
 		int n_ranks = brand_rank_recode_driver_vec[i]->nRanks_;
@@ -2765,6 +2799,7 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 
 		}
 	}
+#endif /*  0 */
 	recode_edit.program_code 
 		<< "}\n" << endl;
 

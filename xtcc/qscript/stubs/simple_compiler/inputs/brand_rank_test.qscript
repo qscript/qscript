@@ -1,0 +1,93 @@
+brand_rank_test {
+q12	"Q12. What quality shoes do you prefer for yourself?"
+	sp int32_t (1-5);
+
+stubs sq13s =
+"West coast" 1
+"Filanto" 2
+"Duchini" 3
+"Bugati" 4
+"Lee Cooper" 5
+"IMAC" 6
+"Kangaroos" 7
+"Puma" 8
+"Reebok" 9
+"Skechers" 10
+"Carpisa" 11
+"Paprika" 12
+"Peppermint" 13
+"Missy" 14
+"Little Missy" 15
+"Celeste" 16
+"Jane Shilton" 17
+"Mischa Barton" 18
+"Marla London" 19
+"Rinato Balestra" 20;
+
+	setall (sq13s);
+
+
+	stubs rnk = 
+	"Rank 1" 1
+	"Rank 2" 2
+	"Rank 3" 3
+	"Rank 4" 4
+	"Rank 5" 5
+	"Rank 6" 6
+	"Rank 7" 7
+	"Rank 8" 8
+	"Rank 9" 9
+	"Rank 10" 10;
+
+	setall (rnk);
+
+	int32_t i2 = 0;
+		//int32_t n_aw = count (q3_taw);
+q13_cnt	"Q13. Enter no of iterations"
+	sp int32_t (1-10);
+
+		for (i2=0; i2<15; i2 = i2+1) {
+			if (i2 < q13_cnt) {
+q13_brd				"Q13. Brand"
+				sp int32_t sq13s;
+
+q13_rnk				"Q13. Brand: Rank"
+				sp int32_t rnk;
+				setdel (sq13s, q13_brd[i2]);
+				setdel (rnk, q13_rnk[i2]);
+			} else {
+				1;
+			}
+		}
+
+//q13	"Q13. Among the following brands which do you consider as your top 10 brands?"
+//			sp int32_t rnk: allow_blank;
+//			setdel (rnk, q13[i]);
+	
+q14	"Q14. What is the reason to consider _____________ as your main brand?"
+	mp(15) int32_t (1-99);
+
+	int32_t i3 = 0;
+
+stubs sq15s =
+	"Brand 1" 1
+	"Brand 2" 2
+	"Brand 3" 3
+	"Brand 4" 4
+	"Brand 5" 5
+	"Brand 6" 6
+	"Brand 7" 7
+	"Brand 8" 8
+	"Brand 9" 9
+	"Brand 10" 10
+	"None" 11 mutex;
+
+	for (i3=0; i3<17; i3 = i3+1) {
+
+q15		"Q15. Now I will read out a few statements to you, which people like you have associated with Shoe Brands in the past. Please tell me which of the top 10 brands that you selected earlier would you associate the statements with."
+		mp(10) int32_t sq15s;
+	}
+
+	brand_rank q15 drivers q13_brd q13_rnk : 12;
+
+}
