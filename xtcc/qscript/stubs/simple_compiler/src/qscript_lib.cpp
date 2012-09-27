@@ -458,8 +458,12 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 		)
 {
 	using std::fstream;
-	string variable_defns_fname (string("setup-") + jno + string("/") + string("variable"));
+	string variable_defns_fname (string("setup-") + jno + string("/") + string("variable1"));
 	fstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);
+
+
+
+
 	string edit_file_name (string("setup-") + jno + string("/") + jno + string("-brand-rank-recode-edit.qin"));
 	fstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);
 
@@ -503,6 +507,27 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 		 q13_brd_map_entry_vec[0]->q
 		 );
 
+	if (!variable_file) {
+		cerr << "unable to open file: variable for writing" << endl;
+		exit(1);
+	}
+
+	variable_file 
+			<< "int rnk_col 1" << endl
+			<< "int brd_col 1" << endl
+			<< "int output_col_no 1" << endl
+			<< "int input_col_no 1" << endl
+			<< "int " << driver_brand_question 
+				<< "_cols " << nq->dummyArrayQuestion_->array_bounds[0] 
+				<< "s"
+				<< endl
+			<< "int " << driver_brand_rank_question 
+				<< "_cols " << nq->dummyArrayQuestion_->array_bounds[0]
+				<< "s"
+				<< endl
+			<< endl;
+	cerr << "output sent to variable_file" << endl;
+
 
 
 	edit_file << endl << endl;
@@ -515,7 +540,15 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 			<< nq->nr_ptr->stubs[i].stub_text_as_var_name() 
 			<< " (1, " 
 			<< q13_brd_map_entry->totalLength_ << ")"    << endl;
+		variable_file 
+			<< "data "
+			<< driver_brand_question 
+			<< "_" 
+			<< nq->nr_ptr->stubs[i].stub_text_as_var_name() 
+			<< " "
+			<< q13_brd_map_entry->totalLength_ << "s"    << endl;
 	}
+	variable_file  << endl;
 	edit_file  
 		<< endl 
 		<< "do 10 t1=1,10,1" << endl
@@ -542,30 +575,39 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 		for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
 			edit_file
 				<< "clear "
-				<< "q15"
+				<< recode_questions_list[0]
 				<< "_"
 				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
 				<< " (1, "
 				<< q15_map_entry_vec.size()
 				<< ")"
 				<< endl;
+			variable_file 
+				<< "data "
+				<< recode_questions_list[0] 
+				<< "_" 
+				<< nq->nr_ptr->stubs[i].stub_text_as_var_name() 
+				<< " "
+				<< rnq->dummyArrayQuestion_->array_bounds[0] << "s"    << endl;
 		}
 		edit_file << endl << endl;
 		edit_file << "do 9 output_col_no=1," << q15_map_entry_vec.size() << endl;
-		for (int i=0;  i < q15_map_entry_vec.size(); ++i) {
+		for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
 			edit_file
 				<< "	if (" << nq->questionName_
 				<< "_" << nq->nr_ptr->stubs[i].stub_text_as_var_name()
 				<< " (1, " << q13_brd_map_entry->totalLength_
 				<< ") .in. (1: " << n_ranks << "))"
-				<< "	" << "q15" << "_"
+				<< "	" 
+				<< recode_questions_list[0]
+				<< "_"
 				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
 				<< " (output_col_no  "
 				<< ") = 0\n";
 		}
 		edit_file << "9 continue;\n" << endl;
 		edit_file << "output_col_no = 1\n";
-		edit_file << "do 20 input_col_no = (";
+		edit_file << "do 120 input_col_no = (";
 		for (int i=0;  i < q15_map_entry_vec.size(); ++i) {
 			edit_file << q15_map_entry_vec[i]->startPosition_+1 << " ";
 			if (i < q15_map_entry_vec.size()-1) edit_file << ", ";
@@ -581,19 +623,20 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 #endif /*  0 */
 		for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
 			edit_file
-				<< "		if (c(input_col_no)'punch' .and.  q13_brd"
+				<< "		if (c(input_col_no)'punch' .and.  " << driver_brand_question
 				<< "_"  << nq->nr_ptr->stubs[i].stub_text_as_var_name()
 				<< " (1, "
 				<< q13_brd_map_entry->totalLength_
 				<< ").eq.t3)		"
-				<< "q15" << "_"
+				<< recode_questions_list[0]
+				<< "_"
 				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
 				<< " (output_col_no)=1 "
 				<< endl;
 		}
 		edit_file << "	t3=t3+1;" << endl;
 		edit_file << "	25 continue" << endl;
-		edit_file << "20 continue" << endl;
+		edit_file << "120 continue" << endl;
 	}
 
 	string q13_brd_qin_fname (string("setup-") + jno + string("/br-") 
