@@ -567,6 +567,8 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 	edit_file << "10 continue" << endl;
 
 	edit_file << endl << endl;
+	string recode_edit_qax_file_name (string("setup-") + jno + string("/") +jno + string("-brand-rank-recode-edit.qax"));
+	fstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);
 	{
 		vector<qtm_data_file_ns::QtmDataDiskMap *> q15_map_entry_vec =
 			GetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, recode_questions_list[0]);
@@ -637,6 +639,41 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 		edit_file << "	t3=t3+1;" << endl;
 		edit_file << "	25 continue" << endl;
 		edit_file << "120 continue" << endl;
+
+
+		for (int j=0; j < q15_map_entry_vec.size(); ++j) {
+			recode_edit_qax_file
+				<< "*include " << rnq->questionName_ << "_fix.qax"
+				<< ";col_no=" << j + 1 
+				<< ";qlno=" << j+1
+				<< ";q1att=&at0t;att1t=0;q2att=;att2t=/*;"
+				<< endl;
+		}
+		string q15_qax_file_name  = 
+			string("setup-") + jno + string("/")
+			+rnq->questionName_  + string("_fix.qax");
+		fstream q15_qax_file (q15_qax_file_name.c_str(), ios_base::out|ios_base::ate);
+		q15_qax_file << "l " << rnq->questionName_ << "_fix_&qlno" << endl
+			<< "*include qttl.qin;qt1it="
+			<< rnq->AxPrepareQuestionTitle()
+			<< "+qt2it=;act2t=/*;\n+qt3it=;act3t=/*;\n+qt4it=;act4t=/*;\n"
+			<< "*include base.qin;btxt=All Respondents\n"
+			<< "#include " << rnq->questionName_ << "_fix.qin" << endl
+			<< endl;
+
+		string q15_qin_file_name  = 
+				string("setup-") + jno + string("/")
+				+ rnq->questionName_  + string("_fix.qin");
+		fstream q15_qin_file (q15_qin_file_name.c_str(), ios_base::out|ios_base::ate);
+		for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
+			q15_qin_file << "n01"
+				<< nq->nr_ptr->stubs[i].stub_text
+				<< ";\t\t\t\tc="
+				<< rnq->questionName_ << "_" 
+				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
+				<< "(&col_no)=$1$"
+				<< endl;
+		}
 	}
 
 	string q13_brd_qin_fname (string("setup-") + jno + string("/br-") 
@@ -653,52 +690,61 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 			<< q13_brd_map_entry->totalLength_
 			<< ").in.(&rnk)"
 			<< endl;
+
 	}
 
-	string recode_edit_qax_file_name (string("setup-") + jno + string("/") +jno + string("-brand-rank-recode-edit.qax"));
-	fstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);
 
 	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
-		<< "ttl Rank 1" << endl
+		<< endl
+		<< "ttl " << nq->AxPrepareQuestionTitle() 
+		<< "Rank 1"
+		<< endl
 		<< "n10Total" << endl
 		<< "#include br-" << nq->questionName_ << ".qin;rnk=1;"
 		<< endl
 		<< endl;
 
 	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_12"
-		<< "ttl Rank 1 and 2" << endl
+		<< endl
+		<< "ttl " << nq->AxPrepareQuestionTitle()  << ": Rank 1 and 2" << endl
 		<< "n10Total" << endl
 		<< "#include br-" << nq->questionName_ << ".qin;rnk=1:2;"
 		<< endl
 		<< endl;
 
 	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_123"
-		<< "ttl Rank 1, 2 and 3" << endl
+		<< endl
+		<< "ttl " << nq->AxPrepareQuestionTitle()  << ": Rank 1, 2, 3" << endl
 		<< "n10Total" << endl
 		<< "#include br-" << nq->questionName_ << ".qin;rnk=1:3;"
 		<< endl
 		<< endl;
 
+	/*
 
-	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_10"
+		<< endl
 		<< "ttl Rank 10" << endl
 		<< "n10Total" << endl
 		<< "#include br-" << nq->questionName_ << ".qin;rnk=10;"
 		<< endl
 		<< endl;
 
-	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_910"
+		<< endl
 		<< "ttl Rank 9, 10" << endl
 		<< "n10Total" << endl
 		<< "#include br-" << nq->questionName_ << ".qin;rnk=9:10;"
 		<< endl
 		<< endl;
 
-	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
+	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_810"
+		<< endl
 		<< "ttl Rank 8, 9 and 10" << endl
 		<< "n10Total" << endl
 		<< "#include br-" << nq->questionName_ << ".qin;rnk=8:10;"
 		<< endl
 		<< endl;
+	*/	
 
 }
