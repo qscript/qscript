@@ -1872,6 +1872,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 {
 	recode_edit.program_code 
+		<< "//PrintXtccRecodeEdit\n"
 		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
 		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-recode-edit.qin\"));\n"
@@ -2475,12 +2476,12 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 {
 	recode_edit.program_code 
 		<< "{\n"
-		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
-		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
-		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-brand-rank-recode-edit.qin\"));\n"
-		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
-		<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-brand-rank-recode-edit.qax\"));\n"
-		<< "\t\tfstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		//<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
+		//<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
+		//<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-brand-rank-recode-edit.qin\"));\n"
+		//<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		//<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-brand-rank-recode-edit.qax\"));\n"
+		//<< "\t\tfstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		<< endl;
 
 	//extern vector < BrandRankRecodeStatement* > brand_rank_recode_driver_vec;
@@ -2808,6 +2809,7 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 {
 	create_1_0_data_edit.program_code 
+		<< "//create_1_0_data_edit \n"
 		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
 		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-1_0-edit.qin\"));\n"
