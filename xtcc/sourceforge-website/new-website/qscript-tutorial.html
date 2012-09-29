@@ -63,8 +63,9 @@
           <li><a href="#first_example"><i class="icon-chevron-right"></i> First Example</a> </li>
           <li><a href="#second_example"><i class="icon-chevron-right"></i> Second Example: Mutually Exclusive Stubs</a></li>
           <li><a href="#simple_if_condition"><i class="icon-chevron-right"></i> Simple Routing using the "if" conditional</a></li>
-          <li><a href="#for_loops"><i class="icon-chevron-right"></i> For Loops</a></li>
-          <li><a href="#for_more_complicated_example"><i class="icon-chevron-right"></i> For Loop, with if condition, a bit more complicated</a></li>
+          <li><a href="#for_loops"><i class="icon-chevron-right"></i> For Loops, Operator "in"</a></li>
+          <li><a href="#for_more_complicated_example"><i class="icon-chevron-right"></i>For Loop, with if condition, a bit more complicated</a></li>
+          <li><a href="#for_sum_eq_100"><i class="icon-chevron-right"></i> Technique For Loop: Share of throat Example</a></li>
           <li><a href="#masking"><i class="icon-chevron-right"></i> Masking Stubs</a></li>
           <li><a href="#compiling"><i class="icon-chevron-right"></i> How to compile a script</a></li>
         </ul>
@@ -109,8 +110,8 @@
 					title="Yes this is a semicolon terminated language">;</a><br />
 				//&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^<br />
 				//&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br />
-				//Question &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;Question &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Accept Single or&nbsp;&nbsp;&nbsp;Size on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number Range or <br />
-				//Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Text &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Multiple Answers&nbsp;&nbsp;&nbsp;Disk&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Named Stub<br />
+				//Question &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;Question &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Accept Single or&nbsp;&nbsp;&nbsp;Size on&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Named  Stub  or <br />
+				//Name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;Text &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Multiple Answers&nbsp;&nbsp;&nbsp;Disk&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number Range<br />
 				//&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br />
 				//&nbsp;V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;V<br />
 				<a href="#" rel="tooltip" data-placement="top" title="Name of the question variable in the data file">&nbsp;&nbsp;&nbsp;q2</a> 
@@ -208,6 +209,22 @@
 			</li>
 			</ul>
 		</ul>
+	</p>
+	<p>
+	Defining named stubs was not covered earlier. In the above program there are 2 definitions of stubs, one is the "agree5" scale and the other is the "vegetables" list. The syntax consists of the keyword: <em>stubs</em> followed by a "Name" for the stubs followed by an "=" sign and then the stubs list "text" followed by code.</p>
+
+	<p>
+	Valid variable names in qscript can be a combination of letters, numbers and "_". A variable name cannot start with numbers. <br />
+	<br />
+	Valid Examples:	<br />
+		var1, a_long_variable, agree_5, _var 	<br />
+	<br />
+	This name will not work:	<br />
+		1_var // starts with a digit.	<br />
+	<br />
+
+	When a stub name ends with a number, for example agree5 scale above, it has a special meaning to the compiler when generating tabulation programs.
+	</p>
           </div>
 	  </section>
 
@@ -218,7 +235,7 @@
             <h1>Second Example: Mutually Exclusive Codes</h1>
           </div>
           <div>
-	<p>Sometimes, even in a multiple answer question, you want certain responses to be answered exclusively. The following, demonstrates how to setup mutually exclusive codes for Range and Named Stub Questions
+	<p>Sometimes, even in a multiple answer question, you want certain responses to be answered exclusively. The following, demonstrates how to program mutually exclusive codes for Range and Named Stub Questions
 	<pre>
 	inp_mutex {
 
@@ -259,9 +276,9 @@
 
 		stubs excel_5 = 
 				"Horrible " 1
-				" " 2
+				"2" 2
 				" Alright, nothing to complain about " 3
-				" " 4
+				"4" 4
 				"Excellent " 5;
 
 		q3 "q3. Overall, How would you rate your primary bank?"
@@ -270,13 +287,13 @@
 
 		if (q3 in (1,2)) {
 			q3_bad "Q3. Why do you have a negative disposition towards your primary bank?" 
-			mp(5) int32_t (1-100) mutex 99;
+			mp(5) int32_t (1-100) mutex (99);
 		} else if (q3 in (3)) {
 			q3_alright "Q3. Why is your bank just about alright?" 
-			mp(5) int32_t (1-100) mutex 99;
+			mp(5) int32_t (1-100) mutex (99);
 		} else {
 			q3_good "Q3. Why does your primary bank deserve a positive score?" 
-			mp(5) int32_t (1-100) mutex 99;
+			mp(5) int32_t (1-100) mutex (99);
 		}
 
 	}
@@ -354,7 +371,7 @@
 	     //                                  Multiple coded
 	     //                                  question    
 	</pre>
-	Also, note that the number 1 appears without parenthesis around it. This is because, it is an expression and not a "set", as in the previous example. This will be clear in the example after the "for" loop is explained. We will see, that, you can replace the number "1" with an expression like "i" which is a variable in the program and still have the test work. We, will also see that we can express the above code much more elegantly.
+	Also, note that the number 1 appears without parenthesis around it. This is because, it is an expression and not a "set", as in the previous example. This will be clear in the example after the "for" loop is explained. We will see, that, you can replace the number "1" with an expression like "i" which is a variable in the program and still have the test work. Later on, we will see how we can express the above code much more elegantly.
 	
 
 	</p>
@@ -372,7 +389,7 @@
 
         <section id="for_loops">
           <div class="page-header">
-            <h1>For Loops</h1>
+            <h1>For Loops, Operator "in"</h1>
           </div>
 	  <div>
 		  <p> First, a simple loop for questions which have a similar structure. Sometimes you have a segmentation section in a questionnaire. Sometimes you have a brand imagery section or an Ad-Impact section, which has statements like this.  </p>
@@ -421,15 +438,17 @@
 
 	So, for example this will work 
 	<pre>
-	for (i=0; i&lt;2*3; i=i+1)
+	for (i1=0; i&lt;2*3; i1=i1+1)
 	</pre> 
 	but this will not work 
 	<pre>
 	int32_t bounds=10;
-	for (i=0; i&lt;bounds; i=i+1) // illegal - this will not compile
+	for (i1=0; i1&lt;bounds; i1=i1+1) // illegal - this will not compile
 	</pre>
 	because "bounds" is a not a constant.
-		  The increment form must also be in the above format i.e. <code>&lt;index_varname&gt; =  &lt;index_varname&gt; + 1 </code>, i.e. for the above case it must be <br /><code>i1 = i1 + 1</code>. 
+	The increment form must also be in the above format :<br \> <code>&lt;index_varname&gt; =  &lt;index_varname&gt; + 1 </code> 
+		<br />,  for the above case it must be <br />
+		<code>i1 = i1 + 1</code><br /> 
 		  </p>
 
 
@@ -469,65 +488,118 @@
 	<pre>
 inp_for_more_complicated_example {
 
-stubs fuel_types=	
-"Diesel" 1
-"Petrol" 2
-"CNG" 3
-"LPG" 4;
+	stubs bank_services =
+		"Salary Account" 1
+		"Savings Account" 2
+		"Credit Card" 3
+		"Loan Account" 4;
 
-S5	"What fuel do you use in your vehicle? What is the average monthly consumption ?"
-	mp(4) int32_t fuel_types;
-	int32_t i1=0;
+q1 	"Which of the following Banking services do you use?"
+	   int32_t mp (4) bank_services;
 
-	for (i1=0; i1 &lt; 4; i1=i1+1) {
-		int32_t code = i1+1;
-		if ( (code) in S5 ) {
-s5_1			"Average litres/kgs"
-			sp int32_t (1-10000);
-s5_2			"Average Price"
-			sp int32_t (1-1000000);
+
+	stubs excel_5 = 
+			"Horrible " 1
+			" " 2
+			" Alright, nothing to complain about " 3
+			" " 4
+			"Excellent " 5;
+	
+	int32_t i = 0;
+
+	for (i = 0; i &lt; 4; i = i+1) {
+		int32_t code = i + 1;
+		if (code in q1) {
+q1_1 			"Can you please rate the quality of the Salary Account service for your bank"
+			sp int32_t excel_5;
 		} else {
 			1;
 		}
 	}
 
 
-	int32_t sum=0;
-	for (i1=0; i1 &lt; 6; i1=i1+1) {
-q1		"what is the approximate percentage share of different oil companies?"
-		sp int32_t (0-100);
-		sum = sum + q1[i1];
-	}
-	if (sum != 100) {
-		clear (q1[0]);
-	}
+
 }
 
 	</pre>
 
-	<p>In the above example, code we want to probe further, if a respondent is using a certain type of fuel. The for loop indices run from 0 to 3, but the codes for qs5 are from 1 to 4. we create a variable "code" that is set to the value that we want. Also note that you can create variables like "i1" anywhere in the script. 
+	<p>In the above example, we want to probe further, if a respondent is using a certain type of banking service. The for loop indices run from 0 to 3, but the codes for q1_1 are from 1 to 4. We create a variable "code" that is set to the value that we want. Also note that you can create variables like "i", "code" anywhere in the script. 
 	</p>
 
 	<p> Note, that in the above example, in the test 
 	<pre>
-		if ( (code) in S5 ) 
+		if ( code in q1_1 ) 
 	</pre>
-		"code" appears on the left hand side of operator "in" and the question on the right hand side. To understand operator "in", it always checks the left hand side is a subset of the right hand side. In this example, S5 is a multi-coded question. Contrast this case with the <a href="#simple_if_condition">Simple If Condition</a> demo, where we had "q1 in (1,2)" but q1 was single coded. In, this particular case "(code) in S5" the expression "(code)" is not a SET, like in the Simple If Condition, rather it is an expression. So if we want to check multiple codes, we need to split it up into multiple tests.
+		"code" appears on the left hand side of operator "in" and the question on the right hand side. To understand operator "in", it always checks the left hand side is a subset of the right hand side. In this example, q1_1 is a multi-coded question. Contrast this case with the <a href="#simple_if_condition">Simple If Condition</a> demo, where we had "q1 in (1,2)" but q1 was single coded. In, this particular case "code in q1_1" the expression "code" is not a SET, like in the Simple If Condition, rather it is an expression. So if we want to check multiple codes, we need to split it up into multiple tests.
 
 		i.e. this will not compile
 		<pre>
-			if ( (code1, code2) in S5) 
+			if ( (code1, code2) in q1_1) 
 		</pre>
 		It needs to be split up like this:
 		<pre>
-			if ( (code1) in S5 &amp;&amp; (code2) in S5)
+			if ( (code1) in q1_1 &amp;&amp; (code2) in q1_1)
 		</pre>
 	</p>
+	  <div>
+	</section>
+
+        <section id="for_sum_eq_100">
+          <div class="page-header">
+            <h1>Technique For Loop: Share of throat Example</h1>
+          </div>
+	  <div>
+
+	Now consider the following program below:
+
+	<pre>
+	sum_eq_100_ex {
+
+	stubs inv_types =
+	"Fixed Deposits" 1
+	"Mutual Funds" 2
+	"Equity Market" 3
+	"Government Debt" 4
+	"Pension Plans" 5
+	"I stash my money under my bed" 6 : mutex;
 
 
-	<p>In the second part of the above example, we want to ensure that the percentages add up to 100. The comparison of sum with 100 and clearing the response if it doesn't match is enough to achieve this functionality. At this point of time you cannot add an error message to the clear statement, but a future version will allow you to pass an error message. Also note that single coded questions can directly be used in arithmetic operations - for example:
-		<pre> sum = sum + q1[i1] </pre>
+	q1 		"Which of these investment vehicles do you use to plan for retirement"
+			mp (10) int32_t inv_types;
+
+		int32_t i = 0;
+		int32_t sum = 0;
+		int32_t last_iter = 0;
+		for (i = 0; i &lt; 6; i = i + 1) {
+
+			int32_t code = i + 1;
+			if (code in q1) {
+
+	q2 			"What percentage of your investment is in each of these investment vehicles?"	
+				mp(5) int32_t (1-100);
+				sum = sum + q2[i];
+				last_iter = i;
+				// first check here 
+				if (sum &gt; 100) {
+					clear (q2[i]);
+				}
+			}
+
+		}
+		// Second check here
+		if (sum != 100) {
+			clear (q2[last_iter]);
+		}
+
+	}
+
+	</pre>
+
+
+	<p>Consider the above example, we first ask about investments and then probe on their distribution. We want to ensure that the percentages add up to 100. The comparison of sum with 100 and clearing the response if it doesn't match is enough to achieve this functionality. At this point of time you cannot add an error message to the clear statement, but a future version will allow you to pass an error message. Also note that single coded questions can directly be used in arithmetic operations - for example:
+		<pre> sum = sum + q2[i] </pre>
 	</p>
+	  <div>
 	</section>
 
         <section id="masking">
@@ -597,6 +669,41 @@ q1		"what is the approximate percentage share of different oil companies?"
 	<p>Consider the above example: in automotive studies, an often used technique is to ask for the make, and then the model. The setadd model allows you to selectively enable a code. First, you unmask all codes in the stub list using the "unset" statement: in the above example it is <b>unset(model)</b>. Then, looking at the response at q1, we selectively set the mask for model, before q2.</p>
 
 	<p>There is also an setdel statement, which you can find the "inputs" directory distributed along with the compiler source code. </p>
+          </div>
+	  </section>
+
+        <section id="compiling">
+          <div class="page-header">
+            <h1>Compiling a Script</h1>
+          </div>
+	  <div>
+		  <p>Suppose we want to compile the example given earlier: simple_example_1 , saved in a file simple_example_1.qscript.
+		  <ul>
+			  <li>GNU Linux/Unix
+
+		  Invoke the qscript compiler on it in the following manner:
+
+		  <pre>
+			/work/myproject/de-script&gt; qscript -o -m -n -f simple_example_1.qscript
+		  </pre>
+		  And you can run it by:
+		  <pre>
+			/work/myproject/de-script&gt; ./simple_example_1.exe
+		  </pre>
+
+		  </li>
+			  <li>Windows
+
+		  <pre>
+			c:\work\myproject\de-script&gt; qscript -s -o -m -n -f simple_example_1.qscript
+		  </pre>
+		  And you can run it by:
+		  <pre>
+			c:\work\myproject\de-script&gt; .\simple_example_1.exe
+		  </pre>
+			  </li>
+		  <ul>
+		  </p>
           </div>
 	  </section>
 
