@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>QScript Install Page</title>
+		<meta http-equiv="refresh" content="1200">
+		<meta name="keywords" content="qscript, Questionnaire Scripting, Market Research Data Collection, Survey Programming">
+		<meta name="description" content="qscript installation ">
+
+    <!-- Le styles -->
+    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="assets/css/docs.css" rel="stylesheet">
+    <link href="assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+		
+  </head>	
+	<body  data-spy="scroll" data-target=".bs-docs-sidebar">
+
+  </head>
+<body  data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="./index.html">QScript</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="">
+                <a href="./index.html">QScript Home</a>
+              </li>
+              <li class="">
+                <a href="./qscript-tutorial.html">QScript Tutorial</a>
+              </li>
+              <li class="active">
+                <a href="./qscript_install_linux.html">QScript Installation</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-index.html">Xtcc Home</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-tutorial.html">Xtcc Tutorial</a>
+              </li>
+              <li class="">
+                <a href="./xtcc-installation.html">Xtcc Installation</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <div class="container">
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span3 bs-docs-sidebar">
+        <ul class="nav nav-list bs-docs-sidenav">
+          <li><a href="#linux_install"><i class="icon-chevron-right"></i> Installation on Linux</a> </li>
+          <li><a href="#windows_install"><i class="icon-chevron-right"></i>Windows Install</a> </li>
+          <li><a href="#git_install"><i class="icon-chevron-right"></i>Cloning using git</a> </li>
+
+        </ul>
+      </div>
+      <div class="span9">
+
+         <section id="linux_install">
+          <div class="page-header">
+            <h1>Linux Install</h1>
+          </div>
+	  <div>
+
+	<p>qscript is available for download from the sourceforge project page. <a href="http://sourceforge.net/projects/xtcc">http://sourceforge.net/projects/xtcc</a>. 
+	</p>
+	<p>The file <b> qscript-0.23.tar.gz</b> contains the latest source code of the compiler, which has to be built using the g++ compiler. </p>
+
+	<ul>
+	<li>Untar the file in a directory using the following command:
+		<pre>
+		$ tar xvzf qscript-0.23.tar.gz
+		</pre>
+	This will extract the files into a directory qscript-0.23
+	</li>
+	<li>You need to have the GNU g++ compiler installed, along with make, bison and flex and ncurses. Use the package manager for your distribution to install these.
+	</li>
+	<li>Compile the compiler using 
+		<pre>
+		$ cd qscript-0.23
+		$ make -f CustomQScriptMakefile local_install
+		</pre>
+	</li>
+	<li>set the QSCRIPT_HOME variable to point to the compiler home directory. for example if the compiler is installed in :
+		<pre>
+		/home/nxd/qscript-0.23
+		</pre>
+		then run the following command or put it into your shell's .profile script 
+		<pre>
+		export QSCRIPT_HOME=/home/nxd/qscript-0.23
+		</pre>
+
+		</li>
+		<li>
+		Update the path variable to add the qscript binary.
+		<pre>
+		export PATH=$PATH:$QSCRIPT_HOME/bin
+		export LD_LIBRARY_PATH=$QSCRIPT_HOME/lib
+		</pre>
+		</li>
+		<li>
+
+		Instructions on how to compile <a href="qscript.html#example">an example</a> file is given <a href="index.html#compile">here</a>
+
+	</li>
+</div>
+
+	</section>
+         <section id="windows_install">
+          <div class="page-header">
+            <h1>Windows Install</h1>
+          </div>
+	  <div>
+		  <p>qscript is available for download from the sourceforge project page. <a href="http://sourceforge.net/projects/xtcc">http://sourceforge.net/projects/xtcc</a>. Please download the self extracting installer and run it</p>
+
+
+	  </div>
+	 </section>
+
+	</section>
+         <section id="git_install">
+          <div class="page-header">
+            <h1>Cloning Using git</h1>
+          </div>
+	  <div>
+	  </div>
+	 </section>
+
+    </div>
+  </div>
+
+    <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+    <script src="assets/js/jquery.js"></script>
+    <script src="assets/js/google-code-prettify/prettify.js"></script>
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+    <script src="assets/js/bootstrap-affix.js"></script>
+    <!--<script src="assets/js/application.js"></script>-->
+		<script src="app.js"></script>
+
+</body>
+</html>
