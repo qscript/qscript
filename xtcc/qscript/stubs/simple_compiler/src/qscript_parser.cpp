@@ -1829,6 +1829,12 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\tstring xtcc_ax_file_name(string(\"setup-\")+jno+string(\"/\") + jno + string(\".xtcc2\"));\n"
 		<< "\t\tfstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);\n"
 		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n" 
+
+		<< "\t\tstring base_xin_file_name(string(\"setup-\")+jno+string(\"/\") + string(\"base.xin\"));\n"
+		<< "\t\tstd::ofstream base_xin_file(base_xin_file_name.c_str());\n"
+		<< "\t\tbase_xin_file << \"tot; \\\"$btxt;\\\";\" << endl;\n" 
+		<< "\t\tbase_xin_file.close();\n" 
+
 		<< "\t\txtcc_ax_file << \"ed_start\\n\";\n"
 		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data();\\n\";\n"
 		<< "\t\t xtcc_ax_file << \"\tint32_t all;\\n\";\n"
