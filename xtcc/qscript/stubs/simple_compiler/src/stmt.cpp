@@ -1800,6 +1800,9 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< "\t\t}\n"
 				<< "\t}\n"
 				<< "}\n";
+			if (type_ == STUB_MANIP_DEL) {
+				code.program_code << namedStub_ << ".all_active = false;\n";
+			}
 			code.program_code << "}\n";
 
 			// ==================
@@ -1899,9 +1902,17 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< ".stubs["
 				<< qscript_parser::temp_name_generator.GetCurrentName()
 				<< "].mask = true; " << endl
-				<<  namedStub_ << ".all_active = true;" << endl;
+				;
 		}
 		code.program_code << "}" << endl;
+
+		if (type_ == STUB_MANIP_UNSET_ALL) {
+			code.program_code 
+				<<  namedStub_ << ".all_active = false;" << endl;
+		} else if (type_ == STUB_MANIP_SET_ALL) {
+			code.program_code 
+				<< namedStub_ << ".all_active = true;" << endl;
+		}
 	} else {
 		stringstream err_text;
 		err_text << "AbstractQuestion: " << questionName_

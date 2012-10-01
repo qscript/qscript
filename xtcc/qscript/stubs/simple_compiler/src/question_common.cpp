@@ -561,21 +561,24 @@ void NamedStubQuestion::generateRandomAnswers()
 			}
 			memoized_all_stubs_valid_answers_map[questionName_] = all_active_valid_answers;
 			input_data = pick_random_values_from_these_answers (ref_to_all_active_valid_answers, no_mpn, questionName_, mutexCodeList_);
+			cout << "all_active == true : cacheing first time" << endl;
 		} else {
 			vector<int> & ref_to_all_active_valid_answers  = * memoized_all_stubs_valid_answers_map[questionName_]; 
 			input_data = pick_random_values_from_these_answers (ref_to_all_active_valid_answers, no_mpn, questionName_, mutexCodeList_);
-			//cout << "all_active == true : picking from cache" << endl;
+			cout << "all_active == true : picking from cache" << endl;
 		}
 	} else {
 
-		//cout << "all_active != true : computing active stubs " << endl;
+		cout << "all_active != true : computing active stubs " << endl;
+		cout << "valid answers for questionName_: " << questionName_;
 		vector<int> valid_answers;
 		for (uint32_t j = 0; j < vec.size(); ++j) {
 			if (vec[j].mask) {
+				cout << vec[j].code << " ";
 				valid_answers.push_back (vec[j].code);
 			}
 		}
-
+		cout << endl;
 		input_data = pick_random_values_from_these_answers (valid_answers, no_mpn, questionName_, mutexCodeList_);
 	}
 

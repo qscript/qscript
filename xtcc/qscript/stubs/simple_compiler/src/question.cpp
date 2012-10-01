@@ -1426,8 +1426,8 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		quest_decl << "}\n";
 	} else {
 		//quest_decl << "print_question_messages(" << questionName_ << ");\n";
-		//string mutex_range_set_name(questionName_ + "->mutexCodeList_");
-		//quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
+		string mutex_range_set_name(questionName_ + "->mutexCodeList_");
+		quest_decl << mutexCodeList_.print_replicate_code(mutex_range_set_name);
 		quest_decl << "}\n";
 	}
 
