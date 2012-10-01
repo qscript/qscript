@@ -1698,11 +1698,13 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				<< ".stubs["
 				<< qscript_parser::temp_name_generator.GetCurrentName()
 				<< "].code == *set_iter) {" << endl;
-			if (type_ == STUB_MANIP_DEL){
+			if (type_ == STUB_MANIP_DEL) {
 				code.program_code << "\t\t\t"
 					<< namedStub_ << ".stubs["
 					<< qscript_parser::temp_name_generator.GetCurrentName()
-					<< "].mask = false; " << endl;
+					<< "].mask = false; \n" 
+					<< namedStub_ << ".all_active = false;\n"
+					<< endl;
 			} else if (type_ == STUB_MANIP_ADD) {
 				code.program_code << "\t\t\t"
 					<< namedStub_ << ".stubs["
@@ -1889,12 +1891,15 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << namedStub_
 				<< ".stubs["
 				<< qscript_parser::temp_name_generator.GetCurrentName()
-				<< "].mask = false; " << endl;
+				<< "].mask = false; " 
+				<<  namedStub_ << ".all_active = false;" << endl
+				<< endl;
 		} else if (type_ == STUB_MANIP_SET_ALL) {
 			code.program_code << namedStub_
 				<< ".stubs["
 				<< qscript_parser::temp_name_generator.GetCurrentName()
-				<< "].mask = true; " << endl;
+				<< "].mask = true; " << endl
+				<<  namedStub_ << ".all_active = true;" << endl;
 		}
 		code.program_code << "}" << endl;
 	} else {

@@ -1006,10 +1006,10 @@ get_data_again:
 }
 #endif /* 0 */
 
-void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
 { }
 
-void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
 { }
 
 #if 0
@@ -1662,7 +1662,7 @@ void AbstractQuestion::print_data_type(string &s)
 	}
 }
 
-void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
 { }
 #if 0
 void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
@@ -1872,7 +1872,7 @@ RangeQuestion::~RangeQuestion()
 // DummyArrayQuestion
 
 
-void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
 { }
 
 #if 0

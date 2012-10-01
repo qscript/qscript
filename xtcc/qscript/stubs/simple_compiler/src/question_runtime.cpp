@@ -1038,7 +1038,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 { }
 
-void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
 {
 
 
@@ -1065,61 +1065,63 @@ void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, s
 	//LOG_MAINTAINER_MESSAGE(mesg.str());
 	//input_data.clear();
 	// clean file
-	stringstream fname_clean_str;
-	fname_clean_str << jno << "_clean_" << ser_no << "_" << time_stamp << ".dat";
-	std::ofstream clean_data_file;
-	clean_data_file.exceptions(std::ios::failbit | std::ios::badbit);
-	clean_data_file.open(fname_clean_str.str().c_str(), ios_base::out| ios_base::app);
-	//if (loop_index_values.size() > 0) {
-	//	clean_data_file << questionName_;
-	//	for(int32_t i = 0; i< loop_index_values.size(); ++i){
-	//		clean_data_file << "$" << loop_index_values[i];
-	//	}
-	//} else {
-	//	clean_data_file << questionName_;
-	//}
-	clean_data_file << GetDataFileQuestionName();
-	clean_data_file << ":";
-	if (isAnswered_) {
+	if (!p_rdg_mode) {
+		stringstream fname_clean_str;
+		fname_clean_str << jno << "_clean_" << ser_no << "_" << time_stamp << ".dat";
+		std::ofstream clean_data_file;
+		clean_data_file.exceptions(std::ios::failbit | std::ios::badbit);
+		clean_data_file.open(fname_clean_str.str().c_str(), ios_base::out| ios_base::app);
+		//if (loop_index_values.size() > 0) {
+		//	clean_data_file << questionName_;
+		//	for(int32_t i = 0; i< loop_index_values.size(); ++i){
+		//		clean_data_file << "$" << loop_index_values[i];
+		//	}
+		//} else {
+		//	clean_data_file << questionName_;
+		//}
+		clean_data_file << GetDataFileQuestionName();
+		clean_data_file << ":";
+		if (isAnswered_) {
+			//for (set<int32_t>::iterator iter = input_data.begin();
+			//		iter != input_data.end(); ++iter) {
+			//	clean_data_file << *iter << " ";
+			//}
+			clean_data_file << GetResponseForDataFile();
+		}
+		clean_data_file << endl;
+
+		//
+		//
+		//
+		// dirty file
+		//
+		stringstream fname_dirty_str;
+		fname_dirty_str << jno << "_dirty_" << ser_no << "_" << time_stamp << ".dat";
+		std::ofstream dirty_data_file;
+		dirty_data_file.exceptions(std::ios::failbit | std::ios::badbit);
+		dirty_data_file.open(fname_dirty_str.str().c_str(), ios_base::out| ios_base::app);
+		//if (loop_index_values.size() > 0) {
+		//	dirty_data_file << questionName_;
+		//	for(int32_t i = 0; i< loop_index_values.size(); ++i){
+		//		dirty_data_file << "$" << loop_index_values[i];
+		//	}
+		//} else {
+		//	dirty_data_file << questionName_;
+		//}
+		dirty_data_file << GetDataFileQuestionName();
+		dirty_data_file << ":";
 		//for (set<int32_t>::iterator iter = input_data.begin();
 		//		iter != input_data.end(); ++iter) {
-		//	clean_data_file << *iter << " ";
+		//	dirty_data_file << *iter << " ";
 		//}
-		clean_data_file << GetResponseForDataFile();
+		dirty_data_file << GetResponseForDataFile();
+		dirty_data_file << endl;
 	}
-	clean_data_file << endl;
-
-	//
-	//
-	//
-	// dirty file
-	//
-	stringstream fname_dirty_str;
-	fname_dirty_str << jno << "_dirty_" << ser_no << "_" << time_stamp << ".dat";
-	std::ofstream dirty_data_file;
-	dirty_data_file.exceptions(std::ios::failbit | std::ios::badbit);
-	dirty_data_file.open(fname_dirty_str.str().c_str(), ios_base::out| ios_base::app);
-	//if (loop_index_values.size() > 0) {
-	//	dirty_data_file << questionName_;
-	//	for(int32_t i = 0; i< loop_index_values.size(); ++i){
-	//		dirty_data_file << "$" << loop_index_values[i];
-	//	}
-	//} else {
-	//	dirty_data_file << questionName_;
-	//}
-	dirty_data_file << GetDataFileQuestionName();
-	dirty_data_file << ":";
-	//for (set<int32_t>::iterator iter = input_data.begin();
-	//		iter != input_data.end(); ++iter) {
-	//	dirty_data_file << *iter << " ";
-	//}
-	dirty_data_file << GetResponseForDataFile();
-	dirty_data_file << endl;
 }
 
-void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
 {
-	AbstractQuestion::WriteDataToDisk(data_file, time_stamp, jno, ser_no);
+	AbstractQuestion::WriteDataToDisk(data_file, time_stamp, jno, ser_no, p_rdg_mode);
 #if 0
 	if (loop_index_values.size() > 0) {
 		data_file << questionName_;
@@ -1191,7 +1193,7 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, 
 #endif /*  0 */
 }
 
-void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
 {
 	data_file << questionName_ << " BOUNDS";
 	for(int32_t i = 0; i < array_bounds.size(); ++i){
@@ -1199,32 +1201,35 @@ void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp,
 	}
 	data_file << endl;
 
-	stringstream fname_clean_str;
-	fname_clean_str << jno << "_clean_" << ser_no << "_" << time_stamp << ".dat";
-	std::ofstream clean_data_file;
-	clean_data_file.exceptions(std::ios::failbit | std::ios::badbit);
-	clean_data_file.open(fname_clean_str.str().c_str(), ios_base::out| ios_base::app);
-	clean_data_file << questionName_ << " BOUNDS";
-	for(int32_t i = 0; i < array_bounds.size(); ++i){
-		clean_data_file << " "<< array_bounds[i];
-	}
-	clean_data_file << endl;
+	if (!p_rdg_mode) {
 
-	stringstream fname_dirty_str;
-	fname_dirty_str << jno << "_dirty_" << ser_no << "_" << time_stamp << ".dat";
-	std::ofstream dirty_data_file;
-	dirty_data_file.exceptions(std::ios::failbit | std::ios::badbit);
-	dirty_data_file.open(fname_dirty_str.str().c_str(), ios_base::out| ios_base::app);
-	dirty_data_file << questionName_ << " BOUNDS";
-	for(int32_t i = 0; i < array_bounds.size(); ++i){
-		dirty_data_file << " "<< array_bounds[i];
+		stringstream fname_clean_str;
+		fname_clean_str << jno << "_clean_" << ser_no << "_" << time_stamp << ".dat";
+		std::ofstream clean_data_file;
+		clean_data_file.exceptions(std::ios::failbit | std::ios::badbit);
+		clean_data_file.open(fname_clean_str.str().c_str(), ios_base::out| ios_base::app);
+		clean_data_file << questionName_ << " BOUNDS";
+		for(int32_t i = 0; i < array_bounds.size(); ++i){
+			clean_data_file << " "<< array_bounds[i];
+		}
+		clean_data_file << endl;
+
+		stringstream fname_dirty_str;
+		fname_dirty_str << jno << "_dirty_" << ser_no << "_" << time_stamp << ".dat";
+		std::ofstream dirty_data_file;
+		dirty_data_file.exceptions(std::ios::failbit | std::ios::badbit);
+		dirty_data_file.open(fname_dirty_str.str().c_str(), ios_base::out| ios_base::app);
+		dirty_data_file << questionName_ << " BOUNDS";
+		for(int32_t i = 0; i < array_bounds.size(); ++i){
+			dirty_data_file << " "<< array_bounds[i];
+		}
+		dirty_data_file << endl;
 	}
-	dirty_data_file << endl;
 }
 
-void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no)
+void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
 {
-	AbstractQuestion::WriteDataToDisk(data_file, time_stamp, jno, ser_no);
+	AbstractQuestion::WriteDataToDisk(data_file, time_stamp, jno, ser_no, p_rdg_mode);
 #if 0
 	if(loop_index_values.size()>0){
 		data_file << questionName_;

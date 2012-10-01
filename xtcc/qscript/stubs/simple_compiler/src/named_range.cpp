@@ -41,7 +41,10 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 	//	<< ");" << endl;
 	code.quest_defns_init_code << name << ".set_range_data(\""
 		<< name << "\", " << qscript_parser::temp_name_generator.GetCurrentName()
-		<< ");" << endl;
+		<< ");" << endl
+		<< name << ".all_active = true;" 
+		<< endl;
+
 	stringstream mesg;
 	mesg << "Review source of this file: check we are not allowing duplicate codes in the stubs ";
 	LOG_MAINTAINER_MESSAGE(mesg.str());

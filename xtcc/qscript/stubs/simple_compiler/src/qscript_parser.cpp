@@ -718,6 +718,8 @@ const char * file_exists_check_code()
 	const char * file_check_code =
 	"\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n"
 	"\t	ser_no = read_a_serial_no();\n"
+	"\tcurrent_serials_read << ser_no << endl;\n"
+
 	"\t	if (ser_no == 0) {\n"
 	"\t		break;\n"
 	"\t	} \n"
@@ -990,7 +992,7 @@ const char * write_data_to_disk_code()
 
 	"\t\n"
 	"\t	for(int32_t i = 0; i < question_list.size(); ++i){\n"
-	"\t		question_list[i]->WriteDataToDisk(data_file, string(outstr), jno, ser_no);\n"
+	"\t		question_list[i]->WriteDataToDisk(data_file, string(outstr), jno, ser_no, rdg_mode_flag);\n"
 	"\t		/*\n"
 	"\t		fprintf(fptr, \"%s: \", question_list[i]->name.c_str());\n"
 	"\t		for( set<int32_t>::iterator iter = question_list[i]->input_data.begin();\n"
@@ -1153,7 +1155,7 @@ test_script.o: test_script.C
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include-rdg";
 	string cpp_compile_command ;
 	if (program_options_ns::ncurses_flag) {
-		cpp_compile_command = string("g++ -g -o ")
+		cpp_compile_command = string("g++ -pg -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
@@ -2650,12 +2652,15 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "void eval()\n{\n");
 	// fprintf(script, "\tint ser_no = 0;\n");
 	if(ncurses_flag) {
+		fprintf (script, "\t\t\t static set<int> rnd_serno_set;\n");
 		fprintf (script, "\tif (!(write_data_file_flag|| write_qtm_data_file_flag||write_xtcc_data_file_flag)) {\n");
 		fprintf (script, "\t\tif (rdg_mode_flag==false) {\n");
 		fprintf (script, "\t\t\tint n_printed = mvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \");\n");
 		fprintf (script, "\t\t\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
 		fprintf (script, "\t\t} else {\n");
-		fprintf (script, "\t\t\t ser_no = rand(); ser_no = ser_no %% 1000000;\n");
+		fprintf (script, "\t\t\t lab_generate_another_serial:;\n");
+		fprintf (script, "\t\t\t ser_no = rand();\n");
+		fprintf (script, "\t\t\t if (rnd_serno_set.find(ser_no)==rnd_serno_set.end()) { rnd_serno_set.insert(ser_no); } else { goto lab_generate_another_serial; };\n");
 		fprintf (script, "\t\t}");
 		fprintf (script, "\t}\n");
 	} else	{
@@ -2666,6 +2671,8 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	}
 
 	fprintf(script, "int rdg_counter = 0;\n");
+	fprintf(script, "fstream current_serials_read(\"current_serials_read.txt\", ios_base::out | ios_base::ate);\n");
+
 	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)){\n");
 	// code-frag/open-eval-while-loop-code-frag.cpp 
 
@@ -2688,7 +2695,9 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t\t write_xtcc_data_to_disk();\n");
 	fprintf(script, "\t} else if (rdg_mode_flag ) {\n");
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
-	fprintf(script, "\t ser_no = rand(); ser_no = ser_no %% 1000000;\n");
+	fprintf(script, "\t ser_no = rand();\n");
+	fprintf (script, "\t\t\t lab_generate_another_serial1:;\n");
+	fprintf (script, "\t\t\t if (rnd_serno_set.find(ser_no)==rnd_serno_set.end()) { rnd_serno_set.insert(ser_no); } else { goto lab_generate_another_serial1; };\n");
 	fprintf(script, "\tif (++rdg_counter > n_rdg_iters) break;\n");
 	fprintf(script, "\t} else {\n");
 	fprintf(script, "\tchar end_of_question_navigation;\n");

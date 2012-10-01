@@ -347,13 +347,16 @@ string AbstractQuestion::PrepareQuestionTitle()
 
 #include <cstdlib>
 
-set<int> pick_random_values_from_these_answers (vector<int> valid_answers, int no_mpn, string qno, XtccSet& mutex_code_list)
+set<int> pick_random_values_from_these_answers (vector<int> & valid_answers, int no_mpn, string qno, XtccSet& mutex_code_list)
 {
 	cout << __PRETTY_FUNCTION__  << "qno: " << qno 
 		<< "valid_answers.size(): " << valid_answers.size() 
 		<< endl;
 	set<int> input_data;
 	int n_mutex_codes = mutex_code_list.count();
+	cout << "n_mutex_codes: " << n_mutex_codes << " : "
+		<< mutex_code_list.print_replicate_code("dummy")
+		<< endl;
 
 	if (valid_answers.size() == 1) {
 		input_data.insert (valid_answers[0]);
@@ -364,7 +367,20 @@ set<int> pick_random_values_from_these_answers (vector<int> valid_answers, int n
 	} else {
 		int n_random_answers = 1;
 		if (no_mpn > 1) {
-			n_random_answers = rand() % no_mpn;
+			int n_valid_answers = valid_answers.size();
+			if (no_mpn > n_valid_answers) {
+				if (n_valid_answers > 6) {
+					n_random_answers = rand() % (n_valid_answers/2);
+				} else {
+					n_random_answers = rand() % n_valid_answers;
+				}
+			} else {
+				if (no_mpn > 6) {
+					n_random_answers = rand() % (no_mpn/2);
+				} else {
+					n_random_answers = rand() % no_mpn;
+				}
+			}
 			// yup - a bias introduced here, sue me
 			if (n_random_answers == 0) {
 				n_random_answers = 1; 
@@ -392,15 +408,37 @@ set<int> pick_random_values_from_these_answers (vector<int> valid_answers, int n
 			// see comment above
 			int rvi = static_cast<int>  ( rand() % valid_answers.size());
 			input_data.insert (valid_answers[rvi]);
+			/*
 		} else if (n_random_answers == no_mpn && no_mpn > 1) {
 			for (int i = 0; i < valid_answers.size(); ++i) {
 				input_data.insert ( valid_answers[i]);
 			}
+		  */
 		} else {
 			set<int> already_inserted;
 			bool is_first_answer = true;
+			int n_times = 0;
 			for (int i = 0; i < n_random_answers; ++i) {
 get_another_random_value:
+				++n_times;
+				if (n_times > n_random_answers * 7) {
+					cout << "n_times: " << n_times
+						<< ", n_random_answers: " << n_random_answers
+						<< endl;
+					cout << "exiting rdg as we are most probably in an infinite loop: "
+						<< endl;
+					cout << __PRETTY_FUNCTION__ << ", " << __LINE__
+						<< __FILE__ << endl;
+					cout << "params are: qno: " << qno
+						<< ", no_mpn: " << no_mpn;
+					cout << "valid answers: " ;
+					for (int i1 = 0; i1 < valid_answers.size(); ++i1) {
+						cout << valid_answers[i1] << " ";
+					}
+					cout << endl;
+
+					exit(1);
+				}
 				int rvi = static_cast<int>  ( rand() % valid_answers.size());
 				if        (is_first_answer == true  && mutex_code_list.exists (valid_answers[rvi])) {
 					input_data.insert (valid_answers[rvi]);
@@ -409,47 +447,57 @@ get_another_random_value:
 					cout << "preventing mutex value to be allowed with normal answers as it was not selected as the 1st answer"
 						<< endl;
 					// we have taken care of inifinite loop prevention
-					// by adjusting n_random_answers = valid_answers - n_mutex_codes
-					goto get_another_random_value;
-				} else {
-					// is_first_answer == true  and not a mutex code
-					// is_first_answer == false and not a mutex code
-					if (already_inserted.find (rvi) == already_inserted.end()) {
-						input_data.insert (valid_answers[rvi]);
-						already_inserted.insert (rvi);
-					} else {
+						// by adjusting n_random_answers = valid_answers - n_mutex_codes
 						goto get_another_random_value;
+					} else {
+						// is_first_answer == true  and not a mutex code
+						// is_first_answer == false and not a mutex code
+						if (already_inserted.find (rvi) == already_inserted.end()) {
+							input_data.insert (valid_answers[rvi]);
+							already_inserted.insert (rvi);
+						} else {
+							goto get_another_random_value;
+						}
+						input_data.insert (valid_answers[rvi]);
+						is_first_answer = false;
 					}
-					input_data.insert (valid_answers[rvi]);
-					is_first_answer = false;
 				}
 			}
 		}
+		return input_data;
 	}
-	return input_data;
-}
 
-void RangeQuestion::generateRandomAnswers()
-{
-	vector<int> valid_answers;
-	cout << questionName_ << ": putting into valid_answers : ";
-	for (int i = 0; i < r_data->range.size(); ++i) {
-		for (int lb = r_data->range[i].first;
-				lb <= r_data->range[i].second; ++lb) {
-			cout << " " << lb;
-			valid_answers.push_back (lb);
+	void RangeQuestion::generateRandomAnswers()
+	{
+		static map <string, vector<int> * > memoized_all_stubs_valid_answers_map;
+		if (memoized_all_stubs_valid_answers_map.find (questionName_) == 
+				memoized_all_stubs_valid_answers_map.end()) {
+			vector<int> * all_active_valid_answers = new vector<int>();
+			vector<int> & ref_to_all_active_valid_answers  = * all_active_valid_answers; 
+
+			//vector<int> valid_answers;
+			cout << questionName_ << ": putting into valid_answers : ";
+		for (int i = 0; i < r_data->range.size(); ++i) {
+			for (int lb = r_data->range[i].first;
+					lb <= r_data->range[i].second; ++lb) {
+				cout << " " << lb;
+				ref_to_all_active_valid_answers .push_back (lb);
+			}
 		}
+		cout << " | ";
+		for (set<int>::iterator it = r_data->indiv.begin();
+				it != r_data->indiv.end(); ++it) {
+			//cout << " " << *it;
+			ref_to_all_active_valid_answers.push_back (*it);
+		}
+		memoized_all_stubs_valid_answers_map[questionName_] = all_active_valid_answers;
+		input_data = pick_random_values_from_these_answers (ref_to_all_active_valid_answers, no_mpn, questionName_, mutexCodeList_);
+	} else {
+		vector<int> & ref_to_all_active_valid_answers  = * memoized_all_stubs_valid_answers_map[questionName_]; 
+		input_data = pick_random_values_from_these_answers (ref_to_all_active_valid_answers, no_mpn, questionName_, mutexCodeList_);
 	}
-	
 
-	cout << " | ";
-	for (set<int>::iterator it = r_data->indiv.begin();
-			it != r_data->indiv.end(); ++it) {
-		cout << " " << *it;
-		valid_answers.push_back (*it);
-	}
-
-	cout << endl;
+	//cout << endl;
 
 #if 0
 	if (valid_answers.size() == 1) {
@@ -492,19 +540,45 @@ get_another_random_value:
 			n_random_answers = 1; 
 		}
 #endif /*  0 */
-	input_data = pick_random_values_from_these_answers (valid_answers, no_mpn, questionName_, mutexCodeList_);
 
 }
 
+// partly memoize
 void NamedStubQuestion::generateRandomAnswers()
 {
-	vector<int> valid_answers;
+	static map <string, vector<int> * > memoized_all_stubs_valid_answers_map;
 	vector<stub_pair> & vec = (nr_ptr->stubs);
-	for (uint32_t j = 0; j < vec.size(); ++j) {
-		if (vec[j].mask) {
-			valid_answers.push_back (vec[j].code);
+
+	if (nr_ptr->all_active == true) {
+		if (memoized_all_stubs_valid_answers_map.find (questionName_) == memoized_all_stubs_valid_answers_map.end()) {
+			vector<int> * all_active_valid_answers = new vector<int>();
+			vector<int> & ref_to_all_active_valid_answers  = * all_active_valid_answers; 
+			for (uint32_t j = 0; j < vec.size(); ++j) {
+				// actually this is not reqd - no need to play it safe
+				if (vec[j].mask) {
+					ref_to_all_active_valid_answers.push_back (vec[j].code);
+				}
+			}
+			memoized_all_stubs_valid_answers_map[questionName_] = all_active_valid_answers;
+			input_data = pick_random_values_from_these_answers (ref_to_all_active_valid_answers, no_mpn, questionName_, mutexCodeList_);
+		} else {
+			vector<int> & ref_to_all_active_valid_answers  = * memoized_all_stubs_valid_answers_map[questionName_]; 
+			input_data = pick_random_values_from_these_answers (ref_to_all_active_valid_answers, no_mpn, questionName_, mutexCodeList_);
+			//cout << "all_active == true : picking from cache" << endl;
 		}
+	} else {
+
+		//cout << "all_active != true : computing active stubs " << endl;
+		vector<int> valid_answers;
+		for (uint32_t j = 0; j < vec.size(); ++j) {
+			if (vec[j].mask) {
+				valid_answers.push_back (vec[j].code);
+			}
+		}
+
+		input_data = pick_random_values_from_these_answers (valid_answers, no_mpn, questionName_, mutexCodeList_);
 	}
+
 #if 0
 	if (valid_answers.size() == 1) {
 		input_data.insert (valid_answers[0]);
@@ -521,7 +595,6 @@ void NamedStubQuestion::generateRandomAnswers()
 
 	}
 #endif
-	input_data = pick_random_values_from_these_answers (valid_answers, no_mpn, questionName_, mutexCodeList_);
 }
 
 void DummyArrayQuestion::generateRandomAnswers()
