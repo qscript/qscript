@@ -349,21 +349,21 @@ string AbstractQuestion::PrepareQuestionTitle()
 
 set<int> pick_random_values_from_these_answers (vector<int> & valid_answers, int no_mpn, string qno, XtccSet& mutex_code_list)
 {
-	cout << __PRETTY_FUNCTION__  << "qno: " << qno 
-		<< "valid_answers.size(): " << valid_answers.size() 
-		<< endl;
+	//cout << __PRETTY_FUNCTION__  << "qno: " << qno 
+	//	<< "valid_answers.size(): " << valid_answers.size() 
+	//	<< endl;
 	set<int> input_data;
 	int n_mutex_codes = mutex_code_list.count();
-	cout << "n_mutex_codes: " << n_mutex_codes << " : "
-		<< mutex_code_list.print_replicate_code("dummy")
-		<< endl;
+	//cout << "n_mutex_codes: " << n_mutex_codes << " : "
+	//	<< mutex_code_list.print_replicate_code("dummy")
+	//	<< endl;
 
 	if (valid_answers.size() == 1) {
 		input_data.insert (valid_answers[0]);
-		cout << "setting "  
-			<< qno
-			<< " input_data with only answer available"
-			<< valid_answers[0] << endl;
+		//cout << "setting "  
+		//	<< qno
+		//	<< " input_data with only answer available"
+		//	<< valid_answers[0] << endl;
 	} else {
 		int n_random_answers = 1;
 		if (no_mpn > 1) {
@@ -388,10 +388,10 @@ set<int> pick_random_values_from_these_answers (vector<int> & valid_answers, int
 			// if we dont do this we could have an infinite loop
 			if (n_random_answers > valid_answers.size() - n_mutex_codes) {
 				n_random_answers = valid_answers.size() - n_mutex_codes;
-				cout << "setting n_random_answers to valid_answers.size() : "
-					<< valid_answers.size() << " -  n_mutex_codes: "
-					<< n_mutex_codes
-					<< endl;
+				//cout << "setting n_random_answers to valid_answers.size() : "
+				//	<< valid_answers.size() << " -  n_mutex_codes: "
+				//	<< n_mutex_codes
+				//	<< endl;
 			}
 			// after this adjustment n_random_answers can still be 1
 			// consider this case
@@ -476,15 +476,15 @@ get_another_random_value:
 			vector<int> & ref_to_all_active_valid_answers  = * all_active_valid_answers; 
 
 			//vector<int> valid_answers;
-			cout << questionName_ << ": putting into valid_answers : ";
+			//cout << questionName_ << ": putting into valid_answers : ";
 		for (int i = 0; i < r_data->range.size(); ++i) {
 			for (int lb = r_data->range[i].first;
 					lb <= r_data->range[i].second; ++lb) {
-				cout << " " << lb;
+				//cout << " " << lb;
 				ref_to_all_active_valid_answers .push_back (lb);
 			}
 		}
-		cout << " | ";
+		//cout << " | ";
 		for (set<int>::iterator it = r_data->indiv.begin();
 				it != r_data->indiv.end(); ++it) {
 			//cout << " " << *it;
@@ -561,24 +561,24 @@ void NamedStubQuestion::generateRandomAnswers()
 			}
 			memoized_all_stubs_valid_answers_map[questionName_] = all_active_valid_answers;
 			input_data = pick_random_values_from_these_answers (ref_to_all_active_valid_answers, no_mpn, questionName_, mutexCodeList_);
-			cout << "all_active == true : cacheing first time" << endl;
+			//cout << "all_active == true : cacheing first time" << endl;
 		} else {
 			vector<int> & ref_to_all_active_valid_answers  = * memoized_all_stubs_valid_answers_map[questionName_]; 
 			input_data = pick_random_values_from_these_answers (ref_to_all_active_valid_answers, no_mpn, questionName_, mutexCodeList_);
-			cout << "all_active == true : picking from cache" << endl;
+			//cout << "all_active == true : picking from cache" << endl;
 		}
 	} else {
 
-		cout << "all_active != true : computing active stubs " << endl;
-		cout << "valid answers for questionName_: " << questionName_;
+		//cout << "all_active != true : computing active stubs " << endl;
+		//cout << "valid answers for questionName_: " << questionName_;
 		vector<int> valid_answers;
 		for (uint32_t j = 0; j < vec.size(); ++j) {
 			if (vec[j].mask) {
-				cout << vec[j].code << " ";
+				//cout << vec[j].code << " ";
 				valid_answers.push_back (vec[j].code);
 			}
 		}
-		cout << endl;
+		//cout << endl;
 		input_data = pick_random_values_from_these_answers (valid_answers, no_mpn, questionName_, mutexCodeList_);
 	}
 
