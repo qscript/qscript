@@ -213,6 +213,9 @@ release: clean
 
 .PHONY: clean tags
 
+lib_clean:
+	-rm -f lib/libqscript_runtime_rdg.* lib/libqscript_compiletime_rdg.*
+
 clean:
 	-rm -f $(BUILD_DIR)/*.o $(BUILD_DIR)/runtime_lib/*.o \
 		lib/libqscript_runtime_rdg.so.* lib/libqscript_runtime_rdg.so  \
@@ -223,7 +226,7 @@ clean:
 		$(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.* \
 		inputs/*.exe inputs/*.C src/*.output
 
-local_install: $(BUILD_DIR)/qscript-rdg runtime_lib compiletime_lib
+local_install: lib_clean $(BUILD_DIR)/qscript-rdg runtime_lib compiletime_lib
 	cp $(BUILD_DIR)/qscript-rdg bin
 	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_rdg.so.1.0.1 lib
 	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_rdg.so.1.0.1 lib/libqscript_runtime_rdg.so.1
