@@ -469,7 +469,7 @@ void QScriptConsole::launchXtcc()
 
 	cmd << "cd setup-" << sys_filename << "; "
 		<< "xtcc_wt  --http-address=" << http_address
-		<< "--http-port=0 --docroot=. " 
+		<< " --http-port=0 --docroot=. " 
 		<< sys_filename << ".xtcc_pp ../" << sys_filename << ".xdat &"
 		<< endl;
 	std::cerr << "running command : " << cmd.str() << endl;
