@@ -194,6 +194,12 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 	fprintf (tab_drv_func, "#include \"my_axes.h\"\n");
 	fprintf (tab_drv_func, "#include \"%s_my_table.C\"\n", session_id.c_str());
 	fprintf (tab_drv_func, "void tab_compute(){\n");
+	// specifying no of threads - end result was much slower
+	// seemed optimum at 4 - which is how many cores I have = 4
+	// at 8 - the number of context switches went up exponentially
+	//fprintf (tab_drv_func, "#pragma omp parallel sections num_threads(8)\n");
+	fprintf (tab_drv_func, "#pragma omp parallel sections\n");
+	fprintf (tab_drv_func, "{\n");
 	set <string> ax_defns;
 	for (unsigned int i=0; i<table_list.size(); i++) {
 		CMAPITER map_iter_s= ax_map.find(table_list[i]->side);
@@ -730,35 +736,48 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 				
 				ostringstream code_bef_expr2, code_expr2;
 				map_iter_b->second->filter->PrintExpressionCode (code_bef_expr2, code_expr2);
-				fprintf (tab_drv_func, "if ( %s && %s ) { \n", code_expr1.str().c_str(), code_expr2.str().c_str());
-				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+				fprintf (tab_drv_func, "#pragma omp section\n");
+				fprintf (tab_drv_func, "{\n");
+				fprintf (tab_drv_func, "\tif ( %s && %s ) { \n", code_expr1.str().c_str(), code_expr2.str().c_str());
+				fprintf (tab_drv_func, "\t\ttab_%s_%s.compute();\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
+				fprintf (tab_drv_func, "\t}\n");
 				fprintf (tab_drv_func, "}\n");
 			} else if (map_iter_s->second->filter) {
 				ostringstream code_bef_expr1, code_expr1;
 				map_iter_s->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
-				fprintf (tab_drv_func, "if ( %s ) { \n", code_expr1.str().c_str());
-				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
+				fprintf (tab_drv_func, "#pragma omp section\n");
+				fprintf (tab_drv_func, "{\n");
+				fprintf (tab_drv_func, "\tif ( %s ) { \n", code_expr1.str().c_str());
+				fprintf (tab_drv_func, "\t\ttab_%s_%s.compute();\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
+				fprintf (tab_drv_func, "\t}\n");
 				fprintf (tab_drv_func, "}\n");
 			} else if (map_iter_b->second->filter) {
 				ostringstream code_bef_expr1, code_expr1;
 				map_iter_b->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
-				fprintf (tab_drv_func, "if ( %s ) { \n", code_expr1.str().c_str());
+				fprintf (tab_drv_func, "#pragma omp section\n");
+				fprintf (tab_drv_func, "{\n");
+				fprintf (tab_drv_func, "\tif ( %s ) { \n", code_expr1.str().c_str());
+				fprintf (tab_drv_func, "\t\ttab_%s_%s.compute();\n",
+					map_iter_s->first.c_str(), map_iter_b->first.c_str()
+					);
+				fprintf (tab_drv_func, "\t}\n");
+				fprintf (tab_drv_func, "}\n");
+			} else {
+				fprintf (tab_drv_func, "#pragma omp section\n");
+				fprintf (tab_drv_func, "{\n");
 				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
 				fprintf (tab_drv_func, "}\n");
-			} else {
-				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
-					map_iter_s->first.c_str(), map_iter_b->first.c_str()
-					);
 			}
 		}
 	}
 
+	fprintf (tab_drv_func, "}// close the sections pragma curly brace\n");
 	fprintf(tab_drv_func, "}\n");
 	cout << "total_no_of_cells: " << total_no_of_cells << endl;
 
