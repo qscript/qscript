@@ -347,7 +347,7 @@ string AbstractQuestion::PrepareQuestionTitle()
 
 #include <cstdlib>
 
-set<int> pick_random_values_from_these_answers (vector<int> & valid_answers, int no_mpn, string qno, XtccSet& mutex_code_list)
+set<int> pick_random_values_from_these_answers (vector<int> & valid_answers, int no_mpn, string & qno, XtccSet& mutex_code_list)
 {
 	//cout << __PRETTY_FUNCTION__  << "qno: " << qno 
 	//	<< "valid_answers.size(): " << valid_answers.size() 

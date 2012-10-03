@@ -155,8 +155,10 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , WINDOW * error_msg_window)
 {
 	if (displayData_.begin() == displayData_.end()) {
-		for(	set<int32_t>::iterator it = r_data->indiv.begin();
-				it != r_data->indiv.end(); ++it){
+		for(	set<int32_t>::iterator it = r_data->indiv.begin(),
+			end = r_data->indiv.end()
+				;
+				it != end; ++it){
 			//displayData_.insert(*it);
 			displayData_.push_back(display_data::DisplayDataUnit(*it));
 		}
@@ -182,8 +184,10 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		cout << textExprVec_[0]->text_ << endl << endl;
 		//for(	set<int32_t>::iterator it = displayData_.begin();
 		//		it != displayData_.end(); ++it)
-		for(	vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin();
-				it != displayData_.end(); ++it)
+		for(	vector<display_data::DisplayDataUnit>::iterator it = displayData_.begin(),
+				end = displayData_.end()
+				;
+				it != end; ++it)
 		{
 			//cout << *it << endl;
 			if ( (*it).displayDataType_ == display_data::single_element) {
@@ -196,8 +200,10 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		if(input_data.begin() != input_data.end()){
 			cout << "Current data values: ";
 
-			for(set<int32_t>::iterator iter = input_data.begin();
-				iter != input_data.end(); ++iter){
+			for(set<int32_t>::iterator iter = input_data.begin(),
+				end = input_data.end()
+					;
+				iter != end; ++iter) {
 				cout << *iter << " ";
 			}
 			cout << endl;
@@ -1038,7 +1044,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 { }
 
-void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
+void AbstractQuestion::WriteDataToDisk(ofstream& data_file, const string & time_stamp, const string & jno, int ser_no, bool p_rdg_mode)
 {
 
 
@@ -1119,7 +1125,7 @@ void AbstractQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, s
 	}
 }
 
-void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
+void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, const string & time_stamp, const string & jno, int ser_no, bool p_rdg_mode)
 {
 	AbstractQuestion::WriteDataToDisk(data_file, time_stamp, jno, ser_no, p_rdg_mode);
 #if 0
@@ -1193,7 +1199,7 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, 
 #endif /*  0 */
 }
 
-void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
+void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, const string & time_stamp, const string & jno, int ser_no, bool p_rdg_mode)
 {
 	data_file << questionName_ << " BOUNDS";
 	for(int32_t i = 0; i < array_bounds.size(); ++i){
@@ -1227,7 +1233,7 @@ void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp,
 	}
 }
 
-void RangeQuestion::WriteDataToDisk(ofstream& data_file, string time_stamp, string jno, int ser_no, bool p_rdg_mode)
+void RangeQuestion::WriteDataToDisk(ofstream& data_file, const string & time_stamp, const string & jno, int ser_no, bool p_rdg_mode)
 {
 	AbstractQuestion::WriteDataToDisk(data_file, time_stamp, jno, ser_no, p_rdg_mode);
 #if 0
@@ -1297,8 +1303,10 @@ bool AbstractQuestion::VerifyQuestionIntegrity()
 {
 	bool has_integrity = true;
 
-	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
-			inp_data_iter != input_data.end(); ++inp_data_iter) {
+	for (set<int32_t>::iterator inp_data_iter = input_data.begin(),
+			end = input_data.end()
+			;
+			inp_data_iter != end; ++inp_data_iter) {
 		bool invalid_code = !IsValid(*inp_data_iter);
 		if (invalid_code) {
 			has_integrity = false;
@@ -1352,8 +1360,10 @@ string AbstractQuestion::GetDataFileQuestionName()
 string AbstractQuestion::GetResponseForDataFile()
 {
 	stringstream question_response;
-	for (set<int32_t>::iterator iter = input_data.begin();
-			iter != input_data.end(); ++iter) {
+	for (set<int32_t>::iterator iter = input_data.begin(),
+			end = input_data.end()
+			;
+			iter != end; ++iter) {
 		question_response << *iter << " ";
 	}
 	return question_response.str();
@@ -1366,8 +1376,10 @@ std::string NamedStubQuestion::PrintSelectedAnswers()
 	//stringstream select_answers_text;
 	std::string select_answers_text;
 	bool first_time = true;
-	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
-			inp_data_iter != input_data.end(); ++inp_data_iter) {
+	for (set<int32_t>::iterator inp_data_iter = input_data.begin(),
+			end = input_data.end()
+			;
+			inp_data_iter != end; ++inp_data_iter) {
 		stringstream mesg_key;
 		mesg_key << nr_ptr->name << "_" << *inp_data_iter - 1;
 		if (first_time) {

@@ -56,6 +56,7 @@ struct QuestionDiskDataMap
 		{}
 };
 
+#if 0
 class QuestionExists
 {
 	string qno;
@@ -71,5 +72,6 @@ class QuestionExists
 		}
 	}
 };
+#endif /* 0 */
 
 #endif /* question_disk_data_h */

@@ -990,11 +990,12 @@ const char * write_data_to_disk_code()
 	"\tfprintf(stderr, \"strftime returned 0\");\n"
 	"\texit(EXIT_FAILURE);\n"
 	"\t}\n"
+	"\tstring time_stamp(outstr);\n"
 
 
 	"\t\n"
 	"\t	for(int32_t i = 0; i < question_list.size(); ++i){\n"
-	"\t		question_list[i]->WriteDataToDisk(data_file, string(outstr), jno, ser_no, rdg_mode_flag);\n"
+	"\t		question_list[i]->WriteDataToDisk(data_file, time_stamp, jno, ser_no, rdg_mode_flag);\n"
 	"\t		/*\n"
 	"\t		fprintf(fptr, \"%s: \", question_list[i]->name.c_str());\n"
 	"\t		for( set<int32_t>::iterator iter = question_list[i]->input_data.begin();\n"
@@ -1157,7 +1158,7 @@ test_script.o: test_script.C
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include-rdg";
 	string cpp_compile_command ;
 	if (program_options_ns::ncurses_flag) {
-		cpp_compile_command = string("g++ -pg -g -o ")
+		cpp_compile_command = string("g++ -pg -O2 -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
@@ -2694,8 +2695,19 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t\t cout << \"write_qtm_data_file_flag is set\\n\";\n");
 	fprintf(script, "\t\twrite_qtm_data_to_disk();\n");
 	fprintf(script, "\t} else if (write_xtcc_data_file_flag) {\n");
-	fprintf(script, "\t\t cout << \"write_xtcc_data_file_flag is set\\n\";\n");
+	fprintf(script, "\t\t //cout << \"write_xtcc_data_file_flag is set\\n\";\n");
 	fprintf(script, "\t\t write_xtcc_data_to_disk();\n");
+	fprintf(script, "		static int n_recs_written = 0;\n");
+	fprintf(script, "		static int prev_time_in_secs = time(0);\n");
+	fprintf(script, "		++n_recs_written;\n");
+	fprintf(script, "		const int sample_size = 2000;\n");
+	fprintf(script, "		if (n_recs_written %% sample_size == 0) {\n");
+	fprintf(script, "			int current_time = time(0);\n");
+	fprintf(script, "			int delta_secs = current_time - prev_time_in_secs;\n");
+	fprintf(script, "			cout << \"next \" << sample_size << \" records were written in: \"\n");
+	fprintf(script, "				<< delta_secs << endl;\n");
+	fprintf(script, "			prev_time_in_secs = current_time;\n");
+	fprintf(script, "		}\n");
 	fprintf(script, "\t} else if (rdg_mode_flag ) {\n");
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
 	fprintf(script, "\t ser_no = rand();\n");
@@ -2767,19 +2779,19 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "                   AbstractQuestion *q = question_list[i];\n");
 	fprintf(script, "                   //freq_count_file << it->first << endl;\n");
 	fprintf(script, "                   freq_count_file << q->questionName_ ;\n");
-	fprintf(script, "			stringstream question_name_str;\n");
-	fprintf(script, "			question_name_str << q->questionName_;\n");
+	fprintf(script, "			//stringstream question_name_str;\n");
+	fprintf(script, "			//question_name_str << q->questionName_;\n");
 	fprintf(script, "		    if (q->loop_index_values.size()) {\n");
 	fprintf(script, "				for (int j=0; j<q->loop_index_values.size(); ++j) {\n");
 	fprintf(script, "					freq_count_file << \".\" << q->loop_index_values[j];\n");
-	fprintf(script, "					question_name_str << \".\" << q->loop_index_values[j];\n");
+	fprintf(script, "					//question_name_str << \".\" << q->loop_index_values[j];\n");
 	fprintf(script, "				}\n");
 	fprintf(script, "		    }\n");
 	fprintf(script, "		    freq_count_file << endl;\n");
 
 	fprintf(script, "			if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {\n");
 	fprintf(script, "				freq_count_file << \"stubs, code, frequency\" << endl;\n");
-	fprintf(script, "				map<int32_t, int32_t>  & q_freq_count = * freq_count[question_name_str.str()];\n");
+	fprintf(script, "				map<int32_t, int32_t>  & q_freq_count = * freq_count[q->questionDiskName_];\n");
 	fprintf(script, "				vector<stub_pair> & vec= (nq->nr_ptr->stubs);\n");
 	fprintf(script, "				for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
 	fprintf(script, "					it2 != q_freq_count.end(); ++ it2)\n");
@@ -2795,7 +2807,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "				}\n");
 	fprintf(script, "			} else {\n");
 	fprintf(script, "				freq_count_file << \", code, frequency\" << endl;\n");
-	fprintf(script, "				map<int32_t, int32_t>  & q_freq_count = * freq_count[question_name_str.str()];\n");
+	fprintf(script, "				map<int32_t, int32_t>  & q_freq_count = * freq_count[q->questionDiskName_];\n");
 	fprintf(script, "				for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
 	fprintf(script, "					it2 != q_freq_count.end(); ++ it2)\n");
 	fprintf(script, "				{\n");
@@ -2909,7 +2921,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "		// can never be zero - so its not our file\n");
 	fprintf (script, "		goto restart;\n");
 	fprintf (script, "	    }\n");
-	fprintf (script, "	    cout << \"got a data file: \" << dir_entry_name << endl;\n");
+	fprintf (script, "	    //cout << \"got a data file: \" << dir_entry_name << endl;\n");
 	fprintf (script, "	    int file_ser_no = atoi(file_ser_no_str.str().c_str());\n");
 	fprintf (script, "	    load_data(jno, file_ser_no);\n");
 	fprintf (script, "	    merge_disk_data_into_questions2(qscript_stdout, last_question_answered, last_question_visited);\n");
@@ -2966,15 +2978,15 @@ void print_setup_do_freq_counts(FILE *script)
 	fprintf(script, "void setup_do_freq_counts()\n{\n");
 	fprintf(script, "\tfor (int32_t i = 0; i < question_list.size(); ++i) {\n");
 	fprintf(script, "\t\tAbstractQuestion * q = question_list[i];\n");
-	fprintf(script, "\t\tstringstream question_name_str;\n");
-	fprintf(script, "\t\tquestion_name_str << q->questionName_;\n");
-	fprintf(script, "\t\tif (q->loop_index_values.size()) {\n");
-	fprintf(script, "\t\t\tfor (int j=0; j<q->loop_index_values.size(); ++j) {\n");
-	fprintf(script, "\t\t\t\tquestion_name_str << \".\" << q->loop_index_values[j];\n");
-	fprintf(script, "\t\t\t}\n");
-	fprintf(script, "\t\t}\n");
+	fprintf(script, "\t\t//stringstream question_name_str;\n");
+	fprintf(script, "\t\t//question_name_str << q->questionName_;\n");
+	fprintf(script, "\t\t//if (q->loop_index_values.size()) {\n");
+	fprintf(script, "\t\t//\tfor (int j=0; j<q->loop_index_values.size(); ++j) {\n");
+	fprintf(script, "\t\t//\t\tquestion_name_str << \".\" << q->loop_index_values[j];\n");
+	fprintf(script, "\t\t//\t}\n");
+	fprintf(script, "\t\t//}\n");
 	fprintf(script, "\t\tmap<int , int> * q_freq_map_ptr = new map<int, int>();\n");
-	fprintf(script, "\t\t  freq_count[question_name_str.str()] =  q_freq_map_ptr ;\n");
+	fprintf(script, "\t\t  freq_count[q->questionDiskName_] =  q_freq_map_ptr ;\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
 }
@@ -2984,19 +2996,19 @@ void print_do_freq_counts(FILE *script)
 	fprintf(script, "void do_freq_counts()\n{\n");
 	fprintf(script, "\tfor (int32_t i = 0; i < question_list.size(); ++i) {\n");
 	fprintf(script, "\t\tAbstractQuestion * q = question_list[i];\n");
-	fprintf(script, "\t\tstringstream question_name_str;\n");
-	fprintf(script, "\t\tquestion_name_str << q->questionName_;\n");
-	fprintf(script, "\t\tif (q->loop_index_values.size()) {\n");
-	fprintf(script, "\t\t\tfor (int j=0; j<q->loop_index_values.size(); ++j) {\n");
-	fprintf(script, "\t\t\t\tquestion_name_str << \".\" << q->loop_index_values[j];\n");
-	fprintf(script, "\t\t\t}\n");
-	fprintf(script, "\t\t}\n");
-	fprintf(script, "\t\tmap<int , int> & q_freq_map = * freq_count[question_name_str.str()];\n");
+	fprintf(script, "\t\t//stringstream question_name_str;\n");
+	fprintf(script, "\t\t//question_name_str << q->questionName_;\n");
+	fprintf(script, "\t\t//if (q->loop_index_values.size()) {\n");
+	fprintf(script, "\t\t//\tfor (int j=0; j<q->loop_index_values.size(); ++j) {\n");
+	fprintf(script, "\t\t//\t\tquestion_name_str << \".\" << q->loop_index_values[j];\n");
+	fprintf(script, "\t\t//\t}\n");
+	fprintf(script, "\t\t//}\n");
+	fprintf(script, "\t\tmap<int , int> & q_freq_map = * freq_count[q->questionDiskName_];\n");
 	fprintf(script, "\t\tfor (set<int32_t>::iterator it = q->input_data.begin();\n");
 	fprintf(script, "\t\t\tit != q->input_data.end(); ++it) {\n");
 	fprintf(script, "\t\t\t\tq_freq_map[*it] ++;\n");
 	fprintf(script, "\t\t}\n");
-	fprintf(script, "\t\tfreq_count[question_name_str.str()] = &q_freq_map;\n");
+	fprintf(script, "\t\tfreq_count[q->questionDiskName_] = &q_freq_map;\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
 }
@@ -3078,7 +3090,7 @@ void print_write_xtcc_data_to_disk(FILE *script)
 	fprintf(script, "	xtcc_datafile . write(xtcc_datafile_output_buffer, len_xtcc_datafile_output_buffer);\n");
 	fprintf(script, "	memset(xtcc_datafile_output_buffer, 0, len_xtcc_datafile_output_buffer-1);\n");
 	fprintf(script, "	do_freq_counts();\n");
-	fprintf(script, "	cout << \"len_xtcc_datafile_output_buffer: \" << len_xtcc_datafile_output_buffer << endl;\n");
+	fprintf(script, "	//cout << \"len_xtcc_datafile_output_buffer: \" << len_xtcc_datafile_output_buffer << endl;\n");
 	fprintf(script, "}\n");
 }
 

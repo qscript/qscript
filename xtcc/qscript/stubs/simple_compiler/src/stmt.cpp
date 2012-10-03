@@ -1674,8 +1674,17 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				arrIndex_->PrintExpressionCode(expr_code1);
 				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
 			}
-
 			code.program_code << "->input_data.begin();" << endl;
+			code.program_code << "set<int32_t>::iterator set_iter_end = "
+				<< questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code << "->input_data.end();" << endl;
+
+#if 0
 			code.program_code << "for( ; set_iter!= "
 				<< questionName_;
 			if (arrIndex_) {
@@ -1683,8 +1692,10 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				arrIndex_->PrintExpressionCode(expr_code1);
 				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
 			}
-
 			code.program_code << "->input_data.end(); ++set_iter){" << endl;
+#endif /* 0 */
+			code.program_code << "for( ; set_iter!= set_iter_end; ++set_iter) {" << endl;
+
 			code.program_code << "\tfor (int32_t "
 				<< qscript_parser::temp_name_generator.GetNewName();
 			code.program_code 
@@ -1717,13 +1728,22 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 		} else if (lhs_ && rhs_) {
 			code.program_code << "set<int32_t>::iterator set_iter = "
 				<< rhs_->questionName_;
-
 			if (arrIndex_) {
 				ExpressionCompiledCode expr_code1;
 				arrIndex_->PrintExpressionCode(expr_code1);
 				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
 			}
 			code.program_code<< "->input_data.begin();" << endl;
+			code.program_code << "set<int32_t>::iterator set_iter_end = "
+				<< rhs_->questionName_;
+			if (arrIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+			code.program_code<< "->input_data.end();" << endl;
+
+#if 0
 			code.program_code << "for( ; set_iter!= "
 				<< rhs_->questionName_;
 			if (arrIndex_) {
@@ -1731,8 +1751,10 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				arrIndex_->PrintExpressionCode(expr_code1);
 				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
 			}
-
 			code.program_code << "->input_data.end(); ++set_iter){" << endl;
+#endif /*  0 */
+			code.program_code << "for( ; set_iter!= set_iter_end; ++set_iter) {" << endl;
+
 			code.program_code << lhs_->questionName_ << "->input_data.insert(*set_iter);\n";
 			code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
 			code.program_code << "\t}" << endl;
@@ -1742,14 +1764,20 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << expr_code.code_bef_expr.str() << expr_code.code_expr.str();
 			code.program_code << "{\n";
 			// ===================
-			code.program_code << "for (set<int32_t>::iterator xtcc_set_iter1="
+			code.program_code 
+				<< "for (set<int32_t>::iterator xtcc_set_iter1="
 				<< qscript_parser::
 					temp_set_name_generator.GetCurrentName()
-				<< ".indiv.begin()"
+				<< ".indiv.begin(),"
+				<< "end ="
+				<< qscript_parser::
+					temp_set_name_generator.GetCurrentName()
+				<< ".indiv.end()"
+
 				<< "; xtcc_set_iter1 !="
-				<< qscript_parser::
-					temp_set_name_generator.GetCurrentName()
-				<< ".indiv.end(); ++xtcc_set_iter1) {\n"
+				//<< qscript_parser::
+				//	temp_set_name_generator.GetCurrentName()
+				<< "end; ++xtcc_set_iter1) {\n"
 				<< "\tfor (int32_t xtcc_i2=0; xtcc_i2<" << namedStub_ << ".stubs.size(); ++xtcc_i2) {\n"
 				<< "\t\tif ("
 				<< "*xtcc_set_iter1  == " 

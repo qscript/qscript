@@ -48,7 +48,9 @@ void XtccSet::add_range(int n1, int n2)
 	//cerr << "XtccSet::add_range: n1=" << n1 << ", n2=" << n2 << endl;
 	//cerr << "range.size(): " << range.size() << endl;
 
-	for(set<int>::iterator it = indiv.begin(); it != indiv.end(); ++it){
+	for(set<int>::iterator it = indiv.begin(),
+		end = indiv.end()
+			; it != end; ++it) {
 		int v = *it;
 		if(v >= n1 && v <= n2){
 			stringstream err_msg;
@@ -153,7 +155,7 @@ bool XtccSet::exists(int key)
 	}
 	*/
 	set<int>::iterator it = indiv.find(key);
-	if(it != indiv.end()){
+	if (it != indiv.end()) {
 		return true;
 	}
 	return false;
@@ -168,8 +170,10 @@ bool XtccSet::contains_subset(std::set<int32_t> & set_data)
 		// if it wasnt for this we return true - a bug
 		return false;
 	}
-	for(set<int32_t>::iterator it = set_data.begin();
-			it != set_data.end(); ++it) {
+	for (set<int32_t>::iterator it = set_data.begin(),
+		end = set_data.end()
+			;
+			it != end; ++it) {
 		val_exists = exists(*it);
 		if (!val_exists) {
 			return false;
@@ -229,8 +233,10 @@ int32_t XtccSet::GetMax()
 	// assume no negative codes are allowed
 	// if this ever changes - this breaks
 	int32_t max_code = 0; 
-	for(	set<int32_t>::iterator it = indiv.begin();
-			it != indiv.end(); ++it) {
+	for(	set<int32_t>::iterator it = indiv.begin(),
+		end = indiv.end()
+			;
+			it != end; ++it) {
 		if (max_code < *it) {
 			max_code = *it;
 		}
@@ -247,8 +253,10 @@ int32_t XtccSet::GetMax()
 int XtccSet::count() const
 {
 	int32_t n = 0; 
-	for(	set<int32_t>::iterator it = indiv.begin();
-			it != indiv.end(); ++it) {
+	for(	set<int32_t>::iterator it = indiv.begin(),
+		end = indiv.end()
+			;
+			it != end; ++it) {
 		++n;
 	}
 	for(uint32_t i = 0; i < range.size(); ++i) {
