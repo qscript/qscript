@@ -241,7 +241,10 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 		}
 	}
 	int total_no_of_cells = 0;
-	for (unsigned int i=0; i<table_list.size(); i++) {
+	int n_tables = table_list.size();
+	int n_tables_div_by_4 = n_tables / 4;
+	int n_tables_output_counter = 0;
+	for (unsigned int i=0; i<table_list.size(); i++, ++n_tables_output_counter) {
 		CMAPITER map_iter_s= ax_map.find(table_list[i]->side);
 		CMAPITER map_iter_b= ax_map.find(table_list[i]->banner);
 		if (map_iter_s==ax_map.end() || map_iter_b==ax_map.end()) {
@@ -728,6 +731,10 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 				//	<< endl;
 
 			}
+			if (n_tables_output_counter == 0) {
+				fprintf (tab_drv_func, "#pragma omp section\n");
+				fprintf (tab_drv_func, "{\n");
+			}
 
 
 			if (map_iter_s->second->filter && map_iter_b->second->filter) {
@@ -736,47 +743,53 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 				
 				ostringstream code_bef_expr2, code_expr2;
 				map_iter_b->second->filter->PrintExpressionCode (code_bef_expr2, code_expr2);
-				fprintf (tab_drv_func, "#pragma omp section\n");
-				fprintf (tab_drv_func, "{\n");
 				fprintf (tab_drv_func, "\tif ( %s && %s ) { \n", code_expr1.str().c_str(), code_expr2.str().c_str());
 				fprintf (tab_drv_func, "\t\ttab_%s_%s.compute();\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
-				fprintf (tab_drv_func, "\t}\n");
 				fprintf (tab_drv_func, "}\n");
 			} else if (map_iter_s->second->filter) {
 				ostringstream code_bef_expr1, code_expr1;
 				map_iter_s->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
-				fprintf (tab_drv_func, "#pragma omp section\n");
-				fprintf (tab_drv_func, "{\n");
 				fprintf (tab_drv_func, "\tif ( %s ) { \n", code_expr1.str().c_str());
 				fprintf (tab_drv_func, "\t\ttab_%s_%s.compute();\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
 				fprintf (tab_drv_func, "\t}\n");
-				fprintf (tab_drv_func, "}\n");
 			} else if (map_iter_b->second->filter) {
 				ostringstream code_bef_expr1, code_expr1;
 				map_iter_b->second->filter->PrintExpressionCode (code_bef_expr1, code_expr1);
-				fprintf (tab_drv_func, "#pragma omp section\n");
-				fprintf (tab_drv_func, "{\n");
 				fprintf (tab_drv_func, "\tif ( %s ) { \n", code_expr1.str().c_str());
 				fprintf (tab_drv_func, "\t\ttab_%s_%s.compute();\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
 				fprintf (tab_drv_func, "\t}\n");
-				fprintf (tab_drv_func, "}\n");
 			} else {
-				fprintf (tab_drv_func, "#pragma omp section\n");
-				fprintf (tab_drv_func, "{\n");
 				fprintf (tab_drv_func, "\ttab_%s_%s.compute();\n",
 					map_iter_s->first.c_str(), map_iter_b->first.c_str()
 					);
-				fprintf (tab_drv_func, "}\n");
 			}
+
+			if (n_tables_output_counter == n_tables_div_by_4) {
+				fprintf (tab_drv_func, "\t}\n");
+				fprintf (tab_drv_func, "#pragma omp section\n");
+				fprintf (tab_drv_func, "{\n");
+			} 
+			else if (n_tables_output_counter == 2 * n_tables_div_by_4) {
+				fprintf (tab_drv_func, "\t}\n");
+				fprintf (tab_drv_func, "#pragma omp section\n");
+				fprintf (tab_drv_func, "{\n");
+			}
+			else if (n_tables_output_counter == 3 * n_tables_div_by_4) {
+				fprintf (tab_drv_func, "\t}\n");
+				fprintf (tab_drv_func, "#pragma omp section\n");
+				fprintf (tab_drv_func, "{\n");
+			}
+
 		}
 	}
 
+	fprintf (tab_drv_func, "\t} // close last omp section \n");
 	fprintf (tab_drv_func, "}// close the sections pragma curly brace\n");
 	fprintf(tab_drv_func, "}\n");
 	cout << "total_no_of_cells: " << total_no_of_cells << endl;
@@ -1173,7 +1186,14 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 	fprintf (axes_drv_func, "#include \"global.h\"\n");
 	fprintf (axes_drv_func, "#include \"my_axes.C\"\n");
 	fprintf (axes_drv_func, "void ax_compute() {\n");
-	for (CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it) {
+	fprintf (axes_drv_func, "#pragma omp parallel sections\n{\n");
+	// too lazy to capture in the grammar for now - shift this there
+	int n_axes = 0;
+	for (CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it, ++ n_axes) {
+	}
+	int n_axes_div_by_4 = n_axes / 4;
+	int n_axes_output_counter = 0;
+	for (CMAPITER it = ax_map.begin(); it != ax_map.end(); ++it, ++n_axes_output_counter) {
 		//struct ax* l_ax = *it;
 		//cout << "Processing axis: " << it->first.c_str() << endl;
 		//bool found_stub_hint = false;
@@ -1315,7 +1335,10 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 		// re-enable this section after demo with Gita Zhankar
 #if 1
 		}
-
+		if (n_axes_output_counter == 0) {
+			fprintf (axes_drv_func, "#pragma omp section\n");
+			fprintf (axes_drv_func, "{\n");
+		}
 		if (it->second->filter) {
 			//fprintf (axes_drv_func, "/* axis HAS a filter  \n");
 			ostringstream code_bef_expr, code_expr;
@@ -1328,8 +1351,27 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 			fprintf (axes_drv_func, "/* axis DOES NOT have a filter  */\n");
 			fprintf (axes_drv_func, "\tax_%s.compute();\n",it->first.c_str());
 		}
+
+		if (n_axes_output_counter == n_axes_div_by_4) {
+			fprintf (axes_drv_func, "\t}\n");
+			fprintf (axes_drv_func, "#pragma omp section\n");
+			fprintf (axes_drv_func, "{\n");
+		} 
+		else if (n_axes_output_counter == 2 * n_axes_div_by_4) {
+			fprintf (axes_drv_func, "\t}\n");
+			fprintf (axes_drv_func, "#pragma omp section\n");
+			fprintf (axes_drv_func, "{\n");
+		}
+		else if (n_axes_output_counter == 3 * n_axes_div_by_4) {
+			fprintf (axes_drv_func, "\t}\n");
+			fprintf (axes_drv_func, "#pragma omp section\n");
+			fprintf (axes_drv_func, "{\n");
+		}
+
 #endif /*  0 */
 	}
+	fprintf (axes_drv_func, "\t} /*  close last omp section */\n");
+	fprintf (axes_drv_func, "} /*  omp sections end */\n");
 	fprintf (axes_drv_func, "}\n");
 	fprintf (axes_h, "#endif /* MY_AXES_H */\n");
 	fflush (axes_h);
@@ -1444,7 +1486,7 @@ std::string print_session_makefile (std::string session_id)
 {
 	
 	std::stringstream s;
-	s << "CC=g++" << endl;
+	s << "CC=g++ -O3 -msse4.2 " << endl;
 	s << "OBJS = "
 		//<< session_id 
 		<< "main_loop.o "

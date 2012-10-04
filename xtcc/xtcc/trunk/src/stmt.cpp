@@ -740,7 +740,7 @@ void FieldStatement::GenerateCode(FILE * & fptr)
 
 	fprintf(fptr, "{\n");
 	fprintf(fptr, "\tfor (int i=0; i<%d; ++i) %s[i]=0;\n", lhsSymbolTableEntry_->n_elms, lhsSymbolTableEntry_->name_);
-	fprintf(fptr, "int start_col=");
+	fprintf(fptr, "const int start_col=");
 	//start_col->PrintExpressionCode(fptr);
 	// NOTE: we do not expect operator in to be used in a block initialization
 	// I should document this for myself in a more visible place
@@ -812,13 +812,13 @@ void BlockArrayAssignmentStatement::GenerateCode(FILE * & fptr)
 
 	if(fptr){
 		fprintf(fptr,"/* DATA CONVERSION */\n");
-		fprintf(fptr,"{int tmp1=");
+		fprintf(fptr,"{const int tmp1=");
 		//low_indx->PrintExpressionCode(fptr);
 		// NOTE: we do not expect operator in to be used in a block initialization
 		ostringstream code_expr1, code_bef_expr1;
 		low_indx->PrintExpressionCode(code_bef_expr1, code_expr1);
 		fprintf(fptr, "%s", code_expr1.str().c_str());
-		fprintf(fptr,";\nint tmp2=");
+		fprintf(fptr,";\nconst int tmp2=");
 		//high_indx->PrintExpressionCode(fptr);
 		ostringstream code_expr2, code_bef_expr2;
 		high_indx->PrintExpressionCode(code_bef_expr2, code_expr2);

@@ -167,9 +167,9 @@ void BinaryExpression::print_oper_assgn(ostringstream& code_bef_expr
 		Unary2Expression* lhs 
 			= static_cast<Unary2Expression*> (leftOperand_);
 		code_expr << "/* DATA CONVERSION */\n";
-		code_expr << "{int tmp1=";
+		code_expr << "{const int tmp1=";
 		blk_e->operand_->PrintExpressionCode(code_bef_expr, code_expr);
-		code_expr << ";\nint tmp2=";
+		code_expr << ";\nconst int tmp2=";
 		blk_e->operand2_->PrintExpressionCode(code_bef_expr, code_expr);
 		code_expr << ";\n";
 		if(leftOperand_->type_==FLOAT_TYPE) {

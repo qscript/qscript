@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <iostream>
 #include <sstream>
+#include <cstring>
 #include "ax_stmt_type.h"
 #include "global.h"
 //#include <sys/mman.h>
@@ -38,6 +39,10 @@ int main(int argc, char * argv[]){
 		exit(1);
 	}
 	FILE * inp_data_file=fopen(argv[1], "rb");
+	int inp_data_file_descriptor = fileno (inp_data_file);
+	int advice_success = posix_fadvise (inp_data_file_descriptor, 0, 0, POSIX_FADV_SEQUENTIAL);
+	cout << "posix_fadvise: return value , 0 => success was: " << advice_success << endl; 
+
 	if(!inp_data_file){
 		cerr << "Unable to open data file : " << argv[1] << endl;
 		exit(1);
@@ -165,22 +170,96 @@ int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
 		
 	int n_records = 0;
 	int sample_size = total_records / (18*60);
-	cout << "Each dot('.') represents" << sample_size << "records read\n";
+	cout << "Each dot('.') represents: " << sample_size << " records read\n";
 #if 1
-	while(1){
+	int mod_counter = 0;
+	int optimal_chunk_size = (1024*1024)/rec_len;
+	int n_chunks = optimal_chunk_size;
+	cout << "optimal_chunk_size: " << optimal_chunk_size << endl;
+	//int8_t * data_buffer = new int8_t [rec_len * n_chunks];
+	int8_t * data_buffer = new int8_t [rec_len * optimal_chunk_size];
+	int big_reads = total_records / n_chunks;
+	while (n_records < total_records) {
 		//memset(buffer,0, rec_len);
-		int n_read= fread(c ,  sizeof(char), rec_len,  inp_data_file);
-		if(n_read==0){
-			r_val=0;
-			break;
-		} else if(n_read<0 || n_read!=rec_len){
-			cerr	<< "Error reading file: check record size" 
-				<< "n_read: " << n_read
-				<< "rec_len: " << rec_len
-				<< endl;
-			r_val=1;
-			break;
-		} else{
+		long n_read = 0;
+		if ( n_records < big_reads * n_chunks ) {
+			if (mod_counter == 0) {
+				n_read = fread(data_buffer,  sizeof(char), rec_len * n_chunks, inp_data_file);
+
+				if (n_read==0) {
+					r_val=0;
+					break;
+				} else if (n_read < 0 || n_read != (rec_len * n_chunks)) {
+					cerr	<< "Error reading file: check record size" 
+						<< "n_read: " << n_read
+						<< "rec_len: " << rec_len
+						<< endl;
+					r_val=1;
+					break;
+				} 
+
+			}
+			//strncpy (c, data_buffer + mod_counter * rec_len, rec_len);
+			int8_t * src = data_buffer + mod_counter * rec_len;
+			{
+				const int two56_byte_chunks = rec_len / 256;
+				for (int i=0; i < two56_byte_chunks; ++i) {
+					for (int j=0; j < 256; ++j) {
+						c[i * two56_byte_chunks + j] = src[i * two56_byte_chunks + j];
+					}
+				}
+				//const int bytes_left = rec_len - two56_byte_chunks * 256
+				for (int i=two56_byte_chunks * 256; i<rec_len; ++i) {
+					c[i] = src[i];
+				}
+			}
+
+		} else {
+			int whats_left = total_records - n_records;
+			if (mod_counter == 0) {
+				cout 	<< endl
+					<< "processing last few records, n_records: " 
+					<< n_records << endl;
+				cout << "mod_counter == 0, " 
+					<< " n_records == " << n_records
+					<< " total_records - n_records: " << whats_left
+					<< endl;
+				cout << "current pos: " << ftell (inp_data_file) << endl;
+				n_read = fread (data_buffer, sizeof(char), whats_left * rec_len, inp_data_file);
+
+				if (n_read == 0) {
+					r_val=0;
+					break;
+				} else if (n_read < 0 || n_read != whats_left * rec_len) {
+					cerr	<< "Error reading file: check record size" 
+						<< "n_read: " << n_read
+						<< "whats_left * rec_len: " << rec_len * whats_left
+						<< endl;
+					r_val=1;
+					break;
+				}
+			}
+			int8_t * src = data_buffer + mod_counter * rec_len;
+			//for (int i=0; i<rec_len; ++i) {
+			//	c[i] = src[i];
+			//}
+			{
+				const int two56_byte_chunks = rec_len / 256;
+				for (int i=0; i < two56_byte_chunks; ++i) {
+					for (int j=0; j < 256; ++j) {
+						c[i * two56_byte_chunks + j] = src[i * two56_byte_chunks + j];
+					}
+				}
+				//const int bytes_left = rec_len - two56_byte_chunks * 256
+				for (int i=two56_byte_chunks * 256; i<rec_len; ++i) {
+					c[i] = src[i];
+				}
+			}
+		}
+		++mod_counter; mod_counter = mod_counter % n_chunks;
+		//int n_read= fread(c ,  sizeof(char), rec_len ,  inp_data_file);
+
+		{
 			//cout << "rec_no: " << ++rec_no << endl;
 			edit_data();
 			ax_compute();
@@ -197,6 +276,7 @@ int fread_data(FILE * & inp_data_file , long file_size, int rec_len){
 				<< endl;
 		}
 	}
+	delete [] data_buffer;
 #endif /* 0 */
 	cout << "\nTotal records: " << n_records << endl; 
 	cout << endl;
