@@ -408,12 +408,10 @@ set<int> pick_random_values_from_these_answers (vector<int> & valid_answers, int
 			// see comment above
 			int rvi = static_cast<int>  ( rand() % valid_answers.size());
 			input_data.insert (valid_answers[rvi]);
-			/*
-		} else if (n_random_answers == no_mpn && no_mpn > 1) {
+		} else if (((n_random_answers == no_mpn) || (n_random_answers == valid_answers.size())) && no_mpn > 1) {
 			for (int i = 0; i < valid_answers.size(); ++i) {
 				input_data.insert ( valid_answers[i]);
 			}
-		  */
 		} else {
 			set<int> already_inserted;
 			bool is_first_answer = true;
@@ -444,8 +442,8 @@ get_another_random_value:
 					input_data.insert (valid_answers[rvi]);
 					break;
 				} else if (is_first_answer == false && mutex_code_list.exists (valid_answers[rvi])) {
-					cout << "preventing mutex value to be allowed with normal answers as it was not selected as the 1st answer"
-						<< endl;
+					//cout << "preventing mutex value to be allowed with normal answers as it was not selected as the 1st answer"
+					//	<< endl;
 					// we have taken care of inifinite loop prevention
 						// by adjusting n_random_answers = valid_answers - n_mutex_codes
 						goto get_another_random_value;

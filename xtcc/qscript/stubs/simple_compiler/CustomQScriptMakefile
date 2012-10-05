@@ -1,8 +1,8 @@
 
 CC = $(CXX)
-CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
+CFLAGS = -O2 -c -g -I src -Wall -Wno-sign-compare -Weffc++
 CXX_SHARED_LIB_FLAGS = -fPIC
-CXX_LINK_FLAGS = -g
+CXX_LINK_FLAGS = -O2 -g
 #CXX_LINK_LIBS = -lreadline
 CXX_LINK_LIBS = -lpanel -lncurses 
 SOURCE_DIR=src
