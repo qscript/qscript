@@ -374,7 +374,12 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 								ACTUAL_DEFNITION)).c_str());
 				}
 				fprintf (table_h, "\tconst int rows, cols;\n");
-				fprintf (table_h, "\tvector <int> counter;\n");
+				fprintf (table_h, "\t//vector <int> counter;\n");
+				fprintf (table_h, "\tint counter[%d*%d];\n",
+						map_iter_s->second->no_count_ax_elems,
+						map_iter_b->second->no_count_ax_elems
+						);
+				fprintf (table_h, "\tconst int counter_size;\n");
 				string mean_score_defns = print_mean_variable_defns (map_iter_s, map_iter_b);
 				if (map_iter_s->second->no_inc_ax_elems > 0) {
 					fprintf (table_h, "\t%s;\n", mean_score_defns.c_str());
@@ -392,12 +397,15 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 					fprintf (table_h, ", %s", (print_variable_defns (map_iter_b->second->name_list,
 								FUNCTION_PARAMETER)).c_str());
 				}
-				fprintf (table_h, ")\n\t: rows(%d), cols(%d),counter(%d*%d), ax_%s(p_ax_%s)\n",
+				fprintf (table_h, ")\n\t: rows(%d), cols(%d), ax_%s(p_ax_%s), counter_size(%d*%d)\n",
 						map_iter_s->second->no_count_ax_elems,
 						map_iter_b->second->no_count_ax_elems,
+						//map_iter_s->second->no_count_ax_elems,
+						//map_iter_b->second->no_count_ax_elems,
+						map_iter_s->first.c_str(), map_iter_s->first.c_str (),
 						map_iter_s->second->no_count_ax_elems,
-						map_iter_b->second->no_count_ax_elems,
-						map_iter_s->first.c_str(), map_iter_s->first.c_str ());
+						map_iter_b->second->no_count_ax_elems
+						);
 
 				total_no_of_cells += 	map_iter_s->second->no_count_ax_elems *
 							map_iter_b->second->no_count_ax_elems;
@@ -446,7 +454,7 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 				}
 
 
-				fprintf (table_h, "\n\t{\n\t\tfor (int i=0;i<counter.size();++i) counter[i]=0; \n");
+				fprintf (table_h, "\n\t{\n\t\tfor (int i=0;i<counter_size;++i) counter[i]=0; \n");
 				if (map_iter_s->second->no_inc_ax_elems > 0 || 
 							map_iter_b->second->no_inc_ax_elems > 0) {
 					fprintf(table_h, "\t\tfor (int i=0; i<mean_inc_%s_%s.size(); ++i) {\n\t\t\tmean_inc_%s_%s[i].sum_n=0.0; mean_inc_%s_%s[i].n=0.0;\n\t\t}\n",
@@ -481,29 +489,43 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 				int cols=map_iter_b->second->no_count_ax_elems;
 				AbstractCountableAxisStatement* side_stmt=map_iter_s->second->count_ax_stmt_start;
 				int inc_stmt_count=0;
-				for (int i=0; i<rows; ++i) {
+				//for (int i=0; i<rows; ++i) 
+				{
+					fprintf (table_h, "\t\tfor(int i=0; i<rows; ++i) {\n");
 					//cout << "generate_code: i: " << i << endl;
 					AbstractCountableAxisStatement* banner_stmt = map_iter_b->second->count_ax_stmt_start;
 					if (inc_ax_stmt * inc_st_ptr = dynamic_cast<inc_ax_stmt*>(side_stmt)) {
 						print_mean_variable_defns (map_iter_s, map_iter_b);
 						++inc_stmt_count;
 					}
+					fprintf(table_h, "\t\t\tif (ax_%s.flag[i]) {\n", map_iter_s->first.c_str());
 					for (int j = 0; j < cols; ++j) {
 						//cout << "generate_code: j: " << j << endl;
-						fprintf(table_h, "\t\tif(");
-						fprintf(table_h, "ax_%s.flag[%d]", map_iter_s->first.c_str(), i);
-						fprintf(table_h, " && " );
-						fprintf(table_h, "ax_%s.flag[%d]){\n", map_iter_b->first.c_str(), j);
+						// old fprintf(table_h, "\t\t\t\tif(");
+						//fprintf(table_h, "ax_%s.flag[%d]", map_iter_s->first.c_str(), i);
+						//fprintf(table_h, " && " );
+						// old
+						// old fprintf(table_h, "ax_%s.flag[%d]) {\n", map_iter_b->first.c_str(), j);
 						if (!banner_stmt || ! side_stmt) {
 							// handles the case of fld_stmt
-							fprintf(table_h, "\t\t\t++counter[%d*cols+%d];\n",
-									i, j);
+							// old
+							// old fprintf(table_h, "\t\t\t++counter[%d*cols+%d];\n",
+							// old 		i, j);
+
+							// new
+							fprintf(table_h, "\t\t\t\t\t++counter[i*cols+%d] += ax_%s.flag[%d];\n",
+									 j, map_iter_b->first.c_str(), j);
 						} else if(side_stmt->CustomCountExpression() == false
 							&& banner_stmt->CustomCountExpression() == false) {
-							fprintf(table_h, "\t\t\t++counter[%d*cols+%d];\n",
-									i, j);
+							// old
+							// old fprintf(table_h, "\t\t\t++counter[%d*cols+%d];\n",
+							// old 		i, j);
+							fprintf(table_h, "\t\t\t\t\tcounter[i*cols+%d] += ax_%s.flag[%d];\n",
+									 j, map_iter_b->first.c_str(), j);
 						} else if(side_stmt->CustomCountExpression() == true
 							&& banner_stmt->CustomCountExpression() == false) {
+							// Temporarily comment this out for now 
+#if 0
 							// cout << "side is inc_axstmt" << endl;
 							// fprintf(table_h, "\t\t\tcounter[%d*cols+%d]+=",
 							// 		i, j);
@@ -522,38 +544,51 @@ void print_table_code (FILE * table_h, FILE * table_cpp, FILE * tab_drv_func, FI
 									map_iter_s->first.c_str(), map_iter_b->first.c_str(), 
 									inc_stmt_count-1, j);
 							fprintf(table_h, ";\n");
+#endif /*  0 */
+							cerr << "mean scores are temporarily commented out for the moment" 
+								<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+								<< endl;
 						} else if ( side_stmt->CustomCountExpression() == false
 								&& banner_stmt->CustomCountExpression() == true) {
-							cout << "banner is inc_axstmt" << endl;
-							fprintf(table_h, "\t\t\tcounter[%d*cols+%d]+=",
-									i, j);
-							inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(banner_stmt);
-							stringstream code;
-							inc_st_ptr->PrintIncrExpression (table_h, code);
-							fprintf(table_h, ";\n");
+							// comment out mean score in the banner for the moment
+							//cout << "banner is inc_axstmt" << endl;
+							//fprintf(table_h, "\t\t\tcounter[%d*cols+%d]+=",
+							//		i, j);
+							//inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(banner_stmt);
+							//stringstream code;
+							//inc_st_ptr->PrintIncrExpression (table_h, code);
+							//fprintf(table_h, ";\n");
+							cerr << "mean score in the banner is commented out for the moment" 
+								<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+								<< endl;
 						} else if (side_stmt == banner_stmt && 
 								side_stmt->CustomCountExpression() == true) {
 							cout << "  axis by axis -> diagonal table" << endl;
 							// axis by axis -> diagonal table
-							fprintf(table_h, "\t\t\tcounter[%d*cols+%d]+=",
-									i, j);
-							inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
-							stringstream code;
-							inc_st_ptr->PrintIncrExpression (table_h, code);
-							fprintf(table_h, ";\n");
+							//fprintf(table_h, "\t\t\tcounter[%d*cols+%d]+=",
+							//		i, j);
+							//inc_ax_stmt * inc_st_ptr = static_cast<inc_ax_stmt*>(side_stmt);
+							//stringstream code;
+							//inc_st_ptr->PrintIncrExpression (table_h, code);
+							//fprintf(table_h, ";\n");
+							cerr << "axis by axis diagonal table with mean score in the banner is commented out for the moment" 
+								<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+								<< endl;
 						} else {
 							print_err(Util::compiler_sem_err, "Error: trying to tabulate inc axis statement with inc axis statement"
 								, line_no, __LINE__, __FILE__);
 						}
 						// handles the case of fld_stmt
-						if(banner_stmt)
+						if (banner_stmt)
 							banner_stmt=banner_stmt->next_;
-						fprintf(table_h, "\t\t}\n");
+						// old fprintf(table_h, "\t\t\t\t}\n");
 					}
+					fprintf(table_h, "\t\t\t}\n", map_iter_s->first.c_str(), i);
 					// handles the case of fld_stmt
 					if (side_stmt) {
 						side_stmt=side_stmt->next_;
 					}
+					fprintf(table_h, "\t\t}\n");
 				}
 				fprintf(table_h, "\t} /*  close compute */\n");
 
@@ -1264,22 +1299,48 @@ void print_axis_code (FILE * axes_h, FILE * axes_cpp, FILE * axes_drv_func)
 				<< "::compute(){\n\t\tflag.reset();\n";
 
 			AbstractCountableAxisStatement* iter = it->second->count_ax_stmt_start;
-			int counter = 0;
 			map <string, SymbolTableEntry*> name_list ;
 			while (iter) {
-				iter -> generate_code (axes_h, axis_code_str_cpp, counter);
 				tot_ax_stmt * tot_stmt = dynamic_cast <tot_ax_stmt*> (iter);
 				count_ax_stmt * cnt_stmt = dynamic_cast <count_ax_stmt*> (iter);
 				if (tot_stmt || cnt_stmt) {
 					 hunt_for_names_in_expression (iter->condn, name_list);
 				}
-				++ counter;
 				iter = iter -> next_;
 			}
 			// store it - as we need it 
 			// for other axes that have the same
 			// stub list generated using stub_hint(s)
 			it->second->name_list = name_list;
+			bool has_single_named_var = false;
+			if (name_list.size() == 1 && it->second->no_mpn == 1) {
+				has_single_named_var = true;
+				axis_code_str_cpp << "/*" << it->first <<   " :is single coded */" << endl;
+			}
+			int counter = 0;
+			iter = it->second->count_ax_stmt_start;
+			if (has_single_named_var) {
+				axis_code_str_cpp << " switch ("
+					<< name_list.begin()->first
+					<< ") {" 
+					<< "default:"
+					<< endl;
+			}
+
+
+			while (iter) {
+				iter -> generate_code (axes_h, axis_code_str_cpp, counter, has_single_named_var);
+				//tot_ax_stmt * tot_stmt = dynamic_cast <tot_ax_stmt*> (iter);
+				//count_ax_stmt * cnt_stmt = dynamic_cast <count_ax_stmt*> (iter);
+				//if (tot_stmt || cnt_stmt) {
+				//	 hunt_for_names_in_expression (iter->condn, name_list);
+				//}
+				++ counter;
+				iter = iter -> next_;
+			}
+			if (has_single_named_var) {
+				axis_code_str_cpp << "} /* close  switch */" << endl;
+			}
 
 
 			//fprintf (axes_h, "\t} /* close compute func */\n");

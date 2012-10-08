@@ -455,7 +455,7 @@ void count_ax_stmt::print(fstream& f){
 	f << "\n";
 }
 
-void count_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)
+void count_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index, bool single_coded_axes)
 {
 	ostringstream code_expr1, code_bef_expr1;
 	if (condn) {
@@ -465,13 +465,24 @@ void count_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, un
 		//fprintf(f, " ){\n");
 		//fprintf(f, "\t\tflag[%d]=true;\n", index);
 		//fprintf(f, "\t}\n");
+		if (single_coded_axes) {
+			cpp_code_str 
+				<< "case " << index << ":"
+				<< "\t\tflag["
+				<< index << "]=true;\n"
+				<< "break;"
+				<< endl;
 
-		cpp_code_str << code_bef_expr1.str();
-		cpp_code_str << "\tif ( " << code_expr1.str();
-		cpp_code_str << " ){\n";
-		cpp_code_str << "\t\tflag["
-			<< index << "]=true;\n";
-		cpp_code_str << "\t}\n";
+		} else {
+
+
+			cpp_code_str << code_bef_expr1.str();
+			cpp_code_str << "\tif ( " << code_expr1.str();
+			cpp_code_str << " ){\n";
+			cpp_code_str << "\t\tflag["
+				<< index << "]=true;\n";
+			cpp_code_str << "\t}\n";
+		}
 	} else {
 		//fprintf(f, "\t\tflag[%d]=true;\n", index);
 		cpp_code_str 
@@ -534,7 +545,7 @@ string tot_ax_stmt::ax_text()
 	return text;
 }
 
-void tot_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index) 
+void tot_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index, bool single_coded_axes) 
 {
 	ostringstream code_expr1, code_bef_expr1;
 	if (condn) {
@@ -613,7 +624,7 @@ bool inc_ax_stmt::CustomCountExpression()
 	return true;
 }
 
-void inc_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)
+void inc_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index, bool single_coded_axes)
 {
 	ostringstream code_expr1, code_bef_expr1;
 	if (condn) {
@@ -744,7 +755,7 @@ fld_ax_stmt::fld_ax_stmt(axstmt_type ltype, string field_name, vector<stub*> l_s
 	cout << endl;
 }
 
-void fld_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index)
+void fld_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, unsigned int index, bool single_coded_axes)
 {
 	for(unsigned int i=0; i< stub_list.size(); ++i){
 		//fprintf(f, "\t\tif (%s[%d]){\n"
