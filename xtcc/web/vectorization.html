@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<title>Inline SSE - bread crumb trail to working solution for paddd</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Links and a working program solution to using sse instructions in inline assembly with the gcc compiler">
+    <meta name="author" content="Neil Xavier D'Souza nxd underscore in at yahoo dot com">
+    <meta name="keywords" content="sse with gcc inline programming, movdqa, padd, using xmm registers in programming, x86 inline assembly">
+
+    <!-- Le styles -->
+    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="assets/css/docs.css" rel="stylesheet">
+    <link href="assets/js/google-code-prettify/prettify.css" rel="stylesheet">
+
+</head>
+<body>
+	<body  data-spy="scroll" data-target=".bs-docs-sidebar">
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand" href="./index.html">QScript</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+
+		    <li>
+		    Inline assembly with sse instructions and gcc
+		    </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="container">
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span3 bs-docs-sidebar">
+        <ul class="nav nav-list bs-docs-sidenav">
+          <li><a href="#gcc_inline_sse"><i class="icon-chevron-right"></i>GCC Inline Assembly with SSE instructions</a> </li>
+          <li><a href="#before_inline_assembly"><i class="icon-chevron-right"></i> Before you start inline assembly </a></li>
+          <li><a href="#false_start"><i class="icon-chevron-right"></i> My first False Start</a></li>
+          <li><a href="#exactly_what_i_need"><i class="icon-chevron-right"></i> Exactly what I needed</a></li>
+          <li><a href="#this_works"><i class="icon-chevron-right"></i> Slightly tweaked version of my program that works</a></li>
+          <li><a href="#other_links"><i class="icon-chevron-right"></i> Other relevant links</a></li>
+        </ul>
+      </div>
+      <div class="span9">
+        <section id="gcc_inline_sse">
+          <div class="page-header">
+            <h1>Inline Assembly, SSE instructions programming with GCC</h1>
+          </div>
+
+          <div>
+		  <p> I recently needed to program inline sse instructions using gcc, and I thought I would document things for myself and it could perhaps be helpful to others too. I have tried to create sensible links to whatever articles I found on the internet and they are linked on this page. If I am violating anyone's copyrights, please inform me, but you will see that I have tried to do my best to give credit where it is due.
+		  </p>
+		  <p>My primary interest in the sse instructions were the parallel add instruction for double words (32 bit) i.e. the <em>paddd</em> instruction. Support for this operation would be required by an instruction that moves data from memory into the xmm registers, we operate on them with the "paddd" instruction, and then transfer the data back to memory. The support instruction I needed was <em>movdqa</em>.
+		  </p>
+		  <p> If you have any corrections to this document, please email me:  nxd underscore in at yahoo dot com
+		  </p>
+
+          </div>
+        </section>
+
+        <section id="before_inline_assembly">
+          <div class="page-header">
+            <h1>Before you start inline assembly </h1>
+          </div>
+	  <div>
+		Before you begin, you should know that if loops are written in a certain way, gcc can auto-vectorize them.
+		Here is a link to gcc documentation on what it can autovectorize and how you can help gcc pick up the loop vectorization:
+		<ul>
+			<li><a href="http://gcc.gnu.org/projects/tree-ssa/vectorization.html"> Loops that gcc can auto vectorize</a></li>
+			<li> <a href="http://locklessinc.com/articles/vectorize/">How to write c/c++ code for auto vectorization i.e. Compiler hints for auto vectorization</a></li>
+		</ul>
+		<ul>
+			<li> Important compiler flags on how to check auto vectorization.
+			<pre>
+$g++ -g -O3 -ftree-vectorize -msse2 -msse4.2 -ftree-vectorizer-verbose=5 main_loop.C 2 > vectorized.txt
+			</pre>
+			In the output file vectorized.txt you will find information on what the compiler picked up.
+			</li>
+		</ul>
+	  </div>
+  	</section>
+
+        <section id="i_really_need_inline_assembly">
+          <div class="page-header">
+            <h1>I really need inline assembly</h1>
+          </div>
+	  <div>
+		Ok, let's point you in the right direction. Preliminary reading you have to do to get yourself up to speed on inline assembly programming with gcc.
+		<ul>
+			<li> <a href="http://www.ibm.com/developerworks/linux/library/l-ia/index.html">Simple, Good tutorial on inline assembly.</a></li>
+			<li> <a href="http://www.delorie.com/djgpp/doc/brennan/brennan_att_inline_djgpp.html">Brennan's Guide to Inline Assembly</a></li>
+		</ul>
+	  </div>
+  	</section>
+
+        <section id="false_start">
+          <div class="page-header">
+            <h1>My first False Start</h1>
+          </div>
+	  <div>
+		  Here is a program that didnt work for me - it compiled but gave me a seg fault. There are 2 mistakes in the program.
+
+<pre>
+#include &lt;iostream&gt;
+
+using namespace std;
+
+typedef int v4si __attribute__ ((vector_size (16)));
+typedef union { int s[4]; v4si v; } v4si_u;
+
+
+void print_arr(int arr[], int n)
+{
+	for (int i=0; i&lt;n; ++i) {
+		cout &lt;&lt; " " &lt;&lt; arr[i];
+		if ( (i+1)%19 == 0) {
+			cout &lt;&lt; endl;
+		}
+	}
+	cout &lt;&lt; endl;
+}
+
+int main ()
+{
+	int arr [256] __attribute__ ((aligned(16)));
+	int bool_condns[256] __attribute__ ((aligned(16))) = {
+		5, 10, 15, 20, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0
+	};
+	for (int i=0; i&lt;256; ++i) {
+		arr[i] = i;
+	}
+
+	print_arr (arr, 256);
+	
+	int n = 256;
+
+#if 1
+	{
+		int * a1 __attribute__ ((aligned(16))) = arr;
+		int * b1 __attribute__ ((aligned(16))) = bool_condns;
+		for (int i=0; i &lt; 256; i+=4) {
+			asm (
+				"movdqa     (%0), %%xmm0\n\t"
+				"movdqa     (%1), %%xmm1\n\t"
+				"paddd      %%xmm0, %%xmm1\n\t"
+					: /* outputs */ 
+					: /* inputs */ "r" (a1) , "r"(b1)
+					: /* clobbered */ "xmm0", "xmm1"
+					);
+			asm (
+				"movdqa     %%xmm0, %0\n\t"
+					: /* outputs */ "=m" (a1)
+					: /* inputs */ 
+					: /* clobbered */  "memory" 
+			    );
+
+			a1 += 4; b1+=4;
+			cerr &lt;&lt; "." ;
+		}
+		cout &lt;&lt; endl;
+	}
+#endif /*  0 */
+}
+
+</pre>
+	  </div>
+  	</section>
+        <section id="exactly_what_i_need">
+          <div class="page-header">
+            <h1>Exactly what I needed</h1>
+          </div>
+          <div>
+		  This link lead me to the nirvana moment. 
+		  <a href="http://www.rhinocerus.net/forum/lang-asm-x86/255298-how-do-you-do-inline-assembly-vector-types-gcc.html">"http://www.rhinocerus.net/forum/lang-asm-x86/255298-how-do-you-do-inline-assembly-vector-types-gcc.html"</a>. 
+		  It documented something exactly what I wanted - the movdqa instruction. Pasted from that page is the following snippet.
+The question was posted by Michael and answered by Matt Taylor.
+
+	<pre>
+
+&gt; I'm trying to port some MSVC++ SSE2 inline assembler to GCC and am playing
+&gt; with a code fragment to see if I can move stuff in and out of vectors as
+&gt; follows:
+&gt;
+&gt; #include <stdio.h>
+&gt;
+&gt; int main() {
+&gt; char sse2_array[16] __attribute__((aligned(16)));
+&gt; unsigned long p;
+&gt; p = 10;
+&gt; printf("%d \n", p);
+&gt; sse2_array[0] = 1;
+&gt; sse2_array[2] = 2;
+&gt; printf("%d %d\n", sse2_array[0], sse2_array[1]);
+&gt; asm("pxor %xmm0, %xmm0");
+&gt; asm("movdqa %xmm0, %0;"
+&gt; :"=r"(sse2_array));
+&gt; printf("%d \n", p);
+&gt; return 0;
+&gt;
+&gt; }
+<snip>
+
+You probably don't want this line:
+
+&gt; asm("movdqa %xmm0, %0;"
+&gt; :"=r"(sse2_array));
+
+I suspect you want this instead:
+asm("movdqa %xmm0, %0" : : "M" (sse2_array));
+
+It's been a while since I've done inline asm in gcc, but as I recall "M"
+represents a memory address, and gcc will effectively generate this
+instruction:
+
+movdqa %xmm0, $offset(%ebp)
+
+Also, though I don't think you will run into problems with what you have,
+you probably want to rewrite both lines into something like this:
+
+asm("pxor %xmm0, %xmm0\n"
+"movdqa %xmm0, %0"
+: : "M" (sse2_array) : "%xmm0");
+
+This ensures that no instructions will be inserted between the pxor &amp;
+movdqa, and it informs gcc that you're modifying the %xmm0 register. As
+memory serves, you also want to add "memory" to the clobber list.
+
+-Matt
+	</pre>
+
+	There is another post on the same forum :
+	<pre>
+Okay, I played around a little more and adding an extra percent sign to the
+XMM param and putting parens around the output param worked. I'm not sure
+which or both has it working but I don't complain if it works. Thanks to all
+for the help.
+
+michael
+
+#include <stdio.h>
+char sse2_array[16] __attribute__((aligned(16)));
+
+int main() {
+unsigned long p;
+sse2_array[0] = 1;
+sse2_array[2] = 2;
+printf("%d %d\n", sse2_array[0], sse2_array[1]);
+asm volatile ("pxor %xmm0, %xmm0");
+asm volatile ("movdqa %%xmm0, (%0)" : "=m" (sse2_array) : );
+printf("%d %d \n", sse2_array[0], sse2_array[1]);
+return 0;
+}
+	</pre>
+	However when I tried the program with gcc version 4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5), it did not compile - gave problems at assembly stage. The below  modification of the above program works. Note the missing parenthesis around the %0 in the second assembly instruction in the working example below.
+	<pre>
+/*
+ * =====================================================================================
+ *
+ *       Filename:  sse-ex.cpp
+ *
+ *    Description:  SSE Programming example  slight modification which compiles with g++ :
+ *    URL       : http://www.rhinocerus.net/forum/lang-asm-x86/255298-how-do-you-do-inline-assembly-vector-types-gcc.html
+ *        Created:  Tuesday 09 October 2012 11:50:19  IST
+ *       Compiler:  gcc version 4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5) 
+ *
+ *
+ * =====================================================================================
+ */
+
+#include &lt;stdio.h&gt;
+char sse2_array[16] __attribute__((aligned(16)));
+
+int main() {
+	unsigned long p;
+	sse2_array[0] = 1;
+	sse2_array[2] = 2;
+	printf("%d %d\n", sse2_array[0], sse2_array[1]);
+	asm volatile ("pxor %xmm0, %xmm0");
+	asm volatile ("movdqa %%xmm0, %0" 
+			: /*  outputs */ "=m" (sse2_array) 
+			: /*  inputs */ 
+			: /*  clobbered */ "xmm0"
+			);
+	printf("%d %d \n", sse2_array[0], sse2_array[1]);
+	return 0;
+}
+	</pre>
+	
+	</div>
+	</section>
+        <section id="this_works">
+          <div class="page-header">
+            <h1>Slightly tweaked version of my program that works</h1>
+          </div>
+
+          <div>
+		  Final form of the SSE that I wanted. The false start is included in the #if 0 comment. 
+		  Note the 3 changes: 
+		<ul>
+			<li>
+			(*a1) . If you have read "Advanced C Programming: Deep C Secrets (author Peter van der Linden)" he has a chapter dedicated to arrays and pointers are not the same. Here is another place this distinction comes into play. 
+			</li>
+			<li>
+			xmm1 to memory (not xmm0). 
+			</li>
+			<li> Also, now that we have 3 references (*a1) in the outputs, (a1) and (b1) in the inputs section of inline assembly. Hence we are now loading (%1) and (%2) into xmm0 and xmm1.
+			</li>
+		</ul>
+	<pre>
+/*
+ * =====================================================================================
+ *
+ *       Filename:  sse-try1.cpp
+ *
+ *    Description:  SSE Instructions using movdqa and paddd and transfer back to memory
+ *
+ *        Created:  Monday 08 October 2012 02:15:26  IST
+ *       Compiler:  gcc
+ *
+ *
+ * =====================================================================================
+ */
+
+#include &lt;iostream&gt;
+
+using namespace std;
+
+typedef int v4si __attribute__ ((vector_size (16)));
+typedef union { int s[4]; v4si v; } v4si_u;
+
+
+void print_arr(int arr[], int n)
+{
+	for (int i=0; i&lt;n; ++i) {
+		cout &lt;&lt; " " &lt;&lt; arr[i];
+		if ( (i+1)%19 == 0) {
+			cout &lt;&lt; endl;
+		}
+	}
+	cout &lt;&lt; endl;
+}
+
+int main ()
+{
+	int arr [256] __attribute__ ((aligned(16)));
+	int bool_condns[256] __attribute__ ((aligned(16))) = {
+		5, 10, 15, 20, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0,
+		1, 0, 1, 0, 1, 0, 1, 0
+	};
+	for (int i=0; i&lt;256; ++i) {
+		arr[i] = i;
+	}
+
+	print_arr (arr, 256);
+	
+	int n = 256;
+
+#if 0
+	{
+		int * a1 __attribute__ ((aligned(16))) = arr;
+		int * b1 __attribute__ ((aligned(16))) = bool_condns;
+		for (int i=0; i &lt; 256; i+=4) {
+			asm (
+				"mov        %%rax, arr"
+				"movdqa     (%0), %%xmm0\n\t"
+				"movdqa     (%1), %%xmm1\n\t"
+				"paddd      %%xmm0, %%xmm1\n\t"
+					: /* outputs */ 
+					: /* inputs */ "r" (a1) , "r"(b1)
+					: /* clobbered */ "xmm0", "xmm1"
+					);
+			asm (
+				"movdqa     %%xmm0, %0\n\t"
+					: /* outputs */ "=m" (a1)
+					: /* inputs */ 
+					: /* clobbered */  "memory" 
+			    );
+
+			a1 += 4; b1+=4;
+			cerr &lt;&lt; "." ;
+		}
+		cout &lt;&lt; endl;
+	}
+#endif /*  0 */
+#if 1
+	{
+		int * a1 __attribute__ ((aligned(16))) = arr;
+		int * b1 __attribute__ ((aligned(16))) = bool_condns;
+		//for (int i=0; i &lt; 256; i+=4) {
+			asm volatile ("pxor %xmm0, %xmm0");
+
+			//asm volatile ("movdqa %%xmm0, %0" 
+			//	: /*  outputs */ "=m" (*a1) 
+			//	: /*  inputs */ 
+			//	: /*  clobbered */ "xmm0"
+			//	);
+
+#if 1
+			asm (
+				"movdqa     (%1), %%xmm0\n\t"
+				"movdqa     (%2), %%xmm1\n\t"
+				"paddd      %%xmm0, %%xmm1\n\t"
+				"movdqa     %%xmm1, %0\n\t"
+					: /* outputs */ "=m" (*a1)
+					: /* inputs */ "r" (a1) , "r"(b1)
+					: /* clobbered */ "xmm0", "xmm1"
+						//, "memory"
+					);
+#endif /*  0  */
+
+			//a1 += 4; b1+=4;
+			cerr &lt;&lt; "." ;
+		//}
+		cout &lt;&lt; endl;
+	}
+#endif /*  0 */
+
+	print_arr (arr, 256);
+
+
+}
+	</pre>
+		</div>
+		</section>
+        <section id="other_links">
+          <div class="page-header">
+            <h1>Other relevant Links on sse</h1>
+          </div>
+          <div>
+
+		<ul>
+			<li><a href="http://forum.osdev.org/viewtopic.php?f=1&t=18146"> gcc inline assembly </a></li>
+			<li><a href="http://www.formboss.net/blog/2011/04/sse-and-inline-assembly-example/">inline assembly </a></li>
+			<li><a href="http://www.formboss.net/blog/2010/10/sse-intrinsics-tutorial/">inline assembly: sse intrinsics</a></li>
+			<li><a href="http://www.3dbuzz.com/vbforum/showthread.php?104753-HowTo-Inline-Assembly-amp-SSE-Vector-normalization-done-fast!">http://www.3dbuzz.com/vbforum/showthread.php?104753-HowTo-Inline-Assembly-amp-SSE-Vector-normalization-done-fast!</a></li>
+			<li><a href="http://www.drdobbs.com/optimizing-cc-with-inline-assembly-progr/184401967?pgno=1"> Dr Dobbs Journal: Important and well documented example for inline assembly programming using sse instructions.</a> This example is for floats, whereas I wanted a similar solution, but for ints.
+			</li>
+			<li><a href="http://ttonteri.dynalias.org/programming/sse">http://ttonteri.dynalias.org/programming/sse</a></li>
+			<li> <a href="http://softpixel.com/~cwright/programming/simd/sse.php">Summary of sse instructions. http://softpixel.com/~cwright/programming/simd/sse.php</a></li>
+			<li> <a href=http://www.liranuna.com/sse-intrinsics-optimizations-in-popular-compilers/"> Comparison of compilers related to sse code generation: http://www.liranuna.com/sse-intrinsics-optimizations-in-popular-compilers/</a></li>
+			<li> Alignment attribute syntax for gcc. <a href="http://gcc.gnu.org/onlinedocs/gcc/Variable-Attributes.html">http://gcc.gnu.org/onlinedocs/gcc/Variable-Attributes.html</a>
+			</li>
+			<li> <a href="http://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Example%20of%20asm%20with%20clobbered%20asm%20reg">gcc docs on inline assembly.</a></li>
+		</ul>
+
+	  </div>
+	  </section>
+
+
+
+		</div>
+	</div>
+</div >
+
+
+
+    <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+    <script src="assets/js/jquery.js"></script>
+    <script src="assets/js/google-code-prettify/prettify.js"></script>
+    <script src="assets/js/bootstrap-transition.js"></script>
+    <script src="assets/js/bootstrap-alert.js"></script>
+    <script src="assets/js/bootstrap-modal.js"></script>
+    <script src="assets/js/bootstrap-dropdown.js"></script>
+    <script src="assets/js/bootstrap-scrollspy.js"></script>
+    <script src="assets/js/bootstrap-tab.js"></script>
+    <script src="assets/js/bootstrap-tooltip.js"></script>
+    <script src="assets/js/bootstrap-popover.js"></script>
+    <script src="assets/js/bootstrap-button.js"></script>
+    <script src="assets/js/bootstrap-collapse.js"></script>
+    <script src="assets/js/bootstrap-carousel.js"></script>
+    <script src="assets/js/bootstrap-typeahead.js"></script>
+    <script src="assets/js/bootstrap-affix.js"></script>
+    <!--<script src="assets/js/application.js"></script>-->
+		<script src="app.js"></script>
+
+
+</body>
+</html>
