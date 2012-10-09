@@ -467,7 +467,8 @@ void count_ax_stmt::generate_code(FILE * f, std::stringstream & cpp_code_str, un
 		//fprintf(f, "\t}\n");
 		if (single_coded_axes) {
 			cpp_code_str 
-				<< "case " << index << ":"
+				//<< "case " << index << ":"
+				<< "case " << code_expr1.str() << ":"
 				<< "\t\tflag["
 				<< index << "]=true;\n"
 				<< "break;"
