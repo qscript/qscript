@@ -3,15 +3,11 @@
  *
  *       Filename:  sse-try1.cpp
  *
- *    Description:  
+ *    Description:  SSE Instructions using movdqa and paddd and transfer back to memory
  *
- *        Version:  1.0
  *        Created:  Monday 08 October 2012 02:15:26  IST
- *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *        Company:  
  *
  * =====================================================================================
  */
@@ -89,7 +85,6 @@ int main ()
 		int * b1 __attribute__ ((aligned(16))) = bool_condns;
 		for (int i=0; i < 256; i+=4) {
 			asm (
-				"mov        %%rax, arr"
 				"movdqa     (%0), %%xmm0\n\t"
 				"movdqa     (%1), %%xmm1\n\t"
 				"paddd      %%xmm0, %%xmm1\n\t"

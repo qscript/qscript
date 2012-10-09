@@ -63,6 +63,7 @@ int main ()
 		}
 	}
 	const int start_col=3924,end_col=3983,width=4;
+#if 0
 	if( start_col > end_col) {
 		printf("start_col evaluated > end_col -> runtime error");
 	}
@@ -87,25 +88,25 @@ int main ()
 		}
 		printf("tmp: %d\n", tmp);
 	}
+#endif /*  0  */
 	const int delta = (end_col + 1 - start_col - width)/width;
 	printf("delta = %d\n", delta);
 
 	//for (int i = 0; i<= delta; ++i ) 
+	//int8_t * c1 __attribute__ ((aligned(16))) = &c[start_col];
+	int v1[14];
 	for (int i = 0; i<= 14; ++i ) {
 		char buff[4];
-		//for (int s=i,j=0;s<i+width;++s,++j) {
-		//	cout << "[start_col  + i * width + j]: " << start_col  + i * width + j << endl;
-		//	buff[j]=c[start_col  + i * width + j];
-		//}
-		buff[0]=c[start_col  + i * width + 0];
-		buff[1]=c[start_col  + i * width + 1];
-		buff[2]=c[start_col  + i * width + 2];
-		buff[3]=c[start_col  + i * width + 3];
+		////for (int s=i,j=0;s<i+width;++s,++j) {
+		////	cout << "[start_col  + i * width + j]: " << start_col  + i * width + j << endl;
+		////	buff[j]=c[start_col  + i * width + j];
+		////}
+		buff[0]=c[start_col + i * width + 0];
+		buff[1]=c[start_col + i * width + 1];
+		buff[2]=c[start_col + i * width + 2];
+		buff[3]=c[start_col + i * width + 3];
 		//void * v_ptr = buff;
 		//int  *i_ptr = static_cast<int *>(v_ptr);
-		//int  *i_ptr = reinterpret_cast<int *>(buff);
-		int   an_int = * reinterpret_cast<int *>(&buff[0]);
-
 		//int tmp=*i_ptr;
 		//if (tmp>=1 && tmp <=100) {
 		//	++qh1a_arr[tmp];
@@ -116,7 +117,20 @@ int main ()
 		//}
 		//printf("2 tmp: %d, an_int: %d\n", /*  tmp, */ an_int);
 		//printf(" an_int: %d\n", /*  tmp, */ an_int);
+
+
 		//(tmp>=1 && tmp <=100) ? ++qh1a_arr[tmp]   : ++qh1a_arr[0];
-		(an_int>=1 && an_int <=100) ? ++qh1a_arr[an_int]   : ++qh1a_arr[0];
+		
+		//if (an_int>=1 && an_int <=100) {
+		//	char a = static_cast<char> (an_int);
+		//	++qh1a_arr[a];
+		//}
+		//(i>=1 && i <=100) ? ++qh1a_arr[i]   : ++qh1a_arr[0];
+		////int  *i_ptr = reinterpret_cast<int *>(buff);
+		int   an_int = * reinterpret_cast<int *>(&buff[0]);
+		//(an_int>=1 && an_int <=100) ? ++qh1a_arr[an_int]   : ++qh1a_arr[0];
+		v1[i] = an_int;
+		// ++qh1a_arr[i];
 	}
+	printf("%d\n", qh1a_arr[1]);
 }
