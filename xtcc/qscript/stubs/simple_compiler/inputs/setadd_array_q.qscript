@@ -1,0 +1,74 @@
+setadd_array_q {
+
+stubs veg = 
+	"Potato" 1
+	"CauliFlower " 2
+	"Broccoli" 3
+	"Okra" 4
+	"Egg Plant" 5;
+setall(veg);
+
+stubs rank = 
+	"Rank 1" 1
+	"Rank 2" 2
+	"Rank 3" 3
+	"Rank 4" 4
+	"Rank 5" 5;
+setall(rank);
+
+q1 	"dummy"
+	sp int32_t (1-5);
+
+q1_veg_rank1 "Ranked 1 Veg"
+	sp int32_t veg: hide;
+
+q1_veg_rank2 "Ranked 2 Veg"
+	sp int32_t veg: hide;
+
+q1_veg_rank3 "Ranked 3 Veg"
+	sp int32_t veg: hide;
+
+q1_veg_rank4 "Ranked 4 Veg"
+	sp int32_t veg: hide;
+
+q1_veg_rank5 "Ranked 5 Veg"
+	sp int32_t veg: hide;
+
+	setall (veg);
+
+	int32_t i;	
+	int32_t i1 = 0;	
+	for (i=0; i<5; i = i + 1) {
+
+q1_veg_loop_rank 	"Veg Ranking"
+			sp int32_t veg: hide;
+
+	}
+
+
+	for (i=0; i<5; i = i + 1) {
+
+		int32_t code = i + 1;
+
+q1_veg 		"Please rank these veggies"
+		sp int32_t veg;
+
+q1_rnk 		"Please rank these veggies"
+		sp int32_t rank;
+
+		if (1 in q1_rnk[i]) {
+			setadd (q1_veg_rank1, q1_veg[i]);
+			//1;
+		}
+
+		setadd (q1_veg_loop_rank[i], q1_veg[i]);
+
+		setdel (veg, q1_veg[i]);
+		setdel (rank, q1_rnk[i]);
+
+	}
+
+q2 	"dummy"
+	sp int32_t (1-5);
+
+}
