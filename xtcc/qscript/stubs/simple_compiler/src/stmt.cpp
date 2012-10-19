@@ -1612,17 +1612,28 @@ StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
 	  , xtccSet_(), arrIndex_(larr_index)
 { }
 */
-StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
-			    		, int32_t l_nest_level, int32_t l_for_nest_level
-				       , AbstractQuestion * l_question_lhs
-				       , AbstractQuestion * l_question_rhs
-				       , AbstractExpression * larr_index
+StubManipStatement::StubManipStatement
+	(DataType dtype, int32_t lline_number 
+	 , int32_t l_nest_level, int32_t l_for_nest_level 
+	 , AbstractQuestion * l_question_lhs 
+	 , AbstractExpression * l_l_arr_index
+	 , AbstractQuestion * l_question_rhs 
+	 , AbstractExpression * l_r_arr_index
 	)
-	: AbstractStatement(dtype, lline_number, l_nest_level, l_for_nest_level)
+	: AbstractStatement(dtype, lline_number, l_nest_level
+				, l_for_nest_level)
 	  , questionName_(l_question_rhs->questionName_), namedStub_()
 	  , namedRange_(0), lhs_(l_question_lhs), rhs_(l_question_rhs)
-	  , xtccSet_(), arrIndex_(0), arrLIndex_(0), maskExpr_(0)
-{ }
+	  , xtccSet_()
+	  , arrLIndex_(l_l_arr_index)
+	  , arrIndex_(l_r_arr_index)
+	  , maskExpr_(0)
+{ 
+
+	cout 	<< " reached here: " 
+		<< __LINE__ << ", " 
+		<< __FILE__ << ", " << __PRETTY_FUNCTION__ << endl;
+}
 
 
 StubManipStatement::StubManipStatement(DataType dtype, int32_t lline_number
@@ -1762,6 +1773,9 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 			code.program_code << "\t}" << endl;
 			code.program_code << "}" << endl;
 		} else if (lhs_ && rhs_) {
+			
+			code.program_code << "/* from here  */"
+				<< endl;
 			code.program_code << "set<int32_t>::iterator set_iter = "
 				<< rhs_->questionName_;
 
@@ -1779,9 +1793,23 @@ void StubManipStatement::GenerateCode(StatementCompiledCode & code)
 				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
 			}
 
-			code.program_code << "->input_data.end(); ++set_iter){" << endl;
-			code.program_code << lhs_->questionName_ << "->input_data.insert(*set_iter);\n";
-			code.program_code << lhs_->questionName_ << "->isAnswered_ = true;\n";
+			code.program_code << "->input_data.end(); ++set_iter) {" << endl;
+			code.program_code << lhs_->questionName_;
+			if (arrLIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrLIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code<< "->input_data.insert(*set_iter);\n";
+			code.program_code << lhs_->questionName_;
+			if (arrLIndex_) {
+				ExpressionCompiledCode expr_code1;
+				arrLIndex_->PrintExpressionCode(expr_code1);
+				code.program_code << "_list.questionList[" << expr_code1.code_expr.str() << "]";
+			}
+
+			code.program_code << "->isAnswered_ = true;\n";
 			code.program_code << "\t}" << endl;
 		} else if (lhs_ == 0 && rhs_ == 0 && namedRange_) {
 			ExpressionCompiledCode expr_code;

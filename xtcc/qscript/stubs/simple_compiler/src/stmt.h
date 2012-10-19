@@ -328,16 +328,18 @@ struct StubManipStatement: public AbstractStatement
 	//StubManipStatement(DataType dtype, int32_t lline_number
 	//			       , named_range * l_named_range
 	//			       , AbstractQuestion * l_question);
-	StubManipStatement(DataType dtype, int32_t lline_number
+	StubManipStatement (DataType dtype, int32_t lline_number
 			   , int32_t l_nest_level, int32_t l_for_nest_level
 			   , named_range * l_named_range
 			   , AbstractQuestion * l_question
 			   , AbstractExpression * larr_index = 0);
-	StubManipStatement(DataType dtype, int32_t lline_number
-			, int32_t l_nest_level, int32_t l_for_nest_level
+	StubManipStatement (DataType dtype, int32_t lline_number
+			   , int32_t l_nest_level, int32_t l_for_nest_level
 			   , AbstractQuestion * l_question_lhs
+			   , AbstractExpression * l_l_arr_index
 			   , AbstractQuestion * l_question_rhs
-			   , AbstractExpression * larr_index = 0);
+			   , AbstractExpression * l_r_arr_index
+			   );
 
 	StubManipStatement(DataType dtype, int32_t lline_number
 			   , int32_t l_nest_level, int32_t l_for_nest_level

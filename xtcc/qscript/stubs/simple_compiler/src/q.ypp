@@ -1,4 +1,4 @@
-// vim: set ft=yacc et:
+// vim: set ft=yacc noet:
 /*
  *  xtcc/xtcc/qscript/stubs/simple_compiler/q.ypp
  *
@@ -1166,8 +1166,30 @@ stub_manip_stmts:
 				, $3, 0, $5, 0);
 	}
 	| SETDEL '(' NAME ',' NAME '[' expression ']' ')' ';' {
-		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
+		AbstractExpression * a_expr = $7;
+		Unary2Expression * arr_r_index
+			= dynamic_cast<Unary2Expression*> (a_expr);
+			
+		//UnaryExpression * e1 = dynamic_cast<UnaryExpression*> (a_expr);
+		//if (e1) {
+		//	cout << " is UnaryExpression" << endl;
+		//}
+		//BinaryExpression * b1 = dynamic_cast<BinaryExpression*> (a_expr);
+		//if (b1) {
+		//	cout << " is BinaryExpression" << endl;
+		//}
+		if (arr_r_index) {
+			$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, $3, 0, $5, $7);
+		} else {
+			$$ = new ErrorStatement(qscript_parser::line_no,
+				qscript_parser::nest_lev, qscript_parser::flagIsAForBody_);
+			std::stringstream err_msg;
+			err_msg << "array indexing expression should be integer expression";
+			print_err(compiler_syntax_err
+				, err_msg.str()
+				, qscript_parser::lex_location.lineNo_, __LINE__, __FILE__);
+		}
 	}
 	| SETADD '(' NAME ',' '(' NAME ')' ')' ';' {
                 // 2nd NAME is an expression
@@ -1175,12 +1197,25 @@ stub_manip_stmts:
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, $3, 0, un2e);
 	}
-	| SETADD '(' NAME '[' NAME ']' ',' '(' NAME ')' ')' ';' {
-                // 2nd NAME is an expression
-                Unary2Expression * arr_index = new Unary2Expression ($5, oper_name);
-                Unary2Expression * un2e = new Unary2Expression ($9, oper_name);
+	| SETADD '(' NAME '[' expression ']' ',' NAME '[' expression ']' ')' ';' {
+		cout << __LINE__ << "|^: reached here" << endl;		
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
+				, $3, $5, $8, $10);
+        }
+	/* | SETADD '(' NAME '[' NAME ']' ',' '(' NAME ')' ')' ';'  */
+	| SETADD '(' NAME '[' expression ']' ',' '(' NAME ')' ')' ';' {
+                // 2nd NAME is an expression
+                //Unary2Expression * arr_index = new Unary2Expression ($5, oper_name);
+                Unary2Expression * arr_index = 
+			dynamic_cast<Unary2Expression*> ($5);
+       		if (arr_index) { 
+	                Unary2Expression * un2e = new Unary2Expression ($9, oper_name);
+			$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, $3, arr_index, un2e);
+		} else {
+			$$ = new ErrorStatement(qscript_parser::line_no, 
+				qscript_parser::nest_lev, qscript_parser::flagIsAForBody_);
+		}
 	}
 	| SETADD '(' NAME ',' NAME ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
@@ -1189,6 +1224,7 @@ stub_manip_stmts:
 	| SETADD '(' NAME ',' NAME '[' expression ']' ')' ';' {
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_ADD
 				, $3, 0, $5, $7);
+		//cout << "reached here" << endl;		
 	}
 	| SETADD '(' NAME '[' expression ']' ',' range_allowed_values ')' ';' {
 		using qscript_parser::xs;

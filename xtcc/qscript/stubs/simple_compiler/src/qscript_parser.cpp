@@ -936,14 +936,19 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 				dt,
 				line_no, 
 				/* nest_lev */ 0, 
-				/* flagIsAForBody_ */ 0, 
-				lhs_question, rhs_question);
+				/* flagIsAForBody_ */ 0
+				, lhs_question, l_l_arr_index
+				, rhs_question, l_r_arr_index);
 			return st_ptr;
 		} else {
 			struct AbstractStatement* st_ptr = 
 				new StubManipStatement (dt,
 				line_no, /* nest_lev */ 0,
-				/* flagIsAForBody_ */ 0, lhs_question, rhs_question, l_r_arr_index);
+				/* flagIsAForBody_ */ 0
+				, lhs_question, l_l_arr_index
+				, rhs_question, l_r_arr_index);
+			cout 	<< " reached here: " 
+				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ << endl;
 			return st_ptr;
 		}
 
