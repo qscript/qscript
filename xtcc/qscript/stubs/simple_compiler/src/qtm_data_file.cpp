@@ -1785,6 +1785,8 @@ string print_summary_axis_helpers_helper (vector<qtm_data_file_ns::QtmDataDiskMa
 		, string include_file_name
 		, string mean_score_include_file
 		, SummaryTableType sm_type
+		, NamedStubQuestion * driver_question
+		, int driver_stub_index
 		)
 {
 	stringstream result;
@@ -1868,23 +1870,56 @@ string print_summary_axis_helpers_helper (vector<qtm_data_file_ns::QtmDataDiskMa
 		range_string << "1:10";
 	}
 
-	AbstractQuestion * q = v[0]->q;
-	result << "/* summary table for: " << v[0]->q->questionName_ << endl;
-	result << "l " << q->questionName_ << part_ax_name << endl;
-	result << "ttl" << q->questionName_ << "."  << part_ax_name << "."
-		//<< v[0]->q->questionText_
-		//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
-		//<< ", " << __PRETTY_FUNCTION__ 
-		<< q->AxPrepareQuestionTitle()
-		<< summary_text << endl;
-	result << "*include base.qin;btxt=All Respondents" << endl;
-	for (int i=0; i<v.size(); ++i) {
-		result << "*include " << incl_file
-			<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-			<< ";myrange=(" << range_string.str() << ")"
-			<< endl;
+	if (driver_question == 0) {
+		AbstractQuestion * q = v[0]->q;
+		result << "/* summary table for: " << v[0]->q->questionName_ << endl;
+		result << "l " << q->questionName_ << part_ax_name << endl;
+		result << "ttl" << q->questionName_ << "."  << part_ax_name << "."
+			//<< v[0]->q->questionText_
+			//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+			//<< ", " << __PRETTY_FUNCTION__ 
+			<< q->AxPrepareQuestionTitle()
+			<< summary_text << endl;
+		result << "*include base.qin;btxt=All Respondents" << endl;
+		for (int i=0; i<v.size(); ++i) {
+			result << "*include " << incl_file
+				<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
+				<< ";myrange=(" << range_string.str() << ")"
+				<< endl;
+		}
+		result << endl;
+	} else {
+		AbstractQuestion * q = v[0]->q;
+		result << "/* summary table for: " << v[0]->q->questionName_ << endl;
+		result << "l " << q->questionName_ 
+			<< "_" << driver_stub_index 
+			<< part_ax_name << endl;
+		result << "ttl" << q->questionName_ << "."  << part_ax_name << "."
+			//<< v[0]->q->questionText_
+			//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
+			//<< ", " << __PRETTY_FUNCTION__ 
+			<< q->AxPrepareQuestionTitle()
+			<< " * " << "&at" << driver_stub_index << "t *"
+			<< summary_text << endl;
+		result << "*include base.qin;btxt=All Respondents" << endl;
+		for (int i=0; i<v.size(); ++i) {
+			result << "*include " << incl_file
+				<< ";qatt=&bt" << i << "t" 
+				<< ";var_name=" 
+				// << driver_question->questionName_
+				<< v[0]->q->questionName_
+				;					
+			for (int i2=0; i2 < v[i]->q->loop_index_values.size(); ++i2) {
+				result << "_" << v[i]->q->loop_index_values[i2];
+			}
+
+			result	<< "_"
+				<< driver_question->nr_ptr->stubs[driver_stub_index].stub_text_as_var_name()
+				<< ";myrange=(" << range_string.str() << ")"
+				<< endl;
+		}
+		result << endl;
 	}
-	result << endl;
 	return result.str();
 
 }
@@ -1893,6 +1928,8 @@ void print_summary_axis_helper (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
 		, fstream & qtm_qax_file, int scale
 		, string include_file_name
 		, string mean_score_include_file
+		, NamedStubQuestion * driver_question
+		, int driver_stub_index
 		)
 {
 	if (scale == 5) {
@@ -1901,31 +1938,41 @@ void print_summary_axis_helper (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, TOP_BOX);
+				, mean_score_include_file, TOP_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, TOP_2_BOX);
+				, mean_score_include_file, TOP_2_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, BOT_BOX);
+				, mean_score_include_file, BOT_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, BOT_2_BOX);
+				, mean_score_include_file, BOT_2_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, MN);
+				, mean_score_include_file, MN
+				, driver_question
+				, driver_stub_index);
 
 
 #if 0
@@ -2003,45 +2050,130 @@ void print_summary_axis_helper (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, TOP_BOX);
+				, mean_score_include_file, TOP_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, TOP_2_BOX);
+				, mean_score_include_file, TOP_2_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, TOP_3_BOX);
+				, mean_score_include_file, TOP_3_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, BOT_BOX);
+				, mean_score_include_file, BOT_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, BOT_2_BOX);
+				, mean_score_include_file, BOT_2_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, BOT_3_BOX);
+				, mean_score_include_file, BOT_3_BOX
+				, driver_question
+				, driver_stub_index);
 
 		qtm_qax_file << 
 			print_summary_axis_helpers_helper ( v
 				,  qtm_qax_file, scale
 				, include_file_name
-				, mean_score_include_file, MN);
+				, mean_score_include_file, MN
+				, driver_question
+				, driver_stub_index);
 
 
+	}
+
+}
+void get_ndigits_and_rat_scale (NamedStubQuestion * n_q, int & n_digits, int & rat_scale);
+
+void print_summary_axis_recode_edit (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
+		, fstream & qtm_qax_file
+		, NamedStubQuestion * driver_question
+		, int driver_stub_index
+		)
+{
+	qtm_qax_file << "/*  "
+		<< __FILE__ 
+		<< ", " << __LINE__
+		<< ", " << __PRETTY_FUNCTION__
+		<< " */"
+		<< endl;
+	qtm_qax_file << "driver_question: " << driver_question->questionName_ << endl;
+
+	AbstractQuestion * q = v[0]->q;
+	if (q->q_type == spn) {
+		int n_digits = 0;
+		int rat_scale = 0;
+
+		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+			get_ndigits_and_rat_scale (n_q, n_digits, rat_scale);
+		}
+
+		if (n_digits > 0) {
+			string include_file_name;
+			string mean_score_include_file;
+			if (v[0]->width_ == 1) {
+				include_file_name = "rat1c.qin";
+				mean_score_include_file = "mn1c.qin";
+			} else if (v[0]->width_ == 2) {
+				include_file_name = "rat2c.qin";
+				mean_score_include_file = "mn2c.qin";
+			} else if (v[0]->width_ == 3) {
+				include_file_name = "rat3c.qin";
+				mean_score_include_file = "mn3c.qin";
+			} else {
+				include_file_name = "unhandled width syntax error";
+				mean_score_include_file = "unhandled width syntax error";
+			}
+			print_summary_axis_helper (v
+				, qtm_qax_file, rat_scale
+				, include_file_name
+				, mean_score_include_file
+				, driver_question
+				, driver_stub_index
+				);
+		}
+	}
+
+}
+
+void get_ndigits_and_rat_scale (NamedStubQuestion * n_q, int & n_digits, int & rat_scale)
+{
+	if (n_q->nr_ptr) {
+		string & stub_name = n_q->nr_ptr->name;
+		int multiplier = 1;
+		for (int i=stub_name.length()-1; i>0; --i) {
+			if ( isdigit(stub_name[i]) ) {
+				int c = stub_name[i] - '0';
+				++n_digits;
+				rat_scale = rat_scale + c * multiplier;
+				multiplier *= 10;
+			} else {
+				break;
+			}
+		}
 	}
 
 }
@@ -2053,7 +2185,10 @@ void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, fstream 
 	if (q->q_type == spn) {
 		int n_digits = 0;
 		int rat_scale = 0;
+
 		if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
+			get_ndigits_and_rat_scale (n_q, n_digits, rat_scale);
+#if 0
 			if (n_q->nr_ptr) {
 				string & stub_name = n_q->nr_ptr->name;
 				int multiplier = 1;
@@ -2068,6 +2203,7 @@ void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, fstream 
 					}
 				}
 			}
+#endif /*  0 */
 		}
 		if (n_digits > 0) {
 			string include_file_name;
@@ -2088,227 +2224,9 @@ void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, fstream 
 			print_summary_axis_helper (v
 				, qtm_qax_file, rat_scale
 				, include_file_name
-				, mean_score_include_file);
+				, mean_score_include_file
+				, 0, 0);
 
-#if 0
-			if (rat_scale == 5) {
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_top" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_<< " - Summary of Top Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 5 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_top2" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 2 Box" << endl ;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 5 << ", " << 4 << ")"
-						<< endl;
-				}
-
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_bot" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_bot2" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 2 Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ", " << 2 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_mn" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Means" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << mean_score_include_file
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ":" << 5 << ")"
-						<< endl;
-				}
-			qtm_qax_file << endl;
-			}
-			else if (rat_scale == 7) {
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_top" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 7 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_top2" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 2 Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 7 << ", " << 6 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_top3" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 3 Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 5 << ":" << 7 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_bot" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ <<  " - Summary of Bottom Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_bot2" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 2 Box" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ", " << 2 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_mn" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Means" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << mean_score_include_file
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ":" << 7 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_bot3" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 3 Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ":" << 3 << ")"
-						<< endl;
-				}
-
-			}
-			else if (rat_scale == 10) {
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_top" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top Box"<< endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 10 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_top2" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 2 Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 10 << ", " << 9 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_top3" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Top 3 Box" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 8 << ":" << 10 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_bot" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_bot2" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 2 Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ", " << 2 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_mn" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Means" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << mean_score_include_file
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ":" << 10 << ")"
-						<< endl;
-				}
-
-				qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
-				qtm_qax_file << "l " << q->questionName_ << "_bot3" << endl;
-				qtm_qax_file << "ttl" << q->questionName_ << "." << v[0]->q->questionText_ << " - Summary of Bottom 3 Box" << endl;
-				qtm_qax_file << "*include base.qin;btxt=All Respondents" << endl;
-				for (int i=0; i<v.size(); ++i) {
-					qtm_qax_file << "*include " << include_file_name
-						<< ";qatt=&at" << i << "t;" << "col(a)=" << v[i]->startPosition_+1 
-						<< ";myrange=(" << 1 << ":" << 3 << ")"
-						<< endl;
-				}
-
-			}
-#endif /*  0 */
 		} else {
 			qtm_qax_file << "/* summary table for: " << v[0]->q->questionName_ << endl;
 			qtm_qax_file << "/*l " << q->questionName_ << "_sum" << endl;
@@ -2331,12 +2249,22 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 {
 	stringstream ax;
 	string setup_dir( string("setup-") + jno + string ("/"));
-	NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (driver_q->q);
-	if (nq) {
+	NamedStubQuestion * driver_nq = dynamic_cast<NamedStubQuestion*> (driver_q->q);
+	if (driver_nq) {
+		if (index == 0) {
+			for (int i=0; i < driver_nq->nr_ptr->stubs.size(); ++i) {
+				ax 	<< "*def at" << i << "t="
+					<< driver_nq->nr_ptr->stubs[i].stub_text 
+					<< endl;
+			}
+			ax << endl;
+		}
+
+
 		const int TEXT_LEN_BREAK_AT = 120;
 		vector <string> smaller_ttls = qtm_data_file_ns::split_into_smaller_chunks (
 				//recode_q->q->questionText_
-				  nq->AxPrepareQuestionTitle()
+				  recode_q->q->AxPrepareQuestionTitle()
 				, TEXT_LEN_BREAK_AT);
 		stringstream ttl_string;
 		for (int i=0; i<smaller_ttls.size(); ++i) {
@@ -2349,15 +2277,18 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 			} else {
 				l_base_text << qtm_data_file_ns::print_dynamic_base_text (recode_q->q, recode_q->baseText_);
 			}
-			l_base_text << " who use : " << nq->nr_ptr->stubs[index].stub_text << endl;
+			l_base_text << " who use/evaluated : &at" << index << "t"
+				//<< driver_nq->nr_ptr->stubs[index].stub_text 
+				<< endl;
 			if (recode_q->q->loop_index_values.size()==1) {
+				ax << "/* : " << index << " */" << endl;
 				ax << "*include " << "r_" << recode_q->q->questionName_ 
 					<<".qax"
 					<<";qlno=" << recode_q->q->loop_index_values[0] << ";var_name=" << recode_q->q->questionName_ ;
 					for (int i2=0; i2 < recode_q->q->loop_index_values.size(); ++i2) {
 						 ax << "_" << recode_q->q->loop_index_values[i2];
 						}
- 				ax << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name()
+ 				ax << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name()
 					<<";col(a)=" << 1
 					<<";q1att=&a" << recode_q->q->loop_index_values[0] <<"t;att1t=;q2att=;att2t=/*;"
 					<<"\n+btxt=" << l_base_text.str()
@@ -2367,7 +2298,7 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 				ax <<"*include r_" << recode_q->q->questionName_
 					<<".qax"
 					<<";col(a)=" << recode_q->q->loop_index_values[0] + 1
-					<<";qlno=" << recode_q->q->loop_index_values[0] <<"_" << recode_q->q->loop_index_values[1] << ";var_name="  << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name()
+					<<";qlno=" << recode_q->q->loop_index_values[0] <<"_" << recode_q->q->loop_index_values[1] << ";var_name="  << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name()
 					<<";q1att=&a" << recode_q->q->loop_index_values[0] <<"t;att1t="
 					<<";q2att=&b" << recode_q->q->loop_index_values[0] <<"t;att2t=" << endl
 					<<"\n+btxt = " << l_base_text.str()
@@ -2428,10 +2359,10 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 			}
 		} else {
 			ax << "l ";
-			ax << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name();
-			ax << "; c=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << "(1, "<< recode_q->totalLength_ << ") u $ $\n"
+			ax << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name();
+			ax << "; c=" << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name() << "(1, "<< recode_q->totalLength_ << ") u $ $\n"
 				<< endl;
-			ax << "*include qttl.qin;qno=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";";
+			ax << "*include qttl.qin;qno=" << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";";
 	
 	
 			ax << ttl_string.str();
@@ -2440,7 +2371,16 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 			ax << "+q2att=;att2t=/*" << endl;
 	
 			if (recode_q->baseText_.isDynamicBaseText_ == false) {
-				ax <<"*include base.qin;btxt=" << recode_q->baseText_.baseText_ << " who use : " << nq->nr_ptr->stubs[index].stub_text << endl;
+				ax 
+					<<"*include base.qin;btxt=" 
+					<< recode_q->baseText_.baseText_ 
+					<< " who use/evaluated : &at" << index << "t"
+					//<< driver_nq->nr_ptr->stubs[index].stub_text 
+					<< endl;
+
+				//l_base_text 
+				//	//<< driver_nq->nr_ptr->stubs[index].stub_text 
+				//	<< endl;
 			} else {
 				ax <<"*include base.qin;btxt= Unexpected case non-array questions should not have dynamicBaseQuestion_ : 3548, src/qscript_parser.cpp, void qscript_parser::print_recode_edit_qax(FILE*) ";
 			}
@@ -2450,17 +2390,17 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 				if (n_q->nr_ptr) {
 					if (n_q->no_mpn>1) {
 						ax <<"*include r_" << n_q->nr_ptr->name <<".min;"
-						<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
+						<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
 						<< endl;
 					} else {
 						ax <<"*include r_" << n_q->nr_ptr->name <<".sin;"
-						<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
+						<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
 						<< endl;
 					}
 				}
 			} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(recode_q->q)) {
 				ax <<"*include r_" << recode_q->q->questionName_ <<".qin;"
-					<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
+					<<"col(a)=" << 1 << ";var_name=" << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";"
 					<<""
 					<< endl;
 				stringstream fname;

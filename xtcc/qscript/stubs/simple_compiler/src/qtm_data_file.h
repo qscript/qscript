@@ -117,6 +117,12 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 void top_level_write_qax(string jno, 
 		const vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map);
 
+void print_summary_axis_recode_edit (vector<qtm_data_file_ns::QtmDataDiskMap*> & v
+		, std::fstream & qtm_qax_file
+		, NamedStubQuestion * driver_question
+		, int driver_stub_index
+		);
+
 
 } /* close namespace qtm_data_file */
 

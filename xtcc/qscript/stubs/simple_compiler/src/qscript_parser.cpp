@@ -2459,8 +2459,18 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name << "_map_entry[i1]->totalLength_ << \")\"" << endl
 							<< "\t\t\t\t\t<< endl;" << endl 
 							<< "\t\t\t\t}" << endl
-							<< "\t\t\t}" << endl
-							<< "\t\t}\n";
+							<< "\t\t\t}" << endl;
+						if (j2 == 0) {
+						recode_edit.program_code
+							<< "\t\t\t print_summary_axis_recode_edit ("
+							<< rec_question_name
+							<< "_map_entry, recode_edit_qax_file"
+							<< ", " <<  driver_question_name
+							<< ", i" 
+							<< ");\n";
+						}
+						recode_edit.program_code
+							<< "\t\t /* close loop i == 0  */}\n";
 					} else {
 						recode_edit.program_code 
 							<< " not a  question" << endl;
