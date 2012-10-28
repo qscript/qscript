@@ -226,31 +226,32 @@ void set_counter_4_2()
 
 void tabulate_side4_ban2 ()
 {
-	int counter [] = { 	0, 0, 0, 0, 
-				0, 0, 0, 0 
-	};
+	cout << __PRETTY_FUNCTION__ << endl;
+	//int counter [] = { 	0, 0, 0, 0, 
+	//			0, 0, 0, 0 
+	//};
 
 	int cols = 2;
 
 	if (flag_side4[0] && flag_ban2[0])
-		++ counter_4_2[0];
+		++ counter_4_2[0 * cols + 0];
 	if (flag_side4[1] && flag_ban2[0])
-		++ counter_4_2[1];
+		++ counter_4_2[0 * cols + 1];
 	if (flag_side4[2] && flag_ban2[0])
-		++ counter_4_2[2];
+		++ counter_4_2[1 * cols + 0];
 	if (flag_side4[3] && flag_ban2[0])
-		++ counter_4_2[3];
+		++ counter_4_2[1 * cols + 1];
 
 	if (flag_side4[0] && flag_ban2[1])
-		++ counter_4_2[1 * cols + 0];
+		++ counter_4_2[2 * cols + 0];
 	if (flag_side4[1] && flag_ban2[1])
-		++ counter_4_2[1 * cols + 1];
+		++ counter_4_2[2 * cols + 1];
 	if (flag_side4[2] && flag_ban2[1])
-		++ counter_4_2[1 * cols + 2];
+		++ counter_4_2[3 * cols + 0];
 	if (flag_side4[3] && flag_ban2[1])
-		++ counter_4_2[1 * cols + 3];
+		++ counter_4_2[3 * cols + 1];
 
-	cout << "counter: ";
+	cout << "counter_4_2: ";
 	for (int i=0; i<8; ++i) {
 		cout << " " << "|" << (int) counter_4_2[i] << "|" ;
 	}
@@ -260,6 +261,7 @@ void tabulate_side4_ban2 ()
 
 void tabulate_side4_ban2_parallel ()
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
 		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
 	char shuffle_mask_side[] __attribute__ ((aligned(16)))
@@ -381,42 +383,56 @@ void tabulate_side4_ban2_parallel ()
 	cout << endl;
 }
 
+void set_counter_4_3()
+{
+	for (int i=0; i<12; ++i) {
+		counter_4_3[i] = (i+1) * 5 + 2;
+	}
+}
+
 void tabulate_side4_ban3 ()
 {
-	int counter [] = { 	
-				0, 0, 0, 0,
-				0, 0, 0, 0,
-				0, 0, 0, 0
-	};
+	//int counter_4_3 [] = { 	
+	//			0, 0, 0, 0,
+	//			0, 0, 0, 0,
+	//			0, 0, 0, 0
+	//};
 
 	int cols = 3;
 
 	if (flag_side4[0] && flag_ban3[0])
-		++ counter[0];
-	if (flag_side4[1] && flag_ban3[0])
-		++ counter[1];
-	if (flag_side4[2] && flag_ban3[0])
-		++ counter[2];
-	if (flag_side4[3] && flag_ban3[0])
-		++ counter[3];
-
+		++ counter_4_3[0 * cols + 0];
 	if (flag_side4[0] && flag_ban3[1])
-		++ counter[1 * cols + 0];
-	if (flag_side4[1] && flag_ban3[1])
-		++ counter[1 * cols + 1];
-	if (flag_side4[2] && flag_ban3[1])
-		++ counter[1 * cols + 2];
-	if (flag_side4[3] && flag_ban3[1])
-		++ counter[1 * cols + 3];
-
+		++ counter_4_3[0 * cols + 1];
 	if (flag_side4[0] && flag_ban3[2])
-		++ counter[2 * cols + 0];
+		++ counter_4_3[0 * cols + 2];
+
+	if (flag_side4[1] && flag_ban3[0])
+		++ counter_4_3[1 * cols + 0];
+	if (flag_side4[1] && flag_ban3[1])
+		++ counter_4_3[1 * cols + 1];
 	if (flag_side4[1] && flag_ban3[2])
-		++ counter[2 * cols + 1];
+		++ counter_4_3[1 * cols + 2];
+
+	if (flag_side4[2] && flag_ban3[0])
+		++ counter_4_3[2 * cols + 0];
+	if (flag_side4[2] && flag_ban3[1])
+		++ counter_4_3[2 * cols + 1];
 	if (flag_side4[2] && flag_ban3[2])
-		++ counter[2 * cols + 2];
+		++ counter_4_3[2 * cols + 2];
+
+	if (flag_side4[3] && flag_ban3[0])
+		++ counter_4_3[3 * cols + 0];
+	if (flag_side4[3] && flag_ban3[1])
+		++ counter_4_3[3 * cols + 1];
 	if (flag_side4[3] && flag_ban3[2])
-		++ counter[2 * cols + 3];
+		++ counter_4_3[3 * cols + 2];
+
+	cout << "counter_4_3: ";
+	for (int i=0; i<12; ++i) {
+		cout << " " << "|" << (int) counter_4_3[i] << "|" ;
+	}
+	cout << endl;
 
 }
 
@@ -568,7 +584,7 @@ void tabulate_side4_ban3_parallel ()
 	    );
 
 
-	cout << "counter: ";
+	cout << "parallel counter_4_3: ";
 	for (int i=0; i<12; ++i) {
 		cout << " " << "|" << (int) counter_4_3[i] << "|" ;
 	}
@@ -2020,6 +2036,9 @@ int main()
 	tabulate_side4_ban2();
 	set_counter_4_2();
 	tabulate_side4_ban2_parallel ();
+	set_counter_4_3();
+	tabulate_side4_ban3 ();
+	set_counter_4_3();
 	tabulate_side4_ban3_parallel ();
 	tabulate_side4_ban4_parallel ();
 	tabulate_side4_ban5_parallel ();
