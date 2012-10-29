@@ -45,12 +45,21 @@
 char flag_ban1 [] = { 1 };
 char flag_ban2 [] = { 0, 1 };
 //char flag_ban3 [] = { 1, 1, 1, 0 /*  dummy to prevent core dump etc */};
-char flag_ban3 [] = { 1, 0, 1, 0 /*  dummy to prevent core dump etc */};
-char flag_ban4 [] = { 1, 1, 1, 1 };
+char flag_ban3 [] = { 1, 1, 1, 0 /*  dummy to prevent core dump etc */};
+char flag_ban4 [] = { 1, 0, 0, 1 };
 char flag_ban5 [] = { 0, 0, 0, 0, 1 };
 char flag_ban6 [] = { 0, 0, 0, 0, 0, 1 };
-char flag_side2 [] = { 1, 1 };
-char flag_side3 [] = { 1, 1, 1 };
+//char flag_side2 [] = { 1, 1 };
+
+char flag_side2 [] __attribute__ ((aligned(16))) = 
+	{ 	0, 1, /*  padding */ 
+		      0, 0,
+		0, 0, 0, 0,	   
+		0, 0, 0, 0,	   
+		0, 0, 0, 0,	 
+	};
+
+char flag_side3 [] = { 1, 1, 1, /*  padding */ 0 };
 //char flag_side4 [4]  = { 1, 1, 1, 1 };
 //char flag_side4 [4]  = { 1, 0, 1, 0 };
 //char flag_side4 [4]  = { 0, 1, 0, 1 };
@@ -86,28 +95,6 @@ int counter_4_6 [] __attribute__ ((aligned(16))) = {
 	68, 73, 78, 83,
 	88, 93, 98, 103,
 	108, 113, 118, 123,
-};
-char flag_ban15 [] = { 
-	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
-};
-
-int counter_4_15 [] __attribute__ ((aligned(16))) = { 
-
-	2, 4, 6, 8, 
-	10, 12, 14, 16, 
-	18, 20, 22, 24, 
-	26, 28, 30, 32, 
-	34, 36, 38, 40, 
-	42, 44, 46, 48, 
-	50, 52, 54, 56, 
-	58, 60, 62, 64, 
-	66, 68, 70, 72, 
-	74, 76, 78, 80, 
-	82, 84, 86, 88, 
-	90, 92, 94, 96, 
-	98, 100, 102, 104, 
-	106, 108, 110, 112, 
-	114, 116, 118, 120
 };
 
 #include <iostream>
@@ -235,23 +222,23 @@ void tabulate_side4_ban2 ()
 
 	if (flag_side4[0] && flag_ban2[0])
 		++ counter_4_2[0 * cols + 0];
-	if (flag_side4[1] && flag_ban2[0])
+	if (flag_side4[0] && flag_ban2[1])
 		++ counter_4_2[0 * cols + 1];
-	if (flag_side4[2] && flag_ban2[0])
+	if (flag_side4[1] && flag_ban2[0])
 		++ counter_4_2[1 * cols + 0];
-	if (flag_side4[3] && flag_ban2[0])
+	if (flag_side4[1] && flag_ban2[1])
 		++ counter_4_2[1 * cols + 1];
 
-	if (flag_side4[0] && flag_ban2[1])
+	if (flag_side4[2] && flag_ban2[0])
 		++ counter_4_2[2 * cols + 0];
-	if (flag_side4[1] && flag_ban2[1])
-		++ counter_4_2[2 * cols + 1];
 	if (flag_side4[2] && flag_ban2[1])
+		++ counter_4_2[2 * cols + 1];
+	if (flag_side4[3] && flag_ban2[0])
 		++ counter_4_2[3 * cols + 0];
 	if (flag_side4[3] && flag_ban2[1])
 		++ counter_4_2[3 * cols + 1];
 
-	cout << "counter_4_2: ";
+	cout << " simple   counter_4_2: ";
 	for (int i=0; i<8; ++i) {
 		cout << " " << "|" << (int) counter_4_2[i] << "|" ;
 	}
@@ -263,9 +250,15 @@ void tabulate_side4_ban2_parallel ()
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
-		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+		//= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+		= { 	
+			0, 1, 0, 1, 0, 1, 0, 1,
+			0, 1, 0, 1, 0, 1, 0, 1
+				
+			//, 0, 1, 2, 3, 0, 1, 2, 3 
+		};
 	char shuffle_mask_side[] __attribute__ ((aligned(16)))
-		= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
 
 
 	asm (
@@ -376,7 +369,7 @@ void tabulate_side4_ban2_parallel ()
 				"xmm3", "memory"
 	    );
 
-	cout << "counter: ";
+	cout << " parallel counter_4_2: ";
 	for (int i=0; i<8; ++i) {
 		cout << " " << "|" << (int) counter_4_2[i] << "|" ;
 	}
@@ -428,9 +421,12 @@ void tabulate_side4_ban3 ()
 	if (flag_side4[3] && flag_ban3[2])
 		++ counter_4_3[3 * cols + 2];
 
-	cout << "counter_4_3: ";
+	cout << "simple   counter_4_3: ";
 	for (int i=0; i<12; ++i) {
 		cout << " " << "|" << (int) counter_4_3[i] << "|" ;
+		//if ( (i+1) % cols == 0) {
+		//	cout << endl;
+		//}
 	}
 	cout << endl;
 
@@ -439,9 +435,10 @@ void tabulate_side4_ban3 ()
 void tabulate_side4_ban3_parallel ()
 {
 	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
-		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+		//= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+		= { 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0 };
 	char shuffle_mask_side[] __attribute__ ((aligned(16)))
-		= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
 
 
 	asm (
@@ -584,7 +581,7 @@ void tabulate_side4_ban3_parallel ()
 	    );
 
 
-	cout << "parallel counter_4_3: ";
+	cout << "parallel counter_4_3: " ;
 	for (int i=0; i<12; ++i) {
 		cout << " " << "|" << (int) counter_4_3[i] << "|" ;
 	}
@@ -1457,7 +1454,7 @@ void tabulate_side4_ban6_parallel ()
 
 	}//cout << endl;
 	
-	
+
 	cout << "counter: ";
 	for (int i=0; i<24; ++i) {
 		cout << " " << "|" << (int) counter_4_6[i] << "|" ;
@@ -1466,7 +1463,19 @@ void tabulate_side4_ban6_parallel ()
 		}
 	}
 	cout << endl;
+
 }
+
+char flag_ban15 [] = { 
+	0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0
+};
+
+int counter_4_15 [] __attribute__ ((aligned(16))) = { 
+	 2,  4,  6,  8,   10,  12,  14,  16,   18,  20,  22,  24,   26,  28,  30, 
+	32, 34, 36, 38,   40,  42,  44,  46,   48,  50,  52,  54,   56,  58,  60,
+	62, 64, 66, 68,   70,  72,  74,  76,   78,  80,  82,  84,   86,  88,  90, 
+	92, 94, 96, 98,  100, 102, 104, 106,  108, 110, 112, 114,  116, 118, 120
+};
 
 void tabulate_side4_ban_n_parallel (
 			  int n_ban_elements 
@@ -1477,9 +1486,9 @@ void tabulate_side4_ban_n_parallel (
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
-		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
-	char shuffle_mask_side[] __attribute__ ((aligned(16)))
 		= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+	char shuffle_mask_side[] __attribute__ ((aligned(16)))
+		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
 
 	//double *x = __builtin_assume_aligned(a, 16);
 	//double *y = __builtin_assume_aligned(b, 16);
@@ -1749,10 +1758,12 @@ void tabulate_side4_ban_n_parallel (
 	}
 	if (n_ban_elements % 4 == 2) {
 		char shuffle_mask_ban[] __attribute__ ((aligned(16)))
-			= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+			= 
+			{ 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
 		char shuffle_mask_side[] __attribute__ ((aligned(16)))
-			= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
-		char * my_ban_ptr __attribute__ ((aligned(16))) = flag_ban6;
+			= 
+			{ 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+		//char * my_ban_ptr __attribute__ ((aligned(16))) = flag_ban6;
 
 
 		asm (
@@ -2026,32 +2037,1658 @@ void tabulate_side4_ban_n_parallel (
 
 }
 
+char flag_side1 [] __attribute__ ((aligned(16))) = 
+	{ 	1, 
+		   /*  padding */ 0, 0, 0,
+		0,0,0,0,	   
+		0,0,0,0,	   
+		0,0,0,0,	 
+		
+	};
+
+int counter_1_4 [] __attribute__ ((aligned(16))) = { 5, 10, 15, 20 };
+ 
+// ====================================
+void tabulate_side1_ban4()
+{
+	const int cols = 4;
+	if (flag_side1[0] && flag_ban4[0]) 
+		++ counter_1_4[0 * cols + 0];
+	if (flag_side1[0] && flag_ban4[1]) 
+		++ counter_1_4[0 * cols + 1];
+	if (flag_side1[0] && flag_ban4[2]) 
+		++ counter_1_4[0 * cols + 2];
+	if (flag_side1[0] && flag_ban4[3]) 
+		++ counter_1_4[0 * cols + 3];
+}
+
+void tabulate_side1_ban4_parallel()
+{
+	const int cols = 4;
+	//if (flag_side1[0] && flag_ban4[0]) 
+	//	++ counter_1_4[0 * cols + 0];
+	//if (flag_side1[0] && flag_ban4[1]) 
+	//	++ counter_1_4[0 * cols + 1];
+	//if (flag_side1[0] && flag_ban4[2]) 
+	//	++ counter_1_4[0 * cols + 2];
+	//if (flag_side1[0] && flag_ban4[3]) 
+	//	++ counter_1_4[0 * cols + 3];
+	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
+		= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+	char shuffle_mask_side[] __attribute__ ((aligned(16)))
+		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+
+	asm (
+			"movdqa (%0), %%xmm1\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_ban)
+			: /*  clobbered */ "xmm1"
+	    );
+
+	asm (
+			"movdqa (%0), %%xmm2\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_side)
+			: /*  clobbered */ "xmm2"
+	    );
+
+	// the banner conditions in xmm0
+	asm (
+			"xor %%eax, %%eax\n\t"
+			"movl (%0), %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm0\n\t"
+			"pshufb %%xmm1, %%xmm0\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (flag_ban4)
+			: /*  clobbered */ "rax", "xmm0" 
+	    );
+
+	// the side conditions in xmm3
+	asm (
+			"xor %%eax, %%eax\n\t"
+			"movb (%0), %%al\n\t"
+			"pinsrb $0, %%eax, %%xmm3\n\t"
+			"pshufb %%xmm2, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (flag_side1)
+			: /*  clobbered */ "rax", "xmm3"
+	    );
+
+	asm (
+			"pand %%xmm3, %%xmm0\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "xmm0"
+	    );
+
+	asm (
+			"pextrd $0, %%xmm0, %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm4\n\t"
+    			"pmovsxbd %%xmm4, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "rax", "xmm4", "xmm3"
+	    );
+
+	// load the 1st 4 counter variables
+	int * my_ptr __attribute__ ((aligned(16))) = counter_1_4;
+	asm (
+			"movdqa (%0), %%xmm5\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (my_ptr)
+			: /*  clobbered */ "xmm5"
+	    );
+
+	asm (
+		"paddd %%xmm3, %%xmm5\n\t"
+			: /*  outputs */ 
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"xmm5"
+	    );
+
+	asm (
+		"movdqa %%xmm5, %0\n\t"
+			: /*  outputs */ "=m" (*my_ptr)
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"memory"
+	    );
 
 
+	cout << "counter: ";
+	for (int i=0; i<4; ++i) {
+		cout << " " << "|" << (int) counter_1_4[i] << "|" ;
+		if ( (i+1) % 4 == 0) {
+			cout << endl;
+		}
+	}
+	cout << endl;
+}
+
+/*
+char flag_side2 [] __attribute__ ((aligned(16))) = 
+	{ 	1, 1, //
+		      0, 0,
+		0, 0, 0, 0,	   
+		0, 0, 0, 0,	   
+		0, 0, 0, 0,	 
+	};
+  */
+
+int counter_2_4 [] __attribute__ ((aligned(16))) = { 
+	5 ,  10,  15,  20,
+	25,  30,  35,  40 
+};
+
+void tabulate_side2_ban4_parallel()
+{
+	const int cols = 4;
+	//if (flag_side1[0] && flag_ban4[0]) 
+	//	++ counter_1_4[0 * cols + 0];
+	//if (flag_side1[0] && flag_ban4[1]) 
+	//	++ counter_1_4[0 * cols + 1];
+	//if (flag_side1[0] && flag_ban4[2]) 
+	//	++ counter_1_4[0 * cols + 2];
+	//if (flag_side1[0] && flag_ban4[3]) 
+	//	++ counter_1_4[0 * cols + 3];
+	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
+		= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+	char shuffle_mask_side[] __attribute__ ((aligned(16)))
+		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+
+	asm (
+			"movdqa (%0), %%xmm1\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_ban)
+			: /*  clobbered */ "xmm1"
+	    );
+
+	asm (
+			"movdqa (%0), %%xmm2\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_side)
+			: /*  clobbered */ "xmm2"
+	    );
+
+	// the banner conditions in xmm0
+	asm (
+			"xor %%eax, %%eax\n\t"
+			"movl (%0), %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm0\n\t"
+			"pshufb %%xmm1, %%xmm0\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (flag_ban4)
+			: /*  clobbered */ "rax", "xmm0" 
+	    );
+
+	// the side conditions in xmm3
+	asm (
+			"xor %%eax, %%eax\n\t"
+			"movw (%0), %%ax\n\t"
+			"pinsrw $0, %%eax, %%xmm3\n\t"
+			"pshufb %%xmm2, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (flag_side2)
+			: /*  clobbered */ "rax", "xmm3"
+	    );
+
+	asm (
+			"pand %%xmm3, %%xmm0\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "xmm0"
+	    );
+
+	asm (
+			"pextrd $0, %%xmm0, %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm4\n\t"
+    			"pmovsxbd %%xmm4, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "rax", "xmm4", "xmm3"
+	    );
+
+	// load the 1st 4 counter variables
+	int * my_ptr __attribute__ ((aligned(16))) = counter_2_4;
+	asm (
+			"movdqa (%0), %%xmm5\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (my_ptr)
+			: /*  clobbered */ "xmm5"
+	    );
+
+	asm (
+		"paddd %%xmm3, %%xmm5\n\t"
+			: /*  outputs */ 
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"xmm5"
+	    );
+
+	asm (
+		"movdqa %%xmm5, %0\n\t"
+			: /*  outputs */ "=m" (*my_ptr)
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"memory"
+	    );
+	// ==================================
+
+	asm (
+			"pextrd $1, %%xmm0, %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm4\n\t"
+    			"pmovsxbd %%xmm4, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "rax", "xmm4", "xmm3"
+	    );
+	my_ptr += 4;
+	asm (
+			"movdqa (%0), %%xmm5\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (my_ptr)
+			: /*  clobbered */ "xmm5"
+	    );
+
+	asm (
+		"paddd %%xmm3, %%xmm5\n\t"
+			: /*  outputs */ 
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"xmm5"
+	    );
+
+	asm (
+		"movdqa %%xmm5, %0\n\t"
+			: /*  outputs */ "=m" (*my_ptr)
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"memory"
+	    );
+
+
+
+	cout << "counter: ";
+	for (int i=0; i<8; ++i) {
+		cout << " " << "|" << (int) counter_2_4[i] << "|" ;
+		if ( (i+1) % 4 == 0) {
+			cout << endl;
+		}
+	}
+	cout << endl;
+}
+
+int counter_3_4 [] __attribute__ ((aligned(16))) = { 
+	5 ,  10,  15,  20,
+	25,  30,  35,  40, 
+	45,  50,  55,  60 
+};
+
+
+void tabulate_side3_ban4_parallel()
+{
+	const int cols = 4;
+	//if (flag_side1[0] && flag_ban4[0]) 
+	//	++ counter_1_4[0 * cols + 0];
+	//if (flag_side1[0] && flag_ban4[1]) 
+	//	++ counter_1_4[0 * cols + 1];
+	//if (flag_side1[0] && flag_ban4[2]) 
+	//	++ counter_1_4[0 * cols + 2];
+	//if (flag_side1[0] && flag_ban4[3]) 
+	//	++ counter_1_4[0 * cols + 3];
+	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
+		= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+	char shuffle_mask_side[] __attribute__ ((aligned(16)))
+		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+
+	asm (
+			"movdqa (%0), %%xmm1\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_ban)
+			: /*  clobbered */ "xmm1"
+	    );
+
+	asm (
+			"movdqa (%0), %%xmm2\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_side)
+			: /*  clobbered */ "xmm2"
+	    );
+
+	// the banner conditions in xmm0
+	asm (
+			"xor %%eax, %%eax\n\t"
+			"movl (%0), %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm0\n\t"
+			"pshufb %%xmm1, %%xmm0\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (flag_ban4)
+			: /*  clobbered */ "rax", "xmm0" 
+	    );
+
+	// the side conditions in xmm3
+	asm (
+			"xor %%eax, %%eax\n\t"
+			"movl (%0), %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm3\n\t"
+			"pshufb %%xmm2, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (flag_side3)
+			: /*  clobbered */ "rax", "xmm3"
+	    );
+
+	asm (
+			"pand %%xmm3, %%xmm0\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "xmm0"
+	    );
+	// ==================================================
+
+	asm (
+			"pextrd $0, %%xmm0, %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm4\n\t"
+    			"pmovsxbd %%xmm4, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "rax", "xmm4", "xmm3"
+	    );
+
+	// load the 1st 4 counter variables
+	int * my_ptr __attribute__ ((aligned(16))) = counter_3_4;
+	asm (
+			"movdqa (%0), %%xmm5\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (my_ptr)
+			: /*  clobbered */ "xmm5"
+	    );
+
+	asm (
+		"paddd %%xmm3, %%xmm5\n\t"
+			: /*  outputs */ 
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"xmm5"
+	    );
+
+	asm (
+		"movdqa %%xmm5, %0\n\t"
+			: /*  outputs */ "=m" (*my_ptr)
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"memory"
+	    );
+	// ==================================
+
+	asm (
+			"pextrd $1, %%xmm0, %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm4\n\t"
+    			"pmovsxbd %%xmm4, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "rax", "xmm4", "xmm3"
+	    );
+	my_ptr += 4;
+	asm (
+			"movdqa (%0), %%xmm5\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (my_ptr)
+			: /*  clobbered */ "xmm5"
+	    );
+
+	asm (
+		"paddd %%xmm3, %%xmm5\n\t"
+			: /*  outputs */ 
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"xmm5"
+	    );
+
+	asm (
+		"movdqa %%xmm5, %0\n\t"
+			: /*  outputs */ "=m" (*my_ptr)
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"memory"
+	    );
+	// ==================================
+
+	asm (
+			"pextrd $2, %%xmm0, %%eax\n\t"
+			"pinsrd $0, %%eax, %%xmm4\n\t"
+    			"pmovsxbd %%xmm4, %%xmm3\n\t"
+			: /*  outputs */
+			: /*  inputs */ 
+			: /*  clobbered */ "rax", "xmm4", "xmm3"
+	    );
+	my_ptr += 4;
+	asm (
+			"movdqa (%0), %%xmm5\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (my_ptr)
+			: /*  clobbered */ "xmm5"
+	    );
+
+	asm (
+		"paddd %%xmm3, %%xmm5\n\t"
+			: /*  outputs */ 
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"xmm5"
+	    );
+
+	asm (
+		"movdqa %%xmm5, %0\n\t"
+			: /*  outputs */ "=m" (*my_ptr)
+			: /*  inputs */ 
+			: /*  clobbered */ 
+				"memory"
+	    );
+
+
+
+
+	cout << "counter: ";
+	for (int i=0; i<12; ++i) {
+		cout << " " << "|" << (int) counter_3_4[i] << "|" ;
+		if ( (i+1) % 4 == 0) {
+			cout << endl;
+		}
+	}
+	cout << endl;
+}
+
+
+int counter_15_4 [] __attribute__ ((aligned(16))) = {
+	  2,   4,   6,   8,
+	 10,  12,  14,  16,
+	 18,  20,  22,  24,
+	 26,  28,  30,  32,
+	 34,  36,  38,  40,
+	 42,  44,  46,  48,
+	 50,  52,  54,  56,
+	 58,  60,  62,  64,
+	 66,  68,  70,  72,
+	 74,  76,  78,  80,
+	 82,  84,  86,  88,
+	 90,  92,  94,  96,
+	 98, 100, 102, 104,
+	106, 108, 110, 112,
+	114, 116, 118, 120
+}; 
+
+char flag_side15 [] = { 
+	1, 1, 1, 1, 
+	1, 1, 1, 1, 
+	1, 1, 1, 1, 
+	1, 1, 1, // padding 
+		 1
+};
+
+void tabulate_side_n_ban4_parallel (
+			  int n_side_elements
+			, char * side_ptr 
+			, int   counter [] 
+		)
+{
+	const int cols = 4;
+	//if (flag_side1[0] && flag_ban4[0]) 
+	//	++ counter_1_4[0 * cols + 0];
+	//if (flag_side1[0] && flag_ban4[1]) 
+	//	++ counter_1_4[0 * cols + 1];
+	//if (flag_side1[0] && flag_ban4[2]) 
+	//	++ counter_1_4[0 * cols + 2];
+	//if (flag_side1[0] && flag_ban4[3]) 
+	//	++ counter_1_4[0 * cols + 3];
+	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
+		= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+	char shuffle_mask_side[] __attribute__ ((aligned(16)))
+		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+
+	asm (
+			"movdqa (%0), %%xmm1\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_ban)
+			: /*  clobbered */ "xmm1"
+	    );
+
+	asm (
+			"movdqa (%0), %%xmm2\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_side)
+			: /*  clobbered */ "xmm2"
+	    );
+
+	// the banner conditions in xmm0
+	int l_n_side_elements = n_side_elements;
+	int * my_ptr __attribute__ ((aligned(16))) = counter;
+	if (l_n_side_elements > 4) {
+
+		while (l_n_side_elements > 4) {
+
+			asm (
+					"xor %%eax, %%eax\n\t"
+					"movl (%0), %%eax\n\t"
+					"pinsrd $0, %%eax, %%xmm0\n\t"
+					"pshufb %%xmm1, %%xmm0\n\t"
+					: /*  outputs */
+					: /*  inputs */ "r" (flag_ban4)
+					: /*  clobbered */ "rax", "xmm0" 
+			    );
+
+			// the side conditions in xmm3
+			asm (
+					"xor %%eax, %%eax\n\t"
+					"movl (%0), %%eax\n\t"
+					"pinsrd $0, %%eax, %%xmm3\n\t"
+					"pshufb %%xmm2, %%xmm3\n\t"
+					: /*  outputs */
+					: /*  inputs */ "r" (side_ptr)
+					: /*  clobbered */ "rax", "xmm3"
+			    );
+
+			asm (
+					"pand %%xmm3, %%xmm0\n\t"
+					: /*  outputs */
+					: /*  inputs */ 
+					: /*  clobbered */ "xmm0"
+			    );
+			// ==================================================
+
+			asm (
+					"pextrd $0, %%xmm0, %%eax\n\t"
+					"pinsrd $0, %%eax, %%xmm4\n\t"
+					"pmovsxbd %%xmm4, %%xmm3\n\t"
+					: /*  outputs */
+					: /*  inputs */ 
+					: /*  clobbered */ "rax", "xmm4", "xmm3"
+			    );
+
+			// load the 1st 4 counter variables
+			asm (
+					"movdqa (%0), %%xmm5\n\t"
+					: /*  outputs */
+					: /*  inputs */ "r" (my_ptr)
+					: /*  clobbered */ "xmm5"
+			    );
+
+			asm (
+				"paddd %%xmm3, %%xmm5\n\t"
+					: /*  outputs */ 
+					: /*  inputs */ 
+					: /*  clobbered */ 
+						"xmm5"
+			    );
+
+			asm (
+				"movdqa %%xmm5, %0\n\t"
+					: /*  outputs */ "=m" (*my_ptr)
+					: /*  inputs */ 
+					: /*  clobbered */ 
+						"memory"
+			    );
+			// ==================================
+
+			asm (
+					"pextrd $1, %%xmm0, %%eax\n\t"
+					"pinsrd $0, %%eax, %%xmm4\n\t"
+					"pmovsxbd %%xmm4, %%xmm3\n\t"
+					: /*  outputs */
+					: /*  inputs */ 
+					: /*  clobbered */ "rax", "xmm4", "xmm3"
+			    );
+			// load the 2nd set of 4 counter variables
+			my_ptr += 4;
+			asm (
+					"movdqa (%0), %%xmm5\n\t"
+					: /*  outputs */
+					: /*  inputs */ "r" (my_ptr)
+					: /*  clobbered */ "xmm5"
+			    );
+
+			asm (
+				"paddd %%xmm3, %%xmm5\n\t"
+					: /*  outputs */ 
+					: /*  inputs */ 
+					: /*  clobbered */ 
+						"xmm5"
+			    );
+
+			asm (
+				"movdqa %%xmm5, %0\n\t"
+					: /*  outputs */ "=m" (*my_ptr)
+					: /*  inputs */ 
+					: /*  clobbered */ 
+						"memory"
+			    );
+			// ==================================
+
+			asm (
+					"pextrd $2, %%xmm0, %%eax\n\t"
+					"pinsrd $0, %%eax, %%xmm4\n\t"
+					"pmovsxbd %%xmm4, %%xmm3\n\t"
+					: /*  outputs */
+					: /*  inputs */ 
+					: /*  clobbered */ "rax", "xmm4", "xmm3"
+			    );
+			// load the 3rd set of 4 counter variables
+			my_ptr += 4;
+			asm (
+					"movdqa (%0), %%xmm5\n\t"
+					: /*  outputs */
+					: /*  inputs */ "r" (my_ptr)
+					: /*  clobbered */ "xmm5"
+			    );
+
+			asm (
+				"paddd %%xmm3, %%xmm5\n\t"
+					: /*  outputs */ 
+					: /*  inputs */ 
+					: /*  clobbered */ 
+						"xmm5"
+			    );
+
+			asm (
+				"movdqa %%xmm5, %0\n\t"
+					: /*  outputs */ "=m" (*my_ptr)
+					: /*  inputs */ 
+					: /*  clobbered */ 
+						"memory"
+			    );
+
+			// ==================================
+
+			asm (
+					"pextrd $3, %%xmm0, %%eax\n\t"
+					"pinsrd $0, %%eax, %%xmm4\n\t"
+					"pmovsxbd %%xmm4, %%xmm3\n\t"
+					: /*  outputs */
+					: /*  inputs */ 
+					: /*  clobbered */ "rax", "xmm4", "xmm3"
+			    );
+			// load the 4th set of 4 counter variables
+			my_ptr += 4;
+			asm (
+					"movdqa (%0), %%xmm5\n\t"
+					: /*  outputs */
+					: /*  inputs */ "r" (my_ptr)
+					: /*  clobbered */ "xmm5"
+			    );
+
+			asm (
+				"paddd %%xmm3, %%xmm5\n\t"
+					: /*  outputs */ 
+					: /*  inputs */ 
+					: /*  clobbered */ 
+						"xmm5"
+			    );
+
+			asm (
+				"movdqa %%xmm5, %0\n\t"
+					: /*  outputs */ "=m" (*my_ptr)
+					: /*  inputs */ 
+					: /*  clobbered */ 
+						"memory"
+			    );
+
+
+			l_n_side_elements -= 4;
+			side_ptr += 4;
+			my_ptr += 4;
+		}
+	}
+
+
+
+
+	cout << "counter: " << endl;
+	for (int i=0; i<n_side_elements * 4; ++i) {
+		cout << " " << "|" << (int) counter[i] << "|" ;
+		if ( (i+1) % 4 == 0) {
+			cout << endl;
+		}
+	}
+	cout << endl;
+}
+
+void tabulate_side_n_ban_m_parallel (
+			  int n_side_elements
+			, char * side_ptr
+			, int m_ban_elements
+			, char * ban_ptr 
+			, int   counter [] 
+		)
+{
+	const int cols = 4;
+	//if (flag_side1[0] && flag_ban4[0]) 
+	//	++ counter_1_4[0 * cols + 0];
+	//if (flag_side1[0] && flag_ban4[1]) 
+	//	++ counter_1_4[0 * cols + 1];
+	//if (flag_side1[0] && flag_ban4[2]) 
+	//	++ counter_1_4[0 * cols + 2];
+	//if (flag_side1[0] && flag_ban4[3]) 
+	//	++ counter_1_4[0 * cols + 3];
+	char shuffle_mask_ban[] __attribute__ ((aligned(16)))
+		= { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+	char shuffle_mask_side[] __attribute__ ((aligned(16)))
+		= { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3 };
+
+	asm (
+			"movdqa (%0), %%xmm1\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_ban)
+			: /*  clobbered */ "xmm1"
+	    );
+
+	asm (
+			"movdqa (%0), %%xmm2\n\t"
+			: /*  outputs */
+			: /*  inputs */ "r" (shuffle_mask_side)
+			: /*  clobbered */ "xmm2"
+	    );
+
+	// the banner conditions in xmm0
+	int l_n_side_elements = n_side_elements;
+	int * my_ptr __attribute__ ((aligned(16))) = counter;
+	if (l_n_side_elements > 4) {
+
+		while (l_n_side_elements > 4) {
+			int l_m_ban_elements = m_ban_elements;
+
+			while (l_m_ban_elements > 4) {
+
+				asm (
+						"xor %%eax, %%eax\n\t"
+						"movl (%0), %%eax\n\t"
+						"pinsrd $0, %%eax, %%xmm0\n\t"
+						"pshufb %%xmm1, %%xmm0\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (ban_ptr)
+						: /*  clobbered */ "rax", "xmm0" 
+				    );
+
+				// the side conditions in xmm3
+				asm (
+						"xor %%eax, %%eax\n\t"
+						"movl (%0), %%eax\n\t"
+						"pinsrd $0, %%eax, %%xmm3\n\t"
+						"pshufb %%xmm2, %%xmm3\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (side_ptr)
+						: /*  clobbered */ "rax", "xmm3"
+				    );
+
+				asm (
+						"pand %%xmm3, %%xmm0\n\t"
+						: /*  outputs */
+						: /*  inputs */ 
+						: /*  clobbered */ "xmm0"
+				    );
+				// ==================================================
+
+				asm (
+						"pextrd $0, %%xmm0, %%eax\n\t"
+						"pinsrd $0, %%eax, %%xmm4\n\t"
+						"pmovsxbd %%xmm4, %%xmm3\n\t"
+						: /*  outputs */
+						: /*  inputs */ 
+						: /*  clobbered */ "rax", "xmm4", "xmm3"
+				    );
+
+				// load the 1st 4 counter variables
+				asm (
+						"movdqa (%0), %%xmm5\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (my_ptr)
+						: /*  clobbered */ "xmm5"
+				    );
+
+				asm (
+					"paddd %%xmm3, %%xmm5\n\t"
+						: /*  outputs */ 
+						: /*  inputs */ 
+						: /*  clobbered */ 
+							"xmm5"
+				    );
+
+				asm (
+					"movdqa %%xmm5, %0\n\t"
+						: /*  outputs */ "=m" (*my_ptr)
+						: /*  inputs */ 
+						: /*  clobbered */ 
+							"memory"
+				    );
+				// ==================================
+
+				asm (
+						"pextrd $1, %%xmm0, %%eax\n\t"
+						"pinsrd $0, %%eax, %%xmm4\n\t"
+						"pmovsxbd %%xmm4, %%xmm3\n\t"
+						: /*  outputs */
+						: /*  inputs */ 
+						: /*  clobbered */ "rax", "xmm4", "xmm3"
+				    );
+				// load the 2nd set of 4 counter variables
+				my_ptr += 4;
+				asm (
+						"movdqa (%0), %%xmm5\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (my_ptr)
+						: /*  clobbered */ "xmm5"
+				    );
+
+				asm (
+					"paddd %%xmm3, %%xmm5\n\t"
+						: /*  outputs */ 
+						: /*  inputs */ 
+						: /*  clobbered */ 
+							"xmm5"
+				    );
+
+				asm (
+					"movdqa %%xmm5, %0\n\t"
+						: /*  outputs */ "=m" (*my_ptr)
+						: /*  inputs */ 
+						: /*  clobbered */ 
+							"memory"
+				    );
+				// ==================================
+
+				asm (
+						"pextrd $2, %%xmm0, %%eax\n\t"
+						"pinsrd $0, %%eax, %%xmm4\n\t"
+						"pmovsxbd %%xmm4, %%xmm3\n\t"
+						: /*  outputs */
+						: /*  inputs */ 
+						: /*  clobbered */ "rax", "xmm4", "xmm3"
+				    );
+				// load the 3rd set of 4 counter variables
+				my_ptr += 4;
+				asm (
+						"movdqa (%0), %%xmm5\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (my_ptr)
+						: /*  clobbered */ "xmm5"
+				    );
+
+				asm (
+					"paddd %%xmm3, %%xmm5\n\t"
+						: /*  outputs */ 
+						: /*  inputs */ 
+						: /*  clobbered */ 
+							"xmm5"
+				    );
+
+				asm (
+					"movdqa %%xmm5, %0\n\t"
+						: /*  outputs */ "=m" (*my_ptr)
+						: /*  inputs */ 
+						: /*  clobbered */ 
+							"memory"
+				    );
+
+				// ==================================
+
+				asm (
+						"pextrd $3, %%xmm0, %%eax\n\t"
+						"pinsrd $0, %%eax, %%xmm4\n\t"
+						"pmovsxbd %%xmm4, %%xmm3\n\t"
+						: /*  outputs */
+						: /*  inputs */ 
+						: /*  clobbered */ "rax", "xmm4", "xmm3"
+				    );
+				// load the 3rd set of 4 counter variables
+				my_ptr += 4;
+				asm (
+						"movdqa (%0), %%xmm5\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (my_ptr)
+						: /*  clobbered */ "xmm5"
+				    );
+
+				asm (
+					"paddd %%xmm3, %%xmm5\n\t"
+						: /*  outputs */ 
+						: /*  inputs */ 
+						: /*  clobbered */ 
+							"xmm5"
+				    );
+
+				asm (
+					"movdqa %%xmm5, %0\n\t"
+						: /*  outputs */ "=m" (*my_ptr)
+						: /*  inputs */ 
+						: /*  clobbered */ 
+							"memory"
+				    );
+			}
+
+
+			l_n_side_elements -= 4;
+			side_ptr += 4;
+			my_ptr += 4;
+		}
+	}
+
+
+
+
+	cout << "counter: " << endl;
+	for (int i=0; i<n_side_elements * 4; ++i) {
+		cout << " " << "|" << (int) counter[i] << "|" ;
+		if ( (i+1) % 4 == 0) {
+			cout << endl;
+		}
+	}
+	cout << endl;
+}
+
+void tabulate_side_n_ban_m (
+			  int n_side_elements
+			, char * side_ptr
+			, int m_ban_elements
+			, char * ban_ptr
+			, int   counter []
+		)
+{
+	cout 	<< "n_side_elements: " << n_side_elements << endl
+		<< "m_ban_elements:  " << m_ban_elements  << endl
+		<< endl;
+	int l_n_side_elements = n_side_elements;
+	int * my_ptr __attribute__ ((aligned(16))) = counter;
+	int i = 0, j = 0;
+	if (l_n_side_elements > 0) {
+		while (l_n_side_elements > 0) {
+			//cout << "1 reached here: " << endl;
+			int l_m_ban_elements  = m_ban_elements;
+			j = 0;
+
+			//if        (l_m_ban_elements > 16) {
+			//	while (l_m_ban_elements > 16) {
+			//		
+			//	}
+			//} else 
+			if (l_m_ban_elements > 8) {
+				// we can process only 1 row at a time
+				char shuffle_mask_ban[] __attribute__ ((aligned(16)))
+					= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+				char shuffle_mask_side[] __attribute__ ((aligned(16)))
+					= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+				//asm (
+				//		"movdqa (%0), %%xmm1\n\t"
+				//		: /*  outputs */
+				//		: /*  inputs */ "r" (shuffle_mask_ban)
+				//		: /*  clobbered */ "xmm1"
+				//    );
+				//asm (
+				//		"movdqa (%0), %%xmm2\n\t"
+				//		: /*  outputs */
+				//		: /*  inputs */ "r" (shuffle_mask_side)
+				//		: /*  clobbered */ "xmm2"
+				//    );
+
+				j = 0;
+				while (l_m_ban_elements >= 16) {
+					//cout << "16 reached here: " << endl;
+
+					asm (
+							"movdqa (%0), %%xmm1\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (shuffle_mask_ban)
+							: /*  clobbered */ "xmm1"
+					    );
+					asm (
+							"movdqa (%0), %%xmm2\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (shuffle_mask_side)
+							: /*  clobbered */ "xmm2"
+					    );
+
+					asm (
+							"movdqa (%0), %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (ban_ptr)
+							: /*  clobbered */ "xmm0" 
+					    );
+
+					//asm (
+					//		"pshufb %%xmm1, %%xmm0\n\t"
+					//		: /*  outputs */
+					//		: /*  inputs */ 
+					//		: /*  clobbered */ "xmm0" 
+					//    );
+
+					// the side conditions in xmm3
+					asm (
+							"xor %%eax, %%eax\n\t"
+							"movb (%0), %%al\n\t"
+							"pinsrb $0, %%eax, %%xmm3\n\t"
+							"pshufb %%xmm2, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (side_ptr + i)
+							: /*  clobbered */ "rax", "xmm3"
+					    );
+
+					asm (
+							"pand %%xmm3, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0"
+					    );
+
+					// ==================================================
+
+					asm (
+							"pextrd $0, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+
+					// load the 1st 4 counter variables
+					asm (
+							"movdqa (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqa %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+					// ==================================
+
+					asm (
+							"pextrd $1, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					asm (
+							"movdqa (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqa %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+					// ==================================
+
+					asm (
+							"pextrd $2, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					asm (
+							"movdqa (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqa %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+
+					// ==================================
+
+					asm (
+							"pextrd $3, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					asm (
+							"movdqa (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqa %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+
+					l_m_ban_elements -= 16;
+					ban_ptr += 16;
+					++j;
+				}
+				while (l_m_ban_elements >= 8) {
+					//cout << "8 reached here: " << endl;
+					asm (
+							"movq (%0), %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (ban_ptr)
+							: /*  clobbered */ "xmm0" 
+					    );
+
+					//asm (
+					//		"pshufb %%xmm1, %%xmm0\n\t"
+					//		: /*  outputs */
+					//		: /*  inputs */ 
+					//		: /*  clobbered */ "xmm0" 
+					//    );
+
+					// the side conditions in xmm3
+					asm (
+							"xor %%eax, %%eax\n\t"
+							"movb (%0), %%al\n\t"
+							"pinsrb $0, %%eax, %%xmm3\n\t"
+							"pshufb %%xmm2, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (side_ptr + i)
+							: /*  clobbered */ "rax", "xmm3"
+					    );
+
+					asm (
+							"pand %%xmm3, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0"
+					    );
+
+					// ==================================================
+
+					asm (
+							"pextrd $0, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+
+					// load the 1st 4 counter variables
+					asm (
+							"movdqa (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqa %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+					// ==================================
+
+					asm (
+							"pextrd $1, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					asm (
+							"movdqa (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqa %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+
+					l_m_ban_elements -= 8;
+					ban_ptr += 8;
+					++j;
+
+				}
+				while (l_m_ban_elements >= 4) {
+					//cout << "4 reached here: " << endl;
+
+					asm (
+							"movl (%0), %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (ban_ptr)
+							: /*  clobbered */ "xmm0", "rax" 
+					    );
+
+					asm (
+							"pshufb %%xmm1, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0" 
+					    );
+
+					// the side conditions in xmm3
+					asm (
+							"xor %%eax, %%eax\n\t"
+							"movb (%0), %%al\n\t"
+							"pinsrb $0, %%eax, %%xmm3\n\t"
+							"pshufb %%xmm2, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (side_ptr + i)
+							: /*  clobbered */ "rax", "xmm3"
+					    );
+
+					asm (
+							"pand %%xmm3, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0"
+					    );
+
+					// ==================================================
+
+					asm (
+							"pextrd $0, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+
+					// load the 1st 4 counter variables
+					asm (
+							"movdqa (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqa %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+
+
+					l_m_ban_elements -= 4;
+					ban_ptr += 4;
+					++j;
+
+				}
+				//while (l_m_ban_elements > 4) {
+				//}
+
+				l_n_side_elements -= 1;
+				++side_ptr;
+				//cout << "3 reached here: l_m_ban_elements:" 
+				//	<< l_m_ban_elements
+				//	<< endl;
+			} else if (l_m_ban_elements > 4 ) {
+				// we can process 2 rows at a time
+				while (l_m_ban_elements > 4) {
+					
+				}
+			} else if (l_m_ban_elements > 2 ) {
+				// we can process 4 rows at a time
+				while (l_m_ban_elements > 2) {
+					
+				}
+			} else if (l_m_ban_elements == 2) {
+				// we can process 8 rows at a time
+			} else if (l_m_ban_elements == 1) {
+				// we can process 8 rows at a time
+			}
+			//while (l_m_ban_elements > 4) {
+			//	cout << "processing banner elements: "
+			//		<< 4 * j
+			//		<< " - "
+			//		<< 4 * j + 4 - 1
+			//		<< endl;
+			//	l_m_ban_elements -= 4;
+			//	++j;
+			//}
+			//int ban_residue = l_m_ban_elements % 4;
+			//if (ban_residue == 1) {
+			//	cout << "processing ban residue: " << ban_residue << endl;
+			//} else if (ban_residue == 2) {
+			//	cout << "processing ban residue: " << ban_residue << endl;
+			//} else if (ban_residue == 3) {
+			//	cout << "processing ban residue: " << ban_residue << endl;
+			//}
+			//
+			//l_n_side_elements -= 1;
+			++i;
+		}
+	}
+	//int side_residue = l_n_side_elements % 4;
+	//if (side_residue == 1) {
+	//	cout << "processing residue: " << side_residue << endl;
+	//} else if (side_residue == 2) {
+	//	cout << "processing residue: " << side_residue << endl;
+	//} else if (side_residue == 3) {
+	//	cout << "processing residue: " << side_residue << endl;
+	//}
+}
+
+
+void tabulate_side_n_ban_m_skeleton (
+			  int n_side_elements
+			, char * side_ptr
+			, int m_ban_elements
+			, char * ban_ptr
+			, int   counter []
+		)
+{
+	cout 	<< "n_side_elements: " << n_side_elements << endl
+		<< "m_ban_elements:  " << m_ban_elements  << endl
+		<< endl;
+	int l_n_side_elements = n_side_elements;
+	int i = 0, j = 0;
+	if (l_n_side_elements > 0) {
+		while (l_n_side_elements > 0) {
+			int l_m_ban_elements  = m_ban_elements;
+			j = 0;
+
+			//if        (l_m_ban_elements > 16) {
+			//	while (l_m_ban_elements > 16) {
+			//		
+			//	}
+			//} else 
+			if (l_m_ban_elements > 8 ) {
+				// we can process only 1 row at a time
+				char shuffle_mask_ban[] __attribute__ ((aligned(16)))
+					= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+				char shuffle_mask_side[] __attribute__ ((aligned(16)))
+					= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+				asm (
+						"movdqa (%0), %%xmm1\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (shuffle_mask_ban)
+						: /*  clobbered */ "xmm1"
+				    );
+				asm (
+						"movdqa (%0), %%xmm2\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (shuffle_mask_side)
+						: /*  clobbered */ "xmm2"
+				    );
+				while (l_m_ban_elements > 16) {
+
+					asm (
+							"movdqa (%0), %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (ban_ptr)
+							: /*  clobbered */ "rax", "xmm0" 
+					    );
+
+					// the side conditions in xmm3
+					asm (
+							"xor %%eax, %%eax\n\t"
+							"movb (%0), %%al\n\t"
+							"pinsrb $0, %%eax, %%xmm3\n\t"
+							"pshufb %%xmm2, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (side_ptr)
+							: /*  clobbered */ "rax", "xmm3"
+					    );
+
+					asm (
+							"pand %%xmm3, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0"
+					    );
+
+					asm (
+							"pextrd $0, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+
+				}
+			} else if (l_m_ban_elements > 4 ) {
+				// we can process 2 rows at a time
+				while (l_m_ban_elements > 4) {
+					
+				}
+			} else if (l_m_ban_elements > 2 ) {
+				// we can process 4 rows at a time
+				while (l_m_ban_elements > 2) {
+					
+				}
+			} else if (l_m_ban_elements == 2) {
+				// we can process 8 rows at a time
+			} else if (l_m_ban_elements == 1) {
+				// we can process 8 rows at a time
+			}
+			//while (l_m_ban_elements > 4) {
+			//	cout << "processing banner elements: "
+			//		<< 4 * j
+			//		<< " - "
+			//		<< 4 * j + 4 - 1
+			//		<< endl;
+			//	l_m_ban_elements -= 4;
+			//	++j;
+			//}
+			//int ban_residue = l_m_ban_elements % 4;
+			//if (ban_residue == 1) {
+			//	cout << "processing ban residue: " << ban_residue << endl;
+			//} else if (ban_residue == 2) {
+			//	cout << "processing ban residue: " << ban_residue << endl;
+			//} else if (ban_residue == 3) {
+			//	cout << "processing ban residue: " << ban_residue << endl;
+			//}
+			//
+			//l_n_side_elements -= 1;
+			//++i;
+		}
+	}
+	//int side_residue = l_n_side_elements % 4;
+	//if (side_residue == 1) {
+	//	cout << "processing residue: " << side_residue << endl;
+	//} else if (side_residue == 2) {
+	//	cout << "processing residue: " << side_residue << endl;
+	//} else if (side_residue == 3) {
+	//	cout << "processing residue: " << side_residue << endl;
+	//}
+}
+
+void print_counter (int counter[], int n_side, int m_ban)
+{
+	for (int i=0; i < n_side; ++i) {
+		for (int j=0; j < m_ban; ++j) {
+			cout << " " << counter[i*m_ban + j];
+		}
+		cout << endl;
+	}
+
+}
+
+	const int m_ban_elements = 32;
+	int counter[7 * m_ban_elements] ;
 
 int main()
 {
-	tabulate_side4_ban1_parallel ();
-	set_counter_4_2();
-	tabulate_side4_ban2();
-	set_counter_4_2();
-	tabulate_side4_ban2_parallel ();
-	set_counter_4_3();
-	tabulate_side4_ban3 ();
-	set_counter_4_3();
-	tabulate_side4_ban3_parallel ();
-	tabulate_side4_ban4_parallel ();
-	tabulate_side4_ban5_parallel ();
-	tabulate_side4_ban6_parallel ();
+	//tabulate_side4_ban1_parallel ();
+	//set_counter_4_2();
+	//tabulate_side4_ban2();
+	//set_counter_4_2();
+	//tabulate_side4_ban2_parallel ();
+	//set_counter_4_3();
+	//tabulate_side4_ban3 ();
+	//set_counter_4_3();
+	//tabulate_side4_ban3_parallel ();
+	//tabulate_side4_ban4_parallel ();
+	//tabulate_side4_ban5_parallel ();
+	//tabulate_side4_ban6_parallel ();
+	//int n_ban_elements = 15;
+	//int n_side_elements = 4;
+	//tabulate_side4_ban_n_parallel (
+	//		  n_ban_elements 
+	//		, flag_ban15
+	//		, counter_4_15
+	//		, n_side_elements
+	//	);
 
-	int n_ban_elements = 15;
-	int n_side_elements = 4;
-	tabulate_side4_ban_n_parallel (
-			  n_ban_elements 
-			, flag_ban15
-			, counter_4_15
-			, n_side_elements
+	//tabulate_side1_ban4_parallel ();
+	//tabulate_side2_ban4_parallel ();
+	//tabulate_side3_ban4_parallel ();
+	//tabulate_side_n_ban4_parallel (
+	//		//5,
+	//		15,
+	//		flag_side15,
+	//		counter_15_4
+	//		);
+	/* 
+	{
+
+		int n_side_elements = 7;
+		int m_ban_elements = 19;
+		char * side_ptr = 0;
+		char * ban_ptr = 0;
+		int counter[] = { 1, 2, 3, 4};
+
+		tabulate_side_n_ban_m_skeleton (
+				  n_side_elements
+				, side_ptr
+				, m_ban_elements
+				, ban_ptr 
+				, counter 
+			);
+	}
+	*/
+	{
+
+		int n_side_elements = 7;
+		//const int m_ban_elements = 44;
+		char flag_ban[m_ban_elements] __attribute__ ((aligned(16)));
+		char flag_side_7[8]  __attribute__ ((aligned(16)));;
+		char * side_ptr __attribute__ ((aligned(16))) = flag_side_7;
+		char * ban_ptr  __attribute__ ((aligned(16))) = flag_ban;
+
+		for (int i=0; i < 7; ++i) {
+			for (int j=0; j < m_ban_elements; ++j) {
+				counter[i*m_ban_elements + j] = j + (i+1)*10;
+			}
+			flag_side_7[i] = 1;
+		}
+		for (int j=0; j < m_ban_elements; ++j) {
+			if (j%2==0)
+				flag_ban[j] = 1;
+			else 
+				flag_ban[j] = 0;
+		}
+		//flag_side_7[0] = 0;
+		//flag_side_7[1] = 0;
+		//flag_side_7[3] = 0;
+		//flag_side_7[5] = 0;
+
+		print_counter (counter, 7, m_ban_elements);
+
+		tabulate_side_n_ban_m (
+				  n_side_elements
+				, side_ptr
+				, m_ban_elements
+				, ban_ptr 
+				, counter 
 		);
+
+		print_counter (counter, 7, m_ban_elements);
+
+
+	}
 
 }
 
