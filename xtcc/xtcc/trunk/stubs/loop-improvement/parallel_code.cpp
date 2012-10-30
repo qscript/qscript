@@ -40,7 +40,10 @@
 #include <smmintrin.h>
 #endif
 
+#include <iostream>
+using namespace std;
 
+#if 0
 //char flag_ban1 [] = { 65 };
 char flag_ban1 [] = { 1 };
 char flag_ban2 [] = { 0, 1 };
@@ -97,8 +100,6 @@ int counter_4_6 [] __attribute__ ((aligned(16))) = {
 	108, 113, 118, 123,
 };
 
-#include <iostream>
-using namespace std;
 
 void tabulate_side4_ban1 ()
 {
@@ -2983,6 +2984,12 @@ void tabulate_side_n_ban_m_parallel (
 	}
 	cout << endl;
 }
+#endif /*  0 */
+
+char shuffle_mask_ban16[] __attribute__ ((aligned(16)))
+	= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+char shuffle_mask_side16[] __attribute__ ((aligned(16)))
+	= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 void tabulate_side_n_ban_m (
 			  int n_side_elements
@@ -2990,6 +2997,10 @@ void tabulate_side_n_ban_m (
 			, int m_ban_elements
 			, char * ban_ptr
 			, int   counter []
+			, char * chk_sid
+			, char * chk_ban
+			, char * chk_xmm1
+			, char * chk_xmm2
 		)
 {
 	cout 	<< "n_side_elements: " << n_side_elements << endl
@@ -3003,6 +3014,7 @@ void tabulate_side_n_ban_m (
 			//cout << "1 reached here: " << endl;
 			int l_m_ban_elements  = m_ban_elements;
 			j = 0;
+			char * l_ban_ptr = ban_ptr;
 
 			//if        (l_m_ban_elements > 16) {
 			//	while (l_m_ban_elements > 16) {
@@ -3011,45 +3023,41 @@ void tabulate_side_n_ban_m (
 			//} else 
 			if (l_m_ban_elements > 8) {
 				// we can process only 1 row at a time
-				char shuffle_mask_ban[] __attribute__ ((aligned(16)))
-					= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
-				char shuffle_mask_side[] __attribute__ ((aligned(16)))
-					= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-				//asm (
-				//		"movdqa (%0), %%xmm1\n\t"
-				//		: /*  outputs */
-				//		: /*  inputs */ "r" (shuffle_mask_ban)
-				//		: /*  clobbered */ "xmm1"
-				//    );
-				//asm (
-				//		"movdqa (%0), %%xmm2\n\t"
-				//		: /*  outputs */
-				//		: /*  inputs */ "r" (shuffle_mask_side)
-				//		: /*  clobbered */ "xmm2"
-				//    );
+				asm (
+						"movdqa (%0), %%xmm1\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (shuffle_mask_ban16)
+						: /*  clobbered */ "xmm1"
+				    );
+				asm (
+						"movdqa (%0), %%xmm2\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (shuffle_mask_side16)
+						: /*  clobbered */ "xmm2"
+				    );
 
 				j = 0;
 				while (l_m_ban_elements >= 16) {
 					//cout << "16 reached here: " << endl;
 
-					asm (
-							"movdqa (%0), %%xmm1\n\t"
-							: /*  outputs */
-							: /*  inputs */ "r" (shuffle_mask_ban)
-							: /*  clobbered */ "xmm1"
-					    );
-					asm (
-							"movdqa (%0), %%xmm2\n\t"
-							: /*  outputs */
-							: /*  inputs */ "r" (shuffle_mask_side)
-							: /*  clobbered */ "xmm2"
-					    );
+					//asm (
+					//		"movdqa (%0), %%xmm1\n\t"
+					//		: /*  outputs */
+					//		: /*  inputs */ "r" (shuffle_mask_ban16)
+					//		: /*  clobbered */ "xmm1"
+					//    );
+					//asm (
+					//		"movdqa (%0), %%xmm2\n\t"
+					//		: /*  outputs */
+					//		: /*  inputs */ "r" (shuffle_mask_side16)
+					//		: /*  clobbered */ "xmm2"
+					//    );
 
 					asm (
 							"movdqa (%0), %%xmm0\n\t"
 							: /*  outputs */
-							: /*  inputs */ "r" (ban_ptr)
+							: /*  inputs */ "r" (l_ban_ptr)
 							: /*  clobbered */ "xmm0" 
 					    );
 
@@ -3072,10 +3080,42 @@ void tabulate_side_n_ban_m (
 					    );
 
 					asm (
+						"movdqa %%xmm0, %0\n\t"
+							: /*  outputs */ "=m" (*chk_ban)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					asm (
+						"movdqa %%xmm3, %0\n\t"
+							: /*  outputs */ "=m" (*chk_sid)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					asm (
 							"pand %%xmm3, %%xmm0\n\t"
 							: /*  outputs */
 							: /*  inputs */ 
 							: /*  clobbered */ "xmm0"
+					    );
+
+					asm (
+						"movdqa %%xmm1, %0\n\t"
+							: /*  outputs */ "=m" (*chk_xmm1)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					asm (
+						"movdqa %%xmm2, %0\n\t"
+							: /*  outputs */ "=m" (*chk_xmm2)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
 					    );
 
 					// ==================================================
@@ -3215,7 +3255,11 @@ void tabulate_side_n_ban_m (
 					my_ptr += 4;
 
 					l_m_ban_elements -= 16;
-					ban_ptr += 16;
+					l_ban_ptr  += 16;
+					chk_sid  += 16;
+					chk_ban  += 16;
+					chk_xmm1 += 16;
+					chk_xmm2 += 16;
 					++j;
 				}
 				while (l_m_ban_elements >= 8) {
@@ -3408,7 +3452,7 @@ void tabulate_side_n_ban_m (
 				//}
 
 				l_n_side_elements -= 1;
-				++side_ptr;
+				//++side_ptr;
 				//cout << "3 reached here: l_m_ban_elements:" 
 				//	<< l_m_ban_elements
 				//	<< endl;
@@ -3459,7 +3503,7 @@ void tabulate_side_n_ban_m (
 	//}
 }
 
-
+#if 0
 void tabulate_side_n_ban_m_skeleton (
 			  int n_side_elements
 			, char * side_ptr
@@ -3584,6 +3628,7 @@ void tabulate_side_n_ban_m_skeleton (
 	//	cout << "processing residue: " << side_residue << endl;
 	//}
 }
+#endif /*  0  */
 
 void print_counter (int counter[], int n_side, int m_ban)
 {
@@ -3656,19 +3701,30 @@ int main()
 		char flag_ban[m_ban_elements] __attribute__ ((aligned(16)));
 		char flag_side_7[8]  __attribute__ ((aligned(16)));;
 		char * side_ptr __attribute__ ((aligned(16))) = flag_side_7;
-		char * ban_ptr  __attribute__ ((aligned(16))) = flag_ban;
+		char * ban_ptr   __attribute__ ((aligned(16))) = flag_ban;
+		char  chk_sid  [m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		char  chk_ban  [m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		char  chk_xmm1 [m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		char  chk_xmm2 [m_ban_elements * 7] __attribute__ ((aligned(16))); 
 
 		for (int i=0; i < 7; ++i) {
 			for (int j=0; j < m_ban_elements; ++j) {
-				counter[i*m_ban_elements + j] = j + (i+1)*10;
+				counter [i*m_ban_elements + j] = j + (i+1)*10;
+				chk_sid [i*m_ban_elements + j] = 0;
+				chk_ban [i*m_ban_elements + j] = 0;
+				chk_xmm1[i*m_ban_elements + j] = 0;
+				chk_xmm2[i*m_ban_elements + j] = 0;
 			}
 			flag_side_7[i] = 1;
+			//flag_side_7[i] = i;
 		}
 		for (int j=0; j < m_ban_elements; ++j) {
 			if (j%2==0)
 				flag_ban[j] = 1;
 			else 
 				flag_ban[j] = 0;
+			
+			//flag_ban[j] = j;
 		}
 		//flag_side_7[0] = 0;
 		//flag_side_7[1] = 0;
@@ -3683,9 +3739,33 @@ int main()
 				, m_ban_elements
 				, ban_ptr 
 				, counter 
+				, chk_sid
+				, chk_ban
+				, chk_xmm1
+				, chk_xmm2
 		);
 
 		print_counter (counter, 7, m_ban_elements);
+		for (int i=0; i < 7; ++i) {
+			for (int j=0; j < m_ban_elements; ++j) {
+				cout << (int) chk_sid[i * m_ban_elements + j] ;
+			}
+			cout << endl;
+			for (int j=0; j < m_ban_elements; ++j) {
+				cout << (int) chk_ban[i * m_ban_elements + j] ;
+			}
+			cout << endl;
+			for (int j=0; j < m_ban_elements; ++j) {
+				cout << (int) chk_xmm1[i * m_ban_elements + j] ;
+			}
+			cout << endl;
+			for (int j=0; j < m_ban_elements; ++j) {
+				cout << (int) chk_xmm2[i * m_ban_elements + j] ;
+			}
+			cout << endl;
+			cout << endl;
+		}
+
 
 
 	}
