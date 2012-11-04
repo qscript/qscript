@@ -3875,7 +3875,7 @@ void tabulate_side_n_ban_m (
 						chk_ban  += 16;
 					}
 				} else if (  l_n_side_elements == 1)  {
-					cout << "l_n_side_elements == 1:" << l_n_side_elements << endl;
+					//cout << "l_n_side_elements == 1:" << l_n_side_elements << endl;
 
 					asm (
 							"movq (%0), %%xmm0\n\t"
@@ -4408,7 +4408,7 @@ int main()
 	{
 
 		//int n_side_elements = 7;
-		int n_side_elements = 6;
+		int n_side_elements = 7;
 		//const int m_ban_elements = 44;
 		char flag_ban[m_ban_elements] __attribute__ ((aligned(16)));
 		char flag_side_7[8]  __attribute__ ((aligned(16)));;
@@ -4433,18 +4433,18 @@ int main()
 				chk_xmm2[i*m_ban_elements + j] = 0;
 			}
 			//flag_side_7[i] = 21;
-			//flag_side_7[i] = 1;
-			flag_side_7[i] = i;
+			flag_side_7[i] = 1;
+			//flag_side_7[i] = i;
 		}
 		for (int j=0; j < m_ban_elements; ++j) {
-			//if (j%2==0)
-			//	flag_ban[j] = 1;
-			//else 
-			//	flag_ban[j] = 0;
+			if (j%2==0)
+				flag_ban[j] = 1;
+			else 
+				flag_ban[j] = 0;
 			//flag_ban[j] = j*2;
 			//flag_ban[j] = 1;
 			
-			flag_ban[j] = 1;
+			//flag_ban[j] = j;
 		}
 		//flag_side_7[0] = 0;
 		//flag_side_7[1] = 0;
