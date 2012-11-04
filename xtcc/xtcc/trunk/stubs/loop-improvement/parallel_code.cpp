@@ -3676,7 +3676,6 @@ void tabulate_side_n_ban_m (
 						: /*  clobbered */ "xmm2"
 				    );
 				if (l_n_side_elements >= 2) {
-					// start programming from here : nxd
 					//while (l_m_ban_elements != 0) 
 					{
 						//cout << "looping i:" << i << endl;
@@ -3992,9 +3991,10 @@ void tabulate_side_n_ban_m (
 
 
 				}
-			} else if (l_m_ban_elements > 4 /*  && l_m_ban_elements <=7 */) {
+			} else if (l_m_ban_elements >= 4 /*  && l_m_ban_elements <=7 */) {
 				// we can process 2 rows at a time
-				// and between 10 - 14 banner conditions in 1 go
+				// and between 10 - 14 conditions in 1 go
+				cout << "l_m_ban_elements > 4: i == " << i << endl;
 
 				asm (
 						"movdqa (%0), %%xmm1\n\t"
@@ -4008,53 +4008,108 @@ void tabulate_side_n_ban_m (
 						: /*  inputs */ "r" (shuffle_mask_side8)
 						: /*  clobbered */ "xmm2"
 				    );
-				if (l_n_side_elements > 2) {
-					// start programming from here : nxd
+				if (l_n_side_elements >= 2) {
 					//while (l_m_ban_elements > 4) {
-						asm (
-								"movq (%0), %%xmm0\n\t"
-								: /*  outputs */
-								: /*  inputs */ "r" (l_ban_ptr)
-								: /*  clobbered */ "xmm0" 
-						    );
+					asm (
+							"movq (%0), %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (l_ban_ptr)
+							: /*  clobbered */ "xmm0" 
+					    );
 
-						asm (
-								"pshufb %%xmm1, %%xmm0\n\t"
-								: /*  outputs */
-								: /*  inputs */ 
-								: /*  clobbered */ "xmm0" 
-						    );
+					asm (
+							"pshufb %%xmm1, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0" 
+					    );
 
-						asm (
-								"xor %%eax, %%eax\n\t"
-								"movw (%0), %%ax\n\t"
-								"pinsrw $0, %%eax, %%xmm3\n\t"
-								"pshufb %%xmm2, %%xmm3\n\t"
-								: /*  outputs */
-								: /*  inputs */ "r" (side_ptr + i*2)
-								: /*  clobbered */ "rax", "xmm3"
-						    );
+					asm (
+							"xor %%eax, %%eax\n\t"
+							"movw (%0), %%ax\n\t"
+							"pinsrw $0, %%eax, %%xmm3\n\t"
+							"pshufb %%xmm2, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (side_ptr + i)
+							: /*  clobbered */ "rax", "xmm3"
+					    );
 
-						asm (
-								"pand %%xmm3, %%xmm0\n\t"
-								: /*  outputs */
-								: /*  inputs */ 
-								: /*  clobbered */ "xmm0"
-						    );
+					asm (
+						"movdqu %%xmm0, %0\n\t"
+							: /*  outputs */ "=m" (*chk_ban)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
 
-						// ==================================================
+					asm (
+						"movdqu %%xmm3, %0\n\t"
+							: /*  outputs */ "=m" (*chk_sid)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
 
+					asm (
+							"pand %%xmm3, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0"
+					    );
+
+					// ======= Process the 1st Row ======================
+
+					asm (
+							"pextrd $0, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					// load the 1st 4 counter variables
+					asm (
+							"movdqu (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqu %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+
+					// note l_m_ban_elements < 8 otherwise the above if condition would
+					// have trapped it
+					char residue = l_m_ban_elements - 4;
+					// residue can be 3, 2, 1
+					if (residue > 1) {
+						// note - although we are extracting the double word
+						// we only need the 1st 2 bytes of it.
 						asm (
-								"pextrd $0, %%xmm0, %%eax\n\t"
+								"pextrd $1, %%xmm0, %%eax\n\t"
 								"pinsrd $0, %%eax, %%xmm4\n\t"
 								"pmovsxbd %%xmm4, %%xmm3\n\t"
 								: /*  outputs */
 								: /*  inputs */ 
 								: /*  clobbered */ "rax", "xmm4", "xmm3"
 						    );
-						// load the 1st 4 counter variables
+						// load the next 2 counter variables
 						asm (
-								"movdqu (%0), %%xmm5\n\t"
+								"movq (%0), %%xmm5\n\t"
 								: /*  outputs */
 								: /*  inputs */ "r" (my_ptr)
 								: /*  clobbered */ "xmm5"
@@ -4069,26 +4124,258 @@ void tabulate_side_n_ban_m (
 						    );
 
 						asm (
-							"movdqu %%xmm5, %0\n\t"
+							"movq %%xmm5, %0\n\t"
 								: /*  outputs */ "=m" (*my_ptr)
 								: /*  inputs */ 
 								: /*  clobbered */ 
 									"memory"
 						    );
-
-						// note l_m_ban_elements < 8 otherwise the above if condition would
-						// have trapped it
-						if (l_m_ban_elements % 8 == 2) {
+						my_ptr += 2;
+						residue -= 2;
+					}
+					if (residue == 1) {
+						// let the compiler do this
+						// nxd l_ban_ptr[6] will not work for 
+						//
+						if (side_ptr[i] && l_ban_ptr[6]) {
+							++ my_ptr[0];
 						}
-						if (l_m_ban_elements % 8 == 1) {
-							if (side_ptr[2* i] && l_ban_ptr[4]) {
-								++ my_ptr[4];
-							}
-							my_ptr +=5;
-						} 
+						++my_ptr;
+					}
+					// ======= Process the 2nd Row ======================
 
-						//my_ptr += 4;
-					//}
+					asm (
+							"pextrd $2, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					// load the 1st 4 counter variables
+					asm (
+							"movdqu (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqu %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+
+					// note l_m_ban_elements < 8 otherwise the above if condition would
+					// have trapped it
+					residue = l_m_ban_elements - 4;
+					// residue can be 3, 2, 1
+					if (residue > 1) {
+						// note - although we are extracting the double word
+						// we only need the 1st 2 bytes of it.
+						asm (
+								"pextrd $3, %%xmm0, %%eax\n\t"
+								"pinsrd $0, %%eax, %%xmm4\n\t"
+								"pmovsxbd %%xmm4, %%xmm3\n\t"
+								: /*  outputs */
+								: /*  inputs */ 
+								: /*  clobbered */ "rax", "xmm4", "xmm3"
+						    );
+						// load the next 2 counter variables
+						asm (
+								"movq (%0), %%xmm5\n\t"
+								: /*  outputs */
+								: /*  inputs */ "r" (my_ptr)
+								: /*  clobbered */ "xmm5"
+						    );
+
+						asm (
+							"paddd %%xmm3, %%xmm5\n\t"
+								: /*  outputs */ 
+								: /*  inputs */ 
+								: /*  clobbered */ 
+									"xmm5"
+						    );
+
+						asm (
+							"movq %%xmm5, %0\n\t"
+								: /*  outputs */ "=m" (*my_ptr)
+								: /*  inputs */ 
+								: /*  clobbered */ 
+									"memory"
+						    );
+						my_ptr += 2;
+						residue -= 2;
+					}
+					if (residue == 1) {
+						// let the compiler do this
+						if (side_ptr[i] && l_ban_ptr[6]) {
+							++ my_ptr[0];
+							++my_ptr;
+						}
+					}
+
+					i += 2;
+					l_n_side_elements -= 2;
+					chk_sid  += 16;
+					chk_ban  += 16;
+
+					//my_ptr += 4;
+				//}
+				}
+				if (l_n_side_elements == 1) {
+					// start programming from here : nxd
+					//while (l_m_ban_elements > 4) {
+					asm (
+							"movq (%0), %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (l_ban_ptr)
+							: /*  clobbered */ "xmm0" 
+					    );
+
+					asm (
+							"pshufb %%xmm1, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0" 
+					    );
+
+					asm (
+							"xor %%eax, %%eax\n\t"
+							"movb (%0), %%al\n\t"
+							"pinsrb $0, %%eax, %%xmm3\n\t"
+							"pshufb %%xmm2, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (side_ptr + i)
+							: /*  clobbered */ "rax", "xmm3"
+					    );
+
+					asm (
+						"movdqu %%xmm0, %0\n\t"
+							: /*  outputs */ "=m" (*chk_ban)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					asm (
+						"movdqu %%xmm3, %0\n\t"
+							: /*  outputs */ "=m" (*chk_sid)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					asm (
+							"pand %%xmm3, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0"
+					    );
+
+					// ======= Process the 1st Row ======================
+
+					asm (
+							"pextrd $0, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					// load the 1st 4 counter variables
+					asm (
+							"movdqu (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqu %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 4;
+
+					// note l_m_ban_elements < 8 otherwise the above if condition would
+					// have trapped it
+					char residue = l_m_ban_elements - 4;
+					// residue can be 3, 2, 1
+					if (residue > 1) {
+						// note - although we are extracting the double word
+						// we only need the 1st 2 bytes of it.
+						asm (
+								"pextrd $1, %%xmm0, %%eax\n\t"
+								"pinsrd $0, %%eax, %%xmm4\n\t"
+								"pmovsxbd %%xmm4, %%xmm3\n\t"
+								: /*  outputs */
+								: /*  inputs */ 
+								: /*  clobbered */ "rax", "xmm4", "xmm3"
+						    );
+						// load the next 2 counter variables
+						asm (
+								"movq (%0), %%xmm5\n\t"
+								: /*  outputs */
+								: /*  inputs */ "r" (my_ptr)
+								: /*  clobbered */ "xmm5"
+						    );
+
+						asm (
+							"paddd %%xmm3, %%xmm5\n\t"
+								: /*  outputs */ 
+								: /*  inputs */ 
+								: /*  clobbered */ 
+									"xmm5"
+						    );
+
+						asm (
+							"movq %%xmm5, %0\n\t"
+								: /*  outputs */ "=m" (*my_ptr)
+								: /*  inputs */ 
+								: /*  clobbered */ 
+									"memory"
+						    );
+						my_ptr += 2;
+						residue -= 2;
+					}
+					if (residue == 1) {
+						// let the compiler do this
+						if (side_ptr[i] && l_ban_ptr[6]) {
+							++ my_ptr[0];
+						}
+						++my_ptr;
+					}
+
+
+					i += 1;
+					l_n_side_elements -= 1;
+					chk_sid  += 16;
+					chk_ban  += 16;
+
+					//my_ptr += 4;
+				//}
 				}
 			} else if (l_m_ban_elements > 2 ) {
 				// we can process 4 rows at a time
@@ -4275,9 +4562,14 @@ void print_counter (int counter[], int n_side, int m_ban)
 
 }
 
+	//const int m_ban_elements = 32;
+	//const int m_ban_elements = 40;
+	//const int m_ban_elements = 44;
 	//const int m_ban_elements = 47;
 	//int counter[7 * m_ban_elements] ;
-	const int m_ban_elements = 8;
+	//const int m_ban_elements = 8;
+	//int counter[7 * m_ban_elements] ;
+	const int m_ban_elements = 7;
 	int counter[7 * m_ban_elements] ;
 
 int main()
@@ -4405,6 +4697,7 @@ int main()
 
 
 	} */
+	/* 
 	{
 
 		//int n_side_elements = 7;
@@ -4488,7 +4781,92 @@ int main()
 			//}
 			cout << " ================== " << endl;
 		}
+	} */
+	{
+
+		//int n_side_elements = 7;
+		int n_side_elements = 6;
+		//const int m_ban_elements = 44;
+		char flag_ban[m_ban_elements] __attribute__ ((aligned(16)));
+		char flag_side_7[8]  __attribute__ ((aligned(16)));;
+		char * side_ptr __attribute__ ((aligned(16))) = flag_side_7;
+		char * ban_ptr   __attribute__ ((aligned(16))) = flag_ban;
+		//char  chk_sid  [m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		//char  chk_ban  [m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		//char  chk_xmm1 [m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		//char  chk_xmm2 [m_ban_elements * 7] __attribute__ ((aligned(16))); 
+
+		char  chk_sid  [2 * m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		char  chk_ban  [2 * m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		char  chk_xmm1 [2 * m_ban_elements * 7] __attribute__ ((aligned(16))); 
+		char  chk_xmm2 [2 * m_ban_elements * 7] __attribute__ ((aligned(16))); 
+
+		for (int i=0; i < 7; ++i) {
+			for (int j=0; j < m_ban_elements; ++j) {
+				counter [i*m_ban_elements + j] = j + (i+1)*10;
+				chk_sid [i*m_ban_elements + j] = 0;
+				chk_ban [i*m_ban_elements + j] = 0;
+				chk_xmm1[i*m_ban_elements + j] = 0;
+				chk_xmm2[i*m_ban_elements + j] = 0;
+			}
+			//flag_side_7[i] = 21;
+			flag_side_7[i] = 1;
+			//flag_side_7[i] = i;
+		}
+		for (int j=0; j < m_ban_elements; ++j) {
+			// if (j%2==0)
+			// 	flag_ban[j] = 1;
+			// else 
+			// 	flag_ban[j] = 0;
+			//flag_ban[j] = j*2;
+			flag_ban[j] = 1;
+			
+			//flag_ban[j] = j;
+		}
+		//flag_side_7[0] = 0;
+		//flag_side_7[1] = 0;
+		//flag_side_7[2] = 0;
+		//flag_side_7[3] = 0;
+		//flag_side_7[4] = 0;
+		//flag_side_7[5] = 0;
+		//flag_side_7[6] = 0;
+
+		print_counter (counter, 7, m_ban_elements);
+
+		tabulate_side_n_ban_m (
+				  n_side_elements
+				, side_ptr
+				, m_ban_elements
+				, ban_ptr 
+				, counter 
+				, chk_sid
+				, chk_ban
+				, chk_xmm1
+				, chk_xmm2
+		);
+
+		print_counter (counter, 7, m_ban_elements);
+		//for (int i=0; i < 7; ++i)
+		for (int i=0; i < 7; ++i) {
+			for (int j=0; j < 16; ++j) {
+				cout << (int) chk_sid[i * 16 + j] ;
+			}
+			cout << endl;
+			for (int j=0; j < 16; ++j) {
+				cout << (int) chk_ban[i * 16 + j] ;
+			}
+			cout << endl;
+			//for (int j=0; j < m_ban_elements; ++j) {
+			//	cout << (int) chk_xmm1[i * m_ban_elements + j] ;
+			//}
+			//cout << endl;
+			//for (int j=0; j < m_ban_elements; ++j) {
+			//	cout << (int) chk_xmm2[i * m_ban_elements + j] ;
+			//}
+			cout << " ================== " << endl;
+		}
 	}
+
 	{
 		int n_side_elements = 6;
 		char flag_side[7] = { 1, 2, 3, 4, 5, 6, 7} 
