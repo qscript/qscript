@@ -3000,6 +3000,20 @@ char shuffle_mask_side8[] __attribute__ ((aligned(16)))
 		1, 1, 1, 1, 1, 1, 1, 1 
 	};
 
+char shuffle_mask_ban4[] __attribute__ ((aligned(16)))
+	= { 	
+		0, 1, 2, 3,
+		0, 1, 2, 3,
+	 	0, 1, 2, 3,
+	 	0, 1, 2, 3
+	};
+char shuffle_mask_side4[] __attribute__ ((aligned(16)))
+	= { 	0, 0, 0, 0, 
+		1, 1, 1, 1, 
+		2, 2, 2, 2, 
+		3, 3, 3, 3 
+	};
+
 void xfer_data (int src[], int dest[], int arr_sz)
 {
 	int * s_ptr = src;
@@ -3991,7 +4005,7 @@ void tabulate_side_n_ban_m (
 
 
 				}
-			} else if (l_m_ban_elements >= 4 /*  && l_m_ban_elements <=7 */) {
+			} else if (l_m_ban_elements > 4 /*  && l_m_ban_elements <=7 */) {
 				// we can process 2 rows at a time
 				// and between 10 - 14 conditions in 1 go
 				cout << "l_m_ban_elements > 4: i == " << i << endl;
@@ -4243,7 +4257,6 @@ void tabulate_side_n_ban_m (
 				}
 				if (l_n_side_elements == 1) {
 #if 1
-					// start programming from here : nxd
 					//while (l_m_ban_elements > 4) {
 					asm (
 							"movq (%0), %%xmm0\n\t"
@@ -4389,6 +4402,210 @@ void tabulate_side_n_ban_m (
 					my_ptr += l_m_ban_elements;
 				//}
 				}
+			} else if (l_m_ban_elements == 4 ) {
+				cout << "l_m_ban_elements == 4: i == " << i << endl;
+
+				asm (
+						"movdqa (%0), %%xmm1\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (shuffle_mask_ban4)
+						: /*  clobbered */ "xmm1"
+				    );
+				asm (
+						"movdqa (%0), %%xmm2\n\t"
+						: /*  outputs */
+						: /*  inputs */ "r" (shuffle_mask_side4)
+						: /*  clobbered */ "xmm2"
+				    );
+				if (l_n_side_elements >= 4) {
+					asm (
+							"movq (%0), %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (l_ban_ptr)
+							: /*  clobbered */ "xmm0" 
+					    );
+
+					asm (
+							"pshufb %%xmm1, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0" 
+					    );
+
+					asm (
+							"xor %%eax, %%eax\n\t"
+							"movw (%0), %%ax\n\t"
+							"pinsrw $0, %%eax, %%xmm3\n\t"
+							"pshufb %%xmm2, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (side_ptr + i)
+							: /*  clobbered */ "rax", "xmm3"
+					    );
+
+					asm (
+						"movdqu %%xmm0, %0\n\t"
+							: /*  outputs */ "=m" (*chk_ban)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					asm (
+						"movdqu %%xmm3, %0\n\t"
+							: /*  outputs */ "=m" (*chk_sid)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					asm (
+							"pand %%xmm3, %%xmm0\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "xmm0"
+					    );
+
+					// ======= Process the 1st Row ======================
+
+					asm (
+							"pextrd $0, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					// load the 1st 4 counter variables
+					asm (
+							"movdqu (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqu %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*my_ptr)
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					// ======= Process the 2nd Row ======================
+
+					asm (
+							"pextrd $1, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					// load the 2nd 4 counter variables
+					asm (
+							"movdqu (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr+4)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqu %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*(my_ptr+4))
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					// ======= Process the 3rd Row ======================
+
+					asm (
+							"pextrd $2, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					// load the 2nd 4 counter variables
+					asm (
+							"movdqu (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr+8)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqu %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*(my_ptr+8))
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+
+					// ======= Process the 4th Row ======================
+
+					asm (
+							"pextrd $3, %%xmm0, %%eax\n\t"
+							"pinsrd $0, %%eax, %%xmm4\n\t"
+							"pmovsxbd %%xmm4, %%xmm3\n\t"
+							: /*  outputs */
+							: /*  inputs */ 
+							: /*  clobbered */ "rax", "xmm4", "xmm3"
+					    );
+					// load the 2nd 4 counter variables
+					asm (
+							"movdqu (%0), %%xmm5\n\t"
+							: /*  outputs */
+							: /*  inputs */ "r" (my_ptr+12)
+							: /*  clobbered */ "xmm5"
+					    );
+
+					asm (
+						"paddd %%xmm3, %%xmm5\n\t"
+							: /*  outputs */ 
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"xmm5"
+					    );
+
+					asm (
+						"movdqu %%xmm5, %0\n\t"
+							: /*  outputs */ "=m" (*(my_ptr+12))
+							: /*  inputs */ 
+							: /*  clobbered */ 
+								"memory"
+					    );
+					my_ptr += 16;
+					i += 4;
+					l_n_side_elements -= 4;
+
+				}
+				// start programming from here : nxd
+				// process the remaining rows (can be from 0 to 3)
 			} else if (l_m_ban_elements > 2 ) {
 				// we can process 4 rows at a time
 				while (l_m_ban_elements > 2) {
