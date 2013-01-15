@@ -93,14 +93,14 @@ int SetupGTK (int argc, char * argv[]);
 string GenerateSessionId();
 
 int process_options(int argc, char * argv[]);
-WINDOW  * question_window = 0,
-* stub_list_window = 0,
-* data_entry_window = 0,
-* help_window = 0;
-PANEL   * question_panel = 0,
-* stub_list_panel = 0,
-* data_entry_panel = 0,
-* help_panel = 0;
+//WINDOW  * question_window = 0,
+//* stub_list_window = 0,
+//* data_entry_window = 0,
+//* help_window = 0;
+//PANEL   * question_panel = 0,
+//* stub_list_panel = 0,
+//* data_entry_panel = 0,
+//* help_panel = 0;
 DIR * directory_ptr = 0;
 vector <string> vec_language;
 enum UI_Mode { NCurses_Mode, Microhttpd_Mode, Wt_Mode, Gtk_Mode};
@@ -1270,11 +1270,12 @@ struct TheQuestionnaire
 		memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);
 		do_freq_counts();
 	}
-	void prompt_user_for_serial_no()
+	void prompt_user_for_serial_no(WINDOW * data_entry_window)
 	{
 		wclear(data_entry_window);
 		mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
 		mvwscanw(data_entry_window, 1, 40, "%d", & ser_no);
+		cout << __PRETTY_FUNCTION__ << endl;
 	}
 
 	void write_xtcc_data_to_disk()
@@ -1414,7 +1415,14 @@ PANEL   * question_panel,
 
 void NCQuestionnaireApplication::DestroyPreviousWidgets ()
 {
-
+	wclear(this->question_window);
+	box(this->question_window, 0, 0);
+	wclear(this->stub_list_window);
+	box(this->stub_list_window, 0, 0);
+	wclear(this->data_entry_window);
+	box(this->data_entry_window, 0, 0);
+	update_panels();
+	doupdate();
 }
 
 
@@ -1515,6 +1523,12 @@ void NCQuestionnaireApplication::setupNC()
 	this_users_session = new Session();
 	strcpy (this_users_session->sid, sess_id.c_str());
 	wt_sessions.push_back(this_users_session);
+	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0
+		 /* || help_window == 0 */
+		 ){
+		cerr << "Unable to create ncurses windows ... exiting" << endl;
+		exit(1);
+	}
 }
 
 
@@ -1533,6 +1547,24 @@ void line_edit_callback ()
 void NCQuestionnaireApplication::get_serial_no_nc ()
 {
 	//gtk_container_add (GTK_CONTAINER (top_half), vbox);
+	theQuestionnaire->reset_questionnaire();
+	theQuestionnaire->prompt_user_for_serial_no(this->data_entry_window);
+	if (theQuestionnaire->ser_no == 0)
+	{
+		cout << "Got 0 as the serial no exiting" << endl;
+		return;
+	}
+	int exists = check_if_reg_file_exists(theQuestionnaire->jno, theQuestionnaire->ser_no);
+	if (exists == 1)
+	{
+		map <string, question_disk_data*>  qdd_map;
+		load_data (theQuestionnaire->jno, theQuestionnaire->ser_no, &qdd_map);
+		merge_disk_data_into_questions2(qscript_stdout
+				, theQuestionnaire->last_question_answered
+				, theQuestionnaire->last_question_visited
+				, theQuestionnaire->question_list, &qdd_map);
+		DoQuestionnaire();
+	}
 
 }
 
@@ -1560,7 +1592,7 @@ void NCQuestionnaireApplication::DoQuestionnaire()
 	//if (!wt_questionText_) {
 	//	wt_questionText_ = new WText(root());
 	//}
-	cout << "Data for ser_no: " << ser_no << endl;
+	cout << "Data for ser_no: " << theQuestionnaire->ser_no << endl;
 	for(int32_t i = 0; i < this_users_session->questionnaire->question_list.size(); ++i)
 	{
 		cout << this_users_session->questionnaire->question_list[i]->questionName_;
@@ -1585,6 +1617,7 @@ void NCQuestionnaireApplication::DoQuestionnaire()
 		s << "last_question_served: " << this_users_session->last_question_served->questionName_ ;
 	cout << s.str() << endl;
 	//wt_debug_->setText(s.str());
+#if 0
 	if (this_users_session->last_question_served)
 	{
 		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session->last_question_served))
@@ -1723,6 +1756,7 @@ void NCQuestionnaireApplication::DoQuestionnaire()
 		TheQuestionnaire * qnre = this_users_session->questionnaire;
 		qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
 	}
+#endif /*  0 */
 	AbstractQuestion * q =
 		this_users_session->questionnaire->eval2(
 		qnre_navigation_mode);
@@ -1756,14 +1790,9 @@ void toggle_rb_button_event ()
 void NCQuestionnaireApplication::ConstructQuestionForm(
 AbstractQuestion *q, Session * this_users_session)
 {
-	map_cb_code_index.clear();
-	//WContainerWidget * new_form = new WContainerWidget();
-	//vec_rb.clear();				 // memory leak introduced here? no it seems
-	//vec_cb.clear();				 // memory leak introduced here? no it seems
+#if 1
 	//map_cb_code_index.clear();
 
-	//wt_questionText_ = new WText();
-	//wt_questionText_->setText(q->textExprVec_[0]->text_);
 	string question_text;
 	stringstream part_mesg_id;
 	//WString question_text;
@@ -1804,68 +1833,49 @@ AbstractQuestion *q, Session * this_users_session)
 		}
 		//question_text += "</p>";
 	}
-	#if 0
-	wt_questionText_->setText(question_text);
-
-	new_form->addWidget(wt_questionText_);
-	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
-	{
-		new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());
-		if (q->no_mpn==1)
-		{
-			wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
-		}
-		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
-		for (int i=0; i<vec.size(); ++i)
-		{
-			stringstream named_range_key;
-			named_range_key << nq->nr_ptr->name << "_" << i;
-			if (q->no_mpn==1 && vec[i].mask)
-			{
-				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
-				WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-				wt_rb_container_->addButton(wt_rb, vec[i].code);
-				new WBreak(wt_cb_rb_container_);
-				vec_rb.push_back(wt_rb);
-			}
-			else if (q->no_mpn>1 && vec[i].mask)
-			{
-				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
-				WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-				vec_cb.push_back(wt_cb);
-				cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
-				map_cb_code_index[vec_cb.size()-1] = vec[i].code;
-			}
-		}
-		new_form->addWidget(wt_cb_rb_container_);
-	}
-	else
-	{
-		le_data_ = new WLineEdit();
-		new_form->addWidget(le_data_);
-	}
-
-	wt_lastQuestionVisited_ = new WText();
-	if (this_users_session->last_question_answered)
-		wt_lastQuestionVisited_->setText(q->questionName_);
-	new_form->addWidget(wt_lastQuestionVisited_);
-
-	// create a button
-	WPushButton *b = new WPushButton("Next");
-	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);
-	new_form->addWidget(b);
-
-	setCentralWidget(new_form);
-	#endif						 /* 0 */
 	//gtk_widget_hide_all (top_half);
-	gtk_widget_hide( entry);
+	//gtk_widget_hide( entry);
 
 	DestroyPreviousWidgets ();
-	questionTextLabel_ = gtk_label_new (question_text.c_str());
-	//gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), questionTextLabel_);
-	gtk_box_pack_start (GTK_BOX (vbox), questionTextLabel_, TRUE, TRUE, 0);
-	gtk_widget_show(questionTextLabel_);
-	gtk_widget_show (top_half);
+	mvwprintw(question_window, 1, 1, "%s.", q->questionName_.c_str());
+
+	const vector<int> & loop_index_values = q->loop_index_values;
+	int len_qno = q->questionName_.length()+2;
+
+	if (loop_index_values.size() > 0) {
+		for(uint32_t i=0; i<loop_index_values.size(); ++i){
+			//cout << loop_index_values[i]+1 << ".";
+			mvwprintw(question_window, 1, len_qno, "%d.", loop_index_values[i]+1);
+			if (loop_index_values[i]+1<10) {
+				len_qno += 1;
+			} else if (loop_index_values[i]+1<100) {
+				len_qno += 2;
+			} else if (loop_index_values[i]+1<1000) {
+				len_qno += 3;
+			} else if (loop_index_values[i]+1<10000) {
+				len_qno += 4;
+			}
+			len_qno += 1; // for the "."
+		}
+	}
+	// This is in the question_runtime.cpp file
+	//mvwprintw (question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
+	//for (int i=1; i<textExprVec_.size(); ++i) {
+	//	mvwprintw (question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
+	//}
+	mvwprintw (question_window, 1, len_qno+1, " %s", question_text.c_str() );
+	//mvwprintw (data_entry_window, 1, len_qno+1, " %s", question_text.c_str() );
+	update_panels();
+	doupdate();
+	getch();
+	endwin();
+
+
+	//questionTextLabel_ = gtk_label_new (question_text.c_str());
+	////gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), questionTextLabel_);
+	//gtk_box_pack_start (GTK_BOX (vbox), questionTextLabel_, TRUE, TRUE, 0);
+	//gtk_widget_show(questionTextLabel_);
+	//gtk_widget_show (top_half);
 
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
 	{
@@ -1873,13 +1883,13 @@ AbstractQuestion *q, Session * this_users_session)
 		if (q->no_mpn==1)
 		{
 			//wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
-			rb_selected_code = -1;
-			rb = gtk_radio_button_new_with_label (NULL, "Dummy - for default unselected - should never display");
-			gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
-			GtkRadioButtonData * rb_data = new GtkRadioButtonData (0, this);
-			rbData_.push_back (rb_data);
-			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb), TRUE);
-			gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+			//rb_selected_code = -1;
+			//rb = gtk_radio_button_new_with_label (NULL, "Dummy - for default unselected - should never display");
+			//gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+			//GtkRadioButtonData * rb_data = new GtkRadioButtonData (0, this);
+			//rbData_.push_back (rb_data);
+			//gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb), TRUE);
+			//gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
 			//g_signal_connect (G_OBJECT (rb), "toggled",
 			//	G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
 			// purposely dont do a show . Make it default selected
@@ -1892,69 +1902,50 @@ AbstractQuestion *q, Session * this_users_session)
 			named_range_key << nq->nr_ptr->name << "_" << i;
 			if (q->no_mpn == 1 && vec[i].mask)
 			{
-				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
-				//WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-				//wt_rb_container_->addButton(wt_rb, vec[i].code);
-				//new WBreak(wt_cb_rb_container_);
-				//if (!rb_group_was_created) {
-				rb = gtk_radio_button_new_with_label (gtkRadioButtonGroup_, vec[i].stub_text.c_str());
-				gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
-				gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
-				GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
-				rbData_.push_back (rb_data);
-				g_signal_connect (G_OBJECT (rb), "toggled",
-					G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
-				gtk_widget_show (rb);
+				//rb = gtk_radio_button_new_with_label (gtkRadioButtonGroup_, vec[i].stub_text.c_str());
 				//gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
-				//rb_group_was_created = true;
-				//} else {
-				//	rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), vec[i].stub_text.c_str());
-				//	GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
-				//	rbData_.push_back (rb_data);
-				//	g_signal_connect (G_OBJECT (rb), "toggled",
-				//		G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
-				//	gtk_widget_show (rb);
-				//	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
-				//}
-				vec_rb.push_back (rb);
+				//gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+				//GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
+				//rbData_.push_back (rb_data);
+				//g_signal_connect (G_OBJECT (rb), "toggled",
+				//	G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
+				//gtk_widget_show (rb);
+				//vec_rb.push_back (rb);
 			}
 			if (q->no_mpn>1 && vec[i].mask)
 			{
-				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
-				//WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-				//vec_cb.push_back(wt_cb);
-				//cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
-				GtkWidget * cb = gtk_check_button_new_with_label (vec[i].stub_text.c_str());
-				GtkRadioButtonData * cb_data = new GtkRadioButtonData (vec[i].code, this);
-				rbData_.push_back (cb_data);
-				g_signal_connect (G_OBJECT (cb), "toggled",
-					G_CALLBACK (toggle_rb_button_event), (gpointer) cb_data);
-				gtk_widget_show (cb);
-				gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), cb, TRUE, TRUE, 0);
-				//!! Warning - the 2 statements below have to be in this order
-				// and are not interchangeable
-				vec_cb.push_back (cb);
-				map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+				//GtkWidget * cb = gtk_check_button_new_with_label (vec[i].stub_text.c_str());
+				//GtkRadioButtonData * cb_data = new GtkRadioButtonData (vec[i].code, this);
+				//rbData_.push_back (cb_data);
+				//g_signal_connect (G_OBJECT (cb), "toggled",
+				//	G_CALLBACK (toggle_rb_button_event), (gpointer) cb_data);
+				//gtk_widget_show (cb);
+				//gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), cb, TRUE, TRUE, 0);
+				////!! Warning - the 2 statements below have to be in this order
+				//// and are not interchangeable
+				//vec_cb.push_back (cb);
+				//map_cb_code_index[vec_cb.size()-1] = vec[i].code;
 			}
 		}
 		//new_form->addWidget(wt_cb_rb_container_);
 	}
 	else
 	{
-		le_data_ = gtk_entry_new ();
-		gtk_entry_set_max_length (GTK_ENTRY (entry), 50);
-		g_signal_connect (G_OBJECT (le_data_), "activate", G_CALLBACK (line_edit_callback), (gpointer) this);
-		gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), le_data_, TRUE, TRUE, 0);
-		gtk_widget_show (le_data_);
+		//le_data_ = gtk_entry_new ();
+		//gtk_entry_set_max_length (GTK_ENTRY (entry), 50);
+		//g_signal_connect (G_OBJECT (le_data_), "activate", G_CALLBACK (line_edit_callback), (gpointer) this);
+		//gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), le_data_, TRUE, TRUE, 0);
+		//gtk_widget_show (le_data_);
 	}
-	next_button = gtk_button_new_with_label ("Next");
-	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), next_button, TRUE, TRUE, 0);
-	gtk_widget_show (next_button);
+	//next_button = gtk_button_new_with_label ("Next");
+	//gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), next_button, TRUE, TRUE, 0);
+	//gtk_widget_show (next_button);
 
 	/* When the button is clicked, we call the "callback" function
 	 * with a pointer to "button 1" as its argument */
-	g_signal_connect (G_OBJECT (next_button), "clicked",
-		G_CALLBACK (next_button_callback), (gpointer) this);
+	//g_signal_connect (G_OBJECT (next_button), "clicked",
+	//	G_CALLBACK (next_button_callback), (gpointer) this);
+#endif /*  0 */
 }
 
 
@@ -1990,7 +1981,8 @@ int32_t main(int argc, char * argv[])
 	theQuestionnaire.base_text_vec.push_back(BaseText("All Respondents"));
 	theQuestionnaire.compute_flat_file_map_and_init();
 	NCQuestionnaireApplication ncQuestionnaireApplication( & theQuestionnaire);
-	ncQuestionnaireApplication.DoQuestionnaire();
+	//ncQuestionnaireApplication.DoQuestionnaire();
+	ncQuestionnaireApplication.get_serial_no_nc();
 
 }								 
 /* close main */
@@ -2138,7 +2130,7 @@ void NCQuestionnaireApplication::PrevDoQuestionnaire()
 		}
 		else
 		{
-			theQuestionnaire->prompt_user_for_serial_no();
+			theQuestionnaire->prompt_user_for_serial_no(this->data_entry_window);
 			if (theQuestionnaire->ser_no == 0)
 			{
 				break;
