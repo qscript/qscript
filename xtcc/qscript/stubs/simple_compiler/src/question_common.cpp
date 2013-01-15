@@ -328,6 +328,12 @@ string AbstractQuestion::AxPrepareQuestionTitleSPSS()
 				//		<< ") ); /*  -NxD- */\n";
 				if (textExprVec_[i]->codeIndex_ != -1)
 				{
+					// NxD - 22-nov-2012
+					cerr  << __LINE__
+						<< "," << __FILE__
+						<< "," << __PRETTY_FUNCTION__ << " codeindex:"
+						<< (textExprVec_[i]->codeIndex_)
+						<< endl;
 					quest_decl << textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(textExprVec_[i]->codeIndex_);
 				}
 				else
