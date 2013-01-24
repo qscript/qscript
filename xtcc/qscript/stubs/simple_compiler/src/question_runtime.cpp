@@ -628,7 +628,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//	mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
 		//}	
 
-		mvwprintw (data_entry_window, 1, 1, "^");
+		mvwprintw (data_entry_window, 1, 1, " ");
 		wmove (data_entry_window, 1, 2);
 		update_panels ();
 		doupdate ();
