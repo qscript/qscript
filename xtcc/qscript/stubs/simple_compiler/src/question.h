@@ -391,6 +391,7 @@ class NamedStubQuestion: public AbstractQuestion
 	std::string PrintSelectedAnswers();
 	std::string PrintSelectedAnswers(int code_index);
 
+	void MakeDisplaySummaryDataRanges();
 
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
