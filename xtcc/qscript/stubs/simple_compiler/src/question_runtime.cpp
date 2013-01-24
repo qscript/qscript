@@ -11,6 +11,7 @@
 using namespace std;
 //extern vector<int32_t> data;
 extern UserNavigation user_navigation;
+extern FILE * qscript_stdout;
 
 void Print_DisplayDataUnitVector (WINDOW * stub_list_window, 
 		vector<display_data::DisplayDataUnit> & disp_vec,
@@ -426,6 +427,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , WINDOW * error_msg_window)
 {
 	if (displayData_.begin() == displayData_.end()) {
+		fprintf (qscript_stdout, "displayData_.begin == displayData_.end \n");
 		vector<stub_pair> & vec= (nr_ptr->stubs);
 		if (vec.size() == 0) {
 			cerr << "runtime error: Impossible !!! stubs with no codes: "
@@ -438,13 +440,55 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		int current_code = start_code;
 		for (int32_t i=0; i<vec.size(); ++i) {
 			current_code = vec[i].code;
+			fprintf (qscript_stdout, "current_code: %d, previous_code: %d\n", current_code, previous_code);
+#if 0
 			if (current_code - previous_code > 1) {
 				if (start_code < previous_code) {
 					displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+					fprintf (qscript_stdout, "> pushed back pair: %d - %d\n", start_code, previous_code);
 					start_code = current_code;
 					previous_code = current_code;
 				} else {
 					displayData_.push_back(display_data::DisplayDataUnit(start_code));
+					fprintf (qscript_stdout, "pushed back singleteon: %d\n", start_code);
+					start_code = current_code;
+					previous_code = current_code;
+				}
+			} 
+#endif /*  0 */
+			/* else if (current_code - previous_code < 1) {
+				displayData_.push_back(display_data::DisplayDataUnit (start_code, previous_code));
+				fprintf (qscript_stdout, "< pushed back pair: %d - %d\n", start_code, previous_code);
+				start_code = current_code;
+				previous_code = current_code;
+			} */
+			if (current_code - previous_code == 0) {
+				// 1st iteration thru the loop 
+				// cant make any decision yet
+			} else if (current_code - previous_code == 1) {
+				// continuous range - just keep going along we are in an interval
+			} else if (current_code - previous_code > 1) {
+				if (start_code < previous_code) {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+					fprintf (qscript_stdout, "> pushed back pair: %d - %d\n", start_code, previous_code);
+					start_code = current_code;
+					previous_code = current_code;
+				} else {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code));
+					fprintf (qscript_stdout, "pushed back singleteon: %d\n", start_code);
+					start_code = current_code;
+					previous_code = current_code;
+				}
+			} else {
+				// current_code - previous_code < 0
+				if (start_code < previous_code) {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+					fprintf (qscript_stdout, "> pushed back pair: %d - %d\n", start_code, previous_code);
+					start_code = current_code;
+					previous_code = current_code;
+				} else if (start_code == previous_code) {
+					displayData_.push_back(display_data::DisplayDataUnit(start_code));
+					fprintf (qscript_stdout, "pushed back singleteon: %d\n", start_code);
 					start_code = current_code;
 					previous_code = current_code;
 				}
@@ -456,10 +500,12 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		}
 		if (start_code < previous_code) {
 			displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+			fprintf (qscript_stdout, "pushed back pair: %d - %d\n", start_code, previous_code);
 			start_code = current_code;
 			previous_code = current_code;
 		} else {
 			displayData_.push_back(display_data::DisplayDataUnit(start_code));
+			fprintf (qscript_stdout, "pushed back singleteon: %d\n", start_code);
 			start_code = current_code;
 			previous_code = current_code;
 		}
@@ -500,6 +546,9 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		wclear(stub_list_window);
 		box(stub_list_window, 0, 0);
 		wclear(data_entry_window);
+		box(data_entry_window, 0, 0);
+		update_panels ();
+		doupdate ();
 		int32_t maxWinX, maxWinY;
 		getmaxyx(data_entry_window, maxWinY, maxWinX);
 #if 0
@@ -579,14 +628,17 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//	mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
 		//}	
 
-		mvwprintw (data_entry_window, 1, 1, " ");
-		wmove (data_entry_window, 1, 1);
+		mvwprintw (data_entry_window, 1, 1, "^");
+		wmove (data_entry_window, 1, 2);
 		update_panels ();
 		doupdate ();
 		//int32_t maxWinX, maxWinY;
 		//getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
+		fprintf (qscript_stdout, "displayData_.size(): %d\n", displayData_.size());
+		wclear (stub_list_window);
 		Print_DisplayDataUnitVector (stub_list_window, displayData_, currXpos, currYpos, maxWinX);
+		//getchar();
 		++currYpos; currXpos = 1;
 
 		vector<stub_pair> & vec= (nr_ptr->stubs);
@@ -727,14 +779,19 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 	int32_t maxWinX, maxWinY;
 	getmaxyx(data_entry_window, maxWinY, maxWinX);
 	vector<stub_pair> & vec= (nr_ptr->stubs);
-	wclear(stub_list_window);
-	update_panels ();
-	doupdate ();
+	//wclear(stub_list_window);
+	//for (int i=stubStartYIndex_; i < maxWinY; ++i) {
+	//	for (int j = 1; j < maxWinX -1; ++j) {
+	//		mvwaddch(stub_list_window, currYpos, currXpos , ' ');
+	//	}
+	//}
+	//update_panels ();
+	//doupdate ();
 	for (int y = currYpos; y < maxWinY; ++y) {
-		for (int x=1; x < maxWinX; ++x) {
+		for (int x=1; x < maxWinX-1; ++x) {
 			//mvwprintw (stub_list_window, y, x, " ");
 			//cout << "reached here\n";
-			mvwaddch(stub_list_window, currYpos, currXpos , ' ');
+			mvwaddch(stub_list_window, y, x , ' ');
 		}
 	}
 	//wmove(data_entry_window, 1, 1);
@@ -1316,16 +1373,22 @@ void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 		int &xPos, int &yPos, int maxWinX)
 {
 	using display_data::DisplayDataUnit;
+	int loop_count = 0;
 	for (vector<DisplayDataUnit>::iterator it = disp_vec.begin();
 				it != disp_vec.end(); ++it)
 	{
 		//cout << *it << endl;
 		stringstream s;
+		fprintf (qscript_stdout, "Print_DisplayDataUnitVector: loop_count: %d\n", loop_count++);
 
 		if ( (*it).displayDataType_ == display_data::single_element) {
 			s << (*it).startOfRangeOrSingle_ << ",";
+			fprintf (qscript_stdout, "Print_DisplayDataUnitVector: startOfRangeOrSingle_: %d\n"
+					, (*it).startOfRangeOrSingle_);
 		} else if ( (*it).displayDataType_ == display_data::range_element) {
 			s << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_ << endl;
+			fprintf (qscript_stdout, "Print_DisplayDataUnitVector: startOfRangeOrSingle_: %d to %d\n"
+					, (*it).startOfRangeOrSingle_, (*it).endOfRange_);
 		}
 		if (xPos + s.str().length() > maxWinX) {
 			xPos =1, ++yPos;
@@ -1334,6 +1397,9 @@ void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 		xPos += s.str().length() + 1;
 	}
 	//wmove(data_entry_window, 1, 1);
+	
+	update_panels();
+	doupdate();
 }
 
 string AbstractQuestion::GetDataFileQuestionName()
