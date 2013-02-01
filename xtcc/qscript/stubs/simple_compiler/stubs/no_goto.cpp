@@ -63,15 +63,17 @@ struct Question
 enum UserNavigation { NAVIGATE_NEXT, NAVIGATE_PREV };
 //enum STR2INT_ERROR { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE };
 //STR2INT_ERROR str2int (int &i, char const *s, int base = 0);
+bool str2int (vector<int> &answers, string s);
 bool str2int (vector<int> &answers, char const *s);
 
 struct TheQuestionnaire {
 	Question * q1;
 	Question * q2;
 	Question * q3;
+	vector <Question*> question_list;
+
 
 	Question * last_question_visited;
-	bool stop_at_next_question;
 
 	TheQuestionnaire():
 		q1(0), q2(0), q3(0), last_question_visited(0)
@@ -84,6 +86,7 @@ struct TheQuestionnaire {
 		q1_valid_codes.insert(1);
 		q1_valid_codes.insert(2);
 		q1=new Question(q1_name, txt_q1, q1_valid_codes, 0);
+		question_list.push_back (q1);
 
 		string q2_name = "q2";
 		string txt_q2 = "Q2. Age: 1-> 15-20, 2->21-30, 3->31-40, 4->41-50";
@@ -93,6 +96,7 @@ struct TheQuestionnaire {
 		q2_valid_codes.insert(3);
 		q2_valid_codes.insert(4);
 		q2=new Question(q2_name, txt_q2, q2_valid_codes, 1);
+		question_list.push_back (q2);
 
 		string q3_name = "q3";
 		string txt_q3 = "Q3. Vegetables awareness: 11->Okra, 12->Egg Plant, 13->Potato, 14->French Beans";
@@ -102,9 +106,42 @@ struct TheQuestionnaire {
 		q3_valid_codes.insert(13);
 		q3_valid_codes.insert(14);
 		q3=new Question(q3_name, txt_q3, q3_valid_codes, 2);
+		question_list.push_back (q3);
 
 	}
-	Question * evaluate (UserNavigation navg, Question * last_question_visited);
+	Question * evaluate (UserNavigation navg, Question * last_question_visited,
+			Question * jump_to_question);
+	Question * ComputePreviousQuestion(Question * q)
+	{
+		int32_t current_question_index = -1;
+		int32_t questions_start_from_here_index = 0;
+		for (int32_t i = questions_start_from_here_index; i < question_list.size(); ++i)
+		{
+			if (question_list[i] == q)
+			{
+				current_question_index = i;
+				break;
+			}
+		}
+		if (current_question_index == -1)
+		{
+			cerr << "internal compiler error at runtime ... filename: "
+				<< __FILE__
+				<< "line no: " << __LINE__
+				<< endl;
+		}
+		for (int32_t i = current_question_index-1; i >= 0; --i)
+		{
+			if (question_list[i]->is_answered)
+			{
+				return question_list[i];
+			}
+		}
+		// If we reach here just return the 1st question and hope for the best
+		// This will not work if there is a condition on the 1st question - because of which it should never have been taken
+		return question_list[questions_start_from_here_index];
+	}
+
 
 
 };
@@ -129,92 +166,118 @@ bool VerifyQuestionIntegrity (vector<int> & input_data, set<int> & valid_codes)
 
 }
 
-Question * TheQuestionnaire::evaluate (UserNavigation p_navg, Question * last_question_visited)
+Question * TheQuestionnaire::evaluate (UserNavigation p_navg, Question * last_question_visited,
+		Question * jump_to_question)
 {
-	void * q1_ptr = q1;
+	//void * q1_ptr = q1;
 	//cout << "*q1: " << (q1_ptr) << endl;
-	cout << "q1->q_name:" << q1->q_name << endl;
-start_of_questions:
+//	cout << "q1->q_name:" << q1->q_name << endl;
+//start_of_questions:
 	if ( 		q1->is_answered == false 
 		|| 	(q1->is_answered && !q1-> VerifyQuestionIntegrity())
-		|| 	stop_at_next_question
+		||	(p_navg == NAVIGATE_NEXT  && q1->question_no_index > last_question_visited->question_no_index)
+		||	(p_navg == NAVIGATE_PREV  && q1 ==  jump_to_question)
 	   ) {
-		if (p_navg == NAVIGATE_NEXT  && last_question_visited == q1) {
-			stop_at_next_question = true;
-		} else {
-			return q1;
-		}
+		cout << __PRETTY_FUNCTION__ << " returned q1" << endl;
+		return q1;
 	}
 
 	if ( 		q2->is_answered == false 
 		|| 	(q2->is_answered && !q2-> VerifyQuestionIntegrity())
-		|| 	stop_at_next_question
+		||	(p_navg == NAVIGATE_NEXT  && q2->question_no_index > last_question_visited->question_no_index )
+		||	(p_navg == NAVIGATE_PREV  && q2 ==  jump_to_question)
 	   ) {
-		if (p_navg == NAVIGATE_NEXT  && last_question_visited == q2) {
-			stop_at_next_question = true;
-		} else {
-			return q2;
-		}
+		cout << __PRETTY_FUNCTION__ << " returned q2" << endl;
+		return q2;
 	}
 
 	if ( 		q3->is_answered == false 
 		|| 	(q3->is_answered && !q3-> VerifyQuestionIntegrity())
-		|| 	stop_at_next_question
+		||	(p_navg == NAVIGATE_NEXT  && q3->question_no_index > last_question_visited->question_no_index )
+		||	(p_navg == NAVIGATE_PREV  && q3 ==  jump_to_question)
 	   ) {
-		if (p_navg == NAVIGATE_NEXT  && last_question_visited == q3) {
-			stop_at_next_question = true;
-		} else {
-			return q3;
-		}
+		cout << __PRETTY_FUNCTION__ << " returned q3" << endl;
+		return q3;
 	}
 
+	cout << __PRETTY_FUNCTION__ << " returned q3" << endl;
 	return 0;
 }
 
 
+enum EvalMode { USER_NAVIGATION, NORMAL_FLOW };
+void question_eval_loop (EvalMode qnre_mode, UserNavigation navg, Question * last_question_visited
+		, Question * jump_to_question, TheQuestionnaire * qnre);
+
 int main()
 {
-	string current_response;
 	TheQuestionnaire * qnre = new TheQuestionnaire();
 
 	UserNavigation navg = NAVIGATE_NEXT;
 	Question * last_question_visited = 0;
+	Question * jump_to_question = 0;
+	EvalMode qnre_mode = NORMAL_FLOW;
 	//start:
-	while (	Question * next_q = qnre->evaluate(navg, last_question_visited) ) {
+	question_eval_loop (qnre_mode, navg, last_question_visited, jump_to_question, qnre);
+}
+
+void question_eval_loop (EvalMode qnre_mode, UserNavigation navg, Question * last_question_visited
+		, Question * jump_to_question, TheQuestionnaire * qnre)
+{
+
+	//while (Question * next_q = qnre->evaluate (navg, last_question_visited, jump_to_question)) 
+	Question * next_q = qnre->evaluate (navg, last_question_visited, jump_to_question);
+	if (next_q) {
 	
-ask_again:
+//ask_again:
 		//cout << "processing question: next_q->q_name:" << next_q->q_name << endl;
 		next_q->eval();
 		//cin.getline (current_response, 50);
+		string current_response;
 		getline(cin, current_response);
 		if (current_response.size() > 0) {
 			if (current_response[0] == 'P') {
 				navg = NAVIGATE_PREV;
+				Question * prev_question = qnre->ComputePreviousQuestion (next_q);
+				//qnre->evaluate(NAVIGATE_PREV, last_question_visited, prev_question);
+				question_eval_loop (USER_NAVIGATION, NAVIGATE_PREV, 
+						last_question_visited, prev_question, qnre);
 			} else if (current_response[0] == 'N') {
 				navg = NAVIGATE_NEXT;
+				question_eval_loop (USER_NAVIGATION, NAVIGATE_NEXT, 
+						last_question_visited, 0, qnre);
 			} else if (isdigit (current_response[0])) {
 				vector <int> answers;
-				str2int (answers, current_response.c_str());
+				//str2int (answers, current_response.c_str());
+				str2int (answers, current_response);
 				cout << "Entered data: " ;
 				print_vec(answers);
 				cout << endl;
 				bool is_valid = VerifyQuestionIntegrity(answers, next_q->valid_codes);
 				if (is_valid) {
 					next_q->is_answered = true;
+					question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT, 
+							next_q, 0, qnre);
 				} else {
 					cout << "Invalid Entry" << endl;
+					question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT, 
+							last_question_visited, 0, qnre);
 					//goto ask_again;
 				}
 				//goto start;
 			} else {
 				// invalid entries
 				cout << "invalid input" << endl;
+				question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT, 
+						last_question_visited, 0, qnre);
 				//goto ask_again;
 			}
 		} else {
 			//goto ask_again;
+			question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT, 
+					last_question_visited, 0, qnre);
 		}
-	} 
+	}
 }
 
 /*
@@ -239,10 +302,12 @@ STR2INT_ERROR str2int (int &i, char const *s, int base )
 }
 */
 // very simple and cannot handle errors etc
-bool str2int (vector<int> &answers, char const *s)
+bool str2int (vector<int> &answers, string s)
+//bool str2int (vector<int> &answers, char const *s)
 {
-	char              c;
+	char              c = -1;
 	std::stringstream ss(s);
+	cout << "str2int: input s: " << s << endl;
 	bool got_1 = false;
 	while (1) {
 		int i;
