@@ -1,0 +1,68 @@
+<html>
+<head>
+<title>Embedded Wt/CodeMirror 2: JavaScript mode</title>
+  <style type="text/css">
+    .widget { 
+      width: 100%;
+      height: 800px;
+      margin: 2px auto;
+      padding: 2px;
+      border: 2px solid green;
+      font-family:monospace;
+      overflow:auto;
+    }
+
+
+    .IE-hidden-iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1px; height: 1px;
+      visibility: hidden;
+    }
+  </style>
+    <link rel="stylesheet" href="code-mirror/codemirror.css">
+    <script src="code-mirror/codemirror.js"></script>
+    <script src="code-mirror/mode/javascript/javascript.js"></script>
+    <link rel="stylesheet" href="code-mirror/theme/default.css">
+    <link rel="stylesheet" href="code-mirror/css/docs.css">
+    <style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+</head>
+<body>
+
+<input id="Wt-history-field" type="hidden"/>
+
+<div id="put_code_here">
+</div>
+
+
+	<script type="text/javascript">
+	var myCodeMirror = CodeMirror(document.body, {
+	  //value: "function myScript(){return 100;}\n",
+	  value: "vegetable {\n int32_t i1;\n stubs yn=	\"Yes\" 1\n \"No\" 2;\n \n q1 	\"Eat veg?\"\n \tsp int32_t yn;\n \n stubs agree_5 = \n \"agree strongly\" 5\n \"agree somewhat\" 4\n \"Neutral\" 3\n \"Disagree \" 2\n \"Disagree strongly\" 1;	\n \n stubs veg=	\n \"Tomates\" 1\n \"Potatoes\" 2\n \"Capsicum\" 3\n \"Brinjal/Egg plant\" 4\n \"Okra/Lady Finger\" 5\n ;\n named_attribute veg_seg_att = \" Vegetables are good for health\",\n \" I buy fresh vegetables often\",\n \" Greens are good source of dietary fibre\",\n \" I would like to be vegetarian some day\"\n ;\n \n \n \tif (q1==1) {\n \t\tsetall(veg);\n \n \n q2 		\"Which veg u r aware of?\"\n\t\tmp(5) int32_t veg;\n \n\t\t unset(veg);\n \t\tsetadd(veg, q2);\n q3 		\"Which veg dou eat?\"\n \t\tmp(5) int32_t veg;\n \n \n\t\t unset(veg);\n \t\tsetadd(veg, q3);\n q4 		\"Which is ur fav veg?\" : q3\n \t\tsp int32_t veg;\n \n \t\tint32_t sum=0;\n \t\tint32_t iter_no=0;\n\t \tfor (i1=0; i1<5; i1=i1+1) {\n\t\t\t int32_t code = i1+1;\n \n\t\t\t if (code in q3) {\n q6\t\t\t\t \"In a week what perc of your veggies are : \"\n \t\t\t\t: q3 . stubs [i1]\n \t\t\t\tsp int32_t (0-100);\n \t\t\t\tsum=sum+q6[i1];\n\t\t\t\t iter_no=i1;\n\t\t\t } else {\n \t\t\t\t1;\n\t\t\t}\n\t\t }\n \t\tif (sum != 100) {\n \t\t\tclear (q6[iter_no]);\n\t\t }\n \n \n \n\t } else {\n\t \t1;\n\t}\n \n \n \tfor (i1=0; i1<4; i1=i1+1) {\n q5\t\t\"Please state your agreement with these statements\" : veg_seg_att[i1]\n\t\tsp int32_t agree_5;\n\t}\n \n }\n",
+
+	  mode:  "javascript"
+	});
+	myCodeMirror.id = "code_mirror_text_editor";
+	</script>
+
+
+
+
+<!-- End hidden fields for Wt's internal path API -->
+
+<!--
+   We need a place holder for every widget to which we want to bind
+   a WContainerWidget in Wt
+  -->
+<div id="hello" class="widget">
+</div>
+
+<!--
+   As the last step, we load our application.
+  -->
+  <script src="http://127.0.0.1:8080/qscript-console.js?div=hello&amp;Wt-history=Wt-history"></script> 
+  <!-- <script src="http://115.241.206.132:8080/qscript-console.js?div=hello&amp;Wt-history=Wt-history"></script> -->
+
+
+</body>
+</html>

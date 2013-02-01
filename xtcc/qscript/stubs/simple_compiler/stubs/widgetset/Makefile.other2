@@ -1,0 +1,5 @@
+my_wt_codemirror.exe: my_wt_codemirror.o
+	g++ -o $@ $< -lwthttp -lwt -lboost_signals
+
+my_wt_codemirror.o: my_wt_codemirror.C
+	g++ -c $<

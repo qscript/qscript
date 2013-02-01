@@ -196,7 +196,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "vector <BaseText> base_text_vec;\n");
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
 	fprintf(script, "TheQuestionnaire() \n");
-	fprintf(script, " /* length(): %d */", code.quest_defns_constructor.str().length() );
+	fprintf(script, " /* length(): %ld */", code.quest_defns_constructor.str().length() );
 	if (code.quest_defns_constructor.str().length() == 0) {
 		fprintf(script, ":");
 	} else {
@@ -222,6 +222,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "\tcompute_flat_file_map_and_init();\n");
 	fprintf(script, "\tif (write_messages_flag) {\n");
 	fprintf(script, "\tmessages << \"</messages>\\n\";\n");
+	fprintf(script, "\tmessages.flush() ;\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
 	print_question_messages(script);
@@ -270,6 +271,7 @@ void print_header(FILE* script, bool ncurses_flag)
 {
 	if (program_options_ns::wt_flag) {
 		fprintf (script, "#include <Wt/WApplication>\n");
+		fprintf (script, "#include <Wt/WServer>\n");
 		fprintf (script, "#include <Wt/WBreak>\n");
 		fprintf (script, "#include <Wt/WContainerWidget>\n");
 		fprintf (script, "#include <Wt/WLineEdit>\n");
@@ -292,6 +294,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include <cstdlib>\n");
 	fprintf(script, "#include <errno.h>\n");
+	fprintf(script, "#include <unistd.h>\n");
 	if (program_options_ns::ncurses_flag) {
 		print_ncurses_include_files(script);
 	}
@@ -1363,13 +1366,13 @@ test_script.o: test_script.C
 	*/
 	string executable_file_name = ExtractBaseFileName(src_file_name);
 	string intermediate_file_name = executable_file_name + ".C";
-	executable_file_name += ".exe";
+	executable_file_name += "-wq2.exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
 	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
 
-	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include_wq2";
 	string cpp_compile_command ;
 	if (program_options_ns::ncurses_flag) {
 		cpp_compile_command = string("g++ -g -o ")
@@ -1378,7 +1381,7 @@ test_script.o: test_script.C
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime -lpanel -lwt -lboost_filesystem ")
+			+ string(" -lqscript_runtime_wq2 -lpanel -lwt -lboost_filesystem ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 	} else if (program_options_ns::microhttpd_flag) {
 		cpp_compile_command = string("g++ -g -o ")
@@ -1388,21 +1391,22 @@ test_script.o: test_script.C
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 #ifndef _WIN32
-			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime");
+			+ string(" -lmicrohttpd -lpanel -lncurses -lqscript_runtime_wq2");
 #else
-			+ string(" -lmicrohttpd -lpdcurses -lqscript_runtime");
+			+ string(" -lmicrohttpd -lpdcurses -lqscript_runtime_wq2");
 #endif /* _WIN32 */
 	} else if (program_options_ns::wt_flag) {
 		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+                        + string(" -L/usr/local/lib ") 
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 #ifndef _WIN32
-			+ string(" -lwt -lwthttp -lpanel -lncurses -lqscript_runtime");
+			+ string(" -lwt -lwthttp -lqscript_runtime_wq2 -lboost_signals -lpanel -lncurses ");
 #else
-			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime");
+			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime_wq2");
 #endif /* _WIN32 */
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
@@ -1442,7 +1446,7 @@ test_script.o: test_script.C
 	*/
 	string executable_file_name = ExtractBaseFileName(src_file_name);
 	string intermediate_file_name = executable_file_name + ".C";
-	executable_file_name += ".exe";
+	executable_file_name += "-wq2.exe";
 	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
 	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
 	if (contains_space != string::npos) {
@@ -1463,14 +1467,14 @@ test_script.o: test_script.C
 				+ string(" -lqscript_runtime -lpdcurses ");
 	*/
 
-	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include_wq2";
 	string cpp_compile_command = string("g++ -static -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" -lqscript_runtime ")
+			+ string(" -lqscript_runtime_wq2 ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
@@ -1554,6 +1558,7 @@ void PrintProcessOptions(FILE * script)
 	fprintf(script, "int process_options(int argc, char * argv[])\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	//int32_t opterr=1, c;\n");
+	fprintf(script, "	std::cout << __PRETTY_FUNCTION__ << std::endl;\n");
 	fprintf(script, "	extern int32_t optind, opterr, optopt;\n");
 	fprintf(script, "	extern char * optarg;\n");
 	fprintf(script, "	int c;\n");
@@ -4122,6 +4127,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	wt_sessions.push_back(this_users_session);\n");
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
+	fprintf(script, "Wt::WServer server;\n");
 	fprintf(script, "WApplication * createApplication(const WEnvironment &env)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	//return new QuestionnaireApplication (env);\n");
@@ -4133,6 +4139,11 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "int main(int argc, char ** argv)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	//process_options(argc, argv);\n");
+	fprintf(script, "       for (int i=0; i<argc; ++i) { if (string(argv[i]) == \"-m\") { write_messages_flag = 1; break;} }\n");
+	fprintf(script, "	if (write_messages_flag) {\n");
+	fprintf(script, "	\tTheQuestionnaire theQuestionnaire;\n");
+	fprintf(script, "	\texit(0);\n");
+	fprintf(script, "	}\n");
 	fprintf(script, "	if (write_data_file_flag||write_qtm_data_file_flag)\n");
 	fprintf(script, "	{\n");
 	fprintf(script, "		qtm_data_file_ns::init_exceptions();\n");
@@ -4148,7 +4159,49 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
 	fprintf(script, "	SetupSignalHandler();\n");
 	fprintf(script, "\n");
-	fprintf(script, "	return WRun (argc, argv, &createApplication);\n");
+	fprintf(script, "	//return WRun (argc, argv, &createApplication);\n");
+
+	fprintf (script, "{\n");
+	fprintf (script, "  try {\n");
+	fprintf (script, "    // use argv[0] as the application name to match a suitable entry\n");
+	fprintf (script, "    // in the Wt configuration file, and use the default configuration\n");
+	fprintf (script, "    // file (which defaults to /etc/wt/wt_config.xml unless the environment\n");
+	fprintf (script, "    // variable WT_CONFIG_XML is set)\n");
+	fprintf (script, "    // WServer server(argv[0]);\n");
+	fprintf (script, "\n");
+	fprintf (script, "    // WTHTTP_CONFIGURATION is e.g. \"/etc/wt/wthttpd\"\n");
+	fprintf (script, "    server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);\n");
+	fprintf (script, "\n");
+	fprintf (script, "    // add a single entry point, at the default location (as determined\n");
+	fprintf (script, "    // by the server configuration's deploy-path)\n");
+	fprintf (script, "    server.addEntryPoint(Wt::Application, createApplication);\n");
+	fprintf (script, "    if (server.start()) {\n");
+	fprintf (script, "\tstd::string port_number_fname = jno + string(\"_port_number\");\n");
+	fprintf (script, "\tstd::fstream port_number(port_number_fname.c_str(), ios_base::out);\n");
+	fprintf (script, "\t port_number << server.httpPort();\n");
+	// process id
+	fprintf (script, "port_number << ' ' << getpid() << std::endl; ");
+
+	fprintf (script, "\t std::cout << server.httpPort() << std::endl;\n");
+	fprintf (script, "\t port_number.flush();\n");
+	fprintf (script, "      int sig = WServer::waitForShutdown(argv[0]);\n");
+	fprintf (script, "\n");
+	fprintf (script, "      std::cerr << \"Shutdown (signal = \" << sig << \")\" << std::endl;\n");
+	fprintf (script, "      server.stop();\n");
+	fprintf (script, "\n");
+	fprintf (script, "      if (sig == SIGHUP)\n");
+	fprintf (script, "        WServer::restart(argc, argv, environ);\n");
+	fprintf (script, "    }\n");
+	fprintf (script, "  } catch (WServer::Exception& e) {\n");
+	fprintf (script, "    std::cerr << e.what() << std::endl;\n");
+	fprintf (script, "    return 1;\n");
+	fprintf (script, "  } catch (std::exception& e) {\n");
+	fprintf (script, "    std::cerr << \"exception: \" << e.what() << std::endl;\n");
+	fprintf (script, "    return 1;\n");
+	fprintf (script, "  }\n");
+	fprintf (script, "}\n");
+
+
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 
