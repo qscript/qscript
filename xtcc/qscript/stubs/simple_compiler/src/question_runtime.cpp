@@ -270,6 +270,7 @@ AbstractQuestion::AbstractQuestion(
 	  , mutexCodeList_()
 	  , maxCode_(0)
 	  , isStartOfBlock_(l_isStartOfBlock)
+	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;

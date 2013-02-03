@@ -88,6 +88,8 @@ struct AbstractQuestion: public AbstractStatement
 	XtccSet mutexCodeList_;
 	int maxCode_;
 	bool isStartOfBlock_;
+	int questionNoIndex_;
+	static int32_t nQuestions_;
 	//! this is only called in the compile time environment
 	AbstractQuestion(
 		DataType l_type,int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec

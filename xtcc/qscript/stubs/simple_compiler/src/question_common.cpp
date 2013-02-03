@@ -8,6 +8,8 @@
 
 using namespace std;
 
+int AbstractQuestion::nQuestions_ = 0 ;
+
 
 #if 1
 AbstractQuestion::AbstractQuestion(
@@ -29,6 +31,7 @@ AbstractQuestion::AbstractQuestion(
 	  , mutexCodeList_()
 	  , maxCode_(0)
 	, isStartOfBlock_(l_isStartOfBlock)
+	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -84,6 +87,7 @@ DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bou
 			, spn, 0
 			   , INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
+	  
 { }
 
 void DummyArrayQuestion::eval(/*qs_ncurses::*/WINDOW * question_window

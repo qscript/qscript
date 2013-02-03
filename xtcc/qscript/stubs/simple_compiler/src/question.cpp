@@ -82,6 +82,7 @@ AbstractQuestion::AbstractQuestion(
 	, question_attributes(l_question_attributes)
 	, mutexCodeList_(p_mutexCodeList), maxCode_(0)
 	, isStartOfBlock_(false)
+	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -137,6 +138,7 @@ AbstractQuestion::AbstractQuestion(
 	, mutexCodeList_(p_mutexCodeList)
 	  , maxCode_(0)
 	, isStartOfBlock_(false)
+	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
 {
 	if(enclosingCompoundStatement_ == 0){
 		print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -303,6 +305,7 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
+	/* 
 	program_code << "if ( ("
 		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
 		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
@@ -314,24 +317,40 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< questionName_ << "->isAnswered_ == false " 
 		<< ")"
 	        << ") {" << endl;
-	program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
-		<< " ) {\n\tstopAtNextQuestion = false; "
-		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
-		<< " disarming stopAtNextQuestion = false \\n\");\n"
-		<< "\n}\n";
-	program_code << "if ("
-		<< "jumpToQuestion == \"" << questionName_ << "\") { " << endl
-		<< "jumpToQuestion = \"\";\n"
-		<< "}\n";
+	*/
+	program_code << "/*  " <<  __PRETTY_FUNCTION__<< "*/\n" << endl;
+
+	program_code << "if ( /* nxd */("
+		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
+		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
+		<< "->VerifyQuestionIntegrity())"<< "||" << endl
+		//<< "stopAtNextQuestion ||" << endl
+		//<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
+		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||" << endl
+		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && " << questionName_ << " == jumpToQuestion)"  << endl
+		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
+		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
+		<< questionName_ << "->isAnswered_ == false " 
+		<< ")"
+	        << ") {" << endl;
+	//program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
+	//	<< " ) {\n\tstopAtNextQuestion = false; "
+	//	<< " fprintf (qscript_stdout, \" at question:  " << questionName_
+	//	<< " disarming stopAtNextQuestion = false \\n\");\n"
+	//	<< "\n}\n";
+	//program_code << "if ("
+	//	<< "jumpToQuestion == \"" << questionName_ << "\") { " << endl
+	//	<< "jumpToQuestion = \"\";\n"
+	//	<< "}\n";
 	program_code << "label_eval_" << questionName_.c_str() << ":\n"
 		<< "\t\t"
-		<< "if (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == "
-		<< questionName_ << ") {\n"
-		<< " stopAtNextQuestion = true;\n"
-		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
-		<< " arming stopAtNextQuestion = true \\n\");\n"
-		<< "}"
-		<< "else if (" << questionName_ << "->question_attributes.hidden_==false) {\n"
+		//<< "if (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == "
+		//<< questionName_ << ") {\n"
+		//<< " stopAtNextQuestion = true;\n"
+		//<< " fprintf (qscript_stdout, \" at question:  " << questionName_
+		//<< " arming stopAtNextQuestion = true \\n\");\n"
+		//<< "}" << " else " << endl
+		<< "if (" << questionName_ << "->question_attributes.hidden_==false) {\n"
 		<< "\t// " << questionName_
 		<< "->eval(question_window, stub_list_window, data_entry_window);\n"
 		<< "\tlast_question_visited = " << questionName_ << ";" << endl

@@ -2055,7 +2055,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 {
 	fprintf(script, "AbstractQuestion * eval2 ( /*AbstractQuestion * p_last_question_answered,\n"
 			"\t\t AbstractQuestion * p_last_question_visited,*/\n"
-			"\t\t UserNavigation p_navigation_mode)\n{\n");
+			"\t\t UserNavigation p_navigation_mode, AbstractQuestion * p_last_question_visited, AbstractQuestion * p_jump_to_index)\n{\n");
 
 	fprintf(script, "//if (last_question_visited)\n\t//fprintf (qscript_stdout, \"entered eval2: last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
 
