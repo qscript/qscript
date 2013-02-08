@@ -1675,11 +1675,14 @@ re_eval:
 				mvwprintw(data_entry_window, 2, 50, "saved partial data");
 			else
 				cout << "saved partial data\n";
-			if (q->isAnswered_ == false)
-			{
-				//goto label_eval_q2;
-				goto re_eval;
-			}
+			//if (q->isAnswered_ == false)
+			//{
+			//	//goto label_eval_q2;
+			//	goto re_eval;
+			//}
+			question_eval_loop (NORMAL_FLOW,
+				NAVIGATE_NEXT, /* last_question_visited */ q,
+				/*  jump_to_question */ target_question, theQuestionnaire);
 		}
 		else
 		{
