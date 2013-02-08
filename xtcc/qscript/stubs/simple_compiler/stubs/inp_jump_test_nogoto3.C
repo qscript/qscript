@@ -1000,13 +1000,18 @@ struct TheQuestionnaire
 	AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q)
 	{
 		int32_t current_question_index = -1;
-		for (int32_t i = questions_start_from_here_index; i < question_list.size(); ++i)
-		{
-			if (question_list[i] == q)
+		if (q) {
+			for (int32_t i = questions_start_from_here_index; i < question_list.size(); ++i)
 			{
-				current_question_index = i;
-				break;
+				if (question_list[i] == q)
+				{
+					current_question_index = i;
+					break;
+				}
 			}
+		} else {
+			current_question_index = question_list.size();
+			//return question_list[question_list.size()-1];
 		}
 		if (current_question_index == -1)
 		{
@@ -1532,8 +1537,8 @@ re_eval_from_start:
 		}
 		else
 		{
-			cerr << "Not considering What happens when we reach end of qnre at the moment - just lets exit" << endl;
-			exit(1);
+			//cerr << "Not considering What happens when we reach end of qnre at the moment - just lets exit" << endl;
+			//exit(1);
 			// thanks to the exit above - the code that follow is redundant in this block
 			char end_of_question_navigation;
 label_end_of_qnre_navigation:
@@ -1543,20 +1548,24 @@ label_end_of_qnre_navigation:
 			if(end_of_question_navigation == 's')
 			{
 				theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
+				return;
 			}
 			else if (end_of_question_navigation == 'p')
 			{
 				AbstractQuestion * target_question = theQuestionnaire->ComputePreviousQuestion(theQuestionnaire->last_question_answered);
-				if(target_question->type_ == QUESTION_ARR_TYPE)
-				{
-					theQuestionnaire->jumpToIndex = theQuestionnaire->ComputeJumpToIndex(target_question);
-				}
-				theQuestionnaire->jumpToQuestion = target_question->questionName_;
-				//if (data_entry_window == 0) cout << "target question: " << jumpToQuestion;
-				theQuestionnaire->back_jump = true;
-				user_navigation = NOT_SET;
+				//if(target_question->type_ == QUESTION_ARR_TYPE)
+				//{
+				//	theQuestionnaire->jumpToIndex = theQuestionnaire->ComputeJumpToIndex(target_question);
+				//}
+				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
+				////if (data_entry_window == 0) cout << "target question: " << jumpToQuestion;
+				//theQuestionnaire->back_jump = true;
+				//user_navigation = NOT_SET;
 				//goto start_of_questions;
-				goto re_eval_from_start;
+				//goto re_eval_from_start;
+				question_eval_loop (USER_NAVIGATION,
+					NAVIGATE_PREVIOUS, /* last_question_visited */ q,
+					/*  jump_to_question */ target_question, theQuestionnaire);
 			}
 			else if (end_of_question_navigation == 'j')
 			{
@@ -1564,17 +1573,19 @@ label_end_of_qnre_navigation:
 				theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
 				user_navigation = NOT_SET;
 				//goto start_of_questions;
-				goto re_eval_from_start;
+				//goto re_eval_from_start;
 			}
 			else if (end_of_question_navigation == 'q')
 			{
 				//change to break again when we remove the exit from above
 				//break;
-				exit(1);
+				//endwin();
+				//exit(1);
+				return;
 			}
 			else
 			{
-				goto label_end_of_qnre_navigation;
+				//goto label_end_of_qnre_navigation;
 			}
 			// wclear(data_entry_window);
 			// mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
@@ -1867,6 +1878,7 @@ AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
 
 								 /* close do */
 	} while(theQuestionnaire->ser_no != 0);
+	endwin();
 
 }
 
