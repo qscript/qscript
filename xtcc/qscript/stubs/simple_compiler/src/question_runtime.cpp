@@ -290,6 +290,8 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
 	if (displayData_.begin() == displayData_.end()) {
+		MakeDisplaySummaryDataRanges();
+#if 0
 		vector<stub_pair> & vec= (nr_ptr->stubs);
 		if (vec.size() == 0) {
 			cerr << "runtime error: Impossible !!! stubs with no codes: "
@@ -327,6 +329,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			start_code = current_code;
 			previous_code = current_code;
 		}
+#endif /*  0 */
 	}
 	if (question_window  == 0 || stub_list_window  == 0 || data_entry_window  == 0) {
 		cout << questionName_ << ".";
@@ -900,4 +903,73 @@ Wt::WString RangeQuestion::PrintSelectedAnswers()
 Wt::WString RangeQuestion::PrintSelectedAnswers (int code_index)
 {
 	return Wt::WString("hello");
+}
+
+void NamedStubQuestion::MakeDisplaySummaryDataRanges()
+{
+	//fprintf (qscript_stdout, "displayData_.begin == displayData_.end \n");
+	vector<stub_pair> & vec= (nr_ptr->stubs);
+	if (vec.size() == 0) {
+		cerr << "runtime error: Impossible !!! stubs with no codes: "
+			<< __LINE__ << ", " << __FILE__ << __PRETTY_FUNCTION__
+			<< " question name: " << questionName_ << endl;
+		exit(1);
+	}
+	int start_code = vec[0].code;
+	int previous_code = start_code;
+	int current_code = start_code;
+	// so what's with start_code, previous_code and current_code ?
+	// start_code -> start of interval
+	// previous_code -> last code we visited in stubs
+	// current_code -> the current code we are visiting in stubs
+	for (int32_t i=0; i<vec.size(); ++i) {
+		current_code = vec[i].code;
+		//fprintf (qscript_stdout, "current_code: %d, previous_code: %d\n", current_code, previous_code);
+		if (current_code - previous_code == 0) {
+			// 1st iteration thru the loop 
+			// cant make any decision yet
+		} else if (current_code - previous_code == 1) {
+			// continuous range - just keep going along we are in an interval
+		} else if (current_code - previous_code > 1) {
+			if (start_code < previous_code) {
+				displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+				//fprintf (qscript_stdout, "> 1 pushed back pair: %d - %d\n", start_code, previous_code);
+				start_code = current_code;
+				previous_code = current_code;
+			} else {
+				displayData_.push_back(display_data::DisplayDataUnit(start_code));
+				//fprintf (qscript_stdout, "> 1 pushed back singleteon: %d\n", start_code);
+				start_code = current_code;
+				previous_code = current_code;
+			}
+		} else {
+			// current_code - previous_code < 0
+			if (start_code < previous_code) {
+				displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+				//fprintf (qscript_stdout, "< 0 pushed back pair: %d - %d\n", start_code, previous_code);
+				start_code = current_code;
+				previous_code = current_code;
+			} else if (start_code == previous_code) {
+				displayData_.push_back(display_data::DisplayDataUnit(start_code));
+				//fprintf (qscript_stdout, "< 0 pushed back singleteon: %d\n", start_code);
+				start_code = current_code;
+				previous_code = current_code;
+			}
+		}
+		if (i > 0) {
+			previous_code = current_code;
+		}
+		//displayData_.push_back(display_data::DisplayDataUnit(vec[i].code));
+	}
+	if (start_code < previous_code) {
+		displayData_.push_back(display_data::DisplayDataUnit(start_code, previous_code));
+		//fprintf (qscript_stdout, "pushed back pair: %d - %d\n", start_code, previous_code);
+		start_code = current_code;
+		previous_code = current_code;
+	} else {
+		displayData_.push_back(display_data::DisplayDataUnit(start_code));
+		//fprintf (qscript_stdout, "pushed back singleteon: %d\n", start_code);
+		start_code = current_code;
+		previous_code = current_code;
+	}
 }

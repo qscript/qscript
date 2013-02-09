@@ -327,7 +327,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		//<< "stopAtNextQuestion ||" << endl
 		//<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
 		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||" << endl
-		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>(" << questionName_ << ") == jumpToQuestion)) ||"  << endl
+		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>(" << questionName_ << ") == p_jump_to_index)) ||"  << endl
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
 		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
 		<< questionName_ << "->isAnswered_ == false " 

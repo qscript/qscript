@@ -386,6 +386,8 @@ class NamedStubQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
+	void MakeDisplaySummaryDataRanges();
+
 
 	private:
 		NamedStubQuestion& operator=(const NamedStubQuestion&);
