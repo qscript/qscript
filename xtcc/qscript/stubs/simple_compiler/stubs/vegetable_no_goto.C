@@ -1691,6 +1691,13 @@ struct TheQuestionnaire
 		}
 	}
 };
+
+enum EvalMode { USER_NAVIGATION, NORMAL_FLOW };
+void question_eval_loop (EvalMode qnre_mode, UserNavigation navg,
+		AbstractQuestion * last_question_visited,
+		AbstractQuestion * jump_to_question,
+		TheQuestionnaire * qnre);
+
 int32_t main(int argc, char * argv[])
 {
 	process_options(argc, argv);
@@ -1717,14 +1724,20 @@ int32_t main(int argc, char * argv[])
 		return 1;
 	}
 	SetupSignalHandler();
-	TheQuestionnaire theQuestionnaire;
-	theQuestionnaire.base_text_vec.push_back(BaseText("All Respondents"));
-	theQuestionnaire.compute_flat_file_map_and_init();
+	TheQuestionnaire * theQuestionnaire = new TheQuestionnaire();
+	theQuestionnaire->base_text_vec.push_back(BaseText("All Respondents"));
+	theQuestionnaire->compute_flat_file_map_and_init();
 	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
+	EvalMode qnre_mode = NORMAL_FLOW;
+	AbstractQuestion * last_question_visited = 0;
+	AbstractQuestion * jump_to_question = 0;
+
+	question_eval_loop (qnre_mode, qnre_navigation_mode, last_question_visited, jump_to_question, theQuestionnaire);
 
 	// extract out into a function
 	// then iteratively make it a pure function.
 	// use : no_goto.cpp as the motivating example
+#if 0
 	do
 	{
 		theQuestionnaire.reset_questionnaire();
@@ -1898,10 +1911,196 @@ int32_t main(int argc, char * argv[])
 		}						 /* close while */
 								 /* close do */
 	} while(theQuestionnaire.ser_no != 0);
+#endif /*  0 */
 	endwin();
 
 }								 /* close main */
 
+void question_eval_loop (EvalMode qnre_mode, UserNavigation qnre_navigation_mode,
+		AbstractQuestion * last_question_visited,
+		AbstractQuestion * jump_to_question,
+		TheQuestionnaire * theQuestionnaire)
+{
+	do
+	{
+		theQuestionnaire->reset_questionnaire();
+		if (write_data_file_flag||write_qtm_data_file_flag)
+		{
+			theQuestionnaire->ser_no = 
+				theQuestionnaire->read_a_serial_no();
+			if (theQuestionnaire->ser_no == 0)
+			{
+				exit(1);
+			}
+		}
+		else
+		{
+			theQuestionnaire->prompt_user_for_serial_no();
+			if (theQuestionnaire->ser_no == 0)
+			{
+				break;
+			}
+			int exists = check_if_reg_file_exists(theQuestionnaire->jno, theQuestionnaire->ser_no);
+			if(exists == 1)
+			{
+				map <string, question_disk_data*>  qdd_map;
+				load_data (theQuestionnaire->jno, theQuestionnaire->ser_no, &qdd_map);
+				merge_disk_data_into_questions2(qscript_stdout, theQuestionnaire->last_question_answered, theQuestionnaire->last_question_visited, theQuestionnaire->question_list, &qdd_map);
+			}
+		}
+
+		while(theQuestionnaire->ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag))
+		{
+			fprintf(qscript_stdout, "reached top of while loop:\n");              re_eval_from_start:
+			AbstractQuestion * q =
+								 /*last_question_answered, last_question_visited, */
+				theQuestionnaire->eval2 (
+				qnre_navigation_mode);
+			if (!q)
+			{
+#if 1
+				if (write_data_file_flag)
+				{
+					theQuestionnaire->write_ascii_data_to_disk();
+				}
+				else if (write_qtm_data_file_flag)
+				{
+					theQuestionnaire->write_qtm_data_to_disk();
+				}
+				else
+				{
+					char end_of_question_navigation;
+					label_end_of_qnre_navigation:
+					wclear(data_entry_window);
+					mvwprintw(data_entry_window, 1, 1,"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)");
+					mvwscanw(data_entry_window, 1, 75, "%c", & end_of_question_navigation);
+					if(end_of_question_navigation == 's')
+					{
+						theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
+					}
+					else if (end_of_question_navigation == 'p')
+					{
+						AbstractQuestion * target_question = theQuestionnaire->ComputePreviousQuestion(theQuestionnaire->last_question_answered);
+						if(target_question->type_ == QUESTION_ARR_TYPE)
+						{
+							theQuestionnaire->jumpToIndex = theQuestionnaire->ComputeJumpToIndex(target_question);
+						}
+						theQuestionnaire->jumpToQuestion = target_question->questionName_;
+						//if (data_entry_window == 0) cout << "target question: " << jumpToQuestion;
+						theQuestionnaire->back_jump = true;
+						user_navigation = NOT_SET;
+						//goto start_of_questions;
+						goto re_eval_from_start;
+					}
+					else if (end_of_question_navigation == 'j')
+					{
+						theQuestionnaire->DisplayActiveQuestions();
+						theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
+						user_navigation = NOT_SET;
+						//goto start_of_questions;
+						goto re_eval_from_start;
+					}
+					else if (end_of_question_navigation == 'q')
+					{
+						//theQuestionnaire.reset_questionnaire();
+						break;
+					}
+					else
+					{
+						goto label_end_of_qnre_navigation;
+					}
+					// wclear(data_entry_window);
+					// mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
+					// mvwscanw(data_entry_window, 1, 40, "%d", & ser_no);
+					//theQuestionnaire.prompt_user_for_serial_no();
+					//if (theQuestionnaire.ser_no ==0) break;
+					break;
+				}
+#endif /*  0 */
+			}
+			else
+			{
+#if 1
+				fprintf(qscript_stdout, "eval2 returned %s\n",
+					q->questionName_.c_str());
+				re_eval:
+				q->eval(question_window, stub_list_window, data_entry_window);
+
+				if (user_navigation == NAVIGATE_PREVIOUS)
+				{
+					fprintf(qscript_stdout,
+						"user_navigation == NAVIGATE_PREVIOUS\n");
+					AbstractQuestion *target_question =
+						theQuestionnaire->ComputePreviousQuestion(q);
+					if (target_question == 0)
+						goto re_eval;
+					else
+					{
+						theQuestionnaire->jumpToQuestion = target_question->questionName_;
+						if (target_question->type_ == QUESTION_ARR_TYPE)
+						{
+							theQuestionnaire->jumpToIndex =
+								theQuestionnaire->
+								ComputeJumpToIndex(target_question);
+						}
+						// if (data_entry_window == 0)
+						//     cout << "target question: " << jumpToQuestion;
+						// if (data_entry_window == 0)
+						//     cout << "target question Index: " << theQuestionnaire.jumpToIndex;
+						theQuestionnaire->back_jump = true;
+						user_navigation = NOT_SET;
+						//goto start_of_questions;
+						goto re_eval_from_start;
+					}
+				}
+				else if (user_navigation == NAVIGATE_NEXT)
+				{
+					fprintf(qscript_stdout, "user_navigation == NAVIGATE_NEXT\n");
+					if (q->isAnswered_ == false
+						&& q->question_attributes.isAllowBlank() == false)
+					{
+						fprintf(qscript_stdout,
+							"questionName_ %s: going back to re_eval\n",
+							q->questionName_.c_str());
+						goto re_eval;
+					}
+					qnre_navigation_mode = NAVIGATE_NEXT;
+					// stopAtNextQuestion = true;
+					user_navigation = NOT_SET;
+				}
+				else if (user_navigation == JUMP_TO_QUESTION)
+				{
+					theQuestionnaire->DisplayActiveQuestions();
+					theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
+					user_navigation = NOT_SET;
+					//goto start_of_questions;
+					goto re_eval_from_start;
+				}
+				else if (user_navigation == SAVE_DATA)
+				{
+					theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno,
+						theQuestionnaire->ser_no);
+					if (data_entry_window)
+						mvwprintw(data_entry_window, 2, 50, "saved partial data");
+					else
+						cout << "saved partial data\n";
+					if (q->isAnswered_ == false)
+					{
+						//goto label_eval_q2;
+						goto re_eval;
+					}
+				}
+				else
+				{
+					theQuestionnaire->last_question_answered = q;
+				}
+#endif /*  0 */
+			}
+		}						 /* close while */
+								 /* close do */
+	} while(theQuestionnaire->ser_no != 0);
+
+}
 
 void SetupNCurses(WINDOW * &  question_window,
 WINDOW * &  stub_list_window,
