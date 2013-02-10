@@ -279,6 +279,8 @@ struct RangeQuestion: public AbstractQuestion
 		}
 	}
 
+	void MakeDisplaySummaryDataRanges();
+
 	Wt::WString PrintSelectedAnswers();
 	Wt::WString PrintSelectedAnswers(int code_index);
 	~RangeQuestion();
@@ -427,6 +429,10 @@ class DummyArrayQuestion: public AbstractQuestion
 		DummyArrayQuestion& operator=(const DummyArrayQuestion&);
 		DummyArrayQuestion (const DummyArrayQuestion&);
 };
+
+void Print_DisplayDataUnitVector(WINDOW * stub_list_window, 
+		vector<display_data::DisplayDataUnit> & disp_vec,
+		int &xPos, int &yPos, int maxWinX);
 
 
 #endif /* qscript_question_h */
