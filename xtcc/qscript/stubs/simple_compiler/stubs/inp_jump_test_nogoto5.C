@@ -13,7 +13,6 @@
 #include <dirent.h>
 #include <cctype>
 #include <unistd.h>
-
 #include "question_ncurses_runtime.h"
 #include "stub_pair.h"
 #include "AbstractStatement.h"
@@ -37,7 +36,6 @@ using namespace std;
 string qscript_stdout_fname("qscript_stdout.log");
 FILE * qscript_stdout = 0;
 #include "debug_mem.h"
-
 
 fstream debug_log_file("qscript_debug.log", ios_base::out|ios_base::trunc);
 fstream flat_file;
@@ -64,7 +62,6 @@ void print_map_header(fstream & map_file);
 map<string, vector<string> > map_of_active_vars_for_questions;
 map<string, map<int, int> > freq_count;
 void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);
-
 void SetupSignalHandler();
 static void sig_usr(int32_t signo);
 string output_data_file_name;
@@ -84,18 +81,7 @@ void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_li
 void load_languages_available(vector<string> & vec_language);
 
 int process_options(int argc, char * argv[]);
-/* 
-WINDOW  * question_window = 0,
-* stub_list_window = 0,
-* data_entry_window = 0,
-* help_window = 0;
-PANEL   * question_panel = 0,
-* stub_list_panel = 0,
-* data_entry_panel = 0,
-* help_panel = 0;
- */
-
-extern WINDOW 	* question_window ,
+extern  WINDOW 	* question_window ,
 		* stub_list_window ,
 		* data_entry_window,
 		* help_window;
@@ -1006,7 +992,8 @@ struct TheQuestionnaire
 	AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q)
 	{
 		int32_t current_question_index = -1;
-		if (q) {
+		if (q)
+		{
 			for (int32_t i = questions_start_from_here_index; i < question_list.size(); ++i)
 			{
 				if (question_list[i] == q)
@@ -1015,9 +1002,10 @@ struct TheQuestionnaire
 					break;
 				}
 			}
-		} else {
+		}
+		else
+		{
 			current_question_index = question_list.size();
-			//return question_list[question_list.size()-1];
 		}
 		if (current_question_index == -1)
 		{

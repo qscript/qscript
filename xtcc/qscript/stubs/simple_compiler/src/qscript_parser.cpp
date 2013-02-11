@@ -306,6 +306,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <cctype>\n");
 	fprintf(script, "#include <unistd.h>\n");
 	//fprintf(script, "#include \"stmt.h\"\n");
+	fprintf(script, "#include \"question_ncurses_runtime.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"AbstractStatement.h\"\n");
 	fprintf(script, "#include \"named_range.h\"\n");
@@ -332,23 +333,29 @@ void print_header(FILE* script, bool ncurses_flag)
 	}
 	fprintf(script, "#include \"QuestionAttributes.h\"\n");
 	fprintf(script, "#include \"UserResponse.h\"\n");
-	if(config_file_parser::PLATFORM == "LINUX"){
-		FILE * simple_pd_curses_keys_h = fopen("a_few_pd_curses_keys.h", "wb");
-		if(!simple_pd_curses_keys_h){
-			fprintf(stderr, "unable to open file a_few_pd_curses_keys.h for writing ...\
-					exiting \n");
-			exit(1);
-		}
-		PrintPDCursesKeysHeader(simple_pd_curses_keys_h);
-		fclose(simple_pd_curses_keys_h);
-		fprintf(script, "#include \"a_few_pd_curses_keys.h\"\n");
-	}
+	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< ", ensure we re-create this functionality in the runtime file"
+		<< ", which has been commented out below"
+		<< endl;
+
+	// Thanks to the new runtime, this is no longer necessary
+	//if(config_file_parser::PLATFORM == "LINUX"){
+	//	FILE * simple_pd_curses_keys_h = fopen("a_few_pd_curses_keys.h", "wb");
+	//	if(!simple_pd_curses_keys_h){
+	//		fprintf(stderr, "unable to open file a_few_pd_curses_keys.h for writing ...\
+	//				exiting \n");
+	//		exit(1);
+	//	}
+	//	PrintPDCursesKeysHeader(simple_pd_curses_keys_h);
+	//	fclose(simple_pd_curses_keys_h);
+	//	fprintf(script, "#include \"a_few_pd_curses_keys.h\"\n");
+	//}
 
 
 	fprintf(script, "using namespace std;\n");
 	fprintf(script, "string qscript_stdout_fname(\"qscript_stdout.log\");\n");
 	fprintf(script, "FILE * qscript_stdout = 0;\n");
-	fprintf(script, "#include \"debug_mem.h\"\n");
+	fprintf(script, "#include \"debug_mem.h\"\n\n\n");
 	fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
 	fprintf(script, "fstream flat_file;\n");
 	fprintf(script, "fstream xtcc_datafile;\n");
@@ -389,9 +396,11 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "map<string, map<int, int> > freq_count;\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);\n");
 	//fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
-	if (program_options_ns::ncurses_flag) {
-		print_ncurses_func_prototypes(script);
-	}
+	
+	// all the code generated below has been moved into the ncurses runtime
+	//if (program_options_ns::ncurses_flag) {
+	//	print_ncurses_func_prototypes(script);
+	//}
 	fprintf(script, "void SetupSignalHandler();\n");
 	fprintf(script, "static void sig_usr(int32_t signo);\n");
 	//fprintf(script, "int32_t ComputeJumpToIndex(AbstractQuestion * q);\n");
@@ -418,15 +427,17 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
-	fprintf(script, "	WINDOW 	* question_window = 0,\n"
-			"		* stub_list_window = 0,\n"
-			"		* data_entry_window = 0,\n"
-			"		* help_window = 0;\n"
-			);
-	fprintf(script, "	PANEL 	* question_panel = 0,\n"
-			"		* stub_list_panel = 0,\n"
-			"		* data_entry_panel = 0,\n"
-			"		* help_panel = 0;\n");
+	if (program_options_ns::ncurses_flag) {
+		fprintf(script, "extern	WINDOW 	* question_window,\n"
+				"		* stub_list_window,\n"
+				"		* data_entry_window,\n"
+				"		* help_window;\n"
+				);
+		fprintf(script, "extern	PANEL 	* question_panel,\n"
+				"		* stub_list_panel,\n"
+				"		* data_entry_panel,\n"
+				"		* help_panel;\n");
+	}
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "vector <string> vec_language;\n");
 
@@ -447,12 +458,17 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	// print_reset_questionnaire(script);
 	// PrintDisplayActiveQuestions(script);
 	// PrintGetUserResponse(script);
+	
+
+	/*
+	 * This code is not now moved to the ncurses runtime environment
 	if(ncurses_flag){
 		PrintSetupNCurses(script);
 		if(config_file_parser::PLATFORM == "LINUX"){
 			PrintDefineSomePDCursesKeys(script);
 		}
 	}
+	*/
 	PrintSignalHandler(script, ncurses_flag);
 	PrintSetupSignalHandler(script);
 	PrintProcessOptions(script);
@@ -1702,6 +1718,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	}
 	*/
 
+#if 0
 	fprintf(script, "#if 0\n");
 	fprintf(script, "	do {\n");
 	fprintf(script, "		theQuestionnaire.reset_questionnaire();\n");
@@ -1848,6 +1865,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf(script, "\t} /* close while */\n");
 	fprintf(script, "} while(theQuestionnaire.ser_no != 0); /* close do */\n");
 	fprintf(script, "#endif /*  0 */\n");
+#endif /*  0 */
 
 
 	if(ncurses_flag)
@@ -2082,6 +2100,8 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "	question_eval_loop (qnre_mode,\n"
 			 " 		qnre_navigation_mode, last_question_visited,\n"
 			" 		jump_to_question, theQuestionnaire);\n\n");
+
+#if 0
 	fprintf (script, "#if 0\n");
 	fprintf (script, "		while(theQuestionnaire->ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag))\n");
 	fprintf (script, "		{\n");
@@ -2227,6 +2247,8 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "			}\n");
 	fprintf (script, "		}						 /* close while */\n");
 	fprintf(script, "#endif /*  0 */\n");
+#endif /*  0 */
+
 	fprintf (script, "								 /* close do */\n");
 	fprintf (script, "	} while(theQuestionnaire->ser_no != 0);\n");
 	fprintf (script, "endwin();\n");
