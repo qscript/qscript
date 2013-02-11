@@ -22,6 +22,8 @@
 #include <vector>
 #include "question_ncurses_runtime.h"
 #include "question.h"
+#include "user_navigation.h"
+
 
 using std::vector;
 
@@ -177,6 +179,12 @@ void define_some_pd_curses_keys()
 	define_key(shift_del.c_str(), SHF_DC);
 }
 
+void GetDataFromUser (AbstractQuestion * q)
+{
+	//user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
+	user_response::UserResponseType user_resp = q->GetDataFromUser(question_window, stub_list_window, data_entry_window);
+}
+
 void ncurses_eval (AbstractQuestion * q)
 {
 	//q->eval(question_window, stub_list_window, data_entry_window);
@@ -187,9 +195,10 @@ void ncurses_eval (AbstractQuestion * q)
 	DisplayQuestionTextView (qno_and_qtxt);
 	PrepareStubs (q);
 	DisplayStubs (q);
+	GetDataFromUser (q);
 
-	getchar();
 }
+
 
 void ClearPreviousView (WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window)
 {
