@@ -81,15 +81,6 @@ void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_li
 void load_languages_available(vector<string> & vec_language);
 
 int process_options(int argc, char * argv[]);
-extern  WINDOW 	* question_window ,
-		* stub_list_window ,
-		* data_entry_window,
-		* help_window;
-extern PANEL   * question_panel,
-	* stub_list_panel,
-	* data_entry_panel,
-	* help_panel;
-
 DIR * directory_ptr = 0;
 vector <string> vec_language;
 struct TheQuestionnaire
@@ -1230,12 +1221,12 @@ struct TheQuestionnaire
 		memset(flat_file_output_buffer, ' ', len_flat_file_output_buffer-1);
 		do_freq_counts();
 	}
-	void prompt_user_for_serial_no()
-	{
-		wclear(data_entry_window);
-		mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
-		mvwscanw(data_entry_window, 1, 40, "%d", & ser_no);
-	}
+	//void prompt_user_for_serial_no()
+	//{
+	//	wclear(data_entry_window);
+	//	mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
+	//	mvwscanw(data_entry_window, 1, 40, "%d", & ser_no);
+	//}
 
 	void write_xtcc_data_to_disk()
 	{
@@ -1302,14 +1293,7 @@ int32_t main(int argc, char * argv[])
 	bool using_ncurses = true;
 	qscript_stdout = fopen(qscript_stdout_fname.c_str(), "w");
 	using namespace std;
-	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);
-	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0
-		/* || help_window == 0 */
-		)
-	{
-		cerr << "Unable to create windows ... exiting" << endl;
-		return 1;
-	}
+	setup_ui();
 	SetupSignalHandler();
 	TheQuestionnaire * theQuestionnaire = new TheQuestionnaire();
 	theQuestionnaire->base_text_vec.push_back(BaseText("All Respondents"));
@@ -1334,7 +1318,7 @@ AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
 	//while(theQuestionnaire->ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag))
 	//{
 	fprintf(qscript_stdout, "reached top of while loop:\n");
-re_eval_from_start:
+	re_eval_from_start:
 	AbstractQuestion * q =
 		theQuestionnaire->eval2 (
 		qnre_navigation_mode, last_question_visited, jump_to_question);
@@ -1359,11 +1343,11 @@ re_eval_from_start:
 			//cerr << "Not considering What happens when we reach end of qnre at the moment - just lets exit" << endl;
 			//exit(1);
 			// thanks to the exit above - the code that follow is redundant in this block
-			char end_of_question_navigation;
-label_end_of_qnre_navigation:
-			wclear(data_entry_window);
-			mvwprintw(data_entry_window, 1, 1,"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)");
-			mvwscanw(data_entry_window, 1, 75, "%c", & end_of_question_navigation);
+			char end_of_question_navigation = get_end_of_question_response();
+			//label_end_of_qnre_navigation:
+			//wclear(data_entry_window);
+			//mvwprintw(data_entry_window, 1, 1,"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)");
+			//mvwscanw(data_entry_window, 1, 75, "%c", & end_of_question_navigation);
 			if(end_of_question_navigation == 's')
 			{
 				theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
@@ -1422,17 +1406,18 @@ label_end_of_qnre_navigation:
 	{
 		fprintf(qscript_stdout, "eval2 returned %s\n",
 			q->questionName_.c_str());
-re_eval:
+		re_eval:
 		//q->eval(question_window, stub_list_window, data_entry_window);
-	
 		ncurses_eval (q);
+
 		if (user_navigation == NAVIGATE_PREVIOUS)
 		{
 			fprintf(qscript_stdout,
 				"user_navigation == NAVIGATE_PREVIOUS\n");
 			AbstractQuestion *target_question =
 				theQuestionnaire->ComputePreviousQuestion(q);
-			if (target_question == 0) {
+			if (target_question == 0)
+			{
 				//goto re_eval;
 				//void question_eval_loop (EvalMode qnre_mode,
 				//UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
@@ -1440,7 +1425,9 @@ re_eval:
 				question_eval_loop (USER_NAVIGATION,
 					NAVIGATE_PREVIOUS, /* last_question_visited */ q,
 					/*  jump_to_question */ q, theQuestionnaire);
-			} else {
+			}
+			else
+			{
 				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
 				//if (target_question->type_ == QUESTION_ARR_TYPE)
 				//{
@@ -1491,10 +1478,11 @@ re_eval:
 		{
 			theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno,
 				theQuestionnaire->ser_no);
-			if (data_entry_window)
-				mvwprintw(data_entry_window, 2, 50, "saved partial data");
-			else
-				cout << "saved partial data\n";
+			print_save_partial_data_message_success ();
+			//if (data_entry_window)
+			//	mvwprintw(data_entry_window, 2, 50, "saved partial data");
+			//else
+			//	cout << "saved partial data\n";
 			//if (q->isAnswered_ == false)
 			//{
 			//	//goto label_eval_q2;
@@ -1502,7 +1490,7 @@ re_eval:
 			//}
 			question_eval_loop (NORMAL_FLOW,
 				NAVIGATE_NEXT, /* last_question_visited */ q,
-				/*  jump_to_question : nxd*/ jump_to_question, theQuestionnaire);
+				/*  jump_to_question */ jump_to_question, theQuestionnaire);
 		}
 		else
 		{
@@ -1514,8 +1502,8 @@ re_eval:
 	}
 	//}						 /* close while */
 
-
 }
+
 
 void outer_question_eval_loop (EvalMode qnre_mode,
 UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
@@ -1535,7 +1523,7 @@ AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
 		}
 		else
 		{
-			theQuestionnaire->prompt_user_for_serial_no();
+			theQuestionnaire->ser_no = prompt_user_for_serial_no();
 			if (theQuestionnaire->ser_no == 0)
 			{
 				break;
@@ -1552,7 +1540,6 @@ AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
 		question_eval_loop (qnre_mode,
 			qnre_navigation_mode, last_question_visited,
 			jump_to_question, theQuestionnaire);
-
 
 								 /* close do */
 	} while(theQuestionnaire->ser_no != 0);

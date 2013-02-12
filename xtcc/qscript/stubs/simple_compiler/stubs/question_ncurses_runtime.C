@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 #include "question_ncurses_runtime.h"
 #include "question.h"
 #include "user_navigation.h"
@@ -327,4 +328,43 @@ void DisplayStubs (AbstractQuestion *q)
 
 	update_panels();
 	doupdate();
+}
+
+void setup_ui ()
+{
+	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);
+	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0
+		/* || help_window == 0 */
+		)
+	{
+		using std::cerr;
+		using std::endl;
+		cerr << "Unable to create windows ... exiting" << endl;
+		exit(1);
+	}
+}
+
+int32_t prompt_user_for_serial_no()
+{
+	wclear(data_entry_window);
+	mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
+	int32_t ser_no = -1;
+	mvwscanw(data_entry_window, 1, 40, "%d", & ser_no);
+	return ser_no;
+}
+
+char get_end_of_question_response()
+{
+	char end_of_question_navigation;
+	label_end_of_qnre_navigation:
+	wclear(data_entry_window);
+	mvwprintw(data_entry_window, 1, 1,"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)");
+	mvwscanw(data_entry_window, 1, 75, "%c", & end_of_question_navigation);
+	return end_of_question_navigation;
+}
+
+void print_save_partial_data_message_success ()
+{
+	if (data_entry_window)
+		mvwprintw(data_entry_window, 2, 50, "saved partial data");
 }
