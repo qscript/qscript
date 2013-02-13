@@ -878,7 +878,7 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 		char space = ' ';
 		for (int y = currYpos; y < maxWinY; ++y) {
 			for (int x = 1; x < maxWinX; ++x) {
-				mvwaddch (stub_list_window, currYpos, currXpos , ' ');
+				mvwaddch (stub_list_window, y, x , ' ');
 				//cout << "reached here\n";
 			}
 		}
