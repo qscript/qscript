@@ -23,6 +23,7 @@
 #include <iostream>
 #include "question_ncurses_runtime.h"
 #include "question.h"
+#include "named_range.h"
 #include "user_navigation.h"
 
 
@@ -31,11 +32,13 @@ using std::vector;
 WINDOW  * question_window = 0,
 	* stub_list_window = 0,
 	* data_entry_window = 0,
+	* error_msg_window = 0,
 	* help_window = 0;
 PANEL   * question_panel = 0,
 	* stub_list_panel = 0,
 	* data_entry_panel = 0,
-	* help_panel = 0;
+	* help_panel = 0,
+	* error_msg_panel = 0;
 
 void ClearPreviousView (WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window);
 vector<string> PrepareQuestionText (AbstractQuestion *q);
@@ -45,6 +48,7 @@ void DisplayStubs (AbstractQuestion *q);
 void PrepareStubs (AbstractQuestion *q);
 
 WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx);
+/* 
 void SetupNCurses(WINDOW * &  question_window,
 			WINDOW * &  stub_list_window,
 			WINDOW * & data_entry_window,
@@ -117,6 +121,93 @@ void SetupNCurses(WINDOW * &  question_window,
 	update_panels();
 	doupdate();
 }
+*/
+
+
+void SetupNCurses( 	WINDOW * &  question_window,
+			WINDOW * &  stub_list_window,
+			WINDOW * & data_entry_window,
+			WINDOW * & error_msg_window,
+			WINDOW * & help_window,
+			PANEL * &  question_panel,
+			PANEL * &  stub_list_panel,
+			PANEL * & data_entry_panel,
+			PANEL * & error_msg_panel,
+			PANEL * & help_panel)
+{
+	initscr();
+	cbreak();
+	nonl();
+	intrflush(stdscr, FALSE);
+	if(has_colors() == FALSE)
+	{
+		endwin();
+		printf("Your terminal does not support color\n");
+		exit(1);
+	}
+	start_color();
+	chtype space = ' '; init_pair(1, COLOR_RED, COLOR_WHITE);
+	init_pair(2, COLOR_GREEN, COLOR_WHITE);
+	init_pair(3, COLOR_BLUE, COLOR_WHITE);
+	init_pair(4, COLOR_MAGENTA, COLOR_CYAN);
+	init_pair(5, COLOR_WHITE, COLOR_RED);
+	int32_t maxX, maxY;
+	getmaxyx(stdscr, maxY, maxX);
+
+	int32_t DATA_ENTRY_WINDOW_HEIGHT=5, DATA_ENTRY_WINDOW_WIDTH=maxX;
+
+	int32_t starty = maxY-DATA_ENTRY_WINDOW_HEIGHT;
+	int32_t startx = 0;
+	data_entry_window = create_newwin(DATA_ENTRY_WINDOW_HEIGHT
+		, DATA_ENTRY_WINDOW_WIDTH, starty, startx);
+	wcolor_set(data_entry_window, COLOR_PAIR(1), 0);
+	wattron(data_entry_window, COLOR_PAIR(1));
+	wbkgd(data_entry_window, space | COLOR_PAIR(1));
+	wattrset(data_entry_window, COLOR_PAIR(1));
+	wmove(data_entry_window, 1, 1);
+	keypad(data_entry_window, TRUE);
+	// Divide the rest of the screen between the question window
+	//  and the stub window in the ration 1:2
+	int32_t height_left = maxY - DATA_ENTRY_WINDOW_HEIGHT;
+	int32_t STUB_LIST_WINDOW_HEIGHT=(height_left / 3)*2, STUB_LIST_WINDOW_WIDTH=maxX;
+	starty = maxY - DATA_ENTRY_WINDOW_HEIGHT - STUB_LIST_WINDOW_HEIGHT;
+	stub_list_window = create_newwin(STUB_LIST_WINDOW_HEIGHT
+		, STUB_LIST_WINDOW_WIDTH, starty, startx);
+	wcolor_set(stub_list_window, 2, 0);
+	wbkgd(stub_list_window, space | COLOR_PAIR(2));
+	wattron(stub_list_window, COLOR_PAIR(2));
+
+	int32_t ERROR_WINDOW_HEIGHT= (height_left/6), ERROR_WINDOW_WIDTH=maxX;
+	starty = maxY - DATA_ENTRY_WINDOW_HEIGHT - STUB_LIST_WINDOW_HEIGHT - ERROR_WINDOW_HEIGHT;
+	error_msg_window = create_newwin(ERROR_WINDOW_HEIGHT
+		, ERROR_WINDOW_WIDTH, starty, startx);
+	wbkgd(error_msg_window, space | COLOR_PAIR(5));
+	wcolor_set(error_msg_window, 3, 0);
+	wattron(error_msg_window, COLOR_PAIR(5));
+	height_left -= ERROR_WINDOW_HEIGHT;
+	int32_t QUESTION_WINDOW_HEIGHT=maxY - DATA_ENTRY_WINDOW_HEIGHT - STUB_LIST_WINDOW_HEIGHT - ERROR_WINDOW_HEIGHT, QUESTION_WINDOW_WIDTH=maxX;
+	starty = 0;
+	question_window = create_newwin(QUESTION_WINDOW_HEIGHT
+		, QUESTION_WINDOW_WIDTH, starty, startx);
+	wbkgd(question_window, space | COLOR_PAIR(3));
+	wcolor_set(question_window, 3, 0);
+	wattron(question_window, COLOR_PAIR(3));
+
+	define_some_pd_curses_keys();
+	int32_t HELP_WINDOW_HEIGHT=(int)((float)(2/3)*maxY), HELP_WINDOW_WIDTH=maxX/2;
+
+	starty = 5;
+	startx = 5;
+	//help_window = create_newwin(HELP_WINDOW_HEIGHT, HELP_WINDOW_WIDTH, starty, startx);
+	question_panel = new_panel(question_window);
+	stub_list_panel = new_panel(stub_list_window);
+	data_entry_panel = new_panel(data_entry_window);
+	//help_panel = new_panel(help_window);
+	error_msg_panel = new_panel(error_msg_window);
+	update_panels();
+	doupdate();
+}
+
 
 
 WINDOW *create_newwin(int32_t height, int32_t width, int32_t starty, int32_t startx)
@@ -196,6 +287,11 @@ void ncurses_eval (AbstractQuestion * q)
 	DisplayQuestionTextView (qno_and_qtxt);
 	PrepareStubs (q);
 	DisplayStubs (q);
+	wmove (data_entry_window, 1, 1);
+	//wrefresh (data_entry_window);
+	update_panels();
+	doupdate();
+
 	GetDataFromUser (q);
 
 }
@@ -292,6 +388,18 @@ void DisplayStubs (AbstractQuestion *q)
 	RangeQuestion * rq = dynamic_cast<RangeQuestion*> (q) ;
 	if (nq) {
 		Print_DisplayDataUnitVector (stub_list_window, nq->displayData_, currXpos, currYpos, maxWinX);
+		++currYpos; currXpos = 1;
+
+		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+		nq->stubStartYIndex_ = currYpos;
+		nq->ComputeVisiblePages (question_window, stub_list_window,
+					data_entry_window, error_msg_window);
+		nq->DisplayStubsPage( question_window
+			     ,  stub_list_window
+			     ,  data_entry_window
+			     ,  error_msg_window);
+
+
 	} else {
 		Print_DisplayDataUnitVector (stub_list_window, rq->displayData_, currXpos, currYpos, maxWinX);
 	}
@@ -332,7 +440,12 @@ void DisplayStubs (AbstractQuestion *q)
 
 void setup_ui ()
 {
-	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);
+	SetupNCurses ( 	question_window, stub_list_window,
+			data_entry_window, error_msg_window,
+			help_window, 
+			question_panel, stub_list_panel,
+			data_entry_panel, error_msg_panel,
+			help_panel);
 	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0
 		/* || help_window == 0 */
 		)

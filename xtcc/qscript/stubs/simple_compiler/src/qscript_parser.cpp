@@ -241,7 +241,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	PrintGetUserResponse(script);
 	print_write_qtm_data_to_disk(script);
 	print_write_ascii_data_to_disk(script);
-	print_prompt_user_for_serial_no(script);
+	//print_prompt_user_for_serial_no(script);
 	print_write_xtcc_data_to_disk(script);
 	print_do_freq_counts(script);
 	//print_close(script, code.program_code, ncurses_flag);
@@ -427,6 +427,8 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
+	/* 
+	// This is not necessary any more
 	if (program_options_ns::ncurses_flag) {
 		fprintf(script, "extern	WINDOW 	* question_window,\n"
 				"		* stub_list_window,\n"
@@ -438,6 +440,7 @@ void print_header(FILE* script, bool ncurses_flag)
 				"		* data_entry_panel,\n"
 				"		* help_panel;\n");
 	}
+	*/
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
 	fprintf(script, "vector <string> vec_language;\n");
 
@@ -1687,11 +1690,14 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	*/
 
 	if(ncurses_flag) {
-		fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);\n");
-		fprintf(script, "	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0\n\t\t /* || help_window == 0 */\n\t\t ){\n");
-		fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
-		fprintf(script, "		return 1;\n");
-		fprintf(script, "	}\n");
+		// this is not necessary any more
+		//fprintf(script, "	SetupNCurses(question_window, stub_list_window, data_entry_window, help_window, question_panel, stub_list_panel, data_entry_panel, help_panel);\n");
+		//fprintf(script, "	if(question_window == 0 || stub_list_window == 0 || data_entry_window == 0\n\t\t /* || help_window == 0 */\n\t\t ){\n");
+		//fprintf(script, "		cerr << \"Unable to create windows ... exiting\" << endl;\n");
+		//fprintf(script, "		return 1;\n");
+		//fprintf(script, "	}\n");
+		fprintf (script, "setup_ui();\n");
+
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
 	fprintf(script, "TheQuestionnaire * theQuestionnaire = new TheQuestionnaire();\n"
@@ -1906,11 +1912,11 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "			//cerr << \"Not considering What happens when we reach end of qnre at the moment - just lets exit\" << endl;\n");
 	fprintf (script, "			//exit(1);\n");
 	fprintf (script, "			// thanks to the exit above - the code that follow is redundant in this block\n");
-	fprintf (script, "			char end_of_question_navigation;\n");
-	fprintf (script, "label_end_of_qnre_navigation:\n");
-	fprintf (script, "			wclear(data_entry_window);\n");
-	fprintf (script, "			mvwprintw(data_entry_window, 1, 1,\"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)\");\n");
-	fprintf (script, "			mvwscanw(data_entry_window, 1, 75, \"%%c\", & end_of_question_navigation);\n");
+	fprintf (script, "			char end_of_question_navigation = get_end_of_question_response();\n");
+	//fprintf (script, "label_end_of_qnre_navigation:\n");
+	//fprintf (script, "			wclear(data_entry_window);\n");
+	//fprintf (script, "			mvwprintw(data_entry_window, 1, 1,\"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)\");\n");
+	//fprintf (script, "			mvwscanw(data_entry_window, 1, 75, \"%%c\", & end_of_question_navigation);\n");
 	fprintf (script, "			if(end_of_question_navigation == 's')\n");
 	fprintf (script, "			{\n");
 	fprintf (script, "				theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);\n");
@@ -1970,7 +1976,8 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "		fprintf(qscript_stdout, \"eval2 returned %%s\\n\",\n");
 	fprintf (script, "			q->questionName_.c_str());\n");
 	fprintf (script, "re_eval:\n");
-	fprintf (script, "		q->eval(question_window, stub_list_window, data_entry_window);\n");
+	fprintf (script, "		//q->eval(question_window, stub_list_window, data_entry_window);\n");
+	fprintf (script, "		ncurses_eval (q);\n");
 	fprintf (script, "\n");
 	fprintf (script, "		if (user_navigation == NAVIGATE_PREVIOUS)\n");
 	fprintf (script, "		{\n");
@@ -2037,10 +2044,11 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "		{\n");
 	fprintf (script, "			theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno,\n");
 	fprintf (script, "				theQuestionnaire->ser_no);\n");
-	fprintf (script, "			if (data_entry_window)\n");
-	fprintf (script, "				mvwprintw(data_entry_window, 2, 50, \"saved partial data\");\n");
-	fprintf (script, "			else\n");
-	fprintf (script, "				cout << \"saved partial data\\n\";\n");
+	fprintf (script, "			print_save_partial_data_message_success ();\n");
+	//fprintf (script, "			if (data_entry_window)\n");
+	//fprintf (script, "				mvwprintw(data_entry_window, 2, 50, \"saved partial data\");\n");
+	//fprintf (script, "			else\n");
+	//fprintf (script, "				cout << \"saved partial data\\n\";\n");
 	fprintf (script, "			//if (q->isAnswered_ == false)\n");
 	fprintf (script, "			//{\n");
 	fprintf (script, "			//	//goto label_eval_q2;\n");
@@ -2083,7 +2091,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "		}\n");
 	fprintf (script, "		else\n");
 	fprintf (script, "		{\n");
-	fprintf (script, "			theQuestionnaire->prompt_user_for_serial_no();\n");
+	fprintf (script, "			theQuestionnaire->ser_no = prompt_user_for_serial_no();\n");
 	fprintf (script, "			if (theQuestionnaire->ser_no == 0)\n");
 	fprintf (script, "			{\n");
 	fprintf (script, "				break;\n");

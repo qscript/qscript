@@ -26,6 +26,7 @@
 
 
 WINDOW *create_newwin (int32_t height, int32_t width, int32_t starty, int32_t startx);
+/*
 void SetupNCurses (	WINDOW * &  question_window,
 			WINDOW * &  stub_list_window,
 			WINDOW * & data_entry_window,
@@ -34,6 +35,16 @@ void SetupNCurses (	WINDOW * &  question_window,
 			PANEL * &  stub_list_panel,
 			PANEL * & data_entry_panel,
 			PANEL * & help_panel);
+*/
+void SetupNCurses(WINDOW * &  question_window,
+			WINDOW * &  stub_list_window,
+			WINDOW * & data_entry_window,
+			WINDOW * & help_window,
+			PANEL * &  question_panel,
+			PANEL * &  stub_list_panel,
+			PANEL * & data_entry_panel,
+			PANEL * & help_panel);
+
 void define_some_pd_curses_keys();
 void ncurses_eval (AbstractQuestion * q);
 void setup_ui ();

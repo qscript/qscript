@@ -468,6 +468,8 @@ NamedStubQuestion::NamedStubQuestion(
 		)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
+	, totPages_ (0), pageIndices_ (), stubStartYIndex_ (0)
+
 {
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
@@ -995,3 +997,107 @@ void RangeQuestion::MakeDisplaySummaryDataRanges()
 		std::sort(displayData_.begin(), displayData_.end(), display_data::DisplayDataUnitOrder());
 	}
 }
+
+void NamedStubQuestion::ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
+{
+	pageIndices_.clear();
+	vector<stub_pair> & vec= (nr_ptr->stubs);
+	int32_t maxWinX, maxWinY;
+	getmaxyx(stub_list_window, maxWinY, maxWinX);
+	//if (totPages_ == 0) {
+		int start_page_index = 0, end_page_index = 0;
+		//stubStartYIndex_ = currYpos;
+		int y_pos_tracker = stubStartYIndex_;
+		for (uint32_t i = 0; i < vec.size(); ++i) {
+			if (vec[i].mask) {
+				++ y_pos_tracker;
+				if (y_pos_tracker == maxWinY - 1) {
+					pageIndices_.push_back ( pair <int, int> (start_page_index, i) );
+					start_page_index = i + 1;
+					y_pos_tracker = stubStartYIndex_;
+				}
+			}
+		}
+		if (start_page_index < vec.size())
+			pageIndices_.push_back ( pair <int, int> (start_page_index, vec.size()-1) );
+		//cout << "n Pages: " << pageIndices_.size() << endl;
+		//for (int i=0; i < pageIndices_.size(); ++i) {
+		//	cout << pageIndices_[i].first << ", "
+		//		<< pageIndices_[i].second
+		//		<< endl;
+		//}
+	//}
+}
+
+void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_window
+			     , /*qs_ncurses::*/WINDOW* stub_list_window
+			     , /*qs_ncurses::*/WINDOW* data_entry_window
+			     , WINDOW * error_msg_window)
+{
+	//fstream file_display_stubs_log("file_display_stubs.log", ios_base::out|ios_base::app);
+
+	int32_t currXpos = 1, currYpos = stubStartYIndex_;
+	
+	int32_t maxWinX, maxWinY;
+	getmaxyx(data_entry_window, maxWinY, maxWinX);
+	vector<stub_pair> & vec= (nr_ptr->stubs);
+	//wclear(stub_list_window);
+	//for (int i=stubStartYIndex_; i < maxWinY; ++i) {
+	//	for (int j = 1; j < maxWinX -1; ++j) {
+	//		mvwaddch(stub_list_window, currYpos, currXpos , ' ');
+	//	}
+	//}
+	//update_panels ();
+	//doupdate ();
+	for (int y = currYpos; y < maxWinY; ++y) {
+		for (int x=1; x < maxWinX-1; ++x) {
+			//mvwprintw (stub_list_window, y, x, " ");
+			//cout << "reached here\n";
+			mvwaddch(stub_list_window, y, x , ' ');
+		}
+	}
+	//wmove(data_entry_window, 1, 1);
+	update_panels ();
+	doupdate ();
+	//file_display_stubs_log << "currentPage_: " << currentPage_ << endl;
+	for (uint32_t i = pageIndices_[currentPage_].first; i <= pageIndices_[currentPage_].second; ++i) {
+		if (vec[i].mask) {
+			//file_display_stubs_log << vec[i].stub_text << ": " << vec[i].code << endl;
+			//mvwprintw(stub_list_window, currYpos, currXpos, "%s: %d ", vec[i].stub_text.c_str(), vec[i].code);
+			set<int32_t>::iterator found = input_data.find(vec[i].code);
+			if (found != input_data.end()) {
+				wattroff(stub_list_window, COLOR_PAIR(3));
+				wattron(stub_list_window, COLOR_PAIR(5));
+				mvwprintw(stub_list_window, currYpos, currXpos , "%03d :", vec[i].code);
+				wattroff(stub_list_window, COLOR_PAIR(5));
+				wattron(stub_list_window, COLOR_PAIR(3));
+			} else {
+				mvwprintw(stub_list_window, currYpos, currXpos , "%03d :", vec[i].code);
+			}
+			mvwprintw(stub_list_window, currYpos, currXpos + 8, "%s", vec[i].stub_text.c_str());
+			++currYpos;
+			// this should not be necessary - the paging algo should already have calculated this
+			//if (currYpos >= maxWinY) {
+			//	break;
+			//}
+		}
+	}
+	if (currYpos < maxWinY) {
+		char space = ' ';
+		for (int y = currYpos; y < maxWinY; ++y) {
+			for (int x = 1; x < maxWinX; ++x) {
+				mvwaddch (stub_list_window, y, x, ' ');
+				//cout << "reached here\n";
+			}
+		}
+	}
+	update_panels ();
+	doupdate ();
+	wmove(data_entry_window, 1, 1);
+	update_panels ();
+	doupdate ();
+}
+
