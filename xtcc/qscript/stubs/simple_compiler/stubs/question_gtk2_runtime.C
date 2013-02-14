@@ -29,6 +29,8 @@
 using namespace std;
 
 #include "inp_jump_test.h"
+string qscript_stdout_fname("qscript_stdout.log");
+FILE * qscript_stdout = 0;
 
 
 struct Session
@@ -36,7 +38,7 @@ struct Session
 	/**
 	 * We keep all sessions in a linked list.
 	 */
-	struct Session *next;
+	//struct Session *next;
 	/**
 	 * Unique ID for this session.
 	 */
@@ -60,9 +62,9 @@ struct Session
 	AbstractQuestion * ptr_last_question_answered;
 	AbstractQuestion * ptr_last_question_visited;
 	Session()
-		: start(time(NULL)),
+		: start(time(NULL)), rc(1), 
 		questionnaire(new TheQuestionnaire()),
-		rc(1), last_question_served(0),
+		last_question_served(0),
 		ptr_last_question_answered(0),
 		ptr_last_question_visited(0)
 	{
@@ -81,6 +83,9 @@ struct Session
 		delete questionnaire;
 		questionnaire = 0;
 	}
+	private:
+		Session& operator= (const Session&);
+		Session (const Session&);
 };
 
 static struct Session *sessions;
@@ -103,6 +108,11 @@ class GtkQuestionnaireApplication
 		GtkQuestionnaireApplication (int argc, char * argv[]);
 		void SetupGTK (int argc, char * argv[]);
 		int rb_selected_code;
+
+		// This may have to be moved to a better location than here
+		//  - for example struct TheQuestionnaire
+		AbstractQuestion * last_question_visited;
+		AbstractQuestion * jump_to_question;
 	private:
 		GtkWidget * wt_debug_;
 		GtkWidget * wt_questionText_;
@@ -153,6 +163,9 @@ class GtkQuestionnaireApplication
 		void ValidateSerialNo();
 		//virtual ~GtkQuestionnaireApplication();
 		void get_serial_no_gtk ();
+	private:
+		GtkQuestionnaireApplication& operator= (const GtkQuestionnaireApplication&);
+		GtkQuestionnaireApplication (const GtkQuestionnaireApplication&);
 };
 
 void GtkQuestionnaireApplication::DestroyPreviousWidgets ()
@@ -246,7 +259,7 @@ void GtkQuestionnaireApplication::CreateBottomHalf()
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfVBox_);
 	gtk_widget_show (bottomHalfVBox_);
 	//insert_text (buffer);
-	gtk_widget_show_all (bottom_half);
+	//gtk_widget_show_all (bottom_half);
 	//return scrolled_window;
 	bottomHalfNavigationBox_ = gtk_vbox_new (FALSE, 0);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfNavigationBox_);
@@ -255,6 +268,16 @@ void GtkQuestionnaireApplication::CreateBottomHalf()
 
 
 GtkQuestionnaireApplication::GtkQuestionnaireApplication (int argc, char * argv[])
+	:  window(0), top_half(0), bottom_half(0),
+	   last_question_visited (0), jump_to_question (0),
+	   wt_debug_(0), wt_questionText_(0), le_data_(0), wt_lastQuestionVisited_(0),
+	   wt_cb_rb_container_(0), wt_rb_container_(0), questionTextLabel_(0),
+	   vec_rb(), rbData_(), vec_cb(), map_cb_code_index(), languageSelects_(),
+	   vbox(0), hbox(0), entry(0), check(0), rb(0), next_button(0),
+	   viewPort_(0), currentForm_(0), formContainer_(0), gtkRadioButtonGroup_(0),
+	   bottomHalfVBox_(0), bottomHalfNavigationBox_(0), ser_no(-1), serialPage_(0),
+	   flagSerialPageRemoved_(false), this_users_session(0), sess_id()
+
 {
 	SetupGTK (argc, argv);
 }
@@ -285,6 +308,7 @@ void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 	gtk_widget_show (vpaned);
 	/* Now create the contents of the two halves of the window */
 	/* GtkWidget *  */ top_half = CreateTopHalf ();
+	get_serial_no_gtk();
 	gtk_paned_add1 (GTK_PANED (vpaned), top_half);
 	gtk_widget_show (top_half);
 	/*  GtkWidget *   bottom_half =*/ CreateBottomHalf ();
@@ -292,7 +316,6 @@ void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 	gtk_widget_show (bottom_half);
 	gtk_widget_show (window);
 	// ============================
-	get_serial_no_gtk();
 
 	// Setup the session
 	string sess_id = GenerateSessionId();
@@ -338,9 +361,9 @@ void GtkQuestionnaireApplication::get_serial_no_gtk ()
 	g_signal_connect (G_OBJECT (entry), "activate",
 		G_CALLBACK (enter_callback),
 		(gpointer) this);
-	gtk_entry_set_text (GTK_ENTRY (entry), "hello");
+	gtk_entry_set_text (GTK_ENTRY (entry), "<Enter Serial No Here>");
 	tmp_pos = GTK_ENTRY (entry)-> text_length;
-	gtk_editable_insert_text (GTK_EDITABLE (entry), " world", -1, &tmp_pos);
+	gtk_editable_insert_text (GTK_EDITABLE (entry), "", -1, &tmp_pos);
 	gtk_editable_select_region (GTK_EDITABLE (entry),
 		0, GTK_ENTRY (entry)-> text_length);
 	gtk_box_pack_start (GTK_BOX (vbox), entry, TRUE, TRUE, 0);
@@ -579,7 +602,7 @@ void GtkQuestionnaireApplication::DoQuestionnaire()
 	}
 	AbstractQuestion * q =
 		this_users_session->questionnaire->eval2(
-		qnre_navigation_mode);
+		qnre_navigation_mode, last_question_visited, jump_to_question);
 	this_users_session->last_question_served = q;
 	if (q)
 	{
@@ -840,7 +863,7 @@ int main(int argc, char ** argv)
 			exit(1);
 		}
 	}
-	load_languages_available(vec_language);
+	//load_languages_available(vec_language);
 	bool using_ncurses = true;
 	qscript_stdout = fopen(qscript_stdout_fname.c_str(), "w");
 	SetupSignalHandler();
@@ -850,4 +873,126 @@ int main(int argc, char ** argv)
 	gtk_main ();
 
 	//return WRun (argc, argv, &createApplication);
+}
+
+static void sig_usr(int32_t signo)
+{
+	if(signo == SIGSEGV)
+	{
+		printf("received SIGSEGV\n");
+	}
+	else if(signo == SIGILL)
+	{
+		printf("received SIGILL\n");
+	}
+	else if(signo == SIGHUP)
+	{
+		printf("received, SIGHUP: ignore this signal\n");
+		return;
+	}
+	else
+	{
+		fprintf(stderr, "received signal : %d\n", signo);
+	}
+	fflush(qscript_stdout);
+	exit(1);
+}
+
+
+void SetupSignalHandler()
+{
+	if (signal (SIGSEGV, sig_usr) == SIG_ERR)
+	{
+		fprintf(stderr, "cannot catch SIGSEGV\n");
+		exit(1);
+	}
+	else if (signal (SIGHUP, SIG_IGN) == SIG_ERR)
+	{
+		fprintf(stderr, "cannot ignore SIGHUP\n");
+		exit(1);
+	}
+	else if (signal (SIGILL, sig_usr) == SIG_ERR)
+	{
+		fprintf(stderr, "cannot catch SIGILL\n");
+		exit(1);
+	}
+}
+void print_map_header(fstream & map_file )
+{
+	map_file << "Question No			,width,	no responses,	start position,	end position\n";
+}
+
+
+// ===================== from src/question_gtk_runtime - copied from the gtk branch
+//
+
+//enum UI_Mode { NCurses_Mode, Microhttpd_Mode, Wt_Mode, Gtk_Mode};
+extern UI_Mode ui_mode;
+
+
+string NamedStubQuestion::PrintSelectedAnswers()
+{
+	//return string("hello");
+	//stringstream select_answers_text;
+	//Wt::WString select_answers_text;
+	string select_answers_text;
+	bool first_time = true;
+	for (set<int32_t>::iterator inp_data_iter = input_data.begin();
+			inp_data_iter != input_data.end(); ++inp_data_iter) {
+		stringstream mesg_key;
+		mesg_key << nr_ptr->name << "_" << *inp_data_iter - 1;
+		if (first_time) {
+			//select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
+			cout << "searching for : " << mesg_key.str() << endl;
+			//if (ui_mode == Wt_Mode) {
+			//	Wt::WString w_str = Wt::WString::tr(mesg_key.str());
+			//	select_answers_text += w_str.toUTF8();
+			//} else {
+				//select_answers_text += gettext(mesg_key.str().c_str());
+				select_answers_text += gettext(nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str());
+			//}
+			first_time = false;
+		} else {
+			//select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
+			cout << "searching for : " << mesg_key.str() << endl;
+			//if (ui_mode == Wt_Mode) {
+			//	select_answers_text += Wt::WString(", ").toUTF8() +  Wt::WString::tr(mesg_key.str()).toUTF8();
+			//} else {
+				//select_answers_text += gettext(mesg_key.str().c_str());
+				select_answers_text += gettext(nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str());
+			//}
+		}
+	}
+	//select_answers_text << nr_ptr->stubs[codeIndex_].stub_text;
+	//return select_answers_text.str();
+	return select_answers_text;
+}
+
+//Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
+string NamedStubQuestion::PrintSelectedAnswers(int code_index)
+{
+	//return string("hello");
+	//Wt::WString select_answers_text;
+	bool first_time = true;
+	//for (set<int32_t>::iterator inp_data_iter = input_data.begin();
+	//		inp_data_iter != input_data.end(); ++inp_data_iter) {
+	//	if (first_time) {
+	//		select_answers_text << nr_ptr->stubs[*inp_data_iter-1].stub_text;
+	//		first_time = false;
+	//	} else {
+	//		select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
+	//	}
+	//}
+	stringstream mesg_key;
+	mesg_key << nr_ptr->name << "_" << code_index ;
+	//select_answers_text << nr_ptr->stubs[code_index].stub_text;
+	//select_answers_text << WString::tr(mesg_key.str());
+	//return select_answers_text.str();
+	//if (ui_mode == Wt_Mode) {
+	//	Wt::WString w_str = Wt::WString::tr(mesg_key.str());
+	//	return w_str.toUTF8();
+	//} else {
+		//return string (gettext(mesg_key.str().c_str()));
+		return string (gettext( nr_ptr->stubs[code_index].stub_text.c_str() ));
+	//}
 }

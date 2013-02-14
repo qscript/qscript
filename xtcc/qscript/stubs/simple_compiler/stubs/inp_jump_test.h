@@ -26,7 +26,6 @@
 #include <dirent.h>
 
 
-#include "question_ncurses_runtime.h"
 #include "stub_pair.h"
 #include "AbstractStatement.h"
 #include "named_range.h"
@@ -46,9 +45,9 @@
 #include "QuestionAttributes.h"
 #include "UserResponse.h"
 using namespace std;
-string qscript_stdout_fname("qscript_stdout.log");
-FILE * qscript_stdout = 0;
 #include "debug_mem.h"
+
+#include "question_ncurses_runtime.h"
 
 // nxd: comment this out later to clean up
 using namespace std;
@@ -64,6 +63,8 @@ vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;
 vector <XtccDataFileDiskMap*> xtcc_question_disk_map;
 vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;
 
+extern FILE * qscript_stdout;
+
 fstream flat_file;
 fstream xtcc_datafile;
 fstream qtm_disk_file;
@@ -78,7 +79,7 @@ char * xtcc_datafile_output_buffer = 0;
 DIR * directory_ptr = 0;
 
 map<string, map<int, int> > freq_count;
-string jno = "vegetable";
+string jno = "inp_jump_test";
 string GenerateSessionId();
 
 vector <string> vec_language;
@@ -86,6 +87,8 @@ enum UI_Mode { NCurses_Mode, Microhttpd_Mode, Wt_Mode, Gtk_Mode};
 void SetupSignalHandler();
 static void sig_usr(int32_t signo);
 void load_languages_available(vector<string> & vec_language);
+namespace program_options_ns { bool flag_nice_map = true; }
+
 
 
 struct TheQuestionnaire
