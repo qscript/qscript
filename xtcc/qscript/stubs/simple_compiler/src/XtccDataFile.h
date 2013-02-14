@@ -4,6 +4,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <fstream>
 #include "question.h"
 
 class XtccDataFileDiskMap
@@ -29,9 +30,9 @@ public:
 		} else if (dt1 == DOUBLE_TYPE) {
 			width_ = 8;
 		} else {
-			cerr << "RUNTIME ERROR unhandled question type: "
+			std::cerr << "RUNTIME ERROR unhandled question type: "
 				<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
-				<< endl;
+				<< std::endl;
 		}
 		totalLength_ = q_->no_mpn * width_;
 	}
@@ -64,34 +65,34 @@ public:
 				*ptr ++ = * char_ptr ++;
 				*ptr ++ = * char_ptr ++;
 			} else if (q_->dt == FLOAT_TYPE) {
-				cerr << "file: " << __FILE__ << ", line: " << __LINE__
+				std::cerr << "file: " << __FILE__ << ", line: " << __LINE__
 					<< ", func: " << __PRETTY_FUNCTION__ 
 					<< ", unhandled question data type: float" 
-					<< endl;
+					<< std::endl;
 				exit(1);
 			} else if (q_->dt == DOUBLE_TYPE) {
-				cerr << "file: " << __FILE__ << ", line: " << __LINE__
+				std::cerr << "file: " << __FILE__ << ", line: " << __LINE__
 					<< ", func: " << __PRETTY_FUNCTION__ 
 					<< ", unhandled question data type: double" 
-					<< endl;
+					<< std::endl;
 				exit(1);
 			} else {
-				cerr << "file: " << __FILE__ << ", line: " << __LINE__
+				std::cerr << "file: " << __FILE__ << ", line: " << __LINE__
 					<< ", func: " << __PRETTY_FUNCTION__ 
 					<< ", unhandled question data type: else branch " 
-					<< endl;
+					<< std::endl;
 				exit(1);
 			}
 			++no_responses_written;
 			if (no_responses_written > q_->no_mpn)
 			{
-				cerr << " no of responses in question : " 
+				std::cerr << " no of responses in question : " 
 					<< q_->questionName_ << " exceeds no allocated ... exiting\n";
 				exit(1);
 			}
 		}
 	}
-	void print_map(fstream & map_file)
+	void print_map(std::fstream & map_file)
 	{
 		map_file << q_->questionName_;
 		if (q_->loop_index_values.size())
@@ -108,10 +109,10 @@ public:
 		map_file << start_pos + totalLength_ -1  << "\n";
 	}
 
-	void print_xtcc_ax(fstream & xtcc_ax_file, string setup_dir)
+	void print_xtcc_ax(std::fstream & xtcc_ax_file, string setup_dir)
 	{
 		xtcc_ax_file 
-			<< endl
+			<< std::endl
 			<< "ax " << q_->questionName_ ;
 
 		if (q_->loop_index_values.size())
@@ -121,14 +122,14 @@ public:
 				xtcc_ax_file << "_" << q_->loop_index_values[i];
 			}
 		}
-		xtcc_ax_file << ";" << endl
+		xtcc_ax_file << ";" << std::endl
 			<< "ttl; " << "\"" << q_->questionName_ 
 			<< "." 
 			<< q_->textExprVec_[0]->text_ 
 			<< "\";" 
-			<< endl << endl;
+			<< std::endl << std::endl;
 		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q_)) {
-			xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
+			xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << std::endl;
 			named_range * nr_ptr = nq->nr_ptr;
 			for (int i=0; i<nr_ptr->stubs.size(); ++i) {
 				xtcc_ax_file << "cnt; " << "\""
@@ -147,18 +148,18 @@ public:
 					xtcc_ax_file << "_data == "
 						<< nr_ptr->stubs[i].code 
 						<< ";" 
-						<< endl;
+						<< std::endl;
 				} else {
 					xtcc_ax_file << "_arr["
 						<< nr_ptr->stubs[i].code 
 						<< "]"
 						<< " > 0"
 						<< ";" 
-						<< endl;
+						<< std::endl;
 				}
 			}
 		} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(q_)) {
-			xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << endl;
+			xtcc_ax_file << "tot; " << "\"" << "Total" << "\";" << std::endl;
 			set<int32_t> & indiv = rq->r_data->indiv;
 			for (set<int32_t>::iterator it1 = indiv.begin();
 					it1 != indiv.end(); ++it1) {
@@ -177,12 +178,12 @@ public:
 				//xtcc_ax_file << "_data == "
 				//	<< *it1
 				//	<< ";" 
-				//	<< endl;
+				//	<< std::endl;
 				if (rq->no_mpn==1) { 
 					xtcc_ax_file << "_data == "
 						<< *it1
 						<< ";" 
-						<< endl;
+						<< std::endl;
 				} else {
 					xtcc_ax_file << "_arr["
 						<< *it1
@@ -190,7 +191,7 @@ public:
 						<< " == "
 						<< *it1
 						<< ";" 
-						<< endl;
+						<< std::endl;
 				}
 			}
 			vector < pair<int32_t,int32_t> > range
@@ -225,7 +226,7 @@ public:
 					xtcc_ax_file << "_data <= "
 						<< range[i].second
 						<< ";" 
-						<< endl;
+						<< std::endl;
 				}
 			} else {
 				xtcc_ax_file << "cnt; " << "\"all\"; c= all == 1;\n";
@@ -260,14 +261,14 @@ public:
 					xtcc_ax_file << "_arr <= "
 						<< range[i].second
 						<< ";" 
-						<< endl;
+						<< std::endl;
 				}
 				*/
 			}
 		}
 	}
 
-	void print_xtcc_tab(fstream & xtcc_ax_file, string setup_dir)
+	void print_xtcc_tab(std::fstream & xtcc_ax_file, string setup_dir)
 	{
 		xtcc_ax_file << "tab " << q_->questionName_ ;
 		if (q_->loop_index_values.size())
@@ -277,10 +278,10 @@ public:
 				xtcc_ax_file << "_" << q_->loop_index_values[i];
 			}
 		}
-		xtcc_ax_file << " " << "tot_ax;" << endl;
+		xtcc_ax_file << " " << "tot_ax;" << std::endl;
 	}
 
-	void print_xtcc_edit_load(fstream & xtcc_ax_file, string setup_dir)
+	void print_xtcc_edit_load(std::fstream & xtcc_ax_file, string setup_dir)
 	{
 		if (q_->no_mpn == 1) {
 			xtcc_ax_file << "\t"
@@ -296,7 +297,7 @@ public:
 			xtcc_ax_file 	<< "_data = c [" 
 				<< start_pos  << ", " 
 				<< start_pos + totalLength_ - 1
-				<< "];" <<endl;
+				<< "];" <<std::endl;
 		} else {
 			xtcc_ax_file << "\t"
 				<< "fld " 
@@ -311,13 +312,13 @@ public:
 			xtcc_ax_file << "_arr = c (" 
 				<< start_pos  << ", " 
 				<< start_pos + totalLength_ -1
-				<< ") : "  << width_ << ";" << endl;
+				<< ") : "  << width_ << ";" << std::endl;
 		}
 	}
 
-	void print_edit_var_defns(fstream & xtcc_ax_file, string setup_dir)
+	void print_edit_var_defns(std::fstream & xtcc_ax_file, string setup_dir)
 	{
-		stringstream var_type_str;
+		std::stringstream var_type_str;
 		if (q_->dt == INT8_TYPE) {
 			var_type_str << "int8_t";
 		} else if (q_->dt == INT16_TYPE) {
@@ -332,8 +333,8 @@ public:
 			var_type_str << "file: " << __FILE__ << ", line: " << __LINE__
 				<< ", func: " << __PRETTY_FUNCTION__ 
 				<< ", unhandled question data type: else branch " 
-				<< endl;
-			cerr  << var_type_str.str() << endl;
+				<< std::endl;
+			std::cerr  << var_type_str.str() << std::endl;
 			exit(1);
 		}
 
@@ -350,7 +351,7 @@ public:
 				}
 			}
 			xtcc_ax_file << "_data;"
-				<< endl;
+				<< std::endl;
 		} else {
 			xtcc_ax_file 
 				<< var_type_str.str()
@@ -366,7 +367,7 @@ public:
 			xtcc_ax_file << "_arr["
 				<< q_->maxCode_+1
 				<< "]"
-				<< ";" << endl;
+				<< ";" << std::endl;
 		}
 	}
 

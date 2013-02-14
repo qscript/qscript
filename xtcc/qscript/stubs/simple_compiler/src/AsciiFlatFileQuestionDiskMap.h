@@ -4,6 +4,8 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include <fstream>
+#include <iostream>
 #include "question.h"
 
 class AsciiFlatFileQuestionDiskMap
@@ -61,7 +63,7 @@ class AsciiFlatFileQuestionDiskMap
 			}
 			else
 			{
-				cout << " max_code " << max_code << " for question: " << q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " << __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
+				std::cout << " max_code " << max_code << " for question: " << q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " << __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << std::endl;
 				exit(1);
 			}
 			total_length = width * q->no_mpn;
@@ -82,7 +84,7 @@ class AsciiFlatFileQuestionDiskMap
 				int jump_delta = width;
 				if (code_str.str().length() > width)
 				{
-					cerr << " internal programming error - width of code exceeds width allocated ... exiting\n";
+					std::cerr << " internal programming error - width of code exceeds width allocated ... exiting\n";
 					exit(1);
 				}
 				else if (code_str.str().length() < width) {
@@ -109,12 +111,12 @@ class AsciiFlatFileQuestionDiskMap
 				++no_responses_written;
 				if (no_responses_written > q->no_mpn)
 				{
-					cerr << " no of responses in question : " << q->questionName_ << " exceeds no allocated ... exiting\n";
+					std::cerr << " no of responses in question : " << q->questionName_ << " exceeds no allocated ... exiting\n";
 					exit(1);
 				}
 			}
 		}
-		void print_map(fstream & map_file)
+		void print_map(std::fstream & map_file)
 		{
 			map_file << q->questionName_;
 			if (q->loop_index_values.size())
@@ -130,9 +132,9 @@ class AsciiFlatFileQuestionDiskMap
 			map_file << start_pos+1 << ",	";
 			map_file << start_pos + total_length  << "\n";
 		}
-		void write_spss_pull_data(fstream & spss_syn_file)
+		void write_spss_pull_data(std::fstream & spss_syn_file)
 		{
-			stringstream var_name;
+			std::stringstream var_name;
 			var_name << q->questionName_;
 			if (q->loop_index_values.size())
 			{
@@ -155,9 +157,9 @@ class AsciiFlatFileQuestionDiskMap
 			//spss_syn_file << width << ",	";
 			//spss_syn_file << q->no_mpn << ",	";
 		}
-		void write_spss_variable_labels(fstream & spss_syn_file)
+		void write_spss_variable_labels(std::fstream & spss_syn_file)
 		{
-			stringstream var_name;
+			std::stringstream var_name;
 			var_name << q->questionName_;
 			if (q->loop_index_values.size())
 			{
@@ -170,18 +172,18 @@ class AsciiFlatFileQuestionDiskMap
 				for(int i=0; i<q->no_mpn; ++i) {
 					spss_syn_file << "variable label ";
 					spss_syn_file << var_name.str() << "_" << i+1;
-					spss_syn_file << " \"" << q->textExprVec_[0]->text_ << "\"." << endl;
+					spss_syn_file << " \"" << q->textExprVec_[0]->text_ << "\"." << std::endl;
 				}
 			} else {
 				spss_syn_file << "variable label ";
 				spss_syn_file << var_name.str();
-				spss_syn_file << " \"" << q->textExprVec_[0]->text_ << "\"." << endl;
+				spss_syn_file << " \"" << q->textExprVec_[0]->text_ << "\"." << std::endl;
 			}
 
 		}
-		void write_spss_value_labels(fstream & spss_syn_file)
+		void write_spss_value_labels(std::fstream & spss_syn_file)
 		{
-			stringstream var_name;
+			std::stringstream var_name;
 			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
 				
 				var_name << q->questionName_;
@@ -200,16 +202,16 @@ class AsciiFlatFileQuestionDiskMap
 					spss_syn_file << "value label ";
 					spss_syn_file << var_name.str();
 				}
-				spss_syn_file << endl;
+				spss_syn_file << std::endl;
 				for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
 					spss_syn_file 
 						<< n_q->nr_ptr->stubs[i].code
 						<< " \""
 						<< n_q->nr_ptr->stubs[i].stub_text
 						<< " \""
-						<< endl;
+						<< std::endl;
 				}
-				spss_syn_file << "." << endl; 
+				spss_syn_file << "." << std::endl; 
 
 			}
 		}
