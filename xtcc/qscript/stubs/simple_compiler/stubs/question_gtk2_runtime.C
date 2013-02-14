@@ -1,0 +1,853 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  question_gtk2_runtime.C
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  Thursday 14 February 2013 10:20:41  IST
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  YOUR NAME (), 
+ *        Company:  
+ *
+ * =====================================================================================
+ */
+
+#include <locale.h>
+#include <libintl.h>
+#include <gtk/gtk.h>
+#include <cstdlib>
+#include <iostream>
+#include <vector>
+#include <map>
+#include <string>
+
+// need to fix this later
+using namespace std;
+
+#include "inp_jump_test.h"
+
+
+struct Session
+{
+	/**
+	 * We keep all sessions in a linked list.
+	 */
+	struct Session *next;
+	/**
+	 * Unique ID for this session.
+	 */
+	char sid[50];
+	/**
+	 * Reference counter giving the number of connections
+	 * currently using this session.
+	 */
+	unsigned int rc;
+	/**
+	 * Time when this session was last active.
+	 */
+	time_t start;
+
+	struct TheQuestionnaire * questionnaire;
+	char last_question_answered[200];
+	char last_question_visited[200];
+	char question_response[200];
+	char user_navigation[200];
+	AbstractQuestion * last_question_served;
+	AbstractQuestion * ptr_last_question_answered;
+	AbstractQuestion * ptr_last_question_visited;
+	Session()
+		: start(time(NULL)),
+		questionnaire(new TheQuestionnaire()),
+		rc(1), last_question_served(0),
+		ptr_last_question_answered(0),
+		ptr_last_question_visited(0)
+	{
+		snprintf (sid,
+			sizeof (sid),
+			"%X%X%X%X",
+			(unsigned int) random (),
+			(unsigned int) random (),
+			(unsigned int) random (),
+			(unsigned int) random ());
+		memset(last_question_answered, 0, sizeof(last_question_answered));
+		memset(last_question_visited, 0, sizeof(last_question_visited));
+	}
+	~Session()
+	{
+		delete questionnaire;
+		questionnaire = 0;
+	}
+};
+
+static struct Session *sessions;
+vector <Session*> wt_sessions;
+class GtkQuestionnaireApplication;
+
+struct GtkRadioButtonData
+{
+	int selectedCode_;
+	GtkQuestionnaireApplication * qApp_;
+	GtkRadioButtonData (int data, GtkQuestionnaireApplication * p_qapp)
+		: selectedCode_ (data), qApp_ (p_qapp)
+		{ }
+};
+
+class GtkQuestionnaireApplication
+{
+	public:
+		GtkWidget * window , * top_half , * bottom_half ;
+		GtkQuestionnaireApplication (int argc, char * argv[]);
+		void SetupGTK (int argc, char * argv[]);
+		int rb_selected_code;
+	private:
+		GtkWidget * wt_debug_;
+		GtkWidget * wt_questionText_;
+		GtkWidget * le_data_;
+		GtkWidget * wt_lastQuestionVisited_;
+		GtkWidget * wt_cb_rb_container_;
+		GtkWidget * wt_rb_container_;
+
+		GtkWidget * questionTextLabel_;
+
+		vector<GtkWidget*> vec_rb;
+		vector<GtkRadioButtonData*> rbData_;
+		vector<GtkWidget*> vec_cb;
+		std::map<int, int> map_cb_code_index;
+		std::vector<GtkWidget *> languageSelects_;
+
+		GtkWidget *vbox , *hbox ;
+		GtkWidget * entry ;
+		//GtkWidget * button ;
+		GtkWidget * check ;
+		GtkWidget * rb ;
+		GtkWidget * next_button ;
+
+		GtkWidget * viewPort_;
+		GtkWidget * currentForm_;
+		GtkWidget * formContainer_;
+		GSList * gtkRadioButtonGroup_;
+
+		GtkWidget * bottomHalfVBox_, * bottomHalfNavigationBox_;
+
+		int ser_no;
+		GtkWidget * serialPage_;
+		bool flagSerialPageRemoved_;
+		Session * this_users_session;
+		string sess_id ;
+
+		void display();
+		void changeLanguage();
+		void setLanguage(const std::string lang);
+		void ConstructQuestionForm(
+			AbstractQuestion *q, Session * this_users_session);
+		void ConstructThankYouPage();
+		const char * software_info();
+		void CreateBottomHalf();
+		void DestroyPreviousWidgets ();
+	public:
+		void DoQuestionnaire() ;
+		void ValidateSerialNo();
+		//virtual ~GtkQuestionnaireApplication();
+		void get_serial_no_gtk ();
+};
+
+void GtkQuestionnaireApplication::DestroyPreviousWidgets ()
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	if (questionTextLabel_)
+	{
+		gtk_widget_destroy (questionTextLabel_) ;
+		questionTextLabel_ = 0;
+	}
+	if (vec_rb.size() > 0)
+	{
+		// put clear / destroy previous widget code here
+		for (int i=0; i<vec_rb.size(); ++i)
+		{
+			gtk_widget_destroy (vec_rb[i]);
+		}
+		vec_rb.clear();
+	}
+	if (vec_cb.size() > 0)
+	{
+		// put clear / destroy previous widget code here
+		for (int i=0; i<vec_cb.size(); ++i)
+		{
+			gtk_widget_destroy (vec_cb[i]);
+		}
+		vec_cb.clear();
+	}
+	if (next_button)
+	{
+		gtk_widget_destroy (next_button);
+		next_button = 0;
+	}
+	if (le_data_)
+	{
+		gtk_widget_destroy (le_data_);
+		le_data_ = 0;
+	}
+}
+
+
+gint delete_event (GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	/*
+	 *
+	 *
+	 *
+	 *
+	If you return FALSE in the "delete_event" signal handler,
+	GTK will emit the "destroy" signal. Returning TRUE means
+	you dont want the window to be destroyed.
+	This is useful for popping up are you sure you want to quit?
+	type dialogs. */
+	g_print ("delete event occurred\n");
+	/* Change TRUE to FALSE and the main window will be destroyed with
+	 * a "delete_event". */
+	return FALSE;
+}
+
+
+/* Anothe callback */
+void destroy( GtkWidget *widget, gpointer data )
+{
+	gtk_main_quit ();
+}
+
+
+GtkWidget * CreateTopHalf()
+{
+	GtkWidget * scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+		GTK_POLICY_AUTOMATIC,
+		GTK_POLICY_AUTOMATIC);
+	return scrolled_window;
+}
+
+
+void GtkQuestionnaireApplication::CreateBottomHalf()
+{
+	//GtkWidget *scrolled_window;
+	//GtkWidget *view;
+	//GtkTextBuffer *buffer;
+	//view = gtk_text_view_new ();
+	//buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW (view));
+	bottom_half = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (bottom_half),
+		GTK_POLICY_AUTOMATIC,
+		GTK_POLICY_AUTOMATIC);
+	//gtk_container_add (GTK_CONTAINER (scrolled_window), view);
+	bottomHalfVBox_ = gtk_vbox_new (FALSE, 0);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfVBox_);
+	gtk_widget_show (bottomHalfVBox_);
+	//insert_text (buffer);
+	gtk_widget_show_all (bottom_half);
+	//return scrolled_window;
+	bottomHalfNavigationBox_ = gtk_vbox_new (FALSE, 0);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfNavigationBox_);
+	gtk_widget_show (bottomHalfNavigationBox_);
+}
+
+
+GtkQuestionnaireApplication::GtkQuestionnaireApplication (int argc, char * argv[])
+{
+	SetupGTK (argc, argv);
+}
+
+
+void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
+{
+	questionTextLabel_ = 0;
+	next_button = 0;
+	le_data_ = 0;
+	gtk_init (&argc, &argv);
+	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title (GTK_WINDOW (window), "Paned Windows");
+	/* Sets the border width of the window. */
+	gtk_container_set_border_width (GTK_CONTAINER (window), 10);
+	gtk_widget_set_size_request (GTK_WIDGET (window), 800, 600);
+	g_signal_connect (G_OBJECT (window), "delete_event",
+		G_CALLBACK (delete_event), NULL);
+	/* Here we connect the "destroy" event to a signal handler.
+	 * This event occurs when we call gtk_widget_destroy() on the window,
+	 * or if we return FALSE in the "delete_event" callback. */
+	g_signal_connect (G_OBJECT (window), "destroy",
+		G_CALLBACK (destroy), NULL);
+	// ============================
+	/* create a vpaned widget and add it to our toplevel window */
+	GtkWidget * vpaned = gtk_vpaned_new ();
+	gtk_container_add (GTK_CONTAINER (window), vpaned);
+	gtk_widget_show (vpaned);
+	/* Now create the contents of the two halves of the window */
+	/* GtkWidget *  */ top_half = CreateTopHalf ();
+	gtk_paned_add1 (GTK_PANED (vpaned), top_half);
+	gtk_widget_show (top_half);
+	/*  GtkWidget *   bottom_half =*/ CreateBottomHalf ();
+	gtk_paned_add2 (GTK_PANED (vpaned), bottom_half);
+	gtk_widget_show (bottom_half);
+	gtk_widget_show (window);
+	// ============================
+	get_serial_no_gtk();
+
+	// Setup the session
+	string sess_id = GenerateSessionId();
+	this_users_session = new Session();
+	strcpy (this_users_session->sid, sess_id.c_str());
+	wt_sessions.push_back(this_users_session);
+}
+
+
+void enter_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp)
+{
+	const gchar *entry_text;
+	entry_text = gtk_entry_get_text (GTK_ENTRY (widget));
+	printf("Entry contents: %s\n", entry_text);
+
+	qapp->ValidateSerialNo ();
+	//theQuestionnaire.eval();
+}
+
+
+void line_edit_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp)
+{
+	const gchar *entry_text;
+	entry_text = gtk_entry_get_text (GTK_ENTRY (widget));
+	printf("Entry contents: %s\n", entry_text);
+
+	//theQuestionnaire.eval();
+}
+
+
+void GtkQuestionnaireApplication::get_serial_no_gtk ()
+{
+	printf ("called: %s\n", __PRETTY_FUNCTION__);
+	gint tmp_pos;
+
+	vbox = gtk_vbox_new (FALSE, 0);
+	//gtk_container_add (GTK_CONTAINER (top_half), vbox);
+	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), vbox);
+	gtk_widget_show (vbox);
+
+	entry = gtk_entry_new ();
+	gtk_entry_set_max_length (GTK_ENTRY (entry), 50);
+	g_signal_connect (G_OBJECT (entry), "activate",
+		G_CALLBACK (enter_callback),
+		(gpointer) this);
+	gtk_entry_set_text (GTK_ENTRY (entry), "hello");
+	tmp_pos = GTK_ENTRY (entry)-> text_length;
+	gtk_editable_insert_text (GTK_EDITABLE (entry), " world", -1, &tmp_pos);
+	gtk_editable_select_region (GTK_EDITABLE (entry),
+		0, GTK_ENTRY (entry)-> text_length);
+	gtk_box_pack_start (GTK_BOX (vbox), entry, TRUE, TRUE, 0);
+	gtk_widget_show (entry);
+
+}
+
+
+void GtkQuestionnaireApplication::ValidateSerialNo()
+{
+	int l_ser_no = -1;
+	const gchar * entry_text = gtk_entry_get_text (GTK_ENTRY (entry));
+	string narrow_text (entry_text);
+	if (narrow_text.length() == 0 || narrow_text.length() > 7)
+	{
+		//le_data_->setText("You have entered a very long serial number");
+	}
+	else
+	{
+		l_ser_no = strtol (narrow_text.c_str(), 0, 10);
+		if (l_ser_no > 0)
+		{
+			ser_no = l_ser_no;
+			this_users_session->questionnaire->ser_no = l_ser_no;
+			int exists = check_if_reg_file_exists (jno, ser_no);
+			cout << "checking if serial no : " << ser_no
+				<< ", jno: " << jno << " exists: " << exists << endl;
+
+			if(exists == 1)
+			{
+				map <string, question_disk_data*>  qdd_map;
+				load_data(jno, ser_no, &qdd_map);
+				merge_disk_data_into_questions2(qscript_stdout,
+					this_users_session->questionnaire->last_question_answered,
+					this_users_session->questionnaire->last_question_visited,
+					this_users_session->questionnaire->question_list,
+					&qdd_map);
+				for (map<string, question_disk_data*>:: iterator it
+					= qdd_map.begin();
+					it != qdd_map.end();
+					++it)
+				{
+					delete it->second;
+				}
+			}
+			DoQuestionnaire();
+		}
+		else
+		{
+			//le_data_->setText("You have entered a  negative number");
+		}
+	}
+}
+
+
+string GenerateSessionId()
+{
+	srand(time(0));
+	char buffer[50];
+	sprintf (buffer, "%010d%010d%010d%010d", rand(), rand(), rand(), rand());
+	return string(buffer);
+}
+
+
+bool verify_web_data (std::string p_question_data,
+UserNavigation p_user_navigation,
+user_response::UserResponseType p_the_user_response,
+std::vector<int> * data_ptr);
+void GtkQuestionnaireApplication::DoQuestionnaire()
+{
+	//if (!wt_questionText_) {
+	//	wt_questionText_ = new WText(root());
+	//}
+	cout << "Data for ser_no: " << ser_no << endl;
+	for(int32_t i = 0; i < this_users_session->questionnaire->question_list.size(); ++i)
+	{
+		cout << this_users_session->questionnaire->question_list[i]->questionName_;
+		for( set<int32_t>::iterator iter = this_users_session->questionnaire->question_list[i]->input_data.begin();
+			iter != this_users_session->questionnaire->question_list[i]->input_data.end(); ++iter)
+		{
+			cout << " " << *iter;
+		}
+		cout << "\n";
+	}
+	static int counter = 0;
+	stringstream s;
+	s << "reached DoQuestionnaire: " << counter++;
+	//wt_debug_->setText(s.str());
+	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
+	//string display_text = string("Session Id:") + sess_id;
+	//wt_questionText_->setText(display_text);
+	// put this code later
+	string err_mesg, re_arranged_buffer;
+	int32_t pos_1st_invalid_data;
+	if (this_users_session->last_question_served)
+		s << "last_question_served: " << this_users_session->last_question_served->questionName_ ;
+	cout << s.str() << endl;
+	//wt_debug_->setText(s.str());
+	if (this_users_session->last_question_served)
+	{
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session->last_question_served))
+		{
+			AbstractQuestion * last_question_served = this_users_session->last_question_served;
+			vector<int32_t> data;
+			bool isAnswered = false;
+			cout << "returned back data from question: " << nq->questionName_ << endl;
+			if (last_question_served->no_mpn == 1)
+			{
+				if (rb_selected_code != -1)
+				{
+					isAnswered = true;
+					//int code = wt_rb_container_->checkedId();
+					cout << "no_mpn == 1, code: " << rb_selected_code << endl;
+					data.push_back(rb_selected_code);
+				}
+				else
+				{
+					isAnswered = false;
+				}
+			}
+			else
+			{
+				cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
+				for (int i = 0; i < vec_cb.size(); ++i)
+				{
+					//if (vec_cb[i]->checkState() == Wt::Checked)
+					//{
+					//	int code = map_cb_code_index[i];
+					//	data.push_back(code);
+					//	cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
+					//	isAnswered = true;
+					//}
+					if (gtk_toggle_button_get_active ((GtkToggleButton *) vec_cb[i]) )
+					{
+						int code = map_cb_code_index[i];
+						data.push_back(code);
+						isAnswered = true;
+						cout << "button is toggled: " << code << endl;
+					}
+				}
+			}
+			if (isAnswered)
+			{
+				bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+					&data);
+				if (invalid_code == false)
+				{
+					//last_question_served->input_data.erase
+					//	(last_question_served->input_data.begin(),
+					//	last_question_served->input_data.end());
+					last_question_served->input_data.clear();
+					for(uint32_t i = 0; i < data.size(); ++i)
+					{
+						last_question_served->input_data.insert(data[i]);
+						cout << "storing: " << data[i]
+							<< " into input_data" << endl;
+					}
+					last_question_served->isAnswered_ = true;
+					data.clear();
+				}
+			}
+			// do something with isAnswered_ == false here and resend the
+			// qnre to the respondent
+		}
+		else
+		{
+
+			const gchar *entry_text = gtk_entry_get_text (GTK_ENTRY (le_data_));
+			string last_question_served_response (entry_text);
+			AbstractQuestion * last_question_served = this_users_session->last_question_served;
+			if (/* last_question_visited_str != "" &&  */ last_question_served_response != "" && last_question_served->no_mpn==1)
+			{
+				UserNavigation user_nav=NOT_SET;
+				user_response::UserResponseType user_resp=user_response::NotSet;
+				vector<int32_t> data;
+				bool parse_success = verify_web_data (last_question_served_response, user_nav, user_resp, &data);
+				if (parse_success)
+				{
+					cout << "successfully parsed data = ";
+					for (int i=0; i<data.size(); ++i)
+					{
+						cout << data[i] << ", ";
+					}
+					cout << endl;
+				}
+				// the call below will be required at some later stage
+				//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+				// right now we go along with the happy path
+				bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+					&data);
+				if (invalid_code == false)
+				{
+					last_question_served->input_data.erase
+						(last_question_served->input_data.begin(),
+						last_question_served->input_data.end());
+					for(uint32_t i = 0; i < data.size(); ++i)
+					{
+						last_question_served->input_data.insert(data[i]);
+						//cout << "storing: " << data[i]
+						//	<< " into input_data" << endl;
+					}
+					last_question_served->isAnswered_ = true;
+					data.clear();
+				}
+				else
+				{
+					ConstructQuestionForm(last_question_served, this_users_session);
+					return;
+				}
+			}
+			else if (/* last_question_visited_str != "" &&  */ last_question_served_response != "" && last_question_served->no_mpn > 1)
+			{
+				//string utf8_response = le_data_->text().toUTF8();
+				if (last_question_served_response != "")
+				{
+					stringstream file_name_str;
+					file_name_str << last_question_served->questionName_ << "."
+						<< jno << "_" << ser_no << ".dat";
+
+					fstream open_end_resp(file_name_str.str().c_str(), ios_base::out|ios_base::ate);
+					open_end_resp << last_question_served_response << endl;
+					last_question_served->input_data.insert(96);
+					last_question_served->isAnswered_ = true;
+				}
+				else
+				{
+					ConstructQuestionForm(last_question_served, this_users_session);
+					return;
+				}
+			}
+		}
+	}
+	{
+		TheQuestionnaire * qnre = this_users_session->questionnaire;
+		qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
+	}
+	AbstractQuestion * q =
+		this_users_session->questionnaire->eval2(
+		qnre_navigation_mode);
+	this_users_session->last_question_served = q;
+	if (q)
+	{
+		ConstructQuestionForm(q, this_users_session);
+	}
+	else
+	{
+		//TheQuestionnaire * qnre = this_users_session->questionnaire;
+		//qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
+		//ConstructThankYouPage();
+		cout << "End of qnre" << endl;
+	}
+}
+
+
+void next_button_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp)
+{
+	//g_print ("Next button was pressed", (char *) data);
+	qapp->DoQuestionnaire();
+}
+
+
+void toggle_rb_button_event (GtkWidget *widget, GtkRadioButtonData * rb_data)
+{
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (widget)))
+	{
+		/* If control reaches here, the toggle button is down */
+		rb_data->qApp_->rb_selected_code  = rb_data -> selectedCode_;
+	}
+	else
+	{
+		/* If control reaches here, the toggle button is up */
+	}
+	g_print ("Toggle event occured %d",  rb_data -> selectedCode_);
+}
+
+
+void GtkQuestionnaireApplication::ConstructQuestionForm(
+AbstractQuestion *q, Session * this_users_session)
+{
+	map_cb_code_index.clear();
+	//WContainerWidget * new_form = new WContainerWidget();
+	//vec_rb.clear();				 // memory leak introduced here? no it seems
+	//vec_cb.clear();				 // memory leak introduced here? no it seems
+	//map_cb_code_index.clear();
+
+	//wt_questionText_ = new WText();
+	//wt_questionText_->setText(q->textExprVec_[0]->text_);
+	string question_text;
+	stringstream part_mesg_id;
+	//WString question_text;
+	part_mesg_id << q->questionName_;
+	for (int i=0; i<q->loop_index_values.size(); ++i)
+	{
+		part_mesg_id << "_" << q->loop_index_values[i];
+	}
+	//WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);
+	for (int i=0; i<q->textExprVec_.size(); ++i)
+	{
+		//question_text += "<p>";
+		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
+		{
+			stringstream mesg_id;
+			mesg_id << part_mesg_id.str() << "_" << i;
+			//question_text += string (gettext(mesg_id.str().c_str()));
+			question_text += string (gettext(q->textExprVec_[0]->text_.c_str()));
+		}
+		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
+		{
+			//stringstream named_attribute_key;
+			//named_attribute_key << q->textExprVec_[i]->naPtr_->name;
+			//named_attribute_key << "_" << q->textExprVec_[i]->naIndex_;
+			//question_text += string(gettext(named_attribute_key.str().c_str()));
+			question_text += string(" FIXME : BUG that I didnt notice. Need to create a map of <string, named_attribute_list>   to solve this problem, where the first string is the name of the named_attribute_list");
+		}
+		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)
+		{
+			if (q->textExprVec_[i]->codeIndex_ != -1)
+			{
+				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);
+			}
+			else
+			{
+				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+			}
+		}
+		//question_text += "</p>";
+	}
+	#if 0
+	wt_questionText_->setText(question_text);
+
+	new_form->addWidget(wt_questionText_);
+	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
+	{
+		new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());
+		if (q->no_mpn==1)
+		{
+			wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
+		}
+		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+		for (int i=0; i<vec.size(); ++i)
+		{
+			stringstream named_range_key;
+			named_range_key << nq->nr_ptr->name << "_" << i;
+			if (q->no_mpn==1 && vec[i].mask)
+			{
+				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
+				WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+				wt_rb_container_->addButton(wt_rb, vec[i].code);
+				new WBreak(wt_cb_rb_container_);
+				vec_rb.push_back(wt_rb);
+			}
+			else if (q->no_mpn>1 && vec[i].mask)
+			{
+				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
+				WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+				vec_cb.push_back(wt_cb);
+				cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
+				map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+			}
+		}
+		new_form->addWidget(wt_cb_rb_container_);
+	}
+	else
+	{
+		le_data_ = new WLineEdit();
+		new_form->addWidget(le_data_);
+	}
+
+	wt_lastQuestionVisited_ = new WText();
+	if (this_users_session->last_question_answered)
+		wt_lastQuestionVisited_->setText(q->questionName_);
+	new_form->addWidget(wt_lastQuestionVisited_);
+
+	// create a button
+	WPushButton *b = new WPushButton("Next");
+	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);
+	new_form->addWidget(b);
+
+	setCentralWidget(new_form);
+	#endif						 /* 0 */
+	//gtk_widget_hide_all (top_half);
+	gtk_widget_hide( entry);
+
+	DestroyPreviousWidgets ();
+	questionTextLabel_ = gtk_label_new (question_text.c_str());
+	//gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), questionTextLabel_);
+	gtk_box_pack_start (GTK_BOX (vbox), questionTextLabel_, TRUE, TRUE, 0);
+	gtk_widget_show(questionTextLabel_);
+	gtk_widget_show (top_half);
+
+	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
+	{
+		//new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());
+		if (q->no_mpn==1)
+		{
+			//wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
+			rb_selected_code = -1;
+			rb = gtk_radio_button_new_with_label (NULL, "Dummy - for default unselected - should never display");
+			gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+			GtkRadioButtonData * rb_data = new GtkRadioButtonData (0, this);
+			rbData_.push_back (rb_data);
+			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb), TRUE);
+			gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+			//g_signal_connect (G_OBJECT (rb), "toggled",
+			//	G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
+			// purposely dont do a show . Make it default selected
+		}
+		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+		bool rb_group_was_created = false;
+		for (int i=0; i<vec.size(); ++i)
+		{
+			stringstream named_range_key;
+			named_range_key << nq->nr_ptr->name << "_" << i;
+			if (q->no_mpn == 1 && vec[i].mask)
+			{
+				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
+				//WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+				//wt_rb_container_->addButton(wt_rb, vec[i].code);
+				//new WBreak(wt_cb_rb_container_);
+				//if (!rb_group_was_created) {
+				rb = gtk_radio_button_new_with_label (gtkRadioButtonGroup_, vec[i].stub_text.c_str());
+				gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+				gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+				GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
+				rbData_.push_back (rb_data);
+				g_signal_connect (G_OBJECT (rb), "toggled",
+					G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
+				gtk_widget_show (rb);
+				//gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+				//rb_group_was_created = true;
+				//} else {
+				//	rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), vec[i].stub_text.c_str());
+				//	GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
+				//	rbData_.push_back (rb_data);
+				//	g_signal_connect (G_OBJECT (rb), "toggled",
+				//		G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
+				//	gtk_widget_show (rb);
+				//	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+				//}
+				vec_rb.push_back (rb);
+			}
+			if (q->no_mpn>1 && vec[i].mask)
+			{
+				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
+				//WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+				//vec_cb.push_back(wt_cb);
+				//cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
+				GtkWidget * cb = gtk_check_button_new_with_label (vec[i].stub_text.c_str());
+				GtkRadioButtonData * cb_data = new GtkRadioButtonData (vec[i].code, this);
+				rbData_.push_back (cb_data);
+				g_signal_connect (G_OBJECT (cb), "toggled",
+					G_CALLBACK (toggle_rb_button_event), (gpointer) cb_data);
+				gtk_widget_show (cb);
+				gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), cb, TRUE, TRUE, 0);
+				//!! Warning - the 2 statements below have to be in this order
+				// and are not interchangeable
+				vec_cb.push_back (cb);
+				map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+			}
+		}
+		//new_form->addWidget(wt_cb_rb_container_);
+	}
+	else
+	{
+		le_data_ = gtk_entry_new ();
+		gtk_entry_set_max_length (GTK_ENTRY (entry), 50);
+		g_signal_connect (G_OBJECT (le_data_), "activate", G_CALLBACK (line_edit_callback), (gpointer) this);
+		gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), le_data_, TRUE, TRUE, 0);
+		gtk_widget_show (le_data_);
+	}
+	next_button = gtk_button_new_with_label ("Next");
+	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), next_button, TRUE, TRUE, 0);
+	gtk_widget_show (next_button);
+
+	/* When the button is clicked, we call the "callback" function
+	 * with a pointer to "button 1" as its argument */
+	g_signal_connect (G_OBJECT (next_button), "clicked",
+		G_CALLBACK (next_button_callback), (gpointer) this);
+}
+
+
+UI_Mode ui_mode = Gtk_Mode ;
+
+int main(int argc, char ** argv)
+{
+	setlocale( LC_ALL, "" );
+	bindtextdomain( "vegetable", "/usr/share/locale" );
+	textdomain( "vegetable" );
+	//process_options(argc, argv);
+	if (write_data_file_flag||write_qtm_data_file_flag)
+	{
+		qtm_data_file_ns::init_exceptions();
+		directory_ptr = opendir(".");
+		if (! directory_ptr)
+		{
+			cout << " unable to open . (current directory) for reading\n";
+			exit(1);
+		}
+	}
+	load_languages_available(vec_language);
+	bool using_ncurses = true;
+	qscript_stdout = fopen(qscript_stdout_fname.c_str(), "w");
+	SetupSignalHandler();
+	GtkQuestionnaireApplication gtkQuestionnaireApplication (argc, argv);
+	//TheQuestionnaire theQuestionnaire;
+	//get_serial_no_gtk (theQuestionnaire);
+	gtk_main ();
+
+	//return WRun (argc, argv, &createApplication);
+}
