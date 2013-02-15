@@ -845,7 +845,7 @@ void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 	}
 }
 
-
+#if 0
 Wt::WString NamedStubQuestion::PrintSelectedAnswers()
 {
 	//return string("hello");
@@ -894,17 +894,22 @@ Wt::WString NamedStubQuestion::PrintSelectedAnswers(int code_index)
 	//return select_answers_text.str();
 	return Wt::WString::tr(mesg_key.str());
 }
+#endif /*  0 */
 
 
-Wt::WString RangeQuestion::PrintSelectedAnswers()
+//Wt::WString RangeQuestion::PrintSelectedAnswers()
+string RangeQuestion::PrintSelectedAnswers()
 {
-	return Wt::WString("hello");
+	//return Wt::WString("hello");
+	return string("hello");
 }
 
 
-Wt::WString RangeQuestion::PrintSelectedAnswers (int code_index)
+//Wt::WString RangeQuestion::PrintSelectedAnswers (int code_index)
+string RangeQuestion::PrintSelectedAnswers (int code_index)
 {
-	return Wt::WString("hello");
+	//return Wt::WString("hello");
+	return string("hello");
 }
 
 void NamedStubQuestion::MakeDisplaySummaryDataRanges()

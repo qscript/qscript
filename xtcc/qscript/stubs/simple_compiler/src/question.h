@@ -183,8 +183,10 @@ struct AbstractQuestion: public AbstractStatement
 	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
 	int32_t GetMaxCode();
 	bool VerifyQuestionIntegrity();
-	virtual Wt::WString PrintSelectedAnswers()=0;
-	virtual Wt::WString PrintSelectedAnswers(int code_index)=0;
+	//virtual Wt::WString PrintSelectedAnswers()=0;
+	//virtual Wt::WString PrintSelectedAnswers(int code_index)=0;
+	virtual string PrintSelectedAnswers()=0;
+	virtual string PrintSelectedAnswers(int code_index)=0;
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
@@ -281,8 +283,10 @@ struct RangeQuestion: public AbstractQuestion
 
 	void MakeDisplaySummaryDataRanges();
 
-	Wt::WString PrintSelectedAnswers();
-	Wt::WString PrintSelectedAnswers(int code_index);
+	//Wt::WString PrintSelectedAnswers();
+	//Wt::WString PrintSelectedAnswers(int code_index);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
 	~RangeQuestion();
 	private:
 		RangeQuestion& operator=(const RangeQuestion&);
@@ -368,8 +372,10 @@ class NamedStubQuestion: public AbstractQuestion
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
 		  , /*qs_ncurses::*/WINDOW* data_entry_window);
 	void WriteDataToDisk(ofstream& data_file);
-	Wt::WString PrintSelectedAnswers();
-	Wt::WString PrintSelectedAnswers(int code_index);
+	//Wt::WString PrintSelectedAnswers();
+	//Wt::WString PrintSelectedAnswers(int code_index);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
 	//AbstractQuestion* IsAQuestionStatement(){
 	//	return this;
 	//}
@@ -439,8 +445,10 @@ class DummyArrayQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
-	Wt::WString PrintSelectedAnswers();
-	Wt::WString PrintSelectedAnswers(int code_index);
+	//Wt::WString PrintSelectedAnswers();
+	//Wt::WString PrintSelectedAnswers(int code_index);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
 	private:
 		DummyArrayQuestion& operator=(const DummyArrayQuestion&);
 		DummyArrayQuestion (const DummyArrayQuestion&);

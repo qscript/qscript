@@ -306,6 +306,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <cctype>\n");
 	fprintf(script, "#include <unistd.h>\n");
 	//fprintf(script, "#include \"stmt.h\"\n");
+	fprintf(script, "#include \"AbstractQuestionnaire.h\"\n");
 	fprintf(script, "#include \"question_ncurses_runtime.h\"\n");
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"AbstractStatement.h\"\n");

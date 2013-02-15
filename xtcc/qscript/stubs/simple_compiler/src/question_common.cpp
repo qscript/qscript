@@ -165,13 +165,17 @@ TextExpression::TextExpression (AbstractQuestion * q)
 { }
 
 
-Wt::WString DummyArrayQuestion::PrintSelectedAnswers()
+//Wt::WString DummyArrayQuestion::PrintSelectedAnswers()
+string DummyArrayQuestion::PrintSelectedAnswers()
 {
-	return Wt::WString();
+	return string();
+	//return Wt::WString();
 }
 
 
-Wt::WString DummyArrayQuestion::PrintSelectedAnswers(int code_index)
+//Wt::WString DummyArrayQuestion::PrintSelectedAnswers(int code_index)
+string DummyArrayQuestion::PrintSelectedAnswers(int code_index)
 {
-	return Wt::WString();
+	return string();
+	//return Wt::WString();
 }
