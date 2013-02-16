@@ -180,7 +180,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
 
-	fprintf(script, "struct TheQuestionnaire\n{\n");
+	fprintf(script, "struct TheQuestionnaire: public AbstractQuestionnaire\n{\n");
+#if 0
 	fprintf(script, "AbstractQuestion * last_question_answered;\n");
 	fprintf(script, "AbstractQuestion * last_question_visited;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
@@ -194,8 +195,12 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf (script, " 	string jumpToQuestion;\n");
 	fprintf (script, " 	int32_t jumpToIndex;\n");
 	fprintf(script, "vector <BaseText> base_text_vec;\n");
+#endif /*  0 */
 	fprintf(script, "%s\n", code.quest_defns.str().c_str());
-	fprintf(script, "TheQuestionnaire() \n");
+	//fprintf(script, "TheQuestionnaire() \n");
+
+	fprintf (script, "TheQuestionnaire (string p_jno): AbstractQuestionnaire(p_jno)\n");
+#if 0
 	fprintf(script, " /* length(): %ld */", code.quest_defns_constructor.str().length() );
 	if (code.quest_defns_constructor.str().length() == 0) {
 		fprintf(script, ":");
@@ -205,6 +210,8 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	}
 	fprintf(script, " last_question_answered(0), last_question_visited(0), back_jump(false), stopAtNextQuestion(false)\n");
 	fprintf(script, ", jno (\"%s\"), ser_no(0)\n", project_name.c_str());
+#endif /*  0 */
+
 	fprintf(script, "{\n");
 	//fprintf(script, "last_question_answered = 0;\n");
 	fprintf(script, "if (write_messages_flag) {\n");
@@ -225,14 +232,17 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "\tmessages.flush() ;\n");
 	fprintf(script, "\t}\n");
 	fprintf(script, "}\n");
+#if 0
 	print_question_messages(script);
 	print_summary_axis(script);
 	// 5-apr-2011 , 0:12 (am)
 	// continue from here - put the compute_flat_map_code into
 	// a write data function - commiting this 
 	// - generated code wont compile
+#endif /* 0 */
 	fprintf(script, "%s\n", compute_flat_map_code.program_code.str().c_str());
 	print_eval_questionnaire(script, code.program_code, ncurses_flag);
+#if 0
 	fprintf(script, "%s\n", write_data_to_disk_code());
 	print_navigation_support_functions(script);
 	print_reset_questionnaire(script);
@@ -246,6 +256,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_do_freq_counts(script);
 	//print_close(script, code.program_code, ncurses_flag);
 	//fflush(script);
+#endif /*  0 */
 	fprintf(script, "};\n");
 
 	if (program_options_ns::ncurses_flag)
@@ -1701,7 +1712,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 
 	}
 	fprintf(script, "	SetupSignalHandler();\n");
-	fprintf(script, "TheQuestionnaire * theQuestionnaire = new TheQuestionnaire();\n"
+	fprintf(script, "TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);\n"
 			"theQuestionnaire->base_text_vec.push_back(BaseText(\"All Respondents\"));\n"
 			"theQuestionnaire->compute_flat_file_map_and_init();\n"
 			"UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n\n"
@@ -1943,7 +1954,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "			else if (end_of_question_navigation == 'j')\n");
 	fprintf (script, "			{\n");
 	fprintf (script, "				theQuestionnaire->DisplayActiveQuestions();\n");
-	fprintf (script, "				theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);\n");
+	fprintf (script, "				GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);\n");
 	fprintf (script, "				user_navigation = NOT_SET;\n");
 	fprintf (script, "				//goto start_of_questions;\n");
 	fprintf (script, "				//goto re_eval_from_start;\n");
@@ -2036,7 +2047,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "		else if (user_navigation == JUMP_TO_QUESTION)\n");
 	fprintf (script, "		{\n");
 	fprintf (script, "			theQuestionnaire->DisplayActiveQuestions();\n");
-	fprintf (script, "			theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);\n");
+	fprintf (script, "			GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);\n");
 	fprintf (script, "			user_navigation = NOT_SET;\n");
 	fprintf (script, "			//goto start_of_questions;\n");
 	fprintf (script, "			goto re_eval_from_start;\n");
@@ -2084,7 +2095,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 	fprintf (script, "		if (write_data_file_flag||write_qtm_data_file_flag)\n");
 	fprintf (script, "		{\n");
 	fprintf (script, "			theQuestionnaire->ser_no = \n");
-	fprintf (script, "				theQuestionnaire->read_a_serial_no();\n");
+	fprintf (script, "				read_a_serial_no (directory_ptr, jno, theQuestionnaire);\n");
 	fprintf (script, "			if (theQuestionnaire->ser_no == 0)\n");
 	fprintf (script, "			{\n");
 	fprintf (script, "				exit(1);\n");

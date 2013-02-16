@@ -56,7 +56,7 @@ struct AbstractQuestionnaire
 	void print_summary_axis (std::vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);
 
 	virtual void compute_flat_file_map_and_init() = 0;
-	virtual void eval2 (UserNavigation p_navigation_mode,
+	virtual AbstractQuestion * eval2 (UserNavigation p_navigation_mode,
 				AbstractQuestion * p_last_question_visited,
 				AbstractQuestion * p_jump_to_index) = 0;
 	void write_data_to_disk(const std::vector<AbstractQuestion*>& q_vec
@@ -77,6 +77,6 @@ struct AbstractQuestionnaire
 };
 
 void GetUserResponse(std::string & qno, int32_t & qindex);
-int read_a_serial_no (DIR * directory_ptr);
+int read_a_serial_no (DIR * directory_ptr, string jno, struct AbstractQuestionnaire * qnre);
 
 #endif /*  QSCRIPT_ABSTRACT_QUESTIONNAIRE_H */
