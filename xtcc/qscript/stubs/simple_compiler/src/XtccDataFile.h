@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include "question.h"
+#include "named_range.h"
 
 class XtccDataFileDiskMap
 {
@@ -16,7 +17,7 @@ public:
 	int32_t width_;
 	int32_t totalLength_;
 	XtccDataFileDiskMap(AbstractQuestion * p_q, int32_t p_start_pos)
-		: q_(p_q), start_pos(p_start_pos)
+		: q_(p_q), start_pos(p_start_pos), width_(0), totalLength_(0)
 	{
 		DataType dt1 = q_->dt;
 		if (dt1 == INT8_TYPE) {

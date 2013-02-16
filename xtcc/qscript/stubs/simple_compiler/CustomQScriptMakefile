@@ -1,5 +1,5 @@
 
-#CC = $(CXX)
+CC = $(CXX)
 CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
 CXX_SHARED_LIB_FLAGS = -fPIC
 CXX_LINK_FLAGS = -g
@@ -8,7 +8,7 @@ CXX_LINK_LIBS = -lpanel -lncurses -lwt -lboost_filesystem
 SOURCE_DIR=src
 BUILD_DIR=make-build-dir-wq2
 CPP_SOURCES = $(wildcard $(SOURCE_DIR)/*.cpp)
-EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp src/qtm_data_file.cpp
+EXCLUDE_FILE=src/question_disk_data.cpp src/qscript_lib.cpp src/qscript_data.cpp src/read_disk_data.cpp src/question_runtime.cpp src/qtm_data_file.cpp src/question_gtk_runtime.cpp src/question_wt_runtime.cpp src/question_ncurses_runtime.cpp src/AbstractQuestionnaire.cpp src/question_ncurses_runtime.cpp
 CPP_SOURCES := $(filter-out $(EXCLUDE_FILE),$(CPP_SOURCES))
 OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(CPP_SOURCES))
 OBJECTS := $(OBJECTS:.cpp=.o)
@@ -111,7 +111,8 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/qtm_data_file.cpp
 		$(SOURCE_DIR)/AbstractStatement.cpp \
 		$(SOURCE_DIR)/question_runtime.cpp $(SOURCE_DIR)/question_common.cpp \
 		$(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/named_range.cpp \
-		$(SOURCE_DIR)/named_attributes.cpp 
+		$(SOURCE_DIR)/named_attributes.cpp  $(SOURCE_DIR)/AbstractQuestionnaire.cpp \
+		$(SOURCE_DIR)/question_ncurses_runtime.cpp
 #$(SOURCE_DIR)/question.cpp \
 #$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/lex.cpp \
 #$(SOURCE_DIR)/expr.cpp \
@@ -239,7 +240,7 @@ local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
 	cd lib; ln -s libqscript_compiletime_wq2.so.1.0.1 libqscript_compiletime_wq2.so.1; cd ..
 	#cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so
 	cd lib; ln -s libqscript_compiletime_wq2.so.1.0.1 libqscript_compiletime_wq2.so; cd ..
-	cp ${SOURCE_DIR}/*.h include_wq2
+	cp -f ${SOURCE_DIR}/*.h include_wq2
 
 nsiqcppstyle:
 	cd src; make -f Makefile.nsiqcppstyle; cd ..

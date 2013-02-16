@@ -5,6 +5,7 @@
 #include <utility>
 #include "question.h"
 #include "base_text.h"
+#include "named_range.h"
 
 namespace qtm_data_file_ns {
 

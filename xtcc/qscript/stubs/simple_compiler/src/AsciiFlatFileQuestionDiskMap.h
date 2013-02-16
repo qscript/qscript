@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include "question.h"
+#include "named_range.h"
 
 class AsciiFlatFileQuestionDiskMap
 {
@@ -20,7 +21,7 @@ class AsciiFlatFileQuestionDiskMap
 								int32_t p_width, int32_t p_total_length*/
 								)						 
 			:
-		q(p_q), start_pos(p_start_pos)
+		q(p_q), start_pos(p_start_pos), width(0), total_length(0)
 		/*, width(p_width),
 				total_length(p_total_length)*/
 		{

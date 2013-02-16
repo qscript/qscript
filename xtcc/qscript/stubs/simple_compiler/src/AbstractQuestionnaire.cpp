@@ -20,16 +20,16 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <fstream>
 #include <cstdlib>
 #include <dirent.h>
+#include <cstdio>
 
 #include "ArrayQuestion.h"
 #include "named_range.h"
-#include "AsciiFlatFileQuestionDiskMap.h"
-#include "XtccDataFile.h"
-#include "qtm_data_file.h"
-#include "qtm_datafile_conf_parser.h"
+
 #include "question_disk_data.h"
+#include "AbstractQuestionnaire.h"
 
 char * flat_file_output_buffer = 0;
 char * xtcc_datafile_output_buffer = 0;
@@ -37,9 +37,9 @@ int32_t len_flat_file_output_buffer  = 0;
 int32_t len_xtcc_datafile_output_buffer  = 0;
 
 
-fstream flat_file;
-fstream xtcc_datafile;
-fstream qtm_disk_file;
+std::fstream flat_file;
+std::fstream xtcc_datafile;
+std::fstream qtm_disk_file;
 
 map<string, map<int, int> > freq_count;
 
@@ -55,15 +55,24 @@ extern vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map
 
 
 
-#include "AbstractQuestionnaire.h"
 
 // remove this later
 using namespace std;
 
 AbstractQuestionnaire::AbstractQuestionnaire (string p_jno)
-		: jno (p_jno),
-		  last_question_answered(0), last_question_visited(0), back_jump(false), stopAtNextQuestion(false),
-		  ser_no(0)
+		: 
+		  last_question_answered(0), last_question_visited(0),
+		  question_list(),
+		  back_jump(false),
+		  jno (p_jno),
+		  ser_no(0),
+		  stopAtNextQuestion(false),
+		  questions_start_from_here_index(0),
+		  ser_no_pos(0),
+		  jumpToQuestion(),
+		  jumpToIndex(0),
+		  base_text_vec()
+
 { }
 
 

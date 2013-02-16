@@ -29,6 +29,12 @@
 #include "qscript_lib.h"
 
 
+#include "AsciiFlatFileQuestionDiskMap.h"
+#include "XtccDataFile.h"
+#include "qtm_data_file.h"
+#include "qtm_datafile_conf_parser.h"
+
+
 
 struct AbstractQuestionnaire
 {
@@ -64,6 +70,9 @@ struct AbstractQuestionnaire
 	void write_ascii_data_to_disk();
 	void write_xtcc_data_to_disk();
 	void do_freq_counts();
+	private:
+	AbstractQuestionnaire& operator = (const AbstractQuestionnaire&);
+	AbstractQuestionnaire (const AbstractQuestionnaire&);
 		  
 };
 
