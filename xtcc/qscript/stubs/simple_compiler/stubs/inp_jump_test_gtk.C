@@ -7,8 +7,8 @@
 #include <cstdlib>
 #include <errno.h>
 #include <unistd.h>
-#include <curses.h>
-#include <panel.h>
+//#include <curses.h>
+//#include <panel.h>
 #include <signal.h>
 #include <dirent.h>
 #include <cctype>
@@ -1470,6 +1470,10 @@ void question_eval_loop (EvalMode qnre_mode, UserNavigation qnre_navigation_mode
 			AbstractQuestion * jump_to_question,
 			struct TheQuestionnaire * theQuestionnaire);
 
+void question_eval_loop_gtk (EvalMode qnre_mode,
+	UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
+	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire);
+
 int callback_get_ser_no_from_ui (int ser_no)
 {
 	//return ser_no;
@@ -1491,7 +1495,7 @@ int callback_get_ser_no_from_ui (int ser_no)
 	AbstractQuestion * last_question_visited = 0;
 	AbstractQuestion * jump_to_question = 0;
 	EvalMode qnre_mode = NORMAL_FLOW;
-	question_eval_loop (qnre_mode,
+	question_eval_loop_gtk (qnre_mode,
 		qnre_navigation_mode, last_question_visited,
 		jump_to_question, theQuestionnaire);
 }
@@ -1624,7 +1628,7 @@ void question_eval_loop (EvalMode qnre_mode,
 			q->questionName_.c_str());
 		re_eval:
 		//q->eval(question_window, stub_list_window, data_entry_window);
-		ncurses_eval (q);
+		gtk_eval (q);
 
 		if (user_navigation == NAVIGATE_PREVIOUS)
 		{
@@ -1715,6 +1719,201 @@ void question_eval_loop (EvalMode qnre_mode,
 	//}						 /* close while */
 
 }
+
+
+void question_eval_loop_gtk (EvalMode qnre_mode,
+	UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
+	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
+{
+
+	//while(theQuestionnaire->ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag))
+	//{
+	fprintf(qscript_stdout, "reached top of while loop:\n");
+	re_eval_from_start:
+	AbstractQuestion * q =
+		theQuestionnaire->eval2 (
+		qnre_navigation_mode, last_question_visited, jump_to_question);
+	// Currently lets not worry about the data writing path
+	// hence if we are in data writing mode - just exit with a message
+	if (!q)
+	{
+		if (write_data_file_flag)
+		{
+			theQuestionnaire->write_ascii_data_to_disk();
+			cerr << "Not considering data writing path at the moment" << endl;
+			exit(1);
+		}
+		else if (write_qtm_data_file_flag)
+		{
+			theQuestionnaire->write_qtm_data_to_disk();
+			cerr << "Not considering data writing path at the moment" << endl;
+			exit(1);
+		}
+		else
+		{
+			//cerr << "Not considering What happens when we reach end of qnre at the moment - just lets exit" << endl;
+			//exit(1);
+			// thanks to the exit above - the code that follow is redundant in this block
+			char end_of_question_navigation = get_end_of_question_response();
+			if(end_of_question_navigation == 's')
+			{
+				theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
+				return;
+			}
+			else if (end_of_question_navigation == 'p')
+			{
+				AbstractQuestion * target_question = theQuestionnaire->ComputePreviousQuestion(theQuestionnaire->last_question_answered);
+				//if(target_question->type_ == QUESTION_ARR_TYPE)
+				//{
+				//	theQuestionnaire->jumpToIndex = theQuestionnaire->ComputeJumpToIndex(target_question);
+				//}
+				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
+				////if (data_entry_window == 0) cout << "target question: " << jumpToQuestion;
+				//theQuestionnaire->back_jump = true;
+				//user_navigation = NOT_SET;
+				//goto start_of_questions;
+				//goto re_eval_from_start;
+				// in gtk version - the call back function will invoke us again
+				//question_eval_loop (USER_NAVIGATION,
+				//	NAVIGATE_PREVIOUS, /* last_question_visited */ q,
+				//	/*  jump_to_question */ target_question, theQuestionnaire);
+			}
+			else if (end_of_question_navigation == 'j')
+			{
+				theQuestionnaire->DisplayActiveQuestions();
+				theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
+				user_navigation = NOT_SET;
+				//goto start_of_questions;
+				//goto re_eval_from_start;
+			}
+			else if (end_of_question_navigation == 'q')
+			{
+				//change to break again when we remove the exit from above
+				//break;
+				//endwin();
+				//exit(1);
+				return;
+			}
+			else
+			{
+				//goto label_end_of_qnre_navigation;
+			}
+			// wclear(data_entry_window);
+			// mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
+			// mvwscanw(data_entry_window, 1, 40, "%d", & ser_no);
+			//theQuestionnaire.prompt_user_for_serial_no();
+			//if (theQuestionnaire.ser_no ==0) break;
+			//change to break again when we remove the exit from above
+			//actually this should be un-reachable code
+			//break;
+			//
+			exit(1);
+		}
+	}
+	else
+	{
+		fprintf(qscript_stdout, "eval2 returned %s\n",
+			q->questionName_.c_str());
+		re_eval:
+		//q->eval(question_window, stub_list_window, data_entry_window);
+		gtk_eval (q);
+
+		if (user_navigation == NAVIGATE_PREVIOUS)
+		{
+			fprintf(qscript_stdout,
+				"user_navigation == NAVIGATE_PREVIOUS\n");
+			AbstractQuestion *target_question =
+				theQuestionnaire->ComputePreviousQuestion(q);
+			if (target_question == 0)
+			{
+				//goto re_eval;
+				//void question_eval_loop (EvalMode qnre_mode,
+				//UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
+				//AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
+				// in gtk version - the call back function will invoke us again
+				//question_eval_loop (USER_NAVIGATION,
+				//	NAVIGATE_PREVIOUS, /* last_question_visited */ q,
+				//	/*  jump_to_question */ q, theQuestionnaire);
+			}
+			else
+			{
+				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
+				//if (target_question->type_ == QUESTION_ARR_TYPE)
+				//{
+				//	theQuestionnaire->jumpToIndex =
+				//		theQuestionnaire->
+				//		ComputeJumpToIndex(target_question);
+				//}
+				// if (data_entry_window == 0)
+				//     cout << "target question: " << jumpToQuestion;
+				// if (data_entry_window == 0)
+				//     cout << "target question Index: " << theQuestionnaire.jumpToIndex;
+				theQuestionnaire->back_jump = true;
+				//user_navigation = NOT_SET;
+				//goto start_of_questions;
+				// in gtk version - the call back function will invoke us again
+				//question_eval_loop (USER_NAVIGATION,
+				//	NAVIGATE_PREVIOUS, /* last_question_visited */ q,
+				//	/*  jump_to_question */ target_question, theQuestionnaire);
+				//goto re_eval_from_start;
+			}
+		}
+		else if (user_navigation == NAVIGATE_NEXT)
+		{
+			//fprintf(qscript_stdout, "user_navigation == NAVIGATE_NEXT\n");
+			//if (q->isAnswered_ == false
+			//	&& q->question_attributes.isAllowBlank() == false)
+			//{
+			//	fprintf(qscript_stdout,
+			//		"questionName_ %s: going back to re_eval\n",
+			//		q->questionName_.c_str());
+			//	goto re_eval;
+			//}
+			//qnre_navigation_mode = NAVIGATE_NEXT;
+			// stopAtNextQuestion = true;
+			//user_navigation = NOT_SET;
+			// in gtk version - the call back function will invoke us again
+			//question_eval_loop (USER_NAVIGATION,
+			//	NAVIGATE_NEXT, /* last_question_visited */ q,
+			//	/*  jump_to_question */ 0, theQuestionnaire);
+		}
+		else if (user_navigation == JUMP_TO_QUESTION)
+		{
+			theQuestionnaire->DisplayActiveQuestions();
+			theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
+			user_navigation = NOT_SET;
+			//goto start_of_questions;
+			goto re_eval_from_start;
+		}
+		else if (user_navigation == SAVE_DATA)
+		{
+			theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno,
+				theQuestionnaire->ser_no);
+			print_save_partial_data_message_success ();
+			//if (q->isAnswered_ == false)
+			//{
+			//	//goto label_eval_q2;
+			//	goto re_eval;
+			//}
+			// in gtk version - the call back function will invoke us again
+			//question_eval_loop (NORMAL_FLOW,
+			//	NAVIGATE_NEXT, /* last_question_visited */ q,
+			//	/*  jump_to_question */ jump_to_question, theQuestionnaire);
+		}
+		else
+		{
+			theQuestionnaire->last_question_answered = q;
+			// in gtk version - the call back function will invoke us again
+			//question_eval_loop (NORMAL_FLOW,
+			//	NAVIGATE_NEXT, /* last_question_visited */ q,
+			//	/*  jump_to_question */ 0, theQuestionnaire);
+		}
+	}
+	//}						 /* close while */
+
+}
+
+
 
 
 void outer_question_eval_loop (EvalMode qnre_mode,

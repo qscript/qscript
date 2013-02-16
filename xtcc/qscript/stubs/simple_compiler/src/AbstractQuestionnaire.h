@@ -23,6 +23,8 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <dirent.h>
+
 #include "question.h"
 #include "base_text.h"
 #include "user_navigation.h"

@@ -22,7 +22,6 @@
 #include <map>
 #include <fstream>
 #include <cstdlib>
-#include <dirent.h>
 #include <cstdio>
 
 #include "ArrayQuestion.h"

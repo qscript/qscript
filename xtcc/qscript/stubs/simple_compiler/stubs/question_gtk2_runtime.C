@@ -26,6 +26,9 @@
 #include <string>
 
 #include "question.h"
+#include "user_navigation.h"
+#include "named_range.h"
+#include "AbstractQuestionnaire.h"
 
 // need to fix this later
 using namespace std;
@@ -158,8 +161,6 @@ class GtkQuestionnaireApplication
 		void display();
 		void changeLanguage();
 		void setLanguage(const std::string lang);
-		void ConstructQuestionForm(
-			AbstractQuestion *q, Session * this_users_session);
 		void ConstructThankYouPage();
 		const char * software_info();
 		void CreateBottomHalf();
@@ -169,6 +170,13 @@ class GtkQuestionnaireApplication
 		void ValidateSerialNo();
 		//virtual ~GtkQuestionnaireApplication();
 		void get_serial_no_gtk ();
+		void ConstructQuestionForm(
+			AbstractQuestion *q
+			//, Session * this_users_session
+			);
+
+	vector<string> PrepareQuestionText(AbstractQuestion *q);
+	void DisplayQuestionTextView (const vector <string> & qno_and_qtxt);
 	private:
 		GtkQuestionnaireApplication& operator= (const GtkQuestionnaireApplication&);
 		GtkQuestionnaireApplication (const GtkQuestionnaireApplication&);
@@ -292,6 +300,7 @@ GtkQuestionnaireApplication::GtkQuestionnaireApplication (int argc, char * argv[
 
 void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	questionTextLabel_ = 0;
 	next_button = 0;
 	le_data_ = 0;
@@ -318,9 +327,9 @@ void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 	get_serial_no_gtk();
 	gtk_paned_add1 (GTK_PANED (vpaned), top_half);
 	gtk_widget_show (top_half);
-	///*  GtkWidget *   bottom_half =*/ CreateBottomHalf ();
-	//gtk_paned_add2 (GTK_PANED (vpaned), bottom_half);
-	//gtk_widget_show (bottom_half);
+	/*  GtkWidget *   bottom_half =*/ CreateBottomHalf ();
+	gtk_paned_add2 (GTK_PANED (vpaned), bottom_half);
+	gtk_widget_show (bottom_half);
 	gtk_widget_show (window);
 	// ============================
 
@@ -385,10 +394,15 @@ void GtkQuestionnaireApplication::get_serial_no_gtk ()
 		G_CALLBACK (serial_no_enter_callback),
 		(gpointer) this);
 	gtk_entry_set_text (GTK_ENTRY (entry), "<Enter Serial No Here>");
+
+	/* 
+	 * nxd: commented out on 16-feb-2013
 	tmp_pos = GTK_ENTRY (entry)-> text_length;
 	gtk_editable_insert_text (GTK_EDITABLE (entry), "", -1, &tmp_pos);
 	gtk_editable_select_region (GTK_EDITABLE (entry),
 		0, GTK_ENTRY (entry)-> text_length);
+	*/
+
 	gtk_box_pack_start (GTK_BOX (vbox), entry, TRUE, TRUE, 0);
 	gtk_widget_show (entry);
 
@@ -458,12 +472,12 @@ string GenerateSessionId()
 }
 
 
-#if 1
 bool verify_web_data (std::string p_question_data,
-UserNavigation p_user_navigation,
-user_response::UserResponseType p_the_user_response,
-std::vector<int> * data_ptr);
+			UserNavigation p_user_navigation,
+			user_response::UserResponseType p_the_user_response,
+			std::vector<int> * data_ptr);
 
+#if 0
 void GtkQuestionnaireApplication::DoQuestionnaire()
 {
 	//if (!wt_questionText_) {
@@ -648,13 +662,18 @@ void GtkQuestionnaireApplication::DoQuestionnaire()
 		cout << "End of qnre" << endl;
 	}
 }
+#endif /*  0 */
 
 
 
 void next_button_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp)
 {
 	//g_print ("Next button was pressed", (char *) data);
-	qapp->DoQuestionnaire();
+	// nxd: 16-feb-2013 - comment it out for now 
+	//qapp->DoQuestionnaire();
+	//question_eval_loop_gtk (qnre_mode,
+	//	qnre_navigation_mode, last_question_visited,
+	//	jump_to_question, theQuestionnaire);
 }
 
 
@@ -673,30 +692,93 @@ void toggle_rb_button_event (GtkWidget *widget, GtkRadioButtonData * rb_data)
 }
 
 
-#endif /*  0 */
-void GtkQuestionnaireApplication::ConstructQuestionForm(
-AbstractQuestion *q, Session * this_users_session)
-{
-	map_cb_code_index.clear();
-	//WContainerWidget * new_form = new WContainerWidget();
-	//vec_rb.clear();				 // memory leak introduced here? no it seems
-	//vec_cb.clear();				 // memory leak introduced here? no it seems
-	//map_cb_code_index.clear();
 
-	//wt_questionText_ = new WText();
-	//wt_questionText_->setText(q->textExprVec_[0]->text_);
+vector<string> GtkQuestionnaireApplication::PrepareQuestionText(AbstractQuestion *q)
+{
+	vector <string> result;
 	string question_text;
 	stringstream part_mesg_id;
-	//WString question_text;
+	stringstream question_no;
+	question_no << q->questionName_;
+	part_mesg_id << q->questionName_;
+	for (int i=0; i<q->loop_index_values.size(); ++i)
+	{
+		part_mesg_id << "_" << q->loop_index_values[i];
+		question_no << q->loop_index_values[i] << ".";
+	}
+	result.push_back (question_no.str());
+
+	//WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);
+	for (int i=0; i<q->textExprVec_.size(); ++i)
+	{
+		//question_text += "<p>";
+		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
+		{
+			stringstream mesg_id;
+			mesg_id << part_mesg_id.str() << "_" << i;
+			// prev - commented  out on 16-feb-2013
+			// question_text += string (gettext(q->textExprVec_[0]->text_.c_str()));
+			result.push_back ( string (gettext(q->textExprVec_[0]->text_.c_str())) );
+		}
+		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
+		{
+			//stringstream named_attribute_key;
+			//named_attribute_key << q->textExprVec_[i]->naPtr_->name;
+			//named_attribute_key << "_" << q->textExprVec_[i]->naIndex_;
+			//question_text += string(gettext(named_attribute_key.str().c_str()));
+			// prev - commented  out on 16-feb-2013
+			// question_text += string(" FIXME : BUG that I didnt notice. Need to create a map of <string, named_attribute_list>   to solve this problem, where the first string is the name of the named_attribute_list");
+			result.push_back(string(" FIXME : BUG that I didnt notice. Need to create a map of <string, named_attribute_list>   to solve this problem, where the first string is the name of the named_attribute_list"));
+
+		}
+		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)
+		{
+			if (q->textExprVec_[i]->codeIndex_ != -1)
+			{
+				//question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);
+				result.push_back (q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_));
+			}
+			else
+			{
+				//question_text +=  q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+				result.push_back (q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers());
+			}
+		}
+		//question_text += "</p>";
+	}
+
+	return result;
+}
+
+void GtkQuestionnaireApplication::DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
+{
+	stringstream question_text;
+	for (int i=0; i < qno_and_qtxt.size(); ++i) {
+		question_text << qno_and_qtxt[i];
+	}
+	questionTextLabel_ = gtk_label_new (question_text.str().c_str());
+	//gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), questionTextLabel_);
+	gtk_box_pack_start (GTK_BOX (vbox), questionTextLabel_, TRUE, TRUE, 0);
+	gtk_widget_show(questionTextLabel_);
+	gtk_widget_show (top_half);
+}
+
+
+void GtkQuestionnaireApplication::ConstructQuestionForm(
+AbstractQuestion *q /*  , Session * this_users_session*/)
+{
+	map_cb_code_index.clear();
+	vector <string> question_text_vec = PrepareQuestionText (q);
+#if 0
+	string question_text;
+	stringstream part_mesg_id;
 	part_mesg_id << q->questionName_;
 	for (int i=0; i<q->loop_index_values.size(); ++i)
 	{
 		part_mesg_id << "_" << q->loop_index_values[i];
 	}
-	//WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);
 	for (int i=0; i<q->textExprVec_.size(); ++i)
 	{
-		//question_text += "<p>";
 		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
 		{
 			stringstream mesg_id;
@@ -723,17 +805,24 @@ AbstractQuestion *q, Session * this_users_session)
 				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
 			}
 		}
-		//question_text += "</p>";
 	}
-	//gtk_widget_hide_all (top_half);
+#endif /*  0 */
 	gtk_widget_hide( entry);
 
 	DestroyPreviousWidgets ();
-	questionTextLabel_ = gtk_label_new (question_text.c_str());
+	DisplayQuestionTextView (question_text_vec);
+
+#if 0
+	stringstream question_text;
+	for (int i=0; i < question_text_vec.size(); ++i) {
+		question_text << question_text_vec[i];
+	}
+	questionTextLabel_ = gtk_label_new (question_text.str().c_str());
 	//gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), questionTextLabel_);
 	gtk_box_pack_start (GTK_BOX (vbox), questionTextLabel_, TRUE, TRUE, 0);
 	gtk_widget_show(questionTextLabel_);
 	gtk_widget_show (top_half);
+#endif /*  0 */
 
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
 	{
@@ -867,7 +956,10 @@ void setup_ui (int argc, char * argv[], int (* p_return_ser_no) (int))
 	textdomain( "vegetable" );
 	//qscript_stdout = fopen(qscript_stdout_fname.c_str(), "w");
 	gtkQuestionnaireApplication = new GtkQuestionnaireApplication (argc, argv, p_return_ser_no);
-	gtk_main ();
+	
+	//while (gtk_events_pending ())
+	//	  gtk_main_iteration ();
+	gtk_main();
 }
 
 static void sig_usr(int32_t signo)
@@ -1005,13 +1097,25 @@ char get_end_of_question_response()
 	return 'A';
 }
 
-void ncurses_eval (AbstractQuestion * q)
+void gtk_eval (AbstractQuestion * q)
 {
 	cout << "Change the name to be Toolkit independent"
 		<< endl;
+
+	///*  GtkWidget *   bottom_half =*/ CreateBottomHalf ();
+	//gtk_paned_add2 (GTK_PANED (vpaned), bottom_half);
+	//gtk_widget_show (bottom_half);
 	
-	gtkQuestionnaireApplication->ConstructQuestionForm (q, gtkQuestionnaireApplication->this_users_session);
-	return;
+	gtkQuestionnaireApplication->ConstructQuestionForm (q 
+			//, gtkQuestionnaireApplication->this_users_session
+			);
+	cout << " blocked on gtk_main_iteration()" << endl;
+	//gtk_main_iteration();
+	while (gtk_events_pending ()) {
+		  gtk_main_iteration ();
+	}
+	cout << " gtk_main_iteration() has run" << endl;
+	//return;
 }
 
 
@@ -1028,190 +1132,3 @@ void print_save_partial_data_message_success ()
 }
 
 
-#if 0
-void question_eval_loop (EvalMode qnre_mode,
-	UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
-	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
-{
-
-	//while(theQuestionnaire->ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag))
-	//{
-	fprintf(qscript_stdout, "reached top of while loop:\n");
-	re_eval_from_start:
-	AbstractQuestion * q =
-		theQuestionnaire->eval2 (
-		qnre_navigation_mode, last_question_visited, jump_to_question);
-	// Currently lets not worry about the data writing path
-	// hence if we are in data writing mode - just exit with a message
-	if (!q)
-	{
-		if (write_data_file_flag)
-		{
-			theQuestionnaire->write_ascii_data_to_disk();
-			cerr << "Not considering data writing path at the moment" << endl;
-			exit(1);
-		}
-		else if (write_qtm_data_file_flag)
-		{
-			theQuestionnaire->write_qtm_data_to_disk();
-			cerr << "Not considering data writing path at the moment" << endl;
-			exit(1);
-		}
-		else
-		{
-			//cerr << "Not considering What happens when we reach end of qnre at the moment - just lets exit" << endl;
-			//exit(1);
-			// thanks to the exit above - the code that follow is redundant in this block
-			char end_of_question_navigation = get_end_of_question_response();
-			if(end_of_question_navigation == 's')
-			{
-				theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
-				return;
-			}
-			else if (end_of_question_navigation == 'p')
-			{
-				AbstractQuestion * target_question = theQuestionnaire->ComputePreviousQuestion(theQuestionnaire->last_question_answered);
-				//if(target_question->type_ == QUESTION_ARR_TYPE)
-				//{
-				//	theQuestionnaire->jumpToIndex = theQuestionnaire->ComputeJumpToIndex(target_question);
-				//}
-				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
-				////if (data_entry_window == 0) cout << "target question: " << jumpToQuestion;
-				//theQuestionnaire->back_jump = true;
-				//user_navigation = NOT_SET;
-				//goto start_of_questions;
-				//goto re_eval_from_start;
-				question_eval_loop (USER_NAVIGATION,
-					NAVIGATE_PREVIOUS, /* last_question_visited */ q,
-					/*  jump_to_question */ target_question, theQuestionnaire);
-			}
-			else if (end_of_question_navigation == 'j')
-			{
-				theQuestionnaire->DisplayActiveQuestions();
-				theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
-				user_navigation = NOT_SET;
-				//goto start_of_questions;
-				//goto re_eval_from_start;
-			}
-			else if (end_of_question_navigation == 'q')
-			{
-				//change to break again when we remove the exit from above
-				//break;
-				//endwin();
-				//exit(1);
-				return;
-			}
-			else
-			{
-				//goto label_end_of_qnre_navigation;
-			}
-			// wclear(data_entry_window);
-			// mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
-			// mvwscanw(data_entry_window, 1, 40, "%d", & ser_no);
-			//theQuestionnaire.prompt_user_for_serial_no();
-			//if (theQuestionnaire.ser_no ==0) break;
-			//change to break again when we remove the exit from above
-			//actually this should be un-reachable code
-			//break;
-			//
-			exit(1);
-		}
-	}
-	else
-	{
-		fprintf(qscript_stdout, "eval2 returned %s\n",
-			q->questionName_.c_str());
-		re_eval:
-		//q->eval(question_window, stub_list_window, data_entry_window);
-		ncurses_eval (q);
-
-		if (user_navigation == NAVIGATE_PREVIOUS)
-		{
-			fprintf(qscript_stdout,
-				"user_navigation == NAVIGATE_PREVIOUS\n");
-			AbstractQuestion *target_question =
-				theQuestionnaire->ComputePreviousQuestion(q);
-			if (target_question == 0)
-			{
-				//goto re_eval;
-				//void question_eval_loop (EvalMode qnre_mode,
-				//UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
-				//AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
-				question_eval_loop (USER_NAVIGATION,
-					NAVIGATE_PREVIOUS, /* last_question_visited */ q,
-					/*  jump_to_question */ q, theQuestionnaire);
-			}
-			else
-			{
-				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
-				//if (target_question->type_ == QUESTION_ARR_TYPE)
-				//{
-				//	theQuestionnaire->jumpToIndex =
-				//		theQuestionnaire->
-				//		ComputeJumpToIndex(target_question);
-				//}
-				// if (data_entry_window == 0)
-				//     cout << "target question: " << jumpToQuestion;
-				// if (data_entry_window == 0)
-				//     cout << "target question Index: " << theQuestionnaire.jumpToIndex;
-				theQuestionnaire->back_jump = true;
-				//user_navigation = NOT_SET;
-				//goto start_of_questions;
-				question_eval_loop (USER_NAVIGATION,
-					NAVIGATE_PREVIOUS, /* last_question_visited */ q,
-					/*  jump_to_question */ target_question, theQuestionnaire);
-				//goto re_eval_from_start;
-			}
-		}
-		else if (user_navigation == NAVIGATE_NEXT)
-		{
-			//fprintf(qscript_stdout, "user_navigation == NAVIGATE_NEXT\n");
-			//if (q->isAnswered_ == false
-			//	&& q->question_attributes.isAllowBlank() == false)
-			//{
-			//	fprintf(qscript_stdout,
-			//		"questionName_ %s: going back to re_eval\n",
-			//		q->questionName_.c_str());
-			//	goto re_eval;
-			//}
-			//qnre_navigation_mode = NAVIGATE_NEXT;
-			// stopAtNextQuestion = true;
-			//user_navigation = NOT_SET;
-			question_eval_loop (USER_NAVIGATION,
-				NAVIGATE_NEXT, /* last_question_visited */ q,
-				/*  jump_to_question */ 0, theQuestionnaire);
-		}
-		else if (user_navigation == JUMP_TO_QUESTION)
-		{
-			theQuestionnaire->DisplayActiveQuestions();
-			theQuestionnaire->GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
-			user_navigation = NOT_SET;
-			//goto start_of_questions;
-			goto re_eval_from_start;
-		}
-		else if (user_navigation == SAVE_DATA)
-		{
-			theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno,
-				theQuestionnaire->ser_no);
-			print_save_partial_data_message_success ();
-			//if (q->isAnswered_ == false)
-			//{
-			//	//goto label_eval_q2;
-			//	goto re_eval;
-			//}
-			question_eval_loop (NORMAL_FLOW,
-				NAVIGATE_NEXT, /* last_question_visited */ q,
-				/*  jump_to_question */ jump_to_question, theQuestionnaire);
-		}
-		else
-		{
-			theQuestionnaire->last_question_answered = q;
-			question_eval_loop (NORMAL_FLOW,
-				NAVIGATE_NEXT, /* last_question_visited */ q,
-				/*  jump_to_question */ 0, theQuestionnaire);
-		}
-	}
-	//}						 /* close while */
-
-}
-#endif /*  0 */

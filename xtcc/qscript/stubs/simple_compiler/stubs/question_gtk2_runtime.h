@@ -23,6 +23,6 @@ void setup_ui (int argc, char * argv[], int (* p_return_ser_no) (int));
 char get_end_of_question_response();
 void print_save_partial_data_message_success ();
 int32_t prompt_user_for_serial_no();
-void ncurses_eval (AbstractQuestion * q);
+void gtk_eval (AbstractQuestion * q);
 
 #endif /*  QUESTION_GTK2_RUNTIME_H */
