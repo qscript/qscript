@@ -2041,6 +2041,20 @@ void read_question_data(){
 	extern user_response::UserResponseType the_user_response;
 	void scan_dataerror(char *s);
 
+void parse_input_data(string input_string, vector<int> * data_ptr, int & success)
+{
+	yyscan_t scanner;
+	scan_datalex_init(&scanner);
+	vector <int> & data = *data_ptr;
+	YY_BUFFER_STATE s_data =  scan_data_scan_string (input_string.c_str(), scanner);
+	if (scan_dataparse(scanner, &data)) {
+		success = 0;
+	} else {
+		success = 1;
+	}
+	scan_data_delete_buffer(s_data,scanner);
+}
+
 user_response::UserResponseType read_data( const char * prompt, vector<int> * data_ptr)
 {
 	yyscan_t scanner;
