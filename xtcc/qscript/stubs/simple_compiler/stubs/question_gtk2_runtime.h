@@ -24,5 +24,8 @@ char get_end_of_question_response();
 void print_save_partial_data_message_success ();
 int32_t prompt_user_for_serial_no();
 void gtk_eval (AbstractQuestion * q);
+void question_eval_loop (EvalMode qnre_mode,
+	UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
+	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire);
 
 #endif /*  QUESTION_GTK2_RUNTIME_H */

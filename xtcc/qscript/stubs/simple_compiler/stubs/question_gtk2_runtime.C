@@ -174,6 +174,8 @@ class GtkQuestionnaireApplication
 			AbstractQuestion *q
 			//, Session * this_users_session
 			);
+	void PrepareSingleCodedStubDisplay (NamedStubQuestion * q);
+	void PrepareMultiCodedStubDisplay (NamedStubQuestion * q);
 
 	vector<string> PrepareQuestionText(AbstractQuestion *q);
 	void DisplayQuestionTextView (const vector <string> & qno_and_qtxt);
@@ -763,6 +765,74 @@ void GtkQuestionnaireApplication::DisplayQuestionTextView (const vector <string>
 	gtk_widget_show (top_half);
 }
 
+void GtkQuestionnaireApplication::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
+{
+	rb_selected_code = -1;
+	rb = gtk_radio_button_new_with_label (NULL, "Dummy - for default unselected - should never display");
+	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+	GtkRadioButtonData * rb_data = new GtkRadioButtonData (0, this);
+	rbData_.push_back (rb_data);
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb), TRUE);
+	gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+	//g_signal_connect (G_OBJECT (rb), "toggled",
+	//
+	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+	bool rb_group_was_created = false;
+	for (int32_t i = 0; i < vec.size(); ++i) {
+		stringstream named_range_key;
+		named_range_key << nq->nr_ptr->name << "_" << i;
+		if (vec[i].mask) {
+			//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
+			//WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+			//wt_rb_container_->addButton(wt_rb, vec[i].code);
+			//new WBreak(wt_cb_rb_container_);
+			//if (!rb_group_was_created) {
+			rb = gtk_radio_button_new_with_label (gtkRadioButtonGroup_, vec[i].stub_text.c_str());
+			gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+			gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+			GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
+			rbData_.push_back (rb_data);
+			g_signal_connect (G_OBJECT (rb), "toggled",
+				G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
+			gtk_widget_show (rb);
+			//gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
+			//rb_group_was_created = true;
+			//} else {
+			//	rb = gtk_radio_button_new_with_label_from_widget (GTK_RADIO_BUTTON(vec_rb[vec_rb.size()-1]), vec[i].stub_text.c_str());
+			//	GtkRadioButtonData * rb_data = new GtkRadioButtonData (vec[i].code, this);
+			//	rbData_.push_back (rb_data);
+			//	g_signal_connect (G_OBJECT (rb), "toggled",
+			//		G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
+			//	gtk_widget_show (rb);
+			//	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
+			//}
+			vec_rb.push_back (rb);
+		}
+	}
+}
+
+
+void GtkQuestionnaireApplication::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
+{
+	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+	for (int i=0; i<vec.size(); ++i) {
+		stringstream named_range_key;
+		named_range_key << nq->nr_ptr->name << "_" << i;
+		if (vec[i].mask) {
+			GtkWidget * cb = gtk_check_button_new_with_label (vec[i].stub_text.c_str());
+			GtkRadioButtonData * cb_data = new GtkRadioButtonData (vec[i].code, this);
+			rbData_.push_back (cb_data);
+			g_signal_connect (G_OBJECT (cb), "toggled",
+				G_CALLBACK (toggle_rb_button_event), (gpointer) cb_data);
+			gtk_widget_show (cb);
+			gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), cb, TRUE, TRUE, 0);
+			//!! Warning - the 2 statements below have to be in this order
+			// and are not interchangeable
+			vec_cb.push_back (cb);
+			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+		}
+	}
+}
 
 void GtkQuestionnaireApplication::ConstructQuestionForm(
 AbstractQuestion *q /*  , Session * this_users_session*/)
@@ -826,10 +896,10 @@ AbstractQuestion *q /*  , Session * this_users_session*/)
 
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
 	{
-		//new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());
 		if (q->no_mpn==1)
 		{
-			//wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
+			PrepareSingleCodedStubDisplay(nq);
+#if 0
 			rb_selected_code = -1;
 			rb = gtk_radio_button_new_with_label (NULL, "Dummy - for default unselected - should never display");
 			gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), rb, TRUE, TRUE, 0);
@@ -837,10 +907,11 @@ AbstractQuestion *q /*  , Session * this_users_session*/)
 			rbData_.push_back (rb_data);
 			gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (rb), TRUE);
 			gtkRadioButtonGroup_ = gtk_radio_button_get_group (GTK_RADIO_BUTTON (rb));
-			//g_signal_connect (G_OBJECT (rb), "toggled",
-			//	G_CALLBACK (toggle_rb_button_event), (gpointer) rb_data);
-			// purposely dont do a show . Make it default selected
+#endif /*  0 */
+		} else {
+			PrepareMultiCodedStubDisplay (nq);
 		}
+#if 0
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		bool rb_group_was_created = false;
 		for (int i=0; i<vec.size(); ++i)
@@ -895,6 +966,7 @@ AbstractQuestion *q /*  , Session * this_users_session*/)
 			}
 		}
 		//new_form->addWidget(wt_cb_rb_container_);
+#endif /* 0 */
 	}
 	else
 	{
