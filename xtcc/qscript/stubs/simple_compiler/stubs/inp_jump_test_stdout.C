@@ -919,6 +919,22 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 #endif /*  0 */
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 
+		string err_mesg, re_arranged_buffer;
+		int pos_1st_invalid_data;
+		bool invalid_code = q->VerifyData (err_mesg, re_arranged_buffer, pos_1st_invalid_data, &p_user_input.inputData_);
+		if (invalid_code == false) {
+			q->input_data.erase (q->input_data.begin(), q->input_data.end());
+			for (uint32_t i = 0; i < p_user_input.inputData_.size(); ++i) {
+				q->input_data.insert (p_user_input.inputData_[i]);
+				//cout << "storing: " << data[i]
+				//	<< " into input_data" << endl;
+			}
+			q->isAnswered_ = true;
+			cout << "Got valid data for : " << q->questionName_ << endl;
+			question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
+		} else {
+			stdout_eval (q, theQuestionnaire, callback_ui_input);
+		}
 	}
 }
 
@@ -928,44 +944,63 @@ void question_eval_loop2 (
 	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
 {
 	if (last_question_visited) {
-		if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
-			fprintf(qscript_stdout,
-				"user_navigation == NAVIGATE_PREVIOUS\n");
-			AbstractQuestion *target_question =
-				theQuestionnaire->ComputePreviousQuestion(last_question_visited);
-			if (target_question == 0)
-			{
-				//goto re_eval;
-				//void question_eval_loop (EvalMode qnre_mode,
-				//UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
-				//AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
-				//question_eval_loop2 (
-				//	NAVIGATE_PREVIOUS, /* last_question_visited */ last_question_visited,
-				//	/*  jump_to_question */ last_question_visited, theQuestionnaire);
-				stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input);
+		if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
+			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
+				fprintf(qscript_stdout,
+					"user_navigation == NAVIGATE_PREVIOUS\n");
+				AbstractQuestion *target_question =
+					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
+				if (target_question == 0)
+				{
+					//goto re_eval;
+					//void question_eval_loop (EvalMode qnre_mode,
+					//UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
+					//AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
+					//question_eval_loop2 (
+					//	NAVIGATE_PREVIOUS, /* last_question_visited */ last_question_visited,
+					//	/*  jump_to_question */ last_question_visited, theQuestionnaire);
+					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input);
+				}
+				else
+				{
+					//theQuestionnaire->jumpToQuestion = target_question->questionName_;
+					//if (target_question->type_ == QUESTION_ARR_TYPE)
+					//{
+					//	theQuestionnaire->jumpToIndex =
+					//		theQuestionnaire->
+					//		ComputeJumpToIndex(target_question);
+					//}
+					// if (data_entry_window == 0)
+					//     cout << "target question: " << jumpToQuestion;
+					// if (data_entry_window == 0)
+					//     cout << "target question Index: " << theQuestionnaire.jumpToIndex;
+					//theQuestionnaire->back_jump = true;
+					//user_navigation = NOT_SET;
+					//goto start_of_questions;
+					//question_eval_loop (USER_NAVIGATION,
+					//	NAVIGATE_PREVIOUS, /* last_question_visited */ last_question_visited,
+					//	/*  jump_to_question */ target_question, theQuestionnaire);
+					//goto re_eval_from_start;
+					stdout_eval (target_question, theQuestionnaire, callback_ui_input);
+				}
 			}
-			else
-			{
-				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
-				//if (target_question->type_ == QUESTION_ARR_TYPE)
-				//{
-				//	theQuestionnaire->jumpToIndex =
-				//		theQuestionnaire->
-				//		ComputeJumpToIndex(target_question);
-				//}
-				// if (data_entry_window == 0)
-				//     cout << "target question: " << jumpToQuestion;
-				// if (data_entry_window == 0)
-				//     cout << "target question Index: " << theQuestionnaire.jumpToIndex;
-				//theQuestionnaire->back_jump = true;
-				//user_navigation = NOT_SET;
-				//goto start_of_questions;
-				//question_eval_loop (USER_NAVIGATION,
-				//	NAVIGATE_PREVIOUS, /* last_question_visited */ last_question_visited,
-				//	/*  jump_to_question */ target_question, theQuestionnaire);
-				//goto re_eval_from_start;
-				stdout_eval (target_question, theQuestionnaire, callback_ui_input);
+		} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
+			// the management of correctly accepting data is handled 
+			// by : callback_ui_input
+			// if we have reached back again here - it means it's
+			// time to get the next question
+			AbstractQuestion * q =
+				theQuestionnaire->eval2 (
+				NAVIGATE_NEXT, last_question_visited, jump_to_question);
+			if (!q) {
+				cout << "End of qnre();" << endl << ">";
+				int ch = getchar();
+			} else {
+				stdout_eval (q, theQuestionnaire, callback_ui_input);
 			}
+		} else {
+			cout << "Unhandled case userNavigation_ ... exiting" << endl;
+			exit(1);
 		}
 	} else {
 		AbstractQuestion * q =
@@ -1165,6 +1200,195 @@ void question_eval_loop (EvalMode qnre_mode,
 	//}						 /* close while */
 
 }
+
+
+void question_eval_loop3 (EvalMode qnre_mode,
+	UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
+	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
+
+{
+
+	//while(theQuestionnaire->ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag))
+	//{
+	cout << "__PRETTY_FUNCTION__" << endl;
+	re_eval_from_start:
+	AbstractQuestion * q =
+		theQuestionnaire->eval2 (
+		qnre_navigation_mode, last_question_visited, jump_to_question);
+	// Currently lets not worry about the data writing path
+	// hence if we are in data writing mode - just exit with a message
+	if (!q)
+	{
+		if (write_data_file_flag)
+		{
+			theQuestionnaire->write_ascii_data_to_disk();
+			cerr << "Not considering data writing path at the moment" << endl;
+			exit(1);
+		}
+		else if (write_qtm_data_file_flag)
+		{
+			theQuestionnaire->write_qtm_data_to_disk();
+			cerr << "Not considering data writing path at the moment" << endl;
+			exit(1);
+		}
+		else
+		{
+			//cerr << "Not considering What happens when we reach end of qnre at the moment - just lets exit" << endl;
+			//exit(1);
+			// thanks to the exit above - the code that follow is redundant in this block
+			char end_of_question_navigation = get_end_of_question_response();
+			if(end_of_question_navigation == 's')
+			{
+				theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
+				return;
+			}
+			else if (end_of_question_navigation == 'p')
+			{
+				AbstractQuestion * target_question = theQuestionnaire->ComputePreviousQuestion(theQuestionnaire->last_question_answered);
+				//if(target_question->type_ == QUESTION_ARR_TYPE)
+				//{
+				//	theQuestionnaire->jumpToIndex = theQuestionnaire->ComputeJumpToIndex(target_question);
+				//}
+				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
+				////if (data_entry_window == 0) cout << "target question: " << jumpToQuestion;
+				//theQuestionnaire->back_jump = true;
+				//user_navigation = NOT_SET;
+				//goto start_of_questions;
+				//goto re_eval_from_start;
+				question_eval_loop (USER_NAVIGATION,
+					NAVIGATE_PREVIOUS, /* last_question_visited */ q,
+					/*  jump_to_question */ target_question, theQuestionnaire);
+			}
+			else if (end_of_question_navigation == 'j')
+			{
+				theQuestionnaire->DisplayActiveQuestions();
+				GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
+				user_navigation = NOT_SET;
+				//goto start_of_questions;
+				//goto re_eval_from_start;
+			}
+			else if (end_of_question_navigation == 'q')
+			{
+				//change to break again when we remove the exit from above
+				//break;
+				//endwin();
+				//exit(1);
+				return;
+			}
+			else
+			{
+				//goto label_end_of_qnre_navigation;
+			}
+			// wclear(data_entry_window);
+			// mvwprintw(data_entry_window, 1, 1, "Enter Serial No (0) to exit: ");
+			// mvwscanw(data_entry_window, 1, 40, "%d", & ser_no);
+			//theQuestionnaire.prompt_user_for_serial_no();
+			//if (theQuestionnaire.ser_no ==0) break;
+			//change to break again when we remove the exit from above
+			//actually this should be un-reachable code
+			//break;
+			//
+			exit(1);
+		}
+	}
+	else
+	{
+		fprintf(qscript_stdout, "eval2 returned %s\n",
+			q->questionName_.c_str());
+		re_eval:
+		//q->eval(question_window, stub_list_window, data_entry_window);
+		stdout_eval (q, theQuestionnaire, callback_ui_input);
+
+		if (user_navigation == NAVIGATE_PREVIOUS)
+		{
+			fprintf(qscript_stdout,
+				"user_navigation == NAVIGATE_PREVIOUS\n");
+			AbstractQuestion *target_question =
+				theQuestionnaire->ComputePreviousQuestion(q);
+			if (target_question == 0)
+			{
+				//goto re_eval;
+				//void question_eval_loop (EvalMode qnre_mode,
+				//UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
+				//AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
+				question_eval_loop (USER_NAVIGATION,
+					NAVIGATE_PREVIOUS, /* last_question_visited */ q,
+					/*  jump_to_question */ q, theQuestionnaire);
+			}
+			else
+			{
+				//theQuestionnaire->jumpToQuestion = target_question->questionName_;
+				//if (target_question->type_ == QUESTION_ARR_TYPE)
+				//{
+				//	theQuestionnaire->jumpToIndex =
+				//		theQuestionnaire->
+				//		ComputeJumpToIndex(target_question);
+				//}
+				// if (data_entry_window == 0)
+				//     cout << "target question: " << jumpToQuestion;
+				// if (data_entry_window == 0)
+				//     cout << "target question Index: " << theQuestionnaire.jumpToIndex;
+				theQuestionnaire->back_jump = true;
+				//user_navigation = NOT_SET;
+				//goto start_of_questions;
+				question_eval_loop (USER_NAVIGATION,
+					NAVIGATE_PREVIOUS, /* last_question_visited */ q,
+					/*  jump_to_question */ target_question, theQuestionnaire);
+				//goto re_eval_from_start;
+			}
+		}
+		else if (user_navigation == NAVIGATE_NEXT)
+		{
+			//fprintf(qscript_stdout, "user_navigation == NAVIGATE_NEXT\n");
+			//if (q->isAnswered_ == false
+			//	&& q->question_attributes.isAllowBlank() == false)
+			//{
+			//	fprintf(qscript_stdout,
+			//		"questionName_ %s: going back to re_eval\n",
+			//		q->questionName_.c_str());
+			//	goto re_eval;
+			//}
+			//qnre_navigation_mode = NAVIGATE_NEXT;
+			// stopAtNextQuestion = true;
+			//user_navigation = NOT_SET;
+			question_eval_loop (USER_NAVIGATION,
+				NAVIGATE_NEXT, /* last_question_visited */ q,
+				/*  jump_to_question */ 0, theQuestionnaire);
+		}
+		else if (user_navigation == JUMP_TO_QUESTION)
+		{
+			theQuestionnaire->DisplayActiveQuestions();
+			GetUserResponse(theQuestionnaire->jumpToQuestion, theQuestionnaire->jumpToIndex);
+			user_navigation = NOT_SET;
+			//goto start_of_questions;
+			goto re_eval_from_start;
+		}
+		else if (user_navigation == SAVE_DATA)
+		{
+			theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list, theQuestionnaire->jno,
+				theQuestionnaire->ser_no);
+			print_save_partial_data_message_success ();
+			//if (q->isAnswered_ == false)
+			//{
+			//	//goto label_eval_q2;
+			//	goto re_eval;
+			//}
+			question_eval_loop (NORMAL_FLOW,
+				NAVIGATE_NEXT, /* last_question_visited */ q,
+				/*  jump_to_question */ jump_to_question, theQuestionnaire);
+		}
+		else
+		{
+			theQuestionnaire->last_question_answered = q;
+			question_eval_loop (NORMAL_FLOW,
+				NAVIGATE_NEXT, /* last_question_visited */ q,
+				/*  jump_to_question */ 0, theQuestionnaire);
+		}
+	}
+	//}						 /* close while */
+
+}
+
 
 
 #if 0

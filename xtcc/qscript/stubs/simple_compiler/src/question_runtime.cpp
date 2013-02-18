@@ -76,12 +76,14 @@ RangeQuestion::RangeQuestion(
 	maxCode_ = r_data->GetMax();
 }
 
+
 //void RangeQuestion::eval()
 void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
 			 , /*qs_ncurses::*/WINDOW* data_entry_window)
 {
 	if (displayData_.begin() == displayData_.end()) {
+#if 0
 		for(	set<int32_t>::iterator it = r_data->indiv.begin();
 				it != r_data->indiv.end(); ++it){
 			//displayData_.insert(*it);
@@ -97,6 +99,8 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			displayData_.push_back(display_data::DisplayDataUnit(r_data->range[i].first, r_data->range[i].second));
 		}
 		std::sort(displayData_.begin(), displayData_.end(), display_data::DisplayDataUnitOrder());
+#endif /*  0 */
+		MakeDisplaySummaryDataRanges();
 	}
 	if(question_window ==0 || stub_list_window  == 0 || data_entry_window  == 0 ){
 		cout << questionName_ << ".";
@@ -554,6 +558,9 @@ label_ask_again:
 			// 	return user_resp;
 			// }
 			bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+			// nxd: 17-feb-2013 23:51 - add the cases below to VerifyResponse
+			// then delete them from here and take a decision on:
+			// 	if valid_input == true else false
 			if (isAnswered_ == false && user_navigation == NAVIGATE_PREVIOUS
 					&& user_resp == user_response::UserEnteredNavigation) {
 				// allow this behaviour - they can go back to the
@@ -565,6 +572,7 @@ label_ask_again:
 					&& question_attributes.isAllowBlank() == false) {
 				err_mesg = "cannot navigate to next question unless this is answered";
 				mvwprintw(data_entry_window, 3, 1, err_mesg.c_str());
+				wmove(data_entry_window, 1, 1);
 				goto label_ask_again;
 			}
 			if (!valid_input) {
@@ -588,6 +596,7 @@ label_ask_again:
 		mesg << "is it necessary to clear data here - we are doing it at top of read_data";
 		LOG_MAINTAINER_MESSAGE(mesg.str());
 		data.clear();
+		//wclear (error_msg_window);
 		return user_response::UserEnteredData;
 	}
 }

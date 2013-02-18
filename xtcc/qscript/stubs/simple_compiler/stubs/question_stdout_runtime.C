@@ -110,11 +110,17 @@ vector<string> PrepareQuestionText (AbstractQuestion *q)
 
 void DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
 {
+	string start_marker("===================== QUESTION TEXT =============================");
+	string end_marker  ("================= END OF QUESTION TEXT ==========================");
 	if (qno_and_qtxt.size() > 1) {
+		cout << start_marker << endl;
 		cout << qno_and_qtxt[0] << "." << qno_and_qtxt[1];
 		for (int i = 2; i < qno_and_qtxt.size(); ++i) {
 			cout <<  qno_and_qtxt[i].c_str();
 		}
+		cout << endl;
+
+		cout << end_marker << endl;
 	}
 	cout << endl;
 }
@@ -132,10 +138,13 @@ void PrepareStubs (AbstractQuestion *q)
 
 void DisplayStubs (AbstractQuestion *q)
 {
+	string marker_start ("------------------------------- STUBS ------------------------------------");
+	string marker_end   ("----------------------------- STUBS END ----------------------------------");
+	cout << marker_start << endl;
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (q) ) {
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		for (int i=0; i<vec.size(); ++i) {
-			cout 	<< vec[i].code << ":" << vec[i].stub_text 
+			cout 	<< vec[i].code << " : " << vec[i].stub_text 
 				<< endl;
 		}
 	} else if (RangeQuestion * rq = dynamic_cast<RangeQuestion*> (q) ) {
@@ -144,15 +153,17 @@ void DisplayStubs (AbstractQuestion *q)
 				it != rq->displayData_.end(); ++it) {
 			//cout << *it << endl;
 			if ( (*it).displayDataType_ == display_data::single_element) {
-				cout << (*it).startOfRangeOrSingle_ << ", ";
+				cout << "  " << (*it).startOfRangeOrSingle_ << " ";
 			} else if ( (*it).displayDataType_ == display_data::range_element) {
-				cout << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_ << endl;
+				cout << "  " << (*it).startOfRangeOrSingle_ << " - " << (*it).endOfRange_;
 			}
 		}
+		cout << endl;
 	} else {
 		cerr << "Unhandled exception" << endl;
 		exit(1);
 	}
+	cout << marker_end << endl;
 }
 
 /* 
@@ -182,31 +193,25 @@ void GetUserInput (
 		struct TheQuestionnaire * theQuestionnaire), 
 		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire)
 {
+	if (q->no_mpn == 1) {
+		cout << " Question is single answer, please enter only 1 response." << endl;
+	} else {
+		cout << " Question accepts multiple answers." << endl;
+	}
 	string current_response;
+	cout << "Enter Data>" << endl;
 	getline(cin, current_response);
 	UserInput user_input;
 	if (current_response.size() > 0) {
 		if (current_response[0] == 'P') {
 			user_input.userNavigation_ = NAVIGATE_PREVIOUS;
 			user_input.theUserResponse_ = user_response::UserEnteredNavigation;
-			callback_ui_input (user_input, q, theQuestionnaire);
 		} else if (current_response[0] == 'N') {
 			user_input.userNavigation_ = NAVIGATE_NEXT;
 			user_input.theUserResponse_ = user_response::UserEnteredNavigation;
-			callback_ui_input (user_input, q, theQuestionnaire);
 		} else  {
 			user_input.theUserResponse_ = user_response::UserEnteredData;
-			int success;
-			vector <int> input_data;
-			parse_input_data (current_response, &input_data, success);
-			if (success == 0) {
-				GetUserInput (callback_ui_input, q, theQuestionnaire);
-			} else {
-				// default direction - chosen by us
-				user_input.userNavigation_ = NAVIGATE_NEXT;
-				user_input.inputData_ = input_data;
-				callback_ui_input (user_input, q, theQuestionnaire);
-			}
+
 #if 0
 
 			vector <int> answers;
@@ -227,6 +232,41 @@ void GetUserInput (
 			}
 #endif /* 0 */
 		} 
+		bool valid_input = q->VerifyResponse(user_input.theUserResponse_);
+		string err_mesg;
+		if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_PREVIOUS
+				&& user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
+			// allow this behaviour - they can go back to the
+			// previous question without answering anything - 
+			// no harm done
+			callback_ui_input (user_input, q, theQuestionnaire);
+		} else if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_NEXT
+				&& user_input.theUserResponse_ == user_response::UserEnteredNavigation
+				&& q->question_attributes.isAllowBlank() == false) {
+			// nxd: 18-feb-2013 - note this error message should be passed
+			// back as a parameter  - so it can be reported
+			err_mesg = "cannot navigate to next question unless this is answered";
+			valid_input = false;
+		}
+
+
+		if (valid_input) {
+			int success;
+			vector <int> input_data;
+			parse_input_data (current_response, &input_data, success);
+			if (success == 0) {
+				GetUserInput (callback_ui_input, q, theQuestionnaire);
+			} else {
+				// default direction - chosen by us
+				user_input.userNavigation_ = NAVIGATE_NEXT;
+				user_input.inputData_ = input_data;
+				callback_ui_input (user_input, q, theQuestionnaire);
+			}
+			callback_ui_input (user_input, q, theQuestionnaire);
+		} else {
+			// we should be passing an error message too
+			GetUserInput (callback_ui_input, q, theQuestionnaire);
+		}
 		/* 
 		else {
 			// invalid entries
@@ -240,6 +280,21 @@ void GetUserInput (
 	}
 }
 
+void DisplayCurrentAnswers (AbstractQuestion * q)
+{
+	if (q->input_data.begin() != q->input_data.end()) {
+		cout << "Current Answers values: ";
+
+		for (set<int32_t>::iterator iter = q->input_data.begin();
+			iter != q->input_data.end(); ++iter){
+			cout << *iter << " ";
+		}
+		cout << endl;
+	}
+	string end_marker("----------------- END OF ANSWERS -----------------------");
+	cout << end_marker << endl;
+}
+
 void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire,
 	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire))
 {
@@ -249,6 +304,6 @@ void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnai
 	DisplayQuestionTextView (qno_and_qtxt);
 	PrepareStubs (q);
 	DisplayStubs (q);
+	DisplayCurrentAnswers (q);
 	GetUserInput (callback_ui_input, q, theQuestionnaire);
-	exit(1);
 }
