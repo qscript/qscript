@@ -209,6 +209,10 @@ void GetUserInput (
 		} else if (current_response[0] == 'N') {
 			user_input.userNavigation_ = NAVIGATE_NEXT;
 			user_input.theUserResponse_ = user_response::UserEnteredNavigation;
+		} else if (current_response[0] == 'S') {
+			user_input.userNavigation_ = SAVE_DATA;
+			user_input.theUserResponse_ = user_response::UserSavedData;
+			cout << "Got SAVE_DATA from user" << endl;
 		} else  {
 			user_input.theUserResponse_ = user_response::UserEnteredData;
 
@@ -232,7 +236,9 @@ void GetUserInput (
 			}
 #endif /* 0 */
 		} 
-		bool valid_input = q->VerifyResponse(user_input.theUserResponse_);
+
+		cout << "reached here" << endl;
+		bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_);
 		string err_mesg;
 		if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_PREVIOUS
 				&& user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
@@ -249,8 +255,15 @@ void GetUserInput (
 			valid_input = false;
 		}
 
+		cout << "reached here: valid_input :" << valid_input <<  endl;
 
 		if (valid_input) {
+			if (user_input.theUserResponse_ == user_response::UserSavedData) {
+				cout << "invoking callback_ui_input with UserSavedData" << endl;
+				callback_ui_input (user_input, q, theQuestionnaire);
+				cout << "callback_ui_input has returned after UserSavedData" << endl;
+			}
+
 			int success;
 			vector <int> input_data;
 			parse_input_data (current_response, &input_data, success);

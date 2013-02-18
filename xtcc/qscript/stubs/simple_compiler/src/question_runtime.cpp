@@ -506,7 +506,7 @@ user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * quest
 		do {
 ask_again:
 			user_response::UserResponseType user_resp = read_data(prompt.c_str(), &data);
-			bool valid_response = AbstractQuestion::VerifyResponse(user_resp);
+			bool valid_response = AbstractQuestion::VerifyResponse(user_resp, user_navigation);
 			if (!valid_response) {
 				goto ask_again;
 			}
@@ -557,7 +557,7 @@ label_ask_again:
 			// if (user_resp == user_response::UserEnteredNavigation) {
 			// 	return user_resp;
 			// }
-			bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+			bool valid_input = AbstractQuestion::VerifyResponse(user_resp, user_navigation);
 			// nxd: 17-feb-2013 23:51 - add the cases below to VerifyResponse
 			// then delete them from here and take a decision on:
 			// 	if valid_input == true else false
@@ -602,7 +602,7 @@ label_ask_again:
 }
 
 
-bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
+bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation)
 {
 	stringstream mesg; mesg << "user_resp: " << user_resp;
 	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
@@ -1115,3 +1115,23 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 	doupdate ();
 }
 
+
+bool AbstractQuestion::check_and_store_input_data_single_question
+	(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,
+	 vector <int> & data)
+{
+	//string err_mesg, re_arranged_buffer; int pos_1st_invalid_data;
+	bool invalid_code = VerifyData (err_mesg, re_arranged_buffer, pos_1st_invalid_data, &data);
+	if (invalid_code == false) {
+		input_data.erase (input_data.begin(), input_data.end());
+		for (uint32_t i = 0; i < data.size(); ++i) {
+			input_data.insert (data[i]);
+			//cout << "storing: " << data[i]
+			//	<< " into input_data" << endl;
+		}
+		isAnswered_ = true;
+		return true;
+	} else {
+		return false;
+	}
+}

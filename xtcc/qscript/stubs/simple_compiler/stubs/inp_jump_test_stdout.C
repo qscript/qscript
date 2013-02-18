@@ -857,6 +857,7 @@ int callback_get_ser_no_from_ui (int p_ser_no)
 				l_user_input, /* last_question_visited */ 0,
 				/* jump_to_question */ 0, theQuestionnaire);
 	cout << "finished qnre: exiting ..." << endl;
+	prompt_user_for_serial_no (callback_get_ser_no_from_ui);
 	return 0;
 }
 
@@ -895,10 +896,33 @@ int32_t main(int argc, char * argv[])
 
 }								 /* close main */
 
+/* 
+bool check_and_store_input_data_single_question 
+	(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,
+	 const vector <int> & data)
+{
+	//string err_mesg, re_arranged_buffer; int pos_1st_invalid_data;
+	bool invalid_code = q->VerifyData (err_mesg, re_arranged_buffer, pos_1st_invalid_data, &p_user_input.inputData_);
+	if (invalid_code == false) {
+		q->input_data.erase (q->input_data.begin(), q->input_data.end());
+		for (uint32_t i = 0; i < p_user_input.inputData_.size(); ++i) {
+			q->input_data.insert (p_user_input.inputData_[i]);
+			//cout << "storing: " << data[i]
+			//	<< " into input_data" << endl;
+		}
+		isAnswered_ = true;
+		return true;
+	} else {
+		return false;
+	}
+}
+ */
+
+
 void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
-	bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_);
+	bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 		question_eval_loop2 (
 				p_user_input,
@@ -921,6 +945,7 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 
 		string err_mesg, re_arranged_buffer;
 		int pos_1st_invalid_data;
+#if 0
 		bool invalid_code = q->VerifyData (err_mesg, re_arranged_buffer, pos_1st_invalid_data, &p_user_input.inputData_);
 		if (invalid_code == false) {
 			q->input_data.erase (q->input_data.begin(), q->input_data.end());
@@ -930,11 +955,50 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 				//	<< " into input_data" << endl;
 			}
 			q->isAnswered_ = true;
+
+			cout << "Got valid data for : " << q->questionName_ << endl;
+			question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
+		} 
+#endif /*  0 */
+		if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+					p_user_input.inputData_)) {
 			cout << "Got valid data for : " << q->questionName_ << endl;
 			question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
 		} else {
 			stdout_eval (q, theQuestionnaire, callback_ui_input);
 		}
+	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
+		cout << "under stdout either the user can enter data or navigation" << endl
+			<< "but under ncurses or other guis - it's possible to enter data" << endl
+			<< " AND ask to save by pressing f4, in which case we should save the data "
+			<< " and then try to validate the user input - just like we would in a normal case"
+			<< endl;
+		theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
+		if (p_user_input.inputData_.size() == 0 
+				&& q->question_attributes.isAllowBlank() == true ) {
+			// allow - serve next question
+			question_eval_loop2 (p_user_input, /* last_question_visited */ q,
+					/*  jump_to_question */ 0, theQuestionnaire);
+		} else if (p_user_input.inputData_.size() == 0 
+				&& q->question_attributes.isAllowBlank() == false ) {
+			// do not allow - serve the same question
+			stdout_eval (q, theQuestionnaire, callback_ui_input);
+		} else {
+			// input is not blank
+			string err_mesg, re_arranged_buffer;
+			int pos_1st_invalid_data;
+			if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+					p_user_input.inputData_)) {
+				//serve next question
+				question_eval_loop2 ( p_user_input, /* last_question_visited */ q,
+						/*  jump_to_question */ 0, theQuestionnaire);
+			} else {
+				//serve same question
+				question_eval_loop2 ( p_user_input, /* last_question_visited */ q,
+						/*  jump_to_question */ 0, theQuestionnaire);
+			}
+		}
+		cout << "unreachable code" << endl;
 	}
 }
 
@@ -950,39 +1014,14 @@ void question_eval_loop2 (
 					"user_navigation == NAVIGATE_PREVIOUS\n");
 				AbstractQuestion *target_question =
 					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
-				if (target_question == 0)
-				{
-					//goto re_eval;
-					//void question_eval_loop (EvalMode qnre_mode,
-					//UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
-					//AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
-					//question_eval_loop2 (
-					//	NAVIGATE_PREVIOUS, /* last_question_visited */ last_question_visited,
-					//	/*  jump_to_question */ last_question_visited, theQuestionnaire);
+				if (target_question == 0) { 
 					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input);
-				}
-				else
-				{
-					//theQuestionnaire->jumpToQuestion = target_question->questionName_;
-					//if (target_question->type_ == QUESTION_ARR_TYPE)
-					//{
-					//	theQuestionnaire->jumpToIndex =
-					//		theQuestionnaire->
-					//		ComputeJumpToIndex(target_question);
-					//}
-					// if (data_entry_window == 0)
-					//     cout << "target question: " << jumpToQuestion;
-					// if (data_entry_window == 0)
-					//     cout << "target question Index: " << theQuestionnaire.jumpToIndex;
-					//theQuestionnaire->back_jump = true;
-					//user_navigation = NOT_SET;
-					//goto start_of_questions;
-					//question_eval_loop (USER_NAVIGATION,
-					//	NAVIGATE_PREVIOUS, /* last_question_visited */ last_question_visited,
-					//	/*  jump_to_question */ target_question, theQuestionnaire);
-					//goto re_eval_from_start;
+				} else {
 					stdout_eval (target_question, theQuestionnaire, callback_ui_input);
 				}
+			}  else {
+				cout << "Unhandled case userNavigation_ ... exiting" << endl;
+				exit(1);
 			}
 		} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 			// the management of correctly accepting data is handled 
@@ -994,25 +1033,26 @@ void question_eval_loop2 (
 				NAVIGATE_NEXT, last_question_visited, jump_to_question);
 			if (!q) {
 				cout << "End of qnre();" << endl << ">";
-				int ch = getchar();
+				//int ch = getchar();
 			} else {
 				stdout_eval (q, theQuestionnaire, callback_ui_input);
 			}
+
 		} else {
 			cout << "Unhandled case userNavigation_ ... exiting" << endl;
 			exit(1);
 		}
-	} else {
+	} // else {
+	// should reach here - end of :
 		AbstractQuestion * q =
 			theQuestionnaire->eval2 (
 			NAVIGATE_NEXT, last_question_visited, jump_to_question);
 		if (!q) {
 			cout << "End of qnre();" << endl << ">";
-			int ch = getchar();
 		} else {
 			stdout_eval (q, theQuestionnaire, callback_ui_input);
 		}
-	}
+	//}
 }
 
 void question_eval_loop (EvalMode qnre_mode,

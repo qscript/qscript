@@ -28,6 +28,7 @@
 #include "display_data.h"
 #include "QuestionAttributes.h"
 #include "UserResponse.h"
+#include "user_navigation.h"
 #include "named_attributes.h"
 
 using std::ostringstream;
@@ -158,7 +159,7 @@ struct AbstractQuestion: public AbstractStatement
 
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data, vector<int32_t> * data_ptr);
-	bool VerifyResponse(user_response::UserResponseType user_resp);
+	bool VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation);
 	// void PrintArrayDeclarations(ostringstream & quest_defns);
 	void PrintArrayDeclarations(StatementCompiledCode & code);
 	void PrintQuestionArrayInitialisation(
@@ -187,6 +188,10 @@ struct AbstractQuestion: public AbstractStatement
 	//virtual Wt::WString PrintSelectedAnswers(int code_index)=0;
 	virtual string PrintSelectedAnswers()=0;
 	virtual string PrintSelectedAnswers(int code_index)=0;
+
+	bool check_and_store_input_data_single_question
+		(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,
+		 vector <int> & data);
 	private:
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
