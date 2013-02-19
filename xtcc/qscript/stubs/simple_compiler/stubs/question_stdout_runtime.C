@@ -188,11 +188,16 @@ void GetUserInput (void (*callback_ui_input) (UserInput * p_user_input),
  */
 typedef void (*callback_ui_input_t) (UserInput * p_user_input);
 
+// this functions job is to take any user input from the interface
+// and pass it to the control flow logic decider.
+// Any control flow logic that appears here is a mistake in my programming
+// and needs to be fixed
 void GetUserInput ( 
 	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
 		struct TheQuestionnaire * theQuestionnaire), 
 		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire)
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	if (q->no_mpn == 1) {
 		cout << " Question is single answer, please enter only 1 response." << endl;
 	} else {
@@ -215,38 +220,26 @@ void GetUserInput (
 			cout << "Got SAVE_DATA from user" << endl;
 		} else  {
 			user_input.theUserResponse_ = user_response::UserEnteredData;
-
-#if 0
-
-			vector <int> answers;
-			//str2int (answers, current_response.c_str());
-			str2int (answers, current_response);
-			cout << "Entered data: " ;
-			print_vec(answers);
-			cout << endl;
-			bool is_valid = VerifyQuestionIntegrity(answers, next_q->valid_codes);
-			if (is_valid) {
-				next_q->is_answered = true;
-				question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT, 
-						next_q, 0, qnre);
-			} else {
-				cout << "Invalid Entry" << endl;
-				question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT, 
-						last_question_visited, 0, qnre);
-			}
-#endif /* 0 */
+			user_input.questionResponseData_ = current_response;
 		} 
 
 		cout << "reached here" << endl;
-		bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_);
 		string err_mesg;
+		bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+		// if VerifyResponse fails it is the UI's job to get valid input from the user
+		// It is not the UI's job to parse the data and validate the answer against the question
+
+		/* moved to VerifyResponse - but seems redundant - it was already there
 		if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_PREVIOUS
 				&& user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 			// allow this behaviour - they can go back to the
 			// previous question without answering anything - 
 			// no harm done
 			callback_ui_input (user_input, q, theQuestionnaire);
-		} else if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_NEXT
+		} else */
+		/* moved this into VerifyResponse - final else clause
+		 * where all error messages can be reported
+		if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_NEXT
 				&& user_input.theUserResponse_ == user_response::UserEnteredNavigation
 				&& q->question_attributes.isAllowBlank() == false) {
 			// nxd: 18-feb-2013 - note this error message should be passed
@@ -254,15 +247,30 @@ void GetUserInput (
 			err_mesg = "cannot navigate to next question unless this is answered";
 			valid_input = false;
 		}
+		*/
 
 		cout << "reached here: valid_input :" << valid_input <<  endl;
 
 		if (valid_input) {
+
 			if (user_input.theUserResponse_ == user_response::UserSavedData) {
 				cout << "invoking callback_ui_input with UserSavedData" << endl;
+				// this call will return really fast 
+				//  (if you consider io fast)
+				//  but what I mean is we wont add much to the call stack
 				callback_ui_input (user_input, q, theQuestionnaire);
+				GetUserInput (callback_ui_input, q, theQuestionnaire);
 				cout << "callback_ui_input has returned after UserSavedData" << endl;
+			} else {
+				cout << "reached here: " 
+					<< __PRETTY_FUNCTION__ << endl;
+				callback_ui_input (user_input, q, theQuestionnaire);
+				cout << "callback_ui_input has returned" 
+					<< __PRETTY_FUNCTION__ << endl;
 			}
+			// move all this into callback_ui_input
+			// case UserEnteredData
+#if 0
 
 			int success;
 			vector <int> input_data;
@@ -275,7 +283,7 @@ void GetUserInput (
 				user_input.inputData_ = input_data;
 				callback_ui_input (user_input, q, theQuestionnaire);
 			}
-			callback_ui_input (user_input, q, theQuestionnaire);
+#endif /*  0 */
 		} else {
 			// we should be passing an error message too
 			GetUserInput (callback_ui_input, q, theQuestionnaire);
@@ -289,6 +297,8 @@ void GetUserInput (
 			//goto ask_again;
 		} */
 	} else {
+		// nxd: 19-feb-2013 
+		// I have to change this
 		GetUserInput (callback_ui_input, q, theQuestionnaire);
 	}
 }

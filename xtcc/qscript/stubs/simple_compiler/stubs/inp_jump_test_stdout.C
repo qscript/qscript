@@ -918,11 +918,85 @@ bool check_and_store_input_data_single_question
 }
  */
 
+void parse_input_data(vector<int> * data_ptr, int & success);
+void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);
+void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
+{
+	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
+	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
+		cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
+		if (p_user_input.questionResponseData_.length() == 0
+				&& q->question_attributes.isAllowBlank() == true ) {
+			// allow - serve next question
+			// note that we do not set the isAnswered_ == true for the blank question
+			// so when re-visiting this particular qnre it will automatically
+			// stop here for data.
+			question_eval_loop2 (p_user_input, /* last_question_visited */ q,
+					/*  jump_to_question */ 0, theQuestionnaire);
+		} else if (p_user_input.questionResponseData_.length() == 0
+				&& q->question_attributes.isAllowBlank() == false ) {
+			// do not allow - serve the same question
+			GetUserInput (callback_ui_input, q, theQuestionnaire);
+		} else {
+			cout << "--reached here" << endl;
+			// input is not blank
+			int success;
+			vector <int> input_data;
+			parse_input_data (p_user_input.questionResponseData_ 
+					/* current_response */, &input_data, success);
+			cout << "success: " << success << endl;
+			if (success == 0) {
+				GetUserInput (callback_ui_input, q, theQuestionnaire);
+			} else {
+				// =======================
+				string err_mesg, re_arranged_buffer;
+				int pos_1st_invalid_data;
+				if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+							input_data)) {
+					cout << "Got valid data for : " << q->questionName_ << endl;
+					// default direction - chosen by us
+					// go for the next question
+
+					// Note - this wont work in Erlang - modifying a variable
+					//  - better to create a new UserInput and set it with the
+					//  new valyes
+					p_user_input.userNavigation_ = NAVIGATE_NEXT;
+					p_user_input.theUserResponse_ = user_response::UserEnteredNavigation;
+					question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
+				} else {
+					//stdout_eval (q, theQuestionnaire, callback_ui_input);
+					GetUserInput (callback_ui_input, q, theQuestionnaire);
+				}
+				// =======================
+#if 0
+				user_input.userNavigation_ = NAVIGATE_NEXT;
+				user_input.inputData_ = input_data;
+				callback_ui_input (user_input, q, theQuestionnaire);
+				string err_mesg, re_arranged_buffer;
+				int pos_1st_invalid_data;
+				if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+						p_user_input.inputData_)) {
+					//serve next question
+					question_eval_loop2 ( p_user_input, /* last_question_visited */ q,
+							/*  jump_to_question */ 0, theQuestionnaire);
+				} else {
+					//serve same question
+					question_eval_loop2 ( p_user_input, /* last_question_visited */ q,
+							/*  jump_to_question */ 0, theQuestionnaire);
+				}
+#endif /*  0 */
+			}
+		}
+	}
+	cout << "EXIT:" << __PRETTY_FUNCTION__ << endl;
+}
 
 void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
-	bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);
+	// this will be called by the UI - it is the UI's responsibility to
+	// get valid data for us
+	//bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 		question_eval_loop2 (
 				p_user_input,
@@ -943,8 +1017,6 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 #endif /*  0 */
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 
-		string err_mesg, re_arranged_buffer;
-		int pos_1st_invalid_data;
 #if 0
 		bool invalid_code = q->VerifyData (err_mesg, re_arranged_buffer, pos_1st_invalid_data, &p_user_input.inputData_);
 		if (invalid_code == false) {
@@ -960,13 +1032,8 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 			question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
 		} 
 #endif /*  0 */
-		if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
-					p_user_input.inputData_)) {
-			cout << "Got valid data for : " << q->questionName_ << endl;
-			question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
-		} else {
-			stdout_eval (q, theQuestionnaire, callback_ui_input);
-		}
+		eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire);
+
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
 		cout << "under stdout either the user can enter data or navigation" << endl
 			<< "but under ncurses or other guis - it's possible to enter data" << endl
@@ -974,31 +1041,10 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 			<< " and then try to validate the user input - just like we would in a normal case"
 			<< endl;
 		theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
-		if (p_user_input.inputData_.size() == 0 
-				&& q->question_attributes.isAllowBlank() == true ) {
-			// allow - serve next question
-			question_eval_loop2 (p_user_input, /* last_question_visited */ q,
-					/*  jump_to_question */ 0, theQuestionnaire);
-		} else if (p_user_input.inputData_.size() == 0 
-				&& q->question_attributes.isAllowBlank() == false ) {
-			// do not allow - serve the same question
-			stdout_eval (q, theQuestionnaire, callback_ui_input);
-		} else {
-			// input is not blank
-			string err_mesg, re_arranged_buffer;
-			int pos_1st_invalid_data;
-			if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
-					p_user_input.inputData_)) {
-				//serve next question
-				question_eval_loop2 ( p_user_input, /* last_question_visited */ q,
-						/*  jump_to_question */ 0, theQuestionnaire);
-			} else {
-				//serve same question
-				question_eval_loop2 ( p_user_input, /* last_question_visited */ q,
-						/*  jump_to_question */ 0, theQuestionnaire);
-			}
-		}
+
 		cout << "unreachable code" << endl;
+	} else {
+		cerr << __PRETTY_FUNCTION__ << " unhandled case theUserResponse_" << endl;
 	}
 }
 
@@ -1019,8 +1065,16 @@ void question_eval_loop2 (
 				} else {
 					stdout_eval (target_question, theQuestionnaire, callback_ui_input);
 				}
-			}  else {
-				cout << "Unhandled case userNavigation_ ... exiting" << endl;
+			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
+				// do nothing 
+				// once we exit this major block == last_question_visited
+				// the bottom of this function will handle it
+			} else {
+				cout << "Unhandled case userNavigation_ ... exiting" << endl
+					<< __FILE__ << "," 
+					<< __LINE__ << "," 
+					<< __PRETTY_FUNCTION__ << "," 
+					<< endl;
 				exit(1);
 			}
 		} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {

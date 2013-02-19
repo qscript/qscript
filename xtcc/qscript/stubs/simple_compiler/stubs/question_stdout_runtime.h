@@ -39,11 +39,13 @@ struct UserInput
 {
 	UserNavigation userNavigation_;
 	//string question_response;
-	vector <int> inputData_;
+	//vector <int> inputData_;
+	string questionResponseData_;
 	user_response::UserResponseType theUserResponse_;
 	UserInput():
 		userNavigation_(NOT_SET),
-		inputData_(),
+		//inputData_(),
+		questionResponseData_(),
 		theUserResponse_(user_response::NotSet)
 	{}
 };
@@ -53,6 +55,10 @@ void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnai
 	void (*callback_ui_input) 
 		(UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire));
 void parse_input_data(string input_string, vector<int> * data_ptr, int & success);
+void GetUserInput ( 
+	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
+		struct TheQuestionnaire * theQuestionnaire), 
+		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire);
 
 
 #endif /*  QUESTION_STDOUT_RUNTIME_H */

@@ -506,7 +506,8 @@ user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * quest
 		do {
 ask_again:
 			user_response::UserResponseType user_resp = read_data(prompt.c_str(), &data);
-			bool valid_response = AbstractQuestion::VerifyResponse(user_resp, user_navigation);
+			string err_mesg;
+			bool valid_response = AbstractQuestion::VerifyResponse(user_resp, user_navigation, err_mesg);
 			if (!valid_response) {
 				goto ask_again;
 			}
@@ -557,7 +558,8 @@ label_ask_again:
 			// if (user_resp == user_response::UserEnteredNavigation) {
 			// 	return user_resp;
 			// }
-			bool valid_input = AbstractQuestion::VerifyResponse(user_resp, user_navigation);
+			string err_mesg;
+			bool valid_input = AbstractQuestion::VerifyResponse(user_resp, user_navigation, err_mesg);
 			// nxd: 17-feb-2013 23:51 - add the cases below to VerifyResponse
 			// then delete them from here and take a decision on:
 			// 	if valid_input == true else false
@@ -602,7 +604,7 @@ label_ask_again:
 }
 
 
-bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation)
+bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation, string & err_mesg)
 {
 	stringstream mesg; mesg << "user_resp: " << user_resp;
 	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
@@ -614,6 +616,11 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp,
 		// are reviewing this question - since blank is a valid answer
 		return true;
 	} else if (user_resp == user_response::UserEnteredData) {
+		return true;
+	} 	// clause moved here from GetUserInput - but seems redundant
+		//	as the next clause is already handling this
+		else if (isAnswered_ == false && user_navigation == NAVIGATE_PREVIOUS
+				&& user_resp == user_response::UserEnteredNavigation) {
 		return true;
 	} else if (user_resp == user_response::UserEnteredNavigation
 			&& user_navigation == NAVIGATE_PREVIOUS) {
@@ -630,6 +637,15 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp,
 	} else if (user_resp == user_response::UserSavedData && user_navigation == SAVE_DATA) {
 		return true;
 	} else {
+		if (isAnswered_ == false && user_navigation == NAVIGATE_NEXT
+				&& user_resp == user_response::UserEnteredNavigation
+				&& question_attributes.isAllowBlank() == false) {
+			// nxd: 18-feb-2013 - note this error message should be passed
+			// back as a parameter  - so it can be reported
+			err_mesg = "cannot navigate to next question unless this is answered";
+		} else {
+			err_mesg = "failed VerifyResponse for unknown reason";
+		}
 		return false;
 	}
 }

@@ -159,7 +159,7 @@ struct AbstractQuestion: public AbstractStatement
 
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data, vector<int32_t> * data_ptr);
-	bool VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation);
+	bool VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation, string & err_mesg);
 	// void PrintArrayDeclarations(ostringstream & quest_defns);
 	void PrintArrayDeclarations(StatementCompiledCode & code);
 	void PrintQuestionArrayInitialisation(
