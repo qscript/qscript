@@ -2593,7 +2593,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
 		fprintf(script, "\tcin >> ser_no;cin.get(newl);\n");
 		fprintf(script, "\t}\n");
-		fprintf(script, "\treset_questionnaire();\n");
+		fprintf(script, "\t*/\n\t// reset_questionnaire();\n");
 		fprintf(script, "\treturn 0;\n");
 	}
 	// fprintf(script, "\n\t} /* close while */\n");
