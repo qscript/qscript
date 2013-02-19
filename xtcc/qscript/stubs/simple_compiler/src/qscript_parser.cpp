@@ -19,6 +19,7 @@ namespace program_options_ns {
 	extern bool compile_to_cpp_only_flag;
 	extern int32_t fname_flag;
 	extern bool flag_nice_map;
+	extern bool stdout_flag;
 }
 
 extern int32_t qscript_confparse();
@@ -126,6 +127,8 @@ void PrintDefineSomePDCursesKeys(FILE * script);
 void PrintPDCursesKeysHeader(FILE * script);
 void PrintProcessOptions(FILE * script);
 void PrintNCursesMain(FILE * script, bool ncurses_flag);
+void PrintStdoutMain (FILE * script);
+
 void PrintMicrohttpdMain (FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag);
@@ -146,6 +149,8 @@ void print_Wt_support_code(FILE * script);
 void print_microhttpd_include_files (FILE * script);
 void print_web_support_structs (FILE * script);
 void print_microhttpd_web_support_structs (FILE * script);
+
+void print_new_logic_support_functions(FILE * script);
 
 void print_question_messages(FILE * script);
 
@@ -272,6 +277,9 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 		print_web_support_structs (script);
 		print_Wt_support_code(script);
 	}
+	if (program_options_ns::stdout_flag) {
+		PrintStdoutMain(script);
+	}
 	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
 	if(qscript_debug::DEBUG_qscript_parser)
@@ -309,6 +317,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	if (program_options_ns::ncurses_flag) {
 		print_ncurses_include_files(script);
 	}
+
 	if (program_options_ns::microhttpd_flag) {
 		print_microhttpd_include_files(script);
 	}
@@ -318,7 +327,12 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <unistd.h>\n");
 	//fprintf(script, "#include \"stmt.h\"\n");
 	fprintf(script, "#include \"AbstractQuestionnaire.h\"\n");
-	fprintf(script, "#include \"question_ncurses_runtime.h\"\n");
+	if (program_options_ns::ncurses_flag) {
+		fprintf(script, "#include \"question_ncurses_runtime.h\"\n");
+	}
+	if (program_options_ns::stdout_flag) {
+		fprintf (script, "#include \"question_stdout_runtime.h\"\n");
+	}
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"AbstractStatement.h\"\n");
 	fprintf(script, "#include \"named_range.h\"\n");
@@ -484,10 +498,15 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 		}
 	}
 	*/
-	PrintSignalHandler(script, ncurses_flag);
-	PrintSetupSignalHandler(script);
-	PrintProcessOptions(script);
-	PrintPrintMapHeader(script);
+	// 19-feb-2013 - no need for this
+	//PrintSignalHandler(script, ncurses_flag);
+	//PrintSetupSignalHandler(script);
+	//PrintProcessOptions(script);
+	//PrintPrintMapHeader(script);
+	if (program_options_ns::stdout_flag) {
+		print_new_logic_support_functions (script);
+	}
+
 }
 
 void print_question_messages(FILE * script)
@@ -1661,6 +1680,34 @@ void PrintPrintMapHeader(FILE * script)
 	fprintf(script, "}\n");
 }
 
+void PrintStdoutMain (FILE * script)
+{
+	fprintf (script, "\nint callback_get_ser_no_from_ui (int p_ser_no);\n");
+	fprintf (script, "int32_t main(int argc, char * argv[])\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	process_options(argc, argv);\n");
+	fprintf (script, "	if (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag)\n");
+	fprintf (script, "	{\n");
+	fprintf (script, "		qtm_data_file_ns::init();\n");
+	fprintf (script, "		qtm_data_file_ns::init_exceptions();\n");
+	fprintf (script, "		directory_ptr = opendir(\".\");\n");
+	fprintf (script, "		if (! directory_ptr)\n");
+	fprintf (script, "		{\n");
+	fprintf (script, "			cout << \" unable to open . (current directory) for reading\\n\";\n");
+	fprintf (script, "			exit(1);\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	bool using_ncurses = true;\n");
+	fprintf (script, "	qscript_stdout = fopen(qscript_stdout_fname.c_str(), \"w\");\n");
+	fprintf (script, "	using namespace std;\n");
+	fprintf (script, "	SetupSignalHandler();\n");
+	fprintf (script, "	setup_ui (argc, argv);\n");
+	fprintf (script, "	prompt_user_for_serial_no (callback_get_ser_no_from_ui);\n");
+	fprintf (script, "\n");
+	fprintf (script, "} /* close main */\n");
+	fprintf (script, "\n");
+}
+
 void PrintNCursesMain (FILE * script, bool ncurses_flag)
 {
 
@@ -2517,6 +2564,10 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t}\n");
 
 	fprintf(script, "%s\n", program_code.str().c_str());
+
+
+	// nxd: 19-feb-2013 - commented out today
+#if 0
 	fprintf(script, "\t/*\n");
 	fprintf(script, "\tif (write_data_file_flag) {\n\n");
 	fprintf(script, "\t\t cout << \"write_data_file_flag is set\\n\";\n");
@@ -2596,6 +2647,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf(script, "\t*/\n\t// reset_questionnaire();\n");
 		fprintf(script, "\treturn 0;\n");
 	}
+#endif /* 0 */
 	// fprintf(script, "\n\t} /* close while */\n");
 	//
 	
@@ -2604,71 +2656,9 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	 * For now, I am commenting it ou
 	 */
 
-#if 0
-	fprintf(script, "    if (write_qtm_data_file_flag||write_data_file_flag || write_xtcc_data_file_flag) {\n");
-	fprintf(script, "\n");
-	fprintf(script, "           string freq_count_file_name(jno + string(\".freq_count.csv\"));\n");
-	fprintf(script, "           fstream freq_count_file(freq_count_file_name.c_str(), ios_base::out | ios_base::trunc);\n");
-	fprintf(script, "\n");
-	fprintf(script, "           // for (map<string, map<int, int> >::iterator it = freq_count.begin();\n");
-	fprintf(script, "           //              it != freq_count.end(); ++ it) ;\n");
-	fprintf(script, "       for (int32_t i=0; i<question_list.size(); ++i)\n");
-	fprintf(script, "       {\n");
-	fprintf(script, "                   AbstractQuestion *q = question_list[i];\n");
-	fprintf(script, "                   //freq_count_file << it->first << endl;\n");
-	fprintf(script, "                   freq_count_file << q->questionName_ ;\n");
-	fprintf(script, "			stringstream question_name_str;\n");
-	fprintf(script, "			question_name_str << q->questionName_;\n");
-	fprintf(script, "		    if (q->loop_index_values.size()) {\n");
-	fprintf(script, "				for (int j=0; j<q->loop_index_values.size(); ++j) {\n");
-	fprintf(script, "					freq_count_file << \".\" << q->loop_index_values[j];\n");
-	fprintf(script, "					question_name_str << \".\" << q->loop_index_values[j];\n");
-	fprintf(script, "				}\n");
-	fprintf(script, "		    }\n");
-	fprintf(script, "		    freq_count_file << endl;\n");
-
-	fprintf(script, "			if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {\n");
-	fprintf(script, "				freq_count_file << \"stubs, code, frequency\" << endl;\n");
-	fprintf(script, "				map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
-	fprintf(script, "				vector<stub_pair> & vec= (nq->nr_ptr->stubs);\n");
-	fprintf(script, "				for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
-	fprintf(script, "					it2 != q_freq_count.end(); ++ it2)\n");
-	fprintf(script, "				{\n");
-	fprintf(script, "					for (int i=0; i<vec.size(); ++i) {\n");
-	fprintf(script, "						if (vec[i].code == it2->first) {\n");
-	fprintf(script, "							freq_count_file << \"\\\"\" << vec[i].stub_text\n");
-	fprintf(script, "								<< \"\\\"\" << \",\";\n");
-	fprintf(script, "						}\n");
-	fprintf(script, "					}\n");
-	fprintf(script, "					freq_count_file << it2->first << \", \"\n");
-	fprintf(script, "						<< it2->second << endl;\n");
-	fprintf(script, "				}\n");
-	fprintf(script, "			} else {\n");
-	fprintf(script, "				freq_count_file << \", code, frequency\" << endl;\n");
-	fprintf(script, "				map<int32_t, int32_t>  q_freq_count = freq_count[question_name_str.str()];\n");
-	fprintf(script, "				for (map<int32_t, int32_t>::const_iterator it2 = q_freq_count.begin();\n");
-	fprintf(script, "					it2 != q_freq_count.end(); ++ it2)\n");
-	fprintf(script, "				{\n");
-	fprintf(script, "					freq_count_file << \", \" << it2->first << \", \"\n");
-	fprintf(script, "						<< it2->second << endl;\n");
-	fprintf(script, "				}\n");
-	fprintf(script, "			}\n");
-	fprintf(script, "           }\n");
-	fprintf(script, "           freq_count_file << endl;\n");
-	fprintf(script, "	for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		delete qtm_datafile_question_disk_map[i];\n");
-	fprintf(script, "		qtm_datafile_question_disk_map[i] = 0;\n");
-	fprintf(script, "	}\n");
-	fprintf(script, "	for (int i=0; i<ascii_flatfile_question_disk_map.size(); ++i) {\n");
-	fprintf(script, "		delete ascii_flatfile_question_disk_map[i];\n");
-	fprintf(script, "		ascii_flatfile_question_disk_map[i] = 0;\n");
-	fprintf(script, "	}\n");
-
-	fprintf(script, "    }\n");
-	fprintf(script, "\n");
-#endif /* 0 */
-
+	fprintf(script, "\treturn 0;\n");
 	fprintf(script, "} /* close eval */\n");
+
 }
 
 void print_read_a_serial_no (FILE * script)
@@ -4717,6 +4707,140 @@ void print_Wt_support_code(FILE * script)
 
 }
 
+/// =============================
+
+void print_new_logic_support_functions(FILE * script)
+{
+
+	fprintf (script, "void question_eval_loop2 (\n");
+	fprintf (script, "	UserInput p_user_input,\n");
+	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
+	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire);\n");
+	fprintf (script, "\n");
+	fprintf (script, "// nxd: this is a global variable - has to be eliminated at some point\n");
+	fprintf (script, "TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);\n");
+	fprintf (script, "int callback_get_ser_no_from_ui (int p_ser_no)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	cout << \"received serial no : \" << p_ser_no << \"from ui\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "	theQuestionnaire->ser_no = p_ser_no;\n");
+	fprintf (script, "	theQuestionnaire->base_text_vec.push_back(BaseText(\"All Respondents\"));\n");
+	fprintf (script, "	theQuestionnaire->compute_flat_file_map_and_init();\n");
+	fprintf (script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	AbstractQuestion * last_question_visited = 0;\n");
+	fprintf (script, "	AbstractQuestion * jump_to_question = 0;\n");
+	fprintf (script, "	EvalMode qnre_mode = NORMAL_FLOW;\n");
+	fprintf (script, "	//question_eval_loop (qnre_mode,\n");
+	fprintf (script, "	//			qnre_navigation_mode, last_question_visited,\n");
+	fprintf (script, "	//			jump_to_question, theQuestionnaire);\n");
+	fprintf (script, "	UserInput l_user_input;\n");
+	fprintf (script, "	question_eval_loop2 (\n");
+	fprintf (script, "				l_user_input, /* last_question_visited */ 0,\n");
+	fprintf (script, "				/* jump_to_question */ 0, theQuestionnaire);\n");
+	fprintf (script, "	cout << \"finished qnre: exiting ...\" << endl;\n");
+	fprintf (script, "	prompt_user_for_serial_no (callback_get_ser_no_from_ui);\n");
+	fprintf (script, "	return 0;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "void parse_input_data(vector<int> * data_ptr, int & success);\n");
+	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);\n");
+	fprintf (script, "void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	cout << __PRETTY_FUNCTION__ << endl;\n");
+	fprintf (script, "	// this will be called by the UI - it is the UI's responsibility to\n");
+	fprintf (script, "	// get valid data for us\n");
+	fprintf (script, "	//bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);\n");
+	fprintf (script, "	if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {\n");
+	fprintf (script, "		question_eval_loop2 (\n");
+	fprintf (script, "				p_user_input,\n");
+	fprintf (script, "				/* last_question_visited */ q,\n");
+	fprintf (script, "				/*  jump_to_question */ 0, theQuestionnaire);\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {\n");
+	fprintf (script, "		eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire);\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {\n");
+	fprintf (script, "		cout << \"under stdout either the user can enter data or navigation\" << endl\n");
+	fprintf (script, "			<< \"but under ncurses or other guis - it's possible to enter data\" << endl\n");
+	fprintf (script, "			<< \" AND ask to save by pressing f4, in which case we should save the data \"\n");
+	fprintf (script, "			<< \" and then try to validate the user input - just like we would in a normal case\"\n");
+	fprintf (script, "			<< endl;\n");
+	fprintf (script, "		// nxd: this function needs to be cleaned up\n");
+	fprintf (script, "		//      we can easily downcast to an AbstractQuestionnaire and then there is no need for this\n");
+	fprintf (script, "		//      function to be present here\n");
+	fprintf (script, "		theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		cerr << __PRETTY_FUNCTION__ << \" unhandled case theUserResponse_\" << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "void question_eval_loop2 (\n");
+	fprintf (script, "	UserInput p_user_input,\n");
+	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
+	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	if (last_question_visited) {\n");
+	fprintf (script, "		if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {\n");
+	fprintf (script, "			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {\n");
+	fprintf (script, "				fprintf(qscript_stdout,\n");
+	fprintf (script, "					\"user_navigation == NAVIGATE_PREVIOUS\\n\");\n");
+	fprintf (script, "				AbstractQuestion *target_question =\n");
+	fprintf (script, "					theQuestionnaire->ComputePreviousQuestion(last_question_visited);\n");
+	fprintf (script, "				if (target_question == 0) { \n");
+	fprintf (script, "					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input);\n");
+	fprintf (script, "				} else {\n");
+	fprintf (script, "					stdout_eval (target_question, theQuestionnaire, callback_ui_input);\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {\n");
+	fprintf (script, "				// do nothing \n");
+	fprintf (script, "				// once we exit this major block == last_question_visited\n");
+	fprintf (script, "				// the bottom of this function will handle it\n");
+	fprintf (script, "			} else {\n");
+	fprintf (script, "				cout << \"Unhandled case userNavigation_ ... exiting\" << endl\n");
+	fprintf (script, "					<< __FILE__ << \",\" \n");
+	fprintf (script, "					<< __LINE__ << \",\" \n");
+	fprintf (script, "					<< __PRETTY_FUNCTION__ << \",\" \n");
+	fprintf (script, "					<< endl;\n");
+	fprintf (script, "				exit(1);\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {\n");
+	fprintf (script, "			// the management of correctly accepting data is handled \n");
+	fprintf (script, "			// by : callback_ui_input\n");
+	fprintf (script, "			// if we have reached back again here - it means it's\n");
+	fprintf (script, "			// time to get the next question\n");
+	fprintf (script, "			AbstractQuestion * q =\n");
+	fprintf (script, "				theQuestionnaire->eval2 (\n");
+	fprintf (script, "				NAVIGATE_NEXT, last_question_visited, jump_to_question);\n");
+	fprintf (script, "			if (!q) {\n");
+	fprintf (script, "				cout << \"End of qnre();\" << endl << \">\";\n");
+	fprintf (script, "				//int ch = getchar();\n");
+	fprintf (script, "			} else {\n");
+	fprintf (script, "				stdout_eval (q, theQuestionnaire, callback_ui_input);\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "\n");
+	fprintf (script, "		} else {\n");
+	fprintf (script, "			cout << \"Unhandled case userNavigation_ ... exiting\" << endl;\n");
+	fprintf (script, "			exit(1);\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	} // else {\n");
+	fprintf (script, "	// should reach here - end of :\n");
+	fprintf (script, "		AbstractQuestion * q =\n");
+	fprintf (script, "			theQuestionnaire->eval2 (\n");
+	fprintf (script, "			NAVIGATE_NEXT, last_question_visited, jump_to_question);\n");
+	fprintf (script, "		if (!q) {\n");
+	fprintf (script, "			cout << \"End of qnre();\" << endl << \">\";\n");
+	fprintf (script, "		} else {\n");
+	fprintf (script, "			stdout_eval (q, theQuestionnaire, callback_ui_input);\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	//}\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+
+
+}
 
 
 /* end of namespace */

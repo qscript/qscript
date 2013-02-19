@@ -44,6 +44,7 @@ namespace program_options_ns {
 	bool flag_nice_map;
 	bool compile_to_cpp_only_flag = false;
 	bool latex_flag = false;
+	int stdout_flag = 0;
 }
 
 void process_options (int32_t argc, char* argv[]);
@@ -316,13 +317,16 @@ void process_options (int32_t argc, char* argv[])
 			{ "static", no_argument, 0, 's'},
 			{ "ncurses-exe", no_argument, 0, 'n'},
 			{ "web-exe", required_argument, 0, 'w'},
-			{ "filename", required_argument, 0, 'f'}
+			{ "filename", required_argument, 0, 'f'},
+			{ "stdout", no_argument, &program_options_ns::stdout_flag, 1}
 		};
 	int option_index = 0;
 	while (1) {
 		c = getopt_long (argc, argv, "molcsnw:f:", long_options, &option_index);
 		if (c == -1) {
 			break;
+		} else if (c == 0) {
+			continue;
 		}
 		switch (c) {
 			case 'c':
@@ -382,4 +386,7 @@ void process_options (int32_t argc, char* argv[])
 		cerr << " -w option can be specified only once" << endl;
 		exit (0);
 	}
+	std::stringstream warn_mesg;
+	warn_mesg << " Add warnings for incompatible options - for example - stdout and ncurses etc" << endl;
+	LOG_MAINTAINER_MESSAGE(warn_mesg.str());
 }
