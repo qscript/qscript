@@ -22,7 +22,7 @@
 #include "UserResponse.h"
 #include "eval_mode.h"
 
-
+struct TheQuestionnaire;
 void setup_ui (int argc, char * argv[]);
 char get_end_of_question_response();
 void print_save_partial_data_message_success ();

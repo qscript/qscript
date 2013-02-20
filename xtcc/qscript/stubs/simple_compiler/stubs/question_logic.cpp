@@ -29,6 +29,13 @@ void question_eval_loop2 (
 
 void parse_input_data(vector<int> * data_ptr, int & success);
 void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);
+// 21-feb-2013 12:53 am
+// nxd - modify this function
+// remove all GetUserInput calls 
+// make it return success or failure
+// add error message as a parameter - let the message be registered here
+// the decision making about what to do as a result of the success/failure should be handled
+// in question_eval_loop2
 void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
 {
 	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
