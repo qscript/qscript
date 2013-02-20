@@ -127,6 +127,7 @@ class GtkQuestionnaireApplication
 		//  - for example struct TheQuestionnaire
 		AbstractQuestion * last_question_visited;
 		AbstractQuestion * jump_to_question;
+		void handleDataInput();
 	private:
 		GtkWidget * wt_debug_;
 		GtkWidget * wt_questionText_;
@@ -143,7 +144,9 @@ class GtkQuestionnaireApplication
 		std::map<int, int> map_cb_code_index;
 		std::vector<GtkWidget *> languageSelects_;
 
-		GtkWidget *vbox , *hbox ;
+		GtkWidget 
+			//*vbox, 
+			*hbox ;
 		GtkWidget * serialNoEntry_ ;
 		//GtkWidget * button ;
 		GtkWidget * check ;
@@ -242,7 +245,8 @@ GtkQuestionnaireApplication::GtkQuestionnaireApplication (int argc, char * argv[
 	   wt_debug_(0), wt_questionText_(0), le_data_(0), wt_lastQuestionVisited_(0),
 	   wt_cb_rb_container_(0), wt_rb_container_(0), questionTextLabel_(0),
 	   vec_rb(), rbData_(), vec_cb(), map_cb_code_index(), languageSelects_(),
-	   vbox(0), hbox(0), serialNoEntry_(0), check(0), rb(0), next_button(0),
+	   //vbox(0), 
+	   hbox(0), serialNoEntry_(0), check(0), rb(0), next_button(0),
 	   viewPort_(0), currentForm_(0), formContainer_(0), gtkRadioButtonGroup_(0),
 	   bottomHalfVBox_(0), bottomHalfNavigationBox_(0), topHalfVBox_(0),
 	   ser_no(-1), serialPage_(0),
@@ -266,13 +270,16 @@ void GtkQuestionnaireApplication::CreateBottomHalf()
 		GTK_POLICY_AUTOMATIC,
 		GTK_POLICY_AUTOMATIC);
 	//gtk_container_add (GTK_CONTAINER (scrolled_window), view);
-	bottomHalfVBox_ = gtk_vbox_new (FALSE, 0);
+	//bottomHalfVBox_ = gtk_vbox_new (FALSE, 0);
+	//bottomHalfVBox_ = gtk_vbox_new (FALSE, 0);
+	bottomHalfVBox_ = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfVBox_);
 	gtk_widget_show (bottomHalfVBox_);
 	//insert_text (buffer);
 	//gtk_widget_show_all (bottom_half);
 	//return scrolled_window;
-	bottomHalfNavigationBox_ = gtk_vbox_new (FALSE, 0);
+	//bottomHalfNavigationBox_ = gtk_vbox_new (FALSE, 0);
+	bottomHalfNavigationBox_ = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfNavigationBox_);
 	gtk_widget_show (bottomHalfNavigationBox_);
 	gtk_widget_show (bottom_half);
@@ -289,7 +296,8 @@ void GtkQuestionnaireApplication::CreateTopHalf()
 		GTK_POLICY_AUTOMATIC,
 		GTK_POLICY_AUTOMATIC);
 	gtk_widget_show (top_half);
-	topHalfVBox_ = gtk_vbox_new (FALSE, 0);
+	//topHalfVBox_ = gtk_vbox_new (FALSE, 0);
+	topHalfVBox_ = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	gtk_widget_show (topHalfVBox_);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), topHalfVBox_);
 
@@ -321,7 +329,7 @@ void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 		G_CALLBACK (destroy), NULL);
 	// ============================
 	/* create a vpaned widget and add it to our toplevel window */
-	GtkWidget * vpaned = gtk_vpaned_new ();
+	GtkWidget * vpaned = gtk_paned_new (GTK_ORIENTATION_VERTICAL);
 	gtk_container_add (GTK_CONTAINER (window), vpaned);
 	gtk_widget_show (vpaned);
 	/* Now create the contents of the two halves of the window */
@@ -623,7 +631,7 @@ void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnai
 			//, gtkQuestionnaireApplication->this_users_session
 			);
 
-	GetUserInput (callback_ui_input, q, theQuestionnaire);
+	//GetUserInput (callback_ui_input, q, theQuestionnaire);
 }
 
 string GenerateSessionId()
@@ -704,7 +712,7 @@ void GtkQuestionnaireApplication::get_serial_no_gtk (int (* p_return_ser_no) (in
 	//vbox = gtk_vbox_new (FALSE, 0);
 	//vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 
-	gtk_widget_show (vbox);
+	//gtk_widget_show (vbox);
 
 	//gtk_container_add (GTK_CONTAINER (top_half), vbox);
 	//gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), vbox);
@@ -718,7 +726,7 @@ void GtkQuestionnaireApplication::get_serial_no_gtk (int (* p_return_ser_no) (in
 			G_CALLBACK (serial_no_enter_callback),
 			(gpointer) this);
 		gtk_entry_set_text (GTK_ENTRY (serialNoEntry_), "<Enter Serial No Here>");
-			
+		gtk_box_pack_start (GTK_BOX (topHalfVBox_), serialNoEntry_, TRUE, TRUE, 0);
 	}
 
 	/* 
@@ -729,7 +737,6 @@ void GtkQuestionnaireApplication::get_serial_no_gtk (int (* p_return_ser_no) (in
 		0, GTK_ENTRY (serialNoEntry_)-> text_length);
 	*/
 
-	gtk_box_pack_start (GTK_BOX (topHalfVBox_), serialNoEntry_, TRUE, TRUE, 0);
 	gtk_widget_show (serialNoEntry_);
 
 }
@@ -737,12 +744,14 @@ void GtkQuestionnaireApplication::get_serial_no_gtk (int (* p_return_ser_no) (in
 
 void GtkQuestionnaireApplication::DestroyPreviousWidgets ()
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	cerr << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	if (questionTextLabel_)
 	{
+		cerr << "destroying questionTextLabel_: " << questionTextLabel_ << endl;
 		gtk_widget_destroy (questionTextLabel_) ;
 		questionTextLabel_ = 0;
 	}
+	cerr << "reached here " << endl;
 	if (vec_rb.size() > 0)
 	{
 		// put clear / destroy previous widget code here
@@ -771,6 +780,7 @@ void GtkQuestionnaireApplication::DestroyPreviousWidgets ()
 		gtk_widget_destroy (le_data_);
 		le_data_ = 0;
 	}
+	cerr << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 
@@ -789,6 +799,9 @@ void next_button_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp
 	//question_eval_loop_gtk (qnre_mode,
 	//	qnre_navigation_mode, last_question_visited,
 	//	jump_to_question, theQuestionnaire);
+	//
+	//
+	qapp->handleDataInput();
 }
 
 void toggle_rb_button_event (GtkWidget *widget, GtkRadioButtonData * rb_data)
@@ -807,12 +820,13 @@ void toggle_rb_button_event (GtkWidget *widget, GtkRadioButtonData * rb_data)
 
 void GtkQuestionnaireApplication::ConstructQuestionForm( AbstractQuestion *q )
 {
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	map_cb_code_index.clear();
 	vector <string> question_text_vec = PrepareQuestionText (q);
 	//gtk_widget_hide( entry);
 
 	DestroyPreviousWidgets ();
-	DisplayQuestionTextView (question_text_vec);
+	this->DisplayQuestionTextView (question_text_vec);
 
 
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
@@ -903,6 +917,7 @@ void GtkQuestionnaireApplication::ConstructQuestionForm( AbstractQuestion *q )
 
 	/* When the button is clicked, we call the "callback" function
 	 * with a pointer to "button 1" as its argument */
+	last_question_visited = q;
 	g_signal_connect (G_OBJECT (next_button), "clicked",
 		G_CALLBACK (next_button_callback), (gpointer) this);
 }
@@ -914,10 +929,12 @@ void GtkQuestionnaireApplication::DisplayQuestionTextView (const vector <string>
 	for (int i=0; i < qno_and_qtxt.size(); ++i) {
 		question_text << qno_and_qtxt[i];
 	}
+	//question_text << "dummy - to check for core dump";
 	questionTextLabel_ = gtk_label_new (question_text.str().c_str());
 	//gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (top_half), questionTextLabel_);
-	gtk_box_pack_start (GTK_BOX (vbox), questionTextLabel_, TRUE, TRUE, 0);
-	gtk_widget_show(questionTextLabel_);
+	cout << "topHalfVBox_: " << topHalfVBox_ << endl;
+	gtk_box_pack_start (GTK_BOX (topHalfVBox_), questionTextLabel_, TRUE, TRUE, 0);
+	gtk_widget_show (questionTextLabel_);
 	gtk_widget_show (top_half);
 }
 
@@ -1049,3 +1066,144 @@ vector<string> GtkQuestionnaireApplication::PrepareQuestionText(AbstractQuestion
 	return result;
 }
 
+void GtkQuestionnaireApplication::handleDataInput()
+{
+	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
+	{
+#if 0
+		AbstractQuestion * last_question_served = last_question_visited;
+		vector<int32_t> data;
+		bool isAnswered = false;
+		cout << "returned back data from question: " << nq->questionName_ << endl;
+		if (last_question_served->no_mpn == 1)
+		{
+			if (rb_selected_code != -1)
+			{
+				isAnswered = true;
+				//int code = wt_rb_container_->checkedId();
+				cout << "no_mpn == 1, code: " << rb_selected_code << endl;
+				data.push_back(rb_selected_code);
+			}
+			else
+			{
+				isAnswered = false;
+			}
+		}
+		else
+		{
+			cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
+			for (int i = 0; i < vec_cb.size(); ++i)
+			{
+				//if (vec_cb[i]->checkState() == Wt::Checked)
+				//{
+				//	int code = map_cb_code_index[i];
+				//	data.push_back(code);
+				//	cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
+				//	isAnswered = true;
+				//}
+				if (gtk_toggle_button_get_active ((GtkToggleButton *) vec_cb[i]) )
+				{
+					int code = map_cb_code_index[i];
+					data.push_back(code);
+					isAnswered = true;
+					cout << "button is toggled: " << code << endl;
+				}
+			}
+		}
+		if (isAnswered)
+		{
+			bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+				&data);
+			if (invalid_code == false)
+			{
+				//last_question_served->input_data.erase
+				//	(last_question_served->input_data.begin(),
+				//	last_question_served->input_data.end());
+				last_question_served->input_data.clear();
+				for(uint32_t i = 0; i < data.size(); ++i)
+				{
+					last_question_served->input_data.insert(data[i]);
+					cout << "storing: " << data[i]
+						<< " into input_data" << endl;
+				}
+				last_question_served->isAnswered_ = true;
+				data.clear();
+			}
+		}
+		// do something with isAnswered_ == false here and resend the
+		// qnre to the respondent
+#endif 
+	}
+	else
+	{
+
+		const gchar *entry_text = gtk_entry_get_text (GTK_ENTRY (le_data_));
+		string last_question_served_response (entry_text);
+		cout << "RangeQuestion: entry_text: " << entry_text << endl;
+#if 0
+		AbstractQuestion * last_question_served = last_question_visited;
+		if (/* last_question_visited_str != "" &&  */ last_question_served_response != "" && last_question_served->no_mpn==1)
+		{
+			UserNavigation user_nav=NOT_SET;
+			user_response::UserResponseType user_resp=user_response::NotSet;
+			vector<int32_t> data;
+			bool parse_success = verify_web_data (last_question_served_response, user_nav, user_resp, &data);
+			if (parse_success)
+			{
+				cout << "successfully parsed data = ";
+				for (int i=0; i<data.size(); ++i)
+				{
+					cout << data[i] << ", ";
+				}
+				cout << endl;
+			}
+			// the call below will be required at some later stage
+			//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+			// right now we go along with the happy path
+			bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+				&data);
+			if (invalid_code == false)
+			{
+				last_question_served->input_data.erase
+					(last_question_served->input_data.begin(),
+					last_question_served->input_data.end());
+				for(uint32_t i = 0; i < data.size(); ++i)
+				{
+					last_question_served->input_data.insert(data[i]);
+					//cout << "storing: " << data[i]
+					//	<< " into input_data" << endl;
+				}
+				last_question_served->isAnswered_ = true;
+				data.clear();
+			}
+			else
+			{
+				ConstructQuestionForm(last_question_served, this_users_session);
+				return;
+			}
+		}
+		else if (/* last_question_visited_str != "" &&  */ last_question_served_response != "" && last_question_served->no_mpn > 1)
+		{
+			//string utf8_response = le_data_->text().toUTF8();
+			if (last_question_served_response != "")
+			{
+				stringstream file_name_str;
+				file_name_str << last_question_served->questionName_ << "."
+					<< jno << "_" << ser_no << ".dat";
+
+				fstream open_end_resp(file_name_str.str().c_str(), ios_base::out|ios_base::ate);
+				open_end_resp << last_question_served_response << endl;
+				last_question_served->input_data.insert(96);
+				last_question_served->isAnswered_ = true;
+			}
+			else
+			{
+				ConstructQuestionForm(last_question_served, this_users_session);
+				return;
+			}
+		}
+#endif /*  0 */
+	}
+
+
+}
