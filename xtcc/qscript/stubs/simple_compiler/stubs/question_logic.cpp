@@ -39,6 +39,7 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
 {
 	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
+
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
 		if (p_user_input.questionResponseData_.length() == 0
@@ -69,7 +70,8 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQues
 				int pos_1st_invalid_data;
 				if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
 							input_data)) {
-					cout << "Got valid data for : " << q->questionName_ << endl;
+					cout << __PRETTY_FUNCTION__
+						<< "Got valid data for : " << q->questionName_ << endl;
 					// default direction - chosen by us
 					// go for the next question
 
@@ -78,6 +80,8 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQues
 					//  new valyes
 					p_user_input.userNavigation_ = NAVIGATE_NEXT;
 					p_user_input.theUserResponse_ = user_response::UserEnteredNavigation;
+					cout << __PRETTY_FUNCTION__ << ", invoking question_eval_loop2" 
+						<< endl;
 					question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
 				} else {
 					//stdout_eval (q, theQuestionnaire, callback_ui_input);

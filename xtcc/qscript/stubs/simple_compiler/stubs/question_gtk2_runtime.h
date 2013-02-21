@@ -26,8 +26,11 @@ struct TheQuestionnaire;
 void setup_ui (int argc, char * argv[], /* int (* p_return_ser_no) (int), */ struct TheQuestionnaire * p_theQuestionnaire);
 char get_end_of_question_response();
 void print_save_partial_data_message_success ();
-int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int));
+int32_t prompt_user_for_serial_no(
+		int (* p_return_ser_no) (int, struct TheQuestionnaire *)
+	);
 void gtk_eval (AbstractQuestion * q);
+int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQuestionnaire );
 /*
 struct TheQuestionnaire;
 

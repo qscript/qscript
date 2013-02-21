@@ -127,7 +127,8 @@ class GtkQuestionnaireApplication
 		GtkWidget * window , * top_half , * bottom_half ;
 		GtkQuestionnaireApplication (int argc, char * argv[], /* , int (* p_return_ser_no) (int) */ struct TheQuestionnaire * p_theQuestionnaire);
 		void SetupGTK (int argc, char * argv[]);
-		int (*return_ser_no) (int p_ser_no);
+		//int (*return_ser_no) (int p_ser_no);
+		int (*return_ser_no) (int, struct TheQuestionnaire *);
 		int rb_selected_code;
 
 		// This may have to be moved to a better location than here
@@ -189,7 +190,9 @@ class GtkQuestionnaireApplication
 		void DoQuestionnaire() ;
 		void ValidateSerialNo();
 		//virtual ~GtkQuestionnaireApplication();
-		void get_serial_no_gtk (int (* p_return_ser_no) (int));
+		void get_serial_no_gtk (
+				int (* p_return_ser_no) (int, struct TheQuestionnaire *)
+				);
 		void ConstructQuestionForm(
 			AbstractQuestion *q
 			//, Session * this_users_session
@@ -218,7 +221,9 @@ void print_save_partial_data_message_success ()
 }
 
 GtkQuestionnaireApplication * gtkQuestionnaireApplication = 0;
-int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int))
+int32_t prompt_user_for_serial_no(
+		int (* p_return_ser_no) (int, struct TheQuestionnaire *)
+	)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 
@@ -361,7 +366,8 @@ void GtkQuestionnaireApplication::SetupGTK (int argc, char * argv[])
 }
 
 
-int callback_get_ser_no_from_ui (int p_ser_no);
+//int callback_get_ser_no_from_ui (int p_ser_no);
+
 void setup_ui (int argc, char * argv[], struct TheQuestionnaire * p_theQuestionnaire )
 {
 	cout 	<< "Gtk: Welcome to the simplest possible qscript runtime"
@@ -705,14 +711,16 @@ void serial_no_enter_callback (GtkWidget *widget, GtkQuestionnaireApplication * 
 		{
 			cerr << __PRETTY_FUNCTION__ << " hide serialNoEntry_ later" << endl;
 			//gtk_widget_hide (serialNoEntry_);
-			qapp->return_ser_no(l_ser_no);
+			qapp->return_ser_no(l_ser_no, qapp->theQuestionnaire_);
 		}
 	}
 }
 
 
 
-void GtkQuestionnaireApplication::get_serial_no_gtk (int (* p_return_ser_no) (int))
+void GtkQuestionnaireApplication::get_serial_no_gtk (
+		int (* p_return_ser_no) (int, struct TheQuestionnaire *)
+	)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 
