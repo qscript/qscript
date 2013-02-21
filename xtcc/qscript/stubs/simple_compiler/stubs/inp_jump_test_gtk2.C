@@ -877,39 +877,57 @@ UserInput p_user_input,
 AbstractQuestion * last_question_visited,
 AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
 {
-
-	cout << __PRETTY_FUNCTION__ << endl;
+	cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	cout << "arg values: " << endl;
-	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
+	if (p_user_input.userNavigation_ == NAVIGATE_NEXT)
+	{
 		cout << "p_user_input.userNavigation_ == NAVIGATE_NEXT" << endl;
-	} else if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
+	}
+	else if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS)
+	{
 		cout << "p_user_input.userNavigation_ == NAVIGATE_PREVIOUS" << endl;
-	} else {
+	}
+	else
+	{
 		cout << "FIXME: p_user_input.userNavigation_ == Unhandled value " << endl;
 	}
-	if 	  (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
+	if    (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation)
+	{
 		cout << "p_user_input.theUserResponse_ == UserEnteredNavigation" << endl;
-	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
+	}
+	else if (p_user_input.theUserResponse_ == user_response::UserEnteredData)
+	{
 		cout << "p_user_input.theUserResponse_ == UserEnteredData" << endl;
-	} else if (p_user_input.theUserResponse_ == user_response::UserClearedData) {
+	}
+	else if (p_user_input.theUserResponse_ == user_response::UserClearedData)
+	{
 		cout << "p_user_input.theUserResponse_ == UserClearedData" << endl;
-	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
+	}
+	else if (p_user_input.theUserResponse_ == user_response::UserSavedData)
+	{
 		cout << "p_user_input.theUserResponse_ == UserSavedData" << endl;
-	} else if (p_user_input.theUserResponse_ == user_response::NotSet) {
+	}
+	else if (p_user_input.theUserResponse_ == user_response::NotSet)
+	{
 		cout << "p_user_input.theUserResponse_ == NotSet" << endl;
-	} else {
+	}
+	else
+	{
 		cout << "FIXME: p_user_input.theUserResponse_ == Unhandled value " << endl;
 	}
 
-	cout 
-		<< "p_user_input.questionResponseData_:" 
+	cout
+		<< "p_user_input.questionResponseData_:"
 		<< p_user_input.questionResponseData_ << endl;
 
-	if (last_question_visited) {
-		cout << "last_question_visited->questionName_:" 
+	if (last_question_visited)
+	{
+		cout << "last_question_visited->questionName_:"
 			<<  last_question_visited->questionName_
 			<< endl;
-	} else {
+	}
+	else
+	{
 		cout << "last_question_visited->questionName_: is NULL"  << endl;
 	}
 
@@ -965,7 +983,7 @@ AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
 			}
 			else
 			{
-				cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", eval2 return q = " 
+				cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
 					<< q->questionName_ << endl;
 				stdout_eval (q, theQuestionnaire, callback_ui_input);
 			}
@@ -988,7 +1006,7 @@ AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)
 	}
 	else
 	{
-		cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", eval2 return q = " 
+		cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
 			<< q->questionName_ << endl;
 		stdout_eval (q, theQuestionnaire, callback_ui_input);
 	}

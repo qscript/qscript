@@ -13,7 +13,7 @@
  *       Compiler:  gcc
  *
  *         Author:  Neil Xavier D'Souza
- *        Company:  
+ *        Company:
  *
  * =====================================================================================
  */
@@ -122,7 +122,7 @@ class GtkQuestionnaireApplication
 
 		void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);
 		void set_callback_ui_input (
-			void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
+			void (*p_callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
 			);
 		GtkWidget * window , * top_half , * bottom_half ;
 		GtkQuestionnaireApplication (int argc, char * argv[], /* , int (* p_return_ser_no) (int) */ struct TheQuestionnaire * p_theQuestionnaire);
@@ -155,8 +155,8 @@ class GtkQuestionnaireApplication
 		std::map<int, int> map_cb_code_index;
 		std::vector<GtkWidget *> languageSelects_;
 
-		GtkWidget 
-			//*vbox, 
+		GtkWidget
+			//*vbox,
 			*hbox ;
 		GtkWidget * serialNoEntry_ ;
 		//GtkWidget * button ;
@@ -238,14 +238,14 @@ int32_t prompt_user_for_serial_no(
 	} else {
 		p_return_ser_no (serial_no);
 	}
-	// unreachable code 
+	// unreachable code
 #endif /*  0 */
 	
 	gtkQuestionnaireApplication->get_serial_no_gtk(p_return_ser_no);
 	cerr 	<< __PRETTY_FUNCTION__ << ","
 		<< __FILE__ << ","
 		<< __LINE__ << ","
-		<< " fix this return 100 - return the serial no from the UI" 
+		<< " fix this return 100 - return the serial no from the UI"
 		<< endl;
 
 	return  100;
@@ -262,7 +262,7 @@ GtkQuestionnaireApplication::GtkQuestionnaireApplication (int argc, char * argv[
 	   wt_debug_(0), wt_questionText_(0), le_data_(0), wt_lastQuestionVisited_(0),
 	   wt_cb_rb_container_(0), wt_rb_container_(0), questionTextLabel_(0),
 	   vec_rb(), rbData_(), vec_cb(), map_cb_code_index(), languageSelects_(),
-	   //vbox(0), 
+	   //vbox(0),
 	   hbox(0), serialNoEntry_(0), check(0), rb(0), next_button(0),
 	   viewPort_(0), currentForm_(0), formContainer_(0), gtkRadioButtonGroup_(0),
 	   bottomHalfVBox_(0), bottomHalfNavigationBox_(0), topHalfVBox_(0),
@@ -460,7 +460,7 @@ void DisplayStubs (AbstractQuestion *q)
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (q) ) {
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		for (int i=0; i<vec.size(); ++i) {
-			cout 	<< vec[i].code << " : " << vec[i].stub_text 
+			cout 	<< vec[i].code << " : " << vec[i].stub_text
 				<< endl;
 		}
 	} else if (RangeQuestion * rq = dynamic_cast<RangeQuestion*> (q) ) {
@@ -482,7 +482,7 @@ void DisplayStubs (AbstractQuestion *q)
 	cout << marker_end << endl;
 }
 
-/* 
+/*
 typedef void (*callback_get_user_input_t) (callback_ui_input_t callback_ui_input,
 			callback_get_user_input_t callback_get_user_input);
 
@@ -492,14 +492,14 @@ void (*callback_ui_input) (UserInput * p_user_input);
 }; */
 
 
-/* 
+/*
 void GetUserInput (void (*callback_ui_input) (UserInput * p_user_input),
 		void (*get_user_input) (
 			void (*callback_ui_input) (UserInput * p_user_input),
 			void (*get_user_input) (
 				void (*callback_ui_input) (UserInput * p_user_input),
 				)
-		) 
+		)
 	)
  */
 typedef void (*callback_ui_input_t) (UserInput * p_user_input);
@@ -508,9 +508,9 @@ typedef void (*callback_ui_input_t) (UserInput * p_user_input);
 // and pass it to the control flow logic decider.
 // Any control flow logic that appears here is a mistake in my programming
 // and needs to be fixed
-void GetUserInput ( 
+void GetUserInput (
 	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
-		struct TheQuestionnaire * theQuestionnaire), 
+		struct TheQuestionnaire * theQuestionnaire),
 		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
@@ -537,7 +537,7 @@ void GetUserInput (
 		} else  {
 			user_input.theUserResponse_ = user_response::UserEnteredData;
 			user_input.questionResponseData_ = current_response;
-		} 
+		}
 
 		cout << "reached here" << endl;
 		string err_mesg;
@@ -549,7 +549,7 @@ void GetUserInput (
 		if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_PREVIOUS
 				&& user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 			// allow this behaviour - they can go back to the
-			// previous question without answering anything - 
+			// previous question without answering anything -
 			// no harm done
 			callback_ui_input (user_input, q, theQuestionnaire);
 		} else */
@@ -571,17 +571,17 @@ void GetUserInput (
 
 			if (user_input.theUserResponse_ == user_response::UserSavedData) {
 				cout << "invoking callback_ui_input with UserSavedData" << endl;
-				// this call will return really fast 
+				// this call will return really fast
 				//  (if you consider io fast)
 				//  but what I mean is we wont add much to the call stack
 				callback_ui_input (user_input, q, theQuestionnaire);
 				GetUserInput (callback_ui_input, q, theQuestionnaire);
 				cout << "callback_ui_input has returned after UserSavedData" << endl;
 			} else {
-				cout << "reached here: " 
+				cout << "reached here: "
 					<< __PRETTY_FUNCTION__ << endl;
 				callback_ui_input (user_input, q, theQuestionnaire);
-				cout << "callback_ui_input has returned" 
+				cout << "callback_ui_input has returned"
 					<< __PRETTY_FUNCTION__ << endl;
 			}
 			// move all this into callback_ui_input
@@ -604,16 +604,16 @@ void GetUserInput (
 			// we should be passing an error message too
 			GetUserInput (callback_ui_input, q, theQuestionnaire);
 		}
-		/* 
+		/*
 		else {
 			// invalid entries
 			cout << "invalid input" << endl;
-			question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT, 
+			question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT,
 					last_question_visited, 0, qnre);
 			//goto ask_again;
 		} */
 	} else {
-		// nxd: 19-feb-2013 
+		// nxd: 19-feb-2013
 		// I have to change this
 		GetUserInput (callback_ui_input, q, theQuestionnaire);
 	}
@@ -646,7 +646,7 @@ void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnai
 	DisplayCurrentAnswers (q);
 
 	gtkQuestionnaireApplication->set_callback_ui_input (callback_ui_input);
-	gtkQuestionnaireApplication->ConstructQuestionForm (q 
+	gtkQuestionnaireApplication->ConstructQuestionForm (q
 			//, gtkQuestionnaireApplication->this_users_session
 			);
 
@@ -750,7 +750,7 @@ void GtkQuestionnaireApplication::get_serial_no_gtk (
 		gtk_box_pack_start (GTK_BOX (topHalfVBox_), serialNoEntry_, TRUE, TRUE, 0);
 	}
 
-	/* 
+	/*
 	 * nxd: commented out on 16-feb-2013
 	tmp_pos = GTK_ENTRY (serialNoEntry_)-> text_length;
 	gtk_editable_insert_text (GTK_EDITABLE (serialNoEntry_), "", -1, &tmp_pos);
@@ -815,7 +815,7 @@ void line_edit_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp)
 void next_button_callback (GtkWidget *widget, GtkQuestionnaireApplication * qapp)
 {
 	//g_print ("Next button was pressed", (char *) data);
-	// nxd: 16-feb-2013 - comment it out for now 
+	// nxd: 16-feb-2013 - comment it out for now
 	//qapp->DoQuestionnaire();
 	//question_eval_loop_gtk (qnre_mode,
 	//	qnre_navigation_mode, last_question_visited,
@@ -1096,7 +1096,6 @@ void GtkQuestionnaireApplication::handleDataInput(
 	cerr << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
 	{
-#if 0
 		AbstractQuestion * last_question_served = last_question_visited;
 		vector<int32_t> data;
 		bool isAnswered = false;
@@ -1105,16 +1104,52 @@ void GtkQuestionnaireApplication::handleDataInput(
 		{
 			if (rb_selected_code != -1)
 			{
+				UserInput user_input;
 				isAnswered = true;
 				//int code = wt_rb_container_->checkedId();
 				cout << "no_mpn == 1, code: " << rb_selected_code << endl;
 				data.push_back(rb_selected_code);
+				stringstream s1;
+				s1 << rb_selected_code;
+				user_input.theUserResponse_ = user_response::UserEnteredData;
+				user_input.questionResponseData_ = s1.str();
+				AbstractQuestion * q = last_question_visited;
+				string err_mesg;
+				bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+				if (valid_input) {
+					if (user_input.theUserResponse_ == user_response::UserSavedData) {
+						cerr  << "NOT YET DONE"
+							<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+							<< endl
+							<< "invoking callback_ui_input with UserSavedData" << endl;
+						// this call will return really fast
+						//  (if you consider io fast)
+						//  but what I mean is we wont add much to the call stack
+						callback_ui_input (user_input, q, theQuestionnaire_);
+						//GetUserInput (callback_ui_input, q, theQuestionnaire);
+						cout << "callback_ui_input has returned after UserSavedData" << endl;
+					} else {
+						cout << "reached here: "
+							<< __PRETTY_FUNCTION__ << endl;
+						callback_ui_input (user_input, q, theQuestionnaire_);
+						cout << "callback_ui_input has returned"
+							<< __PRETTY_FUNCTION__ << endl;
+					}
+					// move all this into callback_ui_input
+					// case UserEnteredData
+				} else {
+					// we should be passing an error message too
+					//GetUserInput (callback_ui_input, q, theQuestionnaire);
+					// do nothing - the callback just continues to wait for data
+				}
+
 			}
 			else
 			{
 				isAnswered = false;
 			}
 		}
+#if 0
 		else
 		{
 			cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
@@ -1158,7 +1193,7 @@ void GtkQuestionnaireApplication::handleDataInput(
 		}
 		// do something with isAnswered_ == false here and resend the
 		// qnre to the respondent
-#endif 
+#endif
 	}
 	else
 	{
@@ -1177,7 +1212,7 @@ void GtkQuestionnaireApplication::handleDataInput(
 #endif /*  0 */
 
 				// Why? - if current_response == empty then treat that as
-				// UserEnteredNavigation (which should come in the else clause 
+				// UserEnteredNavigation (which should come in the else clause
 				//                        of this if)
 				//user_input.userNavigation_ = NAVIGATE_NEXT;
 				//user_input.theUserResponse_ = user_response::UserEnteredNavigation;
@@ -1191,7 +1226,7 @@ void GtkQuestionnaireApplication::handleDataInput(
 			} else  {
 				user_input.theUserResponse_ = user_response::UserEnteredData;
 				user_input.questionResponseData_ = current_response;
-			} 
+			}
 #endif /*  0 */
 
 			cout << "reached here" << endl;
@@ -1204,7 +1239,7 @@ void GtkQuestionnaireApplication::handleDataInput(
 			if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_PREVIOUS
 					&& user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 				// allow this behaviour - they can go back to the
-				// previous question without answering anything - 
+				// previous question without answering anything -
 				// no harm done
 				callback_ui_input (user_input, q, theQuestionnaire);
 			} else */
@@ -1220,27 +1255,27 @@ void GtkQuestionnaireApplication::handleDataInput(
 			}
 			*/
 
-			cout << "reached here: valid_input :" << valid_input 
+			cout << "reached here: valid_input :" << valid_input
 				<< "error message: " << err_mesg
 				<<  endl;
 
 			if (valid_input) {
 				if (user_input.theUserResponse_ == user_response::UserSavedData) {
 					cerr  << "NOT YET DONE"
-						<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__ 
+						<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
 						<< endl
 						<< "invoking callback_ui_input with UserSavedData" << endl;
-					// this call will return really fast 
+					// this call will return really fast
 					//  (if you consider io fast)
 					//  but what I mean is we wont add much to the call stack
 					callback_ui_input (user_input, q, theQuestionnaire_);
 					//GetUserInput (callback_ui_input, q, theQuestionnaire);
 					cout << "callback_ui_input has returned after UserSavedData" << endl;
 				} else {
-					cout << "reached here: " 
+					cout << "reached here: "
 						<< __PRETTY_FUNCTION__ << endl;
 					callback_ui_input (user_input, q, theQuestionnaire_);
-					cout << "callback_ui_input has returned" 
+					cout << "callback_ui_input has returned"
 						<< __PRETTY_FUNCTION__ << endl;
 				}
 				// move all this into callback_ui_input
@@ -1264,11 +1299,12 @@ void GtkQuestionnaireApplication::handleDataInput(
 				//GetUserInput (callback_ui_input, q, theQuestionnaire);
 				// do nothing - the callback just continues to wait for data
 			}
-			/* 
+
+			/*
 			else {
 				// invalid entries
 				cout << "invalid input" << endl;
-				question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT, 
+				question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT,
 						last_question_visited, 0, qnre);
 				//goto ask_again;
 			} */
