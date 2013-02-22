@@ -64,5 +64,6 @@ void GetUserInput (
 		struct TheQuestionnaire * theQuestionnaire), 
 		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire);
 
+struct TheQuestionnaire * make_questionnaire ();
 
 #endif /*  QUESTION_GTK2_RUNTIME_H */
