@@ -1462,6 +1462,15 @@ test_script.o: test_script.C
 #else
 			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime_wq2");
 #endif /* _WIN32 */
+	} else if (program_options_ns::stdout_flag) {
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			//+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			//+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string(" -lqscript_runtime_wq2 -lpanel -lwt -lboost_filesystem ")
+			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
@@ -4782,6 +4791,45 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
 	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)\n");
 	fprintf (script, "{\n");
+
+	fprintf (script, "	cout << endl << \"Enter: \" << __PRETTY_FUNCTION__ << endl;\n");
+	fprintf (script, "	cout << \"arg values: \" << endl;\n");
+	fprintf (script, "	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {\n");
+	fprintf (script, "		cout << \"p_user_input.userNavigation_ == NAVIGATE_NEXT\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {\n");
+	fprintf (script, "		cout << \"p_user_input.userNavigation_ == NAVIGATE_PREVIOUS\" << endl;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		cout << \"FIXME: p_user_input.userNavigation_ == Unhandled value \" << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	if 	  (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == UserEnteredNavigation\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == UserEnteredData\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserClearedData) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == UserClearedData\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == UserSavedData\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::NotSet) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == NotSet\" << endl;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		cout << \"FIXME: p_user_input.theUserResponse_ == Unhandled value \" << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+
+	fprintf (script, "\n");
+	fprintf (script, "	cout \n");
+	fprintf (script, "		<< \"p_user_input.questionResponseData_:\" \n");
+	fprintf (script, "		<< p_user_input.questionResponseData_ << endl;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	if (last_question_visited) {\n");
+	fprintf (script, "		cout << \"last_question_visited->questionName_:\" \n");
+	fprintf (script, "			<<  last_question_visited->questionName_\n");
+	fprintf (script, "			<< endl;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		cout << \"last_question_visited->questionName_: is NULL\"  << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+
 	fprintf (script, "	if (last_question_visited) {\n");
 	fprintf (script, "		if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {\n");
 	fprintf (script, "			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {\n");
@@ -4814,10 +4862,16 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "			AbstractQuestion * q =\n");
 	fprintf (script, "				theQuestionnaire->eval2 (\n");
 	fprintf (script, "				NAVIGATE_NEXT, last_question_visited, jump_to_question);\n");
+
 	fprintf (script, "			if (!q) {\n");
 	fprintf (script, "				cout << \"End of qnre();\" << endl << \">\";\n");
 	fprintf (script, "				//int ch = getchar();\n");
 	fprintf (script, "			} else {\n");
+
+	fprintf (script, "			cout << __PRETTY_FUNCTION__ << \",\" << __LINE__ <<  \", eval2 return q = \"\n");
+	fprintf (script, "				<< q->questionName_ << endl;\n");
+
+
 	fprintf (script, "				stdout_eval (q, theQuestionnaire, callback_ui_input);\n");
 	fprintf (script, "			}\n");
 	fprintf (script, "\n");
@@ -4833,6 +4887,8 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "		if (!q) {\n");
 	fprintf (script, "			cout << \"End of qnre();\" << endl << \">\";\n");
 	fprintf (script, "		} else {\n");
+	fprintf (script, "			cout << __PRETTY_FUNCTION__ << \",\" << __LINE__ <<  \", eval2 return q = \"\n");
+	fprintf (script, "				<< q->questionName_ << endl;\n");
 	fprintf (script, "			stdout_eval (q, theQuestionnaire, callback_ui_input);\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "	//}\n");

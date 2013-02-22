@@ -1148,6 +1148,7 @@ bool AbstractQuestion::check_and_store_input_data_single_question
 		isAnswered_ = true;
 		return true;
 	} else {
+		err_mesg += " Data contained some invalid codes";
 		return false;
 	}
 }
