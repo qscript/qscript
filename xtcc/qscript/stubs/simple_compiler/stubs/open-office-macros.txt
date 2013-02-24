@@ -1,0 +1,207 @@
+REM  *****  BASIC  *****
+
+Sub Main
+	'Globalscope.BasicLibraries.LoadLibrary( "MRILib" )
+	'oTarget = StarDesktop.getCurrentComponent().getCurrentSelection()
+ 	'Mri oTarget
+	'HelloWorld2()
+	'export_as_html
+	export_tables_as_text
+End Sub
+ 	
+sub HelloWorld1
+
+end sub
+	
+sub HelloWorld2
+	print "hello world2"
+end sub
+
+sub export_as_html
+
+Dim FileNo As Integer, Filename As String, CurLine As String
+Dim Doc As Object   
+Dim Enum1 As Object, Enum2 As Object
+Dim TextElement As Object, TextPortion As Object
+ 
+Filename = "/home/nxd/Downloads/openoffice-writer-doc-export-text-as-html-2.html"
+FileNo = Freefile
+Open Filename For Output As #FileNo   
+Print #FileNo, "<HTML><BODY>"
+Doc = ThisComponent
+Enum1 = Doc.Text.createEnumeration
+ 
+' loop over all paragraphs
+While Enum1.hasMoreElements
+  TextElement = Enum1.nextElement
+ ' If TextElement.supportsService("com.sun.star.text.TextTable") Then
+    'TablePortion = Enum2.nextElement
+    
+ '   myCurLine = "<P>is a table</p><p>"
+  '  myCurLine = myCurLine & TextElement.String 
+   ' Print #FileNo, myCurLine
+    
+  'end if
+  If TextElement.supportsService("com.sun.star.text.Paragraph") Then
+    Enum2 = TextElement.createEnumeration
+    CurLine = "<P>"
+ 
+    ' loop over all paragraph portions
+    While Enum2.hasMoreElements
+      TextPortion = Enum2.nextElement
+ 
+      If TextPortion.CharWeight = com.sun.star.awt.FontWeight.BOLD THEN
+        CurLine = CurLine & "<B>" & TextPortion.String & "</B>"
+      Else
+        CurLine = CurLine & TextPortion.String
+      End If
+ 
+    Wend
+ 
+    ' output the line
+    CurLine = CurLine & "</P>"
+    Print #FileNo, CurLine
+  End If
+ 
+Wend
+ 
+' write HTML footer 
+Print #FileNo, "</BODY></HTML>"
+Close #FileNo
+end sub
+
+	
+sub visit_all_paragraphs
+
+ 	Dim Doc As Object
+	Dim Enum As Object
+	Dim TextElement As Object
+ 
+	' Create document object   
+	Doc = ThisComponent
+	' Create enumeration object 
+	Enum = Doc.Text.createEnumeration
+	' loop over all text elements
+ 
+	While Enum.hasMoreElements
+	  TextElement = Enum.nextElement
+ 
+	  If TextElement.supportsService("com.sun.star.text.TextTable") Then
+    	MsgBox "The current block contains a table."
+	  End If
+ 
+	  If TextElement.supportsService("com.sun.star.text.Paragraph") Then
+    	MsgBox "The current block contains a paragraph."
+	  End If
+ 
+	Wend
+end sub	
+
+sub export_tables_as_text
+
+	Dim FileNo As Integer, Filename As String, CurLine As String
+	Dim Doc As Object
+	Dim TextTables As Object
+	Dim Table As Object
+	Dim CellNames
+	Dim Cell As Object
+	Dim CellCursor As Object
+	Dim I As Integer
+	Dim J As Integer
+	Dim Rows As Object
+	Dim Cols As Object
+	Dim nRows As Integer
+	Dim nCols As Integer
+
+	
+	'Print #FileNo, "<HTML><BODY>"
+	
+	Filename = "/home/nxd/Downloads/openoffice-writer-doc-export-text-as-html-3.html"
+	FileNo = Freefile
+	Open Filename For Output As #FileNo   
+	Print #FileNo, "<HTML><BODY>"
+	
+	 
+	Doc = ThisComponent
+	TextTables = Doc.getTextTables()
+	 
+	For I = 0 to TextTables.count - 1
+	
+		Table = TextTables(I)
+	   	Rows = Table.getRows()
+		Cols = Table.getColumns()
+		nRows = Rows.getCount()
+		nCols = Cols.getCount()
+		CellNames = Table.getCellNames()
+		Print #FileNo, "nRows: ", nRows, "Columns: ", nCols
+	 
+		For J = 0 to UBound(CellNames)
+			Cell = Table.getCellByName(CellNames(J))
+			Print #FileNo, CellNames(J), ":", Cell.String
+	      'If IsNumeric(Cell.String) Then
+	      '   CellCursor = Cell.createTextCursor()
+	      '   CellCursor.paraAdjust = com.sun.star.style.ParagraphAdjust.RIGHT
+	      'End If
+		Next
+	Next
+
+end sub
+
+sub export_tables_as_text2
+
+	Dim FileNo As Integer, Filename As String, CurLine As String
+	Dim Doc As Object
+	Dim TextTables As Object
+	Dim Table As Object
+	Dim CellNames
+	Dim Cell As Object
+	Dim CellCursor As Object
+	Dim I As Integer
+	Dim J As Integer
+	Dim Rows As Object
+	Dim Cols As Object
+	Dim nRows As Integer
+	Dim nCols As Integer
+
+	
+	'Print #FileNo, "<HTML><BODY>"
+	
+	Filename = "/home/nxd/Downloads/openoffice-writer-doc-export-text-as-html-3.html"
+	FileNo = Freefile
+	Open Filename For Output As #FileNo   
+	Print #FileNo, "<HTML><BODY>"
+	
+	 
+	Doc = ThisComponent
+	TextTables = Doc.getTextTables()
+	 
+	For I = 0 to TextTables.count - 1
+	
+		Table = TextTables(I)
+	   	Rows = Table.getRows()
+		Cols = Table.getColumns()
+		nRows = Rows.getCount()
+		nCols = Cols.getCount()
+		CellNames = Table.getCellNames()
+		Print #FileNo, "nRows: ", nRows, "Columns: ", nCols
+	 	if nCols = 3 then
+	 		for rowi = 1 to nRows
+	 			'for coli = 1 to nCols - 1 'arabic text is in col C					
+	 				coli = 1
+					CellName_EnglishStub = Chr(Asc("A") - 1 + coli) & rowi
+					Cell_EnglishStub = Table.getCellByName(CellName_EnglishStub)
+					coli = 2
+					CellName_NumericCode = Chr(Asc("A") - 1 + coli) & rowi
+					Cell_NumericCode = Table.getCellByName(CellName_NumericCode)
+					
+					Print #FileNo, "'",Cell_EnglishStub.String, "'", Cell_NumericCode.String
+				'next
+			next
+			Cell = Table.getCellByName(CellName)
+	 	
+	 	end if
+	 	
+		
+	Next
+
+end sub
