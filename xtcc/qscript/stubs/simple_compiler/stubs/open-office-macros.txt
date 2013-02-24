@@ -205,3 +205,242 @@ sub export_tables_as_text2
 	Next
 
 end sub
+
+sub export_text_and_tables
+
+	Dim FileNo As Integer, Filename As String, CurLine As String
+	Dim Doc As Object
+	Dim Enum1 As Object, Enum2 As Object
+	Dim TextElement As Object, TextPortion As Object, Table As Object
+	
+	Filename = "/home/nxd/Downloads/raw_dump.qscript"
+	FileNo = Freefile
+	Open Filename For Output As #FileNo
+	
+	MsgBox(FileNo,16,"error")
+	
+	Doc = ThisComponent
+	Enum1 = Doc.Text.createEnumeration
+	While Enum1.hasMoreElements
+		TextElement = Enum1.nextElement
+		If TextElement.supportsService("com.sun.star.text.TextTable") Then
+			Table = TextElement
+			print_stubs (Table, FileNo)
+			#If False Then
+
+
+		   	Rows = Table.getRows()
+			Cols = Table.getColumns()
+			nRows = Rows.getCount()
+			nCols = Cols.getCount()
+			'CellNames = Table.getCellNames()
+			Print #FileNo, "nRows: ", nRows, "Columns: ", nCols
+	 		if nCols = 3 then
+	 			for rowi = 1 to nRows
+	 			'for coli = 1 to nCols - 1 'arabic text is in col C					
+	 				coli = 1
+					CellName_EnglishStub = Chr(Asc("A") - 1 + coli) & rowi
+					Cell_EnglishStub = Table.getCellByName(CellName_EnglishStub)
+					coli = 2
+					CellName_NumericCode = Chr(Asc("A") - 1 + coli) & rowi
+					Cell_NumericCode = Table.getCellByName(CellName_NumericCode)
+					CurLine = Cell_EnglishStub.String
+					CurLine  = RTrim(CurLine)
+					CurLine  = LTrim(CurLine)
+					Print #FileNo, Chr(34),CurLine, Chr(34), Cell_NumericCode.String
+
+				next
+		 	end if				
+			if nCols = 5 then
+	 			for rowi = 1 to nRows
+	 			'for coli = 1 to nCols - 1 'arabic text is in col C					
+	 				coli = 4
+					CellName_EnglishStub = Chr(Asc("A") - 1 + coli) & rowi
+					Cell_EnglishStub = Table.getCellByName(CellName_EnglishStub)
+					coli = 3
+					CellName_NumericCode = Chr(Asc("A") - 1 + coli) & rowi
+					Cell_NumericCode = Table.getCellByName(CellName_NumericCode)
+					CurLine = Cell_EnglishStub.String
+					CurLine  = RTrim(CurLine)
+					CurLine  = LTrim(CurLine)
+					Print #FileNo, Chr(34),CurLine, Chr(34), Cell_NumericCode.String
+
+				next		
+			end if
+			#End If
+		end if	
+	
+		If TextElement.supportsService("com.sun.star.text.Paragraph") Then
+    		Enum2 = TextElement.createEnumeration
+    		CurLine = Chr(34)
+ 
+		    ' loop over all paragraph portions
+		    While Enum2.hasMoreElements
+				TextPortion = Enum2.nextElement
+ 
+				'If TextPortion.CharWeight = com.sun.star.awt.FontWeight.BOLD THEN
+				'	CurLine = CurLine & "<B>" & TextPortion.String & "</B>"
+				'Else
+				'	CurLine = CurLine & TextPortion.String
+				'End If
+				CurLine = CurLine & TextPortion.String
+ 
+			Wend
+ 
+			' output the line
+			CurLine = CurLine & Chr(34) & Chr(10) &" sp int32_t (1-100);" & Chr(10)
+			
+			Print #FileNo, CurLine
+		End If
+	wend
+end sub
+
+
+sub export_text_and_tables2
+
+	Dim FileNo As Integer, Filename As String, CurLine As String
+	Dim Doc As Object
+	Dim Enum1 As Object, Enum2 As Object
+	Dim TextElement As Object, TextPortion As Object, Table As Object
+	
+	Filename = "/home/nxd/Downloads/raw_dump.qscript"
+	FileNo = Freefile
+	Open Filename For Output As #FileNo
+	
+	'MsgBox(FileNo,16,"error")
+	
+	Doc = ThisComponent
+	Enum1 = Doc.Text.createEnumeration
+	While Enum1.hasMoreElements
+		TextElement = Enum1.nextElement
+		If TextElement.supportsService("com.sun.star.text.TextTable") Then
+			Table = TextElement
+			print_stubs (Table, FileNo)
+		end if	
+	
+		If TextElement.supportsService("com.sun.star.text.Paragraph") Then
+    		Enum2 = TextElement.createEnumeration
+    		CurLine = Chr(34)
+ 
+		    ' loop over all paragraph portions
+		    While Enum2.hasMoreElements
+				TextPortion = Enum2.nextElement
+ 
+				'If TextPortion.CharWeight = com.sun.star.awt.FontWeight.BOLD THEN
+				'	CurLine = CurLine & "<B>" & TextPortion.String & "</B>"
+				'Else
+				'	CurLine = CurLine & TextPortion.String
+				'End If
+				CurLine = CurLine & TextPortion.String
+ 
+			Wend
+ 
+			' output the line
+			CurLine = CurLine & Chr(34) & Chr(10) &" sp int32_t (1-100);" & Chr(10)
+			
+			Print #FileNo, CurLine
+		End If
+	wend
+end sub
+
+sub determine_first_row_that_has_numeric_code(table as Object, the_cell as string)
+	Dim Cols as Object, Rows as Object	
+	Dim nRows As Integer
+	Dim nCols As Integer
+	Dim found As Integer
+	
+	found = 0
+	
+	CellNames = Table.getCellNames()
+	Rows = Table.getRows()
+	Cols = Table.getColumns()
+	nRows = Rows.getCount()
+	nCols = Cols.getCount()
+	
+	'for rowi = 1 to nRows
+	'	CellNames = Rows(i).getCellNames()
+	'	for coli = 1 to  UBound(CellNames)		
+	'		If IsNumeric(Cell.String) Then
+	'			i_th_row = rowi
+	'			Exit For
+	'		end if
+	'	next
+	'next
+	for i = 0 to UBound(CellNames)
+		cell = Table.getCellByName(CellNames(i))
+		if IsNumeric (cell.String) then
+			the_cell = CellNames(i)
+			'msgbox (the_cell)
+			exit for
+		end if
+	next
+
+end sub
+
+
+sub print_stubs (table as Object, FileNo as Integer)
+	Dim CurLine As String
+	Dim Cols as Object, Rows as Object	
+	Dim nRows As Integer
+	Dim nCols As Integer
+	Dim the_cell_has_numeric_data As String
+	Dim start_point As Integer
+	
+	'If IsNumeric(Cell.String) Then
+	Rows = Table.getRows()
+	Cols = Table.getColumns()
+	nRows = Rows.getCount()
+	nCols = Cols.getCount()
+	
+	determine_first_row_that_has_numeric_code(table ,the_cell_has_numeric_data)
+	start_point = val(right (the_cell_has_numeric_data,1))
+	'CellNames = Table.getCellNames()
+	Print #FileNo, "nRows: ", nRows, "Columns: ", nCols, "i_th_row_has_numeric_data: ", the_cell_has_numeric_data, ", start_point: ", start_point
+	if nCols = 3 and start_point = 1then
+		for rowi = 1 to nRows
+			'for coli = 1 to nCols - 1 'arabic text is in col C					
+			coli = 1
+			CellName_EnglishStub = Chr(Asc("A") - 1 + coli) & rowi
+			Cell_EnglishStub = Table.getCellByName(CellName_EnglishStub)
+			coli = 2
+			CellName_NumericCode = Chr(Asc("A") - 1 + coli) & rowi
+			Cell_NumericCode = Table.getCellByName(CellName_NumericCode)
+			CurLine = RTrim(LTrim (Cell_EnglishStub.String))
+			'CurLine  = RTrim(CurLine)
+			'CurLine  = LTrim(CurLine)
+			Print #FileNo, Chr(34),CurLine, Chr(34), Cell_NumericCode.String
+		next
+	end if	
+	if nCols = 5 and start_point = 1 then
+		for rowi = 1 to nRows
+			'for coli = 1 to nCols - 1 'arabic text is in col C					
+			coli = 4
+			CellName_EnglishStub = Chr(Asc("A") - 1 + coli) & rowi
+			Cell_EnglishStub = Table.getCellByName(CellName_EnglishStub)
+			coli = 3
+			CellName_NumericCode = Chr(Asc("A") - 1 + coli) & rowi
+			Cell_NumericCode = Table.getCellByName(CellName_NumericCode)
+			CurLine = RTrim(LTrim (Cell_EnglishStub.String))
+			'CurLine = Cell_EnglishStub.String
+			'CurLine  = RTrim(CurLine)
+			'CurLine  = LTrim(CurLine)
+			Print #FileNo, Chr(34),CurLine, Chr(34), Cell_NumericCode.String
+		next
+	end if
+	
+	if start_point > 1 then
+		for rowi = start_point to nRows
+			'for coli = 1 to nCols - 1 'arabic text is in col C					
+			coli = 1
+			CellName_EnglishStub = Chr(Asc("A") - 1 + coli) & rowi
+			Cell_EnglishStub = Table.getCellByName(CellName_EnglishStub)
+			coli = 2
+			CellName_NumericCode = Chr(Asc("A") - 1 + coli) & rowi
+			Cell_NumericCode = Table.getCellByName(CellName_NumericCode)
+			CurLine = Cell_EnglishStub.String
+			CurLine  = RTrim(CurLine)
+			CurLine  = LTrim(CurLine)
+			Print #FileNo, Chr(34),CurLine, Chr(34), Cell_NumericCode.String
+		next
+	end if
+end sub
