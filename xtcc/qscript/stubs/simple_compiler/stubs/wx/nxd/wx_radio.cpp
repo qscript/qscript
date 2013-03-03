@@ -69,7 +69,6 @@ public:
 	wxStaticText *the_data_entry_line ;
 	wxRadioBox *m_radio;
 	wxSizer *m_sizerRadio;
-	void OnUpdateUIUpdate(wxUpdateUIEvent& event);
 
 	wxTextCtrl 	*m_textNumBtns,
 			*m_textMajorDim,
@@ -101,6 +100,21 @@ public:
 	void CreateContent();
 	void CreateRadio();
 	void old_create_ui();
+
+	void OnButtonRecreate(wxCommandEvent& WXUNUSED(event));
+	void OnButtonSetLabel(wxCommandEvent& WXUNUSED(event));
+	void OnButtonSelection(wxCommandEvent& WXUNUSED(event));
+	void OnEnableItem(wxCommandEvent& event);
+	void OnUpdateUIUpdate(wxUpdateUIEvent& event);
+	void OnShowItem(wxCommandEvent& event);
+	void OnUpdateUISelection(wxUpdateUIEvent& event);
+	void OnUpdateUIReset(wxUpdateUIEvent& event);
+	void OnUpdateUIShowItem(wxUpdateUIEvent& event);
+	void OnUpdateUIEnableItem(wxUpdateUIEvent& event);
+	void OnRadioBox(wxCommandEvent& event);
+	void OnCheckOrRadioBox(wxCommandEvent& WXUNUSED(event));
+
+
 private:
     DECLARE_EVENT_TABLE()
 
@@ -133,7 +147,25 @@ enum
 
 BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     EVT_BUTTON(ID_BUTTON_SERIAL_NO,  wxQuestionnaireGUI::get_serial_no)
+
+    EVT_BUTTON(RadioPage_LabelBtn, wxQuestionnaireGUI::OnButtonRecreate)
+
+    EVT_BUTTON(RadioPage_Selection, wxQuestionnaireGUI::OnButtonSelection)
+    EVT_BUTTON(RadioPage_Label, wxQuestionnaireGUI::OnButtonSetLabel)
+
     EVT_UPDATE_UI(RadioPage_Update, wxQuestionnaireGUI::OnUpdateUIUpdate)
+    EVT_UPDATE_UI(RadioPage_Selection, wxQuestionnaireGUI::OnUpdateUISelection)
+
+    EVT_RADIOBOX(RadioPage_Radio, wxQuestionnaireGUI::OnRadioBox)
+
+    EVT_CHECKBOX(RadioPage_EnableItem, wxQuestionnaireGUI::OnEnableItem)
+    EVT_CHECKBOX(RadioPage_ShowItem, wxQuestionnaireGUI::OnShowItem)
+
+    EVT_UPDATE_UI(RadioPage_EnableItem, wxQuestionnaireGUI::OnUpdateUIEnableItem)
+    EVT_UPDATE_UI(RadioPage_ShowItem, wxQuestionnaireGUI::OnUpdateUIShowItem)
+
+    EVT_CHECKBOX(wxID_ANY, wxQuestionnaireGUI::OnCheckOrRadioBox)
+    EVT_RADIOBOX(wxID_ANY, wxQuestionnaireGUI::OnCheckOrRadioBox)
 END_EVENT_TABLE()
 
 
@@ -230,8 +262,8 @@ void wxQuestionnaireGUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
 	int l_ser_no = -1;
 	cout << __PRETTY_FUNCTION__ << " was invoked" << endl;
 	//const char * entry_text =(txt_ctrl_ser_no->GetValue()).utf8_str()  ;
-	string narrow_text ((txt_ctrl_ser_no->GetValue()).utf8_str()  );
-	cout << narrow_text << endl;
+	// 2-mar-2013: string narrow_text ((txt_ctrl_ser_no->GetValue()).utf8_str()  );
+	// 2-mar-2013: cout << narrow_text << endl;
 	//txt_ctrl_ser_no->GetValue();
 	//wxTextEntryDialog * sr_no = new wxTextEntryDialog(this, wxT("Please enter a serial no"), wxT("Serial No"));
 	//if (sr_no->ShowModal() == wxID_OK) {
@@ -274,14 +306,6 @@ bool wxQuestionnaireApplication::OnInit()
 	return true;
 }
 
-
-void wxQuestionnaireGUI::OnUpdateUIUpdate(wxUpdateUIEvent& event)
-{
-    unsigned long n;
-    event.Enable( m_textNumBtns->GetValue().ToULong(&n) &&
-                  m_textMajorDim->GetValue().ToULong(&n) );
-    cout << "OnUpdateUIUpdate fired" << endl;
-}
 
 
 
@@ -551,3 +575,122 @@ wxCheckBox * wxQuestionnaireGUI::CreateCheckBoxAndAddToSizer(wxSizer *sizer,
     return checkbox;
 }
 */
+
+void wxQuestionnaireGUI::OnButtonRecreate(wxCommandEvent& WXUNUSED(event))
+{
+	CreateRadio();
+}
+
+void wxQuestionnaireGUI::OnButtonSetLabel(wxCommandEvent& WXUNUSED(event))
+{
+    m_radio->wxControl::SetLabel(m_textLabel->GetValue());
+}
+
+void wxQuestionnaireGUI::OnButtonSelection(wxCommandEvent& WXUNUSED(event))
+{
+    unsigned long sel;
+    if ( !m_textSel->GetValue().ToULong(&sel) ||
+            (sel >= (size_t)m_radio->GetCount()) )
+    {
+        wxLogWarning(_T("Invalid number specified as new selection."));
+    }
+    else
+    {
+        m_radio->SetSelection(sel);
+    }
+}
+
+
+static const int TEST_BUTTON = 1;
+void wxQuestionnaireGUI::OnEnableItem(wxCommandEvent& event)
+{
+    m_radio->Enable(TEST_BUTTON, event.IsChecked());
+}
+
+void wxQuestionnaireGUI::OnShowItem(wxCommandEvent& event)
+{
+    m_radio->Show(TEST_BUTTON, event.IsChecked());
+}
+
+void wxQuestionnaireGUI::OnUpdateUIUpdate(wxUpdateUIEvent& event)
+{
+    unsigned long n;
+    event.Enable( m_textNumBtns->GetValue().ToULong(&n) &&
+                  m_textMajorDim->GetValue().ToULong(&n) );
+}
+
+
+//void wxQuestionnaireGUI::OnUpdateUIUpdate(wxUpdateUIEvent& event)
+//{
+//    unsigned long n;
+//    event.Enable( m_textNumBtns->GetValue().ToULong(&n) &&
+//                  m_textMajorDim->GetValue().ToULong(&n) );
+//    cout << "OnUpdateUIUpdate fired" << endl;
+//}
+//
+
+void wxQuestionnaireGUI::OnUpdateUISelection(wxUpdateUIEvent& event)
+{
+    unsigned long n;
+    event.Enable( m_textSel->GetValue().ToULong(&n) &&
+                   (n < (size_t)m_radio->GetCount()) );
+}
+
+
+void wxQuestionnaireGUI::OnUpdateUIReset(wxUpdateUIEvent& event)
+{
+    // only enable it if something is not set to default
+    bool enable = m_chkVert->GetValue();
+
+    if ( !enable )
+    {
+        unsigned long numEntries;
+
+        enable = !m_textNumBtns->GetValue().ToULong(&numEntries) ||
+                    numEntries != DEFAULT_NUM_ENTRIES;
+
+        if ( !enable )
+        {
+            unsigned long majorDim;
+
+            enable = !m_textMajorDim->GetValue().ToULong(&majorDim) ||
+                        majorDim != DEFAULT_MAJOR_DIM;
+        }
+    }
+
+    event.Enable(enable);
+}
+
+
+void wxQuestionnaireGUI::OnUpdateUIEnableItem(wxUpdateUIEvent& event)
+{
+    event.SetText(m_radio->IsItemEnabled(TEST_BUTTON) ? _T("Disable &2nd item")
+                                                      : _T("Enable &2nd item"));
+}
+
+void wxQuestionnaireGUI::OnUpdateUIShowItem(wxUpdateUIEvent& event)
+{
+    event.SetText(m_radio->IsItemShown(TEST_BUTTON) ? _T("Hide 2nd &item")
+                                                    : _T("Show 2nd &item"));
+}
+
+
+void wxQuestionnaireGUI::OnRadioBox(wxCommandEvent& event)
+{
+    int sel = m_radio->GetSelection();
+    int event_sel = event.GetSelection();
+    wxUnusedVar(event_sel);
+
+    wxLogMessage(_T("Radiobox selection changed, now %d"), sel);
+
+    wxASSERT_MSG( sel == event_sel,
+                  _T("selection should be the same in event and radiobox") );
+
+    m_textCurSel->SetValue(wxString::Format(_T("%d"), sel));
+}
+
+
+void wxQuestionnaireGUI::OnCheckOrRadioBox(wxCommandEvent& WXUNUSED(event))
+{
+    CreateRadio();
+}
