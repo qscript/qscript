@@ -126,7 +126,7 @@ int wxQuestionnaireGUI::ms_defaultFlags = wxBORDER_DEFAULT;
 enum MyWidgetID {
 	ID_BUTTON_SERIAL_NO = wxID_HIGHEST,
 	ID_STUBS_ROW ,
-	RadioPage_Reset = wxID_HIGHEST,
+	RadioPage_Reset ,
 	RadioPage_Update,
 	RadioPage_Selection,
 	RadioPage_Label,
@@ -474,6 +474,7 @@ void wxQuestionnaireGUI::CreateContent()
 
 void wxQuestionnaireGUI::CreateRadio()
 {
+	cout << __PRETTY_FUNCTION__ << endl;
     int sel;
     if ( m_radio )
     {
@@ -492,6 +493,7 @@ void wxQuestionnaireGUI::CreateRadio()
     if ( !m_textNumBtns->GetValue().ToULong(&count) )
     {
         wxLogWarning(_T("Should have a valid number for number of items."));
+	cout << "Should have a valid major dimension number." << endl;
 
         // fall back to default
         count = DEFAULT_NUM_ENTRIES;
@@ -502,6 +504,7 @@ void wxQuestionnaireGUI::CreateRadio()
     {
         wxLogWarning(_T("Should have a valid major dimension number."));
 
+	cout << "Should have a valid major dimension number." << endl;
         // fall back to default
         majorDim = DEFAULT_MAJOR_DIM;
     }
@@ -578,6 +581,7 @@ wxCheckBox * wxQuestionnaireGUI::CreateCheckBoxAndAddToSizer(wxSizer *sizer,
 
 void wxQuestionnaireGUI::OnButtonRecreate(wxCommandEvent& WXUNUSED(event))
 {
+	cout << "Reset fired" << endl;
 	CreateRadio();
 }
 
