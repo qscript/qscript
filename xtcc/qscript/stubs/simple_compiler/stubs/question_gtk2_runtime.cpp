@@ -296,7 +296,7 @@ void GtkQuestionnaireApplication::CreateBottomHalf()
 	//gtk_widget_show_all (bottom_half);
 	//return scrolled_window;
 	//bottomHalfNavigationBox_ = gtk_vbox_new (FALSE, 0);
-	bottomHalfNavigationBox_ = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+	bottomHalfNavigationBox_ = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
 	gtk_scrolled_window_add_with_viewport (GTK_SCROLLED_WINDOW (bottom_half), bottomHalfNavigationBox_);
 	gtk_widget_show (bottomHalfNavigationBox_);
 	gtk_widget_show (bottom_half);
@@ -637,7 +637,7 @@ void DisplayCurrentAnswers (AbstractQuestion * q)
 void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire,
 	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire))
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	ClearPreviousView ();
 	vector <string> qno_and_qtxt = PrepareQuestionText (q);
 	DisplayQuestionTextView (qno_and_qtxt);
@@ -651,6 +651,7 @@ void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnai
 			);
 
 	//GetUserInput (callback_ui_input, q, theQuestionnaire);
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 string GenerateSessionId()
@@ -932,6 +933,7 @@ void GtkQuestionnaireApplication::ConstructQuestionForm( AbstractQuestion *q )
 		gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), le_data_, TRUE, TRUE, 0);
 		gtk_widget_show (le_data_);
 	}
+
 	next_button = gtk_button_new_with_label ("Next");
 	gtk_box_pack_start (GTK_BOX (bottomHalfVBox_), next_button, TRUE, TRUE, 0);
 	gtk_widget_show (next_button);

@@ -75,6 +75,10 @@ public:
 	wxSizer *m_sizerRadio;
 	void handleDataInput (wxCommandEvent& WXUNUSED(event));
 
+	void set_callback_ui_input (
+			void (*p_callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
+			);
+
 private:
     DECLARE_EVENT_TABLE()
 
@@ -101,10 +105,119 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 
 	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
 	{
+		cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
 	} else {
+		AbstractQuestion * q = last_question_visited;
 		cout << "need to handle line data here: got input as : " << endl;
-		string narrow_text ((txt_ctrl_ser_no->GetValue()).utf8_str()  );
-		cout << narrow_text << endl;
+		string current_response ((txt_data_entry_line->GetValue()).utf8_str()  );
+		cout << current_response << endl;
+		if (current_response.size() > 0) {
+			UserInput user_input;
+#if 0
+			if (current_response[0] == 'P') {
+				user_input.userNavigation_ = NAVIGATE_PREVIOUS;
+				user_input.theUserResponse_ = user_response::UserEnteredNavigation;
+			} else if (current_response[0] == 'N') {
+#endif /*  0 */
+
+				// Why? - if current_response == empty then treat that as
+				// UserEnteredNavigation (which should come in the else clause
+				//                        of this if)
+				//user_input.userNavigation_ = NAVIGATE_NEXT;
+				//user_input.theUserResponse_ = user_response::UserEnteredNavigation;
+				user_input.theUserResponse_ = user_response::UserEnteredData;
+				user_input.questionResponseData_ = current_response;
+#if 0
+			} else if (current_response[0] == 'S') {
+				user_input.userNavigation_ = SAVE_DATA;
+				user_input.theUserResponse_ = user_response::UserSavedData;
+				cout << "Got SAVE_DATA from user" << endl;
+			} else  {
+				user_input.theUserResponse_ = user_response::UserEnteredData;
+				user_input.questionResponseData_ = current_response;
+			}
+#endif /*  0 */
+
+			cout << "reached here" << endl;
+			string err_mesg;
+			bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+			// if VerifyResponse fails it is the UI's job to get valid input from the user
+			// It is not the UI's job to parse the data and validate the answer against the question
+
+			/* moved to VerifyResponse - but seems redundant - it was already there
+			if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_PREVIOUS
+					&& user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
+				// allow this behaviour - they can go back to the
+				// previous question without answering anything -
+				// no harm done
+				callback_ui_input (user_input, q, theQuestionnaire);
+			} else */
+			/* moved this into VerifyResponse - final else clause
+			 * where all error messages can be reported
+			if (q->isAnswered_ == false && user_input.userNavigation_ == NAVIGATE_NEXT
+					&& user_input.theUserResponse_ == user_response::UserEnteredNavigation
+					&& q->question_attributes.isAllowBlank() == false) {
+				// nxd: 18-feb-2013 - note this error message should be passed
+				// back as a parameter  - so it can be reported
+				err_mesg = "cannot navigate to next question unless this is answered";
+				valid_input = false;
+			}
+			*/
+
+			cout << "reached here: valid_input :" << valid_input
+				<< "error message: " << err_mesg
+				<<  endl;
+
+			if (valid_input) {
+				if (user_input.theUserResponse_ == user_response::UserSavedData) {
+					cerr  << "NOT YET DONE"
+						<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+						<< endl
+						<< "invoking callback_ui_input with UserSavedData" << endl;
+					// this call will return really fast
+					//  (if you consider io fast)
+					//  but what I mean is we wont add much to the call stack
+					callback_ui_input (user_input, q, theQuestionnaire_);
+					//GetUserInput (callback_ui_input, q, theQuestionnaire);
+					cout << "callback_ui_input has returned after UserSavedData" << endl;
+				} else {
+					cout << "reached here: "
+						<< __PRETTY_FUNCTION__ << endl;
+					callback_ui_input (user_input, q, theQuestionnaire_);
+					cout << "callback_ui_input has returned"
+						<< __PRETTY_FUNCTION__ << endl;
+				}
+				// move all this into callback_ui_input
+				// case UserEnteredData
+#if 0
+
+				int success;
+				vector <int> input_data;
+				parse_input_data (current_response, &input_data, success);
+				if (success == 0) {
+					GetUserInput (callback_ui_input, q, theQuestionnaire);
+				} else {
+					// default direction - chosen by us
+					user_input.userNavigation_ = NAVIGATE_NEXT;
+					user_input.inputData_ = input_data;
+					callback_ui_input (user_input, q, theQuestionnaire);
+				}
+#endif /*  0 */
+			} else {
+				// we should be passing an error message too
+				//GetUserInput (callback_ui_input, q, theQuestionnaire);
+				// do nothing - the callback just continues to wait for data
+			}
+
+			/*
+			else {
+				// invalid entries
+				cout << "invalid input" << endl;
+				question_eval_loop (NORMAL_FLOW, NAVIGATE_NEXT,
+						last_question_visited, 0, qnre);
+				//goto ask_again;
+			} */
+		}
 
 	}
 }
@@ -567,13 +680,13 @@ void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnai
 	DisplayCurrentAnswers (q);
 	//GetUserInput (callback_ui_input, q, theQuestionnaire);
 
-	//gtkQuestionnaireApplication->set_callback_ui_input (callback_ui_input);
+	wxGUI->set_callback_ui_input (callback_ui_input);
 	//gtkQuestionnaireApplication->ConstructQuestionForm (q
 	//		//, gtkQuestionnaireApplication->this_users_session
 	//		);
 
 	wxGUI->ConstructQuestionForm( q );
-	GetUserInput (callback_ui_input, q, theQuestionnaire);
+	//GetUserInput (callback_ui_input, q, theQuestionnaire);
 }
 
 void wxQuestionnaireGUI::ConstructQuestionForm( AbstractQuestion *q )
@@ -617,7 +730,7 @@ void wxQuestionnaireGUI::DisplayStubs (AbstractQuestion * q)
 			PrepareMultiCodedStubDisplay (nq);
 		}
 	} else {
-		cout << "Implement Display Range Question" << endl;
+		cout << "=== Implement Display Range Question" << endl;
 	}
 }
 
@@ -662,7 +775,7 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 		sel = -1;
 	}
 	// no of radio buttons
-#if 1
+#if 0
 	unsigned long count = 12;
 	static const unsigned int DEFAULT_MAJOR_DIM = 2;
 	unsigned long majorDim = DEFAULT_MAJOR_DIM;
@@ -711,3 +824,10 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	hbox->Layout();
 }
 
+
+void wxQuestionnaireGUI::set_callback_ui_input (
+			void (*p_callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
+			)
+{
+	callback_ui_input = p_callback_ui_input;
+}
