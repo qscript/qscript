@@ -52,6 +52,7 @@ public:
 	wxBoxSizer *stubs_row_sizer ;
 	wxPanel *panel;
 	wxFlexGridSizer *fgs ;
+	wxBoxSizer *hbox ;
 	
 	void get_serial_no (wxCommandEvent& event);
 	struct TheQuestionnaire * theQuestionnaire_;
@@ -66,6 +67,7 @@ public:
 	wxStaticText *the_question ;
 	wxStaticText *the_stubs ;
 	wxStaticText *the_data_entry_line ;
+	wxTextCtrl * txt_data_entry_line;
 	wxRadioBox *m_radio;
 	wxSizer *m_sizerRadio;
 
@@ -77,8 +79,9 @@ private:
 
 
 enum MyWidgetID {
-	ID_BUTTON_SERIAL_NO = 101,
-	ID_STUBS_ROW = 102
+	ID_BUTTON_SERIAL_NO = wxID_HIGHEST,
+	ID_STUBS_ROW = 102,
+	SingleAnswerRadioBox
 };
 
 
@@ -143,12 +146,12 @@ bool wxQuestionnaireApplication::OnInit()
 wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	: wxFrame(NULL, -1, title, wxPoint(-1, -1), wxSize(800, 600)),
 	  the_question (0), the_stubs(0), the_data_entry_line(0),
-	  m_radio(0), m_sizerRadio(0)
+	  m_radio(0), m_sizerRadio(0), hbox(0)
 {
 	panel = new wxPanel(this, -1);
 
 
-	wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+	hbox = new wxBoxSizer(wxHORIZONTAL);
 
 #if 1
 	fgs = new wxFlexGridSizer(4, 1, 9, 25);
@@ -157,7 +160,43 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	the_stubs = new wxStaticText(panel, -1, wxT("Stubs for the question"));
 	stubs_row_sizer = new wxBoxSizer(wxHORIZONTAL|wxVERTICAL);
 	stubs_row_sizer->Add(the_stubs);
+
+	// ============ RADIO BOX CODE : TEST TO SEE IF IT APPEARS ===============
+	unsigned long count = 12;
+	static const unsigned int DEFAULT_MAJOR_DIM = 2;
+	unsigned long majorDim = DEFAULT_MAJOR_DIM;
+
+	wxString *items = new wxString[count];
+	//wxString labelBtn = m_textLabelBtns->GetValue();
+	wxString labelBtn = wxT("Radio Button Label") ;
+	for ( size_t n = 0; n < count; n++ )
+	{
+		//items[n] = wxString::Format(_T("Radio Button Label %lu"),
+		//			    //labelBtn.c_str(), (unsigned long)n + 1);
+		//			     (unsigned long)n + 1);
+
+		items[n] = wxT("Radio Button Label ")
+						     ;
+	}
+
+	//int flags = m_chkVert->GetValue() ? wxRA_VERTICAL
+	int flags = true ? wxRA_VERTICAL
+				      : wxRA_HORIZONTAL;
+
+
+	m_radio = new wxRadioBox (panel, SingleAnswerRadioBox,
+				wxT("Radio Box Label"),
+				wxDefaultPosition, wxDefaultSize,
+				count, items,
+				majorDim,
+				flags);
+	// ======== RADIO BOX CODE: END =============
+
+
 	the_data_entry_line = new wxStaticText(panel, -1, wxT("Data entry - line"));
+	txt_data_entry_line = new wxTextCtrl(panel, -1);
+	stubs_row_sizer->Add (txt_data_entry_line);
+	stubs_row_sizer->Add (m_radio);
 
 	// Serial line related stuff
 	wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial: "));
@@ -256,7 +295,8 @@ void GetUserInput (
 		struct TheQuestionnaire * theQuestionnaire),
 		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire)
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	static int count = 0;
+	cout << __PRETTY_FUNCTION__ << ++count << endl;
 	if (q->no_mpn == 1) {
 		cout << " Question is single answer, please enter only 1 response." << endl;
 	} else {
@@ -264,7 +304,11 @@ void GetUserInput (
 	}
 	string current_response;
 	cout << "Enter Data>" << endl;
-	getline(cin, current_response);
+	if (count < 4) {
+		getline(cin, current_response);
+	} else {
+		return;
+	}
 	UserInput user_input;
 	if (current_response.size() > 0) {
 		if (current_response[0] == 'P') {
@@ -532,6 +576,7 @@ void wxQuestionnaireGUI::DisplayQuestionTextView (const vector <string> & qno_an
 
 void wxQuestionnaireGUI::DisplayStubs (AbstractQuestion * q)
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
 	{
 		if (q->no_mpn==1)
@@ -571,6 +616,7 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 
 void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	int sel = -1;
 	if ( m_radio )
 	{
@@ -578,12 +624,14 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 		//m_sizerRadio->Detach( m_radio );
 		stubs_row_sizer->Detach (m_radio);
 		delete m_radio;
+		m_radio = 0;
 	}
 	else // first time creation, no old selection to preserve
 	{
 		sel = -1;
 	}
 	// no of radio buttons
+#if 1
 	unsigned long count = 12;
 	static const unsigned int DEFAULT_MAJOR_DIM = 2;
 	unsigned long majorDim = DEFAULT_MAJOR_DIM;
@@ -597,17 +645,18 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 		//			    //labelBtn.c_str(), (unsigned long)n + 1);
 		//			     (unsigned long)n + 1);
 
-		items[n] = wxT("Radio Button Label ")
+		items[n] = wxT("Radio Button Label Changed nxd ")
 						     ;
 	}
 
 	//int flags = m_chkVert->GetValue() ? wxRA_VERTICAL
 	int flags = true ? wxRA_VERTICAL
 				      : wxRA_HORIZONTAL;
+
 	//flags |= ms_defaultFlags;
 
-	m_radio = new wxRadioBox (this, panel->GetId(),
-				wxT("Radio Box Label"),
+	m_radio = new wxRadioBox (panel, SingleAnswerRadioBox,
+				wxT("Radio Box Label nxd"),
 				wxDefaultPosition, wxDefaultSize,
 				count, items,
 				majorDim,
@@ -619,9 +668,15 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	//m_sizerRadio->Add(m_radio, 1, wxGROW);
 	//m_sizerRadio->Layout();
 	the_stubs->SetLabel(wxT("New Stubs Text - should be visible now"));
+	cout << "Updated New stubs text" << endl;
 	stubs_row_sizer->Add(m_radio, 1, wxGROW);
+	m_radio->Show(true);
+	stubs_row_sizer->Show(false);
+	stubs_row_sizer->Show(true);
+	this->Fit();
+#endif /*  0 */
 	stubs_row_sizer->Layout();
 	fgs->Layout();
-
+	hbox->Layout();
 }
 
