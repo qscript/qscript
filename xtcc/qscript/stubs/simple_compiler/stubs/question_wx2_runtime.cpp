@@ -53,6 +53,9 @@ public:
 	wxPanel *panel;
 	wxFlexGridSizer *fgs ;
 	wxBoxSizer *hbox ;
+
+	AbstractQuestion * last_question_visited;
+	AbstractQuestion * jump_to_question;
 	
 	void get_serial_no (wxCommandEvent& event);
 	struct TheQuestionnaire * theQuestionnaire_;
@@ -70,6 +73,7 @@ public:
 	wxTextCtrl * txt_data_entry_line;
 	wxRadioBox *m_radio;
 	wxSizer *m_sizerRadio;
+	void handleDataInput (wxCommandEvent& WXUNUSED(event));
 
 private:
     DECLARE_EVENT_TABLE()
@@ -80,14 +84,30 @@ private:
 
 enum MyWidgetID {
 	ID_BUTTON_SERIAL_NO = wxID_HIGHEST,
-	ID_STUBS_ROW = 102,
+	ID_STUBS_ROW,
+	ID_NEXT_BUTTON,
 	SingleAnswerRadioBox
 };
 
 
 BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     EVT_BUTTON(ID_BUTTON_SERIAL_NO,  wxQuestionnaireGUI::get_serial_no)
+    EVT_BUTTON(ID_NEXT_BUTTON,  wxQuestionnaireGUI::handleDataInput)
 END_EVENT_TABLE()
+
+void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
+{
+	cout << __PRETTY_FUNCTION__ << endl;	
+
+	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
+	{
+	} else {
+		cout << "need to handle line data here: got input as : " << endl;
+		string narrow_text ((txt_ctrl_ser_no->GetValue()).utf8_str()  );
+		cout << narrow_text << endl;
+
+	}
+}
 
 void wxQuestionnaireGUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
 {
@@ -192,10 +212,20 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 				flags);
 	// ======== RADIO BOX CODE: END =============
 
-
-	the_data_entry_line = new wxStaticText(panel, -1, wxT("Data entry - line"));
-	txt_data_entry_line = new wxTextCtrl(panel, -1);
-	stubs_row_sizer->Add (txt_data_entry_line);
+	wxBoxSizer * check_box_sizer = new wxBoxSizer (wxHORIZONTAL);
+	stubs_row_sizer->Add (check_box_sizer);
+	wxBoxSizer * radio_box_sizer = new wxBoxSizer (wxHORIZONTAL);
+	stubs_row_sizer->Add (radio_box_sizer);
+	wxBoxSizer * data_entry_line_sizer = new wxBoxSizer (wxHORIZONTAL);
+	{
+		the_data_entry_line = new wxStaticText(panel, -1, wxT("Data entry (Coded Questions): "));
+		data_entry_line_sizer->Add (the_data_entry_line);
+		txt_data_entry_line = new wxTextCtrl(panel, -1);
+		data_entry_line_sizer->Add (txt_data_entry_line);
+		wxButton *button = new wxButton(panel, ID_NEXT_BUTTON, wxT("Next") );
+		data_entry_line_sizer->Add (button);
+	}
+	stubs_row_sizer->Add (data_entry_line_sizer);
 	stubs_row_sizer->Add (m_radio);
 
 	// Serial line related stuff
@@ -305,7 +335,7 @@ void GetUserInput (
 	string current_response;
 	cout << "Enter Data>" << endl;
 	if (count < 4) {
-		getline(cin, current_response);
+		//getline(cin, current_response);
 	} else {
 		return;
 	}
@@ -554,6 +584,7 @@ void wxQuestionnaireGUI::ConstructQuestionForm( AbstractQuestion *q )
 	DisplayQuestionTextView (question_text_vec);		
 	// Hack to Display Radio Buttons
 	DisplayStubs (q);
+	last_question_visited = q;
 
 }
 
