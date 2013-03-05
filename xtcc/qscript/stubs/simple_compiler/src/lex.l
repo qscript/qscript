@@ -451,6 +451,8 @@ create_1_0_data_edit {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
 		qscript_parser::lex_location.IncrementColumn(yyleng);
+		// nxd : 5-mar-2013 
+		// below slows us down i think - i should be using yyleng
 		int len_text=strlen(yytext);
 		yytext[len_text-1]='\0';
 		if(yyleng < MY_STR_MAX-1) {

@@ -689,7 +689,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//int32_t maxWinX, maxWinY;
 		//getmaxyx(data_entry_window, maxWinY, maxWinX);
 		int32_t currXpos = 1, currYpos = 1;
-		fprintf (qscript_stdout, "displayData_.size(): %d\n", displayData_.size());
+		fprintf (qscript_stdout, "displayData_.size(): %ld\n", displayData_.size());
 		wclear (stub_list_window);
 		Print_DisplayDataUnitVector (stub_list_window, displayData_, currXpos, currYpos, maxWinX);
 		//getchar();

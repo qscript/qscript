@@ -716,6 +716,7 @@ const char * file_exists_check_code()
 	const char * file_check_code =
 	"\tif (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag) {\n"
 	"\t	ser_no = read_a_serial_no();\n"
+	"\t	fprintf(qscript_stdout, \"Read Serial no: %d\\n\", ser_no);\n"
 	"\t	if (ser_no == 0) {\n"
 	"\t		break;\n"
 	"\t	} \n"
