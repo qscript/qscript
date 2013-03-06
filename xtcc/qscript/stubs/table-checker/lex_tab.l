@@ -61,6 +61,27 @@ DIGIT    [0-9]
 [ \r\t]+	{ /* ignore */
 }
 
+
+,\"\"	{
+	cout << "RETURNING  EMPTY_LINE_1_COLS" << endl;
+	return EMPTY_LINE_1_COLS;
+}
+
+,\"Total\"	{
+	cout << "RETURNING  BAN_TOTAL" << endl;
+	return BAN_TOTAL;
+}
+
+\"Total\",{DIGIT}+	{
+	cout << "RETURNING  SIDE_TOTAL" << endl;
+	return SIDE_TOTAL;
+}
+
+\"\",\"\"	{
+	cout << "RETURNING EMPTY_LINE_2_COLS" << endl;
+	return EMPTY_LINE_2_COLS;
+}
+
 	/*\"\",{DIGIT}+\.{DIGIT}+      */
 \"\",{DIGIT}+ 	{
         cout << "got STUB_PERC " << endl;
@@ -75,24 +96,25 @@ DIGIT    [0-9]
 
 
 ","   {
-    //cout << "got COMMA" << endl;
+    cout << "got COMMA" << endl;
     return COMMA;
 }
 
 \n  {
     ++line_no;
-    //cout << "got a NEWL: line_no: "  << line_no << endl;
+    cout << "got a NEWL: line_no: "  << line_no << endl;
 	return NEWL;
 }
 
 {DIGIT}+	{
 		yylval.ival = atoi(yytext);
-        //cout << "got INUMBER " << yylval.ival << endl;
+        	cout << "got INUMBER " << yylval.ival << endl;
 		return INUMBER;
 	}
 
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
 		yylval.dval = atof(yytext);
+        	cout << "got FNUMBER " << yylval.dval << endl;
 		return FNUMBER;
 	}
 
@@ -123,6 +145,9 @@ DIGIT    [0-9]
 		} else if (strstr(text.c_str(),"Sigma")) {
 			cout << "RETURNING SIGMA" << endl;
 			return SIGMA;
+		} else if (strstr(text.c_str(),"Base:")) {
+			cout << "RETURNING BASE_TEXT" << endl;
+			return BASE_TEXT;
 		} else {
 			regex_t a_regex;
 			regcomp (&a_regex, "^[a-zA-Z_][a-zA-Z0-9_]*$", 0);
@@ -137,9 +162,11 @@ DIGIT    [0-9]
 					cout << "RETURNING NAME: " << text << endl;
 					return NAME;
 				} else {
+					cout << "RETURNING TEXT" << text << endl;
 					return TEXT;
 				}
 			} else {
+				cout << "RETURNING TEXT" << text << endl;
 				return TEXT;
 			}
 		}

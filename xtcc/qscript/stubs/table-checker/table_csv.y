@@ -53,6 +53,7 @@
 %token TOTAL
 %token SIGMA
 %token MEAN
+%token <text_buf> BASE_TEXT
 %token <text_buf> STUB_FREQ
 %token <text_buf> STUB_PERC
 %token <ival> INUMBER
@@ -62,6 +63,10 @@
 %token NEWL
 %token COMMA
 %token DOT
+%token EMPTY_LINE_2_COLS
+%token EMPTY_LINE_1_COLS
+%token BAN_TOTAL
+%token SIDE_TOTAL
 
 
 %%
@@ -76,7 +81,7 @@ axis_freq_count_list: axis_freq_count {
 	}
 	;
 
-axis_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL NAME NEWL text_chain freq_chain {
+axis_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL NAME NEWL text_chain BASE_TEXT NEWL EMPTY_LINE_2_COLS NEWL EMPTY_LINE_1_COLS NEWL BAN_TOTAL NEWL EMPTY_LINE_1_COLS NEWL SIDE_TOTAL NEWL freq_chain {
 		cout << "got axis_freq_count" << endl;
 	}
 
@@ -88,20 +93,22 @@ freq_chain: a_freq
 	  | freq_chain a_freq
 	  ;
 
-a_freq: 	STUB_FREQ
-      	|	STUB_PERC
+a_freq: 	STUB_FREQ NEWL
+      	|	STUB_PERC NEWL
 	;
 
 
 %%
 
+	extern void yyrestart(FILE *input_file);
+	extern int yyparse();
 
 #include "const_defs.h"
 int main()
 {
-	std::string fname ("cmb_decision_maker.freq_count.csv");
+	std::string fname ("T.CSV");
 	FILE * yyin = fopen(fname.c_str(), "rb");
-	if (!yyin){
+	if (!yyin) {
 		cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
 		exit(1);
 	}
@@ -112,24 +119,3 @@ int main()
 	
 }
 
-void yyerror(const char * s)
-{
-	//fprintf(stderr, "reached here: %s\n", __PRETTY_FUNCTION__);
-	//using qscript_parser::no_errors;
-	//using qscript_parser::line_no;
-	//++no_errors;
-	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext);
-	printf("line: %d: \n", line_no);
-	//printf ("lexical error: line: %d, column: %d\n"
-	//	, lex_location.lineNo_
-	//	, lex_location.columnNo_);
-	//printf ("%s\n", lex_location.currentLine_.str().c_str());
-	//printf ("%*s\n%*s\ntoken: %s\n", lex_location.columnNo_, "^"
-	//		    , lex_location.columnNo_, s, yytext);
-}
-
-
-int yywrap()
-{
-	return 1;
-}
