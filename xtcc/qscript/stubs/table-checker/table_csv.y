@@ -47,9 +47,14 @@
 	char text_buf[4095];
 }
 
-%token STUBS
-%token CODE
-%token FREQUENCY
+
+%token TABLE
+%token PAGE
+%token TOTAL
+%token SIGMA
+%token MEAN
+%token <text_buf> STUB_FREQ
+%token <text_buf> STUB_PERC
 %token <ival> INUMBER
 %token <dval> FNUMBER
 %token <name> NAME
@@ -71,64 +76,25 @@ axis_freq_count_list: axis_freq_count {
 	}
 	;
 
-axis_freq_count: name stub_header_line stub_frequency_list NEWL {
-		//cout << "got an named stub axis_freq_count" << endl;
-		freq_count_map_nq_name_stub_freq[axis_name] = temp_freq_count_map_nq_stub_codefreq;
-		freq_count_map_nq_name_code_freq[axis_name] = temp_freq_count_map_nq_code_codefreq;
-		freq_count_map_nq_name_stub_code[axis_name] = temp_freq_count_map_nq_stub_code;
+axis_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL NAME NEWL text_chain freq_chain {
+		cout << "got axis_freq_count" << endl;
 	}
-	| name code_header_line code_freq_list NEWL{
-		//cout << "got an range stub axis_freq_count" << endl;
-		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
-	}
+
+text_chain: TEXT NEWL
+	  | text_chain TEXT NEWL
+	  ;
+
+freq_chain: a_freq
+	  | freq_chain a_freq
+	  ;
+
+a_freq: 	STUB_FREQ
+      	|	STUB_PERC
 	;
 
-stub_header_line: STUBS COMMA CODE COMMA FREQUENCY NEWL {
-	//cout << "got stubs_header_line" << endl;
-	}
-
-code_header_line: COMMA CODE COMMA FREQUENCY NEWL {
-	//cout << "got code_header_line" << endl;
-	}
-
-name: NAME NEWL {
-	//cout << "Got NAME: " << $1 << endl;
-	axis_name = $1;
-	}
-	| NAME DOT INUMBER NEWL {
-	//	cout << "Got array NAME: " << $1 << endl;
-		stringstream s1;
-		s1 << $1 << "." << $3;
-		axis_name = s1.str();
-	}
-
-stub_frequency_list: stub_freq
-	| stub_frequency_list stub_freq
-	;
-
-code_freq_list: code_freq
-	| code_freq_list code_freq
-	;
-
-stub_freq: TEXT COMMA INUMBER COMMA INUMBER NEWL {
-	temp_freq_count_map_nq_stub_codefreq[$1]=$5;
-	temp_freq_count_map_nq_code_codefreq[$3]=$5;
-	temp_freq_count_map_nq_stub_code[$1]=$3;
-	//cout << "Got stub_freq:"  << TEXT << endl;
-	nq_axis = true;
-}
-
-code_freq: COMMA INUMBER COMMA INUMBER NEWL {
-	//cout	<< "Got code_freq code:"  << $2
-	//	<< ", freq: " << $4
-	//	<< endl;
-		temp_freq_count_map_rq[$2] = $4;
-		nq_axis = false;
-	 }
 
 %%
-	extern void yyrestart(FILE *input_file);
-	extern int32_t yyparse();
+
 
 #include "const_defs.h"
 int main()
@@ -144,4 +110,26 @@ int main()
 		cout << "Input parsed successfully" << endl;
 	}
 	
+}
+
+void yyerror(const char * s)
+{
+	//fprintf(stderr, "reached here: %s\n", __PRETTY_FUNCTION__);
+	//using qscript_parser::no_errors;
+	//using qscript_parser::line_no;
+	//++no_errors;
+	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext);
+	printf("line: %d: \n", line_no);
+	//printf ("lexical error: line: %d, column: %d\n"
+	//	, lex_location.lineNo_
+	//	, lex_location.columnNo_);
+	//printf ("%s\n", lex_location.currentLine_.str().c_str());
+	//printf ("%*s\n%*s\ntoken: %s\n", lex_location.columnNo_, "^"
+	//		    , lex_location.columnNo_, s, yytext);
+}
+
+
+int yywrap()
+{
+	return 1;
 }

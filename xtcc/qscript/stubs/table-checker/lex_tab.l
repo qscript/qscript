@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <regex.h>
 #include "const_defs.h"
-#include "freq_file.h"
+#include "table_csv.h"
 /*
 typedef union YYSTYPE
 {
@@ -21,7 +21,6 @@ typedef union YYSTYPE
 
 
 } YYSTYPE;
-*/
 
 
 YYSTYPE yylval;
@@ -35,6 +34,7 @@ enum {
 	STUB_FREQ,
 	STUB_PERC
 };
+*/
 
 
 	extern int yylex();
@@ -205,6 +205,7 @@ int count_at_least_n_matches ( regmatch_t p_match[5])
 	return n_matches;
 }
 
+	/*
 	int main ()
 	{
 		std::string fname ("T.CSV");
@@ -216,3 +217,5 @@ int count_at_least_n_matches ( regmatch_t p_match[5])
 		}
 		cout << "EXIT: " << n_loops << endl;
 	}
+	*/
+
