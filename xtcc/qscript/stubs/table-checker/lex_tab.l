@@ -2,39 +2,41 @@
 
 #include <map>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <cstdlib>
 #include <cstdlib>
 #include <regex.h>
 #include "const_defs.h"
 #include "table_csv.h"
-/*
-typedef union YYSTYPE
-{
+
+    /*
+    typedef union YYSTYPE
+    {
 
 
-	int ival;
-	double dval;
-	char name[4095];
-	char text_buf[4095];
+        int ival;
+        double dval;
+        char name[4095];
+        char text_buf[4095];
 
 
 
-} YYSTYPE;
+    } YYSTYPE;
 
 
-YYSTYPE yylval;
+    YYSTYPE yylval;
 
-enum {
-	TABLE=1,
-	PAGE,
-	TOTAL,
-	SIGMA,
-	MEAN,
-	STUB_FREQ,
-	STUB_PERC
-};
-*/
+    enum {
+        TABLE=1,
+        PAGE,
+        TOTAL,
+        SIGMA,
+        MEAN,
+        STUB_FREQ,
+        STUB_PERC
+    };
+    */
 
 
 	extern int yylex();
@@ -83,14 +85,21 @@ DIGIT    [0-9]
 }
 
 	/*\"\",{DIGIT}+\.{DIGIT}+      */
-\"\",{DIGIT}+ 	{
-        cout << "got STUB_PERC " << endl;
+\"\",{DIGIT}+ {
+        cout << "got STUB_PERC " << yytext << endl;
 	return STUB_PERC;
 }
 
+\"Mean\",{DIGIT}+.{DIGIT}+  {
+	return STUB_MEAN;
+}
+
+\"Std.Dev\",{DIGIT}+.{DIGIT}+  {
+	return STUB_STD_DEV;
+}
 
 \"[^\"]*\",{DIGIT}+	{
-        cout << "got STUB_FREQ " << endl;
+        cout << "got STUB_FREQ: " << yytext << endl;
 	return STUB_FREQ;
 }
 
@@ -106,16 +115,16 @@ DIGIT    [0-9]
 	return NEWL;
 }
 
-{DIGIT}+	{
-		yylval.ival = atoi(yytext);
-        	cout << "got INUMBER " << yylval.ival << endl;
-		return INUMBER;
-	}
-
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
 		yylval.dval = atof(yytext);
         	cout << "got FNUMBER " << yylval.dval << endl;
 		return FNUMBER;
+	}
+
+{DIGIT}+	{
+		yylval.ival = atoi(yytext);
+        	cout << "got INUMBER " << yylval.ival << endl;
+		return INUMBER;
 	}
 
 

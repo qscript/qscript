@@ -56,6 +56,8 @@
 %token <text_buf> BASE_TEXT
 %token <text_buf> STUB_FREQ
 %token <text_buf> STUB_PERC
+%token <text_buf> STUB_MEAN
+%token <text_buf> STUB_STD_DEV
 %token <ival> INUMBER
 %token <dval> FNUMBER
 %token <name> NAME
@@ -95,6 +97,8 @@ freq_chain: a_freq
 
 a_freq: 	STUB_FREQ NEWL
       	|	STUB_PERC NEWL
+        |   STUB_MEAN NEWL
+        |   STUB_STD_DEV NEWL
 	;
 
 
