@@ -25,7 +25,7 @@
     } YYSTYPE;
 
 
-    YYSTYPE yylval;
+    YYSTYPE qtm_table_output_lval;
 
     enum {
         TABLE=1,
@@ -47,9 +47,15 @@
 	using std::string;
 	int line_no;
 	int count_at_least_n_matches ( regmatch_t p_match[5]);
+	void qtm_table_output_error(const char * s);
 
 %}
 
+
+%option prefix="qtm_table_output_"
+%option never-interactive
+%option nounistd
+%option outfile="lex_tab.c" header-file="lex_tab.h"
 
 DIGIT    [0-9]
         /*ID       [a-z][a-z0-9]*/
@@ -64,7 +70,7 @@ DIGIT    [0-9]
 }
 
 
-,\"\"	{
+,\"\" {
 	cout << "RETURNING  EMPTY_LINE_1_COLS" << endl;
 	return EMPTY_LINE_1_COLS;
 }
@@ -75,7 +81,11 @@ DIGIT    [0-9]
 }
 
 \"Total\",{DIGIT}+	{
-	cout << "RETURNING  SIDE_TOTAL" << endl;
+	string side_total_str(yytext + 8);
+	int side_total = atoi (side_total_str.c_str());
+	cout << "RETURNING  SIDE_TOTAL:"
+		<< "side_total_str:" << side_total_str << ", "
+		<< "side_total: " <<side_total << endl;
 	return SIDE_TOTAL;
 }
 
@@ -86,11 +96,30 @@ DIGIT    [0-9]
 
 	/*\"\",{DIGIT}+\.{DIGIT}+      */
 \"\",{DIGIT}+ {
+	char * pos_2nd_dbl_quote = strrchr (yytext, '"');
+	if (pos_2nd_dbl_quote) {
+		string no (pos_2nd_dbl_quote + 2);
+		int freq = atof (no.c_str());
+		cout << "PERC: " << freq << endl;
+	} else {
+		cerr << __LINE__
+			<< ", "
+			<< __FILE__
+			<< ", "
+			<< __PRETTY_FUNCTION__
+			<< "Impossible ! lex condition is that there should be 2 quotes"
+			<< endl;
+	}
         cout << "got STUB_PERC " << yytext << endl;
 	return STUB_PERC;
 }
 
 \"Mean\",{DIGIT}+.{DIGIT}+  {
+	string mean_str(yytext + 7);
+	double mean = atof (mean_str.c_str());
+	cout	<< "RETURNING  MEAN:"
+		<< "mean_str:" << mean_str << ", "
+		<< "mean: " << mean << endl;
 	return STUB_MEAN;
 }
 
@@ -99,48 +128,62 @@ DIGIT    [0-9]
 }
 
 \"[^\"]*\",{DIGIT}+	{
-        cout << "got STUB_FREQ: " << yytext << endl;
+	char * pos_2nd_dbl_quote = strrchr (yytext, '"');
+	if (pos_2nd_dbl_quote) {
+		string no (pos_2nd_dbl_quote + 2);
+		int freq = atoi (no.c_str());
+		cout << "FREQ: " << freq << endl;
+	} else {
+		cerr << __LINE__
+			<< ", "
+			<< __FILE__
+			<< ", "
+			<< __PRETTY_FUNCTION__
+			<< "Impossible ! lex condition is that there should be 2 quotes"
+			<< endl;
+	}
+	cout << "got STUB_FREQ: " << yytext << endl;
 	return STUB_FREQ;
 }
 
 
 ","   {
-    cout << "got COMMA" << endl;
+    //cout << "got COMMA" << endl;
     return COMMA;
 }
 
 \n  {
     ++line_no;
-    cout << "got a NEWL: line_no: "  << line_no << endl;
+	//cout << "got a NEWL: line_no: "  << line_no << endl;
 	return NEWL;
 }
 
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
-		yylval.dval = atof(yytext);
-        	cout << "got FNUMBER " << yylval.dval << endl;
+		qtm_table_output_lval.dval = atof(yytext);
+		cout << "got FNUMBER " << qtm_table_output_lval.dval << endl;
 		return FNUMBER;
 	}
 
 {DIGIT}+	{
-		yylval.ival = atoi(yytext);
-        	cout << "got INUMBER " << yylval.ival << endl;
+		qtm_table_output_lval.ival = atoi(yytext);
+		cout << "got INUMBER " << qtm_table_output_lval.ival << endl;
 		return INUMBER;
 	}
 
 
 \"[^\"]*\"      {
 		//int len_text=strlen(yytext);
-		int len_text = yyleng;
+		int len_text = qtm_table_output_leng;
 		yytext[len_text-1]='\0'; // clobber double quote
-		if(yyleng < MY_STR_MAX-1) {
-			strcpy(yylval.text_buf, yytext+1);
+		if(qtm_table_output_leng < MY_STR_MAX-1) {
+			strcpy(qtm_table_output_lval.text_buf, yytext+1);
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
 			exit(1);
 		}
-		string text(yylval.text_buf);
+		string text(qtm_table_output_lval.text_buf);
 		if (strstr(text.c_str(), "#page")) {
-			cout << "RETURNING PAGE" << endl;
+			//cout << "RETURNING PAGE" << endl;
 			return PAGE;
 		} else if (strstr(text.c_str(),"Table ")) {
 			cout << "RETURNING TABLE" << endl;
@@ -182,8 +225,8 @@ DIGIT    [0-9]
 	}
 
 [_A-Za-z][A-Za-z0-9_]*	{
-		if(yyleng < MY_STR_MAX) {
-			strcpy(yylval.name,yytext);
+		if(qtm_table_output_leng < MY_STR_MAX) {
+			strcpy(qtm_table_output_lval.name,yytext);
             //cout << "got NAME:" << yytext << endl;
 			return NAME;
 		} else {
@@ -208,7 +251,8 @@ DIGIT    [0-9]
 %%
 
 
-	void yyerror(const char * s)
+	//void yyerror(const char * s)
+	void qtm_table_output_error(const char * s)
 	{
 		//fprintf(stderr, "reached here: %s\n", __PRETTY_FUNCTION__);
 		//using qscript_parser::no_errors;
@@ -225,7 +269,9 @@ DIGIT    [0-9]
 	}
 
 
-int yywrap(){
+//int yywrap()
+int qtm_table_output_wrap()
+{
 	return 1;
 }
 

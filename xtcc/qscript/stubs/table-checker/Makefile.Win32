@@ -7,16 +7,16 @@ QTM_SOURCES =  lex_tab.l table_csv.y
 QTM_GENERATED_SOURCES = lex_tab.c table_csv.c table_csv.h
 QTM_COMPILE_FILES = lex_tab.c table_csv.c
 
-#INCLUDE_DIR=c:\usr\include
-#LIB_DIR=c:\usr\lib
-#LINK_LIBS=-lregex
+INCLUDE_DIR=c:\usr\include
+LIB_DIR=c:\usr\lib
+LINK_LIBS=-lregex
 
 
 qtm-csv-parser.exe: $(QTM_GENERATED_SOURCES)
-	g++ $(QTM_COMPILE_FILES) -o $@ $(LINK_LIBS)
+	g++ -I$(INCLUDE_DIR) -L$(LIB_DIR) $(QTM_COMPILE_FILES) -o $@ $(LINK_LIBS)
 
 lex_tab.c: lex_tab.l
-	flex $<
+	flex -o$@ $<
 
 table_csv.c table_csv.h: table_csv.y
 	bison -d $< -o table_csv.c

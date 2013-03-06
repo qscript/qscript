@@ -61,6 +61,14 @@
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
+/* Substitute the variable and function names.  */
+#define yyparse         qtm_table_output_parse
+#define yylex           qtm_table_output_lex
+#define yyerror         qtm_table_output_error
+#define yylval          qtm_table_output_lval
+#define yychar          qtm_table_output_char
+#define yydebug         qtm_table_output_debug
+#define yynerrs         qtm_table_output_nerrs
 
 
 /* Copy the first part of user declarations.  */
@@ -80,10 +88,11 @@
 #include <map>
 #include <cstdlib>
 #include "const_defs.h"
+#include "lex_tab.h"
 
 
-	extern int yylex();
-	extern void yyerror(const char * s);
+	//extern int yylex();
+	//extern void yyerror(const char * s);
 	using std::cout;
 	using std::endl;
 	using std::cerr;
@@ -105,11 +114,12 @@
 	map<int, int> temp_freq_count_map_rq; // will always be code -> freq
 	string axis_name;
 	bool nq_axis;
+	void qtm_table_output_error(const char * s);
 
 
 
 /* Line 268 of yacc.c  */
-#line 113 "table_csv.c"
+#line 123 "table_csv.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -144,17 +154,19 @@
      BASE_TEXT = 263,
      STUB_FREQ = 264,
      STUB_PERC = 265,
-     INUMBER = 266,
-     FNUMBER = 267,
-     NAME = 268,
-     TEXT = 269,
-     NEWL = 270,
-     COMMA = 271,
-     DOT = 272,
-     EMPTY_LINE_2_COLS = 273,
-     EMPTY_LINE_1_COLS = 274,
-     BAN_TOTAL = 275,
-     SIDE_TOTAL = 276
+     STUB_MEAN = 266,
+     STUB_STD_DEV = 267,
+     INUMBER = 268,
+     FNUMBER = 269,
+     NAME = 270,
+     TEXT = 271,
+     NEWL = 272,
+     COMMA = 273,
+     DOT = 274,
+     EMPTY_LINE_2_COLS = 275,
+     EMPTY_LINE_1_COLS = 276,
+     BAN_TOTAL = 277,
+     SIDE_TOTAL = 278
    };
 #endif
 
@@ -165,7 +177,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 43 "table_csv.y"
+#line 45 "table_csv.y"
 
 	int ival;
 	double dval;
@@ -175,7 +187,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 179 "table_csv.c"
+#line 191 "table_csv.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -187,7 +199,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 191 "table_csv.c"
+#line 203 "table_csv.c"
 
 #ifdef short
 # undef short
@@ -406,20 +418,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   35
+#define YYLAST   53
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  22
+#define YYNTOKENS  24
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  12
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  37
+#define YYNSTATES  41
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   276
+#define YYMAXUTOK   278
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -454,7 +466,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
-      15,    16,    17,    18,    19,    20,    21
+      15,    16,    17,    18,    19,    20,    21,    22,    23
 };
 
 #if YYDEBUG
@@ -463,24 +475,25 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     5,     8,    31,    34,    38,    40,    43,
-      46
+      46,    49,    52
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      23,     0,    -1,    24,    -1,    23,    24,    -1,     4,    15,
-       3,    15,    14,    15,    13,    15,    25,     8,    15,    18,
-      15,    19,    15,    20,    15,    19,    15,    21,    15,    26,
-      -1,    14,    15,    -1,    25,    14,    15,    -1,    27,    -1,
-      26,    27,    -1,     9,    15,    -1,    10,    15,    -1
+      25,     0,    -1,    26,    -1,    25,    26,    -1,     4,    17,
+       3,    17,    16,    17,    15,    17,    27,     8,    17,    20,
+      17,    21,    17,    22,    17,    21,    17,    23,    17,    28,
+      -1,    16,    17,    -1,    27,    16,    17,    -1,    29,    -1,
+      28,    29,    -1,     9,    17,    -1,    10,    17,    -1,    11,
+      17,    -1,    12,    17,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    74,    74,    78,    84,    88,    89,    92,    93,    96,
-      97
+       0,    79,    79,    83,    89,    93,    94,    97,    98,   101,
+     102,   103,   104
 };
 #endif
 
@@ -490,11 +503,11 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "TABLE", "PAGE", "TOTAL", "SIGMA",
-  "MEAN", "BASE_TEXT", "STUB_FREQ", "STUB_PERC", "INUMBER", "FNUMBER",
-  "NAME", "TEXT", "NEWL", "COMMA", "DOT", "EMPTY_LINE_2_COLS",
-  "EMPTY_LINE_1_COLS", "BAN_TOTAL", "SIDE_TOTAL", "$accept",
-  "axis_freq_count_list", "axis_freq_count", "text_chain", "freq_chain",
-  "a_freq", 0
+  "MEAN", "BASE_TEXT", "STUB_FREQ", "STUB_PERC", "STUB_MEAN",
+  "STUB_STD_DEV", "INUMBER", "FNUMBER", "NAME", "TEXT", "NEWL", "COMMA",
+  "DOT", "EMPTY_LINE_2_COLS", "EMPTY_LINE_1_COLS", "BAN_TOTAL",
+  "SIDE_TOTAL", "$accept", "axis_freq_count_list", "axis_freq_count",
+  "text_chain", "freq_chain", "a_freq", 0
 };
 #endif
 
@@ -505,22 +518,22 @@ static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276
+     275,   276,   277,   278
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    22,    23,    23,    24,    25,    25,    26,    26,    27,
-      27
+       0,    24,    25,    25,    26,    27,    27,    28,    28,    29,
+      29,    29,    29
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     2,    22,     2,     3,     1,     2,     2,
-       2
+       2,     2,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -531,30 +544,32 @@ static const yytype_uint8 yydefact[] =
        0,     0,     0,     2,     0,     1,     3,     0,     0,     0,
        0,     0,     0,     0,     0,     5,     0,     0,     0,     6,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     4,     7,     9,    10,     8
+       0,     0,     0,     0,     4,     7,     9,    10,    11,    12,
+       8
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,    14,    32,    33
+      -1,     2,     3,    14,    34,    35
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -19
+#define YYPACT_NINF -15
 static const yytype_int8 yypact[] =
 {
-       0,    -6,     1,   -19,     4,   -19,   -19,    -5,    -3,    -2,
-      -1,     2,     5,     3,    -8,   -19,     6,     7,   -10,   -19,
-       8,    -4,     9,    10,    11,    12,    13,    14,    17,    -7,
-      18,    19,    -7,   -19,   -19,   -19,   -19
+      -2,   -14,     1,   -15,     3,   -15,   -15,   -13,    -9,    -4,
+      -1,     2,     4,     5,    -8,   -15,     6,     7,    -5,   -15,
+       8,    -3,     9,    -6,    10,    11,    12,    13,    14,     0,
+      16,    17,    18,    20,     0,   -15,   -15,   -15,   -15,   -15,
+     -15
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -19,   -19,    23,   -19,   -19,   -18
+     -15,   -15,    15,   -15,   -15,    19
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -563,34 +578,39 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      16,     5,    30,    31,     1,     1,    17,     7,    20,     4,
-       8,     9,    11,    10,    36,    22,     0,    12,    15,    13,
-       0,    18,    19,    21,    23,     6,    25,     0,    27,     0,
-      24,    26,    29,    34,    35,    28
+      16,     5,     1,     4,     8,     1,     7,     9,    17,    30,
+      31,    32,    33,    10,    11,    20,    24,     6,    22,    12,
+      13,     0,    15,    18,    19,    21,    23,    25,     0,    27,
+       0,    29,    26,    36,    37,    38,    28,    39,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,    40
 };
 
 #define yypact_value_is_default(yystate) \
-  ((yystate) == (-19))
+  ((yystate) == (-15))
 
 #define yytable_value_is_error(yytable_value) \
   YYID (0)
 
 static const yytype_int8 yycheck[] =
 {
-       8,     0,     9,    10,     4,     4,    14,     3,    18,    15,
-      15,    14,    13,    15,    32,    19,    -1,    15,    15,    14,
-      -1,    15,    15,    15,    15,     2,    15,    -1,    15,    -1,
-      20,    19,    15,    15,    15,    21
+       8,     0,     4,    17,    17,     4,     3,    16,    16,     9,
+      10,    11,    12,    17,    15,    20,    22,     2,    21,    17,
+      16,    -1,    17,    17,    17,    17,    17,    17,    -1,    17,
+      -1,    17,    21,    17,    17,    17,    23,    17,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    34
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     4,    23,    24,    15,     0,    24,     3,    15,    14,
-      15,    13,    15,    14,    25,    15,     8,    14,    15,    15,
-      18,    15,    19,    15,    20,    15,    19,    15,    21,    15,
-       9,    10,    26,    27,    15,    15,    27
+       0,     4,    25,    26,    17,     0,    26,     3,    17,    16,
+      17,    15,    17,    16,    27,    17,     8,    16,    17,    17,
+      20,    17,    21,    17,    22,    17,    21,    17,    23,    17,
+       9,    10,    11,    12,    28,    29,    17,    17,    17,    17,
+      29
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1427,7 +1447,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 74 "table_csv.y"
+#line 79 "table_csv.y"
     {
 		//cout << "parsed axis_freq_count to axis_freq_count_list"
 		//	<< endl;
@@ -1437,7 +1457,7 @@ yyreduce:
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 78 "table_csv.y"
+#line 83 "table_csv.y"
     {
 		//cout << "chaining axis_freq_count with axis_freq_count_list"
 		//	<< endl;
@@ -1447,7 +1467,7 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 84 "table_csv.y"
+#line 89 "table_csv.y"
     {
 		cout << "got axis_freq_count" << endl;
 	}
@@ -1456,7 +1476,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1460 "table_csv.c"
+#line 1480 "table_csv.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1687,11 +1707,12 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 101 "table_csv.y"
+#line 108 "table_csv.y"
 
 
-	extern void yyrestart(FILE *input_file);
+	//extern void qtm_table_output_restart(FILE *input_file);
 	extern int yyparse();
+	void qtm_table_output_error(const char * s);
 
 #include "const_defs.h"
 int main()
@@ -1702,8 +1723,9 @@ int main()
 		cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
 		exit(1);
 	}
-	yyrestart(yyin);
-	if (!yyparse()) {
+	qtm_table_output_restart(yyin);
+	//if (!yyparse()) 
+	if (!qtm_table_output_parse()) {
 		cout << "Input parsed successfully" << endl;
 	}
 	

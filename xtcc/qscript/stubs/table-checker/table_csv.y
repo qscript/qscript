@@ -12,10 +12,11 @@
 #include <map>
 #include <cstdlib>
 #include "const_defs.h"
+#include "lex_tab.h"
 
 
-	extern int yylex();
-	extern void yyerror(const char * s);
+	//extern int yylex();
+	//extern void yyerror(const char * s);
 	using std::cout;
 	using std::endl;
 	using std::cerr;
@@ -37,6 +38,7 @@
 	map<int, int> temp_freq_count_map_rq; // will always be code -> freq
 	string axis_name;
 	bool nq_axis;
+	void qtm_table_output_error(const char * s);
 
 %}
 
@@ -70,6 +72,7 @@
 %token BAN_TOTAL
 %token SIDE_TOTAL
 
+%name-prefix "qtm_table_output_"
 
 %%
 
@@ -104,8 +107,9 @@ a_freq: 	STUB_FREQ NEWL
 
 %%
 
-	extern void yyrestart(FILE *input_file);
+	//extern void qtm_table_output_restart(FILE *input_file);
 	extern int yyparse();
+	void qtm_table_output_error(const char * s);
 
 #include "const_defs.h"
 int main()
@@ -116,8 +120,9 @@ int main()
 		cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
 		exit(1);
 	}
-	yyrestart(yyin);
-	if (!yyparse()) {
+	qtm_table_output_restart(yyin);
+	//if (!yyparse()) 
+	if (!qtm_table_output_parse()) {
 		cout << "Input parsed successfully" << endl;
 	}
 	

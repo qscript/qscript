@@ -45,17 +45,19 @@
      BASE_TEXT = 263,
      STUB_FREQ = 264,
      STUB_PERC = 265,
-     INUMBER = 266,
-     FNUMBER = 267,
-     NAME = 268,
-     TEXT = 269,
-     NEWL = 270,
-     COMMA = 271,
-     DOT = 272,
-     EMPTY_LINE_2_COLS = 273,
-     EMPTY_LINE_1_COLS = 274,
-     BAN_TOTAL = 275,
-     SIDE_TOTAL = 276
+     STUB_MEAN = 266,
+     STUB_STD_DEV = 267,
+     INUMBER = 268,
+     FNUMBER = 269,
+     NAME = 270,
+     TEXT = 271,
+     NEWL = 272,
+     COMMA = 273,
+     DOT = 274,
+     EMPTY_LINE_2_COLS = 275,
+     EMPTY_LINE_1_COLS = 276,
+     BAN_TOTAL = 277,
+     SIDE_TOTAL = 278
    };
 #endif
 
@@ -66,7 +68,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 43 "table_csv.y"
+#line 45 "table_csv.y"
 
 	int ival;
 	double dval;
@@ -76,13 +78,13 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 80 "table_csv.h"
+#line 82 "table_csv.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
-extern YYSTYPE yylval;
+extern YYSTYPE qtm_table_output_lval;
 
 
