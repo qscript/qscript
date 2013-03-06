@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <cstdlib>
 #include "const_defs.h"
 
@@ -18,6 +19,24 @@
 	using std::cout;
 	using std::endl;
 	using std::cerr;
+	using std::stringstream;
+	using std::map;
+	using std::string;
+	// these are the global accumulators
+	// yes bad bad global variables
+	map<string, map <string, int> > freq_count_map_nq_name_stub_freq;
+	map<string, map <int, int> > freq_count_map_nq_name_code_freq;
+	map<string, map <string, int> > freq_count_map_nq_name_stub_code;
+	map<string, map <int, int> > freq_count_map_rq;
+	// these are used while building up the list
+	//       this is for named stub questions
+	map<string, int> temp_freq_count_map_nq_stub_codefreq;
+	map<int, int>    temp_freq_count_map_nq_code_codefreq;
+	map<string, int>    temp_freq_count_map_nq_stub_code;
+	//       this is for range questions
+	map<int, int> temp_freq_count_map_rq; // will always be code -> freq
+	string axis_name;
+	bool nq_axis;
 
 %}
 
@@ -44,36 +63,44 @@
 %%
 
 axis_freq_count_list: axis_freq_count {
-		cout << "parsed axis_freq_count to axis_freq_count_list"
-			<< endl;
+		//cout << "parsed axis_freq_count to axis_freq_count_list"
+		//	<< endl;
 	}
 	| axis_freq_count_list axis_freq_count {
-		cout << "chaining axis_freq_count with axis_freq_count_list"
-			<< endl;
+		//cout << "chaining axis_freq_count with axis_freq_count_list"
+		//	<< endl;
 	}
 	;
 
 axis_freq_count: name stub_header_line stub_frequency_list NEWL {
-	       cout << "got an named stub axis_freq_count" << endl;
+		//cout << "got an named stub axis_freq_count" << endl;
+		freq_count_map_nq_name_stub_freq[axis_name] = temp_freq_count_map_nq_stub_codefreq;
+		freq_count_map_nq_name_code_freq[axis_name] = temp_freq_count_map_nq_code_codefreq;
+		freq_count_map_nq_name_stub_code[axis_name] = temp_freq_count_map_nq_stub_code;
 	}
 	| name code_header_line code_freq_list NEWL{
-	       cout << "got an range stub axis_freq_count" << endl;
+		//cout << "got an range stub axis_freq_count" << endl;
+		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
 	}
 	;
 
 stub_header_line: STUBS COMMA CODE COMMA FREQUENCY NEWL {
-	cout << "got stubs_header_line" << endl;
+	//cout << "got stubs_header_line" << endl;
 	}
 
 code_header_line: COMMA CODE COMMA FREQUENCY NEWL {
-	cout << "got code_header_line" << endl;
+	//cout << "got code_header_line" << endl;
 	}
 
 name: NAME NEWL {
-	cout << "Got NAME: " << $1 << endl;
+	//cout << "Got NAME: " << $1 << endl;
+	axis_name = $1;
 	}
 	| NAME DOT INUMBER NEWL {
-	cout << "Got array NAME: " << $1 << endl;
+	//	cout << "Got array NAME: " << $1 << endl;
+		stringstream s1;
+		s1 << $1 << "." << $3;
+		axis_name = s1.str();
 	}
 
 stub_frequency_list: stub_freq
@@ -85,13 +112,19 @@ code_freq_list: code_freq
 	;
 
 stub_freq: TEXT COMMA INUMBER COMMA INUMBER NEWL {
-	cout << "Got stub_freq:"  << TEXT << endl;
+	temp_freq_count_map_nq_stub_codefreq[$1]=$5;
+	temp_freq_count_map_nq_code_codefreq[$3]=$5;
+	temp_freq_count_map_nq_stub_code[$1]=$3;
+	//cout << "Got stub_freq:"  << TEXT << endl;
+	nq_axis = true;
 }
 
 code_freq: COMMA INUMBER COMMA INUMBER NEWL {
-	cout	<< "Got code_freq code:"  << $2
-		<< ", freq: " << $4
-		<< endl;
+	//cout	<< "Got code_freq code:"  << $2
+	//	<< ", freq: " << $4
+	//	<< endl;
+		temp_freq_count_map_rq[$2] = $4;
+		nq_axis = false;
 	 }
 
 %%

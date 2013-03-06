@@ -368,8 +368,8 @@ static void yy_fatal_error (yyconst char msg[]  );
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 13
-#define YY_END_OF_BUFFER 14
+#define YY_NUM_RULES 14
+#define YY_END_OF_BUFFER 15
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -379,7 +379,7 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[43] =
     {   0,
-        0,    0,   14,   13,    1,    4,    3,   13,    2,   12,
+        0,    0,   15,   13,    1,    4,    3,   13,    2,   12,
         5,   11,   11,   11,   11,    1,    3,    0,   10,    6,
         0,    5,   11,   11,   11,   11,    0,   11,   11,   11,
         0,    6,    7,   11,   11,   11,    9,   11,   11,   11,
@@ -789,7 +789,7 @@ case 2:
 YY_RULE_SETUP
 #line 28 "lex.l"
 {
-    cout << "got COMMA" << endl;
+    //cout << "got COMMA" << endl;
     return COMMA;
 }
 	YY_BREAK
@@ -805,7 +805,7 @@ YY_RULE_SETUP
 #line 36 "lex.l"
 {
     ++line_no;
-    cout << "got a NEWL: line_no: "  << line_no << endl;
+    //cout << "got a NEWL: line_no: "  << line_no << endl;
 	return NEWL;
 }
 	YY_BREAK
@@ -814,7 +814,7 @@ YY_RULE_SETUP
 #line 42 "lex.l"
 {
 		yylval.ival = atoi(yytext);
-        cout << "got INUMBER " << yylval.ival << endl;
+        //cout << "got INUMBER " << yylval.ival << endl;
 		return INUMBER;
 	}
 	YY_BREAK
@@ -830,7 +830,7 @@ case 7:
 YY_RULE_SETUP
 #line 54 "lex.l"
 {
-    cout << "got CODE" << endl;
+    //cout << "got CODE" << endl;
     return CODE;
 }
 	YY_BREAK
@@ -838,7 +838,7 @@ case 8:
 YY_RULE_SETUP
 #line 59 "lex.l"
 {
-    cout << "got FREQUENCY" << endl;
+    //cout << "got FREQUENCY" << endl;
     return FREQUENCY;
 }
 	YY_BREAK
@@ -846,7 +846,7 @@ case 9:
 YY_RULE_SETUP
 #line 64 "lex.l"
 {
-    cout << "got STUBS" << endl;
+    //cout << "got STUBS" << endl;
     return STUBS;
 }
 	YY_BREAK
@@ -873,7 +873,7 @@ YY_RULE_SETUP
 {
 		if(yyleng < MY_STR_MAX) {
 			strcpy(yylval.name,yytext);
-            cout << "got NAME:" << yytext << endl;
+            //cout << "got NAME:" << yytext << endl;
 			return NAME;
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
@@ -885,24 +885,26 @@ case 12:
 YY_RULE_SETUP
 #line 95 "lex.l"
 {
-    cout << "got DOT" << endl;
+    //cout << "got DOT" << endl;
     //return DOT;
     return DOT;
 }
 	YY_BREAK
-/*
-    .    {
-        cout << "unhandled inputs: |" << yytext[0] << "|"
-            << endl;
-        return yytext[0];
-    }
-    */
 case 13:
 YY_RULE_SETUP
-#line 109 "lex.l"
+#line 101 "lex.l"
+{
+    cout << "unhandled inputs: |" << yytext[0] << "|"
+        << endl;
+    return yytext[0];
+}
+	YY_BREAK
+case 14:
+YY_RULE_SETUP
+#line 107 "lex.l"
 ECHO;
 	YY_BREAK
-#line 906 "lex.yy.c"
+#line 908 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1900,7 +1902,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 109 "lex.l"
+#line 107 "lex.l"
 
 
 

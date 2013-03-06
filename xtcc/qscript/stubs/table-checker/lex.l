@@ -26,7 +26,7 @@
 }
 
 ","   {
-    cout << "got COMMA" << endl;
+    //cout << "got COMMA" << endl;
     return COMMA;
 }
 
@@ -35,13 +35,13 @@
 
 \n  {
     ++line_no;
-    cout << "got a NEWL: line_no: "  << line_no << endl;
+    //cout << "got a NEWL: line_no: "  << line_no << endl;
 	return NEWL;
 }
 
 [0-9]+	{
 		yylval.ival = atoi(yytext);
-        cout << "got INUMBER " << yylval.ival << endl;
+        //cout << "got INUMBER " << yylval.ival << endl;
 		return INUMBER;
 	}
 
@@ -52,17 +52,17 @@
 
 
 code {
-    cout << "got CODE" << endl;
+    //cout << "got CODE" << endl;
     return CODE;
 }
 
 frequency {
-    cout << "got FREQUENCY" << endl;
+    //cout << "got FREQUENCY" << endl;
     return FREQUENCY;
 }
 
 stubs {
-    cout << "got STUBS" << endl;
+    //cout << "got STUBS" << endl;
     return STUBS;
 }
 
@@ -83,7 +83,7 @@ stubs {
 [_A-Za-z][A-Za-z0-9_]*	{
 		if(yyleng < MY_STR_MAX) {
 			strcpy(yylval.name,yytext);
-            cout << "got NAME:" << yytext << endl;
+            //cout << "got NAME:" << yytext << endl;
 			return NAME;
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
@@ -93,18 +93,16 @@ stubs {
 
 
 \.     {
-    cout << "got DOT" << endl;
+    //cout << "got DOT" << endl;
     //return DOT;
     return DOT;
 }
 
-    /*
-    .    {
-        cout << "unhandled inputs: |" << yytext[0] << "|"
-            << endl;
-        return yytext[0];
-    }
-    */
+.    {
+    cout << "unhandled inputs: |" << yytext[0] << "|"
+        << endl;
+    return yytext[0];
+}
 
 %%
 
