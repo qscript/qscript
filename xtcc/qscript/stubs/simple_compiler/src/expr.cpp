@@ -500,7 +500,7 @@ void Unary2Expression::PrintExpressionText(ostringstream & s)
 				s << "All who have answered question " << q->questionName_;
 			}
 		} else {
-			s << "All respondents where internal variable " << symbolTableEntry_->name_ << " is true"; 
+			s << "All respondents where internal variable " << symbolTableEntry_->name_ << " is true";
 		}
 
 	}
@@ -509,7 +509,7 @@ void Unary2Expression::PrintExpressionText(ostringstream & s)
 		if (type_ == QUESTION_TYPE){
 			AbstractQuestion * q = symbolTableEntry_->question_;
 			if (q->type_ == QUESTION_ARR_TYPE){
-				s << " All who have answered " 
+				s << " All who have answered "
 					<< q->questionName_
 					<< "[";
 				ExpressionCompiledCode code1;
@@ -1375,7 +1375,7 @@ Binary2Expression::Binary2Expression(AbstractExpression* llop
 	}
 }
 
-//  expression IN range_allowed_values 
+//  expression IN range_allowed_values
 Binary2Expression::Binary2Expression(AbstractExpression* llop
 				     , XtccSet& l_rd
 				     , ExpressionOperatorType letype)
@@ -1418,7 +1418,7 @@ void Binary2Expression::PrintTemporaryStruct(ExpressionCompiledCode &code)
 {
 	stringstream mesg;
 	mesg << " shouldnt i be using an XtccSet here directly - it looks like im doing the same work 2ice and if i used the set the generated code would be smaller\n";
-	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ 
+	cerr << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< " " << mesg.str();
 	if (qscript_debug::DEBUG_Binary2Expression)
 		code.code_bef_expr << " /* ENTER Binary2Expression::PrintTemporaryStruct */ " << endl;
@@ -1503,7 +1503,7 @@ void PrintTemporaryXtccSet(ExpressionCompiledCode &code, XtccSet * & xs)
 		int32_t k = 0;
 		for(set<int32_t>::iterator iter = xs->indiv.begin();
 			iter != xs->indiv.end(); ++iter, ++k){
-			temp_code << set_name << ".add_indiv(" 
+			temp_code << set_name << ".add_indiv("
 				 << *iter << ");\n";
 		}
 	}
@@ -1576,11 +1576,11 @@ void Binary2Expression::PrintExpressionText(ostringstream & s)
 
 		ExpressionCompiledCode expr2_code;
 		leftOperand2_->PrintExpressionCode(expr2_code);
-		
+
 		NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (rhsQuestion_);
 		if (Unary2Expression * un2expr = dynamic_cast<Unary2Expression*> (leftOperand2_)) {
 			if (un2expr->exprOperatorType_ == oper_num ) {
-				s << " All Respondents who have coded \\\"" << un2expr->intSemanticValue_ << "\\\" i.e. ";
+				s << " All Respondents who have coded '" << un2expr->intSemanticValue_ << "' i.e. ";
 				if (nq) {
 					vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 					for (int i=0; i<vec.size(); ++i) {
@@ -1713,9 +1713,9 @@ void Binary2Expression::PrintExpressionCode(ExpressionCompiledCode &code)
 		} // note this closes the default label
 		}
 	} else /* if leftOperand2_ !=0 */{
-		code.code_expr  << "/* " << __PRETTY_FUNCTION__ 
-			<< ", " << __LINE__ 
-			<< ", " << __FILE__ 
+		code.code_expr  << "/* " << __PRETTY_FUNCTION__
+			<< ", " << __LINE__
+			<< ", " << __FILE__
 			<< "   ";
 		code.code_expr << " */" << endl;
 		code.code_expr << rhsQuestion_->questionName_;
