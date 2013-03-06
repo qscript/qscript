@@ -199,7 +199,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	//print_summary_axis(script);
 	// 5-apr-2011 , 0:12 (am)
 	// continue from here - put the compute_flat_map_code into
-	// a write data function - commiting this 
+	// a write data function - commiting this
 	// - generated code wont compile
 	fprintf(script, "%s\n", compute_flat_map_code.program_code.str().c_str());
 	print_eval_questionnaire(script, code.program_code, ncurses_flag);
@@ -309,7 +309,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	} else {
 		fprintf(script, "namespace program_options_ns { bool flag_nice_map = false; }\n");
 	}
-	
+
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
@@ -754,7 +754,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[index]);
 		if (!lhs_question) {
 			stringstream err_text;
-			err_text << "Question : " << stub_list_name 
+			err_text << "Question : " << stub_list_name
 				<< "is not a named stub Question";
 			print_err (compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
@@ -770,11 +770,11 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	struct AbstractStatement* st_ptr  = 0;
 	if (range_stub) {
 		st_ptr = new StubManipStatement(dt,
-				line_no, nest_lev, flagIsAForBody_, 
+				line_no, nest_lev, flagIsAForBody_,
 				lhs_stub, p_mask_expr);
 	} else {
 		st_ptr = new StubManipStatement(dt,
-				line_no, nest_lev, flagIsAForBody_, 
+				line_no, nest_lev, flagIsAForBody_,
 				lhs_question, p_arr_index,
 				p_mask_expr);
 	}
@@ -784,12 +784,12 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 
 AbstractStatement* setup_stub_manip_stmt(DataType dt
 					 , char* stub_list_name
-					 , AbstractExpression * l_l_arr_index 
+					 , AbstractExpression * l_l_arr_index
 					 , char * question_name
 					 , AbstractExpression * l_r_arr_index)
 {
 	std::stringstream warn_mesg;
-	warn_mesg << __PRETTY_FUNCTION__ 
+	warn_mesg << __PRETTY_FUNCTION__
 		<< "looks like param l_l_arr_index is not at all used in this function"
 		<< " please revisit";
 
@@ -838,7 +838,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		lhs_question = dynamic_cast<NamedStubQuestion*>(question_list[index]);
 		if (!lhs_question) {
 			stringstream err_text;
-			err_text << "Question : " << stub_list_name 
+			err_text << "Question : " << stub_list_name
 				<< "is not a named stub Question";
 			print_err (compiler_sem_err, err_text.str(),
 				line_no, __LINE__, __FILE__);
@@ -887,7 +887,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			return new ErrorStatement(line_no, 0, 0);
 		}
 	}
-		
+
 	// 	At this point if rhs_question is not null it is a named stub question
 	if (index_question == -1) {
 		stringstream err_text;
@@ -895,7 +895,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		print_err(compiler_sem_err, err_text.str(),
 			line_no, __LINE__, __FILE__);
 		return new ErrorStatement(line_no, 0, 0);
-	} 
+	}
 	// At this point 2nd argument  is valid
 
 	if (range_stub == true) {
@@ -924,7 +924,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			stringstream err_text;
 			err_text << "1st arg Question: " << lhs_question->questionName_
 				<< " named range: " << lhs_question->nr_ptr->name
-				<< " and : " 
+				<< " and : "
 				<< " 2nd arg Question: " << rhs_question->questionName_
 				<< " named range: " << rhs_question->nr_ptr->name
 				<< " do not match" << endl;
@@ -935,20 +935,20 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		if (l_r_arr_index==0) {
 			struct AbstractStatement* st_ptr = new StubManipStatement (
 				dt,
-				line_no, 
-				/* nest_lev */ 0, 
+				line_no,
+				/* nest_lev */ 0,
 				/* flagIsAForBody_ */ 0
 				, lhs_question, l_l_arr_index
 				, rhs_question, l_r_arr_index);
 			return st_ptr;
 		} else {
-			struct AbstractStatement* st_ptr = 
+			struct AbstractStatement* st_ptr =
 				new StubManipStatement (dt,
 				line_no, /* nest_lev */ 0,
 				/* flagIsAForBody_ */ 0
 				, lhs_question, l_l_arr_index
 				, rhs_question, l_r_arr_index);
-			cout 	<< " reached here: " 
+			cout 	<< " reached here: "
 				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ << endl;
 			return st_ptr;
 		}
@@ -1044,20 +1044,20 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 	// 	2. we need not do any more checks on the 1st argument
 	if (range_stub == true) {
 		struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-						line_no, 
+						line_no,
 						nest_lev, flagIsAForBody_,
 						lhs_stub, l_xs);
 		return st_ptr;
 	} else if (question_stub == true) {
 		if (l_l_arr_index == 0) {
 			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-						line_no, 
+						line_no,
 						nest_lev, flagIsAForBody_,
 						lhs_question, l_xs);
 			return st_ptr;
 		} else {
 			struct AbstractStatement* st_ptr = new StubManipStatement(dt,
-						line_no, 
+						line_no,
 						nest_lev, flagIsAForBody_,
 						lhs_question, l_l_arr_index, l_xs);
 			return st_ptr;
@@ -1088,7 +1088,7 @@ const char * write_data_to_disk_code()
 	"\tperror(\"localtime\");\n"
 	"\texit(EXIT_FAILURE);\n"
 	"\t}\n"
-                                                           
+
 	"\tif (strftime(outstr, sizeof(outstr), \"%Y%m%d_%H%M%S\", tmp) == 0) {\n"
 	"\tfprintf(stderr, \"strftime returned 0\");\n"
 	"\texit(EXIT_FAILURE);\n"
@@ -1553,7 +1553,7 @@ void PrintNCursesMain (FILE * script, bool ncurses_flag)
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 {
 	compute_flat_map_code.program_code << "void compute_flat_file_map_and_init()\n{\n";
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "if (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)\n"
 		<< "{\n"
 		<< "\tint current_map_pos = 0;\n"
@@ -1610,7 +1610,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\tstring xtcc_map_file_name(jno + string(\".xmap\"));\n";
 	compute_flat_map_code.program_code << "\tfstream xtcc_map_file(xtcc_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
 	compute_flat_map_code.program_code << "\tprint_map_header(xtcc_map_file);\n";
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
 		<< "\t\txtcc_question_disk_map[i]->print_map(xtcc_map_file);\n"
 		<< "\t}\n";
@@ -1629,7 +1629,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\txtcc_datafile.open(xtcc_datafile_name.c_str(), ios_base::out | ios_base::trunc | ios_base::binary);\n";
 
 	if (config_file_parser::PLATFORM != "WINDOWS") {
-		compute_flat_map_code.program_code 
+		compute_flat_map_code.program_code
 			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
 			<< "\t\ts1 << \"setup-\" << jno;\n"
 			<< "\t\tif (stat(s1.str().c_str(), &dir_exists) <0) {\n"
@@ -1641,7 +1641,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 			<< "\t\t\t}\t\t\n}\n"
 			;
 	} else {
-		compute_flat_map_code.program_code 
+		compute_flat_map_code.program_code
 			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
 			<< "\t\t\ts1 << \"setup-\" << jno;\n"
 			<< "\t\t\tif (stat(s1.str().c_str(), &dir_exists) <0) {\n"
@@ -1668,8 +1668,8 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	PrintRecodeEdit (recode_edit);
 	StatementCompiledCode brand_rank_recode_edit;
 	PrintBrandRankEdit (brand_rank_recode_edit);
-	compute_flat_map_code.program_code 
-		<< "{" << recode_edit.program_code.str() << "}"  
+	compute_flat_map_code.program_code
+		<< "{" << recode_edit.program_code.str() << "}"
 		<< "{// PrintBrandRankEdit\n" << brand_rank_recode_edit.program_code.str() << "}"
 		<< endl;
 
@@ -1686,7 +1686,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\tstring prev_question, current_question;\n"
 		;
 
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
 
 		<< "\t\t\tif (i==0) {\n"
@@ -1763,7 +1763,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t//	print_summary_axis(it->second, qtm_qax_file);\n"
 		<< "\t\t//}\n";
 #endif /* 0 */
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "\t\tqtm_datafile_question_disk_map[0]->print_run(jno);"
 		<< endl;
 	compute_flat_map_code.program_code << "\t\tstring tab_file_name(string(\"setup-\")+ jno + string(\"/\") + jno + string(\".tab\"));\n";
@@ -1785,11 +1785,11 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\t\tqtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "\t}\n";
 
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "\tif (write_xtcc_data_file_flag) {\n"
 		<< "\t\tstring xtcc_ax_file_name(string(\"setup-\")+jno+string(\"/\") + jno + string(\".xtcc\"));\n"
 		<< "\t\tfstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);\n"
-		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n" 
+		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n"
 		<< "\t\txtcc_ax_file << \"ed_start\\n\";\n"
 		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data();\\n\";\n"
 		<< "\t\t xtcc_ax_file << \"\tint32_t all;\\n\";\n"
@@ -1823,23 +1823,23 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 	StatementCompiledCode xtcc_recode_edit;
 	PrintXtccRecodeEdit (xtcc_recode_edit);
-	compute_flat_map_code.program_code 
-		<< "{" << xtcc_recode_edit.program_code.str() << "}"  
+	compute_flat_map_code.program_code
+		<< "{" << xtcc_recode_edit.program_code.str() << "}"
 		<< endl;
 
-	compute_flat_map_code.program_code 
-		<< "\t}\n";	
+	compute_flat_map_code.program_code
+		<< "\t}\n";
 
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "\tif (write_xtcc_data_file_flag) {\n"
 		<< "\t\tstring xtcc_ax_file_name(string(\"setup-\")+jno+string(\"/\") + jno + string(\".xtcc2\"));\n"
 		<< "\t\tfstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);\n"
-		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n" 
+		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n"
 
 		<< "\t\tstring base_xin_file_name(string(\"setup-\")+jno+string(\"/\") + string(\"base.xin\"));\n"
 		<< "\t\tstd::ofstream base_xin_file(base_xin_file_name.c_str());\n"
-		<< "\t\tbase_xin_file << \"tot; \\\"$btxt;\\\";\" << endl;\n" 
-		<< "\t\tbase_xin_file.close();\n" 
+		<< "\t\tbase_xin_file << \"tot; \\\"$btxt;\\\";\" << endl;\n"
+		<< "\t\tbase_xin_file.close();\n"
 
 		<< "\t\txtcc_ax_file << \"ed_start\\n\";\n"
 		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data();\\n\";\n"
@@ -1873,7 +1873,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_ax2(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
 		<< "\t\t}\n"
 		<< "\t\txtcc_ax_file << \"}\\n\";\n"
-		<< "\t}\n";	
+		<< "\t}\n";
 
 
 	compute_flat_map_code.program_code << "}\n";
@@ -1883,7 +1883,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 {
-	recode_edit.program_code 
+	recode_edit.program_code
 		<< "//PrintXtccRecodeEdit\n"
 		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
 		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
@@ -1894,7 +1894,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 		<< endl;
 
 		;
-	
+
 	for (int i=0; i<recode_driver_vec.size(); ++i) {
 		// WARNING!!! if driver_vec is zero size this will dump core
 		// our grammar parser should ensure this is never the case
@@ -1919,12 +1919,12 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 						   ....
 						   so I definitely need to refactor this into a function later
 						   */
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< " normal question" << endl;
 						recode_edit.program_code << "*/" << endl;
 
 						recode_edit.program_code
-							<< "\t\tfor (int i=0; i < " << driver_question_name 
+							<< "\t\tfor (int i=0; i < " << driver_question_name
 							<< "->nr_ptr->stubs.size(); ++i) {\n"
 
 							<< "\t\t\t XtccDataFileDiskMap * "
@@ -1939,31 +1939,31 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name << "->questionName_);" << endl
 							<< "\t\t\t XtccDataFileDiskMap * "
 							<< "leader_rec_q_map_entry = GetXtccQuestionMapEntry (xtcc_question_disk_map, "
-							<< leader_rec_question_name << "->questionName_);\n" 
+							<< leader_rec_question_name << "->questionName_);\n"
 							<< endl;
 
 						if (j2 == 0) {
 							recode_edit.program_code
-								<< "\t\t\t variable_file << " 
+								<< "\t\t\t variable_file << "
 								// ================
 								//<< "\"int32_t " << rec_question_name << "\"" << " << " << "\"_\""
-								//<< " << " << driver_question_name 
+								//<< " << " << driver_question_name
 								//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"_data;\\n\";"
 								// ================
 								<< "print_recode_edit_xtcc_var_defn ("
 								<< driver_question_name << "_map_entry, "
-								<< rec_question_name << "_map_entry, i);\n" 
+								<< rec_question_name << "_map_entry, i);\n"
 								<< endl
 
 								//<< rec_question_name << "_map_entry->totalLength_ " << " << \"s\""
 								//<< "<< endl;\n"
 								<< "\t\t\t\t\trecode_edit_qax_file\n"
-								<< "\t\t\t\t\t\t	<< print_recode_edit_xtcc_ax (" 
+								<< "\t\t\t\t\t\t	<< print_recode_edit_xtcc_ax ("
 								<< driver_question_name << "_map_entry, "
-								<< rec_question_name << "_map_entry, i);\n" 
+								<< rec_question_name << "_map_entry, i);\n"
 								<< endl;
 
-							recode_edit.program_code 
+							recode_edit.program_code
 								<< "edit_file << "
 								// =================
 								//<< leader_rec_question_name << "_\"" << endl
@@ -1973,16 +1973,16 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 								// =================
 								<< "print_recode_edit_xtcc_var_init ("
 								<< driver_question_name << "_map_entry, "
-								<< rec_question_name << "_map_entry, i);" 
+								<< rec_question_name << "_map_entry, i);"
 								<< endl;
-								//<< rec_question_name 
+								//<< rec_question_name
 								//<< "_map_entry->totalLength_"
 								//<< " << \");\\n\";\n";
 								//<< " << \");\\n\";\n";
 						}
 
 
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\tif (" << driver_question_name << "_map_entry"
 							<< " && " << rec_question_name << "_map_entry) {\n"
 
@@ -2002,13 +2002,13 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							//<< "\t\t\t\t\t<< \"_data\"<< \" = \"" << endl
 							//<< " << \"" << rec_question_name
 							//<< "_data;\\n"
-							//<< "\t\t\t\t\t<< endl;" << endl 
+							//<< "\t\t\t\t\t<< endl;" << endl
 							// ==================
 							<< "<< print_recode_edit_xtcc_data_xfer ("
 							<< driver_question_name << "_map_entry, "
 							<< "leader_rec_q_map_entry, "
-							<< rec_question_name << "_map_entry, " 
-							<< "i)\n" 
+							<< rec_question_name << "_map_entry, "
+							<< "i)\n"
 							<< endl
 							<< " <<\"}\\n\"\n;"
 							<< endl
@@ -2017,13 +2017,13 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t}\n";
 					} else if (se->type_ == QUESTION_ARR_TYPE) {
 						// fix this section later
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< " array question" << endl;
 						recode_edit.program_code << "*/" << endl;
 #if 1
 
 						recode_edit.program_code
-							<< "\t\tfor (int i=0; i < " << driver_question_name 
+							<< "\t\tfor (int i=0; i < " << driver_question_name
 							<< "->nr_ptr->stubs.size(); ++i) {\n"
 
 							<< "\t\t\t XtccDataFileDiskMap * "
@@ -2038,19 +2038,19 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name << "\");" << endl
 							<< "\t\t\t vector< XtccDataFileDiskMap *> "
 							<< "leader_rec_q_map_entry = GetXtccQuestionMapEntryArrayQ (xtcc_question_disk_map, \""
-							<< leader_rec_question_name << "\");\n" 
+							<< leader_rec_question_name << "\");\n"
 							<< endl
-							//<< "\t\t\t variable_file << " 
+							//<< "\t\t\t variable_file << "
 							//<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
-							//<< " << " << driver_question_name 
+							//<< " << " << driver_question_name
 							//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;\n"
 
-							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
+							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name
 							<< "_map_entry.size(); ++i1) {" << endl;
 
 						if (j2 == 0) {
-						recode_edit.program_code 
-							/* 
+						recode_edit.program_code
+							/*
 							<< "\t\t\tvariable_file << \"data "
 							<< rec_question_name << "\";\n" << endl
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
@@ -2060,20 +2060,20 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name << "_map_entry[i1]->q_->"
 							<< "loop_index_values[i2];\n"
 							<< "\t\t\t\t\t}\n"
-							
+
 							<< "\t\t\t\t\tvariable_file << \"_\" << "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << " 
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << "
 							<< rec_question_name << "_map_entry[i1]->totalLength_ " << " << \"s\\n\";\n"
 							//<< "\t\t\t\t\trecode_edit_qax_file\n"
-							//<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
+							//<< "\t\t\t\t\t\t	<< print_recode_edit_qax ("
 							//<< driver_question_name << "_map_entry, "
-							//<< rec_question_name << "_map_entry[i1], i);\n" 
+							//<< rec_question_name << "_map_entry[i1], i);\n"
 							<< endl;
 							*/
 							<< "variable_file <<  print_recode_edit_xtcc_var_defn ("
 							<< driver_question_name << "_map_entry, "
-							<< rec_question_name << "_map_entry[i1], i);" 
+							<< rec_question_name << "_map_entry[i1], i);"
 							<< endl
 							<< "\t\t\t\t\trecode_edit_qax_file\n"
 							<< "\t\t\t\t\t\t	<< print_recode_edit_xtcc_ax ("
@@ -2082,10 +2082,10 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< endl;
 
 
-						recode_edit.program_code 
+						recode_edit.program_code
 #if 0
 							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
 							<< rec_question_name << "_map_entry[i1]->"
 							<< "q_->loop_index_values.size(); ++i2) {\n"
@@ -2097,18 +2097,18 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\tedit_file << \"_\" << "
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-							<< rec_question_name 
+							<< rec_question_name
 							<< "_map_entry[i1]->totalLength_"
 							<< " << \");\\n\";\n";
 #endif /* 0 */
 								<< "edit_file << print_recode_edit_xtcc_var_init ("
 								<< driver_question_name << "_map_entry, "
-								<< rec_question_name << "_map_entry[i1], i);" 
+								<< rec_question_name << "_map_entry[i1], i);"
 								<< endl;
 
 						}
 
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\t\t\tif (" << driver_question_name << "_map_entry"
 							<< " && " << rec_question_name << "_map_entry.size() > 0) /* ###---###  */{\n"
 #if 1
@@ -2128,9 +2128,9 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							//<< "\t\t\t\t\t<< " << driver_question_name
 							//<< "_map_entry->start_pos + 1" << endl
 							//<< "\t\t\t\t\t<< \", \"" << endl
-							//<< "\t\t\t\t\t<< " 
+							//<< "\t\t\t\t\t<< "
 							//<< driver_question_name << "_map_entry->start_pos + "
-							//<< driver_question_name 
+							//<< driver_question_name
 							//<< "_map_entry->totalLength_ << \")\"" << endl
 							//<< "\t\t\t\t\t<< \" .eq. \" << "
 							//<< driver_question_name
@@ -2145,7 +2145,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\t<< \") {\\n\";" << endl
 							//<< "\t\t\t\t\t<< \"+\\t\" <<  \""
 							//<< leader_rec_question_name << "\";" << endl;
-						//recode_edit.program_code 
+						//recode_edit.program_code
 						//	<< "\t\t\t\t\tfor (int i2=0; i2 < "
 						//	<< rec_question_name << "_map_entry[i1]->"
 						//	<< "q_->loop_index_values.size(); ++i2) {\n"
@@ -2157,7 +2157,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 						//	<< "\t\t\t\t\tedit_file << \"_\" << "
 						//	<< driver_question_name
 						//	<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-						//	<< rec_question_name 
+						//	<< rec_question_name
 						//	<< "_map_entry[i1]->totalLength_"
 						//	<< " << \")\" "
 						//	<< "\t\t\t\t\t<< \"=\"" << endl
@@ -2168,13 +2168,13 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 						//	<< "\t\t\t\t\t<< \", \"" << endl
 						//	<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry[i1]->start_pos + "
 						//	<< rec_question_name << "_map_entry[i1]->totalLength_ << \")\"" << endl
-						//	<< "\t\t\t\t\t<< endl;" << endl 
+						//	<< "\t\t\t\t\t<< endl;" << endl
 #endif /* 0 */
 							<< "\t\t\t\t\tedit_file " << endl
 							<< "<< print_recode_edit_xtcc_data_xfer ("
 							<< driver_question_name << "_map_entry, "
 							<< "leader_rec_q_map_entry[i1], "
-							<< rec_question_name << "_map_entry[i1], " 
+							<< rec_question_name << "_map_entry[i1], "
 							<< "i) << \"}\" << endl;"
 							<< endl
 							<< "\t\t\t\t}\n/*  ###---### */" << endl
@@ -2182,14 +2182,14 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t}" << endl
 							<< "\t\t}\n";
 					} else {
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< " not a  question" << endl;
 						recode_edit.program_code << "*/" << endl;
 					}
 				} else {
 					recode_edit.program_code << "/* "
 						<< "NOT found : " << rec_question_name
-						<< " in symbol table: " 
+						<< " in symbol table: "
 						<< "*/"
 						<< endl ;
 				}
@@ -2206,7 +2206,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 
 void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 {
-	recode_edit.program_code 
+	recode_edit.program_code
 		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
 		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-recode-edit.qin\"));\n"
@@ -2216,7 +2216,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 		<< endl;
 
 		;
-	
+
 	for (int i=0; i<recode_driver_vec.size(); ++i) {
 		// WARNING!!! if driver_vec is zero size this will dump core
 		// our grammar parser should ensure this is never the case
@@ -2241,12 +2241,12 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 						   ....
 						   so I definitely need to refactor this into a function later
 						   */
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< " normal question" << endl;
 						recode_edit.program_code << "*/" << endl;
 
 						recode_edit.program_code
-							<< "\t\tfor (int i=0; i < " << driver_question_name 
+							<< "\t\tfor (int i=0; i < " << driver_question_name
 							<< "->nr_ptr->stubs.size(); ++i) {\n"
 
 							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
@@ -2262,24 +2262,24 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 
 						if (j2 == 0) {
 							recode_edit.program_code
-								<< "\t\t\t variable_file << " 
+								<< "\t\t\t variable_file << "
 								<< "\"data " << rec_question_name << "\"" << " << " << "\"_\""
-								<< " << " << driver_question_name 
+								<< " << " << driver_question_name
 								<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << "
 								<< rec_question_name << "_map_entry->totalLength_ " << " << \"s\""
 								<< "<< endl;\n"
 								<< "\t\t\t\t\trecode_edit_qax_file\n"
-								<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
+								<< "\t\t\t\t\t\t	<< print_recode_edit_qax ("
 								<< driver_question_name << "_map_entry, "
 								<< rec_question_name << "_map_entry, i, jno);\n" << endl;
 
-							recode_edit.program_code 
+							recode_edit.program_code
 								<< "edit_file << \"clear "
 								<< leader_rec_question_name << "_\"" << endl
 								<< "\t\t\t\t\t<< "
 								<< driver_question_name
 								<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-								<< rec_question_name 
+								<< rec_question_name
 								<< "_map_entry->totalLength_"
 								<< " << \");\\n\";\n";
 						}
@@ -2288,12 +2288,12 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							//<< rec_question_name
 							//<< "\" << \"_\" << "
 							//<< driver_question_name
-							//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;" 
+							//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;"
 							//<< ""
 							//<< endl
 
 
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\tif (" << driver_question_name << "_map_entry"
 							<< " && " << rec_question_name << "_map_entry) {\n"
 							<< "\t\t\t\tedit_file << \"/* \" << "
@@ -2311,9 +2311,9 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\t<< " << driver_question_name
 							<< "_map_entry->startPosition_ + 1" << endl
 							<< "\t\t\t\t\t<< \", \"" << endl
-							<< "\t\t\t\t\t<< " 
+							<< "\t\t\t\t\t<< "
 							<< driver_question_name << "_map_entry->startPosition_ + "
-							<< driver_question_name 
+							<< driver_question_name
 							<< "_map_entry->totalLength_ << \")\"" << endl
 							<< "\t\t\t\t\t<< \" .eq. \" << "
 							<< driver_question_name
@@ -2324,7 +2324,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\t<< "
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-							<< rec_question_name 
+							<< rec_question_name
 							<< "_map_entry->totalLength_"
 							<< " << \")\" "
 							<< "\t\t\t\t\t<< \"=\"" << endl
@@ -2335,17 +2335,17 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\t<< \", \"" << endl
 							<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry->startPosition_ + "
 							<< rec_question_name << "_map_entry->totalLength_ << \")\"" << endl
-							<< "\t\t\t\t\t<< endl;" << endl 
+							<< "\t\t\t\t\t<< endl;" << endl
 
 							<< "\t\t\t}\n"
 							<< "\t\t}\n";
 					} else if (se->type_ == QUESTION_ARR_TYPE) {
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< " array question" << endl;
 						recode_edit.program_code << "*/" << endl;
 
 						recode_edit.program_code
-							<< "\t\tfor (int i=0; i < " << driver_question_name 
+							<< "\t\tfor (int i=0; i < " << driver_question_name
 							<< "->nr_ptr->stubs.size(); ++i) {\n"
 
 							<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
@@ -2358,16 +2358,16 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "_map_entry =\n"
 							<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
 							<< rec_question_name << "\");" << endl
-							//<< "\t\t\t variable_file << " 
+							//<< "\t\t\t variable_file << "
 							//<< "\"" << rec_question_name << "\"" << " << " << "\"_\""
-							//<< " << " << driver_question_name 
+							//<< " << " << driver_question_name
 							//<< "->nr_ptr->stubs[i].stub_text_as_var_name() << endl;\n"
 
-							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
+							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name
 							<< "_map_entry.size(); ++i1) {" << endl;
 
 						if (j2 == 0) {
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\tvariable_file << \"data "
 							<< rec_question_name << "\";\n" << endl
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
@@ -2377,19 +2377,19 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name << "_map_entry[i1]->q->"
 							<< "loop_index_values[i2];\n"
 							<< "\t\t\t\t\t}\n"
-							
+
 							<< "\t\t\t\t\tvariable_file << \"_\" << "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << " 
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << "
 							<< rec_question_name << "_map_entry[i1]->totalLength_ " << " << \"s\\n\";\n"
 							<< "\t\t\t\t\trecode_edit_qax_file\n"
-							<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
+							<< "\t\t\t\t\t\t	<< print_recode_edit_qax ("
 							<< driver_question_name << "_map_entry, "
 							<< rec_question_name << "_map_entry[i1], i, jno);\n" << endl;
 
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
 							<< rec_question_name << "_map_entry[i1]->"
 							<< "q->loop_index_values.size(); ++i2) {\n"
@@ -2401,13 +2401,13 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\tedit_file << \"_\" << "
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-							<< rec_question_name 
+							<< rec_question_name
 							<< "_map_entry[i1]->totalLength_"
 							<< " << \");\\n\";\n";
 
 						}
 
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\t\t\tif (" << driver_question_name << "_map_entry"
 							<< " && " << rec_question_name << "_map_entry.size() > 0) {\n"
 							<< "\t\t\t\t\tedit_file << \"/* \" << "
@@ -2425,9 +2425,9 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\t<< " << driver_question_name
 							<< "_map_entry->startPosition_ + 1" << endl
 							<< "\t\t\t\t\t<< \", \"" << endl
-							<< "\t\t\t\t\t<< " 
+							<< "\t\t\t\t\t<< "
 							<< driver_question_name << "_map_entry->startPosition_ + "
-							<< driver_question_name 
+							<< driver_question_name
 							<< "_map_entry->totalLength_ << \")\"" << endl
 							<< "\t\t\t\t\t<< \" .eq. \" << "
 							<< driver_question_name
@@ -2435,7 +2435,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\t<< \")\\n\"" << endl
 							<< "\t\t\t\t\t<< \"+\\t\" <<  \""
 							<< leader_rec_question_name << "\";" << endl;
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
 							<< rec_question_name << "_map_entry[i1]->"
 							<< "q->loop_index_values.size(); ++i2) {\n"
@@ -2447,7 +2447,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\tedit_file << \"_\" << "
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-							<< rec_question_name 
+							<< rec_question_name
 							<< "_map_entry[i1]->totalLength_"
 							<< " << \")\" "
 							<< "\t\t\t\t\t<< \"=\"" << endl
@@ -2458,7 +2458,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\t<< \", \"" << endl
 							<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry[i1]->startPosition_ + "
 							<< rec_question_name << "_map_entry[i1]->totalLength_ << \")\"" << endl
-							<< "\t\t\t\t\t<< endl;" << endl 
+							<< "\t\t\t\t\t<< endl;" << endl
 							<< "\t\t\t\t}" << endl
 							<< "\t\t\t}" << endl;
 						if (j2 == 0) {
@@ -2467,20 +2467,20 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 							<< rec_question_name
 							<< "_map_entry, recode_edit_qax_file"
 							<< ", " <<  driver_question_name
-							<< ", i" 
+							<< ", i"
 							<< ");\n";
 						}
 						recode_edit.program_code
 							<< "\t\t /* close loop i == 0  */}\n";
 					} else {
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< " not a  question" << endl;
 						recode_edit.program_code << "*/" << endl;
 					}
 				} else {
 					recode_edit.program_code << "/* "
 						<< "NOT found : " << rec_question_name
-						<< " in symbol table: " 
+						<< " in symbol table: "
 						<< "*/"
 						<< endl ;
 				}
@@ -2496,7 +2496,7 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 
 void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 {
-	recode_edit.program_code 
+	recode_edit.program_code
 		<< "{\n"
 		//<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
 		//<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
@@ -2512,7 +2512,7 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 		vector <string> & recode_vec = brand_rank_recode_driver_vec[i]->recode_vec,
 				& driver_vec = brand_rank_recode_driver_vec[i]->driver_vec;
 
-		recode_edit.program_code 
+		recode_edit.program_code
 			<< "string driver_brand_question = \"" << driver_vec[0] << "\";" << endl
 			<< "string driver_brand_rank_question = \"" << driver_vec[1] << "\";" << endl
 			<< "vector <string> recode_questions_list;"
@@ -2539,7 +2539,7 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 		recode_edit.program_code << "}" << endl;
 	}
 
-	
+
 #if 0
 	for (int i = 0; i < brand_rank_recode_driver_vec.size(); ++i) {
 		vector <string> & recode_vec = brand_rank_recode_driver_vec[i]->recode_vec,
@@ -2569,9 +2569,9 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 							<< "_map_entry =\n"
 							<< "\t\t\t\tGetQuestionMapEntryArrayQ (qtm_datafile_question_disk_map, \""
 							<< rec_question_name << "\");" << endl
-							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
+							<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name
 							<< "_map_entry.size(); ++i1) {" << endl;
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\tvariable_file << \"data "
 							<< rec_question_name << "\";\n" << endl
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
@@ -2581,19 +2581,19 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 							<< rec_question_name << "_map_entry[i1]->q->"
 							<< "loop_index_values[i2];\n"
 							<< "\t\t\t\t\t}\n"
-							
+
 							<< "\t\t\t\t\tvariable_file << \"_\" << "
 							<< driver_question_name
-							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << " 
+							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << "
 							<< rec_question_name << "_map_entry[i1]->totalLength_ " << " << \"s\\n\";\n"
 							<< "\t\t\t\t\trecode_edit_qax_file\n"
-							<< "\t\t\t\t\t\t	<< print_recode_edit_qax (" 
+							<< "\t\t\t\t\t\t	<< print_recode_edit_qax ("
 							<< driver_question_name << "_map_entry, "
 							<< rec_question_name << "_map_entry[i1], i, jno);\n" << endl;
 
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "edit_file << \"clear " << leader_rec_question_name << "\";" << endl;
-						recode_edit.program_code 
+						recode_edit.program_code
 							<< "\t\t\t\t\tfor (int i2=0; i2 < "
 							<< rec_question_name << "_map_entry[i1]->"
 							<< "q->loop_index_values.size(); ++i2) {\n"
@@ -2605,7 +2605,7 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 							<< "\t\t\t\t\tedit_file << \"_\" << "
 							<< driver_question_name
 							<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
-							<< rec_question_name 
+							<< rec_question_name
 							<< "_map_entry[i1]->totalLength_"
 							<< " << \");\\n\";\n";
 #endif /*  0 */
@@ -2630,7 +2630,7 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 				<< "	if (\"" << driver_brand_rank_question << "\" == qtm_datafile_question_disk_map[i]->q->questionName_) {\n"
 				<< "	++j; "
 				<< "	if (j == 1) {\n"
-				<< "	\t" << driver_brand_question << "_map_entry = qtm_datafile_question_disk_map[i];\n" 
+				<< "	\t" << driver_brand_question << "_map_entry = qtm_datafile_question_disk_map[i];\n"
 				<< "	}\n"
 				<< "	edit_file "
 				<< "		<< \"" << driver_brand_rank_question << "\" << \"_cols(\" << j << \")\" \n"
@@ -2640,15 +2640,15 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 				<< "}\n"
 				<< "NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> ("
 				<< driver_brand_question
-				<< "_list.questionList[0]" 
+				<< "_list.questionList[0]"
 				<< ");\n"
 				<< "edit_file << endl << endl;" << endl
 				<< "for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {\n"
 				<< "	edit_file " << endl << "\t\t"
-				<< "		<< \"clear \" << \"" << driver_brand_question 
+				<< "		<< \"clear \" << \"" << driver_brand_question
 				<< "\" << \"_\""
 				<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (1, \" << "
-				<<  driver_brand_question << "_map_entry" 
+				<<  driver_brand_question << "_map_entry"
 				<< "->totalLength_ << \")\""
 				<< "\t<< endl;\n"
 				<< "}\n"
@@ -2662,15 +2662,15 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 				<< "	edit_file " << endl << "\t\t"
 				<< " 	<< \"\tif (c(brd_col, brd_col+1).eq.\""
 				<< " 	<< nq->nr_ptr->stubs[i].code << "
-				<< "\")\t\t\" <<  \"" << driver_brand_question 
-				<< "\" << \"_\" << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " 
-				<<  driver_brand_question << "_map_entry" 
+				<< "\")\t\t\" <<  \"" << driver_brand_question
+				<< "\" << \"_\" << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << "
+				<<  driver_brand_question << "_map_entry"
 				<< "->totalLength_ << \")\""
 				//<< " << \")\""
 				<< " << \" = c(rnk_col, rnk_col+1)\\n\";\n"
 				//<< " << \"_\""
 				//<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (1, \" << "
-				//<<  driver_brand_question << "_map_entry" 
+				//<<  driver_brand_question << "_map_entry"
 				//<< "->totalLength_ << \")\""
 				//<< "\t<< endl;\n"
 				<< "}\n"
@@ -2691,21 +2691,21 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 			SymbolTableEntry * se = active_scope_list[0]->find (rec_question_name);
 			if (se) {
 				if (se->type_ == QUESTION_TYPE) {
-					recode_edit.program_code 
+					recode_edit.program_code
 						<< "/* "
 						<< "found : " << rec_question_name
-						<< " in symbol table: QUESTION_TYPE" 
+						<< " in symbol table: QUESTION_TYPE"
 						<< "*/" << endl;
 				}  else if (se->type_ == QUESTION_ARR_TYPE) {
-					recode_edit.program_code 
+					recode_edit.program_code
 						<< "/* "
-						<< "found " 
+						<< "found "
 						<< rec_question_name
 						<< " QUESTION_ARR_TYPE "
 						<< "*/" << endl;
 
 					recode_edit.program_code
-						<< "\t\tfor (int i=0; i < " << driver_brand_question 
+						<< "\t\tfor (int i=0; i < " << driver_brand_question
 						<< "->nr_ptr->stubs.size(); ++i) {\n"
 						<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
 						<< driver_brand_question
@@ -2720,9 +2720,9 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 						;
 
 				} else {
-					recode_edit.program_code 
+					recode_edit.program_code
 						<< "/* "
-						<< "did not find symbol " 
+						<< "did not find symbol "
 						<< rec_question_name
 						<< " "
 						<< "*/" << endl;
@@ -2732,12 +2732,12 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 		}
 #endif /*  0  */
 		for (int j=0; j < recode_vec.size(); ++j) {
-			recode_edit.program_code 
+			recode_edit.program_code
 				<< "edit_file << endl << endl;" << endl
 				<< "{" << endl
 				<< "NamedStubQuestion * rnq = dynamic_cast <NamedStubQuestion*> ("
 				<< recode_vec[j]
-				<< "_list.questionList[0]);\n" 
+				<< "_list.questionList[0]);\n"
 				<< "\t\t\tvector<qtm_data_file_ns::QtmDataDiskMap *> "
 				<< recode_vec[j]
 				<< "_map_entry =\n"
@@ -2747,42 +2747,42 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 				<< "	edit_file " << endl << "\t\t"
 				<< "		<< \"clear \" << \"" << recode_vec[j] << "\" << \"_\""
 				<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (1, \" << "
-				<<  recode_vec[j] << "_map_entry.size() " 
+				<<  recode_vec[j] << "_map_entry.size() "
 				//<<  " * "
-				//<<  recode_vec[j] << "_map_entry[0]->totalLength_ " 
+				//<<  recode_vec[j] << "_map_entry[0]->totalLength_ "
 				<< " << \")\""
 				<< "\t<< endl;\n"
 				<< "}\n"
 
-				<< "edit_file << endl << endl;\n" 
-				<< "edit_file << \"do 9 output_col_no=1,\" <<" << recode_vec[j] << "_map_entry.size() << endl;\n" 
+				<< "edit_file << endl << endl;\n"
+				<< "edit_file << \"do 9 output_col_no=1,\" <<" << recode_vec[j] << "_map_entry.size() << endl;\n"
 				<< "for (int i=0;  i < "
-				//<< nq->nr_ptr->stubs.size(); 
-				<<  recode_vec[j] << "_map_entry.size()" 
+				//<< nq->nr_ptr->stubs.size();
+				<<  recode_vec[j] << "_map_entry.size()"
 				<< "; ++i) {\n"
-				<< "	edit_file " << endl 
+				<< "	edit_file " << endl
 				<< " << \"\tif (\" << nq->questionName_\n << " << "\"_\""
 				<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() \n<< \" (1, \" << "
-				<<  driver_brand_question << "_map_entry" 
+				<<  driver_brand_question << "_map_entry"
 				<< "->totalLength_\n << \")"
 				<< " .in. (1: " << n_ranks << "))\"\n"
 				<< " << \"\t\" << \"" << recode_vec[j] << "\" << \"_\"\n"
 				<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name()\n << \" (output_col_no  \"\n "
 				//<< " << \"*\" << "
-				//<<  recode_vec[j] << "_map_entry[0]->totalLength_\n" 
+				//<<  recode_vec[j] << "_map_entry[0]->totalLength_\n"
 				//<< " << \", output_col_no *\"\n << "
-				//<<  recode_vec[j] << "_map_entry[0]->totalLength_\n" 
+				//<<  recode_vec[j] << "_map_entry[0]->totalLength_\n"
 				//<< " << \"+ \"\n << "
-				//<<  recode_vec[j] << "_map_entry[0]->totalLength_ - 1\n" 
+				//<<  recode_vec[j] << "_map_entry[0]->totalLength_ - 1\n"
 				<< " << \") = 0\\n\";\n"
 				<< "}\n"
 				<< "\tedit_file << \"9 continue;\\n\" << endl;\n"
 				<< "edit_file << \"output_col_no = 1\\n\";\n"
 				<< "edit_file << \"do 20 input_col_no = (\";\n"
 				<< "for (int i=0;  i < "
-				<<  recode_vec[j] << "_map_entry.size()" 
+				<<  recode_vec[j] << "_map_entry.size()"
 				<< "; ++i) {\n"
-				<<  "edit_file << " << recode_vec[j] << "_map_entry[i]->startPosition_+1 << \" \";\n" 
+				<<  "edit_file << " << recode_vec[j] << "_map_entry[i]->startPosition_+1 << \" \";\n"
 				<< " if (i < " << recode_vec[j] << "_map_entry.size()-1) edit_file << \", \";\n"
 				<< "}\n"
 				<< "edit_file  << \")\" << endl;\n"
@@ -2798,16 +2798,16 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 
 				<< "for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {\n"
 				<< "	edit_file " << endl << "\t\t"
-				<< "		<< \"\t\tif (c(input_col_no)'punch' .and.  " 
+				<< "		<< \"\t\tif (c(input_col_no)'punch' .and.  "
 				<< driver_brand_question << "\" << \"_\" "
 				<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (1, \" << "
 				//<< " (1, \" << "
-				<<  driver_brand_question << "_map_entry" 
+				<<  driver_brand_question << "_map_entry"
 				<< "->totalLength_ << \").eq.t3)\t\t\""
 				<< " << \"" << recode_vec[j] << "\" << \"_\""
 				<< " << nq->nr_ptr->stubs[i].stub_text_as_var_name() << \" (output_col_no)=1 \" "
-				//<<  recode_vec[j] << "_map_entry.size() * " 
-				//<<  recode_vec[j] << "_map_entry[0]->totalLength_ " 
+				//<<  recode_vec[j] << "_map_entry.size() * "
+				//<<  recode_vec[j] << "_map_entry[0]->totalLength_ "
 				//<< " << \")\""
 				<< "\t<< endl;\n"
 				<< "}\n"
@@ -2823,14 +2823,14 @@ void PrintBrandRankEdit (StatementCompiledCode & recode_edit)
 		}
 	}
 #endif /*  0 */
-	recode_edit.program_code 
+	recode_edit.program_code
 		<< "}\n" << endl;
 
 }
 
 void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 {
-	create_1_0_data_edit.program_code 
+	create_1_0_data_edit.program_code
 		<< "//create_1_0_data_edit \n"
 		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
 		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
@@ -2846,7 +2846,7 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 			NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*>(se->question_);
 			if (!nq) {
 				cerr << "question: " << rec_question_name << " is not a NamedStubQuestion, this recode will not work ... exiting\n";
-				exit(1); 
+				exit(1);
 			}
 			if (se->type_ == QUESTION_ARR_TYPE) {
 				create_1_0_data_edit.program_code
@@ -2855,9 +2855,9 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "\t exit(1);\n"
 					<< "}\n";
 				create_1_0_data_edit.program_code
-					<< "NamedStubQuestion * " << rec_question_name 
+					<< "NamedStubQuestion * " << rec_question_name
 					<<  "= dynamic_cast<NamedStubQuestion*> ("
-					<< rec_question_name 
+					<< rec_question_name
 					<< "_list.questionList[0]);\n";
 
 				create_1_0_data_edit.program_code
@@ -2872,18 +2872,18 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "variable_file "
 					<< "<< \"int input_col 1\" << endl\n"
 					<< "<< \"int output_col 1\" << endl;\n"
-					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "\t\tfor (int i=0; i < " << rec_question_name
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
 					<< "variable_file "
-					<< "<< \"data \" <<  \"" 
-					<< rec_question_name 
+					<< "<< \"data \" <<  \""
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
 					<< "<< \" \" << " << rec_question_name << "_list.arrayBounds[0]"
 					<< "<< endl;" << endl
-					<< "edit_file << \"clear \" <<  \"" 
-					<< rec_question_name 
+					<< "edit_file << \"clear \" <<  \""
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
@@ -2892,15 +2892,15 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "<< endl;"
 					<< "}\n";
 				create_1_0_data_edit.program_code
-					<< "edit_file << \"do 9 t1=1,\" << " 
+					<< "edit_file << \"do 9 t1=1,\" << "
 					<< rec_question_name << "_list.arrayBounds[0] << \",1\" << endl"
 					<< ";";
 
 				create_1_0_data_edit.program_code
-					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "\t\tfor (int i=0; i < " << rec_question_name
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
-					<< "edit_file << \"\t\" <<  \"" 
-					<< rec_question_name 
+					<< "edit_file << \"\t\" <<  \""
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
@@ -2915,9 +2915,9 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "edit_file << \"output_col = 1\" << endl;"
 					<< "edit_file << \"do 10 input_col=(\";";
 				create_1_0_data_edit.program_code
-					<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name 
+					<< "\t\t\t\tfor (int i1=0; i1<" << rec_question_name
 					<< "_map_entry.size(); ++i1) {" << endl;
-				//create_1_0_data_edit.program_code 
+				//create_1_0_data_edit.program_code
 				//	<< "\t\t\t\t\tfor (int i2=0; i2 < "
 				//	<< rec_question_name << "_map_entry[i1]->"
 				//	<< "q->loop_index_values.size(); ++i2) {\n"
@@ -2927,19 +2927,19 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 				//	<< "\t\t\t\t\t}\n";
 				create_1_0_data_edit.program_code
 					<< "edit_file << "
-					<< rec_question_name 
+					<< rec_question_name
 					<< "_map_entry[i1]->startPosition_ + 1;\n";
 				create_1_0_data_edit.program_code
-					<< "if (i1+1 < " << rec_question_name	
+					<< "if (i1+1 < " << rec_question_name
 					//<< "_map_entry.size() ) edit_file << \":\"<< i1 << \",\";\n";
 					<<   "_map_entry.size() ) edit_file               << \",\";\n";
 
-				create_1_0_data_edit.program_code 
+				create_1_0_data_edit.program_code
 					<< "}\n";
 				create_1_0_data_edit.program_code
 					<< "edit_file << \")\" << endl;";
 				create_1_0_data_edit.program_code
-					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "\t\tfor (int i=0; i < " << rec_question_name
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
 					<< "edit_file << "
 					<< " \"\tif (c(input_col+\" << "
@@ -2949,8 +2949,8 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].code%10"
 					<< "<< \"') \""
-					<< "<< \"" 
-					<< rec_question_name 
+					<< "<< \""
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name()"
@@ -2980,18 +2980,18 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< " << \"r b c(\" << recode_start_card*100\n"
 					<< " << \", \" <<  recode_start_card*100 + (n_brands+1) * blk_size"
 					<< " << \") $ cards used for SPSS edit data xfer$\\n\";\n"
-					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "\t\tfor (int i=0; i < " << rec_question_name
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
-					<< "\t edit_file << " 
+					<< "\t edit_file << "
 					<< " \"c(\""
 					<< " << recode_start_card*100 + (i+1) * blk_size+1"
 					<< " << \", \""
 					<< " << recode_start_card*100 + (i+1) * blk_size+n_stmts"
 					<< " << \") = \""
-					<< " << \"" 
-					<< rec_question_name 
+					<< " << \""
+					<< rec_question_name
 					<< "\" << \"_\" << "
-					<< rec_question_name 
+					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name()  "
 					<< " << \"(1, \" << n_stmts << \")\" << endl;"
 					<< "}\n"
@@ -3021,27 +3021,27 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< endl;
 
 				create_1_0_data_edit.program_code
-					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "\t\tfor (int i=0; i < " << rec_question_name
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
 					<< rec_question_name << "_sps << \""
-					<< rec_question_name 
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
 					<< " << \"_1 to "
-					<< rec_question_name 
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"_\""
 					<< " << n_stmts << endl;"
 					<< "}\n"
 					<< rec_question_name << "_sps << \".\" << endl"
-					<< "<< \"exe.\" << endl;" 
-					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "<< \"exe.\" << endl;"
+					<< "\t\tfor (int i=0; i < " << rec_question_name
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
 					<< "\t\tfor (int i1=0; i1 < n_stmts; ++i1) {\n"
 					<< rec_question_name << "_sps << \"variable label \" << \""
-					<< rec_question_name 
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
@@ -3058,15 +3058,15 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< rec_question_name << "_sps <<  endl;"
 					<< "}\n"
 					<< rec_question_name << "_sps << \"value label \";"
-					<< "\t\tfor (int i=0; i < " << rec_question_name 
+					<< "\t\tfor (int i=0; i < " << rec_question_name
 					<< "->nr_ptr->stubs.size(); ++i) {\n"
 					<< rec_question_name << "_sps << \""
-					<< rec_question_name 
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() "
 					<< " << \"_1 to "
-					<< rec_question_name 
+					<< rec_question_name
 					<< "\" << \"_\" << "
 					<< rec_question_name
 					<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"_\""
@@ -3074,13 +3074,13 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 					<< "}\n"
 					<< rec_question_name << "_sps  "
 					<< "<< endl\n"
-					<< "<< \"0 \\\"No\\\" \" << endl" 
-					<< "<< \"1 \\\"Yes\\\".\" << endl" 
+					<< "<< \"0 \\\"No\\\" \" << endl"
+					<< "<< \"1 \\\"Yes\\\".\" << endl"
 					<< endl
 					<< "<< \"exe.\" << endl"
 					<< "<< \"save outfile=\\\""
-					<< qscript_parser::project_name 
-					<< "\" << \"_\" << \"" << rec_question_name 
+					<< qscript_parser::project_name
+					<< "\" << \"_\" << \"" << rec_question_name
 					<< "\" <<  \".sav\""
 					<< "<< \"\\\"\""
 					//<< "\\\"\""
@@ -3091,12 +3091,12 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 
 			} else {
 				cerr << "symbol: " << rec_question_name << " is not QUESTION_ARR_TYPE ... create_1_0_data_edit_stmt ... unhandled case... exiting\n";
-				exit(1); 
+				exit(1);
 			}
 
 		} else {
 			cerr << "symbol: " << rec_question_name << " not found in symbol table... create_1_0_data_edit_stmt ... exiting\n";
-			exit(1); 
+			exit(1);
 		}
 	}
 }
@@ -3118,7 +3118,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	}
 
 	fprintf(script, "\twhile(ser_no != 0 || (write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)){\n");
-	// code-frag/open-eval-while-loop-code-frag.cpp 
+	// code-frag/open-eval-while-loop-code-frag.cpp
 
 	fprintf(script, "%s\n", file_exists_check_code());
 
@@ -3237,6 +3237,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "						<< it2->second << endl;\n");
 	fprintf(script, "				}\n");
 	fprintf(script, "			}\n");
+	fprintf(script, "			freq_count_file << endl;\n");
 
 
 	// fprintf(script, "                   freq_count_file << \"code, frequency\" << endl;\n");
@@ -3271,7 +3272,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "    int read_a_serial_no()\n");
 	fprintf (script, "    {\n");
-	fprintf (script, "	//cout << \"ENTER: \"  << __FILE__ << \", \" << __LINE__ << \", \" << __PRETTY_FUNCTION__ << endl;\n"); 
+	fprintf (script, "	//cout << \"ENTER: \"  << __FILE__ << \", \" << __LINE__ << \", \" << __PRETTY_FUNCTION__ << endl;\n");
 	fprintf (script, "restart:\n");
 	fprintf (script, "	struct dirent *directory_entry = readdir(directory_ptr);\n");
 	fprintf (script, "	if (directory_entry == NULL) {\n");
@@ -3376,7 +3377,7 @@ void print_write_qtm_data_to_disk(FILE *script)
 	fprintf(script, "                       AbstractQuestion * q = question_list[i];\n");
 	fprintf(script, "			stringstream question_name_str;\n");
 	fprintf(script, "			question_name_str << q->questionName_;\n");
-			
+
 	fprintf(script, "		    if (q->loop_index_values.size()) {\n");
 	fprintf(script, "				for (int j=0; j<q->loop_index_values.size(); ++j) {\n");
 	fprintf(script, "					question_name_str << \".\" << q->loop_index_values[j];\n");
@@ -3891,7 +3892,7 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "				ax << \"*include \" << \"r_\" << recode_q->q->questionName_ \n");
 	fprintf (script, "					<<\".qax\"\n");
 	fprintf (script, "					<<\";qlno=\" << recode_q->q->loop_index_values[0] << \";var_name=\" << recode_q->q->questionName_ ;\n");
-	
+
 	fprintf (script, "\t\t\t\t\tfor (int i2=0; i2 < recode_q->q->loop_index_values.size(); ++i2) {\n");
 
 	fprintf (script, "\t\t\t\t\t\t ax << \"_\" << recode_q->q->loop_index_values[i2];\n");
@@ -3903,7 +3904,7 @@ void print_recode_edit_qax (FILE * script)
 	fprintf (script, "					<< endl\n");
 	fprintf (script, "					<< endl;\n");
 	fprintf (script, "			} else {\n");
-	/* the same code using the for loop above with index variable i2 has to be used here : for double arrays this 
+	/* the same code using the for loop above with index variable i2 has to be used here : for double arrays this
 	   recode edit code generation has not been fixed
 	   */
 	fprintf (script, "				ax <<\"*include r_\" << recode_q->q->questionName_\n");
