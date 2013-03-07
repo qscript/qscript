@@ -56,8 +56,8 @@
 
 %option prefix="qtm_table_output_"
 %option never-interactive
-%option nounistd
-%option outfile="lex_tab.c" header-file="lex_tab.h"
+    /*%option nounistd
+    %option outfile="lex_tab.c" header-file="lex_tab.h" */
 
 DIGIT    [0-9]
         /*ID       [a-z][a-z0-9]*/
@@ -98,7 +98,7 @@ DIGIT    [0-9]
 }
 
 	/*\"\",{DIGIT}+\.{DIGIT}+      */
-\"\",{DIGIT}+ {
+\"\",{DIGIT}+.{DIGIT}+ {
 	char * pos_2nd_dbl_quote = strrchr (yytext, '"');
 	if (pos_2nd_dbl_quote) {
 		string no (pos_2nd_dbl_quote + 2);

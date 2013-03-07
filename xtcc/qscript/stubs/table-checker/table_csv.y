@@ -91,7 +91,8 @@ axis_qtm_freq_count_list: axis_qtm_freq_count {
 	;
 
 axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
-		   NAME NEWL text_chain
+		   TEXT NEWL
+           text_chain
 		   BASE_TEXT NEWL EMPTY_LINE_2_COLS NEWL EMPTY_LINE_1_COLS NEWL
 		   BAN_TOTAL NEWL EMPTY_LINE_1_COLS NEWL
 		   SIDE_TOTAL NEWL freq_chain /*SIGMA STUB_PERC*/ {
@@ -102,8 +103,16 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		//double sigma = $23;
 		double sigma = global_sigma;
 		global_sigma = 0.0;
-		string name = $7;
-		string array_base_name = $7;
+		string name_ax_info($7);
+        int pos_1st_comma = name_ax_info.find (',');
+        int pos_2nd_comma = name_ax_info.rfind (',');
+		string name = name_ax_info.substr(0, pos_1st_comma);
+		string array_base_name = name_ax_info.substr(pos_1st_comma+1, pos_2nd_comma-1-pos_1st_comma);
+        string sp_mp_info = name_ax_info.substr(pos_2nd_comma+1,array_base_name.length()-2-(pos_2nd_comma+1));
+        cout << "Extracted: name |" << name << "|"
+                << "array_base_name|" << array_base_name << "|"
+                << "sp_mp_info|" << sp_mp_info << "|" << endl;
+        int no_mpn = atoi (sp_mp_info.c_str());
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
 					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name

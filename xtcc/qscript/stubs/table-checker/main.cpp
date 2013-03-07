@@ -71,7 +71,8 @@ int main()
 		}
 	}
 	{
-		std::string fname ("T.CSV");
+		//std::string fname ("T.CSV");
+		std::string fname ("t2.csv");
 		FILE * qtm_csv_file = fopen(fname.c_str(), "rb");
 		if (!qtm_csv_file) {
 			cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
@@ -108,6 +109,10 @@ bool check_table_against_nq_freq_counts(
 	stringstream reasons_str;
 
 	bool counts_matched = true;
+	cout << qtm_table_it->second->name_
+		<< "Total: " << qtm_table_it->second->total_
+		<< "Sigma: " << qtm_table_it->second->sigma_
+		<< endl;
 
 	for (; table_it!= TABLE_END; ++table_it) {
 		//cout << "searching for table stub:" << table_it->first;
