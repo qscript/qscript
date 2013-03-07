@@ -768,7 +768,7 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 						<< endl;
 				}
 
-				qtm_include_file << "n01Top 3 Box (Net); c=";
+				qtm_include_file << "n01Top 3 Box (Net); c=" << var_name;
 				if (width_ == 1) {
 					//qtm_include_file << "(a0).in.(8:10);ntot;"
 					//	<< endl;
@@ -796,7 +796,7 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 						<< ");ntot;" << endl;
 				}
 
-				qtm_include_file << "n01Bottom 3 Box (Net); c=";
+				qtm_include_file << "n01Bottom 3 Box (Net); c=" << var_name;
 				if (width_ == 1) {
 					//qtm_include_file << "(a0).in.("
 					//	<< stubs[0].code << ":" << stubs[2].code
@@ -845,9 +845,15 @@ void QtmDataDiskMap::print_run(string jno)
 		<< ";max=" << qtmDataFile_.fileXcha_.currentCard_ + 1
 		<< endl << endl;
 
+	run_file << "*def autocheck=" << endl;
 	run_file << "ed" << endl;
 	run_file << "end" << endl << endl;
-	run_file << "a;" << endl << endl;
+	//run_file << "a;" << endl << endl;
+
+	run_file << "a;wm=0;dsp;flush;op=12;side=60;paglen=1000;pagwid=800;decp=2;notype;acr100;clevel=99,95;pcpos=-1;date;nsw;netsort=2"
+		<< endl << endl
+		<< "ttlTable <<tab>>"
+		<< endl;
 
 	run_file << "*include " << jno << ".tab;ban=tot" << endl;
 	run_file << "*include " << jno << ".qax" << endl;
@@ -1104,7 +1110,10 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 				qax_program_text << ",a" << width_-1 ;
 			}
 			qax_program_text << ") u $ $;" << endl;
-			qax_program_text << "ttl" << q->questionName_ << "_&qlno" << endl;
+			qax_program_text
+				<< "&autocheckttl" << q->questionName_ << "_&qlno"
+				<< "," << q->questionName_ << "," << q->no_mpn
+				<< endl;
 			qax_program_text << "*include qttl.qin;"
 				<< ttl_string.str() << endl
 				<< "*include base.qin;btxt=All Respondents" << endl;
@@ -1158,7 +1167,10 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 		}
 		qax_program_text << ") u $ $" ;
 		qax_program_text << endl;
-		qax_program_text << "ttl" << l_ax_name.str() << endl;
+		qax_program_text
+			<< "&autocheckttl" << l_ax_name.str()
+			<< "," << q->questionName_ << "," << q->no_mpn
+			<< endl;
 		qax_program_text << "*include qttl.qin;qno=;" ;
 		/*
 		<< q->questionName_;
@@ -2329,7 +2341,9 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 					ax <<",a" << recode_q->width_-1 ;
 				}
 				ax <<") u $ $" << endl;
-				ax << "ttl" << recode_q->q->questionName_ << "_&qlno" << endl;
+				ax << "&autocheckttl" << recode_q->q->questionName_ << "_&qlno"
+					<< "," << recode_q->q->questionName_ << "," << recode_q->q->no_mpn
+					<< endl;
 				ax <<"*include qttl.qin;"
 					<< ttl_string.str() << endl
 					<<"*include base.qin" << endl;
@@ -2368,6 +2382,11 @@ string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_d
 			ax << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name();
 			ax << "; c=" << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name() << "(1, "<< recode_q->totalLength_ << ") u $ $\n"
 				<< endl;
+			// auto-table-check - do this later
+			//ax
+			//	<< "ttl" << l_ax_name.str()
+			//	<< "," << q->questionName_ << "," << q->no_mpn
+			//	<< endl;
 			ax << "*include qttl.qin;qno=" << recode_q->q->questionName_ << "_" << driver_nq->nr_ptr->stubs[index].stub_text_as_var_name() << ";";
 
 
