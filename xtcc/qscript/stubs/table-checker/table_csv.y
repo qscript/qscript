@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include "const_defs.h"
 #include "lex_tab.h"
+#include "TableInfo.h"
 
 
 	//extern int yylex();
@@ -29,10 +30,9 @@
 	using std::string;
 	// these are the global accumulators
 	// yes bad bad global variables
-	map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_freq;
-	map<string, map <int, int> > qtm_freq_count_map_nq_name_code_freq;
-	map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_code;
-	map<string, map <int, int> > qtm_freq_count_map_rq;
+	//map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_freq;
+	//map<string, map <int, int> > qtm_freq_count_map_rq;
+	map <string, struct TableInfo *> table_info_map;
 	// these are used while building up the list
 	//       this is for named stub questions
 	map<string, int> temp_qtm_freq_count_map_nq_stub_codefreq;
@@ -42,6 +42,7 @@
 	map<int, int> temp_qtm_freq_count_map_rq; // will always be code -> freq
 	void qtm_table_output_error(const char * s);
 	extern string stub_text;
+	double global_sigma;
 
 %}
 
@@ -56,7 +57,7 @@
 %token TABLE
 %token PAGE
 %token TOTAL
-%token SIGMA
+%token <dval> SIGMA
 %token MEAN
 %token <text_buf> BASE_TEXT
 %token <ival> STUB_FREQ
@@ -89,9 +90,26 @@ axis_qtm_freq_count_list: axis_qtm_freq_count {
 	}
 	;
 
-axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL NAME NEWL text_chain BASE_TEXT NEWL EMPTY_LINE_2_COLS NEWL EMPTY_LINE_1_COLS NEWL BAN_TOTAL NEWL EMPTY_LINE_1_COLS NEWL SIDE_TOTAL NEWL freq_chain {
-		qtm_freq_count_map_nq_name_stub_freq[$7] = temp_qtm_freq_count_map_nq_stub_codefreq;
+axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
+		   NAME NEWL text_chain
+		   BASE_TEXT NEWL EMPTY_LINE_2_COLS NEWL EMPTY_LINE_1_COLS NEWL
+		   BAN_TOTAL NEWL EMPTY_LINE_1_COLS NEWL
+		   SIDE_TOTAL NEWL freq_chain /*SIGMA STUB_PERC*/ {
+		//qtm_freq_count_map_nq_name_stub_freq[$7] = temp_qtm_freq_count_map_nq_stub_code_qtm_freq_count_map_nq_stub_codefreq;
 		cout << "got axis_qtm_freq_count: " << $7 << endl;
+		int side_total = $20;
+		string title="empty";
+		//double sigma = $23;
+		double sigma = global_sigma;
+		global_sigma = 0.0;
+		string name = $7;
+		string array_base_name = $7;
+		struct TableInfo * table_info_ptr =
+			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
+					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name
+				);
+		table_info_map[name] = table_info_ptr;
+		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 	}
 
 text_chain: TEXT NEWL
@@ -108,6 +126,7 @@ a_freq 	: 	STUB_FREQ NEWL {
       	|	STUB_PERC NEWL
         |   STUB_MEAN NEWL
         |   STUB_STD_DEV NEWL
+	|   SIGMA NEWL { global_sigma = $1; }
 	;
 
 

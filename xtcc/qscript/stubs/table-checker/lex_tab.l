@@ -140,14 +140,12 @@ DIGIT    [0-9]
 
 \"[^\"]*\",{DIGIT}+	{
 	char * pos_2nd_dbl_quote = strrchr (yytext, '"');
+	string no (pos_2nd_dbl_quote + 2);
 	if (pos_2nd_dbl_quote) {
 		string tmp = yytext;
 		int pos_2nd_dbl_quote_int = tmp.rfind ('"');
 		stub_text = tmp.substr (1, pos_2nd_dbl_quote_int-1);
-		string no (pos_2nd_dbl_quote + 2);
-		int freq = atoi (no.c_str());
-		cout << "FREQ: " << "stub_text: "<< stub_text << " | " << freq << endl;
-		qtm_table_output_lval.ival = freq;
+		no = (pos_2nd_dbl_quote + 2);
 	} else {
 		cerr << __LINE__
 			<< ", "
@@ -159,7 +157,17 @@ DIGIT    [0-9]
 			exit(1);
 	}
 	//cout << "got STUB_FREQ: " << yytext << endl;
-	return STUB_FREQ;
+	if (strstr (yytext, "Sigma")) {
+		double sigma = atof (no.c_str());
+		qtm_table_output_lval.dval = sigma;
+		cout << "SIGMA: " << "stub_text: "<< stub_text << " | " << sigma << endl;
+		return SIGMA;
+	} else {
+		int freq = atoi (no.c_str());
+		qtm_table_output_lval.ival = freq;
+		cout << "STUB_FREQ: " << "stub_text: "<< stub_text << " | " << freq << endl;
+		return STUB_FREQ;
+	}
 }
 
 

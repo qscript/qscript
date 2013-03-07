@@ -80,11 +80,15 @@ axis_freq_count: name stub_header_line stub_frequency_list NEWL {
 		freq_count_map_nq_name_stub_freq[axis_name] = temp_freq_count_map_nq_stub_codefreq;
 		freq_count_map_nq_name_code_freq[axis_name] = temp_freq_count_map_nq_code_codefreq;
 		freq_count_map_nq_name_stub_code[axis_name] = temp_freq_count_map_nq_stub_code;
+		temp_freq_count_map_nq_stub_codefreq.clear();
+		temp_freq_count_map_nq_code_codefreq.clear();
+		temp_freq_count_map_nq_stub_code.clear();
 		cout << "got axis_freq_count: " << axis_name << endl;
 	}
 	| name code_header_line code_freq_list NEWL{
 		//cout << "got an range stub axis_freq_count" << endl;
 		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
+		temp_freq_count_map_rq.clear();
 		cout << "got axis_freq_count: " << axis_name << endl;
 	}
 	;
@@ -104,7 +108,7 @@ name: NAME NEWL {
 	| NAME DOT INUMBER NEWL {
 	//	cout << "Got array NAME: " << $1 << endl;
 		stringstream s1;
-		s1 << $1 << "." << $3;
+		s1 << $1 << "_" << $3;
 		axis_name = s1.str();
 	}
 
