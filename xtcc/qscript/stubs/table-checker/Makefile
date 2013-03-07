@@ -1,3 +1,7 @@
+#INCLUDE_DIR=c:\usr\include
+#LIB_DIR=c:\usr\lib
+#LINK_LIBS=-lregex
+
 CC=g++ -g
 COMMON_FILES = main.cpp
 QSCRIPT_FREQ_PARSER_SOURCES = freq_file.y lex.l
@@ -7,10 +11,6 @@ QTM_SOURCES =  lex_tab.l table_csv.y
 
 QTM_QSCRIPT_FREQ_PARSER_SOURCES = lex_tab.c table_csv.c table_csv.h
 QTM_COMPILE_FILES = lex_tab.c table_csv.c
-
-#INCLUDE_DIR=c:\usr\include
-#LIB_DIR=c:\usr\lib
-#LINK_LIBS=-lregex
 
 
 table-checker.exe: $(QSCRIPT_FREQ_PARSER_SOURCES) $(QSCRIPT_FREQ_PARSER_GENERATED_SOURCES) $(QTM_SOURCES) $(QTM_COMPILE_FILES) $(COMMON_FILES)

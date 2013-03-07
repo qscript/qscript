@@ -106,7 +106,7 @@ name: NAME NEWL {
 	axis_name = $1;
 	}
 	| NAME DOT INUMBER NEWL {
-	//	cout << "Got array NAME: " << $1 << endl;
+		cout << "Got array NAME: " << $1 << endl;
 		stringstream s1;
 		s1 << $1 << "_" << $3;
 		axis_name = s1.str();

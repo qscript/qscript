@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <cstring>
 #include "const_defs.h"
 #include "freq_file.h"
 
@@ -45,7 +46,7 @@
 		return INUMBER;
 	}
 
-([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
+([0-9]+\.[0-9]+([eE][-+]?[0-9]+)?)	{
 		yylval.dval = atof(yytext);
 		return FNUMBER;
 	}
@@ -83,7 +84,7 @@ stubs {
 [_A-Za-z][A-Za-z0-9_]*	{
 		if(yyleng < MY_STR_MAX) {
 			strcpy(yylval.name,yytext);
-            //cout << "got NAME:" << yytext << endl;
+            cout << "got NAME:" << yytext << endl;
 			return NAME;
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
@@ -93,8 +94,7 @@ stubs {
 
 
 \.     {
-    //cout << "got DOT" << endl;
-    //return DOT;
+    cout << "got DOT" << endl;
     return DOT;
 }
 

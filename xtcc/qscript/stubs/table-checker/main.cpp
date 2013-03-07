@@ -62,6 +62,12 @@ int main()
 		yyrestart(qscript_freq_file);
 		if (!yyparse()) {
 			cout << "Input parsed successfully" << endl;
+		} else {
+			cerr << "Error parsing freq_count file:" << fname << endl
+				<< "exiting ..." << endl;
+			exit(1);
+
+
 		}
 	}
 	{
