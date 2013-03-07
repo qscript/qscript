@@ -45,9 +45,11 @@
 	using std::cerr;
 	using std::endl;
 	using std::string;
-	int line_no;
+	int qtm_line_no;
 	int count_at_least_n_matches ( regmatch_t p_match[5]);
 	void qtm_table_output_error(const char * s);
+	string stub_text;
+
 
 %}
 
@@ -86,6 +88,7 @@ DIGIT    [0-9]
 	cout << "RETURNING  SIDE_TOTAL:"
 		<< "side_total_str:" << side_total_str << ", "
 		<< "side_total: " <<side_total << endl;
+	qtm_table_output_lval.ival = side_total;
 	return SIDE_TOTAL;
 }
 
@@ -99,8 +102,9 @@ DIGIT    [0-9]
 	char * pos_2nd_dbl_quote = strrchr (yytext, '"');
 	if (pos_2nd_dbl_quote) {
 		string no (pos_2nd_dbl_quote + 2);
-		int freq = atof (no.c_str());
-		cout << "PERC: " << freq << endl;
+		double perc = atof (no.c_str());
+		cout << "PERC: " << perc << endl;
+		qtm_table_output_lval.dval = perc;
 	} else {
 		cerr << __LINE__
 			<< ", "
@@ -120,19 +124,30 @@ DIGIT    [0-9]
 	cout	<< "RETURNING  MEAN:"
 		<< "mean_str:" << mean_str << ", "
 		<< "mean: " << mean << endl;
+	qtm_table_output_lval.dval = mean;
 	return STUB_MEAN;
 }
 
 \"Std.Dev\",{DIGIT}+.{DIGIT}+  {
+	string stddev_str(yytext + 10);
+	double stddev = atof (stddev_str.c_str());
+	cout	<< "RETURNING  MEAN:"
+		<< "stddev_str:" << stddev_str << ", "
+		<< "stddev: " << stddev << endl;
+	qtm_table_output_lval.dval = stddev;
 	return STUB_STD_DEV;
 }
 
 \"[^\"]*\",{DIGIT}+	{
 	char * pos_2nd_dbl_quote = strrchr (yytext, '"');
 	if (pos_2nd_dbl_quote) {
+		string tmp = yytext;
+		int pos_2nd_dbl_quote_int = tmp.rfind ('"');
+		stub_text = tmp.substr (1, pos_2nd_dbl_quote_int-1);
 		string no (pos_2nd_dbl_quote + 2);
 		int freq = atoi (no.c_str());
-		cout << "FREQ: " << freq << endl;
+		cout << "FREQ: " << "stub_text: "<< stub_text << " | " << freq << endl;
+		qtm_table_output_lval.ival = freq;
 	} else {
 		cerr << __LINE__
 			<< ", "
@@ -141,8 +156,9 @@ DIGIT    [0-9]
 			<< __PRETTY_FUNCTION__
 			<< "Impossible ! lex condition is that there should be 2 quotes"
 			<< endl;
+			exit(1);
 	}
-	cout << "got STUB_FREQ: " << yytext << endl;
+	//cout << "got STUB_FREQ: " << yytext << endl;
 	return STUB_FREQ;
 }
 
@@ -153,8 +169,8 @@ DIGIT    [0-9]
 }
 
 \n  {
-    ++line_no;
-	//cout << "got a NEWL: line_no: "  << line_no << endl;
+    ++qtm_line_no;
+	//cout << "got a NEWL: qtm_line_no: "  << qtm_line_no << endl;
 	return NEWL;
 }
 
@@ -226,7 +242,7 @@ DIGIT    [0-9]
 
 [_A-Za-z][A-Za-z0-9_]*	{
 		if(qtm_table_output_leng < MY_STR_MAX) {
-			strcpy(qtm_table_output_lval.name,yytext);
+			strncpy(qtm_table_output_lval.name,yytext+1, qtm_table_output_leng-1);
             //cout << "got NAME:" << yytext << endl;
 			return NAME;
 		} else {
@@ -256,10 +272,10 @@ DIGIT    [0-9]
 	{
 		//fprintf(stderr, "reached here: %s\n", __PRETTY_FUNCTION__);
 		//using qscript_parser::no_errors;
-		//using qscript_parser::line_no;
+		//using qscript_parser::qtm_line_no;
 		//++no_errors;
-	 	printf("%s: line: %d: yytext: %s\n", s, line_no, yytext);
-	 	printf("line: %d: \n", line_no);
+	 	printf("%s: line: %d: yytext: %s\n", s, qtm_line_no, yytext);
+	 	printf("line: %d: \n", qtm_line_no);
 		//printf ("lexical error: line: %d, column: %d\n"
 		//	, lex_location.lineNo_
 		//	, lex_location.columnNo_);

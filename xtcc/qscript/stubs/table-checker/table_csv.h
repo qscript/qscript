@@ -68,7 +68,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 45 "table_csv.y"
+#line 48 "table_csv.y"
 
 	int ival;
 	double dval;

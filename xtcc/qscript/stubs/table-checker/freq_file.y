@@ -1,3 +1,7 @@
+/*
+	Copyright : Neil Xavier D'Souza, 2013
+	License: GNU GPL2
+*/
 
 %{
 
@@ -76,10 +80,12 @@ axis_freq_count: name stub_header_line stub_frequency_list NEWL {
 		freq_count_map_nq_name_stub_freq[axis_name] = temp_freq_count_map_nq_stub_codefreq;
 		freq_count_map_nq_name_code_freq[axis_name] = temp_freq_count_map_nq_code_codefreq;
 		freq_count_map_nq_name_stub_code[axis_name] = temp_freq_count_map_nq_stub_code;
+		cout << "got axis_freq_count: " << axis_name << endl;
 	}
 	| name code_header_line code_freq_list NEWL{
 		//cout << "got an range stub axis_freq_count" << endl;
 		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
+		cout << "got axis_freq_count: " << axis_name << endl;
 	}
 	;
 
@@ -131,6 +137,9 @@ code_freq: COMMA INUMBER COMMA INUMBER NEWL {
 	extern int32_t yyparse();
 
 #include "const_defs.h"
+/*
+// Enable main if you want to test separately
+
 int main()
 {
 	std::string fname ("cmb_decision_maker.freq_count.csv");
@@ -145,3 +154,4 @@ int main()
 	}
 	
 }
+*/

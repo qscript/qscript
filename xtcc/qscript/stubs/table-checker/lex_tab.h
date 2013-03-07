@@ -324,7 +324,7 @@ extern int qtm_table_output_lex (void);
 #undef YY_DECL
 #endif
 
-#line 251 "lex_tab.l"
+#line 267 "lex_tab.l"
 
 
 #line 331 "lex_tab.h"

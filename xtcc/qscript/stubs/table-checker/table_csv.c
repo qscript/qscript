@@ -74,7 +74,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 268 of yacc.c  */
-#line 2 "table_csv.y"
+#line 6 "table_csv.y"
 
 
 #include <inttypes.h>
@@ -101,25 +101,24 @@
 	using std::string;
 	// these are the global accumulators
 	// yes bad bad global variables
-	map<string, map <string, int> > freq_count_map_nq_name_stub_freq;
-	map<string, map <int, int> > freq_count_map_nq_name_code_freq;
-	map<string, map <string, int> > freq_count_map_nq_name_stub_code;
-	map<string, map <int, int> > freq_count_map_rq;
+	map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_freq;
+	map<string, map <int, int> > qtm_freq_count_map_nq_name_code_freq;
+	map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_code;
+	map<string, map <int, int> > qtm_freq_count_map_rq;
 	// these are used while building up the list
 	//       this is for named stub questions
-	map<string, int> temp_freq_count_map_nq_stub_codefreq;
-	map<int, int>    temp_freq_count_map_nq_code_codefreq;
-	map<string, int>    temp_freq_count_map_nq_stub_code;
+	map<string, int> temp_qtm_freq_count_map_nq_stub_codefreq;
+	map<int, int>    temp_qtm_freq_count_map_nq_code_codefreq;
+	map<string, int>    temp_qtm_freq_count_map_nq_stub_code;
 	//       this is for range questions
-	map<int, int> temp_freq_count_map_rq; // will always be code -> freq
-	string axis_name;
-	bool nq_axis;
+	map<int, int> temp_qtm_freq_count_map_rq; // will always be code -> freq
 	void qtm_table_output_error(const char * s);
+	extern string stub_text;
 
 
 
 /* Line 268 of yacc.c  */
-#line 123 "table_csv.c"
+#line 122 "table_csv.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -177,7 +176,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 45 "table_csv.y"
+#line 48 "table_csv.y"
 
 	int ival;
 	double dval;
@@ -187,7 +186,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 191 "table_csv.c"
+#line 190 "table_csv.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -199,7 +198,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 203 "table_csv.c"
+#line 202 "table_csv.c"
 
 #ifdef short
 # undef short
@@ -492,8 +491,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    79,    79,    83,    89,    93,    94,    97,    98,   101,
-     102,   103,   104
+       0,    82,    82,    86,    92,    97,    98,   101,   102,   105,
+     108,   109,   110
 };
 #endif
 
@@ -506,8 +505,8 @@ static const char *const yytname[] =
   "MEAN", "BASE_TEXT", "STUB_FREQ", "STUB_PERC", "STUB_MEAN",
   "STUB_STD_DEV", "INUMBER", "FNUMBER", "NAME", "TEXT", "NEWL", "COMMA",
   "DOT", "EMPTY_LINE_2_COLS", "EMPTY_LINE_1_COLS", "BAN_TOTAL",
-  "SIDE_TOTAL", "$accept", "axis_freq_count_list", "axis_freq_count",
-  "text_chain", "freq_chain", "a_freq", 0
+  "SIDE_TOTAL", "$accept", "axis_qtm_freq_count_list",
+  "axis_qtm_freq_count", "text_chain", "freq_chain", "a_freq", 0
 };
 #endif
 
@@ -1447,9 +1446,9 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 79 "table_csv.y"
+#line 82 "table_csv.y"
     {
-		//cout << "parsed axis_freq_count to axis_freq_count_list"
+		//cout << "parsed axis_qtm_freq_count to axis_qtm_freq_count_list"
 		//	<< endl;
 	}
     break;
@@ -1457,9 +1456,9 @@ yyreduce:
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 83 "table_csv.y"
+#line 86 "table_csv.y"
     {
-		//cout << "chaining axis_freq_count with axis_freq_count_list"
+		//cout << "chaining axis_qtm_freq_count with axis_qtm_freq_count_list"
 		//	<< endl;
 	}
     break;
@@ -1467,16 +1466,26 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 89 "table_csv.y"
+#line 92 "table_csv.y"
     {
-		cout << "got axis_freq_count" << endl;
+		qtm_freq_count_map_nq_name_stub_freq[(yyvsp[(7) - (22)].name)] = temp_qtm_freq_count_map_nq_stub_codefreq;
+		cout << "got axis_qtm_freq_count: " << (yyvsp[(7) - (22)].name) << endl;
+	}
+    break;
+
+  case 9:
+
+/* Line 1806 of yacc.c  */
+#line 105 "table_csv.y"
+    {
+		temp_qtm_freq_count_map_nq_stub_codefreq[stub_text]=(yyvsp[(1) - (2)].ival);
 	}
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1480 "table_csv.c"
+#line 1489 "table_csv.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1707,7 +1716,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 108 "table_csv.y"
+#line 114 "table_csv.y"
 
 
 	//extern void qtm_table_output_restart(FILE *input_file);
@@ -1715,6 +1724,9 @@ yyreturn:
 	void qtm_table_output_error(const char * s);
 
 #include "const_defs.h"
+
+/*
+// Enable main if you want to test separately
 int main()
 {
 	std::string fname ("T.CSV");
@@ -1730,5 +1742,5 @@ int main()
 	}
 	
 }
-
+*/
 

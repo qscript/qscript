@@ -579,13 +579,15 @@ char *qtm_table_output_text;
 	using std::cerr;
 	using std::endl;
 	using std::string;
-	int line_no;
+	int qtm_line_no;
 	int count_at_least_n_matches ( regmatch_t p_match[5]);
 	void qtm_table_output_error(const char * s);
+	string stub_text;
+
 
 #define YY_NO_UNISTD_H 1
 /*ID       [a-z][a-z0-9]*/
-#line 589 "lex_tab.c"
+#line 591 "lex_tab.c"
 
 #define INITIAL 0
 
@@ -772,10 +774,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 63 "lex_tab.l"
+#line 65 "lex_tab.l"
 
 
-#line 779 "lex_tab.c"
+#line 781 "lex_tab.c"
 
 	if ( !(yy_init) )
 		{
@@ -856,20 +858,20 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 65 "lex_tab.l"
+#line 67 "lex_tab.l"
 {
     /* ignore */
 }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 69 "lex_tab.l"
+#line 71 "lex_tab.l"
 { /* ignore */
 }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 73 "lex_tab.l"
+#line 75 "lex_tab.l"
 {
 	cout << "RETURNING  EMPTY_LINE_1_COLS" << endl;
 	return EMPTY_LINE_1_COLS;
@@ -877,7 +879,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 78 "lex_tab.l"
+#line 80 "lex_tab.l"
 {
 	cout << "RETURNING  BAN_TOTAL" << endl;
 	return BAN_TOTAL;
@@ -885,19 +887,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 83 "lex_tab.l"
+#line 85 "lex_tab.l"
 {
 	string side_total_str(qtm_table_output_text + 8);
 	int side_total = atoi (side_total_str.c_str());
 	cout << "RETURNING  SIDE_TOTAL:"
 		<< "side_total_str:" << side_total_str << ", "
 		<< "side_total: " <<side_total << endl;
+	qtm_table_output_lval.ival = side_total;
 	return SIDE_TOTAL;
 }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 92 "lex_tab.l"
+#line 95 "lex_tab.l"
 {
 	cout << "RETURNING EMPTY_LINE_2_COLS" << endl;
 	return EMPTY_LINE_2_COLS;
@@ -906,13 +909,14 @@ YY_RULE_SETUP
 /*\"\",{DIGIT}+\.{DIGIT}+      */
 case 7:
 YY_RULE_SETUP
-#line 98 "lex_tab.l"
+#line 101 "lex_tab.l"
 {
 	char * pos_2nd_dbl_quote = strrchr (qtm_table_output_text, '"');
 	if (pos_2nd_dbl_quote) {
 		string no (pos_2nd_dbl_quote + 2);
-		int freq = atof (no.c_str());
-		cout << "PERC: " << freq << endl;
+		double perc = atof (no.c_str());
+		cout << "PERC: " << perc << endl;
+		qtm_table_output_lval.dval = perc;
 	} else {
 		cerr << __LINE__
 			<< ", "
@@ -928,33 +932,44 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 117 "lex_tab.l"
+#line 121 "lex_tab.l"
 {
 	string mean_str(qtm_table_output_text + 7);
 	double mean = atof (mean_str.c_str());
 	cout	<< "RETURNING  MEAN:"
 		<< "mean_str:" << mean_str << ", "
 		<< "mean: " << mean << endl;
+	qtm_table_output_lval.dval = mean;
 	return STUB_MEAN;
 }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 126 "lex_tab.l"
+#line 131 "lex_tab.l"
 {
+	string stddev_str(qtm_table_output_text + 10);
+	double stddev = atof (stddev_str.c_str());
+	cout	<< "RETURNING  MEAN:"
+		<< "stddev_str:" << stddev_str << ", "
+		<< "stddev: " << stddev << endl;
+	qtm_table_output_lval.dval = stddev;
 	return STUB_STD_DEV;
 }
 	YY_BREAK
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 130 "lex_tab.l"
+#line 141 "lex_tab.l"
 {
 	char * pos_2nd_dbl_quote = strrchr (qtm_table_output_text, '"');
 	if (pos_2nd_dbl_quote) {
+		string tmp = qtm_table_output_text;
+		int pos_2nd_dbl_quote_int = tmp.rfind ('"');
+		stub_text = tmp.substr (1, pos_2nd_dbl_quote_int-1);
 		string no (pos_2nd_dbl_quote + 2);
 		int freq = atoi (no.c_str());
-		cout << "FREQ: " << freq << endl;
+		cout << "FREQ: " << "stub_text: "<< stub_text << " | " << freq << endl;
+		qtm_table_output_lval.ival = freq;
 	} else {
 		cerr << __LINE__
 			<< ", "
@@ -963,14 +978,15 @@ YY_RULE_SETUP
 			<< __PRETTY_FUNCTION__
 			<< "Impossible ! lex condition is that there should be 2 quotes"
 			<< endl;
+			exit(1);
 	}
-	cout << "got STUB_FREQ: " << qtm_table_output_text << endl;
+	//cout << "got STUB_FREQ: " << qtm_table_output_text << endl;
 	return STUB_FREQ;
 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 150 "lex_tab.l"
+#line 166 "lex_tab.l"
 {
     //cout << "got COMMA" << endl;
     return COMMA;
@@ -979,16 +995,16 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 155 "lex_tab.l"
+#line 171 "lex_tab.l"
 {
-    ++line_no;
-	//cout << "got a NEWL: line_no: "  << line_no << endl;
+    ++qtm_line_no;
+	//cout << "got a NEWL: qtm_line_no: "  << qtm_line_no << endl;
 	return NEWL;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 161 "lex_tab.l"
+#line 177 "lex_tab.l"
 {
 		qtm_table_output_lval.dval = atof(qtm_table_output_text);
 		cout << "got FNUMBER " << qtm_table_output_lval.dval << endl;
@@ -997,7 +1013,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 167 "lex_tab.l"
+#line 183 "lex_tab.l"
 {
 		qtm_table_output_lval.ival = atoi(qtm_table_output_text);
 		cout << "got INUMBER " << qtm_table_output_lval.ival << endl;
@@ -1007,7 +1023,7 @@ YY_RULE_SETUP
 case 15:
 /* rule 15 can match eol */
 YY_RULE_SETUP
-#line 174 "lex_tab.l"
+#line 190 "lex_tab.l"
 {
 		//int len_text=strlen(qtm_table_output_text);
 		int len_text = qtm_table_output_leng;
@@ -1063,10 +1079,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 227 "lex_tab.l"
+#line 243 "lex_tab.l"
 {
 		if(qtm_table_output_leng < MY_STR_MAX) {
-			strcpy(qtm_table_output_lval.name,qtm_table_output_text);
+			strncpy(qtm_table_output_lval.name,qtm_table_output_text+1, qtm_table_output_leng-1);
             //cout << "got NAME:" << qtm_table_output_text << endl;
 			return NAME;
 		} else {
@@ -1077,7 +1093,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 239 "lex_tab.l"
+#line 255 "lex_tab.l"
 {
     //cout << "got DOT" << endl;
     //return DOT;
@@ -1086,7 +1102,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 245 "lex_tab.l"
+#line 261 "lex_tab.l"
 {
     cout << "unhandled inputs: |" << qtm_table_output_text[0] << "|"
         << endl;
@@ -1095,10 +1111,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 251 "lex_tab.l"
+#line 267 "lex_tab.l"
 ECHO;
 	YY_BREAK
-#line 1102 "lex_tab.c"
+#line 1118 "lex_tab.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2093,7 +2109,7 @@ void qtm_table_output_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 251 "lex_tab.l"
+#line 267 "lex_tab.l"
 
 
 
@@ -2103,10 +2119,10 @@ void qtm_table_output_free (void * ptr )
 	{
 		//fprintf(stderr, "reached here: %s\n", __PRETTY_FUNCTION__);
 		//using qscript_parser::no_errors;
-		//using qscript_parser::line_no;
+		//using qscript_parser::qtm_line_no;
 		//++no_errors;
-	 	printf("%s: line: %d: qtm_table_output_text: %s\n", s, line_no, qtm_table_output_text);
-	 	printf("line: %d: \n", line_no);
+	 	printf("%s: line: %d: qtm_table_output_text: %s\n", s, qtm_line_no, qtm_table_output_text);
+	 	printf("line: %d: \n", qtm_line_no);
 		//printf ("lexical error: line: %d, column: %d\n"
 		//	, lex_location.lineNo_
 		//	, lex_location.columnNo_);
