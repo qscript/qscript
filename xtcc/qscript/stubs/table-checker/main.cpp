@@ -14,6 +14,7 @@
 #include <vector>
 #include <map>
 #include <cstdlib>
+#include <getopt.h>
 #include "const_defs.h"
 #include "lex_tab.h"
 #include "TableInfo.h"
@@ -24,6 +25,16 @@
 	using std::stringstream;
 	using std::map;
 	using std::string;
+	using std::vector;
+
+
+namespace program_options_ns {
+	std::string table_file_name;
+	bool table_file_name_flag;
+	std::string count_file_name;
+	bool count_file_name_flag;
+
+}
 
 extern void yyrestart(FILE *input_file);
 extern int32_t yyparse();
@@ -41,6 +52,22 @@ extern map <string, struct TableInfo *> table_info_map;
 //extern map<string, map <int, int> >    qtm_freq_count_map_nq_name_code_freq;
 //extern map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_code;
 //extern map<string, map <int, int> > qtm_freq_count_map_rq;
+//
+
+struct ErrorReport
+{
+	int nStubErrors_;
+	int nStubWarnings_;
+	int nStubs_;
+	vector<string>  stubErrorReasons_;
+	int nTitleErrors_;
+	int nTitleWarnings_;
+	vector<string>  titleErrorReasons_;
+	int nBaseTextErrors_;
+	int nBaseTextWarnings_;
+	vector<string>  baseTextErrorReasons_;
+
+};
 
 
 void check_tables(
@@ -50,20 +77,53 @@ void check_tables(
 	map<string, map <int, int> > & freq_count_map_rq
 		);
 
-int main()
+void usage (char * argv[])
 {
+	cerr << "Usage: "
+		<< argv[0] << " -c <count-file-name> -t <table file name>\n" <<   endl;
+	exit(1);
+}
+
+int main(int argc, char *  argv[])
+{
+
+	int c;
+	while ( (c = getopt(argc, argv, "c:t:")) != -1 ) {
+		char ch = optopt;
+		switch(c){
+
+		case 't':
+			program_options_ns::table_file_name = optarg;
+			program_options_ns::table_file_name_flag = true;
+			break;
+		case 'c':
+			program_options_ns::count_file_name = optarg;
+			program_options_ns::count_file_name_flag = true;
+			break;
+
+		default:
+			usage(argv);
+		}
+	}
+	if (!(program_options_ns::table_file_name_flag && program_options_ns::count_file_name_flag)) {
+		cerr << "please pass table filename as option to -t "
+			<< " and count filename as option to -c" << endl;
+		usage(argv);
+	}
+
 	{
-		std::string fname ("cmb_decision_maker.freq_count.csv");
-		FILE * qscript_freq_file = fopen(fname.c_str(), "rb");
+		//std::string fname ("cmb_decision_maker.freq_count.csv");
+		//FILE * qscript_freq_file = fopen(fname.c_str(), "rb");
+		FILE * qscript_freq_file = fopen(program_options_ns::count_file_name.c_str(), "rb");
 		if (!qscript_freq_file){
-			cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
+			cerr << " Unable to open: " << program_options_ns::count_file_name << " for read ... exiting" << endl;
 			exit(1);
 		}
 		yyrestart(qscript_freq_file);
 		if (!yyparse()) {
 			cout << "Input parsed successfully" << endl;
 		} else {
-			cerr << "Error parsing freq_count file:" << fname << endl
+			cerr << "Error parsing freq_count file:" << program_options_ns::count_file_name << endl
 				<< "exiting ..." << endl;
 			exit(1);
 
@@ -72,10 +132,10 @@ int main()
 	}
 	{
 		//std::string fname ("T.CSV");
-		std::string fname ("t2.csv");
-		FILE * qtm_csv_file = fopen(fname.c_str(), "rb");
+		//std::string fname ("t2.csv");
+		FILE * qtm_csv_file = fopen(program_options_ns::table_file_name.c_str(), "rb");
 		if (!qtm_csv_file) {
-			cerr << " Unable to open: " << fname << " for read ... exiting" << endl;
+			cerr << " Unable to open: " << program_options_ns::table_file_name << " for read ... exiting" << endl;
 			exit(1);
 		}
 		qtm_table_output_restart(qtm_csv_file);
