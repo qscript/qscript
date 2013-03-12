@@ -311,6 +311,11 @@ void QtmDataDiskMap::print_qin(string setup_dir, string var_name)
 			std::ios_base::out | std::ios_base::trunc);
 	//qtm_include_file << var_name << __FILE__ << __LINE__ << __PRETTY_FUNCTION__ << endl;
 
+	stringstream mesg;
+	cerr << "Fix this code: use the function extract_rating_scale from utils.h here"
+		<< __FILE__ << "," << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< endl
+		;
 	string range_name = n_q->nr_ptr->name;
 	int rat_scale = 0;
 	int factor = 1;

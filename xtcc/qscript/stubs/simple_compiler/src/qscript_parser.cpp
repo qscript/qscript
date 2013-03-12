@@ -2,6 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <utility>
+#include <cctype>
 #include "compiled_code.h"
 #include "qscript_parser.h"
 #include "config_parser.h"
@@ -4110,6 +4111,29 @@ void ParseSpecialCaseAndAttachMaxBounds (AbstractExpression * p_loopCondition)
 	}
 }
 
+bool verify_stubs_list (struct named_range * nr_ptr)
+{
+	bool success = true;
+	// We need to check 2 things
+	// 1. Does the stub list end with [0-9]r
+	// 	=> reversed scale
+	// 2. Does the stub list end with [0-9]
+	// 	=> normal scale
+	// if either of these conditions is true
+	//  then do our checks otherwise immediately
+	//  return success
+	string stub_list_name = nr_ptr->name;
+	struct RatingScaleInfo rat_scale_inf = extract_rating_scale (stub_list_name);
+	if (rat_scale_inf.isReversed_ == true) {
+		cerr << "Scale is reversed - run checks" << endl;
+	}else if (rat_scale_inf.isReversed_ == false) {
+		cerr << "Normal Scale - run checks" << endl;
+	} else {
+		// nothing
+	}
+	return success;
+
+}
 
 
 

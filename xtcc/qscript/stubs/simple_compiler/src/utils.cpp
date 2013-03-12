@@ -347,6 +347,41 @@ DataType arr_deref_type(DataType d1)
 	return ERROR_TYPE;
 }
 
+struct RatingScaleInfo extract_rating_scale (string s)
+{
+	RatingScaleInfo rat_scale_inf;
+	//rat_scale_inf.isReversed_ = false;
+	int rat_scale = 0;
+	if (isdigit(s[s.size()-1]) /*&& !(range_name[range_name.size()-1]=='0')*/ ) {
+		rat_scale_inf.isRatingScale_ = true;
+		int i = s.size()-1;
+		int factor = 1;
+		while (isdigit(s[i])) {
+			rat_scale += (s[i] - '0') * factor;
+			factor *=10;
+			--i;
+		}
+		rat_scale_inf.ratingScaleEnd_ = rat_scale;
+		if (s[i] == 'r' && s[i-1] == '_') {
+			rat_scale_inf.isReversed_ = true;
+		}
+	} else {
+		rat_scale_inf.isRatingScale_ = false;
+	}
+	cout	<< __FILE__ << ", "
+		<< __LINE__ << ","
+		<< __PRETTY_FUNCTION__ << ","
+		<< "input parameter:" << s
+		<< ", RatingScaleInfo: "
+		<< ", isRatingScale_: " << rat_scale_inf.isRatingScale_
+		<< ", isReversed_: " << rat_scale_inf.isReversed_
+		<< ", ratingScaleEnd_: " << rat_scale_inf.ratingScaleEnd_
+		<< endl;
+
+	return rat_scale_inf;
+}
+
+
 #if 0
 // http://www.cse.yorku.ca/~oz/hash.html
 // hash algo copied from here
@@ -379,14 +414,14 @@ unsigned long djb_hash(const char *str)
  * and will require an end user to install a crypt library just for maintainer messages.
  * A quick google gave me some web pages and this web page i trust - just blindly
  * Im using 2 hashes - just in case 2 strings hash to the same code. There is still a finite
- * probability that they could be the same for both functions but I think the chance is 
+ * probability that they could be the same for both functions but I think the chance is
  * much smaller - im willing to risk it */
 
 void log_maintainer_message(int line, string file, string func_name, string mesg)
 {
 	std::stringstream s;
-	s 	<< "line: " << line 
-		<< ", file: " << file 
+	s 	<< "line: " << line
+		<< ", file: " << file
 		<< ", func: " << func_name << mesg;
 	int sdbm_hash_code = sdbm_hash(s.str().c_str());
 	int djb_hash_code = djb_hash(s.str().c_str());
