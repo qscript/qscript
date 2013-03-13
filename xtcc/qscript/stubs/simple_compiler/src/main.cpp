@@ -111,7 +111,7 @@ int32_t main(int32_t argc, char* argv[])
 		}
 	}
 	string  qscript_install_dir ;
-	// uncomment this and comment the one below to 
+	// uncomment this and comment the one below to
 	// test the registry key code
 	//char * QSCRIPT_HOME = 0;
 	program_options_ns::QSCRIPT_HOME = getenv("QSCRIPT_HOME");

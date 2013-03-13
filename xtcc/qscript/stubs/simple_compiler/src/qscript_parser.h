@@ -27,7 +27,7 @@
 
 using std::ofstream;
 using std::vector;
-namespace qscript_parser 
+namespace qscript_parser
 {
 
 	extern vector<AbstractExpression*> for_loop_max_counter_stack;
@@ -57,8 +57,8 @@ namespace qscript_parser
 
 	extern ofstream debug_log_file;
 	using std::string;
-	//void print_err(compiler_err_category cmp_err, 
-	//	string err_msg, int32_t line_no, 
+	//void print_err(compiler_err_category cmp_err,
+	//	string err_msg, int32_t line_no,
 	//	int32_t compiler_line_no, string compiler_file_name);
 	extern int32_t line_no;
 	extern noun_list_type noun_list[];
@@ -90,7 +90,7 @@ namespace qscript_parser
 	extern int32_t check_parameters(struct AbstractExpression* e, struct VariableList* v);
 
         extern vector <string> attribute_list;
-	// at some point - for performance reasons, this is 
+	// at some point - for performance reasons, this is
 	// going to become a map
 	extern vector <named_range*> named_stubs_list;
 	named_range * named_stub_exists (string p_name);
@@ -116,7 +116,7 @@ namespace qscript_parser
 			, AbstractExpression * l_r_arr_index);
 
 	extern AbstractStatement* setup_stub_manip_stmt(DataType dt
-			 , char* stub_list_name 
+			 , char* stub_list_name
 			, AbstractExpression * l_l_arr_index
 			 , XtccSet & l_xs);
 	extern AbstractStatement* setup_stub_manip_stmt_set_unset(DataType dt
@@ -144,6 +144,7 @@ namespace qscript_parser
 	extern TempNameGenerator temp_set_name_generator;
 	extern TempNameGenerator temp_name_generator;
 	string ExtractBaseFileName(const string & fname);
+	bool verify_stubs_list (struct named_range * nr_ptr);
 
 }
 

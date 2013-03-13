@@ -1064,6 +1064,7 @@ stubs:     STUBS_LIST NAME {
 		struct named_range* nr_ptr= new named_range(NAMED_RANGE
 				, line_no, stub_name,stub_list);
 		named_stubs_list.push_back(nr_ptr);
+		bool success = qscript_parser::verify_stubs_list (nr_ptr);
 		//$$=0;
 		$$ = nr_ptr;
 	}

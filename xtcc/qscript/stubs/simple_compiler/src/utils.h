@@ -22,7 +22,7 @@ enum compiler_err_category
 };
 
 enum compiler_warning_category
-{	
+{
 	better_coding_style
 };
 
@@ -53,6 +53,20 @@ unsigned long djb_hash(const char *str);
 unsigned long sdbm_hash(const char *str);
 void log_maintainer_message(int line, string file, string func_name, string mesg);
 #define LOG_MAINTAINER_MESSAGE(mesg)	log_maintainer_message(__LINE__, __FILE__, __PRETTY_FUNCTION__, mesg)
+struct RatingScaleInfo
+{
+	bool isRatingScale_;
+	bool isReversed_;
+	int ratingScaleStart_;
+	int ratingScaleEnd_;
+	RatingScaleInfo ()
+		: isRatingScale_ (false), isReversed_(false),
+		  ratingScaleStart_(0), ratingScaleEnd_(0)
+	{ }
+
+};
+
+struct RatingScaleInfo extract_rating_scale (string s);
 
 
 extern noun_list_type noun_list[];
