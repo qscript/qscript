@@ -68,6 +68,7 @@
 %token <dval> FNUMBER
 %token <name> NAME
 %token <text_buf> TEXT
+%token <text_buf> TABLE_INFO
 %token NEWL
 %token COMMA
 %token DOT
@@ -91,7 +92,7 @@ axis_qtm_freq_count_list: axis_qtm_freq_count {
 	;
 
 axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
-		   TEXT NEWL
+		   TABLE_INFO NEWL
            text_chain
 		   BASE_TEXT NEWL EMPTY_LINE_2_COLS NEWL EMPTY_LINE_1_COLS NEWL
 		   BAN_TOTAL NEWL EMPTY_LINE_1_COLS NEWL

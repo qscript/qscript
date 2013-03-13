@@ -41,6 +41,8 @@
 	map<int, int> temp_freq_count_map_rq; // will always be code -> freq
 	string axis_name;
 	bool nq_axis;
+    int n_codes;
+    int n_stubs;
 
 %}
 
@@ -83,13 +85,24 @@ axis_freq_count: name stub_header_line stub_frequency_list NEWL {
 		temp_freq_count_map_nq_stub_codefreq.clear();
 		temp_freq_count_map_nq_code_codefreq.clear();
 		temp_freq_count_map_nq_stub_code.clear();
-		cout << "got axis_freq_count: " << axis_name << endl;
+		cout << "got Named Question axis_freq_count: " << axis_name << endl;
+		cout << "got axis_freq_count: " << axis_name
+            << ", n_stubs: " << n_stubs
+            << ", n_codes: " << n_codes
+            << endl;
+        n_stubs = 0;
+        n_codes = 0;
 	}
 	| name code_header_line code_freq_list NEWL{
 		//cout << "got an range stub axis_freq_count" << endl;
 		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
 		temp_freq_count_map_rq.clear();
-		cout << "got axis_freq_count: " << axis_name << endl;
+		cout << "got Range Question axis_freq_count: " << axis_name
+            << ", n_stubs: " << n_stubs
+            << ", n_codes: " << n_codes
+            << endl;
+        n_stubs = 0;
+        n_codes = 0;
 	}
 	;
 
@@ -124,8 +137,12 @@ stub_freq: TEXT COMMA INUMBER COMMA INUMBER NEWL {
 	temp_freq_count_map_nq_stub_codefreq[$1]=$5;
 	temp_freq_count_map_nq_code_codefreq[$3]=$5;
 	temp_freq_count_map_nq_stub_code[$1]=$3;
-	//cout << "Got stub_freq:"  << TEXT << endl;
+	cout << "Got stub: |"  << $1 << "|"
+        << ", code " << $3
+        << ", freq " << $5
+        << endl;
 	nq_axis = true;
+    ++n_stubs;
 }
 
 code_freq: COMMA INUMBER COMMA INUMBER NEWL {
@@ -134,6 +151,7 @@ code_freq: COMMA INUMBER COMMA INUMBER NEWL {
 	//	<< endl;
 		temp_freq_count_map_rq[$2] = $4;
 		nq_axis = false;
+        ++n_codes;
 	 }
 
 %%
