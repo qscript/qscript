@@ -20,7 +20,7 @@ qtm-csv-parser.exe: $(QTM_QSCRIPT_FREQ_PARSER_SOURCES)
 	$(CC) $(QTM_COMPILE_FILES) -o $@ $(LINK_LIBS)
 
 lex_tab.c: lex_tab.l
-	flex $<
+	flex -o$@ $<
 
 table_csv.c table_csv.h: table_csv.y TableInfo.h
 	bison -d $< -o table_csv.c

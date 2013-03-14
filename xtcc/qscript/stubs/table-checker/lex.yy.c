@@ -380,9 +380,9 @@ struct yy_trans_info
 static yyconst flex_int16_t yy_accept[43] =
     {   0,
         0,    0,   15,   13,    1,    4,    3,   13,    2,   12,
-        5,   11,   11,   11,   11,    1,    3,    0,   10,    6,
-        0,    5,   11,   11,   11,   11,    0,   11,   11,   11,
-        0,    6,    7,   11,   11,   11,    9,   11,   11,   11,
+        5,   11,   11,   11,   11,    1,    3,    0,   10,    0,
+        5,   11,   11,   11,   11,    6,   11,   11,   11,    0,
+        7,   11,   11,    0,    6,   11,    9,   11,   11,   11,
         8,    0
     } ;
 
@@ -427,50 +427,46 @@ static yyconst flex_int32_t yy_meta[25] =
 
 static yyconst flex_int16_t yy_base[45] =
     {   0,
-        0,    0,   66,   67,   23,   67,   24,   60,   67,   55,
-       21,    0,   45,   42,   39,   29,   30,   55,   67,   26,
-       50,   30,    0,   44,   42,   33,   34,   40,   35,   41,
-       43,   42,    0,   27,   28,   33,    0,   30,   33,   18,
-        0,   67,   43,   34
+        0,    0,   65,   66,   23,   66,   24,   59,   66,   66,
+       21,    0,   45,   42,   39,   29,   30,   55,   66,   50,
+       27,    0,   44,   42,   33,   28,   40,   35,   41,   32,
+        0,   29,   30,   41,   40,   33,    0,   30,   33,   18,
+        0,   66,   43,   38
     } ;
 
 static yyconst flex_int16_t yy_def[45] =
     {   0,
        42,    1,   42,   42,   42,   42,   42,   43,   42,   42,
        42,   44,   44,   44,   44,   42,   42,   43,   42,   42,
-       42,   42,   44,   44,   44,   44,   42,   44,   44,   44,
-       42,   42,   44,   44,   44,   44,   44,   44,   44,   44,
+       42,   44,   44,   44,   44,   42,   44,   44,   44,   42,
+       44,   44,   44,   42,   42,   44,   44,   44,   44,   44,
        44,    0,   42,   42
     } ;
 
-static yyconst flex_int16_t yy_nxt[92] =
+static yyconst flex_int16_t yy_nxt[91] =
     {   0,
         4,    5,    6,    7,    8,    4,    9,   10,   11,   12,
        12,   12,   13,   12,   12,   14,   12,   12,   12,   12,
-       15,   12,   12,   12,   16,   17,   17,   17,   21,   22,
-       16,   17,   17,   17,   20,   23,   27,   21,   22,   31,
-       27,   41,   32,   18,   18,   40,   39,   38,   37,   36,
-       32,   32,   35,   34,   33,   30,   29,   28,   20,   19,
-       26,   25,   24,   20,   19,   42,    3,   42,   42,   42,
+       15,   12,   12,   12,   16,   17,   17,   17,   20,   21,
+       16,   17,   17,   17,   20,   21,   26,   34,   30,   22,
+       35,   41,   30,   18,   18,   40,   39,   38,   35,   35,
+       37,   36,   33,   32,   31,   29,   28,   27,   26,   19,
+       25,   24,   23,   19,   42,    3,   42,   42,   42,   42,
        42,   42,   42,   42,   42,   42,   42,   42,   42,   42,
-       42,   42,   42,   42,   42,   42,   42,   42,   42,   42,
-       42
-
+       42,   42,   42,   42,   42,   42,   42,   42,   42,   42
     } ;
 
-static yyconst flex_int16_t yy_chk[92] =
+static yyconst flex_int16_t yy_chk[91] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    5,    7,    5,    7,   11,   11,
-       16,   17,   16,   17,   20,   44,   20,   22,   22,   27,
-       20,   40,   27,   43,   43,   39,   38,   36,   35,   34,
-       32,   31,   30,   29,   28,   26,   25,   24,   21,   18,
-       15,   14,   13,   10,    8,    3,   42,   42,   42,   42,
+       16,   17,   16,   17,   21,   21,   26,   30,   26,   44,
+       30,   40,   26,   43,   43,   39,   38,   36,   35,   34,
+       33,   32,   29,   28,   27,   25,   24,   23,   20,   18,
+       15,   14,   13,    8,    3,   42,   42,   42,   42,   42,
        42,   42,   42,   42,   42,   42,   42,   42,   42,   42,
-       42,   42,   42,   42,   42,   42,   42,   42,   42,   42,
-       42
-
+       42,   42,   42,   42,   42,   42,   42,   42,   42,   42
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -494,6 +490,7 @@ char *yytext;
 #include <string>
 #include <iostream>
 #include <cstdlib>
+#include <cstring>
 #include "const_defs.h"
 #include "freq_file.h"
 
@@ -505,7 +502,7 @@ char *yytext;
 	using std::endl;
     int line_no;
 
-#line 509 "lex.yy.c"
+#line 506 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -692,10 +689,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 22 "lex.l"
+#line 23 "lex.l"
 
 
-#line 699 "lex.yy.c"
+#line 696 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -754,7 +751,7 @@ yy_match:
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 67 );
+		while ( yy_base[yy_current_state] != 66 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -780,14 +777,14 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 24 "lex.l"
+#line 25 "lex.l"
 {
     /* ignore */
 }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 28 "lex.l"
+#line 29 "lex.l"
 {
     //cout << "got COMMA" << endl;
     return COMMA;
@@ -795,14 +792,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 33 "lex.l"
+#line 34 "lex.l"
 { /* ignore */
 }
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 36 "lex.l"
+#line 37 "lex.l"
 {
     ++line_no;
     //cout << "got a NEWL: line_no: "  << line_no << endl;
@@ -811,7 +808,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 42 "lex.l"
+#line 43 "lex.l"
 {
 		yylval.ival = atoi(yytext);
         //cout << "got INUMBER " << yylval.ival << endl;
@@ -820,7 +817,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 48 "lex.l"
+#line 49 "lex.l"
 {
 		yylval.dval = atof(yytext);
 		return FNUMBER;
@@ -828,7 +825,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 54 "lex.l"
+#line 55 "lex.l"
 {
     //cout << "got CODE" << endl;
     return CODE;
@@ -836,7 +833,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 59 "lex.l"
+#line 60 "lex.l"
 {
     //cout << "got FREQUENCY" << endl;
     return FREQUENCY;
@@ -844,7 +841,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 64 "lex.l"
+#line 65 "lex.l"
 {
     //cout << "got STUBS" << endl;
     return STUBS;
@@ -853,7 +850,7 @@ YY_RULE_SETUP
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 70 "lex.l"
+#line 71 "lex.l"
 {
 		//int len_text=strlen(yytext);
 		int len_text = yyleng;
@@ -869,11 +866,11 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 83 "lex.l"
+#line 84 "lex.l"
 {
 		if(yyleng < MY_STR_MAX) {
 			strcpy(yylval.name,yytext);
-            //cout << "got NAME:" << yytext << endl;
+            cout << "got NAME:" << yytext << endl;
 			return NAME;
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
@@ -883,10 +880,9 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 95 "lex.l"
+#line 96 "lex.l"
 {
-    //cout << "got DOT" << endl;
-    //return DOT;
+    cout << "got DOT" << endl;
     return DOT;
 }
 	YY_BREAK
@@ -904,7 +900,7 @@ YY_RULE_SETUP
 #line 107 "lex.l"
 ECHO;
 	YY_BREAK
-#line 908 "lex.yy.c"
+#line 904 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 

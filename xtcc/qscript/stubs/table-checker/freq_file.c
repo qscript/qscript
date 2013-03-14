@@ -1498,7 +1498,7 @@ yyreduce:
 /* Line 1806 of yacc.c  */
 #line 108 "freq_file.y"
     {
-	//	cout << "Got array NAME: " << $1 << endl;
+		cout << "Got array NAME: " << (yyvsp[(1) - (4)].name) << endl;
 		stringstream s1;
 		s1 << (yyvsp[(1) - (4)].name) << "_" << (yyvsp[(3) - (4)].ival);
 		axis_name = s1.str();

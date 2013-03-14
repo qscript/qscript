@@ -155,7 +155,10 @@ int main(int argc, char *  argv[])
 
 bool check_table_against_nq_freq_counts(
 		map <string, TableInfo * >::iterator qtm_table_it,
-		map<string, map<string, int> >::iterator fq_nq_it, string & reasons)
+		map<string, map<string, int> >::iterator fq_nq_it,
+		//string & reasons
+		struct ErrorReport & p_error_report
+		)
 {
 	cout << "ENTER: check_table_against_nq_freq_counts: "
 		//<< __PRETTY_FUNCTION__ << ", "
@@ -193,6 +196,7 @@ bool check_table_against_nq_freq_counts(
 						<< table_it->second
 						<< "freq file counts:" << freq_count_it->second
 						<< endl;
+					p_error_report.stubErrorReasons_.push_back (reasons_str.str());
 					counts_matched = false;
 				}
 			} else {
@@ -221,7 +225,7 @@ bool check_table_against_nq_freq_counts(
 	}
 	cout << "Sigma:" << qtm_table_it->second->sigma_ << endl;
 	cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
-	reasons = reasons_str.str();
+	//reasons = reasons_str.str();
 	return counts_matched;
 }
 
@@ -245,6 +249,7 @@ void check_tables(
 
 	map<string, map<int, int> >::iterator QSCRIPT_RQ_START =   freq_count_map_rq.begin();
 	map<string, map<int, int> >::iterator QSCRIPT_RQ_END =   freq_count_map_rq.end();
+	vector <ErrorReport> error_report_vec;
 
 	for (; qtm_table_it!=QTM_TABLE_END; ++qtm_table_it ) {
 		string ax_name = qtm_table_it->first;
@@ -252,11 +257,12 @@ void check_tables(
 		table_check_report << "checking ax_name:, " << ax_name << ",";
 		map<string, map<string, int> >::iterator fq_nq_it =
 			freq_count_map_nq_name_stub_freq.find(ax_name);
+		ErrorReport error_report;
 		if (fq_nq_it != QSCRIPT_NQ_END) {
 			//cout << "ax_name: " << ax_name << " FOUND in freq_count_map_nq_name_stub_freq"
 			//	<< endl;
 			string reasons;
-			if (check_table_against_nq_freq_counts(qtm_table_it, fq_nq_it, reasons)) {
+			if (check_table_against_nq_freq_counts(qtm_table_it, fq_nq_it, /*reasons*/ error_report)) {
 				cout << "counts for table: " << qtm_table_it -> first
 					<< "matched" << endl;
 				table_check_report << "matched";
@@ -266,6 +272,7 @@ void check_tables(
 				table_check_report << "DID NOT MATCH,"
 					<< reasons;
 			}
+			error_report_vec.push_back(error_report);
 		} else {
 			cout << "ax_name: " << ax_name << " NOT FOUND in freq_count_map_nq_name_stub_freq"
 				<< endl;
