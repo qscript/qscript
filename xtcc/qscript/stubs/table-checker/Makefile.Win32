@@ -1,5 +1,5 @@
-INCLUDE_DIR=c:\usr\include
-LIB_DIR=c:\usr\lib
+INCLUDE_DIR=include
+LIB_DIR=lib
 LINK_LIBS=-lregex
 
 CC=g++ -g -I$(INCLUDE_DIR) -L$(LIB_DIR)

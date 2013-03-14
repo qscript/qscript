@@ -142,6 +142,10 @@ int main(int argc, char *  argv[])
 		//if (!yyparse())
 		if (!qtm_table_output_parse()) {
 			cout << "Input parsed successfully" << endl;
+		} else {
+			cerr << "Error parsing tables file:" << program_options_ns::table_file_name << endl
+				<< "exiting ..." << endl;
+			exit(1);
 		}
 
 	}
@@ -178,14 +182,25 @@ bool check_table_against_nq_freq_counts(
 		<< endl;
 
 	for (; table_it!= TABLE_END; ++table_it) {
-		//cout << "searching for table stub:" << table_it->first;
+		cout << "searching for table stub:" << table_it->first
+			<< endl
+			;
 		if (strstr (table_it->first.c_str(), "Sigma")==0) {
 			map<string, int>::iterator freq_count_it = the_freq_counts.find (table_it->first);
+			//{
+			//	for (map<string, int>::iterator tmp_it = the_freq_counts.begin();
+			//			tmp_it != the_freq_counts.end(); ++tmp_it) {
+			//		cout << "stubs stub is |" << tmp_it->first << "|"
+			//			<< ", count is |" << tmp_it->second << "|"
+			//			<< endl;
+			//	}
+			//}
+
 			if (freq_count_it != FREQ_END) {
 				//cout << "found stub:" << table_it->first << " in fq_nq_it"
 				//	<< endl;
 				if (freq_count_it->second != table_it->second) {
-					cout << "ERROR: the counts for stub:" << table_it->first << " DID NOT MATCH"
+					cout << "ERROR: the counts for stub|" << table_it->first << "| DID NOT MATCH"
 						<< "table counts:"
 						<< table_it->second
 						<< "freq file counts:" << freq_count_it->second
@@ -198,6 +213,10 @@ bool check_table_against_nq_freq_counts(
 						<< endl;
 					p_error_report.stubErrorReasons_.push_back (reasons_str.str());
 					counts_matched = false;
+				} else {
+					cout << "I found the stub in the_freq_counts file."
+						<< " The counts are:" << table_it->second
+						<< endl;
 				}
 			} else {
 				//cout << "DID NOT FIND stub:" << table_it->first << " in fq_nq_it"
