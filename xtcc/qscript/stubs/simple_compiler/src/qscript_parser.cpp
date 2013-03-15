@@ -4111,6 +4111,77 @@ void ParseSpecialCaseAndAttachMaxBounds (AbstractExpression * p_loopCondition)
 	}
 }
 
+
+bool check_reversed_rating_scale(struct RatingScaleInfo & rat_scale_inf,
+		struct named_range *nr_ptr)
+{
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	cout << "Running checks on :" << nr_ptr->name << endl;
+	cout << "rat_scale_inf.ratingScaleEnd_: "
+		<< rat_scale_inf.ratingScaleEnd_ << endl;
+	for (int i=0; i< nr_ptr->stubs.size(); ++i) {
+		if (nr_ptr->stubs[i].code <= rat_scale_inf.ratingScaleEnd_) {
+			struct ExtractNumberInfo rat_scale_inf2 = extract_number (nr_ptr->stubs[i].stub_text);
+			if (rat_scale_inf2.gotANumber_) {
+				int embedded_code = rat_scale_inf2.numberValue_;
+				cout << "numberValue_:" << rat_scale_inf2.numberValue_ << endl;
+				cout << "code: " << nr_ptr->stubs[i].code << endl;
+				if (embedded_code != (rat_scale_inf.ratingScaleEnd_+1- nr_ptr->stubs[i].code)) {
+					stringstream err_mesg;
+					err_mesg << "Rating scale in this stub did not match with code and I expected it to match |"
+						<< nr_ptr->stubs[i].stub_text
+						<< "|"
+						<< endl;
+					print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+				}
+				cout << "embedded_code == " << embedded_code
+					<< endl;
+			} else {
+				stringstream err_mesg;
+				err_mesg << "Did not find rating scale in this stub but expected to find one:"
+					<< nr_ptr->stubs[i].stub_text
+					<< endl;
+				print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		}
+	}
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+	return true;
+}
+
+bool check_standard_rating_scale(struct RatingScaleInfo & rat_scale_inf,
+		struct named_range *nr_ptr)
+{
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	cout << "Running checks on :" << nr_ptr->name << endl;
+	for (int i=0; i< nr_ptr->stubs.size(); ++i) {
+		if (nr_ptr->stubs[i].code <= rat_scale_inf.ratingScaleEnd_) {
+			struct ExtractNumberInfo rat_scale_inf2 = extract_number (nr_ptr->stubs[i].stub_text);
+			if (rat_scale_inf2.gotANumber_) {
+				int embedded_code = rat_scale_inf2.numberValue_;
+				if (embedded_code != nr_ptr->stubs[i].code) {
+					stringstream err_mesg;
+					err_mesg << "Rating scale in this stub did not match with code and I expected it to match |"
+						<< nr_ptr->stubs[i].stub_text
+						<< endl;
+					print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+				}
+				cout << "embedded_code == " << embedded_code
+					<< endl;
+			} else {
+				stringstream err_mesg;
+				err_mesg << "Did not find rating scale in this stub but expected to find one: |"
+					<< nr_ptr->stubs[i].stub_text
+					<< "|"
+					<< endl;
+				print_err(compiler_sem_err, err_mesg.str(), qscript_parser::line_no, __LINE__, __FILE__);
+			}
+		}
+	}
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+	return true;
+}
+
 bool verify_stubs_list (struct named_range * nr_ptr)
 {
 	bool success = true;
@@ -4124,10 +4195,31 @@ bool verify_stubs_list (struct named_range * nr_ptr)
 	//  return success
 	string stub_list_name = nr_ptr->name;
 	struct RatingScaleInfo rat_scale_inf = extract_rating_scale (stub_list_name);
-	if (rat_scale_inf.isReversed_ == true) {
-		cerr << "Scale is reversed - run checks" << endl;
-	}else if (rat_scale_inf.isReversed_ == false) {
-		cerr << "Normal Scale - run checks" << endl;
+
+	if (rat_scale_inf.isRatingScale_) {
+		if (rat_scale_inf.isReversed_ == true) {
+			cerr << "Scale is reversed - run checks" << endl;
+			if (!check_reversed_rating_scale(rat_scale_inf, nr_ptr) ) {
+				stringstream err_mesg;
+				err_mesg << "stub list :" << nr_ptr->name
+					<< "failed rating scale checks"
+					<< endl;
+				print_err (compiler_sem_err, err_mesg.str(), line_no, __LINE__, __FILE__);
+			}
+		} else if (rat_scale_inf.isReversed_ == false) {
+			cerr << "Normal Scale - run checks" << endl;
+			if (!check_standard_rating_scale(rat_scale_inf, nr_ptr) ) {
+				stringstream err_mesg;
+				err_mesg << "stub list :" << nr_ptr->name
+					<< "failed rating scale checks"
+					<< endl;
+				print_err (compiler_sem_err, err_mesg.str(), line_no, __LINE__, __FILE__);
+			}
+		} else {
+			stringstream err_mesg;
+			err_mesg << " This should never happen. Unhandled case RatingScaleInfo";
+			print_err (compiler_internal_error, err_mesg.str(), line_no, __LINE__, __FILE__);
+		}
 	} else {
 		// nothing
 	}

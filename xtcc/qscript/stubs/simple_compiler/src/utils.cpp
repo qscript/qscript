@@ -344,6 +344,8 @@ DataType arr_deref_type(DataType d1)
 	}
 	cerr << "Type Error: lineno: trying to access array with non-integer index" << line_no << "\n";
 	++no_errors;
+	string err_mesg("call print_err here");
+	LOG_MAINTAINER_MESSAGE(err_mesg);
 	return ERROR_TYPE;
 }
 
@@ -380,6 +382,39 @@ struct RatingScaleInfo extract_rating_scale (string s)
 
 	return rat_scale_inf;
 }
+
+struct ExtractNumberInfo extract_number (string s)
+{
+	cout << "Enter: " << __PRETTY_FUNCTION__ << ","
+		<< __LINE__ << ","
+		<< __FILE__  << ", "
+		<< "input: " << s
+		<< endl;
+	struct ExtractNumberInfo inf;
+	int i = s.length()-1;
+	cout << "reached here" << endl;
+	while ( !isdigit (s[i]) && i >= 0) --i;
+	if (i < 0) {
+		cout << "i <= 0: " << i << endl;
+	} else {
+		cout << "else clause" << endl;
+		int factor = 1;
+		int numberValue_ = 0;
+		while (isdigit(s[i])) {
+			numberValue_ += (s[i] - '0') * factor;
+			factor *=10;
+			--i;
+		}
+		inf.gotANumber_ = true;
+		inf.numberValue_ = numberValue_;
+	}
+	cout << "gotANumber_:" << inf.gotANumber_
+		<< "numberValue_: " << inf.numberValue_
+		<< endl;
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+	return inf;
+}
+
 
 
 #if 0

@@ -68,6 +68,16 @@ struct RatingScaleInfo
 
 struct RatingScaleInfo extract_rating_scale (string s);
 
+struct ExtractNumberInfo {
+	bool gotANumber_;
+	int numberValue_;
+	ExtractNumberInfo()
+		: gotANumber_ (false), numberValue_(0)
+	{ }
+};
+
+struct ExtractNumberInfo extract_number (string s);
+
 
 extern noun_list_type noun_list[];
 #endif // xtcc_utils_h
