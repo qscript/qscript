@@ -250,15 +250,50 @@ int32_t main(int32_t argc, char* argv[])
 			else
 				qscript_parser::CompileGeneratedCode(fname);
 			string output_file_name = qscript_parser::ExtractBaseFileName(qscript_parser::fname);
-			std::ofstream qtm_conf_file ( (output_file_name + ".qtm_data.conf").c_str());
-			qtm_conf_file 	<< "CARD_NO_COLS = 9,10;\n"
-					<< "SER_NO_COLS = 1,8;\n"
-					<< "DATA_START_COL_NO = AUTO;\n"
-					<< "DATA_END_COL_NO = 80;\n"
-					<< "READ_EQ = 2;" << endl;
-			qtm_conf_file.close();
-			std::ofstream asc_conf_file ( (output_file_name + ".asc_data.conf").c_str());
-			asc_conf_file 	<< "SER_NO_COLS = 8;" << endl;
+			string qtm_fname = output_file_name +  ".qtm_data.conf";
+			std::ifstream file_already_exists;
+			file_already_exists.exceptions ( std::ifstream::failbit );
+
+			//std::ifstream log;
+			//log.exceptions ( std::ifstream::failbit );
+			try {
+				file_already_exists.open (qtm_fname.c_str(), std::ios_base::in);
+			}
+			catch (std::ifstream::failure e) {
+			    std::cout << "Exception opening/reading file\n";
+			    //exit(1);
+			}
+			if (!file_already_exists.good()) {
+				cout << qtm_fname << " does not exist, creating it" << endl;
+				std::ofstream qtm_conf_file ( qtm_fname.c_str());
+				qtm_conf_file 	<< "CARD_NO_COLS = 9,10;\n"
+						<< "SER_NO_COLS = 1,8;\n"
+						<< "DATA_START_COL_NO = AUTO;\n"
+						<< "DATA_END_COL_NO = 80;\n"
+						<< "READ_EQ = 2;" << endl;
+				qtm_conf_file.close();
+			} else {
+				cout << qtm_fname << " already exists, leaving it untouched" << endl;
+			}
+
+
+			string asc_fname = output_file_name +  ".asc_data.conf";
+			std::ifstream asc_conf_file_already_exists;
+			asc_conf_file_already_exists.exceptions ( std::ifstream::failbit );
+			try {
+				asc_conf_file_already_exists.open (asc_fname.c_str(), std::ios_base::in);
+			}
+			catch (std::ifstream::failure e) {
+				std::cout << "Exception opening/reading file\n";
+				//exit(1);
+			}
+			if (!asc_conf_file_already_exists.good()) {
+				cout << asc_fname << " does not exist, creating it" << endl;
+				std::ofstream asc_conf_file ( (output_file_name + ".asc_data.conf").c_str());
+				asc_conf_file 	<< "SER_NO_COLS = 8;" << endl;
+			} else {
+				cout << asc_fname << " already exists, leaving it untouched" << endl;
+			}
 		}
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;

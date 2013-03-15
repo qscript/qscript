@@ -1117,8 +1117,11 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 			qax_program_text << ") u $ $;" << endl;
 			qax_program_text
 				<< "&autocheckttl" << q->questionName_ << "_&qlno"
-				<< "," << q->questionName_ << "," << q->no_mpn
-				<< endl;
+				<< "," << q->questionName_ << "," << q->no_mpn;
+			if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q)) {
+				qax_program_text << "," << nq->nr_ptr->name;
+			}
+			qax_program_text << endl;
 			qax_program_text << "*include qttl.qin;"
 				<< ttl_string.str() << endl
 				<< "*include base.qin;btxt=All Respondents" << endl;
@@ -1174,8 +1177,11 @@ string QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 		qax_program_text << endl;
 		qax_program_text
 			<< "&autocheckttl" << l_ax_name.str()
-			<< "," << q->questionName_ << "," << q->no_mpn
-			<< endl;
+			<< "," << q->questionName_ << "," << q->no_mpn;
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q)) {
+			qax_program_text << "," << nq->nr_ptr->name;
+		}
+		qax_program_text << endl;
 		qax_program_text << "*include qttl.qin;qno=;" ;
 		/*
 		<< q->questionName_;
@@ -1896,6 +1902,12 @@ string print_summary_axis_helpers_helper (vector<qtm_data_file_ns::QtmDataDiskMa
 		AbstractQuestion * q = v[0]->q;
 		result << "/* summary table for: " << v[0]->q->questionName_ << endl;
 		result << "l " << q->questionName_ << part_ax_name << endl;
+		result << "&autocheckttl" << q->questionName_ << part_ax_name
+				<< "," << q->questionName_ << "," << q->no_mpn;
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion*>(q)) {
+			result << "," << nq->nr_ptr->name;
+		}
+		result << endl;
 		result << "ttl" << q->questionName_ << "."  << part_ax_name << "."
 			//<< v[0]->q->questionText_
 			//<< "FIX me dummy questionText_ " << __FILE__ << ", " << __LINE__
