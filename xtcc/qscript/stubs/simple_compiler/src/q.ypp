@@ -1056,8 +1056,9 @@ stubs:     STUBS_LIST NAME {
 		string stub_name=$2;
 
                 std::stringstream mesg;
-                mesg << " put a check for duplicate name in stub list";
-                LOG_MAINTAINER_MESSAGE (mesg.str());
+		// 14-mar-2013 - I think this has already been actioned
+                //mesg << " put a check for duplicate name in stub list";
+                //LOG_MAINTAINER_MESSAGE (mesg.str());
                 mesg.str().clear();
                 mesg << " make variables in for loop in quest_defns_init_code area unique by prepending qscript_";
                 LOG_MAINTAINER_MESSAGE (mesg.str());

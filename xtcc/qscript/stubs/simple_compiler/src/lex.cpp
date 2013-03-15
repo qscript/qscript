@@ -1508,6 +1508,8 @@ YY_RULE_SETUP
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
 		qscript_parser::lex_location.IncrementColumn(yyleng);
+		// nxd : 5-mar-2013 
+		// below slows us down i think - i should be using yyleng
 		int len_text=strlen(yytext);
 		yytext[len_text-1]='\0';
 		if(yyleng < MY_STR_MAX-1) {
@@ -1521,7 +1523,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 465 "src/lex.l"
+#line 467 "src/lex.l"
 {
 		if (qscript_parser::show_lex_error_context)
 			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
@@ -1531,10 +1533,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 473 "src/lex.l"
+#line 475 "src/lex.l"
 ECHO;
 	YY_BREAK
-#line 1538 "src/lex.cpp"
+#line 1540 "src/lex.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 	yyterminate();
@@ -2493,7 +2495,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 473 "src/lex.l"
+#line 475 "src/lex.l"
 
 
 	using qscript_parser::lex_location;
