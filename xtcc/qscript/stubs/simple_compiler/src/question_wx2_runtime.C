@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  Neil Xavier D'Souza
- *        Company:  
+ *        Company:
  *
  * =====================================================================================
  */
@@ -50,14 +50,14 @@ public:
 	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);
 	int (*return_ser_no) (int, struct TheQuestionnaire *);
 	wxTextCtrl *txt_ctrl_ser_no;
-	wxBoxSizer *stubs_row_sizer ;
+	wxBoxSizer *stubsRowSizer_ ;
 	wxPanel *panel;
 	wxFlexGridSizer *fgs ;
 	wxBoxSizer *hbox ;
 
 	AbstractQuestion * last_question_visited;
 	AbstractQuestion * jump_to_question;
-	
+
 	void get_serial_no (wxCommandEvent& event);
 	struct TheQuestionnaire * theQuestionnaire_;
 	void ConstructQuestionForm( AbstractQuestion *q );
@@ -68,6 +68,11 @@ public:
 	void DisplayStubs (AbstractQuestion * q);
 
 	void OnRadioBox(wxCommandEvent& event);
+
+    int32_t prevRBValue_;
+    int32_t rbData_;
+    map <int32_t, int32_t> rbQnreCodeMap_;
+    void ClearRadio();
 
 	wxStaticText *the_question ;
 	wxStaticText *the_stubs ;
@@ -104,7 +109,7 @@ END_EVENT_TABLE()
 
 void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 {
-	cout << __PRETTY_FUNCTION__ << endl;	
+	cout << __PRETTY_FUNCTION__ << endl;
 
 	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
 	{
@@ -252,7 +257,7 @@ void wxQuestionnaireGUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
 			cerr << __PRETTY_FUNCTION__ << " hide serialNoEntry_ later" << endl;
 			//gtk_widget_hide (serialNoEntry_);
 			//qapp->return_ser_no(l_ser_no, qapp->theQuestionnaire_);
-			theQuestionnaire_ = make_questionnaire();
+			//theQuestionnaire_ = make_questionnaire();
 			callback_get_ser_no_from_ui (l_ser_no, theQuestionnaire_);
 		} else {
 			cout << "strtol failed: l_ser_no: " << l_ser_no << endl;
@@ -292,8 +297,8 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	fgs = new wxFlexGridSizer(4, 1, 9, 25);
 	the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
 	the_stubs = new wxStaticText(panel, -1, wxT("Stubs for the question"));
-	stubs_row_sizer = new wxBoxSizer(wxVERTICAL);
-	stubs_row_sizer->Add(the_stubs);
+	stubsRowSizer_ = new wxBoxSizer(wxVERTICAL);
+	stubsRowSizer_->Add(the_stubs);
 #if 0
 
 
@@ -330,9 +335,9 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 #endif /*  0 */
 
 	wxBoxSizer * check_box_sizer = new wxBoxSizer (wxHORIZONTAL);
-	stubs_row_sizer->Add (check_box_sizer);
+	stubsRowSizer_->Add (check_box_sizer);
 	wxBoxSizer * radio_box_sizer = new wxBoxSizer (wxHORIZONTAL);
-	stubs_row_sizer->Add (radio_box_sizer);
+	stubsRowSizer_->Add (radio_box_sizer);
 	wxBoxSizer * data_entry_line_sizer = new wxBoxSizer (wxHORIZONTAL);
 	{
 		the_data_entry_line = new wxStaticText(panel, -1, wxT("Data entry (Coded Questions): "));
@@ -342,8 +347,8 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 		wxButton *button = new wxButton(panel, ID_NEXT_BUTTON, wxT("Next") );
 		data_entry_line_sizer->Add (button);
 	}
-	stubs_row_sizer->Add (data_entry_line_sizer);
-	stubs_row_sizer->Add (m_radio);
+	stubsRowSizer_->Add (data_entry_line_sizer);
+	stubsRowSizer_->Add (m_radio);
 
 	// Serial line related stuff
 	wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial: "));
@@ -356,7 +361,7 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	serial_row_sizer->Add (button);
 
 	fgs->Add (the_question,  wxEXPAND);
-	fgs->Add (stubs_row_sizer,  wxEXPAND);
+	fgs->Add (stubsRowSizer_,  wxEXPAND);
 	fgs->Add (the_data_entry_line,  wxEXPAND);
 	fgs->Add (serial_row_sizer,  wxEXPAND);
 
@@ -393,6 +398,7 @@ wxFlexGridSizer *fgs = new wxFlexGridSizer(3, 2, 9, 25);
 #endif /*  0 */
 	panel->SetSizer(hbox);
 	Centre();
+	theQuestionnaire_ = make_questionnaire();
 
 }
 
@@ -425,7 +431,7 @@ int32_t prompt_user_for_serial_no(
 	}
 	// unreachable code
 #endif /*  0 */
-	
+
 	//gtkQuestionnaireApplication->get_serial_no_gtk(p_return_ser_no);
 	//cerr 	<< __PRETTY_FUNCTION__ << ","
 	//	<< __FILE__ << ","
@@ -592,7 +598,7 @@ vector<string> PrepareQuestionText (AbstractQuestion *q)
 		result.push_back (q->textExprVec_[i]->text_);
 	}
 	return result;
-	
+
 }
 
 void DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
@@ -697,7 +703,7 @@ void wxQuestionnaireGUI::ConstructQuestionForm( AbstractQuestion *q )
 
 	vector <string> question_text_vec = PrepareQuestionText (q);
 	//the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
-	DisplayQuestionTextView (question_text_vec);		
+	DisplayQuestionTextView (question_text_vec);
 	// Hack to Display Radio Buttons
 	DisplayStubs (q);
 	last_question_visited = q;
@@ -761,15 +767,37 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 #endif /*  0 */
 }
 
+void wxQuestionnaireGUI::ClearRadio()
+{
+    // Later load prevRBValue_ from m_radio before deleting
+	int rbData_ = -1;
+	if ( m_radio )
+	{
+        prevRBValue_ = rbData_;
+		rbData_ = m_radio->GetSelection();
+		//m_sizerRadio->Detach( m_radio );
+		stubsRowSizer_->Detach (m_radio);
+		delete m_radio; m_radio = 0;
+	}
+	else // first time creation, no old selection to preserve
+	{
+		rbData_ = -1;
+        prevRBValue_ = -1;
+	}
+}
+
 void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
+    ClearRadio();
+
+    /*
 	int sel = -1;
 	if ( m_radio )
 	{
 		sel = m_radio->GetSelection();
 		//m_sizerRadio->Detach( m_radio );
-		stubs_row_sizer->Detach (m_radio);
+		stubsRowSizer_->Detach (m_radio);
 		delete m_radio;
 		m_radio = 0;
 	}
@@ -777,6 +805,8 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	{
 		sel = -1;
 	}
+    */
+
 	// no of radio buttons
 #if 1
 	//unsigned long count = 12;
@@ -829,13 +859,13 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	//m_sizerRadio->Layout();
 	the_stubs->SetLabel(wxT("New Stubs Text - should be visible now"));
 	cout << "Updated New stubs text" << endl;
-	stubs_row_sizer->Add(m_radio, 1, wxGROW);
+	stubsRowSizer_->Add(m_radio, 1, wxGROW);
 	m_radio->Show(true);
-	stubs_row_sizer->Show(false);
-	stubs_row_sizer->Show(true);
+	stubsRowSizer_->Show(false);
+	stubsRowSizer_->Show(true);
 	this->Fit();
 #endif /*  0 */
-	stubs_row_sizer->Layout();
+	stubsRowSizer_->Layout();
 	fgs->Layout();
 	hbox->Layout();
 }
