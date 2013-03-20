@@ -93,6 +93,12 @@ axis_freq_count: name stub_header_line stub_frequency_list NEWL {
         n_stubs = 0;
         n_codes = 0;
 	}
+	| name code_header_line NEWL {
+        // do nothing - this question had no data
+    }
+	| name stub_header_line NEWL {
+        // do nothing - this question had no data
+    }
 	| name code_header_line code_freq_list NEWL{
 		//cout << "got an range stub axis_freq_count" << endl;
 		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
