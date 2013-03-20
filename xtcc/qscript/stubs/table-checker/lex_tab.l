@@ -194,6 +194,7 @@ DIGIT    [0-9]
 		return INUMBER;
 	}
 
+
 \"[A-Za-z_][A-Za-z0-9_]*,[a-zA-Z_][a-zA-Z0-9_]*,[0-9]+\" {
 		int len_text = qtm_table_output_leng;
 		yytext[len_text-1]='\0'; // clobber double quote
@@ -205,6 +206,19 @@ DIGIT    [0-9]
 		}
         cout << "RETURNING TABLE_INFO" << endl;
     return TABLE_INFO;
+    }
+
+\"[A-Za-z_][A-Za-z0-9_]*,[a-zA-Z_][a-zA-Z0-9_]*,[0-9]+,[A-Za-z_][A-Za-z0-9_]*\" {
+		int len_text = qtm_table_output_leng;
+		yytext[len_text-1]='\0'; // clobber double quote
+		if(qtm_table_output_leng < MY_STR_MAX-1) {
+			strcpy(qtm_table_output_lval.text_buf, yytext+1);
+		} else {
+			printf("TEXT TOKEN too long... exiting lexer\n");
+			exit(1);
+		}
+        cout << "RETURNING TABLE_INFO" << endl;
+    return TABLE_INFO2;
     }
 
 \"[^\"]*\"      {
