@@ -45,21 +45,27 @@
      BASE_TEXT = 263,
      STUB_FREQ = 264,
      STUB_PERC = 265,
-     STUB_MEAN = 266,
-     STUB_STD_DEV = 267,
-     INUMBER = 268,
-     FNUMBER = 269,
-     NAME = 270,
-     TEXT = 271,
-     TABLE_INFO = 272,
-     TABLE_INFO2 = 273,
-     NEWL = 274,
-     COMMA = 275,
-     DOT = 276,
-     EMPTY_LINE_2_COLS = 277,
-     EMPTY_LINE_1_COLS = 278,
-     BAN_TOTAL = 279,
-     SIDE_TOTAL = 280
+     STUB_TOPBOX = 266,
+     STUB_TOP2BOX = 267,
+     STUB_TOP3BOX = 268,
+     STUB_BOTBOX = 269,
+     STUB_BOT2BOX = 270,
+     STUB_BOT3BOX = 271,
+     STUB_MEAN = 272,
+     STUB_STD_DEV = 273,
+     INUMBER = 274,
+     FNUMBER = 275,
+     NAME = 276,
+     TEXT = 277,
+     TABLE_INFO = 278,
+     TABLE_INFO2 = 279,
+     NEWL = 280,
+     COMMA = 281,
+     DOT = 282,
+     EMPTY_LINE_2_COLS = 283,
+     EMPTY_LINE_1_COLS = 284,
+     BAN_TOTAL = 285,
+     SIDE_TOTAL = 286
    };
 #endif
 
@@ -70,7 +76,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 49 "table_csv.y"
+#line 102 "table_csv.y"
 
 	int ival;
 	double dval;
@@ -80,7 +86,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 84 "table_csv.h"
+#line 90 "table_csv.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

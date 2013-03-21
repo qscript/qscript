@@ -114,12 +114,65 @@
 	map<int, int> temp_qtm_freq_count_map_rq; // will always be code -> freq
 	void qtm_table_output_error(const char * s);
 	extern string stub_text;
+
 	double global_sigma;
+	double topbox_perc;
+	int    topbox_freq;
+	double top2box_perc;
+	int    top2box_freq;
+	double top3box_perc;
+	int    top3box_freq;
+	double botbox_perc;
+	int    botbox_freq;
+	double bot2box_perc;
+	int    bot2box_freq;
+	double bot3box_perc;
+	int    bot3box_freq;
+	double mean;
+
+	bool has_topbox;
+	bool has_top2box;
+	bool has_top3box;
+	bool has_botbox;
+	bool has_bot2box;
+	bool has_bot3box;
+	bool has_mean;
+
+	void reset()
+	{
+		cout << __PRETTY_FUNCTION__ << endl;
+
+		global_sigma=0.0;
+		topbox_perc=0.0;
+		topbox_freq=0;
+		top2box_perc=0.0;
+		top2box_freq=0;
+		top3box_perc=0.0;
+		top3box_freq=0;
+		botbox_perc=0.0;
+		botbox_freq=0;
+		bot2box_perc=0.0;
+		bot2box_freq=0;
+		bot3box_perc=0.0;
+		bot3box_freq=0;
+		mean=0.0;
+
+		has_topbox=false;
+		has_top2box=false;
+		has_top3box=false;
+		has_botbox=false;
+		has_bot2box=false;
+		has_bot3box=false;
+		has_mean=false;
+		cerr << "reset invoked" << endl;
+
+	}
+	extern int qtm_line_no;
 
 
 
 /* Line 268 of yacc.c  */
-#line 123 "table_csv.c"
+#line 176 "table_csv.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -154,21 +207,27 @@
      BASE_TEXT = 263,
      STUB_FREQ = 264,
      STUB_PERC = 265,
-     STUB_MEAN = 266,
-     STUB_STD_DEV = 267,
-     INUMBER = 268,
-     FNUMBER = 269,
-     NAME = 270,
-     TEXT = 271,
-     TABLE_INFO = 272,
-     TABLE_INFO2 = 273,
-     NEWL = 274,
-     COMMA = 275,
-     DOT = 276,
-     EMPTY_LINE_2_COLS = 277,
-     EMPTY_LINE_1_COLS = 278,
-     BAN_TOTAL = 279,
-     SIDE_TOTAL = 280
+     STUB_TOPBOX = 266,
+     STUB_TOP2BOX = 267,
+     STUB_TOP3BOX = 268,
+     STUB_BOTBOX = 269,
+     STUB_BOT2BOX = 270,
+     STUB_BOT3BOX = 271,
+     STUB_MEAN = 272,
+     STUB_STD_DEV = 273,
+     INUMBER = 274,
+     FNUMBER = 275,
+     NAME = 276,
+     TEXT = 277,
+     TABLE_INFO = 278,
+     TABLE_INFO2 = 279,
+     NEWL = 280,
+     COMMA = 281,
+     DOT = 282,
+     EMPTY_LINE_2_COLS = 283,
+     EMPTY_LINE_1_COLS = 284,
+     BAN_TOTAL = 285,
+     SIDE_TOTAL = 286
    };
 #endif
 
@@ -179,7 +238,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 49 "table_csv.y"
+#line 102 "table_csv.y"
 
 	int ival;
 	double dval;
@@ -189,7 +248,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 193 "table_csv.c"
+#line 252 "table_csv.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -201,7 +260,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 205 "table_csv.c"
+#line 264 "table_csv.c"
 
 #ifdef short
 # undef short
@@ -420,20 +479,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  5
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   59
+#define YYLAST   65
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  26
+#define YYNTOKENS  32
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  6
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  14
+#define YYNRULES  18
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  59
+#define YYNSTATES  67
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   280
+#define YYMAXUTOK   286
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -469,7 +528,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25
+      25,    26,    27,    28,    29,    30,    31
 };
 
 #if YYDEBUG
@@ -478,28 +537,29 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     5,     8,    31,    54,    57,    61,    63,
-      66,    69,    72,    75,    78
+      66,    69,    72,    75,    78,    81,    84,    87,    90
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      27,     0,    -1,    28,    -1,    27,    28,    -1,     4,    19,
-       3,    19,    16,    19,    17,    19,    29,     8,    19,    22,
-      19,    23,    19,    24,    19,    23,    19,    25,    19,    30,
-      -1,     4,    19,     3,    19,    16,    19,    18,    19,    29,
-       8,    19,    22,    19,    23,    19,    24,    19,    23,    19,
-      25,    19,    30,    -1,    16,    19,    -1,    29,    16,    19,
-      -1,    31,    -1,    30,    31,    -1,     9,    19,    -1,    10,
-      19,    -1,    11,    19,    -1,    12,    19,    -1,     6,    19,
-      -1
+      33,     0,    -1,    34,    -1,    33,    34,    -1,     4,    25,
+       3,    25,    22,    25,    23,    25,    35,     8,    25,    28,
+      25,    29,    25,    30,    25,    29,    25,    31,    25,    36,
+      -1,     4,    25,     3,    25,    22,    25,    24,    25,    35,
+       8,    25,    28,    25,    29,    25,    30,    25,    29,    25,
+      31,    25,    36,    -1,    22,    25,    -1,    35,    22,    25,
+      -1,    37,    -1,    36,    37,    -1,     9,    25,    -1,    10,
+      25,    -1,    17,    25,    -1,    12,    25,    -1,    13,    25,
+      -1,    15,    25,    -1,    16,    25,    -1,    18,    25,    -1,
+       6,    25,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,    85,    85,    89,    95,   126,   157,   158,   161,   162,
-     165,   168,   169,   170,   171
+       0,   144,   144,   148,   154,   187,   234,   235,   238,   239,
+     242,   245,   246,   247,   257,   258,   259,   260,   261
 };
 #endif
 
@@ -509,12 +569,13 @@ static const yytype_uint8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "TABLE", "PAGE", "TOTAL", "SIGMA",
-  "MEAN", "BASE_TEXT", "STUB_FREQ", "STUB_PERC", "STUB_MEAN",
-  "STUB_STD_DEV", "INUMBER", "FNUMBER", "NAME", "TEXT", "TABLE_INFO",
-  "TABLE_INFO2", "NEWL", "COMMA", "DOT", "EMPTY_LINE_2_COLS",
-  "EMPTY_LINE_1_COLS", "BAN_TOTAL", "SIDE_TOTAL", "$accept",
-  "axis_qtm_freq_count_list", "axis_qtm_freq_count", "text_chain",
-  "freq_chain", "a_freq", 0
+  "MEAN", "BASE_TEXT", "STUB_FREQ", "STUB_PERC", "STUB_TOPBOX",
+  "STUB_TOP2BOX", "STUB_TOP3BOX", "STUB_BOTBOX", "STUB_BOT2BOX",
+  "STUB_BOT3BOX", "STUB_MEAN", "STUB_STD_DEV", "INUMBER", "FNUMBER",
+  "NAME", "TEXT", "TABLE_INFO", "TABLE_INFO2", "NEWL", "COMMA", "DOT",
+  "EMPTY_LINE_2_COLS", "EMPTY_LINE_1_COLS", "BAN_TOTAL", "SIDE_TOTAL",
+  "$accept", "axis_qtm_freq_count_list", "axis_qtm_freq_count",
+  "text_chain", "freq_chain", "a_freq", 0
 };
 #endif
 
@@ -525,22 +586,23 @@ static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276,   277,   278,   279,   280
+     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
+     285,   286
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    26,    27,    27,    28,    28,    29,    29,    30,    30,
-      31,    31,    31,    31,    31
+       0,    32,    33,    33,    34,    34,    35,    35,    36,    36,
+      37,    37,    37,    37,    37,    37,    37,    37,    37
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     2,    22,    22,     2,     3,     1,     2,
-       2,     2,     2,     2,     2
+       2,     2,     2,     2,     2,     2,     2,     2,     2
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -553,32 +615,34 @@ static const yytype_uint8 yydefact[] =
        0,     0,     0,     7,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       4,     8,     5,    14,    10,    11,    12,    13,     9
+       0,     0,     0,     0,     4,     8,     5,    18,    10,    11,
+      13,    14,    15,    16,    12,    17,     9
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     2,     3,    16,    50,    51
+      -1,     2,     3,    16,    54,    55
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -48
+#define YYPACT_NINF -52
 static const yytype_int8 yypact[] =
 {
-       0,    -2,     2,   -48,    13,   -48,   -48,    -1,     3,     4,
-      -3,     5,     6,    10,    10,     8,    -8,    -7,   -48,     9,
-      11,    12,     7,   -48,    14,    15,    16,    17,    18,    19,
-      20,    -4,    21,    23,    24,    25,    26,    27,    28,    29,
-      30,    31,    32,     1,     1,    33,    34,    37,    38,    39,
-       1,   -48,     1,   -48,   -48,   -48,   -48,   -48,   -48
+       0,   -15,     2,   -52,     6,   -52,   -52,   -14,   -10,    -4,
+     -16,     1,     3,     5,     5,     4,    -8,    -7,   -52,     8,
+       9,    10,    11,   -52,    12,    13,    16,   -11,    14,    17,
+      19,    15,    18,    21,    22,    20,    23,    25,    26,    -1,
+      24,    28,    29,     7,     7,    31,    32,    33,    34,    35,
+      36,    37,    38,    39,     7,   -52,     7,   -52,   -52,   -52,
+     -52,   -52,   -52,   -52,   -52,   -52,   -52
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -48,   -48,    35,    45,   -23,   -47
+     -52,   -52,    30,    51,   -13,   -51
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -587,40 +651,43 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-      19,    21,     5,    58,     1,    58,     1,    45,    20,    20,
-      46,    47,    48,    49,    11,    12,     7,     4,     8,     9,
-      33,    52,     0,    10,    13,    14,    15,    18,    22,    25,
-      23,    24,     0,     0,    27,    28,    26,     6,    31,    32,
-      29,    30,    35,    36,     0,    34,    39,    40,    37,    38,
-      43,    44,    53,    54,    41,    42,    55,    56,    57,    17
+      19,    21,     5,    66,     1,    66,     1,    11,    12,     7,
+       4,     8,     9,    45,    20,    20,    46,    47,    29,    48,
+      49,    10,    50,    51,    52,    53,    13,    15,    14,    18,
+      41,    56,     6,    22,    23,    24,     0,     0,    27,    25,
+      26,    28,    31,    30,    32,    33,    35,    36,    34,    37,
+      39,    40,    38,    43,    44,    42,    57,    58,    59,    60,
+      61,    62,    63,    64,    65,    17
 };
 
 #define yypact_value_is_default(yystate) \
-  ((yystate) == (-48))
+  ((yystate) == (-52))
 
 #define yytable_value_is_error(yytable_value) \
   YYID (0)
 
 static const yytype_int8 yycheck[] =
 {
-       8,     8,     0,    50,     4,    52,     4,     6,    16,    16,
-       9,    10,    11,    12,    17,    18,     3,    19,    19,    16,
-      24,    44,    -1,    19,    19,    19,    16,    19,    19,    22,
-      19,    19,    -1,    -1,    19,    19,    22,     2,    19,    19,
-      23,    23,    19,    19,    -1,    24,    19,    19,    23,    23,
-      19,    19,    19,    19,    25,    25,    19,    19,    19,    14
+       8,     8,     0,    54,     4,    56,     4,    23,    24,     3,
+      25,    25,    22,     6,    22,    22,     9,    10,    29,    12,
+      13,    25,    15,    16,    17,    18,    25,    22,    25,    25,
+      31,    44,     2,    25,    25,    25,    -1,    -1,    25,    28,
+      28,    25,    25,    29,    25,    30,    25,    25,    30,    29,
+      25,    25,    29,    25,    25,    31,    25,    25,    25,    25,
+      25,    25,    25,    25,    25,    14
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     4,    27,    28,    19,     0,    28,     3,    19,    16,
-      19,    17,    18,    19,    19,    16,    29,    29,    19,     8,
-      16,     8,    19,    19,    19,    22,    22,    19,    19,    23,
-      23,    19,    19,    24,    24,    19,    19,    23,    23,    19,
-      19,    25,    25,    19,    19,     6,     9,    10,    11,    12,
-      30,    31,    30,    19,    19,    19,    19,    19,    31
+       0,     4,    33,    34,    25,     0,    34,     3,    25,    22,
+      25,    23,    24,    25,    25,    22,    35,    35,    25,     8,
+      22,     8,    25,    25,    25,    28,    28,    25,    25,    29,
+      29,    25,    25,    30,    30,    25,    25,    29,    29,    25,
+      25,    31,    31,    25,    25,     6,     9,    10,    12,    13,
+      15,    16,    17,    18,    36,    37,    36,    25,    25,    25,
+      25,    25,    25,    25,    25,    25,    37
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1457,7 +1524,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 85 "table_csv.y"
+#line 144 "table_csv.y"
     {
 		//cout << "parsed axis_qtm_freq_count to axis_qtm_freq_count_list"
 		//	<< endl;
@@ -1467,7 +1534,7 @@ yyreduce:
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 89 "table_csv.y"
+#line 148 "table_csv.y"
     {
 		//cout << "chaining axis_qtm_freq_count with axis_qtm_freq_count_list"
 		//	<< endl;
@@ -1477,7 +1544,7 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 100 "table_csv.y"
+#line 159 "table_csv.y"
     {
 		//qtm_freq_count_map_nq_name_stub_freq[$7] = temp_qtm_freq_count_map_nq_stub_code_qtm_freq_count_map_nq_stub_codefreq;
 		cout << "got axis_qtm_freq_count: " << (yyvsp[(7) - (22)].text_buf) << endl;
@@ -1485,30 +1552,32 @@ yyreduce:
 		string title="empty";
 		//double sigma = $23;
 		double sigma = global_sigma;
-		global_sigma = 0.0;
+		// now in reset() function
+		//global_sigma = 0.0;
 		string name_ax_info((yyvsp[(7) - (22)].text_buf));
-        int pos_1st_comma = name_ax_info.find (',');
-        int pos_2nd_comma = name_ax_info.rfind (',');
+		int pos_1st_comma = name_ax_info.find (',');
+		int pos_2nd_comma = name_ax_info.rfind (',');
 		string name = name_ax_info.substr(0, pos_1st_comma);
 		string array_base_name = name_ax_info.substr(pos_1st_comma+1, pos_2nd_comma-1-pos_1st_comma);
-        string sp_mp_info = name_ax_info.substr(pos_2nd_comma+1,array_base_name.length()-2-(pos_2nd_comma+1));
-        cout << "Extracted: name |" << name << "|"
-                << "array_base_name|" << array_base_name << "|"
-                << "sp_mp_info|" << sp_mp_info << "|" << endl;
-        int no_mpn = atoi (sp_mp_info.c_str());
+		string sp_mp_info = name_ax_info.substr(pos_2nd_comma+1,array_base_name.length()-2-(pos_2nd_comma+1));
+		cout << "Extracted: name |" << name << "|"
+			<< "array_base_name|" << array_base_name << "|"
+			<< "sp_mp_info|" << sp_mp_info << "|" << endl;
+		int no_mpn = atoi (sp_mp_info.c_str());
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
 					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name
 				);
 		table_info_map[name] = table_info_ptr;
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
+		reset();
 	}
     break;
 
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 131 "table_csv.y"
+#line 192 "table_csv.y"
     {
 		//qtm_freq_count_map_nq_name_stub_freq[$7] = temp_qtm_freq_count_map_nq_stub_code_qtm_freq_count_map_nq_stub_codefreq;
 		cout << "got axis_qtm_freq_count: " << (yyvsp[(7) - (22)].text_buf) << endl;
@@ -1518,44 +1587,76 @@ yyreduce:
 		double sigma = global_sigma;
 		global_sigma = 0.0;
 		string name_ax_info((yyvsp[(7) - (22)].text_buf));
-        int pos_1st_comma = name_ax_info.find (',');
-        int pos_2nd_comma = name_ax_info.rfind (',');
+		int pos_1st_comma = name_ax_info.find (',');
+		int pos_2nd_comma = name_ax_info.find (',', pos_1st_comma+1);
+		int pos_3rd_comma = name_ax_info.rfind (',');
 		string name = name_ax_info.substr(0, pos_1st_comma);
 		string array_base_name = name_ax_info.substr(pos_1st_comma+1, pos_2nd_comma-1-pos_1st_comma);
-        string sp_mp_info = name_ax_info.substr(pos_2nd_comma+1,array_base_name.length()-2-(pos_2nd_comma+1));
-        cout << "Extracted: name |" << name << "|"
-                << "array_base_name|" << array_base_name << "|"
-                << "sp_mp_info|" << sp_mp_info << "|" << endl;
-        int no_mpn = atoi (sp_mp_info.c_str());
+		string sp_mp_info = name_ax_info.substr(pos_2nd_comma+1,pos_3rd_comma-1-(pos_2nd_comma));
+		string stub_name = name_ax_info.substr(pos_3rd_comma+1,array_base_name.length()-2-(pos_3rd_comma+1));
+		cout 
+			<< " pos_1st_comma: " << pos_1st_comma
+			<< " pos_2nd_comma: " << pos_2nd_comma
+			<< " pos_3rd_comma: " << pos_3rd_comma
+			<< endl
+			<< "Extracted: name |" << name << "|"
+			<< "array_base_name|" << array_base_name << "|"
+			<< "sp_mp_info|" << sp_mp_info << "|" 
+			<< "stub name|" << stub_name << "|"
+			<< endl;
+		int no_mpn = atoi (sp_mp_info.c_str());
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
 					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name
 				);
+		table_info_ptr->stub_name = stub_name;
+		table_info_ptr->no_mpn = no_mpn;
+		if (has_top2box) {
+			table_info_ptr->top2box_freq = top2box_freq;
+			table_info_ptr->has_top2box = has_top2box;
+		}
 		table_info_map[name] = table_info_ptr;
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
+		reset();
 	}
     break;
 
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 165 "table_csv.y"
+#line 242 "table_csv.y"
     {
 		temp_qtm_freq_count_map_nq_stub_codefreq[stub_text]=(yyvsp[(1) - (2)].ival);
 	}
     break;
 
-  case 14:
+  case 13:
 
 /* Line 1806 of yacc.c  */
-#line 171 "table_csv.y"
+#line 247 "table_csv.y"
+    { 
+		if (has_top2box == false) {
+			top2box_freq = (yyvsp[(1) - (2)].ival);
+			has_top2box = true;
+		} else {
+			cerr << "STUB_TOP2BOX is repeated - Auto check will not work for this table: "
+				<<  qtm_line_no
+				<< endl;
+		}
+	}
+    break;
+
+  case 18:
+
+/* Line 1806 of yacc.c  */
+#line 261 "table_csv.y"
     { global_sigma = (yyvsp[(1) - (2)].dval); }
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1559 "table_csv.c"
+#line 1660 "table_csv.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1786,7 +1887,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 175 "table_csv.y"
+#line 265 "table_csv.y"
 
 
 	//extern void qtm_table_output_restart(FILE *input_file);

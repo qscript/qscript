@@ -121,6 +121,47 @@ DIGIT    [0-9]
 	return STUB_PERC;
 }
 
+
+"\"Top 3 Box \(Net\)\"",{DIGIT}+  {
+	string str(yytext + 16);
+	int top3box_freq = atoi (str.c_str());
+	cout	<< "RETURNING  top3BOX:"
+		<< "top3box_freq str:" << str << ", "
+		<< "top3box_freq: " << top3box_freq << endl;
+	qtm_table_output_lval.ival = top3box_freq;
+	return STUB_TOP3BOX;
+	}
+
+"\"Top 2 Box (Net)\"",{DIGIT} {
+	string str(yytext + 16);
+	int top2box_freq = atoi (str.c_str());
+	cout	<< "RETURNING  top2BOX:"
+		<< "top2box_freq str:" << str << ", "
+		<< "top2box_freq: " << top2box_freq << endl;
+	qtm_table_output_lval.ival = top2box_freq;
+	return STUB_TOP2BOX;
+	}
+
+"\"Bottom 2 Box (Net)\"",{DIGIT}+   {
+	string str(yytext + 20);
+	int bot2box_freq = atoi (str.c_str());
+	cout	<< "RETURNING  BOT3BOX:"
+		<< "bot3box_freq str:" << str << ", "
+		<< "bot3box_freq: " << bot2box_freq << endl;
+	qtm_table_output_lval.ival = bot2box_freq;
+	return STUB_BOT2BOX;
+}
+
+"\"Bottom 3 Box (Net)\"",{DIGIT}+  {
+	string str(yytext + 20);
+	int bot3box_freq = atoi (str.c_str());
+	cout	<< "RETURNING  BOT3BOX:"
+		<< "bot3box_freq str:" << str << ", "
+		<< "bot3box_freq: " << bot3box_freq << endl;
+	qtm_table_output_lval.ival = bot3box_freq;
+	return STUB_BOT3BOX;
+	}
+
 \"Mean\",{DIGIT}+.{DIGIT}+  {
 	string mean_str(yytext + 7);
 	double mean = atof (mean_str.c_str());
