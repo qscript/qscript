@@ -263,6 +263,12 @@ bool check_table_against_nq_freq_counts(
 	//p_error_report.stubErrorReasons_ = reasons_str.str();
 	cout << "Sigma:" << qtm_table_it->second->sigma_ << endl;
 	cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
+	if (the_table_info.has_top2box) {
+		p_error_report.stubErrorReasons_.push_back ("has_top2box have to check it, stub_name is " + the_table_info.stub_name);
+		++p_error_report.nStubErrors_;
+		counts_matched = false;
+
+	}
 	//reasons = reasons_str.str();
 	return counts_matched;
 }
