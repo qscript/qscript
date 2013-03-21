@@ -185,6 +185,7 @@ bool check_table_against_nq_freq_counts(
 		cout << "searching for table stub:" << table_it->first
 			<< endl
 			;
+		++ p_error_report.nStubs_;
 		if (strstr (table_it->first.c_str(), "Sigma")==0) {
 			map<string, int>::iterator freq_count_it = the_freq_counts.find (table_it->first);
 			//{
@@ -212,6 +213,7 @@ bool check_table_against_nq_freq_counts(
 						<< "freq file counts:" << freq_count_it->second
 						<< endl;
 					p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+					++p_error_report.nStubErrors_;
 					counts_matched = false;
 				} else {
 					cout << "I found the stub in the_freq_counts file."
@@ -224,10 +226,16 @@ bool check_table_against_nq_freq_counts(
 				if (table_it->second == 0) {
 
 				} else {
-					cout << "ERROR: the counts for stub:" << table_it->first << " DID NOT MATCH: counts are not 0"
+					cout << "ERROR: the counts for stub:"
+						<< table_it->first
+						<< " DID NOT MATCH: counts are not 0"
 						<< endl;
-					reasons_str << "|" << "ERROR: I Could not check the counts for stub:" << table_it->first << " because I DID NOT FIND IT in the frequency file AND count is not 0, it is "
+					reasons_str << "|" << "ERROR: I Could not check the counts for stub:"
+						<< table_it->first
+						<< " because I DID NOT FIND IT in the frequency file AND count is not 0. It is "
 						<< table_it->second;
+					p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+					++p_error_report.nStubErrors_;
 					counts_matched = false;
 				}
 			}
@@ -242,6 +250,7 @@ bool check_table_against_nq_freq_counts(
 			//}
 		}
 	}
+	//p_error_report.stubErrorReasons_ = reasons_str.str();
 	cout << "Sigma:" << qtm_table_it->second->sigma_ << endl;
 	cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
 	//reasons = reasons_str.str();
