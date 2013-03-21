@@ -66,6 +66,15 @@ struct ErrorReport
 	int nBaseTextErrors_;
 	int nBaseTextWarnings_;
 	vector<string>  baseTextErrorReasons_;
+	int nMatched_;
+	ErrorReport ()
+		:  nStubErrors_(0), nStubWarnings_(0), nStubs_(0),
+		   stubErrorReasons_(),
+		   nTitleErrors_(0), nTitleWarnings_(0),
+		   baseTextErrorReasons_(),
+		   nMatched_(0)
+	{ }
+
 
 };
 
@@ -173,7 +182,6 @@ bool check_table_against_nq_freq_counts(
 	map<string, int>::iterator table_it = the_table.begin();
 	map<string, int> & the_freq_counts = fq_nq_it->second;
 	map<string, int>::iterator FREQ_END = the_freq_counts.end();
-	stringstream reasons_str;
 
 	bool counts_matched = true;
 	cout << qtm_table_it->second->name_
@@ -182,6 +190,7 @@ bool check_table_against_nq_freq_counts(
 		<< endl;
 
 	for (; table_it!= TABLE_END; ++table_it) {
+		stringstream reasons_str;
 		cout << "searching for table stub:" << table_it->first
 			<< endl
 			;
@@ -219,6 +228,7 @@ bool check_table_against_nq_freq_counts(
 					cout << "I found the stub in the_freq_counts file."
 						<< " The counts are:" << table_it->second
 						<< endl;
+					++p_error_report.nMatched_;
 				}
 			} else {
 				//cout << "DID NOT FIND stub:" << table_it->first << " in fq_nq_it"
@@ -257,6 +267,31 @@ bool check_table_against_nq_freq_counts(
 	return counts_matched;
 }
 
+void print_report_for_table(
+		struct ErrorReport & p_error_report,
+		std::ofstream & table_check_report
+		)
+{
+	struct ErrorReport & error_report = p_error_report;
+
+	table_check_report
+		//<< endl
+		<< "N M"
+		<< "," << error_report.nStubs_
+		<< "," << error_report.nStubErrors_
+		<< "," << error_report.nStubWarnings_
+		<< "," << error_report.nMatched_
+		<< endl
+		<< ",,,,,,Detailed report"
+		<< endl;
+		;
+	for (int32_t i = 0; i < error_report.stubErrorReasons_.size();
+			++i) {
+		table_check_report << ",,,,,,"
+			<< error_report.stubErrorReasons_[i] << endl;
+	}
+}
+
 void check_tables(
 	//map<string, map <string, int> > & qtm_freq_count_map_nq_name_stub_freq,
 	map <string, struct TableInfo *> table_info_map,
@@ -279,10 +314,13 @@ void check_tables(
 	map<string, map<int, int> >::iterator QSCRIPT_RQ_END =   freq_count_map_rq.end();
 	vector <ErrorReport> error_report_vec;
 
+	table_check_report << "ax_name, Result, T S, E S, W S, M, Detailed Errors " << endl;
 	for (; qtm_table_it!=QTM_TABLE_END; ++qtm_table_it ) {
 		string ax_name = qtm_table_it->first;
 		cout << "checking ax_name:" << ax_name << endl;
-		table_check_report << "checking ax_name:, " << ax_name << ",";
+		table_check_report
+			//<< "checking ax_name:, "
+			<< ax_name << ",";
 		map<string, map<string, int> >::iterator fq_nq_it =
 			freq_count_map_nq_name_stub_freq.find(ax_name);
 		ErrorReport error_report;
@@ -297,15 +335,34 @@ void check_tables(
 			} else {
 				cout << "counts for table: " << qtm_table_it -> first
 					<< "DID NOT MATCH" << endl;
+
+				/*
 				table_check_report << "DID NOT MATCH,"
 					<< reasons;
+				table_check_report << ",,"
+					<< "Total stubs: " << error_report.nStubs_
+					<< ",Error stubs: " << error_report.nStubErrors_
+					<< ",Warning stubs: " << error_report.nStubWarnings_
+					<< error_report.nStubErrors_
+					<< endl
+					<< ",,Detailed report"
+					<< endl;
+					;
+				for (int32_t i = 0; i < error_report.stubErrorReasons_.size();
+						++i) {
+					table_check_report << ",,"
+						<< error_report.stubErrorReasons_[i] << endl;
+				}
+				*/
+
+				print_report_for_table(error_report, table_check_report);
 			}
 			error_report_vec.push_back(error_report);
 		} else {
 			cout << "ax_name: " << ax_name << " NOT FOUND in freq_count_map_nq_name_stub_freq"
 				<< endl;
 			table_check_report << "could_not_check,"
-				<< "as not found in freq_count_map_nq_name_stub_freq";
+				<< ",,,,as not found in freq_count_map_nq_name_stub_freq";
 		}
 		table_check_report << endl;
 		//for (; fq_nq_it != QSCRIPT_NQ_END; ++fq_nq_it) {
