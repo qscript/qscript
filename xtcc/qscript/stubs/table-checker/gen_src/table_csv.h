@@ -52,13 +52,14 @@
      NAME = 270,
      TEXT = 271,
      TABLE_INFO = 272,
-     NEWL = 273,
-     COMMA = 274,
-     DOT = 275,
-     EMPTY_LINE_2_COLS = 276,
-     EMPTY_LINE_1_COLS = 277,
-     BAN_TOTAL = 278,
-     SIDE_TOTAL = 279
+     TABLE_INFO2 = 273,
+     NEWL = 274,
+     COMMA = 275,
+     DOT = 276,
+     EMPTY_LINE_2_COLS = 277,
+     EMPTY_LINE_1_COLS = 278,
+     BAN_TOTAL = 279,
+     SIDE_TOTAL = 280
    };
 #endif
 
@@ -79,7 +80,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 83 "table_csv.h"
+#line 84 "table_csv.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

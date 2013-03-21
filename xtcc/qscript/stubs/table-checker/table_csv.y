@@ -15,9 +15,9 @@
 #include <vector>
 #include <map>
 #include <cstdlib>
-#include "const_defs.h"
+#include "../const_defs.h"
 #include "lex_tab.h"
-#include "TableInfo.h"
+#include "../TableInfo.h"
 
 
 	//extern int yylex();
@@ -178,7 +178,7 @@ a_freq 	: 	STUB_FREQ NEWL {
 	extern int yyparse();
 	void qtm_table_output_error(const char * s);
 
-#include "const_defs.h"
+//#include "const_defs.h"
 
 /*
 // Enable main if you want to test separately

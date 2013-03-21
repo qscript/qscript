@@ -16,7 +16,7 @@
 #include <cstdlib>
 #include <getopt.h>
 #include "const_defs.h"
-#include "lex_tab.h"
+#include "gen_src/lex_tab.h"
 #include "TableInfo.h"
 
 	using std::cout;

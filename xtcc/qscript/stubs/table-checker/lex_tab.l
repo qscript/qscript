@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <cstdlib>
 #include <regex.h>
-#include "const_defs.h"
+#include "../const_defs.h"
 #include "table_csv.h"
 
     /*
@@ -56,8 +56,11 @@
 
 %option prefix="qtm_table_output_"
 %option never-interactive
-    /*%option nounistd
-    %option outfile="lex_tab.c" header-file="lex_tab.h" */
+    /*%option nounistd*/
+    /* comment out below option on windows as flex version 
+       there does not do it
+       */
+%option outfile="gen_src/lex_tab.c" header-file="gen_src/lex_tab.h" 
 
 DIGIT    [0-9]
         /*ID       [a-z][a-z0-9]*/

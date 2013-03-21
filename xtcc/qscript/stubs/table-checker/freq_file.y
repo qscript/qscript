@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 #include <cstdlib>
-#include "const_defs.h"
+#include "../const_defs.h"
 
 
 	extern int yylex();
@@ -164,7 +164,7 @@ code_freq: COMMA INUMBER COMMA INUMBER NEWL {
 	extern void yyrestart(FILE *input_file);
 	extern int32_t yyparse();
 
-#include "const_defs.h"
+//#include "const_defs.h"
 /*
 // Enable main if you want to test separately
 

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstring>
-#include "const_defs.h"
+#include "../const_defs.h"
 #include "freq_file.h"
 
 

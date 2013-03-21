@@ -2,9 +2,9 @@
 #define qtm_table_output_HEADER_H 1
 #define qtm_table_output_IN_HEADER 1
 
-#line 6 "lex_tab.h"
+#line 6 "gen_src/lex_tab.h"
 
-#line 8 "lex_tab.h"
+#line 8 "gen_src/lex_tab.h"
 
 #define  YY_INT_ALIGNED short int
 
@@ -324,9 +324,9 @@ extern int qtm_table_output_lex (void);
 #undef YY_DECL
 #endif
 
-#line 275 "lex_tab.l"
+#line 307 "lex_tab.l"
 
 
-#line 331 "lex_tab.h"
+#line 331 "gen_src/lex_tab.h"
 #undef qtm_table_output_IN_HEADER
 #endif /* qtm_table_output_HEADER_H */
