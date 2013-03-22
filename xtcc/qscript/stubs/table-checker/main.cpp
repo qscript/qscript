@@ -233,30 +233,118 @@ bool does_top_2_box_match (
 	struct ErrorReport & p_error_report
 	)
 {
+	bool result = true;
 	cout << __PRETTY_FUNCTION__
 		<< endl
 		<< "table name: " << the_table_info.name_
 		<< endl;
+	static bool not_printed = true;
+	if (not_printed) {
+		cerr << "put check - some scales start at 0 instead of 1 - modify this function"
+			<< endl;
+		not_printed = false;
+	}
 	map <int, string> ::const_iterator END = table_code_stub_map.end();
 	map <int, string> ::const_iterator highest = table_code_stub_map.find (rat_scale_inf.ratingScaleEnd_);
-	map <int, string> ::const_iterator second_highest = table_code_stub_map.find (rat_scale_inf.ratingScaleEnd_-1);
-	int sum_top2 = 0;
+	map <int, string> ::const_iterator second_highest = table_code_stub_map.find (rat_scale_inf.ratingScaleEnd_ - 1);
+	map <int, string> ::const_iterator third_highest = table_code_stub_map.find (rat_scale_inf.ratingScaleEnd_ - 2);
+
+	map <int, string> ::const_iterator lowest = table_code_stub_map.find (1);
+	map <int, string> ::const_iterator second_lowest = table_code_stub_map.find (2);
+	map <int, string> ::const_iterator third_lowest = table_code_stub_map.find (3);
+	int sum_top2 = 0,
+	    sum_top3 = 0,
+	    sum_bot2 = 0,
+	    sum_bot3 = 0
+	    ;
+
 	if (highest != END) {
 		map <string, int> :: const_iterator fq_nq_it = the_freq_counts.find (highest->second);
 		if (fq_nq_it != the_freq_counts.end()) {
 			sum_top2 += fq_nq_it->second;
+			sum_top3 += fq_nq_it->second;
 		}
 	}
 	if (second_highest != END) {
 		map <string, int> :: const_iterator fq_nq_it = the_freq_counts.find (second_highest->second);
 		if (fq_nq_it != the_freq_counts.end()) {
 			sum_top2 += fq_nq_it->second;
+			sum_top3 += fq_nq_it->second;
 		}
 	}
+	if (third_highest != END) {
+		map <string, int> :: const_iterator fq_nq_it = the_freq_counts.find (third_highest->second);
+		if (fq_nq_it != the_freq_counts.end()) {
+			sum_top3 += fq_nq_it->second;
+		}
+	}
+
+	if (lowest != END) {
+		map <string, int> :: const_iterator fq_nq_it = the_freq_counts.find (lowest->second);
+		if (fq_nq_it != the_freq_counts.end()) {
+			sum_bot2 += fq_nq_it->second;
+			sum_bot3 += fq_nq_it->second;
+		}
+	}
+	if (second_lowest != END) {
+		map <string, int> :: const_iterator fq_nq_it = the_freq_counts.find (second_lowest->second);
+		if (fq_nq_it != the_freq_counts.end()) {
+			sum_bot2 += fq_nq_it->second;
+			sum_bot3 += fq_nq_it->second;
+		}
+	}
+	if (third_lowest != END) {
+		map <string, int> :: const_iterator fq_nq_it = the_freq_counts.find (third_lowest->second);
+		if (fq_nq_it != the_freq_counts.end()) {
+			sum_bot3 += fq_nq_it->second;
+		}
+	}
+
 	cout	<< "sum_top2: |" << sum_top2 << "|"
 		<< ", table TOP 2 BOX NET: |" << the_table_info.top2box_freq << "|"
 		<< endl;
-	return sum_top2 == the_table_info.top2box_freq;
+
+	if (sum_top2 != the_table_info.top2box_freq) {
+		stringstream reasons_str;
+		reasons_str << "top2box_freq did not match:"
+			<< "table shows:" << the_table_info.top2box_freq
+			<< ", I expect it to be: "
+			<< sum_top2;
+		p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+		result = false;
+	}
+
+	if (sum_top3 != the_table_info.top3box_freq) {
+		stringstream reasons_str;
+		reasons_str << "top3box_freq did not match:"
+			<< "table shows:" << the_table_info.top3box_freq
+			<< ", I expect it to be: "
+			<< sum_top3;
+		p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+		result = false;
+	}
+
+	if (sum_bot2 != the_table_info.bot2box_freq) {
+		stringstream reasons_str;
+		reasons_str << "bot2box_freq did not match:"
+			<< "table shows:" << the_table_info.bot2box_freq
+			<< ", I expect it to be: "
+			<< sum_bot2;
+		p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+		result = false;
+	}
+
+	if (sum_bot3 != the_table_info.bot3box_freq) {
+		stringstream reasons_str;
+		reasons_str << "bot3box_freq did not match:"
+			<< "table shows:" << the_table_info.bot3box_freq
+			<< ", I expect it to be: "
+			<< sum_bot3;
+		p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+		result = false;
+	}
+
+	return result;
 }
 
 bool passed_summary_table_checks (

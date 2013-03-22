@@ -1093,7 +1093,7 @@ YY_RULE_SETUP
 {
 	string str(qtm_table_output_text + 21);
 	int bot2box_freq = atoi (str.c_str());
-	cout	<< "RETURNING  BOT3BOX:"
+	cout	<< "RETURNING  BOT2BOX:"
 		<< "bot3box_freq str:" << str << ", "
 		<< "bot3box_freq: " << bot2box_freq << endl;
 	qtm_table_output_lval.ival = bot2box_freq;

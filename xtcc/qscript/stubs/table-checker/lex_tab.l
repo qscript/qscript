@@ -145,7 +145,7 @@ DIGIT    [0-9]
 "\"Bottom 2 Box (Net)\"",{DIGIT}+   {
 	string str(yytext + 21);
 	int bot2box_freq = atoi (str.c_str());
-	cout	<< "RETURNING  BOT3BOX:"
+	cout	<< "RETURNING  BOT2BOX:"
 		<< "bot3box_freq str:" << str << ", "
 		<< "bot3box_freq: " << bot2box_freq << endl;
 	qtm_table_output_lval.ival = bot2box_freq;

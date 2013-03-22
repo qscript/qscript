@@ -226,6 +226,22 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 			table_info_ptr->top2box_freq = top2box_freq;
 			table_info_ptr->has_top2box = has_top2box;
 		}
+		if (has_top3box) {
+			table_info_ptr->top3box_freq = top3box_freq;
+			table_info_ptr->has_top3box = has_top3box;
+		}
+		if (has_top3box) {
+			table_info_ptr->top3box_freq = top3box_freq;
+			table_info_ptr->has_top3box = has_top3box;
+		}
+		if (has_bot2box) {
+			table_info_ptr->bot2box_freq = bot2box_freq;
+			table_info_ptr->has_bot2box = has_bot2box;
+		}
+		if (has_bot3box) {
+			table_info_ptr->bot3box_freq = bot3box_freq;
+			table_info_ptr->has_bot3box = has_bot3box;
+		}
 		table_info_map[name] = table_info_ptr;
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();

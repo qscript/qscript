@@ -558,8 +558,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   144,   144,   148,   154,   187,   234,   235,   238,   239,
-     242,   245,   246,   247,   257,   267,   268,   269,   270
+       0,   144,   144,   148,   154,   187,   250,   251,   254,   255,
+     258,   261,   262,   263,   273,   283,   284,   285,   286
 };
 #endif
 
@@ -1615,6 +1615,22 @@ yyreduce:
 			table_info_ptr->top2box_freq = top2box_freq;
 			table_info_ptr->has_top2box = has_top2box;
 		}
+		if (has_top3box) {
+			table_info_ptr->top3box_freq = top3box_freq;
+			table_info_ptr->has_top3box = has_top3box;
+		}
+		if (has_top3box) {
+			table_info_ptr->top3box_freq = top3box_freq;
+			table_info_ptr->has_top3box = has_top3box;
+		}
+		if (has_bot2box) {
+			table_info_ptr->bot2box_freq = bot2box_freq;
+			table_info_ptr->has_bot2box = has_bot2box;
+		}
+		if (has_bot3box) {
+			table_info_ptr->bot3box_freq = bot3box_freq;
+			table_info_ptr->has_bot3box = has_bot3box;
+		}
 		table_info_map[name] = table_info_ptr;
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
@@ -1624,7 +1640,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 242 "table_csv.y"
+#line 258 "table_csv.y"
     {
 		temp_qtm_freq_count_map_nq_stub_codefreq[stub_text]=(yyvsp[(1) - (2)].ival);
 	}
@@ -1633,7 +1649,7 @@ yyreduce:
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 247 "table_csv.y"
+#line 263 "table_csv.y"
     { 
 		if (has_top2box == false) {
 			top2box_freq = (yyvsp[(1) - (2)].ival);
@@ -1649,7 +1665,7 @@ yyreduce:
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 257 "table_csv.y"
+#line 273 "table_csv.y"
     {
 		if (has_top3box == false) {
 			top3box_freq = (yyvsp[(1) - (2)].ival);
@@ -1665,14 +1681,14 @@ yyreduce:
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 270 "table_csv.y"
+#line 286 "table_csv.y"
     { global_sigma = (yyvsp[(1) - (2)].dval); }
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1676 "table_csv.c"
+#line 1692 "table_csv.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1903,7 +1919,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 274 "table_csv.y"
+#line 290 "table_csv.y"
 
 
 	//extern void qtm_table_output_restart(FILE *input_file);
