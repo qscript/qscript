@@ -31,12 +31,14 @@
 	map<string, map <string, int> > freq_count_map_nq_name_stub_freq;
 	map<string, map <int, int> > freq_count_map_nq_name_code_freq;
 	map<string, map <string, int> > freq_count_map_nq_name_stub_code;
+	map<string, map <int, string> > freq_count_map_nq_name_code_stub;
 	map<string, map <int, int> > freq_count_map_rq;
 	// these are used while building up the list
 	//       this is for named stub questions
 	map<string, int> temp_freq_count_map_nq_stub_codefreq;
 	map<int, int>    temp_freq_count_map_nq_code_codefreq;
 	map<string, int>    temp_freq_count_map_nq_stub_code;
+	map<int, string>    temp_freq_count_map_nq_code_stub;
 	//       this is for range questions
 	map<int, int> temp_freq_count_map_rq; // will always be code -> freq
 	string axis_name;
@@ -82,9 +84,11 @@ axis_freq_count: name stub_header_line stub_frequency_list NEWL {
 		freq_count_map_nq_name_stub_freq[axis_name] = temp_freq_count_map_nq_stub_codefreq;
 		freq_count_map_nq_name_code_freq[axis_name] = temp_freq_count_map_nq_code_codefreq;
 		freq_count_map_nq_name_stub_code[axis_name] = temp_freq_count_map_nq_stub_code;
+		freq_count_map_nq_name_code_stub[axis_name] = temp_freq_count_map_nq_code_stub;
 		temp_freq_count_map_nq_stub_codefreq.clear();
 		temp_freq_count_map_nq_code_codefreq.clear();
 		temp_freq_count_map_nq_stub_code.clear();
+		temp_freq_count_map_nq_code_stub.clear();
 		cout << "got Named Question axis_freq_count: " << axis_name << endl;
 		cout << "got axis_freq_count: " << axis_name
             << ", n_stubs: " << n_stubs
@@ -143,6 +147,7 @@ stub_freq: TEXT COMMA INUMBER COMMA INUMBER NEWL {
 	temp_freq_count_map_nq_stub_codefreq[$1]=$5;
 	temp_freq_count_map_nq_code_codefreq[$3]=$5;
 	temp_freq_count_map_nq_stub_code[$1]=$3;
+	temp_freq_count_map_nq_code_stub[$3]=$1;
 	cout << "Got stub: |"  << $1 << "|"
         << ", code " << $3
         << ", freq " << $5

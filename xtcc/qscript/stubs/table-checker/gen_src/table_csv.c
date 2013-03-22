@@ -559,7 +559,7 @@ static const yytype_int8 yyrhs[] =
 static const yytype_uint16 yyrline[] =
 {
        0,   144,   144,   148,   154,   187,   234,   235,   238,   239,
-     242,   245,   246,   247,   257,   258,   259,   260,   261
+     242,   245,   246,   247,   257,   267,   268,   269,   270
 };
 #endif
 
@@ -1646,17 +1646,33 @@ yyreduce:
 	}
     break;
 
+  case 14:
+
+/* Line 1806 of yacc.c  */
+#line 257 "table_csv.y"
+    {
+		if (has_top3box == false) {
+			top3box_freq = (yyvsp[(1) - (2)].ival);
+			has_top3box = true;
+		} else {
+			cerr << "STUB_TOP3BOX is repeated - Auto check will not work for this table: "
+				<<  qtm_line_no
+				<< endl;
+		}
+	}
+    break;
+
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 261 "table_csv.y"
+#line 270 "table_csv.y"
     { global_sigma = (yyvsp[(1) - (2)].dval); }
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1660 "table_csv.c"
+#line 1676 "table_csv.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1887,7 +1903,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 265 "table_csv.y"
+#line 274 "table_csv.y"
 
 
 	//extern void qtm_table_output_restart(FILE *input_file);

@@ -254,7 +254,16 @@ a_freq 	: 	STUB_FREQ NEWL {
 				<< endl;
 		}
 	}
-        |   STUB_TOP3BOX NEWL
+        |   STUB_TOP3BOX NEWL {
+		if (has_top3box == false) {
+			top3box_freq = $1;
+			has_top3box = true;
+		} else {
+			cerr << "STUB_TOP3BOX is repeated - Auto check will not work for this table: "
+				<<  qtm_line_no
+				<< endl;
+		}
+	}
         |   STUB_BOT2BOX NEWL
         |   STUB_BOT3BOX NEWL
         |   STUB_STD_DEV NEWL

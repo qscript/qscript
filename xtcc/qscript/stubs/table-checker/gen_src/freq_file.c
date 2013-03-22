@@ -95,12 +95,14 @@
 	map<string, map <string, int> > freq_count_map_nq_name_stub_freq;
 	map<string, map <int, int> > freq_count_map_nq_name_code_freq;
 	map<string, map <string, int> > freq_count_map_nq_name_stub_code;
+	map<string, map <int, string> > freq_count_map_nq_name_code_stub;
 	map<string, map <int, int> > freq_count_map_rq;
 	// these are used while building up the list
 	//       this is for named stub questions
 	map<string, int> temp_freq_count_map_nq_stub_codefreq;
 	map<int, int>    temp_freq_count_map_nq_code_codefreq;
 	map<string, int>    temp_freq_count_map_nq_stub_code;
+	map<int, string>    temp_freq_count_map_nq_code_stub;
 	//       this is for range questions
 	map<int, int> temp_freq_count_map_rq; // will always be code -> freq
 	string axis_name;
@@ -111,7 +113,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 115 "freq_file.c"
+#line 117 "freq_file.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -158,7 +160,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 49 "freq_file.y"
+#line 51 "freq_file.y"
 
 	int ival;
 	double dval;
@@ -168,7 +170,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 172 "freq_file.c"
+#line 174 "freq_file.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -180,7 +182,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 184 "freq_file.c"
+#line 186 "freq_file.c"
 
 #ifdef short
 # undef short
@@ -473,8 +475,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    70,    70,    74,    80,    96,    99,   102,   115,   119,
-     123,   127,   134,   135,   138,   139,   142,   154
+       0,    72,    72,    76,    82,   100,   103,   106,   119,   123,
+     127,   131,   138,   139,   142,   143,   146,   159
 };
 #endif
 
@@ -1426,7 +1428,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 70 "freq_file.y"
+#line 72 "freq_file.y"
     {
 		//cout << "parsed axis_freq_count to axis_freq_count_list"
 		//	<< endl;
@@ -1436,7 +1438,7 @@ yyreduce:
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 74 "freq_file.y"
+#line 76 "freq_file.y"
     {
 		//cout << "chaining axis_freq_count with axis_freq_count_list"
 		//	<< endl;
@@ -1446,15 +1448,17 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 80 "freq_file.y"
+#line 82 "freq_file.y"
     {
 		//cout << "got an named stub axis_freq_count" << endl;
 		freq_count_map_nq_name_stub_freq[axis_name] = temp_freq_count_map_nq_stub_codefreq;
 		freq_count_map_nq_name_code_freq[axis_name] = temp_freq_count_map_nq_code_codefreq;
 		freq_count_map_nq_name_stub_code[axis_name] = temp_freq_count_map_nq_stub_code;
+		freq_count_map_nq_name_code_stub[axis_name] = temp_freq_count_map_nq_code_stub;
 		temp_freq_count_map_nq_stub_codefreq.clear();
 		temp_freq_count_map_nq_code_codefreq.clear();
 		temp_freq_count_map_nq_stub_code.clear();
+		temp_freq_count_map_nq_code_stub.clear();
 		cout << "got Named Question axis_freq_count: " << axis_name << endl;
 		cout << "got axis_freq_count: " << axis_name
             << ", n_stubs: " << n_stubs
@@ -1468,7 +1472,7 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 96 "freq_file.y"
+#line 100 "freq_file.y"
     {
         // do nothing - this question had no data
     }
@@ -1477,7 +1481,7 @@ yyreduce:
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 99 "freq_file.y"
+#line 103 "freq_file.y"
     {
         // do nothing - this question had no data
     }
@@ -1486,7 +1490,7 @@ yyreduce:
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 102 "freq_file.y"
+#line 106 "freq_file.y"
     {
 		//cout << "got an range stub axis_freq_count" << endl;
 		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
@@ -1503,7 +1507,7 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 115 "freq_file.y"
+#line 119 "freq_file.y"
     {
 	//cout << "got stubs_header_line" << endl;
 	}
@@ -1512,7 +1516,7 @@ yyreduce:
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 119 "freq_file.y"
+#line 123 "freq_file.y"
     {
 	//cout << "got code_header_line" << endl;
 	}
@@ -1521,7 +1525,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 123 "freq_file.y"
+#line 127 "freq_file.y"
     {
 	//cout << "Got NAME: " << $1 << endl;
 	axis_name = (yyvsp[(1) - (2)].name);
@@ -1531,7 +1535,7 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 127 "freq_file.y"
+#line 131 "freq_file.y"
     {
 		cout << "Got array NAME: " << (yyvsp[(1) - (4)].name) << endl;
 		stringstream s1;
@@ -1543,11 +1547,12 @@ yyreduce:
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 142 "freq_file.y"
+#line 146 "freq_file.y"
     {
 	temp_freq_count_map_nq_stub_codefreq[(yyvsp[(1) - (6)].text_buf)]=(yyvsp[(5) - (6)].ival);
 	temp_freq_count_map_nq_code_codefreq[(yyvsp[(3) - (6)].ival)]=(yyvsp[(5) - (6)].ival);
 	temp_freq_count_map_nq_stub_code[(yyvsp[(1) - (6)].text_buf)]=(yyvsp[(3) - (6)].ival);
+	temp_freq_count_map_nq_code_stub[(yyvsp[(3) - (6)].ival)]=(yyvsp[(1) - (6)].text_buf);
 	cout << "Got stub: |"  << (yyvsp[(1) - (6)].text_buf) << "|"
         << ", code " << (yyvsp[(3) - (6)].ival)
         << ", freq " << (yyvsp[(5) - (6)].ival)
@@ -1560,7 +1565,7 @@ yyreduce:
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 154 "freq_file.y"
+#line 159 "freq_file.y"
     {
 	//cout	<< "Got code_freq code:"  << $2
 	//	<< ", freq: " << $4
@@ -1574,7 +1579,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1578 "freq_file.c"
+#line 1583 "freq_file.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1805,7 +1810,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 163 "freq_file.y"
+#line 168 "freq_file.y"
 
 	extern void yyrestart(FILE *input_file);
 	extern int32_t yyparse();

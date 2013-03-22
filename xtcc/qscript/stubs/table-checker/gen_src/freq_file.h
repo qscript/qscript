@@ -57,7 +57,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 49 "freq_file.y"
+#line 51 "freq_file.y"
 
 	int ival;
 	double dval;

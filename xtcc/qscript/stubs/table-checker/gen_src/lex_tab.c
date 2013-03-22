@@ -1065,7 +1065,7 @@ case 8:
 YY_RULE_SETUP
 #line 125 "lex_tab.l"
 {
-	string str(qtm_table_output_text + 16);
+	string str(qtm_table_output_text + 18);
 	int top3box_freq = atoi (str.c_str());
 	cout	<< "RETURNING  top3BOX:"
 		<< "top3box_freq str:" << str << ", "
@@ -1078,7 +1078,7 @@ case 9:
 YY_RULE_SETUP
 #line 135 "lex_tab.l"
 {
-	string str(qtm_table_output_text + 16);
+	string str(qtm_table_output_text + 18);
 	int top2box_freq = atoi (str.c_str());
 	cout	<< "RETURNING  top2BOX:"
 		<< "top2box_freq str:" << str << ", "
@@ -1091,7 +1091,7 @@ case 10:
 YY_RULE_SETUP
 #line 145 "lex_tab.l"
 {
-	string str(qtm_table_output_text + 20);
+	string str(qtm_table_output_text + 21);
 	int bot2box_freq = atoi (str.c_str());
 	cout	<< "RETURNING  BOT3BOX:"
 		<< "bot3box_freq str:" << str << ", "
@@ -1104,7 +1104,7 @@ case 11:
 YY_RULE_SETUP
 #line 155 "lex_tab.l"
 {
-	string str(qtm_table_output_text + 20);
+	string str(qtm_table_output_text + 21);
 	int bot3box_freq = atoi (str.c_str());
 	cout	<< "RETURNING  BOT3BOX:"
 		<< "bot3box_freq str:" << str << ", "

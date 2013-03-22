@@ -45,6 +45,7 @@ extern void yyerror(const char * s);
 extern map<string, map <string, int> > freq_count_map_nq_name_stub_freq;
 extern map<string, map <int, int> > freq_count_map_nq_name_code_freq;
 extern map<string, map <string, int> > freq_count_map_nq_name_stub_code;
+extern map<string, map <int, string> > freq_count_map_nq_name_code_stub;
 extern map<string, map <int, int> > freq_count_map_rq;
 
 extern map <string, struct TableInfo *> table_info_map;
@@ -166,6 +167,134 @@ int main(int argc, char *  argv[])
 
 }
 
+// from simple_compiler/src/utils.{h,cpp}
+struct RatingScaleInfo
+{
+	bool isRatingScale_;
+	bool isReversed_;
+	int ratingScaleStart_;
+	int ratingScaleEnd_;
+	RatingScaleInfo ()
+		: isRatingScale_ (false), isReversed_(false),
+		  ratingScaleStart_(0), ratingScaleEnd_(0)
+	{ }
+};
+
+struct RatingScaleInfo extract_rating_scale (string s)
+{
+	RatingScaleInfo rat_scale_inf;
+	//rat_scale_inf.isReversed_ = false;
+	int rat_scale = 0;
+	if (isdigit(s[s.size()-1]) /*&& !(range_name[range_name.size()-1]=='0')*/ ) {
+		rat_scale_inf.isRatingScale_ = true;
+		int i = s.size()-1;
+		int factor = 1;
+		while (isdigit(s[i])) {
+			rat_scale += (s[i] - '0') * factor;
+			factor *=10;
+			--i;
+		}
+		rat_scale_inf.ratingScaleEnd_ = rat_scale;
+		if (s[i] == 'r' && s[i-1] == '_') {
+			rat_scale_inf.isReversed_ = true;
+		}
+	} else {
+		rat_scale_inf.isRatingScale_ = false;
+	}
+	cout	<< __FILE__ << ", "
+		<< __LINE__ << ","
+		<< __PRETTY_FUNCTION__ << ","
+		<< "input parameter:" << s
+		<< ", RatingScaleInfo: "
+		<< ", isRatingScale_: " << rat_scale_inf.isRatingScale_
+		<< ", isReversed_: " << rat_scale_inf.isReversed_
+		<< ", ratingScaleEnd_: " << rat_scale_inf.ratingScaleEnd_
+		<< endl;
+	return rat_scale_inf;
+}
+
+template <class t1, class t2>
+void print_map (const map<t1, t2> & the_map)
+{
+	for (typename map<t1, t2>::const_iterator map_it = the_map.begin();
+			map_it != the_map.end(); ++map_it) {
+		cout	<< "key: |" << map_it->first <<  "|"
+			<< ", value: |" << map_it->second << "|"
+			<< endl;
+	}
+	cout << endl;
+}
+
+bool does_top_2_box_match (
+	TableInfo  & the_table_info,
+	map<string, int> & the_freq_counts,
+	RatingScaleInfo rat_scale_inf,
+	map <int, string> & table_code_stub_map,
+	struct ErrorReport & p_error_report
+	)
+{
+	cout << __PRETTY_FUNCTION__
+		<< endl
+		<< "table name: " << the_table_info.name_
+		<< endl;
+	map <int, string> ::const_iterator END = table_code_stub_map.end();
+	map <int, string> ::const_iterator highest = table_code_stub_map.find (rat_scale_inf.ratingScaleEnd_);
+	map <int, string> ::const_iterator second_highest = table_code_stub_map.find (rat_scale_inf.ratingScaleEnd_-1);
+	int sum_top2 = 0;
+	if (highest != END) {
+		map <string, int> :: const_iterator fq_nq_it = the_freq_counts.find (highest->second);
+		if (fq_nq_it != the_freq_counts.end()) {
+			sum_top2 += fq_nq_it->second;
+		}
+	}
+	if (second_highest != END) {
+		map <string, int> :: const_iterator fq_nq_it = the_freq_counts.find (second_highest->second);
+		if (fq_nq_it != the_freq_counts.end()) {
+			sum_top2 += fq_nq_it->second;
+		}
+	}
+	cout	<< "sum_top2: |" << sum_top2 << "|"
+		<< ", table TOP 2 BOX NET: |" << the_table_info.top2box_freq << "|"
+		<< endl;
+	return sum_top2 == the_table_info.top2box_freq;
+}
+
+bool passed_summary_table_checks (
+	TableInfo  & the_table_info,
+	map<string, int> & the_freq_counts,
+	struct ErrorReport & p_error_report
+		)
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	RatingScaleInfo rat_scale_inf = extract_rating_scale (the_table_info.stub_name);
+	if (rat_scale_inf.isRatingScale_) {
+		if (rat_scale_inf.isReversed_) {
+			cerr << __PRETTY_FUNCTION__ << "unhandled case: rat_scale_inf.isReversed_"
+				<< endl;
+			return false;
+		} else {
+			cerr << __PRETTY_FUNCTION__ << "unhandled case: !rat_scale_inf.isReversed_"
+				<< endl;
+			int scale_end = rat_scale_inf.ratingScaleEnd_;
+			map <string, int> & table_stub_code_map
+				= freq_count_map_nq_name_stub_code[the_table_info.name_];
+			map <int, string> & table_code_stub_map
+				= freq_count_map_nq_name_code_stub[the_table_info.name_];
+			print_map (table_stub_code_map);
+			print_map (table_code_stub_map);
+			return does_top_2_box_match  (the_table_info, the_freq_counts,
+					rat_scale_inf, table_code_stub_map, p_error_report);
+		}
+	} else {
+		cerr << __PRETTY_FUNCTION__ << "summary checks are not possible for table : this should not have occurred "
+			<< endl;
+		return false;
+	}
+}
+
+
+
+
 bool check_table_against_nq_freq_counts(
 		map <string, TableInfo * >::iterator qtm_table_it,
 		map<string, map<string, int> >::iterator fq_nq_it,
@@ -264,10 +393,17 @@ bool check_table_against_nq_freq_counts(
 	cout << "Sigma:" << qtm_table_it->second->sigma_ << endl;
 	cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
 	if (the_table_info.has_top2box) {
-		p_error_report.stubErrorReasons_.push_back ("has_top2box have to check it, stub_name is " + the_table_info.stub_name);
-		++p_error_report.nStubErrors_;
-		counts_matched = false;
-
+		cout << the_table_info.name_ << " has a top2box: value is: "
+			<< the_table_info.top2box_freq
+			<< ", invoking summary table checks"
+			<< endl;
+		if (!passed_summary_table_checks (the_table_info, the_freq_counts, p_error_report) ) {
+			p_error_report.stubErrorReasons_.push_back ("did not pass summary table checks: " + the_table_info.stub_name);
+			++p_error_report.nStubErrors_;
+			counts_matched = false;
+		} else {
+			cout << " top2box matched" << endl;
+		}
 	}
 	//reasons = reasons_str.str();
 	return counts_matched;

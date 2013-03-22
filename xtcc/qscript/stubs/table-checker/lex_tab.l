@@ -123,7 +123,7 @@ DIGIT    [0-9]
 
 
 "\"Top 3 Box \(Net\)\"",{DIGIT}+  {
-	string str(yytext + 16);
+	string str(yytext + 18);
 	int top3box_freq = atoi (str.c_str());
 	cout	<< "RETURNING  top3BOX:"
 		<< "top3box_freq str:" << str << ", "
@@ -133,7 +133,7 @@ DIGIT    [0-9]
 	}
 
 "\"Top 2 Box (Net)\"",{DIGIT} {
-	string str(yytext + 16);
+	string str(yytext + 18);
 	int top2box_freq = atoi (str.c_str());
 	cout	<< "RETURNING  top2BOX:"
 		<< "top2box_freq str:" << str << ", "
@@ -143,7 +143,7 @@ DIGIT    [0-9]
 	}
 
 "\"Bottom 2 Box (Net)\"",{DIGIT}+   {
-	string str(yytext + 20);
+	string str(yytext + 21);
 	int bot2box_freq = atoi (str.c_str());
 	cout	<< "RETURNING  BOT3BOX:"
 		<< "bot3box_freq str:" << str << ", "
@@ -153,7 +153,7 @@ DIGIT    [0-9]
 }
 
 "\"Bottom 3 Box (Net)\"",{DIGIT}+  {
-	string str(yytext + 20);
+	string str(yytext + 21);
 	int bot3box_freq = atoi (str.c_str());
 	cout	<< "RETURNING  BOT3BOX:"
 		<< "bot3box_freq str:" << str << ", "
