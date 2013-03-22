@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdlib>
-#include <regex.h>
+//#include <regex.h>
 #include "../const_defs.h"
 #include "table_csv.h"
 
@@ -46,7 +46,7 @@
 	using std::endl;
 	using std::string;
 	int qtm_line_no;
-	int count_at_least_n_matches ( regmatch_t p_match[5]);
+	//int count_at_least_n_matches ( regmatch_t p_match[5]);
 	void qtm_table_output_error(const char * s);
 	string stub_text;
 
@@ -60,7 +60,8 @@
     /* comment out below option on windows as flex version 
        there does not do it
        */
-%option outfile="gen_src/lex_tab.c" header-file="gen_src/lex_tab.h" 
+%option outfile="gen_src/lex_tab.c" 
+    //%option header-file="gen_src/lex_tab.h" 
 
 DIGIT    [0-9]
         /*ID       [a-z][a-z0-9]*/
@@ -373,6 +374,7 @@ int qtm_table_output_wrap()
 }
 
 // 
+/*
 int count_at_least_n_matches ( regmatch_t p_match[5])
 {
 	int n_matches = 0;
@@ -383,6 +385,7 @@ int count_at_least_n_matches ( regmatch_t p_match[5])
 	}
 	return n_matches;
 }
+*/
 
 	/*
 	int main ()
