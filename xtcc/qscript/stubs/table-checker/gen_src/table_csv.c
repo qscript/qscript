@@ -89,6 +89,7 @@
 #include <cstdlib>
 #include "../const_defs.h"
 #include "lex_tab.h"
+// Why ? - because in the Makefile the generated code is in gen_src/
 #include "../TableInfo.h"
 
 
@@ -105,6 +106,7 @@
 	//map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_freq;
 	//map<string, map <int, int> > qtm_freq_count_map_rq;
 	map <string, struct TableInfo *> table_info_map;
+	multimap <string, struct TableInfo *> table_info_multimap;
 	// these are used while building up the list
 	//       this is for named stub questions
 	map<string, int> temp_qtm_freq_count_map_nq_stub_codefreq;
@@ -140,7 +142,7 @@
 
 	void reset()
 	{
-		cout << __PRETTY_FUNCTION__ << endl;
+		//cout << __PRETTY_FUNCTION__ << endl;
 
 		global_sigma=0.0;
 		topbox_perc=0.0;
@@ -164,7 +166,7 @@
 		has_bot2box=false;
 		has_bot3box=false;
 		has_mean=false;
-		cerr << "reset invoked" << endl;
+		//cerr << "reset invoked" << endl;
 
 	}
 	extern int qtm_line_no;
@@ -172,7 +174,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 176 "table_csv.c"
+#line 178 "table_csv.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -238,7 +240,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 102 "table_csv.y"
+#line 104 "table_csv.y"
 
 	int ival;
 	double dval;
@@ -248,7 +250,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 252 "table_csv.c"
+#line 254 "table_csv.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -260,7 +262,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 264 "table_csv.c"
+#line 266 "table_csv.c"
 
 #ifdef short
 # undef short
@@ -558,8 +560,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   144,   144,   148,   154,   187,   250,   251,   254,   255,
-     258,   261,   262,   263,   273,   283,   284,   285,   286
+       0,   146,   146,   150,   156,   190,   253,   254,   257,   258,
+     261,   264,   265,   266,   276,   286,   296,   306,   307
 };
 #endif
 
@@ -1524,7 +1526,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 144 "table_csv.y"
+#line 146 "table_csv.y"
     {
 		//cout << "parsed axis_qtm_freq_count to axis_qtm_freq_count_list"
 		//	<< endl;
@@ -1534,7 +1536,7 @@ yyreduce:
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 148 "table_csv.y"
+#line 150 "table_csv.y"
     {
 		//cout << "chaining axis_qtm_freq_count with axis_qtm_freq_count_list"
 		//	<< endl;
@@ -1544,7 +1546,7 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 159 "table_csv.y"
+#line 161 "table_csv.y"
     {
 		//qtm_freq_count_map_nq_name_stub_freq[$7] = temp_qtm_freq_count_map_nq_stub_code_qtm_freq_count_map_nq_stub_codefreq;
 		cout << "got axis_qtm_freq_count: " << (yyvsp[(7) - (22)].text_buf) << endl;
@@ -1569,6 +1571,7 @@ yyreduce:
 					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name
 				);
 		table_info_map[name] = table_info_ptr;
+		table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
 	}
@@ -1577,7 +1580,7 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 192 "table_csv.y"
+#line 195 "table_csv.y"
     {
 		//qtm_freq_count_map_nq_name_stub_freq[$7] = temp_qtm_freq_count_map_nq_stub_code_qtm_freq_count_map_nq_stub_codefreq;
 		cout << "got axis_qtm_freq_count: " << (yyvsp[(7) - (22)].text_buf) << endl;
@@ -1640,7 +1643,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 258 "table_csv.y"
+#line 261 "table_csv.y"
     {
 		temp_qtm_freq_count_map_nq_stub_codefreq[stub_text]=(yyvsp[(1) - (2)].ival);
 	}
@@ -1649,7 +1652,7 @@ yyreduce:
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 263 "table_csv.y"
+#line 266 "table_csv.y"
     { 
 		if (has_top2box == false) {
 			top2box_freq = (yyvsp[(1) - (2)].ival);
@@ -1665,7 +1668,7 @@ yyreduce:
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 273 "table_csv.y"
+#line 276 "table_csv.y"
     {
 		if (has_top3box == false) {
 			top3box_freq = (yyvsp[(1) - (2)].ival);
@@ -1678,17 +1681,49 @@ yyreduce:
 	}
     break;
 
-  case 18:
+  case 15:
 
 /* Line 1806 of yacc.c  */
 #line 286 "table_csv.y"
+    {
+		if (has_bot2box == false) {
+			bot2box_freq = (yyvsp[(1) - (2)].ival);
+			has_bot2box = true;
+		} else {
+			cerr << "STUB_BOT2BOX is repeated - Auto check will not work for this table: "
+				<<  qtm_line_no
+				<< endl;
+		}
+	}
+    break;
+
+  case 16:
+
+/* Line 1806 of yacc.c  */
+#line 296 "table_csv.y"
+    {
+		if (has_bot3box == false) {
+			bot3box_freq = (yyvsp[(1) - (2)].ival);
+			has_bot3box = true;
+		} else {
+			cerr << "STUB_BOT3BOX is repeated - Auto check will not work for this table: "
+				<<  qtm_line_no
+				<< endl;
+		}
+	}
+    break;
+
+  case 18:
+
+/* Line 1806 of yacc.c  */
+#line 307 "table_csv.y"
     { global_sigma = (yyvsp[(1) - (2)].dval); }
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1692 "table_csv.c"
+#line 1727 "table_csv.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1919,7 +1954,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 290 "table_csv.y"
+#line 311 "table_csv.y"
 
 
 	//extern void qtm_table_output_restart(FILE *input_file);

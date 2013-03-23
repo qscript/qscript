@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include "../const_defs.h"
 #include "lex_tab.h"
+// Why ? - because in the Makefile the generated code is in gen_src/
 #include "../TableInfo.h"
 
 
@@ -33,6 +34,7 @@
 	//map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_freq;
 	//map<string, map <int, int> > qtm_freq_count_map_rq;
 	map <string, struct TableInfo *> table_info_map;
+	multimap <string, struct TableInfo *> table_info_multimap;
 	// these are used while building up the list
 	//       this is for named stub questions
 	map<string, int> temp_qtm_freq_count_map_nq_stub_codefreq;
@@ -68,7 +70,7 @@
 
 	void reset()
 	{
-		cout << __PRETTY_FUNCTION__ << endl;
+		//cout << __PRETTY_FUNCTION__ << endl;
 
 		global_sigma=0.0;
 		topbox_perc=0.0;
@@ -92,7 +94,7 @@
 		has_bot2box=false;
 		has_bot3box=false;
 		has_mean=false;
-		cerr << "reset invoked" << endl;
+		//cerr << "reset invoked" << endl;
 
 	}
 	extern int qtm_line_no;
@@ -180,6 +182,7 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name
 				);
 		table_info_map[name] = table_info_ptr;
+		table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
 	}
@@ -280,8 +283,26 @@ a_freq 	: 	STUB_FREQ NEWL {
 				<< endl;
 		}
 	}
-        |   STUB_BOT2BOX NEWL
-        |   STUB_BOT3BOX NEWL
+        |   STUB_BOT2BOX NEWL {
+		if (has_bot2box == false) {
+			bot2box_freq = $1;
+			has_bot2box = true;
+		} else {
+			cerr << "STUB_BOT2BOX is repeated - Auto check will not work for this table: "
+				<<  qtm_line_no
+				<< endl;
+		}
+	}
+        |   STUB_BOT3BOX NEWL {
+		if (has_bot3box == false) {
+			bot3box_freq = $1;
+			has_bot3box = true;
+		} else {
+			cerr << "STUB_BOT3BOX is repeated - Auto check will not work for this table: "
+				<<  qtm_line_no
+				<< endl;
+		}
+	}
         |   STUB_STD_DEV NEWL
 	|   SIGMA NEWL { global_sigma = $1; }
 	;

@@ -304,7 +304,7 @@ bool does_top_2_box_match (
 		<< ", table TOP 2 BOX NET: |" << the_table_info.top2box_freq << "|"
 		<< endl;
 
-	if (sum_top2 != the_table_info.top2box_freq) {
+	if (the_table_info.has_top2box && sum_top2 != the_table_info.top2box_freq) {
 		stringstream reasons_str;
 		reasons_str << "top2box_freq did not match:"
 			<< "table shows:" << the_table_info.top2box_freq
@@ -314,7 +314,7 @@ bool does_top_2_box_match (
 		result = false;
 	}
 
-	if (sum_top3 != the_table_info.top3box_freq) {
+	if (the_table_info.has_top3box && sum_top3 != the_table_info.top3box_freq) {
 		stringstream reasons_str;
 		reasons_str << "top3box_freq did not match:"
 			<< "table shows:" << the_table_info.top3box_freq
@@ -324,7 +324,7 @@ bool does_top_2_box_match (
 		result = false;
 	}
 
-	if (sum_bot2 != the_table_info.bot2box_freq) {
+	if (the_table_info.has_bot2box && sum_bot2 != the_table_info.bot2box_freq) {
 		stringstream reasons_str;
 		reasons_str << "bot2box_freq did not match:"
 			<< "table shows:" << the_table_info.bot2box_freq
@@ -334,7 +334,7 @@ bool does_top_2_box_match (
 		result = false;
 	}
 
-	if (sum_bot3 != the_table_info.bot3box_freq) {
+	if (the_table_info.has_bot3box && sum_bot3 != the_table_info.bot3box_freq) {
 		stringstream reasons_str;
 		reasons_str << "bot3box_freq did not match:"
 			<< "table shows:" << the_table_info.bot3box_freq
@@ -361,8 +361,8 @@ bool passed_summary_table_checks (
 				<< endl;
 			return false;
 		} else {
-			cerr << __PRETTY_FUNCTION__ << "unhandled case: !rat_scale_inf.isReversed_"
-				<< endl;
+			//cerr << __PRETTY_FUNCTION__ << "unhandled case: !rat_scale_inf.isReversed_"
+			//	<< endl;
 			int scale_end = rat_scale_inf.ratingScaleEnd_;
 			map <string, int> & table_stub_code_map
 				= freq_count_map_nq_name_stub_code[the_table_info.name_];
