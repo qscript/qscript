@@ -49,6 +49,7 @@ extern map<string, map <int, string> > freq_count_map_nq_name_code_stub;
 extern map<string, map <int, int> > freq_count_map_rq;
 
 extern map <string, struct TableInfo *> table_info_map;
+extern multimap <string, struct TableInfo *> table_info_multimap;
 //extern map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_freq;
 //extern map<string, map <int, int> >    qtm_freq_count_map_nq_name_code_freq;
 //extern map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_code;
@@ -237,6 +238,7 @@ bool does_top_2_box_match (
 	cout << __PRETTY_FUNCTION__
 		<< endl
 		<< "table name: " << the_table_info.name_
+		<< "array_base_name_ : " << the_table_info.array_base_name_
 		<< endl;
 	static bool not_printed = true;
 	if (not_printed) {
@@ -380,7 +382,35 @@ bool passed_summary_table_checks (
 	}
 }
 
+enum SummaryTableType {
+	TOPBOX,
+	TOP2BOX,
+	TOP3BOX,
+	BOTBOX,
+	BOT2BOX,
+	BOT3BOX
+};
 
+bool check_summary_table (enum SummaryTableType,
+		map <string, TableInfo * >::iterator qtm_table_it,
+		struct ErrorReport & p_error_report
+		)
+{
+
+	cout << __PRETTY_FUNCTION__
+		<< endl
+		<< ", TableInfo->array_base_name_: " << qtm_table_it->second->array_base_name_
+		<< ", TableInfo->name_: " << qtm_table_it->second->name_
+		<< endl;
+
+	std::pair <std::multimap<string,TableInfo*>::iterator, std::multimap<string,TableInfo*>::iterator> ret
+		= table_info_multimap.equal_range (qtm_table_it->second->array_base_name_);
+	for (std::multimap<string, TableInfo*>::iterator it = ret.first; it != ret.second; ++it) {
+		cout << " I will be checking against: " << it->second->name_
+			<< endl;
+	}
+	return false;
+}
 
 
 bool check_table_against_nq_freq_counts(
@@ -589,10 +619,24 @@ void check_tables(
 			}
 			error_report_vec.push_back(error_report);
 		} else {
-			cout << "ax_name: " << ax_name << " NOT FOUND in freq_count_map_nq_name_stub_freq"
-				<< endl;
-			table_check_report << "could_not_check,"
-				<< ",,,,as not found in freq_count_map_nq_name_stub_freq";
+			// check if it's a summary table
+			if ( (ax_name.length() > 4) &&
+				(
+				 ax_name[ax_name.length()-1] == 'p' &&
+				 ax_name[ax_name.length()-2] == 'o' &&
+				 ax_name[ax_name.length()-3] == 't' &&
+				 ax_name[ax_name.length()-4] == '_'
+				)
+			   ) {
+				table_check_report << "summary table check not yet implemented "
+					<< endl;
+				check_summary_table (TOPBOX, qtm_table_it, error_report);
+			} else {
+				cout << "ax_name: " << ax_name << " NOT FOUND in freq_count_map_nq_name_stub_freq and not a summary table"
+					<< endl;
+				table_check_report << "could_not_check,"
+					<< ",,,,as not found in freq_count_map_nq_name_stub_freq";
+			}
 		}
 		table_check_report << endl;
 		//for (; fq_nq_it != QSCRIPT_NQ_END; ++fq_nq_it) {

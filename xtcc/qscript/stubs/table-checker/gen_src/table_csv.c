@@ -560,8 +560,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   146,   146,   150,   156,   190,   253,   254,   257,   258,
-     261,   264,   265,   266,   276,   286,   296,   306,   307
+       0,   146,   146,   150,   156,   198,   270,   271,   274,   275,
+     278,   281,   282,   283,   293,   303,   313,   323,   324
 };
 #endif
 
@@ -1572,6 +1572,14 @@ yyreduce:
 				);
 		table_info_map[name] = table_info_ptr;
 		table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
+		{
+			std::multimap<string,TableInfo*>::iterator it;
+			for (it=table_info_multimap.begin(); it!=table_info_multimap.end();
+				++it) {
+				cout << it->first << " is key for table: " << it->second->name_
+					<< endl;
+			}
+		}
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
 	}
@@ -1580,7 +1588,7 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 195 "table_csv.y"
+#line 203 "table_csv.y"
     {
 		//qtm_freq_count_map_nq_name_stub_freq[$7] = temp_qtm_freq_count_map_nq_stub_code_qtm_freq_count_map_nq_stub_codefreq;
 		cout << "got axis_qtm_freq_count: " << (yyvsp[(7) - (22)].text_buf) << endl;
@@ -1635,6 +1643,15 @@ yyreduce:
 			table_info_ptr->has_bot3box = has_bot3box;
 		}
 		table_info_map[name] = table_info_ptr;
+		table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
+		{
+			std::multimap<string,TableInfo*>::iterator it;
+			for (it=table_info_multimap.begin(); it!=table_info_multimap.end();
+				++it) {
+				cout << it->first << " is key for table: " << it->second->name_
+					<< endl;
+			}
+		}
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
 	}
@@ -1643,7 +1660,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 261 "table_csv.y"
+#line 278 "table_csv.y"
     {
 		temp_qtm_freq_count_map_nq_stub_codefreq[stub_text]=(yyvsp[(1) - (2)].ival);
 	}
@@ -1652,7 +1669,7 @@ yyreduce:
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 266 "table_csv.y"
+#line 283 "table_csv.y"
     { 
 		if (has_top2box == false) {
 			top2box_freq = (yyvsp[(1) - (2)].ival);
@@ -1668,7 +1685,7 @@ yyreduce:
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 276 "table_csv.y"
+#line 293 "table_csv.y"
     {
 		if (has_top3box == false) {
 			top3box_freq = (yyvsp[(1) - (2)].ival);
@@ -1684,7 +1701,7 @@ yyreduce:
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 286 "table_csv.y"
+#line 303 "table_csv.y"
     {
 		if (has_bot2box == false) {
 			bot2box_freq = (yyvsp[(1) - (2)].ival);
@@ -1700,7 +1717,7 @@ yyreduce:
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 296 "table_csv.y"
+#line 313 "table_csv.y"
     {
 		if (has_bot3box == false) {
 			bot3box_freq = (yyvsp[(1) - (2)].ival);
@@ -1716,14 +1733,14 @@ yyreduce:
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 307 "table_csv.y"
+#line 324 "table_csv.y"
     { global_sigma = (yyvsp[(1) - (2)].dval); }
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 1727 "table_csv.c"
+#line 1744 "table_csv.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1954,7 +1971,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 311 "table_csv.y"
+#line 328 "table_csv.y"
 
 
 	//extern void qtm_table_output_restart(FILE *input_file);

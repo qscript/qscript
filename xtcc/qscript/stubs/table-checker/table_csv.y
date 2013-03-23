@@ -183,6 +183,14 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 				);
 		table_info_map[name] = table_info_ptr;
 		table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
+		{
+			std::multimap<string,TableInfo*>::iterator it;
+			for (it=table_info_multimap.begin(); it!=table_info_multimap.end();
+				++it) {
+				cout << it->first << " is key for table: " << it->second->name_
+					<< endl;
+			}
+		}
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
 	}
@@ -246,6 +254,15 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 			table_info_ptr->has_bot3box = has_bot3box;
 		}
 		table_info_map[name] = table_info_ptr;
+		table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
+		{
+			std::multimap<string,TableInfo*>::iterator it;
+			for (it=table_info_multimap.begin(); it!=table_info_multimap.end();
+				++it) {
+				cout << it->first << " is key for table: " << it->second->name_
+					<< endl;
+			}
+		}
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
 	}
