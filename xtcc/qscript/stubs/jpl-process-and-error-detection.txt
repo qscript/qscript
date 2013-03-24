@@ -1,0 +1,14 @@
+http://www.fastcompany.com/28121/they-write-right-stuff
+-------------------------------------------------------
+
+The other database -- the error database -- stands as a kind of monument to the way the on-board shuttle group goes about its work. Here is recorded every single error ever made while writing or working on the software, going back almost 20 years. For every one of those errors, the database records when the error was discovered; what set of commands revealed the error; who discovered it; what activity was going on when it was discovered -- testing, training, or flight. It tracks how the error was introduced into the program; how the error managed to slip past the filters set up at every stage to catch errors -- why wasn't it caught during design? during development inspections? during verification? Finally, the database records how the error was corrected, and whether similar errors might have slipped through the same holes.
+
+The group has so much data accumulated about how it does its work that it has written software programs that model the code-writing process. Like computer models predicting the weather, the coding models predict how many errors the group should make in writing each new version of the software. True to form, if the coders and testers find too few errors, everyone works the process until reality and the predictions match.
+
+"We never let anything go," says Patti Thornton, a senior manager. "We do just the opposite: we let everything bother us."
+
+4. Don't just fix the mistakes -- fix whatever permitted the mistake in the first place.
+
+The process is so pervasive, it gets the blame for any error -- if there is a flaw in the software, there must be something wrong with the way its being written, something that can be corrected. Any error not found at the planning stage has slipped through at least some checks. Why? Is there something wrong with the inspection process? Does a question need to be added to a checklist?
+
+Importantly, the group avoids blaming people for errors. The process assumes blame - and it's the process that is analyzed to discover why and how an error got through. At the same time, accountability is a team concept: no one person is ever solely responsible for writing or inspecting code. "You don't get punished for making errors," says Marjorie Seiter, a senior member of the technical staff. "If I make a mistake, and others reviewed my work, then I'm not alone. I'm not being blamed for this."
