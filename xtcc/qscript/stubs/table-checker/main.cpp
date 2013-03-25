@@ -396,6 +396,11 @@ enum SummaryTableType {
 	BOT3BOX
 };
 
+int get_freq_counts_for_top_box ()
+{
+
+}
+
 bool check_summary_table (enum SummaryTableType,
 		map <string, TableInfo * >::iterator qtm_table_it,
 		struct ErrorReport & p_error_report
@@ -420,10 +425,28 @@ bool check_summary_table (enum SummaryTableType,
 	map<string, int>::iterator table_it = the_table.begin();
 	{
 		std::multimap<string, TableInfo*>::iterator mmit = ret.first;
-		for (; table_it!= TABLE_END; ++table_it, ++mmit) {
-			cout << "SUMMARY: searching for table stub: |" << table_it->first << "|"
-					<< ", value: " << table_it->second
-				<< " in ";
+		int stub_order = 0;
+		//for (; table_it!= TABLE_END; ++table_it, ++mmit, ++stub_order)
+		for (int summ_table_it  = 0; summ_table_it != the_table.size(); ++summ_table_it, ++mmit, ++stub_order) {
+			map <int, string>::const_iterator stub_order_iter =
+				the_table_info.stub_order_.find(stub_order);
+			if (stub_order_iter != the_table_info.stub_order_.end()) {
+				//string current_stub = the_table_info.stub_order_[stub_order];
+				string current_stub = stub_order_iter->second;
+				// find the freq of this stub in our summary table
+				map <string, int>::const_iterator current_stub_freq_iter =
+					the_table.find(current_stub);
+				if (current_stub_freq_iter != the_table.end()) {
+					cout << "SUMMARY: searching for table stub: |" << current_stub << "|"
+						<< ", value: " << current_stub_freq_iter->second
+						<< " in ";
+				}
+			}
+			//cout << "SUMMARY: searching for table stub: |" << table_it->first << "|"
+			//		<< ", value: " << table_it->second
+			//		<< endl
+			//		<< ", current_stub: " << current_stub
+			//	<< " in ";
 			TableInfo  & check_against_table_info = *(mmit->second);
 			cout << "check_against_table_info: " << check_against_table_info.name_
 				<< endl;

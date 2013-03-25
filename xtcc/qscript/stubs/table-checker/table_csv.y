@@ -38,8 +38,10 @@
 	// these are used while building up the list
 	//       this is for named stub questions
 	map<string, int> temp_qtm_freq_count_map_nq_stub_codefreq;
-	map<int, int>    temp_qtm_freq_count_map_nq_code_codefreq;
-	map<string, int>    temp_qtm_freq_count_map_nq_stub_code;
+	//map<int, int>    temp_qtm_freq_count_map_nq_code_codefreq;
+	//map<string, int>    temp_qtm_freq_count_map_nq_stub_code;
+	map <int, string> temp_stub_order;
+	int stub_order_index = 0;
 	//       this is for range questions
 	map<int, int> temp_qtm_freq_count_map_rq; // will always be code -> freq
 	void qtm_table_output_error(const char * s);
@@ -211,7 +213,8 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		int no_mpn = atoi (sp_mp_info.c_str());
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
-					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name
+					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name,
+					temp_stub_order
 				);
 		table_info_map[name] = table_info_ptr;
 		if (!skip_summary_pattern (array_base_name , name) ) {
@@ -267,7 +270,8 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		int no_mpn = atoi (sp_mp_info.c_str());
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
-					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name
+					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name,
+					temp_stub_order
 				);
 		table_info_ptr->stub_name = stub_name;
 		table_info_ptr->no_mpn = no_mpn;
@@ -304,6 +308,8 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		//	}
 		//}
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
+		temp_stub_order.clear();
+		stub_order_index = 0;
 		reset();
 	}
 
@@ -317,6 +323,8 @@ freq_chain: a_freq
 
 a_freq 	: 	STUB_FREQ NEWL {
 		temp_qtm_freq_count_map_nq_stub_codefreq[stub_text]=$1;
+		temp_stub_order [stub_order_index] = stub_text;
+		++stub_order_index;
 	}
       	|	STUB_PERC NEWL
         |   STUB_MEAN NEWL

@@ -82,6 +82,7 @@
 #include "../const_defs.h"
 
 
+	extern int DebugFreqParser;
 	extern int yylex();
 	extern void yyerror(const char * s);
 	using std::cout;
@@ -113,7 +114,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 117 "freq_file.c"
+#line 118 "freq_file.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -160,7 +161,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 51 "freq_file.y"
+#line 52 "freq_file.y"
 
 	int ival;
 	double dval;
@@ -170,7 +171,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 174 "freq_file.c"
+#line 175 "freq_file.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -182,7 +183,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 186 "freq_file.c"
+#line 187 "freq_file.c"
 
 #ifdef short
 # undef short
@@ -475,8 +476,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    72,    72,    76,    82,   100,   103,   106,   119,   123,
-     127,   131,   138,   139,   142,   143,   146,   159
+       0,    73,    73,    77,    83,   103,   106,   109,   124,   128,
+     132,   136,   145,   146,   149,   150,   153,   169
 };
 #endif
 
@@ -1428,7 +1429,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 72 "freq_file.y"
+#line 73 "freq_file.y"
     {
 		//cout << "parsed axis_freq_count to axis_freq_count_list"
 		//	<< endl;
@@ -1438,7 +1439,7 @@ yyreduce:
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 76 "freq_file.y"
+#line 77 "freq_file.y"
     {
 		//cout << "chaining axis_freq_count with axis_freq_count_list"
 		//	<< endl;
@@ -1448,7 +1449,7 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 82 "freq_file.y"
+#line 83 "freq_file.y"
     {
 		//cout << "got an named stub axis_freq_count" << endl;
 		freq_count_map_nq_name_stub_freq[axis_name] = temp_freq_count_map_nq_stub_codefreq;
@@ -1459,26 +1460,19 @@ yyreduce:
 		temp_freq_count_map_nq_code_codefreq.clear();
 		temp_freq_count_map_nq_stub_code.clear();
 		temp_freq_count_map_nq_code_stub.clear();
-		cout << "got Named Question axis_freq_count: " << axis_name << endl;
-		cout << "got axis_freq_count: " << axis_name
-            << ", n_stubs: " << n_stubs
-            << ", n_codes: " << n_codes
-            << endl;
-        n_stubs = 0;
-        n_codes = 0;
+		if (DebugFreqParser) {
+			cout << "got Named Question axis_freq_count: " << axis_name << endl;
+			cout << "got axis_freq_count: " << axis_name
+				<< ", n_stubs: " << n_stubs
+				<< ", n_codes: " << n_codes
+				<< endl;
+		}
+		n_stubs = 0;
+		n_codes = 0;
 	}
     break;
 
   case 5:
-
-/* Line 1806 of yacc.c  */
-#line 100 "freq_file.y"
-    {
-        // do nothing - this question had no data
-    }
-    break;
-
-  case 6:
 
 /* Line 1806 of yacc.c  */
 #line 103 "freq_file.y"
@@ -1487,18 +1481,29 @@ yyreduce:
     }
     break;
 
-  case 7:
+  case 6:
 
 /* Line 1806 of yacc.c  */
 #line 106 "freq_file.y"
     {
+        // do nothing - this question had no data
+    }
+    break;
+
+  case 7:
+
+/* Line 1806 of yacc.c  */
+#line 109 "freq_file.y"
+    {
 		//cout << "got an range stub axis_freq_count" << endl;
 		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
 		temp_freq_count_map_rq.clear();
-		cout << "got Range Question axis_freq_count: " << axis_name
-            << ", n_stubs: " << n_stubs
-            << ", n_codes: " << n_codes
-            << endl;
+		if (DebugFreqParser) {
+			cout << "got Range Question axis_freq_count: " << axis_name
+				<< ", n_stubs: " << n_stubs
+				<< ", n_codes: " << n_codes
+				<< endl;
+		}
         n_stubs = 0;
         n_codes = 0;
 	}
@@ -1507,7 +1512,7 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 119 "freq_file.y"
+#line 124 "freq_file.y"
     {
 	//cout << "got stubs_header_line" << endl;
 	}
@@ -1516,7 +1521,7 @@ yyreduce:
   case 9:
 
 /* Line 1806 of yacc.c  */
-#line 123 "freq_file.y"
+#line 128 "freq_file.y"
     {
 	//cout << "got code_header_line" << endl;
 	}
@@ -1525,7 +1530,7 @@ yyreduce:
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 127 "freq_file.y"
+#line 132 "freq_file.y"
     {
 	//cout << "Got NAME: " << $1 << endl;
 	axis_name = (yyvsp[(1) - (2)].name);
@@ -1535,9 +1540,11 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 131 "freq_file.y"
-    {
-		cout << "Got array NAME: " << (yyvsp[(1) - (4)].name) << endl;
+#line 136 "freq_file.y"
+    {	
+		if (DebugFreqParser) {
+			cout << "Got array NAME: " << (yyvsp[(1) - (4)].name) << endl;
+		}
 		stringstream s1;
 		s1 << (yyvsp[(1) - (4)].name) << "_" << (yyvsp[(3) - (4)].ival);
 		axis_name = s1.str();
@@ -1547,16 +1554,19 @@ yyreduce:
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 146 "freq_file.y"
+#line 153 "freq_file.y"
     {
 	temp_freq_count_map_nq_stub_codefreq[(yyvsp[(1) - (6)].text_buf)]=(yyvsp[(5) - (6)].ival);
 	temp_freq_count_map_nq_code_codefreq[(yyvsp[(3) - (6)].ival)]=(yyvsp[(5) - (6)].ival);
 	temp_freq_count_map_nq_stub_code[(yyvsp[(1) - (6)].text_buf)]=(yyvsp[(3) - (6)].ival);
 	temp_freq_count_map_nq_code_stub[(yyvsp[(3) - (6)].ival)]=(yyvsp[(1) - (6)].text_buf);
-	cout << "Got stub: |"  << (yyvsp[(1) - (6)].text_buf) << "|"
-        << ", code " << (yyvsp[(3) - (6)].ival)
-        << ", freq " << (yyvsp[(5) - (6)].ival)
-        << endl;
+
+	if (DebugFreqParser) {
+		cout << "Got stub: |"  << (yyvsp[(1) - (6)].text_buf) << "|"
+			<< ", code " << (yyvsp[(3) - (6)].ival)
+			<< ", freq " << (yyvsp[(5) - (6)].ival)
+			<< endl;
+	}
 	nq_axis = true;
     ++n_stubs;
 }
@@ -1565,7 +1575,7 @@ yyreduce:
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 159 "freq_file.y"
+#line 169 "freq_file.y"
     {
 	//cout	<< "Got code_freq code:"  << $2
 	//	<< ", freq: " << $4
@@ -1579,7 +1589,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1583 "freq_file.c"
+#line 1593 "freq_file.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1810,7 +1820,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 168 "freq_file.y"
+#line 178 "freq_file.y"
 
 	extern void yyrestart(FILE *input_file);
 	extern int32_t yyparse();

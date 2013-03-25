@@ -502,8 +502,9 @@ char *yytext;
 	using std::cerr;
 	using std::endl;
     int line_no;
+	extern int DebugFreqLexer ;
 
-#line 507 "gen_src/lex.yy.c"
+#line 508 "gen_src/lex.yy.c"
 
 #define INITIAL 0
 
@@ -690,10 +691,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 23 "lex.l"
+#line 24 "lex.l"
 
 
-#line 697 "gen_src/lex.yy.c"
+#line 698 "gen_src/lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -778,14 +779,14 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 25 "lex.l"
+#line 26 "lex.l"
 {
     /* ignore */
 }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 29 "lex.l"
+#line 30 "lex.l"
 {
     //cout << "got COMMA" << endl;
     return COMMA;
@@ -793,14 +794,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 34 "lex.l"
+#line 35 "lex.l"
 { /* ignore */
 }
 	YY_BREAK
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 37 "lex.l"
+#line 38 "lex.l"
 {
     ++line_no;
     //cout << "got a NEWL: line_no: "  << line_no << endl;
@@ -809,7 +810,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 43 "lex.l"
+#line 44 "lex.l"
 {
 		yylval.ival = atoi(yytext);
         //cout << "got INUMBER " << yylval.ival << endl;
@@ -818,7 +819,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 49 "lex.l"
+#line 50 "lex.l"
 {
 		yylval.dval = atof(yytext);
 		return FNUMBER;
@@ -826,7 +827,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 55 "lex.l"
+#line 56 "lex.l"
 {
     //cout << "got CODE" << endl;
     return CODE;
@@ -834,7 +835,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 60 "lex.l"
+#line 61 "lex.l"
 {
     //cout << "got FREQUENCY" << endl;
     return FREQUENCY;
@@ -842,7 +843,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 65 "lex.l"
+#line 66 "lex.l"
 {
     //cout << "got STUBS" << endl;
     return STUBS;
@@ -851,7 +852,7 @@ YY_RULE_SETUP
 case 10:
 /* rule 10 can match eol */
 YY_RULE_SETUP
-#line 71 "lex.l"
+#line 72 "lex.l"
 {
 		//int len_text=strlen(yytext);
 		int len_text = yyleng;
@@ -867,11 +868,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 84 "lex.l"
+#line 85 "lex.l"
 {
 		if(yyleng < MY_STR_MAX) {
 			strcpy(yylval.name,yytext);
-            cout << "got NAME:" << yytext << endl;
+			if (DebugFreqLexer) {
+				cout << "got NAME:" << yytext << endl;
+			}
 			return NAME;
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
@@ -881,15 +884,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 96 "lex.l"
+#line 99 "lex.l"
 {
-    cout << "got DOT" << endl;
+		if (DebugFreqLexer) {
+			cout << "got DOT" << endl;
+		}
     return DOT;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 101 "lex.l"
+#line 106 "lex.l"
 {
     cout << "unhandled inputs: |" << yytext[0] << "|"
         << endl;
@@ -898,10 +903,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 107 "lex.l"
+#line 112 "lex.l"
 ECHO;
 	YY_BREAK
-#line 905 "gen_src/lex.yy.c"
+#line 910 "gen_src/lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1899,7 +1904,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 107 "lex.l"
+#line 112 "lex.l"
 
 
 

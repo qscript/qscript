@@ -18,6 +18,7 @@ struct TableInfo
 	double sigma_;
 	string name_;
 	string array_base_name_;
+	map <int, string> stub_order_;
 	string stub_name;
 	int no_mpn;
 
@@ -44,6 +45,7 @@ struct TableInfo
 	bool has_bot3box;
 	bool has_mean;
 
+
 	TableInfo (
 		map <string, int>  p_qtm_freq_count_map_nq_name_stub_freq,
 		map <int, int>  p_qtm_freq_count_map_rq,
@@ -51,12 +53,14 @@ struct TableInfo
 		string p_title,
 		double p_sigma,
 		string p_name,
-		string p_array_base_name
+		string p_array_base_name,
+		map<int, string> p_stub_order
 		)
 		: qtm_freq_count_map_nq_name_stub_freq_(p_qtm_freq_count_map_nq_name_stub_freq),
 		  qtm_freq_count_map_rq_(p_qtm_freq_count_map_rq),
 		  total_(p_total), title_(p_title), sigma_(p_sigma), name_(p_name),
 		  array_base_name_(p_array_base_name),
+		  stub_order_ (p_stub_order),
 		topbox_perc(),
 		topbox_freq(),
 		top2box_perc(),

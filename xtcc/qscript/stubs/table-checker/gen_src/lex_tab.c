@@ -711,6 +711,7 @@ char *qtm_table_output_text;
 	//int count_at_least_n_matches ( regmatch_t p_match[5]);
 	void qtm_table_output_error(const char * s);
 	string stub_text;
+	extern int DebugTableLexer;
 
 
 /*%option nounistd*/
@@ -719,7 +720,7 @@ there does not do it
 */
 //%option header-file="gen_src/lex_tab.h" 
 /*ID       [a-z][a-z0-9]*/
-#line 723 "gen_src/lex_tab.c"
+#line 724 "gen_src/lex_tab.c"
 
 #define INITIAL 0
 
@@ -906,10 +907,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 69 "lex_tab.l"
+#line 70 "lex_tab.l"
 
 
-#line 913 "gen_src/lex_tab.c"
+#line 914 "gen_src/lex_tab.c"
 
 	if ( !(yy_init) )
 		{
@@ -990,64 +991,74 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 71 "lex_tab.l"
+#line 72 "lex_tab.l"
 {
     /* ignore */
 }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 75 "lex_tab.l"
+#line 76 "lex_tab.l"
 { /* ignore */
 }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 79 "lex_tab.l"
+#line 80 "lex_tab.l"
 {
-	cout << "RETURNING  EMPTY_LINE_1_COLS" << endl;
+	if (DebugTableLexer) {
+		cout << "RETURNING  EMPTY_LINE_1_COLS" << endl;
+	}
 	return EMPTY_LINE_1_COLS;
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 84 "lex_tab.l"
+#line 87 "lex_tab.l"
 {
-	cout << "RETURNING  BAN_TOTAL" << endl;
+	if (DebugTableLexer) {
+		cout << "RETURNING  BAN_TOTAL" << endl;
+	}
 	return BAN_TOTAL;
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 89 "lex_tab.l"
+#line 94 "lex_tab.l"
 {
 	string side_total_str(qtm_table_output_text + 8);
 	int side_total = atoi (side_total_str.c_str());
-	cout << "RETURNING  SIDE_TOTAL:"
-		<< "side_total_str:" << side_total_str << ", "
-		<< "side_total: " <<side_total << endl;
+	if (DebugTableLexer) {
+		cout << "RETURNING  SIDE_TOTAL:"
+			<< "side_total_str:" << side_total_str << ", "
+			<< "side_total: " <<side_total << endl;
+	}
 	qtm_table_output_lval.ival = side_total;
 	return SIDE_TOTAL;
 }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 99 "lex_tab.l"
+#line 106 "lex_tab.l"
 {
-	cout << "RETURNING EMPTY_LINE_2_COLS" << endl;
+	if (DebugTableLexer) {
+		cout << "RETURNING EMPTY_LINE_2_COLS" << endl;
+	}
 	return EMPTY_LINE_2_COLS;
 }
 	YY_BREAK
 /*\"\",{DIGIT}+\.{DIGIT}+      */
 case 7:
 YY_RULE_SETUP
-#line 105 "lex_tab.l"
+#line 114 "lex_tab.l"
 {
 	char * pos_2nd_dbl_quote = strrchr (qtm_table_output_text, '"');
 	if (pos_2nd_dbl_quote) {
 		string no (pos_2nd_dbl_quote + 2);
 		double perc = atof (no.c_str());
-		cout << "PERC: " << perc << endl;
+		if (DebugTableLexer) {
+			cout << "PERC: " << perc << endl;
+		}
 		qtm_table_output_lval.dval = perc;
 	} else {
 		cerr << __LINE__
@@ -1058,84 +1069,99 @@ YY_RULE_SETUP
 			<< "Impossible ! lex condition is that there should be 2 quotes"
 			<< endl;
 	}
-        cout << "got STUB_PERC " << qtm_table_output_text << endl;
+
+	if (DebugTableLexer) {
+		cout << "got STUB_PERC " << qtm_table_output_text << endl;
+	}
 	return STUB_PERC;
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 126 "lex_tab.l"
+#line 140 "lex_tab.l"
 {
 	string str(qtm_table_output_text + 18);
 	int top3box_freq = atoi (str.c_str());
-	cout	<< "RETURNING top3BOX:"
-		<< "top3box_freq str:" << str << ", "
-		<< "top3box_freq: " << top3box_freq << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING top3BOX:"
+			<< "top3box_freq str:" << str << ", "
+			<< "top3box_freq: " << top3box_freq << endl;
+	}
 	qtm_table_output_lval.ival = top3box_freq;
 	return STUB_TOP3BOX;
 	}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 136 "lex_tab.l"
+#line 152 "lex_tab.l"
 {
 	string str(qtm_table_output_text + 18);
 	int top2box_freq = atoi (str.c_str());
-	cout	<< "RETURNING top2BOX:"
-		<< "top2box_freq str:" << str << ", "
-		<< "top2box_freq: " << top2box_freq << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING top2BOX:"
+			<< "top2box_freq str:" << str << ", "
+			<< "top2box_freq: " << top2box_freq << endl;
+	}
 	qtm_table_output_lval.ival = top2box_freq;
 	return STUB_TOP2BOX;
 	}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 146 "lex_tab.l"
+#line 164 "lex_tab.l"
 {
 	string str(qtm_table_output_text + 21);
 	int bot2box_freq = atoi (str.c_str());
-	cout	<< "RETURNING BOT2BOX:"
-		<< "bot3box_freq str:" << str << ", "
-		<< "bot3box_freq: " << bot2box_freq << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING BOT2BOX:"
+			<< "bot3box_freq str:" << str << ", "
+			<< "bot3box_freq: " << bot2box_freq << endl;
+	}
 	qtm_table_output_lval.ival = bot2box_freq;
 	return STUB_BOT2BOX;
 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 156 "lex_tab.l"
+#line 176 "lex_tab.l"
 {
 	string str(qtm_table_output_text + 21);
 	int bot3box_freq = atoi (str.c_str());
-	cout	<< "RETURNING BOT3BOX:"
-		<< "bot3box_freq str:" << str << ", "
-		<< "bot3box_freq: " << bot3box_freq << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING BOT3BOX:"
+			<< "bot3box_freq str:" << str << ", "
+			<< "bot3box_freq: " << bot3box_freq << endl;
+	}
 	qtm_table_output_lval.ival = bot3box_freq;
 	return STUB_BOT3BOX;
 	}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 166 "lex_tab.l"
+#line 188 "lex_tab.l"
 {
 	string mean_str(qtm_table_output_text + 7);
 	double mean = atof (mean_str.c_str());
-	cout	<< "RETURNING  MEAN:"
-		<< "mean_str:" << mean_str << ", "
-		<< "mean: " << mean << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING  MEAN:"
+			<< "mean_str:" << mean_str << ", "
+			<< "mean: " << mean << endl;
+	}
 	qtm_table_output_lval.dval = mean;
 	return STUB_MEAN;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 176 "lex_tab.l"
+#line 200 "lex_tab.l"
 {
 	string stddev_str(qtm_table_output_text + 10);
 	double stddev = atof (stddev_str.c_str());
-	cout	<< "RETURNING  MEAN:"
-		<< "stddev_str:" << stddev_str << ", "
-		<< "stddev: " << stddev << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING  MEAN:"
+			<< "stddev_str:" << stddev_str << ", "
+			<< "stddev: " << stddev << endl;
+	}
 	qtm_table_output_lval.dval = stddev;
 	return STUB_STD_DEV;
 }
@@ -1143,7 +1169,7 @@ YY_RULE_SETUP
 case 14:
 /* rule 14 can match eol */
 YY_RULE_SETUP
-#line 186 "lex_tab.l"
+#line 212 "lex_tab.l"
 {
 	char * pos_2nd_dbl_quote = strrchr (qtm_table_output_text, '"');
 	string no (pos_2nd_dbl_quote + 2);
@@ -1166,19 +1192,23 @@ YY_RULE_SETUP
 	if (strstr (qtm_table_output_text, "Sigma")) {
 		double sigma = atof (no.c_str());
 		qtm_table_output_lval.dval = sigma;
-		cout << "SIGMA: " << "stub_text: "<< stub_text << " | " << sigma << endl;
+		if (DebugTableLexer) {
+			cout << "SIGMA: " << "stub_text: "<< stub_text << " | " << sigma << endl;
+		}
 		return SIGMA;
 	} else {
 		int freq = atoi (no.c_str());
 		qtm_table_output_lval.ival = freq;
-		cout << "STUB_FREQ: " << "stub_text: "<< stub_text << " | " << freq << endl;
+		if (DebugTableLexer) {
+			cout << "STUB_FREQ: " << "stub_text: "<< stub_text << " | " << freq << endl;
+		}
 		return STUB_FREQ;
 	}
 }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 219 "lex_tab.l"
+#line 249 "lex_tab.l"
 {
     //cout << "got COMMA" << endl;
     return COMMA;
@@ -1187,7 +1217,7 @@ YY_RULE_SETUP
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 224 "lex_tab.l"
+#line 254 "lex_tab.l"
 {
     ++qtm_line_no;
 	//cout << "got a NEWL: qtm_line_no: "  << qtm_line_no << endl;
@@ -1196,25 +1226,29 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 230 "lex_tab.l"
+#line 260 "lex_tab.l"
 {
 		qtm_table_output_lval.dval = atof(qtm_table_output_text);
-		cout << "got FNUMBER " << qtm_table_output_lval.dval << endl;
+		if (DebugTableLexer) {
+			cout << "got FNUMBER " << qtm_table_output_lval.dval << endl;
+		}
 		return FNUMBER;
 	}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 236 "lex_tab.l"
+#line 268 "lex_tab.l"
 {
 		qtm_table_output_lval.ival = atoi(qtm_table_output_text);
-		cout << "got INUMBER " << qtm_table_output_lval.ival << endl;
+		if (DebugTableLexer) {
+			cout << "got INUMBER " << qtm_table_output_lval.ival << endl;
+		}
 		return INUMBER;
 	}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 243 "lex_tab.l"
+#line 277 "lex_tab.l"
 {
 		int len_text = qtm_table_output_leng;
 		qtm_table_output_text[len_text-1]='\0'; // clobber double quote
@@ -1224,13 +1258,15 @@ YY_RULE_SETUP
 			printf("TEXT TOKEN too long... exiting lexer\n");
 			exit(1);
 		}
-        cout << "RETURNING TABLE_INFO" << endl;
-    return TABLE_INFO;
-    }
+		if (DebugTableLexer) {
+			cout << "RETURNING TABLE_INFO" << endl;
+		}
+	return TABLE_INFO;
+	}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 256 "lex_tab.l"
+#line 292 "lex_tab.l"
 {
 		int len_text = qtm_table_output_leng;
 		qtm_table_output_text[len_text-1]='\0'; // clobber double quote
@@ -1240,14 +1276,16 @@ YY_RULE_SETUP
 			printf("TEXT TOKEN too long... exiting lexer\n");
 			exit(1);
 		}
-        cout << "RETURNING TABLE_INFO" << endl;
-    return TABLE_INFO2;
-    }
+		if (DebugTableLexer) {
+			cout << "RETURNING TABLE_INFO" << endl;
+		}
+	return TABLE_INFO2;
+	}
 	YY_BREAK
 case 21:
 /* rule 21 can match eol */
 YY_RULE_SETUP
-#line 269 "lex_tab.l"
+#line 307 "lex_tab.l"
 {
 		//int len_text=strlen(qtm_table_output_text);
 		int len_text = qtm_table_output_leng;
@@ -1260,22 +1298,32 @@ YY_RULE_SETUP
 		}
 		string text(qtm_table_output_lval.text_buf);
 		if (strstr(text.c_str(), "#page")) {
-			//cout << "RETURNING PAGE" << endl;
+			if (DebugTableLexer) {
+					cout << "RETURNING PAGE" << endl;
+			}
 			return PAGE;
 		} else if (strstr(text.c_str(),"Table ")) {
-			cout << "RETURNING TABLE" << endl;
+			if (DebugTableLexer) {
+				cout << "RETURNING TABLE" << endl;
+			}
 			return TABLE;
 		} else if (strstr(text.c_str(),"Total")) {
 			cout << "RETURNING TOTAL" << endl;
 			return TOTAL;
 		} else if (strstr(text.c_str(),"Mean")) {
-			cout << "RETURNING MEAN" << endl;
+			if (DebugTableLexer) {
+				cout << "RETURNING MEAN" << endl;
+			}
 			return MEAN;
 		} else if (strstr(text.c_str(),"Sigma")) {
-			cout << "RETURNING SIGMA" << endl;
+			if (DebugTableLexer) {
+				cout << "RETURNING SIGMA" << endl;
+			}
 			return SIGMA;
 		} else if (strstr(text.c_str(),"Base:")) {
-			cout << "RETURNING BASE_TEXT" << endl;
+			if (DebugTableLexer) {
+				cout << "RETURNING BASE_TEXT" << endl;
+			}
 			return BASE_TEXT;
 		} else {
             /*
@@ -1306,11 +1354,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 325 "lex_tab.l"
+#line 373 "lex_tab.l"
 {
 		if(qtm_table_output_leng < MY_STR_MAX) {
 			strncpy(qtm_table_output_lval.name,qtm_table_output_text+1, qtm_table_output_leng-1);
-            //cout << "got NAME:" << qtm_table_output_text << endl;
+			if (DebugTableLexer) {
+				cout << "got NAME:" << qtm_table_output_text << endl;
+			}
 			return NAME;
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
@@ -1320,7 +1370,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 337 "lex_tab.l"
+#line 387 "lex_tab.l"
 {
     //cout << "got DOT" << endl;
     //return DOT;
@@ -1329,7 +1379,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 343 "lex_tab.l"
+#line 393 "lex_tab.l"
 {
     cout << "unhandled inputs: |" << qtm_table_output_text[0] << "|"
         << endl;
@@ -1338,10 +1388,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 349 "lex_tab.l"
+#line 399 "lex_tab.l"
 ECHO;
 	YY_BREAK
-#line 1345 "gen_src/lex_tab.c"
+#line 1395 "gen_src/lex_tab.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2336,7 +2386,7 @@ void qtm_table_output_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 349 "lex_tab.l"
+#line 399 "lex_tab.l"
 
 
 
