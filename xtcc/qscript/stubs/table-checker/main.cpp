@@ -396,11 +396,6 @@ enum SummaryTableType {
 	BOT3BOX
 };
 
-int get_freq_counts_for_top_box ()
-{
-
-}
-
 bool check_summary_table (enum SummaryTableType,
 		map <string, TableInfo * >::iterator qtm_table_it,
 		struct ErrorReport & p_error_report
@@ -450,6 +445,8 @@ bool check_summary_table (enum SummaryTableType,
 			TableInfo  & check_against_table_info = *(mmit->second);
 			cout << "check_against_table_info: " << check_against_table_info.name_
 				<< endl;
+			//cout << get_freq_counts_for_top_box (check_against_table_info);
+			cout << check_against_table_info.get_freq_counts_for_top_box() ;
 			map <string, int> & check_against_table = check_against_table_info.qtm_freq_count_map_nq_name_stub_freq_;
 			map<string, int>::iterator check_against_table_it = check_against_table.begin();
 			for (;check_against_table_it != check_against_table.end(); ++check_against_table_it) {

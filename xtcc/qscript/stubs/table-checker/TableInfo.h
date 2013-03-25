@@ -84,6 +84,17 @@ struct TableInfo
 	{ }
 
 
+	int get_freq_counts_for_top_box (
+			//TableInfo & table_info
+			)
+	{
+		cout 	<< __PRETTY_FUNCTION__ << ", "
+			<< "getting freq counts for table: " << name_
+			<< " and stub_name: " << stub_name
+			<< endl;
+		return 0;
+	}
+
 };
 
 
