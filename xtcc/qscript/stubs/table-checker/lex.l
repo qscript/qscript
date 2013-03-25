@@ -16,6 +16,7 @@
 	using std::cerr;
 	using std::endl;
     int line_no;
+	extern int DebugFreqLexer ;
 
 %}
 
@@ -84,7 +85,9 @@ stubs {
 [_A-Za-z][A-Za-z0-9_]*	{
 		if(yyleng < MY_STR_MAX) {
 			strcpy(yylval.name,yytext);
-            cout << "got NAME:" << yytext << endl;
+			if (DebugFreqLexer) {
+				cout << "got NAME:" << yytext << endl;
+			}
 			return NAME;
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
@@ -93,8 +96,10 @@ stubs {
 	}
 
 
-\.     {
-    cout << "got DOT" << endl;
+\.    {
+		if (DebugFreqLexer) {
+			cout << "got DOT" << endl;
+		}
     return DOT;
 }
 

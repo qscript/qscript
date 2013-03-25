@@ -18,6 +18,7 @@
 #include "../const_defs.h"
 
 
+	extern int DebugFreqParser;
 	extern int yylex();
 	extern void yyerror(const char * s);
 	using std::cout;
@@ -89,13 +90,15 @@ axis_freq_count: name stub_header_line stub_frequency_list NEWL {
 		temp_freq_count_map_nq_code_codefreq.clear();
 		temp_freq_count_map_nq_stub_code.clear();
 		temp_freq_count_map_nq_code_stub.clear();
-		cout << "got Named Question axis_freq_count: " << axis_name << endl;
-		cout << "got axis_freq_count: " << axis_name
-            << ", n_stubs: " << n_stubs
-            << ", n_codes: " << n_codes
-            << endl;
-        n_stubs = 0;
-        n_codes = 0;
+		if (DebugFreqParser) {
+			cout << "got Named Question axis_freq_count: " << axis_name << endl;
+			cout << "got axis_freq_count: " << axis_name
+				<< ", n_stubs: " << n_stubs
+				<< ", n_codes: " << n_codes
+				<< endl;
+		}
+		n_stubs = 0;
+		n_codes = 0;
 	}
 	| name code_header_line NEWL {
         // do nothing - this question had no data
@@ -107,10 +110,12 @@ axis_freq_count: name stub_header_line stub_frequency_list NEWL {
 		//cout << "got an range stub axis_freq_count" << endl;
 		freq_count_map_rq[axis_name] = temp_freq_count_map_rq;
 		temp_freq_count_map_rq.clear();
-		cout << "got Range Question axis_freq_count: " << axis_name
-            << ", n_stubs: " << n_stubs
-            << ", n_codes: " << n_codes
-            << endl;
+		if (DebugFreqParser) {
+			cout << "got Range Question axis_freq_count: " << axis_name
+				<< ", n_stubs: " << n_stubs
+				<< ", n_codes: " << n_codes
+				<< endl;
+		}
         n_stubs = 0;
         n_codes = 0;
 	}
@@ -128,8 +133,10 @@ name: NAME NEWL {
 	//cout << "Got NAME: " << $1 << endl;
 	axis_name = $1;
 	}
-	| NAME DOT INUMBER NEWL {
-		cout << "Got array NAME: " << $1 << endl;
+	| NAME DOT INUMBER NEWL {	
+		if (DebugFreqParser) {
+			cout << "Got array NAME: " << $1 << endl;
+		}
 		stringstream s1;
 		s1 << $1 << "_" << $3;
 		axis_name = s1.str();
@@ -148,10 +155,13 @@ stub_freq: TEXT COMMA INUMBER COMMA INUMBER NEWL {
 	temp_freq_count_map_nq_code_codefreq[$3]=$5;
 	temp_freq_count_map_nq_stub_code[$1]=$3;
 	temp_freq_count_map_nq_code_stub[$3]=$1;
-	cout << "Got stub: |"  << $1 << "|"
-        << ", code " << $3
-        << ", freq " << $5
-        << endl;
+
+	if (DebugFreqParser) {
+		cout << "Got stub: |"  << $1 << "|"
+			<< ", code " << $3
+			<< ", freq " << $5
+			<< endl;
+	}
 	nq_axis = true;
     ++n_stubs;
 }

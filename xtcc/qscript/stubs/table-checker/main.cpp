@@ -95,6 +95,11 @@ void usage (char * argv[])
 	exit(1);
 }
 
+int DebugFreqParser = 0;
+int DebugFreqLexer = 0;
+int DebugTableParser = 0;
+int DebugTableLexer = 0;
+
 int main(int argc, char *  argv[])
 {
 
@@ -408,6 +413,29 @@ bool check_summary_table (enum SummaryTableType,
 	for (std::multimap<string, TableInfo*>::iterator it = ret.first; it != ret.second; ++it) {
 		cout << " I will be checking against: " << it->second->name_
 			<< endl;
+	}
+	TableInfo  & the_table_info = *(qtm_table_it->second);
+	map <string, int> & the_table = the_table_info.qtm_freq_count_map_nq_name_stub_freq_;
+	map<string, int>::iterator TABLE_END = the_table.end();
+	map<string, int>::iterator table_it = the_table.begin();
+	{
+		std::multimap<string, TableInfo*>::iterator mmit = ret.first;
+		for (; table_it!= TABLE_END; ++table_it, ++mmit) {
+			cout << "SUMMARY: searching for table stub: |" << table_it->first << "|"
+					<< ", value: " << table_it->second
+				<< " in ";
+			TableInfo  & check_against_table_info = *(mmit->second);
+			cout << "check_against_table_info: " << check_against_table_info.name_
+				<< endl;
+			map <string, int> & check_against_table = check_against_table_info.qtm_freq_count_map_nq_name_stub_freq_;
+			map<string, int>::iterator check_against_table_it = check_against_table.begin();
+			for (;check_against_table_it != check_against_table.end(); ++check_against_table_it) {
+				cout	<< "check against table stubs are |"
+						<< check_against_table_it->first << "|"
+						<< ", value: " << check_against_table_it->second
+						<< endl;
+			}
+		}
 	}
 	return false;
 }

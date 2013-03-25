@@ -44,6 +44,8 @@
 	map<int, int> temp_qtm_freq_count_map_rq; // will always be code -> freq
 	void qtm_table_output_error(const char * s);
 	extern string stub_text;
+	extern int DebugTableParser;
+
 
 	double global_sigma;
 	double topbox_perc;
@@ -98,6 +100,34 @@
 
 	}
 	extern int qtm_line_no;
+	bool skip_summary_pattern (string base_name, string ax_name)
+	{
+		string summary_top_box (base_name + "_top");
+		if (ax_name == summary_top_box) {
+			return true;
+		}
+		string summary_top2_box (base_name + "_top2");
+		if (ax_name == summary_top2_box) {
+			return true;
+		}
+		string summary_top3_box (base_name + "_top3");
+		if (ax_name == summary_top3_box) {
+			return true;
+		}
+		string summary_bot3_box (base_name + "_bot3");
+		if (ax_name == summary_bot3_box) {
+			return true;
+		}
+		string summary_bot2_box (base_name + "_bot2");
+		if (ax_name == summary_bot2_box) {
+			return true;
+		}
+		string summary_bot_box (base_name + "_bot");
+		if (ax_name == summary_bot_box) {
+			return true;
+		}
+		return false;
+	}
 
 %}
 
@@ -173,24 +203,28 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		string name = name_ax_info.substr(0, pos_1st_comma);
 		string array_base_name = name_ax_info.substr(pos_1st_comma+1, pos_2nd_comma-1-pos_1st_comma);
 		string sp_mp_info = name_ax_info.substr(pos_2nd_comma+1,array_base_name.length()-2-(pos_2nd_comma+1));
-		cout << "Extracted: name |" << name << "|"
-			<< "array_base_name|" << array_base_name << "|"
-			<< "sp_mp_info|" << sp_mp_info << "|" << endl;
+		if (DebugTableParser) {
+			cout << "Extracted: name |" << name << "|"
+				<< "array_base_name|" << array_base_name << "|"
+				<< "sp_mp_info|" << sp_mp_info << "|" << endl;
+		}
 		int no_mpn = atoi (sp_mp_info.c_str());
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
 					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name
 				);
 		table_info_map[name] = table_info_ptr;
-		table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
-		{
-			std::multimap<string,TableInfo*>::iterator it;
-			for (it=table_info_multimap.begin(); it!=table_info_multimap.end();
-				++it) {
-				cout << it->first << " is key for table: " << it->second->name_
-					<< endl;
-			}
+		if (!skip_summary_pattern (array_base_name , name) ) {
+			table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
 		}
+		//{
+		//	std::multimap<string,TableInfo*>::iterator it;
+		//	for (it=table_info_multimap.begin(); it!=table_info_multimap.end();
+		//		++it) {
+		//		cout << it->first << " is key for table: " << it->second->name_
+		//			<< endl;
+		//	}
+		//}
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
 	}
@@ -202,7 +236,9 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		   BAN_TOTAL NEWL EMPTY_LINE_1_COLS NEWL
 		   SIDE_TOTAL NEWL freq_chain /*SIGMA STUB_PERC*/ {
 		//qtm_freq_count_map_nq_name_stub_freq[$7] = temp_qtm_freq_count_map_nq_stub_code_qtm_freq_count_map_nq_stub_codefreq;
-		cout << "got axis_qtm_freq_count: " << $7 << endl;
+		if (DebugTableParser) {
+			cout << "got axis_qtm_freq_count: " << $7 << endl;
+		}
 		int side_total = $20;
 		string title="empty";
 		//double sigma = $23;
@@ -216,16 +252,18 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		string array_base_name = name_ax_info.substr(pos_1st_comma+1, pos_2nd_comma-1-pos_1st_comma);
 		string sp_mp_info = name_ax_info.substr(pos_2nd_comma+1,pos_3rd_comma-1-(pos_2nd_comma));
 		string stub_name = name_ax_info.substr(pos_3rd_comma+1,array_base_name.length()-2-(pos_3rd_comma+1));
-		cout 
-			<< " pos_1st_comma: " << pos_1st_comma
-			<< " pos_2nd_comma: " << pos_2nd_comma
-			<< " pos_3rd_comma: " << pos_3rd_comma
-			<< endl
-			<< "Extracted: name |" << name << "|"
-			<< "array_base_name|" << array_base_name << "|"
-			<< "sp_mp_info|" << sp_mp_info << "|" 
-			<< "stub name|" << stub_name << "|"
-			<< endl;
+		if (DebugTableParser) {
+			cout 
+				<< " pos_1st_comma: " << pos_1st_comma
+				<< " pos_2nd_comma: " << pos_2nd_comma
+				<< " pos_3rd_comma: " << pos_3rd_comma
+				<< endl
+				<< "Extracted: name |" << name << "|"
+				<< "array_base_name|" << array_base_name << "|"
+				<< "sp_mp_info|" << sp_mp_info << "|" 
+				<< "stub name|" << stub_name << "|"
+				<< endl;
+		}
 		int no_mpn = atoi (sp_mp_info.c_str());
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
@@ -254,15 +292,17 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 			table_info_ptr->has_bot3box = has_bot3box;
 		}
 		table_info_map[name] = table_info_ptr;
-		table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
-		{
-			std::multimap<string,TableInfo*>::iterator it;
-			for (it=table_info_multimap.begin(); it!=table_info_multimap.end();
-				++it) {
-				cout << it->first << " is key for table: " << it->second->name_
-					<< endl;
-			}
+		if (!skip_summary_pattern (array_base_name , name) ) {
+			table_info_multimap.insert(std::pair<string, TableInfo*> (array_base_name, table_info_ptr));
 		}
+		//{
+		//	std::multimap<string,TableInfo*>::iterator it;
+		//	for (it=table_info_multimap.begin(); it!=table_info_multimap.end();
+		//		++it) {
+		//		cout << it->first << " is key for table: " << it->second->name_
+		//			<< endl;
+		//	}
+		//}
 		temp_qtm_freq_count_map_nq_stub_codefreq.clear();
 		reset();
 	}

@@ -49,6 +49,7 @@
 	//int count_at_least_n_matches ( regmatch_t p_match[5]);
 	void qtm_table_output_error(const char * s);
 	string stub_text;
+	extern int DebugTableLexer;
 
 
 %}
@@ -77,27 +78,35 @@ DIGIT    [0-9]
 
 
 ,\"\" {
-	cout << "RETURNING  EMPTY_LINE_1_COLS" << endl;
+	if (DebugTableLexer) {
+		cout << "RETURNING  EMPTY_LINE_1_COLS" << endl;
+	}
 	return EMPTY_LINE_1_COLS;
 }
 
 ,\"Total\"	{
-	cout << "RETURNING  BAN_TOTAL" << endl;
+	if (DebugTableLexer) {
+		cout << "RETURNING  BAN_TOTAL" << endl;
+	}
 	return BAN_TOTAL;
 }
 
 \"Total\",{DIGIT}+	{
 	string side_total_str(yytext + 8);
 	int side_total = atoi (side_total_str.c_str());
-	cout << "RETURNING  SIDE_TOTAL:"
-		<< "side_total_str:" << side_total_str << ", "
-		<< "side_total: " <<side_total << endl;
+	if (DebugTableLexer) {
+		cout << "RETURNING  SIDE_TOTAL:"
+			<< "side_total_str:" << side_total_str << ", "
+			<< "side_total: " <<side_total << endl;
+	}
 	qtm_table_output_lval.ival = side_total;
 	return SIDE_TOTAL;
 }
 
 \"\",\"\"	{
-	cout << "RETURNING EMPTY_LINE_2_COLS" << endl;
+	if (DebugTableLexer) {
+		cout << "RETURNING EMPTY_LINE_2_COLS" << endl;
+	}
 	return EMPTY_LINE_2_COLS;
 }
 
@@ -107,7 +116,9 @@ DIGIT    [0-9]
 	if (pos_2nd_dbl_quote) {
 		string no (pos_2nd_dbl_quote + 2);
 		double perc = atof (no.c_str());
-		cout << "PERC: " << perc << endl;
+		if (DebugTableLexer) {
+			cout << "PERC: " << perc << endl;
+		}
 		qtm_table_output_lval.dval = perc;
 	} else {
 		cerr << __LINE__
@@ -118,7 +129,10 @@ DIGIT    [0-9]
 			<< "Impossible ! lex condition is that there should be 2 quotes"
 			<< endl;
 	}
-        cout << "got STUB_PERC " << yytext << endl;
+
+	if (DebugTableLexer) {
+		cout << "got STUB_PERC " << yytext << endl;
+	}
 	return STUB_PERC;
 }
 
@@ -126,9 +140,11 @@ DIGIT    [0-9]
 "\"Top 3 Box \(Net\)\"",{DIGIT}+  {
 	string str(yytext + 18);
 	int top3box_freq = atoi (str.c_str());
-	cout	<< "RETURNING top3BOX:"
-		<< "top3box_freq str:" << str << ", "
-		<< "top3box_freq: " << top3box_freq << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING top3BOX:"
+			<< "top3box_freq str:" << str << ", "
+			<< "top3box_freq: " << top3box_freq << endl;
+	}
 	qtm_table_output_lval.ival = top3box_freq;
 	return STUB_TOP3BOX;
 	}
@@ -136,9 +152,11 @@ DIGIT    [0-9]
 "\"Top 2 Box (Net)\"",{DIGIT} {
 	string str(yytext + 18);
 	int top2box_freq = atoi (str.c_str());
-	cout	<< "RETURNING top2BOX:"
-		<< "top2box_freq str:" << str << ", "
-		<< "top2box_freq: " << top2box_freq << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING top2BOX:"
+			<< "top2box_freq str:" << str << ", "
+			<< "top2box_freq: " << top2box_freq << endl;
+	}
 	qtm_table_output_lval.ival = top2box_freq;
 	return STUB_TOP2BOX;
 	}
@@ -146,9 +164,11 @@ DIGIT    [0-9]
 "\"Bottom 2 Box (Net)\"",{DIGIT}+   {
 	string str(yytext + 21);
 	int bot2box_freq = atoi (str.c_str());
-	cout	<< "RETURNING BOT2BOX:"
-		<< "bot3box_freq str:" << str << ", "
-		<< "bot3box_freq: " << bot2box_freq << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING BOT2BOX:"
+			<< "bot3box_freq str:" << str << ", "
+			<< "bot3box_freq: " << bot2box_freq << endl;
+	}
 	qtm_table_output_lval.ival = bot2box_freq;
 	return STUB_BOT2BOX;
 }
@@ -156,9 +176,11 @@ DIGIT    [0-9]
 "\"Bottom 3 Box (Net)\"",{DIGIT}+  {
 	string str(yytext + 21);
 	int bot3box_freq = atoi (str.c_str());
-	cout	<< "RETURNING BOT3BOX:"
-		<< "bot3box_freq str:" << str << ", "
-		<< "bot3box_freq: " << bot3box_freq << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING BOT3BOX:"
+			<< "bot3box_freq str:" << str << ", "
+			<< "bot3box_freq: " << bot3box_freq << endl;
+	}
 	qtm_table_output_lval.ival = bot3box_freq;
 	return STUB_BOT3BOX;
 	}
@@ -166,9 +188,11 @@ DIGIT    [0-9]
 \"Mean\",{DIGIT}+.{DIGIT}+  {
 	string mean_str(yytext + 7);
 	double mean = atof (mean_str.c_str());
-	cout	<< "RETURNING  MEAN:"
-		<< "mean_str:" << mean_str << ", "
-		<< "mean: " << mean << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING  MEAN:"
+			<< "mean_str:" << mean_str << ", "
+			<< "mean: " << mean << endl;
+	}
 	qtm_table_output_lval.dval = mean;
 	return STUB_MEAN;
 }
@@ -176,9 +200,11 @@ DIGIT    [0-9]
 \"Std.Dev\",{DIGIT}+.{DIGIT}+  {
 	string stddev_str(yytext + 10);
 	double stddev = atof (stddev_str.c_str());
-	cout	<< "RETURNING  MEAN:"
-		<< "stddev_str:" << stddev_str << ", "
-		<< "stddev: " << stddev << endl;
+	if (DebugTableLexer) {
+		cout	<< "RETURNING  MEAN:"
+			<< "stddev_str:" << stddev_str << ", "
+			<< "stddev: " << stddev << endl;
+	}
 	qtm_table_output_lval.dval = stddev;
 	return STUB_STD_DEV;
 }
@@ -205,12 +231,16 @@ DIGIT    [0-9]
 	if (strstr (yytext, "Sigma")) {
 		double sigma = atof (no.c_str());
 		qtm_table_output_lval.dval = sigma;
-		cout << "SIGMA: " << "stub_text: "<< stub_text << " | " << sigma << endl;
+		if (DebugTableLexer) {
+			cout << "SIGMA: " << "stub_text: "<< stub_text << " | " << sigma << endl;
+		}
 		return SIGMA;
 	} else {
 		int freq = atoi (no.c_str());
 		qtm_table_output_lval.ival = freq;
-		cout << "STUB_FREQ: " << "stub_text: "<< stub_text << " | " << freq << endl;
+		if (DebugTableLexer) {
+			cout << "STUB_FREQ: " << "stub_text: "<< stub_text << " | " << freq << endl;
+		}
 		return STUB_FREQ;
 	}
 }
@@ -229,13 +259,17 @@ DIGIT    [0-9]
 
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?)	{
 		qtm_table_output_lval.dval = atof(yytext);
-		cout << "got FNUMBER " << qtm_table_output_lval.dval << endl;
+		if (DebugTableLexer) {
+			cout << "got FNUMBER " << qtm_table_output_lval.dval << endl;
+		}
 		return FNUMBER;
 	}
 
 {DIGIT}+	{
 		qtm_table_output_lval.ival = atoi(yytext);
-		cout << "got INUMBER " << qtm_table_output_lval.ival << endl;
+		if (DebugTableLexer) {
+			cout << "got INUMBER " << qtm_table_output_lval.ival << endl;
+		}
 		return INUMBER;
 	}
 
@@ -249,9 +283,11 @@ DIGIT    [0-9]
 			printf("TEXT TOKEN too long... exiting lexer\n");
 			exit(1);
 		}
-        cout << "RETURNING TABLE_INFO" << endl;
-    return TABLE_INFO;
-    }
+		if (DebugTableLexer) {
+			cout << "RETURNING TABLE_INFO" << endl;
+		}
+	return TABLE_INFO;
+	}
 
 \"[A-Za-z_][A-Za-z0-9_]*,[a-zA-Z_][a-zA-Z0-9_]*,[0-9]+,[A-Za-z_][A-Za-z0-9_]*\" {
 		int len_text = qtm_table_output_leng;
@@ -262,9 +298,11 @@ DIGIT    [0-9]
 			printf("TEXT TOKEN too long... exiting lexer\n");
 			exit(1);
 		}
-        cout << "RETURNING TABLE_INFO" << endl;
-    return TABLE_INFO2;
-    }
+		if (DebugTableLexer) {
+			cout << "RETURNING TABLE_INFO" << endl;
+		}
+	return TABLE_INFO2;
+	}
 
 \"[^\"]*\"      {
 		//int len_text=strlen(yytext);
@@ -278,22 +316,32 @@ DIGIT    [0-9]
 		}
 		string text(qtm_table_output_lval.text_buf);
 		if (strstr(text.c_str(), "#page")) {
-			//cout << "RETURNING PAGE" << endl;
+			if (DebugTableLexer) {
+					cout << "RETURNING PAGE" << endl;
+			}
 			return PAGE;
 		} else if (strstr(text.c_str(),"Table ")) {
-			cout << "RETURNING TABLE" << endl;
+			if (DebugTableLexer) {
+				cout << "RETURNING TABLE" << endl;
+			}
 			return TABLE;
 		} else if (strstr(text.c_str(),"Total")) {
 			cout << "RETURNING TOTAL" << endl;
 			return TOTAL;
 		} else if (strstr(text.c_str(),"Mean")) {
-			cout << "RETURNING MEAN" << endl;
+			if (DebugTableLexer) {
+				cout << "RETURNING MEAN" << endl;
+			}
 			return MEAN;
 		} else if (strstr(text.c_str(),"Sigma")) {
-			cout << "RETURNING SIGMA" << endl;
+			if (DebugTableLexer) {
+				cout << "RETURNING SIGMA" << endl;
+			}
 			return SIGMA;
 		} else if (strstr(text.c_str(),"Base:")) {
-			cout << "RETURNING BASE_TEXT" << endl;
+			if (DebugTableLexer) {
+				cout << "RETURNING BASE_TEXT" << endl;
+			}
 			return BASE_TEXT;
 		} else {
             /*
@@ -325,7 +373,9 @@ DIGIT    [0-9]
 [_A-Za-z][A-Za-z0-9_]*	{
 		if(qtm_table_output_leng < MY_STR_MAX) {
 			strncpy(qtm_table_output_lval.name,yytext+1, qtm_table_output_leng-1);
-            //cout << "got NAME:" << yytext << endl;
+			if (DebugTableLexer) {
+				cout << "got NAME:" << yytext << endl;
+			}
 			return NAME;
 		} else {
 			printf("TEXT TOKEN too long... exiting lexer\n");
