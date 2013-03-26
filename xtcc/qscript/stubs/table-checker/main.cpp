@@ -1,6 +1,6 @@
 /*
 	Copyright : Neil Xavier D'Souza, 2013
-	License: GNU GPL2
+	License: GNU GPLv2
 */
 
 #include <inttypes.h>
@@ -24,6 +24,7 @@
 	using std::cerr;
 	using std::stringstream;
 	using std::map;
+	using std::multimap;
 	using std::string;
 	using std::vector;
 
@@ -80,6 +81,48 @@ struct ErrorReport
 
 };
 
+
+/*
+struct ExtractNumberInfo {
+	bool gotANumber_;
+	int numberValue_;
+	ExtractNumberInfo()
+		: gotANumber_ (false), numberValue_(0)
+	{ }
+};
+*/
+
+struct ExtractNumberInfo extract_number (string s)
+{
+	cout << "Enter: " << __PRETTY_FUNCTION__ << ","
+		<< __LINE__ << ","
+		<< __FILE__  << ", "
+		<< "input: " << s
+		<< endl;
+	struct ExtractNumberInfo inf;
+	int i = s.length()-1;
+	cout << "reached here" << endl;
+	while ( !isdigit (s[i]) && i >= 0) --i;
+	if (i < 0) {
+		cout << "i <= 0: " << i << endl;
+	} else {
+		cout << "else clause" << endl;
+		int factor = 1;
+		int numberValue_ = 0;
+		while (isdigit(s[i])) {
+			numberValue_ += (s[i] - '0') * factor;
+			factor *=10;
+			--i;
+		}
+		inf.gotANumber_ = true;
+		inf.numberValue_ = numberValue_;
+	}
+	cout << "gotANumber_:" << inf.gotANumber_
+		<< "numberValue_: " << inf.numberValue_
+		<< endl;
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+	return inf;
+}
 
 void check_tables(
 	//map<string, map <string, int> > & qtm_freq_count_map_nq_name_stub_freq,
@@ -174,6 +217,7 @@ int main(int argc, char *  argv[])
 }
 
 // from simple_compiler/src/utils.{h,cpp}
+/*
 struct RatingScaleInfo
 {
 	bool isRatingScale_;
@@ -185,6 +229,7 @@ struct RatingScaleInfo
 		  ratingScaleStart_(0), ratingScaleEnd_(0)
 	{ }
 };
+*/
 
 struct RatingScaleInfo extract_rating_scale (string s)
 {
@@ -356,12 +401,12 @@ bool does_top_2_box_match (
 
 bool passed_summary_table_checks (
 	TableInfo  & the_table_info,
-	map<string, int> & the_freq_counts,
+	std::map<std::string, int> & the_freq_counts,
 	struct ErrorReport & p_error_report
 		)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
-	RatingScaleInfo rat_scale_inf = extract_rating_scale (the_table_info.stub_name);
+	RatingScaleInfo rat_scale_inf = extract_rating_scale (the_table_info.stub_name_);
 	if (rat_scale_inf.isRatingScale_) {
 		if (rat_scale_inf.isReversed_) {
 			cerr << __PRETTY_FUNCTION__ << "unhandled case: rat_scale_inf.isReversed_"
@@ -407,6 +452,7 @@ bool check_summary_table (enum SummaryTableType,
 		<< ", TableInfo->array_base_name_: " << qtm_table_it->second->array_base_name_
 		<< ", TableInfo->name_: " << qtm_table_it->second->name_
 		<< endl;
+	bool result = true;
 
 	std::pair <std::multimap<string,TableInfo*>::iterator, std::multimap<string,TableInfo*>::iterator> ret
 		= table_info_multimap.equal_range (qtm_table_it->second->array_base_name_);
@@ -423,6 +469,7 @@ bool check_summary_table (enum SummaryTableType,
 		int stub_order = 0;
 		//for (; table_it!= TABLE_END; ++table_it, ++mmit, ++stub_order)
 		for (int summ_table_it  = 0; summ_table_it != the_table.size(); ++summ_table_it, ++mmit, ++stub_order) {
+			int summ_table_freq_value = -2;
 			map <int, string>::const_iterator stub_order_iter =
 				the_table_info.stub_order_.find(stub_order);
 			if (stub_order_iter != the_table_info.stub_order_.end()) {
@@ -435,7 +482,22 @@ bool check_summary_table (enum SummaryTableType,
 					cout << "SUMMARY: searching for table stub: |" << current_stub << "|"
 						<< ", value: " << current_stub_freq_iter->second
 						<< " in ";
+					summ_table_freq_value = current_stub_freq_iter->second;
+				} else {
+					std::stringstream reasons_str;
+					reasons_str << "did not find stub no: " << stub_order
+						<< " in summary table. And I expected to find it";
+					p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+					++p_error_report.nStubErrors_;
+					result = false;
 				}
+			} else {
+				std::stringstream reasons_str;
+				reasons_str << "did not find stub no: " << stub_order
+					<< " in summary table. And I expected to find it";
+				p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+				++p_error_report.nStubErrors_;
+				result = false;
 			}
 			//cout << "SUMMARY: searching for table stub: |" << table_it->first << "|"
 			//		<< ", value: " << table_it->second
@@ -443,21 +505,45 @@ bool check_summary_table (enum SummaryTableType,
 			//		<< ", current_stub: " << current_stub
 			//	<< " in ";
 			TableInfo  & check_against_table_info = *(mmit->second);
-			cout << "check_against_table_info: " << check_against_table_info.name_
+			std::cout << "check_against_table_info: " << check_against_table_info.name_
 				<< endl;
 			//cout << get_freq_counts_for_top_box (check_against_table_info);
-			cout << check_against_table_info.get_freq_counts_for_top_box() ;
-			map <string, int> & check_against_table = check_against_table_info.qtm_freq_count_map_nq_name_stub_freq_;
-			map<string, int>::iterator check_against_table_it = check_against_table.begin();
-			for (;check_against_table_it != check_against_table.end(); ++check_against_table_it) {
-				cout	<< "check against table stubs are |"
-						<< check_against_table_it->first << "|"
-						<< ", value: " << check_against_table_it->second
+			std::map <std::string, int> & check_against_table = check_against_table_info.qtm_freq_count_map_nq_name_stub_freq_;
+			std::map<std::string, int>::iterator check_against_table_it = check_against_table.begin();
+			//for (;check_against_table_it != check_against_table.end(); ++check_against_table_it) {
+			//	cout	<< "check against table stubs are |"
+			//			<< check_against_table_it->first << "|"
+			//			<< ", value: " << check_against_table_it->second
+			//			<< endl;
+			//}
+			//cout << check_against_table_info.get_freq_counts_for_top_box() ;
+			int chk_table_freq_count = check_against_table_info.get_freq_counts_for_top_box();
+			if  (chk_table_freq_count == -1) {
+				std::stringstream reasons_str;
+				reasons_str << "Did not find freq for TOPBOX in table: "
+					<<  qtm_table_it->second->name_;
+				++p_error_report.nStubErrors_;
+				result = false;
+				//return false;
+			} else {
+				if (chk_table_freq_count == summ_table_freq_value) {
+					cout	<< "stub no: " << stub_order
+						<< " count matched"
 						<< endl;
+					//return true;
+				} else {
+					std::stringstream reasons_str;
+					reasons_str << "Freq count did not match against table: "
+						<<  qtm_table_it->second->name_;
+					p_error_report.stubErrorReasons_.push_back (reasons_str.str());
+					++p_error_report.nStubErrors_;
+					//return false;
+					result = false;
+				}
 			}
 		}
 	}
-	return false;
+	return result;
 }
 
 
@@ -564,7 +650,7 @@ bool check_table_against_nq_freq_counts(
 			<< ", invoking summary table checks"
 			<< endl;
 		if (!passed_summary_table_checks (the_table_info, the_freq_counts, p_error_report) ) {
-			p_error_report.stubErrorReasons_.push_back ("did not pass summary table checks: " + the_table_info.stub_name);
+			p_error_report.stubErrorReasons_.push_back ("did not pass summary table checks: " + the_table_info.stub_name_);
 			++p_error_report.nStubErrors_;
 			counts_matched = false;
 		} else {
@@ -676,9 +762,14 @@ void check_tables(
 				 ax_name[ax_name.length()-4] == '_'
 				)
 			   ) {
-				table_check_report << "summary table check not yet implemented "
-					<< endl;
-				check_summary_table (TOPBOX, qtm_table_it, error_report);
+				//table_check_report << "summary table check not yet implemented "
+				//	<< endl;
+				if (!check_summary_table (TOPBOX, qtm_table_it, error_report)) {
+					print_report_for_table(error_report, table_check_report);
+				} else {
+					table_check_report << "summary table matched"
+						<< endl;
+				}
 			} else {
 				cout << "ax_name: " << ax_name << " NOT FOUND in freq_count_map_nq_name_stub_freq and not a summary table"
 					<< endl;
@@ -692,3 +783,5 @@ void check_tables(
 		//}
 	}
 }
+
+

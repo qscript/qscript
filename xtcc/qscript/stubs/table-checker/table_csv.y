@@ -33,17 +33,17 @@
 	// yes bad bad global variables
 	//map<string, map <string, int> > qtm_freq_count_map_nq_name_stub_freq;
 	//map<string, map <int, int> > qtm_freq_count_map_rq;
-	map <string, struct TableInfo *> table_info_map;
-	multimap <string, struct TableInfo *> table_info_multimap;
+	std::map <std::string, struct TableInfo *> table_info_map;
+	std::multimap <std::string, struct TableInfo *> table_info_multimap;
 	// these are used while building up the list
 	//       this is for named stub questions
-	map<string, int> temp_qtm_freq_count_map_nq_stub_codefreq;
+	std::map<std::string, int> temp_qtm_freq_count_map_nq_stub_codefreq;
 	//map<int, int>    temp_qtm_freq_count_map_nq_code_codefreq;
 	//map<string, int>    temp_qtm_freq_count_map_nq_stub_code;
-	map <int, string> temp_stub_order;
+	std::map <int, std::string> temp_stub_order;
 	int stub_order_index = 0;
 	//       this is for range questions
-	map<int, int> temp_qtm_freq_count_map_rq; // will always be code -> freq
+	std::map<int, int> temp_qtm_freq_count_map_rq; // will always be code -> freq
 	void qtm_table_output_error(const char * s);
 	extern string stub_text;
 	extern int DebugTableParser;
@@ -214,7 +214,7 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
 					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name,
-					temp_stub_order
+					temp_stub_order, string(), no_mpn
 				);
 		table_info_map[name] = table_info_ptr;
 		if (!skip_summary_pattern (array_base_name , name) ) {
@@ -271,10 +271,10 @@ axis_qtm_freq_count: PAGE NEWL TABLE NEWL TEXT NEWL
 		struct TableInfo * table_info_ptr =
 			new TableInfo (temp_qtm_freq_count_map_nq_stub_codefreq,
 					temp_qtm_freq_count_map_rq, side_total, title, sigma, name, array_base_name,
-					temp_stub_order
+					temp_stub_order, stub_name, no_mpn
 				);
-		table_info_ptr->stub_name = stub_name;
-		table_info_ptr->no_mpn = no_mpn;
+		//table_info_ptr->stub_name = stub_name;
+		//table_info_ptr->no_mpn = no_mpn;
 		if (has_top2box) {
 			table_info_ptr->top2box_freq = top2box_freq;
 			table_info_ptr->has_top2box = has_top2box;
