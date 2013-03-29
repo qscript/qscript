@@ -97,12 +97,14 @@ struct StubViewGridTableData {
 	string stub_text;
 	int stub_code;
 	bool mutex;
+	string translation;
 	StubViewGridTableData (string p_stub_text,
 			int p_stub_code,
 			bool p_mutex)
 		: stub_text (p_stub_text),
 		  stub_code (p_stub_code),
-		  mutex (p_mutex)
+		  mutex (p_mutex),
+		  translation()
 	{ }
 };
 
@@ -123,6 +125,7 @@ public:
 		headers_.push_back("Stub Text");
 		headers_.push_back("Stub Code");
 		headers_.push_back("Mutex");
+		headers_.push_back("Translation(Arabic)");
 		the_data_.push_back (StubViewGridTableData("Strongly Agree", 1, false));
 		the_data_.push_back (StubViewGridTableData("Agree", 2, false));
 		the_data_.push_back (StubViewGridTableData("Neutral", 3, false));
@@ -234,9 +237,12 @@ public:
 	wxTextCtrl * stub_name_tc_;
 	wxTextCtrl * stub_text_tc;
 	wxTextCtrl * stub_code_tc;
+	wxTextCtrl * no_of_rows_tc;
 	//wxListBox * stub_lbox;
 	//wxListBox * code_lbox;
 	wxGrid * stub_view_grid_;
+	wxTextCtrl     *log_tc;
+	wxLogTextCtrl  *logger_ltc;
 
 
 	wxSizer *CreateSizerWithText(wxControl *control,
@@ -248,6 +254,10 @@ public:
 					const wxString& label_str,
 					wxWindowID id,
 					wxTextCtrl **ppText);
+	void AddToSizer_Button(
+				wxSizer * sizer,
+				const wxString& label_str,
+				wxWindowID id);
 
 	wxCheckBox * CreateCheckBoxAndAddToSizer(wxSizer *sizer,
                                                      const wxString& label,
@@ -262,6 +272,7 @@ public:
 	void Reset();
 	void CreateContent();
 	void NewCreateContent();
+	void NewCreateContent2();
 	void CreateRadio();
 
 	void OnButtonRecreate(wxCommandEvent& WXUNUSED(event));
@@ -276,6 +287,9 @@ public:
 	void OnUpdateUIEnableItem(wxUpdateUIEvent& event);
 	void OnRadioBox(wxCommandEvent& event);
 	void OnCheckOrRadioBox(wxCommandEvent& WXUNUSED(event));
+
+	void InsertRow( wxCommandEvent& WXUNUSED(ev) );
+
 
 
 private:
@@ -304,7 +318,13 @@ enum MyWidgetID {
 	StubTextTC_ID,
 	StubCodeTC_ID,
 	StubLB_ID,
-	CodeLB_ID
+	CodeLB_ID,
+	CreateGridButton_ID,
+	NoOfRowsTC_ID,
+	AddRowButton_ID,
+	InsertRowButton_ID,
+	DeleteRowButton_ID,
+	StubGrid_ID
 };
 
 enum
@@ -320,6 +340,7 @@ BEGIN_EVENT_TABLE(wxQuestionnaireDesignerGUI, wxFrame)
     EVT_BUTTON(ID_BUTTON_SERIAL_NO,  wxQuestionnaireDesignerGUI::get_serial_no)
 
     EVT_BUTTON(RadioPage_LabelBtn, wxQuestionnaireDesignerGUI::OnButtonRecreate)
+    EVT_BUTTON(InsertRowButton_ID, wxQuestionnaireDesignerGUI::InsertRow )
 
     EVT_BUTTON(RadioPage_Selection, wxQuestionnaireDesignerGUI::OnButtonSelection)
     EVT_BUTTON(RadioPage_Label, wxQuestionnaireDesignerGUI::OnButtonSetLabel)
@@ -337,6 +358,7 @@ BEGIN_EVENT_TABLE(wxQuestionnaireDesignerGUI, wxFrame)
 
     EVT_CHECKBOX(wxID_ANY, wxQuestionnaireDesignerGUI::OnCheckOrRadioBox)
     EVT_RADIOBOX(wxID_ANY, wxQuestionnaireDesignerGUI::OnCheckOrRadioBox)
+
 END_EVENT_TABLE()
 
 
@@ -346,7 +368,8 @@ wxQuestionnaireDesignerGUI::wxQuestionnaireDesignerGUI (const wxString & title)
 	  m_radio(0), m_sizerRadio(0)
 {
 	//CreateContent();
-	NewCreateContent();
+	//NewCreateContent();
+	NewCreateContent2();
 }
 
 
@@ -443,47 +466,125 @@ wxSizer *wxQuestionnaireDesignerGUI::CreateSizerWithTextAndButton(wxWindowID idB
     return CreateSizerWithText(new wxButton(this, idBtn, label), id, ppText);
 }
 
-wxCheckBox *wxQuestionnaireDesignerGUI::CreateCheckBoxAndAddToSizer(wxSizer *sizer,
-                                                     const wxString& label,
-                                                     wxWindowID id)
-{
-    wxCheckBox *checkbox = new wxCheckBox(this, id, label);
-    sizer->Add(checkbox, 0, wxLEFT | wxRIGHT, 5);
-    sizer->Add(0, 2, 0, wxGROW); // spacer
 
-    return checkbox;
+void wxQuestionnaireDesignerGUI::AddToSizer_Button(
+			wxSizer * sizer,
+			const wxString& label_str,
+			wxWindowID id)
+{
+	sizer->Add (0, 10, 0, wxGROW); // spacer
+	sizer->Add(new wxButton(this, id, label_str), 0);
+	sizer->Add (0, 10, 0, wxGROW); // spacer
+}
+
+wxCheckBox *wxQuestionnaireDesignerGUI::CreateCheckBoxAndAddToSizer(wxSizer *sizer,
+					     const wxString& label,
+					     wxWindowID id)
+{
+wxCheckBox *checkbox = new wxCheckBox(this, id, label);
+sizer->Add(checkbox, 0, wxLEFT | wxRIGHT, 5);
+sizer->Add(0, 2, 0, wxGROW); // spacer
+
+return checkbox;
 }
 
 
 wxSizer *wxQuestionnaireDesignerGUI::CreateSizerWithText(wxControl *control,
-                                          wxWindowID id,
-                                          wxTextCtrl **ppText)
+				  wxWindowID id,
+				  wxTextCtrl **ppText)
 {
-    wxSizer *sizerRow = new wxBoxSizer(wxHORIZONTAL);
-    wxTextCtrl *text = new wxTextCtrl(this, id, wxEmptyString,
-        wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
+wxSizer *sizerRow = new wxBoxSizer(wxHORIZONTAL);
+wxTextCtrl *text = new wxTextCtrl(this, id, wxEmptyString,
+wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER);
 
-    sizerRow->Add(control, 0, wxRIGHT | wxALIGN_CENTRE_VERTICAL, 5);
-    sizerRow->Add(text, 1, wxLEFT | wxALIGN_CENTRE_VERTICAL, 5);
+sizerRow->Add(control, 0, wxRIGHT | wxALIGN_CENTRE_VERTICAL, 5);
+sizerRow->Add(text, 1, wxLEFT | wxALIGN_CENTRE_VERTICAL, 5);
 
-    if ( ppText )
-        *ppText = text;
+if ( ppText )
+*ppText = text;
 
-    return sizerRow;
+return sizerRow;
 }
 
 
 void wxQuestionnaireDesignerGUI::Reset()
 {
-    m_textMajorDim->SetValue(wxString::Format(_T("%u"), DEFAULT_MAJOR_DIM));
-    m_textNumBtns->SetValue(wxString::Format(_T("%u"), DEFAULT_NUM_ENTRIES));
-    m_textLabel->SetValue(_T("I'm a radiobox"));
-    m_textLabelBtns->SetValue(_T("item"));
+m_textMajorDim->SetValue(wxString::Format(_T("%u"), DEFAULT_MAJOR_DIM));
+m_textNumBtns->SetValue(wxString::Format(_T("%u"), DEFAULT_NUM_ENTRIES));
+m_textLabel->SetValue(_T("I'm a radiobox"));
+m_textLabelBtns->SetValue(_T("item"));
 
     //m_chkVert->SetValue(false);
     //m_chkEnableItem->SetValue(true);
     //m_chkShowItem->SetValue(true);
     //m_radioDir->SetSelection(RadioDir_Default);
+}
+
+void wxQuestionnaireDesignerGUI::NewCreateContent2()
+{
+	stub_box_ = question_box_ = named_attribute_box_ = 0;
+	stub_name_tc_ = 0;
+	stub_box_ = new wxStaticBox (this, StubBox_ID, _T("Use this interface to create your Stub List"),
+			wxDefaultPosition,
+			wxSize(800,600)
+			);
+	stub_box_container_sizer_ = new wxStaticBoxSizer (stub_box_, wxVERTICAL);
+	wxSizer * stub_name_row_sizer_ = new wxBoxSizer (wxHORIZONTAL);
+	AddtoSizer_LabelAndText (stub_name_row_sizer_, _T("&Stub Name:"), StubNameTC_ID, &stub_name_tc_);
+
+
+	wxSizer * stub_data_entry_row_sizer = new wxBoxSizer (wxHORIZONTAL);
+	AddtoSizer_LabelAndText (stub_data_entry_row_sizer, _T("&No of Rows:"), StubTextTC_ID, &no_of_rows_tc);
+	AddToSizer_Button (stub_data_entry_row_sizer, _T("CreateGrid"), CreateGridButton_ID);
+
+	wxSizer * button_row_sizer = new wxBoxSizer (wxHORIZONTAL);
+	AddToSizer_Button (button_row_sizer, _T("&Add Row"), AddRowButton_ID);
+	AddToSizer_Button (button_row_sizer, _T("&Insert Row"), InsertRowButton_ID);
+	AddToSizer_Button (button_row_sizer, _T("&Delete Row"), DeleteRowButton_ID);
+
+	stub_box_container_sizer_->Add (stub_name_row_sizer_);
+	stub_box_container_sizer_->Add (0, 10, 0, wxGROW); // spacer
+	stub_box_container_sizer_->Add (stub_data_entry_row_sizer);
+	stub_box_container_sizer_->Add (0, 10, 0, wxGROW); // spacer
+	stub_box_container_sizer_->Add (button_row_sizer);
+
+
+	wxSizer *sizer_stub_view = new wxBoxSizer (wxHORIZONTAL);
+
+	int gridW = 600, gridH = 300;
+	stub_view_grid_ = new wxGrid (this, wxID_ANY, wxDefaultPosition,
+				//wxDefaultSize
+				wxSize (gridW,gridH)
+				);
+	//wxGridTableBase * table = new BugsGridTable();
+	wxGridTableBase * table = new StubViewGridTable();
+	table -> SetAttrProvider (new MyGridCellAttrProvider);
+	stub_view_grid_->SetTable (table, true);
+	//stub_view_grid_->CreateGrid (2,3);
+	sizer_stub_view->Add (stub_view_grid_);
+	stub_box_container_sizer_->Add (0, 10, 0, wxGROW); // spacer
+	stub_box_container_sizer_->Add (sizer_stub_view);
+
+	int logW = gridW, logH = 100;
+
+
+	log_tc = new wxTextCtrl( this,
+			wxID_ANY,
+			wxEmptyString,
+			wxPoint( 0, gridH + 20 ),
+			wxSize( logW, logH ),
+			wxTE_MULTILINE );
+	logger_ltc = new wxLogTextCtrl( log_tc );
+
+	stub_box_container_sizer_->Add (log_tc);
+	//sizerTop->Add (log_tc, 0, wxEXPAND );
+
+	wxSizer *sizerTop = new wxBoxSizer(wxHORIZONTAL);
+	sizerTop -> Add (stub_box_container_sizer_, 0, wxGROW , 10);
+
+
+	SetSizer (sizerTop);
+
 }
 
 void wxQuestionnaireDesignerGUI::NewCreateContent()
@@ -1194,7 +1295,7 @@ int StubViewGridTable::GetNumberRows()
 int StubViewGridTable::GetNumberCols()
 {
 	// yup it's hardcoded
-	return 3;
+	return 4;
 }
 
 
@@ -1394,10 +1495,19 @@ void StubViewGridTable::SetValueAsBool( int row, int col, bool value )
 
 wxString StubViewGridTable::GetColLabelValue( int col )
 {
-	if (col < 3) {
+	if (col < 4) {
 		wxString mystring(headers_[col].c_str(), wxConvUTF8);
 		return mystring;
 	} else {
 		return wxEmptyString;
 	}
 }
+
+void wxQuestionnaireDesignerGUI::InsertRow( wxCommandEvent& WXUNUSED(ev) )
+{
+	cout << "sel row:" << stub_view_grid_->GetGridCursorRow();
+	stub_view_grid_->InsertRows( stub_view_grid_->GetGridCursorRow(), 1 );
+	cout << "Insert row called" << endl;
+}
+
+
