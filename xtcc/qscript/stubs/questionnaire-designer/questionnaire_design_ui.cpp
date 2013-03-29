@@ -155,7 +155,7 @@ public:
 
 	virtual void SetValueAsLong( int row, int col, long value );
 	virtual void SetValueAsBool( int row, int col, bool value );
-
+	virtual bool InsertRows(size_t pos = 0, size_t numRows = 1);
 };
 
 class BugsGridTable : public wxGridTableBase
@@ -195,6 +195,7 @@ public:
 	wxFlexGridSizer *fgs ;
 	static int ms_defaultFlags;
 
+	int gridW , gridH ;
 
 
 	void get_serial_no (wxCommandEvent& event);
@@ -241,8 +242,12 @@ public:
 	//wxListBox * stub_lbox;
 	//wxListBox * code_lbox;
 	wxGrid * stub_view_grid_;
+	wxSizer *sizer_stub_view_;
 	wxTextCtrl     *log_tc;
 	wxLogTextCtrl  *logger_ltc;
+	wxLog *m_logOld;
+
+
 
 
 	wxSizer *CreateSizerWithText(wxControl *control,
@@ -287,9 +292,18 @@ public:
 	void OnUpdateUIEnableItem(wxUpdateUIEvent& event);
 	void OnRadioBox(wxCommandEvent& event);
 	void OnCheckOrRadioBox(wxCommandEvent& WXUNUSED(event));
+	void SelectRows( wxCommandEvent& WXUNUSED(ev) );
 
 	void InsertRow( wxCommandEvent& WXUNUSED(ev) );
 
+	void OnLabelLeftClick( wxGridEvent& ev );
+
+	void OnEditorHidden( wxGridEvent& ev );
+	void OnEditorShown( wxGridEvent& ev );
+
+	void OnColSize( wxGridSizeEvent& ev );
+	void OnRowSize( wxGridSizeEvent& ev );
+	void OnSelectCell( wxGridEvent& );
 
 
 private:
@@ -358,6 +372,22 @@ BEGIN_EVENT_TABLE(wxQuestionnaireDesignerGUI, wxFrame)
 
     EVT_CHECKBOX(wxID_ANY, wxQuestionnaireDesignerGUI::OnCheckOrRadioBox)
     EVT_RADIOBOX(wxID_ANY, wxQuestionnaireDesignerGUI::OnCheckOrRadioBox)
+    EVT_GRID_LABEL_LEFT_CLICK( wxQuestionnaireDesignerGUI::OnLabelLeftClick )
+	/*
+    EVT_GRID_CELL_LEFT_CLICK( wxQuestionnaireGUI::OnCellLeftClick )
+    EVT_GRID_ROW_SIZE( wxQuestionnaireGUI::OnRowSize )
+    EVT_GRID_COL_SIZE( wxQuestionnaireGUI::OnColSize )
+    EVT_GRID_RANGE_SELECT( wxQuestionnaireGUI::OnRangeSelected )
+    EVT_GRID_CELL_CHANGE( wxQuestionnaireGUI::OnCellValueChanged )
+    EVT_GRID_CELL_BEGIN_DRAG( wxQuestionnaireGUI::OnCellBeginDrag )
+
+	*/
+    EVT_GRID_SELECT_CELL( wxQuestionnaireDesignerGUI::OnSelectCell )
+    EVT_GRID_EDITOR_SHOWN( wxQuestionnaireDesignerGUI::OnEditorShown )
+    EVT_GRID_EDITOR_HIDDEN( wxQuestionnaireDesignerGUI::OnEditorHidden )
+
+
+
 
 END_EVENT_TABLE()
 
@@ -549,9 +579,9 @@ void wxQuestionnaireDesignerGUI::NewCreateContent2()
 	stub_box_container_sizer_->Add (button_row_sizer);
 
 
-	wxSizer *sizer_stub_view = new wxBoxSizer (wxHORIZONTAL);
+	sizer_stub_view_ = new wxBoxSizer (wxHORIZONTAL);
 
-	int gridW = 600, gridH = 300;
+	gridW = 600, gridH = 300;
 	stub_view_grid_ = new wxGrid (this, wxID_ANY, wxDefaultPosition,
 				//wxDefaultSize
 				wxSize (gridW,gridH)
@@ -559,11 +589,12 @@ void wxQuestionnaireDesignerGUI::NewCreateContent2()
 	//wxGridTableBase * table = new BugsGridTable();
 	wxGridTableBase * table = new StubViewGridTable();
 	table -> SetAttrProvider (new MyGridCellAttrProvider);
-	stub_view_grid_->SetTable (table, true);
+	//stub_view_grid_->SetTable (table, true);
+	stub_view_grid_->SetTable (table, false);
 	//stub_view_grid_->CreateGrid (2,3);
-	sizer_stub_view->Add (stub_view_grid_);
+	sizer_stub_view_->Add (stub_view_grid_);
 	stub_box_container_sizer_->Add (0, 10, 0, wxGROW); // spacer
-	stub_box_container_sizer_->Add (sizer_stub_view);
+	stub_box_container_sizer_->Add (sizer_stub_view_);
 
 	int logW = gridW, logH = 100;
 
@@ -575,6 +606,9 @@ void wxQuestionnaireDesignerGUI::NewCreateContent2()
 			wxSize( logW, logH ),
 			wxTE_MULTILINE );
 	logger_ltc = new wxLogTextCtrl( log_tc );
+	m_logOld = wxLog::SetActiveTarget( logger_ltc );
+	//wxLog::SetTimestamp( NULL );
+
 
 	stub_box_container_sizer_->Add (log_tc);
 	//sizerTop->Add (log_tc, 0, wxEXPAND );
@@ -1503,11 +1537,153 @@ wxString StubViewGridTable::GetColLabelValue( int col )
 	}
 }
 
-void wxQuestionnaireDesignerGUI::InsertRow( wxCommandEvent& WXUNUSED(ev) )
+void wxQuestionnaireDesignerGUI::InsertRow(
+		//wxCommandEvent& WXUNUSED(ev)
+		wxCommandEvent& ev
+		)
 {
-	cout << "sel row:" << stub_view_grid_->GetGridCursorRow();
+	cout << "sel row:" << stub_view_grid_->GetGridCursorRow()
+		<< endl;
 	stub_view_grid_->InsertRows( stub_view_grid_->GetGridCursorRow(), 1 );
+	wxGridTableBase * table = stub_view_grid_->GetTable();
+	table->GetNumberRows();
+	//table->InsertRows( stub_view_grid_->GetGridCursorRow(), 1 );
+	//stub_view_grid_->SetTable (table, false);
+	//
+	//
+
+	//sizer_stub_view_->Detach( stub_view_grid_ );
+        //m_sizerRadio->
+	stub_box_container_sizer_->Detach (sizer_stub_view_);
+	stub_box_container_sizer_->Detach (log_tc);
+	delete stub_view_grid_;
+	//delete sizer_stub_view_;
+	stub_view_grid_ = new wxGrid (this, wxID_ANY, wxDefaultPosition,
+				//wxDefaultSize
+				wxSize (gridW,gridH)
+				);
+	stub_view_grid_->SetTable(table, false);
+	wxSizer *sizer_stub_view_ = new wxBoxSizer (wxHORIZONTAL);
+	sizer_stub_view_->Add (stub_view_grid_);
+	stub_box_container_sizer_->Add (sizer_stub_view_);
+	stub_box_container_sizer_->Add (log_tc);
+	stub_box_container_sizer_->Layout();
+
 	cout << "Insert row called" << endl;
+	ev.Skip();
+}
+
+bool StubViewGridTable :: InsertRows(size_t pos , size_t numRows )
+{
+	cout << __PRETTY_FUNCTION__
+		<< "numRows: " << numRows
+		<< endl;
+	the_data_.push_back (StubViewGridTableData("New", 51, false));
+	return true;
+}
+
+void wxQuestionnaireDesignerGUI::SelectRows( wxCommandEvent& WXUNUSED(ev) )
+{
+    stub_view_grid_->SetSelectionMode( wxGrid::wxGridSelectRows );
+}
+
+void wxQuestionnaireDesignerGUI::OnSelectCell( wxGridEvent& ev )
+{
+    wxString logBuf;
+    if ( ev.Selecting() )
+        logBuf << _T("Selected ");
+    else
+        logBuf << _T("Deselected ");
+    logBuf << _T("cell at row ") << ev.GetRow()
+           << _T(" col ") << ev.GetCol()
+           << _T(" ( ControlDown: ")<< (ev.ControlDown() ? 'T':'F')
+           << _T(", ShiftDown: ")<< (ev.ShiftDown() ? 'T':'F')
+           << _T(", AltDown: ")<< (ev.AltDown() ? 'T':'F')
+           << _T(", MetaDown: ")<< (ev.MetaDown() ? 'T':'F') << _T(" )");
+
+    //Indicate whether this column was moved
+    if ( ((wxGrid *)ev.GetEventObject())->GetColPos( ev.GetCol() ) != ev.GetCol() )
+        logBuf << _T(" *** Column moved, current position: ") << ((wxGrid *)ev.GetEventObject())->GetColPos( ev.GetCol() );
+
+    wxLogMessage( wxT("%s"), logBuf.c_str() );
+
+    // you must call Skip() if you want the default processing
+    // to occur in wxGrid
+    ev.Skip();
+}
+
+void wxQuestionnaireDesignerGUI::OnLabelLeftClick( wxGridEvent& ev )
+{
+    wxString logBuf;
+    if ( ev.GetRow() != -1 )
+    {
+        logBuf << _T("Left click on row label ") << ev.GetRow();
+    }
+    else if ( ev.GetCol() != -1 )
+    {
+        logBuf << _T("Left click on col label ") << ev.GetCol();
+    }
+    else
+    {
+        logBuf << _T("Left click on corner label");
+    }
+
+    if ( ev.ShiftDown() )
+        logBuf << _T(" (shift down)");
+    if ( ev.ControlDown() )
+        logBuf << _T(" (control down)");
+    wxLogMessage( wxT("%s"), logBuf.c_str() );
+
+    // you must call event skip if you want default grid processing
+    //
+    ev.Skip();
+}
+
+void wxQuestionnaireDesignerGUI::OnEditorShown( wxGridEvent& ev )
+{
+
+    if ( (ev.GetCol() == 4) &&
+         (ev.GetRow() == 0) &&
+     (wxMessageBox(_T("Are you sure you wish to edit this cell"),
+                   _T("Checking"),wxYES_NO) == wxNO ) ) {
+
+     ev.Veto();
+     return;
+    }
+
+    wxLogMessage( wxT("Cell editor shown.") );
+
+    ev.Skip();
+}
+
+void wxQuestionnaireDesignerGUI::OnEditorHidden( wxGridEvent& ev )
+{
+
+    if ( (ev.GetCol() == 4) &&
+         (ev.GetRow() == 0) &&
+     (wxMessageBox(_T("Are you sure you wish to finish editing this cell"),
+                   _T("Checking"),wxYES_NO) == wxNO ) ) {
+
+        ev.Veto();
+        return;
+    }
+
+    wxLogMessage( wxT("Cell editor hidden.") );
+
+    ev.Skip();
+}
+
+void wxQuestionnaireDesignerGUI::OnRowSize( wxGridSizeEvent& ev )
+{
+    wxLogMessage(_T("Resized row %d"), ev.GetRowOrCol());
+
+    ev.Skip();
 }
 
 
+void wxQuestionnaireDesignerGUI::OnColSize( wxGridSizeEvent& ev )
+{
+    wxLogMessage(_T("Resized col %d"), ev.GetRowOrCol());
+
+    ev.Skip();
+}
