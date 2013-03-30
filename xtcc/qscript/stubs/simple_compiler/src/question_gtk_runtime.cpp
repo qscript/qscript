@@ -3,15 +3,15 @@
  *
  *       Filename:  question_gtk_runtime.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  Monday 05 March 2012 03:13:38  GMT
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *        Company:  
+ *         Author:  Neil Xavier D'Souza
+ *        Company:
  *
  * =====================================================================================
  */

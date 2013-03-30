@@ -80,6 +80,7 @@ public:
 	wxTextCtrl * txt_data_entry_line;
 	wxRadioBox *m_radio;
 	wxSizer *m_sizerRadio;
+	wxScrolledWindow * rboxWindow_;
 	void handleDataInput (wxCommandEvent& WXUNUSED(event));
 
 	void set_callback_ui_input (
@@ -114,6 +115,51 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
 	{
 		cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
+		AbstractQuestion * last_question_served = last_question_visited;
+		vector<int32_t> data;
+		bool isAnswered = false;
+		cout << "returned back data from question: " << nq->questionName_ << endl;
+		if (last_question_served->no_mpn == 1)
+		{
+			if (rbData_ != -1) {
+				vector<int32_t> data;
+				UserInput user_input;
+				data.push_back(rbData_);
+				stringstream s1;
+				s1 << rbData_;
+				user_input.theUserResponse_ = user_response::UserEnteredData;
+				user_input.questionResponseData_ = s1.str();
+				AbstractQuestion * q = last_question_visited;
+				string err_mesg;
+				bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+				if (valid_input) {
+					if (user_input.theUserResponse_ == user_response::UserSavedData) {
+						cerr  << "NOT YET DONE"
+							<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+							<< endl
+							<< "invoking callback_ui_input with UserSavedData" << endl;
+						// this call will return really fast
+						//  (if you consider io fast)
+						//  but what I mean is we wont add much to the call stack
+						callback_ui_input (user_input, q, theQuestionnaire_);
+						//GetUserInput (callback_ui_input, q, theQuestionnaire);
+						cout << "callback_ui_input has returned after UserSavedData" << endl;
+					} else {
+						cout << "reached here: "
+							<< __PRETTY_FUNCTION__ << endl;
+						callback_ui_input (user_input, q, theQuestionnaire_);
+						cout << "callback_ui_input has returned"
+							<< __PRETTY_FUNCTION__ << endl;
+					}
+					// move all this into callback_ui_input
+					// case UserEnteredData
+				} else {
+					// we should be passing an error message too
+					//GetUserInput (callback_ui_input, q, theQuestionnaire);
+					// do nothing - the callback just continues to wait for data
+				}
+			}
+		}
 	} else {
 		AbstractQuestion * q = last_question_visited;
 		cout << "need to handle line data here: got input as : " << endl;
@@ -287,7 +333,8 @@ bool wxQuestionnaireApplication::OnInit()
 wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	: wxFrame(NULL, -1, title, wxPoint(-1, -1), wxSize(800, 600)),
 	  the_question (0), the_stubs(0), the_data_entry_line(0),
-	  m_radio(0), m_sizerRadio(0), hbox(0)
+	  m_radio(0), m_sizerRadio(0), hbox(0), rbData_(-1), prevRBValue_(-1),
+	  rboxWindow_(0)
 {
 	panel = new wxPanel(this, -1);
 
@@ -348,7 +395,7 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 		data_entry_line_sizer->Add (button);
 	}
 	stubsRowSizer_->Add (data_entry_line_sizer);
-	stubsRowSizer_->Add (m_radio);
+	//stubsRowSizer_->Add (m_radio);
 
 	// Serial line related stuff
 	wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial: "));
@@ -773,11 +820,12 @@ void wxQuestionnaireGUI::ClearRadio()
 	int rbData_ = -1;
 	if ( m_radio )
 	{
-        prevRBValue_ = rbData_;
+		prevRBValue_ = rbData_;
 		rbData_ = m_radio->GetSelection();
-		//m_sizerRadio->Detach( m_radio );
-		stubsRowSizer_->Detach (m_radio);
+		//stubsRowSizer_->Detach (m_radio);
+		stubsRowSizer_->Detach (rboxWindow_);
 		delete m_radio; m_radio = 0;
+		delete rboxWindow_; rboxWindow_ = 0;
 	}
 	else // first time creation, no old selection to preserve
 	{
@@ -791,29 +839,15 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	cout << __PRETTY_FUNCTION__ << endl;
     ClearRadio();
 
-    /*
-	int sel = -1;
-	if ( m_radio )
-	{
-		sel = m_radio->GetSelection();
-		//m_sizerRadio->Detach( m_radio );
-		stubsRowSizer_->Detach (m_radio);
-		delete m_radio;
-		m_radio = 0;
-	}
-	else // first time creation, no old selection to preserve
-	{
-		sel = -1;
-	}
-    */
+
 
 	// no of radio buttons
 #if 1
 	//unsigned long count = 12;
 	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 	unsigned long count = vec.size();
-	static const unsigned int DEFAULT_MAJOR_DIM = 3;
-	unsigned long majorDim = DEFAULT_MAJOR_DIM;
+	static const unsigned int DEFAULT_N_MAJOR_DIM = 2;
+	unsigned long nmajorDim = DEFAULT_N_MAJOR_DIM;
 
 	wxString *items = new wxString[count];
 	//wxString labelBtn = m_textLabelBtns->GetValue();
@@ -831,7 +865,8 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 		stringstream s1;
 		s1 << vec[i].code << ": " << vec[i].stub_text;
 		//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
-		items[i] = wxString::FromUTF8(s1.str().c_str());
+		items[i] = wxString::FromUTF8 (s1.str().c_str());
+		rbQnreCodeMap_[i] = vec[i].code;
 		//items[i] = wxString::Format (_T("%d: %s"),
 		//		vec[i].stub_text.c_str(),
 		//		vec[i].code);
@@ -840,17 +875,21 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 
 
 	//int flags = m_chkVert->GetValue() ? wxRA_VERTICAL
-	int flags = true ? wxRA_VERTICAL
-				      : wxRA_HORIZONTAL;
-
+	int flags = true ? wxRA_VERTICAL : wxRA_HORIZONTAL;
+	//int flags = wxRA_SPECIFY_COLS;
 	//flags |= ms_defaultFlags;
+	//
+	rboxWindow_ = new wxScrolledWindow (panel, -1);
+	rboxWindow_->SetScrollbars(20, 20, 50, 50);
+	//rboxWindow_->EnableScrolling(true, true);
 
-	m_radio = new wxRadioBox (panel, SingleAnswerRadioBox,
-				wxT("Radio Box Label nxd"),
+	m_radio = new wxRadioBox (/*panel*/ rboxWindow_, SingleAnswerRadioBox,
+				wxT("Choose a single answer"),
 				wxDefaultPosition, wxDefaultSize,
 				count, items,
-				majorDim,
-				flags);
+				nmajorDim,
+				/*flags*/  wxRA_SPECIFY_COLS
+				);
 
 	//wxSizer *sizerRight = new wxBoxSizer(wxHORIZONTAL);
 	//sizerRight->SetMinSize(150, 0);
@@ -859,7 +898,8 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	//m_sizerRadio->Layout();
 	the_stubs->SetLabel(wxT("New Stubs Text - should be visible now"));
 	cout << "Updated New stubs text" << endl;
-	stubsRowSizer_->Add(m_radio, 1, wxGROW);
+	//stubsRowSizer_->Add(m_radio, 1, wxGROW);
+	stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
 	m_radio->Show(true);
 	stubsRowSizer_->Show(false);
 	stubsRowSizer_->Show(true);
@@ -881,18 +921,22 @@ void wxQuestionnaireGUI::set_callback_ui_input (
 
 void wxQuestionnaireGUI::OnRadioBox(wxCommandEvent& event)
 {
-    int sel = m_radio->GetSelection();
-    int event_sel = event.GetSelection();
-    cout << "sel = " << sel << endl;
-    cout << "event_sel = " << event_sel << endl;
-    //wxUnusedVar(event_sel);
+	int sel = m_radio->GetSelection();
+	int event_sel = event.GetSelection();
+	cout << "sel = " << sel << endl;
+	cout << "event_sel = " << event_sel << endl;
+	cout << "selected code: " << rbQnreCodeMap_[event_sel]
+	    << endl;
+	prevRBValue_ = rbData_;
+	rbData_ =  rbQnreCodeMap_[event_sel];
+	//wxUnusedVar(event_sel);
 
-    //wxLogMessage(_T("Radiobox selection changed, now %d"), sel);
+	//wxLogMessage(_T("Radiobox selection changed, now %d"), sel);
 
-    //wxASSERT_MSG( sel == event_sel,
-    //              _T("selection should be the same in event and radiobox") );
+	//wxASSERT_MSG( sel == event_sel,
+	//              _T("selection should be the same in event and radiobox") );
 
-    //m_textCurSel->SetValue(wxString::Format(_T("%d"), sel));
+	//m_textCurSel->SetValue(wxString::Format(_T("%d"), sel));
 }
 
 
