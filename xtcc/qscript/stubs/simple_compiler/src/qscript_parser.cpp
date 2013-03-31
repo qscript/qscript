@@ -20,6 +20,8 @@ namespace program_options_ns {
 	extern int32_t fname_flag;
 	extern bool flag_nice_map;
 	extern bool stdout_flag;
+	extern bool wx_flag;
+	extern bool gtk_flag;
 }
 
 extern int32_t qscript_confparse();
@@ -128,6 +130,7 @@ void PrintPDCursesKeysHeader(FILE * script);
 void PrintProcessOptions(FILE * script);
 void PrintNCursesMain(FILE * script, bool ncurses_flag);
 void PrintStdoutMain (FILE * script);
+void PrintWxSupport_1 (FILE * script);
 
 void PrintMicrohttpdMain (FILE * script, bool ncurses_flag);
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code);
@@ -151,6 +154,7 @@ void print_web_support_structs (FILE * script);
 void print_microhttpd_web_support_structs (FILE * script);
 
 void print_new_logic_support_functions(FILE * script);
+void print_new_logic_support_functions_2(FILE * script);
 
 void print_question_messages(FILE * script);
 
@@ -242,7 +246,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_summary_axis(script);
 	// 5-apr-2011 , 0:12 (am)
 	// continue from here - put the compute_flat_map_code into
-	// a write data function - commiting this 
+	// a write data function - commiting this
 	// - generated code wont compile
 #endif /* 0 */
 	fprintf(script, "%s\n", compute_flat_map_code.program_code.str().c_str());
@@ -279,6 +283,9 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	}
 	if (program_options_ns::stdout_flag) {
 		PrintStdoutMain(script);
+	}
+	if (program_options_ns::wx_flag) {
+		PrintWxSupport_1(script);
 	}
 	print_close(script, code.program_code, ncurses_flag);
 	fflush(script);
@@ -332,6 +339,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	}
 	if (program_options_ns::stdout_flag) {
 		fprintf (script, "#include \"question_stdout_runtime.h\"\n");
+	}
+	if (program_options_ns::gtk_flag||program_options_ns::wx_flag) {
+		fprintf (script, "#include \"question_gtk2_runtime.h\"\n");
 	}
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "#include \"AbstractStatement.h\"\n");
@@ -395,7 +405,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	} else {
 		fprintf(script, "namespace program_options_ns { bool flag_nice_map = false; }\n");
 	}
-	
+
 	fprintf(script, "extern UserNavigation user_navigation;\n");
 	fprintf(script, "//vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
@@ -422,7 +432,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "map<string, map<int, int> > freq_count;\n");
 	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);\n");
 	//fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
-	
+
 	// all the code generated below has been moved into the ncurses runtime
 	//if (program_options_ns::ncurses_flag) {
 	//	print_ncurses_func_prototypes(script);
@@ -453,7 +463,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
 
-	/* 
+	/*
 	// This is not necessary any more
 	if (program_options_ns::ncurses_flag) {
 		fprintf(script, "extern	WINDOW 	* question_window,\n"
@@ -487,7 +497,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	// print_reset_questionnaire(script);
 	// PrintDisplayActiveQuestions(script);
 	// PrintGetUserResponse(script);
-	
+
 
 	/*
 	 * This code is not now moved to the ncurses runtime environment
@@ -505,6 +515,9 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	//PrintPrintMapHeader(script);
 	if (program_options_ns::stdout_flag) {
 		print_new_logic_support_functions (script);
+	}
+	if (program_options_ns::wx_flag||program_options_ns::gtk_flag) {
+		print_new_logic_support_functions_2 (script);
 	}
 
 }
@@ -915,7 +928,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 		print_err(compiler_sem_err, err_text.str(),
 			line_no, __LINE__, __FILE__);
 		return new ErrorStatement(line_no);
-	} 
+	}
 	// At this point 2nd argument  is valid
 
 	if (range_stub == true) {
@@ -944,7 +957,7 @@ AbstractStatement* setup_stub_manip_stmt(DataType dt
 			stringstream err_text;
 			err_text << "1st arg Question: " << lhs_question->questionName_
 				<< " named range: " << lhs_question->nr_ptr->name
-				<< " and : " 
+				<< " and : "
 				<< " 2nd arg Question: " << rhs_question->questionName_
 				<< " named range: " << rhs_question->nr_ptr->name
 				<< " do not match" << endl;
@@ -1144,7 +1157,7 @@ void print_flat_ascii_data_class(FILE *script)
 	fprintf (script, "			width = 8;\n");
 	fprintf (script, "		} else if (max_code < 1000000000) {\n");
 	fprintf (script, "			width = 9;\n");
-	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 9 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 9 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n");
 	fprintf (script, "		total_length = width * q->no_mpn;\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "\n");
@@ -1241,7 +1254,7 @@ void print_qtm_data_class(FILE *script)
 	fprintf (script, "			width = 8;\n");
 	fprintf (script, "		} else if (max_code < 1000000000) {\n");
 	fprintf (script, "			width = 9;\n");
-	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 9 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n"); 
+	fprintf (script, "		} else { cout << \" max_code \" << max_code << \" for question: \" << q->questionName_ << \" exceeds max length = 9 we are programmed to handled ... exiting \" << __FILE__ << \",\"  << __LINE__ << \",\"  << __PRETTY_FUNCTION__ << endl;\n exit(1);}\n");
 	fprintf (script, "		total_length = width * q->no_mpn;\n");
 	fprintf (script, "	}\n");
 	fprintf (script, "\n");
@@ -1454,7 +1467,7 @@ test_script.o: test_script.C
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
-                        + string(" -L/usr/local/lib ") 
+                        + string(" -L/usr/local/lib ")
 			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 #ifndef _WIN32
@@ -1470,6 +1483,18 @@ test_script.o: test_script.C
 			//+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
 			+ string(" -lqscript_runtime_wq2 -lpanel -lwt -lboost_filesystem ")
+			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+	} else if (program_options_ns::wx_flag) {
+		cpp_compile_command = string("g++ -g -o ")
+			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ string(" ") + QSCRIPT_HOME + string("/src/question_wx2_runtime.C ")
+			//+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
+			//+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" ") + intermediate_file_name
+			+ string(" `/usr/local/bin/wx-config --cppflags` ")
+			+ string(" `/usr/local/bin/wx-config --libs` ")
+			+ string(" -lqscript_runtime_wq2 -lpanel ")
 			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
@@ -1687,6 +1712,16 @@ void PrintPrintMapHeader(FILE * script)
 	fprintf(script, "\tvoid print_map_header(fstream & map_file )\n{\n");
 	fprintf(script, "map_file << \"Question No\t\t\t,width,\tno responses,\tstart position,\tend position\\n\";\n");
 	fprintf(script, "}\n");
+}
+
+void PrintWxSupport_1 (FILE * script)
+{
+	fprintf (script, "struct TheQuestionnaire * make_questionnaire ()\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);\n");
+	fprintf (script, "	theQuestionnaire->base_text_vec.push_back(BaseText(\"All Respondents\"));\n");
+	fprintf (script, "	return theQuestionnaire;\n");
+	fprintf (script, "}\n");
 }
 
 void PrintStdoutMain (FILE * script)
@@ -2364,7 +2399,7 @@ void PrintMicrohttpdMain (FILE * script, bool ncurses_flag)
 void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 {
 	compute_flat_map_code.program_code << "void compute_flat_file_map_and_init()\n{\n";
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "if (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)\n"
 		<< "{\n"
 		<< "\tint current_map_pos = 0;\n"
@@ -2421,7 +2456,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\tstring xtcc_map_file_name(jno + string(\".xmap\"));\n";
 	compute_flat_map_code.program_code << "\tfstream xtcc_map_file(xtcc_map_file_name.c_str(), ios_base::out|ios_base::ate);\n";
 	compute_flat_map_code.program_code << "\tprint_map_header(xtcc_map_file);\n";
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "\tfor (int i=0; i<xtcc_question_disk_map.size(); ++i) {\n"
 		<< "\t\txtcc_question_disk_map[i]->print_map(xtcc_map_file);\n"
 		<< "\t}\n";
@@ -2440,7 +2475,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\txtcc_datafile.open(xtcc_datafile_name.c_str(), ios_base::out | ios_base::trunc);\n";
 
 	if (config_file_parser::PLATFORM != "WINDOWS") {
-		compute_flat_map_code.program_code 
+		compute_flat_map_code.program_code
 			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
 			<< "\t\ts1 << \"setup-\" << jno;\n"
 			<< "\t\tif (stat(s1.str().c_str(), &dir_exists) <0) {\n"
@@ -2452,7 +2487,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 			<< "\t\t\t}\t\t\n}\n"
 			;
 	} else {
-		compute_flat_map_code.program_code 
+		compute_flat_map_code.program_code
 			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
 			<< "\t\t\ts1 << \"setup-\" << jno;\n"
 			<< "\t\t\tif (stat(s1.str().c_str(), &dir_exists) <0) {\n"
@@ -2490,7 +2525,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t		it != summary_tables.end(); ++it) {\n"
 		<< "\t\t	print_summary_axis(it->second, qtm_qax_file);\n"
 		<< "\t\t}\n";
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "\t\tqtm_datafile_question_disk_map[0]->print_run(jno);"
 		<< endl;
 	compute_flat_map_code.program_code << "\t\tstring tab_file_name(string(\"setup-\")+ jno + string(\"/\") + jno + string(\".tab\"));\n";
@@ -2512,11 +2547,11 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\t\tqtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);\n";
 	compute_flat_map_code.program_code << "\t}\n";
 
-	compute_flat_map_code.program_code 
+	compute_flat_map_code.program_code
 		<< "\tif (write_xtcc_data_file_flag) {\n"
 		<< "\t\tstring xtcc_ax_file_name(string(\"setup-\")+jno+string(\"/\") + jno + string(\".xtcc\"));\n"
 		<< "\t\tfstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);\n"
-		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n" 
+		<< "\t\txtcc_ax_file << \"data_struct;rec_len=\" << len_xtcc_datafile_output_buffer << \";\\n\";\n"
 		<< "\t\txtcc_ax_file << \"ed_start\\n\";\n"
 		<< "\t\t xtcc_ax_file << \"\tint32_t edit_data();\\n\";\n"
 		<< "\t\t xtcc_ax_file << \"\tint32_t all;\\n\";\n"
@@ -2547,7 +2582,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\t\txtcc_question_disk_map[i]->print_xtcc_ax(xtcc_ax_file, string(\"setup-\")+jno+string(\"/\"));\n"
 		<< "\t\t}\n"
 		<< "\t\txtcc_ax_file << \"}\\n\";\n"
-		<< "\t}\n";	
+		<< "\t}\n";
 
 	compute_flat_map_code.program_code << "}\n";
 	compute_flat_map_code.program_code << "}\n";
@@ -2659,9 +2694,9 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 #endif /* 0 */
 	// fprintf(script, "\n\t} /* close while */\n");
 	//
-	
+
 	/*
-	 * The code below will have to be put at the correct place - 
+	 * The code below will have to be put at the correct place -
 	 * For now, I am commenting it ou
 	 */
 
@@ -2675,7 +2710,7 @@ void print_read_a_serial_no (FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "    int read_a_serial_no()\n");
 	fprintf (script, "    {\n");
-	fprintf (script, "	//cout << \"ENTER: \"  << __FILE__ << \", \" << __LINE__ << \", \" << __PRETTY_FUNCTION__ << endl;\n"); 
+	fprintf (script, "	//cout << \"ENTER: \"  << __FILE__ << \", \" << __LINE__ << \", \" << __PRETTY_FUNCTION__ << endl;\n");
 	fprintf (script, "restart:\n");
 	fprintf (script, "	struct dirent *directory_entry = readdir(directory_ptr);\n");
 	fprintf (script, "	if (directory_entry == NULL) {\n");
@@ -4039,7 +4074,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	void ConstructQuestionForm(\n");
 	fprintf(script, "		AbstractQuestion *q, Session * this_users_session);\n");
 	fprintf(script, "	void ValidateSerialNo();\n");
-	fprintf(script, " 	void ConstructThankYouPage();\n"); 
+	fprintf(script, " 	void ConstructThankYouPage();\n");
 	fprintf(script, " 	const char * software_info();\n");
 	fprintf(script, "		virtual ~QuestionnaireApplication();\n");
 	fprintf(script, "};\n");
@@ -4153,7 +4188,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	s << \"last_question_served: \" << this_users_session->last_question_served;\n");
 	fprintf(script, "	wt_debug_->setText(s.str());\n");
 
-	// fprintf(script, "	if (this_users_session->last_question_served)\n"); 
+	// fprintf(script, "	if (this_users_session->last_question_served)\n");
 	// fprintf(script, "	{\n");
 	// fprintf(script, "		if (last_question_visited_str != \"\" && current_question_response != \"\")\n");
 	// fprintf(script, "		{\n");
@@ -4193,7 +4228,7 @@ void print_Wt_support_code(FILE * script)
 	// fprintf(script, "		}\n");
 	// fprintf(script, "	}\n");
 
-	fprintf(script, "	if (this_users_session->last_question_served)\n"); 
+	fprintf(script, "	if (this_users_session->last_question_served)\n");
 	fprintf (script, "	{\n");
 	fprintf (script, "		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session->last_question_served)) {\n");
 	fprintf (script, "			AbstractQuestion * last_question_served = this_users_session->last_question_served;\n");
@@ -4321,123 +4356,123 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "} else {\n");
 	fprintf(script, " 	TheQuestionnaire * qnre = this_users_session->questionnaire;\n");
 	fprintf(script, "	qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);\n");
-	fprintf(script, " 	ConstructThankYouPage();\n"); 
+	fprintf(script, " 	ConstructThankYouPage();\n");
 	fprintf(script, "}\n");
 
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 
-	fprintf(script, "void QuestionnaireApplication::ConstructThankYouPage()\n"); 
-	fprintf(script, "{\n"); 
-	fprintf(script, "	WContainerWidget * new_form = new WContainerWidget();\n"); 
-	fprintf(script, "	WText * txt = new WText(WString::tr(\"thank_you\"), new_form);\n"); 
+	fprintf(script, "void QuestionnaireApplication::ConstructThankYouPage()\n");
+	fprintf(script, "{\n");
+	fprintf(script, "	WContainerWidget * new_form = new WContainerWidget();\n");
+	fprintf(script, "	WText * txt = new WText(WString::tr(\"thank_you\"), new_form);\n");
 	fprintf(script, " 	WText * survey_code = new WText(WString::tr(\"vege_source_code\"), new_form);\n");
-	fprintf(script, "	setCentralWidget(new_form);\n"); 
-	fprintf(script, "	cout << \"ConstructThankYouPage\\n\";\n"); 
-	fprintf(script, "}\n"); 
+	fprintf(script, "	setCentralWidget(new_form);\n");
+	fprintf(script, "	cout << \"ConstructThankYouPage\\n\";\n");
+	fprintf(script, "}\n");
 
 
 
-	fprintf(script, "\n"); 
-	fprintf(script, "void QuestionnaireApplication::ConstructQuestionForm(\n"); 
-	fprintf(script, "	AbstractQuestion *q, Session * this_users_session)\n"); 
-	fprintf(script, "{\n"); 
-	fprintf(script, "\n"); 
-	fprintf(script, "	WContainerWidget * new_form = new WContainerWidget();\n"); 
-	fprintf(script, "	vec_rb.clear();			 // memory leak introduced here? no it seems\n"); 
-	fprintf(script, "	vec_cb.clear();			 // memory leak introduced here? no it seems\n"); 
-	fprintf(script, "	map_cb_code_index.clear();\n"); 
-	fprintf(script, "\n"); 
-	fprintf(script, "	wt_questionText_ = new WText();\n"); 
-	fprintf(script, "	//wt_questionText_->setText(q->textExprVec_[0]->text_);\n"); 
-	fprintf(script, "	//stringstream question_text;\n"); 
-	fprintf(script, "	stringstream part_mesg_id;\n"); 
-	fprintf(script, "	WString question_text;\n"); 
-	fprintf(script, "	part_mesg_id << q->questionName_;\n"); 
-	fprintf(script, "	for (int i=0; i<q->loop_index_values.size(); ++i)\n"); 
-	fprintf(script, "	{\n"); 
-	fprintf(script, "		part_mesg_id << \"_\" << q->loop_index_values[i];\n"); 
-	fprintf(script, "	}\n"); 
-	fprintf(script, "	WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);\n"); 
-	fprintf(script, "	for (int i=0; i<q->textExprVec_.size(); ++i)\n"); 
-	fprintf(script, "	{\n"); 
-	fprintf(script, "		question_text += \"<p>\";\n"); 
-	fprintf(script, "		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)\n"); 
-	fprintf(script, "		{\n"); 
-	fprintf(script, "			stringstream mesg_id;\n"); 
-	fprintf(script, "			mesg_id << part_mesg_id.str() << \"_\" << i;\n"); 
-	fprintf(script, "			question_text += WString::tr(mesg_id.str().c_str());\n"); 
-	fprintf(script, "		}\n"); 
-	fprintf(script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)\n"); 
-	fprintf(script, "		{\n"); 
-	fprintf(script, "			stringstream named_attribute_key;\n"); 
-	fprintf(script, "			named_attribute_key << q->textExprVec_[i]->naPtr_->name;\n"); 
-	fprintf(script, "			named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n"); 
-	fprintf(script, "			question_text += WString::tr(named_attribute_key.str().c_str());\n"); 
-	fprintf(script, "		}\n"); 
-	fprintf(script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)\n"); 
-	fprintf(script, "		{\n"); 
-	fprintf(script, "			if (q->textExprVec_[i]->codeIndex_ != -1) {\n"); 
-	fprintf(script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);\n"); 
-	fprintf(script, "			} else {\n"); 
-	fprintf(script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();\n"); 
-	fprintf(script, "			}\n"); 
-	fprintf(script, "		}\n"); 
-	fprintf(script, "		question_text += \"</p>\";\n"); 
-	fprintf(script, "	}\n"); 
-	fprintf(script, "	wt_questionText_->setText(question_text);\n"); 
-	fprintf(script, "\n"); 
-	fprintf(script, "	new_form->addWidget(wt_questionText_);\n"); 
-	fprintf(script, "	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))\n"); 
-	fprintf(script, "	{\n"); 
-	fprintf(script, "		new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());\n"); 
-	fprintf(script, "		if (q->no_mpn==1)\n"); 
-	fprintf(script, "		{\n"); 
-	fprintf(script, "			wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);\n"); 
-	fprintf(script, "		}\n"); 
-	fprintf(script, "		vector<stub_pair> & vec= (nq->nr_ptr->stubs);\n"); 
-	fprintf(script, "		for (int i=0; i<vec.size(); ++i)\n"); 
-	fprintf(script, "		{\n"); 
-	fprintf(script, "			stringstream named_range_key;\n"); 
-	fprintf(script, "			named_range_key << nq->nr_ptr->name << \"_\" << i;\n"); 
-	fprintf(script, "			if (q->no_mpn==1 && vec[i].mask)\n"); 
-	fprintf(script, "			{\n"); 
-	fprintf(script, "				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);\n"); 
-	fprintf(script, "				WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);\n"); 
-	fprintf(script, "				wt_rb_container_->addButton(wt_rb, vec[i].code);\n"); 
-	fprintf(script, "				new WBreak(wt_cb_rb_container_);\n"); 
-	fprintf(script, "				vec_rb.push_back(wt_rb);\n"); 
-	fprintf(script, "			}\n"); 
-	fprintf(script, "			else if (q->no_mpn>1 && vec[i].mask)\n"); 
-	fprintf(script, "			{\n"); 
-	fprintf(script, "				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);\n"); 
-	fprintf(script, "				WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);\n"); 
-	fprintf(script, "				vec_cb.push_back(wt_cb);\n"); 
-	fprintf(script, "				cout << \" adding code: \" << vec[i].code << \" to map_cb_code_index\" ;\n"); 
-	fprintf(script, "				map_cb_code_index[vec_cb.size()-1] = vec[i].code;\n"); 
-	fprintf(script, "			}\n"); 
-	fprintf(script, "		}\n"); 
-	fprintf(script, "		new_form->addWidget(wt_cb_rb_container_);\n"); 
-	fprintf(script, "	}\n"); 
-	fprintf(script, "	else\n"); 
-	fprintf(script, "	{\n"); 
-	fprintf(script, "		le_data_ = new WLineEdit();\n"); 
-	fprintf(script, "		new_form->addWidget(le_data_);\n"); 
-	fprintf(script, "	}\n"); 
-	fprintf(script, "\n"); 
-	fprintf(script, "	wt_lastQuestionVisited_ = new WText();\n"); 
-	fprintf(script, "	if (this_users_session->last_question_answered)\n"); 
-	fprintf(script, "		wt_lastQuestionVisited_->setText(q->questionName_);\n"); 
-	fprintf(script, "	new_form->addWidget(wt_lastQuestionVisited_);\n"); 
-	fprintf(script, "\n"); 
-	fprintf(script, "							 // create a button\n"); 
-	fprintf(script, "	WPushButton *b = new WPushButton(\"Next\");\n"); 
-	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n"); 
-	fprintf(script, "	new_form->addWidget(b);\n"); 
-	fprintf(script, "\n"); 
-	fprintf(script, "	setCentralWidget(new_form);\n"); 
-	fprintf(script, "}\n"); 
-	fprintf(script, "\n"); 
+	fprintf(script, "\n");
+	fprintf(script, "void QuestionnaireApplication::ConstructQuestionForm(\n");
+	fprintf(script, "	AbstractQuestion *q, Session * this_users_session)\n");
+	fprintf(script, "{\n");
+	fprintf(script, "\n");
+	fprintf(script, "	WContainerWidget * new_form = new WContainerWidget();\n");
+	fprintf(script, "	vec_rb.clear();			 // memory leak introduced here? no it seems\n");
+	fprintf(script, "	vec_cb.clear();			 // memory leak introduced here? no it seems\n");
+	fprintf(script, "	map_cb_code_index.clear();\n");
+	fprintf(script, "\n");
+	fprintf(script, "	wt_questionText_ = new WText();\n");
+	fprintf(script, "	//wt_questionText_->setText(q->textExprVec_[0]->text_);\n");
+	fprintf(script, "	//stringstream question_text;\n");
+	fprintf(script, "	stringstream part_mesg_id;\n");
+	fprintf(script, "	WString question_text;\n");
+	fprintf(script, "	part_mesg_id << q->questionName_;\n");
+	fprintf(script, "	for (int i=0; i<q->loop_index_values.size(); ++i)\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		part_mesg_id << \"_\" << q->loop_index_values[i];\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);\n");
+	fprintf(script, "	for (int i=0; i<q->textExprVec_.size(); ++i)\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		question_text += \"<p>\";\n");
+	fprintf(script, "		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)\n");
+	fprintf(script, "		{\n");
+	fprintf(script, "			stringstream mesg_id;\n");
+	fprintf(script, "			mesg_id << part_mesg_id.str() << \"_\" << i;\n");
+	fprintf(script, "			question_text += WString::tr(mesg_id.str().c_str());\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)\n");
+	fprintf(script, "		{\n");
+	fprintf(script, "			stringstream named_attribute_key;\n");
+	fprintf(script, "			named_attribute_key << q->textExprVec_[i]->naPtr_->name;\n");
+	fprintf(script, "			named_attribute_key << \"_\" << q->textExprVec_[i]->naIndex_;\n");
+	fprintf(script, "			question_text += WString::tr(named_attribute_key.str().c_str());\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)\n");
+	fprintf(script, "		{\n");
+	fprintf(script, "			if (q->textExprVec_[i]->codeIndex_ != -1) {\n");
+	fprintf(script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);\n");
+	fprintf(script, "			} else {\n");
+	fprintf(script, "				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		question_text += \"</p>\";\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	wt_questionText_->setText(question_text);\n");
+	fprintf(script, "\n");
+	fprintf(script, "	new_form->addWidget(wt_questionText_);\n");
+	fprintf(script, "	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());\n");
+	fprintf(script, "		if (q->no_mpn==1)\n");
+	fprintf(script, "		{\n");
+	fprintf(script, "			wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		vector<stub_pair> & vec= (nq->nr_ptr->stubs);\n");
+	fprintf(script, "		for (int i=0; i<vec.size(); ++i)\n");
+	fprintf(script, "		{\n");
+	fprintf(script, "			stringstream named_range_key;\n");
+	fprintf(script, "			named_range_key << nq->nr_ptr->name << \"_\" << i;\n");
+	fprintf(script, "			if (q->no_mpn==1 && vec[i].mask)\n");
+	fprintf(script, "			{\n");
+	fprintf(script, "				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);\n");
+	fprintf(script, "				WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);\n");
+	fprintf(script, "				wt_rb_container_->addButton(wt_rb, vec[i].code);\n");
+	fprintf(script, "				new WBreak(wt_cb_rb_container_);\n");
+	fprintf(script, "				vec_rb.push_back(wt_rb);\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "			else if (q->no_mpn>1 && vec[i].mask)\n");
+	fprintf(script, "			{\n");
+	fprintf(script, "				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);\n");
+	fprintf(script, "				WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);\n");
+	fprintf(script, "				vec_cb.push_back(wt_cb);\n");
+	fprintf(script, "				cout << \" adding code: \" << vec[i].code << \" to map_cb_code_index\" ;\n");
+	fprintf(script, "				map_cb_code_index[vec_cb.size()-1] = vec[i].code;\n");
+	fprintf(script, "			}\n");
+	fprintf(script, "		}\n");
+	fprintf(script, "		new_form->addWidget(wt_cb_rb_container_);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "	else\n");
+	fprintf(script, "	{\n");
+	fprintf(script, "		le_data_ = new WLineEdit();\n");
+	fprintf(script, "		new_form->addWidget(le_data_);\n");
+	fprintf(script, "	}\n");
+	fprintf(script, "\n");
+	fprintf(script, "	wt_lastQuestionVisited_ = new WText();\n");
+	fprintf(script, "	if (this_users_session->last_question_answered)\n");
+	fprintf(script, "		wt_lastQuestionVisited_->setText(q->questionName_);\n");
+	fprintf(script, "	new_form->addWidget(wt_lastQuestionVisited_);\n");
+	fprintf(script, "\n");
+	fprintf(script, "							 // create a button\n");
+	fprintf(script, "	WPushButton *b = new WPushButton(\"Next\");\n");
+	fprintf(script, "	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);\n");
+	fprintf(script, "	new_form->addWidget(b);\n");
+	fprintf(script, "\n");
+	fprintf(script, "	setCentralWidget(new_form);\n");
+	fprintf(script, "}\n");
+	fprintf(script, "\n");
 
 	fprintf(script, "\n");
 	fprintf(script, "void QuestionnaireApplication::setCentralWidget(WContainerWidget * new_question_form)\n");
@@ -4576,9 +4611,9 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "WApplication * createApplication(const WEnvironment &env)\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	//return new QuestionnaireApplication (env);\n");
-	fprintf(script, "	WApplication * ptr =  new QuestionnaireApplication (env);\n"); 
-	fprintf(script, "	//cout << \"Sizeof (WApplication): \" << sizeof (*ptr) << endl;\n"); 
-	fprintf(script, "	return ptr;\n"); 
+	fprintf(script, "	WApplication * ptr =  new QuestionnaireApplication (env);\n");
+	fprintf(script, "	//cout << \"Sizeof (WApplication): \" << sizeof (*ptr) << endl;\n");
+	fprintf(script, "	return ptr;\n");
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 	fprintf(script, "int main(int argc, char ** argv)\n");
@@ -4897,6 +4932,190 @@ void print_new_logic_support_functions(FILE * script)
 
 
 }
+
+
+void print_new_logic_support_functions_2(FILE * script)
+{
+
+	fprintf (script, "void question_eval_loop2 (\n");
+	fprintf (script, "	UserInput p_user_input,\n");
+	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
+	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire);\n");
+	fprintf (script, "\n");
+	fprintf (script, "// nxd: this is a global variable - has to be eliminated at some point\n");
+	fprintf (script, "//TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);\n");
+	fprintf (script, "int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQuestionnaire )\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	cout << \"received serial no : \" << p_ser_no << \"from ui\";\n");
+	fprintf (script, "\n");
+	fprintf (script, "	theQuestionnaire->ser_no = p_ser_no;\n");
+	fprintf (script, "	theQuestionnaire->base_text_vec.push_back(BaseText(\"All Respondents\"));\n");
+	fprintf (script, "	theQuestionnaire->compute_flat_file_map_and_init();\n");
+	fprintf (script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	AbstractQuestion * last_question_visited = 0;\n");
+	fprintf (script, "	AbstractQuestion * jump_to_question = 0;\n");
+	fprintf (script, "	EvalMode qnre_mode = NORMAL_FLOW;\n");
+	fprintf (script, "	//question_eval_loop (qnre_mode,\n");
+	fprintf (script, "	//			qnre_navigation_mode, last_question_visited,\n");
+	fprintf (script, "	//			jump_to_question, theQuestionnaire);\n");
+	fprintf (script, "	UserInput l_user_input;\n");
+	fprintf (script, "	question_eval_loop2 (\n");
+	fprintf (script, "				l_user_input, /* last_question_visited */ 0,\n");
+	fprintf (script, "				/* jump_to_question */ 0, theQuestionnaire);\n");
+	fprintf (script, "	//cout << \"finished qnre: exiting ...\" << endl;\n");
+	fprintf (script, "	//prompt_user_for_serial_no (callback_get_ser_no_from_ui);\n");
+	fprintf (script, "	return 0;\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "void parse_input_data(vector<int> * data_ptr, int & success);\n");
+	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);\n");
+	fprintf (script, "void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);\n");
+	fprintf (script, "\n");
+	fprintf (script, "\n");
+	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)\n");
+	fprintf (script, "{\n");
+	fprintf (script, "	cout << __PRETTY_FUNCTION__ << endl;\n");
+	fprintf (script, "	// this will be called by the UI - it is the UI's responsibility to\n");
+	fprintf (script, "	// get valid data for us\n");
+	fprintf (script, "	//bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);\n");
+	fprintf (script, "	if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {\n");
+	fprintf (script, "		question_eval_loop2 (\n");
+	fprintf (script, "				p_user_input,\n");
+	fprintf (script, "				/* last_question_visited */ q,\n");
+	fprintf (script, "				/*  jump_to_question */ 0, theQuestionnaire);\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {\n");
+	fprintf (script, "		eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire);\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {\n");
+	fprintf (script, "		cout << \"under stdout either the user can enter data or navigation\" << endl\n");
+	fprintf (script, "			<< \"but under ncurses or other guis - it's possible to enter data\" << endl\n");
+	fprintf (script, "			<< \" AND ask to save by pressing f4, in which case we should save the data \"\n");
+	fprintf (script, "			<< \" and then try to validate the user input - just like we would in a normal case\"\n");
+	fprintf (script, "			<< endl;\n");
+	fprintf (script, "		// nxd: this function needs to be cleaned up\n");
+	fprintf (script, "		//      we can easily downcast to an AbstractQuestionnaire and then there is no need for this\n");
+	fprintf (script, "		//      function to be present here\n");
+	fprintf (script, "		theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		cerr << __PRETTY_FUNCTION__ << \" unhandled case theUserResponse_\" << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+	fprintf (script, "void question_eval_loop2 (\n");
+	fprintf (script, "	UserInput p_user_input,\n");
+	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
+	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire)\n");
+	fprintf (script, "{\n");
+
+	fprintf (script, "	cout << endl << \"Enter: \" << __PRETTY_FUNCTION__ << endl;\n");
+	fprintf (script, "	cout << \"arg values: \" << endl;\n");
+	fprintf (script, "	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {\n");
+	fprintf (script, "		cout << \"p_user_input.userNavigation_ == NAVIGATE_NEXT\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {\n");
+	fprintf (script, "		cout << \"p_user_input.userNavigation_ == NAVIGATE_PREVIOUS\" << endl;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		cout << \"FIXME: p_user_input.userNavigation_ == Unhandled value \" << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "	if 	  (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == UserEnteredNavigation\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == UserEnteredData\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserClearedData) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == UserClearedData\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == UserSavedData\" << endl;\n");
+	fprintf (script, "	} else if (p_user_input.theUserResponse_ == user_response::NotSet) {\n");
+	fprintf (script, "		cout << \"p_user_input.theUserResponse_ == NotSet\" << endl;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		cout << \"FIXME: p_user_input.theUserResponse_ == Unhandled value \" << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+
+	fprintf (script, "\n");
+	fprintf (script, "	cout \n");
+	fprintf (script, "		<< \"p_user_input.questionResponseData_:\" \n");
+	fprintf (script, "		<< p_user_input.questionResponseData_ << endl;\n");
+	fprintf (script, "\n");
+	fprintf (script, "	if (last_question_visited) {\n");
+	fprintf (script, "		cout << \"last_question_visited->questionName_:\" \n");
+	fprintf (script, "			<<  last_question_visited->questionName_\n");
+	fprintf (script, "			<< endl;\n");
+	fprintf (script, "	} else {\n");
+	fprintf (script, "		cout << \"last_question_visited->questionName_: is NULL\"  << endl;\n");
+	fprintf (script, "	}\n");
+	fprintf (script, "\n");
+
+	fprintf (script, "	if (last_question_visited) {\n");
+	fprintf (script, "		if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {\n");
+	fprintf (script, "			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {\n");
+	fprintf (script, "				fprintf(qscript_stdout,\n");
+	fprintf (script, "					\"user_navigation == NAVIGATE_PREVIOUS\\n\");\n");
+	fprintf (script, "				AbstractQuestion *target_question =\n");
+	fprintf (script, "					theQuestionnaire->ComputePreviousQuestion(last_question_visited);\n");
+	fprintf (script, "				if (target_question == 0) { \n");
+	fprintf (script, "					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input);\n");
+	fprintf (script, "				} else {\n");
+	fprintf (script, "					stdout_eval (target_question, theQuestionnaire, callback_ui_input);\n");
+	fprintf (script, "				}\n");
+	fprintf (script, "			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {\n");
+	fprintf (script, "				// do nothing \n");
+	fprintf (script, "				// once we exit this major block == last_question_visited\n");
+	fprintf (script, "				// the bottom of this function will handle it\n");
+	fprintf (script, "			} else {\n");
+	fprintf (script, "				cout << \"Unhandled case userNavigation_ ... exiting\" << endl\n");
+	fprintf (script, "					<< __FILE__ << \",\" \n");
+	fprintf (script, "					<< __LINE__ << \",\" \n");
+	fprintf (script, "					<< __PRETTY_FUNCTION__ << \",\" \n");
+	fprintf (script, "					<< endl;\n");
+	fprintf (script, "				exit(1);\n");
+	fprintf (script, "			}\n");
+	fprintf (script, "		} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {\n");
+	fprintf (script, "			// the management of correctly accepting data is handled \n");
+	fprintf (script, "			// by : callback_ui_input\n");
+	fprintf (script, "			// if we have reached back again here - it means it's\n");
+	fprintf (script, "			// time to get the next question\n");
+#if 0
+	fprintf (script, "			AbstractQuestion * q =\n");
+	fprintf (script, "				theQuestionnaire->eval2 (\n");
+	fprintf (script, "				NAVIGATE_NEXT, last_question_visited, jump_to_question);\n");
+
+	fprintf (script, "			if (!q) {\n");
+	fprintf (script, "				cout << \"End of qnre();\" << endl << \">\";\n");
+	fprintf (script, "				//int ch = getchar();\n");
+	fprintf (script, "			} else {\n");
+
+	fprintf (script, "			cout << __PRETTY_FUNCTION__ << \",\" << __LINE__ <<  \", eval2 return q = \"\n");
+	fprintf (script, "				<< q->questionName_ << endl;\n");
+
+
+	fprintf (script, "				stdout_eval (q, theQuestionnaire, callback_ui_input);\n");
+	fprintf (script, "			}\n");
+#endif /* 0 */
+	fprintf (script, "\n");
+	fprintf (script, "		} else {\n");
+	fprintf (script, "			cout << \"Unhandled case userNavigation_ ... exiting\" << endl;\n");
+	fprintf (script, "			exit(1);\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	} // else {\n");
+	fprintf (script, "	// should reach here - end of :\n");
+	fprintf (script, "		AbstractQuestion * q =\n");
+	fprintf (script, "			theQuestionnaire->eval2 (\n");
+	fprintf (script, "			NAVIGATE_NEXT, last_question_visited, jump_to_question);\n");
+	fprintf (script, "		if (!q) {\n");
+	fprintf (script, "			cout << \"End of qnre();\" << endl << \">\";\n");
+	fprintf (script, "		} else {\n");
+	fprintf (script, "			cout << __PRETTY_FUNCTION__ << \",\" << __LINE__ <<  \", eval2 return q = \"\n");
+	fprintf (script, "				<< q->questionName_ << endl;\n");
+	fprintf (script, "			stdout_eval (q, theQuestionnaire, callback_ui_input);\n");
+	fprintf (script, "		}\n");
+	fprintf (script, "	//}\n");
+	fprintf (script, "}\n");
+	fprintf (script, "\n");
+
+
+}
+
 
 
 /* end of namespace */

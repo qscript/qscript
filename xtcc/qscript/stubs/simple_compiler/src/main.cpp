@@ -45,6 +45,8 @@ namespace program_options_ns {
 	bool compile_to_cpp_only_flag = false;
 	bool latex_flag = false;
 	int stdout_flag = 0;
+	int wx_flag = 0;
+	int gtk_flag = 0;
 }
 
 void process_options (int32_t argc, char* argv[]);
@@ -184,7 +186,7 @@ int32_t main(int32_t argc, char* argv[])
 			}
 
 			if (program_options_ns::latex_flag) {
-				std::stringstream latex_fname; 
+				std::stringstream latex_fname;
 				{
 					// Generate LatexDoc
 					latex_fname << output_file_name << ".latex";
@@ -197,9 +199,9 @@ int32_t main(int32_t argc, char* argv[])
 					//	latex_file << doc;
 				}
 				{
-					using std::cout; 
-					using std::endl; 
-					using std::stringstream; 
+					using std::cout;
+					using std::endl;
+					using std::stringstream;
 					stringstream latex_command;
 					latex_command << "latex " << latex_fname.str();
 					if (int32_t ret_val = system(latex_command.str().c_str())) {
@@ -220,7 +222,7 @@ int32_t main(int32_t argc, char* argv[])
 			}
 		}
 #endif /* _WIN32 */
-				
+
 		cout << "code generated " << endl;
 		if (program_options_ns::compile_to_cpp_only_flag) {
 		} else {
@@ -308,7 +310,7 @@ void process_options (int32_t argc, char* argv[])
 {
 	int c;
 	using qscript_parser::fname;
-	static struct option long_options[] = 
+	static struct option long_options[] =
 		{
 			{ "nice-map", no_argument, 0, 'm'},
 			{ "optimise-no-save-restore", no_argument, 0, 'o'},
@@ -318,7 +320,9 @@ void process_options (int32_t argc, char* argv[])
 			{ "ncurses-exe", no_argument, 0, 'n'},
 			{ "web-exe", required_argument, 0, 'w'},
 			{ "filename", required_argument, 0, 'f'},
-			{ "stdout", no_argument, &program_options_ns::stdout_flag, 1}
+			{ "stdout", no_argument, &program_options_ns::stdout_flag, 1},
+			{ "wx", no_argument, &program_options_ns::wx_flag, 1},
+			{ "gtk", no_argument, &program_options_ns::gtk_flag, 1}
 		};
 	int option_index = 0;
 	while (1) {
@@ -346,7 +350,7 @@ void process_options (int32_t argc, char* argv[])
 					} else if (option_arg == "wt") {
 						program_options_ns::wt_flag = true;
 					} else {
-						cerr << "invalid parameter: " << option_arg 
+						cerr << "invalid parameter: " << option_arg
 							<< " for -w (--web-exe) ... exiting" << endl;
 						exit(1);
 					}
