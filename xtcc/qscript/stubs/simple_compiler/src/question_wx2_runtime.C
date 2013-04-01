@@ -69,10 +69,15 @@ public:
 
 	void OnRadioBox(wxCommandEvent& event);
 
+	void OnCheckboxToggle(wxCommandEvent& event);
+
     int32_t prevRBValue_;
     int32_t rbData_;
+    set<int32_t> cbData_;
     map <int32_t, int32_t> rbQnreCodeMap_;
     void ClearRadio();
+    void ClearCheckList();
+    void ClearStubsArea();
 
 	wxStaticText *the_question ;
 	wxStaticText *the_stubs ;
@@ -81,7 +86,14 @@ public:
 	wxRadioBox *m_radio;
 	wxSizer *m_sizerRadio;
 	wxScrolledWindow * rboxWindow_;
+
+
+	wxCheckListBox * m_pListBox;
+
+
 	void handleDataInput (wxCommandEvent& WXUNUSED(event));
+	void handleCBDataInput ();
+	void handleRBDataInput ();
 
 	void set_callback_ui_input (
 			void (*p_callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
@@ -98,7 +110,8 @@ enum MyWidgetID {
 	ID_BUTTON_SERIAL_NO = wxID_HIGHEST,
 	ID_STUBS_ROW,
 	ID_NEXT_BUTTON,
-	SingleAnswerRadioBox
+	SingleAnswerRadioBox,
+	MultiAnswerCheckListBox
 };
 
 
@@ -106,7 +119,55 @@ BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     EVT_BUTTON(ID_BUTTON_SERIAL_NO,  wxQuestionnaireGUI::get_serial_no)
     EVT_BUTTON(ID_NEXT_BUTTON,  wxQuestionnaireGUI::handleDataInput)
     EVT_RADIOBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnRadioBox)
+    EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
+
 END_EVENT_TABLE()
+
+void wxQuestionnaireGUI::handleCBDataInput ()
+{
+
+}
+
+void wxQuestionnaireGUI::handleRBDataInput ()
+{
+	vector<int32_t> data;
+	UserInput user_input;
+	data.push_back(rbData_);
+	stringstream s1;
+	s1 << rbData_;
+	user_input.theUserResponse_ = user_response::UserEnteredData;
+	user_input.questionResponseData_ = s1.str();
+	AbstractQuestion * q = last_question_visited;
+	string err_mesg;
+	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+	if (valid_input) {
+		if (user_input.theUserResponse_ == user_response::UserSavedData) {
+			cerr  << "NOT YET DONE"
+				<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+				<< endl
+				<< "invoking callback_ui_input with UserSavedData" << endl;
+			// this call will return really fast
+			//  (if you consider io fast)
+			//  but what I mean is we wont add much to the call stack
+			callback_ui_input (user_input, q, theQuestionnaire_);
+			//GetUserInput (callback_ui_input, q, theQuestionnaire);
+			cout << "callback_ui_input has returned after UserSavedData" << endl;
+		} else {
+			cout << "reached here: "
+				<< __PRETTY_FUNCTION__ << endl;
+			callback_ui_input (user_input, q, theQuestionnaire_);
+			cout << "callback_ui_input has returned"
+				<< __PRETTY_FUNCTION__ << endl;
+		}
+		// move all this into callback_ui_input
+		// case UserEnteredData
+	} else {
+		// we should be passing an error message too
+		//GetUserInput (callback_ui_input, q, theQuestionnaire);
+		// do nothing - the callback just continues to wait for data
+	}
+
+}
 
 void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 {
@@ -114,13 +175,13 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 
 	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
 	{
-		cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
 		AbstractQuestion * last_question_served = last_question_visited;
 		vector<int32_t> data;
 		bool isAnswered = false;
 		cout << "returned back data from question: " << nq->questionName_ << endl;
 		if (last_question_served->no_mpn == 1)
 		{
+			/*
 			if (rbData_ != -1) {
 				vector<int32_t> data;
 				UserInput user_input;
@@ -159,6 +220,10 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 					// do nothing - the callback just continues to wait for data
 				}
 			}
+			*/
+			handleRBDataInput();
+		} else {
+			cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
 		}
 	} else {
 		AbstractQuestion * q = last_question_visited;
@@ -334,8 +399,10 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	: wxFrame(NULL, -1, title, wxPoint(-1, -1), wxSize(800, 600)),
 	  the_question (0), the_stubs(0), the_data_entry_line(0),
 	  m_radio(0), m_sizerRadio(0), hbox(0), rbData_(-1), prevRBValue_(-1),
-	  rboxWindow_(0)
+	  rboxWindow_(0), m_pListBox(0)
 {
+
+	CreateStatusBar(2);
 	panel = new wxPanel(this, -1);
 
 
@@ -792,6 +859,7 @@ void wxQuestionnaireGUI::DisplayStubs (AbstractQuestion * q)
 
 void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 #if 0
 	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 	for (int i=0; i<vec.size(); ++i) {
@@ -812,6 +880,86 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 		}
 	}
 #endif /*  0 */
+    // check list box
+	ClearRadio();
+	/*
+	static const wxChar *aszChoices[] =
+    {
+        _T("Zeroth"),
+        _T("First"), _T("Second"), _T("Third"),
+        _T("Fourth"), _T("Fifth"), _T("Sixth"),
+        _T("Seventh"), _T("Eighth"), _T("Nineth")
+    };
+    */
+	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+	unsigned long count = vec.size();
+	static const unsigned int DEFAULT_N_MAJOR_DIM = 2;
+	unsigned long nmajorDim = DEFAULT_N_MAJOR_DIM;
+	wxString *items = new wxString[count];
+
+	//wxString *astrChoices = new wxString[WXSIZEOF(aszChoices)];
+	//unsigned int ui;
+	//for ( ui = 0; ui < WXSIZEOF(aszChoices); ui++ )
+	//    astrChoices[ui] = aszChoices[ui];
+
+	rboxWindow_ = new wxScrolledWindow (panel, -1);
+	rboxWindow_->SetScrollbars(20, 20, 50, 50);
+	rbQnreCodeMap_.clear();
+	for ( size_t i = 0; i < count; ++i ) {
+		stringstream s1;
+		s1 << vec[i].code << ": " << vec[i].stub_text;
+		//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
+		items[i] = wxString::FromUTF8 (s1.str().c_str());
+		rbQnreCodeMap_[i] = vec[i].code;
+		//items[i] = wxString::Format (_T("%d: %s"),
+		//		vec[i].stub_text.c_str(),
+		//		vec[i].code);
+	}
+	int flags = 0;
+	m_pListBox = new wxCheckListBox
+		(
+		 rboxWindow_,               // parent
+		 MultiAnswerCheckListBox,       // control id
+		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
+		 wxDefaultSize, //wxSize(400, 100),      // listbox size
+		 count, // WXSIZEOF(aszChoices),  // number of strings
+		 items, //astrChoices,           // array of strings
+		 flags
+		);
+
+	delete [] items;
+
+    // set grey background for every second entry
+    //for ( ui = 0; ui < WXSIZEOF(aszChoices); ui += 2 ) {
+    //    AdjustColour(ui);
+    //}
+
+	//m_pListBox->Check(2);
+	//m_pListBox->Select(3);
+	stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
+	fgs->Layout();
+	hbox->Layout();
+
+}
+
+void wxQuestionnaireGUI::ClearStubsArea()
+{
+	ClearCheckList();
+	ClearRadio();
+}
+
+void wxQuestionnaireGUI::ClearCheckList()
+{
+	if (m_pListBox) {
+		if (rboxWindow_) {
+			stubsRowSizer_->Detach (rboxWindow_);
+		}
+		delete m_pListBox; m_pListBox = 0;
+	}
+	if (rboxWindow_) {
+		delete rboxWindow_; rboxWindow_ = 0;
+	}
+	// code to preserve previous values - do i really need this?
 }
 
 void wxQuestionnaireGUI::ClearRadio()
@@ -820,24 +968,31 @@ void wxQuestionnaireGUI::ClearRadio()
 	int rbData_ = -1;
 	if ( m_radio )
 	{
-		prevRBValue_ = rbData_;
-		rbData_ = m_radio->GetSelection();
+		//prevRBValue_ = rbData_;
+		//rbData_ = m_radio->GetSelection();
 		//stubsRowSizer_->Detach (m_radio);
-		stubsRowSizer_->Detach (rboxWindow_);
-		delete m_radio; m_radio = 0;
-		delete rboxWindow_; rboxWindow_ = 0;
+		if (rboxWindow_) {
+			stubsRowSizer_->Detach (rboxWindow_);
+			delete rboxWindow_; rboxWindow_ = 0;
+		}
+		//delete m_radio; m_radio = 0;
 	}
 	else // first time creation, no old selection to preserve
 	{
 		rbData_ = -1;
-        prevRBValue_ = -1;
+		prevRBValue_ = -1;
 	}
+
+	//if (rboxWindow_) {
+	//	delete rboxWindow_; rboxWindow_ = 0;
+	//}
 }
 
 void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
-    ClearRadio();
+	//ClearRadio();
+	ClearStubsArea();
 
 
 
@@ -861,6 +1016,7 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	//	items[n] = wxT("Radio Button Label Changed nxd ")
 	//					     ;
 	//}
+	rbQnreCodeMap_.clear();
 	for ( size_t i = 0; i < count; ++i ) {
 		stringstream s1;
 		s1 << vec[i].code << ": " << vec[i].stub_text;
@@ -890,6 +1046,8 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 				nmajorDim,
 				/*flags*/  wxRA_SPECIFY_COLS
 				);
+
+	delete [] items;
 
 	//wxSizer *sizerRight = new wxBoxSizer(wxHORIZONTAL);
 	//sizerRight->SetMinSize(150, 0);
@@ -939,4 +1097,34 @@ void wxQuestionnaireGUI::OnRadioBox(wxCommandEvent& event)
 	//m_textCurSel->SetValue(wxString::Format(_T("%d"), sel));
 }
 
+/*
+void wxQuestionnaireGUI::OnToggleSelection(wxCommandEvent& event)
+{
+    wxSizer *sizer = m_panel->GetSizer();
+    sizer->Detach( m_pListBox );
+    delete m_pListBox;
+    CreateCheckListbox(event.IsChecked() ? wxLB_EXTENDED : 0);
+    sizer->Insert(0, m_pListBox, 1, wxGROW | wxALL, 10);
+    m_panel->Layout();
+}
+*/
 
+void wxQuestionnaireGUI::OnCheckboxToggle(wxCommandEvent& event)
+{
+	unsigned int nItem = event.GetInt();
+
+	wxLogStatus(this, wxT("item %d was %schecked"), nItem,
+		      m_pListBox->IsChecked(nItem) ? wxT("") : wxT("un"));
+	int code = rbQnreCodeMap_[nItem];
+	if (m_pListBox->IsChecked(nItem)) {
+		cbData_.insert (code);
+	} else {
+		cbData_.erase (code);
+	}
+	cout << "selected values are: " << endl;
+	for (set<int32_t>::iterator it = cbData_.begin(); it != cbData_.end(); ++it) {
+		cout << " " << *it;
+	}
+	cout << endl;
+
+}
