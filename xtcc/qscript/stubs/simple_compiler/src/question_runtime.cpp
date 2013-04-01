@@ -13,7 +13,7 @@ using namespace std;
 //extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 
-void Print_DisplayDataUnitVector (WINDOW * stub_list_window, 
+void Print_DisplayDataUnitVector (WINDOW * stub_list_window,
 		vector<display_data::DisplayDataUnit> & disp_vec,
 		int &xPos, int &yPos, int maxWinX);
 
@@ -29,7 +29,7 @@ RangeQuestion::RangeQuestion(
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes
 			   , l_isStartOfBlock)
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ 
+{
 	maxCode_ = r_data->GetMax();
 }
 
@@ -72,7 +72,7 @@ RangeQuestion::RangeQuestion(
 		, l_question_attributes, l_isStartOfBlock
 		)
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ 
+{
 	maxCode_ = r_data->GetMax();
 }
 
@@ -211,12 +211,12 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 			if (currXpos + s.str().length() > maxWinX) {
 				currXpos =1, ++currYpos;
-			} 
+			}
 			mvwprintw(stub_list_window, currYpos, currXpos, "%s", s.str().c_str());
 			currXpos += s.str().length() + 1;
 		}
 		*/
-		Print_DisplayDataUnitVector (stub_list_window, 
+		Print_DisplayDataUnitVector (stub_list_window,
 				displayData_, currXpos, currYpos, maxWinX);
 		// mvwprintw(data_entry_window, 2, 1, "just before exit eval");
 
@@ -235,9 +235,9 @@ get_data_again:
 	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< mesg.str() << endl;
 	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
-		// valid response if blanks are allowed but dont do isAnswered_ = true 
-		// because otherwise when visiting the questionnaire it will skip this 
-		// question and data entry will have an off by 1 error everytime they 
+		// valid response if blanks are allowed but dont do isAnswered_ = true
+		// because otherwise when visiting the questionnaire it will skip this
+		// question and data entry will have an off by 1 error everytime they
 		// are reviewing this question - since blank is a valid answer
 	} else if (user_resp == user_response::UserEnteredData) {
 	} else if (user_resp == user_response::UserEnteredNavigation
@@ -440,9 +440,9 @@ get_data_again:
 	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< mesg.str() << endl;
 	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
-		// valid response if blanks are allowed but dont do isAnswered_ = true 
-		// because otherwise when visiting the questionnaire it will skip this 
-		// question and data entry will have an off by 1 error everytime they 
+		// valid response if blanks are allowed but dont do isAnswered_ = true
+		// because otherwise when visiting the questionnaire it will skip this
+		// question and data entry will have an off by 1 error everytime they
 		// are reviewing this question - since blank is a valid answer
 	} else if (user_resp == user_response::UserEnteredData) {
 	} else if (user_resp == user_response::UserEnteredNavigation
@@ -548,7 +548,7 @@ ask_again:
 		vector <int> data;
 		do {
 label_ask_again:
-			user_response::UserResponseType user_resp 
+			user_response::UserResponseType user_resp
 				= read_data_from_window(
 						question_window, stub_list_window,
 						data_entry_window, err_mesg.c_str()
@@ -566,7 +566,7 @@ label_ask_again:
 			if (isAnswered_ == false && user_navigation == NAVIGATE_PREVIOUS
 					&& user_resp == user_response::UserEnteredNavigation) {
 				// allow this behaviour - they can go back to the
-				// previous question without answering anything - 
+				// previous question without answering anything -
 				// no harm done
 				return user_resp;
 			} else if (isAnswered_ == false && user_navigation == NAVIGATE_NEXT
@@ -610,9 +610,9 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp,
 	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 	// 	<< mesg.str() << endl;
 	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
-		// valid response if blanks are allowed but dont do isAnswered_ = true 
-		// because otherwise when visiting the questionnaire it will skip this 
-		// question and data entry will have an off by 1 error everytime they 
+		// valid response if blanks are allowed but dont do isAnswered_ = true
+		// because otherwise when visiting the questionnaire it will skip this
+		// question and data entry will have an off by 1 error everytime they
 		// are reviewing this question - since blank is a valid answer
 		return true;
 	} else if (user_resp == user_response::UserEnteredData) {
@@ -715,7 +715,7 @@ bool AbstractQuestion::VerifyData(
 		invalid_code = false;
 	}
 end:
-	// cout << __PRETTY_FUNCTION__ << " returned invalid_code: |" << invalid_code 
+	// cout << __PRETTY_FUNCTION__ << " returned invalid_code: |" << invalid_code
 	// 	<< "|" << endl;
 	return invalid_code;
 }
@@ -810,7 +810,7 @@ NamedStubQuestion::NamedStubQuestion(
 			 , l_isStartOfBlock)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0), displayData_(), currentPage_(0)
-{ 
+{
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
 	for (int i=0; i<v.size(); ++i) {
@@ -846,7 +846,7 @@ bool AbstractQuestion::VerifyQuestionIntegrity()
 	return has_integrity;
 }
 
-void Print_DisplayDataUnitVector(WINDOW * stub_list_window, 
+void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 		vector<display_data::DisplayDataUnit> & disp_vec,
 		int &xPos, int &yPos, int maxWinX)
 {
@@ -864,7 +864,7 @@ void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
 		}
 		if (xPos + s.str().length() > maxWinX) {
 			xPos =1, ++yPos;
-		} 
+		}
 		mvwprintw(stub_list_window, yPos, xPos, "%s", s.str().c_str());
 		xPos += s.str().length() + 1;
 	}
@@ -958,7 +958,7 @@ void NamedStubQuestion::MakeDisplaySummaryDataRanges()
 		current_code = vec[i].code;
 		//fprintf (qscript_stdout, "current_code: %d, previous_code: %d\n", current_code, previous_code);
 		if (current_code - previous_code == 0) {
-			// 1st iteration thru the loop 
+			// 1st iteration thru the loop
 			// cant make any decision yet
 		} else if (current_code - previous_code == 1) {
 			// continuous range - just keep going along we are in an interval
@@ -1070,7 +1070,7 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 	//fstream file_display_stubs_log("file_display_stubs.log", ios_base::out|ios_base::app);
 
 	int32_t currXpos = 1, currYpos = stubStartYIndex_;
-	
+
 	int32_t maxWinX, maxWinY;
 	getmaxyx(data_entry_window, maxWinY, maxWinX);
 	vector<stub_pair> & vec= (nr_ptr->stubs);
@@ -1136,7 +1136,9 @@ bool AbstractQuestion::check_and_store_input_data_single_question
 	(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,
 	 vector <int> & data)
 {
+	cout << "ENTER: " << __PRETTY_FUNCTION__ << endl;
 	//string err_mesg, re_arranged_buffer; int pos_1st_invalid_data;
+	bool r_value = false;
 	bool invalid_code = VerifyData (err_mesg, re_arranged_buffer, pos_1st_invalid_data, &data);
 	if (invalid_code == false) {
 		input_data.erase (input_data.begin(), input_data.end());
@@ -1146,9 +1148,23 @@ bool AbstractQuestion::check_and_store_input_data_single_question
 			//	<< " into input_data" << endl;
 		}
 		isAnswered_ = true;
-		return true;
+		r_value = true;
+		//return true;
 	} else {
 		err_mesg += " Data contained some invalid codes";
-		return false;
+		//return false;
+		r_value = false;
 	}
+	cout << "exit: "
+		<< __PRETTY_FUNCTION__
+		<< "return value: (true == success) (false = FAILURE)" <<  r_value
+		<< ", re_arranged_buffer:" << re_arranged_buffer
+		<< ", pos_1st_invalid_data: " << pos_1st_invalid_data
+		<< ", err_mesg: " << err_mesg
+		<< endl;
+	cout << "data: " ;
+	for (int i=0; i<data.size(); ++i) {
+		cout << " " << data[i];
+	}
+	cout << endl;
 }

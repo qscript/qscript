@@ -3,15 +3,15 @@
  *
  *       Filename:  question_logic.cpp
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  Tuesday 19 February 2013 08:47:50  IST
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *        Company:  
+ *         Author:  YOUR NAME (),
+ *        Company:
  *
  * =====================================================================================
  */
@@ -51,7 +51,7 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQues
 			// input is not blank
 			int success;
 			vector <int> input_data;
-			parse_input_data (p_user_input.questionResponseData_ 
+			parse_input_data (p_user_input.questionResponseData_
 					/* current_response */, &input_data, success);
 			cout << "success: " << success << endl;
 			if (success == 0) {
@@ -72,11 +72,15 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQues
 					//  new valyes
 					p_user_input.userNavigation_ = NAVIGATE_NEXT;
 					p_user_input.theUserResponse_ = user_response::UserEnteredNavigation;
-					cout << __PRETTY_FUNCTION__ << ", invoking question_eval_loop2" 
+					cout << __PRETTY_FUNCTION__ << ", invoking question_eval_loop2"
 						<< endl;
 					question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
 				} else {
 					//stdout_eval (q, theQuestionnaire, callback_ui_input);
+					cout << __PRETTY_FUNCTION__
+						<< "Did not Get valid data for : "
+						<< " asking for input again (calling GetUserInput): "
+						<< q->questionName_ << endl;
 					GetUserInput (callback_ui_input, q, theQuestionnaire);
 				}
 				// =======================
@@ -104,7 +108,7 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQues
 }
 
 // these functions below have to be moved to an
-// appropriate file - 
+// appropriate file -
 // but get them out of the generated code
 // as they are static and do not change from
 // questionnaire to questionnaire

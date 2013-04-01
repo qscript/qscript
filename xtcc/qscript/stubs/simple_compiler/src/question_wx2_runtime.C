@@ -125,6 +125,48 @@ END_EVENT_TABLE()
 
 void wxQuestionnaireGUI::handleCBDataInput ()
 {
+	vector<int32_t> data;
+	UserInput user_input;
+	//data.push_back(rbData_);
+	stringstream s1;
+	//s1 << rbData_;
+	for (set<int32_t>::iterator it = cbData_.begin(); it != cbData_.end(); ++it) {
+		//cout << " " << *it;
+		data.push_back (*it);
+		s1 << " " << (*it);
+	}
+	user_input.theUserResponse_ = user_response::UserEnteredData;
+	user_input.questionResponseData_ = s1.str();
+	AbstractQuestion * q = last_question_visited;
+	string err_mesg;
+	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+	if (valid_input) {
+		if (user_input.theUserResponse_ == user_response::UserSavedData) {
+			cerr  << "NOT YET DONE"
+				<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+				<< endl
+				<< "invoking callback_ui_input with UserSavedData" << endl;
+			// this call will return really fast
+			//  (if you consider io fast)
+			//  but what I mean is we wont add much to the call stack
+			callback_ui_input (user_input, q, theQuestionnaire_);
+			//GetUserInput (callback_ui_input, q, theQuestionnaire);
+			cout << "callback_ui_input has returned after UserSavedData" << endl;
+		} else {
+			cout << "reached here: "
+				<< __PRETTY_FUNCTION__ << endl;
+			callback_ui_input (user_input, q, theQuestionnaire_);
+			cout << "callback_ui_input has returned"
+				<< __PRETTY_FUNCTION__ << endl;
+		}
+		// move all this into callback_ui_input
+		// case UserEnteredData
+	} else {
+		// we should be passing an error message too
+		//GetUserInput (callback_ui_input, q, theQuestionnaire);
+		// do nothing - the callback just continues to wait for data
+	}
+
 
 }
 
@@ -224,6 +266,7 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 			handleRBDataInput();
 		} else {
 			cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
+			handleCBDataInput();
 		}
 	} else {
 		AbstractQuestion * q = last_question_visited;
@@ -339,6 +382,7 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 		}
 
 	}
+	cout << __PRETTY_FUNCTION__ << " returned " << endl;
 }
 
 void wxQuestionnaireGUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
