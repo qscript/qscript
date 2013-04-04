@@ -86,7 +86,10 @@
 #include <limits.h>
 #include <regex.h>
 
+
+
 #include "const_defs.h"
+#include "person_info.h"
 
 	extern int yylex();
 	extern void yyerror(const char * s);
@@ -151,7 +154,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 155 "gram.c"
+#line 158 "gram.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -193,7 +196,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 87 "gram.y"
+#line 90 "gram.y"
 
 	int ival;
 	double dval;
@@ -203,7 +206,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 207 "gram.c"
+#line 210 "gram.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -215,7 +218,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 219 "gram.c"
+#line 222 "gram.c"
 
 #ifdef short
 # undef short
@@ -503,7 +506,7 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,   102,   102,   103,   108
+       0,   105,   105,   106,   111
 };
 #endif
 
@@ -1435,7 +1438,7 @@ yyreduce:
         case 3:
 
 /* Line 1806 of yacc.c  */
-#line 103 "gram.y"
+#line 106 "gram.y"
     {
 		//cout << "chained a row" << endl;
 	}
@@ -1444,7 +1447,7 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 112 "gram.y"
+#line 115 "gram.y"
     {
 		//cout << "got a row" << endl;
 		//struct Info inf;
@@ -1510,7 +1513,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1514 "gram.c"
+#line 1517 "gram.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1741,12 +1744,18 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 175 "gram.y"
+#line 178 "gram.y"
 
 
 	extern void yyrestart(FILE *input_file);
 	extern int32_t yyparse();
 	int DebugFreqLexer ;
+
+
+#include<iostream>
+#include<boost/tokenizer.hpp>
+#include<string>
+#include<vector>
 
 /*
 struct Info 
@@ -2110,4 +2119,13 @@ int main()
 }
 
 
+vector <string> split_into_words(string s)
+{
+	vector <string> result;
+	tokenizer<> tok(s);
+	for(tokenizer<>::iterator beg=tok.begin(); beg!=tok.end();++beg) {
+		result.push_back (*beg);
+	}
+	return result;
+}
 
