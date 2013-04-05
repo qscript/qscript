@@ -1819,7 +1819,7 @@ int has_negative_words_of_interest (string s2, const set<string> & negative_word
 		it != negative_words_of_interest.end(); ++it) {
 		string  neg_word = *it;
 		if (s2.find (neg_word)!= string::npos) {
-			addnl_info += ", |" + s2 + "| has word of interest: |" + neg_word + "|";
+			addnl_info += ": |" + s2 + "| has word of interest: |" + neg_word + "|";
 			++result ;
 		}
 	}
@@ -1928,9 +1928,9 @@ int check_for_groups_of_single_word_match_in_same_name(const vector<string> & ba
 			if (recalled_name == bank_rm_name_vec[j]) {
 				++score;
 				stringstream ss1;
-				ss1 << "match:" << recalled_name 
-					<< ", " << bank_rm_name_vec[j] 
-					<< "," << serial_no;
+				ss1 << "match: recalled_name |" << recalled_name 
+					<< ": bank_rm_name_vec |" << bank_rm_name_vec[j] 
+					<< ": serial_no|" << serial_no;
 				addnl_info += ss1.str();
 			}
 		}
@@ -1939,7 +1939,9 @@ int check_for_groups_of_single_word_match_in_same_name(const vector<string> & ba
 }
 
 
-int check_for_alternate_rm_exact_match (const string & recalled_name, string & addnl_info, int serial_no)
+int check_for_alternate_rm_exact_match (const string & recalled_name, string & addnl_info, int serial_no
+	, int & other_rm_code, string & other_rm_name
+)
 {
 	int score = 0;
 	//if (serial_no == 1178) {
@@ -1959,6 +1961,8 @@ int check_for_alternate_rm_exact_match (const string & recalled_name, string & a
 			<< ",other rm code," << it->second;
 		addnl_info += ss1.str();
 		score = 1;
+		other_rm_code = it->second;
+		other_rm_name = it->first;
 	}
 	return score;
 }
@@ -1967,7 +1971,9 @@ typedef person_info_set::index<first_name>::type person_by_first_name;
 typedef person_info_set::index<last_name>::type person_by_last_name;
 
 int  check_for_alternate_rm_word_match (string recalled_name, string & addnl_info,
-	int serial_no, const person_info_set & pinf_set)
+	int serial_no, const person_info_set & pinf_set,
+	int & other_rm_code, string & other_rm_name
+	)
 {
 	int score = 0;
 	vector <string> recalled_name_split = split_into_words (recalled_name);
@@ -1979,23 +1985,29 @@ int  check_for_alternate_rm_word_match (string recalled_name, string & addnl_inf
 		person_by_last_name::iterator  it_find_ln = pinf_set.get<last_name>().find(possible_name);
 		if (it_find_fn != pinf_set.get<first_name>().end() ) {
 			stringstream ss1;
-			ss1 << "check_for_alternate_rm_word_match: got a word match on ,"
-				<< "possible_name," << possible_name
-				<< "," << it_find_fn->first_name
-				<< "," << it_find_fn->last_name
-				<< "," << it_find_fn->rm_code
+			ss1 << "check_for_alternate_rm_word_match: got a word match on "
+				<< "possible_name|" << possible_name
+				<< "| so full name is |" << it_find_fn->first_name
+				<< "|" << it_find_fn->last_name
+				<< "|" << it_find_fn->rm_code
 				;
+			other_rm_name += it_find_fn->first_name;
+			other_rm_name += string(" ") + it_find_fn->last_name;
+			other_rm_code = it_find_fn->rm_code;
 			addnl_info += ss1.str();
 			++score;
 		}
 		if (it_find_ln != pinf_set.get<last_name>().end() ) {
 			stringstream ss1;
-			ss1 << "check_for_alternate_rm_word_match: got a word match on ,"
-				<< "possible_name," << possible_name
-				<< "," << it_find_ln->last_name
-				<< "," << it_find_ln->last_name
-				<< "," << it_find_ln->rm_code
+			ss1 << "check_for_alternate_rm_word_match: got a word match on |"
+				<< "possible_name|" << possible_name
+				<< "| so full name is |" << it_find_ln->last_name
+				<< "|" << it_find_ln->last_name
+				<< "|" << it_find_ln->rm_code
 				;
+			other_rm_name += it_find_ln->first_name;
+			other_rm_name += string("|") + it_find_ln->last_name;
+			other_rm_code = it_find_ln->rm_code;
 			addnl_info += ss1.str();
 			++score;
 		}
@@ -2009,29 +2021,41 @@ int match_score(const string & recalled_name, const string & bank_provided_rm_na
 	string & addnl_info,
 	string & verdict,
 	int serial_no,
-	const person_info_set & pinf_set
+	const person_info_set & pinf_set,
+	int & other_rm_code,
+	string & other_rm_name
 	)
 {
 	
 	int score = 0;
 	if (recalled_name == bank_provided_rm_name) {
-		verdict = "matched";
+		verdict = "exact match,proposed rm name,N/A";
 		score =  INT_MAX;
+		stringstream ss1;
+		ss1 << ",," << "N/A";
+		addnl_info += ss1.str();
 	} else if (bank_provided_rm_name.find (recalled_name) != string :: npos) {
-		verdict = "partial match";
+		verdict = "partial match,proposed rm name,dbl check:negative recall";
+		stringstream ss1;
+		ss1 << ",," << "N/A";
+		addnl_info += ss1.str();
 		score =  100;
-	} else {
-		verdict = "heuristic";
-		score += has_negative_words_of_interest (recalled_name, negative_words_of_interest, addnl_info);
-		//score += has_negative_words_of_interest (bank_provided_rm_name, negative_words_of_interest, addnl_info);
-		int regex_score = 0;
-		if (score == 0) {
-			regex_score = match_regular_expressions_of_interest (recalled_name, addnl_info);
-			if (regex_score) {
-				verdict += ":regex";
-			}
+	} 
+	
+	if (score==0) {
+		int score_negative_word_of_interest = has_negative_words_of_interest (recalled_name, negative_words_of_interest, addnl_info);
+		if (score_negative_word_of_interest > 0) {
+			verdict = "heuristic,negative_words_of_interest,exact match";
+			score += score_negative_word_of_interest;
 		}
-		score += regex_score;
+		//score += has_negative_words_of_interest (bank_provided_rm_name, negative_words_of_interest, addnl_info);
+	}
+	if (score == 0) {
+		int regex_score = match_regular_expressions_of_interest (recalled_name, addnl_info);
+		if (regex_score) {
+			verdict += "heuristic,negative_words_of_interest,pattern";
+			score += regex_score;
+		}
 	}
 
 	// check for single word match of first_name or last_name in the same bank provided rm name
@@ -2042,7 +2066,7 @@ int match_score(const string & recalled_name, const string & bank_provided_rm_na
 		int word_match_score = 
 			check_for_groups_of_single_word_match_in_same_name(bank_provided_rm_name_split, recalled_name_split, serial_no, addnl_info);
 		if (word_match_score > 0) {
-			verdict += ":matched same name single word";
+			verdict = "heuristic,proposed name single word,pattern";
 			score += word_match_score;
 		}
 	}
@@ -2058,18 +2082,20 @@ int match_score(const string & recalled_name, const string & bank_provided_rm_na
 		//		<< ",other rm code," << it->second;
 		//	addnl_info += ss1.str();
 		//}
-		int alt_rm_score  = check_for_alternate_rm_exact_match (recalled_name, addnl_info, serial_no);
-		if (alt_rm_score) {
-			verdict += ":matched other rm";
+		int alt_rm_score  = check_for_alternate_rm_exact_match (recalled_name, addnl_info,
+				serial_no, other_rm_code, other_rm_name);
+		if (alt_rm_score > 0) {
+			verdict = "exact,matched other rm,N/A";
 			score += alt_rm_score;
 		}
 	}
 
 	// check for word match of first_name or last_name in alternate rm name
 	if (score == 0) {
-		int alt_rm_score  = check_for_alternate_rm_word_match (recalled_name, addnl_info, serial_no, pinf_set);
-		if (alt_rm_score) {
-			verdict += ":word match other rm";
+		int alt_rm_score  = check_for_alternate_rm_word_match (recalled_name, addnl_info, serial_no, pinf_set,
+			other_rm_code, other_rm_name);
+		if (alt_rm_score > 0) {
+			verdict = "heuristic,word match other rm,pattern";
 			score += alt_rm_score;
 		}
 	}
@@ -2157,6 +2183,7 @@ void populate_negative_words_of_interest()
 	negative_words_of_interest.insert("DOES NOT KNOW");
 	negative_words_of_interest.insert("DOESN'T KNOW");
 	negative_words_of_interest.insert("NOT SURE");
+	negative_words_of_interest.insert("DO NOT THINK");
 }
 
 void insert_into_multi_index (person_info_set & pinf_set, vector<string> &name_data, int rm_code)
@@ -2183,9 +2210,9 @@ void populate_person_info_set (person_info_set & pinf_set)
 				it_find_ln == pinf_set.get<last_name>().end()
 			) {
 				insert_into_multi_index (pinf_set, name_split, inf.rm_code);
-				cout << "added RM: ,fn," << f_name << ", ln," << l_name 
-					<< ",rm_code," << inf.rm_code
-					<< endl;
+				//cout << "added RM: ,fn," << f_name << ", ln," << l_name 
+				//	<< ",rm_code," << inf.rm_code
+				//	<< endl;
 			/*} else if (it_find_fn->last_name !=  l_name) {
 				insert_into_multi_index (pinf_set, name_split, inf.rm_code);
 				cout << "added RM| same fn different ln," << f_name << ", ln," << l_name
@@ -2224,50 +2251,204 @@ void populate_person_info_set (person_info_set & pinf_set)
 	}
 }
 
+void print_result(const Info & inf, const string & verdict, const string addnl_info, int score,
+	const int & other_rm_code, const string & other_rm_name
+	)
+{
+	cout << verdict 
+		//<< "ser_no, "
+		<< "," << inf.serial_no 
+		//<< ", rm_name, bank_rm_code"
+		<< ",\""<< inf.rm_name << "\""
+		<< ", " << inf.rm_code;
+
+	if (verdict == "exact match,proposed rm name,N/A") {
+		cout
+			//<< ", proposed_recalled_name, proposed_recall_code"
+			<< ",\"N/A\",\"N/A\""
+			//<< ", match_quality"
+			<< ", perfect"
+			//<< ", reason1, reason2"
+			<< ",,"
+			//<<", score"
+			<< "," << score
+			//<<", raw_recalled_text"
+			<< "," << "\"" << inf.recalled_name << "\""
+			<< "," << addnl_info
+			<< endl;
+	} else if (verdict == "partial match,proposed rm name,dbl check:negative recall") {
+		cout
+			//<< ", proposed_recalled_name, proposed_recall_code"
+			<< ",\"N/A\",\"N/A\""
+			//<< ", match_quality"
+			<< ", very high"
+			//<< ", reason1, reason2"
+			<< ",,"
+			//<<", score"
+			<< "," << score
+			//<<", raw_recalled_text"
+			<< "," << "\"" << inf.recalled_name << "\""
+			<< "," << addnl_info
+			<< endl;
+	} else if (verdict == "heuristic,negative_words_of_interest,exact match") {
+		cout
+			//<< ", proposed_recalled_name, proposed_recall_code"
+			<< ",\"N/A\",\"N/A\""
+			//<< ", match_quality"
+			<< ", high"
+			//<< ", reason1, reason2"
+			<< ",,"
+			//<<", score"
+			<< "," << score
+			//<<", raw_recalled_text"
+			<< "," << "\"" << inf.recalled_name << "\""
+			<< "," << addnl_info
+			<< endl;
+	} else if (verdict == "heuristic,negative_words_of_interest,pattern") {
+		cout
+			//<< ", proposed_recalled_name, proposed_recall_code"
+			<< ",\"N/A\",\"N/A\""
+			//<< ", match_quality"
+			<< ", high"
+			//<< ", reason1, reason2"
+			<< ",,"
+			//<<", score"
+			<< "," << score
+			//<<", raw_recalled_text"
+			<< "," << "\"" << inf.recalled_name << "\""
+			<< "," << addnl_info
+			<< endl;
+	} else if (verdict == "exact,matched other rm,N/A") {
+		cout
+			//<< ", proposed_recalled_name, proposed_recall_code"
+			//<< ",\"N/A\",\"N/A\""
+			<< "," << other_rm_name << "," << other_rm_code 
+			//<< ", match_quality"
+			<< ", perfect"
+			//<< ", reason1, reason2"
+			<< ",,"
+			//<<", score"
+			<< "," << score
+			//<<", raw_recalled_text"
+			<< "," << "\"" << inf.recalled_name << "\""
+			<< "," << addnl_info
+			<< endl;
+	} else if (verdict == "heuristic,word match other rm,pattern") {
+		cout
+			//<< ", proposed_recalled_name, proposed_recall_code"
+			//<< ",\"N/A\",\"N/A\""
+			<< "," << other_rm_name << "," << other_rm_code 
+			//<< ", match_quality"
+			<< ", ok:check visually"
+			//<< ", reason1, reason2"
+			<< ",,"
+			//<<", score"
+			<< "," << score
+			//<<", raw_recalled_text"
+			<< "," << "\"" << inf.recalled_name << "\""
+			<< "," << addnl_info
+			<< endl;
+	} else if (verdict == "heuristic,proposed name single word,pattern") {
+		cout
+			//<< ", proposed_recalled_name, proposed_recall_code"
+			<< ",\"N/A\",\"N/A\""
+			//<< "," << other_rm_name << "," << other_rm_code 
+			//<< ", match_quality"
+			<< ", good:check visually"
+			//<< ", reason1, reason2"
+			<< ",,"
+			//<<", score"
+			<< "," << score
+			//<<", raw_recalled_text"
+			<< "," << "\"" << inf.recalled_name << "\""
+			<< "," << addnl_info
+			<< endl;
+	} else {
+		cout << "NOT YET DONE FIX PROGRAM" << endl;
+	}
+
+}
+
 void do_match(const person_info_set & pinf_set)
 {
 	for (int i=0; i< info_vec.size(); ++i) {
 		string recalled_name = info_vec[i].recalled_name;
 		string rm_name = info_vec[i].rm_name;
 		int serial_no = info_vec[i].serial_no;
+		int rm_code = info_vec[i].rm_code;
 		if (recalled_name.length() > 0) {
 			string addnl_info;
 			string verdict;
+			int other_rm_code=-1;
+			string other_rm_name;
 			if (int score = match_score (recalled_name, rm_name, 
 					negative_words_of_interest, addnl_info,
-					verdict, serial_no, pinf_set) ) {
-				cout << verdict << ","
-					//<< "ser_no, "
-					<< serial_no << ", " 
-					//<< ", rm_name, " 
-					<< rm_name << ", "
-					//<< ", recalled_name, "
-					<< "\"" << recalled_name << "\"" << ","
-					//<< ", score, " 
-					<< score << ","
-					<< addnl_info
-					<< endl;
+					verdict, serial_no, pinf_set,
+					other_rm_code, other_rm_name) ) {
+				print_result(info_vec[i], verdict, addnl_info, score,
+					other_rm_code, other_rm_name);
+				//cout << verdict << ","
+				//	//<< "ser_no, "
+				//	<< serial_no << ", " 
+				//	//<< ", rm_name, " 
+				//	<< rm_name << ", "
+				//	<< rm_code << ", "
+				//	//<< ", recalled_name, "
+				//	<< "\"" << recalled_name << "\"" << ","
+				//	//<< ", score, " 
+				//	<< score << ","
+				//	<< addnl_info
+				//	<< endl;
 			} else {
-				cout << "not matched," 
-					//<< "  ser_no, "
-					<< serial_no  << ", "
-					//<< ", rm_name, " 
-					<< rm_name <<", "
-					//<< ", recalled_name, " 
-					<< "\"" << recalled_name << "\"" << ","
-					//<< ", score, " 
-					<< 0 << ","
-					<< addnl_info
-					<< endl;
+				//cout << "FIX ME," << endl;
+				//cout << "not matched," 
+				//	//<< "  ser_no, "
+				//	<< serial_no  << ", "
+				//	//<< ", rm_name, " 
+				//	<< rm_name <<", "
+				//	//<< ", recalled_name, " 
+				//	<< "\"" << recalled_name << "\"" << ","
+				//	//<< ", score, " 
+				//	<< 0 << ","
+				//	<< addnl_info
+				//	<< endl;
+				cout << "not matched,,"
+					<< "," << info_vec[i].serial_no
+				<< ",\""<< info_vec[i].rm_name << "\""
+				<< ", " << info_vec[i].rm_code
+				//<< ", proposed_recalled_name, proposed_recall_code"
+				<< ",\"N/A\",\"N/A\""
+				//<< ", match_quality"
+				<< ", N/A"
+				//<< ", reason1, reason2"
+				<< ",not matched any criteria,"
+				//<<", score"
+				<< "," << 0
+				//<<", raw_recalled_text"
+				<< "," << "\"" << info_vec[i].recalled_name << "\""
+				//<< "," << addnl_info
+				<< "," 
+				<< endl;
 			}
 		} else {
-			cout << "impossible, "
-				<< serial_no  << ", "
-				<< rm_name <<", "
-				<< "\"" << recalled_name << "\"" << ","
-				<< 0 << ","
-				<< "recalled_name is of length 0"
-				<< endl;
+			//cout << "FIX ME," << endl;
+			cout << "impossible,,"
+				<< "," << info_vec[i].serial_no
+			<< ",\""<< info_vec[i].rm_name << "\""
+			<< ", " << info_vec[i].rm_code
+			//<< ", proposed_recalled_name, proposed_recall_code"
+			<< ",\"N/A\",\"N/A\""
+			//<< ", match_quality"
+			<< ", impossible"
+			//<< ", reason1, reason2"
+			<< ",recall text empty,"
+			//<<", score"
+			<< "," << 0
+			//<<", raw_recalled_text"
+			<< "," << "\"" << info_vec[i].recalled_name << "\""
+			//<< "," << addnl_info
+			<< "," 
+			<< endl;
 		}
 	}
 }
@@ -2288,7 +2469,14 @@ int main()
 	populate_negative_words_of_interest();
 	populate_regular_expressions_of_interest();
 	yyrestart(yyin);
-	cout << "result, serno, rm_name, recalled_name, score" << endl;
+	//cout << endl;
+ 	cout << "match_lvl_1,match_lvl_2,match_lvl_3"
+		<< ", serno, rm_name, bank_rm_code"
+		<< ", proposed_recalled_name, proposed_recall_code"
+		<< ", match_quality"
+		<< ", reason1, reason2, score, raw_recalled_text"
+		<< ", addnl_info"
+		<< endl;
 	if (!yyparse()) {
 		//cout << "Input parsed successfully" << endl;
 		person_info_set pinf_set;
