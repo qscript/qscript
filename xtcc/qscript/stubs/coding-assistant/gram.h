@@ -52,7 +52,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 90 "gram.y"
+#line 94 "gram.y"
 
 	int ival;
 	double dval;

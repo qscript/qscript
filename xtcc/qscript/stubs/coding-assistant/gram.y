@@ -17,10 +17,17 @@
 #include <set>
 #include <cstdlib>
 #include <boost/algorithm/string.hpp>
+#include<boost/tokenizer.hpp>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/ordered_index.hpp>
 #include <limits.h>
 #include <regex.h>
 
+
+
 #include "const_defs.h"
+#include "person_info.h"
 
 	extern int yylex();
 	extern void yyerror(const char * s);
@@ -178,6 +185,12 @@ a_row: INUMBER COMMA INUMBER COMMA
 	extern int32_t yyparse();
 	int DebugFreqLexer ;
 
+
+#include<iostream>
+#include<boost/tokenizer.hpp>
+#include<string>
+#include<vector>
+
 /*
 struct Info 
 {
@@ -214,6 +227,19 @@ struct Info
 //vector <struct Info> info_vec;
 //map <string, int> rm_names;
 //map <string, int> recalled_name_freq;
+using boost::multi_index_container;
+using namespace boost::multi_index;
+
+typedef multi_index_container<
+  PersonInfo,
+  indexed_by<
+    ordered_non_unique<
+      tag<first_name>,  BOOST_MULTI_INDEX_MEMBER(PersonInfo,std::string,first_name)>,
+    ordered_non_unique<
+      tag<last_name>,BOOST_MULTI_INDEX_MEMBER(PersonInfo,std::string,last_name)>,
+    ordered_unique<
+      tag<rm_code>, BOOST_MULTI_INDEX_MEMBER(PersonInfo,int,rm_code)> >
+> person_info_set;
 
 int has_negative_words_of_interest (string s2, const set<string> & negative_words_of_interest, string & addnl_info)
 {
@@ -310,6 +336,39 @@ std::string reduce(const std::string& str,
     return result;
 }
 
+vector <string> split_into_words(string s)
+{
+	vector <string> result;
+	boost::tokenizer<> tok(s);
+	for(boost::tokenizer<>::iterator beg=tok.begin(); beg!=tok.end();++beg) {
+		result.push_back (*beg);
+	}
+	return result;
+}
+
+
+int check_for_groups_of_single_word_match_in_same_name(const vector<string> & bank_rm_name_vec, const vector<string> & recalled_name_vec, int serial_no, string & addnl_info)
+{
+	cout << "bank_rm_name_vec.size():" << bank_rm_name_vec.size() << endl;
+	cout << "bank_rm_name_vec.size():" << bank_rm_name_vec.size() << endl;
+	int score = 0;
+	for (int i=0; i<recalled_name_vec.size(); ++i) {
+		string recalled_name = recalled_name_vec[i];
+		for (int j=0; j< bank_rm_name_vec.size(); ++j) {
+			if (recalled_name == bank_rm_name_vec[j]) {
+				++score;
+				stringstream ss1;
+				ss1 << "match:" << recalled_name 
+					<< ", " << bank_rm_name_vec[j] 
+					<< "," << serial_no;
+				addnl_info += ss1.str();
+			}
+		}
+	}
+	return score;
+}
+
+
 int check_for_alternate_rm (const string & recalled_name, string & addnl_info, int serial_no)
 {
 	int score = 0;
@@ -336,7 +395,7 @@ int check_for_alternate_rm (const string & recalled_name, string & addnl_info, i
 
 
 // return a score on the match
-int match_score(const string & recalled_name, const string & s2,
+int match_score(const string & recalled_name, const string & bank_provided_rm_name,
 	const  set <string> & negative_words_of_interest,
 	string & addnl_info,
 	string & verdict,
@@ -345,16 +404,16 @@ int match_score(const string & recalled_name, const string & s2,
 {
 	
 	int score = 0;
-	if (recalled_name == s2) {
+	if (recalled_name == bank_provided_rm_name) {
 		verdict = "matched";
 		score =  INT_MAX;
-	} else if (s2.find (recalled_name) != string :: npos) {
+	} else if (bank_provided_rm_name.find (recalled_name) != string :: npos) {
 		verdict = "partial match";
 		score =  100;
 	} else {
 		verdict = "heuristic";
 		score += has_negative_words_of_interest (recalled_name, negative_words_of_interest, addnl_info);
-		//score += has_negative_words_of_interest (s2, negative_words_of_interest, addnl_info);
+		//score += has_negative_words_of_interest (bank_provided_rm_name, negative_words_of_interest, addnl_info);
 		int regex_score = 0;
 		if (score == 0) {
 			regex_score = match_regular_expressions_of_interest (recalled_name, addnl_info);
@@ -365,6 +424,20 @@ int match_score(const string & recalled_name, const string & s2,
 		score += regex_score;
 	}
 
+	// check for single word match of first_name or last_name in the same bank provided rm name
+	if (score == 0) {
+		vector<string> bank_provided_rm_name_split = split_into_words(bank_provided_rm_name);
+		//print_vec (res1);
+		vector <string> recalled_name_split = split_into_words (recalled_name);
+		int word_match_score = 
+			check_for_groups_of_single_word_match_in_same_name(bank_provided_rm_name_split, recalled_name_split, serial_no, addnl_info);
+		if (word_match_score > 0) {
+			verdict += ":matched same name single word";
+			score += word_match_score;
+		}
+	}
+
+	// check for exact match of alternate rm in 
 	if (score == 0) {
 		//map<string, int>::iterator it = rm_name_code_map.find(recalled_name);
 		//if (it == rm_name_code_map.end()) {
@@ -381,6 +454,8 @@ int match_score(const string & recalled_name, const string & s2,
 			score += alt_rm_score;
 		}
 	}
+
+	// check for partial match of first_name or last_name in the same bank provided rm name
 	return score;
 }
 
@@ -465,7 +540,68 @@ void populate_negative_words_of_interest()
 	negative_words_of_interest.insert("NOT SURE");
 }
 
-void do_match()
+void insert_into_multi_index (person_info_set & pinf_set, vector<string> &name_data, int rm_code)
+{
+	if (name_data.size()>= 2) {
+		pinf_set.insert ( PersonInfo(name_data[0], name_data[name_data.size()-1], rm_code));
+	} else {
+		cout << "illegal name - should atleast have 1st and last name"
+			<< endl;
+	}
+}
+
+typedef person_info_set::index<first_name>::type person_by_first_name;
+typedef person_info_set::index<last_name>::type person_by_last_name;
+void populate_person_info_set (person_info_set & pinf_set)
+{
+	for (int i=0; i< info_vec.size(); ++i) {
+		const Info &inf = info_vec[i];
+		vector <string> name_split = split_into_words(inf.rm_name);
+		if (name_split.size() >= 2) {
+			const string & f_name = name_split[0];
+			const string & l_name = name_split[name_split.size()-1];
+			person_by_first_name::iterator it_find_fn = pinf_set.get<first_name>().find(f_name);
+			person_by_last_name::iterator it_find_ln = pinf_set.get<last_name>().find(l_name);
+			if (it_find_fn == pinf_set.get<first_name>().end() && 
+				it_find_ln == pinf_set.get<last_name>().end()
+			) {
+				insert_into_multi_index (pinf_set, name_split, inf.rm_code);
+				cout << "added RM: fn" << f_name << ", ln" << l_name << endl;
+			/*} else if (it_find_fn->last_name !=  l_name) {
+				insert_into_multi_index (pinf_set, name_split, inf.rm_code);
+				cout << "added RM| same fn different ln," << f_name << ", ln," << l_name
+					<< "," << it_find_fn->first_name << "," << it_find_fn->last_name
+					<< endl;
+				*/
+			} else  {
+				//person_by_last_name::iterator it_find_ln = pinf_set.get<last_name>().find(l_name);
+				//person_by_first_name::iterator it_find_by_rm = pinf_set.get<rm_code>().find(l_name);
+				//if (it_find_ln == pinf_set<it_find_ln>().end()) {
+				//	cout << "already present RM: fn" << f_name << ", ln" << l_name << endl;
+				//}
+				cout << "already present RM: fn," << f_name << ", ln," << l_name << endl;
+				//cout << it_find_fn->first_name << "," << it_find_fn->last_name << endl;
+				if ( 
+					it_find_fn->first_name == f_name && it_find_fn->last_name == l_name
+					&& (  it_find_fn->rm_code != inf.rm_code)
+				) {
+					cout << "PROBLEM: Bank provided rm_code is not consistent:" 
+						<< it_find_fn->rm_code << ", " << inf.rm_code;
+				} else if (
+					it_find_ln->first_name == f_name && it_find_ln->last_name == l_name
+					&& (  it_find_ln->rm_code != inf.rm_code)
+				) {
+					cout << "PROBLEM: Bank provided rm_code is not consistent:" 
+						<< it_find_fn->rm_code << ", " << inf.rm_code;
+				} else {
+					//cout << "IMPOSSIBLE: this should never happen" << endl;
+				}
+			}
+		}
+	}
+}
+
+void do_match(const person_info_set & pinf_set)
 {
 	for (int i=0; i< info_vec.size(); ++i) {
 		string recalled_name = info_vec[i].recalled_name;
@@ -532,11 +668,12 @@ int main()
 	cout << "result, serno, rm_name, recalled_name, score" << endl;
 	if (!yyparse()) {
 		//cout << "Input parsed successfully" << endl;
-		do_match();
+		person_info_set pinf_set;
+		populate_person_info_set(pinf_set);
+		//do_match(pinf_set);
 	} else {
 		cout << "Error parsing input" << endl;
 	}
 	
 }
-
 
