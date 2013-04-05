@@ -114,11 +114,11 @@
 	vector <struct Info> info_vec;
 	map <string, int> rm_name_code_map;
 	map <string, int> recalled_name_freq;
-	int match_score(const string & s1, const string & s2,
-		const  set <string> & negative_words_of_interest,
-		string & addnl_info,
-		string & verdict, int serial_no
-		);
+	//int match_score(const string & s1, const string & s2,
+	//	const  set <string> & negative_words_of_interest,
+	//	string & addnl_info,
+	//	string & verdict, int serial_no
+	//	);
 
 
 	struct Info 
@@ -1919,8 +1919,8 @@ vector <string> split_into_words(string s)
 
 int check_for_groups_of_single_word_match_in_same_name(const vector<string> & bank_rm_name_vec, const vector<string> & recalled_name_vec, int serial_no, string & addnl_info)
 {
-	cout << "bank_rm_name_vec.size():" << bank_rm_name_vec.size() << endl;
-	cout << "bank_rm_name_vec.size():" << bank_rm_name_vec.size() << endl;
+	//cout << "bank_rm_name_vec.size():" << bank_rm_name_vec.size() << endl;
+	//cout << "bank_rm_name_vec.size():" << bank_rm_name_vec.size() << endl;
 	int score = 0;
 	for (int i=0; i<recalled_name_vec.size(); ++i) {
 		string recalled_name = recalled_name_vec[i];
@@ -1939,7 +1939,7 @@ int check_for_groups_of_single_word_match_in_same_name(const vector<string> & ba
 }
 
 
-int check_for_alternate_rm (const string & recalled_name, string & addnl_info, int serial_no)
+int check_for_alternate_rm_exact_match (const string & recalled_name, string & addnl_info, int serial_no)
 {
 	int score = 0;
 	//if (serial_no == 1178) {
@@ -1963,13 +1963,53 @@ int check_for_alternate_rm (const string & recalled_name, string & addnl_info, i
 	return score;
 }
 
+typedef person_info_set::index<first_name>::type person_by_first_name;
+typedef person_info_set::index<last_name>::type person_by_last_name;
+
+int  check_for_alternate_rm_word_match (string recalled_name, string & addnl_info,
+	int serial_no, const person_info_set & pinf_set)
+{
+	int score = 0;
+	vector <string> recalled_name_split = split_into_words (recalled_name);
+	for (int i=0; i<recalled_name_split.size(); ++i) {
+		//const string & f_name = name_split[0];
+		//const string & l_name = name_split[name_split.size()-1];
+		const string & possible_name = recalled_name_split[i];
+		person_by_first_name::iterator it_find_fn = pinf_set.get<first_name>().find(possible_name);
+		person_by_last_name::iterator  it_find_ln = pinf_set.get<last_name>().find(possible_name);
+		if (it_find_fn != pinf_set.get<first_name>().end() ) {
+			stringstream ss1;
+			ss1 << "check_for_alternate_rm_word_match: got a word match on ,"
+				<< "possible_name," << possible_name
+				<< "," << it_find_fn->first_name
+				<< "," << it_find_fn->last_name
+				<< "," << it_find_fn->rm_code
+				;
+			addnl_info += ss1.str();
+			++score;
+		}
+		if (it_find_ln != pinf_set.get<last_name>().end() ) {
+			stringstream ss1;
+			ss1 << "check_for_alternate_rm_word_match: got a word match on ,"
+				<< "possible_name," << possible_name
+				<< "," << it_find_ln->last_name
+				<< "," << it_find_ln->last_name
+				<< "," << it_find_ln->rm_code
+				;
+			addnl_info += ss1.str();
+			++score;
+		}
+	}
+	return score;
+}
 
 // return a score on the match
 int match_score(const string & recalled_name, const string & bank_provided_rm_name,
 	const  set <string> & negative_words_of_interest,
 	string & addnl_info,
 	string & verdict,
-	int serial_no
+	int serial_no,
+	const person_info_set & pinf_set
 	)
 {
 	
@@ -2018,14 +2058,23 @@ int match_score(const string & recalled_name, const string & bank_provided_rm_na
 		//		<< ",other rm code," << it->second;
 		//	addnl_info += ss1.str();
 		//}
-		int alt_rm_score  = check_for_alternate_rm (recalled_name, addnl_info, serial_no);
+		int alt_rm_score  = check_for_alternate_rm_exact_match (recalled_name, addnl_info, serial_no);
 		if (alt_rm_score) {
 			verdict += ":matched other rm";
 			score += alt_rm_score;
 		}
 	}
 
-	// check for partial match of first_name or last_name in the same bank provided rm name
+	// check for word match of first_name or last_name in alternate rm name
+	if (score == 0) {
+		int alt_rm_score  = check_for_alternate_rm_word_match (recalled_name, addnl_info, serial_no, pinf_set);
+		if (alt_rm_score) {
+			verdict += ":word match other rm";
+			score += alt_rm_score;
+		}
+	}
+
+
 	return score;
 }
 
@@ -2120,8 +2169,6 @@ void insert_into_multi_index (person_info_set & pinf_set, vector<string> &name_d
 	}
 }
 
-typedef person_info_set::index<first_name>::type person_by_first_name;
-typedef person_info_set::index<last_name>::type person_by_last_name;
 void populate_person_info_set (person_info_set & pinf_set)
 {
 	for (int i=0; i< info_vec.size(); ++i) {
@@ -2136,7 +2183,9 @@ void populate_person_info_set (person_info_set & pinf_set)
 				it_find_ln == pinf_set.get<last_name>().end()
 			) {
 				insert_into_multi_index (pinf_set, name_split, inf.rm_code);
-				cout << "added RM: fn" << f_name << ", ln" << l_name << endl;
+				cout << "added RM: ,fn," << f_name << ", ln," << l_name 
+					<< ",rm_code," << inf.rm_code
+					<< endl;
 			/*} else if (it_find_fn->last_name !=  l_name) {
 				insert_into_multi_index (pinf_set, name_split, inf.rm_code);
 				cout << "added RM| same fn different ln," << f_name << ", ln," << l_name
@@ -2149,20 +2198,24 @@ void populate_person_info_set (person_info_set & pinf_set)
 				//if (it_find_ln == pinf_set<it_find_ln>().end()) {
 				//	cout << "already present RM: fn" << f_name << ", ln" << l_name << endl;
 				//}
-				cout << "already present RM: fn," << f_name << ", ln," << l_name << endl;
+				//cout << "already present RM: fn," << f_name << ", ln," << l_name << endl;
 				//cout << it_find_fn->first_name << "," << it_find_fn->last_name << endl;
 				if ( 
 					it_find_fn->first_name == f_name && it_find_fn->last_name == l_name
 					&& (  it_find_fn->rm_code != inf.rm_code)
 				) {
 					cout << "PROBLEM: Bank provided rm_code is not consistent:" 
-						<< it_find_fn->rm_code << ", " << inf.rm_code;
+						<< it_find_fn->rm_code << ", " << inf.rm_code
+						<< endl
+						;
 				} else if (
 					it_find_ln->first_name == f_name && it_find_ln->last_name == l_name
 					&& (  it_find_ln->rm_code != inf.rm_code)
 				) {
 					cout << "PROBLEM: Bank provided rm_code is not consistent:" 
-						<< it_find_fn->rm_code << ", " << inf.rm_code;
+						<< it_find_fn->rm_code << ", " << inf.rm_code
+						<< endl
+						;
 				} else {
 					//cout << "IMPOSSIBLE: this should never happen" << endl;
 				}
@@ -2182,7 +2235,7 @@ void do_match(const person_info_set & pinf_set)
 			string verdict;
 			if (int score = match_score (recalled_name, rm_name, 
 					negative_words_of_interest, addnl_info,
-					verdict, serial_no) ) {
+					verdict, serial_no, pinf_set) ) {
 				cout << verdict << ","
 					//<< "ser_no, "
 					<< serial_no << ", " 
@@ -2223,7 +2276,7 @@ int main()
 {
 	string s1 = "  thre is leading space here ";
 	string s2 = trim (s1);
-	cout << "trimmed s1" << endl;
+	//cout << "trimmed s1" << endl;
 	std::string fname ("s2b-data_v4_1.csv");
 	DebugFreqLexer = 1;
 	FILE * yyin = fopen(fname.c_str(), "rb");
@@ -2240,7 +2293,7 @@ int main()
 		//cout << "Input parsed successfully" << endl;
 		person_info_set pinf_set;
 		populate_person_info_set(pinf_set);
-		//do_match(pinf_set);
+		do_match(pinf_set);
 	} else {
 		cout << "Error parsing input" << endl;
 	}
