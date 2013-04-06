@@ -1,6 +1,11 @@
 BUILT_SOURCES=read_data.c gram.c gram.h
 
+CODE_ASSISTANT_SOURCES = util.cpp read_sentiment.cpp
 
+
+
+code_assistant.exe: $(CODE_ASSISTANT_SOURCES)
+	g++ --std=c++0x -o $@ $(CODE_ASSISTANT_SOURCES)
 
 analyzer.exe: $(BUILT_SOURCES)
 	g++ -std=c++0x -o $@  $(BUILT_SOURCES)
