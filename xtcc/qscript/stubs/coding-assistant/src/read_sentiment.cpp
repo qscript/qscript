@@ -24,6 +24,7 @@ map <string, int> word_freq_count;
 	set <string> words_having_pwrm_rm_cm;
 	set <string> words_indicating_management;
 
+	/*
 struct RValueReadALine
 {
 	bool success;
@@ -69,6 +70,7 @@ struct LineProvider
 		return r_value;
 	}
 };
+*/
 
 	using namespace std;
 void process_file (std::ifstream & data_file)
@@ -79,6 +81,7 @@ void process_file (std::ifstream & data_file)
 	}
 }
 
+/*
  typedef boost::tokenizer<boost::char_separator<char> >
 	tokenizer;
 vector<string> tokenize_csv_components_into_fields(string &a_csv_line)
@@ -92,6 +95,22 @@ vector<string> tokenize_csv_components_into_fields(string &a_csv_line)
 	}
 	return res;
 }
+
+vector<string> tokenize_into_sentences(const string &s)
+{
+	//boost::char_separator<char> sep("-;|");
+	//
+	vector<string> sentences;
+	boost::char_separator<char> sep("./");
+	tokenizer tokens(s, sep);
+	for (tokenizer::iterator tok_iter = tokens.begin();
+		tok_iter != tokens.end(); ++tok_iter) {
+		//std::cout << "<" << *tok_iter << "> ";
+		sentences.push_back(*tok_iter);
+	}
+	return sentences;
+}
+
 
 vector<string> split_into_words(const string &s)
 {
@@ -122,20 +141,7 @@ vector<string> split_into_phrases(const string &s)
 	return phrases;
 }
 
-vector<string> tokenize_into_sentences(const string &s)
-{
-	//boost::char_separator<char> sep("-;|");
-	//
-	vector<string> sentences;
-	boost::char_separator<char> sep("./");
-	tokenizer tokens(s, sep);
-	for (tokenizer::iterator tok_iter = tokens.begin();
-		tok_iter != tokens.end(); ++tok_iter) {
-		//std::cout << "<" << *tok_iter << "> ";
-		sentences.push_back(*tok_iter);
-	}
-	return sentences;
-}
+*/
 
 int check_for_phrase_of_interest(const set<string> & phrase_of_interest, string & user_phrase)
 {
@@ -145,10 +151,21 @@ int check_for_phrase_of_interest(const set<string> & phrase_of_interest, string 
 		string  a_phrase_of_interest = *it;
 		if (user_phrase.find (a_phrase_of_interest)!= string::npos) {
 			//addnl_info += ": |" + s2 + "| has word of interest: |" + neg_word + "|";
-			result = result + 100;
+			++result;
 		}
 	}
-	return result;
+	return result * 100;
+}
+
+int compute_string_score (const string & s)
+{
+	int score = 0;
+	for (int i=0; i<s.size(); ++i) {
+		if ((s[i] >= 'A') && (s[i] <= 'Z')) {
+			score += s[i] - 'A' + 1;
+		}
+	}
+	return score;
 }
 
 int check_for_words_of_interest(const set<string> & words_of_interest, vector<string> phrase_in_words)
@@ -158,10 +175,11 @@ int check_for_words_of_interest(const set<string> & words_of_interest, vector<st
 		const string & a_word = phrase_in_words[i];
 		auto found = words_of_interest.find (a_word);
 		if (found != words_of_interest.end()) {
-			++score;
+			//++score;
+			score += compute_string_score(a_word);
 		}
 	}
-	return score;
+	return score * 1;
 }
 
 int check_for_emphasizer_phrase(const set<string> & emphasizers, const set<string> & adjectives
@@ -172,11 +190,12 @@ int check_for_emphasizer_phrase(const set<string> & emphasizers, const set<strin
 		for (auto it2 = adjectives.begin(); it2 != adjectives.end(); ++it2) {
 			string a_possible_phrase = *it1 + " " + *it2;
 			if (phrase.find(a_possible_phrase) != string::npos) {
-				++score;
+				//++score;
+				score += compute_string_score(phrase);
 			}
 		}
 	}
-	return score;
+	return score * 10000;
 }
 
 void analyze_further(const string & verbatim)
@@ -192,6 +211,7 @@ void analyze_further(const string & verbatim)
 			<< "ng_ph" << ","
 			<< "ps_wd" << ","
 			<< "ng_wd" << ","
+			<< "neu_wd" << ","
 			<< "oth_wd" << ","
 			<< "emph_wd" << ","
 			<< "mngmt_wd" << ","
@@ -212,21 +232,35 @@ void analyze_further(const string & verbatim)
 			for (int k=0; k<words.size(); ++k) {
 				word_freq_count[words[k]]++;
 			}
-			int emphasizer_positive_words_score = check_for_emphasizer_phrase(emphasizer_words_of_interest, positive_words_of_interest, phrases[j]);
-			int emphasizer_negative_words_score = check_for_emphasizer_phrase(emphasizer_words_of_interest, negative_words_of_interest, phrases[j]);
-			int pos_phrase_score = check_for_phrase_of_interest(positive_phrase_of_interest, phrases[j]);
-			int neg_phrase_score = check_for_phrase_of_interest(negative_phrase_of_interest, phrases[j]);
-			int neg_score = check_for_words_of_interest(negative_words_of_interest, words);
-			int pos_score = check_for_words_of_interest(positive_words_of_interest, words);
-			int other_words_score = check_for_words_of_interest(other_words_of_interest, words);
-			int emphasizer_words_score = check_for_words_of_interest(emphasizer_words_of_interest, words);
-			int management_words_score = check_for_words_of_interest(words_indicating_management, words);
-			int pwrm_words_score = check_for_words_of_interest(words_having_pwrm_rm_cm, words);
-			int reason_words_score = check_for_words_of_interest(words_indicating_reason, words);
+			int emphasizer_positive_words_score =  1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, positive_words_of_interest, phrases[j]);
+			int emphasizer_negative_words_score = -1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, negative_words_of_interest, phrases[j]);
+			int pos_phrase_score =  1 * check_for_phrase_of_interest(positive_phrase_of_interest, phrases[j]);
+			int neg_phrase_score = -1 * check_for_phrase_of_interest(negative_phrase_of_interest, phrases[j]);
+			int pos_score =  10 * check_for_words_of_interest(positive_words_of_interest, words);
+			int neg_score = -10 * check_for_words_of_interest(negative_words_of_interest, words);
+			int neutral_score = -1 * check_for_words_of_interest(neutral_words_of_interest, words);
+			int other_words_score = 10 * check_for_words_of_interest(other_words_of_interest, words);
+			int emphasizer_words_score = 1000 * check_for_words_of_interest(emphasizer_words_of_interest, words);
+			int management_words_score = 10000 * check_for_words_of_interest(words_indicating_management, words);
+			int pwrm_words_score = 10000 * check_for_words_of_interest(words_having_pwrm_rm_cm, words);
+			int reason_words_score = 10 * check_for_words_of_interest(words_indicating_reason, words);
+			int any_negatives = 1;
+			if (emphasizer_negative_words_score || neg_phrase_score || neg_score) {
+				any_negatives = -1;
+			}
+			int any_positives = 1;
+			if (emphasizer_positive_words_score || pos_phrase_score || pos_score) {
+				any_positives = 1;
+			}
+			management_words_score = management_words_score * any_negatives;
+			pwrm_words_score = pwrm_words_score * any_negatives;
+
 			int any_cls = emphasizer_positive_words_score + emphasizer_negative_words_score
 					+ pos_phrase_score + neg_phrase_score + neg_score + pos_score
 					+ other_words_score + emphasizer_words_score + management_words_score
-					+ pwrm_words_score + reason_words_score;
+					+ pwrm_words_score + reason_words_score
+					+ neutral_score
+					;
 			phrase_scores
 					<< any_cls << ","
 					<< emphasizer_positive_words_score  << ","
@@ -235,6 +269,7 @@ void analyze_further(const string & verbatim)
 					<< neg_phrase_score << ","
 					<< pos_score << ","
 					<< neg_score << ","
+					<< neutral_score << ","
 					<< other_words_score  << ","
 					<< emphasizer_words_score  << ","
 					<< management_words_score  << ","
@@ -323,6 +358,10 @@ void populate_other_words_of_interest()
 
 void populate_negative_words_of_interest()
 {
+	negative_words_of_interest.insert("DISAPPEARED");
+	negative_words_of_interest.insert("ANNOY");
+	negative_words_of_interest.insert("ANNOYS");
+	negative_words_of_interest.insert("NEVER");
 	negative_words_of_interest.insert("DIDNT");
 	negative_words_of_interest.insert("DISCONNECT");
 	negative_words_of_interest.insert("LAIDBACK");
@@ -363,11 +402,12 @@ void populate_negative_phrase_of_interest()
 	negative_phrase_of_interest.insert("IS NOT");
 	negative_phrase_of_interest.insert("NOT BE");
 	negative_phrase_of_interest.insert("ONLY FOR");
+	negative_phrase_of_interest.insert("I HAVE TO");
 }
 
 void populate_positive_phrase_of_interest()
 {
-
+	//positive_phrase_of_interest.insert("HUMBLE");
 	positive_phrase_of_interest.insert("ADDS VALUE");
 	positive_phrase_of_interest.insert("THINGS ARE DONE");
 	positive_phrase_of_interest.insert("RIGHT ANSWERS");
@@ -376,6 +416,8 @@ void populate_positive_phrase_of_interest()
 	positive_phrase_of_interest.insert("IS GOOD");
 	positive_phrase_of_interest.insert("HELPS ME");
 	positive_phrase_of_interest.insert("FOLLOWS UP");
+	positive_phrase_of_interest.insert("INFORMED ME");
+	positive_phrase_of_interest.insert("KNOWS HIS JOB");
 }
 
 void populate_neutral_words_of_interest()
@@ -384,8 +426,29 @@ void populate_neutral_words_of_interest()
 	neutral_words_of_interest.insert("OKAY");
 }
 
-void populate_positive_words_of_interest()
+set <string>  populate_words_of_interest(string  file_name)
 {
+	//LineProvider words_of_interest_provider("words_of_interest.txt");
+	LineProvider words_of_interest_provider(file_name.c_str());
+	set <string>  words_of_interest;
+	int count = 0;
+	while (1) {
+		RValueReadALine res = words_of_interest_provider.get_a_line();
+		if (res.success == false) {
+			break;
+		}
+		++count;
+		words_of_interest.insert(res.a_line);
+	}
+	cout << "read : " << count << " words from file" << endl;
+
+	return words_of_interest;
+
+#if 0
+	positive_words_of_interest.insert("BENEFIT");
+	positive_words_of_interest.insert("ASSISTED");
+	positive_words_of_interest.insert("ASSIST");
+	positive_words_of_interest.insert("DOES");
 	positive_words_of_interest.insert("EFFECTIVE");
 	positive_words_of_interest.insert("DELIVERS");
 	positive_words_of_interest.insert("SINCER");
@@ -448,6 +511,7 @@ void populate_positive_words_of_interest()
 	positive_words_of_interest.insert("KNOWLEDGE");
 	positive_words_of_interest.insert("KNOWLEGE");
 	positive_words_of_interest.insert("KNOWLEDGE");
+	positive_words_of_interest.insert("KNOWLEDGABLE");
 	positive_words_of_interest.insert("HELPS");
 	positive_words_of_interest.insert("UNDESTANDS");
 	positive_words_of_interest.insert("UNDERSTAND");
@@ -520,6 +584,8 @@ void populate_positive_words_of_interest()
 	positive_words_of_interest.insert("SATIFISFIED");
 	positive_words_of_interest.insert("RELEVANT");
 	positive_words_of_interest.insert("PROFIT");
+#endif /* 0 */
+
 }
 
 void populate_words_indicating_reason ()
@@ -539,6 +605,7 @@ void populate_words_indicating_management()
 void populate_words_having_pwrm_rm_cm()
 {
 	words_having_pwrm_rm_cm.insert("RM");
+	words_having_pwrm_rm_cm.insert("RMS");
 	words_having_pwrm_rm_cm.insert("PWRM");
 	words_having_pwrm_rm_cm.insert("WPRM");
 	words_having_pwrm_rm_cm.insert("CM");
@@ -546,12 +613,13 @@ void populate_words_having_pwrm_rm_cm()
 	words_having_pwrm_rm_cm.insert("CUSTOMERS");
 	words_having_pwrm_rm_cm.insert("CUST");
 	words_having_pwrm_rm_cm.insert("BANK");
+	words_having_pwrm_rm_cm.insert("BANKS");
 	words_having_pwrm_rm_cm.insert("HSBC");
 }
 
 int main()
 {
-	populate_positive_words_of_interest();
+	positive_words_of_interest =  populate_words_of_interest("words_of_interest.txt");
 	populate_negative_words_of_interest();
 	populate_other_words_of_interest();
 	populate_emphasizer_words_of_interest();
