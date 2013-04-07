@@ -19,6 +19,7 @@ map <string, int> word_freq_count;
 	set <string> emphasizer_words_of_interest;
 	set <string> negative_phrase_of_interest;
 	set <string> positive_phrase_of_interest;
+	set <string> neutral_phrase_of_interest;
 	set <string> words_indicating_reason;
 	set <string> words_having_pwrm_rm_cm;
 	set <string> words_indicating_management;
@@ -284,19 +285,21 @@ void populate_emphasizer_words_of_interest()
 	emphasizer_words_of_interest.insert("ALWAYS");
 	emphasizer_words_of_interest.insert("NEVER");
 	emphasizer_words_of_interest.insert("VERY");
+	emphasizer_words_of_interest.insert("TOO");
+	emphasizer_words_of_interest.insert("HIGHLY");
 }
 
 void populate_other_words_of_interest()
 {
+	other_words_of_interest.insert("INVESTMENT");
+	other_words_of_interest.insert("EARLY");
 	other_words_of_interest.insert("TIME");
 	other_words_of_interest.insert("SERVICE");
 	other_words_of_interest.insert("RECOMMEND");
 	other_words_of_interest.insert("VALUE");
 	other_words_of_interest.insert("RELATIONSHIP");
-	other_words_of_interest.insert("SATISFIED");
 	other_words_of_interest.insert("FRIENDS");
 	other_words_of_interest.insert("AVAILABLE");
-	other_words_of_interest.insert("PROBLEM");
 	other_words_of_interest.insert("ISSUE");
 	other_words_of_interest.insert("TAKE");
 	other_words_of_interest.insert("MANY");
@@ -305,20 +308,36 @@ void populate_other_words_of_interest()
 	other_words_of_interest.insert("INFORM");
 	other_words_of_interest.insert("RESPONDS");
 	other_words_of_interest.insert("RESOLVED");
+	other_words_of_interest.insert("RESOLVE");
+	other_words_of_interest.insert("RESOLVES");
 	other_words_of_interest.insert("ATTITUDE");
 	other_words_of_interest.insert("QUITE");
 	other_words_of_interest.insert("DESPITE");
-	other_words_of_interest.insert("ADVANTAGE");
 	other_words_of_interest.insert("TROUBLE");
-	other_words_of_interest.insert("PROACTIVE");
+	other_words_of_interest.insert("NEED");
+	other_words_of_interest.insert("EXPECT");
+	other_words_of_interest.insert("EXPECTS");
+	other_words_of_interest.insert("EXPECTED");
+	other_words_of_interest.insert("NEEDS");
 }
 
 void populate_negative_words_of_interest()
 {
+	negative_words_of_interest.insert("DIDNT");
+	negative_words_of_interest.insert("DISCONNECT");
+	negative_words_of_interest.insert("LAIDBACK");
+	negative_words_of_interest.insert("REGULAR");
+	negative_words_of_interest.insert("REQULARLY");
+	negative_words_of_interest.insert("CLOSE");
+	negative_words_of_interest.insert("REFUSED");
+	negative_words_of_interest.insert("BUSY");
+	negative_words_of_interest.insert("KICK");
+	negative_words_of_interest.insert("PROBLEM");
 	negative_words_of_interest.insert("ELUSIVENESS");
 	negative_words_of_interest.insert("ENEMIES");
 	negative_words_of_interest.insert("NO");
 	negative_words_of_interest.insert("NOT");
+	negative_words_of_interest.insert("CANNOT");
 	negative_words_of_interest.insert("CHANGING");
 	negative_words_of_interest.insert("BAD");
 	negative_words_of_interest.insert("FINALLY");
@@ -332,33 +351,99 @@ void populate_negative_words_of_interest()
 	negative_words_of_interest.insert("THREATENING");
 	negative_words_of_interest.insert("SUPERFICIAL");
 	negative_words_of_interest.insert("SELFISH");
+	negative_words_of_interest.insert("CHASE");
 }
 
 void populate_negative_phrase_of_interest()
 {
+	negative_phrase_of_interest.insert("HAVEN'T");
+	negative_phrase_of_interest.insert("SWITCH BACK");
 	negative_phrase_of_interest.insert("DOES NOT");
 	negative_phrase_of_interest.insert("DO NOT");
 	negative_phrase_of_interest.insert("IS NOT");
 	negative_phrase_of_interest.insert("NOT BE");
+	negative_phrase_of_interest.insert("ONLY FOR");
 }
 
 void populate_positive_phrase_of_interest()
 {
+
+	positive_phrase_of_interest.insert("ADDS VALUE");
+	positive_phrase_of_interest.insert("THINGS ARE DONE");
+	positive_phrase_of_interest.insert("RIGHT ANSWERS");
 	positive_phrase_of_interest.insert("ALWAYS HELP");
 	positive_phrase_of_interest.insert("ALWAYS THERE");
 	positive_phrase_of_interest.insert("IS GOOD");
 	positive_phrase_of_interest.insert("HELPS ME");
+	positive_phrase_of_interest.insert("FOLLOWS UP");
 }
 
 void populate_neutral_words_of_interest()
 {
 	neutral_words_of_interest.insert("OK");
+	neutral_words_of_interest.insert("OKAY");
 }
 
 void populate_positive_words_of_interest()
 {
+	positive_words_of_interest.insert("EFFECTIVE");
+	positive_words_of_interest.insert("DELIVERS");
+	positive_words_of_interest.insert("SINCER");
+	positive_words_of_interest.insert("SINCERE");
+	positive_words_of_interest.insert("SPEEDY");
+	positive_words_of_interest.insert("TRUST");
+	positive_words_of_interest.insert("ANNOY");
+	positive_words_of_interest.insert("INTERESTED");
+	positive_words_of_interest.insert("INTEREST");
+	positive_words_of_interest.insert("CALLS");
+	positive_words_of_interest.insert("PROMPT");
+	positive_words_of_interest.insert("PROMT");
+	positive_words_of_interest.insert("PROVIDES");
+	positive_words_of_interest.insert("PROVIDE");
+	positive_words_of_interest.insert("ABLE");
+	positive_words_of_interest.insert("ADVISE");
+	positive_words_of_interest.insert("BEST");
+	positive_words_of_interest.insert("ASSISTANCE");
+	positive_words_of_interest.insert("FAMILY");
+	positive_words_of_interest.insert("PERFECTION");
+	positive_words_of_interest.insert("PERFECT");
+	positive_words_of_interest.insert("SURELY");
+	positive_words_of_interest.insert("YES");
+	positive_words_of_interest.insert("QUALIFIED");
+	positive_words_of_interest.insert("PROFITS");
+	positive_words_of_interest.insert("PROFIT");
+	positive_words_of_interest.insert("PROFESSIONAL");
+	positive_words_of_interest.insert("EMPATHETIC");
+	positive_words_of_interest.insert("DECENT");
+	positive_words_of_interest.insert("NICE");
+	positive_words_of_interest.insert("NICELY");
+	positive_words_of_interest.insert("ADDED");
+	positive_words_of_interest.insert("ARMY");
+	positive_words_of_interest.insert("WARM");
+	positive_words_of_interest.insert("EASY");
+	positive_words_of_interest.insert("DEDICATED");
+	positive_words_of_interest.insert("KEENESS");
+	positive_words_of_interest.insert("KEEN");
+	positive_words_of_interest.insert("FIXED");
+	positive_words_of_interest.insert("PATEINT");
+	positive_words_of_interest.insert("RELIABLE");
+	positive_words_of_interest.insert("SUPER");
+	positive_words_of_interest.insert("HELPUL");
+	positive_words_of_interest.insert("ENTHUSIASTICK");
+	positive_words_of_interest.insert("OWNERSHIP");
+	positive_words_of_interest.insert("CORRECT");
+	positive_words_of_interest.insert("IMMEDIATE");
+	positive_words_of_interest.insert("IMMEDIATELY");
+	positive_words_of_interest.insert("INFORM");
+	positive_words_of_interest.insert("ADVANTAGE");
+	positive_words_of_interest.insert("PROACTIVE");
+	positive_words_of_interest.insert("SATISFIED");
 	positive_words_of_interest.insert("HAPPY");
 	positive_words_of_interest.insert("EXPLAINS");
+	positive_words_of_interest.insert("SOLUTIONS");
+	positive_words_of_interest.insert("SOLUTION");
+	positive_words_of_interest.insert("RESOLUTION");
+	positive_words_of_interest.insert("RESOLUTIONS");
 	positive_words_of_interest.insert("TRANSPARENT");
 	positive_words_of_interest.insert("KNOWLEDGE");
 	positive_words_of_interest.insert("KNOWLEGE");
@@ -442,19 +527,24 @@ void populate_words_indicating_reason ()
 	words_indicating_reason.insert("BECAUSE");
 	words_indicating_reason.insert("BCOZ");
 	words_indicating_reason.insert("REASON");
+	words_indicating_reason.insert("RESONS");
 }
 
 void populate_words_indicating_management()
 {
 	words_indicating_management.insert("MANAGEMENT");
+	words_indicating_management.insert("MANAGER");
 }
 
 void populate_words_having_pwrm_rm_cm()
 {
 	words_having_pwrm_rm_cm.insert("RM");
 	words_having_pwrm_rm_cm.insert("PWRM");
+	words_having_pwrm_rm_cm.insert("WPRM");
 	words_having_pwrm_rm_cm.insert("CM");
 	words_having_pwrm_rm_cm.insert("CUSTOMER");
+	words_having_pwrm_rm_cm.insert("CUSTOMERS");
+	words_having_pwrm_rm_cm.insert("CUST");
 	words_having_pwrm_rm_cm.insert("BANK");
 	words_having_pwrm_rm_cm.insert("HSBC");
 }
