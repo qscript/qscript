@@ -175,9 +175,9 @@ long long compute_string_score (const string & s)
 		if ((s[i] >= 'A') && (s[i] <= 'Z')) {
 			// The highest score for a letter is 26
 			// add to that digits from 0 to 9 and we have 36
-			cout << "letter :" << s[i] << ", score:" << (s[i] - 'A' +10)
+			//cout << "letter :" << s[i] << ", score:" << (s[i] - 'A' +10)
 				//<< "base: " << base
-				<< endl;
+				//<< endl;
 			//if (i==0) {
 			//	score += (s[i] - 'A' + 10) + 0;
 			//} else {
@@ -185,7 +185,7 @@ long long compute_string_score (const string & s)
 			//}
 			score = (s[i] - 'A' + 10) + score * 36;
 			//base *= 36;
-			cout << "partial score: " << score << endl;
+			//cout << "partial score: " << score << endl;
 		}
 	}
 	return score;
@@ -657,9 +657,9 @@ string ltostr (long long number, int base)
 		long long whats_left =  sign *  number ;
 		int counter = 0;
 		do {
-			cout << "whats_left:" << whats_left << endl;
+			//cout << "whats_left:" << whats_left << endl;
 			long long remainder =  whats_left % base;
-			cout << "remainder:" << remainder << endl;
+			//cout << "remainder:" << remainder << endl;
 			whats_left =  whats_left / base;
 			if (remainder < 10) {
 			    //r_val.push_back(('0' + remainder));
@@ -704,10 +704,12 @@ int main()
 	long long v4 = compute_string_score(string("AB")) ;
 	long long v3 = compute_string_score(string("ABCDEFG")) ;
 	long long v5 = compute_string_score(string("ABCDEFGHIJ")) ;
-	//long long v1 = compute_string_score(string("COMPUTE")) ;
-	//long long v2 = compute_string_score(string("COMUTE")) ;
-	//cout << "v1: " << v1 << "," << ltostr(v1, 36) << endl;
-	//cout << "v2: " << v2 << "," << ltostr(v2, 36) << endl;
+	long long v1 = compute_string_score(string("COMPUTE")) ;
+	long long v2 = compute_string_score(string("COMUTE")) ;
+	cout << "v1: " << v1 << "," << ltostr(v1, 36) << endl;
+	cout << "v2: " << v2 << "," << ltostr(v2, 36) << endl;
+	v2 = v2*36;
+	cout << "v2: " << v2 << "," << ltostr(v2, 36) << endl;
 	cout << "v3: " << v3 << "," << ltostr(v3, 36) << endl;
 	cout << "v4: " << v4 << "," << ltostr(v4, 36) << endl;
 	cout << "v5: " << v5 << "," << ltostr(v5, 36) << endl;
