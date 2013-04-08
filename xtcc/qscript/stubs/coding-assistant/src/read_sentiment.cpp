@@ -9,6 +9,7 @@
 #include <sstream>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
+#include <regex.h>
 #include "util.h"
 
 using namespace std;
@@ -24,7 +25,8 @@ map <string, int> word_freq_count;
 	set <string> words_indicating_reason;
 	set <string> words_having_pwrm_rm_cm;
 	set <string> words_indicating_management;
-	//vector <regex_t> regular_expressions_of_interest;
+	vector <regex_t> regular_expressions_of_interest;
+	vector <string> human_readable_regex_pattern;
 
 	/*
 struct RValueReadALine
@@ -191,6 +193,44 @@ long long compute_string_score (const string & s)
 	return score;
 }
 
+
+int match_regular_expressions_of_interest (const string & s, string & addnl_info)
+{
+	//cout << "match_reg"
+	//	<< ", " << s << ", regexp"
+	//	<< "vector size:" << regular_expressions_of_interest.size()
+	//	<< endl;
+	int cumulative_score = 0;
+	for (int i=0; i<regular_expressions_of_interest.size(); ++i) {
+		regmatch_t p_match[5];
+		int n_match=5;
+		regex_t a_regex = regular_expressions_of_interest[i];
+		int regex_result = regexec (&a_regex, s.c_str(), n_match, p_match, 0);
+		if (regex_result == 0) {
+			//cout << __PRETTY_FUNCTION__ << " We have a match"
+			//	<< endl;
+			addnl_info += "matched with regexp";
+			++cumulative_score;
+		} else {
+			//cout << __PRETTY_FUNCTION__ << " no match in vector pattern"
+			//	<< endl;
+		}
+		//regex_t regex_dk;
+		//regcomp (&regex_dk, "DON.*T KNOW", REG_ICASE);
+		//regex_result = regexec (&regex_dk, s.c_str(), n_match, p_match, 0);
+		//if (regex_result == 0) {
+		//	cout << __PRETTY_FUNCTION__ << " We have a match AGAINST Hard coded"
+		//		<< endl;
+		//	++cumulative_score;
+		//} else {
+		//	cout << __PRETTY_FUNCTION__ << " NO MATCH AGAINST Hard coded: " << s
+		//		<< endl;
+		//}
+	}
+	//cout << "Exit: " << __PRETTY_FUNCTION__ << ", score, "  << cumulative_score << endl;
+	return cumulative_score;
+}
+
 long long check_for_words_of_interest(const set<string> & words_of_interest, vector<string> phrase_in_words)
 {
 	long long score = 0;
@@ -240,6 +280,7 @@ void analyze_further(const string & verbatim)
 			<< "mngmt_wd" << ","
 			<< "pwrm_wd" << ","
 			<< "reasn_wd " << ","
+			<< "regex" << ","
 			<< "raw phr "
 			<< endl;
 		once = false;
@@ -267,6 +308,9 @@ void analyze_further(const string & verbatim)
 			long long management_words_score = 10000 * check_for_words_of_interest(words_indicating_management, words);
 			long long pwrm_words_score = 10000 * check_for_words_of_interest(words_having_pwrm_rm_cm, words);
 			long long reason_words_score = 10 * check_for_words_of_interest(words_indicating_reason, words);
+			string addnl_info_regex_match;
+			long long regex_score = match_regular_expressions_of_interest (phrases[j], addnl_info_regex_match);
+
 			long long any_negatives = 1;
 			if (emphasizer_negative_words_score || neg_phrase_score || neg_score) {
 				any_negatives = -1;
@@ -298,6 +342,7 @@ void analyze_further(const string & verbatim)
 					<< management_words_score  << ","
 					<< pwrm_words_score  << ","
 					<< reason_words_score  << ","
+					<< regex_score  << ","
 					<< "\"" << phrases[j] << "\"" << endl;
 		}
 	}
@@ -338,6 +383,7 @@ void print_map( map <string,int> & word_freq_count)
 	}
 }
 
+/*
 void populate_emphasizer_words_of_interest()
 {
 	emphasizer_words_of_interest.insert("ALWAYS");
@@ -447,6 +493,30 @@ void populate_neutral_words_of_interest()
 {
 	neutral_words_of_interest.insert("OK");
 	neutral_words_of_interest.insert("OKAY");
+}
+*/
+
+void populate_regular_expressions_of_interest(string  file_name)
+{
+	//LineProvider words_of_interest_provider("words_of_interest.txt");
+	LineProvider words_of_interest_provider(file_name.c_str());
+	set <string>  words_of_interest;
+	int count = 0;
+	while (1) {
+		RValueReadALine res = words_of_interest_provider.get_a_line();
+		if (res.success == false) {
+			break;
+		}
+		++count;
+		//words_of_interest.insert(res.a_line);
+		human_readable_regex_pattern.push_back(res.a_line);
+		regex_t regex_pattern;
+		regcomp (&regex_pattern, res.a_line.c_str(), REG_ICASE);
+		regular_expressions_of_interest.push_back (regex_pattern);
+	}
+	cout << "read : " << count << " regex patterns from file" << endl;
+
+	//return words_of_interest;
 }
 
 set <string>  populate_words_of_interest(string  file_name)
@@ -611,6 +681,7 @@ set <string>  populate_words_of_interest(string  file_name)
 
 }
 
+/*
 void populate_words_indicating_reason ()
 {
 	words_indicating_reason.insert("BECAUSE");
@@ -639,6 +710,7 @@ void populate_words_having_pwrm_rm_cm()
 	words_having_pwrm_rm_cm.insert("BANKS");
 	words_having_pwrm_rm_cm.insert("HSBC");
 }
+*/
 
 // found from google : opposite of strtol (which i thought wouldnt work but gave me perl code)
 //http://www.perlmonks.org/?node_id=773397
@@ -699,21 +771,23 @@ string ltostr (long long number, int base)
 	*/
 }
 
+
+
 int main()
 {
-	long long v4 = compute_string_score(string("AB")) ;
-	long long v3 = compute_string_score(string("ABCDEFG")) ;
-	long long v5 = compute_string_score(string("ABCDEFGHIJ")) ;
-	long long v1 = compute_string_score(string("COMPUTE")) ;
-	long long v2 = compute_string_score(string("COMUTE")) ;
-	cout << "v1: " << v1 << "," << ltostr(v1, 36) << endl;
-	cout << "v2: " << v2 << "," << ltostr(v2, 36) << endl;
-	v2 = v2*36;
-	cout << "v2: " << v2 << "," << ltostr(v2, 36) << endl;
-	cout << "v3: " << v3 << "," << ltostr(v3, 36) << endl;
-	cout << "v4: " << v4 << "," << ltostr(v4, 36) << endl;
-	cout << "v5: " << v5 << "," << ltostr(v5, 36) << endl;
-	exit(1);
+	//long long v4 = compute_string_score(string("AB")) ;
+	//long long v3 = compute_string_score(string("ABCDEFG")) ;
+	//long long v5 = compute_string_score(string("ABCDEFGHIJ")) ;
+	//long long v1 = compute_string_score(string("COMPUTE")) ;
+	//long long v2 = compute_string_score(string("COMUTE")) ;
+	//cout << "v1: " << v1 << "," << ltostr(v1, 36) << endl;
+	//cout << "v2: " << v2 << "," << ltostr(v2, 36) << endl;
+	//v2 = v2*36;
+	//cout << "v2: " << v2 << "," << ltostr(v2, 36) << endl;
+	//cout << "v3: " << v3 << "," << ltostr(v3, 36) << endl;
+	//cout << "v4: " << v4 << "," << ltostr(v4, 36) << endl;
+	//cout << "v5: " << v5 << "," << ltostr(v5, 36) << endl;
+	//exit(1);
 	positive_words_of_interest =  populate_words_of_interest("positive_words_of_interest.txt");
 	negative_words_of_interest =  populate_words_of_interest("negative_words_of_interest.txt");
 	other_words_of_interest =  populate_words_of_interest("other_words_of_interest.txt");
@@ -729,6 +803,8 @@ int main()
 	words_indicating_reason =  populate_words_of_interest("words_indicating_reason.txt");
 	//populate_words_indicating_management();
 	words_indicating_management = populate_words_of_interest("words_indicating_management.txt");
+
+	populate_regular_expressions_of_interest("negative_regex_patterns.txt");
 
 	//populate_words_having_pwrm_rm_cm();
 	words_having_pwrm_rm_cm = populate_words_of_interest("words_having_pwrm_rm_cm.txt");
