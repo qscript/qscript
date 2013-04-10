@@ -58,12 +58,12 @@ vector<string> split_into_words(const string &s)
 	typedef boost::tokenizer<boost::char_separator<char> > Tok;
 	boost::char_separator<char> sep; // default constructed
 	Tok tok(s, sep);
-	cout << "Word split: " << endl;
+	//cout << "Word split: " << endl;
 	for(Tok::iterator tok_iter = tok.begin(); tok_iter != tok.end(); ++tok_iter) {
-		std::cout << "|" << *tok_iter << "| ";
+		//std::cout << "|" << *tok_iter << "| ";
 		words.push_back(*tok_iter);
 	}
-	std::cout << "\n";
+	//std::cout << "\n";
 	return words;
 	//return EXIT_SUCCESS;
 }
@@ -90,7 +90,7 @@ RValueReadALine LineProvider::get_a_line()
 		r_value.success = true;
 		r_value.a_line = boost::to_upper_copy(trim(a_line));
 	} else {
-		cout << "could_read false" << endl;
+		//cout << "could_read false" << endl;
 	}
 	//if (file) {
 	//	bool could_read = getline(file, a_line);
@@ -110,12 +110,23 @@ vector<string> tokenize_into_sentences(const string &s)
 	//boost::char_separator<char> sep("-;|");
 	//
 	vector<string> sentences;
-	boost::char_separator<char> sep("./");
-	tokenizer tokens(s, sep);
-	for (tokenizer::iterator tok_iter = tokens.begin();
-		tok_iter != tokens.end(); ++tok_iter) {
-		//std::cout << "<" << *tok_iter << "> ";
-		sentences.push_back(*tok_iter);
+	int found = s.find ("A/C");
+	if (found == string::npos) {
+		boost::char_separator<char> sep("./");
+		tokenizer tokens(s, sep);
+		for (tokenizer::iterator tok_iter = tokens.begin();
+			tok_iter != tokens.end(); ++tok_iter) {
+			//std::cout << "<" << *tok_iter << "> ";
+			sentences.push_back(*tok_iter);
+		}
+	} else {
+		boost::char_separator<char> sep(".");
+		tokenizer tokens(s, sep);
+		for (tokenizer::iterator tok_iter = tokens.begin();
+			tok_iter != tokens.end(); ++tok_iter) {
+			//std::cout << "<" << *tok_iter << "> ";
+			sentences.push_back(*tok_iter);
+		}
 	}
 	return sentences;
 }
