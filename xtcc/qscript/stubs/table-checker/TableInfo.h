@@ -129,6 +129,61 @@ struct TableInfo
 		return -1;
 	}
 
+	int get_freq_counts_for_top2_box (
+			//TableInfo & table_info
+			)
+	{
+		std::cout << "Enter: " << __PRETTY_FUNCTION__ << ", "
+			<< "getting freq counts for table: " << name_
+			<< " and stub_name: " << stub_name_
+			<< std::endl;
+		if (!rat_scale_inf_.isRatingScale_) {
+			std::cerr << __FILE__ << ", " << __LINE__
+				<< ", " << __PRETTY_FUNCTION__
+				<< " this function should never have been called"
+				<<std::endl;
+		} else {
+			/*
+			std::map<std::string, int>::iterator check_against_table_it = qtm_freq_count_map_nq_name_stub_freq_.begin();
+			for (; check_against_table_it != qtm_freq_count_map_nq_name_stub_freq_.end(); ++check_against_table_it) {
+				ExtractNumberInfo no_inf = extract_number(check_against_table_it->first);
+				if (no_inf.gotANumber_ && no_inf.numberValue_ == rat_scale_inf_.ratingScaleEnd_) {
+					std::cout << "found ratingScaleEnd_: " << rat_scale_inf_.ratingScaleEnd_
+						<< " return value is: " << check_against_table_it->second
+						<< std::endl;
+					return check_against_table_it->second;
+				}
+			}
+			*/
+			if (has_top2box) {
+				return top2box_freq;
+			}
+		}
+		return -1;
+	}
+
+	int get_freq_counts_for_top3_box (
+			//TableInfo & table_info
+			)
+	{
+		std::cout << "Enter: " << __PRETTY_FUNCTION__ << ", "
+			<< "getting freq counts for table: " << name_
+			<< " and stub_name: " << stub_name_
+			<< std::endl;
+		if (!rat_scale_inf_.isRatingScale_) {
+			std::cerr << __FILE__ << ", " << __LINE__
+				<< ", " << __PRETTY_FUNCTION__
+				<< " this function should never have been called"
+				<<std::endl;
+		} else {
+
+			if (has_top3box) {
+				return top3box_freq;
+			}
+		}
+		return -1;
+	}
+
 };
 
 
