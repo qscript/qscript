@@ -441,7 +441,7 @@ enum SummaryTableType {
 	BOT3BOX
 };
 
-bool check_summary_table (enum SummaryTableType,
+bool check_summary_table (enum SummaryTableType p_sum_table_typ,
 		map <string, TableInfo * >::iterator qtm_table_it,
 		struct ErrorReport & p_error_report
 		)
@@ -517,7 +517,21 @@ bool check_summary_table (enum SummaryTableType,
 			//			<< endl;
 			//}
 			//cout << check_against_table_info.get_freq_counts_for_top_box() ;
-			int chk_table_freq_count = check_against_table_info.get_freq_counts_for_top_box();
+			int chk_table_freq_count = -1;
+			if (p_sum_table_typ == TOPBOX) {
+				chk_table_freq_count = check_against_table_info.get_freq_counts_for_top_box();
+			} else if (p_sum_table_typ == TOP2BOX) {
+				chk_table_freq_count = check_against_table_info.get_freq_counts_for_top2_box();
+			} else if (p_sum_table_typ == TOP3BOX) {
+				chk_table_freq_count = check_against_table_info.get_freq_counts_for_top3_box();
+			} else if (p_sum_table_typ == BOTBOX) {
+				chk_table_freq_count = check_against_table_info.get_freq_counts_for_top_box();
+			} else if (p_sum_table_typ == BOT2BOX) {
+				chk_table_freq_count = check_against_table_info.get_freq_counts_for_top_box();
+			} else if (p_sum_table_typ == BOT3BOX) {
+				chk_table_freq_count = check_against_table_info.get_freq_counts_for_top_box();
+			}
+
 			if  (chk_table_freq_count == -1) {
 				std::stringstream reasons_str;
 				reasons_str << "Did not find freq for TOPBOX in table: "
