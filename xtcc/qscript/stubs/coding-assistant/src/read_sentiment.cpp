@@ -11,10 +11,14 @@
 #include <boost/algorithm/string.hpp>
 #include <regex.h>
 #include <cctype>
+#include <functional>
+#include <algorithm>
+
 //#include <boost/multiprecision/cpp_int.hpp>
 //using namespace boost::multiprecision;
 
 #include "util.h"
+#include "StringSpectralInfo.h"
 
 using namespace std;
 map <string, int> word_freq_count;
@@ -29,6 +33,7 @@ map <string, int> word_freq_count;
 	set <string> words_indicating_reason;
 	set <string> words_having_pwrm_rm_cm;
 	set <string> words_indicating_management;
+	set <string> words_indicating_call_back_later;
 	vector <regex_t> regular_expressions_of_interest;
 	vector <string> human_readable_regex_pattern;
 
@@ -81,19 +86,23 @@ long long compute_string_score (const string & s)
 }
 
 
-long long check_for_phrase_of_interest(const set<string> & phrase_of_interest, string & user_phrase)
+long long check_for_phrase_of_interest(const set<string> & phrase_of_interest, string & user_phrase,
+		string & addnl_info
+		)
 {
 	long long result = 0;
 	for (auto it = phrase_of_interest.begin(); it != phrase_of_interest.end();
 			++it) {
 		string  a_phrase_of_interest = *it;
 		if (user_phrase.find (a_phrase_of_interest)!= string::npos) {
-			//addnl_info += ": |" + s2 + "| has word of interest: |" + neg_word + "|";
+			addnl_info += ": |" + a_phrase_of_interest + "|";
+			// we can memoize here - no?
 			long long score =  compute_string_score (a_phrase_of_interest);
 			result += score;
 		}
 	}
-	return result * 100;
+	//return result * 100;
+	return result ;
 }
 
 
@@ -118,7 +127,8 @@ long long check_for_generated_phrases_of_interest(
 			}
 		}
 	}
-	return result * 100;
+	//return result * 100;
+	return result ;
 }
 
 long long match_regular_expressions_of_interest (const string & s, string & addnl_info)
@@ -178,7 +188,8 @@ long long check_for_emphasizer_phrase(const set<string> & emphasizers, const set
 			}
 		}
 	}
-	return score * 10000;
+	//return score * 10000;
+	return score ;
 }
 
 
@@ -193,6 +204,16 @@ struct Info
 		  pwrm_no (p_pwrm_no),
 		  s5b_verbatim (p_s5b_verbatim),
 		  s6b_verbatim (p_s6b_verbatim)
+	{ }
+};
+
+struct Info2
+{
+	int serial_no;
+	string verbatim;
+	Info2 (int p_serial_no, const string & p_verbatim)
+		: serial_no (p_serial_no),
+		  verbatim (p_verbatim)
 	{ }
 };
 
@@ -248,10 +269,16 @@ void analyze_further(const string & verbatim, const Info & inf, string  qno)
 			for (int k=0; k<words.size(); ++k) {
 				word_freq_count[words[k]]++;
 			}
-			long long emphasizer_positive_words_score =  1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, positive_words_of_interest, phrases[j]);
-			long long emphasizer_negative_words_score = -1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, negative_words_of_interest, phrases[j]);
-			long long pos_phrase_score =  1 * check_for_phrase_of_interest(positive_phrase_of_interest, phrases[j]);
-			long long neg_phrase_score = -1 * check_for_phrase_of_interest(negative_phrase_of_interest, phrases[j]);
+			//long long emphasizer_positive_words_score =  1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, positive_words_of_interest, phrases[j]);
+			string pos_emph_word_match = "pos_emph_word_match: ";
+			long long emphasizer_positive_words_score =  1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, positive_words_of_interest, phrases[j], pos_emph_word_match);
+			//long long emphasizer_negative_words_score = -1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, negative_words_of_interest, phrases[j]);
+			string neg_emph_word_match = "neg_emph_word_match: ";
+			long long emphasizer_negative_words_score =  -1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_emph_word_match);
+			string pos_phr_int_match = "pos_phr_int_match: ";
+			long long pos_phrase_score =  1 * check_for_phrase_of_interest(positive_phrase_of_interest, phrases[j], pos_phr_int_match);
+			string neg_phr_int_match = "neg_phr_int_match: ";
+			long long neg_phrase_score = -1 * check_for_phrase_of_interest(negative_phrase_of_interest, phrases[j], neg_phr_int_match);
 			string pos_gen_phr_match = "pos_gen_phr_match match: ";
 			long long gen_pos_phrase_score =  1 * check_for_generated_phrases_of_interest(positive_words_of_interest, other_words_of_interest, phrases[j], pos_gen_phr_match);
 			string neg_gen_phr_match = "neg_gen_phr_match match: ";
@@ -274,7 +301,6 @@ void analyze_further(const string & verbatim, const Info & inf, string  qno)
 			long long reason_words_score = 10 * check_for_words_of_interest(words_indicating_reason, words, reas_match);
 			string addnl_info_regex_match;
 			long long regex_score = match_regular_expressions_of_interest (phrases[j], addnl_info_regex_match);
-
 			long long any_negatives = 1;
 			if (emphasizer_negative_words_score || neg_phrase_score || neg_score) {
 				any_negatives = -1;
@@ -285,7 +311,6 @@ void analyze_further(const string & verbatim, const Info & inf, string  qno)
 			}
 			management_words_score = management_words_score * any_negatives;
 			pwrm_words_score = pwrm_words_score * any_negatives;
-
 			long long  any_cls = emphasizer_positive_words_score + emphasizer_negative_words_score
 					+ pos_phrase_score + neg_phrase_score + neg_score + pos_score
 					+ other_words_score + emphasizer_words_score + management_words_score
@@ -330,12 +355,228 @@ void analyze_further(const string & verbatim, const Info & inf, string  qno)
 	}
 }
 
+vector <StringSpectralInfo> string_spectral_scores_vec;
+void analyze_further2( const Info2 & inf, string  qno)
+{
+	const string & verbatim = inf.verbatim;
+	//ofstream phrase_scores("phrase_scores.csv", ios_base::app);
+	static bool once = true;
+	if (once) {
+#if 0
+		phrase_scores
+			<< "serial_no" << ","
+			<< "any_cls" << ","
+			<< "ps_emphr" << ","
+			<< "ng_emphr" << ","
+			<< "ps_ph" << ","
+			<< "ng_ph" << ","
+			<< "gen_pos_phrase_score" << ","
+			<< "gen_neg_phrase_score" << ","
+			<< "ps_wd" << ","
+			<< "ng_wd" << ","
+			<< "neu_wd" << ","
+			<< "oth_wd" << ","
+			<< "emph_wd" << ","
+			<< "mngmt_wd" << ","
+			<< "pwrm_wd" << ","
+			<< "reasn_wd " << ","
+			<< "cll_bk_ltr_wd" << ","
+			<< "regex" << ","
+			<< "n_phr" << ","
+			<< "n_sent" << ","
+			<< "positive_match" << ","
+			<< "negative_match" << ","
+			<< "pos_phr_int_match" << ","
+			<< "neg_phr_int_match" << ","
+			<< "pos_gen_phr_match" << ","
+			<< "neg_gen_phr_match" << ","
+			<< "neutral_match" << ","
+			<< "other_match" << ","
+			<< "emph_match" << ","
+			<< "mnmng_match" << ","
+			<< "pwrm_match" << ","
+			<< "reas_match" << ","
+			<< "call_back_ltr_match" << ","
+			<< "raw phr" << ","
+			<< "raw sent" << ","
+			<< endl;
+#endif /* 0 */
+		once = false;
+	}
+	vector<string> sentences = tokenize_into_sentences(verbatim);
+	//cout << "n_sentences: " << sentences.size() << endl;
+	for (int i=0; i<sentences.size(); ++i) {
+		vector<string> phrases = split_into_phrases (sentences[i]);
+		//cout << "phrases: " << endl;
+		for (int j=0; j<phrases.size(); ++j) {
+			//cout << "        " << phrases[j] << endl;
+			vector<string> words = split_into_words(phrases[j]);
+			for (int k=0; k<words.size(); ++k) {
+				word_freq_count[words[k]]++;
+			}
+			//long long emphasizer_positive_words_score =  1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, positive_words_of_interest, phrases[j]);
+			string pos_emph_word_match = "pos_emph_word_match: ";
+			long long emphasizer_positive_words_score =  1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, positive_words_of_interest, phrases[j], pos_emph_word_match);
+			if (pos_emph_word_match == "pos_emph_word_match: ") {
+				pos_emph_word_match = "";
+			}
+			//long long emphasizer_negative_words_score = -1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, negative_words_of_interest, phrases[j]);
+			string neg_emph_word_match = "neg_emph_word_match: ";
+			long long emphasizer_negative_words_score =  -1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_emph_word_match);
+			if (neg_emph_word_match == "neg_emph_word_match: ") {
+				neg_emph_word_match = "";
+			}
+			string pos_phr_int_match = "pos_phr_int_match: ";
+			long long pos_phrase_score =  1 * check_for_phrase_of_interest(positive_phrase_of_interest, phrases[j], pos_phr_int_match);
+			if (pos_phr_int_match == "pos_phr_int_match: ") {
+				pos_phr_int_match = "";
+			}
+			string neg_phr_int_match = "neg_phr_int_match: ";
+			long long neg_phrase_score = -1 * check_for_phrase_of_interest(negative_phrase_of_interest, phrases[j], neg_phr_int_match);
+			if (neg_phr_int_match == "neg_phr_int_match: ") {
+				neg_phr_int_match = "";
+			}
+			string call_back_ltr_match = "call back ltr match: ";
+			long long call_back_ltr_words_score = check_for_phrase_of_interest(words_indicating_call_back_later, phrases[j], call_back_ltr_match);
+			if (call_back_ltr_match == "call back ltr match: ") {
+				call_back_ltr_match = ""; // reset so you can use ctrl arrow in csv scores file
+			}
+			string pos_gen_phr_match = "pos_gen_phr_match match: ";
+			long long gen_pos_phrase_score =  1 * check_for_generated_phrases_of_interest(positive_words_of_interest, other_words_of_interest, phrases[j], pos_gen_phr_match);
+			if (pos_gen_phr_match == "pos_gen_phr_match match: ") {
+				pos_gen_phr_match = "";
+			}
+			string neg_gen_phr_match = "neg_gen_phr_match match: ";
+			long long gen_neg_phrase_score = -1 * check_for_generated_phrases_of_interest(negative_words_of_interest, other_words_of_interest, phrases[j], neg_gen_phr_match);
+			if (neg_gen_phr_match == "neg_gen_phr_match match: ") {
+				neg_gen_phr_match = "";
+			}
+			//string neg_gen_phr_match = "neg_gen_phr_match match: ";
+			gen_neg_phrase_score += -1 * check_for_generated_phrases_of_interest(negative_words_of_interest, positive_words_of_interest, phrases[j], neg_gen_phr_match);
+			string positive_match = "positive match: ";
+			long long pos_score =  10 * check_for_words_of_interest(positive_words_of_interest, words, positive_match);
+			string negative_match = "negative match: ";
+			long long neg_score = -10 * check_for_words_of_interest(negative_words_of_interest, words, negative_match);
+			string neutral_match = "neutral match: ";
+			long long neutral_score = -1 * check_for_words_of_interest(neutral_words_of_interest, words, neutral_match);
+			string other_match = "other match: ";
+			long long other_words_score = 10 * check_for_words_of_interest(other_words_of_interest, words, other_match);
+			string emph_match = "emph match: ";
+			long long emphasizer_words_score = 1000 * check_for_words_of_interest(emphasizer_words_of_interest, words, emph_match);
+			string mnmng_match = "mnmng match: ";
+			long long management_words_score = 10000 * check_for_words_of_interest(words_indicating_management, words, mnmng_match);
+			string pwrm_match = "pwrm match: ";
+			long long pwrm_words_score = 10000 * check_for_words_of_interest(words_having_pwrm_rm_cm, words, pwrm_match);
+			string reas_match = "reas match: ";
+			long long reason_words_score = 10 * check_for_words_of_interest(words_indicating_reason, words, reas_match);
+			string addnl_info_regex_match;
+			long long regex_score = match_regular_expressions_of_interest (phrases[j], addnl_info_regex_match);
+			long long any_negatives = 1;
+			if (emphasizer_negative_words_score || neg_phrase_score || neg_score) {
+				any_negatives = -1;
+			}
+			int any_positives = 1;
+			if (emphasizer_positive_words_score || pos_phrase_score || pos_score) {
+				any_positives = 1;
+			}
+			management_words_score = management_words_score * any_negatives;
+			pwrm_words_score = pwrm_words_score * any_negatives;
+			long long  any_cls = emphasizer_positive_words_score + emphasizer_negative_words_score
+					+ pos_phrase_score + neg_phrase_score + neg_score + pos_score
+					+ other_words_score + emphasizer_words_score + management_words_score
+					+ pwrm_words_score + reason_words_score
+					+ neutral_score
+					;
+#if 0
+			phrase_scores
+					<< inf.serial_no << ","
+					<< any_cls << ","
+					<< emphasizer_positive_words_score  << ","
+					<< emphasizer_negative_words_score  << ","
+					<< pos_phrase_score << ","
+					<< neg_phrase_score << ","
+					<< gen_pos_phrase_score << ","
+					<< gen_neg_phrase_score << ","
+					<< pos_score << ","
+					<< neg_score << ","
+					<< neutral_score << ","
+					<< other_words_score  << ","
+					<< emphasizer_words_score  << ","
+					<< management_words_score  << ","
+					<< pwrm_words_score  << ","
+					<< reason_words_score  << ","
+					<< call_back_ltr_words_score  << ","
+					<< regex_score  << ","
+					<< phrases.size()   << ","
+					<< sentences.size()   << ","
+					<< positive_match << ","
+					<< negative_match << ","
+					<< pos_phr_int_match << ","
+					<< neg_phr_int_match << ","
+					<< pos_gen_phr_match << ","
+					<< neg_gen_phr_match << ","
+					<< neutral_match << ","
+					<< other_match << ","
+					<< emph_match << ","
+					<< mnmng_match << ","
+					<< pwrm_match << ","
+					<< reas_match << ","
+					<< call_back_ltr_match << ","
+					<< "\"" << phrases[j] << "\"" << ","
+					<< "\"" << verbatim   << "\"" << ","
+					<< endl;
+#endif /* 0 */
+			StringSpectralInfo ss_inf(
+					inf.serial_no,
+					pos_emph_word_match,
+					emphasizer_positive_words_score,
+					neg_emph_word_match,
+					emphasizer_negative_words_score,
+					pos_phr_int_match,
+					pos_phrase_score,
+					neg_phr_int_match,
+					neg_phrase_score,
+					call_back_ltr_match,
+					call_back_ltr_words_score,
+					pos_gen_phr_match,
+					gen_pos_phrase_score,
+					neg_gen_phr_match,
+					gen_neg_phrase_score,
+					positive_match,
+					pos_score,
+					negative_match,
+					neg_score,
+					neutral_match,
+					neutral_score,
+					other_match,
+					other_words_score,
+					emph_match,
+					emphasizer_words_score,
+					mnmng_match,
+					management_words_score,
+					pwrm_match,
+					pwrm_words_score,
+					reas_match,
+					reason_words_score,
+					addnl_info_regex_match,
+					regex_score,
+					phrases[j],
+					verbatim
+					);
+			string_spectral_scores_vec.push_back (ss_inf);
+		}
+	}
+}
+
 void split_verbatim_into_quantum_include (string verbatim, int serial_no)
 {
 	stringstream s1;
 	int first_time = 0;
 	for (int i=0; i<verbatim.length(); ++i) {
 		char a_char = verbatim[i];
+		if (a_char==';') {
+			a_char = '.';
+		}
 		if (s1.str().length() < 30) {
 				s1 << a_char;
 		} else {
@@ -382,11 +623,44 @@ void processInput (LineProvider & line_provider)
 			//cout << "S6b data:" << line_split_into_fields[5] << endl;
 			//analyze_further(s6b_data, inf, "s6b");
 			split_verbatim_into_quantum_include (s5b_data, serial_no);
+			//split_verbatim_into_quantum_include (s6b_data, serial_no);
 		}
 		//if (count == 1) {
 		//	break;
 		//}
 		++count;
+	}
+	cout << "finished processing file" << endl;
+}
+
+void processInput2 (LineProvider & line_provider)
+{
+	int count = 0;
+	while (1) {
+		RValueReadALine res = line_provider.get_a_line();
+		if (res.success == false) {
+			break;
+		}
+		//cout << "line_provider: " << res.a_line << endl;
+		vector <string> line_split_into_fields = tokenize_csv_components_into_fields(res.a_line);
+		if (line_split_into_fields.size() >= 2) {
+			int serial_no = atoi (line_split_into_fields[0].c_str());
+			string suggestions = line_split_into_fields[1];
+			Info2 inf (serial_no, suggestions);
+			//cout << "S5b data:" << line_split_into_fields[3] << endl;
+			analyze_further2(inf, "suggestions");
+			//cout << "S6b data:" << line_split_into_fields[5] << endl;
+			//analyze_further(s6b_data, inf, "s6b");
+			//split_verbatim_into_quantum_include (s6b_data, serial_no);
+		}
+		cerr << ".";
+		//if (count == 1) {
+		//	break;
+		//}
+		++count;
+		if (count % 80 == 0) {
+			cout << " " << count << endl;
+		}
 	}
 	cout << "finished processing file" << endl;
 }
@@ -507,6 +781,54 @@ string ltostr (long long number, int base)
 	*/
 }
 
+void print_report(const vector<StringSpectralInfo> & string_spectral_scores_vec)
+{
+	ofstream phrase_scores("phrase_scores.csv", ios_base::app);
+	phrase_scores
+		<< "serial_no" << ","
+		<< "any_cls" << ","
+		<< "ps_emphr" << ","
+		<< "ng_emphr" << ","
+		<< "ps_ph" << ","
+		<< "ng_ph" << ","
+		<< "gen_pos_phrase_score" << ","
+		<< "gen_neg_phrase_score" << ","
+		<< "ps_wd" << ","
+		<< "ng_wd" << ","
+		<< "neu_wd" << ","
+		<< "oth_wd" << ","
+		<< "emph_wd" << ","
+		<< "mngmt_wd" << ","
+		<< "pwrm_wd" << ","
+		<< "reasn_wd " << ","
+		<< "cll_bk_ltr_wd" << ","
+		<< "regex" << ","
+		<< "n_phr" << ","
+		<< "n_sent" << ","
+		<< "positive_match" << ","
+		<< "negative_match" << ","
+		<< "pos_phr_int_match" << ","
+		<< "neg_phr_int_match" << ","
+		<< "pos_gen_phr_match" << ","
+		<< "neg_gen_phr_match" << ","
+		<< "neutral_match" << ","
+		<< "other_match" << ","
+		<< "emph_match" << ","
+		<< "mnmng_match" << ","
+		<< "pwrm_match" << ","
+		<< "reas_match" << ","
+		<< "call_back_ltr_match" << ","
+		<< "raw phr" << ","
+		<< "raw sent" << ","
+		<< endl;
+
+	for (const StringSpectralInfo & inf : string_spectral_scores_vec) {
+		phrase_scores << inf.report();
+	}
+
+	phrase_scores << endl;
+}
+
 
 int main()
 {
@@ -538,6 +860,7 @@ int main()
 	words_indicating_reason =  populate_words_of_interest("words_indicating_reason.txt");
 	//populate_words_indicating_management();
 	words_indicating_management = populate_words_of_interest("words_indicating_management.txt");
+	words_indicating_call_back_later = populate_words_of_interest("words_indicating_call_back_later.txt");
 
 	populate_regular_expressions_of_interest("negative_regex_patterns.txt");
 
@@ -549,12 +872,23 @@ int main()
 	//process_file (data_file);
 	std::ifstream s5b_6b_data_file("s5b-s6b-coding-data-input.csv");
 	//process_file (s5b_6b_data_file);
-	LineProvider s5b_6b_data_file_line_provider("s5b-s6b-coding-data-input.csv");
-	processInput (s5b_6b_data_file_line_provider);
+	// This was for S5b/S6b
+	//LineProvider s5b_6b_data_file_line_provider("s5b-s6b-coding-data-input.csv");
+	//processInput (s5b_6b_data_file_line_provider);
+
+	LineProvider suggestions_line_provider("suggestions.csv");
+	processInput2 (suggestions_line_provider);
 	//RValueReadALine a_poss_line = s5b_6b_data_file_line_provider.get_a_line();
 	//if (a_poss_line.success) {
 	//	cout << "aline from LineProvider: " << a_poss_line.a_line << endl;
 	//}
 
 	print_map(word_freq_count);
+	SortStringSpectralInfo sort_strings_on_spectral_scores;
+	std::sort (string_spectral_scores_vec.begin()
+			, string_spectral_scores_vec.end()
+			, sort_strings_on_spectral_scores);
+
+	print_report(string_spectral_scores_vec);
+
 }
