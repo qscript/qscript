@@ -219,6 +219,7 @@ struct Info2
 
 void analyze_further(const string & verbatim, const Info & inf, string  qno)
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	ofstream phrase_scores("phrase_scores.csv", ios_base::app);
 	static bool once = true;
 	if (once) {
@@ -241,8 +242,8 @@ void analyze_further(const string & verbatim, const Info & inf, string  qno)
 			<< "pwrm_wd" << ","
 			<< "reasn_wd " << ","
 			<< "regex" << ","
-			<< "n_phr" << ","
-			<< "n_sent" << ","
+			//<< "n_phr" << ","
+			//<< "n_sent" << ","
 			<< "positive_match" << ","
 			<< "negative_match" << ","
 			<< "pos_gen_phr_match" << ","
@@ -422,7 +423,7 @@ void analyze_further2( const Info2 & inf, string  qno)
 			}
 			//long long emphasizer_negative_words_score = -1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, negative_words_of_interest, phrases[j]);
 			string neg_emph_word_match = "neg_emph_word_match: ";
-			long long emphasizer_negative_words_score =  -1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_emph_word_match);
+			long long emphasizer_negative_words_score =  1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_emph_word_match);
 			if (neg_emph_word_match == "neg_emph_word_match: ") {
 				neg_emph_word_match = "";
 			}
@@ -432,7 +433,7 @@ void analyze_further2( const Info2 & inf, string  qno)
 				pos_phr_int_match = "";
 			}
 			string neg_phr_int_match = "neg_phr_int_match: ";
-			long long neg_phrase_score = -1 * check_for_phrase_of_interest(negative_phrase_of_interest, phrases[j], neg_phr_int_match);
+			long long neg_phrase_score = 1 * check_for_phrase_of_interest(negative_phrase_of_interest, phrases[j], neg_phr_int_match);
 			if (neg_phr_int_match == "neg_phr_int_match: ") {
 				neg_phr_int_match = "";
 			}
@@ -447,30 +448,58 @@ void analyze_further2( const Info2 & inf, string  qno)
 				pos_gen_phr_match = "";
 			}
 			string neg_gen_phr_match = "neg_gen_phr_match match: ";
-			long long gen_neg_phrase_score = -1 * check_for_generated_phrases_of_interest(negative_words_of_interest, other_words_of_interest, phrases[j], neg_gen_phr_match);
+			long long gen_neg_phrase_score = 1 * check_for_generated_phrases_of_interest(negative_words_of_interest, other_words_of_interest, phrases[j], neg_gen_phr_match);
+			gen_neg_phrase_score = 1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_gen_phr_match);
 			if (neg_gen_phr_match == "neg_gen_phr_match match: ") {
 				neg_gen_phr_match = "";
 			}
 			//string neg_gen_phr_match = "neg_gen_phr_match match: ";
-			gen_neg_phrase_score += -1 * check_for_generated_phrases_of_interest(negative_words_of_interest, positive_words_of_interest, phrases[j], neg_gen_phr_match);
+			gen_neg_phrase_score += 1 * check_for_generated_phrases_of_interest(negative_words_of_interest, positive_words_of_interest, phrases[j], neg_gen_phr_match);
 			string positive_match = "positive match: ";
-			long long pos_score =  10 * check_for_words_of_interest(positive_words_of_interest, words, positive_match);
+			long long pos_score =  1 * check_for_words_of_interest(positive_words_of_interest, words, positive_match);
+			if (positive_match == "positive match: ") {
+				positive_match = "";
+			}
 			string negative_match = "negative match: ";
-			long long neg_score = -10 * check_for_words_of_interest(negative_words_of_interest, words, negative_match);
+			long long neg_score = 1 * check_for_words_of_interest(negative_words_of_interest, words, negative_match);
+			if (negative_match == "negative match: ") {
+				negative_match = "";
+			}
 			string neutral_match = "neutral match: ";
-			long long neutral_score = -1 * check_for_words_of_interest(neutral_words_of_interest, words, neutral_match);
+			long long neutral_score = 1 * check_for_words_of_interest(neutral_words_of_interest, words, neutral_match);
+			if (neutral_match == "neutral match: ") {
+				neutral_match = "";
+			}
 			string other_match = "other match: ";
-			long long other_words_score = 10 * check_for_words_of_interest(other_words_of_interest, words, other_match);
+			long long other_words_score = 1 * check_for_words_of_interest(other_words_of_interest, words, other_match);
+			if (other_match == "other match: ") {
+				other_match = "";
+			}
 			string emph_match = "emph match: ";
-			long long emphasizer_words_score = 1000 * check_for_words_of_interest(emphasizer_words_of_interest, words, emph_match);
+			long long emphasizer_words_score = check_for_words_of_interest(emphasizer_words_of_interest, words, emph_match);
+			if (emph_match == "emph match: ") {
+				emph_match = "";
+			}
 			string mnmng_match = "mnmng match: ";
-			long long management_words_score = 10000 * check_for_words_of_interest(words_indicating_management, words, mnmng_match);
+			long long management_words_score = check_for_words_of_interest(words_indicating_management, words, mnmng_match);
+			if (mnmng_match == "mnmng match: ") {
+				mnmng_match = "";
+			}
 			string pwrm_match = "pwrm match: ";
-			long long pwrm_words_score = 10000 * check_for_words_of_interest(words_having_pwrm_rm_cm, words, pwrm_match);
+			long long pwrm_words_score = check_for_words_of_interest(words_having_pwrm_rm_cm, words, pwrm_match);
+			if (pwrm_match == "pwrm match: ") {
+				pwrm_match = "";
+			}
 			string reas_match = "reas match: ";
-			long long reason_words_score = 10 * check_for_words_of_interest(words_indicating_reason, words, reas_match);
-			string addnl_info_regex_match;
+			long long reason_words_score = check_for_words_of_interest(words_indicating_reason, words, reas_match);
+			if (reas_match == "reas match: ") {
+				reas_match = "";
+			}
+			string addnl_info_regex_match = "regex match: ";
 			long long regex_score = match_regular_expressions_of_interest (phrases[j], addnl_info_regex_match);
+			if (addnl_info_regex_match == "regex match: ") {
+				addnl_info_regex_match = "";
+			}
 			long long any_negatives = 1;
 			if (emphasizer_negative_words_score || neg_phrase_score || neg_score) {
 				any_negatives = -1;
@@ -479,8 +508,8 @@ void analyze_further2( const Info2 & inf, string  qno)
 			if (emphasizer_positive_words_score || pos_phrase_score || pos_score) {
 				any_positives = 1;
 			}
-			management_words_score = management_words_score * any_negatives;
-			pwrm_words_score = pwrm_words_score * any_negatives;
+			//management_words_score = management_words_score * any_negatives;
+			//pwrm_words_score = pwrm_words_score * any_negatives;
 			long long  any_cls = emphasizer_positive_words_score + emphasizer_negative_words_score
 					+ pos_phrase_score + neg_phrase_score + neg_score + pos_score
 					+ other_words_score + emphasizer_words_score + management_words_score
@@ -783,10 +812,11 @@ string ltostr (long long number, int base)
 
 void print_report(const vector<StringSpectralInfo> & string_spectral_scores_vec)
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	ofstream phrase_scores("phrase_scores.csv", ios_base::app);
 	phrase_scores
 		<< "serial_no" << ","
-		<< "any_cls" << ","
+		<< "|any_cls|" << ","
 		<< "ps_emphr" << ","
 		<< "ng_emphr" << ","
 		<< "ps_ph" << ","
@@ -803,14 +833,14 @@ void print_report(const vector<StringSpectralInfo> & string_spectral_scores_vec)
 		<< "reasn_wd " << ","
 		<< "cll_bk_ltr_wd" << ","
 		<< "regex" << ","
-		<< "n_phr" << ","
-		<< "n_sent" << ","
-		<< "positive_match" << ","
-		<< "negative_match" << ","
+		//<< "n_phr" << ","
+		//<< "n_sent" << ","
 		<< "pos_phr_int_match" << ","
 		<< "neg_phr_int_match" << ","
 		<< "pos_gen_phr_match" << ","
 		<< "neg_gen_phr_match" << ","
+		<< "positive_match" << ","
+		<< "negative_match" << ","
 		<< "neutral_match" << ","
 		<< "other_match" << ","
 		<< "emph_match" << ","
