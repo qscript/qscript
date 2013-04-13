@@ -133,7 +133,7 @@ double StringSpectralInfo::compute_aggregate_score ()
 		if (neg_score) {
 			any_negatives = -1;
 		}
-		if (pos_phrase_score || pos_emph_word_match || gen_pos_phr_score) {
+		if (pos_phrase_score > 0 || emphasizer_positive_words_score > 0 || gen_pos_phr_score > 0) {
 			any_negatives = 1;
 		}
 		if (emphasizer_negative_words_score || neg_phrase_score || gen_neg_phr_score
@@ -142,20 +142,20 @@ double StringSpectralInfo::compute_aggregate_score ()
 		}
 
 		aggregate_score =
-				+ (-10000  * log_emph_neg)
-				+ ( 5000   * log_emph_pos)
+				+ (-100000  * log_emph_neg)
+				+ ( 50000   * log_emph_pos)
 				+ (-1000   * log_neg_phr_score)
 				+ (500     * log_pos_phr_score)
-				+ (-100000 * log_call_back_ltr_words_score)
-				+ (-1000   * log_gen_neg_phr_score)
-				+ (500    * log_gen_pos_phr_score)
-				+ (-100    * log_neg_score)
-				+ (50      * log_pos_score)
+				+ (-10000000 * log_call_back_ltr_words_score)
+				+ (-10000   * log_gen_neg_phr_score)
+				+ (5000    * log_gen_pos_phr_score)
+				+ (-1000    * log_neg_score)
+				+ (500      * log_pos_score)
 				+ (-1      * log_neu_score)
 				+ (5       * log_oth_score)
 				+ (10     * log_emph_score)
-				+ (10000   * any_negatives * log_management_words_score)
-				+ (5000    * any_negatives * log_pwrm_words_score)
+				+ (500000   * any_negatives * log_management_words_score)
+				+ (500000   * any_negatives * log_pwrm_words_score)
 				+ (2500    * log_reason_words_score)
 				+ (-800    * log_regex_score);
 		is_computed_score = true;
@@ -199,6 +199,8 @@ std::string StringSpectralInfo::report() const
 		<< regex_score  << ","
 		//<< phrases.size()   << ","
 		//<< sentences.size()   << ","
+		<< pos_emph_word_match << ","
+		<< neg_emph_word_match << ","
 		<< pos_phr_int_match << ","
 		<< neg_phr_int_match << ","
 		<< pos_gen_phr_match << ","

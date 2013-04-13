@@ -36,6 +36,11 @@ map <string, int> word_freq_count;
 	set <string> words_indicating_call_back_later;
 	vector <regex_t> regular_expressions_of_interest;
 	vector <string> human_readable_regex_pattern;
+	set <string> gen_emph_pos_phrases;
+	set <string> gen_emph_neg_phrases;
+	set <string> gen_pos_phrases;
+	set <string> gen_neg_phrases;
+	set <string> gen_neg_pos_phrases;
 
 
 
@@ -58,47 +63,68 @@ long long compute_string_score (const string & s)
 {
 	//cout << __PRETTY_FUNCTION__ << " :s:" << s<< endl;
 	long long score = 0;
-	//for (int i=0; i<s.size(); ++i)
-	//
-	//long long base =  1;
-	//for (int i=s.size()-1; i >= 0; --i)
-	for (int i=0; i<s.size(); ++i) {
-		if ((s[i] >= 'A') && (s[i] <= 'Z')) {
-			// The highest score for a letter is 26
-			// add to that digits from 0 to 9 and we have 36
-			//cout << "letter :" << s[i] << ", score:" << (s[i] - 'A' +10)
-				//<< "base: " << base
-				//<< endl;
-			//if (i==0) {
-			//	score += (s[i] - 'A' + 10) + 0;
-			//} else {
-			//	score += (s[i] - 'A' + 10) * base;
-			//}
-			// This wont work until i use boost::multiprecision
-			// causes overflow
-			//score = (s[i] - 'A' + 10) + score * 36;
-			score = (s[i] - 'A' + 10) + i*10;
-			//base *= 36;
-			//cout << "partial score: " << score << endl;
+	static map <string, long long> memoized_scores;
+
+	map <string, long long>::iterator it = memoized_scores.find (s);
+
+
+	if (it == memoized_scores.end()) {
+		//for (int i=0; i<s.size(); ++i)
+		//
+		//long long base =  1;
+		//for (int i=s.size()-1; i >= 0; --i)
+		for (int i=0; i<s.size(); ++i) {
+			if ((s[i] >= 'A') && (s[i] <= 'Z')) {
+				// The highest score for a letter is 26
+				// add to that digits from 0 to 9 and we have 36
+				//cout << "letter :" << s[i] << ", score:" << (s[i] - 'A' +10)
+					//<< "base: " << base
+					//<< endl;
+				//if (i==0) {
+				//	score += (s[i] - 'A' + 10) + 0;
+				//} else {
+				//	score += (s[i] - 'A' + 10) * base;
+				//}
+				// This wont work until i use boost::multiprecision
+				// causes overflow
+				//score = (s[i] - 'A' + 10) + score * 36;
+				score = (s[i] - 'A' + 10) + i*10;
+				//base *= 36;
+				//cout << "partial score: " << score << endl;
+			}
 		}
+		memoized_scores[s]=score;
+		//cout << "from calc" << endl;
+		return score;
+	} else {
+		//cout << "from cache" << endl;
+		return it->second;
 	}
-	return score;
+
 }
 
 
-long long check_for_phrase_of_interest(const set<string> & phrase_of_interest, string & user_phrase,
+long long check_for_phrase_of_interest(const set<string> & phrase_of_interest, const string & user_phrase,
 		string & addnl_info
 		)
 {
 	long long result = 0;
+	const string marker(" | ");
 	for (auto it = phrase_of_interest.begin(); it != phrase_of_interest.end();
 			++it) {
-		string  a_phrase_of_interest = *it;
+		const string &  a_phrase_of_interest = *it;
+		//cout 	<< "searching: |" << user_phrase << "|"
+		//	<< "with: |" << a_phrase_of_interest << "|"<< endl;
+		//if (user_phrase.find ("EXTREMELY DISSATISFIED")!= string::npos) {
+		//	//cout << "found exact match EXTREMELY DISSATISFIED" << endl;
+		//}
 		if (user_phrase.find (a_phrase_of_interest)!= string::npos) {
-			addnl_info += ": |" + a_phrase_of_interest + "|";
+			addnl_info += marker + a_phrase_of_interest + marker;
 			// we can memoize here - no?
 			long long score =  compute_string_score (a_phrase_of_interest);
 			result += score;
+			//cout << "found pattern MATCH|" << a_phrase_of_interest << endl;
+			//cout << "addnl_info: " << addnl_info << endl;
 		}
 	}
 	//return result * 100;
@@ -109,7 +135,7 @@ long long check_for_phrase_of_interest(const set<string> & phrase_of_interest, s
 long long check_for_generated_phrases_of_interest(
 		const set<string> & modifier_pre_word,
 		const set<string> & phrase_of_interest,
-		string & user_phrase,
+		const string & user_phrase,
 		string & addnl_info)
 {
 	long long result = 0;
@@ -118,7 +144,8 @@ long long check_for_generated_phrases_of_interest(
 				++modifier_pre_word_it) {
 		for (auto it = phrase_of_interest.begin(); it != phrase_of_interest.end();
 				++it) {
-			string  a_phrase_of_interest = *modifier_pre_word_it + " " + *it;
+			string  a_phrase_of_interest = *modifier_pre_word_it + string(" ") + *it;
+			cout << "checking for gen phrase:" << a_phrase_of_interest << endl;
 			if (user_phrase.find (a_phrase_of_interest)!= string::npos) {
 				//addnl_info += ": |" + s2 + "| has word of interest: |" + neg_word + "|";
 				long long score =  compute_string_score (a_phrase_of_interest);
@@ -159,7 +186,7 @@ long long match_regular_expressions_of_interest (const string & s, string & addn
 	return cumulative_score;
 }
 
-long long check_for_words_of_interest(const set<string> & words_of_interest, vector<string> phrase_in_words,
+long long check_for_words_of_interest(const set<string> & words_of_interest, const vector<string> & phrase_in_words,
 		string & addnl_info )
 {
 	long long score = 0;
@@ -216,6 +243,21 @@ struct Info2
 		  verbatim (p_verbatim)
 	{ }
 };
+
+
+void generate_phrases_of_interest(const set <string> & prefix
+		, const set<string> & suffix
+		, set<string> & generated_phrases)
+{
+	for (auto pre_it = prefix.begin(); pre_it != prefix.end();
+				++pre_it) {
+		for (auto it = suffix.begin(); it != suffix.end();
+				++it) {
+			const string & a_phrase_of_interest = *pre_it + string(" ") + *it;
+			generated_phrases.insert(a_phrase_of_interest);
+		}
+	}
+}
 
 void analyze_further(const string & verbatim, const Info & inf, string  qno)
 {
@@ -357,7 +399,7 @@ void analyze_further(const string & verbatim, const Info & inf, string  qno)
 }
 
 vector <StringSpectralInfo> string_spectral_scores_vec;
-void analyze_further2( const Info2 & inf, string  qno)
+void analyze_further2( const Info2 & inf, const string &  qno)
 {
 	const string & verbatim = inf.verbatim;
 	//ofstream phrase_scores("phrase_scores.csv", ios_base::app);
@@ -417,22 +459,36 @@ void analyze_further2( const Info2 & inf, string  qno)
 			}
 			//long long emphasizer_positive_words_score =  1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, positive_words_of_interest, phrases[j]);
 			string pos_emph_word_match = "pos_emph_word_match: ";
-			long long emphasizer_positive_words_score =  1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, positive_words_of_interest, phrases[j], pos_emph_word_match);
+			pos_emph_word_match.reserve(2048);
+			// this is a optimization for speed - which I hope works
+			// you will get the same result with the line commented out below
+			//long long emphasizer_positive_words_score =  1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, positive_words_of_interest, phrases[j], pos_emph_word_match);
+			long long emphasizer_positive_words_score =  1 * check_for_phrase_of_interest(gen_emph_pos_phrases, phrases[j], pos_emph_word_match);
 			if (pos_emph_word_match == "pos_emph_word_match: ") {
 				pos_emph_word_match = "";
 			}
 			//long long emphasizer_negative_words_score = -1 * check_for_emphasizer_phrase(emphasizer_words_of_interest, negative_words_of_interest, phrases[j]);
 			string neg_emph_word_match = "neg_emph_word_match: ";
-			long long emphasizer_negative_words_score =  1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_emph_word_match);
+			neg_emph_word_match.reserve(2048);
+			//long long emphasizer_negative_words_score =  1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_emph_word_match);
+			long long emphasizer_negative_words_score =  1 * check_for_phrase_of_interest(gen_emph_neg_phrases, phrases[j], neg_emph_word_match);
+			//if (emphasizer_negative_words_score > 0)  {
+			//	cout << "emphasizer_negative_words_score > 0: "
+			//		<< "neg_emph_word_match:" << neg_emph_word_match
+			//		<< endl;
+			//}
 			if (neg_emph_word_match == "neg_emph_word_match: ") {
 				neg_emph_word_match = "";
+				//cout << "neg_emph_word_match RESET " << endl;
 			}
 			string pos_phr_int_match = "pos_phr_int_match: ";
+			pos_phr_int_match.reserve(2048);
 			long long pos_phrase_score =  1 * check_for_phrase_of_interest(positive_phrase_of_interest, phrases[j], pos_phr_int_match);
 			if (pos_phr_int_match == "pos_phr_int_match: ") {
 				pos_phr_int_match = "";
 			}
 			string neg_phr_int_match = "neg_phr_int_match: ";
+			neg_phr_int_match.reserve(2048);
 			long long neg_phrase_score = 1 * check_for_phrase_of_interest(negative_phrase_of_interest, phrases[j], neg_phr_int_match);
 			if (neg_phr_int_match == "neg_phr_int_match: ") {
 				neg_phr_int_match = "";
@@ -443,18 +499,24 @@ void analyze_further2( const Info2 & inf, string  qno)
 				call_back_ltr_match = ""; // reset so you can use ctrl arrow in csv scores file
 			}
 			string pos_gen_phr_match = "pos_gen_phr_match match: ";
-			long long gen_pos_phrase_score =  1 * check_for_generated_phrases_of_interest(positive_words_of_interest, other_words_of_interest, phrases[j], pos_gen_phr_match);
+			pos_gen_phr_match.reserve(2048);
+			//long long gen_pos_phrase_score =  1 * check_for_generated_phrases_of_interest(positive_words_of_interest, other_words_of_interest, phrases[j], pos_gen_phr_match);
+			long long gen_pos_phrase_score =  1 * check_for_phrase_of_interest(gen_pos_phrases, phrases[j], pos_gen_phr_match);
 			if (pos_gen_phr_match == "pos_gen_phr_match match: ") {
 				pos_gen_phr_match = "";
 			}
 			string neg_gen_phr_match = "neg_gen_phr_match match: ";
-			long long gen_neg_phrase_score = 1 * check_for_generated_phrases_of_interest(negative_words_of_interest, other_words_of_interest, phrases[j], neg_gen_phr_match);
-			gen_neg_phrase_score = 1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_gen_phr_match);
+			neg_gen_phr_match.reserve(2048);
+			//long long gen_neg_phrase_score = 1 * check_for_generated_phrases_of_interest(negative_words_of_interest, other_words_of_interest, phrases[j], neg_gen_phr_match);
+			long long gen_neg_phrase_score =  1 * check_for_phrase_of_interest(gen_neg_phrases, phrases[j], neg_gen_phr_match);
+			//gen_neg_phrase_score += 1 * check_for_generated_phrases_of_interest(emphasizer_words_of_interest, negative_words_of_interest, phrases[j], neg_gen_phr_match);
+			//gen_neg_phrase_score +=  1 * check_for_phrase_of_interest(gen_neg_phrases, phrases[j], neg_gen_phr_match);
+			//string neg_gen_phr_match = "neg_gen_phr_match match: ";
+			//gen_neg_phrase_score += 1 * check_for_generated_phrases_of_interest(negative_words_of_interest, positive_words_of_interest, phrases[j], neg_gen_phr_match);
+			gen_neg_phrase_score +=  1 * check_for_phrase_of_interest(gen_neg_pos_phrases, phrases[j], neg_gen_phr_match);
 			if (neg_gen_phr_match == "neg_gen_phr_match match: ") {
 				neg_gen_phr_match = "";
 			}
-			//string neg_gen_phr_match = "neg_gen_phr_match match: ";
-			gen_neg_phrase_score += 1 * check_for_generated_phrases_of_interest(negative_words_of_interest, positive_words_of_interest, phrases[j], neg_gen_phr_match);
 			string positive_match = "positive match: ";
 			long long pos_score =  1 * check_for_words_of_interest(positive_words_of_interest, words, positive_match);
 			if (positive_match == "positive match: ") {
@@ -672,12 +734,13 @@ void processInput2 (LineProvider & line_provider)
 		}
 		//cout << "line_provider: " << res.a_line << endl;
 		vector <string> line_split_into_fields = tokenize_csv_components_into_fields(res.a_line);
+		const string qno("suggestions");
 		if (line_split_into_fields.size() >= 2) {
 			int serial_no = atoi (line_split_into_fields[0].c_str());
 			string suggestions = line_split_into_fields[1];
 			Info2 inf (serial_no, suggestions);
 			//cout << "S5b data:" << line_split_into_fields[3] << endl;
-			analyze_further2(inf, "suggestions");
+			analyze_further2(inf, qno);
 			//cout << "S6b data:" << line_split_into_fields[5] << endl;
 			//analyze_further(s6b_data, inf, "s6b");
 			//split_verbatim_into_quantum_include (s6b_data, serial_no);
@@ -835,6 +898,8 @@ void print_report(const vector<StringSpectralInfo> & string_spectral_scores_vec)
 		<< "regex" << ","
 		//<< "n_phr" << ","
 		//<< "n_sent" << ","
+		<< "pos_emph_word_match" << ","
+		<< "neg_emph_word_match" << ","
 		<< "pos_phr_int_match" << ","
 		<< "neg_phr_int_match" << ","
 		<< "pos_gen_phr_match" << ","
@@ -859,6 +924,12 @@ void print_report(const vector<StringSpectralInfo> & string_spectral_scores_vec)
 	phrase_scores << endl;
 }
 
+void print_phrases (const set<string> & p_phrases)
+{
+	for (auto  &it : p_phrases) {
+		cout << it << endl;
+	}
+}
 
 int main()
 {
@@ -906,6 +977,17 @@ int main()
 	//LineProvider s5b_6b_data_file_line_provider("s5b-s6b-coding-data-input.csv");
 	//processInput (s5b_6b_data_file_line_provider);
 
+	generate_phrases_of_interest (emphasizer_words_of_interest, positive_words_of_interest, gen_emph_pos_phrases);
+	generate_phrases_of_interest (emphasizer_words_of_interest, negative_words_of_interest, gen_emph_neg_phrases);
+	generate_phrases_of_interest (positive_words_of_interest, other_words_of_interest, gen_pos_phrases);
+	generate_phrases_of_interest (negative_words_of_interest, other_words_of_interest, gen_neg_phrases);
+	generate_phrases_of_interest (negative_words_of_interest, positive_words_of_interest, gen_neg_pos_phrases);
+
+	//print_phrases (gen_emph_pos_phrases);
+	//print_phrases (gen_emph_neg_phrases);
+	//print_phrases (gen_pos_phrases);
+	//print_phrases (gen_neg_phrases);
+#if 1
 	LineProvider suggestions_line_provider("suggestions.csv");
 	processInput2 (suggestions_line_provider);
 	//RValueReadALine a_poss_line = s5b_6b_data_file_line_provider.get_a_line();
@@ -920,5 +1002,6 @@ int main()
 			, sort_strings_on_spectral_scores);
 
 	print_report(string_spectral_scores_vec);
+#endif /* 0 */
 
 }
