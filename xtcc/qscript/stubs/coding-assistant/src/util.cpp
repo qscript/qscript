@@ -1,3 +1,4 @@
+#include <regex.h>
 #include "util.h"
 using namespace std;
 
@@ -105,12 +106,65 @@ RValueReadALine LineProvider::get_a_line()
 }
 
 
-vector<string> tokenize_into_sentences(const string &s)
+vector<string> tokenize_into_sentences(string &s)
 {
 	//boost::char_separator<char> sep("-;|");
 	//
 	vector<string> sentences;
 	int found = s.find ("A/C");
+	// some regular expression patterns to prevent splitting
+	vector <regex_t> sentence_reg_exp_of_interest;
+	string regex_patt_1("\\(CALL\\|CALL AT\\)\\{1\\} [0-9]\\{1,2\\}\\(\\.\\|/\\)[0-9]\\{1,2\\}");
+	//string a_regex     ("CALL [0-9]\\{1,2\\}\\.[0-9]\\{1,2\\}");
+	static regex_t regex_pattern;
+	bool first_time = true;
+	if (first_time) {
+		// yup - a memory leak - but we allocate only once
+		regcomp (&regex_pattern, regex_patt_1.c_str(), REG_ICASE);
+		first_time = false;
+	}
+	regmatch_t p_match[5];
+	int n_match=5;
+	int regex_result = regexec (&regex_pattern, s.c_str(), n_match, p_match, 0);
+	//if (s.find("call ")) {
+	//	cout << "sentence had word call:" << s << endl;
+	//}
+
+	if (regex_result == 0) {
+		cerr << "Found REGEX in sentence split"
+			<< "|" << s
+			<< endl;
+		for (int i=0; i<n_match; ++i) {
+			if (p_match[i].rm_so != -1) {
+				int pos = s.find (".");
+				if (pos != string::npos && pos < p_match[i].rm_eo) {
+					cout << "old s:" << s << endl;
+					s.replace(s.begin()+pos       , s.begin()+pos+1       , 1, ':');
+                               //nxd_str1.replace(nxd_str1.begin()+pos, nxd_str1.begin()+pos+1, 1, ':' );
+					cout << "new s:" << s << endl;
+					cout << "dot = . present at : " << pos << endl;
+				}
+
+				int pos2 = s.find ("/");
+				if (pos2 != string::npos && pos2 < p_match[i].rm_eo) {
+					cout << "old s:" << s << endl;
+					s.replace(s.begin()+pos2       , s.begin()+pos2+1       , 1, '-');
+                               //nxd_str1.replace(nxd_str1.begin()+pos, nxd_str1.begin()+pos+1, 1, ':' );
+					cout << "new s:" << s << endl;
+					cout << "dot = . present at : " << pos << endl;
+				}
+				int pos3 = s.find ("CALL ");
+				if (pos3 != string::npos && pos3 < p_match[i].rm_eo) {
+					const string replace_text("CALL BACK");
+					cout << "old s:" << s << endl;
+					s.replace(s.begin()+pos3, s.begin()+pos3+5, replace_text.begin(), replace_text.end());
+					cout << "new s:" << s << endl;
+				}
+
+			}
+		}
+	}
+
 	if (found == string::npos) {
 		boost::char_separator<char> sep("./");
 		tokenizer tokens(s, sep);
@@ -119,7 +173,7 @@ vector<string> tokenize_into_sentences(const string &s)
 			//std::cout << "<" << *tok_iter << "> ";
 			sentences.push_back(*tok_iter);
 		}
-	} else {
+	}  else {
 		boost::char_separator<char> sep(".");
 		tokenizer tokens(s, sep);
 		for (tokenizer::iterator tok_iter = tokens.begin();

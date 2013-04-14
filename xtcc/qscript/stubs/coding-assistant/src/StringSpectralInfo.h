@@ -37,6 +37,8 @@ struct StringSpectralInfo {
 	long long reason_words_score ;
 	std::string addnl_info_regex_match;
 	long long regex_score;
+	std::string suggestions_match;
+	long long suggestions_score;
 	double aggregate_score;
 	bool is_computed_score;
 	std::string raw_phrase;
@@ -77,6 +79,10 @@ struct StringSpectralInfo {
 		long long p_reason_words_score ,
 		std::string p_addnl_info_regex_match,
 		long long p_regex_score,
+
+		std::string p_suggestions_match,
+		long long p_suggestions_score,
+
 		const std::string & p_raw_phrase,
 		const std::string & p_raw_verbatim
 
@@ -114,6 +120,8 @@ struct StringSpectralInfo {
 		reason_words_score  (p_reason_words_score ),
 		addnl_info_regex_match (p_addnl_info_regex_match),
 		regex_score (p_regex_score),
+		suggestions_match (p_suggestions_match),
+		suggestions_score (p_suggestions_score),
 		aggregate_score (0.0),
 		is_computed_score(false),
 		raw_phrase (p_raw_phrase),

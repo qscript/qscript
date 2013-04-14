@@ -29,11 +29,13 @@ map <string, int> word_freq_count;
 	set <string> emphasizer_words_of_interest;
 	set <string> negative_phrase_of_interest;
 	set <string> positive_phrase_of_interest;
+	set <string> suggestion_phrase_of_interest;
 	set <string> neutral_phrase_of_interest;
 	set <string> words_indicating_reason;
 	set <string> words_having_pwrm_rm_cm;
 	set <string> words_indicating_management;
 	set <string> words_indicating_call_back_later;
+	set <string> words_indicating_suggestions;
 	vector <regex_t> regular_expressions_of_interest;
 	vector <string> human_readable_regex_pattern;
 	set <string> gen_emph_pos_phrases;
@@ -259,7 +261,7 @@ void generate_phrases_of_interest(const set <string> & prefix
 	}
 }
 
-void analyze_further(const string & verbatim, const Info & inf, string  qno)
+void analyze_further(string & verbatim, const Info & inf, string  qno)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	ofstream phrase_scores("phrase_scores.csv", ios_base::app);
@@ -399,9 +401,9 @@ void analyze_further(const string & verbatim, const Info & inf, string  qno)
 }
 
 vector <StringSpectralInfo> string_spectral_scores_vec;
-void analyze_further2( const Info2 & inf, const string &  qno)
+void analyze_further2( Info2 & inf, const string &  qno)
 {
-	const string & verbatim = inf.verbatim;
+	string & verbatim = inf.verbatim;
 	//ofstream phrase_scores("phrase_scores.csv", ios_base::app);
 	static bool once = true;
 	if (once) {
@@ -562,6 +564,12 @@ void analyze_further2( const Info2 & inf, const string &  qno)
 			if (addnl_info_regex_match == "regex match: ") {
 				addnl_info_regex_match = "";
 			}
+
+			string suggestions_match = "suggestions_match : ";
+			long long suggestions_score = check_for_words_of_interest(words_indicating_suggestions, words, suggestions_match);
+			if (suggestions_match == "suggestions_match : ") {
+				suggestions_match = "";
+			}
 			long long any_negatives = 1;
 			if (emphasizer_negative_words_score || neg_phrase_score || neg_score) {
 				any_negatives = -1;
@@ -651,6 +659,8 @@ void analyze_further2( const Info2 & inf, const string &  qno)
 					reason_words_score,
 					addnl_info_regex_match,
 					regex_score,
+					suggestions_match,
+					suggestions_score,
 					phrases[j],
 					verbatim
 					);
@@ -745,7 +755,7 @@ void processInput2 (LineProvider & line_provider)
 			//analyze_further(s6b_data, inf, "s6b");
 			//split_verbatim_into_quantum_include (s6b_data, serial_no);
 		}
-		cerr << ".";
+		cout << ".";
 		//if (count == 1) {
 		//	break;
 		//}
@@ -879,7 +889,8 @@ void print_report(const vector<StringSpectralInfo> & string_spectral_scores_vec)
 	ofstream phrase_scores("phrase_scores.csv", ios_base::app);
 	phrase_scores
 		<< "serial_no" << ","
-		<< "|any_cls|" << ","
+		<< "any_cls" << ","
+		<< "any_match" << ","
 		<< "ps_emphr" << ","
 		<< "ng_emphr" << ","
 		<< "ps_ph" << ","
@@ -913,6 +924,7 @@ void print_report(const vector<StringSpectralInfo> & string_spectral_scores_vec)
 		<< "pwrm_match" << ","
 		<< "reas_match" << ","
 		<< "call_back_ltr_match" << ","
+		<< "suggestions_match" << ","
 		<< "raw phr" << ","
 		<< "raw sent" << ","
 		<< endl;
@@ -958,10 +970,12 @@ int main()
 	//populate_positive_phrase_of_interest();
 	positive_phrase_of_interest =  populate_words_of_interest("positive_phrase_of_interest.txt");
 	//populate_words_indicating_reason();
+	suggestion_phrase_of_interest =  populate_words_of_interest("suggestion_phrase_of_interest.txt");
 	words_indicating_reason =  populate_words_of_interest("words_indicating_reason.txt");
 	//populate_words_indicating_management();
 	words_indicating_management = populate_words_of_interest("words_indicating_management.txt");
 	words_indicating_call_back_later = populate_words_of_interest("words_indicating_call_back_later.txt");
+	words_indicating_suggestions = populate_words_of_interest("words_indicating_suggestions.txt");
 
 	populate_regular_expressions_of_interest("negative_regex_patterns.txt");
 

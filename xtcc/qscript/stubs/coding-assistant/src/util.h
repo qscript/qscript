@@ -14,7 +14,7 @@ std::string trim(const std::string& str,
 std::vector<std::string> split_into_phrases(const std::string &s);
 std::vector<std::string> split_into_words(const std::string &s);
 std::vector<std::string> tokenize_csv_components_into_fields(std::string &a_csv_line);
-std::vector<std::string> tokenize_into_sentences(const std::string &s);
+std::vector<std::string> tokenize_into_sentences(std::string &s);
 
 struct RValueReadALine
 {

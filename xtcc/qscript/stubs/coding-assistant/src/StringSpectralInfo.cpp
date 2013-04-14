@@ -124,12 +124,18 @@ double StringSpectralInfo::compute_aggregate_score ()
 		double log_regex_score = log (regex_score + 1);
 		if (std::isnan (log_regex_score)) {
 			cout << endl;
-			cout << "regex_score: " << log_regex_score << endl;
+			cout << "regex_score: " << regex_score << endl;
+			cout << "nxd: isnan serial_no:" << serial_no << std::endl;
+			exit(1);
+		}
+		double log_suggestions_score = log (suggestions_score + 1);
+		if (std::isnan (log_suggestions_score)) {
+			cout << endl;
+			cout << "suggestions_score: " << suggestions_score << endl;
 			cout << "nxd: isnan serial_no:" << serial_no << std::endl;
 			exit(1);
 		}
 		int any_negatives = 1;
-
 		if (neg_score) {
 			any_negatives = -1;
 		}
@@ -146,7 +152,7 @@ double StringSpectralInfo::compute_aggregate_score ()
 				+ ( 50000   * log_emph_pos)
 				+ (-1000   * log_neg_phr_score)
 				+ (500     * log_pos_phr_score)
-				+ (-10000000 * log_call_back_ltr_words_score)
+				+ (-100000000 * log_call_back_ltr_words_score)
 				+ (-10000   * log_gen_neg_phr_score)
 				+ (5000    * log_gen_pos_phr_score)
 				+ (-1000    * log_neg_score)
@@ -157,7 +163,9 @@ double StringSpectralInfo::compute_aggregate_score ()
 				+ (500000   * any_negatives * log_management_words_score)
 				+ (500000   * any_negatives * log_pwrm_words_score)
 				+ (2500    * log_reason_words_score)
-				+ (-800    * log_regex_score);
+				+ (-800    * log_regex_score)
+				+ (10000000  *any_negatives * log_suggestions_score)
+				;
 		is_computed_score = true;
 		if (isnan(aggregate_score)) {
 			cout << "nxd: isnan aggregate_score serial_no:" << serial_no << std::endl;
@@ -178,9 +186,27 @@ std::string StringSpectralInfo::report() const
 			<< "nxd: isnan aggregate_score serial_no:" << serial_no << std::endl;
 		exit(1);
 	}
+	std::string any_match =
+		  pos_emph_word_match +"|"
+		+ neg_emph_word_match +"|"
+		+ pos_phr_int_match +"|"
+		+ neg_phr_int_match +"|"
+		+ pos_gen_phr_match +"|"
+		+ neg_gen_phr_match +"|"
+		+ positive_match +"|"
+		+ negative_match +"|"
+		+ neutral_match +"|"
+		+ other_match +"|"
+		+ emph_match +"|"
+		+ mnmng_match +"|"
+		+ pwrm_match +"|"
+		+ reas_match +"|"
+		+ call_back_ltr_match +"|"
+		+ suggestions_match;
 	s1
 		<< serial_no << ","
-		<< "|" << aggregate_score << "|" << ","
+		<< aggregate_score  << ","
+		<< any_match << ","
 		<< emphasizer_positive_words_score  << ","
 		<< emphasizer_negative_words_score  << ","
 		<< pos_phrase_score << ","
@@ -214,8 +240,10 @@ std::string StringSpectralInfo::report() const
 		<< pwrm_match << ","
 		<< reas_match << ","
 		<< call_back_ltr_match << ","
+		<< suggestions_match << ","
 		<< "\"" << raw_phrase << "\"" << ","
 		<< "\"" << raw_verbatim << "\"" << ","
+
 #if 0
 #endif /* 0 */
 		<< std::endl;
