@@ -36,8 +36,13 @@ public:
 	// related to serial no:
 	wxTextCtrl * txt_ctrl_ser_no;
 	wxBoxSizer *serial_row_sizer;
+	// related to testing the various pages
+	wxButton * show_serial_page  ;
+	wxButton * clear_serial_page ;
+	wxButton * show_end_page     ;
+	wxButton * clear_end_page    ;
 
-	void ShowSerialNoScreen();
+	void ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event));
 	void ClearSerialNoScreen();
 	void ShowEndOfQnreScreen();
 	void ClearEndOfQnreScreen();
@@ -53,28 +58,61 @@ enum MyWidgetID {
 	ID_STUBS_ROW,
 	ID_NEXT_BUTTON,
 	SingleAnswerRadioBox,
-	MultiAnswerCheckListBox
+	MultiAnswerCheckListBox,
+	ID_SHOW_SERIAL_PAGE_BUTTON,
+	ID_CLEAR_PAGE_BUTTON,
+	ID_SHOW_END_PAGE_BUTTON,
+	ID_CLEAR_END_PAGE_BUTTON
 };
 
 BEGIN_EVENT_TABLE(ScreenUI, wxFrame)
-    EVT_BUTTON(ID_BUTTON_SERIAL_NO,  ScreenUI::get_serial_no)
-    //EVT_BUTTON(ID_NEXT_BUTTON,  wxQuestionnaireGUI::handleDataInput)
-    //EVT_RADIOBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnRadioBox)
-    //EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
+	EVT_BUTTON(ID_BUTTON_SERIAL_NO,  ScreenUI::get_serial_no)
+	//EVT_BUTTON(ID_NEXT_BUTTON,  wxQuestionnaireGUI::handleDataInput)
+	//EVT_RADIOBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnRadioBox)
+	//EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
+	//
+	EVT_BUTTON(ID_SHOW_SERIAL_PAGE_BUTTON, ScreenUI::ShowSerialNoScreen)
+	//EVT_BUTTON(ID_CLEAR_PAGE_BUTTON, );
+	//EVT_BUTTON(ID_SHOW_END_PAGE_BUTTON,  );
+	//EVT_BUTTON(ID_CLEAR_END_PAGE_BUTTON,  );
 END_EVENT_TABLE()
 
 
 ScreenUI::ScreenUI(wxFrame *frame,
 				const wxChar *title)
-        : wxFrame(frame, wxID_ANY, title)
+        : wxFrame(frame, wxID_ANY, title,
+			wxDefaultPosition, wxSize(640,480))
 {
 	const int widths[] = { -1, 200 };
 	statusBar_ = CreateStatusBar(2);
 	SetStatusWidths(2, widths);
 	panel = new wxPanel(this, -1);
-	panel_sizer = new wxBoxSizer(wxHORIZONTAL);
+
+	wxBoxSizer * button_sizer = new wxBoxSizer (wxHORIZONTAL);
+	{
+		wxSizerFlags flagsNoExpand(0);
+		flagsNoExpand.Border(wxALL,10);
+		show_serial_page  = new wxButton(panel, ID_SHOW_SERIAL_PAGE_BUTTON, wxT("Show Serial No Page") );
+		clear_serial_page = new wxButton(panel, ID_CLEAR_PAGE_BUTTON, wxT("Clear Serial No Page") );
+		show_end_page     = new wxButton(panel, ID_SHOW_END_PAGE_BUTTON, wxT("Show End Page") );
+		clear_end_page    = new wxButton(panel, ID_CLEAR_END_PAGE_BUTTON, wxT("Clear End Page") );
+		button_sizer->Add (show_serial_page, flagsNoExpand);
+		button_sizer->Add (clear_serial_page, flagsNoExpand);
+		button_sizer->Add (show_end_page, flagsNoExpand);
+		button_sizer->Add (clear_end_page, flagsNoExpand);
+		button_sizer->AddStretchSpacer();
+		button_sizer->ComputeFittingClientSize(this);
+	}
+	wxBoxSizer * test_sizer = new wxBoxSizer (wxVERTICAL);
+	test_sizer->Add (button_sizer);
+
+
+	panel_sizer = new wxBoxSizer(wxVERTICAL);
+	panel_sizer->Add (test_sizer);
 	panel->SetSizer(panel_sizer);
-	ShowSerialNoScreen();
+	panel_sizer->ComputeFittingClientSize(this);
+	//panel_sizer->Fit(this);
+	//ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event));
 	Show(true);
 }
 
@@ -91,15 +129,17 @@ bool ScreenApp::OnInit(void)
 	return true;
 }
 
-void ScreenUI::ShowSerialNoScreen()
+void ScreenUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
 {
+	wxSizerFlags flagsNoExpand(0);
+	flagsNoExpand.Border(wxALL,10);
 	wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial No: "));
 	txt_ctrl_ser_no = new wxTextCtrl(panel, -1);
 	wxBoxSizer *serial_row_sizer = new wxBoxSizer(wxHORIZONTAL);
-	serial_row_sizer->Add (enter_serial_no_label);
-	serial_row_sizer->Add (txt_ctrl_ser_no);
+	serial_row_sizer->Add (enter_serial_no_label, flagsNoExpand);
+	serial_row_sizer->Add (txt_ctrl_ser_no, flagsNoExpand);
 	wxButton *button = new wxButton(panel, ID_BUTTON_SERIAL_NO, wxT("Start") /* , wxPoint(20, 20) */);
-	serial_row_sizer->Add (button);
+	serial_row_sizer->Add (button, flagsNoExpand);
 	panel_sizer->Add (serial_row_sizer);
 	panel_sizer->Layout();
 }

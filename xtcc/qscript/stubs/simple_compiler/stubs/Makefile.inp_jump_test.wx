@@ -1,0 +1,2 @@
+question_wx2_runtime.exe: ../src/question_wx2_runtime.C inp_jump_test_wx2.C
+	g++ -g -L../lib  -I../src ../src/question_wx2_runtime.C inp_jump_test_wx2.C  `wx-config --libs` `wx-config --cxxflags` -o $@ -lqscript_runtime_wq2 -lpanel -lncurses
