@@ -1,0 +1,6 @@
+
+#run the program using 
+#LD_LIBRARY_PATH=/usr/local/lib ./cwd-hello.exe
+
+cwd-hello.exe: cwd-hello.cpp
+	g++ -g -DCWDEBUG  $< -o $@ -lcwd
