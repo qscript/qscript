@@ -43,7 +43,7 @@ public:
 	wxButton * clear_end_page    ;
 
 	void ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event));
-	void ClearSerialNoScreen();
+	void ClearSerialNoScreen(wxCommandEvent& WXUNUSED(event));
 	void ShowEndOfQnreScreen();
 	void ClearEndOfQnreScreen();
 
@@ -72,7 +72,7 @@ BEGIN_EVENT_TABLE(ScreenUI, wxFrame)
 	//EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
 	//
 	EVT_BUTTON(ID_SHOW_SERIAL_PAGE_BUTTON, ScreenUI::ShowSerialNoScreen)
-	//EVT_BUTTON(ID_CLEAR_PAGE_BUTTON, );
+	EVT_BUTTON(ID_CLEAR_PAGE_BUTTON, ScreenUI::ClearSerialNoScreen)
 	//EVT_BUTTON(ID_SHOW_END_PAGE_BUTTON,  );
 	//EVT_BUTTON(ID_CLEAR_END_PAGE_BUTTON,  );
 END_EVENT_TABLE()
@@ -135,7 +135,7 @@ void ScreenUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
 	flagsNoExpand.Border(wxALL,10);
 	wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial No: "));
 	txt_ctrl_ser_no = new wxTextCtrl(panel, -1);
-	wxBoxSizer *serial_row_sizer = new wxBoxSizer(wxHORIZONTAL);
+	serial_row_sizer = new wxBoxSizer(wxHORIZONTAL);
 	serial_row_sizer->Add (enter_serial_no_label, flagsNoExpand);
 	serial_row_sizer->Add (txt_ctrl_ser_no, flagsNoExpand);
 	wxButton *button = new wxButton(panel, ID_BUTTON_SERIAL_NO, wxT("Start") /* , wxPoint(20, 20) */);
@@ -144,6 +144,18 @@ void ScreenUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
 	panel_sizer->Layout();
 }
 
+void ScreenUI::ClearSerialNoScreen(wxCommandEvent& WXUNUSED(event))
+{
+	//bool was_detached = panel_sizer->Detach (serial_row_sizer);
+	//if (was_detached) {
+	//	cout << "Successfully detached" << endl;
+	//} else {
+	//	cout << "Not detached" << endl;
+	//}
+	//serial_row_sizer->Hide();
+	panel_sizer->Hide(serial_row_sizer);
+	panel_sizer->Layout();
+}
 
 void ScreenUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
 {
