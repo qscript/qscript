@@ -10,10 +10,13 @@
 //    3. Function to display End of Qnre screen
 //    4. Mock up function to Display Question screen : because they are already implemented in the runtime
 //    5. Mock up function to Clear Question screen   :
+#include "cwd-sys.h"		// See tutorial 2.
+#include "cwd-debug.h"
 #include <wx/wx.h>
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <mcheck.h>
 
 using std::cout;
 using std::endl;
@@ -46,6 +49,7 @@ public:
 	void ClearSerialNoScreen(wxCommandEvent& WXUNUSED(event));
 	void ShowEndOfQnreScreen();
 	void ClearEndOfQnreScreen();
+	void CreateSerialNoScreen();
 
 	void get_serial_no (wxCommandEvent& event);
 private:
@@ -81,7 +85,11 @@ END_EVENT_TABLE()
 ScreenUI::ScreenUI(wxFrame *frame,
 				const wxChar *title)
         : wxFrame(frame, wxID_ANY, title,
-			wxDefaultPosition, wxSize(640,480))
+			wxDefaultPosition, wxSize(640,480)),
+	panel(0), panel_sizer (0), statusBar_ (0), txt_ctrl_ser_no(0),
+	serial_row_sizer (0),
+	show_serial_page(0), clear_serial_page(0),
+	show_end_page(0), clear_end_page(0)
 {
 	const int widths[] = { -1, 200 };
 	statusBar_ = CreateStatusBar(2);
@@ -108,17 +116,24 @@ ScreenUI::ScreenUI(wxFrame *frame,
 
 
 	panel_sizer = new wxBoxSizer(wxVERTICAL);
-	panel_sizer->Add (test_sizer);
 	panel->SetSizer(panel_sizer);
+	panel_sizer->Add (test_sizer);
 	panel_sizer->ComputeFittingClientSize(this);
 	//panel_sizer->Fit(this);
 	//ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event));
+	//
+	CreateSerialNoScreen();
 	Show(true);
 }
 
 // init our app: create windows
 bool ScreenApp::OnInit(void)
 {
+	mtrace();
+	//Debug( libcw_do.on() );
+	//Debug( dc::malloc.on() );
+	//Debug( dc::bfd.on() );
+	//Debug( list_allocations_on(libcw_do) );
 	ScreenUI *pFrame = new ScreenUI
 				    (
 				     NULL,
@@ -126,11 +141,14 @@ bool ScreenApp::OnInit(void)
 				    );
 	SetTopWindow(pFrame);
 
+
+
 	return true;
 }
 
-void ScreenUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
+void ScreenUI::CreateSerialNoScreen()
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	wxSizerFlags flagsNoExpand(0);
 	flagsNoExpand.Border(wxALL,10);
 	wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial No: "));
@@ -141,6 +159,26 @@ void ScreenUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
 	wxButton *button = new wxButton(panel, ID_BUTTON_SERIAL_NO, wxT("Start") /* , wxPoint(20, 20) */);
 	serial_row_sizer->Add (button, flagsNoExpand);
 	panel_sizer->Add (serial_row_sizer);
+	panel_sizer->Hide (serial_row_sizer);
+	//panel_sizer->Layout();
+}
+
+void ScreenUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
+{
+	//wxSizerFlags flagsNoExpand(0);
+	//flagsNoExpand.Border(wxALL,10);
+	//wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial No: "));
+	//txt_ctrl_ser_no = new wxTextCtrl(panel, -1);
+	//serial_row_sizer = new wxBoxSizer(wxHORIZONTAL);
+	//serial_row_sizer->Add (enter_serial_no_label, flagsNoExpand);
+	//serial_row_sizer->Add (txt_ctrl_ser_no, flagsNoExpand);
+	//wxButton *button = new wxButton(panel, ID_BUTTON_SERIAL_NO, wxT("Start") /* , wxPoint(20, 20) */);
+	//serial_row_sizer->Add (button, flagsNoExpand);
+	if (!serial_row_sizer) {
+		CreateSerialNoScreen();
+		panel_sizer->Add (serial_row_sizer);
+	}
+	panel_sizer->Show(serial_row_sizer);
 	panel_sizer->Layout();
 }
 

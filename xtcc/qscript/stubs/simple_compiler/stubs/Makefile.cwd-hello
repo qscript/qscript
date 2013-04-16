@@ -1,3 +1,9 @@
+cwd-dbg-mem.exe: cwd-dbg-mem.cpp
+	g++ -g -DCWDEBUG  $< -o $@ -lcwd
+
+
+cwd-ex2.exe: cwd-ex2.cpp
+	g++ -g -DCWDEBUG  $< -o $@ -lcwd
 
 #run the program using 
 #LD_LIBRARY_PATH=/usr/local/lib ./cwd-hello.exe
