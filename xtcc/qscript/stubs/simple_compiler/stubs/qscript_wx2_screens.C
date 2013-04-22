@@ -44,12 +44,16 @@ public:
 	wxButton * clear_serial_page ;
 	wxButton * show_end_page     ;
 	wxButton * clear_end_page    ;
+	// related to end of qnre page :
+	wxBoxSizer * end_of_qnre_sizer;
 
+	void CreateSerialNoScreen();
 	void ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event));
 	void ClearSerialNoScreen(wxCommandEvent& WXUNUSED(event));
-	void ShowEndOfQnreScreen();
-	void ClearEndOfQnreScreen();
-	void CreateSerialNoScreen();
+
+	void CreateEndOfQnreScreen();
+	void ShowEndOfQnreScreen(wxCommandEvent& WXUNUSED(event));
+	void ClearEndOfQnreScreen(wxCommandEvent& WXUNUSED(event));
 
 	void get_serial_no (wxCommandEvent& event);
 private:
@@ -66,7 +70,10 @@ enum MyWidgetID {
 	ID_SHOW_SERIAL_PAGE_BUTTON,
 	ID_CLEAR_PAGE_BUTTON,
 	ID_SHOW_END_PAGE_BUTTON,
-	ID_CLEAR_END_PAGE_BUTTON
+	ID_CLEAR_END_PAGE_BUTTON,
+	ID_BUTTON_PREVIOUS_QUESTION,
+	ID_BUTTON_SAVE,
+	ID_BUTTON_CLOSE_QUESTIONNAIRE_WITHOUT_SAVING,
 };
 
 BEGIN_EVENT_TABLE(ScreenUI, wxFrame)
@@ -77,6 +84,8 @@ BEGIN_EVENT_TABLE(ScreenUI, wxFrame)
 	//
 	EVT_BUTTON(ID_SHOW_SERIAL_PAGE_BUTTON, ScreenUI::ShowSerialNoScreen)
 	EVT_BUTTON(ID_CLEAR_PAGE_BUTTON, ScreenUI::ClearSerialNoScreen)
+	EVT_BUTTON(ID_SHOW_END_PAGE_BUTTON, ScreenUI::ShowEndOfQnreScreen)
+	EVT_BUTTON(ID_CLEAR_END_PAGE_BUTTON, ScreenUI::ClearEndOfQnreScreen)
 	//EVT_BUTTON(ID_SHOW_END_PAGE_BUTTON,  );
 	//EVT_BUTTON(ID_CLEAR_END_PAGE_BUTTON,  );
 END_EVENT_TABLE()
@@ -123,6 +132,7 @@ ScreenUI::ScreenUI(wxFrame *frame,
 	//ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event));
 	//
 	CreateSerialNoScreen();
+	CreateEndOfQnreScreen();
 	Show(true);
 }
 
@@ -146,6 +156,22 @@ bool ScreenApp::OnInit(void)
 	return true;
 }
 
+void ScreenUI::CreateEndOfQnreScreen()
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	wxSizerFlags flagsNoExpand(0);
+	flagsNoExpand.Border(wxALL,10);
+	end_of_qnre_sizer = new wxBoxSizer(wxHORIZONTAL);
+	wxButton *button = new wxButton(panel, ID_BUTTON_PREVIOUS_QUESTION, wxT("Previous Question") );
+	end_of_qnre_sizer->Add (button);
+	button = new wxButton(panel, ID_BUTTON_SAVE, wxT("Save") );
+	end_of_qnre_sizer->Add (button);
+	button = new wxButton(panel, ID_BUTTON_CLOSE_QUESTIONNAIRE_WITHOUT_SAVING, wxT("Close Questionnaire without Saving") );
+	end_of_qnre_sizer->Add (button);
+	panel_sizer->Add (end_of_qnre_sizer);
+	panel_sizer->Hide (end_of_qnre_sizer);
+}
+
 void ScreenUI::CreateSerialNoScreen()
 {
 	cout << __PRETTY_FUNCTION__ << endl;
@@ -161,6 +187,17 @@ void ScreenUI::CreateSerialNoScreen()
 	panel_sizer->Add (serial_row_sizer);
 	panel_sizer->Hide (serial_row_sizer);
 	//panel_sizer->Layout();
+}
+
+void ScreenUI::ShowEndOfQnreScreen(wxCommandEvent& WXUNUSED(event))
+{
+	if (!end_of_qnre_sizer) {
+		CreateSerialNoScreen();
+		panel_sizer->Add (end_of_qnre_sizer);
+	}
+	panel_sizer->Show(end_of_qnre_sizer);
+	panel_sizer->Layout();
+
 }
 
 void ScreenUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
@@ -179,6 +216,13 @@ void ScreenUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
 		panel_sizer->Add (serial_row_sizer);
 	}
 	panel_sizer->Show(serial_row_sizer);
+	panel_sizer->Layout();
+}
+
+void ScreenUI::ClearEndOfQnreScreen(wxCommandEvent& WXUNUSED(event))
+{
+
+	panel_sizer->Hide(end_of_qnre_sizer);
 	panel_sizer->Layout();
 }
 
