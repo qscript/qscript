@@ -1,5 +1,10 @@
+// Neil Xavier DSouza
+// really simple program to check how to use customized labels in a wxGrid
 #include <wx/wx.h>
 #include <wx/grid.h>
+#include <iostream>
+
+using namespace std;
 
 class GridFrame : public wxFrame
 {
@@ -29,9 +34,12 @@ public:
                            int vertAlign,
                            int WXUNUSED(textOrientation)) const
     {
+	//    cout << __PRETTY_FUNCTION__ << endl;
         dc.SetTextForeground(m_colFg);
         dc.SetFont(wxITALIC_FONT->Bold());
-        dc.DrawLabel(value, rect, horizAlign | vertAlign);
+	wxString a_label = wxString::Format(_("NxD:%i"), m_active_col_no);
+        //dc.DrawLabel(value, rect, horizAlign | vertAlign);
+        dc.DrawLabel(a_label, rect, horizAlign | vertAlign);
     }
 
     virtual void DrawBorder(const wxGrid& WXUNUSED(grid),
@@ -43,8 +51,14 @@ public:
         dc.DrawRectangle(rect);
     }
 
+    void SetColumnNumber(int col_no)
+    {
+	    m_active_col_no = col_no;
+    }
+
 private:
     const wxColour m_colFg, m_colBg;
+    int m_active_col_no;
 
     wxDECLARE_NO_COPY_CLASS(CustomColumnHeaderRenderer);
 };
@@ -73,6 +87,9 @@ protected:
         {
             // and use different ones for odd and even columns -- just to show
             // that we can
+	    m_customEvenRenderer.SetColumnNumber(col);
+	    m_customOddRenderer.SetColumnNumber(col);
+		//cout << __PRETTY_FUNCTION__ << endl;
             return col % 2 ? m_customOddRenderer : m_customEvenRenderer;
         }
 
@@ -118,6 +135,11 @@ GridFrame::GridFrame()
     grid->CreateGrid( 0, 0 );
 
     grid->GetTable()->SetAttrProvider(new CustomColumnHeadersProvider());
+    CustomColumnHeadersProvider* provider =
+        static_cast<CustomColumnHeadersProvider*>(grid->GetTable()->GetAttrProvider());
+    provider->UseCustomColHeaders(true);
+    grid->SetUseNativeColLabels(false);
+
 
     grid->AppendRows(100);
     grid->AppendCols(100);
