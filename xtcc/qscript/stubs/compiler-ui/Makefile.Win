@@ -1,0 +1,16 @@
+WX_INSTALL_DIR=f:\wxWidgets-2.9.4
+
+WX_CXX_FLAGS= -mthreads -DHAVE_W32API_H -D__WXMSW__ -D__WXDEBUG__ -D_UNICODE -If:\wxWidgets-2.9.4\lib\gcc_lib\mswud -If:\wxWidgets-2.9.4\include -Wno-ctor-dtor-privacy -pipe -fmessage-length=0   
+WX_LD_FLAGS=  -mthreads -Lf:\wxWidgets-2.9.4\lib\gcc_lib -lwxmsw29ud_xrc -lwxmsw29ud_aui -lwxmsw29ud_html -lwxmsw29ud_adv -lwxmsw29ud_core -lwxbase29ud_xml -lwxbase29ud_net -lwxmsw29ud_richtext -lwxbase29ud -lwxtiffd -lwxjpegd -lwxpngd -lwxzlibd -lwxregexud -lwxexpatd -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwxregexud -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 
+#
+#How to run wx-config
+#WX_CXX_FLAGS=wx-config.exe --cxxflags --prefix=f:\wxWidgets-2.9.4 --wxcfg=gcc_lib\mswud > wx_flags
+#WX_LD_FLAGS=wx-config.exe --libs --prefix=f:\wxWidgets-2.9.4 --wxcfg=gcc_lib\mswud > wx_ld_flags
+
+
+
+#qscript_compiler_ui.exe: qscript_compiler_ui.cpp
+#	g++ -o $@ `wx-config --cppflags` qscript_compiler_ui.cpp `wx-config --libs`
+
+qscript_compiler_ui.exe: qscript_compiler_ui.cpp
+	g++ -o $@ $(WX_CXX_FLAGS)  qscript_compiler_ui.cpp $(WX_LD_FLAGS)

@@ -1,0 +1,1 @@
+-mthreads -DHAVE_W32API_H -D__WXMSW__ -D__WXDEBUG__ -D_UNICODE -If:\wxWidgets-2.9.4\lib\gcc_lib\mswud -If:\wxWidgets-2.9.4\include -Wno-ctor-dtor-privacy -pipe -fmessage-length=0   
