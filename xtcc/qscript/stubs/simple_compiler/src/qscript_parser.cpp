@@ -1629,7 +1629,8 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\tstring xtcc_datafile_name(jno + string(\".xdat\"));\n";
 	compute_flat_map_code.program_code << "\txtcc_datafile.open(xtcc_datafile_name.c_str(), ios_base::out | ios_base::trunc | ios_base::binary);\n";
 
-	if (config_file_parser::PLATFORM != "WINDOWS") {
+	//if (config_file_parser::PLATFORM != "WINDOWS") {
+#ifdef __linux
 		compute_flat_map_code.program_code
 			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
 			<< "\t\ts1 << \"setup-\" << jno;\n"
@@ -1641,7 +1642,24 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 			<< "\t\t\t\tperror(\"stating directory failed\");\n"
 			<< "\t\t\t}\t\t\n}\n"
 			;
-	} else {
+#endif
+
+#ifdef __APPLE__
+		compute_flat_map_code.program_code
+			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
+			<< "\t\ts1 << \"setup-\" << jno;\n"
+			<< "\t\tif (stat(s1.str().c_str(), &dir_exists) <0) {\n"
+			<< "\t\t\tif (errno == ENOENT)\n"
+			<< "\t\t\t\tif (mkdir(s1.str().c_str(), S_IRUSR | S_IWUSR | S_IXUSR) <0) {\n"
+			<< "\t\t\t\t\tperror(\"unable to create directory for setup files\");\n}\n"
+			<< "\t\t\telse\n"
+			<< "\t\t\t\tperror(\"stating directory failed\");\n"
+			<< "\t\t\t}\t\t\n}\n"
+			;
+#endif
+
+#ifdef _WIN32
+	//} else {
 		compute_flat_map_code.program_code
 			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
 			<< "\t\t\ts1 << \"setup-\" << jno;\n"
@@ -1653,7 +1671,24 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 			<< "\t\t\t\t\t\tperror(\"stating directory failed\");\n"
 			<< "\t\t\t}\n\t\t}\n"
 			;
-	}
+	//}
+#endif
+
+#ifdef _WIN64
+	//} else {
+		compute_flat_map_code.program_code
+			<< "\t\t{struct stat dir_exists; stringstream s1;\n"
+			<< "\t\t\ts1 << \"setup-\" << jno;\n"
+			<< "\t\t\tif (stat(s1.str().c_str(), &dir_exists) <0) {\n"
+			<< "\t\t\t\tif (errno == ENOENT)\n"
+			<< "\t\t\t\t\tif (mkdir(s1.str().c_str()) <0) {\n"
+			<< "\t\t\t\t\t\tperror(\"unable to create directory for setup files\");\n"
+			<< "\t\t\t\t\t} else\n"
+			<< "\t\t\t\t\t\tperror(\"stating directory failed\");\n"
+			<< "\t\t\t}\n\t\t}\n"
+			;
+	//}
+#endif
 
 	compute_flat_map_code.program_code << "\tif (write_qtm_data_file_flag) {\n";
 

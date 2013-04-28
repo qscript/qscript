@@ -3383,7 +3383,7 @@ yyreduce:
 		using qscript_parser::xs;
 		(yyval.stmt) = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, (yyvsp[(3) - (7)].name), 0, xs);
-		using qscript_parser::xs;
+		//using qscript_parser::xs;
 		xs.reset();
 	}
     break;

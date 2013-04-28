@@ -1244,7 +1244,7 @@ stub_manip_stmts:
 		using qscript_parser::xs;
 		$$ = qscript_parser::setup_stub_manip_stmt( STUB_MANIP_DEL
 				, $3, 0, xs);
-		using qscript_parser::xs;
+		//using qscript_parser::xs;
 		xs.reset();
 	}
 	| UNSET '(' NAME ')' ';' {
