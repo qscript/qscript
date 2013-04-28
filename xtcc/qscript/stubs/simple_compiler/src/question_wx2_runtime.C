@@ -50,10 +50,15 @@ public:
 	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);
 	int (*return_ser_no) (int, struct TheQuestionnaire *);
 	wxTextCtrl *txt_ctrl_ser_no;
+	wxBoxSizer *serial_row_sizer;
 	wxBoxSizer *stubsRowSizer_ ;
+	wxBoxSizer * check_box_sizer;
+	wxBoxSizer * radio_box_sizer;
+	wxBoxSizer * data_entry_line_sizer;
 	wxPanel *panel;
 	wxFlexGridSizer *fgs ;
-	wxBoxSizer *hbox ;
+	wxBoxSizer *panel_sizer ;
+	wxStatusBar * statusBar_;
 
 	AbstractQuestion * last_question_visited;
 	AbstractQuestion * jump_to_question;
@@ -71,24 +76,38 @@ public:
 
 	void OnCheckboxToggle(wxCommandEvent& event);
 
-    int32_t prevRBValue_;
-    int32_t rbData_;
-    set<int32_t> cbData_;
-    map <int32_t, int32_t> rbQnreCodeMap_;
-    void ClearRadio();
-    void ClearCheckList();
-    void ClearStubsArea();
+	void ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event));
+	void ShowEndOfQnreScreen(wxCommandEvent& WXUNUSED(event));
+
+	void ShowQuestionScreen(wxCommandEvent& WXUNUSED(event));
+	void ClearQuestionScreen(wxCommandEvent& WXUNUSED(event));
+
+	int32_t prevRBValue_;
+	int32_t rbData_;
+	set<int32_t> cbData_;
+	map <int32_t, int32_t> rbQnreCodeMap_;
+	void ClearRadio();
+	void ClearCheckList();
+	void ClearStubsArea();
+	void CreateSerialNoScreen();
+	void CreateEndOfQnreScreen();
+	void CreateQuestionScreen();
+	void ClearSerialNoScreen(wxCommandEvent& WXUNUSED(event));
+	void ClearEndOfQnreScreen(wxCommandEvent& WXUNUSED(event));
 
 	wxStaticText *the_question ;
 	wxStaticText *the_stubs ;
 	wxStaticText *the_data_entry_line ;
 	wxTextCtrl * txt_data_entry_line;
-	wxRadioBox *m_radio;
+	//wxRadioBox *m_radio;
 	wxSizer *m_sizerRadio;
-	wxScrolledWindow * rboxWindow_;
+	//wxScrolledWindow * rboxWindow_;
 
 
 	wxCheckListBox * m_pListBox;
+	wxListBox * m_rListBox;
+
+	wxBoxSizer * end_of_qnre_sizer;
 
 
 	void handleDataInput (wxCommandEvent& WXUNUSED(event));
@@ -111,14 +130,17 @@ enum MyWidgetID {
 	ID_STUBS_ROW,
 	ID_NEXT_BUTTON,
 	SingleAnswerRadioBox,
-	MultiAnswerCheckListBox
+	MultiAnswerCheckListBox,
+	ID_BUTTON_PREVIOUS_QUESTION,
+	ID_BUTTON_SAVE,
+	ID_BUTTON_CLOSE_QUESTIONNAIRE_WITHOUT_SAVING,
 };
 
 
 BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     EVT_BUTTON(ID_BUTTON_SERIAL_NO,  wxQuestionnaireGUI::get_serial_no)
     EVT_BUTTON(ID_NEXT_BUTTON,  wxQuestionnaireGUI::handleDataInput)
-    EVT_RADIOBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnRadioBox)
+    EVT_LISTBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnRadioBox)
     EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
 
 END_EVENT_TABLE()
@@ -390,7 +412,9 @@ void wxQuestionnaireGUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
 	int l_ser_no = -1;
 	cout << __PRETTY_FUNCTION__ << " was invoked" << endl;
 	//const char * entry_text =(txt_ctrl_ser_no->GetValue()).utf8_str()  ;
-	string narrow_text ((txt_ctrl_ser_no->GetValue()).utf8_str()  );
+	wxString wx_ser_no = (txt_ctrl_ser_no->GetValue());
+	//string narrow_text ((txt_ctrl_ser_no->GetValue()).utf8_str()  );
+	string narrow_text (wx_ser_no.utf8_str()  );
 	cout << narrow_text << endl;
 	//txt_ctrl_ser_no->GetValue();
 	//wxTextEntryDialog * sr_no = new wxTextEntryDialog(this, wxT("Please enter a serial no"), wxT("Serial No"));
@@ -413,6 +437,12 @@ void wxQuestionnaireGUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
 			//gtk_widget_hide (serialNoEntry_);
 			//qapp->return_ser_no(l_ser_no, qapp->theQuestionnaire_);
 			//theQuestionnaire_ = make_questionnaire();
+			wxString serial_status_info = wxString(wxT("Serial No: ")) + wx_ser_no;
+			statusBar_->SetStatusText (serial_status_info, 1);
+			wxCommandEvent dummy_evt;
+			ClearSerialNoScreen(dummy_evt);
+			//panel_sizer->Show(fgs);
+			ShowQuestionScreen(dummy_evt);
 			callback_get_ser_no_from_ui (l_ser_no, theQuestionnaire_);
 		} else {
 			cout << "strtol failed: l_ser_no: " << l_ser_no << endl;
@@ -442,121 +472,30 @@ bool wxQuestionnaireApplication::OnInit()
 wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	: wxFrame(NULL, -1, title, wxPoint(-1, -1), wxSize(800, 600)),
 	  the_question (0), the_stubs(0), the_data_entry_line(0),
-	  m_radio(0), m_sizerRadio(0), hbox(0), rbData_(-1), prevRBValue_(-1),
-	  rboxWindow_(0), m_pListBox(0)
+	  // m_radio(0),
+	  m_sizerRadio(0),
+	  panel_sizer(0), rbData_(-1), prevRBValue_(-1),
+	  // rboxWindow_(0),
+	  m_pListBox(0)
 {
 
-	CreateStatusBar(2);
+	const int widths[] = { -1, 200 };
+	statusBar_ = CreateStatusBar(2);
+	SetStatusWidths(2, widths);
 	panel = new wxPanel(this, -1);
 
 
-	hbox = new wxBoxSizer(wxHORIZONTAL);
+	panel_sizer = new wxBoxSizer(wxHORIZONTAL);
 
-	fgs = new wxFlexGridSizer(4, 1, 9, 25);
-	the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
-	the_stubs = new wxStaticText(panel, -1, wxT("Stubs for the question"));
-	stubsRowSizer_ = new wxBoxSizer(wxVERTICAL);
-	stubsRowSizer_->Add(the_stubs);
-#if 0
-
-
-	// ============ RADIO BOX CODE : TEST TO SEE IF IT APPEARS ===============
-	unsigned long count = 12;
-	static const unsigned int DEFAULT_MAJOR_DIM = 2;
-	unsigned long majorDim = DEFAULT_MAJOR_DIM;
-
-	wxString *items = new wxString[count];
-	//wxString labelBtn = m_textLabelBtns->GetValue();
-	wxString labelBtn = wxT("Radio Button Label") ;
-	for ( size_t n = 0; n < count; n++ )
-	{
-		//items[n] = wxString::Format(_T("Radio Button Label %lu"),
-		//			    //labelBtn.c_str(), (unsigned long)n + 1);
-		//			     (unsigned long)n + 1);
-
-		items[n] = wxT("Radio Button Label ")
-						     ;
-	}
-
-	//int flags = m_chkVert->GetValue() ? wxRA_VERTICAL
-	int flags = true ? wxRA_VERTICAL
-				      : wxRA_HORIZONTAL;
-
-
-	m_radio = new wxRadioBox (panel, SingleAnswerRadioBox,
-				wxT("Radio Box Label"),
-				wxDefaultPosition, wxDefaultSize,
-				count, items,
-				majorDim,
-				flags);
-	// ======== RADIO BOX CODE: END =============
-#endif /*  0 */
-
-	wxBoxSizer * check_box_sizer = new wxBoxSizer (wxHORIZONTAL);
-	stubsRowSizer_->Add (check_box_sizer);
-	wxBoxSizer * radio_box_sizer = new wxBoxSizer (wxHORIZONTAL);
-	stubsRowSizer_->Add (radio_box_sizer);
-	wxBoxSizer * data_entry_line_sizer = new wxBoxSizer (wxHORIZONTAL);
-	{
-		the_data_entry_line = new wxStaticText(panel, -1, wxT("Data entry (Coded Questions): "));
-		data_entry_line_sizer->Add (the_data_entry_line);
-		txt_data_entry_line = new wxTextCtrl(panel, -1);
-		data_entry_line_sizer->Add (txt_data_entry_line);
-		wxButton *button = new wxButton(panel, ID_NEXT_BUTTON, wxT("Next") );
-		data_entry_line_sizer->Add (button);
-	}
-	stubsRowSizer_->Add (data_entry_line_sizer);
-	//stubsRowSizer_->Add (m_radio);
-
-	// Serial line related stuff
-	wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial: "));
-	txt_ctrl_ser_no = new wxTextCtrl(panel, -1);
-	wxBoxSizer *serial_row_sizer = new wxBoxSizer(wxHORIZONTAL);
-	serial_row_sizer->Add (enter_serial_no_label);
-	serial_row_sizer->Add (txt_ctrl_ser_no);
-
-	wxButton *button = new wxButton(panel, ID_BUTTON_SERIAL_NO, wxT("Start") /* , wxPoint(20, 20) */);
-	serial_row_sizer->Add (button);
-
-	fgs->Add (the_question,  wxEXPAND);
-	fgs->Add (stubsRowSizer_,  wxEXPAND);
-	fgs->Add (the_data_entry_line,  wxEXPAND);
-	fgs->Add (serial_row_sizer,  wxEXPAND);
-
-
-
-
-	fgs->AddGrowableRow (1, 1);
-	fgs->AddGrowableCol (0, 1);
-	hbox->Add(fgs, 1, wxALL | wxEXPAND, 15);
-
-#if 0
-wxFlexGridSizer *fgs = new wxFlexGridSizer(3, 2, 9, 25);
-
-  wxStaticText *thetitle = new wxStaticText(panel, -1, wxT("Title"));
-  wxStaticText *author = new wxStaticText(panel, -1, wxT("Author"));
-  wxStaticText *review = new wxStaticText(panel, -1, wxT("Review"));
-
-  wxTextCtrl *tc1 = new wxTextCtrl(panel, -1);
-  wxTextCtrl *tc2 = new wxTextCtrl(panel, -1);
-  wxTextCtrl *tc3 = new wxTextCtrl(panel, -1, wxT(""),
-      wxPoint(-1, -1), wxSize(-1, -1), wxTE_MULTILINE);
-
-  fgs->Add(thetitle);
-  fgs->Add(tc1, 1, wxEXPAND);
-  fgs->Add(author);
-  fgs->Add(tc2, 1, wxEXPAND);
-  fgs->Add(review, 1, wxEXPAND);
-  fgs->Add(tc3, 1, wxEXPAND);
-
-  fgs->AddGrowableRow(2, 1);
-  fgs->AddGrowableCol(1, 1);
-
-  hbox->Add(fgs, 1, wxALL | wxEXPAND, 15);
-#endif /*  0 */
-	panel->SetSizer(hbox);
+	CreateQuestionScreen();
+	CreateSerialNoScreen();
+	CreateEndOfQnreScreen();
+	panel->SetSizer(panel_sizer);
 	Centre();
 	theQuestionnaire_ = make_questionnaire();
+
+	wxCommandEvent evt_dummy;
+	ShowSerialNoScreen(evt_dummy);
 
 }
 
@@ -946,8 +885,8 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 	//for ( ui = 0; ui < WXSIZEOF(aszChoices); ui++ )
 	//    astrChoices[ui] = aszChoices[ui];
 
-	rboxWindow_ = new wxScrolledWindow (panel, -1);
-	rboxWindow_->SetScrollbars(20, 20, 50, 50);
+	//rboxWindow_ = new wxScrolledWindow (panel, -1, wxDefaultPosition, wxSize(700,350));
+	//rboxWindow_->SetScrollbars(20, 20, 50, 50);
 	rbQnreCodeMap_.clear();
 	for ( size_t i = 0; i < count; ++i ) {
 		stringstream s1;
@@ -959,10 +898,25 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 		//		vec[i].stub_text.c_str(),
 		//		vec[i].code);
 	}
+
+	/*
 	int flags = 0;
 	m_pListBox = new wxCheckListBox
 		(
 		 rboxWindow_,               // parent
+		 MultiAnswerCheckListBox,       // control id
+		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
+		 wxDefaultSize, //wxSize(400, 100),      // listbox size
+		 count, // WXSIZEOF(aszChoices),  // number of strings
+		 items, //astrChoices,           // array of strings
+		 flags
+		);
+	*/
+
+	int flags = 0;
+	m_pListBox = new wxCheckListBox
+		(
+		 panel,               // parent
 		 MultiAnswerCheckListBox,       // control id
 		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
 		 wxDefaultSize, //wxSize(400, 100),      // listbox size
@@ -980,9 +934,11 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 
 	//m_pListBox->Check(2);
 	//m_pListBox->Select(3);
-	stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
+	//check_box_sizer->Add (rboxWindow_);
+	check_box_sizer->Add (m_pListBox);
+	//stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
 	fgs->Layout();
-	hbox->Layout();
+	panel_sizer->Layout();
 
 }
 
@@ -995,31 +951,29 @@ void wxQuestionnaireGUI::ClearStubsArea()
 void wxQuestionnaireGUI::ClearCheckList()
 {
 	if (m_pListBox) {
-		if (rboxWindow_) {
-			stubsRowSizer_->Detach (rboxWindow_);
-		}
+		//if (rboxWindow_) {
+		//	check_box_sizer->Detach (rboxWindow_);
+		//}
+		check_box_sizer->Detach (m_pListBox);
 		delete m_pListBox; m_pListBox = 0;
 	}
-	if (rboxWindow_) {
-		delete rboxWindow_; rboxWindow_ = 0;
-	}
+	//if (rboxWindow_) {
+	//	delete rboxWindow_; rboxWindow_ = 0;
+	//}
 	// code to preserve previous values - do i really need this?
 }
 
 void wxQuestionnaireGUI::ClearRadio()
 {
     // Later load prevRBValue_ from m_radio before deleting
+	cout << __PRETTY_FUNCTION__ << "fix later m_radio to be changed to m_pListBox"
+		<< endl;
+#if 1
 	int rbData_ = -1;
-	if ( m_radio )
+	if ( m_rListBox )
 	{
-		//prevRBValue_ = rbData_;
-		//rbData_ = m_radio->GetSelection();
-		//stubsRowSizer_->Detach (m_radio);
-		if (rboxWindow_) {
-			stubsRowSizer_->Detach (rboxWindow_);
-			delete rboxWindow_; rboxWindow_ = 0;
-		}
-		//delete m_radio; m_radio = 0;
+		radio_box_sizer ->Detach (m_rListBox);
+		delete m_rListBox; m_rListBox = 0;
 	}
 	else // first time creation, no old selection to preserve
 	{
@@ -1030,6 +984,7 @@ void wxQuestionnaireGUI::ClearRadio()
 	//if (rboxWindow_) {
 	//	delete rboxWindow_; rboxWindow_ = 0;
 	//}
+#endif /* 0 */
 }
 
 void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
@@ -1075,21 +1030,36 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 
 
 	//int flags = m_chkVert->GetValue() ? wxRA_VERTICAL
-	int flags = true ? wxRA_VERTICAL : wxRA_HORIZONTAL;
+	//int flags = true ? wxRA_VERTICAL : wxRA_HORIZONTAL;
 	//int flags = wxRA_SPECIFY_COLS;
 	//flags |= ms_defaultFlags;
 	//
+	/*
 	rboxWindow_ = new wxScrolledWindow (panel, -1);
 	rboxWindow_->SetScrollbars(20, 20, 50, 50);
 	//rboxWindow_->EnableScrolling(true, true);
 
-	m_radio = new wxRadioBox (/*panel*/ rboxWindow_, SingleAnswerRadioBox,
+	m_radio = new wxRadioBox ( rboxWindow_, SingleAnswerRadioBox,
 				wxT("Choose a single answer"),
 				wxDefaultPosition, wxDefaultSize,
 				count, items,
 				nmajorDim,
-				/*flags*/  wxRA_SPECIFY_COLS
+				  wxRA_SPECIFY_COLS
 				);
+	*/
+
+
+	int flags = wxLB_SINGLE;
+	m_rListBox = new wxListBox
+		(
+		 panel,               // parent
+		 SingleAnswerRadioBox,       // control id
+		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
+		 wxDefaultSize, //wxSize(400, 100),      // listbox size
+		 count, // WXSIZEOF(aszChoices),  // number of strings
+		 items, //astrChoices,           // array of strings
+		 flags
+		);
 
 	delete [] items;
 
@@ -1101,15 +1071,19 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	the_stubs->SetLabel(wxT("New Stubs Text - should be visible now"));
 	cout << "Updated New stubs text" << endl;
 	//stubsRowSizer_->Add(m_radio, 1, wxGROW);
-	stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
-	m_radio->Show(true);
-	stubsRowSizer_->Show(false);
-	stubsRowSizer_->Show(true);
-	this->Fit();
+	//stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
+	//radio_box_sizer->Add(rboxWindow_);
+	radio_box_sizer->Add(m_rListBox);
+	//m_radio->Show(true);
+	//stubsRowSizer_->Show(false);
+	//stubsRowSizer_->Show(true);
+	//this->Fit();
 #endif /*  0 */
-	stubsRowSizer_->Layout();
+	//CreateSerialNoScreen();
+	//CreateEndOfQnreScreen();
+	//stubsRowSizer_->Layout();
 	fgs->Layout();
-	hbox->Layout();
+	panel_sizer->Layout();
 }
 
 
@@ -1123,9 +1097,9 @@ void wxQuestionnaireGUI::set_callback_ui_input (
 
 void wxQuestionnaireGUI::OnRadioBox(wxCommandEvent& event)
 {
-	int sel = m_radio->GetSelection();
+	//int sel = m_radio->GetSelection();
 	int event_sel = event.GetSelection();
-	cout << "sel = " << sel << endl;
+	//cout << "sel = " << sel << endl;
 	cout << "event_sel = " << event_sel << endl;
 	cout << "selected code: " << rbQnreCodeMap_[event_sel]
 	    << endl;
@@ -1172,3 +1146,138 @@ void wxQuestionnaireGUI::OnCheckboxToggle(wxCommandEvent& event)
 	cout << endl;
 
 }
+
+
+
+void wxQuestionnaireGUI::CreateSerialNoScreen()
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	wxSizerFlags flagsNoExpand(0);
+	flagsNoExpand.Border(wxALL,10);
+	wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial No: "));
+	txt_ctrl_ser_no = new wxTextCtrl(panel, -1);
+	serial_row_sizer = new wxBoxSizer(wxHORIZONTAL);
+	serial_row_sizer->Add (enter_serial_no_label, flagsNoExpand);
+	serial_row_sizer->Add (txt_ctrl_ser_no, flagsNoExpand);
+	wxButton *button = new wxButton(panel, ID_BUTTON_SERIAL_NO, wxT("Start") /* , wxPoint(20, 20) */);
+	serial_row_sizer->Add (button, flagsNoExpand);
+	panel_sizer->Add (serial_row_sizer);
+	panel_sizer->Hide (serial_row_sizer);
+	//panel_sizer->Layout();
+}
+
+
+void wxQuestionnaireGUI::CreateEndOfQnreScreen()
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	wxSizerFlags flagsNoExpand(0);
+	flagsNoExpand.Border(wxALL,10);
+	end_of_qnre_sizer = new wxBoxSizer(wxHORIZONTAL);
+	wxButton *button = new wxButton(panel, ID_BUTTON_PREVIOUS_QUESTION, wxT("Previous Question") );
+	end_of_qnre_sizer->Add (button);
+	button = new wxButton(panel, ID_BUTTON_SAVE, wxT("Save") );
+	end_of_qnre_sizer->Add (button);
+	button = new wxButton(panel, ID_BUTTON_CLOSE_QUESTIONNAIRE_WITHOUT_SAVING, wxT("Close Questionnaire without Saving") );
+	end_of_qnre_sizer->Add (button);
+	panel_sizer->Add (end_of_qnre_sizer);
+	panel_sizer->Hide (end_of_qnre_sizer);
+}
+
+
+void wxQuestionnaireGUI::ClearSerialNoScreen(wxCommandEvent& WXUNUSED(event))
+{
+	panel_sizer->Hide(serial_row_sizer);
+	panel_sizer->Layout();
+}
+
+
+void wxQuestionnaireGUI::ClearEndOfQnreScreen(wxCommandEvent& WXUNUSED(event))
+{
+	panel_sizer->Hide(end_of_qnre_sizer);
+	panel_sizer->Layout();
+}
+
+void wxQuestionnaireGUI::CreateQuestionScreen()
+{
+
+	fgs = new wxFlexGridSizer(4, 1, 9, 25);
+	the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
+	the_stubs = new wxStaticText(panel, -1, wxT("Stubs for the question"));
+	stubsRowSizer_ = new wxBoxSizer(wxVERTICAL);
+	stubsRowSizer_->Add(the_stubs);
+	check_box_sizer = new wxBoxSizer (wxHORIZONTAL);
+	stubsRowSizer_->Add (check_box_sizer);
+	radio_box_sizer = new wxBoxSizer (wxHORIZONTAL);
+	stubsRowSizer_->Add (radio_box_sizer);
+	data_entry_line_sizer = new wxBoxSizer (wxHORIZONTAL);
+	{
+		the_data_entry_line = new wxStaticText(panel, -1, wxT("Data entry (Coded Questions): "));
+		data_entry_line_sizer->Add (the_data_entry_line);
+		txt_data_entry_line = new wxTextCtrl(panel, -1);
+		data_entry_line_sizer->Add (txt_data_entry_line);
+		wxButton *button = new wxButton(panel, ID_NEXT_BUTTON, wxT("Next") );
+		data_entry_line_sizer->Add (button);
+	}
+	stubsRowSizer_->Add (data_entry_line_sizer);
+	//stubsRowSizer_->Add (m_radio);
+
+	// Serial line related stuff
+	//wxStaticText *enter_serial_no_label = new wxStaticText(panel, -1, wxT("Enter the Serial: "));
+	//txt_ctrl_ser_no = new wxTextCtrl(panel, -1);
+	//wxBoxSizer *serial_row_sizer = new wxBoxSizer(wxHORIZONTAL);
+	//serial_row_sizer->Add (enter_serial_no_label);
+	//serial_row_sizer->Add (txt_ctrl_ser_no);
+
+	//wxButton *button = new wxButton(panel, ID_BUTTON_SERIAL_NO, wxT("Start") /* , wxPoint(20, 20) */);
+	//serial_row_sizer->Add (button);
+
+	fgs->Add (the_question,  wxEXPAND);
+	fgs->Add (stubsRowSizer_,  wxEXPAND);
+	fgs->Add (the_data_entry_line,  wxEXPAND);
+	//fgs->Add (serial_row_sizer,  wxEXPAND);
+
+
+
+
+	fgs->AddGrowableRow (1, 1);
+	fgs->AddGrowableCol (0, 1);
+	panel_sizer->Add(fgs, 1, wxALL | wxEXPAND, 15);
+	//fgs->Hide();
+	panel_sizer->Hide(fgs);
+
+
+}
+
+void wxQuestionnaireGUI::ShowQuestionScreen(wxCommandEvent& WXUNUSED(event))
+{
+	panel_sizer->Show(fgs);
+	panel_sizer->Layout();
+}
+
+void wxQuestionnaireGUI::ClearQuestionScreen(wxCommandEvent& WXUNUSED(event))
+{
+	panel_sizer->Hide(fgs);
+	panel_sizer->Layout();
+}
+
+void wxQuestionnaireGUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
+{
+	if (!serial_row_sizer) {
+		CreateSerialNoScreen();
+		panel_sizer->Add (serial_row_sizer);
+	}
+	panel_sizer->Show(serial_row_sizer);
+	panel_sizer->Layout();
+}
+
+
+void wxQuestionnaireGUI::ShowEndOfQnreScreen(wxCommandEvent& WXUNUSED(event))
+{
+	if (!end_of_qnre_sizer) {
+		CreateSerialNoScreen();
+		panel_sizer->Add (end_of_qnre_sizer);
+	}
+	panel_sizer->Show(end_of_qnre_sizer);
+	panel_sizer->Layout();
+}
+
