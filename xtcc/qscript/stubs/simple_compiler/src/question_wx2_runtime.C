@@ -919,7 +919,8 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 		 panel,               // parent
 		 MultiAnswerCheckListBox,       // control id
 		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
-		 wxDefaultSize, //wxSize(400, 100),      // listbox size
+		 //wxDefaultSize,
+		 wxSize(500, 350),      // listbox size
 		 count, // WXSIZEOF(aszChoices),  // number of strings
 		 items, //astrChoices,           // array of strings
 		 flags
@@ -1055,7 +1056,8 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 		 panel,               // parent
 		 SingleAnswerRadioBox,       // control id
 		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
-		 wxDefaultSize, //wxSize(400, 100),      // listbox size
+		 //wxDefaultSize,
+		 wxSize(500, 350),      // listbox size
 		 count, // WXSIZEOF(aszChoices),  // number of strings
 		 items, //astrChoices,           // array of strings
 		 flags
@@ -1073,7 +1075,7 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	//stubsRowSizer_->Add(m_radio, 1, wxGROW);
 	//stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
 	//radio_box_sizer->Add(rboxWindow_);
-	radio_box_sizer->Add(m_rListBox);
+	radio_box_sizer->Add(m_rListBox, 1, wxGROW);
 	//m_radio->Show(true);
 	//stubsRowSizer_->Show(false);
 	//stubsRowSizer_->Show(true);
