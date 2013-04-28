@@ -72,7 +72,7 @@ public:
 	void PrepareMultiCodedStubDisplay (NamedStubQuestion * nq);
 	void DisplayStubs (AbstractQuestion * q);
 
-	void OnRadioBox(wxCommandEvent& event);
+	void OnSingleAnswerToggle(wxCommandEvent& event);
 
 	void OnCheckboxToggle(wxCommandEvent& event);
 
@@ -140,7 +140,7 @@ enum MyWidgetID {
 BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     EVT_BUTTON(ID_BUTTON_SERIAL_NO,  wxQuestionnaireGUI::get_serial_no)
     EVT_BUTTON(ID_NEXT_BUTTON,  wxQuestionnaireGUI::handleDataInput)
-    EVT_LISTBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnRadioBox)
+    EVT_LISTBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnSingleAnswerToggle)
     EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
 
 END_EVENT_TABLE()
@@ -1097,7 +1097,7 @@ void wxQuestionnaireGUI::set_callback_ui_input (
 }
 
 
-void wxQuestionnaireGUI::OnRadioBox(wxCommandEvent& event)
+void wxQuestionnaireGUI::OnSingleAnswerToggle(wxCommandEvent& event)
 {
 	//int sel = m_radio->GetSelection();
 	int event_sel = event.GetSelection();
@@ -1107,6 +1107,11 @@ void wxQuestionnaireGUI::OnRadioBox(wxCommandEvent& event)
 	    << endl;
 	prevRBValue_ = rbData_;
 	rbData_ =  rbQnreCodeMap_[event_sel];
+	stringstream s;
+	s << rbData_;
+	wxString my_wx_string(s.str().c_str(), wxConvUTF8);
+	txt_data_entry_line->Clear();
+	(*txt_data_entry_line) << my_wx_string;
 	//wxUnusedVar(event_sel);
 
 	//wxLogMessage(_T("Radiobox selection changed, now %d"), sel);
@@ -1142,10 +1147,15 @@ void wxQuestionnaireGUI::OnCheckboxToggle(wxCommandEvent& event)
 		cbData_.erase (code);
 	}
 	cout << "selected values are: " << endl;
+	stringstream s;
 	for (set<int32_t>::iterator it = cbData_.begin(); it != cbData_.end(); ++it) {
 		cout << " " << *it;
+		s << " " << *it;
 	}
 	cout << endl;
+	wxString my_wx_string(s.str().c_str(), wxConvUTF8);
+	txt_data_entry_line->Clear();
+	(*txt_data_entry_line) << my_wx_string;
 
 }
 
@@ -1215,7 +1225,7 @@ void wxQuestionnaireGUI::CreateQuestionScreen()
 	{
 		the_data_entry_line = new wxStaticText(panel, -1, wxT("Data entry (Coded Questions): "));
 		data_entry_line_sizer->Add (the_data_entry_line);
-		txt_data_entry_line = new wxTextCtrl(panel, -1);
+		txt_data_entry_line = new wxTextCtrl(panel, -1, wxEmptyString, wxDefaultPosition, wxSize(400, 25));
 		data_entry_line_sizer->Add (txt_data_entry_line);
 		wxButton *button = new wxButton(panel, ID_NEXT_BUTTON, wxT("Next") );
 		data_entry_line_sizer->Add (button);
