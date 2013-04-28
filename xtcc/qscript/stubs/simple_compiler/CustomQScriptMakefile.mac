@@ -149,7 +149,7 @@ runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
 #	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
 #	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
 	#$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
-	libtool -static -o $(BUILD_DIR)/runtime_lib/libruntime_static.dylib $(RUNTIME_LIB_OBJECTS)
+	libtool -static -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.dylib $(RUNTIME_LIB_OBJECTS)
 
 
 runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
@@ -230,12 +230,12 @@ clean: lib_clean
 
 local_install: $(BUILD_DIR)/qscript runtime_lib lib_clean
 	cp $(BUILD_DIR)/qscript bin
-	cp $(BUILD_DIR)/runtime_lib/libruntime_static.dylib lib
-	cd lib; ln -s libqscript_runtime.so.1.0.1 libqscript_runtime.so.1 ; cd ..
-	cd lib; ln -s libqscript_runtime.so.1.0.1 libqscript_runtime.so; cd ..
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib
-	cd lib; ln -s libqscript_compiletime.so.1.0.1 libqscript_compiletime.so.1; cd ..
-	cd lib; ln -s libqscript_compiletime.so.1.0.1 libqscript_compiletime.so; cd ..
+	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime.dylib lib
+	#cd lib; ln -s libqscript_runtime.so.1.0.1 libqscript_runtime.so.1 ; cd ..
+	#cd lib; ln -s libqscript_runtime.so.1.0.1 libqscript_runtime.so; cd ..
+	#cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime.so.1.0.1 lib
+	#cd lib; ln -s libqscript_compiletime.so.1.0.1 libqscript_compiletime.so.1; cd ..
+	#cd lib; ln -s libqscript_compiletime.so.1.0.1 libqscript_compiletime.so; cd ..
 	cp ${SOURCE_DIR}/*.h include
 
 nsiqcppstyle:
