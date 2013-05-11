@@ -209,16 +209,17 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	//fprintf(script, "TheQuestionnaire() \n");
 
 	fprintf (script, "TheQuestionnaire (string p_jno): AbstractQuestionnaire(p_jno)\n");
-#if 0
+	// nxd 10-may-2013
+#if 1
 	fprintf(script, " /* length(): %ld */", code.quest_defns_constructor.str().length() );
 	if (code.quest_defns_constructor.str().length() == 0) {
 		fprintf(script, ":");
 	} else {
 		fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
-		fprintf(script, ",");
+		//fprintf(script, ",");
 	}
-	fprintf(script, " last_question_answered(0), last_question_visited(0), back_jump(false), stopAtNextQuestion(false)\n");
-	fprintf(script, ", jno (\"%s\"), ser_no(0)\n", project_name.c_str());
+	//fprintf(script, " last_question_answered(0), last_question_visited(0), back_jump(false), stopAtNextQuestion(false)\n");
+	//fprintf(script, ", jno (\"%s\"), ser_no(0)\n", project_name.c_str());
 #endif /*  0 */
 
 	fprintf(script, "{\n");

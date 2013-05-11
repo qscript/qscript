@@ -94,6 +94,7 @@ public:
 	void CreateQuestionScreen();
 	void ClearSerialNoScreen(wxCommandEvent& WXUNUSED(event));
 	void ClearEndOfQnreScreen(wxCommandEvent& WXUNUSED(event));
+	//void LostFocus(wxCommandEvent& WXUNUSED(event));
 
 	wxStaticText *the_question ;
 	wxStaticText *the_stubs ;
@@ -142,7 +143,7 @@ BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     EVT_BUTTON(ID_NEXT_BUTTON,  wxQuestionnaireGUI::handleDataInput)
     EVT_LISTBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnSingleAnswerToggle)
     EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
-
+    //EVT_KILL_FOCUS(txt_data_entry_line, wxQuestionnaireApplication::LostFocus)
 END_EVENT_TABLE()
 
 void wxQuestionnaireGUI::handleCBDataInput ()
@@ -864,7 +865,8 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 	}
 #endif /*  0 */
     // check list box
-	ClearRadio();
+	//ClearRadio();
+	ClearStubsArea();
 	/*
 	static const wxChar *aszChoices[] =
     {
@@ -1293,3 +1295,11 @@ void wxQuestionnaireGUI::ShowEndOfQnreScreen(wxCommandEvent& WXUNUSED(event))
 	panel_sizer->Layout();
 }
 
+
+/*
+void wxQuestionnaireApplication::LostFocus(wxCommandEvent& WXUNUSED(event))
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "Textbox lost focus" << endl;
+}
+*/

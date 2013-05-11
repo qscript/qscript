@@ -68,7 +68,7 @@ AbstractQuestion::AbstractQuestion(
 	, vector<ActiveVariableInfo* > l_av_info, QuestionAttributes  l_question_attributes
 	, const XtccSet & p_mutexCodeList
 	)
-	: 
+	:
 	AbstractStatement(l_type, l_no)
 	, questionName_(l_name), textExprVec_(text_expr_vec)
 	, questionDiskName_()
@@ -305,16 +305,16 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
-	/* 
+	/*
 	program_code << "if ( ("
 		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
-		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
+		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		<< "stopAtNextQuestion ||" << endl
 		<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
-		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
-		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
-		<< questionName_ << "->isAnswered_ == false " 
+		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
+		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
+		<< questionName_ << "->isAnswered_ == false "
 		<< ")"
 	        << ") {" << endl;
 	*/
@@ -322,15 +322,15 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 
 	program_code << "if ( /* nxd */("
 		<< questionName_ << "->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||" << endl
-		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_ 
+		<< "(" << questionName_ << "->isAnswered_ && !" << questionName_
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		//<< "stopAtNextQuestion ||" << endl
 		//<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
 		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||" << endl
 		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>(" << questionName_ << ") == p_jump_to_index)) ||"  << endl
-		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) " 
-		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && " 
-		<< questionName_ << "->isAnswered_ == false " 
+		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
+		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
+		<< questionName_ << "->isAnswered_ == false "
 		<< ")"
 	        << ") {" << endl;
 	//program_code << "if(stopAtNextQuestion && " << questionName_ << "->question_attributes.hidden_ == false"
@@ -370,13 +370,13 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << "\tAsciiFlatFileQuestionDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
-			<<  " = new AsciiFlatFileQuestionDiskMap(" << questionName_ 
+			<<  " = new AsciiFlatFileQuestionDiskMap(" << questionName_
 			<< "_list.questionList[" << consolidated_for_loop_index << "]"
 			<< ", current_map_pos);\n";
 	}
 	code.program_code << "\tcurrent_map_pos += " << qscript_parser::temp_name_generator.GetCurrentName() << "->GetTotalLength();\n";
 	code.program_code << "\tascii_flatfile_question_disk_map.push_back(" << qscript_parser::temp_name_generator.GetCurrentName() << ");\n";
-	
+
 
 	code.program_code << "\tif (write_xtcc_data_file_flag) {\n";
 	if (for_bounds_stack.size() == 0) {
@@ -385,7 +385,7 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << "\t XtccDataFileDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
-			<<  " = new XtccDataFileDiskMap(" << questionName_ 
+			<<  " = new XtccDataFileDiskMap(" << questionName_
 			<< "_list.questionList[" << consolidated_for_loop_index << "]"
 			<< ", current_xtcc_map_pos);\n";
 	}
@@ -403,7 +403,7 @@ void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 	}  else {
 		string consolidated_for_loop_index = PrintConsolidatedForLoopIndex(for_bounds_stack);
 		code.program_code << "\tqtm_data_file_ns::QtmDataDiskMap * " << qscript_parser::temp_name_generator.GetNewName()
-			<<  " = new qtm_data_file_ns::QtmDataDiskMap(" << questionName_ 
+			<<  " = new qtm_data_file_ns::QtmDataDiskMap(" << questionName_
 			<< "_list.questionList[" << consolidated_for_loop_index << "]"
 			<< ", qtm_data_file, base_text_vec.back());\n";
 	}
@@ -529,7 +529,7 @@ bool AbstractQuestion::VerifyData(
 		invalid_code = false;
 	}
 end:
-	// cout << __PRETTY_FUNCTION__ << " returned invalid_code: |" << invalid_code 
+	// cout << __PRETTY_FUNCTION__ << " returned invalid_code: |" << invalid_code
 	// 	<< "|" << endl;
 	return invalid_code;
 }
@@ -588,7 +588,7 @@ ask_again:
 		pos_1st_invalid_data = re_arranged_buffer.length() - 1;
 		do {
 label_ask_again:
-			user_response::UserResponseType user_resp 
+			user_response::UserResponseType user_resp
 				= read_data_from_window(
 						data_entry_window, err_mesg.c_str()
 					      //, (!invalid_code), re_arranged_buffer
@@ -601,7 +601,7 @@ label_ask_again:
 			if (isAnswered_ == false && user_navigation == NAVIGATE_PREVIOUS
 					&& user_resp == user_response::UserEnteredNavigation) {
 				// allow this behaviour - they can go back to the
-				// previous question without answering anything - 
+				// previous question without answering anything -
 				// no harm done
 				return user_resp;
 			} else if (isAnswered_ == false && user_navigation == NAVIGATE_NEXT
@@ -643,6 +643,7 @@ void AbstractQuestion::PrintArrayDeclarations(StatementCompiledCode & code)
 	string temp_array_bounds_name = "list_" + questionName_ + "_array_bounds";
 	code.quest_defns << "vector<int32_t> " << temp_array_bounds_name
 		<< ";" << endl;
+#if 0
 	static bool first_time = true;
 	if (!first_time) {
 		code.quest_defns_constructor << "," ;
@@ -650,6 +651,8 @@ void AbstractQuestion::PrintArrayDeclarations(StatementCompiledCode & code)
 		code.quest_defns_constructor << ": ";
 		first_time = false;
 	}
+#endif /* 0 */
+	code.quest_defns_constructor << "," ;
 	code.quest_defns_constructor << temp_array_bounds_name
 		<< "(" << for_bounds_stack.size() << ")";
 	for(int32_t i = 0; i< for_bounds_stack.size(); ++i){
@@ -709,7 +712,7 @@ RangeQuestion::RangeQuestion(
 			   , l_enclosing_scope, l_av_info, l_question_attributes
 			   , p_mutexCodeList)
 			, r_data(new XtccSet(l_r_data)), displayData_()
-{ 
+{
 	maxCode_ = r_data->GetMax();
 }
 
@@ -725,7 +728,7 @@ RangeQuestion::RangeQuestion(
 	: AbstractQuestion(this_stmt_type, line_number, l_name, l_q_text
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ 
+{
 	maxCode_ = r_data->GetMax();
 }
 #endif /* 0 */
@@ -746,7 +749,7 @@ RangeQuestion::RangeQuestion(
 			   , p_mutexCodeList
 			   )
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ 
+{
 	maxCode_ = r_data->GetMax();
 }
 
@@ -765,7 +768,7 @@ RangeQuestion::RangeQuestion(
 		, l_question_attributes
 		)
 	, r_data(new XtccSet(l_r_data)), displayData_()
-{ 
+{
 	maxCode_ = r_data->GetMax();
 }
 #endif /* 0 */
@@ -908,7 +911,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			}
 			if (currXpos + s.str().length() > maxWinX) {
 				currXpos =1, ++currYpos;
-			} 
+			}
 			mvwprintw(stub_list_window, currYpos, currXpos, "%s", s.str().c_str());
 			currXpos += s.str().length() + 1;
 		}
@@ -928,9 +931,9 @@ get_data_again:
 	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< mesg.str() << endl;
 	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
-		// valid response if blanks are allowed but dont do isAnswered_ = true 
-		// because otherwise when visiting the questionnaire it will skip this 
-		// question and data entry will have an off by 1 error everytime they 
+		// valid response if blanks are allowed but dont do isAnswered_ = true
+		// because otherwise when visiting the questionnaire it will skip this
+		// question and data entry will have an off by 1 error everytime they
 		// are reviewing this question - since blank is a valid answer
 	} else if (user_resp == user_response::UserEnteredData) {
 	} else if (user_resp == user_response::UserEnteredNavigation
@@ -1078,9 +1081,9 @@ get_data_again:
 	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< mesg.str() << endl;
 	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
-		// valid response if blanks are allowed but dont do isAnswered_ = true 
-		// because otherwise when visiting the questionnaire it will skip this 
-		// question and data entry will have an off by 1 error everytime they 
+		// valid response if blanks are allowed but dont do isAnswered_ = true
+		// because otherwise when visiting the questionnaire it will skip this
+		// question and data entry will have an off by 1 error everytime they
 		// are reviewing this question - since blank is a valid answer
 	} else if (user_resp == user_response::UserEnteredData) {
 	} else if (user_resp == user_response::UserEnteredNavigation
@@ -1127,7 +1130,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	ostringstream quest_decl;
 #if 0
 	quest_decl << "stringstream " << questionName_ << "_str;\n";
-	quest_decl << questionName_ << "_str " 
+	quest_decl << questionName_ << "_str "
 			<< "<< \"" << questionName_ << "\" ";
 	if (for_bounds_stack.size() > 0 ) {
 
@@ -1137,8 +1140,8 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 
 	for (int i=0; i < textExprVec_.size(); ++i) {
-		/* 
-		if (textExprVec_[i]->nameExpr_ == 0) { 
+		/*
+		if (textExprVec_[i]->nameExpr_ == 0) {
 			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
 				<< textExprVec_[i]->text_
 				<< "\")));\n";
@@ -1150,7 +1153,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 				<< "));\n";
 		}
 		*/
-		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) { 
+		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) {
 			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
 				<< textExprVec_[i]->text_
 				<< "\")));\n";
@@ -1166,13 +1169,13 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 			if (textExprVec_[i]->questionIndexExpr_)
 				textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
 			if (textExprVec_[i]->questionIndexExpr_ ) {
-				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
 						<< textExprVec_[i]->pipedQuestion_->questionName_
 						<< ", "
 						<< expr_code.code_expr.str()
 						<< ") ); /*  -NxD- */\n";
 			} else {
-				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
 						<< textExprVec_[i]->pipedQuestion_->questionName_
 						<< ") ); /*  -NxD- */\n";
 			}
@@ -1194,7 +1197,7 @@ void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, boo
 		<< lineNo_ << ","
 		<< "string( \"" << questionName_.c_str() << "\")" << ",";
 
-	//quest_decl	<< "string(\" " << questionText_ << "\")" 
+	//quest_decl	<< "string(\" " << questionText_ << "\")"
 	quest_decl << " text_expr_vec";
 	quest_decl	<< ","
 		<< q_type_str << ","
@@ -1289,22 +1292,22 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 	quest_decl << "{\n";
 	quest_decl << "vector<TextExpression *> text_expr_vec;\n";
 	for (int i=0; i < textExprVec_.size(); ++i) {
-		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) { 
+		if (textExprVec_[i]->teType_ == TextExpression::simple_text_type) {
 			quest_decl << "text_expr_vec.push_back(new TextExpression(string(\""
 				<< textExprVec_[i]->text_
 				<< "\")));\n";
 		} else if (textExprVec_[i]->teType_ == TextExpression::question_type) {
-			
+
 			if (textExprVec_[i]->questionIndexExpr_ ) {
 				ExpressionCompiledCode expr_code;
 				textExprVec_[i]->questionIndexExpr_->PrintExpressionCode(expr_code);
-				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
 						<< textExprVec_[i]->pipedQuestion_->questionName_
 						<< ", "
 						<< expr_code.code_expr.str()
 						<< ") ); /*  -NxD- */\n";
 			} else {
-				quest_decl << "text_expr_vec.push_back( new TextExpression(" 
+				quest_decl << "text_expr_vec.push_back( new TextExpression("
 						<< textExprVec_[i]->pipedQuestion_->questionName_
 						<< ") ); /*  -NxD- */\n";
 			}
@@ -1317,7 +1320,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		}
 	}
 
-	if (array_mode) 
+	if (array_mode)
 		quest_decl << "NamedStubQuestion * " << questionName_;
 	else
 		quest_decl << questionName_;
@@ -1328,7 +1331,7 @@ void NamedStubQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code,
 		<< "string( \"" << questionName_ << "\")" << ",";
 
 	quest_decl << " text_expr_vec";
-	//quest_decl	<< "string(\" " << questionText_ << "\")" 
+	//quest_decl	<< "string(\" " << questionText_ << "\")"
 	quest_decl	<< ","
 		<< q_type_str << ","
 		<< no_mpn << ","
@@ -1450,7 +1453,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
 	, displayData_()
 	, currentPage_(0)
-{ 
+{
 	for(int i=0; i<nr_ptr->stubs.size(); ++i) {
 		if (nr_ptr->stubs[i].is_mutex) {
 			mutexCodeList_.add_indiv(nr_ptr->stubs[i].code);
@@ -1472,7 +1475,7 @@ NamedStubQuestion::NamedStubQuestion(
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes)
 	, named_list()
 	, nr_ptr(l_nr_ptr), stub_ptr(0)
-{ 
+{
 #if 0
 	vector <stub_pair> & v= *stub_ptr;
 	for (int i=0; i<v.size(); ++i) {
@@ -1642,14 +1645,14 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		// the code below should be extracted to a method: NxD 11-Jun-2010
 
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (program_options_ns::no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupSimpleQuestionRestore(code);
 		code.program_code << "if( jumpToQuestion == \"" << questionName_ << "\")\n{ back_jump = false;\n}\n";
 		code.program_code << "}" << endl;
 
 
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (program_options_ns::no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupSimpleQuestionSave(code);
 	} else {
 		// Handle Array Question here
@@ -1660,11 +1663,11 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 			<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 			<< "]->isAnswered_ == true ) {" << endl;
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (program_options_ns::no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupArrayQuestionRestore(code);
 		s << "}" << endl;
 		// enable this later: virtual memory exhaustion because generated code too big
-		if (program_options_ns::no_question_save_restore_optimization == false) 
+		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupArrayQuestionSave(code);
 	}
 	code.program_code << "/* EXIT: AbstractQuestion::PrintSetupBackJump()  */\n";
@@ -1956,8 +1959,8 @@ string AbstractQuestion::PrintRestoreArrayQuestion(ActiveVariableInfo * av_info)
 		s	<< "\"_\" << xtcc_i << \"$\" << ";
 			//delete later
 
-		cerr 	<< "enclosingCompoundStatement_: " << enclosingCompoundStatement_ 
-			<< "questionName_ : " << questionName_ 
+		cerr 	<< "enclosingCompoundStatement_: " << enclosingCompoundStatement_
+			<< "questionName_ : " << questionName_
 			<< endl;
 			//end delete later
 		s	<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back();
@@ -2159,7 +2162,7 @@ string AbstractQuestion::PrintSaveArrayQuestion(ActiveVariableInfo * av_info)
 
 	} else if (NotInTheSameBlock(this, save_array_quest)){
 		s << PrintCodeSaveArrayQuestionNotInTheSameBlock(save_array_quest);
-#if 0 
+#if 0
 		s << "/*"
 			<< questionName_ << " and "
 			<< save_array_quest->questionName_
@@ -2571,8 +2574,8 @@ void AbstractQuestion::SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCod
 	if(my_loc == questions_in_block.end()){
 		ostringstream err_msg;
 		err_msg << "unable to find self: " << questionName_
-			<< "in block: " 
-			<< " code generated here is\n" 
+			<< "in block: "
+			<< " code generated here is\n"
 			<< s.str()
 			<< "\n... exiting\n";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
@@ -2812,7 +2815,7 @@ void AbstractQuestion::RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiled
 		ostringstream err_msg;
 		err_msg << "unable to find self : " << questionName_
 			<< " in block "
-			<< " code generated here is\n" 
+			<< " code generated here is\n"
 			<< s.str()
 			<< "\n... exiting\n";
 		print_err(compiler_internal_error, err_msg.str(), qscript_parser::line_no, __LINE__, __FILE__);
@@ -3125,7 +3128,7 @@ std::string AbstractQuestion::PrintCodeRestoreArrayQuestionNotInTheSameBlock(Abs
 	s 	<< "ostringstream map_key;\n";
 	s	<< "map_key << \"" << questionName_ << "\"";
 	s	<< " << ";
-	s	<< "\"_\" << xtcc_i "; 
+	s	<< "\"_\" << xtcc_i ";
 		//delete later
 	if (enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.size()>0) {
 		s	<< "<< \"$\" << " << enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
@@ -3193,9 +3196,9 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp)
 	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 	// 	<< mesg.str() << endl;
 	if (user_resp == user_response::UserClearedData && question_attributes.isAllowBlank()) {
-		// valid response if blanks are allowed but dont do isAnswered_ = true 
-		// because otherwise when visiting the questionnaire it will skip this 
-		// question and data entry will have an off by 1 error everytime they 
+		// valid response if blanks are allowed but dont do isAnswered_ = true
+		// because otherwise when visiting the questionnaire it will skip this
+		// question and data entry will have an off by 1 error everytime they
 		// are reviewing this question - since blank is a valid answer
 		return true;
 	} else if (user_resp == user_response::UserEnteredData) {
