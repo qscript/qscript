@@ -213,7 +213,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 #if 1
 	fprintf(script, " /* length(): %ld */", code.quest_defns_constructor.str().length() );
 	if (code.quest_defns_constructor.str().length() == 0) {
-		fprintf(script, ":");
+		//fprintf(script, ":");
 	} else {
 		fprintf(script, "%s\n", code.quest_defns_constructor.str().c_str());
 		//fprintf(script, ",");
