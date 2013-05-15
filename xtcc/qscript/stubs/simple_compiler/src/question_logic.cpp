@@ -25,11 +25,11 @@
 void question_eval_loop2 (
 	UserInput p_user_input,
 	AbstractQuestion * last_question_visited,
-	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire);
+	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
 
 void parse_input_data(vector<int> * data_ptr, int & success);
-void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);
-void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
+void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
@@ -41,11 +41,11 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQues
 			// so when re-visiting this particular qnre it will automatically
 			// stop here for data.
 			question_eval_loop2 (p_user_input, /* last_question_visited */ q,
-					/*  jump_to_question */ 0, theQuestionnaire);
+					/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 		} else if (p_user_input.questionResponseData_.length() == 0
 				&& q->question_attributes.isAllowBlank() == false ) {
 			// do not allow - serve the same question
-			GetUserInput (callback_ui_input, q, theQuestionnaire);
+			GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
 		} else {
 			cout << "--reached here" << endl;
 			// input is not blank
@@ -55,7 +55,7 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQues
 					/* current_response */, &input_data, success);
 			cout << "success: " << success << endl;
 			if (success == 0) {
-				GetUserInput (callback_ui_input, q, theQuestionnaire);
+				GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
 			} else {
 				// =======================
 				string err_mesg, re_arranged_buffer;
@@ -74,14 +74,14 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQues
 					p_user_input.theUserResponse_ = user_response::UserEnteredNavigation;
 					cout << __PRETTY_FUNCTION__ << ", invoking question_eval_loop2"
 						<< endl;
-					question_eval_loop2 (p_user_input, q, 0, theQuestionnaire);
+					question_eval_loop2 (p_user_input, q, 0, theQuestionnaire, nest_level + 1);
 				} else {
 					//stdout_eval (q, theQuestionnaire, callback_ui_input);
 					cout << __PRETTY_FUNCTION__
 						<< "Did not Get valid data for : "
 						<< " asking for input again (calling GetUserInput): "
 						<< q->questionName_ << endl;
-					GetUserInput (callback_ui_input, q, theQuestionnaire);
+					GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
 				}
 				// =======================
 #if 0
