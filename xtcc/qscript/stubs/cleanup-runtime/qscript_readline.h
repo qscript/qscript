@@ -7,7 +7,7 @@
 #include "UserResponse.h"
 #include "user_navigation.h"
 
-struct AbstractQuestion;
+struct AbstractRuntimeQuestion;
 
 class NCursesReadline
 {
@@ -22,9 +22,9 @@ class NCursesReadline
 	public:
 	// We expect an already allocated window to be passed to us
 	NCursesReadline(WINDOW * l_question_window,
-		WINDOW * l_stub_list_window, 
+		WINDOW * l_stub_list_window,
 		WINDOW * l_data_entry_window);
-	const char * ReadLine(AbstractQuestion * q);
+	const char * ReadLine(AbstractRuntimeQuestion * q);
 	void SetBuffer(const std::string & re_arranged_buffer
 		       , int32_t l_new_insertionPoint);
 	void DoDelete();
@@ -55,9 +55,9 @@ user_response::UserResponseType read_data_from_window(
 		const char * prompt, bool clear_buffer_flag,
 		std::string & re_arranged_buffer,
 		int & pos_1st_invalid_data,
-		AbstractQuestion * q,
+		AbstractRuntimeQuestion * q,
 		std::vector<int> * data_ptr);
-bool verify_web_data (std::string p_question_data, 
+bool verify_web_data (std::string p_question_data,
 		UserNavigation p_user_navigation,
 		user_response::UserResponseType p_the_user_response,
 		std::vector<int> * data_ptr);

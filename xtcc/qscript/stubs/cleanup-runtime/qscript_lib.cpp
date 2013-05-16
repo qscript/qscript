@@ -42,7 +42,7 @@ int32_t check_if_reg_file_exists(string jno, int32_t ser_no)
 //extern FILE* read_disk_datain;
 
 	typedef void * yyscan_t;
-int read_disk_dataparse(yyscan_t yyscanner, 
+int read_disk_dataparse(yyscan_t yyscanner,
 	std::map <string, question_disk_data*>* qdd_map_ptr,
 	std::vector<int>* data_ptr,
 	vector<int>* array_index_list_ptr);
@@ -57,7 +57,7 @@ void read_disk_data_init();
 extern map <string, question_disk_data*> qdd_map;
 void clear_previous_data()
 {
-	for (map<string, question_disk_data *>::iterator it = 
+	for (map<string, question_disk_data *>::iterator it =
 			qdd_map.begin(); it != qdd_map.end(); ++it) {
 		delete it->second;
 		it->second = 0;
@@ -66,7 +66,7 @@ void clear_previous_data()
 }
 */
 
-int32_t load_data(string jno, int32_t ser_no, 
+int32_t load_data(string jno, int32_t ser_no,
 		map <string, question_disk_data*> * qdd_map_ptr)
 {
 	yyscan_t scanner;
@@ -86,7 +86,7 @@ int32_t load_data(string jno, int32_t ser_no,
 		if (! read_disk_dataparse (scanner, qdd_map_ptr, &data, &array_index_list)) {
 			//return 1;
 			map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
-			for (map<string, question_disk_data*>:: iterator it 
+			for (map<string, question_disk_data*>:: iterator it
 					= qdd_map.begin();
 					it != qdd_map.end();
 					++it) {
@@ -128,21 +128,21 @@ int32_t load_data(string jno, int32_t ser_no,
 
 #include "question.h"
 
-//extern vector <AbstractQuestion*> question_list;
-void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * & p_last_question_answered,
-		AbstractQuestion * & p_last_question_visited, const vector <AbstractQuestion*> question_list,
+//extern vector <AbstractRuntimeQuestion*> question_list;
+void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractRuntimeQuestion * & p_last_question_answered,
+		AbstractRuntimeQuestion * & p_last_question_visited, const vector <AbstractRuntimeQuestion*> question_list,
 		map <string, question_disk_data*> * qdd_map_ptr)
 
 {
 	map <string, question_disk_data*> & qdd_map =  * qdd_map_ptr;
 	if (qscript_debug::DEBUG_LoadData) {
-		cout << "ENTER: " 
-			<< __PRETTY_FUNCTION__ 
-			<< __FILE__ << ", " << __LINE__ << ", " 
+		cout << "ENTER: "
+			<< __PRETTY_FUNCTION__
+			<< __FILE__ << ", " << __LINE__ << ", "
 			<< endl;
 	}
 	for (int32_t i = 0; i< question_list.size(); ++i) {
-		AbstractQuestion* q= question_list[i];
+		AbstractRuntimeQuestion* q= question_list[i];
 
 
 		fprintf(qscript_stdout, "searching for %s \n", q->questionDiskName_.c_str());

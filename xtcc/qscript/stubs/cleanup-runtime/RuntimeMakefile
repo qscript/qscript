@@ -13,6 +13,13 @@ SRC= AbstractQuestionnaire.cpp AbstractStatement.cpp config_parser.cpp \
 
 OBJS := $(SRC:.cpp=.o)
 
+%.cpp : %.l
+	flex -o$@ $<
+
+
+test_2_1.exe: $(OBJS) test_2_1.o
+	g++ $(CFLAGS) -o $@ $(OBJS) test_2_1.o -lpanel -lncurses
+
 test_2.exe: $(OBJS) test_2.o
 	g++ $(CFLAGS) -o $@ $(OBJS) test_2.o -lpanel -lncurses
 
@@ -22,3 +29,6 @@ test_2.exe: $(OBJS) test_2.o
 test_2.o: test_2.C
 	g++ $(CFLAGS)  -c $<
 
+
+test_2_1.o: test_2_1.C
+	g++ $(CFLAGS)  -c $<

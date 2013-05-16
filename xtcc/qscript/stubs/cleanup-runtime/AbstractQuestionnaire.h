@@ -11,8 +11,8 @@
  *       Revision:  none
  *       Compiler:  c++
  *
- *         Author:  Neil Xavier D'Souza, 
- *        Company:  
+ *         Author:  Neil Xavier D'Souza,
+ *        Company:
  *
  * =====================================================================================
  */
@@ -40,9 +40,9 @@
 
 struct AbstractQuestionnaire
 {
-	AbstractQuestion * last_question_answered;
-	AbstractQuestion * last_question_visited;
-	std::vector <AbstractQuestion*> question_list;
+	AbstractRuntimeQuestion * last_question_answered;
+	AbstractRuntimeQuestion * last_question_visited;
+	std::vector <AbstractRuntimeQuestion*> question_list;
 	std::fstream messages;
 	bool back_jump;
 	std::string jno;
@@ -54,19 +54,19 @@ struct AbstractQuestionnaire
 	int32_t jumpToIndex;
 	std::vector <BaseText> base_text_vec;
 	AbstractQuestionnaire (std::string p_jno);
-	void print_question_messages(AbstractQuestion * q);
+	void print_question_messages(AbstractRuntimeQuestion * q);
 	void print_summary_axis (std::vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);
 
 	virtual void compute_flat_file_map_and_init() = 0;
-	virtual AbstractQuestion * eval2 (UserNavigation p_navigation_mode,
-				AbstractQuestion * p_last_question_visited,
-				AbstractQuestion * p_jump_to_index) = 0;
-	void write_data_to_disk(const std::vector<AbstractQuestion*>& q_vec
+	virtual AbstractRuntimeQuestion * eval2 (UserNavigation p_navigation_mode,
+				AbstractRuntimeQuestion * p_last_question_visited,
+				AbstractRuntimeQuestion * p_jump_to_index) = 0;
+	void write_data_to_disk(const std::vector<AbstractRuntimeQuestion*>& q_vec
 		, std::string jno
 		, int32_t ser_no);
-	int32_t ComputeJumpToIndex(AbstractQuestion * q);
+	int32_t ComputeJumpToIndex(AbstractRuntimeQuestion * q);
 	void reset_questionnaire();
-	AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);
+	AbstractRuntimeQuestion * ComputePreviousQuestion(AbstractRuntimeQuestion * q);
 	void DisplayActiveQuestions();
 	void write_qtm_data_to_disk();
 	void write_ascii_data_to_disk();
@@ -75,7 +75,7 @@ struct AbstractQuestionnaire
 	private:
 	AbstractQuestionnaire& operator = (const AbstractQuestionnaire&);
 	AbstractQuestionnaire (const AbstractQuestionnaire&);
-		  
+
 };
 
 void GetUserResponse(std::string & qno, int32_t & qindex);

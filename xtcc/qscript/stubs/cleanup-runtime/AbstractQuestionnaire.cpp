@@ -75,7 +75,7 @@ AbstractQuestionnaire::AbstractQuestionnaire (string p_jno)
 { }
 
 
-void AbstractQuestionnaire::print_question_messages(AbstractQuestion * q)
+void AbstractQuestionnaire::print_question_messages(AbstractRuntimeQuestion * q)
 {
 	stringstream question_name;
 	question_name << q->questionName_;
@@ -96,7 +96,7 @@ void AbstractQuestionnaire::print_question_messages(AbstractQuestion * q)
 
 void AbstractQuestionnaire::print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file)
 {
-	AbstractQuestion * q = v[0]->q;
+	AbstractRuntimeQuestion * q = v[0]->q;
 	if (q->q_type == spn)
 	{
 		int n_digits = 0;
@@ -384,7 +384,7 @@ void AbstractQuestionnaire::print_summary_axis (vector<qtm_data_file_ns::QtmData
 	cout << endl;
 }
 
-void AbstractQuestionnaire::write_data_to_disk (const vector<AbstractQuestion*>& q_vec
+void AbstractQuestionnaire::write_data_to_disk (const vector<AbstractRuntimeQuestion*>& q_vec
 		, string jno
 		, int32_t ser_no)
 {
@@ -415,7 +415,7 @@ void AbstractQuestionnaire::write_data_to_disk (const vector<AbstractQuestion*>&
 	//fclose(fptr);
 }
 
-AbstractQuestion * AbstractQuestionnaire::ComputePreviousQuestion(AbstractQuestion * q)
+AbstractRuntimeQuestion * AbstractQuestionnaire::ComputePreviousQuestion(AbstractRuntimeQuestion * q)
 {
 	int32_t current_question_index = -1;
 	if (q)
@@ -452,7 +452,7 @@ AbstractQuestion * AbstractQuestionnaire::ComputePreviousQuestion(AbstractQuesti
 	return question_list[questions_start_from_here_index];
 }
 
-int32_t AbstractQuestionnaire::ComputeJumpToIndex(AbstractQuestion * q)
+int32_t AbstractQuestionnaire::ComputeJumpToIndex(AbstractRuntimeQuestion * q)
 {
 	//cout << "ENTER ComputeJumpToIndex: index:  ";
 	//for (int32_t i = 0; i < q->loop_index_values.size(); ++i) {
@@ -684,7 +684,7 @@ void AbstractQuestionnaire::do_freq_counts()
 {
 	for (int32_t i = 0; i < question_list.size(); ++i)
 	{
-		AbstractQuestion * q = question_list[i];
+		AbstractRuntimeQuestion * q = question_list[i];
 		stringstream question_name_str;
 		question_name_str << q->questionName_;
 		if (q->loop_index_values.size())

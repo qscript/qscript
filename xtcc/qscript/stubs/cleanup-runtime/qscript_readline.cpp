@@ -25,7 +25,7 @@ void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * data
 void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, NamedStubQuestion * nq);
 
 NCursesReadline::NCursesReadline(WINDOW * l_question_window,
-		WINDOW * l_stub_list_window, 
+		WINDOW * l_stub_list_window,
 		WINDOW * l_data_entry_window)
 	: buffer_(), insertionPoint_(0),
 	  questionWindow_(l_question_window),
@@ -33,7 +33,7 @@ NCursesReadline::NCursesReadline(WINDOW * l_question_window,
 	  dataEntryWindow_(l_data_entry_window)
 	{ buffer_.reserve(4095); }
 
-const char * NCursesReadline::ReadLine (AbstractQuestion * q)
+const char * NCursesReadline::ReadLine (AbstractRuntimeQuestion * q)
 {
 	wmove(dataEntryWindow_, 1, 1);
 	mvwprintw(dataEntryWindow_,1,1, "%s", buffer_.c_str());

@@ -28,7 +28,7 @@ using std::pair;
 fstream qtm_data_file_writer_log;
 
 
-// This function operates on the 
+// This function operates on the
 // assumption that all columns for
 // a question are allocated in the same block
 // 20-mar-2011 - split into 2 funcs
@@ -73,7 +73,7 @@ void QtmDataDiskMap::write_multi_code_data()
 	for (int i=0; i<codeBucketVec_.size(); ++i) {
 		if (codeBucketVec_[i].codeVec_.size() == 0) {
 		} else if (codeBucketVec_[i].codeVec_.size() == 1) {
-			qtmDataFile_.write_single_code_data (startPosition_ + i, 1, 
+			qtmDataFile_.write_single_code_data (startPosition_ + i, 1,
 					codeBucketVec_[i].codeVec_[0], q);
 		} else {
 			qtm_data_file_writer_log << " writing bucket " << i << " data at col position: "
@@ -83,7 +83,7 @@ void QtmDataDiskMap::write_multi_code_data()
 	}
 }
 
-QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
+QtmDataDiskMap::QtmDataDiskMap(AbstractRuntimeQuestion * p_q,
 		QtmDataFile & p_qtm_data_file , BaseText base_text)
 	:
 	q(p_q), startPosition_(-1),
@@ -120,46 +120,46 @@ QtmDataDiskMap::QtmDataDiskMap(AbstractQuestion * p_q,
 			width_ = 9;
 		}
 		else {
-			cout	<< " max_code " << max_code << " for question: " 
-				<< q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting " 
+			cout	<< " max_code " << max_code << " for question: "
+				<< q->questionName_ << " exceeds max length = 9 we are programmed to handled ... exiting "
 				<< __FILE__ << ","  << __LINE__ << ","  << __PRETTY_FUNCTION__ << endl;
 			exit(1);
 		}
 	} else if (q->no_mpn > 1) {
-		width_ = max_code % 10 == 0 ? (max_code / 10) : ( (max_code / 10) + 1); 
-			// acn puts code 10 in the same column as code '0', 
+		width_ = max_code % 10 == 0 ? (max_code / 10) : ( (max_code / 10) + 1);
+			// acn puts code 10 in the same column as code '0',
 				// nop (now gfk) puts it in the next column as code '0'
 				// if this program is used by both companies
 				// then will need to add a flag - nop/acn to create accordingly
 	} else {
 		cerr << "Internal compiler error - detected at runtime. q->no_mpn should be >= 1 ... "
-			<< "q->questionName_: " << q->questionName_ 
-			<< ", q->no_mpn: " << q->no_mpn 
-			<< __FILE__ << ", " << __LINE__ 
+			<< "q->questionName_: " << q->questionName_
+			<< ", q->no_mpn: " << q->no_mpn
+			<< __FILE__ << ", " << __LINE__
 			<< endl;
 		cerr << " ... exiting\n";
 		exit(1);
 	}
 	totalLength_ = width_;
-		
+
 	startPosition_ = qtmDataFile_.fileXcha_.UpdateCurrentColumn(width_, q);
 	int noBuckets = width_;
 	for (int i=0; i< noBuckets; ++i) {
-		codeBucketVec_.push_back(CodeBucket());	
+		codeBucketVec_.push_back(CodeBucket());
 	}
 }
 
 
-int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q)
+int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractRuntimeQuestion * q)
 {
 	int bufferBetweenQuestions = 0;
 	stringstream mesg;
 	mesg << "MAINTAINTER NOTE:  move bufferBetweenQuestions to config file as a paramater ";
-	cerr << mesg.str() << ", line: " <<  __LINE__ << ", " << __FILE__ << ", func: " 
+	cerr << mesg.str() << ", line: " <<  __LINE__ << ", " << __FILE__ << ", func: "
 		<< __PRETTY_FUNCTION__ << endl;
 	if (qtmFileMode_ != READ_EQ_0) {
 		if (width_ > (cardDataWrapAroundAt_ - cardDataStartAt_)) {
-			cerr << " the question" 
+			cerr << " the question"
 				<< q->questionName_
 				<< "'s  width_ exceeds the width_ that can fit in a single card ... "
 				<< __FILE__ << ", "  << __LINE__ << ", "  << __PRETTY_FUNCTION__ << endl;
@@ -172,7 +172,7 @@ int QtmFileCharacteristics::UpdateCurrentColumn(int width_, AbstractQuestion * q
 			bufferBetweenQuestions = 10;
 			if (q->loop_index_values.size() == 0) {
 				currentColumnMod10 = currentColumn_ % 10;
-				//if (currentColumnMod10 != 1) { 
+				//if (currentColumnMod10 != 1) {
 					add_displacement =  10 - currentColumnMod10 + bufferBetweenQuestions;
 				//} else {
 				//	add_displacement =  bufferBetweenQuestions;
@@ -259,7 +259,7 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 	} else {
 		fname << setup_dir << "/" <<n_q->nr_ptr->name << ".sin";
 	}
-	fstream qtm_include_file (fname.str().c_str(), 
+	fstream qtm_include_file (fname.str().c_str(),
 			std::ios_base::out | std::ios_base::trunc);
 	string range_name = n_q->nr_ptr->name;
 	int rat_scale = 0;
@@ -289,11 +289,11 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 				int dividend = the_code/10;
 				int remainder = the_code%10;
 				if (remainder == 0) {
-					qtm_include_file 
+					qtm_include_file
 						<< dividend - 1 << "'"
 						<< remainder << "'";
 				} else {
-					qtm_include_file 
+					qtm_include_file
 						<< dividend  << "'"
 						<< remainder << "'";
 				}
@@ -384,8 +384,8 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 				}
 				if (width_==1)
 					qtm_include_file << "n25;inc=c(a0);c=c(a0).in.(1:5);\n";
-				else 
-					qtm_include_file << "n25;inc=" 
+				else
+					qtm_include_file << "n25;inc="
 						<< "c(a0,a" << width_ - 1 << ");"
 						<< "c=c(a0,a" << width_ - 1 << ").in.(1:5);\n";
 			}
@@ -445,7 +445,7 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 				}
 				if (width_==1)
 					qtm_include_file << "n25;inc=c=c(a0);c=c(a0).in.(1:7);\n";
-				else 
+				else
 					qtm_include_file << "n25;inc="
 						<< "c(a0,a" << width_ - 1 << ");"
 						<< "c=c(a0,a" << width_ - 1 << ").in.(1:7);\n";
@@ -506,12 +506,12 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 				}
 				if (width_==1)
 					qtm_include_file << "Error - width is 1 for 10 point scale;\n";
-				else 
+				else
 					qtm_include_file << "n25;inc="
 						<< "c(a0,a" << width_ - 1 << ");"
 						<< "c=c(a0,a" << width_ - 1 << ").in.(1:10);\n";
 			}
-			cerr << "reached here: " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__ 
+			cerr << "reached here: " << __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
 				<< " rat_scale: " << rat_scale
 				<< endl;
 			if (rat_scale == 9) {
@@ -570,8 +570,8 @@ void QtmDataDiskMap::print_qin(string setup_dir)
 				}
 				if (width_==1)
 					qtm_include_file << "n25;inc=c(a0);c=c(a0).in.(1:9);\n";
-				else 
-					qtm_include_file << "n25;inc=" 
+				else
+					qtm_include_file << "n25;inc="
 						<< "c(a0,a" << width_ - 1 << ");"
 						<< "c=c(a0,a" << width_ - 1 << ").in.(1:9);\n";
 			}
@@ -591,7 +591,7 @@ void QtmDataDiskMap::print_run(string jno)
 		<< "," << qtm_datafile_conf_parser_ns::ser_end
 		<< ");crd=c(" << qtm_datafile_conf_parser_ns::crd_start
 		<< "," <<  qtm_datafile_conf_parser_ns::crd_end
-		<< ");read=" << qtm_datafile_conf_parser_ns::qtm_file_mode 
+		<< ");read=" << qtm_datafile_conf_parser_ns::qtm_file_mode
 		<< ";max=" << qtmDataFile_.fileXcha_.currentCard_ + 1
 		<< endl << endl;
 
@@ -602,8 +602,8 @@ void QtmDataDiskMap::print_run(string jno)
 	run_file << "*include " << jno << ".tab;ban=tot" << endl;
 	run_file << "*include " << jno << ".qax" << endl;
 
-	run_file << endl 
-		<< "l tot" << endl << "n10Total" 
+	run_file << endl
+		<< "l tot" << endl << "n10Total"
 		<< endl
 		<< endl;
 
@@ -672,12 +672,12 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 		int i=0;
 		for (i=0; i < n_pieces ; ++i) {
 			if (i==0) {
-				ttl_string << "qt1it=" << q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
+				ttl_string << "qt1it=" << q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size()
 					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT) << endl;
 			} else {
-				ttl_string << "+qt" << i+1 << "it=" 
-					<< q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size() 
-					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT) 
+				ttl_string << "+qt" << i+1 << "it="
+					<< q->questionText_.substr(i * TEXT_LEN_BREAK_AT, (i+1) * TEXT_LEN_BREAK_AT > q->questionText_.size()
+					? q->questionText_.size() : (i+1) * TEXT_LEN_BREAK_AT)
 					<< ";act" << i+1 << "t=;"
 					<< endl;
 			}
@@ -717,19 +717,19 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 		}
 
 		if (q->loop_index_values.size()==1) {
-			qax_file << "*include " << q->questionName_ 
+			qax_file << "*include " << q->questionName_
 				<< ".qax"
-				<< ";qlno=" << q->loop_index_values[0] 
+				<< ";qlno=" << q->loop_index_values[0]
 				<< ";col(a)=" << startPosition_ + 1
 				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;qat2t=;att2t=/*" << endl
 				<< "+btxt=" << l_base_text.str()
 				<< endl
 				<< endl;
 		} else {
-			qax_file << "*include " << q->questionName_ 
+			qax_file << "*include " << q->questionName_
 				<< ".qax"
 				<< ";col(a)=" << startPosition_ + 1
-				<< ";qlno=" << q->loop_index_values[0] << "_" << q->loop_index_values[1] 
+				<< ";qlno=" << q->loop_index_values[0] << "_" << q->loop_index_values[1]
 				<< ";qat1t=&at" << q->loop_index_values[0] << "t;att1t=;"
 				<< ";qat2t=&bt" << q->loop_index_values[0] << "t;att2t=;" << endl
 				<< "+btxt=" << l_base_text
@@ -742,8 +742,8 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 			qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl;
 			qax_file << "+q2att=;att2t=/ *;" << endl;
 		} else  {
-			qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl; 
-			qax_file << "+q2att=&bt" << q->loop_index_values[1] << "t;att2t=;" << endl; 
+			qax_file << "+q1att=&at" << q->loop_index_values[0] << "t;att1t=;" << endl;
+			qax_file << "+q2att=&bt" << q->loop_index_values[1] << "t;att2t=;" << endl;
 		}
 		*/
 		bool is_1st_iter = true;
@@ -764,9 +764,9 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 			qax_file << "l " << q->questionName_ << "_&qlno;c=c(a0";
 			if (width_>0) {
 				qax_file << ",a" << width_-1 ;
-			} 
+			}
 			qax_file << ") u $ $;" << endl;
-			qax_file << "*include qttl.qin;" 
+			qax_file << "*include qttl.qin;"
 				<< ttl_string.str() << endl
 				<< "*include base.qin" << endl;
 
@@ -789,31 +789,31 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 					<< endl;
 				stringstream fname;
 				fname << setup_dir << "/" << q->questionName_ << ".qin";
-				fstream qtm_include_file (fname.str().c_str(), 
+				fstream qtm_include_file (fname.str().c_str(),
 						std::ios_base::out | std::ios_base::trunc);
 				if (width_ == 1) {
-					qtm_include_file << "val c(a0);i;1" 
+					qtm_include_file << "val c(a0);i;1"
 						<< endl;
 				} else {
 					qtm_include_file << "val c(a0,"
-						<< "a" << width_ - 1 << ");i;1" 
+						<< "a" << width_ - 1 << ");i;1"
 						<< endl;
 				}
 			}
-				
+
 		}
 	} else {
 		qax_file << "l " << q->questionName_ ;
 		for (int i=0; i< q->loop_index_values.size(); ++i) {
 			qax_file << "_" << q->loop_index_values[i];
 		}
-		
+
 
 		qax_file << "; c=c("
 			<< startPosition_ +1 ;
 		if (width_ > 1) {
 			qax_file << ", " << startPosition_ + totalLength_;
-		} 
+		}
 		qax_file << ") u $ $" ;
 		qax_file << endl;
 		qax_file << "*include qttl.qin;qno=;" ;
@@ -873,14 +873,14 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 				<< endl;
 			stringstream fname;
 			fname << setup_dir << "/" << q->questionName_ << ".qin";
-			fstream qtm_include_file (fname.str().c_str(), 
+			fstream qtm_include_file (fname.str().c_str(),
 					std::ios_base::out | std::ios_base::trunc);
 			if (width_ == 1) {
-				qtm_include_file << "val c(a0);i;1" 
+				qtm_include_file << "val c(a0);i;1"
 					<< endl;
 			} else {
 				qtm_include_file << "val c(a0,"
-					<< "a" << width_ - 1 << ");i;1" 
+					<< "a" << width_ - 1 << ");i;1"
 					<< endl;
 			}
 		}
@@ -890,7 +890,7 @@ void QtmDataDiskMap::print_qax(fstream & qax_file, string setup_dir)
 }
 
 
-QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_, 
+QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_,
 		int p_cardWrapAroundAt,
 		bool p_dontBreakQuestionsAtBoundary, QtmFileMode p_qtmFileMode)
 	: cardDataStartAt_(p_cardDataStartAt_), cardDataWrapAroundAt_(p_cardWrapAroundAt),
@@ -921,7 +921,7 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_,
 		exit(1);
 	}
 	if (qtmFileMode_ == READ_EQ_0) {
-		// we dont care about cardDataWrapAroundAt_ or cardDataStartAt_ 
+		// we dont care about cardDataWrapAroundAt_ or cardDataStartAt_
 	} else if (qtmFileMode_ == READ_EQ_1) {
 		if (cardDataWrapAroundAt_ > 999) {
 			cerr << " cardDataWrapAroundAt_ = " << cardDataWrapAroundAt_ << " which is an invalid value for READ_EQ_1 ... exiting" << endl;
@@ -938,7 +938,7 @@ QtmFileCharacteristics::QtmFileCharacteristics(int p_cardDataStartAt_,
 		exit (1);
 	}
 	if (cardDataStartAt_ < 1) {
-		cerr	<< " invalid value for cardDataStartAt_: " << cardDataStartAt_ 
+		cerr	<< " invalid value for cardDataStartAt_: " << cardDataStartAt_
 			<< ", " <<  __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 		exit(1);
 	}
@@ -969,7 +969,7 @@ int QtmFileCharacteristics::GetCurrentColumnPosition()
 QtmDataFile::QtmDataFile()
 	: cardVec_(), fileXcha_(/*11,  */
 		qtm_datafile_conf_parser_ns::crd_start,
-		qtm_datafile_conf_parser_ns::crd_end, true, 
+		qtm_datafile_conf_parser_ns::crd_end, true,
 		qtm_datafile_conf_parser_ns::qtm_file_mode)
 {
 	//cout << "qtm_datafile_conf_parser_ns::crd_start: "
@@ -982,7 +982,7 @@ QtmDataFile::QtmDataFile()
 
 // This function cannot be used to write codes '-', '&'
 void QtmDataFile::write_multi_code_data (int column, vector<int> & data,
-		AbstractQuestion * q)
+		AbstractRuntimeQuestion * q)
 {
 	bool valid_col_ref = CheckForValidColumnRef (column);
 	if (!valid_col_ref) {
@@ -1011,7 +1011,7 @@ void QtmDataFile::write_multi_code_data (int column, vector<int> & data,
 		pair<int,int> cc = ConvertToCardColumn (column);
 		if (c) {
 			cardVec_[cc.first].data_[cc.second] = c;
-			qtm_data_file_writer_log << "check_for_exceptions found exception returned: " 
+			qtm_data_file_writer_log << "check_for_exceptions found exception returned: "
 				<< c << endl;
 			return;
 		}
@@ -1050,7 +1050,7 @@ void QtmDataFile::write_multi_code_data (int column, vector<int> & data,
 	}
 }
 
-pair<int, int> QtmDataFile::ConvertToCardColumn (int column) 
+pair<int, int> QtmDataFile::ConvertToCardColumn (int column)
 {
 	if (fileXcha_.qtmFileMode_ == READ_EQ_0) {
 		// flat file - single card - column is the actual position
@@ -1061,7 +1061,7 @@ pair<int, int> QtmDataFile::ConvertToCardColumn (int column)
 		return pair<int, int> (column/100 - 1, column%100);
 	} else {
 		stringstream error_str;
-		error_str << " fileXcha_.qtmFileMode_ has an unknown value " 
+		error_str << " fileXcha_.qtmFileMode_ has an unknown value "
 			<< endl;
 		cerr << LOG_MESSAGE(error_str.str());
 		exit(1);
@@ -1117,7 +1117,7 @@ void QtmDataFile::write_record_to_disk(std::fstream & disk_file, int ser_no)
 
 		for (int j=0; j<ser_no_str.str().length(); ++j) {
 			the_single_coded_data[j+qtm_datafile_conf_parser_ns::ser_start-1] =  ser_no_str.str()[j];
-			qtm_data_file_writer_log << " output char : " << ser_no_str.str()[j] 
+			qtm_data_file_writer_log << " output char : " << ser_no_str.str()[j]
 				<< " of serial to data file: "
 				<< endl;
 		}
@@ -1133,7 +1133,7 @@ void QtmDataFile::write_record_to_disk(std::fstream & disk_file, int ser_no)
 		}
 		for (int j=0; j<crd_no_str.str().length(); ++j) {
 			the_single_coded_data[j+qtm_datafile_conf_parser_ns::crd_start-1] =  crd_no_str.str()[j];
-			qtm_data_file_writer_log << " output char : " << crd_no_str.str()[j] 
+			qtm_data_file_writer_log << " output char : " << crd_no_str.str()[j]
 				<< " of crd no to data file: "
 				<< endl;
 		}
@@ -1153,8 +1153,8 @@ void QtmDataFile::AllocateCards()
 {
 	// last card is never added by NextCard - could be empty - add it now
 	fileXcha_.maxColList_.push_back( pair<int, int>(fileXcha_.currentCard_, fileXcha_.currentColumn_) );
-	cout << " allocated currentCard_: " << fileXcha_.currentCard_ 
-		<< " currentColumn_: " << fileXcha_.currentColumn_ 
+	cout << " allocated currentCard_: " << fileXcha_.currentCard_
+		<< " currentColumn_: " << fileXcha_.currentColumn_
 		<< endl;
 	for (int i=0; i<fileXcha_.maxColList_.size(); ++i) {
 		// pair <card, col>
@@ -1162,10 +1162,10 @@ void QtmDataFile::AllocateCards()
 		cardVec_.push_back ( Card(card_col.second) );
 		bool not_the_last_card = i < fileXcha_.maxColList_.size()-1;
 		if (not_the_last_card) {
-			pair <int, int> next_card_col  = fileXcha_.maxColList_[i+1]; 
+			pair <int, int> next_card_col  = fileXcha_.maxColList_[i+1];
 			// above is safe
 			if (next_card_col.first - card_col.first > 1) {
-				// blank cards in between 
+				// blank cards in between
 				for (int j=card_col.first+1; j< next_card_col.first;
 						++j) {
 					cardVec_.push_back ( Card(0) );
@@ -1200,7 +1200,7 @@ void QtmDataDiskMap::Reset()
 	//qtmDataFile_.Reset();
 }
 
-void QtmDataFile::write_single_code_data (int column, int width, int code, AbstractQuestion *q)
+void QtmDataFile::write_single_code_data (int column, int width, int code, AbstractRuntimeQuestion *q)
 {
 	stringstream s;
 	if (width == 1) {
@@ -1230,15 +1230,15 @@ void QtmDataFile::write_single_code_data (int column, int width, int code, Abstr
 		exit(1);
 	}
 	pair<int,int> cc = ConvertToCardColumn (column);
-	// cerr << " ConvertToCardColumn: card: " << cc.first 
-	// 	<< " col: " << cc.second 
+	// cerr << " ConvertToCardColumn: card: " << cc.first
+	// 	<< " col: " << cc.second
 	// 	<< endl;
 	// cerr	<< "cardVec_.length(): " << cardVec_.size() << endl
-	// 	<< "cardVec_[" << cc.first << "].data_.length(): " 
+	// 	<< "cardVec_[" << cc.first << "].data_.length(): "
 	// 	<< cardVec_[cc.first].data_.size() << endl;
 	// cerr << "s.str().c_str()[0]: " << s.str().c_str()[0] << endl;
 	//cerr << & (s.str().c_str()[s.str().length()]) << endl;
-	//const char * ptr1 = & (s.str().c_str()[0]);  
+	//const char * ptr1 = & (s.str().c_str()[0]);
 	//const char * ptr2 = & (s.str().c_str()[s.str().length()]);
 	char * buffer = new char[s.str().length()+1];
 	strcpy (buffer, s.str().c_str());
@@ -1357,11 +1357,11 @@ void QtmFileCharacteristics::Initialize()
 	cardDataStartAt_ = qtm_datafile_conf_parser_ns::data_start_col;
 	cardDataWrapAroundAt_ = qtm_datafile_conf_parser_ns::data_end_col;
 	qtmFileMode_ = qtm_datafile_conf_parser_ns::qtm_file_mode;
-	cout << "cardDataStartAt_: " << cardDataStartAt_ 
+	cout << "cardDataStartAt_: " << cardDataStartAt_
 		<< " cardDataWrapAroundAt_: " << cardDataWrapAroundAt_
 		<< endl;
 
-	
+
 	if (qtmFileMode_ == READ_EQ_0) {
 		multiplier_ = 1;
 	} else if (qtmFileMode_ == READ_EQ_1) {
@@ -1369,39 +1369,39 @@ void QtmFileCharacteristics::Initialize()
 	} else if (qtmFileMode_ == READ_EQ_2) {
 		multiplier_ = 100;
 	} else {
-		cerr << "error in setting qtmFileMode_ in " 
-			<< __PRETTY_FUNCTION__ << ", " 
-			<< __FILE__ << ", " 
+		cerr << "error in setting qtmFileMode_ in "
+			<< __PRETTY_FUNCTION__ << ", "
+			<< __FILE__ << ", "
 			<< __LINE__ << endl;
 		cerr << "exiting ...\n";
 		exit(1);
 	}
 	if (qtmFileMode_ == READ_EQ_0) {
-		// we dont care about 
-		// cardDataWrapAroundAt_ or cardDataStartAt_ 
+		// we dont care about
+		// cardDataWrapAroundAt_ or cardDataStartAt_
 	} else if (qtmFileMode_ == READ_EQ_1) {
 		if (cardDataWrapAroundAt_ > 999) {
-			cerr    << " cardDataWrapAroundAt_ = " 
-				<< cardDataWrapAroundAt_ 
+			cerr    << " cardDataWrapAroundAt_ = "
+				<< cardDataWrapAroundAt_
 				<< " which is an invalid value for READ_EQ_1 ... exiting" << endl;
 			exit(1);
 		}
 	} else if (qtmFileMode_ == READ_EQ_2) {
 		if (cardDataWrapAroundAt_ > 99) {
-			cerr << " cardDataWrapAroundAt_ = " 
-				<< cardDataWrapAroundAt_ 
+			cerr << " cardDataWrapAroundAt_ = "
+				<< cardDataWrapAroundAt_
 				<< " which is an invalid value for READ_EQ_2 ... exiting" << endl;
 			exit(1);
 		}
 	} else {
 		cerr << " impossible - the earlier line of code should have terminated the program" << endl;
-		cerr  << __FILE__ << ", " 
-			<< __LINE__ << ", " 
+		cerr  << __FILE__ << ", "
+			<< __LINE__ << ", "
 			<< __PRETTY_FUNCTION__ << endl;
 		exit (1);
 	}
 	if (cardDataStartAt_ < 1) {
-		cerr	<< " invalid value for cardDataStartAt_: " << cardDataStartAt_ 
+		cerr	<< " invalid value for cardDataStartAt_: " << cardDataStartAt_
 			<< ", " <<  __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
 		exit(1);
 	}

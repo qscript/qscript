@@ -24,12 +24,12 @@
 
 void question_eval_loop2 (
 	UserInput p_user_input,
-	AbstractQuestion * last_question_visited,
-	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
+	AbstractRuntimeQuestion * last_question_visited,
+	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
 
 void parse_input_data(vector<int> * data_ptr, int & success);
-void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
-void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {

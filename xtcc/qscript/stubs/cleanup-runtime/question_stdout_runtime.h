@@ -31,8 +31,8 @@ int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int, int), int nest_l
 struct TheQuestionnaire;
 
 void question_eval_loop (EvalMode qnre_mode,
-	UserNavigation qnre_navigation_mode, AbstractQuestion * last_question_visited,
-	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire);
+	UserNavigation qnre_navigation_mode, AbstractRuntimeQuestion * last_question_visited,
+	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire);
   */
 
 struct UserInput
@@ -49,18 +49,18 @@ struct UserInput
 		theUserResponse_(user_response::NotSet)
 	{}
 };
-//void stdout_eval (AbstractQuestion * q);
+//void stdout_eval (AbstractRuntimeQuestion * q);
 struct TheQuestionnaire;
-void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire,
+void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire,
 	void (*callback_ui_input)
-		(UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		(UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level),
 		int nest_level
 		);
 void parse_input_data(string input_string, vector<int> * data_ptr, int & success);
 void GetUserInput (
-	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
+	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+		AbstractRuntimeQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 
 #endif /*  QUESTION_STDOUT_RUNTIME_H */

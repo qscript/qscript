@@ -25,7 +25,7 @@ RangeQuestion::RangeQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+	: AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			   , l_q_type, l_no_mpn, l_dt, l_question_attributes
 			   , l_isStartOfBlock)
 	, r_data(new XtccSet(l_r_data)), displayData_()
@@ -35,7 +35,7 @@ RangeQuestion::RangeQuestion(
 
 
 #if 0
-AbstractQuestion::AbstractQuestion(
+AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	DataType l_type, int32_t l_no, string l_name, string l_text
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
@@ -67,7 +67,7 @@ RangeQuestion::RangeQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
+	AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array
 		, l_question_attributes, l_isStartOfBlock
 		)
@@ -78,6 +78,7 @@ RangeQuestion::RangeQuestion(
 
 
 //void RangeQuestion::eval()
+#if 0
 void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			 , /*qs_ncurses::*/WINDOW* stub_list_window
 			 , /*qs_ncurses::*/WINDOW* data_entry_window)
@@ -134,7 +135,7 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			cout << endl;
 		}
 
-		//AbstractQuestion::GetDataFromUser(data_entry_window);
+		//AbstractRuntimeQuestion::GetDataFromUser(data_entry_window);
 	} else {
 		wclear(question_window);
 		box(question_window, 0, 0);
@@ -223,14 +224,14 @@ void RangeQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//wrefresh(stub_list_window);
 		update_panels();
 		doupdate();
-		//AbstractQuestion::GetDataFromUser(data_entry_window);
+		//AbstractRuntimeQuestion::GetDataFromUser(data_entry_window);
 	}
 
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
+	user_response::UserResponseType user_resp = AbstractRuntimeQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
 
 /*
 get_data_again:
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+	user_response::UserResponseType user_resp = AbstractRuntimeQuestion::GetDataFromUser(data_entry_window);
 	stringstream mesg; mesg << "user_resp: " << user_resp;
 	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< mesg.str() << endl;
@@ -248,10 +249,11 @@ get_data_again:
 	*/
 
 }
+#endif /* 0 */
 
 
 // this is only called from the runtime
-AbstractQuestion::AbstractQuestion(
+AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	DataType l_type, int32_t l_no, string l_name
 	//, string l_text
 	, vector<TextExpression*> text_expr_vec
@@ -261,7 +263,8 @@ AbstractQuestion::AbstractQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	: //AbstractStatement(l_type, l_no),
+	  questionName_(l_name)
 	, textExprVec_(text_expr_vec), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0)
@@ -274,7 +277,7 @@ AbstractQuestion::AbstractQuestion(
 	  , mutexCodeList_()
 	  , maxCode_(0)
 	  , isStartOfBlock_(l_isStartOfBlock)
-	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
+	  , questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
@@ -289,6 +292,7 @@ AbstractQuestion::AbstractQuestion(
 
 
 //void NamedStubQuestion::eval()
+#if 0
 void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window)
@@ -363,7 +367,7 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 			cout << endl;
 		}
 
-		//user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+		//user_response::UserResponseType user_resp = AbstractRuntimeQuestion::GetDataFromUser(data_entry_window);
 
 	} else {
 		wclear(question_window);
@@ -429,13 +433,13 @@ void NamedStubQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 		//wrefresh(stub_list_window);
 		update_panels();
 		doupdate();
-		// AbstractQuestion::GetDataFromUser(data_entry_window);
+		// AbstractRuntimeQuestion::GetDataFromUser(data_entry_window);
 	}
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
+	user_response::UserResponseType user_resp = AbstractRuntimeQuestion::GetDataFromUser(question_window, stub_list_window, data_entry_window);
 
 	/*
 get_data_again:
-	user_response::UserResponseType user_resp = AbstractQuestion::GetDataFromUser(data_entry_window);
+	user_response::UserResponseType user_resp = AbstractRuntimeQuestion::GetDataFromUser(data_entry_window);
 	stringstream mesg; mesg << "user_resp: " << user_resp;
 	cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< mesg.str() << endl;
@@ -453,6 +457,7 @@ get_data_again:
 	*/
 
 }
+#endif /* 0 */
 
 
 //! only called in the runtime environment
@@ -467,7 +472,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
+	AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec,
 		l_q_type, l_no_mpn, l_dt, l_loop_index_values, l_dummy_array, l_question_attributes, l_isStartOfBlock
 		)
 	, named_list()
@@ -494,7 +499,8 @@ NamedStubQuestion::NamedStubQuestion(
 }
 
 
-user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window)
+#if 0
+user_response::UserResponseType AbstractRuntimeQuestion::GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window)
 {
 	// cout << __PRETTY_FUNCTION__ << ", " << __LINE__ << ", " << __FILE__ << endl;
 	string err_mesg, re_arranged_buffer;
@@ -507,7 +513,7 @@ user_response::UserResponseType AbstractQuestion::GetDataFromUser(WINDOW * quest
 ask_again:
 			user_response::UserResponseType user_resp = read_data(prompt.c_str(), &data);
 			string err_mesg;
-			bool valid_response = AbstractQuestion::VerifyResponse(user_resp, user_navigation, err_mesg);
+			bool valid_response = AbstractRuntimeQuestion::VerifyResponse(user_resp, user_navigation, err_mesg);
 			if (!valid_response) {
 				goto ask_again;
 			}
@@ -559,7 +565,7 @@ label_ask_again:
 			// 	return user_resp;
 			// }
 			string err_mesg;
-			bool valid_input = AbstractQuestion::VerifyResponse(user_resp, user_navigation, err_mesg);
+			bool valid_input = AbstractRuntimeQuestion::VerifyResponse(user_resp, user_navigation, err_mesg);
 			// nxd: 17-feb-2013 23:51 - add the cases below to VerifyResponse
 			// then delete them from here and take a decision on:
 			// 	if valid_input == true else false
@@ -602,9 +608,10 @@ label_ask_again:
 		return user_response::UserEnteredData;
 	}
 }
+#endif /* 0 */
 
 
-bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation, string & err_mesg)
+bool AbstractRuntimeQuestion::VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation, string & err_mesg)
 {
 	stringstream mesg; mesg << "user_resp: " << user_resp;
 	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
@@ -652,7 +659,7 @@ bool AbstractQuestion::VerifyResponse(user_response::UserResponseType user_resp,
 
 
 // re_arranged_buffer will contain the data like this: valid_data invalid_data
-bool AbstractQuestion::VerifyData(
+bool AbstractRuntimeQuestion::VerifyData(
 	string & err_mesg, string & re_arranged_buffer
 	, int32_t & pos_1st_invalid_data, vector<int32_t>* data_ptr)
 {
@@ -721,7 +728,7 @@ end:
 }
 
 
-void AbstractQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
+void AbstractRuntimeQuestion::Generate_ComputeFlatFileMap(StatementCompiledCode & code)
 { }
 
 void RangeQuestion::GenerateCode(StatementCompiledCode & code )
@@ -805,7 +812,7 @@ NamedStubQuestion::NamedStubQuestion(
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	):
-	AbstractQuestion(this_stmt_type, line_number, l_name, text_expr_vec
+	AbstractRuntimeQuestion(this_stmt_type, line_number, l_name, text_expr_vec
 			 ,l_q_type, l_no_mpn, l_dt, l_question_attributes
 			 , l_isStartOfBlock)
 	, named_list()
@@ -831,7 +838,7 @@ NamedStubQuestion::NamedStubQuestion(
 
 // a question can lose integrity because of modification to a previous question
 
-bool AbstractQuestion::VerifyQuestionIntegrity()
+bool AbstractRuntimeQuestion::VerifyQuestionIntegrity()
 {
 	bool has_integrity = true;
 
@@ -1132,7 +1139,7 @@ void NamedStubQuestion::DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_windo
 }
 
 
-bool AbstractQuestion::check_and_store_input_data_single_question
+bool AbstractRuntimeQuestion::check_and_store_input_data_single_question
 	(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,
 	 vector <int> & data)
 {
@@ -1168,3 +1175,19 @@ bool AbstractQuestion::check_and_store_input_data_single_question
 	}
 	cout << endl;
 }
+
+
+/*
+int32_t AbstractRuntimeQuestion::GetMaxCode()
+{
+	if (maxCode_ == 0) {
+		stringstream err_msg;
+		err_msg << " maxCode_ == 0 should have been set: questionName_: "
+			<< questionName_ << endl;
+		print_err(compiler_internal_error, err_msg.str()
+				, 0, __LINE__, __FILE__);
+		exit(1);
+	}
+	return maxCode_;
+}
+*/

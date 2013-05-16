@@ -46,7 +46,7 @@ using namespace std;
 //extern vector<int32_t> data;
 namespace program_options_ns { bool flag_nice_map = true; }
 extern UserNavigation user_navigation;
-//vector <AbstractQuestion*> question_list;
+//vector <AbstractRuntimeQuestion*> question_list;
 vector<mem_addr_tab>  mem_addr;
 //extern vector<question_disk_data*>  qdd_list;
 bool write_data_file_flag;
@@ -61,7 +61,7 @@ int32_t check_if_reg_file_exists(string jno, int32_t ser_no);
 void print_map_header(fstream & map_file);
 map<string, vector<string> > map_of_active_vars_for_questions;
 map<string, map<int, int> > freq_count;
-void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);
+void write_data_to_disk(const vector<AbstractRuntimeQuestion*>& q_vec, string jno, int32_t ser_no);
 void SetupSignalHandler();
 static void sig_usr(int32_t signo);
 string output_data_file_name;
@@ -77,7 +77,7 @@ vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;
 vector <XtccDataFileDiskMap*> xtcc_question_disk_map;
 vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;
 qtm_data_file_ns::QtmDataFile qtm_data_file;
-void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);
+void Compute_FlatFileQuestionDiskDataMap(vector<AbstractRuntimeQuestion*> p_question_list);
 void load_languages_available(vector<string> & vec_language);
 
 int process_options(int argc, char * argv[]);
@@ -353,7 +353,7 @@ int32_t consolidated_for_loop_index_1 = i;
 		fstream tab_file(tab_file_name.c_str(), ios_base::out|ios_base::ate);
 		for (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {
 			string questionName = qtm_datafile_question_disk_map[i]->q->questionName_;
-			AbstractQuestion * q = qtm_datafile_question_disk_map[i]->q;
+			AbstractRuntimeQuestion * q = qtm_datafile_question_disk_map[i]->q;
 			tab_file << "tab " << q->questionName_;
 			for(int j=0; j<q->loop_index_values.size(); ++j) {
 				tab_file << "_" << q->loop_index_values[j];
@@ -401,9 +401,9 @@ int32_t consolidated_for_loop_index_1 = i;
 }
 }
 
-AbstractQuestion * eval2 ( /*AbstractQuestion * p_last_question_answered,
-		 AbstractQuestion * p_last_question_visited,*/
-		 UserNavigation p_navigation_mode, AbstractQuestion * p_last_question_visited, AbstractQuestion * p_jump_to_index)
+AbstractRuntimeQuestion * eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,
+		 AbstractRuntimeQuestion * p_last_question_visited,*/
+		 UserNavigation p_navigation_mode, AbstractRuntimeQuestion * p_last_question_visited, AbstractRuntimeQuestion * p_jump_to_index)
 {
 //if (last_question_visited)
 	//fprintf (qscript_stdout, "entered eval2: last_question_visited: %s, stopAtNextQuestion: %d\n", last_question_visited->questionName_.c_str(), stopAtNextQuestion);
@@ -430,20 +430,20 @@ AbstractQuestion * eval2 ( /*AbstractQuestion * p_last_question_answered,
 	}
 {
 /* compound statement on line no: 0 questionsInBlock_, size:4 q1, q2, q3, q4,  */
-/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():0 */
+/* ENTER: AbstractRuntimeQuestion::PrintSetupBackJump() : for_bounds_stack.size():0 */
 lab_q1:
 if( back_jump == true  && q1->isAnswered_ == true ) {
 if( jumpToQuestion == "q1")
 { back_jump = false;
 }
 }
-/* EXIT: AbstractQuestion::PrintSetupBackJump()  */
-/*  void AbstractQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
+/* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */
+/*  void AbstractRuntimeQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
 
 if ( /* nxd */(q1->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||
 (q1->isAnswered_ && !q1->VerifyQuestionIntegrity())||
 ( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && q1->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||
-( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>(q1) == p_jump_to_index)) ||
+( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>(q1) == p_jump_to_index)) ||
 ((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)   && !(q1->question_attributes.isAllowBlank()) && q1->isAnswered_ == false )) {
 label_eval_q1:
 		if (q1->question_attributes.hidden_==false) {
@@ -453,20 +453,20 @@ label_eval_q1:
 	return q1;
 	}
 }
-/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():0 */
+/* ENTER: AbstractRuntimeQuestion::PrintSetupBackJump() : for_bounds_stack.size():0 */
 lab_q2:
 if( back_jump == true  && q2->isAnswered_ == true ) {
 if( jumpToQuestion == "q2")
 { back_jump = false;
 }
 }
-/* EXIT: AbstractQuestion::PrintSetupBackJump()  */
-/*  void AbstractQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
+/* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */
+/*  void AbstractRuntimeQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
 
 if ( /* nxd */(q2->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||
 (q2->isAnswered_ && !q2->VerifyQuestionIntegrity())||
 ( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && q2->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||
-( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>(q2) == p_jump_to_index)) ||
+( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>(q2) == p_jump_to_index)) ||
 ((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)   && !(q2->question_attributes.isAllowBlank()) && q2->isAnswered_ == false )) {
 label_eval_q2:
 		if (q2->question_attributes.hidden_==false) {
@@ -476,20 +476,20 @@ label_eval_q2:
 	return q2;
 	}
 }
-/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():0 */
+/* ENTER: AbstractRuntimeQuestion::PrintSetupBackJump() : for_bounds_stack.size():0 */
 lab_q3:
 if( back_jump == true  && q3->isAnswered_ == true ) {
 if( jumpToQuestion == "q3")
 { back_jump = false;
 }
 }
-/* EXIT: AbstractQuestion::PrintSetupBackJump()  */
-/*  void AbstractQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
+/* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */
+/*  void AbstractRuntimeQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
 
 if ( /* nxd */(q3->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||
 (q3->isAnswered_ && !q3->VerifyQuestionIntegrity())||
 ( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && q3->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||
-( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>(q3) == p_jump_to_index)) ||
+( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>(q3) == p_jump_to_index)) ||
 ((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)   && !(q3->question_attributes.isAllowBlank()) && q3->isAnswered_ == false )) {
 label_eval_q3:
 		if (q3->question_attributes.hidden_==false) {
@@ -503,18 +503,18 @@ int32_t i = 0;
 for (i = 0;i<3;i = i+1){
 int32_t consolidated_for_loop_index_1 = i;
 /* compound statement on line no: 19 questionsInBlock_, size:1 q4,  */
-/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():1 */
+/* ENTER: AbstractRuntimeQuestion::PrintSetupBackJump() : for_bounds_stack.size():1 */
 lab_q4:
 if( back_jump == true  && q4_list.questionList[consolidated_for_loop_index_1]->isAnswered_ == true ) {
 }
-/* EXIT: AbstractQuestion::PrintSetupBackJump()  */
+/* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */
 // if (data_entry_window == 0) {
 	//cout << "jumpToQuestion = " << jumpToQuestion << endl;//	cout << "jumpToIndex = " << jumpToIndex << endl;//}
 
 if ((q4_list.questionList[i]->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||
  stopAtNextQuestion ||
 ( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) ||   (p_navigation_mode == NAVIGATE_NEXT && q4_list.questionList[i]->questionNoIndex_ > last_question_visited->questionNoIndex_)) ||
-( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>(q4_list.questionList[i]) == p_jump_to_index)) ||
+( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>(q4_list.questionList[i]) == p_jump_to_index)) ||
 ((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)   && !(q4_list.questionList[i]->question_attributes.isAllowBlank()) && q4_list.questionList[i]->isAnswered_ == false )) {
 label_eval_q4:
 if( jumpToQuestion == "q4" && jumpToIndex == consolidated_for_loop_index_1){
@@ -545,8 +545,8 @@ struct TheQuestionnaire * make_questionnaire ()
 }
 void question_eval_loop2 (
 	UserInput p_user_input,
-	AbstractQuestion * last_question_visited,
-	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+	AbstractRuntimeQuestion * last_question_visited,
+	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 {
@@ -559,8 +559,8 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 	theQuestionnaire->compute_flat_file_map_and_init();
 	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
 
-	AbstractQuestion * last_question_visited = 0;
-	AbstractQuestion * jump_to_question = 0;
+	AbstractRuntimeQuestion * last_question_visited = 0;
+	AbstractRuntimeQuestion * jump_to_question = 0;
 	EvalMode qnre_mode = NORMAL_FLOW;
 	//question_eval_loop (qnre_mode,
 	//			qnre_navigation_mode, last_question_visited,
@@ -576,11 +576,11 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 
 
 void parse_input_data(vector<int> * data_ptr, int & success);
-void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
-void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 
-void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	// this will be called by the UI - it is the UI's responsibility to
@@ -600,7 +600,7 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 			<< " and then try to validate the user input - just like we would in a normal case"
 			<< endl;
 		// nxd: this function needs to be cleaned up
-		//      we can easily downcast to an AbstractQuestionnaire and then there is no need for this
+		//      we can easily downcast to an AbstractRuntimeQuestionnaire and then there is no need for this
 		//      function to be present here
 		theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
 	} else {
@@ -610,8 +610,8 @@ void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct The
 
 void question_eval_loop2 (
 	UserInput p_user_input,
-	AbstractQuestion * last_question_visited,
-	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+	AbstractRuntimeQuestion * last_question_visited,
+	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	cout << "arg values: " << endl;
@@ -654,7 +654,7 @@ void question_eval_loop2 (
 			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
 				fprintf(qscript_stdout,
 					"user_navigation == NAVIGATE_PREVIOUS\n");
-				AbstractQuestion *target_question =
+				AbstractRuntimeQuestion *target_question =
 					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
 				if (target_question == 0) {
 					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level+1);
@@ -685,7 +685,7 @@ void question_eval_loop2 (
 		}
 	} // else {
 	// should reach here - end of :
-		AbstractQuestion * q =
+		AbstractRuntimeQuestion * q =
 			theQuestionnaire->eval2 (
 			NAVIGATE_NEXT, last_question_visited, jump_to_question);
 		if (!q) {

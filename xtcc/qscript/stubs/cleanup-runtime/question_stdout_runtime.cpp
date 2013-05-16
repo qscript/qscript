@@ -68,7 +68,7 @@ void setup_ui (int argc, char * argv[] )
 }
 
 
-vector<string> PrepareQuestionText (AbstractQuestion *q)
+vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
 {
 	using std::string;
 	using std::stringstream;
@@ -164,12 +164,12 @@ void ClearPreviousView ()
 	cout << __PRETTY_FUNCTION__ << endl;
 }
 
-void PrepareStubs (AbstractQuestion *q)
+void PrepareStubs (AbstractRuntimeQuestion *q)
 {
 
 }
 
-void DisplayStubs (AbstractQuestion *q)
+void DisplayStubs (AbstractRuntimeQuestion *q)
 {
 	string marker_start ("------------------------------- STUBS ------------------------------------");
 	string marker_end   ("----------------------------- STUBS END ----------------------------------");
@@ -228,9 +228,9 @@ typedef void (*callback_ui_input_t) (UserInput * p_user_input);
 // Any control flow logic that appears here is a mistake in my programming
 // and needs to be fixed
 void GetUserInput (
-	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
+	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+		AbstractRuntimeQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	if (q->no_mpn == 1) {
@@ -338,7 +338,7 @@ void GetUserInput (
 	}
 }
 
-void DisplayCurrentAnswers (AbstractQuestion * q)
+void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 {
 	if (q->input_data.begin() != q->input_data.end()) {
 		cout << "Current Answers values: ";
@@ -353,8 +353,8 @@ void DisplayCurrentAnswers (AbstractQuestion * q)
 	cout << end_marker << endl;
 }
 
-void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire,
-	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
+void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire,
+	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
 					struct TheQuestionnaire * theQuestionnaire,
 					int nest_level),
 	int nest_level

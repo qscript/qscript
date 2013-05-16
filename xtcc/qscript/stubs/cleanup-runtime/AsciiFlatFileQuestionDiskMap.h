@@ -12,14 +12,14 @@
 class AsciiFlatFileQuestionDiskMap
 {
 	public:
-		AbstractQuestion *q;
+		AbstractRuntimeQuestion *q;
 		int32_t start_pos;
 		int32_t width;
 		int32_t total_length;
-		AsciiFlatFileQuestionDiskMap(AbstractQuestion * p_q, int32_t p_start_pos
+		AsciiFlatFileQuestionDiskMap(AbstractRuntimeQuestion * p_q, int32_t p_start_pos
 		/*,
 								int32_t p_width, int32_t p_total_length*/
-								)						 
+								)
 			:
 		q(p_q), start_pos(p_start_pos), width(0), total_length(0)
 		/*, width(p_width),
@@ -89,7 +89,7 @@ class AsciiFlatFileQuestionDiskMap
 					exit(1);
 				}
 				else if (code_str.str().length() < width) {
-					// zero pad 
+					// zero pad
 					int diff = width - code_str.str().length();
 					for (int i=0; i<diff; ++i) {
 						ptr[i]='0';
@@ -145,7 +145,7 @@ class AsciiFlatFileQuestionDiskMap
 				}
 			}
 			if (q->no_mpn>1) {
-				spss_syn_file << var_name.str() << "_1 to " 
+				spss_syn_file << var_name.str() << "_1 to "
 					<< var_name.str() << "_" << q->no_mpn ;
 			} else {
 				spss_syn_file << var_name.str();
@@ -186,7 +186,7 @@ class AsciiFlatFileQuestionDiskMap
 		{
 			std::stringstream var_name;
 			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(q)) {
-				
+
 				var_name << q->questionName_;
 				if (q->loop_index_values.size())
 				{
@@ -197,7 +197,7 @@ class AsciiFlatFileQuestionDiskMap
 				}
 				if (q->no_mpn>1) {
 					spss_syn_file << "value label ";
-					spss_syn_file << var_name.str() << "_1 to " 
+					spss_syn_file << var_name.str() << "_1 to "
 						<< var_name.str() << "_" << q->no_mpn ;
 				} else {
 					spss_syn_file << "value label ";
@@ -205,14 +205,14 @@ class AsciiFlatFileQuestionDiskMap
 				}
 				spss_syn_file << std::endl;
 				for (int i=0; i<n_q->nr_ptr->stubs.size(); ++i) {
-					spss_syn_file 
+					spss_syn_file
 						<< n_q->nr_ptr->stubs[i].code
 						<< " \""
 						<< n_q->nr_ptr->stubs[i].stub_text
 						<< " \""
 						<< std::endl;
 				}
-				spss_syn_file << "." << std::endl; 
+				spss_syn_file << "." << std::endl;
 
 			}
 		}

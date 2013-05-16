@@ -8,7 +8,7 @@
 class ArrayQuestion
 {
 	public:
-		std::vector<AbstractQuestion*> questionList;
+		std::vector<AbstractRuntimeQuestion*> questionList;
 		std::vector<int32_t> arrayBounds;
 		ArrayQuestion()
 			: questionList(), arrayBounds()

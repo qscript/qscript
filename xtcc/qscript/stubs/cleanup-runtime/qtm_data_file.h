@@ -11,7 +11,7 @@ namespace qtm_data_file_ns {
 
 
 
-enum QtmFileMode 
+enum QtmFileMode
 {
 	READ_EQ_0 /* flat file */,
 	READ_EQ_1 /* wrap around at 1000 i.e. 1001 to 1999 is in card 1,
@@ -33,15 +33,15 @@ struct QtmFileCharacteristics
 	//QtmFileCharacteristics();
 	void NextCard();
 	int GetCurrentColumnPosition();
-	int UpdateCurrentColumn(int width_, AbstractQuestion * q);
-	QtmFileCharacteristics(int p_cardDataStartAt_, 
+	int UpdateCurrentColumn(int width_, AbstractRuntimeQuestion * q);
+	QtmFileCharacteristics(int p_cardDataStartAt_,
 			int p_cardWrapAroundAt,
 			bool p_dontBreakQuestionsAtBoundary,
 			QtmFileMode p_qtmFileMode);
 	void Initialize();
 };
 
-struct Card 
+struct Card
 {
 	std::vector<char> data_;
 	std::vector<char> multiPunchData_;
@@ -52,10 +52,10 @@ struct QtmDataFile
 {
 	std::vector<Card> cardVec_;
 	QtmFileCharacteristics fileXcha_;
-	void write_multi_code_data (int column, 
-			vector<int> & data, 
-			AbstractQuestion * q);
-	void write_single_code_data (int column, int width, int code, AbstractQuestion *q);
+	void write_multi_code_data (int column,
+			vector<int> & data,
+			AbstractRuntimeQuestion * q);
+	void write_single_code_data (int column, int width, int code, AbstractRuntimeQuestion *q);
 	void write_record_to_disk(std::fstream & disk_file, int ser_no);
 	bool CheckForValidColumnRef(int column);
 	void AllocateCards();
@@ -66,7 +66,7 @@ struct QtmDataFile
 	QtmDataFile();
 };
 
-struct CodeBucket 
+struct CodeBucket
 {
 	std::vector<int> codeVec_;
 	CodeBucket(): codeVec_()
@@ -76,16 +76,16 @@ struct CodeBucket
 struct QtmDataDiskMap
 {
 public:
-	AbstractQuestion *q;
+	AbstractRuntimeQuestion *q;
 	int32_t startPosition_;
 	int32_t width_;
 	int32_t totalLength_;
 	QtmDataFile & qtmDataFile_;
 	//string baseText_;
 	//bool dynamicBaseText_;
-	//AbstractQuestion * baseTextQuestion_;
+	//AbstractRuntimeQuestion * baseTextQuestion_;
 	BaseText baseText_;
-	QtmDataDiskMap(AbstractQuestion * p_q, 
+	QtmDataDiskMap(AbstractRuntimeQuestion * p_q,
 		QtmDataFile & p_qtm_data_file, BaseText base_text);
 	int GetTotalLength() { return totalLength_; }
 	void write_data ();

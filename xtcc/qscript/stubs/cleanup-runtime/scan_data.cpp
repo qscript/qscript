@@ -1,6 +1,6 @@
-#line 2 "src/scan_data.cpp"
+#line 2 "scan_data.cpp"
 
-#line 4 "src/scan_data.cpp"
+#line 4 "scan_data.cpp"
 
 #define  YY_INT_ALIGNED short int
 
@@ -441,14 +441,14 @@ static yyconst flex_int16_t yy_chk[15] =
 #define yymore() yymore_used_but_not_detected
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
-#line 1 "src/scan_data.l"
+#line 1 "scan_data.l"
 /*
  *  xtcc/xtcc/qscript/stubs/simple_compiler/try1.l
  *
  * tokenizer for the data entry command line - this file should be named better
  *  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Neil Xavier D'Souza
  */
-#line 8 "src/scan_data.l"
+#line 8 "scan_data.l"
 #include <string>
 #include <iostream>
 #include <vector>
@@ -462,7 +462,7 @@ static yyconst flex_int16_t yy_chk[15] =
 	//enum read_data_token { NUMBER, HYPHEN, INVALID, END_OF_DATA };
 	int scan_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
 	int scan_dataparse(yyscan_t yyscanner, vector<int>* data_ptr);
-#line 466 "src/scan_data.cpp"
+#line 466 "scan_data.cpp"
 
 #define INITIAL 0
 
@@ -698,9 +698,9 @@ YY_DECL
 	register int yy_act;
     struct yyguts_t * yyg = (struct yyguts_t*)yyscanner;
 
-#line 30 "src/scan_data.l"
+#line 30 "scan_data.l"
 
-#line 704 "src/scan_data.cpp"
+#line 704 "scan_data.cpp"
 
     yylval = yylval_param;
 
@@ -783,12 +783,12 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 31 "src/scan_data.l"
+#line 31 "scan_data.l"
 ;
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 33 "src/scan_data.l"
+#line 33 "scan_data.l"
 {
 	yylval_param->ival = atoi(yytext);
 	//scan_datalval.ival = atoi(yytext);
@@ -797,7 +797,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 39 "src/scan_data.l"
+#line 39 "scan_data.l"
 {
 	return HYPHEN;
 }
@@ -808,7 +808,7 @@ YY_RULE_SETUP
 	}*/
 case 4:
 YY_RULE_SETUP
-#line 48 "src/scan_data.l"
+#line 48 "scan_data.l"
 {
 		/*
 		if(yytext[0] == 'n'){
@@ -831,10 +831,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 69 "src/scan_data.l"
+#line 69 "scan_data.l"
 ECHO;
 	YY_BREAK
-#line 838 "src/scan_data.cpp"
+#line 838 "scan_data.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1960,7 +1960,7 @@ void scan_datafree (void * ptr , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 69 "src/scan_data.l"
+#line 69 "scan_data.l"
 
 
 
@@ -2089,7 +2089,7 @@ user_response::UserResponseType read_data_from_window(
 		WINDOW * stub_list_window,
 		WINDOW * data_entry_window,
 		const char * prompt, bool clear_buffer_flag, string & re_arranged_buffer,
-		int & pos_1st_invalid_data, AbstractQuestion * q, vector<int> * data_ptr)
+		int & pos_1st_invalid_data, AbstractRuntimeQuestion * q, vector<int> * data_ptr)
 {
 	static NCursesReadline ncurses_readline(question_window, stub_list_window, data_entry_window);
 	vector <int> & data = *data_ptr;

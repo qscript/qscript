@@ -8,17 +8,18 @@
 
 using namespace std;
 
-int AbstractQuestion::nQuestions_ = 0 ;
+int AbstractRuntimeQuestion::nQuestions_ = 0 ;
 
 
 #if 1
-AbstractQuestion::AbstractQuestion(
+AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	DataType l_type, int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
 	, bool l_isStartOfBlock
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
+	: //AbstractStatement(l_type, l_no),
+	  questionName_(l_name)
 	, textExprVec_(text_expr_vec)
 	, questionDiskName_(l_name)
 	, q_type(l_q_type)
@@ -31,7 +32,7 @@ AbstractQuestion::AbstractQuestion(
 	  , mutexCodeList_()
 	  , maxCode_(0)
 	, isStartOfBlock_(l_isStartOfBlock)
-	  , questionNoIndex_(++AbstractQuestion::nQuestions_)
+	  , questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
 {
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
@@ -40,7 +41,7 @@ AbstractQuestion::AbstractQuestion(
 }
 #endif /* 0 */
 
-AbstractQuestion::~AbstractQuestion()
+AbstractRuntimeQuestion::~AbstractRuntimeQuestion()
 {
 	for (int i=0; i<activeVarInfo_.size(); ++i) {
 		delete activeVarInfo_[i];
@@ -49,7 +50,7 @@ AbstractQuestion::~AbstractQuestion()
 }
 
 
-int32_t AbstractQuestion::GetMaxCode()
+int32_t AbstractRuntimeQuestion::GetMaxCode()
 {
 	if (maxCode_ == 0) {
 		stringstream err_msg;
@@ -63,16 +64,18 @@ int32_t AbstractQuestion::GetMaxCode()
 }
 
 
-void AbstractQuestion::GetQuestionsInBlock(
-	vector<AbstractQuestion*> & question_list, AbstractStatement * stop_at)
+/*
+void AbstractRuntimeQuestion::GetQuestionsInBlock(
+	vector<AbstractRuntimeQuestion*> & question_list, AbstractStatement * stop_at)
 {
-	//std::cerr << "ENTER AbstractQuestion::GetQuestionsInBlock()" << std::endl;
+	//std::cerr << "ENTER AbstractRuntimeQuestion::GetQuestionsInBlock()" << std::endl;
 	question_list.push_back(this);
 	if(next_ && next_ != stop_at){
 		next_->GetQuestionsInBlock(question_list, stop_at);
 	}
-	//std::cerr << "EXIT AbstractQuestion::GetQuestionsInBlock()" << std::endl;
+	//std::cerr << "EXIT AbstractRuntimeQuestion::GetQuestionsInBlock()" << std::endl;
 }
+*/
 
 
 RangeQuestion::~RangeQuestion()
@@ -81,13 +84,13 @@ RangeQuestion::~RangeQuestion()
 }
 
 DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bounds)
-	: AbstractQuestion(QUESTION_TYPE, 0, l_qno
+	: AbstractRuntimeQuestion(QUESTION_TYPE, 0, l_qno
 			//, string(l_qno + "_dummy")
 			, vector<TextExpression*>()
 			, spn, 0
 			   , INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
-	  
+
 { }
 
 void DummyArrayQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
@@ -116,21 +119,21 @@ bool RangeQuestion::IsValid(int32_t value)
 
 
 TextExpression::TextExpression(string text)
-	: teType_(TextExpression::simple_text_type), 
+	: teType_(TextExpression::simple_text_type),
 	  text_(text), nameExpr_(0),
 	  naPtr_(0), naIndex_(-1),
 	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
 { }
 
 TextExpression::TextExpression(Unary2Expression * expr)
-	: teType_(TextExpression::named_attribute_type), 
+	: teType_(TextExpression::named_attribute_type),
 	  text_(), nameExpr_(expr),
 	  naPtr_(0), naIndex_(-1),
 	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
 { }
 // for DummyArrayQuestion
 TextExpression::TextExpression()
-	: teType_(TextExpression::simple_text_type), 
+	: teType_(TextExpression::simple_text_type),
 	  text_(), nameExpr_(0),
 	  naPtr_(0), naIndex_(0),
 	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
@@ -143,22 +146,22 @@ TextExpression::TextExpression(named_attribute_list * na_ptr, int na_index)
 	  pipedQuestion_(0), questionIndexExpr_(0), codeIndex_(-1)
 { }
 
-TextExpression::TextExpression(AbstractQuestion * q, int code_index)
+TextExpression::TextExpression(AbstractRuntimeQuestion * q, int code_index)
 	: teType_(TextExpression::question_type),
 	  text_(), nameExpr_(0),
 	  naPtr_(0), naIndex_(0),
 	  pipedQuestion_(q), questionIndexExpr_(0), codeIndex_ (code_index)
 { }
 
-TextExpression::TextExpression (AbstractQuestion * q, AbstractExpression * expr)
-	: teType_ (TextExpression::question_type), 
+TextExpression::TextExpression (AbstractRuntimeQuestion * q, AbstractExpression * expr)
+	: teType_ (TextExpression::question_type),
 	  text_(), nameExpr_(0),
 	  naPtr_ (0), naIndex_ (-1),
 	  pipedQuestion_ (q), questionIndexExpr_ (expr), codeIndex_ (-1)
 { }
 
-TextExpression::TextExpression (AbstractQuestion * q)
-	: teType_ (TextExpression::question_type), 
+TextExpression::TextExpression (AbstractRuntimeQuestion * q)
+	: teType_ (TextExpression::question_type),
 	  text_(), nameExpr_(0),
 	  naPtr_ (0), naIndex_ (-1),
 	  pipedQuestion_ (q), questionIndexExpr_ (0), codeIndex_ (-1)

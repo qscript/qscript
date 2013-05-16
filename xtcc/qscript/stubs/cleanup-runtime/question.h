@@ -36,6 +36,7 @@ using std::ofstream;
 struct named_range;
 struct DummyArrayQuestion;
 
+struct AbstractRuntimeQuestion ;
 	struct TextExpression
 	{
 		enum TextExpressionType {
@@ -48,15 +49,15 @@ struct DummyArrayQuestion;
 		named_attribute_list* naPtr_;
 		int32_t naIndex_;
 
-		AbstractQuestion * pipedQuestion_;
+		AbstractRuntimeQuestion * pipedQuestion_;
 		AbstractExpression * questionIndexExpr_;
 		int32_t codeIndex_;
 		TextExpression(string text);
 		TextExpression(Unary2Expression * expr );
 		TextExpression(named_attribute_list * na_ptr, int na_index);
-		TextExpression(AbstractQuestion * q, AbstractExpression * expr);
-		TextExpression(AbstractQuestion * q, int code_index);
-		TextExpression (AbstractQuestion * q);
+		TextExpression(AbstractRuntimeQuestion * q, AbstractExpression * expr);
+		TextExpression(AbstractRuntimeQuestion * q, int code_index);
+		TextExpression (AbstractRuntimeQuestion * q);
 		TextExpression(); // for DummyArrayQuestion
 	private:
 		TextExpression& operator=(const TextExpression&);
@@ -132,11 +133,11 @@ struct AbstractQuestion: public AbstractStatement
 //			, ostringstream& program_code)=0;
 	virtual void GenerateCode(StatementCompiledCode &code)=0;
 	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)=0;
-	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
-	virtual void eval(/*qs_ncurses::*/WINDOW * question_window
-			  , /*qs_ncurses::*/WINDOW* stub_list_window
-			  , /*qs_ncurses::*/WINDOW* data_entry_window)=0;
-	virtual bool IsValid(int32_t value)=0;
+	//virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
+	//virtual void eval(/*qs_ncurses::*/WINDOW * question_window
+	//		  , /*qs_ncurses::*/WINDOW* stub_list_window
+	//		  , /*qs_ncurses::*/WINDOW* data_entry_window)=0;
+	//virtual bool IsValid(int32_t value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 	void init_arr(int32_t n, AbstractQuestion* q);
@@ -262,58 +263,57 @@ struct AbstractRuntimeQuestion
 	virtual ~AbstractRuntimeQuestion();
 //	virtual void GenerateCode(ostringstream & quest_defns
 //			, ostringstream& program_code)=0;
-	virtual void GenerateCode(StatementCompiledCode &code)=0;
-	virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)=0;
+	//virtual void GenerateCode(StatementCompiledCode &code)=0;
+	//virtual void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode)=0;
 	virtual void Generate_ComputeFlatFileMap(StatementCompiledCode & code);
-	virtual void eval(/*qs_ncurses::*/WINDOW * question_window
-			  , /*qs_ncurses::*/WINDOW* stub_list_window
-			  , /*qs_ncurses::*/WINDOW* data_entry_window)=0;
+	//virtual void eval(/*qs_ncurses::*/WINDOW * question_window
+	//		  , /*qs_ncurses::*/WINDOW* stub_list_window
+	//		  , /*qs_ncurses::*/WINDOW* data_entry_window)=0;
 	virtual bool IsValid(int32_t value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
 	void init_arr(int32_t n, AbstractQuestion* q);
 	virtual void WriteDataToDisk(ofstream & data_file)=0;
-	void PrintSetupBackJump(StatementCompiledCode &code);
-	void SetupSimpleQuestionSave(StatementCompiledCode &code);
-	void SetupSimpleQuestionRestore(StatementCompiledCode &code);
-	void SetupArrayQuestionSave(StatementCompiledCode &code);
-	void SetupArrayQuestionRestore(StatementCompiledCode &code);
-	void PrintEvalArrayQuestion(StatementCompiledCode &code);
+	//void PrintSetupBackJump(StatementCompiledCode &code);
+	//void SetupSimpleQuestionSave(StatementCompiledCode &code);
+	//void SetupSimpleQuestionRestore(StatementCompiledCode &code);
+	//void SetupArrayQuestionSave(StatementCompiledCode &code);
+	//void SetupArrayQuestionRestore(StatementCompiledCode &code);
+	//void PrintEvalArrayQuestion(StatementCompiledCode &code);
 	const char * CurrentResponseToCharString();
 	//virtual AbstractQuestion * IsAQuestionStatement()=0;
-	virtual void GetQuestionNames(vector<string> & question_list
-				      , AbstractStatement * endStatement)=0;
-	virtual void GetQuestionsInBlock(
-		vector<AbstractQuestion*> & question_list
-		, AbstractStatement * stop_at);
-	void PrintEvalAndNavigateCode(ostringstream & program_code);
+	//virtual void GetQuestionNames(vector<string> & question_list
+	//			      , AbstractStatement * endStatement)=0;
+	//virtual void GetQuestionsInBlock(
+	//	vector<AbstractQuestion*> & question_list
+	//	, AbstractStatement * stop_at);
+	//void PrintEvalAndNavigateCode(ostringstream & program_code);
 	user_response::UserResponseType GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window);
 
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data, vector<int32_t> * data_ptr);
 	bool VerifyResponse(user_response::UserResponseType user_resp, UserNavigation user_navigation, string & err_mesg);
 	// void PrintArrayDeclarations(ostringstream & quest_defns);
-	void PrintArrayDeclarations(StatementCompiledCode & code);
-	void PrintQuestionArrayInitialisation(
-		StatementCompiledCode & code);
-	std::string PrintCodeSaveArrayQuestionNotInTheSameBlock(AbstractQuestion * save_array_quest);
-	std::string PrintCodeRestoreArrayQuestionNotInTheSameBlock(AbstractQuestion * restore_array_quest);
-	string PrintSaveArrayQuestion(ActiveVariableInfo * av_info);
-	string PrintRestoreArrayQuestion(ActiveVariableInfo * av_info);
-	void PrintSaveMyPreviousIterationsData(StatementCompiledCode &code);
-	void PrintRestoreMyPreviousIterationsData(StatementCompiledCode &code);
-	friend bool IsInTheSameScopeAndLevel(AbstractQuestion *q1
-					     , AbstractQuestion * q2);
-	friend bool NotInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
-	friend bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1
-						       , AbstractQuestion * q2);
-	friend bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1
-						       , AbstractQuestion * q2);
-	bool QuestionIsInMyBlock(AbstractQuestion *q);
-	void SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
-	void RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
-	void PrintUserNavigation(ostringstream & program_code);
-	void PrintUserNavigationArrayQuestion(ostringstream & program_code);
+	//void PrintArrayDeclarations(StatementCompiledCode & code);
+	//void PrintQuestionArrayInitialisation( StatementCompiledCode & code);
+	//std::string PrintCodeSaveArrayQuestionNotInTheSameBlock(AbstractQuestion * save_array_quest);
+	//std::string PrintCodeRestoreArrayQuestionNotInTheSameBlock(AbstractQuestion * restore_array_quest);
+	//string PrintSaveArrayQuestion(ActiveVariableInfo * av_info);
+	//string PrintRestoreArrayQuestion(ActiveVariableInfo * av_info);
+	//void PrintSaveMyPreviousIterationsData(StatementCompiledCode &code);
+	//void PrintRestoreMyPreviousIterationsData(StatementCompiledCode &code);
+	//friend bool IsInTheSameScopeAndLevel(AbstractQuestion *q1
+	//				     , AbstractQuestion * q2);
+	//friend bool NotInTheSameBlock(AbstractQuestion *q1, AbstractQuestion * q2);
+	//friend bool IsAtAHigherNestLevelInTheSameBlock(AbstractQuestion *q1
+	//					       , AbstractQuestion * q2);
+	//friend bool IsAtADeeperNestLevelInTheSameBlock(AbstractQuestion *q1
+	//					       , AbstractQuestion * q2);
+	//bool QuestionIsInMyBlock(AbstractQuestion *q);
+	//void SaveQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
+	//void RestoreQuestionsInMyBlockThatAreAfterMe(StatementCompiledCode & code);
+	//void PrintUserNavigation(ostringstream & program_code);
+	//void PrintUserNavigationArrayQuestion(ostringstream & program_code);
 	int32_t GetMaxCode();
 	bool VerifyQuestionIntegrity();
 	//virtual Wt::WString PrintSelectedAnswers()=0;
@@ -337,7 +337,7 @@ struct AbstractRuntimeQuestion
 	numbers -> (1,2,5-8)
 		q2 "Q2. This is AbstractQuestion 2" mp (5) int32_t (1,2,5-8);
 */
-struct RangeQuestion: public AbstractQuestion
+struct RangeQuestion: public AbstractRuntimeQuestion
 {
 	XtccSet * r_data;
 	//vector <int32_t> stack_loop_index_values;
@@ -388,13 +388,16 @@ struct RangeQuestion: public AbstractQuestion
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	virtual bool IsValid(int32_t value);
 	//void eval();
+#if 0
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
 		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+#endif /* 0 */
 	void WriteDataToDisk(ofstream& data_file);
 	//AbstractQuestion*  IsAQuestionStatement(){
 	//	return this;
 	//}
+#if 0
 	void  GetQuestionNames(vector<string> & question_list,
 			       AbstractStatement* endStatement)
 	{
@@ -417,6 +420,7 @@ struct RangeQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list,endStatement);
 		}
 	}
+#endif /* 0 */
 
 	void MakeDisplaySummaryDataRanges();
 
@@ -438,7 +442,7 @@ struct RangeQuestion: public AbstractQuestion
 
 		q3 "Q3. Respondents age" sp int32_t age;
 */
-class NamedStubQuestion: public AbstractQuestion
+class NamedStubQuestion: public AbstractRuntimeQuestion
 {
 	public:
 	string named_list;
@@ -505,9 +509,11 @@ class NamedStubQuestion: public AbstractQuestion
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	virtual bool IsValid(int32_t value);
 	//void eval();
+#if 0
 	void eval(/*qs_ncurses::*/WINDOW * question_window
 		  , /*qs_ncurses::*/WINDOW* stub_list_window
 		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+#endif /* 0 */
 	void WriteDataToDisk(ofstream& data_file);
 	//Wt::WString PrintSelectedAnswers();
 	//Wt::WString PrintSelectedAnswers(int code_index);
@@ -516,6 +522,7 @@ class NamedStubQuestion: public AbstractQuestion
 	//AbstractQuestion* IsAQuestionStatement(){
 	//	return this;
 	//}
+#if 0
 	void  GetQuestionNames(vector<string> & question_list
 			       , AbstractStatement* endStatement)
 	{
@@ -537,6 +544,7 @@ class NamedStubQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
+#endif /* 0 */
 	void MakeDisplaySummaryDataRanges();
 
 	void ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_window
@@ -555,7 +563,7 @@ class NamedStubQuestion: public AbstractQuestion
 		NamedStubQuestion (const NamedStubQuestion&);
 };
 
-class DummyArrayQuestion: public AbstractQuestion
+class DummyArrayQuestion: public AbstractRuntimeQuestion
 {
 	public:
 	vector<int32_t> array_bounds;
@@ -573,6 +581,7 @@ class DummyArrayQuestion: public AbstractQuestion
 	bool IsValid(int32_t value){ return false;}
 	void GenerateCode(StatementCompiledCode &code){}
 	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode){}
+#if 0
 	void GetQuestionNames(vector<string> & question_list
 			      , AbstractStatement* endStatement)
 	{
@@ -582,6 +591,7 @@ class DummyArrayQuestion: public AbstractQuestion
 			next_->GetQuestionNames(question_list, endStatement);
 		}
 	}
+#endif /* 0 */
 	//Wt::WString PrintSelectedAnswers();
 	//Wt::WString PrintSelectedAnswers(int code_index);
 	string PrintSelectedAnswers();
