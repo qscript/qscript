@@ -1,0 +1,24 @@
+#CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
+CFLAGS= -g -Wunused-function
+
+SRC= AbstractQuestionnaire.cpp AbstractStatement.cpp config_parser.cpp \
+     data_entry.cpp log_mesg.cpp named_attributes.cpp named_range.cpp \
+     qscript_conf.cpp qscript_conf_lex.cpp qscript_data.cpp \
+     qscript_debug.cpp qscript_lib.cpp qscript_parser_common.cpp \
+     qscript_readline.cpp qtm_datafile_conf.cpp qtm_datafile_conf_lex.cpp \
+     qtm_datafile_conf_parser.cpp qtm_data_file.cpp QuestionAttributes.cpp \
+     question_common.cpp question_logic.cpp question_runtime.cpp \
+     read_disk_data.cpp scan_data.cpp TempNameGenerator.cpp \
+     utils_common.cpp xtcc_set.cpp question_stdout_runtime.cpp
+
+OBJS := $(SRC:.cpp=.o)
+
+test_2.exe: $(OBJS) test_2.o
+	g++ $(CFLAGS) -o $@ $(OBJS) test_2.o -lpanel -lncurses
+
+%.o: %.cpp
+	g++ $(CFLAGS) -c $<
+
+test_2.o: test_2.C
+	g++ $(CFLAGS)  -c $<
+
