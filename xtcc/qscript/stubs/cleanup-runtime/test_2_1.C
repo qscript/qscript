@@ -14,7 +14,7 @@
 #include "AbstractQuestionnaire.h"
 #include "question_stdout_runtime.h"
 #include "stub_pair.h"
-#include "AbstractStatement.h"
+//#include "AbstractStatement.h"
 #include "named_range.h"
 #include "xtcc_set.h"
 #include "datatype.h"

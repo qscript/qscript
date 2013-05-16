@@ -8,8 +8,8 @@
 #include <iostream>
 #include <sstream>
 #include "named_range.h"
-#include "qscript_parser.h"
 #include "utils.h"
+#include "TempNameGenerator.h"
 
 using std::cout;
 using std::endl;
@@ -19,9 +19,13 @@ using std::string;
 named_range::~named_range()
 { }
 
+namespace qscript_parser {
+	extern TempNameGenerator temp_name_generator;
+}
+
 void named_range::GenerateCode(StatementCompiledCode & code)
 {
-	code.quest_defns << "vector <stub_pair> " 
+	code.quest_defns << "vector <stub_pair> "
 		<< qscript_parser::temp_name_generator.GetNewName()
 		//<< "(" << stubs.size() << ");"
 		<< ";" << endl << endl;
@@ -45,7 +49,7 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 		<< "\t}\n"
 		<< "}\n";
 	code.quest_defns << "named_range " << name << ";" << endl;
-	//code.quest_defns_init_code << "named_range " << name 
+	//code.quest_defns_init_code << "named_range " << name
 	//	<< "(NAMED_RANGE, " << lineNo_
 	//	<< ", " << "\"" << name << "\""
 	//	<< ", " << qscript_parser::temp_name_generator.GetCurrentName()

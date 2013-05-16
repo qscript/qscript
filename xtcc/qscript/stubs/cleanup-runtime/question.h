@@ -65,6 +65,7 @@ struct AbstractRuntimeQuestion ;
 	};
 
 
+#if 0
 //! The AbstractQuestion pure virtual base class - inherits from AbstractStatement
 struct AbstractQuestion: public AbstractStatement
 {
@@ -197,6 +198,7 @@ struct AbstractQuestion: public AbstractStatement
 		AbstractQuestion& operator=(const AbstractQuestion&);
 		AbstractQuestion (const AbstractQuestion&);
 };
+#endif /* 0 */
 
 struct AbstractRuntimeQuestion
 {

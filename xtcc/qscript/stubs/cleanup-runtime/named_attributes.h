@@ -12,11 +12,12 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "stmt.h"
+//#include "stmt.h"
+#include "AbstractStatement.h"
 
 using std::string;
 using std::vector;
-struct named_attribute_list: public AbstractStatement 
+struct named_attribute_list: public AbstractStatement
 {
 	string name;
 	vector<string> attribute;

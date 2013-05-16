@@ -6,8 +6,15 @@
 #include <sstream>
 #include <iostream>
 #include <sys/types.h>
+#include <sys/types.h>
+#include <inttypes.h>
 #include "xtcc_set.h"
-#include "qscript_parser.h"
+#include "utils.h"
+using std::string;
+
+namespace qscript_parser {
+	extern int32_t line_no;
+}
 
 XtccSet::XtccSet(): range(0), indiv()
 { }
@@ -228,7 +235,7 @@ int32_t XtccSet::GetMax()
 {
 	// assume no negative codes are allowed
 	// if this ever changes - this breaks
-	int32_t max_code = 0; 
+	int32_t max_code = 0;
 	for(	set<int32_t>::iterator it = indiv.begin();
 			it != indiv.end(); ++it) {
 		if (max_code < *it) {

@@ -1,5 +1,10 @@
+#include <fstream>
 #include "AbstractStatement.h"
-#include "qscript_parser.h"
+
+namespace qscript_parser
+{
+	extern std::ofstream debug_log_file;
+}
 
 using std::vector;
 using std::string;

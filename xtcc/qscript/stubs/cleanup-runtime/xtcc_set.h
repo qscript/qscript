@@ -1,4 +1,4 @@
-/*! \file 
+/*! \file
     \brief Implementation of sets specific to the qscript/xtcc programming langauge
 
  *  xtcc/xtcc/qscript/stubs/simple_compiler/xtcc_set.h
@@ -12,21 +12,22 @@
 #include <vector>
 #include <set>
 #include <string>
-#include "symtab.h"
+//#include "symtab.h"
+#include "datatype.h"
 using std::vector;
 using std::pair;
 using std::set;
 
 //! XtccSet is the implementation of sets customised for the qscript and xtcc compilers
 /*!
-   The set can consist of individual elements or ranges of 
+   The set can consist of individual elements or ranges of
    elements as demonstrated below
-	{ 1, 2-5, 10, 21-40} 
+	{ 1, 2-5, 10, 21-40}
 */
 struct XtccSet {
 	vector < pair<int32_t,int32_t> > range;
 	set<int32_t> indiv;
-	XtccSet(DataType dt, string name, XtccSet& xs1);
+	XtccSet(DataType dt, std::string name, XtccSet& xs1);
 	XtccSet(const XtccSet& xs1);
 	XtccSet(XtccSet & xs1);
 	XtccSet& operator=(const XtccSet& xs1);
@@ -37,7 +38,7 @@ struct XtccSet {
 	bool exists(int32_t key);
 	bool contains_subset(std::set<int32_t> & set_data);
 	bool contains_value(int v);
-	string print_replicate_code(string set_name);
+	std::string print_replicate_code(std::string set_name);
 	int32_t GetMax();
 	bool isEmpty();
 };
