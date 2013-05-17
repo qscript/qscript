@@ -23,7 +23,7 @@
 
 //#include "stmt.h"
 //#include "expr.h"
-#include "compiled_code.h"
+//#include "compiled_code.h"
 #include "curses_namespace.h"
 #include "qscript_debug.h"
 #include "display_data.h"
@@ -397,7 +397,7 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		);
 
 	//void GenerateCode(StatementCompiledCode &code);
-	void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
+	//void GenerateCodeSingleQuestion(StatementCompiledCode &code, bool array_mode);
 	virtual bool IsValid(int32_t value);
 	//void eval();
 #if 0
