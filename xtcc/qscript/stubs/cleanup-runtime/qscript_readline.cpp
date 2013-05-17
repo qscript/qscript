@@ -10,6 +10,7 @@
 #include "UserResponse.h"
 #include "question.h"
 #include "named_range.h"
+#include "data_entry.hpp"
 
 #define CTL_LEFT 	0x1bb
 #define CTL_RIGHT 	0x1bc
@@ -424,3 +425,99 @@ void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * data
 		}
 	}
 }
+
+	//struct yyscan_t;
+	//
+
+#define YY_USE_CONST
+#ifdef YY_USE_CONST
+#define yyconst const
+#else
+#define yyconst
+#endif
+
+	typedef void * yyscan_t;
+	int scan_datalex_init (yyscan_t* scanner);
+	typedef struct yy_buffer_state *YY_BUFFER_STATE;
+	int scan_datalex (YYSTYPE * yylval_param, yyscan_t yyscanner);
+	int scan_dataparse(yyscan_t yyscanner, vector<int>* data_ptr);
+	void scan_data_delete_buffer (YY_BUFFER_STATE  b , yyscan_t yyscanner);
+	YY_BUFFER_STATE scan_data_scan_string (yyconst char * yystr , yyscan_t yyscanner);
+#define yylex scan_data
+
+user_response::UserResponseType read_data_from_window(
+		WINDOW * question_window,
+		WINDOW * stub_list_window,
+		WINDOW * data_entry_window,
+		const char * prompt, bool clear_buffer_flag, string & re_arranged_buffer,
+		int & pos_1st_invalid_data, AbstractRuntimeQuestion * q, vector<int> * data_ptr)
+{
+	static NCursesReadline ncurses_readline(question_window, stub_list_window, data_entry_window);
+	vector <int> & data = *data_ptr;
+	data.clear();
+	if (clear_buffer_flag) {
+		ncurses_readline.Reset();
+	} else {
+		ncurses_readline.SetBuffer(re_arranged_buffer
+				, pos_1st_invalid_data );
+	}
+	wattroff(data_entry_window, COLOR_PAIR(1));
+	wattron(data_entry_window, COLOR_PAIR(5));
+	mvwprintw(data_entry_window, 3, 1, prompt);
+	wattroff(data_entry_window, COLOR_PAIR(5));
+	wattron(data_entry_window, COLOR_PAIR(1));
+
+top:
+	//cerr << "clear_buffer_flag: " << clear_buffer_flag;
+	// NOTE: so long as the ncurses_readline is static the pointer
+	// returned will be valid
+	const char * line=ncurses_readline.ReadLine(q);
+	// cout << __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+	// 	<< ", " << line << endl;
+
+	string s(line);
+	if (s.length()==0) {
+		if ( (user_navigation == NAVIGATE_NEXT || user_navigation == NAVIGATE_PREVIOUS)
+				&& the_user_response==user_response::UserEnteredNavigation) {
+		//cout << "Empty line ... re-enter" << endl;
+			return the_user_response;
+		} else if (user_navigation == NOT_SET) {
+			user_navigation = NAVIGATE_NEXT; // treat as if visit next question
+			the_user_response = user_response::UserEnteredNavigation;
+			return the_user_response;
+		} else if (user_navigation == SAVE_DATA &&
+				the_user_response == user_response::UserSavedData) {
+			return the_user_response;
+		} else {
+			goto top;
+		}
+	}
+	yyscan_t scanner;
+	//yylex_init(&scanner);
+	scan_datalex_init(&scanner);
+	YY_BUFFER_STATE s_data =  scan_data_scan_string(line, scanner);
+	if (scan_dataparse(scanner, &data)) {
+		//cout << "there was an error in parsing the data" << endl;
+		data.clear();
+		scan_data_delete_buffer (s_data, scanner);
+		//delete[] line;
+		clear_buffer_flag=false;
+		//cerr << "reset clear_buffer_flag: " << clear_buffer_flag;
+		wattroff(data_entry_window, COLOR_PAIR(1));
+		wattron(data_entry_window, COLOR_PAIR(5));
+		mvwprintw(data_entry_window, 3, 1, "invalid text, re-enter");
+		wattroff(data_entry_window, COLOR_PAIR(5));
+		wattron(data_entry_window, COLOR_PAIR(1));
+		goto top;
+	}
+	//for(int i=0; i<data.size(); ++i){
+	//	cout << data[i] << "," ;
+	//}
+	//yy_delete_buffer(s_data, scanner);
+	scan_data_delete_buffer (s_data, scanner);
+	// user_response::UserResponseType resp = (user_navigation == NOT_SET)
+	// 	? user_response::UserEnteredData:user_response::UserEnteredNavigation;
+	// return resp;
+	return the_user_response;
+}
+

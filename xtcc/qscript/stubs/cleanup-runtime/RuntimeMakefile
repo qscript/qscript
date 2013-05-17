@@ -1,16 +1,19 @@
 #CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
 CFLAGS= -g -Wunused-function
+#CC = clang --analyze
+CC=g++
+LIBS = -lncurses -lpanel
 
 SRC= AbstractQuestionnaire.cpp config_parser.cpp \
      data_entry.cpp log_mesg.cpp named_attributes.cpp named_range.cpp \
      qscript_conf.cpp qscript_conf_lex.cpp qscript_data.cpp \
      qscript_debug.cpp qscript_lib.cpp qscript_parser_common.cpp \
-     qscript_readline.cpp qtm_datafile_conf.cpp qtm_datafile_conf_lex.cpp \
+     qtm_datafile_conf.cpp qtm_datafile_conf_lex.cpp \
      qtm_datafile_conf_parser.cpp qtm_data_file.cpp QuestionAttributes.cpp \
      question_common.cpp question_logic.cpp question_runtime.cpp \
      read_disk_data.cpp scan_data.cpp \
      utils_common.cpp xtcc_set.cpp question_stdout_runtime.cpp 
-     #TempNameGenerator.cpp AbstractStatement.cpp 
+     #TempNameGenerator.cpp AbstractStatement.cpp  qscript_readline.cpp 
 
 OBJS := $(SRC:.cpp=.o)
 
@@ -18,21 +21,31 @@ OBJS := $(SRC:.cpp=.o)
 	flex -o$@ $<
 
 
+data_entry.cpp: YFLAGS = -p scan_data
+data_entry.hpp: YFLAGS = -p scan_data
+
+%.cpp %.hpp: %.ypp
+	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
+	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
+
 test_2_1.exe: $(OBJS) test_2_1.o
-	g++ $(CFLAGS) -o $@ $(OBJS) test_2_1.o -lpanel -lncurses
+	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2_1.o 
 
 test_2.exe: $(OBJS) test_2.o
-	g++ $(CFLAGS) -o $@ $(OBJS) test_2.o -lpanel -lncurses
+	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2.o -lpanel -lncurses
 
 %.o: %.cpp
-	g++ $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $<
 
 test_2.o: test_2.C
-	g++ $(CFLAGS)  -c $<
+	$(CC) $(CFLAGS)  -c $<
 
 
 test_2_1.o: test_2_1.C
-	g++ $(CFLAGS)  -c $<
+	$(CC) $(CFLAGS)  -c $<
+
+exe_clean:
+	rm *.exe
 
 
 %.dep : %.cpp

@@ -134,7 +134,10 @@ static void sig_usr(int32_t signo)
 		fprintf(stderr, "received signal : %d\n", signo);
 	}
 	fflush(qscript_stdout);
-	endwin();
+	// re-enable this later
+	// 17-may-2013 commenting it out for now
+	// so that we have a clean runtime
+	//endwin();
 	exit(1);
 }
 

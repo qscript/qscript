@@ -74,7 +74,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 268 of yacc.c  */
-#line 9 "src/data_entry.ypp"
+#line 9 "data_entry.ypp"
 
 #include <limits.h>
 #include <vector>
@@ -96,7 +96,7 @@ using namespace std;
 
 
 /* Line 268 of yacc.c  */
-#line 100 "src/data_entry.cpp"
+#line 100 "data_entry.cpp"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -140,14 +140,14 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 35 "src/data_entry.ypp"
+#line 35 "data_entry.ypp"
 
 	int ival;
 
 
 
 /* Line 293 of yacc.c  */
-#line 151 "src/data_entry.cpp"
+#line 151 "data_entry.cpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -159,7 +159,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 163 "src/data_entry.cpp"
+#line 163 "data_entry.cpp"
 
 #ifdef short
 # undef short
@@ -1383,7 +1383,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 52 "src/data_entry.ypp"
+#line 52 "data_entry.ypp"
     {
 		the_user_response = user_response::UserEnteredData;
 	}
@@ -1392,7 +1392,7 @@ yyreduce:
   case 5:
 
 /* Line 1806 of yacc.c  */
-#line 71 "src/data_entry.ypp"
+#line 71 "data_entry.ypp"
     {
 	      vector <int> & data = *data_ptr; 
 	      data.push_back((yyvsp[(1) - (1)].ival));
@@ -1402,7 +1402,7 @@ yyreduce:
   case 6:
 
 /* Line 1806 of yacc.c  */
-#line 75 "src/data_entry.ypp"
+#line 75 "data_entry.ypp"
     {
 		vector <int> & data = *data_ptr; 
 		data.push_back((yyvsp[(1) - (3)].ival));
@@ -1415,7 +1415,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1419 "src/data_entry.cpp"
+#line 1419 "data_entry.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1646,7 +1646,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 100 "src/data_entry.ypp"
+#line 100 "data_entry.ypp"
 
 	extern char * scan_datatext;
 	//void scan_dataerror(char *s){
