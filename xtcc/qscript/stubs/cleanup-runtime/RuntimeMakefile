@@ -12,7 +12,7 @@ SRC= AbstractQuestionnaire.cpp config_parser.cpp \
      qtm_datafile_conf_parser.cpp qtm_data_file.cpp QuestionAttributes.cpp \
      question_common.cpp question_logic.cpp question_runtime.cpp \
      read_disk_data.cpp scan_data.cpp \
-     utils_common.cpp xtcc_set.cpp question_stdout_runtime.cpp 
+     utils_common.cpp xtcc_set.cpp 
      #TempNameGenerator.cpp AbstractStatement.cpp  qscript_readline.cpp 
 
 OBJS := $(SRC:.cpp=.o)
@@ -28,8 +28,15 @@ data_entry.hpp: YFLAGS = -p scan_data
 	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
 	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
 
+
+vegetable-wx.exe: $(OBJS) vegetable-wx.o
+	$(CC) $(CFLAGS) -o $@ `wx-config --cppflags` $(OBJS) vegetable-wx.o question_wx2_runtime.C `wx-config --libs `
+
+vegetable.exe: $(OBJS) vegetable.o
+	$(CC) $(CFLAGS) -o $@ $(OBJS) vegetable.o question_stdout_runtime.cpp
+
 test_2_1.exe: $(OBJS) test_2_1.o
-	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2_1.o 
+	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2_1.o  question_stdout_runtime.cpp
 
 test_2.exe: $(OBJS) test_2.o
 	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2.o -lpanel -lncurses
