@@ -30,7 +30,7 @@ int32_t prompt_user_for_serial_no(
 		int (* p_return_ser_no) (int, struct TheQuestionnaire *)
 	);
 void gtk_eval (AbstractQuestion * q);
-int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQuestionnaire );
+int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 /*
 struct TheQuestionnaire;
 

@@ -444,7 +444,7 @@ void wxQuestionnaireGUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
 			ClearSerialNoScreen(dummy_evt);
 			//panel_sizer->Show(fgs);
 			ShowQuestionScreen(dummy_evt);
-			callback_get_ser_no_from_ui (l_ser_no, theQuestionnaire_);
+			callback_get_ser_no_from_ui (l_ser_no, theQuestionnaire_, 1);
 		} else {
 			cout << "strtol failed: l_ser_no: " << l_ser_no << endl;
 		}

@@ -4950,7 +4950,7 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "// nxd: this is a global variable - has to be eliminated at some point\n");
 	fprintf (script, "//TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);\n");
-	fprintf (script, "int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQuestionnaire )\n");
+	fprintf (script, "int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQuestionnaire, int nest_level )\n");
 	fprintf (script, "{\n");
 	fprintf (script, "	cout << \"received serial no : \" << p_ser_no << \"from ui\";\n");
 	fprintf (script, "\n");
@@ -4968,7 +4968,7 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "	UserInput l_user_input;\n");
 	fprintf (script, "	question_eval_loop2 (\n");
 	fprintf (script, "				l_user_input, /* last_question_visited */ 0,\n");
-	fprintf (script, "				/* jump_to_question */ 0, theQuestionnaire, 1);\n");
+	fprintf (script, "				/* jump_to_question */ 0, theQuestionnaire, nest_level + 1);\n");
 	fprintf (script, "	//cout << \"finished qnre: exiting ...\" << endl;\n");
 	fprintf (script, "	//prompt_user_for_serial_no (callback_get_ser_no_from_ui);\n");
 	fprintf (script, "	return 0;\n");
