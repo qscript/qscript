@@ -47,7 +47,7 @@ struct wxQuestionnaireGUI : public wxFrame
 {
 public:
 	wxQuestionnaireGUI(const wxString& title);
-	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire);
+	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 	int (*return_ser_no) (int, struct TheQuestionnaire *);
 	wxTextCtrl *txt_ctrl_ser_no;
 	wxBoxSizer *serial_row_sizer;
@@ -112,11 +112,11 @@ public:
 
 
 	void handleDataInput (wxCommandEvent& WXUNUSED(event));
-	void handleCBDataInput ();
-	void handleRBDataInput ();
+	void handleCBDataInput (int nest_level);
+	void handleRBDataInput (int nest_level);
 
 	void set_callback_ui_input (
-			void (*p_callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
+			void (*p_callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 			);
 
 private:
@@ -146,7 +146,7 @@ BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     //EVT_KILL_FOCUS(txt_data_entry_line, wxQuestionnaireApplication::LostFocus)
 END_EVENT_TABLE()
 
-void wxQuestionnaireGUI::handleCBDataInput ()
+void wxQuestionnaireGUI::handleCBDataInput (int nest_level)
 {
 	vector<int32_t> data;
 	UserInput user_input;
@@ -172,13 +172,13 @@ void wxQuestionnaireGUI::handleCBDataInput ()
 			// this call will return really fast
 			//  (if you consider io fast)
 			//  but what I mean is we wont add much to the call stack
-			callback_ui_input (user_input, q, theQuestionnaire_);
+			callback_ui_input (user_input, q, theQuestionnaire_, nest_level + 1);
 			//GetUserInput (callback_ui_input, q, theQuestionnaire);
 			cout << "callback_ui_input has returned after UserSavedData" << endl;
 		} else {
 			cout << "reached here: "
 				<< __PRETTY_FUNCTION__ << endl;
-			callback_ui_input (user_input, q, theQuestionnaire_);
+			callback_ui_input (user_input, q, theQuestionnaire_, nest_level + 1);
 			cout << "callback_ui_input has returned"
 				<< __PRETTY_FUNCTION__ << endl;
 		}
@@ -193,7 +193,7 @@ void wxQuestionnaireGUI::handleCBDataInput ()
 
 }
 
-void wxQuestionnaireGUI::handleRBDataInput ()
+void wxQuestionnaireGUI::handleRBDataInput (int nest_level)
 {
 	vector<int32_t> data;
 	UserInput user_input;
@@ -214,13 +214,13 @@ void wxQuestionnaireGUI::handleRBDataInput ()
 			// this call will return really fast
 			//  (if you consider io fast)
 			//  but what I mean is we wont add much to the call stack
-			callback_ui_input (user_input, q, theQuestionnaire_);
+			callback_ui_input (user_input, q, theQuestionnaire_, nest_level + 1);
 			//GetUserInput (callback_ui_input, q, theQuestionnaire);
 			cout << "callback_ui_input has returned after UserSavedData" << endl;
 		} else {
 			cout << "reached here: "
 				<< __PRETTY_FUNCTION__ << endl;
-			callback_ui_input (user_input, q, theQuestionnaire_);
+			callback_ui_input (user_input, q, theQuestionnaire_, nest_level + 1);
 			cout << "callback_ui_input has returned"
 				<< __PRETTY_FUNCTION__ << endl;
 		}
@@ -286,10 +286,10 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 				}
 			}
 			*/
-			handleRBDataInput();
+			handleRBDataInput(1);
 		} else {
 			cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
-			handleCBDataInput();
+			handleCBDataInput(1);
 		}
 	} else {
 		AbstractQuestion * q = last_question_visited;
@@ -362,13 +362,13 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 					// this call will return really fast
 					//  (if you consider io fast)
 					//  but what I mean is we wont add much to the call stack
-					callback_ui_input (user_input, q, theQuestionnaire_);
+					callback_ui_input (user_input, q, theQuestionnaire_, 1);
 					//GetUserInput (callback_ui_input, q, theQuestionnaire);
 					cout << "callback_ui_input has returned after UserSavedData" << endl;
 				} else {
 					cout << "reached here: "
 						<< __PRETTY_FUNCTION__ << endl;
-					callback_ui_input (user_input, q, theQuestionnaire_);
+					callback_ui_input (user_input, q, theQuestionnaire_, 1);
 					cout << "callback_ui_input has returned"
 						<< __PRETTY_FUNCTION__ << endl;
 				}
@@ -542,8 +542,8 @@ int32_t prompt_user_for_serial_no(
 
 void GetUserInput (
 	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
-		struct TheQuestionnaire * theQuestionnaire),
-		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire)
+		struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	static int count = 0;
 	cout << __PRETTY_FUNCTION__ << ++count << endl;
@@ -611,13 +611,13 @@ void GetUserInput (
 				// this call will return really fast
 				//  (if you consider io fast)
 				//  but what I mean is we wont add much to the call stack
-				callback_ui_input (user_input, q, theQuestionnaire);
-				GetUserInput (callback_ui_input, q, theQuestionnaire);
+				callback_ui_input (user_input, q, theQuestionnaire, nest_level + 1);
+				GetUserInput (callback_ui_input, q, theQuestionnaire,  nest_level + 1);
 				cout << "callback_ui_input has returned after UserSavedData" << endl;
 			} else {
 				cout << "reached here: "
 					<< __PRETTY_FUNCTION__ << endl;
-				callback_ui_input (user_input, q, theQuestionnaire);
+				callback_ui_input (user_input, q, theQuestionnaire, nest_level + 1);
 				cout << "callback_ui_input has returned"
 					<< __PRETTY_FUNCTION__ << endl;
 			}
@@ -639,7 +639,7 @@ void GetUserInput (
 #endif /*  0 */
 		} else {
 			// we should be passing an error message too
-			GetUserInput (callback_ui_input, q, theQuestionnaire);
+			GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
 		}
 		/*
 		else {
@@ -652,7 +652,7 @@ void GetUserInput (
 	} else {
 		// nxd: 19-feb-2013
 		// I have to change this
-		GetUserInput (callback_ui_input, q, theQuestionnaire);
+		GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
 	}
 }
 
@@ -776,7 +776,8 @@ void DisplayCurrentAnswers (AbstractQuestion * q)
 
 
 void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire,
-	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire))
+	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level), int nest_level)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	ClearPreviousView ();
@@ -1092,7 +1093,7 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 
 
 void wxQuestionnaireGUI::set_callback_ui_input (
-			void (*p_callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire)
+			void (*p_callback_ui_input) (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 			)
 {
 	callback_ui_input = p_callback_ui_input;
