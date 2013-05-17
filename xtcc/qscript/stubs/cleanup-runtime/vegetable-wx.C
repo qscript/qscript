@@ -5,6 +5,7 @@
 #include <fstream>
 #include <map>
 #include <cstdlib>
+#include <cstring>
 #include <errno.h>
 #include <unistd.h>
 #include <signal.h>

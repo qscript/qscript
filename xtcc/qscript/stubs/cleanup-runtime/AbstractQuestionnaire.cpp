@@ -23,6 +23,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 
 #include "ArrayQuestion.h"
 #include "named_range.h"

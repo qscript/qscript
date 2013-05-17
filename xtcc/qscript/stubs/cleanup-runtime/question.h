@@ -18,10 +18,11 @@
 //#include <fstream>
 #include <iostream>
 #include <string>
+#include <set>
 #include <Wt/WString>
 
 //#include "stmt.h"
-#include "expr.h"
+//#include "expr.h"
 #include "compiled_code.h"
 #include "curses_namespace.h"
 #include "qscript_debug.h"
@@ -31,14 +32,20 @@
 #include "user_navigation.h"
 #include "named_attributes.h"
 #include "stub_pair.h"
+#include "xtcc_set.h"
+#include "active_var_info.h"
+#include "question_type.h"
 
 using std::ostringstream;
 using std::ofstream;
+using std::set;
 struct named_range;
 struct DummyArrayQuestion;
 
 struct CompoundStatement;
 
+struct Unary2Expression;
+struct AbstractExpression;
 struct AbstractRuntimeQuestion ;
 	struct TextExpression
 	{
@@ -277,7 +284,7 @@ struct AbstractRuntimeQuestion
 	virtual bool IsValid(int32_t value)=0;
 	void print_q_type(string &s);
 	void print_data_type(string &s);
-	void init_arr(int32_t n, AbstractQuestion* q);
+	void init_arr(int32_t n, AbstractRuntimeQuestion* q);
 	virtual void WriteDataToDisk(ofstream & data_file)=0;
 	//void PrintSetupBackJump(StatementCompiledCode &code);
 	//void SetupSimpleQuestionSave(StatementCompiledCode &code);

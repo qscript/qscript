@@ -9,9 +9,12 @@
 #include <sys/types.h>
 #include <map>
 #include <string>
-#include "symtab.h"
+//#include "symtab.h"
+#include "datatype.h"
 using std::map;
 using std::string;
+struct AbstractExpression;
+struct noun_list_type ;
 
 struct FunctionParameter;
 enum compiler_err_category
@@ -26,6 +29,7 @@ void print_err(compiler_err_category cmp_err
 		, int32_t line_no
 		, int32_t compiler_line_no
 		, string compiler_file_name);
+struct SymbolTableEntry;
 map<string, SymbolTableEntry*>::iterator find_in_symtab(string id);
 int32_t search_for_func(string& search_for);
 DataType arr_deref_type(DataType d1);

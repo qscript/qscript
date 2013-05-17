@@ -6,6 +6,7 @@
 #include <set>
 #include <algorithm>
 #include <iostream>
+#include <cstring>
 #include "qtm_data_file.h"
 #include "log_mesg.h"
 #include "qtm_datafile_conf_parser.h"

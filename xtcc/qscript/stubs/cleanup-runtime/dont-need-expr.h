@@ -31,6 +31,7 @@
 //#include "tree.h"
 #include <sys/types.h>
 #include <iosfwd>
+#include "datatype.h"
 #include "symtab.h"
 #include "compiled_code.h"
 //#include <sstream>
