@@ -395,9 +395,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "FILE * qscript_stdout = 0;\n");
 	fprintf(script, "#include \"debug_mem.h\"\n\n\n");
 	fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
-	fprintf(script, "fstream flat_file;\n");
-	fprintf(script, "fstream xtcc_datafile;\n");
-	fprintf(script, "fstream qtm_disk_file;\n");
+	fprintf(script, "extern fstream flat_file;\n");
+	fprintf(script, "extern fstream xtcc_datafile;\n");
+	fprintf(script, "extern fstream qtm_disk_file;\n");
 	fprintf(script, "extern set<string> qtm_include_files;\n");
 
 	fprintf(script, "using namespace std;\n");

@@ -9,7 +9,7 @@
 #include <sstream>
 #include "named_range.h"
 #include "utils.h"
-#include "TempNameGenerator.h"
+//#include "TempNameGenerator.h"
 
 using std::cout;
 using std::endl;
@@ -19,10 +19,11 @@ using std::string;
 named_range::~named_range()
 { }
 
-namespace qscript_parser {
-	extern TempNameGenerator temp_name_generator;
-}
+//namespace qscript_parser {
+//	extern TempNameGenerator temp_name_generator;
+//}
 
+#if 0
 void named_range::GenerateCode(StatementCompiledCode & code)
 {
 	code.quest_defns << "vector <stub_pair> "
@@ -65,9 +66,10 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
+#endif /* 0 */
 
 named_range::named_range(named_range & nr)
-	: AbstractStatement(nr.type_, nr.lineNo_),
+	: //AbstractStatement(nr.type_, nr.lineNo_),
 	name (nr.name),  stubs (nr.stubs)
 {
 }

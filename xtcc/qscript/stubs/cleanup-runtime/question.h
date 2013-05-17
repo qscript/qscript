@@ -20,7 +20,7 @@
 #include <string>
 #include <Wt/WString>
 
-#include "stmt.h"
+//#include "stmt.h"
 #include "expr.h"
 #include "compiled_code.h"
 #include "curses_namespace.h"
@@ -30,11 +30,14 @@
 #include "UserResponse.h"
 #include "user_navigation.h"
 #include "named_attributes.h"
+#include "stub_pair.h"
 
 using std::ostringstream;
 using std::ofstream;
 struct named_range;
 struct DummyArrayQuestion;
+
+struct CompoundStatement;
 
 struct AbstractRuntimeQuestion ;
 	struct TextExpression

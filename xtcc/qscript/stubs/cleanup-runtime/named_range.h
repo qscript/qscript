@@ -12,24 +12,26 @@
 #include <string>
 #include <sstream>
 #include "stub_pair.h"
+#include "datatype.h"
 //#include "stmt.h"
-#include "AbstractStatement.h"
+//#include "AbstractStatement.h"
 
 
-struct named_range: public AbstractStatement
+struct named_range
+	//: public AbstractStatement
 {
 	std::string name;
 	std::vector <stub_pair> stubs;
 	//named_range(): name(""), stubs(){}
-	void GenerateCode(StatementCompiledCode & code);
+	//void GenerateCode(StatementCompiledCode & code);
 	named_range()
-		: AbstractStatement(NAMED_RANGE, 0)
-		  , name(), stubs()
+		: //AbstractStatement(NAMED_RANGE, 0),
+		name(), stubs()
 	{ }
 	named_range(DataType l_type, int32_t l_line_number
 		    , std::string l_name, std::vector <stub_pair>& l_stubs )
-		: AbstractStatement(l_type, l_line_number)
-		, name(l_name), stubs(l_stubs)
+		: //AbstractStatement(l_type, l_line_number),
+		  name(l_name), stubs(l_stubs)
 	{
 		//cout << "named_range: constructor" << endl;
 	}
