@@ -19,12 +19,12 @@
 #include <iostream>
 #include <string>
 #include <set>
-#include <Wt/WString>
+//#include <Wt/WString>
 
 //#include "stmt.h"
 //#include "expr.h"
 //#include "compiled_code.h"
-#include "curses_namespace.h"
+//#include "curses_namespace.h"
 #include "qscript_debug.h"
 #include "display_data.h"
 #include "QuestionAttributes.h"
@@ -300,7 +300,7 @@ struct AbstractRuntimeQuestion
 	//	vector<AbstractQuestion*> & question_list
 	//	, AbstractStatement * stop_at);
 	//void PrintEvalAndNavigateCode(ostringstream & program_code);
-	user_response::UserResponseType GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window);
+	//user_response::UserResponseType GetDataFromUser(WINDOW * question_window, WINDOW * stub_list_window, WINDOW * data_entry_window);
 
 	bool VerifyData(string & err_mesg, string & re_arranged_buffer
 				, int32_t &pos_1st_invalid_data, vector<int32_t> * data_ptr);
@@ -559,15 +559,15 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 #endif /* 0 */
 	void MakeDisplaySummaryDataRanges();
 
-	void ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_window
-			     , /*qs_ncurses::*/WINDOW* stub_list_window
-			     , /*qs_ncurses::*/WINDOW* data_entry_window
-			     , WINDOW * error_msg_window);
+	//void ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_window
+	//		     , /*qs_ncurses::*/WINDOW* stub_list_window
+	//		     , /*qs_ncurses::*/WINDOW* data_entry_window
+	//		     , WINDOW * error_msg_window);
 
-	void DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_window
-			     , /*qs_ncurses::*/WINDOW* stub_list_window
-			     , /*qs_ncurses::*/WINDOW* data_entry_window
-			     , WINDOW * error_msg_window);
+	//void DisplayStubsPage(/*qs_ncurses::*/WINDOW * question_window
+	//		     , /*qs_ncurses::*/WINDOW* stub_list_window
+	//		     , /*qs_ncurses::*/WINDOW* data_entry_window
+	//		     , WINDOW * error_msg_window);
 
 
 	private:
@@ -585,9 +585,9 @@ class DummyArrayQuestion: public AbstractRuntimeQuestion
 
 	void WriteDataToDisk(ofstream& data_file);
 	//void eval(){}
-	void eval(/*qs_ncurses::*/WINDOW * question_window
-		  , /*qs_ncurses::*/WINDOW* stub_list_window
-		  , /*qs_ncurses::*/WINDOW* data_entry_window);
+	//void eval(/*qs_ncurses::*/WINDOW * question_window
+	//	  , /*qs_ncurses::*/WINDOW* stub_list_window
+	//	  , /*qs_ncurses::*/WINDOW* data_entry_window);
 
 
 	bool IsValid(int32_t value){ return false;}
@@ -613,9 +613,9 @@ class DummyArrayQuestion: public AbstractRuntimeQuestion
 		DummyArrayQuestion (const DummyArrayQuestion&);
 };
 
-void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
-		vector<display_data::DisplayDataUnit> & disp_vec,
-		int &xPos, int &yPos, int maxWinX);
+//void Print_DisplayDataUnitVector(WINDOW * stub_list_window,
+//		vector<display_data::DisplayDataUnit> & disp_vec,
+//		int &xPos, int &yPos, int maxWinX);
 
 
 #endif /* qscript_question_h */

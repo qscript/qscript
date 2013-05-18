@@ -18,6 +18,8 @@
 
 #include <fstream>
 #include <signal.h>
+#include "utils.h"
+//#include <libintl.h>
 
 #include "AbstractQuestionnaire.h"
 #include "question_stdout_runtime.h"
@@ -272,8 +274,12 @@ string NamedStubQuestion::PrintSelectedAnswers()
 			//	select_answers_text += w_str.toUTF8();
 			//} else {
 				//select_answers_text += gettext(mesg_key.str().c_str());
-				select_answers_text += gettext(nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str());
+				//select_answers_text += gettext(nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str());
+				select_answers_text += nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str();
 			//}
+			log_maintainer_message(__LINE__, __FILE__, __PRETTY_FUNCTION__ ,
+					"somehow bring gettext back again"
+					);
 			first_time = false;
 		} else {
 			//select_answers_text << ", " << nr_ptr->stubs[*inp_data_iter-1].stub_text ;
@@ -282,7 +288,11 @@ string NamedStubQuestion::PrintSelectedAnswers()
 			//	select_answers_text += Wt::WString(", ").toUTF8() +  Wt::WString::tr(mesg_key.str()).toUTF8();
 			//} else {
 				//select_answers_text += gettext(mesg_key.str().c_str());
-				select_answers_text += gettext(nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str());
+			//select_answers_text += gettext(nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str());
+			select_answers_text += nr_ptr->stubs[*inp_data_iter - 1].stub_text.c_str();
+			log_maintainer_message(__LINE__, __FILE__, __PRETTY_FUNCTION__ ,
+					"somehow bring gettext back again"
+					);
 			//}
 		}
 	}
@@ -316,7 +326,11 @@ string NamedStubQuestion::PrintSelectedAnswers(int code_index)
 	//	return w_str.toUTF8();
 	//} else {
 		//return string (gettext(mesg_key.str().c_str()));
-		return string (gettext( nr_ptr->stubs[code_index].stub_text.c_str() ));
+		//return string (gettext( nr_ptr->stubs[code_index].stub_text.c_str() ));
+			log_maintainer_message(__LINE__, __FILE__, __PRETTY_FUNCTION__ ,
+					"somehow bring gettext back again"
+					);
+		return  nr_ptr->stubs[code_index].stub_text.c_str() ;
 	//}
 }
 

@@ -2,10 +2,10 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <Wt/WString>
+//#include <Wt/WString>
 #include "question.h"
 #include "named_range.h"
-#include "qscript_readline.h"
+//#include "qscript_readline.h"
 #include "user_navigation.h"
 #include "utils.h"
 
@@ -13,9 +13,9 @@ using namespace std;
 //extern vector<int32_t> data;
 extern UserNavigation user_navigation;
 
-void Print_DisplayDataUnitVector (WINDOW * stub_list_window,
-		vector<display_data::DisplayDataUnit> & disp_vec,
-		int &xPos, int &yPos, int maxWinX);
+//void Print_DisplayDataUnitVector (WINDOW * stub_list_window,
+//		vector<display_data::DisplayDataUnit> & disp_vec,
+//		int &xPos, int &yPos, int maxWinX);
 
 	//! this is only called in the runtime environment
 RangeQuestion::RangeQuestion(
@@ -668,6 +668,7 @@ void RangeQuestion::MakeDisplaySummaryDataRanges()
 	}
 }
 
+#if 0
 void NamedStubQuestion::ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_window
 			     , /*qs_ncurses::*/WINDOW* stub_list_window
 			     , /*qs_ncurses::*/WINDOW* data_entry_window
@@ -701,6 +702,7 @@ void NamedStubQuestion::ComputeVisiblePages (/*qs_ncurses::*/WINDOW * question_w
 		//}
 	//}
 }
+#endif /* 0 */
 
 bool AbstractRuntimeQuestion::check_and_store_input_data_single_question
 	(string & err_mesg, string & re_arranged_buffer, int & pos_1st_invalid_data,
