@@ -1,0 +1,75 @@
+
+#CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
+CFLAGS= -g -Wunused-function
+#CC = clang --analyze
+CC=emcc
+LIBS = -lncurses -lpanel
+
+SRC= src/AbstractQuestionnaire.cpp src/config_parser.cpp \
+     src/data_entry.cpp src/log_mesg.cpp src/named_attributes.cpp src/named_range.cpp \
+     src/qscript_conf.cpp src/qscript_conf_lex.cpp src/qscript_data.cpp \
+     src/qscript_debug.cpp src/qscript_lib.cpp src/qscript_parser_common.cpp \
+     src/qtm_datafile_conf.cpp src/qtm_datafile_conf_lex.cpp \
+     src/qtm_datafile_conf_parser.cpp src/qtm_data_file.cpp src/QuestionAttributes.cpp \
+     src/question_common.cpp src/question_logic.cpp src/question_runtime.cpp \
+     src/read_disk_data.cpp src/scan_data.cpp \
+     src/utils_common.cpp src/xtcc_set.cpp
+     #src/TempNameGenerator.cpp src/AbstractStatement.cpp  src/qscript_readline.cpp 
+
+SOURCE_DIR=src
+BUILD_DIR=emscript-build
+
+OBJS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(SRC))
+OBJS := $(OBJS:.cpp=.o)
+
+# uncomment this to see what is going on with the subsitutes
+#dummy_show_target:
+#	echo $(OBJS)
+
+%.cpp : %.l
+	flex -o$@ $<
+
+
+data_entry.cpp: YFLAGS = -p scan_data
+data_entry.hpp: YFLAGS = -p scan_data
+
+%.cpp %.hpp: %.ypp
+	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
+	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
+
+
+vegetable.js: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+
+
+test_2_1.js: $(OBJS) test_2_1.o
+	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2_1.o  question_stdout_runtime.cpp
+
+test_2.js: $(OBJS) test_2.o
+	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2.o 
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
+	$(CC) -o $@ $(CFLAGS) -c $<
+
+#test_2.o: test_2.C
+#	$(CC) $(CFLAGS)  -c $<
+#
+#
+#test_2_1.o: test_2_1.C
+#	$(CC) $(CFLAGS)  -c $<
+
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.C
+	$(CC) $(CFLAGS)  -c $<
+
+exe_clean:
+	rm *.exe
+
+
+$(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
+	@set -e; rm -f $@; \
+		$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
+		rm -f $@.$$$$
+
+-include $(DEPENDENCIES)
