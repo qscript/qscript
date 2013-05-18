@@ -5,24 +5,24 @@ CFLAGS= -g -Wunused-function
 CC=emcc
 LIBS = -lncurses -lpanel
 
-SRC= src/AbstractQuestionnaire.cpp src/config_parser.cpp \
-     src/data_entry.cpp src/log_mesg.cpp src/named_attributes.cpp src/named_range.cpp \
-     src/qscript_conf.cpp src/qscript_conf_lex.cpp src/qscript_data.cpp \
-     src/qscript_debug.cpp src/qscript_lib.cpp src/qscript_parser_common.cpp \
-     src/qtm_datafile_conf.cpp src/qtm_datafile_conf_lex.cpp \
-     src/qtm_datafile_conf_parser.cpp src/qtm_data_file.cpp src/QuestionAttributes.cpp \
-     src/question_common.cpp src/question_logic.cpp src/question_runtime.cpp \
-     src/read_disk_data.cpp src/scan_data.cpp \
-     src/utils_common.cpp src/xtcc_set.cpp
-     #src/TempNameGenerator.cpp src/AbstractStatement.cpp  src/qscript_readline.cpp 
+SRC= src-emscripten/AbstractQuestionnaire.cpp src-emscripten/config_parser.cpp \
+     src-emscripten/data_entry.cpp src-emscripten/log_mesg.cpp src-emscripten/named_attributes.cpp src-emscripten/named_range.cpp \
+     src-emscripten/qscript_conf.cpp src-emscripten/qscript_conf_lex.cpp src-emscripten/qscript_data.cpp \
+     src-emscripten/qscript_debug.cpp src-emscripten/qscript_lib.cpp src-emscripten/qscript_parser_common.cpp \
+     src-emscripten/qtm_datafile_conf.cpp src-emscripten/qtm_datafile_conf_lex.cpp \
+     src-emscripten/qtm_datafile_conf_parser.cpp src-emscripten/qtm_data_file.cpp src-emscripten/QuestionAttributes.cpp \
+     src-emscripten/question_common.cpp src-emscripten/question_logic.cpp src-emscripten/question_runtime.cpp \
+     src-emscripten/read_disk_data.cpp src-emscripten/scan_data.cpp \
+     src-emscripten/utils_common.cpp src-emscripten/xtcc_set.cpp
+     #src-emscripten/TempNameGenerator.cpp src-emscripten/AbstractStatement.cpp  src-emscripten/qscript_readline.cpp 
 
-SOURCE_DIR=src
+SOURCE_DIR=src-emscripten
 BUILD_DIR=emscript-build
 
 OBJS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(SRC))
 OBJS := $(OBJS:.cpp=.o)
 
-# uncomment this to see what is going on with the subsitutes
+# uncomment this to see what is going on with the substitutes
 #dummy_show_target:
 #	echo $(OBJS)
 
@@ -37,6 +37,9 @@ data_entry.hpp: YFLAGS = -p scan_data
 	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
 	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
 
+
+vegetable.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 
 vegetable.js: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
@@ -60,7 +63,7 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
 
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.C
-	$(CC) $(CFLAGS)  -c $<
+	$(CC) -o $@  $(CFLAGS)  -c $<
 
 exe_clean:
 	rm *.exe
