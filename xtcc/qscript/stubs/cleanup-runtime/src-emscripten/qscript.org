@@ -1,0 +1,22 @@
+* runtime isolation
+* emscripten
+** Compilation to html
+*** DONE stdout file runs in browser
+*** TODO Create nice UI for above working code in browser
+    Do this by
+**** TODO modifying emscripten/src/shell.html to have 3 divs for questions, stubs, answers
+**** TODO create a library function to accept the strings in Javascript
+            (emscripten allows this), the parameter will be a json representation of the 
+	    question text, stubs and codes
+**** TODO incorporate json parser in c++ runtime
+**** TODO pass the stubs , codes and question text to the js library as a json string
+**** TODO embed the json javascript parser into the shell.html 
+**** TODO from the javascript side parse the given material as question text, stubs and code
+**** TODO use pure javascript (from Professional JavaScript for web developers) to create 
+     appropriate codes to display the text and stub lists as a form with single/multiple choices
+**** TODO replace cin call to extract user input with parsing form data and giving a submit button
+**** TODO replace hand created JavaScript widgets with Dojo Widgets for displaying survey choices
+**** TODO use emscripten FS calls to save the data to a file
+
+
+
