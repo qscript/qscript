@@ -28,6 +28,12 @@
 #include "question_disk_data.h"
 #include "qscript_data.hpp"
 #include "qtm_data_file.h"
+#include "dom_manip_funcs.h"
+
+#include "../rapidjson/prettywriter.h"	// for stringify JSON
+#include "../rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
+#include "../rapidjson/stringbuffer.h"	// for stringify JSON
+
 
 void parse_input_data(vector<int> * data_ptr, int & success);
 
@@ -379,7 +385,34 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	PrepareStubs (q);
 	DisplayStubs (q);
 	DisplayCurrentAnswers (q);
+	print_to_question_area (nest_level);
+
+
+#if 0
+	using namespace rapidjson;
+
+	FileStream s(stdout);
+	PrettyWriter<FileStream> writer(s);		// Can also use Writer for condensed formatting
+
+	/* crashes in emscripten
+	GenericStringBuffer<UTF8<> > s;
+	PrettyWriter<GenericStringBuffer<UTF8<> > > writer(s);		// Can also use Writer for condensed formatting
+	*/
+#endif
+	stringstream s;
+	if (NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (q)) {
+		//nq->nr_ptr->Serialize (writer);
+		nq->nr_ptr->toString(s);
+		//std::string str = s.GetString();
+		cout << s.str() << endl;
+	}
+	print_to_stub_area (s.str().c_str());
+
 	GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+
+
+	//static int i;
+	//i += 10;
 }
 
 int process_options(int argc, char * argv[]);

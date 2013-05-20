@@ -877,7 +877,8 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 				l_user_input, /* last_question_visited */ 0,
 				/* jump_to_question */ 0, theQuestionnaire, nest_level+1);
 	cout << "finished qnre: exiting ..." << endl;
-	prompt_user_for_serial_no (callback_get_ser_no_from_ui, nest_level + 1);
+	cout << "commented out prompt_user_for_serial_no" << endl;
+	//prompt_user_for_serial_no (callback_get_ser_no_from_ui, nest_level + 1);
 	return 0;
 }
 

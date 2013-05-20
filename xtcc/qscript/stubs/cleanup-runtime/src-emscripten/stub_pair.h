@@ -9,6 +9,10 @@
 
 #include <sys/types.h>
 #include <string>
+#include <sstream>
+//#include "../rapidjson/prettywriter.h"	// for stringify JSON
+//#include "../rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
+
 using std::string;
 struct	stub_pair
 {
@@ -27,7 +31,7 @@ struct	stub_pair
 	{}
 	/*
 
-	stub_pair(const stub_pair & p1) 
+	stub_pair(const stub_pair & p1)
 	{
 		stub_text = p1.stub_text;
 		code = p1.code;
@@ -39,6 +43,39 @@ struct	stub_pair
 		return *this;
 	}
 	*/
+
+	/*
+	template <typename Writer>
+	void Serialize(Writer& writer) const
+	{
+		using namespace rapidjson;
+
+		writer.StartObject();
+		writer.String("stub_text");
+		writer.String(stub_text.c_str(), (SizeType) stub_text.length());
+		writer.String("stub_code");
+		writer.Int(code);
+		writer.String("mask");
+		writer.Bool(mask);
+		writer.String("is_mutex");
+		writer.Bool(is_mutex);
+		writer.EndObject();
+	}
+	*/
+
+	void toString(std::stringstream & s) const
+	{
+	using std::endl;
+		s 	<< "{"
+			<< "\"stub_text\":" << "\"" << stub_text << "\"" << ","
+			<< "\"stub_code\":" << code << ","
+			<< "\"mask\":" << mask << ","
+			<< "\"is_mutex\":" << mask
+			//<< ","
+			<< "}"
+			<< endl;
+
+	}
 };
 
 struct stub_pair_order_asc

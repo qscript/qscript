@@ -1,6 +1,6 @@
 
 #CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
-CFLAGS= -g -Wunused-function
+CFLAGS= -g -Wunused-function --jcache
 #CC = clang --analyze
 CC=emcc
 LIBS = -lncurses -lpanel
@@ -39,7 +39,7 @@ data_entry.hpp: YFLAGS = -p scan_data
 
 
 vegetable.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+	$(CC) $(CFLAGS) -o $@ --shell-file shell-nxd2.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 
 vegetable.js: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
@@ -60,6 +60,10 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
 #
 #test_2_1.o: test_2_1.C
 #	$(CC) $(CFLAGS)  -c $<
+
+$(BUILD_DIR)/lib_emscript_runtime.a: $(OBJS)
+	emar  rcs $@  $(OBJS)
+	emranlib $@
 
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.C
