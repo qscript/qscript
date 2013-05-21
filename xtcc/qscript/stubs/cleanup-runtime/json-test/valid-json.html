@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en-us">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>NxD File: Emscripten-Generated Code</title>
+  </head>
+  <body>
+
+  <div id="result">
+	  <div id="parse_output"></div>
+  </div>
+
+  <script type="text/javascript">
+
+	var jsontext = '{"firstname":"Jesper","surname":"Aaberg","phone":["555-0100","555-0120"]}';
+	var contact = JSON.parse(jsontext);
+	document.write(contact.surname + ", " + contact.firstname);
+
+
+	var json_rep = '{ "agree_5": [ {"stub_text":"agree strongly","stub_code":5,"mask":1,"is_mutex":1} , {"stub_text":"agree somewhat","stub_code":4,"mask":1,"is_mutex":1} , {"stub_text":"Neutral","stub_code":3,"mask":1,"is_mutex":1} , {"stub_text":"Disagree ","stub_code":2,"mask":1,"is_mutex":1} , {"stub_text":"Disagree strongly","stub_code":1,"mask":1,"is_mutex":1} ] }';
+	alert("reached here");
+	var res = JSON.parse(json_rep);
+	alert("reached here- 2");
+	var parse_output = document.getElementById("parse_output");
+	alert("reached here- 3");
+	var output="";
+	for (i=0; i<res.agree_5.length; ++i) {
+		output += res.agree_5[i].stub_text + ",";
+		output += res.agree_5[i].stub_code + ",";
+	}
+	parse_output.innerHTML = output;
+	alert("reached here- 4");
+
+
+	/*
+	var json_rep2 = {
+    "agree_5": [
+        {
+            "stub_text": "agree strongly",
+            "stub_code": 5,
+            "mask": 1,
+            "is_mutex": 1
+        },
+        {
+            "stub_text": "agree somewhat",
+            "stub_code": 4,
+            "mask": 1,
+            "is_mutex": 1
+        },
+        {
+            "stub_text": "Neutral",
+            "stub_code": 3,
+            "mask": 1,
+            "is_mutex": 1
+        },
+        {
+            "stub_text": "Disagree ",
+            "stub_code": 2,
+            "mask": 1,
+            "is_mutex": 1
+        },
+        {
+            "stub_text": "Disagree strongly",
+            "stub_code": 1,
+            "mask": 1,
+            "is_mutex": 1
+        }
+    ]
+};
+	var res = JSON.parse(json_rep2);
+	var contact = JSON.parse(jsontext);
+	*/
+
+  </script>
+
+</body>
