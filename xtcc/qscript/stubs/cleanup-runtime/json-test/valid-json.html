@@ -9,7 +9,12 @@
   <body>
 
   <div id="result">
-	  <div id="parse_output"></div>
+	  <div id="parse_output">
+		 <form id="stubs_form">
+			 <div id="stubs_form_div">
+			 </div>
+		 </form>
+	  </div>
   </div>
 
   <script type="text/javascript">
@@ -20,19 +25,67 @@
 
 
 	var json_rep = '{ "agree_5": [ {"stub_text":"agree strongly","stub_code":5,"mask":1,"is_mutex":1} , {"stub_text":"agree somewhat","stub_code":4,"mask":1,"is_mutex":1} , {"stub_text":"Neutral","stub_code":3,"mask":1,"is_mutex":1} , {"stub_text":"Disagree ","stub_code":2,"mask":1,"is_mutex":1} , {"stub_text":"Disagree strongly","stub_code":1,"mask":1,"is_mutex":1} ] }';
-	alert("reached here");
+	//alert("reached here");
 	var res = JSON.parse(json_rep);
-	alert("reached here- 2");
-	var parse_output = document.getElementById("parse_output");
-	alert("reached here- 3");
+	//alert("reached here- 2");
+	//alert("reached here- 3");
+       /*
 	var output="";
 	for (i=0; i<res.agree_5.length; ++i) {
 		output += res.agree_5[i].stub_text + ",";
 		output += res.agree_5[i].stub_code + ",";
 	}
-	parse_output.innerHTML = output;
-	alert("reached here- 4");
+	*/
 
+	var doc_frag = document.createDocumentFragment();
+	for (var i=0; i<res.agree_5.length; ++i) {
+		var input   = document.createElement("input");
+		input.type  = "radio";
+		input.name  = "stub_response";
+		input.value = res.agree_5[i].stub_code;
+		input.id  = "agree_5_" + res.agree_5[i].stub_code;
+		var input_label   = document.createElement("label");
+		input_label.for =  "agree_5_" + res.agree_5[i].stub_code;
+		input_label.innerHTML = res.agree_5[i].stub_text;
+		doc_frag.appendChild(input);
+		doc_frag.appendChild(input_label);
+	}
+
+	//var parse_output = document.getElementById("parse_output");
+	//parse_output.innerHTML = output;
+	//stubs_form_div.innerHTML = output;
+	//alert("reached here- 4");
+
+	var stubs_form_div = document.getElementById("stubs_form_div");
+	stubs_form_div.appendChild(doc_frag);
+
+	var json_rep2 = '{ "name" : "agree_5", "stubs" : [ {"stub_text":"agree strongly","stub_code":5,"mask":1,"is_mutex":1} , {"stub_text":"agree somewhat","stub_code":4,"mask":1,"is_mutex":1} , {"stub_text":"Neutral","stub_code":3,"mask":1,"is_mutex":1} , {"stub_text":"Disagree ","stub_code":2,"mask":1,"is_mutex":1} , {"stub_text":"Disagree strongly","stub_code":1,"mask":1,"is_mutex":1} ] }';
+	var display_stubs = function (json_rep2) {
+
+	var res2 = JSON.parse(json_rep2);
+
+	var doc_frag2 = document.createDocumentFragment();
+	//alert (res2.name);
+	//alert (res2.stubs);
+	for (var i=0; i<res2.stubs.length; ++i) {
+		var input   = document.createElement("input");
+		input.type  = "radio";
+		input.name  = "stub_response";
+		input.value = res2.stubs[i].stub_code;
+		input.id  = res2.name + res2.stubs[i].stub_code;
+		var input_label   = document.createElement("label");
+		input_label.for =  res2.name + res2.stubs[i].stub_code;
+		input_label.innerHTML = res2.stubs[i].stub_text + "_nxd";
+		doc_frag2.appendChild(input);
+		doc_frag2.appendChild(input_label);
+	}
+
+	var stubs_form_div = document.getElementById("stubs_form_div");
+	stubs_form_div.appendChild(doc_frag2);
+
+	};
+
+	display_stubs(json_rep2);
 
 	/*
 	var json_rep2 = {
