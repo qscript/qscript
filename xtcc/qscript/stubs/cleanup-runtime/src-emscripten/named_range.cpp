@@ -98,8 +98,10 @@ void named_range::toString (stringstream & s) const
 {
 	using std::endl;
 	s << "{" << endl;
-	s << "\"name\"" << ":" << "\""<< name << "\"";
-	s << "{" << endl;
+	s << "\"name\"" << ":" << "\""<< name << "\"" << ",";
+	s << "\"stubs\" : ";
+	//s << "\""<< name << "\"" << ":" << endl;
+	s << "[" << endl;
 	int i = 0;
 	for (std::vector<stub_pair>::const_iterator stub_pair_itr = stubs.begin();
 			stub_pair_itr != stubs.end(); ++ stub_pair_itr, ++i
@@ -111,6 +113,6 @@ void named_range::toString (stringstream & s) const
 		}
 		stub_pair_itr->toString(s);
 	}
-	s << "}" << endl;
+	s << "]" << endl;
 	s << "}" << endl;
 }
