@@ -153,21 +153,27 @@ vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
 
 }
 
-void DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
+string DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
 {
 	string start_marker("===================== QUESTION TEXT =============================");
 	string end_marker  ("================= END OF QUESTION TEXT ==========================");
+	stringstream ret_val;
 	if (qno_and_qtxt.size() > 1) {
 		cout << start_marker << endl;
 		cout << qno_and_qtxt[0] << "." << qno_and_qtxt[1];
+
+		ret_val << start_marker << endl;
+		ret_val << qno_and_qtxt[0] << "." << qno_and_qtxt[1];
 		for (int i = 2; i < qno_and_qtxt.size(); ++i) {
 			cout <<  qno_and_qtxt[i].c_str();
+			ret_val << qno_and_qtxt[i] ;
 		}
 		cout << endl;
 
 		cout << end_marker << endl;
 	}
 	cout << endl;
+	return ret_val.str();
 }
 
 
@@ -378,14 +384,15 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	int nest_level
 	)
 {
+	static int counter = 0; // for unique ids in web browser
 	cout << __PRETTY_FUNCTION__ << " nest_level : " << nest_level << endl;
 	ClearPreviousView ();
 	vector <string> qno_and_qtxt = PrepareQuestionText (q);
-	DisplayQuestionTextView (qno_and_qtxt);
+	string question_display_text = DisplayQuestionTextView (qno_and_qtxt);
 	PrepareStubs (q);
 	DisplayStubs (q);
 	DisplayCurrentAnswers (q);
-	print_to_question_area (nest_level);
+	print_to_question_area (question_display_text.c_str());
 
 
 #if 0
@@ -406,7 +413,7 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 		//std::string str = s.GetString();
 		cout << s.str() << endl;
 	}
-	print_to_stub_area (s.str().c_str());
+	print_to_stub_area (s.str().c_str(), ++counter);
 
 	GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
 

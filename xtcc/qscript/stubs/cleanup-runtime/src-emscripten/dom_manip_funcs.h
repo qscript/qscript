@@ -3,9 +3,9 @@
 
 extern "C" {
 
-void print_to_question_area(int i);
-void print_to_stub_area (const char * s);
-void print_to_question_response_area(int i);
+void print_to_question_area(const char * question_text_ptr);
+void print_to_stub_area (const char * s, int counter);
+//void print_to_question_response_area(const char * question_text_ptr);
 
 }
 

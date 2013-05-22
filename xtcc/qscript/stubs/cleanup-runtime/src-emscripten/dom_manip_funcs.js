@@ -1,20 +1,21 @@
 mergeInto(LibraryManager.library, {
 
-print_to_question_area: function (i)
+print_to_question_area: function (question_text_ptr)
 {
 	//alert("print_to_question_area: " + i );
+	var the_question_text = Pointer_stringify (question_text_ptr);
 	var v = document.getElementById("question_text_area");
 	var html = "";
 	html +=
 		"<p>"
 		+ "some data from the cpp program"
-		+ i
+		+ the_question_text
 		+ "</p>";
 	v.innerHTML = html;
 },
 
 
-print_to_stub_area: function (string_pointer)
+print_to_stub_area: function (string_pointer, counter)
 {
 	//alert("print_to_question_area: " + i );
 	var v = document.getElementById("question_stub_area");
@@ -35,12 +36,14 @@ print_to_stub_area: function (string_pointer)
 		var doc_frag2 = document.createDocumentFragment();
 		//alert (res2.name);
 		//alert (res2.stubs);
+		// global - counter variable
 		for (var i=0; i<res2.stubs.length; ++i) {
 			var input   = document.createElement("input");
 			input.type  = "radio";
 			input.name  = "stub_response";
 			input.value = res2.stubs[i].stub_code;
-			var id_text = res2.name + res2.stubs[i].stub_code;
+			var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
+			alert("id_text: " + id_text);
 			input.id  = id_text;
 			//alert ("id_text:" + id_text);
 			var input_label   = document.createElement("label");
@@ -77,7 +80,9 @@ print_to_stub_area: function (string_pointer)
 				checked: false,
 				value: res2.stubs[i].stub_code,
 				name: "stub_response",
-			    }, res2.name + res2.stubs[i].stub_code);
+			    }, res2.name + res2.stubs[i].stub_code + "_" + counter);
+
+				alert("id_text: " + id_text + "|" + res2.name + res2.stubs[i].stub_code + "_" + counter);
 			}
 		});
 	};
