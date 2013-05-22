@@ -3,15 +3,15 @@
  *
  *       Filename:  question_gtk2_runtime.h
  *
- *    Description:  
+ *    Description:
  *
  *        Version:  1.0
  *        Created:  Friday 15 February 2013 03:14:33  IST
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  YOUR NAME (), 
- *        Company:  
+ *         Author:  YOUR NAME (),
+ *        Company:
  *
  * =====================================================================================
  */
@@ -26,7 +26,7 @@ struct TheQuestionnaire;
 void setup_ui (int argc, char * argv[]);
 char get_end_of_question_response();
 void print_save_partial_data_message_success ();
-int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int));
+int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int, int), int nest_level);
 /*
 struct TheQuestionnaire;
 
@@ -52,13 +52,15 @@ struct UserInput
 //void stdout_eval (AbstractQuestion * q);
 struct TheQuestionnaire;
 void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire,
-	void (*callback_ui_input) 
-		(UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire));
+	void (*callback_ui_input)
+		(UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		int nest_level
+		);
 void parse_input_data(string input_string, vector<int> * data_ptr, int & success);
-void GetUserInput ( 
+void GetUserInput (
 	void (*callback_ui_input) (UserInput p_user_input, AbstractQuestion * q,
-		struct TheQuestionnaire * theQuestionnaire), 
-		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire);
+		struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		AbstractQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 
 #endif /*  QUESTION_STDOUT_RUNTIME_H */
