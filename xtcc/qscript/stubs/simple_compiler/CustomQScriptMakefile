@@ -112,8 +112,8 @@ RUNTIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/qtm_data_file.cpp
 		$(SOURCE_DIR)/question_runtime.cpp $(SOURCE_DIR)/question_common.cpp \
 		$(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/named_range.cpp \
 		$(SOURCE_DIR)/named_attributes.cpp  $(SOURCE_DIR)/AbstractQuestionnaire.cpp \
-		$(SOURCE_DIR)/question_logic.cpp \
-		$(SOURCE_DIR)/question_stdout_runtime.cpp
+		$(SOURCE_DIR)/question_logic.cpp 
+		#$(SOURCE_DIR)/question_stdout_runtime.cpp
 	#	$(SOURCE_DIR)/question_ncurses_runtime.cpp 
 #$(SOURCE_DIR)/question.cpp \
 #$(SOURCE_DIR)/q.cpp $(SOURCE_DIR)/lex.cpp \

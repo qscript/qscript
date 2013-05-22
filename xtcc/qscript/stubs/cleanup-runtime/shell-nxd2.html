@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>NxD File: Emscripten-Generated Code</title>
+        <link rel="stylesheet" href="../js/dojo-release-1.9.0-src/dijit/themes/claro/claro.css" media="screen">
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: monospace; width: 80%; }
@@ -13,12 +14,22 @@
       canvas.emscripten { border: 0px none; }
     </style>
   </head>
-  <body>
+  <body class="claro">
+  <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" data-dojo-config="async: true"></script>
+  <script type="text/javascript">
+
+</script>
+
     <p> A Paragraph to test hide from embedded_jquery.cpp </p>
     <h1 id="greeting">Hello</h1>
     <div class="emscripten" id="question_text_area">Question Area </div>
-    <div class="emscripten" id="question_stub_area">Stubs Area </div>
-    <div class="emscripten" id="question_response_area"> Response area</div>
+    <div class="emscripten" id="question_stub_area">Stubs Area 
+			 <div id="stubs_form_div">
+			 </div>
+    </div>
+    <div class="emscripten" id="question_response_area"> Response area
+	<input id="checkBox" /> <label for="checkBox">I agree</label>
+    </div>
     <hr/>
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
@@ -78,7 +89,19 @@
 		node: greeting
 	    }).play();
 	});
+
+
+	require(["dijit/form/CheckBox", "dojo/domReady!"], function(CheckBox){
+	    var checkBox = new CheckBox({
+		name: "checkBox",
+		value: "agreed",
+		checked: false,
+		onChange: function(b){ alert('onChange called with parameter = ' + b + ', and widget value = ' + this.get('value') ); }
+	    }, "checkBox");
+	});
 </script>
+
+
     <script type='text/javascript'>
       // connect to canvas
       var Module = {
