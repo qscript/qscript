@@ -30,9 +30,6 @@
 #include "qtm_data_file.h"
 #include "dom_manip_funcs.h"
 
-#include "../rapidjson/prettywriter.h"	// for stringify JSON
-#include "../rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
-#include "../rapidjson/stringbuffer.h"	// for stringify JSON
 
 
 void parse_input_data(vector<int> * data_ptr, int & success);

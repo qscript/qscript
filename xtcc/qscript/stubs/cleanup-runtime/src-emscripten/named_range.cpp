@@ -79,7 +79,6 @@ named_range::named_range(named_range & nr)
 template <typename Writer>
 void named_range::Serialize(Writer& writer) const
 {
-
 	using namespace rapidjson;
 	writer.String("name");
 	writer.String(name.c_str(), (SizeType) name.length());
@@ -90,7 +89,6 @@ void named_range::Serialize(Writer& writer) const
 		stub_pair_itr->Serialize(writer);
 	}
 	writer.EndArray();
-
 }
 #endif
 

@@ -10,8 +10,6 @@
 #include <sys/types.h>
 #include <string>
 #include <sstream>
-//#include "../rapidjson/prettywriter.h"	// for stringify JSON
-//#include "../rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
 
 using std::string;
 struct	stub_pair
@@ -74,8 +72,8 @@ struct	stub_pair
 			//<< ","
 			<< "}"
 			<< endl;
-
 	}
+
 };
 
 struct stub_pair_order_asc

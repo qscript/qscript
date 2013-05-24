@@ -23,6 +23,7 @@
 
 #include "AbstractQuestionnaire.h"
 #include "question_stdout_runtime.h"
+#include "named_range.h"
 
 void question_eval_loop2 (
 	UserInput p_user_input,
