@@ -1,22 +1,24 @@
-
 #CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
 CFLAGS= -g -Wunused-function --jcache
 #CC = clang --analyze
 CC=emcc
 LIBS = -lncurses -lpanel
-
-SRC= src-emscripten/AbstractQuestionnaire.cpp src-emscripten/config_parser.cpp \
-     src-emscripten/data_entry.cpp src-emscripten/log_mesg.cpp src-emscripten/named_attributes.cpp src-emscripten/named_range.cpp \
-     src-emscripten/qscript_conf.cpp src-emscripten/qscript_conf_lex.cpp src-emscripten/qscript_data.cpp \
-     src-emscripten/qscript_debug.cpp src-emscripten/qscript_lib.cpp src-emscripten/qscript_parser_common.cpp \
-     src-emscripten/qtm_datafile_conf.cpp src-emscripten/qtm_datafile_conf_lex.cpp \
-     src-emscripten/qtm_datafile_conf_parser.cpp src-emscripten/qtm_data_file.cpp src-emscripten/QuestionAttributes.cpp \
-     src-emscripten/question_common.cpp src-emscripten/question_logic.cpp src-emscripten/question_runtime.cpp \
-     src-emscripten/read_disk_data.cpp src-emscripten/scan_data.cpp \
-     src-emscripten/utils_common.cpp src-emscripten/xtcc_set.cpp
-     #src-emscripten/TempNameGenerator.cpp src-emscripten/AbstractStatement.cpp  src-emscripten/qscript_readline.cpp 
-
 SOURCE_DIR=src-emscripten
+
+SRC= $(SOURCE_DIR)/AbstractQuestionnaire.cpp \
+     $(SOURCE_DIR)/data_entry.cpp $(SOURCE_DIR)/log_mesg.cpp $(SOURCE_DIR)/named_attributes.cpp $(SOURCE_DIR)/named_range.cpp \
+	$(SOURCE_DIR)/qscript_data.cpp \
+     $(SOURCE_DIR)/qscript_debug.cpp $(SOURCE_DIR)/qscript_lib.cpp $(SOURCE_DIR)/qscript_parser_common.cpp \
+	$(SOURCE_DIR)/QuestionAttributes.cpp \
+     $(SOURCE_DIR)/question_common.cpp $(SOURCE_DIR)/question_logic.cpp $(SOURCE_DIR)/question_runtime.cpp \
+     $(SOURCE_DIR)/read_disk_data.cpp $(SOURCE_DIR)/scan_data.cpp \
+     $(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/xtcc_set.cpp
+     #$(SOURCE_DIR)/TempNameGenerator.cpp $(SOURCE_DIR)/AbstractStatement.cpp  $(SOURCE_DIR)/qscript_readline.cpp 
+     #$(SOURCE_DIR)/qtm_datafile_conf.cpp $(SOURCE_DIR)/qtm_datafile_conf_lex.cpp 
+     #$(SOURCE_DIR)/qtm_datafile_conf_parser.cpp $(SOURCE_DIR)/qtm_data_file.cpp 
+     #$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp 
+	# $(SOURCE_DIR)/config_parser.cpp 
+
 BUILD_DIR=emscript-build
 
 OBJS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(SRC))
@@ -39,7 +41,9 @@ data_entry.hpp: YFLAGS = -p scan_data
 
 
 vegetable.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
-	$(CC) $(CFLAGS) -o $@ --shell-file shell-nxd2.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+	# old - with cin -> modal dialog box
+	#$(CC) $(CFLAGS) -o $@ --shell-file shell-nxd2.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+	$(CC) $(CFLAGS) -o $@ --shell-file shell-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 
 vegetable.js: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
