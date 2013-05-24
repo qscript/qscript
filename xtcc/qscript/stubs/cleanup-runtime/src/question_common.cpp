@@ -26,7 +26,7 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
-	, enclosingCompoundStatement_(0), activeVarInfo_(0)
+	//, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	  , mutexCodeList_()
@@ -43,10 +43,12 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 
 AbstractRuntimeQuestion::~AbstractRuntimeQuestion()
 {
+#if 0
 	for (int i=0; i<activeVarInfo_.size(); ++i) {
 		delete activeVarInfo_[i];
 		activeVarInfo_[i]=0;
 	}
+#endif /* 0 */
 }
 
 

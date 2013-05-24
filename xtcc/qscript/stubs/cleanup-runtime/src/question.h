@@ -33,7 +33,7 @@
 #include "named_attributes.h"
 #include "stub_pair.h"
 #include "xtcc_set.h"
-#include "active_var_info.h"
+//#include "active_var_info.h"
 #include "question_type.h"
 
 using std::ostringstream;
@@ -210,6 +210,7 @@ struct AbstractQuestion: public AbstractStatement
 };
 #endif /* 0 */
 
+
 struct AbstractRuntimeQuestion
 {
 	string questionName_;
@@ -225,8 +226,8 @@ struct AbstractRuntimeQuestion
 	vector<int32_t> loop_index_values;
 	bool isAnswered_;
 	bool isModified_;
-	CompoundStatement * enclosingCompoundStatement_;
-	vector <ActiveVariableInfo*> activeVarInfo_;
+	//CompoundStatement * enclosingCompoundStatement_;
+	//vector <ActiveVariableInfo*> activeVarInfo_;
 	DummyArrayQuestion * dummyArrayQuestion_;
 	//! this variable should never be used in the compile time environment
 	string currentResponse_;
@@ -237,6 +238,7 @@ struct AbstractRuntimeQuestion
 	int questionNoIndex_;
 	static int32_t nQuestions_;
 	//! this is only called in the compile time environment
+#if 0
 	AbstractRuntimeQuestion(
 		DataType l_type,int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
 		, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
@@ -246,6 +248,7 @@ struct AbstractRuntimeQuestion
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
+#endif /* 0 */
 
 	AbstractRuntimeQuestion(
 		DataType l_type,int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
@@ -253,6 +256,8 @@ struct AbstractRuntimeQuestion
 		, QuestionAttributes  l_question_attributes
 		, bool l_isStartOfBlock
 		);
+
+#if 0
 	//! this is only called in the compile time environment
 	AbstractRuntimeQuestion(
 		DataType l_type,int32_t l_no, string l_name, vector<TextExpression*> text_expr_vec
@@ -262,6 +267,7 @@ struct AbstractRuntimeQuestion
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList=XtccSet()
 		);
+#endif /* 0 */
 
 	//! this is only called in the runtime environment
 	AbstractRuntimeQuestion(
@@ -355,6 +361,7 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 	//vector <int32_t> stack_loop_index_values;
 	//set<int32_t> displayData_;
 	vector<display_data::DisplayDataUnit> displayData_;
+#if 0
 	//! this is only called in the compile time environment
 	RangeQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
@@ -366,6 +373,7 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList
 		);
+#endif /* 0 */
 	//! this is only called in the runtime environment
 	RangeQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
@@ -375,6 +383,8 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		, bool l_isStartOfBlock
 		);
 
+
+#if 0
 	//! this is only called in the compile time environment
 	RangeQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
@@ -385,6 +395,8 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		, QuestionAttributes  l_question_attributes
 		, const XtccSet & p_mutexCodeList
 		);
+#endif /* 0 */
+
 	//! this is only called in the runtime environment
 	RangeQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
@@ -469,6 +481,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 
 
 	//! this is only called in the compile time environment
+#if 0
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name
 		, vector<TextExpression*> text_expr_vec, QuestionType l_q_type, int32_t l_no_mpn
@@ -487,6 +500,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		, vector<ActiveVariableInfo* > l_av_info
 		, QuestionAttributes  l_question_attributes
 		);
+#endif /* 0 */
 
 	NamedStubQuestion(
 		DataType this_stmt_type, int32_t line_number, string l_name

@@ -40,12 +40,12 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, QuestionType l_q_type, int32_t l_no_mpn, DataType l_dt
 	, QuestionAttributes  l_question_attributes
 	)
-	: AbstractStatement(l_type, l_no), questionName_(l_name)
-	, questionText_(l_text), q_type(l_q_type)
+	: //AbstractStatement(l_type, l_no), questionName_(l_name) ,
+	  questionText_(l_text), q_type(l_q_type)
 	, no_mpn(l_no_mpn), dt(l_dt), input_data()
 	, for_bounds_stack(0), loop_index_values(0)
 	, isAnswered_(false), isModified_(false)
-	, enclosingCompoundStatement_(0), activeVarInfo_(0)
+	//, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
 	  , maxCode_(0)
@@ -97,8 +97,8 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	, for_bounds_stack(0)
 	, loop_index_values(l_loop_index_values)
 	, isAnswered_(false), isModified_(false)
-	, enclosingCompoundStatement_(0) // this is only used in the compile time environment
-	, activeVarInfo_(0)
+	//, enclosingCompoundStatement_(0) // this is only used in the compile time environment
+	//, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
 	, question_attributes(l_question_attributes)
 	  , mutexCodeList_()
