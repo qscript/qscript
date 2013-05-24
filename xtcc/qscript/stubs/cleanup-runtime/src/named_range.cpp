@@ -73,3 +73,44 @@ named_range::named_range(named_range & nr)
 	name (nr.name),  stubs (nr.stubs)
 {
 }
+
+#if 0
+// this code works in normal c++ , doesnt in emscripten
+template <typename Writer>
+void named_range::Serialize(Writer& writer) const
+{
+	using namespace rapidjson;
+	writer.String("name");
+	writer.String(name.c_str(), (SizeType) name.length());
+	writer.StartArray();
+	for (std::vector<stub_pair>::const_iterator stub_pair_itr = stubs.begin();
+			stub_pair_itr != stubs.end(); ++ stub_pair_itr
+		) {
+		stub_pair_itr->Serialize(writer);
+	}
+	writer.EndArray();
+}
+#endif
+
+void named_range::toString (stringstream & s) const
+{
+	using std::endl;
+	s << "{" << endl;
+	s << "\"name\"" << ":" << "\""<< name << "\"" << ",";
+	s << "\"stubs\" : ";
+	//s << "\""<< name << "\"" << ":" << endl;
+	s << "[" << endl;
+	int i = 0;
+	for (std::vector<stub_pair>::const_iterator stub_pair_itr = stubs.begin();
+			stub_pair_itr != stubs.end(); ++ stub_pair_itr, ++i
+		) {
+		if (i==0) {
+
+		} else {
+			s << ",";
+		}
+		stub_pair_itr->toString(s);
+	}
+	s << "]" << endl;
+	s << "}" << endl;
+}

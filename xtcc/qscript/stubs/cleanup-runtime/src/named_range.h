@@ -13,6 +13,11 @@
 #include <sstream>
 #include "stub_pair.h"
 #include "datatype.h"
+
+// rapidjson didnt work in emscripten for me
+//#include "../rapidjson/prettywriter.h"	// for stringify JSON
+//#include "../rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
+
 //#include "stmt.h"
 //#include "AbstractStatement.h"
 
@@ -42,6 +47,10 @@ struct named_range
 	}
 	~named_range();
 	named_range(named_range & nr);
+	//template <typename Writer>
+	//void Serialize(Writer& writer) const ;
+	void toString (std::stringstream & s) const;
+
 };
 
 #endif /* xtcc_named_range_h */

@@ -9,6 +9,8 @@
 
 #include <sys/types.h>
 #include <string>
+#include <sstream>
+
 using std::string;
 struct	stub_pair
 {
@@ -27,7 +29,7 @@ struct	stub_pair
 	{}
 	/*
 
-	stub_pair(const stub_pair & p1) 
+	stub_pair(const stub_pair & p1)
 	{
 		stub_text = p1.stub_text;
 		code = p1.code;
@@ -39,6 +41,20 @@ struct	stub_pair
 		return *this;
 	}
 	*/
+
+	void toString(std::stringstream & s) const
+	{
+	using std::endl;
+		s 	<< "{"
+			<< "\"stub_text\":" << "\"" << stub_text << "\"" << ","
+			<< "\"stub_code\":" << code << ","
+			<< "\"mask\":" << mask << ","
+			<< "\"is_mutex\":" << mask
+			//<< ","
+			<< "}"
+			<< endl;
+	}
+
 };
 
 struct stub_pair_order_asc

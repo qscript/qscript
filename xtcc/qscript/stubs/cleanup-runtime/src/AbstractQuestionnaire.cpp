@@ -585,6 +585,7 @@ int read_a_serial_no (DIR * directory_ptr, string jno, struct AbstractQuestionna
 				qnre->last_question_answered,
 				qnre->last_question_visited,
 				qnre->question_list, &qdd_map);
+
 		for (map<string, question_disk_data*>:: iterator it
 			= qdd_map.begin();
 			it != qdd_map.end();

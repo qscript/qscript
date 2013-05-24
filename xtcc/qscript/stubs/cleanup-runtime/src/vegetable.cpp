@@ -25,7 +25,7 @@
 #include "user_navigation.h"
 //#include "qtm_data_file.h"
 //#include "qtm_datafile_conf_parser.h"
-//#include "ArrayQuestion.h"
+#include "ArrayQuestion.h"
 //#include "AsciiFlatFileQuestionDiskMap.h"
 #include "XtccDataFile.h"
 #include "base_text.h"

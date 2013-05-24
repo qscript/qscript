@@ -210,7 +210,6 @@ struct AbstractQuestion: public AbstractStatement
 };
 #endif /* 0 */
 
-
 struct AbstractRuntimeQuestion
 {
 	string questionName_;
