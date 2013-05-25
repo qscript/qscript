@@ -1509,15 +1509,17 @@ test_script.o: test_script.C
 			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime_wq2");
 #endif /* _WIN32 */
 	} else if (program_options_ns::stdout_flag) {
+		string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/runtime";
 		cpp_compile_command = string("g++ -g -o ")
-			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
-			+ string(" -I") + QSCRIPT_INCLUDE_DIR
+			+ executable_file_name
+			+ string(" -I") + QSCRIPT_RUNTIME + "/cpp/common "
+			+ string(" -L") + QSCRIPT_RUNTIME + "/build/common "
 			//+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			//+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
-			+ string(" ") + QSCRIPT_HOME + string("/src/question_stdout_runtime.cpp ")
-			+ string(" -lqscript_runtime_wq2 -lpanel -lwt -lboost_filesystem ")
-			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+			+ string(" ") + QSCRIPT_RUNTIME + string("/build/stdout/question_stdout_runtime.o ")
+			+ string(" -lqscript_runtime_common ")
+			;
 	} else if (program_options_ns::wx_flag) {
 		cpp_compile_command = string("g++ -g -o ")
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
