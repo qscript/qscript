@@ -1,0 +1,41 @@
+* runtime isolation
+* emscripten
+** Compilation to html
+*** DONE stdout file runs in browser
+*** TODO Create nice UI for above working code in browser [3/10]
+    Do this by
+    - [X] modifying emscripten/src/shell.html to have 3 divs for questions, stubs, answers
+    - [X] create a library function to accept the strings in Javascript
+            (emscripten allows this), the parameter will be a json representation of the 
+	    question text, stubs and codes
+    - [ ] incorporate json parser in c++ runtime
+    - [X] pass the stubs , codes and question text to the js library as a json string
+    - [ ] embed the json javascript parser into the shell.html 
+    - [ ] from the javascript side parse the given material as question text, stubs and code
+    - [ ] use pure javascript (from Professional JavaScript for web developers) to create 
+            appropriate codes to display the text and stub lists as a form with single/multiple choices
+    - [ ] replace cin call to extract user input with parsing form data and giving a submit button
+    - [ ] replace hand created JavaScript widgets with Dojo Widgets for displaying survey choices
+    - [ ] use emscripten FS calls to save the data to a file
+* <2013-05-23 Thu> incorporate changes done to runtime back into mainline compiler and come back to emscripten after that
+  Yesterday and Today I tried a lot of things with emscripten and the isolated runtime.
+** things I was able to do
+*** get the emscripten generated html file (with embedded javascript to work in the browser) with vegetable.cpp
+*** get jquery running it was a simple thing in theory, but I had to be sure that it works
+*** the above also works through a web server
+*** get a simple form running which passes data back to a cpp function - the cpp function is a callback
+** thinking about what has to be done next, there is a key difference between the stdout code and the wxWidgets code
+*** there is no event loop in the stdout runtime, it is a series of nested calls where there are mutually recursive functions calling each other to simulate a loop
+*** in wxWidgets - after we display the question text, we have a callback that will be invoked when the user types some data
+*** in stdout the program calls cin and then blocks - that is the key difference
+*** in trying to go for the emscripten generated javascript binary, it is best to have a visual confirmation of the nest_level of the call stack which has been recently added to the new runtime
+*** once this has stabilized, we can isolate the specific javascript, necessary to be put into the browser to display the UI and capture the data and call the correct cpp function to do this
+** based on the above 2 points my next target is a consolidation round of the spoils so far
+*** TODO Merge the greatly improved runtime back into the mainline compiler
+    - [ ] Further isolate runtime code if possible
+    - [ ] create a new directory in the mainline compiler src directory - runtime
+    - [ ] dump the runtime source code there as separate dirs - runtime-common, runtime-wx, runtime-emscripten
+    - [ ] build all the exes and see that they are working.
+  
+
+
