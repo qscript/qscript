@@ -327,7 +327,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		//<< "stopAtNextQuestion ||" << endl
 		//<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
 		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||" << endl
-		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>(" << questionName_ << ") == p_jump_to_index)) ||"  << endl
+		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>(" << questionName_ << ") == p_jump_to_index)) ||"  << endl
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
 		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
 		<< questionName_ << "->isAnswered_ == false "
@@ -1620,7 +1620,7 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 {
 	using qscript_parser::map_of_active_vars_for_questions;
-	code.program_code << "/* ENTER: AbstractQuestion::PrintSetupBackJump() : for_bounds_stack.size():"
+	code.program_code << "/* ENTER: AbstractRuntimeQuestion::PrintSetupBackJump() : for_bounds_stack.size():"
 		<< for_bounds_stack.size() << " */\n";
 	if (program_options_ns::no_question_save_restore_optimization==false) {
 		code.quest_defns << "map <string,int8_t> " << questionName_ << "_scope_int8_t;\n";
@@ -1670,7 +1670,7 @@ void AbstractQuestion::PrintSetupBackJump(StatementCompiledCode &code)
 		if (program_options_ns::no_question_save_restore_optimization == false)
 			SetupArrayQuestionSave(code);
 	}
-	code.program_code << "/* EXIT: AbstractQuestion::PrintSetupBackJump()  */\n";
+	code.program_code << "/* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */\n";
 }
 
 
@@ -1696,7 +1696,7 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		//<< " && " << "jumpToIndex ==  "
 		//<< enclosingCompoundStatement_->ConsolidatedForLoopIndexStack_.back()
 		//<< ") "
-		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractQuestion*>("
+		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
 		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
 		<< ") == p_jump_to_index)) ||"  << endl
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "

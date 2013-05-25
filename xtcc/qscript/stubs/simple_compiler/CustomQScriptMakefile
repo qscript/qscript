@@ -230,18 +230,20 @@ clean: lib_clean
 		$(BUILD_DIR)/compiletime_lib/*.so.*  \
 		inputs/*.C inputs/*.exe src/tags src/TAGS src/*.output
 
-local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
+#old target - new : runtime is now isolated
+#local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
+local_install: $(BUILD_DIR)/qscript_wq2 
 	cp $(BUILD_DIR)/qscript_wq2 bin
-	cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib
+	# new runtime: cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib
 	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1
-	cd lib; ln -s libqscript_runtime_wq2.so.1.0.1 libqscript_runtime_wq2.so.1; cd ..
+	# new runtime: cd lib; ln -s libqscript_runtime_wq2.so.1.0.1 libqscript_runtime_wq2.so.1; cd ..
 	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so
-	cd lib; ln -s libqscript_runtime_wq2.so.1.0.1 libqscript_runtime_wq2.so; cd ..
-	cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib
+	# new runtime: cd lib; ln -s libqscript_runtime_wq2.so.1.0.1 libqscript_runtime_wq2.so; cd ..
+	# new runtime: cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib
 	#cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so.1
-	cd lib; ln -s libqscript_compiletime_wq2.so.1.0.1 libqscript_compiletime_wq2.so.1; cd ..
+	# new runtime: cd lib; ln -s libqscript_compiletime_wq2.so.1.0.1 libqscript_compiletime_wq2.so.1; cd ..
 	#cp $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 lib/libqscript_compiletime_wq2.so
-	cd lib; ln -s libqscript_compiletime_wq2.so.1.0.1 libqscript_compiletime_wq2.so; cd ..
+	# new runtime: cd lib; ln -s libqscript_compiletime_wq2.so.1.0.1 libqscript_compiletime_wq2.so; cd ..
 	cp -f ${SOURCE_DIR}/*.h include_wq2
 
 nsiqcppstyle:

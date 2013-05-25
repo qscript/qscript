@@ -871,7 +871,7 @@ const char * file_exists_check_code()
 	"\t	ser_no = read_a_serial_no();\n"
 	"\t	if (ser_no == 0) {\n"
 	"\t		exit(1);\n"
-	"\t	} \n"
+	"\t	}\n"
 	"\t} else {\n"
 	"\t\tint exists = check_if_reg_file_exists(jno, ser_no);\n"
 	"\t\tif (exists == 1) {\n"
@@ -4792,8 +4792,8 @@ void print_new_logic_support_functions(FILE * script)
 
 	fprintf (script, "void question_eval_loop2 (\n");
 	fprintf (script, "	UserInput p_user_input,\n");
-	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
-	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
+	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited,\n");
+	fprintf (script, "	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
 	fprintf (script, "\n");
 	fprintf (script, "int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)\n");
 	fprintf (script, "{\n");
@@ -4803,11 +4803,16 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "	theQuestionnaire->ser_no = p_ser_no;\n");
 	fprintf (script, "	theQuestionnaire->base_text_vec.push_back(BaseText(\"All Respondents\"));\n");
-	fprintf (script, "	theQuestionnaire->compute_flat_file_map_and_init();\n");
+
+	if (program_options_ns::data_export_flag) {
+		fprintf (script, "	theQuestionnaire->compute_flat_file_map_and_init();\n");
+	} else {
+		fprintf (script, "	//theQuestionnaire->compute_flat_file_map_and_init();\n");
+	}
 	fprintf (script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
 	fprintf (script, "\n");
-	fprintf (script, "	AbstractQuestion * last_question_visited = 0;\n");
-	fprintf (script, "	AbstractQuestion * jump_to_question = 0;\n");
+	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited = 0;\n");
+	fprintf (script, "	AbstractRuntimeQuestion * jump_to_question = 0;\n");
 	fprintf (script, "	EvalMode qnre_mode = NORMAL_FLOW;\n");
 	fprintf (script, "	//question_eval_loop (qnre_mode,\n");
 	fprintf (script, "	//			qnre_navigation_mode, last_question_visited,\n");
@@ -4823,11 +4828,11 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "\n");
 	fprintf (script, "void parse_input_data(vector<int> * data_ptr, int & success);\n");
-	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
-	fprintf (script, "void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
+	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
+	fprintf (script, "void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
 	fprintf (script, "\n");
 	fprintf (script, "\n");
-	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
+	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
 	fprintf (script, "{\n");
 	fprintf (script, "	cout << __PRETTY_FUNCTION__ << endl;\n");
 	fprintf (script, "	// this will be called by the UI - it is the UI's responsibility to\n");
@@ -4857,8 +4862,8 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "void question_eval_loop2 (\n");
 	fprintf (script, "	UserInput p_user_input,\n");
-	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
-	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
+	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited,\n");
+	fprintf (script, "	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
 	fprintf (script, "{\n");
 
 	fprintf (script, "	cout << endl << \"Enter: \" << __PRETTY_FUNCTION__ << endl;\n");
@@ -4904,7 +4909,7 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {\n");
 	fprintf (script, "				fprintf(qscript_stdout,\n");
 	fprintf (script, "					\"user_navigation == NAVIGATE_PREVIOUS\\n\");\n");
-	fprintf (script, "				AbstractQuestion *target_question =\n");
+	fprintf (script, "				AbstractRuntimeQuestion *target_question =\n");
 	fprintf (script, "					theQuestionnaire->ComputePreviousQuestion(last_question_visited);\n");
 	fprintf (script, "				if (target_question == 0) { \n");
 	fprintf (script, "					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level+1);\n");
@@ -4952,7 +4957,7 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "		}\n");
 	fprintf (script, "	} // else {\n");
 	fprintf (script, "	// should reach here - end of :\n");
-	fprintf (script, "		AbstractQuestion * q =\n");
+	fprintf (script, "		AbstractRuntimeQuestion * q =\n");
 	fprintf (script, "			theQuestionnaire->eval2 (\n");
 	fprintf (script, "			NAVIGATE_NEXT, last_question_visited, jump_to_question);\n");
 	fprintf (script, "		if (!q) {\n");
@@ -4975,8 +4980,8 @@ void print_new_logic_support_functions_2(FILE * script)
 
 	fprintf (script, "void question_eval_loop2 (\n");
 	fprintf (script, "	UserInput p_user_input,\n");
-	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
-	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
+	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited,\n");
+	fprintf (script, "	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
 	fprintf (script, "\n");
 	fprintf (script, "// nxd: this is a global variable - has to be eliminated at some point\n");
 	fprintf (script, "//TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);\n");
@@ -4989,8 +4994,8 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "	theQuestionnaire->compute_flat_file_map_and_init();\n");
 	fprintf (script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
 	fprintf (script, "\n");
-	fprintf (script, "	AbstractQuestion * last_question_visited = 0;\n");
-	fprintf (script, "	AbstractQuestion * jump_to_question = 0;\n");
+	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited = 0;\n");
+	fprintf (script, "	AbstractRuntimeQuestion * jump_to_question = 0;\n");
 	fprintf (script, "	EvalMode qnre_mode = NORMAL_FLOW;\n");
 	fprintf (script, "	//question_eval_loop (qnre_mode,\n");
 	fprintf (script, "	//			qnre_navigation_mode, last_question_visited,\n");
@@ -5006,11 +5011,11 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "\n");
 	fprintf (script, "void parse_input_data(vector<int> * data_ptr, int & success);\n");
-	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
-	fprintf (script, "void eval_single_question_logic_with_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
+	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
+	fprintf (script, "void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
 	fprintf (script, "\n");
 	fprintf (script, "\n");
-	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
+	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
 	fprintf (script, "{\n");
 	fprintf (script, "	cout << __PRETTY_FUNCTION__ << endl;\n");
 	fprintf (script, "	// this will be called by the UI - it is the UI's responsibility to\n");
@@ -5040,8 +5045,8 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "void question_eval_loop2 (\n");
 	fprintf (script, "	UserInput p_user_input,\n");
-	fprintf (script, "	AbstractQuestion * last_question_visited,\n");
-	fprintf (script, "	AbstractQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
+	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited,\n");
+	fprintf (script, "	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
 	fprintf (script, "{\n");
 
 	fprintf (script, "	cout << endl << \"Enter: \" << __PRETTY_FUNCTION__ << endl;\n");
@@ -5087,7 +5092,7 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {\n");
 	fprintf (script, "				fprintf(qscript_stdout,\n");
 	fprintf (script, "					\"user_navigation == NAVIGATE_PREVIOUS\\n\");\n");
-	fprintf (script, "				AbstractQuestion *target_question =\n");
+	fprintf (script, "				AbstractRuntimeQuestion *target_question =\n");
 	fprintf (script, "					theQuestionnaire->ComputePreviousQuestion(last_question_visited);\n");
 	fprintf (script, "				if (target_question == 0) { \n");
 	fprintf (script, "					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level+ 1);\n");
@@ -5135,7 +5140,7 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "		}\n");
 	fprintf (script, "	} // else {\n");
 	fprintf (script, "	// should reach here - end of :\n");
-	fprintf (script, "		AbstractQuestion * q =\n");
+	fprintf (script, "		AbstractRuntimeQuestion * q =\n");
 	fprintf (script, "			theQuestionnaire->eval2 (\n");
 	fprintf (script, "			NAVIGATE_NEXT, last_question_visited, jump_to_question);\n");
 	fprintf (script, "		if (!q) {\n");
