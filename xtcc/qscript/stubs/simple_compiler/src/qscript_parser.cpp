@@ -22,6 +22,7 @@ namespace program_options_ns {
 	extern bool stdout_flag;
 	extern bool wx_flag;
 	extern bool gtk_flag;
+	extern int data_export_flag;
 }
 
 extern int32_t qscript_confparse();
@@ -185,7 +186,13 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	print_header(script, ncurses_flag);
 	tree_root->GenerateConsolidatedForLoopIndexes();
 	StatementCompiledCode compute_flat_map_code;
+	if (!program_options_ns::data_export_flag) {
+		compute_flat_map_code.program_code << "\n#if 0" << endl;
+	}
 	PrintComputeFlatFileMap(compute_flat_map_code);
+	if (!program_options_ns::data_export_flag) {
+		compute_flat_map_code.program_code << "#endif /* 0 */" << endl;
+	}
 	StatementCompiledCode code;
 	tree_root->GenerateCode(code);
 
@@ -236,7 +243,11 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	fprintf(script, "questions_start_from_here_index = question_list.size();\n");
 
 	fprintf(script, "%s\n", code.array_quest_init_area.str().c_str());
-	fprintf(script, "\tcompute_flat_file_map_and_init();\n");
+	if (program_options_ns::data_export_flag) {
+		fprintf(script, "\tcompute_flat_file_map_and_init();\n");
+	} else {
+		fprintf(script, "\t//compute_flat_file_map_and_init();\n");
+	}
 	fprintf(script, "\tif (write_messages_flag) {\n");
 	fprintf(script, "\tmessages << \"</messages>\\n\";\n");
 	fprintf(script, "\tmessages.flush() ;\n");
@@ -321,6 +332,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include <fstream>\n");
 	fprintf(script, "#include <map>\n");
 	fprintf(script, "#include <cstdlib>\n");
+	fprintf(script, "#include <cstring>\n");
 	fprintf(script, "#include <errno.h>\n");
 	fprintf(script, "#include <unistd.h>\n");
 	if (program_options_ns::ncurses_flag) {
@@ -346,7 +358,7 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf (script, "#include \"question_gtk2_runtime.h\"\n");
 	}
 	fprintf(script, "#include \"stub_pair.h\"\n");
-	fprintf(script, "#include \"AbstractStatement.h\"\n");
+	fprintf(script, "//#include \"AbstractStatement.h\"\n");
 	fprintf(script, "#include \"named_range.h\"\n");
 	fprintf(script, "#include \"xtcc_set.h\"\n");
 	fprintf(script, "#include \"datatype.h\"\n");
@@ -354,11 +366,21 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "#include \"question_disk_data.h\"\n");
 	fprintf(script, "#include \"question.h\"\n");
 	fprintf(script, "#include \"user_navigation.h\"\n");
-	fprintf(script, "#include \"qtm_data_file.h\"\n");
-	fprintf(script, "#include \"qtm_datafile_conf_parser.h\"\n");
+	if (program_options_ns::data_export_flag) {
+		fprintf(script, "#include \"qtm_data_file.h\"\n");
+		fprintf(script, "#include \"qtm_datafile_conf_parser.h\"\n");
+	} else {
+		fprintf(script, "//#include \"qtm_data_file.h\"\n");
+		fprintf(script, "//#include \"qtm_datafile_conf_parser.h\"\n");
+	}
 	fprintf(script, "#include \"ArrayQuestion.h\"\n");
-	fprintf(script, "#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
-	fprintf(script, "#include \"XtccDataFile.h\"\n");
+	if (program_options_ns::data_export_flag) {
+		fprintf(script, "#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
+		fprintf(script, "#include \"XtccDataFile.h\"\n");
+	} else {
+		fprintf(script, "//#include \"AsciiFlatFileQuestionDiskMap.h\"\n");
+		fprintf(script, "//#include \"XtccDataFile.h\"\n");
+	}
 	fprintf(script, "#include \"base_text.h\"\n");
 	fprintf(script, "#include \"named_attributes.h\"\n");
 
@@ -409,7 +431,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	}
 
 	fprintf(script, "extern UserNavigation user_navigation;\n");
-	fprintf(script, "//vector <AbstractQuestion*> question_list;\n");
+	//fprintf(script, "//vector <AbstractQuestion*> question_list;\n");
 	fprintf(script, "vector<mem_addr_tab>  mem_addr;\n");
 	fprintf(script, "//extern vector<question_disk_data*>  qdd_list;\n");
 	// fprintf(script, "void merge_disk_data_into_questions(FILE * qscript_stdout,\n"
@@ -419,9 +441,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	//fprintf(script, "bool stopAtNextQuestion;\n");
 	//fprintf(script, "string jumpToQuestion;\n");
 	//fprintf(script, "int32_t jumpToIndex;\n");
+	fprintf(script, "bool write_messages_flag;\n\n");
 	fprintf(script, "bool write_data_file_flag;\n");
 	fprintf(script, "bool write_qtm_data_file_flag;\n");
-	fprintf(script, "bool write_messages_flag;\n");
 	fprintf(script, "bool write_xtcc_data_file_flag;\n");
 	fprintf(script, "bool card_start_flag;\n");
 	fprintf(script, "bool card_end_flag;\n");
@@ -432,7 +454,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void print_map_header(fstream & map_file);\n");
 	fprintf(script, "map<string, vector<string> > map_of_active_vars_for_questions;\n");
 	fprintf(script, "map<string, map<int, int> > freq_count;\n");
-	fprintf(script, "void write_data_to_disk(const vector<AbstractQuestion*>& q_vec, string jno, int32_t ser_no);\n");
+	fprintf(script, "void write_data_to_disk(const vector<AbstractRuntimeQuestion*>& q_vec, string jno, int32_t ser_no);\n");
 	//fprintf(script, "AbstractQuestion * ComputePreviousQuestion(AbstractQuestion * q);\n");
 
 	// all the code generated below has been moved into the ncurses runtime
@@ -456,11 +478,19 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "int32_t len_xtcc_datafile_output_buffer  = 0;\n");
 	//print_flat_ascii_data_class(script);
 	//print_qtm_data_class(script);
-	fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
-	fprintf(script, "vector <XtccDataFileDiskMap*> xtcc_question_disk_map;\n");
-	fprintf(script, "vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
-	fprintf(script, "qtm_data_file_ns::QtmDataFile qtm_data_file;\n");
-	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractQuestion*> p_question_list);\n");
+
+	if (program_options_ns::data_export_flag) {
+		fprintf(script, "vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
+		fprintf(script, "vector <XtccDataFileDiskMap*> xtcc_question_disk_map;\n");
+		fprintf(script, "vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
+		fprintf(script, "qtm_data_file_ns::QtmDataFile qtm_data_file;\n");
+	} else {
+		fprintf(script, "//vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;\n");
+		fprintf(script, "//vector <XtccDataFileDiskMap*> xtcc_question_disk_map;\n");
+		fprintf(script, "//vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;\n");
+		fprintf(script, "//qtm_data_file_ns::QtmDataFile qtm_data_file;\n");
+	}
+	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractRuntimeQuestion*> p_question_list);\n");
 	fprintf(script, "void load_languages_available(vector<string> & vec_language);\n");
 	fprintf(script, "\n");
 	fprintf(script, "int process_options(int argc, char * argv[]);\n");
@@ -2415,11 +2445,11 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 	compute_flat_map_code.program_code << "\tif (write_data_file_flag) {\n";
 	compute_flat_map_code.program_code << "		stringstream asc_datafile_conf_str;\n";
-	compute_flat_map_code.program_code << "		asc_datafile_conf_str << jno \n";
+	compute_flat_map_code.program_code << "		asc_datafile_conf_str << jno\n";
 	compute_flat_map_code.program_code << "			<< \".asc_data.conf\";\n";
 	compute_flat_map_code.program_code << "		fstream asc_datafile_conf(asc_datafile_conf_str.str().c_str(), ios_base::in);\n";
 	compute_flat_map_code.program_code << "		if (!asc_datafile_conf) {\n";
-	compute_flat_map_code.program_code << "			cerr << \" could not open : \" << asc_datafile_conf_str.str() \n";
+	compute_flat_map_code.program_code << "			cerr << \" could not open : \" << asc_datafile_conf_str.str()\n";
 	compute_flat_map_code.program_code << "				<< \" for reading\" << endl;\n";
 	compute_flat_map_code.program_code << "			exit(1);\n";
 	compute_flat_map_code.program_code << "		}\n";
@@ -2488,7 +2518,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 			<< "\t\t\t\t\tperror(\"unable to create directory for setup files\");\n}\n"
 			<< "\t\t\telse\n"
 			<< "\t\t\t\tperror(\"stating directory failed\");\n"
-			<< "\t\t\t}\t\t\n}\n"
+			<< "\t\t\t}\n}\n"
 			;
 	} else {
 		compute_flat_map_code.program_code
@@ -2500,7 +2530,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 			<< "\t\t\t\t\t\tperror(\"unable to create directory for setup files\");\n"
 			<< "\t\t\t\t\t} else\n"
 			<< "\t\t\t\t\t\tperror(\"stating directory failed\");\n"
-			<< "\t\t\t}\n\t\t}\n"
+			<< "\t\t\t}\n}\n"
 			;
 	}
 
@@ -2536,7 +2566,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 	compute_flat_map_code.program_code << "\t\tfstream tab_file(tab_file_name.c_str(), ios_base::out|ios_base::ate);\n";
 	compute_flat_map_code.program_code << "\t\tfor (int i=0; i<qtm_datafile_question_disk_map.size(); ++i) {\n"
 		<< "\t\t\tstring questionName = qtm_datafile_question_disk_map[i]->q->questionName_;\n"
-		<< "\t\t\tAbstractQuestion * q = qtm_datafile_question_disk_map[i]->q;\n"
+		<< "\t\t\tAbstractRuntimeQuestion * q = qtm_datafile_question_disk_map[i]->q;\n"
 		<< "\t\t\ttab_file << \"tab \" << q->questionName_;\n"
 		<< "\t\t\tfor(int j=0; j<q->loop_index_values.size(); ++j) {\n"
 		<< "\t\t\t\ttab_file << \"_\" << q->loop_index_values[j];\n"
@@ -2594,9 +2624,9 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
-	fprintf(script, "AbstractQuestion * eval2 ( /*AbstractQuestion * p_last_question_answered,\n"
-			"\t\t AbstractQuestion * p_last_question_visited,*/\n"
-			"\t\t UserNavigation p_navigation_mode, AbstractQuestion * p_last_question_visited, AbstractQuestion * p_jump_to_index)\n{\n");
+	fprintf(script, "AbstractRuntimeQuestion * eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,\n"
+			"\t\t AbstractRuntimeQuestion * p_last_question_visited,*/\n"
+			"\t\t UserNavigation p_navigation_mode, AbstractRuntimeQuestion * p_last_question_visited, AbstractRuntimeQuestion * p_jump_to_index)\n{\n");
 
 	fprintf(script, "//if (last_question_visited)\n\t//fprintf (qscript_stdout, \"entered eval2: last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
 
@@ -2640,7 +2670,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\tif(end_of_question_navigation == 's'){\n");
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
 	fprintf(script, "\t} else if (end_of_question_navigation == 'p'){\n");
-	fprintf(script, "\t\tAbstractQuestion * target_question = ComputePreviousQuestion(last_question_answered);\n");
+	fprintf(script, "\t\tAbstractRuntimeQuestion * target_question = ComputePreviousQuestion(last_question_answered);\n");
 	fprintf(script, "\t\tif(target_question->type_ == QUESTION_ARR_TYPE)\n");
 	fprintf(script,	"\t\t\t{\n");
 	fprintf(script, "\t\t\t\tjumpToIndex = ComputeJumpToIndex(target_question);\n");

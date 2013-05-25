@@ -47,6 +47,7 @@ namespace program_options_ns {
 	int stdout_flag = 0;
 	int wx_flag = 0;
 	int gtk_flag = 0;
+	int data_export_flag = false;
 }
 
 void process_options (int32_t argc, char* argv[]);
@@ -322,7 +323,8 @@ void process_options (int32_t argc, char* argv[])
 			{ "filename", required_argument, 0, 'f'},
 			{ "stdout", no_argument, &program_options_ns::stdout_flag, 1},
 			{ "wx", no_argument, &program_options_ns::wx_flag, 1},
-			{ "gtk", no_argument, &program_options_ns::gtk_flag, 1}
+			{ "gtk", no_argument, &program_options_ns::gtk_flag, 1},
+			{ "data-export", no_argument, &program_options_ns::data_export_flag, 1}
 		};
 	int option_index = 0;
 	while (1) {
