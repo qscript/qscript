@@ -1521,17 +1521,20 @@ test_script.o: test_script.C
 			+ string(" -lqscript_runtime_common ")
 			;
 	} else if (program_options_ns::wx_flag) {
+		string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/runtime";
 		cpp_compile_command = string("g++ -g -o ")
-			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
-			+ string(" -I") + QSCRIPT_INCLUDE_DIR
-			+ string(" ") + QSCRIPT_HOME + string("/src/question_wx2_runtime.C ")
+			+ executable_file_name
+			+ string(" -I") + QSCRIPT_RUNTIME + "/cpp/common "
+			+ string(" -L") + QSCRIPT_RUNTIME + "/build/common "
+			//+ string(" ") + QSCRIPT_HOME + string("/src/question_wx2_runtime.C ")
 			//+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
 			//+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
 			+ string(" ") + intermediate_file_name
+			+ string(" ") + QSCRIPT_RUNTIME + string("/build/wx/question_wx2_runtime.o ")
 			+ string(" `/usr/local/bin/wx-config --cppflags` ")
 			+ string(" `/usr/local/bin/wx-config --libs` ")
-			+ string(" -lqscript_runtime_wq2 -lpanel ")
-			+ string(" -l") + config_file_parser::NCURSES_LINK_LIBRARY_NAME;
+			+ string(" -lqscript_runtime_common ")
+			;
 	}
 	cout << "cpp_compile_command: " << cpp_compile_command << endl;
 	//int32_t ret_val = 0;
@@ -4993,7 +4996,12 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "	theQuestionnaire->ser_no = p_ser_no;\n");
 	fprintf (script, "	theQuestionnaire->base_text_vec.push_back(BaseText(\"All Respondents\"));\n");
-	fprintf (script, "	theQuestionnaire->compute_flat_file_map_and_init();\n");
+
+	if (program_options_ns::data_export_flag) {
+		fprintf (script, "	theQuestionnaire->compute_flat_file_map_and_init();\n");
+	} else {
+		fprintf (script, "	//theQuestionnaire->compute_flat_file_map_and_init();\n");
+	}
 	fprintf (script, "	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;\n");
 	fprintf (script, "\n");
 	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited = 0;\n");
