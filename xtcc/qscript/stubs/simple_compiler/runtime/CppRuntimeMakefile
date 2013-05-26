@@ -44,16 +44,17 @@ data_entry.hpp: YFLAGS = -p scan_data
 	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
 	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
 
-LIBRARY_TARGETS =  $(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.so.1.0.1 $(BUILD_ROOT)/stdout/question_stdout_runtime.o
+LIBRARY_TARGETS =  $(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.0.1 $(BUILD_ROOT)/stdout/question_stdout_runtime.o
 
 runtime_lib: $(LIBRARY_TARGETS)
 
 
 #runtime_lib: $(SRC) $(OBJS) $(BUILD_ROOT)/stdout/question_stdout_runtime.o
-$(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.so.1.0.1: $(SRC) $(OBJS) 
+$(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.0.1: $(SRC) $(OBJS) 
 #	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
 #	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
-	$(CXX) -g -shared -Wl,-soname,libqscript_runtime_common.so.1 -o $(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.so.1.0.1 $(OBJS)
+	$(CXX) -g -shared -Wl,-soname,libqscript_runtime_common.so.1 -o $(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.0.1 $(OBJS)
+	(cd $(BUILD_COMMON_DIR); ln -s libqscript_runtime_common.so.1.0.1 libqscript_runtime_common.so.1; ln -s libqscript_runtime_common.so.1.0.1 libqscript_runtime_common.so)
 
 $(BUILD_ROOT)/stdout/question_stdout_runtime.o: $(SOURCE_DIR)/question_stdout_runtime.cpp
 	$(CC) -o $@ $(CFLAGS)  $(CXX_SHARED_LIB_FLAGS)  -c $<
