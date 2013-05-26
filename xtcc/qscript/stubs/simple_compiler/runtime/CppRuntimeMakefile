@@ -44,7 +44,9 @@ data_entry.hpp: YFLAGS = -p scan_data
 	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
 	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
 
-LIBRARY_TARGETS =  $(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.0.1 $(BUILD_ROOT)/stdout/question_stdout_runtime.o
+LIBRARY_TARGETS =  $(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.0.1 \
+		   $(BUILD_ROOT)/stdout/question_stdout_runtime.o \
+		   $(BUILD_ROOT)/wx/question_wx2_runtime.o
 
 runtime_lib: $(LIBRARY_TARGETS)
 
@@ -58,6 +60,9 @@ $(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.0.1: $(SRC) $(OBJS)
 
 $(BUILD_ROOT)/stdout/question_stdout_runtime.o: $(SOURCE_DIR)/question_stdout_runtime.cpp
 	$(CC) -o $@ $(CFLAGS)  $(CXX_SHARED_LIB_FLAGS)  -c $<
+
+$(BUILD_ROOT)/wx/question_wx2_runtime.o: $(SOURCE_DIR)/question_wx2_runtime.C
+	$(CC) -o $@ $(CFLAGS)  $(CXX_SHARED_LIB_FLAGS) `wx-config --cppflags` -c $<
 
 vegetable-wx.exe: $(BUILD_COMMON_DIR)/vegetable-wx.o $(OBJS)  $(BUILD_COMMON_DIR)/question_wx2_runtime.o
 	$(CC) $(CFLAGS) -o $@ `wx-config --cppflags` $(OBJS) $< $(BUILD_COMMON_DIR)/question_wx2_runtime.o `wx-config --libs `
