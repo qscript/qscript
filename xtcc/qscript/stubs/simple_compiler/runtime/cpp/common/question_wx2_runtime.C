@@ -689,12 +689,42 @@ vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
 		//mvwprintw(question_window, 1, len_qno+1, " %s", questionText_.c_str() );
 	//mvwprintw(question_window, 1, len_qno+1, " %s", textExprVec_[0]->text_.c_str() );
 	stringstream question_text;
-	question_text << q->textExprVec_[0]->text_;
+	//question_text << q->textExprVec_[0]->text_;
+	//result.push_back (question_text.str());
+	//for (int i=1; i<q->textExprVec_.size(); ++i) {
+	//	//mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
+	//	result.push_back (q->textExprVec_[i]->text_);
+	//}
+	for (int i=0; i<q->textExprVec_.size(); ++i)
+        {
+        	question_text << "<p>";
+        	if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
+        	{
+        		//stringstream mesg_id;
+        		//mesg_id << part_mesg_id.str() << "_" << i;
+        		//question_text += WString::tr(mesg_id.str().c_str());
+			question_text << q->textExprVec_[i]->text_;
+        	}
+        	else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
+        	{
+        		//stringstream named_attribute_key;
+        		//named_attribute_key << q->textExprVec_[i]->naPtr_->name;
+        		//named_attribute_key << "_" << q->textExprVec_[i]->naIndex_;
+        		//question_text += WString::tr(named_attribute_key.str().c_str());
+			question_text << q->textExprVec_[i]->naPtr_->attribute[q->textExprVec_[i]->naIndex_];
+        	}
+        	else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)
+        	{
+        		if (q->textExprVec_[i]->codeIndex_ != -1) {
+        			question_text << q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);
+        		} else {
+        			question_text << q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+        		}
+			//question_text << "pipedQuestion_" << endl;
+        	}
+        	question_text << "</p>";
+        }
 	result.push_back (question_text.str());
-	for (int i=1; i<q->textExprVec_.size(); ++i) {
-		//mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
-		result.push_back (q->textExprVec_[i]->text_);
-	}
 	return result;
 
 }
@@ -831,6 +861,9 @@ void wxQuestionnaireGUI::DisplayStubs (AbstractRuntimeQuestion * q)
 	cout << __PRETTY_FUNCTION__ << endl;
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
 	{
+		// nxd: move both the below functions to a clear() api which we call from here
+		rbData_ = -1; // clear the data basically
+		cbData_.clear();
 		if (q->no_mpn==1)
 		{
 			PrepareSingleCodedStubDisplay(nq);
@@ -891,15 +924,19 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 	//rboxWindow_ = new wxScrolledWindow (panel, -1, wxDefaultPosition, wxSize(700,350));
 	//rboxWindow_->SetScrollbars(20, 20, 50, 50);
 	rbQnreCodeMap_.clear();
+	int actual_count = 0;
 	for ( size_t i = 0; i < count; ++i ) {
-		stringstream s1;
-		s1 << vec[i].code << ": " << vec[i].stub_text;
-		//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
-		items[i] = wxString::FromUTF8 (s1.str().c_str());
-		rbQnreCodeMap_[i] = vec[i].code;
-		//items[i] = wxString::Format (_T("%d: %s"),
-		//		vec[i].stub_text.c_str(),
-		//		vec[i].code);
+		if (vec[i].mask) {
+			stringstream s1;
+			s1 << vec[i].code << ": " << vec[i].stub_text;
+			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
+			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
+			rbQnreCodeMap_[actual_count] = vec[i].code;
+			//items[i] = wxString::Format (_T("%d: %s"),
+			//		vec[i].stub_text.c_str(),
+			//		vec[i].code);
+			++actual_count;
+		}
 	}
 
 	/*
@@ -924,7 +961,7 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
 		 //wxDefaultSize,
 		 wxSize(500, 350),      // listbox size
-		 count, // WXSIZEOF(aszChoices),  // number of strings
+		 actual_count, // WXSIZEOF(aszChoices),  // number of strings
 		 items, //astrChoices,           // array of strings
 		 flags
 		);
@@ -1020,15 +1057,19 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	//					     ;
 	//}
 	rbQnreCodeMap_.clear();
+	int actual_count = 0;
 	for ( size_t i = 0; i < count; ++i ) {
-		stringstream s1;
-		s1 << vec[i].code << ": " << vec[i].stub_text;
-		//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
-		items[i] = wxString::FromUTF8 (s1.str().c_str());
-		rbQnreCodeMap_[i] = vec[i].code;
-		//items[i] = wxString::Format (_T("%d: %s"),
-		//		vec[i].stub_text.c_str(),
-		//		vec[i].code);
+		if (vec[i].mask) {
+			stringstream s1;
+			s1 << vec[i].code << ": " << vec[i].stub_text;
+			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
+			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
+			rbQnreCodeMap_[actual_count] = vec[i].code;
+			//items[i] = wxString::Format (_T("%d: %s"),
+			//		vec[i].stub_text.c_str(),
+			//		vec[i].code);
+			++actual_count;
+		}
 	}
 
 
@@ -1061,7 +1102,7 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
 		 //wxDefaultSize,
 		 wxSize(500, 350),      // listbox size
-		 count, // WXSIZEOF(aszChoices),  // number of strings
+		 actual_count, // WXSIZEOF(aszChoices),  // number of strings
 		 items, //astrChoices,           // array of strings
 		 flags
 		);
