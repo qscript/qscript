@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF8"?>
+<messages>
+
+	<message id="language"> Language/भाषा</message>
+	<message id="en">English</message>
+	<message id="hn"> हिंदी</message>
+	<message id="qscript_info">
+		Qscript डेमो सर्वेक्षण पेज में आपका स्वागत है है. यह सर्वेक्षण qscript वेब क्षमताओं का एक डेमो नहीं है, बल्कि कलम और काग़ज़ के मॉड्यूल की एक डेमो है.वेब सक्षम qscript के लिए हम निम्न सुविधाओं को लागू करने की जरूरत 
+		<ul> 
+			<li> उत्तरों की गरमा </li> 
+			<li> अन्य प्रतिक्रियाओं का यूनिकोड पर कब्जा </li>
+			<li> randomization ठूंठ सूचियों की - समूहों, उपसमूहों, एक पकड़ेविशेषता एक समूह धारण, आदि </li>
+			<li> विशेषताओं के randomization </li>
+		</ul>
+		निर्देश
+		<ul>
+			<li> प्रश्न संख्या इस "q1" की तरह शीर्ष पर प्रदर्शित कर रहे हैं. Looped प्रश्न संख्या इस "q1_0" की तरह प्रदर्शित किया जाएगा. ध्यान दें कि 1 चलना 0 में शुरू होता है </li>
+			<li> Qscript परियोजना पृष्ठ <a href="http://qscript.in"> http://qscript.in </a></li>
+			<li> डाउनलोड पृष्ठ <a href="http://sourceforge.net/projects/xtcc"> http://sourceforge.net/projects/xtcc </a></li>
+			<li> एक सीरियल दर्ज करें नीचे संख्या. यह 7 अंक तक लंबा हो सकता है. आप सर्वेक्षण बाद खत्म कर सकते हैं, एक ही सीरियल नंबर दर्ज करके. यह वास्तव में शुरू तुम कहाँ से दूर छोड़ दिया जाएगा. हम क्या सीरियल नंबर के लोगों में प्रवेश पर कोई नियंत्रण नहीं है. करने के लिए एक कुछ अद्वितीय संख्या बनाने के लिए - अपने मोबाइल नंबर का उपयोग करने की कोशिश की अपनी जन्म तिथि के साथ मिश्रित, जन्म के अपने पति की तारीख के साथ मिश्रित </li>
+			<li>प्रश्न 5 - अपने जवाब की राशि 100 होना चाहिए.</li>
+		</ul>
+	</message>
+<message id="thank_you"> सर्वेक्षण अब पूरा हो गया है. आप अपने समय के लिए धन्यवाद. </message>
+<message id="yn_0">हाा््ााााा् </message>
+
+<message id="yn_1">नाा </message>
+
+<message id="q1_0">क्या आप सब्जियां खाने?</message>
+
+<message id="agree_5_0">दृढ़ता से सहमत हैं</message>
+
+<message id="agree_5_1"> मैं सहमत हूँ</message>
+
+<message id="agree_5_2">तटस्थ </message>
+
+<message id="agree_5_3"> असहमत</message>
+
+<message id="agree_5_4"> दृढ़ता से असहमत </message>
+
+<message id="veg_0"> टमाटर</message>
+
+<message id="veg_1">आलू </message>
+
+<message id="veg_2"> शिमला मिर्च</message>
+
+<message id="veg_3">बैंगन</message>
+
+<message id="veg_4"> भिंडी </message>
+
+<message id="veg_seg_att_0"> सब्जियां स्वास्थ्य के लिए अच्छा कर रहे हैं</message>
+
+<message id="veg_seg_att_1"> मैं ताजा सब्जियों अक्सर खरीदते हैं</message>
+
+<message id="veg_seg_att_2"> सब्जियाँ आहार फाइबर का अच्छा स्रोत हैं</message>
+
+<message id="veg_seg_att_3"> मैं कुछ दिन के लिए शाकाहारी करना चाहते हैं</message>
+<message id="q2_0">इन सब्जियों में से कौन सा तुम जानते हो?</message>
+<message id="q3_0">इन सब्जियों में से कौन सा आप खाते हैं?</message>
+<message id="q4_0">इनमें से कौन अपने पसंदीदा सब्जी है?</message>
+
+
+
+<message id="q5_0_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (कार्यान्वित अभी तक नहीं पाइपिंग):</message>
+<message id="q5_1_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (कार्यान्वित अभी तक नहीं पाइपिंग):</message>
+<message id="q5_2_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (कार्यान्वित अभी तक नहीं पाइपिंग):</message>
+<message id="q5_3_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (कार्यान्वित अभी तक नहीं पाइपिंग):</message>
+<message id="q5_4_0">एक सप्ताह में अपने सब्जियों का प्रतिशत क्या कर रहे हैं (कार्यान्वित अभी तक नहीं पाइपिंग):</message>
+
+<message id="q6_0_0">कृपया इन बयानों के साथ अपने समझौते राज्य</message>
+<message id="q6_1_0">कृपया इन बयानों के साथ अपने समझौते राज्य</message>
+<message id="q6_2_0">कृपया इन बयानों के साथ अपने समझौते राज्य</message>
+<message id="q6_3_0">कृपया इन बयानों के साथ अपने समझौते राज्य</message>
+<message id="q6_4_0">कृपया इन बयानों के साथ अपने समझौते राज्य</message>
+
+<message id="vege_source_code">
+	<pre>
+
+vegetable {
+		int32_t i1;
+ stubs yn=	"Yes" 1
+		"No" 2;
+
+q1 	"Eat veg?"
+	sp int32_t yn;
+
+stubs agree_5 = 
+	"agree strongly" 5
+	"agree somewhat" 4
+	"Neutral" 3
+	"Disagree " 2
+	"Disagree strongly" 1;	
+
+ stubs veg=	
+ 		"Tomates" 1
+		"Potatoes" 2
+		"Capsicum" 3
+		"Brinjal/Egg plant" 4
+		"Okra/Lady Finger" 5
+		;
+	named_attribute veg_seg_att = " Vegetables are good for health",
+				" I buy fresh vegetables often",
+				" Greens are good source of dietary fibre",
+				" I would like to be vegetarian some day"
+				;
+
+
+	if (q1==1) {
+	setall(veg);
+	
+
+q2 		"Which veg u r aware of?"
+		mp(5) int32_t veg;
+
+		unset(veg);
+		setadd(veg, q2);
+q3 		"Which veg dou eat?"
+		mp(5) int32_t veg;
+
+ 	
+		unset(veg);
+		setadd(veg, q3);
+q4 		"Which is ur fav veg?"
+		sp int32_t veg;
+
+		int32_t sum=0;
+		int32_t iter_no=0;
+		for (i1=0; i1&lt; 5; i1=i1+1) {
+			int32_t code = i1+1;
+
+			if (code in q3) {
+q5				"In a week what perc of your veggies are (piping not yet implemented): "
+				sp int32_t (0-100);
+				sum=sum+q5[i1];
+				iter_no=i1;
+			} else {
+				1;
+			}
+		}
+		if (sum != 100) {
+			clear (q5[iter_no]);
+		}
+
+
+
+	} else {
+		1;
+	}
+
+
+		for (i1=0; i1&lt; 4; i1=i1+1) {
+q6			"Please state your agreement with these statements" : veg_seg_att[i1]
+			sp int32_t agree_5;
+		}
+
+}
+	</pre>
+	</message>
+
+
+</messages>
