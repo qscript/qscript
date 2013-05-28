@@ -1013,6 +1013,7 @@ void question_eval_loop2 (
 
 void QuestionnaireApplication::ValidateSerialNo()
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	int l_ser_no = -1;
 	if (le_data_ ) {
 		WString serno_text = le_data_->text();
@@ -1045,6 +1046,7 @@ void QuestionnaireApplication::ValidateSerialNo()
 					}
 				}
 				//DoQuestionnaire();
+				callback_get_ser_no_from_ui (l_ser_no, this_users_session->theQuestionnaire_ , 1);
 			} else {
 				le_data_->setText("You have entered a  negative number");
 			}

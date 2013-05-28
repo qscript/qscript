@@ -17,6 +17,7 @@
 #include <Wt/WString>
 #include <Wt/WStringUtil>
 
+#include "question.h"
 struct TheQuestionnaire;
 struct TheQuestionnaire * make_questionnaire ();
 struct Session
@@ -84,11 +85,35 @@ public:
 	WText * wt_questionText_;
 	WLineEdit * le_data_;
 	WContainerWidget * formContainer_;
+	WContainerWidget * currentForm_;
 	WText * wt_lastQuestionVisited_;
+	WGroupBox * wt_cb_rb_container_;
+	WButtonGroup * wt_rb_container_;
+	vector<WRadioButton*> vec_rb;
+	vector<WCheckBox*> vec_cb;
+	bool flagSerialPageRemoved_;
+	std::map<int, int> map_cb_code_index;
 	QuestionnaireApplication (const WEnvironment &env);
+	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 	void changeLanguage();
 	void setLanguage(const std::string lang);
 	void ValidateSerialNo();
+
+	void set_callback_ui_input (
+		void (*p_callback_ui_input)
+				(UserInput p_user_input,
+				AbstractRuntimeQuestion * q,
+				struct TheQuestionnaire * theQuestionnaire,
+				int nest_level)
+	);
+	void ConstructQuestionForm( AbstractRuntimeQuestion *q );
+	void DisplayQuestionTextView (const vector <string> & qno_and_qtxt);
+	void setCentralWidget(WContainerWidget * new_question_form);
+	void DisplayStubs (AbstractRuntimeQuestion * q);
+	void PrepareMultiCodedStubDisplay (NamedStubQuestion * nq);
+	void PrepareSingleCodedStubDisplay (NamedStubQuestion * nq);
+	void ClearStubsArea();
+	void handleDataInput();
 
 };
 

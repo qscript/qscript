@@ -412,18 +412,6 @@ void QuestionnaireApplication::ConstructQuestionForm(
 }
 
 
-void QuestionnaireApplication::setCentralWidget(WContainerWidget * new_question_form)
-{
-	if (!flagSerialPageRemoved_) {
-		formContainer_->removeWidget(serialPage_);
-		flagSerialPageRemoved_ = true;
-	}
-	if (currentForm_)
-		delete currentForm_;
-	currentForm_ = new_question_form;
-	formContainer_->addWidget(currentForm_);
-}
-
 void QuestionnaireApplication::changeLanguage()
 {
 	WText *t = (WText *)sender();
@@ -603,7 +591,7 @@ void QuestionnaireApplication::changeLanguage()
 
 
 QuestionnaireApplication::QuestionnaireApplication (const WEnvironment &env)
-	: WApplication(env)
+	: WApplication(env), wt_questionText_(0), currentForm_(0), flagSerialPageRemoved_(false)
 		//, wt_questionText_(0), currentForm_(0), flagSerialPageRemoved_(false)
 {
 	messageResourceBundle().use(WApplication::appRoot() + jno);
@@ -1063,13 +1051,265 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	DisplayStubs (q);
 	DisplayCurrentAnswers (q);
 	//GetUserInput (callback_ui_input, q, theQuestionnaire);
-
+	QuestionnaireApplication * qapp_ptr =  static_cast<QuestionnaireApplication*> (WApplication::instance());
 	// nxd implement: wxGUI->set_callback_ui_input (callback_ui_input);
+	qapp_ptr->set_callback_ui_input(callback_ui_input);
 	//gtkQuestionnaireApplication->ConstructQuestionForm (q
 	//		//, gtkQuestionnaireApplication->this_users_session
 	//		);
 
 	// nxd implement: wxGUI->ConstructQuestionForm( q );
+	qapp_ptr->ConstructQuestionForm( q );
 	//GetUserInput (callback_ui_input, q, theQuestionnaire);
 }
 
+
+void QuestionnaireApplication::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	ClearStubsArea();
+	wt_cb_rb_container_ = new WGroupBox();
+	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+	unsigned long count = vec.size();
+	for (int i=0; i<vec.size(); ++i) {
+		stringstream named_range_key;
+		named_range_key << nq->nr_ptr->name << "_" << i;
+#if 0
+		if (/*q->no_mpn==1 && */ vec[i].mask) {
+			//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
+			WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+			wt_rb_container_->addButton(wt_rb, vec[i].code);
+			new WBreak(wt_cb_rb_container_);
+			vec_rb.push_back(wt_rb);
+		}
+		else
+#endif /* 0 */
+		if (/*q->no_mpn>1 && */ vec[i].mask)
+		{
+			//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
+			WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+			vec_cb.push_back(wt_cb);
+			cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
+			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+		}
+	}
+
+	/*
+	static const unsigned int DEFAULT_N_MAJOR_DIM = 2;
+	unsigned long nmajorDim = DEFAULT_N_MAJOR_DIM;
+	wxString *items = new wxString[count];
+
+	rbQnreCodeMap_.clear();
+	int actual_count = 0;
+	for ( size_t i = 0; i < count; ++i ) {
+		if (vec[i].mask) {
+			stringstream s1;
+			s1 << vec[i].code << ": " << vec[i].stub_text;
+			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
+			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
+			rbQnreCodeMap_[actual_count] = vec[i].code;
+			//items[i] = wxString::Format (_T("%d: %s"),
+			//		vec[i].stub_text.c_str(),
+			//		vec[i].code);
+			++actual_count;
+		}
+	}
+
+
+	int flags = 0;
+	m_pListBox = new wxCheckListBox
+		(
+		 panel,               // parent
+		 MultiAnswerCheckListBox,       // control id
+		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
+		 //wxDefaultSize,
+		 wxSize(500, 350),      // listbox size
+		 actual_count, // WXSIZEOF(aszChoices),  // number of strings
+		 items, //astrChoices,           // array of strings
+		 flags
+		);
+
+	delete [] items;
+
+    // set grey background for every second entry
+    //for ( ui = 0; ui < WXSIZEOF(aszChoices); ui += 2 ) {
+    //    AdjustColour(ui);
+    //}
+
+	//m_pListBox->Check(2);
+	//m_pListBox->Select(3);
+	//check_box_sizer->Add (rboxWindow_);
+	check_box_sizer->Add (m_pListBox);
+	//stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
+	fgs->Layout();
+	panel_sizer->Layout();
+	*/
+
+}
+
+
+void QuestionnaireApplication::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	//ClearRadio();
+	ClearStubsArea();
+	wt_cb_rb_container_ = new WGroupBox();
+	wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
+	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+	unsigned long count = vec.size();
+	for (int i=0; i<vec.size(); ++i) {
+		stringstream named_range_key;
+		named_range_key << nq->nr_ptr->name << "_" << i;
+		if (/*q->no_mpn==1 && */ vec[i].mask) {
+			//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
+			WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+			wt_rb_container_->addButton(wt_rb, vec[i].code);
+			new WBreak(wt_cb_rb_container_);
+			vec_rb.push_back(wt_rb);
+		}
+#if 0
+		if (/*q->no_mpn>1 && */ vec[i].mask) {
+			//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
+			WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+			vec_cb.push_back(wt_cb);
+			cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
+			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+		}
+#endif /* 0 */
+	}
+
+
+
+	// no of radio buttons
+#if 0
+	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
+	unsigned long count = vec.size();
+	static const unsigned int DEFAULT_N_MAJOR_DIM = 2;
+	unsigned long nmajorDim = DEFAULT_N_MAJOR_DIM;
+
+	wxString *items = new wxString[count];
+
+	rbQnreCodeMap_.clear();
+	int actual_count = 0;
+	for ( size_t i = 0; i < count; ++i ) {
+		if (vec[i].mask) {
+			stringstream s1;
+			s1 << vec[i].code << ": " << vec[i].stub_text;
+			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
+			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
+			rbQnreCodeMap_[actual_count] = vec[i].code;
+			//items[i] = wxString::Format (_T("%d: %s"),
+			//		vec[i].stub_text.c_str(),
+			//		vec[i].code);
+			++actual_count;
+		}
+	}
+	int flags = wxLB_SINGLE;
+	m_rListBox = new wxListBox
+		(
+		 panel,               // parent
+		 SingleAnswerRadioBox,       // control id
+		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
+		 //wxDefaultSize,
+		 wxSize(500, 350),      // listbox size
+		 actual_count, // WXSIZEOF(aszChoices),  // number of strings
+		 items, //astrChoices,           // array of strings
+		 flags
+		);
+	delete [] items;
+
+	the_stubs->SetLabel(wxT("New Stubs Text - should be visible now"));
+	cout << "Updated New stubs text" << endl;
+	//stubsRowSizer_->Add(m_radio, 1, wxGROW);
+	//stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
+	//radio_box_sizer->Add(rboxWindow_);
+	radio_box_sizer->Add(m_rListBox, 1, wxGROW);
+	fgs->Layout();
+	panel_sizer->Layout();
+#endif /*  0 */
+}
+
+
+void QuestionnaireApplication::DisplayStubs (AbstractRuntimeQuestion * q)
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
+	{
+		// nxd: move both the below functions to a clear() api which we call from here
+		//rbData_ = -1; // clear the data basically
+		//cbData_.clear();
+		if (q->no_mpn==1)
+		{
+			PrepareSingleCodedStubDisplay(nq);
+		} else {
+			PrepareMultiCodedStubDisplay (nq);
+		}
+	} else {
+		cout << "=== Implement Display Range Question" << endl;
+	}
+}
+
+void QuestionnaireApplication::set_callback_ui_input (
+			void (*p_callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+			)
+{
+	callback_ui_input = p_callback_ui_input;
+}
+
+void QuestionnaireApplication::DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
+{
+	std::stringstream question_text;
+	for (int i=0; i < qno_and_qtxt.size(); ++i) {
+		question_text << qno_and_qtxt[i];
+	}
+	wt_questionText_->setText(question_text.str());
+}
+
+void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q )
+{
+	WContainerWidget * new_form = new WContainerWidget();
+	vec_rb.clear();			 // memory leak introduced here? no it seems
+	vec_cb.clear();			 // memory leak introduced here? no it seems
+
+	vector <string> question_text_vec = PrepareQuestionText (q);
+	//the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
+	wt_questionText_ = new WText();
+	DisplayQuestionTextView (question_text_vec);
+	new_form->addWidget(wt_questionText_);
+	// Hack to Display Radio Buttons
+	DisplayStubs (q);
+	new_form->addWidget(wt_cb_rb_container_);
+	this_users_session -> ptr_last_question_visited = q;
+	WPushButton *b = new WPushButton("Next");
+	b->clicked().connect(this, &QuestionnaireApplication::handleDataInput);
+	new_form->addWidget(b);
+	setCentralWidget(new_form);
+
+}
+
+
+void QuestionnaireApplication::setCentralWidget (WContainerWidget * new_question_form)
+{
+	if (!flagSerialPageRemoved_) {
+		formContainer_->removeWidget (serialPage_);
+		flagSerialPageRemoved_ = true;
+	}
+	if (currentForm_) {
+		delete currentForm_;
+	}
+	currentForm_ = new_question_form;
+	formContainer_->addWidget (currentForm_);
+}
+
+
+void QuestionnaireApplication::ClearStubsArea()
+{
+	//ClearCheckList();
+	//ClearRadio();
+}
+
+void QuestionnaireApplication::handleDataInput()
+{
+	cout << __PRETTY_FUNCTION__ << endl;
+
+}
