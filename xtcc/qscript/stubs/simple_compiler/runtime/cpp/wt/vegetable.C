@@ -32,6 +32,8 @@
 #include "named_attributes.h"
 #include "QuestionAttributes.h"
 #include "UserResponse.h"
+#include "question_wt_runtime.h"
+
 using namespace std;
 string qscript_stdout_fname("qscript_stdout.log");
 FILE * qscript_stdout = 0;
@@ -1006,5 +1008,47 @@ void question_eval_loop2 (
 			stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
 		}
 	//}
+}
+
+
+void QuestionnaireApplication::ValidateSerialNo()
+{
+	int l_ser_no = -1;
+	if (le_data_ ) {
+		WString serno_text = le_data_->text();
+		string narrow_text = serno_text.narrow();
+		if (narrow_text.length() == 0 || narrow_text.length()>7) {
+			le_data_->setText("You have entered a very long serial number");
+		} else {
+			l_ser_no = strtol (narrow_text.c_str(), 0, 10);
+			if (l_ser_no > 0) {
+				ser_no = l_ser_no;
+				//this_users_session->theQuestionnaire_->ser_no = l_ser_no;
+				int exists = check_if_reg_file_exists(jno, ser_no);
+				cout << "checking if serial no : " << ser_no
+					<< ", jno: " << jno << " exists: " << exists << endl;
+
+				if(exists == 1){
+ 					map <string, question_disk_data*>  qdd_map;
+					load_data(jno, ser_no, &qdd_map);
+					//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);
+					merge_disk_data_into_questions2(qscript_stdout,
+							this_users_session->theQuestionnaire_->last_question_answered,
+							this_users_session->theQuestionnaire_->last_question_visited,
+							this_users_session->theQuestionnaire_->question_list,
+							&qdd_map);
+					for (map<string, question_disk_data*>:: iterator it
+							= qdd_map.begin();
+							it != qdd_map.end();
+							++it) {
+						delete it->second;
+					}
+				}
+				//DoQuestionnaire();
+			} else {
+				le_data_->setText("You have entered a  negative number");
+			}
+		}
+	}
 }
 
