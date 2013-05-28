@@ -1308,8 +1308,50 @@ void QuestionnaireApplication::ClearStubsArea()
 	//ClearRadio();
 }
 
+void QuestionnaireApplication::handleRBDataInput (int nest_level)
+{
+	vector<int32_t> data;
+	bool isAnswered = false;
+	if ( wt_rb_container_->selectedButtonIndex() != -1) {
+		isAnswered = true;
+		int code = wt_rb_container_->checkedId();
+		cout << "no_mpn == 1, code: " << code << endl;
+		data.push_back(code);
+	} else {
+		isAnswered = false;
+	}
+}
+
+void QuestionnaireApplication::handleCBDataInput (int nest_level)
+{
+	vector<int32_t> data;
+	bool isAnswered = false;
+	cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
+	for (int i = 0; i < vec_cb.size(); ++i) {
+		if (vec_cb[i]->checkState() == Wt::Checked) {
+			int code = map_cb_code_index[i];
+			data.push_back(code);
+			cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
+			isAnswered = true;
+		}
+	}
+}
+
 void QuestionnaireApplication::handleDataInput()
 {
 	cout << __PRETTY_FUNCTION__ << endl;
+	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session -> ptr_last_question_visited )) {
+		AbstractRuntimeQuestion * last_question_served = this_users_session -> ptr_last_question_visited ;
+		vector<int32_t> data;
+		bool isAnswered = false;
+		cout << "returned back data from question: " << nq->questionName_ << endl;
+		if (last_question_served->no_mpn == 1) {
+			handleRBDataInput(1);
+		} else {
+			cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
+			handleCBDataInput(1);
+		}
+
+	}
 
 }
