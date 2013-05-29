@@ -116,6 +116,7 @@ public:
 	void handleDataInput();
 	void handleRBDataInput (int nest_level);
 	void handleCBDataInput (int nest_level);
+	void handleRangeQuestionData (int nest_level);
 
 };
 

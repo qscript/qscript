@@ -1277,8 +1277,13 @@ void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q
 	DisplayQuestionTextView (question_text_vec);
 	new_form->addWidget(wt_questionText_);
 	// Hack to Display Radio Buttons
-	DisplayStubs (q);
-	new_form->addWidget(wt_cb_rb_container_);
+	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
+		DisplayStubs (q);
+		new_form->addWidget(wt_cb_rb_container_);
+	} else {
+		le_data_ = new WLineEdit();
+		new_form->addWidget(le_data_);
+	}
 	this_users_session -> ptr_last_question_visited = q;
 	WPushButton *b = new WPushButton("Next");
 	b->clicked().connect(this, &QuestionnaireApplication::handleDataInput);
@@ -1311,31 +1316,210 @@ void QuestionnaireApplication::ClearStubsArea()
 void QuestionnaireApplication::handleRBDataInput (int nest_level)
 {
 	vector<int32_t> data;
+	stringstream s1;
 	bool isAnswered = false;
 	if ( wt_rb_container_->selectedButtonIndex() != -1) {
 		isAnswered = true;
 		int code = wt_rb_container_->checkedId();
 		cout << "no_mpn == 1, code: " << code << endl;
 		data.push_back(code);
+		s1 << code;
 	} else {
 		isAnswered = false;
 	}
+	string err_mesg;
+	UserInput user_input;
+	user_input.theUserResponse_ = user_response::UserEnteredData;
+	user_input.questionResponseData_ = s1.str();
+	AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+	if (valid_input) {
+		if (user_input.theUserResponse_ == user_response::UserSavedData) {
+			cerr  << "NOT YET DONE"
+				<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+				<< endl
+				<< "invoking callback_ui_input with UserSavedData" << endl;
+			// this call will return really fast
+			//  (if you consider io fast)
+			//  but what I mean is we wont add much to the call stack
+			callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+			//GetUserInput (callback_ui_input, q, theQuestionnaire);
+			cout << "callback_ui_input has returned after UserSavedData" << endl;
+		} else {
+			cout << "reached here: "
+				<< __PRETTY_FUNCTION__ << endl;
+			callback_ui_input (user_input, q, this_users_session ->theQuestionnaire_, nest_level + 1);
+			cout << "callback_ui_input has returned"
+				<< __PRETTY_FUNCTION__ << endl;
+		}
+		// move all this into callback_ui_input
+		// case UserEnteredData
+	} else {
+		// we should be passing an error message too
+		//GetUserInput (callback_ui_input, q, theQuestionnaire);
+		// do nothing - the callback just continues to wait for data
+	}
+
 }
 
 void QuestionnaireApplication::handleCBDataInput (int nest_level)
 {
 	vector<int32_t> data;
 	bool isAnswered = false;
+
+	stringstream s1;
+
+#if 0
+	for (set<int32_t>::iterator it = cbData_.begin(); it != cbData_.end(); ++it) {
+		//cout << " " << *it;
+		data.push_back (*it);
+		s1 << " " << (*it);
+	}
 	cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
+#endif
+
 	for (int i = 0; i < vec_cb.size(); ++i) {
 		if (vec_cb[i]->checkState() == Wt::Checked) {
 			int code = map_cb_code_index[i];
 			data.push_back(code);
 			cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
 			isAnswered = true;
+			s1 << " " << code;
 		}
 	}
+	UserInput user_input;
+	user_input.questionResponseData_ = s1.str();
+	user_input.theUserResponse_ = user_response::UserEnteredData;
+	AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+	string err_mesg;
+	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+	if (valid_input) {
+		if (user_input.theUserResponse_ == user_response::UserSavedData) {
+			cerr  << "NOT YET DONE"
+				<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+				<< endl
+				<< "invoking callback_ui_input with UserSavedData" << endl;
+			// this call will return really fast
+			//  (if you consider io fast)
+			//  but what I mean is we wont add much to the call stack
+			callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+			//GetUserInput (callback_ui_input, q, theQuestionnaire);
+			cout << "callback_ui_input has returned after UserSavedData" << endl;
+		} else {
+			cout << "reached here: "
+				<< __PRETTY_FUNCTION__ << endl;
+			callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+			cout << "callback_ui_input has returned"
+				<< __PRETTY_FUNCTION__ << endl;
+		}
+		// move all this into callback_ui_input
+		// case UserEnteredData
+	} else {
+		// we should be passing an error message too
+		//GetUserInput (callback_ui_input, q, theQuestionnaire);
+		// do nothing - the callback just continues to wait for data
+	}
+
 }
+
+void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
+{
+	string current_question_response = le_data_->text().narrow();
+	AbstractRuntimeQuestion * last_question_served = this_users_session-> ptr_last_question_visited;
+	if (last_question_served->no_mpn==1) {
+#if 0
+		UserNavigation user_nav=NOT_SET;
+		user_response::UserResponseType user_resp=user_response::NotSet;
+		vector<int32_t> data;
+		bool parse_success = verify_web_data (current_question_response, user_nav, user_resp, &data);
+		if (parse_success)
+		{
+			cout << "successfully parsed data = ";
+			for (int i=0; i<data.size(); ++i)
+			{
+				cout << data[i] << ", ";
+			}
+			cout << endl;
+		}
+		// the call below will be required at some later stage
+		//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
+		// right now we go along with the happy path
+		bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+			&data);
+		if (invalid_code == false)
+		{
+			last_question_served->input_data.erase
+				(last_question_served->input_data.begin(),
+				last_question_served->input_data.end());
+			for(uint32_t i = 0; i < data.size(); ++i)
+			{
+				last_question_served->input_data.insert(data[i]);
+				//cout << "storing: " << data[i]
+				//	<< " into input_data" << endl;
+			}
+			last_question_served->isAnswered_ = true;
+			data.clear();
+			callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+		}
+		else {
+			//ConstructQuestionForm(last_question_served, this_users_session);
+			//return;
+		}
+#endif /* 0 */
+
+		UserInput user_input;
+		user_input.questionResponseData_ = current_question_response ;
+		user_input.theUserResponse_ = user_response::UserEnteredData;
+		AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+		string err_mesg;
+		bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+		if (valid_input) {
+			if (user_input.theUserResponse_ == user_response::UserSavedData) {
+				cerr  << "NOT YET DONE"
+					<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+					<< endl
+					<< "invoking callback_ui_input with UserSavedData" << endl;
+				// this call will return really fast
+				//  (if you consider io fast)
+				//  but what I mean is we wont add much to the call stack
+				callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+				//GetUserInput (callback_ui_input, q, theQuestionnaire);
+				cout << "callback_ui_input has returned after UserSavedData" << endl;
+			} else {
+				cout << "reached here: "
+					<< __PRETTY_FUNCTION__ << endl;
+				callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+				cout << "callback_ui_input has returned"
+					<< __PRETTY_FUNCTION__ << endl;
+			}
+			// move all this into callback_ui_input
+			// case UserEnteredData
+		} else {
+			// do nothing
+		}
+	} else if (last_question_served->no_mpn > 1) {
+#if 0
+		string utf8_response = le_data_->text().toUTF8();
+		if (utf8_response != "")
+		{
+			stringstream file_name_str;
+			file_name_str << last_question_served->questionName_ << "."
+				<< jno << "_" << ser_no << ".dat";
+			fstream open_end_resp(file_name_str.str().c_str(), ios_base::out|ios_base::ate);
+			open_end_resp << utf8_response << endl;
+			last_question_served->input_data.insert(96);
+			last_question_served->isAnswered_ = true;
+		}
+		else
+		{
+			ConstructQuestionForm(last_question_served, this_users_session);
+			return;
+		}
+#endif /* 0 */
+	}
+
+}
+
 
 void QuestionnaireApplication::handleDataInput()
 {
@@ -1350,6 +1534,13 @@ void QuestionnaireApplication::handleDataInput()
 		} else {
 			cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
 			handleCBDataInput(1);
+		}
+
+	} else {
+
+		string current_question_response = le_data_->text().narrow();
+		if (current_question_response !="") {
+			handleRangeQuestionData(1);
 		}
 
 	}
