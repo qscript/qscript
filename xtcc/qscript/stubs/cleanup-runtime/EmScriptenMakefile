@@ -43,10 +43,13 @@ data_entry.hpp: YFLAGS = -p scan_data
 vegetable.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 	# old - with cin -> modal dialog box
 	#$(CC) $(CFLAGS) -o $@ --shell-file shell-nxd2.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
-	$(CC) $(CFLAGS) -o $@ --shell-file shell-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+	$(CC) $(CFLAGS) -o $@ --shell-file shell-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main']"
 
 vegetable.js: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+
+$(BUILD_DIR)/question_stdout_runtime.o: $(SOURCE_DIR)/question_stdout_runtime.cpp
+	$(CC) -o $@ $(CFLAGS) -c $< -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main']"
 
 
 test_2_1.js: $(OBJS) test_2_1.o

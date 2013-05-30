@@ -47,9 +47,9 @@ extern map<string, map<int, int> > freq_count;
 
 
 //extern FILE * qscript_stdout;
-extern vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;
-extern vector <XtccDataFileDiskMap*> xtcc_question_disk_map;
-extern vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;
+//extern vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;
+//extern vector <XtccDataFileDiskMap*> xtcc_question_disk_map;
+//extern vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;
 
 
 
@@ -95,6 +95,8 @@ void AbstractQuestionnaire::print_question_messages(AbstractRuntimeQuestion * q)
 
 
 
+#if 0
+// Can this be moved into the qtm_data_file.cpp library
 void AbstractQuestionnaire::print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file)
 {
 	AbstractRuntimeQuestion * q = v[0]->q;
@@ -384,6 +386,7 @@ void AbstractQuestionnaire::print_summary_axis (vector<qtm_data_file_ns::QtmData
 	}
 	cout << endl;
 }
+#endif /* 0 */
 
 void AbstractQuestionnaire::write_data_to_disk (const vector<AbstractRuntimeQuestion*>& q_vec
 		, string jno
@@ -619,6 +622,7 @@ void AbstractQuestionnaire::DisplayActiveQuestions()
 	cout << endl;
 }
 
+#if 0
 void AbstractQuestionnaire::write_qtm_data_to_disk()
 {
 	using qtm_data_file_ns::qtm_data_file_writer_log;
@@ -689,6 +693,7 @@ void AbstractQuestionnaire::write_xtcc_data_to_disk()
 	do_freq_counts();
 	cout << "len_xtcc_datafile_output_buffer: " << len_xtcc_datafile_output_buffer << endl;
 }
+#endif /* 0 */
 
 void AbstractQuestionnaire::do_freq_counts()
 {

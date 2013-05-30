@@ -27,9 +27,20 @@
 #include "named_range.h"
 #include "question_disk_data.h"
 #include "qscript_data.hpp"
-#include "qtm_data_file.h"
+//#include "qtm_data_file.h"
 #include "dom_manip_funcs.h"
 
+extern "C" {
+void called_from_the_dom (char * data)
+{
+	//emscripten_pause_main_loop();
+	//emscripten_resume_main_loop();
+	//printf ("data from the browser dom callback: %s\n", data);
+	printf ("hello called_from_the_dom\n");
+	printf ("data: %s\n", data);
+}
+int32_t main(int argc, char * argv[]);
+}
 
 
 void parse_input_data(vector<int> * data_ptr, int & success);
@@ -412,7 +423,10 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	}
 	print_to_stub_area (s.str().c_str(), ++counter);
 
-	GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+	// new: 30-may-2013
+	// we comment out the func below: GetUserInput and
+	// try to replace with a JavaScript Callback
+	//GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
 
 
 	//static int i;
@@ -438,6 +452,7 @@ extern DIR * directory_ptr ;
 int32_t main(int argc, char * argv[])
 {
 	//process_options(argc, argv);
+#if 0
 	if (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag)
 	{
 		qtm_data_file_ns::init();
@@ -450,6 +465,7 @@ int32_t main(int argc, char * argv[])
 		}
 	}
 	bool using_ncurses = true;
+#endif /* 0 */
 	//qscript_stdout = fopen(qscript_stdout_fname.c_str(), "w");
 	using namespace std;
 	SetupSignalHandler();

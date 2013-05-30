@@ -1,0 +1,9 @@
+function.html: hello_function.o main_call_function.o
+	emcc --shell-file shell-dom-callback.html  hello_function.o main_call_function.o   -o function.html -s EXPORTED_FUNCTIONS="['_int_sqrt','_main']"  
+
+hello_function.o:  hello_function.cpp
+	emcc  -c   hello_function.cpp  -s EXPORTED_FUNCTIONS="['_int_sqrt']"
+
+
+main_call_function.o:  main_call_function.cpp
+	emcc  -c   main_call_function.cpp  -s EXPORTED_FUNCTIONS="['_main']"

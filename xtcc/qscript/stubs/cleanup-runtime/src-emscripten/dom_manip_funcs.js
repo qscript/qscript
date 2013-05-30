@@ -18,7 +18,8 @@ print_to_question_area: function (question_text_ptr)
 print_to_stub_area: function (string_pointer, counter)
 {
 	//alert("print_to_question_area: " + i );
-	var v = document.getElementById("question_stub_area");
+	//var v = document.getElementById("stubs_form_div");
+	var stubs_form_div = document.getElementById("stubs_form_div");
 	var the_stub_data = Pointer_stringify (string_pointer);
 	/*
 	var html = "";
@@ -57,7 +58,7 @@ print_to_stub_area: function (string_pointer, counter)
 			parseOnLoad : true,
 			async: 1,
 		};
-		var stubs_form_div = document.getElementById("stubs_form_div");
+		//var stubs_form_div = document.getElementById("stubs_form_div");
 		{
 			var n_child_nodes = stubs_form_div.childNodes.length;
 			alert ( "stubs_form_div.childNodes.length: " + stubs_form_div.childNodes.length);

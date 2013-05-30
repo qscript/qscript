@@ -31,10 +31,10 @@
 #include "qscript_lib.h"
 
 
-#include "AsciiFlatFileQuestionDiskMap.h"
-#include "XtccDataFile.h"
-#include "qtm_data_file.h"
-#include "qtm_datafile_conf_parser.h"
+//#include "AsciiFlatFileQuestionDiskMap.h"
+//#include "XtccDataFile.h"
+//#include "qtm_data_file.h"
+//#include "qtm_datafile_conf_parser.h"
 
 
 
@@ -55,9 +55,9 @@ struct AbstractQuestionnaire
 	std::vector <BaseText> base_text_vec;
 	AbstractQuestionnaire (std::string p_jno);
 	void print_question_messages(AbstractRuntimeQuestion * q);
-	void print_summary_axis (std::vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);
+	//void print_summary_axis (std::vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);
 
-	virtual void compute_flat_file_map_and_init() = 0;
+	//virtual void compute_flat_file_map_and_init() = 0;
 	virtual AbstractRuntimeQuestion * eval2 (UserNavigation p_navigation_mode,
 				AbstractRuntimeQuestion * p_last_question_visited,
 				AbstractRuntimeQuestion * p_jump_to_index) = 0;
@@ -68,9 +68,9 @@ struct AbstractQuestionnaire
 	void reset_questionnaire();
 	AbstractRuntimeQuestion * ComputePreviousQuestion(AbstractRuntimeQuestion * q);
 	void DisplayActiveQuestions();
-	void write_qtm_data_to_disk();
-	void write_ascii_data_to_disk();
-	void write_xtcc_data_to_disk();
+	//void write_qtm_data_to_disk();
+	//void write_ascii_data_to_disk();
+	//void write_xtcc_data_to_disk();
 	void do_freq_counts();
 	private:
 	AbstractQuestionnaire& operator = (const AbstractQuestionnaire&);
