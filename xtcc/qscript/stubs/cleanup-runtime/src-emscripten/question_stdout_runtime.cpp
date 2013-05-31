@@ -442,15 +442,22 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	*/
 #endif
 	stringstream s;
+	string question_type;
 	if (NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (q)) {
 		//nq->nr_ptr->Serialize (writer);
 		nq->nr_ptr->toString(s);
 		//std::string str = s.GetString();
 		cout << s.str() << endl;
+		question_type = "nq";
+	} else {
+		question_type = "rq";
 	}
-	print_to_stub_area (s.str().c_str(), ++counter);
+	print_to_stub_area (question_type.c_str(),
+		q->no_mpn,
+		s.str().c_str(), ++counter);
 
 	void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion * last_question_visited);
+	// I couldnt be bothered to make this a virtual function
 	set_last_visited (theQuestionnaire, q);
 	//theQuestionnaire->q
 	//theQuestionnaire->last_question_visited = q;

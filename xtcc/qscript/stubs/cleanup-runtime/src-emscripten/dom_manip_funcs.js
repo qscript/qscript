@@ -15,12 +15,13 @@ print_to_question_area: function (question_text_ptr)
 },
 
 
-print_to_stub_area: function (string_pointer, counter)
+print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 {
 	//alert("print_to_question_area: " + i );
 	//var v = document.getElementById("stubs_form_div");
+	var question_type = Pointer_stringify (ptr_question_type);
 	var stubs_form_div = document.getElementById("stubs_form_div");
-	var the_stub_data = Pointer_stringify (string_pointer);
+	var the_stub_data = Pointer_stringify (ptr_stub_info);
 	/*
 	var html = "";
 	html +=
@@ -40,7 +41,11 @@ print_to_stub_area: function (string_pointer, counter)
 		// global - counter variable
 		for (var i=0; i<res2.stubs.length; ++i) {
 			var input   = document.createElement("input");
-			input.type  = "radio";
+			if (no_mpn == 1) {
+				input.type  = "radio";
+			} else {
+				input.type  = "checkbox";
+			}
 			input.name  = "stub_response";
 			input.value = res2.stubs[i].stub_code;
 			var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
@@ -91,7 +96,12 @@ print_to_stub_area: function (string_pointer, counter)
 		});
 		*/
 	};
-	display_stubs (the_stub_data);
+	if (question_type === "nq") {
+		display_stubs (the_stub_data);
+	} else {
+		// display a text box here
+		// maybe add validators
+	}
 }
 
 

@@ -892,7 +892,8 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRunt
 
 void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	//cout << __PRETTY_FUNCTION__ << endl;
+	printf("%s\n", __PRETTY_FUNCTION__);
 	// this will be called by the UI - it is the UI's responsibility to
 	// get valid data for us
 	//bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);
@@ -902,6 +903,7 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 				/* last_question_visited */ q,
 				/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
+		cout << "mode: user_response::UserEnteredData" << endl;
 		eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
 		cout << "under stdout either the user can enter data or navigation" << endl
@@ -916,6 +918,7 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 	} else {
 		cerr << __PRETTY_FUNCTION__ << " unhandled case theUserResponse_" << endl;
 	}
+	printf("EXIT: %s\n", __PRETTY_FUNCTION__);
 }
 
 void question_eval_loop2 (
@@ -1023,20 +1026,50 @@ void called_from_the_dom (char * data)
 	printf ("data: %s\n", data);
 	printf ("last_question_visited: %s\n",
 		AbstractQuestionnaire::qnre_ptr->last_question_visited->questionName_.c_str());
+	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited;
 	// hard code the answers - Proof of concept testing
 	// Can we really load the next question on the interface using this callback system?
-	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited;
-	q->isAnswered_ = true;
-	q->input_data.insert (2);
+	//q->isAnswered_ = true;
+	//q->input_data.insert (2);
+	//UserInput user_input;
+	//user_input.theUserResponse_ = user_response::UserEnteredData;
+	//user_input.questionResponseData_ = "1";
 	UserInput user_input;
 	user_input.theUserResponse_ = user_response::UserEnteredData;
-	user_input.questionResponseData_ = "1";
-	void question_eval_loop2 (
-		UserInput p_user_input,
-		AbstractRuntimeQuestion * last_question_visited,
-		AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
+	user_input.questionResponseData_ = data;
+	string err_mesg;
+	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
 	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
-	question_eval_loop2 (user_input, q, 0, l_qnre_ptr, /*nest_level + */ 1);
+
+	if (valid_input) {
+		if (user_input.theUserResponse_ == user_response::UserSavedData) {
+			cerr  << "NOT YET DONE"
+				<< __FILE__ << "," << __LINE__ << "," << __PRETTY_FUNCTION__
+				<< endl
+				<< "invoking callback_ui_input with UserSavedData" << endl;
+			// this call will return really fast
+			//  (if you consider io fast)
+			//  but what I mean is we wont add much to the call stack
+			//callback_ui_input (user_input, q, theQuestionnaire_, 1);
+			//GetUserInput (callback_ui_input, q, theQuestionnaire);
+			//cout << "callback_ui_input has returned after UserSavedData" << endl;
+		} else {
+			cout << "reached here: "
+				<< __PRETTY_FUNCTION__ << endl;
+			callback_ui_input (user_input, q, l_qnre_ptr, 1);
+			cout << "callback_ui_input has returned"
+				<< __PRETTY_FUNCTION__ << endl;
+		}
+		// move all this into callback_ui_input
+		// case UserEnteredData
+
+	}
+	//void question_eval_loop2 (
+	//	UserInput p_user_input,
+	//	AbstractRuntimeQuestion * last_question_visited,
+	//	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
+	//question_eval_loop2 (user_input, q, 0, l_qnre_ptr, /*nest_level + */ 1);
+	printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
 }
 
 }

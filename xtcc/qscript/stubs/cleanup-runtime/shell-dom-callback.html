@@ -103,6 +103,11 @@
 						parts.push(field.value);
 					}
 				break;
+				case "checkbox":
+					if (field.checked) {
+						parts.push(field.value);
+					}
+				break;
 				}
 			}
 			return parts.join(" ");

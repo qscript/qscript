@@ -34,9 +34,11 @@ void parse_input_data(vector<int> * data_ptr, int & success);
 void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
+	//cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
+	printf ("ENTER: %s\n", __PRETTY_FUNCTION__);
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
-		cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
+		//cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
+		printf ("reached here, %s, %d\n", __PRETTY_FUNCTION__ ,__LINE__ );
 		if (p_user_input.questionResponseData_.length() == 0
 				&& q->question_attributes.isAllowBlank() == true ) {
 			// allow - serve next question
@@ -107,7 +109,8 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRunt
 			}
 		}
 	}
-	cout << "EXIT:" << __PRETTY_FUNCTION__ << endl;
+	//cout << "EXIT:" << __PRETTY_FUNCTION__ << endl;
+	printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
 }
 
 // these functions below have to be moved to an
