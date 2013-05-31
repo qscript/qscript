@@ -30,7 +30,13 @@
 //#include "qtm_data_file.h"
 #include "dom_manip_funcs.h"
 
+#include "AbstractQuestionnaire.h"
+
+//extern AbstractQuestionnaire*  AbstractQuestionnaire::qnre_ptr;
+
 extern "C" {
+
+#if 0
 void called_from_the_dom (char * data)
 {
 	//emscripten_pause_main_loop();
@@ -38,8 +44,28 @@ void called_from_the_dom (char * data)
 	//printf ("data from the browser dom callback: %s\n", data);
 	printf ("hello called_from_the_dom\n");
 	printf ("data: %s\n", data);
+	printf ("last_question_visited: %s\n",
+		AbstractQuestionnaire::qnre_ptr->last_question_visited->questionName_.c_str());
+	// hard code the answers - Proof of concept testing
+	// Can we really load the next question on the interface using this callback system?
+	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited;
+	q->isAnswered_ = true;
+	q->input_data.insert (2);
+	UserInput user_input;
+	user_input.theUserResponse_ = user_response::UserEnteredData;
+	user_input.questionResponseData_ = "1";
+	void question_eval_loop2 (
+		UserInput p_user_input,
+		AbstractRuntimeQuestion * last_question_visited,
+		AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
+	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
+	question_eval_loop2 (user_input, q, 0, l_qnre_ptr, /*nest_level + */ 1);
 }
+#endif /* 0 */
+
+
 int32_t main(int argc, char * argv[]);
+
 }
 
 
@@ -385,6 +411,7 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 	cout << end_marker << endl;
 }
 
+
 void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire,
 	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
 					struct TheQuestionnaire * theQuestionnaire,
@@ -422,6 +449,11 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 		cout << s.str() << endl;
 	}
 	print_to_stub_area (s.str().c_str(), ++counter);
+
+	void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion * last_question_visited);
+	set_last_visited (theQuestionnaire, q);
+	//theQuestionnaire->q
+	//theQuestionnaire->last_question_visited = q;
 
 	// new: 30-may-2013
 	// we comment out the func below: GetUserInput and

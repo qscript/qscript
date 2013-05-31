@@ -1007,3 +1007,36 @@ void question_eval_loop2 (
 	//}
 }
 
+void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion * last_question_visited)
+{
+	qnre->last_question_visited = last_question_visited;
+}
+
+extern "C" {
+
+void called_from_the_dom (char * data)
+{
+	//emscripten_pause_main_loop();
+	//emscripten_resume_main_loop();
+	//printf ("data from the browser dom callback: %s\n", data);
+	printf ("hello called_from_the_dom\n");
+	printf ("data: %s\n", data);
+	printf ("last_question_visited: %s\n",
+		AbstractQuestionnaire::qnre_ptr->last_question_visited->questionName_.c_str());
+	// hard code the answers - Proof of concept testing
+	// Can we really load the next question on the interface using this callback system?
+	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited;
+	q->isAnswered_ = true;
+	q->input_data.insert (2);
+	UserInput user_input;
+	user_input.theUserResponse_ = user_response::UserEnteredData;
+	user_input.questionResponseData_ = "1";
+	void question_eval_loop2 (
+		UserInput p_user_input,
+		AbstractRuntimeQuestion * last_question_visited,
+		AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
+	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
+	question_eval_loop2 (user_input, q, 0, l_qnre_ptr, /*nest_level + */ 1);
+}
+
+}

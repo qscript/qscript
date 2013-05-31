@@ -31,11 +31,17 @@
 *** in trying to go for the emscripten generated javascript binary, it is best to have a visual confirmation of the nest_level of the call stack which has been recently added to the new runtime
 *** once this has stabilized, we can isolate the specific javascript, necessary to be put into the browser to display the UI and capture the data and call the correct cpp function to do this
 ** based on the above 2 points my next target is a consolidation round of the spoils so far
-*** TODO Merge the greatly improved runtime back into the mainline compiler
-    - [ ] Further isolate runtime code if possible
-    - [ ] create a new directory in the mainline compiler src directory - runtime
+*** TODO Merge the greatly improved runtime back into the mainline compiler 
+    - [X] Further isolate runtime code if possible : <2013-05-24 Fri> Done 
+    - [X] create a new directory in the mainline compiler src directory - runtime: <2013-05-24 Fri> Done
     - [ ] dump the runtime source code there as separate dirs - runtime-common, runtime-wx, runtime-emscripten
     - [ ] build all the exes and see that they are working.
-  
+** <2013-05-24 Fri> Log entry for today
+*** I isolated the runtime further.
+*** noticed that I have removed out qtm_data_file.cpp/AsciiDatafile/XtccDataFile - the classes required to export the data - and I may need to add them again to the projecet. To deal with this I have created another dir - runtime/cpp/data-export. See next entry todo
+*** TODO modify the compiler
+   - [ ] see if we can re-factor the generated code so that compute_flat_file_and_init() is moved into the classes related to data export
+   - [ ] add option to compiler to create an exe which can export data. the data collection exes (wx, wt) will not have this feature
+   - [ ] if we compile with "data export" option, the generated code should only differ from the other code by having calls to compute_flat_file_and_init and writing out data to appropriate file (.dat, .qdat, .xdat). If we succeed in the 1st point in this checklist the diff between the data export generated file and the normal file will be 2 function calls.
 
 

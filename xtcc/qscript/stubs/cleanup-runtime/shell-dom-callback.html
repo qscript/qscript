@@ -14,8 +14,9 @@
     </style>
   </head>
   <body>
-  <!-- <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" data-dojo-config="async: true"></script> -->
+  <!-- <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" data-dojo-config="async: true"></script> 
   <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" ></script>
+-->
     <div class="emscripten" id="question_text_area">Question Area </div>
     <div class="emscripten" id="question_stub_area">Stubs Area 
 	<form id="question_form">
@@ -91,6 +92,24 @@
 		      //console.log("submit handler called");
 		});
 
+		function serialize (form) {
+			var parts = new Array();
+			var field = null;
+			for (var i=0; i < form.elements.length; ++i ) {
+				field = form.elements[i];
+				switch (field.type) {
+				case "radio":
+					if (field.checked) {
+						parts.push(field.value);
+					}
+				break;
+				}
+			}
+			return parts.join(" ");
+		};
+
+
+
 		var question_form = document.getElementById("question_form");
 		EventUtil.addHandler (question_form, "submit", function(event) {
 			event = EventUtil.getEvent (event);
@@ -99,9 +118,13 @@
 			//var data_for_cpp;
 			//Module.setValue (data_for_cpp, "hey mr cpp function - how you doing. This is a js func calling from the dom", "i8*");
 			//called_from_the_dom(data_for_cpp);
-			called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
+			//called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
 		       //alert("this is the DOM brother");
 		      //console.log("submit handler called");
+		 	var returnValue = serialize (question_form);
+			//var data_for_cpp;
+			//Module.setValue (data_for_cpp, returnValue, "i8*");
+			called_from_the_dom(returnValue);
 		});
 	</script>
     <div class="emscripten" id="status">Downloading...</div>

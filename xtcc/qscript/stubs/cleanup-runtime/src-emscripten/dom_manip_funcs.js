@@ -44,31 +44,34 @@ print_to_stub_area: function (string_pointer, counter)
 			input.name  = "stub_response";
 			input.value = res2.stubs[i].stub_code;
 			var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
-			alert("id_text: " + id_text);
+			//alert("id_text: " + id_text);
 			input.id  = id_text;
 			//alert ("id_text:" + id_text);
 			var input_label   = document.createElement("label");
-			input_label.for =  res2.name + res2.stubs[i].stub_code;
-			input_label.innerHTML = res2.stubs[i].stub_text + "_nxd";
-			doc_frag2.appendChild( document.createElement("p"));
+			//input_label.for =  res2.name + res2.stubs[i].stub_code;
+			input_label.innerHTML = res2.stubs[i].stub_text;
+			input_label.for =  id_text;
+			//doc_frag2.appendChild( document.createElement("p"));
 			doc_frag2.appendChild(input);
 			doc_frag2.appendChild(input_label);
 		}
-		var dojoConfig = {
-			parseOnLoad : true,
-			async: 1,
-		};
+
 		//var stubs_form_div = document.getElementById("stubs_form_div");
 		{
 			var n_child_nodes = stubs_form_div.childNodes.length;
-			alert ( "stubs_form_div.childNodes.length: " + stubs_form_div.childNodes.length);
-			alert ("n_child_nodes:" + n_child_nodes);
+			//alert ( "stubs_form_div.childNodes.length: " + stubs_form_div.childNodes.length);
+			//alert ("n_child_nodes:" + n_child_nodes);
 			for (var i1 = n_child_nodes-1; i1 >= 0; --i1) {
 				stubs_form_div.removeChild(stubs_form_div.childNodes[i1]);
 			}
 		}
-		alert("cleared all childNodes of stubs_form_div");
+		//alert("cleared all childNodes of stubs_form_div");
 		stubs_form_div.appendChild(doc_frag2);
+		/*
+		var dojoConfig = {
+			parseOnLoad : true,
+			async: 1,
+		};
 		require([
 		    "dojo/parser",
 		    "dijit/form/RadioButton",
@@ -83,9 +86,10 @@ print_to_stub_area: function (string_pointer, counter)
 				name: "stub_response",
 			    }, res2.name + res2.stubs[i].stub_code + "_" + counter);
 
-				alert("id_text: " + id_text + "|" + res2.name + res2.stubs[i].stub_code + "_" + counter);
+				//alert("id_text: " + id_text + "|" + res2.name + res2.stubs[i].stub_code + "_" + counter);
 			}
 		});
+		*/
 	};
 	display_stubs (the_stub_data);
 }

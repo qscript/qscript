@@ -40,6 +40,7 @@
 
 struct AbstractQuestionnaire
 {
+	static AbstractQuestionnaire * qnre_ptr;
 	AbstractRuntimeQuestion * last_question_answered;
 	AbstractRuntimeQuestion * last_question_visited;
 	std::vector <AbstractRuntimeQuestion*> question_list;

@@ -43,6 +43,7 @@ std::fstream qtm_disk_file;
 
 extern map<string, map<int, int> > freq_count;
 
+AbstractQuestionnaire * AbstractQuestionnaire::qnre_ptr = 0;
 
 
 
@@ -73,7 +74,9 @@ AbstractQuestionnaire::AbstractQuestionnaire (string p_jno)
 		  jumpToIndex(0),
 		  base_text_vec()
 
-{ }
+{
+	AbstractQuestionnaire::qnre_ptr = this;
+}
 
 
 void AbstractQuestionnaire::print_question_messages(AbstractRuntimeQuestion * q)
