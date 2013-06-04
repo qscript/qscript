@@ -1,5 +1,6 @@
 #CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
-CFLAGS= -g -Wunused-function --jcache
+#CFLAGS= -g -Wunused-function --jcache
+CFLAGS= -Wunused-function --jcache
 #CC = clang --analyze
 CC=emcc
 LIBS = -lncurses -lpanel
@@ -40,10 +41,14 @@ data_entry.hpp: YFLAGS = -p scan_data
 	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
 
 
-vegetable.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
+vegetable-sencha-touch.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o shell-sencha-touch.html $(SOURCE_DIR)/dom_manip_funcs.js
+	# old - with cin -> modal dialog box
+	$(CC) $(CFLAGS) -o $@ --shell-file shell-sencha-touch.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main','_my_createForm']"
+
+vegetable.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o shell-dom-callback.html $(SOURCE_DIR)/dom_manip_funcs.js
 	# old - with cin -> modal dialog box
 	#$(CC) $(CFLAGS) -o $@ --shell-file shell-nxd2.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
-	$(CC) $(CFLAGS) -o $@ --shell-file shell-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main']"
+	$(CC) $(CFLAGS) -o $@ --shell-file shell-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main','_my_createForm']"
 
 vegetable.js: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o

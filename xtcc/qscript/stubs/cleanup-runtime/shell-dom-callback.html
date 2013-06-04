@@ -12,31 +12,12 @@
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
       canvas.emscripten { border: 0px none; }
     </style>
-  </head>
-  <body>
-  <!-- <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" data-dojo-config="async: true"></script> 
-  <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" ></script>
--->
-    <div class="emscripten" id="question_text_area">Question Area </div>
-    <div class="emscripten" id="question_stub_area">Stubs Area 
-	<form id="question_form">
-			 <div id="stubs_form_div">
-			 </div>
-		<input  type="submit" value="Next">
-	</form>
-	</div>
-
-    <hr/>
-	<div id="nxd_test_div">
-		<form id="test_form">
-			<input  id="radio_1" type="radio" value="1" name="test_radio"><label for="radio_1">Value 1</label>
-			<input  id="radio_2" type="radio" value="2" name="test_radio"><label for="radio_2">Value 2</label>
-			<input  id="radio_3" type="radio" value="3" name="test_radio"><label for="radio_3">Value 3</label>
-			<input  id="radio_4" type="radio" value="4" name="test_radio"><label for="radio_4">Value 4</label>
-			<input  id="radio_5" type="radio" value="5" name="test_radio"><label for="radio_5">Value 5</label>
-			<input  type="submit" value="Next">
-		</form>
-	</div>
+	<link rel="stylesheet" type="text/css" href="../ext-4.2.1.883/resources/css/ext-all-neptune-debug.css">
+	<!-- 
+	<script type="text/javascript" src="../ext-4.2.1.883/ext-debug.js"></script>
+	<script type="text/javascript" src="sencha-touch-all-debug.js"></script>
+	-->
+	<script type="text/javascript" src="ext-all-debug.js"></script>
 	<script type="text/javascript">
 		/* Professional JavaScript for Web Developers - Nicholas C Zakas. Chpt 12*/
 		var EventUtil = {
@@ -79,7 +60,7 @@
 				}
 			}
 		};
-		var test_form = document.getElementById("test_form");
+		/*
 		EventUtil.addHandler (test_form, "submit", function(event) {
 			event = EventUtil.getEvent (event);
 			EventUtil.preventDefault (event);
@@ -91,7 +72,7 @@
 		       //alert("this is the DOM brother");
 		      //console.log("submit handler called");
 		});
-
+		*/
 		function serialize (form) {
 			var parts = new Array();
 			var field = null;
@@ -114,6 +95,170 @@
 		};
 
 
+	</script>
+	<script type="text/javascript">
+	Ext.require([
+	    'Ext.form.*',
+	    'Ext.layout.container.Column',
+	    'Ext.window.MessageBox',
+	    'Ext.fx.target.Element'
+	]);
+
+	var agree_5_rg = {
+		xtype: "fieldset",
+		title: "Agreement Scale",
+		//layout: "form",
+		layout: 'anchor',
+		items: [{
+			xtype: "radiogroup",
+			cls: 'x-check-group-alt',
+			columns: 1,
+			items: [
+				{ boxLabel: "Agree Strongly", name: "rb-auto", inputValue: 5},
+				{ boxLabel: "Agree", name: "rb-auto", inputValue: 4},
+				{ boxLabel: "Neutral", name: "rb-auto", inputValue: 3},
+				{ boxLabel: "Disagree", name: "rb-auto", inputValue: 2},
+				{ boxLabel: "Strongly Disagree", name: "rb-auto", inputValue: 1}
+			]
+		}]
+	};
+	var satis_5_rg = {
+		xtype: "fieldset",
+		title: "Satisfaction Scale",
+		//layout: "form",
+		layout: 'anchor',
+		items: [{
+			xtype: "radiogroup",
+			cls: 'x-check-group-alt',
+			columns: 1,
+			items: [
+				{ boxLabel: "Very Satisfied", name: "rb-auto", inputValue: 5},
+				{ boxLabel: "Satisfied", name: "rb-auto", inputValue: 4},
+				{ boxLabel: "Neutral", name: "rb-auto", inputValue: 3},
+				{ boxLabel: "Not Satisfied", name: "rb-auto", inputValue: 2},
+				{ boxLabel: "Extremely UnSatisfied", name: "rb-auto", inputValue: 1}
+			]
+		}]
+	};
+	var yn = {
+			xtype: "fieldset",
+			title: "Satisfaction Scale",
+			layout: 'anchor',
+			items: [{
+			xtype: "radiogroup",
+			cls: 'x-check-group-alt',
+			columns: 1,
+			items: [{boxLabel: "Yes",name: "rb-auto",inputValue: 1},
+				{boxLabel: "No",name: "rb-auto",inputValue: 2}
+			]
+		}]
+	};
+
+	function createForm(the_data) {
+	    // combine all that into one huge form
+	    //alert ("Ext.create:" + Ext.create);
+	    var fp = Ext.create('Ext.FormPanel', {
+		title: 'Check/Radio Groups Example',
+		frame: false,
+		fieldDefaults: {
+		    labelWidth: 110,
+		    labelStyle: 'color:green;padding-left:4px'
+		},
+		width: 600,
+		renderTo:'form-ct',
+		bodyPadding: 10,
+		items: [
+		    //agree_5_rg
+		    the_data
+		],
+		buttons: [{
+		    text: 'Next',
+		    handler: function(){
+		       if(fp.getForm().isValid()){
+			    Ext.Msg.alert('Submitted Values', 'The following will be sent to the server: <br />'+
+				fp.getForm().getValues(true).replace(/&/g,', '));
+				var sel_answ = fp.getForm().getValues(true).replace(/&/g,', ');
+				console.log("sencha form Values:" + sel_answ);
+				var clean_up_re = /rb-auto=/g;
+				var cleaned_up_answ = sel_answ.replace(clean_up_re, " ");
+				console.log("cleaned_up_answ:" + cleaned_up_answ);
+				cleaned_up_answ = cleaned_up_answ.replace(",", " ");
+				var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+		 		//var returnValue = serialize (question_form);
+				//called_from_the_dom(returnValue);
+				//called_from_the_dom("1");
+				called_from_the_dom(cleaned_up_answ);
+			}
+		    }
+		},{
+		    text: 'Reset',
+		    handler: function(){
+			fp.getForm().reset();
+		    }
+		}]
+	    });
+	}
+
+	/*
+	Ext.onReady(function(){
+		var btn_agree_5 = document.getElementById("btn_agree_5");
+		btn_agree_5.addEventListener("click", function(){
+			createForm(agree_5_rg);
+		}, false);
+		var btn_sat_5 = document.getElementById("btn_sat_5");
+		btn_sat_5.addEventListener("click", function(){
+			createForm(satis_5_rg);
+		}, false);
+		var btn_yn = document.getElementById("btn_yn");
+		btn_yn.addEventListener("click", function(){
+			createForm(yn);
+		}, false);
+
+		//Ext.onReady(createForm(yn));
+	});
+	*/
+
+	</script>
+  </head>
+  <body>
+  <!-- 
+  <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" data-dojo-config="async: true"></script>
+  <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" ></script>
+-->
+
+    <div id="form-ct"></div>
+	<div>
+		<input id="btn_agree_5" type="BUTTON" value="Show Agree">
+		<input id="btn_sat_5" type="BUTTON" value="Show Satisfaction">
+		<input id="btn_yn" type="BUTTON" value="Yes/No">
+	</div>
+
+
+    <div class="emscripten" id="question_text_area">Question Area </div>
+    <div class="emscripten" id="question_stub_area">Stubs Area 
+	<form id="question_form">
+			 <div id="stubs_form_div">
+			 </div>
+		<input  type="submit" value="Next">
+	</form>
+	</div>
+
+    <hr/>
+	<div id="nxd_test_div">
+		<form id="test_form">
+			<input  id="radio_1" type="radio" value="1" name="test_radio"><label for="radio_1">Value 1</label>
+			<input  id="radio_2" type="radio" value="2" name="test_radio"><label for="radio_2">Value 2</label>
+			<input  id="radio_3" type="radio" value="3" name="test_radio"><label for="radio_3">Value 3</label>
+			<input  id="radio_4" type="radio" value="4" name="test_radio"><label for="radio_4">Value 4</label>
+			<input  id="radio_5" type="radio" value="5" name="test_radio"><label for="radio_5">Value 5</label>
+			<input  type="submit" value="Next">
+		</form>
+	</div>
+
+
+	<script type="text/javascript">
+		var test_form = document.getElementById("test_form");
+		//alert("test_form: " + test_form);
 
 		var question_form = document.getElementById("question_form");
 		EventUtil.addHandler (question_form, "submit", function(event) {
@@ -132,6 +277,7 @@
 			called_from_the_dom(returnValue);
 		});
 	</script>
+
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>  
@@ -204,6 +350,7 @@
           this.totalDependencies = Math.max(this.totalDependencies, left);
           Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
         }
+	//, noExitRuntime: true
       };
       Module.setStatus('Downloading...');
     </script>      

@@ -14,9 +14,52 @@ print_to_question_area: function (question_text_ptr)
 	v.innerHTML = html;
 },
 
+// 3-jun-2013. Newly added here
+my_createForm: function (the_data)
+{
+    // combine all that into one huge form
+    //alert ("Ext.create:" + Ext.create);
+    console.log ("Ext.create: " + Ext.create);
+    var fp = Ext.create('Ext.FormPanel', {
+	title: 'Check/Radio Groups Example',
+	frame: false,
+	fieldDefaults: {
+	    labelWidth: 110,
+	    labelStyle: 'color:green;padding-left:4px'
+	},
+	width: 600,
+	renderTo:'form-ct',
+	bodyPadding: 10,
+	items: [
+	    //agree_5_rg
+	    the_data
+	],
+	buttons: [{
+	    text: 'Save',
+	    handler: function(){
+	       if(fp.getForm().isValid()){
+		    Ext.Msg.alert('Submitted Values', 'The following will be sent to the server: <br />'+
+			fp.getForm().getValues(true).replace(/&/g,', '));
+		}
+	    }
+	},{
+	    text: 'Reset',
+	    handler: function(){
+		fp.getForm().reset();
+	    }
+	}]
+    });
+},
 
 print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 {
+
+	Ext.require([
+	    'Ext.form.*',
+	    'Ext.layout.container.Column',
+	    'Ext.window.MessageBox',
+	    'Ext.fx.target.Element'
+	]);
 	//alert("print_to_question_area: " + i );
 	//var v = document.getElementById("stubs_form_div");
 	var question_type = Pointer_stringify (ptr_question_type);
@@ -96,8 +139,180 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 		});
 		*/
 	};
+
+	var make_sencha_form_string = function (json_rep2) {
+		var stubs = JSON.parse(json_rep2);
+		var sencha_form_string = "{";
+		sencha_form_string += "xtype: \"fieldset\"," +
+					"title: \"Satisfaction Scale\"," +
+					"layout: 'anchor'," +
+					"items: [{" +
+					"xtype: \"radiogroup\"," +
+					"cls: 'x-check-group-alt'," +
+					"columns: 1," +
+					"items: [" ;
+		//{ boxLabel: "Very Satisfied", name: "rb-auto", inputValue: 5},
+		for (var i=0; i<stubs.stubs.length; ++i) {
+			if (i!=0) {
+				sencha_form_string += ","
+			}
+			sencha_form_string += "{" +
+				"boxLabel: \"" + stubs.stubs[i].stub_text +"\"," +
+				"name: \"rb-auto\"," +
+				"inputValue: " + stubs.stubs[i].stub_code +
+				"}";
+		}
+		sencha_form_string += 		"]" +
+					"}]";
+		sencha_form_string += "}";
+		return sencha_form_string;
+	};
+
+	var make_sencha_form_obj = function (json_rep2, no_mpn) {
+		var stubs = JSON.parse(json_rep2);
+		var sencha_form_obj = {};
+		/*
+		sencha_form_string += "xtype: \"fieldset\"," +
+					"title: \"Satisfaction Scale\"," +
+					"layout: 'anchor'," +
+					"items: [{" +
+					"xtype: \"radiogroup\"," +
+					"cls: 'x-check-group-alt'," +
+					"columns: 1," +
+					"items: [" ;
+					*/
+		sencha_form_obj.xtype = "fieldset";
+		sencha_form_obj.title = "Satisfaction Scale";
+		sencha_form_obj.layout = "anchor";
+		var items_array = [];
+		var items_array_obj = {};
+		if (no_mpn == 1) {
+			items_array_obj.xtype = "radiogroup";
+		} else {
+			items_array_obj.xtype = "checkboxgroup";
+		}
+		items_array_obj.cls = "x-check-group-alt";
+		items_array_obj.columns = 1;
+		var items_array_obj_array = [];
+
+
+
+		//{ boxLabel: "Very Satisfied", name: "rb-auto", inputValue: 5},
+		for (var i=0; i<stubs.stubs.length; ++i) {
+			/*
+			if (i!=0) {
+				sencha_form_string += ","
+			}
+			sencha_form_string += "{" +
+				"boxLabel: \"" + stubs.stubs[i].stub_text +"\"," +
+				"name: \"rb-auto\"," +
+				"inputValue: " + stubs.stubs[i].stub_code +
+				"}";
+			*/
+			var items_array_obj_array_obj = {};
+			items_array_obj_array_obj.boxLabel = stubs.stubs[i].stub_text;
+			items_array_obj_array_obj.name = "rb-auto";
+			items_array_obj_array_obj.inputValue = stubs.stubs[i].stub_code;
+			items_array_obj_array.push(items_array_obj_array_obj);
+		}
+		items_array_obj.items = items_array_obj_array;
+		sencha_form_obj.items = [];
+		sencha_form_obj.items.push(items_array_obj);
+		return sencha_form_obj;
+
+		//sencha_form_string += 		"]" +
+		//			"}]";
+		//sencha_form_string += "}";
+		//return sencha_form_string;
+
+	};
+
+
+	/*
+	var my_createForm = function (the_data) {
+	    // combine all that into one huge form
+	    //alert ("Ext.create:" + Ext.create);
+	    console.log ("Ext.create: " + Ext.create);
+	    var fp = Ext.create('Ext.FormPanel', {
+		title: 'Check/Radio Groups Example',
+		frame: false,
+		fieldDefaults: {
+		    labelWidth: 110,
+		    labelStyle: 'color:green;padding-left:4px'
+		},
+		width: 600,
+		renderTo:'form-ct',
+		bodyPadding: 10,
+		items: [
+		    //agree_5_rg
+		    the_data
+		],
+		buttons: [{
+		    text: 'Save',
+		    handler: function(){
+		       if(fp.getForm().isValid()){
+			    Ext.Msg.alert('Submitted Values', 'The following will be sent to the server: <br />'+
+				fp.getForm().getValues(true).replace(/&/g,', '));
+			}
+		    }
+		},{
+		    text: 'Reset',
+		    handler: function(){
+			fp.getForm().reset();
+		    }
+		}]
+	    });
+	};
+	*/
+
 	if (question_type === "nq") {
 		display_stubs (the_stub_data);
+		var sencha_form_string = make_sencha_form_string(the_stub_data);
+		//console.log(sencha_form_string);
+		var sencha_form_obj = make_sencha_form_obj(the_stub_data, no_mpn);
+
+		/*
+		var yn = {
+				xtype: "fieldset",
+				title: "Satisfaction Scale",
+				layout: 'anchor',
+				items: [{
+				xtype: "radiogroup",
+				cls: 'x-check-group-alt',
+				columns: 1,
+				items: [{boxLabel: "Yes",name: "rb-auto",inputValue: 1},
+					{boxLabel: "No",name: "rb-auto",inputValue: 2}
+				]
+			}]
+		};
+		*/
+		//console.log("yn                :" + yn);
+		//console.log("sencha_form_string:" + sencha_form_string);
+		//var parse_sencha_form_string = JSON.parse(sencha_form_string);
+		//console.log("p sn              :" + parse_sencha_form_string);
+		//console.log("sencha_form_obj   :" + sencha_form_obj);
+		//console.log("yn  toString():" + yn.toString());
+		//console.log("obj toString():" + sencha_form_obj.toString());
+		//console.log("yn  toString():" + JSON.stringify(yn));
+		//console.log("obj toString():" + JSON.stringify(sencha_form_obj));
+		//if (sencha_form_obj == yn) {
+		//	console.log("sencha_form_obj == yn");
+		//} else {
+		//	console.log("sencha_form_obj != yn");
+		//}
+
+		//Ext.onReady(my_createForm(yn));
+		//alert ("sencha_form_string:" + sencha_form_string);
+		//var my_createForm = Module.cwrap ('my_createForm', 'void', ['string']);
+		//alert ("my_createForm: " + my_createForm);
+		//alert ("createForm: " + createForm);
+		//console.log (createForm);
+
+		//Ext.onReady(createForm(yn));
+		//Ext.EventManager.onDocumentReady(createForm(sencha_form_string));
+		Ext.onReady(createForm(sencha_form_obj));
+
+		//Ext.onReady(my_createForm (sencha_form_string));
 	} else {
 		// display a text box here
 		// maybe add validators
