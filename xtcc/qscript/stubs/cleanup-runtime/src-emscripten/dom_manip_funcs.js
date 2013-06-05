@@ -53,13 +53,15 @@ my_createForm: function (the_data)
 
 print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 {
-
+	/*
+	 * Activate this when we restart with sencha
 	Ext.require([
 	    'Ext.form.*',
 	    'Ext.layout.container.Column',
 	    'Ext.window.MessageBox',
 	    'Ext.fx.target.Element'
 	]);
+	*/
 	//alert("print_to_question_area: " + i );
 	//var v = document.getElementById("stubs_form_div");
 	var question_type = Pointer_stringify (ptr_question_type);
@@ -86,8 +88,10 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 			var input   = document.createElement("input");
 			if (no_mpn == 1) {
 				input.type  = "radio";
+				input.setAttribute("data-dojo-type", "dojox/mobile/RadioButton");
 			} else {
 				input.type  = "checkbox";
+				input.setAttribute("data-dojo-type", "dojox/mobile/CheckBox");
 			}
 			input.name  = "stub_response";
 			input.value = res2.stubs[i].stub_code;
@@ -98,7 +102,8 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 			var input_label   = document.createElement("label");
 			//input_label.for =  res2.name + res2.stubs[i].stub_code;
 			input_label.innerHTML = res2.stubs[i].stub_text;
-			input_label.for =  id_text;
+			//input_label.for =  id_text;
+			input_label.setAttribute("for", id_text);
 			//doc_frag2.appendChild( document.createElement("p"));
 			doc_frag2.appendChild(input);
 			doc_frag2.appendChild(input_label);
@@ -115,6 +120,18 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 		}
 		//alert("cleared all childNodes of stubs_form_div");
 		stubs_form_div.appendChild(doc_frag2);
+
+
+		require([
+			"dojox/mobile/parser",
+			"dojox/mobile",
+			"dojox/mobile/deviceTheme",
+			"dojox/mobile/compat",
+			"dojo/domReady!"
+			],
+			function(parser) {
+				parser.parse();
+			});
 		/*
 		var dojoConfig = {
 			parseOnLoad : true,
@@ -310,7 +327,9 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 
 		//Ext.onReady(createForm(yn));
 		//Ext.EventManager.onDocumentReady(createForm(sencha_form_string));
-		Ext.onReady(createForm(sencha_form_obj));
+		// nxd : 4-jun-2013 - this works,
+		// deactivate it for now as we are working with dojo
+		//Ext.onReady(createForm(sencha_form_obj));
 
 		//Ext.onReady(my_createForm (sencha_form_string));
 	} else {
