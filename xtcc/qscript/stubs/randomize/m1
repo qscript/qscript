@@ -1,0 +1,84 @@
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vector <string> & group_list, stringstream & final_answer)
+{
+	static int nest_level = 0;
+	cout << __PRETTY_FUNCTION__ << ", nest_level: " 
+		<< ++nest_level
+		<< endl;
+	bool added_to_stack = false;
+	//while (nr) 
+	//cout << "before if nr: " << nr << endl;
+	if (nr) {
+		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (nr)) {
+			string s (ng->groupName_);
+			group_list.push_back ( s);
+
+			cout << "Adding group: " << s 
+				<< " onto the stack: group_str.size: " 
+				<< group_str.size() 
+				<< endl;
+			if (group_str.size() > 0) {
+				group_str[group_str.size() - 1]
+					+=  group_list[group_list.size()-2]
+						+ ".AddGroup("
+						+ s
+						+ ") /* -- */\n";
+			}
+			//s += " : ";
+			group_str.push_back("NamedRangeGroup " + s + "(\"" + s + "\")" +";\n");
+			//cout << "ng->groupPtr_: " << ng->groupPtr_ << endl;
+			//if (ng->groupPtr_)
+			PrintNamedRange (ng->groupPtr_, group_str, group_list, final_answer);
+			added_to_stack = true;
+		} else if (NamedRangeList * nl = dynamic_cast<NamedRangeList*> (nr)) {
+			//group_str[group_str.size() -1 ] += string("|");
+			cout << "group_list.size: " << group_list.size() 
+				<< ", group_list.back(): " << group_list.back()
+				<< endl;
+			for (int i = 0; i < nl->stubs.size(); ++i) {
+				//group_str[group_str.size() - 1] += string("|") + nl->stubs[i].stub_text;
+				stringstream s1;
+				s1 << group_list[group_list.size()-1]
+					<< string(".AddStub( \"") << nl->stubs[i].stub_text
+					<< string("\", ")
+					<< nl->stubs[i].code
+					<< string(", ") << nl->stubs[i].index_in_group 
+					<< string(");\n");
+				group_str[group_str.size() - 1] 
+					+= s1.str();
+				//cout << "Adding stub: " << nl->stubs[i].stub_text
+				//	<< " to group " << group_list.back() << endl;
+			}
+		}
+		//nr = nr->next_nr;
+	} else {
+		cout << "Should never reach here : " << __PRETTY_FUNCTION__ << ", nest_level: " << nest_level << endl;
+		--nest_level;
+		return;
+	}
+	//if (group_str.size() > 0)
+	if (added_to_stack) {
+		final_answer << group_str.back() << endl;
+		cout << "group_list.size(): " << group_list.size()
+			<< ", group_str.size(): " << group_str.size()
+			<< endl << endl;
+		group_str.pop_back();
+		cout <<  "popping off group: " << group_list.back() << endl;
+		group_list.pop_back();
+		//cout << "final_answer: looks like this: "
+		//	<< endl
+		//	<< "::::::::::::::::::::" << endl
+		//	<< final_answer.str()
+		//	<< "::::::::::::::::::::" << endl
+		//	<< endl;
+		if (group_list.size() > 0) {
+			cout << group_list.back() << endl;
+		}
+	}
+	//cout << "before next recursive call nr: " << nr << endl;
+
+	if (nr->next_nr) {
+		PrintNamedRange (nr->next_nr, group_str, group_list, final_answer);
+	}
+	cout << "Exit : " << __PRETTY_FUNCTION__ << ", nest_level: " << nest_level << endl;
+	--nest_level;
+}

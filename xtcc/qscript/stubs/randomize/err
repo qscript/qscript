@@ -1,0 +1,2 @@
+new_named_range.cpp: In member function ‘int MyRNG::operator()(std::ptrdiff_t)’:
+new_named_range.cpp:175:28: warning: invalid conversion from ‘int*’ to ‘unsigned int*’ [-fpermissive]

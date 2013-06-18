@@ -1,0 +1,4 @@
+{ suvidha_kendra:  6 2 0 9 1 8 7 ;}
+{ suvidha_kendra:  { grp_1:  1 2 3 4; } ; }
+{ suvidha_kendra:  6 2 0 9 1 8 7;{ grp_1:  3 2 0 1;}  10 4 5;{ grp_2:  1;{ grp_21:  1 0;}   2;{ grp_22:  1 0;}   0;{ grp_23:  1 2 0;}  }   3 ;} 
+{ suvidha_kendra:  3 4 6 10 1 7 9;{ grp_1:  3 1 2 0; }  2 0 5;{ grp_2:  0;{ grp_21:  0 1; }  1;{ grp_22:  0 1; }  2;{ grp_23:  0 1 2; } ; }  8; } 

@@ -1,0 +1,156 @@
+NamedRangeGroup: grp_23
+ got nested randomized_data_order: 
+NamedRangeGroup: grp_21
+ got nested randomized_data_order: 
+chaining: grp_21
+NamedRangeGroup: grp_22
+ got nested randomized_data_order: 
+chaining: grp_22
+NamedRangeGroup: grp_2
+ got nested randomized_data_order: 
+chaining: grp_2
+NamedRangeGroup: grp_1
+ got nested randomized_data_order: 
+chaining: grp_1
+NamedRangeGroup: suvidha_kendra
+parsed randomized_data_order
+sucessfully parsed
+suvidha_kendra, index_in_group: 1
+dummy, 3, index_in_group: 1
+dummy, 10, index_in_group: 2
+dummy, 7, index_in_group: 3
+grp_2, index_in_group: 4
+grp_23, index_in_group: 1
+dummy, 2, index_in_group: 1
+dummy, 0, index_in_group: 2
+dummy, 1, index_in_group: 3
+======
+grp_21, index_in_group: 2
+dummy, 1, index_in_group: 1
+dummy, 0, index_in_group: 2
+======
+grp_22, index_in_group: 3
+dummy, 1, index_in_group: 1
+dummy, 0, index_in_group: 2
+======
+======
+dummy, 0, index_in_group: 5
+dummy, 1, index_in_group: 6
+grp_1, index_in_group: 7
+dummy, 3, index_in_group: 1
+dummy, 0, index_in_group: 2
+dummy, 1, index_in_group: 3
+dummy, 2, index_in_group: 4
+======
+dummy, 5, index_in_group: 8
+dummy, 8, index_in_group: 9
+dummy, 2, index_in_group: 10
+dummy, 4, index_in_group: 11
+======
+ENTER: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+ENTER: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+dummy, 3, index_in_group: 1
+dummy, 10, index_in_group: 2
+dummy, 7, index_in_group: 3
+ENTER: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+ENTER: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+ENTER: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+dummy, 2, index_in_group: 1
+dummy, 0, index_in_group: 2
+dummy, 1, index_in_group: 3
+EXIT: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+======
+ENTER: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+ENTER: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+dummy, 1, index_in_group: 1
+dummy, 0, index_in_group: 2
+EXIT: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+======
+ENTER: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+ENTER: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+dummy, 1, index_in_group: 1
+dummy, 0, index_in_group: 2
+EXIT: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+======
+EXIT: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+EXIT: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+EXIT: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+======
+ENTER: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+dummy, 0, index_in_group: 5
+dummy, 1, index_in_group: 6
+ENTER: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+ENTER: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+dummy, 3, index_in_group: 1
+dummy, 0, index_in_group: 2
+dummy, 1, index_in_group: 3
+dummy, 2, index_in_group: 4
+EXIT: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+======
+ENTER: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+dummy, 5, index_in_group: 8
+dummy, 8, index_in_group: 9
+dummy, 2, index_in_group: 10
+dummy, 4, index_in_group: 11
+EXIT: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+EXIT: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+EXIT: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+EXIT: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+EXIT: virtual void NamedRangeList::TransferRandomizationOrder(std::vector<int>&)
+======
+EXIT: virtual void NamedRangeGroup::TransferRandomizationOrder(std::vector<int>&)
+randomized_order.size: 20
+0: 3
+1: 10
+2: 7
+3: 2
+4: 0
+5: 1
+6: 1
+7: 0
+8: 1
+9: 0
+10: 0
+11: 1
+12: 3
+13: 0
+14: 1
+15: 2
+16: 5
+17: 8
+18: 2
+19: 4
+adding stub:  Kalyanam (Ratia Marg, Snagam Vihar, New Delhi) to group: grp_1
+adding stub:  CASP Plan Project (Neem Chowk, Sangam Vihar, New Delhi) to group: grp_1
+adding stub:  EFRAH (Aali Vihar, nr. Aali Village, New Delhi) to group: grp_1
+adding stub:  Nav Srishti (Village neb Sarai, New Delhi) to group: grp_1
+grp_1.groupPtr_->SimplePrint =============== 
+ Kalyanam (Ratia Marg, Snagam Vihar, New Delhi), 7, index_in_group: 1
+ CASP Plan Project (Neem Chowk, Sangam Vihar, New Delhi), 8, index_in_group: 2
+ EFRAH (Aali Vihar, nr. Aali Village, New Delhi), 9, index_in_group: 3
+ Nav Srishti (Village neb Sarai, New Delhi), 10, index_in_group: 4
+END SimplePrint =============== 
+adding stub:  Shape India (R/o block 5c, Sarai Kale Khan, DDA flat) to group: grp_21
+adding stub:  Jai Jawan Jai Kisan trust (Cenquin) (Centre for community and child development, Jamia Milia Islamia) to group: grp_21
+adding stub:  Adarshila (Greater Kailash 2, New Delhi) to group: grp_22
+adding stub:  Katha (A/3 Sarvodaya Enclave, New Delhi) to group: grp_22
+before: grp_2.AddGroup(grp_21);
+virtual void NamedRangeGroup::AddGroup(NamedRangeGroup&, int)groupName_: grp_2, p_group: grp_21
+before: grp_2.AddGroup(grp_22);
+virtual void NamedRangeGroup::AddGroup(NamedRangeGroup&, int)groupName_: grp_2, p_group: grp_22
+grp_2.groupPtr_->SimplePrint =============== 
+grp_21
+grp_22
+END SimplePrint =============== 
+adding stub:  CASP (JJ Colony, Madanpur Khadar, New Delhi) to group: suvidha_kendra
+adding stub:  Prayatn (Basti Vikas Kendra, Jeevan Jyoti Rajiv Camp, D Block, Okhla PII to group: suvidha_kendra
+adding stub:  Jal Shankar Memorial Centre (Jasloa Village, New Delhi) Jal to group: suvidha_kendra
+adding stub:  Sakaar Outreach (Tanki Road, Meethapur Badarpur, New Delhi) to group: suvidha_kendra
+adding stub:  Mamta health Institute for Mother and Child (JJ Camp, Tigri, New Delhi) to group: suvidha_kendra
+adding stub:  New opportunities for Women (NOW) (Nr Shalimar Conema, New park) to group: suvidha_kendra
+virtual void NamedRangeGroup::AddGroup(NamedRangeGroup&, int)groupName_: suvidha_kendra, p_group: grp_1
+adding stub:  Navjyoti Development Society (Tekhand village, Okhla phase I, New Del) to group: suvidha_kendra
+adding stub:  Sakaar Outreach (Madangir Ambedkar Nagar, New Delhi) to group: suvidha_kendra
+virtual void NamedRangeGroup::AddGroup(NamedRangeGroup&, int)groupName_: suvidha_kendra, p_group: grp_2
+adding stub:  Kalyanam (41/1407 DDA flats, Madangir, New Delhi) to group: suvidha_kendra
+ALL OK SO FAR. randomization order sizes from disk and compiler generated MATCH 

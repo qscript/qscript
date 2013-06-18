@@ -1,0 +1,231 @@
+Terminals unused in grammar
+
+   TEXT
+
+
+Grammar
+
+    0 $accept: prog $end
+
+    1 prog: stmt_list
+
+    2 stmt_list: stmt
+    3          | stmt_list stmt
+
+    4 stmt: randomized_data_order
+
+    5 $@1: /* empty */
+
+    6 randomized_data_order: '{' NAME ':' $@1 randomized_data_list '}'
+
+    7 randomized_data_list: randomized_data
+    8                     | randomized_data_list randomized_data
+
+    9 randomized_data: simple_number_list ';'
+   10                | randomized_data_order
+
+   11 simple_number_list: INUMBER
+   12                   | simple_number_list INUMBER
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+':' (58) 6
+';' (59) 9
+'{' (123) 6
+'}' (125) 6
+error (256)
+NAME (258) 6
+INUMBER (259) 11 12
+TEXT (260)
+
+
+Nonterminals, with rules where they appear
+
+$accept (10)
+    on left: 0
+prog (11)
+    on left: 1, on right: 0
+stmt_list (12)
+    on left: 2 3, on right: 1 3
+stmt (13)
+    on left: 4, on right: 2 3
+randomized_data_order (14)
+    on left: 6, on right: 4 10
+$@1 (15)
+    on left: 5, on right: 6
+randomized_data_list (16)
+    on left: 7 8, on right: 6 8
+randomized_data (17)
+    on left: 9 10, on right: 7 8
+simple_number_list (18)
+    on left: 11 12, on right: 9 12
+
+
+state 0
+
+    0 $accept: . prog $end
+
+    '{'  shift, and go to state 1
+
+    prog                   go to state 2
+    stmt_list              go to state 3
+    stmt                   go to state 4
+    randomized_data_order  go to state 5
+
+
+state 1
+
+    6 randomized_data_order: '{' . NAME ':' $@1 randomized_data_list '}'
+
+    NAME  shift, and go to state 6
+
+
+state 2
+
+    0 $accept: prog . $end
+
+    $end  shift, and go to state 7
+
+
+state 3
+
+    1 prog: stmt_list .
+    3 stmt_list: stmt_list . stmt
+
+    '{'  shift, and go to state 1
+
+    $default  reduce using rule 1 (prog)
+
+    stmt                   go to state 8
+    randomized_data_order  go to state 5
+
+
+state 4
+
+    2 stmt_list: stmt .
+
+    $default  reduce using rule 2 (stmt_list)
+
+
+state 5
+
+    4 stmt: randomized_data_order .
+
+    $default  reduce using rule 4 (stmt)
+
+
+state 6
+
+    6 randomized_data_order: '{' NAME . ':' $@1 randomized_data_list '}'
+
+    ':'  shift, and go to state 9
+
+
+state 7
+
+    0 $accept: prog $end .
+
+    $default  accept
+
+
+state 8
+
+    3 stmt_list: stmt_list stmt .
+
+    $default  reduce using rule 3 (stmt_list)
+
+
+state 9
+
+    6 randomized_data_order: '{' NAME ':' . $@1 randomized_data_list '}'
+
+    $default  reduce using rule 5 ($@1)
+
+    $@1  go to state 10
+
+
+state 10
+
+    6 randomized_data_order: '{' NAME ':' $@1 . randomized_data_list '}'
+
+    INUMBER  shift, and go to state 11
+    '{'      shift, and go to state 1
+
+    randomized_data_order  go to state 12
+    randomized_data_list   go to state 13
+    randomized_data        go to state 14
+    simple_number_list     go to state 15
+
+
+state 11
+
+   11 simple_number_list: INUMBER .
+
+    $default  reduce using rule 11 (simple_number_list)
+
+
+state 12
+
+   10 randomized_data: randomized_data_order .
+
+    $default  reduce using rule 10 (randomized_data)
+
+
+state 13
+
+    6 randomized_data_order: '{' NAME ':' $@1 randomized_data_list . '}'
+    8 randomized_data_list: randomized_data_list . randomized_data
+
+    INUMBER  shift, and go to state 11
+    '{'      shift, and go to state 1
+    '}'      shift, and go to state 16
+
+    randomized_data_order  go to state 12
+    randomized_data        go to state 17
+    simple_number_list     go to state 15
+
+
+state 14
+
+    7 randomized_data_list: randomized_data .
+
+    $default  reduce using rule 7 (randomized_data_list)
+
+
+state 15
+
+    9 randomized_data: simple_number_list . ';'
+   12 simple_number_list: simple_number_list . INUMBER
+
+    INUMBER  shift, and go to state 18
+    ';'      shift, and go to state 19
+
+
+state 16
+
+    6 randomized_data_order: '{' NAME ':' $@1 randomized_data_list '}' .
+
+    $default  reduce using rule 6 (randomized_data_order)
+
+
+state 17
+
+    8 randomized_data_list: randomized_data_list randomized_data .
+
+    $default  reduce using rule 8 (randomized_data_list)
+
+
+state 18
+
+   12 simple_number_list: simple_number_list INUMBER .
+
+    $default  reduce using rule 12 (simple_number_list)
+
+
+state 19
+
+    9 randomized_data: simple_number_list ';' .
+
+    $default  reduce using rule 9 (randomized_data)
