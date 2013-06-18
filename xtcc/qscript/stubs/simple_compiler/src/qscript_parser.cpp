@@ -1404,6 +1404,10 @@ void PrintDefineSomePDCursesKeys(FILE * script)
 			define_key(ctl_del.c_str(), CTL_DEL);\n\
 			define_key(alt_del.c_str(), ALT_DEL);\n\
 			define_key(shift_del.c_str(), SHF_DC);\n\
+			string num_keypad_plus;\n\
+			num_keypad_plus.append(1, 'O');\n\
+			num_keypad_plus.append(1, 'k');\n\
+			define_key(num_keypad_plus.c_str(), PADPLUS);\n\
 		}\n");
 }
 
@@ -1418,6 +1422,7 @@ void PrintPDCursesKeysHeader(FILE * script)
 			#define ALT_DEL 	0x1de\n\
 			#undef KEY_SDC /* redefined as per PD curses below */\n\
 			#define SHF_DC 		0x21a\n\
+			#define PADPLUS       0x1d1  /* plus on keypad */\n\
 			#endif /* a_few_pd_curses_keys_h */\n\
 			");
 }

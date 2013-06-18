@@ -25,7 +25,7 @@ void do_pageup(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * data
 void do_pagedown(WINDOW * questionWindow_, WINDOW * stubListWindow_, WINDOW * dataEntryWindow_, WINDOW * errorMessageWindow_, NamedStubQuestion * nq);
 
 NCursesReadline::NCursesReadline(WINDOW * l_question_window,
-		WINDOW * l_stub_list_window, 
+		WINDOW * l_stub_list_window,
 		WINDOW * l_data_entry_window,
 		WINDOW * l_error_msg_window)
 	: buffer_(), insertionPoint_(0),
@@ -148,7 +148,15 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 					do_pageup(questionWindow_, stubListWindow_, dataEntryWindow_, errorMessageWindow_, nq);
 				}
 				break;
-
+			case 0x1d1:
+				mvwprintw(dataEntryWindow_,2,50, "got PADPLUS");
+				if(insertionPoint_ == buffer_.length()){
+					buffer_.append(1, ' ');
+					++insertionPoint_;
+				} else {
+					buffer_.insert(insertionPoint_++, 1, ' ');
+				}
+				break;
 			default:
 				//mvprintw(0,0, "unknown key: %d\n", c);
 				mvwprintw(dataEntryWindow_,2,50, "got KEY %d", c);
