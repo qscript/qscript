@@ -683,6 +683,19 @@ void Unary2Expression::PrintExpressionCode(ExpressionCompiledCode & code)
 			e_ptr = e_ptr->next_;
 		}
 		code.code_expr << ");fflush(qscript_stdout)";
+
+		if (func_info_table[func_index_in_table]->functionName_ == string("printf")){
+			code.code_expr << ";mvwprintw(error_msg_window, 2, 3,";
+			struct AbstractExpression* e_ptr = operand_;
+			while(e_ptr){
+				e_ptr->PrintExpressionCode(code);
+				if (e_ptr->next_){
+					code.code_expr << ", ";
+				}
+				e_ptr = e_ptr->next_;
+			}
+			code.code_expr << ")\n";
+		}
 	}
 		break;
 	case oper_text_expr:{
