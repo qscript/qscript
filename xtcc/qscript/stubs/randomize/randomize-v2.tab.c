@@ -66,7 +66,7 @@
 /* Copy the first part of user declarations.  */
 
 /* Line 268 of yacc.c  */
-#line 4 "randomize.y"
+#line 4 "randomize-v2.y"
 
 #include <iostream>
 #include <vector>
@@ -75,7 +75,7 @@
 	
 #include "AbstractStatement.h"
 //#include "named_range.h"
-#include "new_named_range.h"
+#include "new_named_range-v2.h"
 #include "const_defs.h"
 
 	using std::vector;
@@ -101,7 +101,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 105 "randomize.tab.c"
+#line 105 "randomize-v2.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -145,7 +145,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 38 "randomize.y"
+#line 38 "randomize-v2.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -159,7 +159,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 163 "randomize.tab.c"
+#line 163 "randomize-v2.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -171,7 +171,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 175 "randomize.tab.c"
+#line 175 "randomize-v2.tab.c"
 
 #ifdef short
 # undef short
@@ -1409,7 +1409,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 68 "randomize.y"
+#line 68 "randomize-v2.y"
     {
 	root = (yyvsp[(1) - (1)].stmt);
 	}
@@ -1418,7 +1418,7 @@ yyreduce:
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 73 "randomize.y"
+#line 73 "randomize-v2.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 	}
@@ -1427,7 +1427,7 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 76 "randomize.y"
+#line 76 "randomize-v2.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
@@ -1438,7 +1438,7 @@ yyreduce:
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 87 "randomize.y"
+#line 87 "randomize-v2.y"
     {
 		stub_list.resize(0);
 		stub_number.push_back(0);
@@ -1449,7 +1449,7 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 91 "randomize.y"
+#line 91 "randomize-v2.y"
     {
 		//string stub_name=$2;
 		//struct named_range* nr_ptr= 
@@ -1492,7 +1492,7 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 135 "randomize.y"
+#line 135 "randomize-v2.y"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int32_t code=(yyvsp[(2) - (2)].ival);
@@ -1505,7 +1505,7 @@ yyreduce:
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 142 "randomize.y"
+#line 142 "randomize-v2.y"
     {
 		string s1=(yyvsp[(1) - (3)].text_buf);
 		int32_t code=(yyvsp[(2) - (3)].ival);
@@ -1518,7 +1518,7 @@ yyreduce:
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 151 "randomize.y"
+#line 151 "randomize-v2.y"
     {
 		NamedRangeList * nrl = new NamedRangeList();
 		nrl->stubs = stub_list;
@@ -1530,14 +1530,14 @@ yyreduce:
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 157 "randomize.y"
+#line 157 "randomize-v2.y"
     { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); }
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 157 "randomize.y"
+#line 157 "randomize-v2.y"
     {
 		/* continue from here:
 		   treat this as a named compound statement - just like in the main qscript grammar
@@ -1570,14 +1570,14 @@ yyreduce:
 		cout << "highest_stub_number_in_group: " 
 			<< (yyvsp[(2) - (6)].name) << ": " 
 			<< highest_stub_number_in_group
-			<< endl
-	;}
+			<< endl;
+	}
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 213 "randomize.y"
+#line 213 "randomize-v2.y"
     {
 		AbstractNamedRange * nr_ptr1=(yyvsp[(1) - (2)].nr_ptr), *nr_ptr2=(yyvsp[(2) - (2)].nr_ptr);
 		NamedRangeList * nrl_ptr1 =0, *nrl_ptr2=0;
@@ -1616,7 +1616,7 @@ yyreduce:
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 248 "randomize.y"
+#line 248 "randomize-v2.y"
     {
 		(yyval.stmt) = 0;
 	}
@@ -1625,7 +1625,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1629 "randomize.tab.c"
+#line 1629 "randomize-v2.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1856,7 +1856,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 253 "randomize.y"
+#line 253 "randomize-v2.y"
 
 #include <cstdio>
 #include <vector>
@@ -1877,7 +1877,8 @@ int main()
 		cout << "sucessfully parsed" << endl;
 		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
 		if (nr_ptr) {
-			nr_ptr->Print();
+			const int nest_level = 1;
+			nr_ptr->Print(nest_level);
 			vector <string> group_str;
 			vector <string> group_list;
 			stringstream final_answer;
@@ -1898,7 +1899,8 @@ int main()
 		if (nr_ptr) {
 			if (NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr)) {
 				cout << "SimplePrint =============== " << endl;
-				ng->groupPtr_->SimplePrint();
+				const int nest_level = 1;
+				ng->groupPtr_->SimplePrint(nest_level);
 				cout << "END SimplePrint =============== " << endl;
 			}
 		}
@@ -1912,7 +1914,8 @@ int main()
 		grp_1.AddStub( " EFRAH (Aali Vihar, nr. Aali Village, New Delhi)", 9, 3);
 		grp_1.AddStub( " Nav Srishti (Village neb Sarai, New Delhi)", 10, 4);
 		cout << "grp_1.groupPtr_->SimplePrint =============== " << endl;
-		grp_1.groupPtr_->SimplePrint();
+		const int nest_level = 1;
+		grp_1.groupPtr_->SimplePrint(nest_level);
 		cout << "END SimplePrint =============== " << endl;
 
 		NamedRangeGroup grp_21("grp_21", 1);
@@ -1929,7 +1932,7 @@ int main()
 		cout << "before: grp_2.AddGroup(grp_22);" << endl;
 		grp_2.AddGroup(grp_22, grp_22.index_in_group);
 		cout << "grp_2.groupPtr_->SimplePrint =============== " << endl;
-		grp_2.groupPtr_->SimplePrint();
+		grp_2.groupPtr_->SimplePrint(nest_level);
 		cout << "END SimplePrint =============== " << endl;
 
 		NamedRangeGroup suvidha_kendra("suvidha_kendra", 1);
@@ -1946,7 +1949,7 @@ int main()
 		suvidha_kendra.AddStub( " Kalyanam (41/1407 DDA flats, Madangir, New Delhi)", 17, 11);
 
 		cout << "SimplePrint suvidha_kendra.groupPtr_ =============== " << endl;
-		suvidha_kendra.groupPtr_->SimplePrint();
+		suvidha_kendra.groupPtr_->SimplePrint(nest_level);
 		cout << "END SimplePrint =============== " << endl;
 		//cout << "SimplePrint =============== " << endl;
 		//suvidha_kendra.SimplePrint();
@@ -1978,12 +1981,15 @@ int main()
 			<< endl;
 
 		cout << "=========== ng->Print(); ============ " << endl;
-		ng->Print();
+		//const int nest_level = 1;
+		ng->Print(nest_level);
 		ng->Vectorize(ng, ng->stub_grp_vec);
 		//cout << "ng->stub_grp_vec.size(): " << ng->stub_grp_vec.size() << endl;
 		ng->Randomize();
-		ng->VectorizePrint(ng);
-		ng->SaveRandomizedOrderToDisk();
+		cout << "=========== ng->VectorizePrint(); ============ " << endl;
+		ng->VectorizePrint(nest_level, ng);
+		cout << "=========== ng->SaveRandomizedOrderToDisk(); ============ " << endl;
+		ng->SaveRandomizedOrderToDisk(nest_level);
 		cout << endl;
 	}
 
