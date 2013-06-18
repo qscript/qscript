@@ -1,3 +1,4 @@
+#comment to get new repository address from Sourceforge
 CXX = g++
 CC = $(CXX) 
 CFLAGS = -c -g -I src -Wall -Wno-sign-compare -Weffc++
