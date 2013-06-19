@@ -48,8 +48,12 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 	update_panels();
 	doupdate();
 	int32_t curX, curY;
+	wmove (dataEntryWindow_, 1, 1);
+	update_panels();
+	doupdate();
 	while(1) {
 		//c = mvwgetch(dataEntryWindow_,1,1);
+		//int32_t c = mvwgetch(dataEntryWindow_, 1, 1);
 		int32_t c = wgetch(dataEntryWindow_);
 		//mvprintw(0,0, "got char: %d\n", c);
 		getyx(dataEntryWindow_, curY, curX);
@@ -74,10 +78,12 @@ const char * NCursesReadline::ReadLine (AbstractQuestion * q)
 			case 459: /* numeric keypad enter on WINDOWS PDCURSES */
 			case KEY_ENTER:
 				return buffer_.c_str();
+			case KEY_UP:
 			case 16: /* Ctrl P */
 				the_user_response = user_response::UserEnteredNavigation;
 				user_navigation = NAVIGATE_PREVIOUS;
 				return buffer_.c_str();
+			case KEY_DOWN:
 			case 14: /* Ctrl N */
 				the_user_response = user_response::UserEnteredNavigation;
 				user_navigation = NAVIGATE_NEXT;
