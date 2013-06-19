@@ -387,6 +387,29 @@ string check_for_registry_key()
 		)
 	{
 		qscript_install_dir = QueryKeyData(hTestKey);
+		RegCloseKey(hTestKey);
+		cout << "Got Key from HKEY_CURRENT_USER: |"
+			<< qscript_install_dir
+			<< "|"
+			<< endl;
+		return qscript_install_dir;
+	}
+
+	RegCloseKey(hTestKey);
+	if (RegOpenKeyEx( HKEY_LOCAL_MACHINE,
+		TEXT("SOFTWARE\\QScript"),
+		0,
+		KEY_READ,
+		&hTestKey) == ERROR_SUCCESS
+		)
+	{
+		qscript_install_dir = QueryKeyData(hTestKey);
+		RegCloseKey(hTestKey);
+		cout << "Got Key from HKEY_LOCAL_MACHINE: |"
+			<< qscript_install_dir
+			<< "|"
+			<< endl;
+		return qscript_install_dir;
 	}
 
 	RegCloseKey(hTestKey);
@@ -399,6 +422,7 @@ string check_for_registry_key()
 
 string QueryKeyData(HKEY hKey)
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	TCHAR    achKey[MAX_KEY_LENGTH];   // buffer for subkey name
 	DWORD    cbName;                   // size of name string
 	TCHAR    achClass[MAX_PATH] = TEXT("");  // buffer for class name
@@ -440,8 +464,8 @@ string QueryKeyData(HKEY hKey)
 
     // Enumerate the subkeys, until RegEnumKeyEx fails.
 
+	printf( "\nNumber of subkeys: %d\n", cSubKeys);
 	if (cSubKeys) {
-		printf( "\nNumber of subkeys: %d\n", cSubKeys);
 		for (i=0; i<cSubKeys; i++) {
 			cbName = MAX_KEY_LENGTH;
 			retCode = RegEnumKeyEx(hKey, i,
@@ -458,32 +482,40 @@ string QueryKeyData(HKEY hKey)
 		}
 	}
 
-	/*
+	string return_value;
 	if (cValues)
 	{
-	printf( "\nNumber of values: %d\n", cValues);
+		printf( "\nNumber of values: %d\n", cValues);
+		for (i=0, retCode=ERROR_SUCCESS; i<cValues; i++)
+		{
+			int my_cchValue=32767;
+			DWORD pcbKeyValueData = MAX_VALUE_NAME;
+			cchValue = MAX_VALUE_NAME;
+			achValue[0] = '\0';
+			retCode = RegEnumValue(hKey, i,
+						achValue,
+						&cchValue,
+						NULL,
+						NULL,
+						//NULL,
+						//NULL
+						achKeyValueData,
+						&pcbKeyValueData
+						);
 
-	for (i=0, retCode=ERROR_SUCCESS; i<cValues; i++)
-	{
-	    cchValue = MAX_VALUE_NAME;
-	    achValue[0] = '\0';
-	    retCode = RegEnumValue(hKey, i,
-		achValue,
-		&cchValue,
-		NULL,
-		NULL,
-		NULL,
-		NULL);
-
-	    if (retCode == ERROR_SUCCESS )
-	    {
-		_tprintf(TEXT("step 1, retCode: %d: (%d) %s\n"), retCode, i+1, achValue);
-	    }
+			if (retCode == ERROR_SUCCESS && string(achValue)=="QSCRIPT_HOME" )
+			{
+				_tprintf(TEXT("step 1, retCode: %d: (%d) %s\n"), retCode, i+1, achValue);
+				char c = -1;
+				for (int i=0; i<MAX_VALUE_NAME && c; ++i) {
+					char c = achKeyValueData[i];
+					return_value.push_back(c);
+				}
+			}
+		}
 	}
-	}
-	*/
 
-	string return_value;
+	/*
 	if (cSubKeys) {
 		i=0;
 		//short int my_cchValue=32767;
@@ -495,8 +527,8 @@ string QueryKeyData(HKEY hKey)
 				achValue,
 				//&my_cchValue,
 				&cchValue,
-				NULL /* reserved */,
-				NULL /* type: can be null if type not required */,
+				NULL ,// reserved
+				NULL, //* type: can be null if type not required
 				achKeyValueData,
 				&pcbKeyValueData
 				);
@@ -514,6 +546,7 @@ string QueryKeyData(HKEY hKey)
 			//_tprintf(TEXT("step 2, !ERROR_SUCCESS retCode: (%d) \n"),  retCode);
 		}
 	}
+	*/
 
 	/*
 
@@ -543,6 +576,7 @@ string QueryKeyData(HKEY hKey)
 	// } else {
 	// 	_tprintf(TEXT("retCode: (%d) \n"),  retCode);
 	// }
+	cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
 	return return_value;
 }
 
@@ -553,37 +587,52 @@ bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_re
 	bool found_g_plus_plus = false;
 	bool found_pd_curses = false;
 	bool found_pd_curses_headers = false;
+	string l_qscript_install_dir ( qscript_install_dir );
+	if (l_qscript_install_dir[l_qscript_install_dir.length()-1] !='\\' ||
+		l_qscript_install_dir[l_qscript_install_dir.length()-1] !='/'
+			) {
+			l_qscript_install_dir.push_back('\\');
+	}
+	cout << "running simple sanity checks on qscript_install_dir: " << l_qscript_install_dir << endl;
 	if (QSCRIPT_HOME_came_from_registry) {
 		// step 1 - try to find g++ in the path
 		// if it came from the registry, then it should be in
 		// ..\MinGW-foo7\bin
-		string mingw_path = qscript_install_dir + "..\\MinGW-foo7\\bin";
+		string mingw_path = l_qscript_install_dir + "..\\MinGW-foo7\\bin";
 		vector<string> dirs;
 		dirs.push_back(mingw_path);
-		if (find_file_in_dir("g++", dirs) ) {
+		int found_index = find_file_in_dir("g++.exe", dirs);
+		if (found_index != -1 ) {
 			found_g_plus_plus = true;
+			cout << "Found g++ in " << dirs[found_index] << endl;
 		} else {
 			environment_is_sane = false;
 		}
 
-		string pdcurses_path = qscript_install_dir + "..\\usr\\lib";
+		string pdcurses_path = l_qscript_install_dir + "..\\usr\\lib";
 		dirs.clear();
-		dirs.push_back(mingw_path);
-		if (find_file_in_dir("pdcurses.dll", dirs) ) {
+		dirs.push_back(pdcurses_path);
+		found_index = find_file_in_dir("pdcurses.dll", dirs);
+		if ( found_index != -1 ) {
 			found_pd_curses = true;
+			cout << "Found pdcurses.dll in " << dirs[found_index] << endl;
 		} else {
 			environment_is_sane = false;
 		}
 
-		string pdcurses_headers_path = qscript_install_dir + "..\\usr\\include";
+		string pdcurses_headers_path = l_qscript_install_dir + "..\\usr\\include";
 		dirs.clear();
 		dirs.push_back(pdcurses_headers_path);
 		int count_pd_curses_headers = 0;
-		if (find_file_in_dir("curses.h", dirs) ) {
+		found_index = find_file_in_dir("curses.h", dirs);
+		if ( found_index != -1) {
 			++count_pd_curses_headers;
+			cout << "Found curses.h in " << dirs[found_index] << endl;
 		}
-		if (find_file_in_dir("panel.h", dirs) ) {
+		found_index = find_file_in_dir("panel.h", dirs);
+		if ( found_index != -1) {
 			++count_pd_curses_headers;
+			cout << "Found panel.h in " << dirs[found_index] << endl;
 		}
 
 		if (count_pd_curses_headers==2) {
@@ -612,7 +661,7 @@ bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_re
 
 int find_file_in_dir(string filename, const vector<string> & dir_list)
 {
-	cout << "ENTER find_file_in_dir: " << endl;
+	//cout << "ENTER find_file_in_dir: " << endl;
 	for (int i=0; i<dir_list.size(); ++i) {
 		DIR * directory_ptr = opendir(dir_list[i].c_str());
 		if (!directory_ptr) {
@@ -629,13 +678,13 @@ int find_file_in_dir(string filename, const vector<string> & dir_list)
 }
 
 
-bool find_file_entry_in_directory(string filename, DIR * directory_ptr)
+bool find_file_entry_in_directory(string const filename, DIR * directory_ptr)
 {
 	struct dirent * directory_entry = readdir(directory_ptr);
 
 	while (directory_entry) {
 		string entry_name = directory_entry->d_name;
-		if (entry_name == "pdcurses.dll") {
+		if (entry_name == filename) {
 			return true;
 		}
 		directory_entry = readdir(directory_ptr);
