@@ -10,7 +10,7 @@ namespace qtm_data_file_ns {
 
 
 
-enum QtmFileMode 
+enum QtmFileMode
 {
 	READ_EQ_0 /* flat file */,
 	READ_EQ_1 /* wrap around at 1000 i.e. 1001 to 1999 is in card 1,
@@ -33,14 +33,14 @@ struct QtmFileCharacteristics
 	void NextCard();
 	int GetCurrentColumnPosition();
 	int UpdateCurrentColumn(int width_, AbstractQuestion * q);
-	QtmFileCharacteristics(int p_cardDataStartAt_, 
+	QtmFileCharacteristics(int p_cardDataStartAt_,
 			int p_cardWrapAroundAt,
 			bool p_dontBreakQuestionsAtBoundary,
 			QtmFileMode p_qtmFileMode);
 	void Initialize();
 };
 
-struct Card 
+struct Card
 {
 	std::vector<char> data_;
 	std::vector<char> multiPunchData_;
@@ -51,8 +51,8 @@ struct QtmDataFile
 {
 	std::vector<Card> cardVec_;
 	QtmFileCharacteristics fileXcha_;
-	void write_multi_code_data (int column, 
-			vector<int> & data, 
+	void write_multi_code_data (int column,
+			vector<int> & data,
 			AbstractQuestion * q);
 	void write_single_code_data (int column, int width, int code, AbstractQuestion *q);
 	void write_record_to_disk(std::fstream & disk_file, int ser_no);
@@ -65,7 +65,7 @@ struct QtmDataFile
 	QtmDataFile();
 };
 
-struct CodeBucket 
+struct CodeBucket
 {
 	std::vector<int> codeVec_;
 	CodeBucket(): codeVec_()
@@ -84,7 +84,7 @@ public:
 	//bool dynamicBaseText_;
 	//AbstractQuestion * baseTextQuestion_;
 	BaseText baseText_;
-	QtmDataDiskMap(AbstractQuestion * p_q, 
+	QtmDataDiskMap(AbstractQuestion * p_q,
 		QtmDataFile & p_qtm_data_file, BaseText base_text);
 	int GetTotalLength() { return totalLength_; }
 	void write_data ();
@@ -112,9 +112,12 @@ void init();
 vector <string> split_into_smaller_chunks (string s, int chunk_size);
 string print_dynamic_base_text(AbstractQuestion * q, BaseText & base_text);
 void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);
-string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int index
-		, string jno);
-void top_level_write_qax(string jno, 
+string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q,
+		qtm_data_file_ns::QtmDataDiskMap * recode_q, int index,
+		string jno);
+string print_process_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q,
+	qtm_data_file_ns::QtmDataDiskMap * recode_q, string jno);
+void top_level_write_qax(string jno,
 		const vector <qtm_data_file_ns::QtmDataDiskMap*> & qtm_datafile_question_disk_map);
 
 void print_summary_axis_recode_edit (vector<qtm_data_file_ns::QtmDataDiskMap*> & v

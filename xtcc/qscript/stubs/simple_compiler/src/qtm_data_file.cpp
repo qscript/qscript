@@ -2276,6 +2276,186 @@ void print_summary_axis (vector<qtm_data_file_ns::QtmDataDiskMap*> & v, fstream 
 	cout << endl;
 }
 
+string print_process_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q,
+	qtm_data_file_ns::QtmDataDiskMap * recode_q, string jno)
+{
+	stringstream ax;
+	string setup_dir( string("setup-") + jno + string ("/"));
+	const int TEXT_LEN_BREAK_AT = 120;
+	vector <string> smaller_ttls = qtm_data_file_ns::split_into_smaller_chunks (
+			//recode_q->q->questionText_
+			  recode_q->q->AxPrepareQuestionTitle()
+			, TEXT_LEN_BREAK_AT);
+
+	NamedStubQuestion * driver_nq = dynamic_cast<NamedStubQuestion*> (driver_q->q);
+	if (driver_nq) {
+
+
+		const int TEXT_LEN_BREAK_AT = 120;
+		vector <string> smaller_ttls = qtm_data_file_ns::split_into_smaller_chunks (
+				//recode_q->q->questionText_
+				  recode_q->q->AxPrepareQuestionTitle()
+				, TEXT_LEN_BREAK_AT);
+		stringstream ttl_string;
+		for (int i=0; i<smaller_ttls.size(); ++i) {
+			ttl_string << smaller_ttls[i];
+		}
+		if (recode_q->q->loop_index_values.size() > 0) {
+			stringstream l_base_text;
+			if (recode_q->baseText_.isDynamicBaseText_ == false) {
+				l_base_text << recode_q->baseText_.baseText_ ;
+			} else {
+				l_base_text << qtm_data_file_ns::print_dynamic_base_text (recode_q->q, recode_q->baseText_);
+			}
+			if (recode_q->q->loop_index_values.size()==1) {
+				ax << "*include " << "r_" << recode_q->q->questionName_
+					<<".qax"
+					<<";qlno=" << recode_q->q->loop_index_values[0] << ";var_name=proc_" << recode_q->q->questionName_ ;
+				for (int i2=0; i2 < recode_q->q->loop_index_values.size(); ++i2) {
+					 ax << "_" << recode_q->q->loop_index_values[i2];
+					}
+ 				ax
+					<<";col(a)=" << 1
+					<<";q1att=&a" << recode_q->q->loop_index_values[0] <<"t;att1t=;q2att=;att2t=/*;"
+					<<"\n+btxt=" << l_base_text.str()
+					<< endl
+					<< endl;
+			} else {
+				ax <<"*include r_" << recode_q->q->questionName_
+					<<".qax"
+					<<";col(a)=" << recode_q->q->loop_index_values[0] + 1
+					<<";qlno=" << recode_q->q->loop_index_values[0] <<"_" << recode_q->q->loop_index_values[1]
+					<< ";var_name=proc_"  << recode_q->q->questionName_ << "_"
+					<< ";q1att=&a" << recode_q->q->loop_index_values[0] <<"t;att1t="
+					<< ";q2att=&b" << recode_q->q->loop_index_values[0] <<"t;att2t=" << endl
+					<< "\n+btxt = " << l_base_text.str()
+					<< endl
+					<< endl;
+			}
+
+			bool is_1st_iter = true;
+			for (int32_t i=0; i<recode_q->q->loop_index_values.size(); ++i) {
+				if (recode_q->q->loop_index_values[i] != 0) {
+					is_1st_iter = false;
+					break;
+				}
+			}
+			if (is_1st_iter == true) {
+				// make questionName_ . qax file
+				stringstream qax_fname;
+				qax_fname << setup_dir <<"";
+				qax_fname << "r_" << recode_q->q->questionName_ <<".qax";
+				fstream ax(qax_fname.str().c_str(), std::ios_base::out | std::ios_base::trunc);
+				ax <<"l " << recode_q->q->questionName_ <<"_&qlno;c=&var_name(a0";
+				if (recode_q->width_>0) {
+					ax <<",a" << recode_q->width_-1 ;
+				}
+				ax <<") u $ $" << endl;
+				ax << "&autocheckttl" << recode_q->q->questionName_ << "_&qlno"
+					<< "," << recode_q->q->questionName_ << "," << recode_q->q->no_mpn
+					<< endl;
+				ax <<"*include qttl.qin;"
+					<< ttl_string.str() << endl
+					<<"*include base.qin" << endl;
+
+				if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(recode_q->q)) {
+					recode_q->print_qin(setup_dir, "&var_name");
+					if (n_q->nr_ptr) {
+						if (n_q->no_mpn>1) {
+							ax <<"*include r_" << n_q->nr_ptr->name <<".min"
+							<< endl;
+						} else {
+							ax <<"*include r_" << n_q->nr_ptr->name <<".sin"
+							<< endl;
+						}
+					}
+				} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(recode_q->q)) {
+					ax <<"*include " << "r_" << recode_q->q->questionName_ <<".qin"
+						<< endl;
+					stringstream fname;
+					fname << setup_dir << "r_" << recode_q->q->questionName_ <<".qin";
+					fstream qtm_include_file (fname.str().c_str(),
+							std::ios_base::out | std::ios_base::trunc);
+					if (recode_q->width_ == 1) {
+						qtm_include_file <<"val &var_name(a0);i;"
+							<< endl;
+					} else {
+						qtm_include_file <<"val &var_name(a0"
+							<<"" << recode_q->width_ - 1 <<");i;"
+							<< endl;
+					}
+				}
+
+			}
+		} else {
+			ax << "l ";
+			ax << "p_" << recode_q->q->questionName_ ;
+			ax << "; c=proc.gt.0 .and. proc_" << recode_q->q->questionName_ << "(1, "<< recode_q->totalLength_ << ") u $ $\n"
+				<< endl;
+			// auto-table-check - do this later
+			//ax
+			//	<< "ttl" << l_ax_name.str()
+			//	<< "," << q->questionName_ << "," << q->no_mpn
+			//	<< endl;
+			ax << "*include qttl.qin;qno=p_"
+				<< recode_q->q->questionName_
+				<< ";";
+
+
+			ax << ttl_string.str();
+
+			ax << "+q1att=;att1t=/*" << endl;
+			ax << "+q2att=;att2t=/*" << endl;
+
+			if (recode_q->baseText_.isDynamicBaseText_ == false) {
+				ax
+					<<"*include base.qin;btxt="
+					<< recode_q->baseText_.baseText_
+					<< endl;
+			} else {
+				ax <<"*include base.qin;btxt= Unexpected case non-array questions should not have dynamicBaseQuestion_ : 3548, src/qscript_parser.cpp, void qscript_parser::print_recode_edit_qax(FILE*) ";
+			}
+
+			if (NamedStubQuestion * n_q = dynamic_cast<NamedStubQuestion*>(recode_q->q)) {
+				recode_q->print_qin (setup_dir, "&var_name");
+				if (n_q->nr_ptr) {
+					if (n_q->no_mpn>1) {
+						ax <<"*include r_" << n_q->nr_ptr->name <<".min;"
+						<<"col(a)=" << 1 << ";var_name=proc_" << recode_q->q->questionName_
+						<< ";"
+						<< endl;
+					} else {
+						ax <<"*include r_" << n_q->nr_ptr->name <<".sin;"
+						<<"col(a)=" << 1 << ";var_name=proc_" << recode_q->q->questionName_
+						<< ";"
+						<< endl;
+					}
+				}
+			} else if (RangeQuestion * r_q = dynamic_cast<RangeQuestion*>(recode_q->q)) {
+				ax <<"*include r_" << recode_q->q->questionName_ <<".qin;"
+					<<"col(a)=" << 1 << ";var_name=proc_" << recode_q->q->questionName_
+					<< ";"
+					<< endl;
+				stringstream fname;
+				fname << setup_dir << "r_" << recode_q->q->questionName_ <<".qin;";
+				fstream qtm_include_file (fname.str().c_str(),
+						std::ios_base::out | std::ios_base::trunc);
+				if (recode_q->width_ == 1) {
+					qtm_include_file <<"val &var_name(a0);i;"
+						<< endl;
+				} else {
+					qtm_include_file <<"val &var_name(a0"
+						<<"" << recode_q->width_ - 1 <<");i;"
+						<< endl;
+				}
+			}
+
+			ax << endl;
+		}
+	}
+	return ax.str();
+}
+
 //" There is a lot of code duplication between print_recode_edit_qax and
 // function (QtmDataDiskMap::print_qax) . This duplicated code has to be re-visited and normalized" << endl;
 string print_recode_edit_qax (qtm_data_file_ns::QtmDataDiskMap * driver_q, qtm_data_file_ns::QtmDataDiskMap * recode_q, int index

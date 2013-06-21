@@ -468,6 +468,7 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 
 }
 
+
 void print_process_edit_and_qax (string jno
 		, vector <string> driver_question_list
 		, vector <string> recode_questions_list
@@ -522,37 +523,43 @@ void print_process_edit_and_qax (string jno
 					//<< "_map_entry =\n"
 					//<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
 					//<< driver_question_name << "->questionName_);" << endl
-			qtm_data_file_ns::QtmDataDiskMap * rec_question_name_map_entry =
+			qtm_data_file_ns::QtmDataDiskMap * rec_question_map_entry =
 				GetQuestionMapEntry (qtm_datafile_question_disk_map, rec_question_name);
 				if (j2 == 0) {
 					variable_file
-						<< "data proc_" << rec_question_name
-						<< rec_question_name_map_entry->totalLength_  << "s"
+						<< "data proc_" << rec_question_name << " "
+						<< rec_question_map_entry->totalLength_  << "s"
 						<< endl;
 
+					// process_axes_file
+					// 	<< "l p_" << rec_question_name
+					// 	<< ";c= proc .gt. 0" << endl
+					// 	<< "ttl P." << rec_question_name
+					// 	<< endl;
+
 					process_axes_file
-						<< "l p_" << rec_question_name
-						<< ";c= proc .gt. 0" << endl
-						<< "ttl P." << rec_question_name
-						<< endl;
+						<< print_process_qax (
+							driver_question_map_entry,
+							rec_question_map_entry, jno);
 				}
 
 				process_edit_file
 					<< "clear proc_"
 					<< leader_rec_question_name
 					<< "(1, "
-					<< rec_question_name_map_entry->totalLength_
+					<< rec_question_map_entry->totalLength_
 					<< " );" << endl
 					<< "proc_" << leader_rec_question_name
 					<< "(1,"
-					<< rec_question_name_map_entry->totalLength_ << ")= "
-					<< "c(" << rec_question_name_map_entry->startPosition_ + 1
+					<< rec_question_map_entry->totalLength_ << ")= "
+					<< "c(" << rec_question_map_entry->startPosition_ + 1
 					<< ", "
-					<< rec_question_name_map_entry->startPosition_ +
-						rec_question_name_map_entry->totalLength_
+					<< rec_question_map_entry->startPosition_ +
+						rec_question_map_entry->totalLength_
 					<< ") ;"
 					<< endl;
 				//recode_edit.program_code << "}" << endl;
+
 		}
 		process_edit_file
 			<< endl << endl
