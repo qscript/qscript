@@ -46,7 +46,7 @@ extern map <string, question_disk_data*> qdd_map;
 
 void clear_previous_data()
 {
-	for (map<string, question_disk_data *>::iterator it = 
+	for (map<string, question_disk_data *>::iterator it =
 			qdd_map.begin(); it != qdd_map.end(); ++it) {
 		delete it->second;
 		it->second = 0;
@@ -88,9 +88,9 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractQuestion * &
 		AbstractQuestion * & p_last_question_visited)
 {
 	if (qscript_debug::DEBUG_LoadData) {
-		cout << "ENTER: " 
-			<< __PRETTY_FUNCTION__ 
-			<< __FILE__ << ", " << __LINE__ << ", " 
+		cout << "ENTER: "
+			<< __PRETTY_FUNCTION__
+			<< __FILE__ << ", " << __LINE__ << ", "
 			<< endl;
 	}
 	for (int32_t i = 0; i< question_list.size(); ++i) {
@@ -221,7 +221,7 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 	}
 #endif /* 0 */
 	//NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (q13_brd_list.questionList[0]);
-	NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> 
+	NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*>
 		(
 		 q13_brd_map_entry_vec[0]->q
 		 );
@@ -231,16 +231,16 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 		exit(1);
 	}
 
-	variable_file 
+	variable_file
 			<< "int rnk_col 1" << endl
 			<< "int brd_col 1" << endl
 			<< "int output_col_no 1" << endl
 			<< "int input_col_no 1" << endl
-			<< "int " << driver_brand_question 
-				<< "_cols " << nq->dummyArrayQuestion_->array_bounds[0] 
+			<< "int " << driver_brand_question
+				<< "_cols " << nq->dummyArrayQuestion_->array_bounds[0]
 				<< "s"
 				<< endl
-			<< "int " << driver_brand_rank_question 
+			<< "int " << driver_brand_rank_question
 				<< "_cols " << nq->dummyArrayQuestion_->array_bounds[0]
 				<< "s"
 				<< endl
@@ -253,23 +253,23 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 	qtm_data_file_ns::QtmDataDiskMap * q13_brd_map_entry = q13_brd_map_entry_vec[0];
 	for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
 		edit_file
-			<< "clear " 
-			<< driver_brand_question 
-			<< "_" 
-			<< nq->nr_ptr->stubs[i].stub_text_as_var_name() 
-			<< " (1, " 
+			<< "clear "
+			<< driver_brand_question
+			<< "_"
+			<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
+			<< " (1, "
 			<< q13_brd_map_entry->totalLength_ << ")"    << endl;
-		variable_file 
+		variable_file
 			<< "data "
-			<< driver_brand_question 
-			<< "_" 
-			<< nq->nr_ptr->stubs[i].stub_text_as_var_name() 
+			<< driver_brand_question
+			<< "_"
+			<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
 			<< " "
 			<< q13_brd_map_entry->totalLength_ << "s"    << endl;
 	}
 	variable_file  << endl;
-	edit_file  
-		<< endl 
+	edit_file
+		<< endl
 		<< "do 10 t1=1,10,1" << endl
 		<< "	rnk_col = " << driver_brand_rank_question << "_cols(t1)" << endl
 		<< "	brd_col = " << driver_brand_question << "_cols(t1)" << endl;
@@ -277,10 +277,10 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 	edit_file << endl << endl;
 	for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
 		edit_file
-			<< "	if (c(brd_col, brd_col+1).eq."     
-			<< nq->nr_ptr->stubs[i].code << ")\t\t" 
+			<< "	if (c(brd_col, brd_col+1).eq."
+			<< nq->nr_ptr->stubs[i].code << ")\t\t"
 			<< driver_brand_question
-			<< "_" << nq->nr_ptr->stubs[i].stub_text_as_var_name() 
+			<< "_" << nq->nr_ptr->stubs[i].stub_text_as_var_name()
 			<< "(1, " << q13_brd_map_entry->totalLength_ << ")" << " = c(rnk_col, rnk_col+1)\n";
 	}
 	edit_file << "10 continue" << endl;
@@ -303,11 +303,11 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 				<< q15_map_entry_vec.size()
 				<< ")"
 				<< endl;
-			variable_file 
+			variable_file
 				<< "data "
-				<< recode_questions_list[0] 
-				<< "_" 
-				<< nq->nr_ptr->stubs[i].stub_text_as_var_name() 
+				<< recode_questions_list[0]
+				<< "_"
+				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
 				<< " "
 				<< rnq->dummyArrayQuestion_->array_bounds[0] << "s"    << endl;
 		}
@@ -319,7 +319,7 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 				<< "_" << nq->nr_ptr->stubs[i].stub_text_as_var_name()
 				<< " (1, " << q13_brd_map_entry->totalLength_
 				<< ") .in. (1: " << n_ranks << "))"
-				<< "	" 
+				<< "	"
 				<< recode_questions_list[0]
 				<< "_"
 				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
@@ -363,12 +363,12 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 		for (int j=0; j < q15_map_entry_vec.size(); ++j) {
 			recode_edit_qax_file
 				<< "*include " << rnq->questionName_ << "_fix.qax"
-				<< ";col_no=" << j + 1 
+				<< ";col_no=" << j + 1
 				<< ";qlno=" << j+1
 				<< ";q1att=&at0t;att1t=0;q2att=;att2t=/*;"
 				<< endl;
 		}
-		string q15_qax_file_name  = 
+		string q15_qax_file_name  =
 			string("setup-") + jno + string("/")
 			+rnq->questionName_  + string("_fix.qax");
 		fstream q15_qax_file (q15_qax_file_name.c_str(), ios_base::out|ios_base::ate);
@@ -380,7 +380,7 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 			<< "#include " << rnq->questionName_ << "_fix.qin" << endl
 			<< endl;
 
-		string q15_qin_file_name  = 
+		string q15_qin_file_name  =
 				string("setup-") + jno + string("/")
 				+ rnq->questionName_  + string("_fix.qin");
 		fstream q15_qin_file (q15_qin_file_name.c_str(), ios_base::out|ios_base::ate);
@@ -388,14 +388,14 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 			q15_qin_file << "n01"
 				<< nq->nr_ptr->stubs[i].stub_text
 				<< ";\t\t\t\tc="
-				<< rnq->questionName_ << "_" 
+				<< rnq->questionName_ << "_"
 				<< nq->nr_ptr->stubs[i].stub_text_as_var_name()
 				<< "(&col_no)=$1$"
 				<< endl;
 		}
 	}
 
-	string q13_brd_qin_fname (string("setup-") + jno + string("/br-") 
+	string q13_brd_qin_fname (string("setup-") + jno + string("/br-")
 			+ nq->questionName_ + string(".qin"));
 	fstream q13_brd_qin_file (q13_brd_qin_fname.c_str(), ios_base::out|ios_base::ate);
 	for (int i=0;  i < nq->nr_ptr->stubs.size(); ++i) {
@@ -415,7 +415,7 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 
 	recode_edit_qax_file  << "l " << driver_brand_question << "_rnk_1"
 		<< endl
-		<< "ttl " << nq->AxPrepareQuestionTitle() 
+		<< "ttl " << nq->AxPrepareQuestionTitle()
 		<< "Rank 1"
 		<< endl
 		<< "n10Total" << endl
@@ -464,6 +464,103 @@ void print_brand_rank_recode_edit_and_qax (string jno, string driver_brand_quest
 		<< "#include br-" << nq->questionName_ << ".qin;rnk=8:10;"
 		<< endl
 		<< endl;
-	*/	
+	*/
+
+}
+
+void print_process_edit_and_qax (string jno
+		, vector <string> driver_question_list
+		, vector <string> recode_questions_list
+		, vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map
+		)
+{
+	if (driver_question_list.size() == 0) {
+		return;
+	}
+	qtm_data_file_ns::QtmDataDiskMap * pd_rot1_map_entry =
+		GetQuestionMapEntry (qtm_datafile_question_disk_map, driver_question_list[0]);
+
+	NamedStubQuestion * driver_question = dynamic_cast <NamedStubQuestion*> ( pd_rot1_map_entry->q);
+
+	using std::fstream;
+	string variable_defns_fname (string("setup-") + jno + string("/") + string("variable-prc"));
+	fstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);
+	variable_file << driver_question->questionName_ << endl;
+	string process_axes_file_name (string("setup-") + jno + string("/") + jno + string("-process-axes2.qax"));
+	fstream process_axes_file (process_axes_file_name.c_str(), ios_base::out|ios_base::ate);
+	int no_loops_in_qnre =  driver_question_list.size();
+
+	// string recode_edit_qax_file_name (string(\"setup-") + jno + string("/") +jno + string(\"-recode-edit2.qax"));
+	// fstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);
+	string process_edit_file_name (string("setup-") + jno + string("/") + jno + string("-process-edit2.qin"));
+	fstream process_edit_file (process_edit_file_name.c_str(), ios_base::out|ios_base::ate);
+
+
+	process_edit_file
+		<< "serial = c(101,108)" << endl
+		<< "proc = 0"
+		<< endl;
+	for (int j2=0; j2 < driver_question_list.size(); ++j2) {
+		string driver_question_name = driver_question_list[j2];
+		qtm_data_file_ns::QtmDataDiskMap * driver_question_map_entry =
+			GetQuestionMapEntry (qtm_datafile_question_disk_map, driver_question_name);
+		process_edit_file
+			<< "/* ===== Slot : " << j2+1 << "  ===== */" << endl
+			<< "clear driver_code" << endl
+			<< "driver_code = c("
+			<< driver_question_map_entry -> startPosition_ + 1
+			<< ","
+			<< driver_question_map_entry -> startPosition_ + driver_question_map_entry->totalLength_
+			<< ")" << endl;
+		for (int j1 = 0; j1 < recode_questions_list.size(); j1 += no_loops_in_qnre) {
+			string rec_question_name = recode_questions_list[j2 + j1];
+			string leader_rec_question_name = recode_questions_list[j1];
+				//recode_edit.program_code << "{" << endl;
+				//recode_edit.program_code
+					//<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+					//<< driver_question_name
+					//<< "_map_entry =\n"
+					//<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+					//<< driver_question_name << "->questionName_);" << endl
+			qtm_data_file_ns::QtmDataDiskMap * rec_question_name_map_entry =
+				GetQuestionMapEntry (qtm_datafile_question_disk_map, rec_question_name);
+				if (j2 == 0) {
+					variable_file
+						<< "data proc_" << rec_question_name
+						<< rec_question_name_map_entry->totalLength_  << "s"
+						<< endl;
+
+					process_axes_file
+						<< "l p_" << rec_question_name
+						<< ";c= proc .gt. 0" << endl
+						<< "ttl P." << rec_question_name
+						<< endl;
+				}
+
+				process_edit_file
+					<< "clear proc_"
+					<< leader_rec_question_name
+					<< "(1, "
+					<< rec_question_name_map_entry->totalLength_
+					<< " );" << endl
+					<< "proc_" << leader_rec_question_name
+					<< "(1,"
+					<< rec_question_name_map_entry->totalLength_ << ")= "
+					<< "c(" << rec_question_name_map_entry->startPosition_ + 1
+					<< ", "
+					<< rec_question_name_map_entry->startPosition_ +
+						rec_question_name_map_entry->totalLength_
+					<< ") ;"
+					<< endl;
+				//recode_edit.program_code << "}" << endl;
+		}
+		process_edit_file
+			<< endl << endl
+			<< "proc =  " << j2+1 << endl
+			<< "process "<< endl << endl;
+	}
+	process_edit_file
+		<< "proc =  0"
+		<< endl;
 
 }

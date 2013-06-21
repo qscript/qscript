@@ -1863,7 +1863,10 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 		<< "\t\txtcc_ax_file << \"}\\n\";\n";
 
 	StatementCompiledCode xtcc_recode_edit;
-	PrintXtccRecodeEdit (xtcc_recode_edit);
+
+	//20-jun-2013 commented out for now
+	// seems like variable file gets cleared out
+	//PrintXtccRecodeEdit (xtcc_recode_edit);
 	compute_flat_map_code.program_code
 		<< "{" << xtcc_recode_edit.program_code.str() << "}"
 		<< endl;
@@ -1927,7 +1930,7 @@ void PrintXtccRecodeEdit(StatementCompiledCode & recode_edit)
 	recode_edit.program_code
 		<< "//PrintXtccRecodeEdit\n"
 		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
-		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
+		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::app);\n"
 		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-recode-edit.qin\"));\n"
 		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-recode-edit.qax\"));\n"
@@ -2254,9 +2257,21 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-recode-edit.qax\"));\n"
 		<< "\t\tfstream recode_edit_qax_file (recode_edit_qax_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+		<< "\t\tstring process_edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-process-edit.qin\"));\n"
+		<< "\t\tfstream process_edit_file (process_edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
+
+		<< "\t\tstring process_axes_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-process-axes.qax\"));\n"
+		<< "\t\tfstream process_axes_file (process_axes_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		<< endl;
 
-		;
+	recode_edit.program_code
+
+		<< "variable_file"
+		<< "	<< \"int serial 1\" << endl"
+		<< "	<< \"int driver_code 1\" << endl"
+		<< "	<< \"int proc 1\" << endl"
+		<< "	<< endl;"
+		<< endl;
 
 	for (int i=0; i<recode_driver_vec.size(); ++i) {
 		// WARNING!!! if driver_vec is zero size this will dump core
@@ -2308,6 +2323,8 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 								<< " << " << driver_question_name
 								<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \" \" << "
 								<< rec_question_name << "_map_entry->totalLength_ " << " << \"s\""
+								<< endl
+								<< " << endl "
 								<< "<< endl;\n"
 								<< "\t\t\t\t\trecode_edit_qax_file\n"
 								<< "\t\t\t\t\t\t	<< print_recode_edit_qax ("
@@ -2322,8 +2339,11 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 								<< "->nr_ptr->stubs[i].stub_text_as_var_name() << \"(1, \" << " << endl
 								<< rec_question_name
 								<< "_map_entry->totalLength_"
-								<< " << \");\\n\";\n";
+								<< " << \");\\n\";\n"
+								<< endl;
+
 						}
+						// process_edit_file was here earlier: NxD
 
 							//<< "\t\t\tvariable_file << \""
 							//<< rec_question_name
@@ -2532,6 +2552,132 @@ void PrintRecodeEdit(StatementCompiledCode & recode_edit)
 
 			}
 		}
+
+		recode_edit.program_code << "{" << endl;
+		recode_edit.program_code
+			<< "process_edit_file  "
+			<< "<< \"serial = c(101,108)\" << endl" << endl
+			<< "<< \"proc = 0\" << endl;" << endl
+			<< endl;
+		for (int j2=0; j2 < driver_vec.size(); ++j2) {
+			string driver_question_name = driver_vec[j2];
+			recode_edit.program_code
+				<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+				<< driver_question_name
+				<< "_map_entry =\n"
+				<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+				<< driver_question_name << "->questionName_);"
+				<< endl;
+			recode_edit.program_code
+				<< "process_edit_file  "
+				<< "<< \"/* ===== Slot : \" << " << j2+1 << " << \" ===== \"<< endl" << endl
+						<< "<< \"clear driver_code\" << endl" << endl
+						<< "<< \"driver_code = c(\" << "
+						<< driver_question_name << "_map_entry->startPosition_ + 1"
+						<< "\t\t\t\t\t<< \", \"" << endl
+						<< "\t\t\t\t\t<< "
+						<< driver_question_name << "_map_entry->startPosition_ + "
+						<< driver_question_name << "_map_entry->totalLength_ << \")\"" << endl
+				<<	"<< endl;" << endl;
+			for (int j1 = 0; j1 < recode_vec.size(); j1 += no_loops_in_qnre) {
+				string rec_question_name = recode_vec[j2 + j1];
+				string leader_rec_question_name = recode_vec[j1];
+				//if (j1 == 0) {
+					recode_edit.program_code << "{" << endl;
+					recode_edit.program_code
+						//<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+						//<< driver_question_name
+						//<< "_map_entry =\n"
+						//<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+						//<< driver_question_name << "->questionName_);" << endl
+						<< "\t\t\tqtm_data_file_ns::QtmDataDiskMap * "
+						<< rec_question_name
+						<< "_map_entry =\n"
+						<< "\t\t\t\tGetQuestionMapEntry (qtm_datafile_question_disk_map, "
+						<< rec_question_name << "->questionName_);" << endl;
+					if (j2 == 0) {
+						recode_edit.program_code
+							<< "variable_file  "
+							<< "<< \"data proc_" << rec_question_name << " \""
+							<< " << "
+							<< rec_question_name << "_map_entry->totalLength_ " << " << \"s\""
+							<< " << endl;"
+							<< endl;
+						recode_edit.program_code
+							<< "process_axes_file  "
+							<< " << \"l p_" << rec_question_name << "\""
+							<< " << \";c= proc .gt. 0\" << endl "
+							<< " << \"ttl P." << rec_question_name << "\""
+							<< " << endl;"
+							<< endl;
+					}
+					recode_edit.program_code
+						<< "process_edit_file  "
+						<< "<< \"clear "
+						<< "proc_"
+						<< leader_rec_question_name << "\"" << endl
+						<< " << \"(1, \" << " << endl
+						<< rec_question_name
+						<< "_map_entry->totalLength_"
+						<< " << \");\\n\"" << endl
+						<< "<< \"proc_"
+						<< leader_rec_question_name
+						<< "(1,\" << " << endl
+						<< rec_question_name << "_map_entry->totalLength_ << \")=\" " << endl
+						//<< "=\"" << endl
+						<< "\t\t\t\t\t<< \"c(\" << " << endl
+						<< rec_question_name << "_map_entry->startPosition_ + 1" << endl
+						<< "\t\t\t\t\t<< \", \" " << endl
+						//<< rec_question_name << "_map_entry->startPosition_ + 1" << endl
+						//<< rec_question_name << "_map_entry->totalLength_ << \")\";\n" << endl
+						<< "\t\t\t\t\t<< " << rec_question_name << "_map_entry->startPosition_ + "
+						<< rec_question_name << "_map_entry->totalLength_ << \")\" << endl;"
+						<< endl;
+					recode_edit.program_code << "}" << endl;
+				//}
+			}
+			recode_edit.program_code
+				<< "process_edit_file  "
+				<< "<< endl" << endl
+				<< "<< \"proc =  \"<< "<< j2+1 <<  "<< endl" << endl
+				<< "<< \"process \"<< endl << endl;"
+				<< endl;
+		}
+		recode_edit.program_code
+			<< "process_edit_file  "
+			<< "<< \"proc =  0\"<< endl;" << endl;
+		recode_edit.program_code << "}" << endl;
+
+	}
+
+
+	for (int i=0; i< recode_driver_vec.size(); ++i ) {
+		vector <string>
+			& recode_vec = recode_driver_vec[i]->recode_vec,
+			& driver_vec = recode_driver_vec[i]->driver_vec;
+		recode_edit.program_code
+			<< "{ /* New - call to function to handle writing process edit and axes */"
+			<< "vector <string> driver_vec;\n"
+			<< "vector <string> recode_vec;\n"
+			<< endl;
+
+		for (int i1 = 0 ; i1 < driver_vec.size(); ++i1) {
+			recode_edit.program_code
+				<< "driver_vec.push_back(\"" << driver_vec[i1]<< "\");\n";
+		}
+
+		for (int i1 = 0 ; i1 < recode_vec.size(); ++i1) {
+			recode_edit.program_code
+				<< "recode_vec.push_back(\"" << recode_vec[i1]<< "\");\n";
+		}
+		recode_edit.program_code
+			<< " print_process_edit_and_qax (jno"
+			<< ", driver_vec"
+			<< ", recode_vec"
+			<< ", qtm_datafile_question_disk_map);\n"
+			<< endl;
+
+		recode_edit.program_code << "}" << endl;
 	}
 }
 
@@ -2874,7 +3020,7 @@ void PrintCreate_1_0_DataEdit(StatementCompiledCode & create_1_0_data_edit)
 	create_1_0_data_edit.program_code
 		<< "//create_1_0_data_edit \n"
 		<< "\t\tstring variable_defns_fname (string(\"setup-\") + jno + string(\"/\") + string(\"variable\"));\n"
-		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::ate);\n"
+		<< "\t\tfstream variable_file (variable_defns_fname.c_str(), ios_base::out|ios_base::app);\n"
 		<< "\t\tstring edit_file_name (string(\"setup-\") + jno + string(\"/\") + jno + string(\"-1_0-edit.qin\"));\n"
 		<< "\t\tfstream edit_file (edit_file_name.c_str(), ios_base::out|ios_base::ate);\n"
 		<< "\t\tstring recode_edit_qax_file_name (string(\"setup-\") + jno + string(\"/\") +jno + string(\"-1_0-edit.qax\"));\n"
