@@ -1043,7 +1043,7 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level), int nest_level)
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__ << "nest_level: " << nest_level << endl;
 	ClearPreviousView ();
 	vector <string> qno_and_qtxt = PrepareQuestionText (q);
 	DisplayQuestionTextView (qno_and_qtxt);
@@ -1061,6 +1061,10 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	// nxd implement: wxGUI->ConstructQuestionForm( q );
 	qapp_ptr->ConstructQuestionForm( q );
 	//GetUserInput (callback_ui_input, q, theQuestionnaire);
+	cout << "EXIT:"
+		<< __PRETTY_FUNCTION__
+		<< ", nest_level:" << nest_level
+		<< endl;
 }
 
 

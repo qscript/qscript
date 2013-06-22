@@ -290,14 +290,14 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 		print_microhttpd_web_support(script);
 	}
 	if (program_options_ns::wt_flag) {
-		print_web_support_structs (script);
-		print_Wt_support_code(script);
+		//print_web_support_structs (script);
+		//print_Wt_support_code(script);
 	}
 	if (program_options_ns::stdout_flag) {
 		//PrintStdoutMain(script);
 		PrintWxSupport_1(script);
 	}
-	if (program_options_ns::wx_flag) {
+	if (program_options_ns::wx_flag || program_options_ns::wt_flag) {
 		PrintWxSupport_1(script);
 	}
 	print_close(script, code.program_code, ncurses_flag);
@@ -308,6 +308,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 
 void print_header(FILE* script, bool ncurses_flag)
 {
+#if 0
 	if (program_options_ns::wt_flag) {
 		fprintf (script, "#include <Wt/WApplication>\n");
 		fprintf (script, "#include <Wt/WServer>\n");
@@ -323,8 +324,8 @@ void print_header(FILE* script, bool ncurses_flag)
 		fprintf (script, "#include <Wt/WGroupBox>\n");
 		fprintf (script, "#include <Wt/WString>\n");
 		fprintf (script, "#include <Wt/WStringUtil>\n");
-
 	}
+#endif /* 0 */
 	fprintf(script, "#include <iostream>\n");
 	fprintf(script, "#include <vector>\n");
 	fprintf(script, "#include <string>\n");
@@ -354,7 +355,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	if (program_options_ns::stdout_flag) {
 		fprintf (script, "#include \"question_stdout_runtime.h\"\n");
 	}
-	if (program_options_ns::gtk_flag||program_options_ns::wx_flag) {
+	if (program_options_ns::gtk_flag||program_options_ns::wx_flag || program_options_ns::wt_flag) {
 		fprintf (script, "#include \"question_gtk2_runtime.h\"\n");
 	}
 	fprintf(script, "#include \"stub_pair.h\"\n");
@@ -549,7 +550,7 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 		print_new_logic_support_functions (script);
 		//print_new_logic_support_functions_2 (script);
 	}
-	if (program_options_ns::wx_flag||program_options_ns::gtk_flag) {
+	if (program_options_ns::wx_flag||program_options_ns::gtk_flag || program_options_ns::wt_flag) {
 		print_new_logic_support_functions_2 (script);
 	}
 
