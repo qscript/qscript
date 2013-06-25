@@ -1,0 +1,2 @@
+dep lex.yy.c : lex.l ; 
+dep lex.yy.c : lex.l ; 
