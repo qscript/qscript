@@ -89,7 +89,17 @@ int main()
 		top_lev_group.AddStub( "top_lev_group 24", 24, 12);
 		top_lev_group.AddGroup(sub_group_6_lev_1,sub_group_6_lev_1.index_in_group);
 
-
+		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
+		cout
+			<< endl
+			<< "===========  recursive_compare_structure: ============== "
+			<< endl;
+		bool result = recursive_compare_structure (nr_ptr, &top_lev_group, 1);
+		if (result ) {
+			cout << "the structures are similar" << endl;
+		} else {
+			cout << "the structures are not similar" << endl;
+		}
 	}
 	cout << "Exit:" << __PRETTY_FUNCTION__ << endl;
 }

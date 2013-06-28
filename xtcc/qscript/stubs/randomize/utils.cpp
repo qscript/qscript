@@ -1,8 +1,100 @@
+#include <cstdio>
 #include "new_named_range-v2.h"
 
-bool recursive_compare_structure (NamedRangeGroup * g1, NamedRangeGroup * g2, int nest_level)
+bool recursive_compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2, int nest_level)
 {
+	//cout
+	//	<< __PRETTY_FUNCTION__
+	//	<< ": nest_level: " << nest_level
+	//	<< endl;
+	printf("%*d|%s\n", nest_level, nest_level, __PRETTY_FUNCTION__);
+	NamedRangeList * nl1 = dynamic_cast<NamedRangeList*> (nr1);
+	NamedRangeGroup * ng1 = dynamic_cast<NamedRangeGroup*> (nr1);
+	NamedRangeList * nl2 = dynamic_cast<NamedRangeList*> (nr2);
+	NamedRangeGroup * ng2 = dynamic_cast<NamedRangeGroup*> (nr2);
+	if (ng1 && ng2) {
+		cout << "comparing: "
+			<< ng1->groupName_ << " vs "
+			<< ng2->groupName_
+			<< endl;
+		if (ng1->groupName_ != ng2->groupName_) {
+			cout
+				<< "name mismatch: "
+				<< ng1->groupName_ << "!=" << ng2->groupName_
+				<< ", nest_level: " << nest_level
+				<< endl;
+			return false;
+		}
+		if (ng1->groupPtr_ && ng2->groupPtr_) {
+			bool res =  recursive_compare_structure (ng1->groupPtr_, ng2->groupPtr_, nest_level+1);
+			if (ng1->next_nr && ng2->next_nr) {
+				return res && recursive_compare_structure (ng1->next_nr, ng2->next_nr, nest_level+1);
+			} else if (ng1->next_nr == 0 && ng2->next_nr == 0) {
+				return res;
+			} else {
+				cout
+					<< "one of the groups has a next_nr and the other doesnt: "
+					<< ng1->groupName_ << ": next_nr == " << ng1->next_nr
+					<< ng2->groupName_ << ": next_nr == " << ng2->next_nr
+					<< ", nest_level: " << nest_level
+					<< endl;
+				return false;
+			}
+		} else if (ng1->groupPtr_ == 0 && ng2->groupPtr_ == 0) {
+			if (ng1->next_nr && ng2->next_nr) {
+				return recursive_compare_structure (ng1->next_nr, ng2->next_nr, nest_level+1);
+			} else {
+				return true;
+			}
+		} else {
+			cout
+				<< "one of the groupPtr_ s is 0"
+				<< "ng1->groupPtr_ " << ng1->groupPtr_
+				<< ", "
+				<< "ng2->groupPtr_ " << ng2->groupPtr_
+				<< ", nest_level: " << nest_level
+				<< endl;
+			return false;
+		}
+	} else if (nl1 && nl2) {
+		cout <<  "both are lists" << endl;
+		if (nl1->stubs.size() != nl2->stubs.size()) {
+			cout << "nl1 and nl2 are both lists but stub sizes are different" << endl;
+			return false;
+		} else {
+			for (int i=0; i < nl1->stubs.size(); ++i) {
+				cout << "comparing: "
+					<< nl1->stubs[i].stub_text << " vs "
+					<< nl2->stubs[i].stub_text
+					<< endl;
+				if (nl1->stubs[i].stub_text != nl2->stubs[i].stub_text) {
+					cout << "nl1 and nl2 differ at i= " << i << endl;
+					cout << nl1->stubs[i].stub_text << endl
+						 << nl2->stubs[i].stub_text << endl;
+					cout << "nest_level: " << nest_level << endl;
+					return false;
+				}
+			}
+			if (nl1->next_nr && nl2->next_nr) {
+				return recursive_compare_structure (nl1->next_nr, nl2->next_nr, nest_level+1);
+			} else {
+				return true;
+			}
+		}
+	} else {
+		cout << __PRETTY_FUNCTION__
+			<< "nl1: " << nl1
+			<< "nl2: " << nl2
+			<< "ng1: " << ng1
+			<< "ng2: " << ng2
+			<< ": nest_level: "
+			<< endl
+			<< " not similar - nl1 and nl2 are /ng1 ng2 one of them is null and one isnt"
+			<< endl;
+		return false;
+	}
 
+	cout << "Impossible: unreachable code" << endl;
 }
 
 
@@ -177,3 +269,108 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str,
 }
 
 
+/*
+bool compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2, int nest_level)
+{
+	NamedRangeList * nl1 = dynamic_cast<NamedRangeList*> (nr1);
+	NamedRangeGroup * ng1 = dynamic_cast<NamedRangeGroup*> (nr1);
+	NamedRangeList * nl2 = dynamic_cast<NamedRangeList*> (nr2);
+	NamedRangeGroup * ng2 = dynamic_cast<NamedRangeGroup*> (nr2);
+
+	if (ng1 && ng1->groupName_ == "grp_21") {
+		cout << "ng1 == grp_21" << endl;
+		cout << "ng1->groupPtr_: "
+			<< ng1->groupPtr_ << endl;
+		if (dynamic_cast<NamedRangeGroup*> (ng1->groupPtr_)) {
+			cout << "ng1->groupPtr_"
+				<< " is a NamedRangeGroup"
+				<< endl;
+		}
+		if (dynamic_cast<NamedRangeList*> (ng1->groupPtr_)) {
+			cout << "ng1->groupPtr_"
+				<< " is a NamedRangeList"
+				<< endl;
+		}
+		cout << "=============" << endl;
+	}
+	if (ng2 && ng2->groupName_ == "grp_21") {
+		cout << "ng2 == grp_21" << endl;
+		cout << "ng2->groupPtr_: "
+			<< ng2->groupPtr_ << endl;
+		if (dynamic_cast<NamedRangeGroup*> (ng2->groupPtr_)) {
+			cout << "ng2->groupPtr_"
+				<< " is a NamedRangeGroup"
+				<< endl;
+		}
+		if (dynamic_cast<NamedRangeList*> (ng2->groupPtr_)) {
+			cout << "ng2->groupPtr_"
+				<< " is a NamedRangeList"
+				<< endl;
+		}
+		cout << "-------------" << endl;
+	}
+
+	cout << __PRETTY_FUNCTION__ << endl;
+
+	if (nl1 && nl2) {
+		cout <<  "both are lists" << endl;
+		if (nl1->stubs.size() != nl2->stubs.size()) {
+			cout << "nl1 and nl2 are both lists but stub sizes are different" << endl;
+			return false;
+		} else {
+			for (int i=0; i < nl1->stubs.size(); ++i) {
+				if (nl1->stubs[i].stub_text != nl2->stubs[i].stub_text) {
+					cout << "nl1 and nl2 differ at i= " << i;
+					cout << nl1->stubs[i].stub_text << endl
+						 << nl2->stubs[i].stub_text << endl;
+				}
+			}
+			if (nl1->next_nr && nl2->next_nr) {
+				return compare_structure (nl1->next_nr, nl2->next_nr);
+			} else {
+				return true;
+			}
+		}
+	} else if (ng1 && ng2) {
+		cout <<  "both are named groups: "
+			<< ng1->groupName_ << ", "
+			<< ng2->groupName_
+			<< endl;
+		if (ng1->groupName_ == ng2->groupName_) {
+
+			bool result = compare_structure (ng1->groupPtr_, ng2->groupPtr_);
+			if (!result) {
+				cout << "group names match but structure doesnt: "
+					<< ng1->groupName_
+					<< endl;
+				return false;
+			} else if (ng1->next_nr && ng2->next_nr) {
+				return compare_structure (ng1->next_nr, ng2->next_nr);
+			} else if (ng1->next_nr == 0 && ng2->next_nr == 0) {
+				return true;
+			} else {
+				cout << "one of the groups does not have a next_nr pointer" << endl;
+				if (ng1->next_nr) {
+					cout << "ng1->next: " << ng1->next_nr << endl;
+				} else {
+					cout << "ng1->next == 0" << endl;
+				}
+				if (ng2->next_nr) {
+					cout << "ng2->next: " << ng2->next_nr << endl;
+				} else {
+					cout << "ng2->next == 0" << endl;
+				}
+				return false;
+			}
+		} else {
+			cout << "ng1 and ng2 have different names"
+				<< endl;
+			return false;
+		}
+	} else {
+		cout << "the inputs are of different types"
+			<< endl;
+		return false;
+	}
+}
+*/
