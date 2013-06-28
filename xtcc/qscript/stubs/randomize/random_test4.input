@@ -1,0 +1,44 @@
+
+stubs top_lev_group =  
+	"top_lev_group 0" 0,
+	"top_lev_group 1" 1,
+	"top_lev_group 2" 2,
+	"top_lev_group 3" 3,
+	"top_lev_group 4" 4
+	stub_group sub_group_1_lev_1 {
+		"sub_group_1_lev_1 5" 5,
+		"sub_group_1_lev_1 6" 6,
+		"sub_group_1_lev_1 7" 7,
+		"sub_group_1_lev_1 8" 8
+	}
+	stub_group sub_group_2_lev_1 {
+		stub_group sub_group_3_lev_2 {
+			"sub_group_3_lev_2 9" 9,
+			"sub_group_3_lev_2 10" 10,
+			"sub_group_3_lev_2 11" 11
+		}
+		stub_group sub_group_4_lev_2 {
+			"sub_group_4_lev_2 12" 12,
+			"sub_group_4_lev_2 13" 13,
+			"sub_group_4_lev_2 14" 14,
+			"sub_group_4_lev_2 15" 15
+		}
+		stub_group sub_group_5_lev_2 {
+			"sub_group_5_lev_2 16" 16,
+			"sub_group_5_lev_2 17" 17,
+			"sub_group_5_lev_2 18" 18,
+			"sub_group_5_lev_2 19" 19
+		}
+	}
+	"top_lev_group 20" 20,
+	"top_lev_group 21" 21,
+	"top_lev_group 22" 22,
+	"top_lev_group 23" 23,
+	"top_lev_group 24" 24
+	stub_group sub_group_6_lev_1 {
+		"sub_group_6_lev_1 25" 25,
+		"sub_group_6_lev_1 26" 26,
+		"sub_group_6_lev_1 27" 27,
+		"sub_group_6_lev_1 28" 28
+	}
+;

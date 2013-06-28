@@ -1,12 +1,14 @@
 #HEADERS = AbstractStatement.h compiled_code.h const_defs.h datatype.h lex_location.h named_range.h randomize.tab.h stub_pair.h
 HEADERS = AbstractStatement.h compiled_code.h const_defs.h datatype.h lex_location.h new_named_range-v2.h randomize-v2.tab.h stub_pair.h
-SOURCES= lex.yy.c randomize-v2.tab.c named_range.cpp AbstractStatement.cpp new_named_range-v2.cpp
-OBJS =  lex.yy.o randomize-v2.tab.o AbstractStatement.o new_named_range-v2.o
-CPP_FLAGS = -fpermissive
+SOURCES= lex.yy.c randomize-v2.tab.c named_range.cpp AbstractStatement.cpp new_named_range-v2.cpp test_structure.cpp utils.cpp
+OBJS =  lex.yy.o randomize-v2.tab.o AbstractStatement.o new_named_range-v2.o test_structure.o utils.o
+#CPP_FLAGS = -fpermissive
+CPP_FLAGS = -H -g -Wall
 
 #randomize.exe: $(SOURCES) $(HEADERS)
 randomize-v2.exe: $(OBJS) $(HEADERS)
-	g++ -fpermissive $(OBJS) -o $@
+	#g++ -fpermissive $(OBJS) -o $@
+	g++ $(OBJS) -o $@
 
 randomize-v2.tab.c randomize-v2.tab.h: randomize-v2.y
 	bison -v -d $<

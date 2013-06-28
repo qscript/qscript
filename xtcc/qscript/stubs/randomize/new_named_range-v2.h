@@ -39,14 +39,15 @@ struct AbstractNamedRange: public AbstractStatement
 		AbstractStatement (NAMED_RANGE, 0),
 		next_nr(0), prev_nr(0)
 	{ }
-	void GenerateCode(StatementCompiledCode & code)
-	{ }
+	virtual void GenerateCode(StatementCompiledCode & code) = 0;
+	//{ }
 	virtual void Print (int nest_level)=0;
 	virtual void SimplePrint (int nest_level)=0;
 	virtual void AddStub (string p_text, int p_code, int p_index_in_group)=0;
 	virtual void AddGroup (NamedRangeGroup & p_group, int p_index_in_group)=0;
 	virtual void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) = 0;
-	virtual void VectorizePrint (int nest_level, AbstractNamedRange * invoker) = 0;
+	virtual void VectorizePrint (int nest_level, AbstractNamedRange * invoker,
+			vector<stub_pair> & flat_display_nr_after_rnd) = 0;
 	virtual void TransferRandomizationOrder(vector<int> & p_randomized_order) = 0;
 };
 
@@ -100,15 +101,19 @@ struct NamedRangeList: public AbstractNamedRange
 			next_nr->SimplePrint(nest_level+1);
 		}
 	}
-	void VectorizePrint (int nest_level, AbstractNamedRange * invoker)
+	void VectorizePrint (int nest_level, AbstractNamedRange * invoker,
+			vector<stub_pair> & flat_display_nr_after_rnd)
 	{
+		cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 		for (int i=0; i<stubs.size(); ++i) {
 			printf("%*d|", nest_level, nest_level);
 			cout << stubs[i].stub_text << ", " << stubs[i].code
 				<< ", index_in_group: " << stubs[i].index_in_group
 				<< endl;
 		}
+		cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 	}
+	void GenerateCode(StatementCompiledCode & code);
 
 };
 
@@ -163,27 +168,34 @@ struct NamedRangeGroup: public AbstractNamedRange
 
 	//void Vectorize (vector <AbstractNamedRange*> & p_stub_grp_vec);
 	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec) ;
-	void VectorizePrint (int nest_level, AbstractNamedRange * invoker)
+	void VectorizePrint (int nest_level, AbstractNamedRange * invoker,
+			vector<stub_pair> & flat_display_nr_after_rnd)
 	{
+		cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 		printf("%*d|", nest_level, nest_level);
 		cout << groupName_ ;
 		cout << ", stub_grp_vec.size(): " << stub_grp_vec.size() << endl;
 		//if (invoker == this) {
 			if (randomized_order.size() == 0) {
 				for (int i=0; i < stub_grp_vec.size(); ++i) {
-					stub_grp_vec[i]->VectorizePrint(nest_level+1,invoker);
+					stub_grp_vec[i]->VectorizePrint(nest_level+1,invoker, flat_display_nr_after_rnd);
 				}
 			} else {
 				for (int i=0; i < randomized_order.size(); ++i) {
-					stub_grp_vec[randomized_order[i]]->VectorizePrint(nest_level+1, invoker);
+					stub_grp_vec[randomized_order[i]]->VectorizePrint(nest_level+1, invoker, flat_display_nr_after_rnd);
 				}
+				//flat_display_nr_after_rnd.push_back
+				//	(stub_pair (string("Group:") + groupName_,
+				//		    flat_display_nr_after_rnd.size()));
 			}
 		//}
+		cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 	}
 	// Warning : this function should only be called
 	// after calling Vectorize on the group
 	void Randomize();
 	void SaveRandomizedOrderToDisk(int nest_level);
+	void GenerateCode(StatementCompiledCode & code);
 
 };
 
@@ -213,15 +225,30 @@ struct NamedRangeStub : public AbstractNamedRange
 	void Vectorize (AbstractNamedRange * invoker, vector <AbstractNamedRange*> & p_stub_grp_vec)
 	{
 	}
-	void VectorizePrint (int nest_level, AbstractNamedRange * invoker)
+	void VectorizePrint (int nest_level, AbstractNamedRange * invoker,
+			vector<stub_pair> & flat_display_nr_after_rnd)
 	{
+		//cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 		Print(nest_level+1);
+		flat_display_nr_after_rnd.push_back (stub_pair(stub.stub_text, stub.code));
+		//cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 	}
 	void TransferRandomizationOrder(vector<int> & p_randomized_order)
 	{
 
 	}
+	void GenerateCode(StatementCompiledCode & code);
 
 };
+
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str,
+	vector <string> & group_list, stringstream & final_answer,
+	vector<stub_pair> & flat_display_nr
+	);
+
+void PrintNamedRange2 (AbstractNamedRange * nr, vector <string> & group_str,
+	vector <NamedRangeGroup*> & group_list, stringstream & final_answer,
+	vector<stub_pair> & flat_display_nr
+	);
 
 #endif /* xtcc_named_range_h */

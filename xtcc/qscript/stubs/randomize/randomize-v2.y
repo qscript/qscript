@@ -256,11 +256,32 @@ randomize_stub_statement: RANDOMIZE STUBS_LIST NAME {
 
 void yyrestart(FILE *input_file);
 int32_t yyparse();
-void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vector <string> & group_list, stringstream & final_answer);
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str,
+	vector <string> & group_list, stringstream & final_answer,
+	vector<stub_pair> & flat_display_nr
+	);
 bool compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2);
+
+void display_flat_named_range(const string & name, const vector<stub_pair>  nr_vec)
+{
+	cout	<< "NamedRange info: "
+		<< name 
+		<< ", size: " << nr_vec.size()
+		<< endl;
+	for (int i=0; i < nr_vec.size(); ++i) {
+		cout
+			<< "code: " << nr_vec[i].code
+			<< ", stub_text: " << nr_vec[i].stub_text
+			<< endl;
+	}
+	cout << " ===== END NamedRange Info" << name << "=======" << endl;
+}
+
+/*
 int main()
 {
-	FILE * yyin = fopen("random_test2.input", "rb");
+	//FILE * yyin = fopen("random_test2.input", "rb");
+	FILE * yyin = fopen("random_test4.input", "rb");
 	if (!yyin){
 		cerr << " Unable to open: random_test.input "  << " for read ... exiting" << endl;
 		exit(1);
@@ -270,6 +291,8 @@ int main()
 		cout << "sucessfully parsed" << endl;
 		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
 		if (nr_ptr) {
+			//make_flat_array (nr_ptr);
+			vector<stub_pair> flat_display_nr;
 			const int nest_level = 1;
 			nr_ptr->Print(nest_level);
 			vector <string> group_str;
@@ -279,7 +302,7 @@ int main()
 			if (NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr)) {
 				//group_list.push_back ("NamedRangeGroup " + ng->groupName_ + ";\n");
 				//group_str.push_back (ng->groupName_);
-				PrintNamedRange (nr_ptr, group_str, group_list, final_answer);
+				PrintNamedRange (nr_ptr, group_str, group_list, final_answer, flat_display_nr);
 			}
 			cout 	<< "final_answer: " << endl
 				<< "========================" << endl
@@ -348,9 +371,12 @@ int main()
 		//suvidha_kendra.SimplePrint();
 		//cout << "END SimplePrint =============== " << endl;
 		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
-		if (NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr)) {
-			bool compare_result = compare_structure (&suvidha_kendra, ng);
-			cout << " compare_result: " << compare_result << endl;
+		bool skip_test = true;
+		if (!skip_test) {
+			if (NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr)) {
+				bool compare_result = compare_structure (&suvidha_kendra, ng);
+				cout << " compare_result: " << compare_result << endl;
+			}
 		}
 
 		//=======
@@ -364,7 +390,8 @@ int main()
 		// printed output
 		//PrintNamedRange (&suvidha_kendra, group_str, group_list, final_answer);
 		NamedRangeGroup * ng = dynamic_cast <NamedRangeGroup*> (nr_ptr);
-		PrintNamedRange (ng, group_str, group_list, final_answer);
+		vector<stub_pair> flat_display_nr;
+		PrintNamedRange (ng, group_str, group_list, final_answer, flat_display_nr);
 		cout << "final_answer: "
 			<< "=======================" << endl
 			<< final_answer.str()
@@ -373,6 +400,9 @@ int main()
 			<< "group_list.size(): " << group_list.size() << endl
 			<< endl;
 
+		
+		display_flat_named_range ("flat_display_nr", flat_display_nr);
+
 		cout << "=========== ng->Print(); ============ " << endl;
 		//const int nest_level = 1;
 		ng->Print(nest_level);
@@ -380,19 +410,28 @@ int main()
 		//cout << "ng->stub_grp_vec.size(): " << ng->stub_grp_vec.size() << endl;
 		ng->Randomize();
 		cout << "=========== ng->VectorizePrint(); ============ " << endl;
-		ng->VectorizePrint(nest_level, ng);
+		vector<stub_pair> flat_display_nr_after_rnd;
+		ng->VectorizePrint(nest_level, ng, flat_display_nr_after_rnd);
 		cout << "=========== ng->SaveRandomizedOrderToDisk(); ============ " << endl;
+
+		
+		display_flat_named_range ("flat_display_nr_after_rnd", flat_display_nr_after_rnd);
 		ng->SaveRandomizedOrderToDisk(nest_level);
 		cout << endl;
 	}
 
 }
+*/
 
-void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vector <string> & group_list, stringstream & final_answer)
+#if 0
+void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str,
+	vector <string> & group_list, stringstream & final_answer,
+	vector<stub_pair> & flat_display_nr
+	)
 {
-	//cout << "Enter: " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
-	//cout << "group_str.size(): " << group_str.size() << endl;
-	//cout << "group_list.size(): " << group_list.size() << endl;
+	cout << "Enter: " << __LINE__ << ", " << __PRETTY_FUNCTION__ << endl;
+	cout << "group_str.size(): " << group_str.size() << endl;
+	cout << "group_list.size(): " << group_list.size() << endl;
 	bool added_to_stack = false;
 	if (nr) {
 		if (NamedRangeGroup * ng = dynamic_cast<NamedRangeGroup*> (nr)) {
@@ -418,8 +457,10 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vect
 			group_str.push_back("NamedRangeGroup " + s + "(\"" + s + "\")" +";\n");
 			//if (ng->groupPtr_)
 			//cout << " before call to PrintNamedRange: " << __LINE__ << endl;
-			PrintNamedRange (ng->groupPtr_, group_str, group_list, final_answer);
+			PrintNamedRange (ng->groupPtr_, group_str, group_list, final_answer, flat_display_nr);
 			added_to_stack = true;
+			//flat_display_nr.push_back (stub_pair(string("Group:") + ng->groupName_,
+			//				flat_display_nr.size()));
 		} else if (NamedRangeList * nl = dynamic_cast<NamedRangeList*> (nr)) {
 			//group_str[group_str.size() -1 ] += string("|");
 			for (int i = 0; i < nl->stubs.size(); ++i) {
@@ -433,6 +474,7 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vect
 					<< string(");\n");
 				group_str[group_str.size() - 1] 
 					+= s1.str();
+				flat_display_nr.push_back (stub_pair(nl->stubs[i].stub_text, flat_display_nr.size()));
 			}
 		}
 		//nr = nr->next_nr;
@@ -445,9 +487,11 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str, vect
 	}
 	//cout << "before next recursive call nr: " << nr << endl;
 	if (nr->next_nr) {
-			PrintNamedRange (nr->next_nr, group_str, group_list, final_answer);
+		PrintNamedRange (nr->next_nr, group_str, group_list, final_answer,
+			flat_display_nr);
 	}
 }
+#endif /* 0 */
 
 bool compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2)
 {
@@ -551,4 +595,9 @@ bool compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2)
 			<< endl;
 		return false;
 	}
+}
+
+void make_flat_array (AbstractNamedRange * nr_ptr)
+{
+	vector<stub_pair> flat_display_nr;
 }

@@ -186,9 +186,13 @@ int MyRNG::operator () (ptrdiff_t i)
 
 void NamedRangeGroup::SaveRandomizedOrderToDisk(int nest_level)
 {
-	printf("%*d|", nest_level, nest_level);
+	//printf("%*d|", nest_level, nest_level);
+	printf("%*c", nest_level, ' ');
+	if (nest_level == 1) {
+		cout << groupName_ << "| 0 -> 0" << endl;
+	}
 	cout << "{ " << groupName_ << ": " << endl;
-	printf("%*d|", nest_level, nest_level);
+	printf("%*c", nest_level, ' ');
 	bool last_item_was_nrg = true; // I am the last Item and I am an NRG
 	//{ grp_2: { grp_23:  2 0 1; }  { grp_21:  1 0; }  { grp_22:  1 0; }   }   }
 	// other wise the output would be like this
@@ -203,7 +207,7 @@ void NamedRangeGroup::SaveRandomizedOrderToDisk(int nest_level)
 			} else {
 				cout << ";  " << endl;
 			}
-			printf("%*d|", nest_level, nest_level);
+			printf("%*c", nest_level, ' ');
 			cout <<  nrg->groupName_ << "|"
 				<< " " << randomized_order[i]
 				<< " -> "
@@ -220,10 +224,10 @@ void NamedRangeGroup::SaveRandomizedOrderToDisk(int nest_level)
 				cout
 					<< i
 					<< endl;
-				printf("%*d|", nest_level, nest_level);
+				printf("%*c", nest_level, ' ');
 			} else {
 				cout	<< endl;
-				printf("%*d||", nest_level, nest_level);
+				printf("%*c", nest_level, ' ');
 				cout
 					<< " " << randomized_order[i]
 					<< endl;
@@ -232,9 +236,29 @@ void NamedRangeGroup::SaveRandomizedOrderToDisk(int nest_level)
 		}
 	}
 	if (last_item_was_nrg) {
-		printf("%*d|", nest_level, nest_level);
+		printf("%*c", nest_level, ' ');
 		cout << "}  " << endl;
 	} else {
 		cout << "; }  " << endl;
 	}
+}
+
+void NamedRangeList::GenerateCode(StatementCompiledCode & code)
+{
+}
+
+void NamedRangeGroup::GenerateCode(StatementCompiledCode & code)
+{
+	vector <string> group_str;
+	vector <string> group_list;
+	stringstream final_answer;
+	vector<stub_pair> flat_display_nr;
+
+	PrintNamedRange (this, group_str, group_list, final_answer, flat_display_nr);
+	code.program_code << final_answer.str();
+}
+
+void NamedRangeStub::GenerateCode(StatementCompiledCode & code)
+{
+
 }
