@@ -2,6 +2,7 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <cstdio>
 
 #include "AbstractStatement.h"
 //#include "named_range.h"
@@ -13,6 +14,7 @@
 	int yyparse();
 	extern AbstractStatement * root;
 	extern int no_errors;
+	void simple_compile(string group_name, stringstream & named_group_creation_order);
 int main()
 {
 	cout << "Enter:" << __PRETTY_FUNCTION__ << endl;
@@ -37,6 +39,15 @@ int main()
 				<< final_answer.str()
 				<< "========================" << endl
 				<< endl;
+			cout << "=========== ng->VectorizePrint(); ============ " << endl;
+			ng->Vectorize(ng, ng->stub_grp_vec);
+			ng->Randomize();
+			vector<stub_pair> flat_display_nr_after_rnd;
+			cout << "VectorizePrint 1 === " << endl;
+			ng->VectorizePrint(1, ng, flat_display_nr_after_rnd);
+			display_flat_named_range ("flat_display_nr_after_rnd", flat_display_nr_after_rnd);
+			ng->SaveRandomizedOrderToDisk(1);
+			simple_compile (ng->groupName_ , final_answer);
 		}
 	}
 	{
@@ -89,6 +100,13 @@ int main()
 		top_lev_group.AddStub( "top_lev_group 24", 24, 12);
 		top_lev_group.AddGroup(sub_group_6_lev_1,sub_group_6_lev_1.index_in_group);
 
+		top_lev_group.Vectorize(&top_lev_group, top_lev_group.stub_grp_vec);
+		top_lev_group.Randomize();
+		vector<stub_pair> flat_display_nr_after_rnd;
+		cout << "VectorizePrint 2 === " << endl;
+		top_lev_group.VectorizePrint(1, &top_lev_group, flat_display_nr_after_rnd);
+		display_flat_named_range ("flat_display_nr_after_rnd", flat_display_nr_after_rnd);
+
 		AbstractNamedRange * nr_ptr = dynamic_cast <AbstractNamedRange*> (root);
 		cout
 			<< endl
@@ -102,4 +120,26 @@ int main()
 		}
 	}
 	cout << "Exit:" << __PRETTY_FUNCTION__ << endl;
+}
+
+// 1. create a program which will contain re-create the group as
+// input by the program - using c++ statements
+// 2. Call randomize on the group
+// 3. save the randomized order to disk
+// 4. When the program is re-invoked,
+// 	if it is running the second time
+// 	open the file and load the randomization order from disk
+// 5. Display the stubs again in randomized order that was loaded
+// 	from the disk
+void simple_compile(string group_name, stringstream & named_group_creation_order)
+{
+	FILE * test_randomization_cpp = fopen ("test_randomization.cpp", "wb");
+
+	fprintf (test_randomization_cpp, "#include \"new_named_range-v2.h\"\n");
+	fprintf (test_randomization_cpp, "int main()\n{\n");
+	fprintf (test_randomization_cpp, "%s\n", named_group_creation_order.str().c_str());
+	fprintf (test_randomization_cpp, "%s.Vectorize(&%s, %s.stub_grp_vec);\n",
+		group_name.c_str(), group_name.c_str(), group_name.c_str());
+	fprintf (test_randomization_cpp, "%s.Randomize();\n", group_name.c_str());
+	fprintf (test_randomization_cpp, "}\n");
 }

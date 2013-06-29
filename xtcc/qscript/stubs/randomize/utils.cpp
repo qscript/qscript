@@ -1,5 +1,23 @@
 #include <cstdio>
 #include "new_named_range-v2.h"
+#include "utils.h"
+
+void display_flat_named_range(const string & name, const vector<stub_pair>  nr_vec)
+{
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	cout	<< "NamedRange info: "
+		<< name
+		<< ", size: " << nr_vec.size()
+		<< endl;
+	for (int i=0; i < nr_vec.size(); ++i) {
+		cout
+			<< "code: " << nr_vec[i].code
+			<< ", stub_text: " << nr_vec[i].stub_text
+			<< endl;
+	}
+	cout << " ===== END NamedRange Info" << name << "=======" << endl;
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+}
 
 bool recursive_compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2, int nest_level)
 {

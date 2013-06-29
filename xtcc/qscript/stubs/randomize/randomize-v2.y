@@ -11,6 +11,7 @@
 //#include "named_range.h"
 #include "new_named_range-v2.h"
 #include "const_defs.h"
+#include "utils.h"
 
 	using std::vector;
 	using std::stringstream;
@@ -261,21 +262,6 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str,
 	vector<stub_pair> & flat_display_nr
 	);
 bool compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2);
-
-void display_flat_named_range(const string & name, const vector<stub_pair>  nr_vec)
-{
-	cout	<< "NamedRange info: "
-		<< name 
-		<< ", size: " << nr_vec.size()
-		<< endl;
-	for (int i=0; i < nr_vec.size(); ++i) {
-		cout
-			<< "code: " << nr_vec[i].code
-			<< ", stub_text: " << nr_vec[i].stub_text
-			<< endl;
-	}
-	cout << " ===== END NamedRange Info" << name << "=======" << endl;
-}
 
 /*
 int main()

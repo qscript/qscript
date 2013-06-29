@@ -77,6 +77,7 @@
 //#include "named_range.h"
 #include "new_named_range-v2.h"
 #include "const_defs.h"
+#include "utils.h"
 
 	using std::vector;
 	using std::stringstream;
@@ -101,7 +102,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 105 "randomize-v2.tab.c"
+#line 106 "randomize-v2.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -145,7 +146,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 38 "randomize-v2.y"
+#line 39 "randomize-v2.y"
 
 	//type_qualifier type_qual;
 	int32_t ival;
@@ -159,7 +160,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 163 "randomize-v2.tab.c"
+#line 164 "randomize-v2.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -171,7 +172,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 175 "randomize-v2.tab.c"
+#line 176 "randomize-v2.tab.c"
 
 #ifdef short
 # undef short
@@ -463,8 +464,8 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    68,    68,    73,    76,    83,    84,    87,    87,   131,
-     132,   135,   142,   151,   157,   157,   212,   213,   248
+       0,    69,    69,    74,    77,    84,    85,    88,    88,   132,
+     133,   136,   143,   152,   158,   158,   213,   214,   249
 };
 #endif
 
@@ -1409,7 +1410,7 @@ yyreduce:
         case 2:
 
 /* Line 1806 of yacc.c  */
-#line 68 "randomize-v2.y"
+#line 69 "randomize-v2.y"
     {
 	root = (yyvsp[(1) - (1)].stmt);
 	}
@@ -1418,7 +1419,7 @@ yyreduce:
   case 3:
 
 /* Line 1806 of yacc.c  */
-#line 73 "randomize-v2.y"
+#line 74 "randomize-v2.y"
     {
 		(yyval.stmt)=(yyvsp[(1) - (1)].stmt);
 	}
@@ -1427,7 +1428,7 @@ yyreduce:
   case 4:
 
 /* Line 1806 of yacc.c  */
-#line 76 "randomize-v2.y"
+#line 77 "randomize-v2.y"
     {
 		(yyvsp[(1) - (2)].stmt)->next_=(yyvsp[(2) - (2)].stmt);
 		(yyvsp[(2) - (2)].stmt)->prev_=(yyvsp[(1) - (2)].stmt);
@@ -1438,7 +1439,7 @@ yyreduce:
   case 7:
 
 /* Line 1806 of yacc.c  */
-#line 87 "randomize-v2.y"
+#line 88 "randomize-v2.y"
     {
 		stub_list.resize(0);
 		stub_number.push_back(0);
@@ -1449,7 +1450,7 @@ yyreduce:
   case 8:
 
 /* Line 1806 of yacc.c  */
-#line 91 "randomize-v2.y"
+#line 92 "randomize-v2.y"
     {
 		//string stub_name=$2;
 		//struct named_range* nr_ptr= 
@@ -1492,7 +1493,7 @@ yyreduce:
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 135 "randomize-v2.y"
+#line 136 "randomize-v2.y"
     {
 		string s1=(yyvsp[(1) - (2)].text_buf);
 		int32_t code=(yyvsp[(2) - (2)].ival);
@@ -1505,7 +1506,7 @@ yyreduce:
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 142 "randomize-v2.y"
+#line 143 "randomize-v2.y"
     {
 		string s1=(yyvsp[(1) - (3)].text_buf);
 		int32_t code=(yyvsp[(2) - (3)].ival);
@@ -1518,7 +1519,7 @@ yyreduce:
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 151 "randomize-v2.y"
+#line 152 "randomize-v2.y"
     {
 		NamedRangeList * nrl = new NamedRangeList();
 		nrl->stubs = stub_list;
@@ -1530,14 +1531,14 @@ yyreduce:
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 157 "randomize-v2.y"
+#line 158 "randomize-v2.y"
     { ++stub_number[stub_number.size()-1]; stub_number.push_back(0); }
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 157 "randomize-v2.y"
+#line 158 "randomize-v2.y"
     {
 		/* continue from here:
 		   treat this as a named compound statement - just like in the main qscript grammar
@@ -1577,7 +1578,7 @@ yyreduce:
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 213 "randomize-v2.y"
+#line 214 "randomize-v2.y"
     {
 		AbstractNamedRange * nr_ptr1=(yyvsp[(1) - (2)].nr_ptr), *nr_ptr2=(yyvsp[(2) - (2)].nr_ptr);
 		NamedRangeList * nrl_ptr1 =0, *nrl_ptr2=0;
@@ -1616,7 +1617,7 @@ yyreduce:
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 248 "randomize-v2.y"
+#line 249 "randomize-v2.y"
     {
 		(yyval.stmt) = 0;
 	}
@@ -1625,7 +1626,7 @@ yyreduce:
 
 
 /* Line 1806 of yacc.c  */
-#line 1629 "randomize-v2.tab.c"
+#line 1630 "randomize-v2.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1856,7 +1857,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 253 "randomize-v2.y"
+#line 254 "randomize-v2.y"
 
 #include <cstdio>
 #include <vector>
@@ -1868,21 +1869,6 @@ void PrintNamedRange (AbstractNamedRange * nr, vector <string> & group_str,
 	vector<stub_pair> & flat_display_nr
 	);
 bool compare_structure (AbstractNamedRange * nr1, AbstractNamedRange * nr2);
-
-void display_flat_named_range(const string & name, const vector<stub_pair>  nr_vec)
-{
-	cout	<< "NamedRange info: "
-		<< name 
-		<< ", size: " << nr_vec.size()
-		<< endl;
-	for (int i=0; i < nr_vec.size(); ++i) {
-		cout
-			<< "code: " << nr_vec[i].code
-			<< ", stub_text: " << nr_vec[i].stub_text
-			<< endl;
-	}
-	cout << " ===== END NamedRange Info" << name << "=======" << endl;
-}
 
 /*
 int main()
