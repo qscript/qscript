@@ -27,7 +27,7 @@
 //#include "qtm_datafile_conf_parser.h"
 #include "ArrayQuestion.h"
 //#include "AsciiFlatFileQuestionDiskMap.h"
-#include "XtccDataFile.h"
+//#include "XtccDataFile.h"
 #include "base_text.h"
 #include "named_attributes.h"
 #include "QuestionAttributes.h"
@@ -50,9 +50,10 @@ extern UserNavigation user_navigation;
 //vector <AbstractRuntimeQuestion*> question_list;
 vector<mem_addr_tab>  mem_addr;
 //extern vector<question_disk_data*>  qdd_list;
+bool write_messages_flag;
+
 bool write_data_file_flag;
 bool write_qtm_data_file_flag;
-bool write_messages_flag;
 bool write_xtcc_data_file_flag;
 bool card_start_flag;
 bool card_end_flag;
@@ -74,10 +75,10 @@ char * flat_file_output_buffer = 0;
 char * xtcc_datafile_output_buffer = 0;
 int32_t len_flat_file_output_buffer  = 0;
 int32_t len_xtcc_datafile_output_buffer  = 0;
-vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;
-vector <XtccDataFileDiskMap*> xtcc_question_disk_map;
-vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;
-qtm_data_file_ns::QtmDataFile qtm_data_file;
+//vector <AsciiFlatFileQuestionDiskMap*> ascii_flatfile_question_disk_map;
+//vector <XtccDataFileDiskMap*> xtcc_question_disk_map;
+//vector <qtm_data_file_ns::QtmDataDiskMap*> qtm_datafile_question_disk_map;
+//qtm_data_file_ns::QtmDataFile qtm_data_file;
 void Compute_FlatFileQuestionDiskDataMap(vector<AbstractRuntimeQuestion*> p_question_list);
 void load_languages_available(vector<string> & vec_language);
 
@@ -244,12 +245,14 @@ q6_list.questionList.push_back(q6);
 	stack_of_loop_indices.pop_back();
 }
 
-	compute_flat_file_map_and_init();
+	//compute_flat_file_map_and_init();
 	if (write_messages_flag) {
 	messages << "</messages>\n";
 	messages.flush() ;
 	}
 }
+
+#if 0
 void compute_flat_file_map_and_init()
 {
 if (write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag)
@@ -460,6 +463,7 @@ int32_t consolidated_for_loop_index_7 = i1;
 				perror("stating directory failed");
 			}
 }
+#if 0
 	if (write_qtm_data_file_flag) {
 		string qtm_map_file_name(string("setup-") + jno + string("/") + jno + string(".qmap"));
 		fstream qtm_map_file(qtm_map_file_name.c_str(), ios_base::out|ios_base::ate);
@@ -498,6 +502,8 @@ int32_t consolidated_for_loop_index_7 = i1;
 		string qtm_disk_file_name(jno + string(".qdat"));
 		qtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);
 	}
+#endif /* 0 */
+#if 0
 	if (write_xtcc_data_file_flag) {
 		string xtcc_ax_file_name(string("setup-")+jno+string("/") + jno + string(".xtcc"));
 		fstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);
@@ -531,8 +537,10 @@ int32_t consolidated_for_loop_index_7 = i1;
 		}
 		xtcc_ax_file << "}\n";
 	}
+#endif /* 0 */
 }
 }
+#endif /* 0 */
 
 AbstractRuntimeQuestion * eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,
 		 AbstractRuntimeQuestion * p_last_question_visited,*/
@@ -863,7 +871,7 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 
 	theQuestionnaire->ser_no = p_ser_no;
 	theQuestionnaire->base_text_vec.push_back(BaseText("All Respondents"));
-	theQuestionnaire->compute_flat_file_map_and_init();
+	//theQuestionnaire->compute_flat_file_map_and_init();
 	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
 
 	AbstractRuntimeQuestion * last_question_visited = 0;

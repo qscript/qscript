@@ -12,12 +12,12 @@
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
       canvas.emscripten { border: 0px none; }
     </style>
-	<link rel="stylesheet" type="text/css" href="../ext-4.2.1.883/resources/css/ext-all-neptune-debug.css">
 	<!-- 
-	<script type="text/javascript" src="../ext-4.2.1.883/ext-debug.js"></script>
+	<link rel="stylesheet" type="text/css" href="../ext-4.2.1.883/resources/css/ext-all-neptune-debug.css">
+	<script type="text/javascript" src="../ext-4.2.1.883/ext-all-debug.js"></script>
 	<script type="text/javascript" src="sencha-touch-all-debug.js"></script>
-	-->
 	<script type="text/javascript" src="ext-all-debug.js"></script>
+	-->
 	<script type="text/javascript">
 		/* Professional JavaScript for Web Developers - Nicholas C Zakas. Chpt 12*/
 		var EventUtil = {
@@ -97,6 +97,10 @@
 
 	</script>
 	<script type="text/javascript">
+	// This entire JS section works
+	// commenting it because we are now working with dojo and 
+	// will switch to sencha a bit later
+	/*
 	Ext.require([
 	    'Ext.form.*',
 	    'Ext.layout.container.Column',
@@ -198,6 +202,7 @@
 		}]
 	    });
 	}
+	*/
 
 	/*
 	Ext.onReady(function(){
@@ -221,8 +226,9 @@
 	</script>
   </head>
   <body>
-  <!-- 
   <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" data-dojo-config="async: true"></script>
+
+  <!--
   <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" ></script>
 -->
 
@@ -299,7 +305,6 @@
     <hr>
 
     <script type="text/javascript" src="jquery-1.9.1.js"></script>
-    <script src="../js/dojo-release-1.9.0-src/dojo/dojo.js" data-dojo-config="async: true"></script>
     <script type='text/javascript'>
       // connect to canvas
       var Module = {
@@ -354,6 +359,13 @@
       };
       Module.setStatus('Downloading...');
     </script>      
+
+  <script type="text/javascript">
+	require(["dojox/mobile/parser", "dojox/mobile", "dojox/mobile/deviceTheme", "dojox/mobile/compat", "dojo/domReady!"],
+			function(parser) {
+				parser.parse();
+			});
+  </script>
     <script type='text/javascript'>
 
       {{{ SCRIPT_CODE }}}

@@ -27,7 +27,7 @@
 #include "named_range.h"
 #include "question_disk_data.h"
 #include "qscript_data.hpp"
-#include "qtm_data_file.h"
+//#include "qtm_data_file.h"
 
 void parse_input_data(vector<int> * data_ptr, int & success);
 
@@ -392,8 +392,8 @@ int32_t main(int argc, char * argv[])
 	process_options(argc, argv);
 	if (write_data_file_flag||write_qtm_data_file_flag||write_xtcc_data_file_flag)
 	{
-		qtm_data_file_ns::init();
-		qtm_data_file_ns::init_exceptions();
+		//qtm_data_file_ns::init();
+		//qtm_data_file_ns::init_exceptions();
 		directory_ptr = opendir(".");
 		if (! directory_ptr)
 		{
