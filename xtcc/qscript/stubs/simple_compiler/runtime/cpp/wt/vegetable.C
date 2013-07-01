@@ -892,9 +892,10 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 
-void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__ << ", nest_level: " << nest_level << endl;
 	// this will be called by the UI - it is the UI's responsibility to
 	// get valid data for us
 	//bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);
@@ -918,6 +919,7 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 	} else {
 		cerr << __PRETTY_FUNCTION__ << " unhandled case theUserResponse_" << endl;
 	}
+	cout << "Exit: " << __PRETTY_FUNCTION__ << ", nest_level: " << nest_level << endl;
 }
 
 void question_eval_loop2 (
@@ -925,7 +927,9 @@ void question_eval_loop2 (
 	AbstractRuntimeQuestion * last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	cout << endl << "Enter: " << __PRETTY_FUNCTION__
+		<< ", nest_level: " << nest_level
+		<< endl;
 	cout << "arg values: " << endl;
 	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
 		cout << "p_user_input.userNavigation_ == NAVIGATE_NEXT" << endl;
@@ -1008,6 +1012,9 @@ void question_eval_loop2 (
 			stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
 		}
 	//}
+	cout << endl << "Exit: " << __PRETTY_FUNCTION__
+		<< ", nest_level: " << nest_level
+		<< endl;
 }
 
 

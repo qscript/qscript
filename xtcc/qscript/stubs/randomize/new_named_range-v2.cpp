@@ -262,3 +262,20 @@ void NamedRangeStub::GenerateCode(StatementCompiledCode & code)
 {
 
 }
+
+
+string NamedRangeGroup::SaveFlatRandomizedOrderToDisk (int nest_level)
+{
+	stringstream randomized_order_str;
+	randomized_order_str
+			<< "randomized_order "
+			<< groupName_
+			<< ":";
+	randomized_order_str << " size " << flat_display_nr_after_rnd.size()
+		<< " : ";
+	for (int i=0; i<flat_display_nr_after_rnd.size(); ++i) {
+		randomized_order_str << " " << flat_display_nr_after_rnd[i].code;
+	}
+	randomized_order_str << endl;
+	return randomized_order_str.str();
+}

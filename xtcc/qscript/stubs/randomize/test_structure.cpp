@@ -136,10 +136,15 @@ void simple_compile(string group_name, stringstream & named_group_creation_order
 	FILE * test_randomization_cpp = fopen ("test_randomization.cpp", "wb");
 
 	fprintf (test_randomization_cpp, "#include \"new_named_range-v2.h\"\n");
+	fprintf (test_randomization_cpp, "#include \"utils.h\"\n");
 	fprintf (test_randomization_cpp, "int main()\n{\n");
 	fprintf (test_randomization_cpp, "%s\n", named_group_creation_order.str().c_str());
 	fprintf (test_randomization_cpp, "%s.Vectorize(&%s, %s.stub_grp_vec);\n",
 		group_name.c_str(), group_name.c_str(), group_name.c_str());
 	fprintf (test_randomization_cpp, "%s.Randomize();\n", group_name.c_str());
+	fprintf (test_randomization_cpp,  "vector<stub_pair> flat_display_nr_after_rnd;\n");
+	fprintf (test_randomization_cpp, "%s.VectorizePrint(1, &%s, flat_display_nr_after_rnd);\n",
+			group_name.c_str(), group_name.c_str());
+	fprintf (test_randomization_cpp, "display_flat_named_range (\"flat_display_nr_after_rnd\", flat_display_nr_after_rnd);\n");
 	fprintf (test_randomization_cpp, "}\n");
 }

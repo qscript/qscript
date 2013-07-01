@@ -123,6 +123,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 	AbstractNamedRange * groupPtr_;
 	vector <AbstractNamedRange *> stub_grp_vec;
 	vector <int> randomized_order;
+	vector <stub_pair> flat_display_nr_after_rnd;
 	int index_in_group;
 	NamedRangeGroup(string p_groupName, int p_index_in_group):
 		AbstractNamedRange(),
@@ -196,6 +197,7 @@ struct NamedRangeGroup: public AbstractNamedRange
 	void Randomize();
 	void SaveRandomizedOrderToDisk(int nest_level);
 	void GenerateCode(StatementCompiledCode & code);
+	string SaveFlatRandomizedOrderToDisk (int nest_level);
 
 };
 

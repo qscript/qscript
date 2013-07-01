@@ -47,7 +47,6 @@ using namespace std;
 //extern vector<int32_t> data;
 namespace program_options_ns { bool flag_nice_map = true; }
 extern UserNavigation user_navigation;
-//vector <AbstractRuntimeQuestion*> question_list;
 vector<mem_addr_tab>  mem_addr;
 //extern vector<question_disk_data*>  qdd_list;
 bool write_messages_flag;
@@ -463,7 +462,6 @@ int32_t consolidated_for_loop_index_7 = i1;
 				perror("stating directory failed");
 			}
 }
-#if 0
 	if (write_qtm_data_file_flag) {
 		string qtm_map_file_name(string("setup-") + jno + string("/") + jno + string(".qmap"));
 		fstream qtm_map_file(qtm_map_file_name.c_str(), ios_base::out|ios_base::ate);
@@ -502,8 +500,6 @@ int32_t consolidated_for_loop_index_7 = i1;
 		string qtm_disk_file_name(jno + string(".qdat"));
 		qtm_disk_file.open(qtm_disk_file_name.c_str(), ios_base::out | ios_base::trunc);
 	}
-#endif /* 0 */
-#if 0
 	if (write_xtcc_data_file_flag) {
 		string xtcc_ax_file_name(string("setup-")+jno+string("/") + jno + string(".xtcc"));
 		fstream xtcc_ax_file(xtcc_ax_file_name.c_str(), ios_base::out | ios_base::ate);
@@ -537,7 +533,6 @@ int32_t consolidated_for_loop_index_7 = i1;
 		}
 		xtcc_ax_file << "}\n";
 	}
-#endif /* 0 */
 }
 }
 #endif /* 0 */
@@ -580,7 +575,7 @@ if( jumpToQuestion == "q1")
 }
 }
 /* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */
-/*  void AbstractRuntimeQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
+/*  void AbstractQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
 
 if ( /* nxd */(q1->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||
 (q1->isAnswered_ && !q1->VerifyQuestionIntegrity())||
@@ -621,7 +616,7 @@ if( jumpToQuestion == "q2")
 }
 }
 /* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */
-/*  void AbstractRuntimeQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
+/*  void AbstractQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
 
 if ( /* nxd */(q2->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||
 (q2->isAnswered_ && !q2->VerifyQuestionIntegrity())||
@@ -665,7 +660,7 @@ if( jumpToQuestion == "q3")
 }
 }
 /* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */
-/*  void AbstractRuntimeQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
+/*  void AbstractQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
 
 if ( /* nxd */(q3->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||
 (q3->isAnswered_ && !q3->VerifyQuestionIntegrity())||
@@ -709,7 +704,7 @@ if( jumpToQuestion == "q4")
 }
 }
 /* EXIT: AbstractRuntimeQuestion::PrintSetupBackJump()  */
-/*  void AbstractRuntimeQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
+/*  void AbstractQuestion::PrintEvalAndNavigateCode(std::ostringstream&)*/
 
 if ( /* nxd */(q4->isAnswered_ == false && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) ||
 (q4->isAnswered_ && !q4->VerifyQuestionIntegrity())||
@@ -968,9 +963,9 @@ void question_eval_loop2 (
 				AbstractRuntimeQuestion *target_question =
 					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
 				if (target_question == 0) {
-					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level + 1);
+					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level+ 1);
 				} else {
-					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level + 1);
+					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level+ 1);
 				}
 			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
 				// do nothing
