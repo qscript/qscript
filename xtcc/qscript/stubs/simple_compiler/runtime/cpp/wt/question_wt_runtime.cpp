@@ -595,6 +595,8 @@ QuestionnaireApplication::QuestionnaireApplication (const WEnvironment &env)
 		//, wt_questionText_(0), currentForm_(0), flagSerialPageRemoved_(false)
 {
 	messageResourceBundle().use(WApplication::appRoot() + jno);
+	useStyleSheet(string(jno + string("-qscript.css")).c_str());
+
 	serialPage_ = new WContainerWidget(0);
 	setTitle("QuestionnaireApplication");
 	WCssDecorationStyle langStyle;
