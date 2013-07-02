@@ -18,6 +18,7 @@
 
 #include <fstream>
 #include <signal.h>
+#include <getopt.h>
 #include "utils.h"
 //#include <libintl.h>
 

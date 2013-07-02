@@ -105,6 +105,7 @@ exe_clean:
 
 clean:
 	-rm $(BUILD_COMMON_DIR)/*.o
+	-rm $(BUILD_COMMON_DIR)/*.so*
 
 
 $(BUILD_COMMON_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
