@@ -291,7 +291,7 @@ void GenerateCode(const string & src_file_name, bool ncurses_flag)
 	}
 	if (program_options_ns::wt_flag) {
 		//print_web_support_structs (script);
-		//print_Wt_support_code(script);
+		print_Wt_support_code(script);
 	}
 	if (program_options_ns::stdout_flag) {
 		//PrintStdoutMain(script);
@@ -398,6 +398,9 @@ void print_header(FILE* script, bool ncurses_flag)
 		<< ", ensure we re-create this functionality in the runtime file"
 		<< ", which has been commented out below"
 		<< endl;
+	if (program_options_ns::wt_flag) {
+		fprintf(script, "#include \"question_wt_runtime.h\"\n");
+	}
 
 	// Thanks to the new runtime, this is no longer necessary
 	//if(config_file_parser::PLATFORM == "LINUX"){
@@ -511,7 +514,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	}
 	*/
 	fprintf(script, "\tDIR * directory_ptr = 0;\n");
-	fprintf(script, "vector <string> vec_language;\n");
+	//fprintf(script, "vector <string> vec_language;\n");
 
 	// fprintf(script, "struct TheQuestionnaire\n{\n");
 	// fprintf(script, "AbstractQuestion * last_question_answered = 0;\n");
@@ -1497,18 +1500,18 @@ test_script.o: test_script.C
 			+ string(" -lmicrohttpd -lpdcurses -lqscript_runtime_wq2");
 #endif /* _WIN32 */
 	} else if (program_options_ns::wt_flag) {
+		QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/runtime/cpp/common";
+		string QSCRIPT_WT_INCLUDE_DIR = QSCRIPT_HOME + "/runtime/cpp/wt";
+		QSCRIPT_RUNTIME = QSCRIPT_HOME + "/runtime/build/common";
+		string WT_OBJ_FILE = QSCRIPT_HOME + "/runtime/build/wt/question_wt_runtime.o";
 		cpp_compile_command = string("g++ -g -o ")
-			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
+			+ executable_file_name
+			+ string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
-			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
-                        + string(" -L/usr/local/lib ")
-			+ string(" -L") + config_file_parser::NCURSES_LIB_DIR
+			+ string(" -I") + QSCRIPT_WT_INCLUDE_DIR
 			+ string(" ") + intermediate_file_name
-#ifndef _WIN32
-			+ string(" -lwt -lwthttp -lqscript_runtime_wq2 -lboost_signals -lpanel -lncurses ");
-#else
-			+ string(" -lwt -lwthttp -lpdcurses -lqscript_runtime_wq2");
-#endif /* _WIN32 */
+			+ string(" ") + WT_OBJ_FILE
+			+ string(" -lwt -lwthttp -lqscript_runtime_common -lboost_signals ");
 	} else if (program_options_ns::stdout_flag) {
 		string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/runtime";
 		cpp_compile_command = string("g++ -g -o ")
@@ -4075,6 +4078,9 @@ void print_web_func_prototypes (FILE * script)
 
 void print_Wt_support_code(FILE * script)
 {
+	// 2-jul-2013
+	// Dont need all this - except for Validateserialno
+#if 0
 	fprintf(script, "using namespace Wt;\n");
 	fprintf(script, "\n");
 	fprintf(script, "class QuestionnaireApplication: public WApplication\n");
@@ -4130,6 +4136,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "	cout << __PRETTY_FUNCTION__ << endl;\n");
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
+#endif /* 0 */
 	fprintf(script, "void QuestionnaireApplication::ValidateSerialNo()\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	int l_ser_no = -1;\n");
@@ -4142,7 +4149,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "			l_ser_no = strtol (narrow_text.c_str(), 0, 10);\n");
 	fprintf(script, "			if (l_ser_no > 0) {\n");
 	fprintf(script, "				ser_no = l_ser_no;\n");
-	fprintf(script, "				this_users_session->questionnaire->ser_no = l_ser_no;\n");
+	fprintf(script, "				//this_users_session->questionnaire->ser_no = l_ser_no;\n");
 	fprintf(script, "				int exists = check_if_reg_file_exists(jno, ser_no);\n");
 	fprintf(script, "				cout << \"checking if serial no : \" << ser_no \n");
 	fprintf(script, "					<< \", jno: \" << jno << \" exists: \" << exists << endl;\n");
@@ -4152,9 +4159,9 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "					load_data(jno, ser_no, &qdd_map);\n");
 	fprintf(script, "					//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n");
 	fprintf(script, "					merge_disk_data_into_questions2(qscript_stdout,\n");
-	fprintf(script, "							this_users_session->questionnaire->last_question_answered,\n");
-	fprintf(script, "							this_users_session->questionnaire->last_question_visited,\n");
-	fprintf(script, "							this_users_session->questionnaire->question_list,\n");
+	fprintf(script, "							this_users_session->theQuestionnaire_->last_question_answered,\n");
+	fprintf(script, "							this_users_session->theQuestionnaire_->last_question_visited,\n");
+	fprintf(script, "							this_users_session->theQuestionnaire_->question_list,\n");
 	fprintf(script, "							&qdd_map);\n");
 	fprintf(script, "					for (map<string, question_disk_data*>:: iterator it \n");
 	fprintf(script, "							= qdd_map.begin();\n");
@@ -4163,7 +4170,8 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "						delete it->second;\n");
 	fprintf(script, "					}\n");
 	fprintf(script, "				}\n");
-	fprintf(script, "				DoQuestionnaire();\n");
+	fprintf(script, "				//DoQuestionnaire();\n");
+	fprintf(script, "				callback_get_ser_no_from_ui (l_ser_no, this_users_session->theQuestionnaire_ , 1);\n");
 	fprintf(script, "			} else {\n");
 	fprintf(script, "				le_data_->setText(\"You have entered a  negative number\");\n");
 	fprintf(script, "			}\n");
@@ -4172,6 +4180,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "}\n");
 	fprintf(script, "\n");
 
+#if 0
 	fprintf(script, "bool verify_web_data (std::string p_question_data, \n");
 	fprintf(script, "		UserNavigation p_user_navigation,\n");
 	fprintf(script, "		user_response::UserResponseType p_the_user_response,\n");
@@ -4787,7 +4796,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf (script, "	closedir(directory_ptr);\n");
 	fprintf (script, "}\n");
 	fprintf (script, "\n");
-
+#endif /* 0 */
 
 }
 
