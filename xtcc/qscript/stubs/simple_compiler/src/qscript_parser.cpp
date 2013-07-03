@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <sstream>
+#include <fstream>
 #include <iostream>
 #include <utility>
 #include "compiled_code.h"
@@ -23,6 +24,7 @@ namespace program_options_ns {
 	extern bool wx_flag;
 	extern bool gtk_flag;
 	extern int data_export_flag;
+	extern string QSCRIPT_HOME;
 }
 
 extern int32_t qscript_confparse();
@@ -1405,7 +1407,8 @@ int32_t ReadQScriptConfig()
 {
 	cerr << "Enter qscript_parser::ReadQScriptConfig" << endl;
 	using namespace std;
-	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	//string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
 	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
 	if (contains_space != string::npos) {
 		QSCRIPT_HOME.erase(contains_space);
@@ -1471,7 +1474,8 @@ test_script.o: test_script.C
 	string executable_file_name = ExtractBaseFileName(src_file_name);
 	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += "-wq2.exe";
-	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	//string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
 	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
 	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
@@ -1578,7 +1582,8 @@ test_script.o: test_script.C
 	string executable_file_name = ExtractBaseFileName(src_file_name);
 	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += "-wq2.exe";
-	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	//string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	string QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
 	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
 	if (contains_space != string::npos) {
 		QSCRIPT_HOME.erase(contains_space);
@@ -4992,7 +4997,30 @@ void print_new_logic_support_functions(FILE * script)
 
 void print_new_logic_support_functions_2(FILE * script)
 {
+	// http://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
+	string support_fname =  program_options_ns::QSCRIPT_HOME +  string("/runtime/cpp/common/new_logic_support_frag.cpp");
+	std::ifstream new_logic_support_frag(support_fname.c_str(),
+			std::ios::in | std::ios::binary);
+	// somewhere in the c++ prog lang - stroustrup has an example
+	// of this. unfortunately im in gurgaon and the book is in bombay
+	//stringstream new_logic_support_frag_contents;
+	//new_logic_support_frag.get (new_logic_support_frag_contents);
 
+	if (new_logic_support_frag) {
+		std::string new_logic_support_frag_contents;
+		new_logic_support_frag.seekg(0, std::ios::end);
+		new_logic_support_frag_contents.resize(new_logic_support_frag.tellg());
+		new_logic_support_frag.seekg(0, std::ios::beg);
+		new_logic_support_frag.read(&new_logic_support_frag_contents[0], new_logic_support_frag_contents.size());
+		new_logic_support_frag.close();
+		fprintf (script, "%s", new_logic_support_frag_contents.c_str());
+	} else {
+		cerr << "Unable to open file " << support_fname << endl
+			<< "... exiting" << endl;
+		exit(1);
+	}
+
+#if 0
 	fprintf (script, "void question_eval_loop2 (\n");
 	fprintf (script, "	UserInput p_user_input,\n");
 	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited,\n");
@@ -5119,10 +5147,12 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "				} else {\n");
 	fprintf (script, "					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level+ 1);\n");
 	fprintf (script, "				}\n");
+	fprintf (script, "				return;\n");
 	fprintf (script, "			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {\n");
 	fprintf (script, "				// do nothing \n");
 	fprintf (script, "				// once we exit this major block == last_question_visited\n");
 	fprintf (script, "				// the bottom of this function will handle it\n");
+
 	fprintf (script, "			} else {\n");
 	fprintf (script, "				cout << \"Unhandled case userNavigation_ ... exiting\" << endl\n");
 	fprintf (script, "					<< __FILE__ << \",\" \n");
@@ -5154,6 +5184,9 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "			}\n");
 #endif /* 0 */
 	fprintf (script, "\n");
+	fprintf (script, "		} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {\n");
+	fprintf (script, "			theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list,\n");
+	fprintf (script, "				theQuestionnaire->jno, theQuestionnaire->ser_no);\n");
 	fprintf (script, "		} else {\n");
 	fprintf (script, "			cout << \"Unhandled case userNavigation_ ... exiting\" << endl;\n");
 	fprintf (script, "			exit(1);\n");
@@ -5174,7 +5207,7 @@ void print_new_logic_support_functions_2(FILE * script)
 	fprintf (script, "}\n");
 	fprintf (script, "\n");
 
-
+#endif /* 0 */
 }
 
 

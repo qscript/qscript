@@ -77,10 +77,11 @@ public:
 	void OnCheckboxToggle(wxCommandEvent& event);
 
 	void ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event));
-	void ShowEndOfQnreScreen(wxCommandEvent& WXUNUSED(event));
+	//void ShowEndOfQnreScreen(wxCommandEvent& WXUNUSED(event));
+	void ShowEndOfQnreScreen();
 
 	void ShowQuestionScreen(wxCommandEvent& WXUNUSED(event));
-	void ClearQuestionScreen(wxCommandEvent& WXUNUSED(event));
+	void ClearQuestionScreen();
 
 	int32_t prevRBValue_;
 	int32_t rbData_;
@@ -113,6 +114,8 @@ public:
 
 	void handleDataInput (wxCommandEvent& WXUNUSED(event));
 	void handlePrevNavigation (wxCommandEvent& WXUNUSED(event));
+	void handleSave(wxCommandEvent& WXUNUSED(event));
+
 	void handleCBDataInput (int nest_level);
 	void handleRBDataInput (int nest_level);
 
@@ -143,6 +146,7 @@ BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     EVT_BUTTON(ID_BUTTON_SERIAL_NO,  wxQuestionnaireGUI::get_serial_no)
     EVT_BUTTON(ID_NEXT_BUTTON,  wxQuestionnaireGUI::handleDataInput)
     EVT_BUTTON(ID_BUTTON_PREVIOUS_QUESTION,  wxQuestionnaireGUI::handlePrevNavigation)
+    EVT_BUTTON(ID_BUTTON_SAVE,  wxQuestionnaireGUI::handleSave)
     EVT_LISTBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnSingleAnswerToggle)
     EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
     //EVT_KILL_FOCUS(txt_data_entry_line, wxQuestionnaireApplication::LostFocus)
@@ -242,6 +246,16 @@ void wxQuestionnaireGUI::handlePrevNavigation(wxCommandEvent& WXUNUSED(event))
 	UserInput user_input;
 	user_input.userNavigation_ = NAVIGATE_PREVIOUS;
 	user_input.theUserResponse_ = user_response::UserEnteredNavigation;
+	callback_ui_input (user_input, last_question_visited, theQuestionnaire_, 1);
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+}
+
+void wxQuestionnaireGUI::handleSave(wxCommandEvent& WXUNUSED(event))
+{
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	UserInput user_input;
+	user_input.userNavigation_ = SAVE_DATA;
+	user_input.theUserResponse_ = user_response::UserSavedData;
 	callback_ui_input (user_input, last_question_visited, theQuestionnaire_, 1);
 	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
@@ -821,25 +835,31 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level), int nest_level)
 {
-	cout << __PRETTY_FUNCTION__
-		<< ": nest_level: " << nest_level
-		<< "questionName_: " << q->questionName_
-		<< endl;
-	ClearPreviousView ();
-	vector <string> qno_and_qtxt = PrepareQuestionText (q);
-	DisplayQuestionTextView (qno_and_qtxt);
-	PrepareStubs (q);
-	DisplayStubs (q);
-	DisplayCurrentAnswers (q);
-	//GetUserInput (callback_ui_input, q, theQuestionnaire);
+	if (q) {
+		cout << __PRETTY_FUNCTION__
+			<< ": nest_level: " << nest_level
+			<< "questionName_: " << q->questionName_
+			<< endl;
+		ClearPreviousView ();
+		vector <string> qno_and_qtxt = PrepareQuestionText (q);
+		DisplayQuestionTextView (qno_and_qtxt);
+		PrepareStubs (q);
+		DisplayStubs (q);
+		DisplayCurrentAnswers (q);
+		//GetUserInput (callback_ui_input, q, theQuestionnaire);
 
-	wxGUI->set_callback_ui_input (callback_ui_input);
-	//gtkQuestionnaireApplication->ConstructQuestionForm (q
-	//		//, gtkQuestionnaireApplication->this_users_session
-	//		);
+		wxGUI->set_callback_ui_input (callback_ui_input);
+		//gtkQuestionnaireApplication->ConstructQuestionForm (q
+		//		//, gtkQuestionnaireApplication->this_users_session
+		//		);
 
-	wxGUI->ConstructQuestionForm( q );
-	//GetUserInput (callback_ui_input, q, theQuestionnaire);
+		wxGUI->ConstructQuestionForm( q );
+		//GetUserInput (callback_ui_input, q, theQuestionnaire);
+		//
+	} else {
+
+		wxGUI->ShowEndOfQnreScreen();
+	}
 }
 
 void wxQuestionnaireGUI::ConstructQuestionForm( AbstractRuntimeQuestion *q )
@@ -879,8 +899,7 @@ void wxQuestionnaireGUI::DisplayStubs (AbstractRuntimeQuestion * q)
 		// nxd: move both the below functions to a clear() api which we call from here
 		rbData_ = -1; // clear the data basically
 		cbData_.clear();
-		if (q->no_mpn==1)
-		{
+		if (q->no_mpn==1) {
 			PrepareSingleCodedStubDisplay(nq);
 		} else {
 			PrepareMultiCodedStubDisplay (nq);
@@ -1073,6 +1092,15 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 	//}
 	rbQnreCodeMap_.clear();
 	int actual_count = 0;
+	int answer_position = -1;
+	int answer_code = -1 ;
+	if (nq->isAnswered_) {
+		answer_code = *(nq->input_data.begin());
+		cout << "nq: " << nq->questionName_
+			<< " currentResponse_: "
+			<< answer_code
+			<< endl;
+	}
 	for ( size_t i = 0; i < count; ++i ) {
 		if (vec[i].mask) {
 			stringstream s1;
@@ -1080,12 +1108,16 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
 			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
 			rbQnreCodeMap_[actual_count] = vec[i].code;
+			if (nq->isAnswered_ &&  vec[i].code == answer_code) {
+				answer_position = i;
+			}
 			//items[i] = wxString::Format (_T("%d: %s"),
 			//		vec[i].stub_text.c_str(),
 			//		vec[i].code);
 			++actual_count;
 		}
 	}
+
 
 
 
@@ -1121,6 +1153,7 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 		 items, //astrChoices,           // array of strings
 		 flags
 		);
+	m_rListBox -> SetSelection (answer_position);
 
 	delete [] items;
 
@@ -1292,12 +1325,12 @@ void wxQuestionnaireGUI::CreateQuestionScreen()
 		txt_data_entry_line = new wxTextCtrl(panel, -1, wxEmptyString, wxDefaultPosition, wxSize(500, 25));
 		//txt_data_entry_line = new wxTextCtrl(panel, -1, wxEmptyString, wxDefaultPosition, wx);
 		data_entry_line_sizer->Add (txt_data_entry_line, 1, wxALL, 5);
-		wxButton *next = new wxButton(panel, ID_NEXT_BUTTON, wxT("NexT") );
 		wxButton *prev = new wxButton(panel, ID_BUTTON_PREVIOUS_QUESTION, wxT("PreV") );
+		wxButton *next = new wxButton(panel, ID_NEXT_BUTTON, wxT("NexT") );
 		wxButton *save = new wxButton(panel, ID_BUTTON_SAVE, wxT("Save") );
 		wxButton *q_no_save = new wxButton(panel, ID_BUTTON_SAVE, wxT("Quit") );
-		navg_sizer->Add (next,     1,  wxALL, 5);
 		navg_sizer->Add (prev,     1,  wxALL, 5);
+		navg_sizer->Add (next,     1,  wxALL, 5);
 		navg_sizer->Add (save,     1,  wxALL, 5);
 		navg_sizer->Add (q_no_save,1,  wxALL, 5);
 	}
@@ -1339,7 +1372,7 @@ void wxQuestionnaireGUI::ShowQuestionScreen(wxCommandEvent& WXUNUSED(event))
 	panel_sizer->Layout();
 }
 
-void wxQuestionnaireGUI::ClearQuestionScreen(wxCommandEvent& WXUNUSED(event))
+void wxQuestionnaireGUI::ClearQuestionScreen()
 {
 	panel_sizer->Hide(fgs);
 	panel_sizer->Layout();
@@ -1356,12 +1389,13 @@ void wxQuestionnaireGUI::ShowSerialNoScreen(wxCommandEvent& WXUNUSED(event))
 }
 
 
-void wxQuestionnaireGUI::ShowEndOfQnreScreen(wxCommandEvent& WXUNUSED(event))
+void wxQuestionnaireGUI::ShowEndOfQnreScreen()
 {
 	if (!end_of_qnre_sizer) {
 		CreateSerialNoScreen();
 		panel_sizer->Add (end_of_qnre_sizer);
 	}
+	ClearQuestionScreen();
 	panel_sizer->Show(end_of_qnre_sizer);
 	panel_sizer->Layout();
 }

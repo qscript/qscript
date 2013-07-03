@@ -4,7 +4,7 @@ vegetable {
  stubs yn=	"Yes" 1
 		"No" 2;
 
-q1 	"Eat veg?"
+q1 	"Do you Eat vegetables?"
 	sp int32_t yn;
 
 stubs agree_5 = 

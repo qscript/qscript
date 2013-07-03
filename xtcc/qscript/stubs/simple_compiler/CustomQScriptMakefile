@@ -36,7 +36,7 @@ OBJECTS += $(LEX_OBJECTS)
 OBJECTS := $(sort $(OBJECTS) )
 
 QSCRIPT_MAJOR_VERSION_NUMBER=0
-QSCRIPT_MINOR_VERSION_NUMBER=14
+QSCRIPT_MINOR_VERSION_NUMBER=25
 
 
 #dummy:
@@ -49,7 +49,7 @@ QSCRIPT_MINOR_VERSION_NUMBER=14
 #	echo "YACC OBJECTS $(YACC_OBJECTS)"
 #	echo "LEX OBJECTS $(LEX_OBJECTS)"
 
-$(BUILD_DIR)/qscript_wq2: $(CPP_SOURCES) $(OBJECTS) yacc_deps lex_deps
+$(BUILD_DIR)/qscript_wq2: $(CPP_SOURCES) $(OBJECTS) $(YACC_OUTPUTS) $(LEX_OUTPUTS)
 #echo "cpp sources: $(CPP_SOURCES)" 
 #	echo "yacc sources: $(YACC_SOURCES)" 
 #	echo "lex sources: $(LEX_SOURCES)" 
@@ -146,23 +146,26 @@ COMPILETIME_LIB_SOURCES = $(SOURCE_DIR)/xtcc_set.cpp $(SOURCE_DIR)/scan_data.cpp
 COMPILETIME_LIB_OBJECTS = $(subst $(SOURCE_DIR),$(BUILD_DIR)/compiletime_lib,$(COMPILETIME_LIB_SOURCES) )
 COMPILETIME_LIB_OBJECTS := $(COMPILETIME_LIB_OBJECTS:.cpp=.o)
 
-runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
-#	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
-#	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
-	$(CXX) -g -shared -Wl,-soname,libqscript_runtime_wq2.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
+# this is no longer required
+## runtime_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_LIB_OBJECTS)
+## #	echo "RUNTIME_LIB_SOURCES $(RUNTIME_LIB_SOURCES)"
+## #	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_LIB_OBJECTS)"
+## 	$(CXX) -g -shared -Wl,-soname,libqscript_runtime_wq2.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
 
 
-runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
-#	echo "RUNTIME_LIB_SOURCES $(RUNTIME_STATIC_LIB_OBJECTS)"
-#	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_STATIC_LIB_OBJECTS)"
-#$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
-	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_runtime_wq2.a $(RUNTIME_STATIC_LIB_OBJECTS)
+# this is no longer required
+## runtime_static_lib: $(RUNTIME_LIB_SOURCES) $(RUNTIME_STATIC_LIB_OBJECTS)
+## #	echo "RUNTIME_LIB_SOURCES $(RUNTIME_STATIC_LIB_OBJECTS)"
+## #	echo "RUNTIME_LIB_OBJECTS $(RUNTIME_STATIC_LIB_OBJECTS)"
+## #$(CXX) -g -shared -Wl,-soname,libqscript_runtime.so.1 -o $(BUILD_DIR)/runtime_lib/libqscript_runtime.so.1.0.1 $(RUNTIME_LIB_OBJECTS)
+## 	ar  rcs $(BUILD_DIR)/runtime_static_lib/libqscript_runtime_wq2.a $(RUNTIME_STATIC_LIB_OBJECTS)
 
 
-compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
-#echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
-#	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
-	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime_wq2.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
+# this was never  required
+## compiletime_lib: $(COMPILETIME_LIB_SOURCES) $(COMPILETIME_LIB_OBJECTS)
+## #echo "COMPILETIME_LIB_SOURCES $(COMPILETIME_LIB_SOURCES)"
+## #	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
+## 	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime_wq2.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
 	$(CC) $(CFLAGS) -o $@ $<
@@ -233,6 +236,7 @@ clean: lib_clean
 #old target - new : runtime is now isolated
 #local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
 local_install: $(BUILD_DIR)/qscript_wq2 
+	(cd  runtime && make -f CppRuntimeMakefile)
 	cp $(BUILD_DIR)/qscript_wq2 bin
 	# new runtime: cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib
 	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1

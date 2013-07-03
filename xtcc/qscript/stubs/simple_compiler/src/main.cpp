@@ -48,6 +48,7 @@ namespace program_options_ns {
 	int wx_flag = 0;
 	int gtk_flag = 0;
 	int data_export_flag = false;
+	string QSCRIPT_HOME;
 }
 
 void process_options (int32_t argc, char* argv[]);
@@ -115,8 +116,9 @@ int32_t main(int32_t argc, char* argv[])
 	*/
 
 	process_options (argc, argv);
-	char * QSCRIPT_HOME = getenv("QSCRIPT_HOME");
-	if (!QSCRIPT_HOME){
+	//char * QSCRIPT_HOME = getenv("QSCRIPT_HOME");
+	program_options_ns::QSCRIPT_HOME =  getenv("QSCRIPT_HOME");
+	if (program_options_ns::QSCRIPT_HOME == string("")) {
 		cout << "Please set environment variable QSCRIPT_HOME to the top-level directory that qscript is installed in" << endl
 			<< "If qscript was installed in /home/unixuser/qscript/, in UNIX - bash " << endl
 			<< "you would do this as (assume $ as shell prompt):" << endl

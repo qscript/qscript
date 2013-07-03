@@ -1,0 +1,56 @@
+cxx = g++
+cflags = -Wall -I src -g
+cxx_shared_lib_flags = -fPIC
+link_flags = -lpanel -lncurses -lwt -lboost_filesystem
+
+rule cxx
+  command = $cxx  -MMD -MT $out -MF $out.d $cflags -c $in -o $out
+  depfile = $out.d
+  deps = gcc
+
+rule cclib
+  command = $cxx  -MMD -MT $out -MF $out.d $cflags $cxx_shared_lib_flags -c $in -o $out
+  depfile = $out.d
+  deps = gcc
+
+rule link
+  command = cxx $cflags $in -o $out $link_flags
+
+build ninja-build/AbstractStatement.o: cxx src/AbstractStatement.cpp
+build ninja-build/code_gen_utils.o: cxx src/code_gen_utils.cpp
+build ninja-build/config_parser.o: cxx src/config_parser.cpp
+build ninja-build/data_entry.o: cxx src/data_entry.cpp
+build ninja-build/debug_mem.o: cxx src/debug_mem.cpp
+build ninja-build/expr.o: cxx src/expr.cpp
+build ninja-build/LatexDoc.o: cxx src/LatexDoc.cpp
+build ninja-build/lex.o: cxx src/lex.cpp
+build ninja-build/log_mesg.o: cxx src/log_mesg.cpp
+build ninja-build/main.o: cxx src/main.cpp
+build ninja-build/named_attributes.o: cxx src/named_attributes.cpp
+build ninja-build/named_range.o: cxx src/named_range.cpp
+build ninja-build/q.o: cxx src/q.cpp
+build ninja-build/qscript_conf.o: cxx src/qscript_conf.cpp
+build ninja-build/qscript_conf_lex.o: cxx src/qscript_conf_lex.cpp
+build ninja-build/qscript_debug.o: cxx src/qscript_debug.cpp
+build ninja-build/qscript_parser_common.o: cxx src/qscript_parser_common.cpp
+build ninja-build/qscript_parser.o: cxx src/qscript_parser.cpp
+build ninja-build/qscript_readline.o: cxx src/qscript_readline.cpp
+build ninja-build/qtm_datafile_conf.o: cxx src/qtm_datafile_conf.cpp
+build ninja-build/qtm_datafile_conf_lex.o: cxx src/qtm_datafile_conf_lex.cpp
+build ninja-build/qtm_datafile_conf_parser.o: cxx src/qtm_datafile_conf_parser.cpp
+build ninja-build/QuestionAttributes.o: cxx src/QuestionAttributes.cpp
+build ninja-build/question_common.o: cxx src/question_common.cpp
+build ninja-build/question.o: cxx src/question.cpp
+build ninja-build/scan_data.o: cxx src/scan_data.cpp
+build ninja-build/scope.o: cxx src/scope.cpp
+build ninja-build/stmt.o: cxx src/stmt.cpp
+build ninja-build/symtab.o: cxx src/symtab.cpp
+build ninja-build/TempNameGenerator.o: cxx src/TempNameGenerator.cpp
+build ninja-build/utils_common.o: cxx src/utils_common.cpp
+build ninja-build/utils.o: cxx src/utils.cpp
+build ninja-build/xtcc_set.o: cxx src/xtcc_set.cpp
+
+build ninja-build/qscript.exe : link  ninja-build/AbstractStatement.o ninja-build/code_gen_utils.o ninja-build/config_parser.o ninja-build/data_entry.o ninja-build/debug_mem.o ninja-build/expr.o ninja-build/LatexDoc.o ninja-build/lex.o ninja-build/log_mesg.o ninja-build/main.o ninja-build/named_attributes.o ninja-build/named_range.o ninja-build/q.o ninja-build/qscript_conf.o ninja-build/qscript_conf_lex.o ninja-build/qscript_debug.o ninja-build/qscript_parser_common.o ninja-build/qscript_parser.o ninja-build/qscript_readline.o ninja-build/qtm_datafile_conf.o ninja-build/qtm_datafile_conf_lex.o ninja-build/qtm_datafile_conf_parser.o ninja-build/QuestionAttributes.o ninja-build/question_common.o ninja-build/question.o ninja-build/scan_data.o ninja-build/scope.o ninja-build/stmt.o ninja-build/symtab.o ninja-build/TempNameGenerator.o ninja-build/utils_common.o ninja-build/utils.o ninja-build/xtcc_set.o
+
+
+
