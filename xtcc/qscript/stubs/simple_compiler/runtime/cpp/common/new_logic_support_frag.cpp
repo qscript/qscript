@@ -124,6 +124,10 @@ void question_eval_loop2 (
 					"user_navigation == NAVIGATE_PREVIOUS\n");
 				AbstractRuntimeQuestion *target_question =
 					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
+
+				AbstractRuntimeQuestion * q =
+					theQuestionnaire->eval2 (
+					NAVIGATE_PREVIOUS, last_question_visited, target_question);
 				if (target_question == 0) {
 					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level+ 1);
 				} else {
