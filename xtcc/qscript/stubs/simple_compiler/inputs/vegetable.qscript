@@ -4,7 +4,7 @@ vegetable {
  stubs yn=	"Yes" 1
 		"No" 2;
 
-q1 	"Eat veg?"
+q1 	"Do you Eat Vegetables?"
 	sp int32_t yn;
 
 stubs agree_5 = 
@@ -20,7 +20,16 @@ stubs agree_5 =
 		"Capsicum" 3
 		"Brinjal/Egg plant" 4
 		"Okra/Lady Finger" 5
+		"Pumpkin" 6
+		"French Beans" 7
+		"Snow Peas" 8
+		"Artichokes" 9
+		"Cabbage" 10
+		"Cauliflower" 11
+		"Broccoli" 12
+		"Don't Know" 99
 		;
+	setall (veg);
 	named_attribute veg_seg_att = " Vegetables are good for health",
 				" I buy fresh vegetables often",
 				" Greens are good source of dietary fibre",
@@ -32,18 +41,23 @@ stubs agree_5 =
 	setall(veg);
 	
 
-q2 		"Which veg u r aware of?"
-		mp(5) int32_t veg;
+q2 		"Here is a list of some common vegetables. Which of these vegetables are you aware of?"
+		mp(15) int32_t veg;
 
 		unset(veg);
 		setadd(veg, q2);
-q3 		"Which veg dou eat?"
-		mp(5) int32_t veg;
+q3_1 		"And which of these Vegetables have you ever eaten?"
+		mp(15) int32_t veg;
+
+		unset(veg);
+		setadd(veg, q3_1);
+q3_2 		"And which of these Vegetables do you regularly eat?"
+		mp(15) int32_t veg;
 
  	
 		unset(veg);
-		setadd(veg, q3);
-q4 		"Which is ur fav veg?" : q3
+		setadd(veg, q3_1);
+q4 		"And, could you please tell us, Which of these vegetables is your favourite?" : q3_1
 		sp int32_t veg;
 
 		int32_t sum=0;
@@ -51,18 +65,18 @@ q4 		"Which is ur fav veg?" : q3
 		for (i1=0; i1<5; i1=i1+1) {
 			int32_t code = i1+1;
 
-			if (code in q3) {
-q6				"In a week what perc of your veggies are (piping not yet implemented): "
-				: q3 . stubs [i1]
+			if (code in q3_2) {
+q5				"In a week what percentage of your veggies are : "
+				: q3_2 . stubs [i1]
 				sp int32_t (0-100);
-				sum=sum+q6[i1];
+				sum=sum+q5[i1];
 				iter_no=i1;
 			} else {
 				1;
 			}
 		}
 		if (sum != 100) {
-			clear (q6[iter_no]);
+			clear (q5[iter_no]);
 		}
 
 
@@ -73,7 +87,7 @@ q6				"In a week what perc of your veggies are (piping not yet implemented): "
 
 
 		for (i1=0; i1<4; i1=i1+1) {
-q5			"Please state your agreement with these statements" : veg_seg_att[i1]
+q6			"Please state your agreement with these statements" : veg_seg_att[i1]
 			sp int32_t agree_5;
 		}
 
