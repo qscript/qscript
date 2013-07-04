@@ -500,6 +500,10 @@ QuestionnaireApplication::QuestionnaireApplication(const WEnvironment &env)
 int main(int argc, char ** argv)
 {
 	//process_options(argc, argv);
+	cout << __PRETTY_FUNCTION__ << ", " << __FILE__
+		<< ", "
+		<< __LINE__ << endl;
+	cout << "searching for -m option" << endl;
        for (int i=0; i<argc; ++i) { if (string(argv[i]) == "-m") { write_messages_flag = 1; break;} }
 	if (write_messages_flag) {
 		TheQuestionnaire theQuestionnaire("dummy");
@@ -1094,6 +1098,7 @@ void QuestionnaireApplication::PrepareMultiCodedStubDisplay (NamedStubQuestion *
 		{
 			//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
 			WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+			wt_cb->setInline(false);
 			vec_cb.push_back(wt_cb);
 			cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
 			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
@@ -1264,11 +1269,17 @@ void QuestionnaireApplication::set_callback_ui_input (
 
 void QuestionnaireApplication::DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
 {
+
+	wt_questionText_ = new WText();
+	wt_questionNo_ = new WText();
 	std::stringstream question_text;
-	for (int i=0; i < qno_and_qtxt.size(); ++i) {
+	for (int i=1; i < qno_and_qtxt.size(); ++i) {
 		question_text << qno_and_qtxt[i];
 	}
 	wt_questionText_->setText(question_text.str());
+	wt_questionText_->setStyleClass("qscript-qtext");
+	wt_questionNo_->setText(qno_and_qtxt[0]);
+	wt_questionNo_->setStyleClass("qscript-qno");
 }
 
 void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q )
@@ -1279,12 +1290,13 @@ void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q
 
 	vector <string> question_text_vec = PrepareQuestionText (q);
 	//the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
-	wt_questionText_ = new WText();
 	DisplayQuestionTextView (question_text_vec);
+	new_form->addWidget(wt_questionNo_);
 	new_form->addWidget(wt_questionText_);
 	// Hack to Display Radio Buttons
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
 		DisplayStubs (q);
+		wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
 		new_form->addWidget(wt_cb_rb_container_);
 	} else {
 		le_data_ = new WLineEdit();
@@ -1430,6 +1442,7 @@ void QuestionnaireApplication::handleCBDataInput (int nest_level)
 
 void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 {
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	string current_question_response = le_data_->text().narrow();
 	AbstractRuntimeQuestion * last_question_served = this_users_session-> ptr_last_question_visited;
 	if (last_question_served->no_mpn==1) {
@@ -1504,7 +1517,6 @@ void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 			// do nothing
 		}
 	} else if (last_question_served->no_mpn > 1) {
-#if 0
 		string utf8_response = le_data_->text().toUTF8();
 		if (utf8_response != "")
 		{
@@ -1513,17 +1525,29 @@ void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 				<< jno << "_" << ser_no << ".dat";
 			fstream open_end_resp(file_name_str.str().c_str(), ios_base::out|ios_base::ate);
 			open_end_resp << utf8_response << endl;
-			last_question_served->input_data.insert(96);
-			last_question_served->isAnswered_ = true;
+			//last_question_served->input_data.insert(96);
+			//last_question_served->isAnswered_ = true;
+			stringstream ss1 ;
+			ss1 << 96;
+			UserInput user_input;
+			user_input.questionResponseData_ = ss1.str();
+			user_input.theUserResponse_ = user_response::UserEnteredData;
+			AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+			string err_mesg;
+			bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
+			if (valid_input) {
+				callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+			}
+#if 0
+#endif /* 0 */
 		}
 		else
 		{
-			ConstructQuestionForm(last_question_served, this_users_session);
-			return;
+			// Do nothing - but we should print a default error message on the screen
 		}
-#endif /* 0 */
 	}
 
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 

@@ -83,6 +83,7 @@ public:
 	std::vector<WText *> languageSelects_;
 	WText * wt_debug_;
 	WText * wt_questionText_;
+	WText * wt_questionNo_;
 	WLineEdit * le_data_;
 	WContainerWidget * formContainer_;
 	WContainerWidget * currentForm_;
