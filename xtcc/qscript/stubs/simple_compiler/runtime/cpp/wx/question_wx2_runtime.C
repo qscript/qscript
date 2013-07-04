@@ -87,6 +87,7 @@ public:
 	int32_t rbData_;
 	set<int32_t> cbData_;
 	map <int32_t, int32_t> rbQnreCodeMap_;
+	map <int32_t, int32_t> rbQnreReverseCodeMap_;
 	void ClearRadio();
 	void ClearCheckList();
 	void ClearStubsArea();
@@ -201,9 +202,9 @@ void wxQuestionnaireGUI::handleCBDataInput (int nest_level)
 
 void wxQuestionnaireGUI::handleRBDataInput (int nest_level)
 {
-	vector<int32_t> data;
+	//vector<int32_t> data;
+	//data.push_back(rbData_);
 	UserInput user_input;
-	data.push_back(rbData_);
 	stringstream s1;
 	s1 << rbData_;
 	user_input.theUserResponse_ = user_response::UserEnteredData;
@@ -960,6 +961,7 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 	//rboxWindow_ = new wxScrolledWindow (panel, -1, wxDefaultPosition, wxSize(700,350));
 	//rboxWindow_->SetScrollbars(20, 20, 50, 50);
 	rbQnreCodeMap_.clear();
+	rbQnreReverseCodeMap_.clear();
 	vector <int32_t> answer_code_vec;
 	vector <int32_t> answer_code_vec_pos;
 	if (nq->isAnswered_) {
@@ -967,6 +969,7 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 				END = nq->input_data.end();
 				cit != END; ++cit) {
 			answer_code_vec.push_back (*cit);
+			cbData_.insert (*cit);
 		}
 	}
 	cout << "answer_code_vec.size(): " << answer_code_vec.size() << endl;
@@ -978,21 +981,28 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
 			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
 			rbQnreCodeMap_[actual_count] = vec[i].code;
-			if (nq->isAnswered_ ) {
-				cout << "found answers: ";
-				for (int j=0; j< answer_code_vec.size(); ++j) {
-					if (vec[i].code == answer_code_vec[j]) {
-						answer_code_vec_pos.push_back(i);
-						cout << " " << vec[i].code;
-					}
-				}
-				cout << endl;
-			}
+			rbQnreReverseCodeMap_[vec[i].code] = actual_count;
+
 			//items[i] = wxString::Format (_T("%d: %s"),
 			//		vec[i].stub_text.c_str(),
 			//		vec[i].code);
 			++actual_count;
 		}
+	}
+
+	if (nq->isAnswered_ ) {
+		cout << "found answers at pos: ";
+		for (int j=0; j< answer_code_vec.size(); ++j) {
+			//if (vec[i].code == answer_code_vec[j]) {
+			answer_code_vec_pos.push_back(rbQnreReverseCodeMap_[answer_code_vec[j]]);
+			cout
+				<< "| "
+				<< answer_code_vec[j]
+				<< " at  "
+				<< answer_code_vec_pos[j];
+			//}
+		}
+		cout << endl;
 	}
 
 	/*
@@ -1129,6 +1139,7 @@ void wxQuestionnaireGUI::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
 			<< " currentResponse_: "
 			<< answer_code
 			<< endl;
+		rbData_ = answer_code;
 	}
 	for ( size_t i = 0; i < count; ++i ) {
 		if (vec[i].mask) {
