@@ -7,6 +7,9 @@ vegetable {
 q1 	"Do you Eat Vegetables?"
 	sp int32_t yn;
 
+q1_1 	"Why do you Eat Vegetables?"
+	mp(10) int32_t (1-500);
+
 stubs agree_5 = 
 	"agree strongly" 5
 	"agree somewhat" 4
@@ -90,6 +93,14 @@ q5				"In a week what percentage of your veggies are : "
 q6			"Please state your agreement with these statements" : veg_seg_att[i1]
 			sp int32_t agree_5;
 		}
+
+stubs 	gender = 
+	"Male" 1
+	"Female" 2
+	;
+
+d1 	"Are you"
+	sp int32_t  gender;
 
 }
 
