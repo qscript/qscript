@@ -1,0 +1,104 @@
+phone {
+	
+stubs yn=	"Yes" 1
+		"No" 2;
+
+s1 "Are you thinking of buying a new phone in the next one month?"
+	sp int32_t yn;
+
+s2 "And would this phone be a SmartPhone? By SmartPhone we mean a phone that apart from making calls, has features to handle a Task List, Appointment list , Your Calendar, Integrated messaging, apps to integrate with FaceBook, Twitter, play games, a dedicated App store?"
+	sp int32_t yn;
+
+
+stubs 	gender = 
+	"Male" 1
+	"Female" 2
+	;
+
+d1 	"Are you"
+	sp int32_t  gender;
+
+stubs age=
+	"Between 18 to 25" 1
+	"Between 26 to 30" 2
+	"Between 31 to 35" 3
+	"Between 36 to 40" 4
+	"Between 41 to 45" 5
+	"Between 46 to 50" 6
+	"Between 51 to 55" 7;
+
+
+d2	"Could you please classify your age according to this list below"
+	sp int32_t  age;
+
+
+	if (s1 == 1 && s2 == 1) {
+
+	stubs ph_brd = 
+		"Samsung Galaxy series" 1
+		"Nokia Lumia" 2
+		"LG Optimus" 3
+		"Sony Xperia" 4
+		"Other (Specify)" 5
+		;
+		setall (ph_brd);
+
+
+	q1	"Given  below is a Common list of Smart Phones. Are you aware of any of these phones?"
+		mp(10) int32_t  ph_brd;
+
+		unset (ph_brd);
+		setadd (ph_brd, q1);
+
+	q2 	"And could you please tell me if you will consider any of these phones, when thinking of this purchase."
+		mp(10) int32_t ph_brd;
+
+	stubs media = 
+		"Advertising on TV" 1
+		"Radio Ads" 2
+		"Discussions with Friends and Family" 3
+		"Did your own research - Website reviews" 4
+		"Past usage of the same brand" 5;
+
+		int32_t i1 = 0;
+		for (i1 = 0; i1 < 4; i1 = i1+1) {
+
+			int32_t code = i1 + 1;
+			if (code in q2) {
+q3 				"What were your sources of information that made you consider this phone for purchase?"
+				: q2.stubs[i1]
+				mp(10) int32_t media;
+			} else {
+				1;
+			}
+
+		}
+
+	named_attribute ph_batt = 
+	"I need to have the latest and best version of the phones that come into the market",
+	"A SmartPhone is essential in today's modern day living",
+	"I use a lot of phone apps and they simplify my life",
+	"I follow news on the latest features of SmartPhone Operating Systems",
+	"I am looking forward to seeing the new FireFox SmartPhone";
+
+	stubs agree = 
+		"Strongly Agree" 5
+		"Agree" 4
+		"Neutral" 3
+		"Disagree" 2
+		"Strongly Disagree" 1;
+
+		int32_t i2 = 0;
+		for (i2= 0 ; i2 < 5; i2 = i2 +1 ) {
+	q4		"Here are some statements about smart phones. Can you tell me your agreement with these statements on a scale of 1 to 5 where 1 means Strongly Disagree and 5 means Strongly Agree"
+			: ph_batt[i2]
+			sp int32_t agree;
+		}
+
+
+
+	} else {
+		1;
+	}
+}
+

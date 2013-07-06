@@ -166,7 +166,7 @@ void question_eval_loop2 (
 			NAVIGATE_NEXT, last_question_visited, jump_to_question);
 		if (!q) {
 			cout << "End of qnre();" << endl << ">";
-			stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
+			//stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
 		} else {
 			cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
 				<< q->questionName_ << endl;
@@ -175,3 +175,8 @@ void question_eval_loop2 (
 	//}
 }
 
+void write_messages()
+{
+	TheQuestionnaire theQuestionnaire("dummy");
+	exit(0);
+}

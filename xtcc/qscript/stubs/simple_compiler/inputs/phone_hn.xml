@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF8"?>
+<messages>
+  <message id="thank_you">  सर्वेक्षण अब पूरा हो गया है. आप अपने समय के लिए धन्यवाद.</message>
+<message id="yn_0">Yes</message>
+
+<message id="yn_1">No</message>
+
+<message id="s1_0">Are you thinking of buying a new phone in the next one month?</message>
+
+<message id="s2_0">And would this phone be a SmartPhone? By SmartPhone we mean a phone that apart from making calls, has features to handle a Task List, Appointment list , Your Calendar, Integrated messaging, apps to integrate with FaceBook, Twitter, play games, a dedicated App store?</message>
+
+<message id="ph_brd_0">Samsung Galaxy series</message>
+
+<message id="ph_brd_1">Nokia Lumia</message>
+
+<message id="ph_brd_2">LG Optimus</message>
+
+<message id="ph_brd_3">Sony Xperia</message>
+
+<message id="ph_brd_4">Other (Specify)</message>
+
+<message id="q1_0">Given  below is a Common list of Smart Phones. Are you aware of any of these phones?</message>
+
+<message id="q2_0">And could you please tell me if you will consider any of these phones, when thinking of this purchase.</message>
+
+<message id="media_0">Advertising on TV</message>
+
+<message id="media_1">Radio Ads</message>
+
+<message id="media_2">Discussions with Friends and Family</message>
+
+<message id="media_3">Did your own research - Website reviews</message>
+
+<message id="media_4">Past usage of the same brand</message>
+
+<message id="ph_batt_0">I need to have the latest and best version of the phones that come into the market</message>
+
+<message id="ph_batt_1">A SmartPhone is essential in today's modern day living</message>
+
+<message id="ph_batt_2">I use a lot of phone apps and they simplify my life</message>
+
+<message id="ph_batt_3">I follow news on the latest features of SmartPhone Operating Systems</message>
+
+<message id="ph_batt_4">I am looking forward to seeing the new FireFox SmartPhone</message>
+
+<message id="agree_0">Strongly Agree</message>
+
+<message id="agree_1">Agree</message>
+
+<message id="agree_2">Neutral</message>
+
+<message id="agree_3">Disagree</message>
+
+<message id="agree_4">Strongly Disagree</message>
+
+<message id="gender_0">Male</message>
+
+<message id="gender_1">Female</message>
+
+<message id="d1_0">Are you</message>
+
+<message id="age_0">Between 18 to 25</message>
+
+<message id="age_1">Between 26 to 30</message>
+
+<message id="age_2">Between 31 to 35</message>
+
+<message id="age_3">Between 36 to 40</message>
+
+<message id="age_4">Between 41 to 45</message>
+
+<message id="age_5">Between 46 to 50</message>
+
+<message id="age_6">Between 51 to 55</message>
+
+<message id="d2_0">Could you please classify your age according to this list below</message>
+
+<message id="s1_0">Are you thinking of buying a new phone in the next one month?</message>
+
+<message id="s2_0">And would this phone be a SmartPhone? By SmartPhone we mean a phone that apart from making calls, has features to handle a Task List, Appointment list , Your Calendar, Integrated messaging, apps to integrate with FaceBook, Twitter, play games, a dedicated App store?</message>
+
+<message id="q1_0">Given  below is a Common list of Smart Phones. Are you aware of any of these phones?</message>
+
+<message id="q2_0">And could you please tell me if you will consider any of these phones, when thinking of this purchase.</message>
+
+<message id="q3_0_0">What were your sources of information that made you consider this phone for purchase?</message>
+
+<message id="q3_0_1"></message>
+
+<message id="q3_1_0">What were your sources of information that made you consider this phone for purchase?</message>
+
+<message id="q3_1_1"></message>
+
+<message id="q3_2_0">What were your sources of information that made you consider this phone for purchase?</message>
+
+<message id="q3_2_1"></message>
+
+<message id="q3_3_0">What were your sources of information that made you consider this phone for purchase?</message>
+
+<message id="q3_3_1"></message>
+
+<message id="q4_0_0">Here are some statements about smart phones. Can you tell me your agreement with these statements on a scale of 1 to 5 where 1 means Strongly Disagree and 5 means Strongly Agree</message>
+
+<message id="q4_0_1"></message>
+
+<message id="q4_1_0">Here are some statements about smart phones. Can you tell me your agreement with these statements on a scale of 1 to 5 where 1 means Strongly Disagree and 5 means Strongly Agree</message>
+
+<message id="q4_1_1"></message>
+
+<message id="q4_2_0">Here are some statements about smart phones. Can you tell me your agreement with these statements on a scale of 1 to 5 where 1 means Strongly Disagree and 5 means Strongly Agree</message>
+
+<message id="q4_2_1"></message>
+
+<message id="q4_3_0">Here are some statements about smart phones. Can you tell me your agreement with these statements on a scale of 1 to 5 where 1 means Strongly Disagree and 5 means Strongly Agree</message>
+
+<message id="q4_3_1"></message>
+
+<message id="q4_4_0">Here are some statements about smart phones. Can you tell me your agreement with these statements on a scale of 1 to 5 where 1 means Strongly Disagree and 5 means Strongly Agree</message>
+
+<message id="q4_4_1"></message>
+
+<message id="d1_0">Are you</message>
+
+<message id="d2_0">Could you please classify your age according to this list below</message>
+
+</messages>

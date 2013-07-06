@@ -724,11 +724,17 @@ extern bool write_messages_flag;
 extern string qscript_stdout_fname;
 extern FILE * qscript_stdout;
 
+void write_messages();
 int main(int argc, char ** argv)
 {
 	//process_options(argc, argv);
-#if 0
 	for (int i=0; i<argc; ++i) { if (string(argv[i]) == "-m") { write_messages_flag = 1; break;} }
+	if (write_messages_flag) {
+		//TheQuestionnaire theQuestionnaire("dummy");
+		write_messages();
+		exit(0);
+	}
+#if 0
 	if (write_messages_flag) {
 		TheQuestionnaire theQuestionnaire("dummy");
 		exit(0);
