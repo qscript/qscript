@@ -1085,6 +1085,7 @@ void QuestionnaireApplication::PrepareMultiCodedStubDisplay (NamedStubQuestion *
 	cout << __PRETTY_FUNCTION__ << endl;
 	ClearStubsArea();
 	wt_cb_rb_container_ = new WGroupBox();
+	wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
 	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 	unsigned long count = vec.size();
 	for (int i=0; i<vec.size(); ++i) {
@@ -1105,6 +1106,7 @@ void QuestionnaireApplication::PrepareMultiCodedStubDisplay (NamedStubQuestion *
 			//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
 			WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
 			wt_cb->setInline(false);
+			wt_cb->setStyleClass("qscript-check-box");
 			vec_cb.push_back(wt_cb);
 			cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
 			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
@@ -1171,6 +1173,7 @@ void QuestionnaireApplication::PrepareSingleCodedStubDisplay (NamedStubQuestion 
 	//ClearRadio();
 	ClearStubsArea();
 	wt_cb_rb_container_ = new WGroupBox();
+	wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
 	wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
 	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 	unsigned long count = vec.size();
@@ -1180,6 +1183,7 @@ void QuestionnaireApplication::PrepareSingleCodedStubDisplay (NamedStubQuestion 
 		if (/*q->no_mpn==1 && */ vec[i].mask) {
 			//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
 			WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+			wt_rb->setStyleClass("wt-rb-container");
 			wt_rb_container_->addButton(wt_rb, vec[i].code);
 			new WBreak(wt_cb_rb_container_);
 			vec_rb.push_back(wt_rb);
@@ -1306,6 +1310,7 @@ void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q
 		new_form->addWidget(wt_cb_rb_container_);
 	} else {
 		le_data_ = new WLineEdit();
+		le_data_->setStyleClass("qscript-open-end-textbox");
 		new_form->addWidget(le_data_);
 	}
 	this_users_session -> ptr_last_question_visited = q;

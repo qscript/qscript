@@ -81,7 +81,10 @@ void question_eval_loop2 (
 	AbstractRuntimeQuestion * last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	cout << endl << "Enter: " << __PRETTY_FUNCTION__
+		<< endl
+		<< "nest_level: " << nest_level
+		<< endl;
 	cout << "arg values: " << endl;
 	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
 		cout << "p_user_input.userNavigation_ == NAVIGATE_NEXT" << endl;

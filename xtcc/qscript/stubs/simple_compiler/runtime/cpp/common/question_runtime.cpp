@@ -101,20 +101,39 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	//, activeVarInfo_(0)
 	, dummyArrayQuestion_(l_dummy_array), currentResponse_()
 	, question_attributes(l_question_attributes)
-	  , mutexCodeList_()
-	  , maxCode_(0)
-	  , isStartOfBlock_(l_isStartOfBlock)
-	  , questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
+	, mutexCodeList_()
+	, maxCode_(0)
+	, isStartOfBlock_(l_isStartOfBlock)
+	, questionNoIndex_(0)
+	//, baseQuestionNoIndexForArray_ (1)
 {
 	//for(int32_t i = 0; i < l_loop_index_values.size(); ++i){
 	//	cout << "l_loop_index_values " << i << ":" << l_loop_index_values[i] << endl;
 	//}
+	cout << __PRETTY_FUNCTION__ << endl
+		<< ", questionName_: " << questionName_
+		<< ", questionNoIndex_: " << questionNoIndex_
+		<< ", dummyArrayQuestion_->questionNoIndex_: " << dummyArrayQuestion_->questionNoIndex_
+		<< ", This code Has to be revisited - probably wont work for 2 level nested loops - needs to be fixed"
+		<< ", FIXME"
+		<< endl;
 	stringstream s;
 	s << questionName_;
+	int temp = 0;
 	for (int i=0; i<loop_index_values.size(); ++i) {
 		s << "$" << loop_index_values[i];
+		//baseQuestionNoIndexForArray_ *= 100;
+		temp += temp +
+			loop_index_values[i]
+			;
+		temp *= dummyArrayQuestion_->array_bounds[i];
 	}
+
+	questionNoIndex_ = dummyArrayQuestion_->questionNoIndex_ + temp;
+	cout << "questionNoIndex_: " << questionNoIndex_ << endl;
 	questionDiskName_ = s.str();
+	cout << "questionDiskName_: " << questionDiskName_  << endl;
+	cout << "EXIT : " << __PRETTY_FUNCTION__ << endl;
 }
 
 

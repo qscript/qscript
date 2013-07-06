@@ -235,6 +235,7 @@ struct AbstractRuntimeQuestion
 	int maxCode_;
 	bool isStartOfBlock_;
 	int questionNoIndex_;
+	//int baseQuestionNoIndexForArray_;
 	static int32_t nQuestions_;
 	//! this is only called in the compile time environment
 #if 0

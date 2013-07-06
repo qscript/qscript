@@ -29,11 +29,15 @@ AbstractRuntimeQuestion::AbstractRuntimeQuestion(
 	//, enclosingCompoundStatement_(0), activeVarInfo_(0)
 	, dummyArrayQuestion_(0), currentResponse_()
 	, question_attributes(l_question_attributes)
-	  , mutexCodeList_()
-	  , maxCode_(0)
+	, mutexCodeList_()
+	, maxCode_(0)
 	, isStartOfBlock_(l_isStartOfBlock)
-	  , questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
+	, questionNoIndex_(++AbstractRuntimeQuestion::nQuestions_)
+	//, baseQuestionNoIndexForArray_ (0)
 {
+	cout << __PRETTY_FUNCTION__ << ", : questionName_" << questionName_
+		<< ", questionNoIndex_: " << questionNoIndex_
+		<< endl;
 	//if(enclosingCompoundStatement_ == 0){
 	//	print_err(compiler_internal_error, " no enclosing CompoundStatement scope for question "
 	//		, qscript_parser::line_no, __LINE__, __FILE__  );
@@ -90,10 +94,26 @@ DummyArrayQuestion::DummyArrayQuestion(string l_qno, vector<int32_t> l_array_bou
 			//, string(l_qno + "_dummy")
 			, vector<TextExpression*>()
 			, spn, 0
-			   , INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
+			, INT32_TYPE, QuestionAttributes(true, true), false /* isStartOfBlock_ does not matter i think for DummyArrayQuestion */)
 	,  array_bounds(l_array_bounds)
+{
+	++AbstractRuntimeQuestion::nQuestions_;
+	cerr << __PRETTY_FUNCTION__ << ", " << __FILE__
+		<< ", line: " << __LINE__
+		<< endl
+		<< "This code generated will not work if question has more than 100 iterations"
+		<< ", This code Has to be revisited - probably wont work for 2 level nested loops - needs to be fixed"
+		<< ", FIXME"
+		<< endl;
 
-{ }
+	int temp = array_bounds.size() * 1000;
+	questionNoIndex_ = AbstractRuntimeQuestion::nQuestions_ +  temp;
+	AbstractRuntimeQuestion::nQuestions_ += questionNoIndex_ + 1000;
+	cout << "DummyArrayQuestion: questionName_: " << questionName_
+		<< ", questionNoIndex_: " << questionNoIndex_
+		<< endl;
+
+}
 
 //void DummyArrayQuestion::eval(/*qs_ncurses::*/WINDOW * question_window
 //		  , /*qs_ncurses::*/WINDOW* stub_list_window
