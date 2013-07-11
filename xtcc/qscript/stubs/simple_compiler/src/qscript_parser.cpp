@@ -20,6 +20,7 @@ namespace program_options_ns {
 	extern int32_t fname_flag;
 	extern bool flag_nice_map;
 	extern char * QSCRIPT_HOME;
+	extern bool QSCRIPT_HOME_came_from_registry;
 }
 
 extern int32_t qscript_confparse();
@@ -1316,16 +1317,17 @@ test_script.o: test_script.C
 	string executable_file_name = ExtractBaseFileName(src_file_name);
 	string intermediate_file_name = executable_file_name + ".C";
 	executable_file_name += ".exe";
-	string QSCRIPT_HOME = getenv("QSCRIPT_HOME");
-	string::size_type contains_space = QSCRIPT_HOME.find_last_of(" ");
+	//string my_QSCRIPT_HOME = getenv("my_QSCRIPT_HOME");
+	string my_QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
+	string::size_type contains_space = my_QSCRIPT_HOME.find_last_of(" ");
 	if (contains_space != string::npos) {
-		QSCRIPT_HOME.erase(contains_space);
+		my_QSCRIPT_HOME.erase(contains_space);
 	}
-	cout << "QSCRIPT_HOME: " << QSCRIPT_HOME << endl;
-	string QSCRIPT_RUNTIME = QSCRIPT_HOME + "/lib";
+	cout << "my_QSCRIPT_HOME: " << my_QSCRIPT_HOME << endl;
+	string QSCRIPT_RUNTIME = my_QSCRIPT_HOME + "/lib";
 	cout << "QSCRIPT_RUNTIME: " << QSCRIPT_RUNTIME << endl;
 	/*
-	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
+	string QSCRIPT_INCLUDE_DIR = my_QSCRIPT_HOME + "/include";
 	string cpp_compile_command = string("c:\\MinGW\\bin\\g++ -static -g -o ")
 				+ executable_file_name
 				+ string(" -L") + QSCRIPT_RUNTIME
@@ -1336,8 +1338,18 @@ test_script.o: test_script.C
 				+ string(" -lqscript_runtime -lpdcurses ");
 	*/
 
-	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/include";
-	string cpp_compile_command = string("g++ -static -g -o ")
+	string QSCRIPT_INCLUDE_DIR = my_QSCRIPT_HOME + "/include";
+	string cpp_invoke;
+	if (program_options_ns::QSCRIPT_HOME_came_from_registry) {
+		//cpp_invoke = string(program_options_ns::QSCRIPT_HOME) + "\\..\\MinGW-foo7\\bin\\" + string("g++ -static -g -L ")
+		//			 + string(program_options_ns::QSCRIPT_HOME) + "\\..\\MinGW-foo7\\bin\\"
+		//			 + string (" -o  ")
+		//	;
+		cpp_invoke = string("g++ -static -g -o ");
+	} else {
+		cpp_invoke = string("g++ -static -g -o ");
+	}
+	string cpp_compile_command = cpp_invoke
 			+ executable_file_name + string(" -L") + QSCRIPT_RUNTIME
 			+ string(" -I") + QSCRIPT_INCLUDE_DIR
 			+ string(" -I") + config_file_parser::NCURSES_INCLUDE_DIR
@@ -1350,11 +1362,19 @@ test_script.o: test_script.C
 	//int32_t ret_val = 0;
 	int32_t ret_val = system(cpp_compile_command.c_str());
 	if(ret_val != 0){
-		cerr << "Failed in compiling generated code : test_script.C ";
-	} else {
-		cout << "Generated executable. You can run it by\n shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./"
-			 <<  executable_file_name
+		cerr << "Failed in compiling generated code : "
+			<< intermediate_file_name
 			<< endl;
+	} else {
+		cout << "Generated executable. You can run it by\n shell_prompt> .\\"
+			 <<  executable_file_name
+			<< endl
+			<< endl
+			<< " If you get an error about pdcurses.dll not found, " << endl
+			<< "add the directory that contains pdcurses.dll to your path OR" << endl
+			<< " copy pdcurses.dll to the directory containing the executable file built."
+			<< endl
+			;
 	}
 }
 

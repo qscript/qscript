@@ -54,7 +54,8 @@ namespace program_options_ns {
 	bool flag_nice_map;
 	bool compile_to_cpp_only_flag = false;
 	bool latex_flag = false;
-	char * QSCRIPT_HOME;
+	char * QSCRIPT_HOME = 0;
+	bool QSCRIPT_HOME_came_from_registry = false;
 }
 
 int32_t main(int32_t argc, char* argv[])
@@ -126,6 +127,7 @@ int32_t main(int32_t argc, char* argv[])
 			program_options_ns::QSCRIPT_HOME = strdup(qscript_install_dir.c_str());
 			cout << "QSCRIPT_HOME is : " << program_options_ns::QSCRIPT_HOME << endl;
 			QSCRIPT_HOME_came_from_registry = true;
+			program_options_ns::QSCRIPT_HOME_came_from_registry  = true;
 		} else {
 			cout << "For Windows you can also set qscript_install_dir using the registry key : SOFTWARE\\QScript" << endl;
 		}
@@ -146,6 +148,7 @@ int32_t main(int32_t argc, char* argv[])
 	if (exit_flag){
 		exit(1);
 	}
+
 #if _WIN32
 	do_sanity_checks(program_options_ns::QSCRIPT_HOME, QSCRIPT_HOME_came_from_registry);
 #endif /*  _WIN32 */
@@ -581,6 +584,86 @@ string QueryKeyData(HKEY hKey)
 }
 
 #if _WIN32
+bool do_env_check (bool QSCRIPT_HOME_came_from_registry)
+{
+	char * path = getenv ("PATH");
+	if (path != NULL) {
+		cout << "Current Path is: " << path << endl;
+	}
+	char * path_copy = strdup (path);
+	char * split_path = strtok (path_copy, ";");
+	char * needle = "MinGW-foo7\\bin";
+	bool found_mingw_foo7 = false;
+	for (;split_path != NULL; ) {
+		printf("path component: %s\n", split_path);
+		split_path = strtok (NULL, ";");
+		if (split_path && strstr(split_path, needle)) {
+			found_mingw_foo7 = true;
+			break;
+		}
+	}
+	if (found_mingw_foo7) {
+		cout << "MinGW-foo7\\bin is present in path - no need to inject"
+			<< endl;
+	} else {
+		cout << "MinGW-foo7\\bin is not present in path "
+			<< " - need to inject into environment"
+			<< endl;
+	}
+	string path_copy2 (path);
+	string QSCRIPT_HOME_str (program_options_ns::QSCRIPT_HOME);
+	string mingw_path ( QSCRIPT_HOME_str + "\\..\\MinGW-foo7\\bin");
+	string msys_path ( QSCRIPT_HOME_str + "\\..\\MinGW-foo7\\msys\\1.0\\bin");
+	string path_copy3 = path_copy2 + ";" +
+						mingw_path + ";" +
+						msys_path + ";";
+	string out_env_string = "PATH=" + path_copy3;
+	/*
+	 * After doing all this below, I have learnt that putenv doesnt work
+	 * well on windows. Maybe I need to investigate further, but
+	 * Im giving up - as the effort is not worth it.
+	 *
+	int res = _putenv (out_env_string.c_str());
+	if (res ==0) {
+		cout << "Successfully put new path into env" << endl;
+	} else {
+		cout << "FAILEd to put new path into env" << endl;
+	}
+	//_putenv_s( "LIB", "c:\\mylib;c:\\yourlib" );
+	//_putenv_s( "PATH", path_copy3.c_str() );
+	{
+		char * check_env_path = getenv ("PATH");
+		cout << "after putenv PATH=" << check_env_path << endl;
+		char * split_path2 = strtok (check_env_path, ";");
+		//char * needle = "MinGW-foo7\\bin";
+		bool found_mingw_foo7_2 = false;
+		for (;split_path2 != NULL; ) {
+			printf("path component: %s\n", split_path2);
+			split_path2 = strtok (NULL, ";");
+			if (split_path2 && strstr(split_path2, needle)) {
+				found_mingw_foo7_2 = true;
+				int rval = system ("g++ --help");
+				if (rval == 0)  {
+					cout << "Successfully ran g++ command" << endl;
+				} else {
+					cout << "FAILED to run  g++ command" << endl;
+				}
+				break;
+			}
+		}
+		if (found_mingw_foo7_2) {
+			cout << "Re-Check: MinGW-foo7\\bin is present in path - no need to inject"
+				<< endl;
+		} else {
+			cout << "Re-Check: MinGW-foo7\\bin is not present in path "
+				<< " - need to inject into environment"
+				<< endl;
+		}
+	}
+	*/
+	return true;
+}
+
 bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_registry)
 {
 	bool environment_is_sane = true;
@@ -588,6 +671,8 @@ bool do_sanity_checks(string qscript_install_dir, bool QSCRIPT_HOME_came_from_re
 	bool found_pd_curses = false;
 	bool found_pd_curses_headers = false;
 	string l_qscript_install_dir ( qscript_install_dir );
+
+	bool env_check_flag = do_env_check(QSCRIPT_HOME_came_from_registry);
 	if (l_qscript_install_dir[l_qscript_install_dir.length()-1] !='\\' ||
 		l_qscript_install_dir[l_qscript_install_dir.length()-1] !='/'
 			) {
