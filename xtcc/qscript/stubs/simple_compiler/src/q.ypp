@@ -74,6 +74,7 @@
 %token <text_buf> TEXT
 %token SINGLE_CODED
 %token MP
+%token VIDEO
 %token <dt> VOID_T
 %token <dt> INT8_T
 %token <dt> INT16_T
@@ -481,6 +482,12 @@ question: NAME text_expr_list qtype datatype range_allowed_values attribute_list
 		// huge memory leak 
 		text_expr_vec.clear();
 	}
+	|NAME text_expr_list qtype TEXT';' {
+		string path_to_media ($4);
+		$$ = qscript_parser::ProcessVideoQuestion($1, "dummy question text", path_to_media);
+		text_expr_vec.clear();
+		question_attributes.Reset();
+	}
 	;
 
 text_expr_list: text_expr
@@ -875,9 +882,12 @@ qtype: SINGLE_CODED {
 	       // we need this =1 when generating
 	       // code for flat file creation
 		qscript_parser::no_mpn = 1;
-       }
+	}
 	| MP '(' INUMBER ')' { qscript_parser::q_type = mpn;
 		qscript_parser::no_mpn = $3;
+	}
+	| VIDEO {
+	       qscript_parser::q_type = video;
 	}
 	;
 
@@ -1353,13 +1363,13 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 
 	bool found=false;
 	struct named_range* nr_ptr = 0;
-	for(uint32_t i=0; i<named_stubs_list.size(); ++i){
+	for (uint32_t i=0; i<named_stubs_list.size(); ++i) {
 		nr_ptr = named_stubs_list[i];
-		if(nr_ptr->name==attribute_list_name){
+		if (nr_ptr->name == attribute_list_name) {
 			found=true; break;
 		}
 	}
-	if(!found){
+	if (!found) {
 		print_err(compiler_sem_err, string("named_stubs_list ")
 			+ attribute_list_name + string(" not found \n"), line_no,
 			__LINE__, __FILE__);
@@ -1374,7 +1384,7 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
 	AbstractExpression * arr_sz=0;
 	NamedStubQuestion* q=0;
-	if(qscript_parser::flagIsAForBody_){
+	if (qscript_parser::flagIsAForBody_) {
 		//cout << "flagIsAForBody_: "
 		//	<< qscript_parser::flagIsAForBody_ << endl;
 		arr_sz = qscript_parser::recurse_for_index(
@@ -1410,6 +1420,37 @@ AbstractStatement * ProcessNamedQuestion(const string &name
 	}
 
 	return q;
+}
+
+AbstractStatement * ProcessVideoQuestion (const string &name
+	, const string & q_txt //, const DataType& dt
+	, const string & path_to_media)
+{
+	//($1, "dummy question text", $4, $5);
+	vector <ActiveVariableInfo* > av_info;
+	PrintActiveVariablesAtScope(active_scope_list, av_info);
+	CompoundStatement * cmpd_stmt_ptr=stack_cmpd_stmt.back();
+	VideoQuestion* q=0;
+	if (qscript_parser::flagIsAForBody_) {
+		cerr << " Video within for loops not yet implemented - exiting"
+			<< endl;
+		exit (1);
+	} else {
+		q = new VideoQuestion (QUESTION_TYPE, line_no
+				, name, ::text_expr_vec, q_type
+				, cmpd_stmt_ptr
+				, av_info, question_attributes
+				, path_to_media
+				);
+		question_list.push_back(q);
+	}
+	++(cmpd_stmt_ptr->counterContainsQuestions_);
+	if (flag_next_question_start_of_block) {
+		q->isStartOfBlock_ = true;
+		flag_next_question_start_of_block = false;
+	}
+	return q;
+
 }
 
 // Close namespace

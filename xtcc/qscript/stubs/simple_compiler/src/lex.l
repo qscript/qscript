@@ -293,6 +293,13 @@ mp 		{
 		return MP;
 	}
 
+video		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return VIDEO;
+	}
+
 const 		{
 		qscript_parser::lex_location.IncrementColumn(yyleng);
 		return CONST;

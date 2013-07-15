@@ -589,6 +589,31 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		NamedStubQuestion (const NamedStubQuestion&);
 };
 
+class VideoQuestion: public AbstractRuntimeQuestion
+{
+public:
+	string file_path;
+
+	VideoQuestion(
+			DataType this_stmt_type, int32_t line_number, string l_name
+			, vector<TextExpression*> text_expr_vec
+			//, QuestionType l_q_type
+			//, CompoundStatement * l_enclosing_scope
+			//, vector<ActiveVariableInfo* > l_av_info
+			, QuestionAttributes  l_question_attributes
+			, const string& path_to_media);
+
+	virtual bool IsValid(int32_t value)
+	{
+		return true;
+	}
+	void WriteDataToDisk(ofstream& data_file);
+	string PrintSelectedAnswers();
+	string PrintSelectedAnswers(int code_index);
+};
+
+
+
 class DummyArrayQuestion: public AbstractRuntimeQuestion
 {
 	public:

@@ -27,7 +27,7 @@
 
 using std::ofstream;
 using std::vector;
-namespace qscript_parser 
+namespace qscript_parser
 {
 
 	extern vector<AbstractExpression*> for_loop_max_counter_stack;
@@ -57,8 +57,8 @@ namespace qscript_parser
 
 	extern ofstream debug_log_file;
 	using std::string;
-	//void print_err(compiler_err_category cmp_err, 
-	//	string err_msg, int32_t line_no, 
+	//void print_err(compiler_err_category cmp_err,
+	//	string err_msg, int32_t line_no,
 	//	int32_t compiler_line_no, string compiler_file_name);
 	extern int32_t line_no;
 	extern noun_list_type noun_list[];
@@ -112,6 +112,10 @@ namespace qscript_parser
 	AbstractStatement * ProcessNamedQuestion(
 		const string &name, const string & q_txt
 		, const DataType& dt, const string & named_stub_list );
+
+	AbstractStatement * ProcessVideoQuestion (const string &name
+		, const string & q_txt //, const DataType& dt
+		, const string & path_to_media);
 
 
 	void PrintActiveVariablesAtScope( vector <Scope*> & active_scope_list,
