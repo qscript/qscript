@@ -35,7 +35,11 @@ void parse_input_data(vector<int> * data_ptr, int & success);
 void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
+	cout << " ============ ENTER:" << __PRETTY_FUNCTION__
+		<< ", q = " << q->questionName_ << endl
+		<< ", p_user_input.theUserResponse_ = " << p_user_input.theUserResponse_ << endl
+		<< ", p_user_input.questionResponseData_ = " << p_user_input.questionResponseData_ << endl
+		<< endl;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
 		if (p_user_input.questionResponseData_.length() == 0

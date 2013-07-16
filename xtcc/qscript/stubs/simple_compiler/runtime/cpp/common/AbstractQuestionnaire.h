@@ -75,6 +75,7 @@ struct AbstractQuestionnaire
 	private:
 	AbstractQuestionnaire& operator = (const AbstractQuestionnaire&);
 	AbstractQuestionnaire (const AbstractQuestionnaire&);
+	//virtual void ConstructThankYouPage()=0;
 
 };
 

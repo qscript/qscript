@@ -17,6 +17,7 @@
  */
 
 #include <wx/wx.h>
+#include <wx/mediactrl.h>   //for wxMediaCtrl
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
@@ -56,9 +57,13 @@ public:
 	wxBoxSizer * radio_box_sizer;
 	wxBoxSizer * data_entry_and_navg_sizer;
 	wxPanel *panel;
+	wxPanel * media_panel_;
 	wxFlexGridSizer *fgs ;
 	wxBoxSizer *panel_sizer ;
+	wxBoxSizer *media_panel_sizer_ ;
 	wxStatusBar * statusBar_;
+	// warning - need to delete this
+	wxMediaCtrl * mediactrl_;
 
 	AbstractRuntimeQuestion * last_question_visited;
 	AbstractRuntimeQuestion * jump_to_question;
@@ -71,6 +76,7 @@ public:
 	void PrepareSingleCodedStubDisplay (NamedStubQuestion * nq);
 	void PrepareMultiCodedStubDisplay (NamedStubQuestion * nq);
 	void DisplayStubs (AbstractRuntimeQuestion * q);
+	void DisplayVideo (AbstractRuntimeQuestion * q);
 
 	void OnSingleAnswerToggle(wxCommandEvent& event);
 
@@ -120,6 +126,8 @@ public:
 	void handleCBDataInput (int nest_level);
 	void handleRBDataInput (int nest_level);
 
+	void OnMediaLoaded(wxMediaEvent& WXUNUSED(evt));
+
 	void set_callback_ui_input (
 			void (*p_callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 			);
@@ -140,6 +148,8 @@ enum MyWidgetID {
 	ID_BUTTON_PREVIOUS_QUESTION,
 	ID_BUTTON_SAVE,
 	ID_BUTTON_CLOSE_QUESTIONNAIRE_WITHOUT_SAVING,
+	ID_MEDIA_PANEL,
+	ID_MEDIACTRL
 };
 
 
@@ -151,6 +161,7 @@ BEGIN_EVENT_TABLE(wxQuestionnaireGUI, wxFrame)
     EVT_LISTBOX(SingleAnswerRadioBox, wxQuestionnaireGUI::OnSingleAnswerToggle)
     EVT_CHECKLISTBOX(MultiAnswerCheckListBox, wxQuestionnaireGUI::OnCheckboxToggle)
     //EVT_KILL_FOCUS(txt_data_entry_line, wxQuestionnaireApplication::LostFocus)
+    EVT_MEDIA_LOADED(ID_MEDIACTRL, wxQuestionnaireGUI::OnMediaLoaded)
 END_EVENT_TABLE()
 
 void wxQuestionnaireGUI::handleCBDataInput (int nest_level)
@@ -263,7 +274,9 @@ void wxQuestionnaireGUI::handleSave(wxCommandEvent& WXUNUSED(event))
 
 void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__
+		<< ", last_question_visited: " << last_question_visited
+		<< endl;
 
 	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_visited))
 	{
@@ -315,12 +328,13 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 			*/
 			handleRBDataInput(1);
 		} else {
-			cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
 			handleCBDataInput(1);
 		}
-	} else {
+	} else if (VideoQuestion * vq = dynamic_cast<VideoQuestion *>(last_question_visited)) {
+		cout << __PRETTY_FUNCTION__ << "doing nothing : case VideoQuestion" << endl;
+	} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(last_question_visited) ) {
+		cout << __PRETTY_FUNCTION__ << "Case RangeQuestion: " << endl;
 		AbstractRuntimeQuestion * q = last_question_visited;
-		cout << "need to handle line data here: got input as : " << endl;
 		string current_response ((txt_data_entry_line->GetValue()).utf8_str()  );
 		cout << current_response << endl;
 		if (current_response.size() > 0) {
@@ -432,7 +446,15 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 		}
 
 	}
-	cout << __PRETTY_FUNCTION__ << " returned " << endl;
+	cout << "Exit: " << __PRETTY_FUNCTION__
+		<< ", last_question_visited: " << last_question_visited
+		<< endl;
+	if (last_question_visited) {
+		cout << "last_question_visited is not null, it is: "
+			<< last_question_visited->questionName_
+			<< endl;
+	}
+	cout << endl;
 }
 
 void wxQuestionnaireGUI::get_serial_no(wxCommandEvent& WXUNUSED(event))
@@ -502,15 +524,18 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	  the_question (0), the_stubs(0), the_data_entry_line(0),
 	  // m_radio(0),
 	  m_sizerRadio(0),
-	  panel_sizer(0), rbData_(-1), prevRBValue_(-1),
+	  panel_sizer(0), media_panel_sizer_(0),
+	  rbData_(-1), prevRBValue_(-1),
 	  // rboxWindow_(0),
-	  m_pListBox(0)
+	  m_pListBox(0),
+	  mediactrl_(0)
 {
 
 	const int widths[] = { -1, 200 };
 	statusBar_ = CreateStatusBar(2);
 	SetStatusWidths(2, widths);
 	panel = new wxPanel(this, -1);
+	media_panel_ = new wxPanel(panel, ID_MEDIA_PANEL);
 
 
 	panel_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -519,6 +544,12 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	CreateSerialNoScreen();
 	CreateEndOfQnreScreen();
 	panel->SetSizer(panel_sizer);
+
+	//media_panel_sizer_ = new wxBoxSizer(wxVERTICAL);
+	//media_panel_ ->SetSizer (media_panel_sizer_);
+	panel_sizer->Add (media_panel_);
+	//media_panel_sizer_->Hide(media_panel_);
+
 	Centre();
 	theQuestionnaire_ = make_questionnaire();
 
@@ -573,7 +604,7 @@ void GetUserInput (
 		AbstractRuntimeQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	static int count = 0;
-	cout << __PRETTY_FUNCTION__ << ++count << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__ << ++count << endl;
 	if (q->no_mpn == 1) {
 		cout << " Question is single answer, please enter only 1 response." << endl;
 	} else {
@@ -844,9 +875,11 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 		ClearPreviousView ();
 		vector <string> qno_and_qtxt = PrepareQuestionText (q);
 		DisplayQuestionTextView (qno_and_qtxt);
-		PrepareStubs (q);
-		DisplayStubs (q);
-		DisplayCurrentAnswers (q);
+		if (q->q_type != video) {
+			PrepareStubs (q);
+			DisplayStubs (q);
+			DisplayCurrentAnswers (q);
+		}
 		//GetUserInput (callback_ui_input, q, theQuestionnaire);
 
 		wxGUI->set_callback_ui_input (callback_ui_input);
@@ -870,13 +903,72 @@ void wxQuestionnaireGUI::ConstructQuestionForm( AbstractRuntimeQuestion *q )
 	//the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
 	DisplayQuestionTextView (question_text_vec);
 	// Hack to Display Radio Buttons
-	DisplayStubs (q);
+	if (q->q_type == spn || q->q_type == mpn) {
+		DisplayStubs (q);
+	} else if (q->q_type == video) {
+		DisplayVideo (q);
+		//panel_sizer->Hide (end_of_qnre_sizer);
+		//panel_sizer->Hide (fgs);
+		//panel_sizer->Show (media_panel_);
+		panel_sizer->Layout();
+	}
 	last_question_visited = q;
 
 }
 
+
+void wxQuestionnaireGUI::DisplayVideo (AbstractRuntimeQuestion * q)
+{
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	rbQnreCodeMap_.clear();
+	rbQnreReverseCodeMap_.clear();
+	ClearStubsArea();
+	VideoQuestion * vq = dynamic_cast <VideoQuestion*> (q);
+	if (vq) {
+		cout << " is a VideoQuestion" << endl;
+		if (mediactrl_) {
+			//radio_box_sizer ->Detach (m_rListBox);
+			panel_sizer ->Detach (mediactrl_);
+
+			delete mediactrl_; mediactrl_ = 0;;
+		}
+
+		mediactrl_ = new wxMediaCtrl();
+		bool bOK = mediactrl_->Create(panel, ID_MEDIACTRL, wxEmptyString,
+						wxDefaultPosition, wxDefaultSize);
+		//bool bOK = mediactrl_->Create(media_panel_, ID_MEDIACTRL, wxEmptyString,
+		//				wxDefaultPosition, wxDefaultSize);
+		mediactrl_->ShowPlayerControls(wxMEDIACTRLPLAYERCONTROLS_DEFAULT);
+		panel_sizer->Add (mediactrl_);
+
+		wxString hard_coded_path =
+			wxString::FromUTF8("/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4");
+		wxURI uripath(hard_coded_path);
+		if( uripath.IsReference() ) {
+			cout << "uripath IsReference" << endl;
+
+			if (mediactrl_->Load (hard_coded_path)) {
+				cout << "Successfully Loaded file" << endl;
+			} else {
+				cout << "Could not Load file" << endl;
+			}
+		} else {
+			cout << "uripath NOT IsReference" << endl;
+
+			if (mediactrl_->Load (uripath)) {
+				cout << "Successfully Loaded file" << endl;
+			} else {
+				cout << "Could not Load file" << endl;
+			}
+		}
+		panel_sizer->Layout();
+	}
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
+}
+
 void wxQuestionnaireGUI::DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
 {
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	std::stringstream question_text;
 	for (int i=0; i < qno_and_qtxt.size(); ++i) {
 		question_text << qno_and_qtxt[i];
@@ -889,7 +981,7 @@ void wxQuestionnaireGUI::DisplayQuestionTextView (const vector <string> & qno_an
 	//gtk_widget_show (questionTextLabel_);
 	//gtk_widget_show (top_half);
 	the_question->SetLabel( wxString (question_text.str().c_str(), wxConvUTF8));
-	cout << "EXIT: " << __PRETTY_FUNCTION__;
+	cout << "EXIT: " << __PRETTY_FUNCTION__ << endl;
 }
 
 void wxQuestionnaireGUI::DisplayStubs (AbstractRuntimeQuestion * q)
@@ -1448,3 +1540,10 @@ void wxQuestionnaireApplication::LostFocus(wxCommandEvent& WXUNUSED(event))
 	cout << "Textbox lost focus" << endl;
 }
 */
+
+
+void wxQuestionnaireGUI::OnMediaLoaded(wxMediaEvent& WXUNUSED(evt))
+{
+	mediactrl_->Play();
+}
+

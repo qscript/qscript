@@ -601,6 +601,7 @@ public:
 			//, CompoundStatement * l_enclosing_scope
 			//, vector<ActiveVariableInfo* > l_av_info
 			, QuestionAttributes  l_question_attributes
+			, bool l_isStartOfBlock
 			, const string& path_to_media);
 
 	virtual bool IsValid(int32_t value)

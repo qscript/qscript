@@ -3280,11 +3280,20 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 
 	quest_decl
 		<< " = new VideoQuestion("
-		<< ((type_ == QUESTION_TYPE) ?"QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
+		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
 		<< lineNo_ << ","
-		<< "string( \"" << questionName_ << "\")"
+		<< " string( \"" << questionName_ << "\")"
 		<< ", text_expr_vec"
 		<< ", QuestionAttributes(false, false)"
+		;
+
+	if (isStartOfBlock_) {
+		quest_decl << ", true";
+	} else {
+		quest_decl << ", false";
+	}
+
+	quest_decl
 		<< ", string(\"" << file_path << "\")"
 		<< ");"
 		<< endl;

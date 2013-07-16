@@ -1540,7 +1540,7 @@ test_script.o: test_script.C
 			+ string(" ") + intermediate_file_name
 			+ string(" ") + QSCRIPT_RUNTIME + string("/build/wx/question_wx2_runtime.o ")
 			+ string(" `wx-config --cppflags` ")
-			+ string(" `wx-config --libs` ")
+			+ string(" `wx-config --libs core,base,media` ")
 			+ string(" -lqscript_runtime_common ")
 			;
 	}
