@@ -535,7 +535,6 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 	statusBar_ = CreateStatusBar(2);
 	SetStatusWidths(2, widths);
 	panel = new wxPanel(this, -1);
-	media_panel_ = new wxPanel(panel, ID_MEDIA_PANEL);
 
 
 	panel_sizer = new wxBoxSizer(wxHORIZONTAL);
@@ -547,7 +546,7 @@ wxQuestionnaireGUI::wxQuestionnaireGUI (const wxString & title)
 
 	//media_panel_sizer_ = new wxBoxSizer(wxVERTICAL);
 	//media_panel_ ->SetSizer (media_panel_sizer_);
-	panel_sizer->Add (media_panel_);
+	//panel_sizer->Add (media_panel_);
 	//media_panel_sizer_->Hide(media_panel_);
 
 	Centre();
@@ -936,13 +935,20 @@ void wxQuestionnaireGUI::DisplayVideo (AbstractRuntimeQuestion * q)
 		mediactrl_ = new wxMediaCtrl();
 		bool bOK = mediactrl_->Create(panel, ID_MEDIACTRL, wxEmptyString,
 						wxDefaultPosition, wxDefaultSize);
+		media_panel_sizer_->Add(mediactrl_);
 		//bool bOK = mediactrl_->Create(media_panel_, ID_MEDIACTRL, wxEmptyString,
 		//				wxDefaultPosition, wxDefaultSize);
 		mediactrl_->ShowPlayerControls(wxMEDIACTRLPLAYERCONTROLS_DEFAULT);
-		panel_sizer->Add (mediactrl_);
+		//panel_sizer->Add (mediactrl_);
+		//panel_sizer->Hide(fgs);
+		//panel_sizer->Show(media_panel_);
+		stubsRowSizer_->Show(media_panel_sizer_);
+		stubsRowSizer_->Layout();
 
 		wxString hard_coded_path =
-			wxString::FromUTF8("/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4");
+			//wxString::FromUTF8("/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4");
+			//wxString::FromUTF8("/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4");
+			wxString::FromUTF8(vq->file_path.c_str());
 		wxURI uripath(hard_coded_path);
 		if( uripath.IsReference() ) {
 			cout << "uripath IsReference" << endl;
@@ -1446,6 +1452,12 @@ void wxQuestionnaireGUI::CreateQuestionScreen()
 	radio_box_sizer = new wxBoxSizer (wxHORIZONTAL);
 	stubsRowSizer_->Add (radio_box_sizer);
 	data_entry_and_navg_sizer = new wxBoxSizer (wxVERTICAL);
+
+	//media_panel_ = new wxPanel(panel, ID_MEDIA_PANEL);
+	media_panel_sizer_ = new wxBoxSizer (wxHORIZONTAL);
+	//media_panel_->SetSizer(media_panel_sizer_);
+	stubsRowSizer_->Add (media_panel_sizer_);
+
 	//wxBoxSizer * data_entry_line_sizer = new wxBoxSizer (wxVERTICAL);
 	wxBoxSizer * data_entry_line_sizer = new wxStaticBoxSizer (wxVERTICAL, panel, wxT("Data Entry"));
 	//wxBoxSizer * navg_sizer = new wxBoxSizer (wxHORIZONTAL);
