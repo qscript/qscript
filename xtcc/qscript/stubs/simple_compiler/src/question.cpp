@@ -1753,6 +1753,20 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< ")"
 		<< ") "
 		<< "{\n";
+	code.program_code
+		<<  "cout << \"reached here because: \" << " << endl
+		<< "\""
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+		<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) "
+		<< ":\" " << endl
+		<< "<< ("
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]"
+		<< "->isAnswered_ == false  && !(write_data_file_flag || write_qtm_data_file_flag||write_xtcc_data_file_flag)) "
+		<< " << endl << "
+		<< questionName_ << "_list.questionList[" << consolidated_for_loop_index << "]->isAnswered_"
+		<<" << endl;"
+		<< endl;
+
 	code.program_code << "label_eval_" << questionName_ << ":\n";
 	code.program_code << "if( jumpToQuestion == \"" << questionName_
 		<< "\" && jumpToIndex == "
@@ -3309,9 +3323,23 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 		code.array_quest_init_area << "question_list.push_back(" << questionName_
 			<< ");\n";
 		code.array_quest_init_area << "print_question_messages(" << questionName_ << ");\n";
+		code.program_code
+			<< "if ((" << questionName_ << "->isAnswered_ == false) || "
+			<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && "
+			<< questionName_
+			<< "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||"
+			<< "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>("
+			<< questionName_
+			<< ") == p_jump_to_index)) )" << endl
+
+			<< "{" << endl
+			<< "last_question_visited = " << questionName_ << ";" << endl
+			<< "fprintf(qscript_stdout, \"last_question_visited:" << questionName_ << "\\n\");\n"
+			<< "\treturn " << questionName_ << ";" << endl
+			<< "}"
+			<< endl;
 	}
 
-	code.program_code << "return " << questionName_ << ";" << endl;
 	code.program_code << "/* END ======== VideoQuestion::GenerateCodeSingleQuestion code goes here */"
 		<< endl;
 }
