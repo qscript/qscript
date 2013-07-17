@@ -73,7 +73,7 @@ q4 		"And, could you please tell us, Which of these vegetables is your favourite
 
 		int32_t sum=0;
 		int32_t iter_no=0;
-		for (i1=0; i1<5; i1=i1+1) {
+		for (i1=0; i1<12; i1=i1+1) {
 			int32_t code = i1+1;
 
 			if (code in q3_2) {
