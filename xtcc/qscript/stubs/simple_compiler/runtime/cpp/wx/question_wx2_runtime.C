@@ -56,6 +56,7 @@ public:
 	wxBoxSizer * check_box_sizer;
 	wxBoxSizer * radio_box_sizer;
 	wxBoxSizer * data_entry_and_navg_sizer;
+	wxBoxSizer * data_entry_line_sizer;
 	wxPanel *panel;
 	wxPanel * media_panel_;
 	wxFlexGridSizer *fgs ;
@@ -97,6 +98,7 @@ public:
 	void ClearRadio();
 	void ClearCheckList();
 	void ClearStubsArea();
+	void ClearMediaArea();
 	void CreateSerialNoScreen();
 	void CreateEndOfQnreScreen();
 	void CreateQuestionScreen();
@@ -331,7 +333,16 @@ void wxQuestionnaireGUI::handleDataInput(wxCommandEvent& WXUNUSED(event))
 			handleCBDataInput(1);
 		}
 	} else if (VideoQuestion * vq = dynamic_cast<VideoQuestion *>(last_question_visited)) {
+		AbstractRuntimeQuestion * last_question_served = last_question_visited;
 		cout << __PRETTY_FUNCTION__ << "doing nothing : case VideoQuestion" << endl;
+		UserInput user_input;
+		user_input.theUserResponse_ = user_response::UserViewedVideo;
+		cerr
+			<< "Not call to verify - maybe we need to add a timer" << endl
+			<< " to ensure user saw at least 30 secs of video etc" << endl
+			<< endl;
+		// we dont call verify - maybe later -
+		callback_ui_input (user_input, last_question_served, theQuestionnaire_,  1);
 	} else if (RangeQuestion *rq = dynamic_cast<RangeQuestion*>(last_question_visited) ) {
 		cout << __PRETTY_FUNCTION__ << "Case RangeQuestion: " << endl;
 		AbstractRuntimeQuestion * q = last_question_visited;
@@ -922,15 +933,18 @@ void wxQuestionnaireGUI::DisplayVideo (AbstractRuntimeQuestion * q)
 	rbQnreCodeMap_.clear();
 	rbQnreReverseCodeMap_.clear();
 	ClearStubsArea();
+	data_entry_and_navg_sizer->Hide(data_entry_line_sizer);
 	VideoQuestion * vq = dynamic_cast <VideoQuestion*> (q);
 	if (vq) {
 		cout << " is a VideoQuestion" << endl;
+#if 0
 		if (mediactrl_) {
 			//radio_box_sizer ->Detach (m_rListBox);
 			panel_sizer ->Detach (mediactrl_);
 
 			delete mediactrl_; mediactrl_ = 0;;
 		}
+#endif /* 0 */
 
 		mediactrl_ = new wxMediaCtrl();
 		bool bOK = mediactrl_->Create(panel, ID_MEDIACTRL, wxEmptyString,
@@ -993,6 +1007,7 @@ void wxQuestionnaireGUI::DisplayQuestionTextView (const vector <string> & qno_an
 void wxQuestionnaireGUI::DisplayStubs (AbstractRuntimeQuestion * q)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
+	data_entry_and_navg_sizer->Show(data_entry_line_sizer);
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
 	{
 		// nxd: move both the below functions to a clear() api which we call from here
@@ -1005,6 +1020,8 @@ void wxQuestionnaireGUI::DisplayStubs (AbstractRuntimeQuestion * q)
 		}
 	} else {
 		cout << "=== Implement Display Range Question" << endl;
+		//ClearPreviousView();
+		ClearStubsArea();
 	}
 }
 
@@ -1154,10 +1171,21 @@ void wxQuestionnaireGUI::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
 
 }
 
+void wxQuestionnaireGUI::ClearMediaArea()
+{
+	if (mediactrl_) {
+		//radio_box_sizer ->Detach (m_rListBox);
+		media_panel_sizer_ ->Detach (mediactrl_);
+		delete mediactrl_; mediactrl_ = 0;;
+	}
+}
+
 void wxQuestionnaireGUI::ClearStubsArea()
 {
+	txt_data_entry_line->Clear();
 	ClearCheckList();
 	ClearRadio();
+	ClearMediaArea();
 }
 
 void wxQuestionnaireGUI::ClearCheckList()
@@ -1459,7 +1487,7 @@ void wxQuestionnaireGUI::CreateQuestionScreen()
 	stubsRowSizer_->Add (media_panel_sizer_);
 
 	//wxBoxSizer * data_entry_line_sizer = new wxBoxSizer (wxVERTICAL);
-	wxBoxSizer * data_entry_line_sizer = new wxStaticBoxSizer (wxVERTICAL, panel, wxT("Data Entry"));
+	data_entry_line_sizer = new wxStaticBoxSizer (wxVERTICAL, panel, wxT("Data Entry"));
 	//wxBoxSizer * navg_sizer = new wxBoxSizer (wxHORIZONTAL);
 	wxBoxSizer * navg_sizer = new wxStaticBoxSizer (wxHORIZONTAL, panel, wxT("Navigation"));
 	{
