@@ -8,7 +8,11 @@ q1 	"Do you Eat Vegetables?"
 	sp int32_t yn;
 
 q2_1		"Here is a Video of a few Vegetables. Please have a look at these and let me know which are you aware of?"
-		video	"/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4";
+		video	
+		"/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4"
+		//"https://www.youtube.com/watch?v=VHnuFmrQtMU"
+		//"/home/nxd/Progs/xtcc-wq2/xtcc/qscript/stubs/simple_compiler/inputs/Count-Duckula-Who-might-you-be.mp4"
+		;
 
 q1_1 	"Why do you Eat Vegetables?"
 	mp(10) int32_t (1-500);
