@@ -7,6 +7,9 @@ vegetable {
 q1 	"Do you Eat Vegetables?"
 	sp int32_t yn;
 
+q2_1		"Here is a Video of a few Vegetables. Please have a look at these and let me know which are you aware of?"
+		video	"/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4";
+
 q1_1 	"Why do you Eat Vegetables?"
 	mp(10) int32_t (1-500);
 
@@ -46,6 +49,7 @@ stubs agree_5 =
 
 q2 		"Here is a list of some common vegetables. Which of these vegetables are you aware of?"
 		mp(15) int32_t veg;
+
 
 		unset(veg);
 		setadd(veg, q2);
