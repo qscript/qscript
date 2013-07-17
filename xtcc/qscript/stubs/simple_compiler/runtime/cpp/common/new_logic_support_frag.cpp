@@ -61,6 +61,8 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 				/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire, nest_level + 1);
+	} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
+		eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
 		cout << "under stdout either the user can enter data or navigation" << endl
 			<< "but under ncurses or other guis - it's possible to enter data" << endl
@@ -158,8 +160,16 @@ void question_eval_loop2 (
 		} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
 			theQuestionnaire->write_data_to_disk(theQuestionnaire->question_list,
 				theQuestionnaire->jno, theQuestionnaire->ser_no);
+		} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
+				// do nothing
+				// once we exit this major block == last_question_visited
+				// the bottom of this function will handle it
 		} else {
-			cout << "Unhandled case userNavigation_ ... exiting" << endl;
+			cout << "Unhandled case userNavigation_ ... exiting: "
+				<< __FILE__ << ", "
+				<< __LINE__ << ", "
+				<< __PRETTY_FUNCTION__ << ", "
+				<< endl;
 			exit(1);
 		}
 	} // else {

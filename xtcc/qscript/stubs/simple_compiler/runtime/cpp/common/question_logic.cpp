@@ -111,6 +111,9 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRunt
 #endif /*  0 */
 			}
 		}
+	} else if (p_user_input.theUserResponse_ == user_response::UserViewedVideo) {
+		q->isAnswered_ = true;
+		question_eval_loop2 (p_user_input, q, 0, theQuestionnaire, nest_level + 1);
 	}
 	cout << "EXIT:" << __PRETTY_FUNCTION__ << endl;
 }

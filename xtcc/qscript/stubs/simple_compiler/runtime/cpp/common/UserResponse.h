@@ -8,7 +8,9 @@ enum UserResponseType {
 	UserEnteredNavigation,
 	UserEnteredData,
 	UserClearedData,
-	UserSavedData
+	UserSavedData,
+	UserViewedVideo,
+	UserViewedImage
 };
 
 }
