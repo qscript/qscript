@@ -100,6 +100,7 @@ public:
 	void setLanguage(const std::string lang);
 	void ValidateSerialNo();
 
+
 	void set_callback_ui_input (
 		void (*p_callback_ui_input)
 				(UserInput p_user_input,

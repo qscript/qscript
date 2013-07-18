@@ -620,6 +620,7 @@ QuestionnaireApplication::QuestionnaireApplication (const WEnvironment &env)
 	// warning the statement below modifies the global variable
 	//load_languages_available(vec_language);
 	WContainerWidget *langLayout = new WContainerWidget();
+	langLayout->setStyleClass("qscript-header");
 	langLayout->setContentAlignment(AlignRight);
 	WText * lang_title = new WText(WString::tr("language"), langLayout);
 	lang_title->setStyleClass(L"langtitle");
@@ -664,6 +665,10 @@ Wt::WApplication * createApplication(const Wt::WEnvironment &env)
 // warning modifies the input variable
 void load_languages_available(vector<string> & vec_language)
 {
+	cout
+		<< "Enter: "
+		<< __PRETTY_FUNCTION__ << ": vec_language.size(): " << vec_language.size()
+		<< endl;
 	DIR * directory_ptr = opendir(".");
 	vec_language.push_back("en");
 	struct dirent *directory_entry = readdir(directory_ptr);
@@ -707,14 +712,18 @@ void load_languages_available(vector<string> & vec_language)
 				a_language.push_back(first_letter);
 				a_language.push_back(second_letter);
 				vec_language.push_back(a_language);
-				//cout << "found an language traslation file: "
-				//	<< dir_entry_name << endl;
+				cout << "found an language traslation file: "
+					<< dir_entry_name << endl;
 			}
 		}
 read_another_entry:
 		directory_entry = readdir(directory_ptr);
 	}
 	closedir(directory_ptr);
+	cout
+		<< "EXIT: "
+		<< __PRETTY_FUNCTION__ << ": vec_language.size(): " << vec_language.size()
+		<< endl;
 }
 
 
@@ -902,10 +911,16 @@ void GetUserInput (
 }
 
 
-vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
+vector<string>  PrepareQuestionText (AbstractRuntimeQuestion *q)
 {
 	using std::string;
 	using std::stringstream;
+	stringstream part_mesg_id;
+	part_mesg_id << q->questionName_;
+	for (int i=0; i<q->loop_index_values.size(); ++i)
+	{
+		part_mesg_id << "_" << q->loop_index_values[i];
+	}
 	vector <string> result;
 	stringstream question_no;
 	//mvwprintw(question_window, 1, 1, "%s.", questionName_.c_str());
@@ -940,34 +955,46 @@ vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
 	//	//mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
 	//	result.push_back (q->textExprVec_[i]->text_);
 	//}
+	//WString question_text_str;
 	for (int i=0; i<q->textExprVec_.size(); ++i)
         {
         	question_text << "<p>";
+		//question_text_str += "<p>";
         	if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
         	{
         		//stringstream mesg_id;
         		//mesg_id << part_mesg_id.str() << "_" << i;
         		//question_text += WString::tr(mesg_id.str().c_str());
 			question_text << q->textExprVec_[i]->text_;
+			{
+			stringstream mesg_id;
+			mesg_id << part_mesg_id.str() << "_" << i;
+			//question_text_str += WString::tr(mesg_id.str().c_str());
+			}
         	}
         	else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
         	{
-        		//stringstream named_attribute_key;
-        		//named_attribute_key << q->textExprVec_[i]->naPtr_->name;
-        		//named_attribute_key << "_" << q->textExprVec_[i]->naIndex_;
-        		//question_text += WString::tr(named_attribute_key.str().c_str());
+			{
+        		stringstream named_attribute_key;
+        		named_attribute_key << q->textExprVec_[i]->naPtr_->name;
+        		named_attribute_key << "_" << q->textExprVec_[i]->naIndex_;
+        		//question_text_str += WString::tr(named_attribute_key.str().c_str());
+			}
 			question_text << q->textExprVec_[i]->naPtr_->attribute[q->textExprVec_[i]->naIndex_];
         	}
         	else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)
         	{
         		if (q->textExprVec_[i]->codeIndex_ != -1) {
         			question_text << q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);
+				//question_text_str += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);
         		} else {
         			question_text << q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
+				//question_text_str += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
         		}
 			//question_text << "pipedQuestion_" << endl;
         	}
         	question_text << "</p>";
+        	//question_text_str += "</p>";
         }
 	result.push_back (question_text.str());
 	return result;
@@ -1106,7 +1133,8 @@ void QuestionnaireApplication::PrepareMultiCodedStubDisplay (NamedStubQuestion *
 			//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
 			WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
 			wt_cb->setInline(false);
-			wt_cb->setStyleClass("qscript-check-box");
+			//wt_cb->setStyleClass("qscript-check-box");
+			wt_cb->setStyleClass("qscript-span-checkbox");
 			vec_cb.push_back(wt_cb);
 			cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
 			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
@@ -1183,7 +1211,7 @@ void QuestionnaireApplication::PrepareSingleCodedStubDisplay (NamedStubQuestion 
 		if (/*q->no_mpn==1 && */ vec[i].mask) {
 			//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
 			WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-			wt_rb->setStyleClass("wt-rb-container");
+			wt_rb->setStyleClass("qscript-span-radio");
 			wt_rb_container_->addButton(wt_rb, vec[i].code);
 			new WBreak(wt_cb_rb_container_);
 			vec_rb.push_back(wt_rb);
@@ -1295,6 +1323,7 @@ void QuestionnaireApplication::DisplayQuestionTextView (const vector <string> & 
 void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q )
 {
 	WContainerWidget * new_form = new WContainerWidget();
+	new_form->setStyleClass("qscript-container");
 	vec_rb.clear();			 // memory leak introduced here? no it seems
 	vec_cb.clear();			 // memory leak introduced here? no it seems
 
@@ -1316,6 +1345,8 @@ void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q
 	this_users_session -> ptr_last_question_visited = q;
 	WPushButton *b = new WPushButton("Next");
 	b->clicked().connect(this, &QuestionnaireApplication::handleDataInput);
+	WPushButton *b = new WPushButton("Previous");
+	WPushButton *b = new WPushButton("Save");
 	new_form->addWidget(b);
 	setCentralWidget(new_form);
 
@@ -1561,6 +1592,16 @@ void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
+/*
+void QuestionnaireApplication::ConstructThankYouPage()
+{
+	WContainerWidget * new_form = new WContainerWidget();
+	WText * txt = new WText(WString::tr("thank_you"), new_form);
+	WText * survey_code = new WText(WString::tr("vege_source_code"), new_form);
+	setCentralWidget(new_form);
+	cout << "ConstructThankYouPage\n";
+}
+*/
 
 void QuestionnaireApplication::handleDataInput()
 {
