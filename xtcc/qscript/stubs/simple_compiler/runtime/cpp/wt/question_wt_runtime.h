@@ -116,6 +116,7 @@ public:
 	void PrepareSingleCodedStubDisplay (NamedStubQuestion * nq);
 	void ClearStubsArea();
 	void handleDataInput();
+	void handleSave();
 	void handleRBDataInput (int nest_level);
 	void handleCBDataInput (int nest_level);
 	void handleRangeQuestionData (int nest_level);

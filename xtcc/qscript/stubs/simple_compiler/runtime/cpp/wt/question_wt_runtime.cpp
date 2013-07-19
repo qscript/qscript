@@ -407,6 +407,9 @@ void QuestionnaireApplication::ConstructQuestionForm(
 	WPushButton *b = new WPushButton("Next");
 	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);
 	new_form->addWidget(b);
+	WPushButton *save_button = new WPushButton("Save");
+	save_button->clicked().connect(this, &QuestionnaireApplication::handleSave);
+	new_form->addWidget(save_button);
 
 	setCentralWidget(new_form);
 }
@@ -1345,9 +1348,11 @@ void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q
 	this_users_session -> ptr_last_question_visited = q;
 	WPushButton *b = new WPushButton("Next");
 	b->clicked().connect(this, &QuestionnaireApplication::handleDataInput);
-	WPushButton *b = new WPushButton("Previous");
-	WPushButton *b = new WPushButton("Save");
 	new_form->addWidget(b);
+	WPushButton *prev_button = new WPushButton("Previous");
+	WPushButton *save_button = new WPushButton("Save");
+	save_button->clicked().connect(this, &QuestionnaireApplication::handleSave);
+	new_form->addWidget(save_button);
 	setCentralWidget(new_form);
 
 }
@@ -1602,6 +1607,16 @@ void QuestionnaireApplication::ConstructThankYouPage()
 	cout << "ConstructThankYouPage\n";
 }
 */
+
+void QuestionnaireApplication::handleSave()
+{
+	UserInput user_input;
+	user_input.userNavigation_ = SAVE_DATA;
+	user_input.theUserResponse_ = user_response::UserSavedData;
+	callback_ui_input (user_input,
+			this_users_session->ptr_last_question_visited,
+			this_users_session->theQuestionnaire_, 1);
+}
 
 void QuestionnaireApplication::handleDataInput()
 {
