@@ -926,7 +926,8 @@ void question_eval_loop2 (
 	AbstractRuntimeQuestion * last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
+	//cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	cout << "arg values: " << endl;
 	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
 		cout << "p_user_input.userNavigation_ == NAVIGATE_NEXT" << endl;
@@ -955,11 +956,13 @@ void question_eval_loop2 (
 		<< p_user_input.questionResponseData_ << endl;
 
 	if (last_question_visited) {
-		cout << "last_question_visited->questionName_:"
-			<<  last_question_visited->questionName_
-			<< endl;
+		//cout << "last_question_visited->questionName_:"
+		//	<<  last_question_visited->questionName_
+		//	<< endl;
+		printf ("last_question_visited->questionName_:%s\n", last_question_visited->questionName_.c_str());
 	} else {
-		cout << "last_question_visited->questionName_: is NULL"  << endl;
+		//cout << "last_question_visited->questionName_: is NULL"  << endl;
+		printf ("last_question_visited->questionName_ is NULL\n");
 	}
 
 	if (last_question_visited) {
@@ -1001,10 +1004,11 @@ void question_eval_loop2 (
 			theQuestionnaire->eval2 (
 			NAVIGATE_NEXT, last_question_visited, jump_to_question);
 		if (!q) {
-			cout << "End of qnre();" << endl << ">";
+			printf(" eval2 has returned NULL => End of qnre();\n");
 		} else {
-			cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
-				<< q->questionName_ << endl;
+			printf(" eval2 has returned q: %s\n", q->questionName_.c_str());
+			//cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
+			//	<< q->questionName_ << endl;
 			stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
 		}
 	//}
@@ -1016,6 +1020,14 @@ void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion *
 }
 
 extern "C" {
+
+void callback_return_serial (int serial_no)
+{
+	printf ("Got a serial no from the DOM: %d\n", serial_no);
+	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
+	callback_get_ser_no_from_ui (serial_no, 1);
+
+}
 
 void called_from_the_dom (char * data)
 {

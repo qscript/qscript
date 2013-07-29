@@ -94,8 +94,7 @@ int32_t prompt_user_for_serial_no(int (* p_return_ser_no) (int, int), int nest_l
 	line_buf[249]=0;
 	fgets (line_buf, 249, stdin);
 	sscanf (line_buf, "%d", &serial_no);
-
-
+	//int serial_no = get_serial_no_from_dom();
 	if (serial_no == 0) {
 		cout << "exiting ..." << endl;
 		exit(0);
@@ -509,5 +508,5 @@ int32_t main(int argc, char * argv[])
 	using namespace std;
 	SetupSignalHandler();
 	setup_ui (argc, argv);
-	prompt_user_for_serial_no (callback_get_ser_no_from_ui, 1);
+	//prompt_user_for_serial_no (callback_get_ser_no_from_ui, 1);
 } /* close main */
