@@ -42,6 +42,10 @@ data_entry.hpp: YFLAGS = -p scan_data
 	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
 
 
+vegetable-simple.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o shell-phonegap-dom-callback.html $(SOURCE_DIR)/dom_manip_funcs.js
+	# old - with cin -> modal dialog box
+	$(CC) $(CFLAGS) $(OPT_FLAGS) -o $@ --shell-file shell-phonegap-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main', '_callback_return_serial']"
+
 vegetable-simple.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o shell-new-dom-callback.html $(SOURCE_DIR)/dom_manip_funcs.js
 	# old - with cin -> modal dialog box
 	$(CC) $(CFLAGS) $(OPT_FLAGS) -o $@ --shell-file shell-new-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main', '_callback_return_serial']"
