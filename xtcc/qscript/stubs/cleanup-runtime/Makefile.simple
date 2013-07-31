@@ -1,0 +1,91 @@
+#CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
+#CFLAGS= -g -Wunused-function --jcache
+CFLAGS= -Wunused-function --jcache
+OPT_FLAGS = -O2
+#CC = clang --analyze
+CC=emcc
+LIBS = -lncurses -lpanel
+SOURCE_DIR=src-emscripten
+
+SRC= $(SOURCE_DIR)/AbstractQuestionnaire.cpp \
+     $(SOURCE_DIR)/data_entry.cpp $(SOURCE_DIR)/log_mesg.cpp $(SOURCE_DIR)/named_attributes.cpp $(SOURCE_DIR)/named_range.cpp \
+	$(SOURCE_DIR)/qscript_data.cpp \
+     $(SOURCE_DIR)/qscript_debug.cpp $(SOURCE_DIR)/qscript_lib.cpp $(SOURCE_DIR)/qscript_parser_common.cpp \
+	$(SOURCE_DIR)/QuestionAttributes.cpp \
+     $(SOURCE_DIR)/question_common.cpp $(SOURCE_DIR)/question_logic.cpp $(SOURCE_DIR)/question_runtime.cpp \
+     $(SOURCE_DIR)/read_disk_data.cpp $(SOURCE_DIR)/scan_data.cpp \
+     $(SOURCE_DIR)/utils_common.cpp $(SOURCE_DIR)/xtcc_set.cpp
+     #$(SOURCE_DIR)/TempNameGenerator.cpp $(SOURCE_DIR)/AbstractStatement.cpp  $(SOURCE_DIR)/qscript_readline.cpp 
+     #$(SOURCE_DIR)/qtm_datafile_conf.cpp $(SOURCE_DIR)/qtm_datafile_conf_lex.cpp 
+     #$(SOURCE_DIR)/qtm_datafile_conf_parser.cpp $(SOURCE_DIR)/qtm_data_file.cpp 
+     #$(SOURCE_DIR)/qscript_conf.cpp $(SOURCE_DIR)/qscript_conf_lex.cpp 
+	# $(SOURCE_DIR)/config_parser.cpp 
+
+BUILD_DIR=emscript-build
+
+OBJS = $(subst $(SOURCE_DIR),$(BUILD_DIR),$(SRC))
+OBJS := $(OBJS:.cpp=.o)
+
+# uncomment this to see what is going on with the substitutes
+#dummy_show_target:
+#	echo $(OBJS)
+
+%.cpp : %.l
+	flex -o$@ $<
+
+
+data_entry.cpp: YFLAGS = -p scan_data
+data_entry.hpp: YFLAGS = -p scan_data
+
+%.cpp %.hpp: %.ypp
+	echo "building parser from ypp target : $@ YFLAGS: $(YFLAGS)"
+	bison $(YFLAGS) -v -d $< -o $(basename $@).cpp
+
+
+vegetable-simple.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o shell-new-dom-callback.html $(SOURCE_DIR)/dom_manip_funcs.js
+	# old - with cin -> modal dialog box
+	$(CC) $(CFLAGS) $(OPT_FLAGS) -o $@ --shell-file shell-new-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main', '_callback_return_serial']"
+
+$(BUILD_DIR)/question_stdout_runtime.o: $(SOURCE_DIR)/question_stdout_runtime.cpp
+	$(CC) -o $@ $(CFLAGS) -c $< -s EXPORTED_FUNCTIONS="['_main']"
+
+
+$(BUILD_DIR)/vegetable.o: $(SOURCE_DIR)/vegetable.cpp
+	$(CC) -o $@ $(CFLAGS) -c $< -s EXPORTED_FUNCTIONS="['_called_from_the_dom']"
+
+
+test_2_1.js: $(OBJS) test_2_1.o
+	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2_1.o  question_stdout_runtime.cpp
+
+test_2.js: $(OBJS) test_2.o
+	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2.o 
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
+	$(CC) -o $@ $(CFLAGS) -c $<
+
+#test_2.o: test_2.C
+#	$(CC) $(CFLAGS)  -c $<
+#
+#
+#test_2_1.o: test_2_1.C
+#	$(CC) $(CFLAGS)  -c $<
+
+$(BUILD_DIR)/lib_emscript_runtime.a: $(OBJS)
+	emar  rcs $@  $(OBJS)
+	emranlib $@
+
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.C
+	$(CC) -o $@  $(CFLAGS)  -c $<
+
+exe_clean:
+	rm *.exe
+
+
+$(BUILD_DIR)/%.dep : $(SOURCE_DIR)/%.cpp
+	@set -e; rm -f $@; \
+		$(CC) -MM $(CPPFLAGS) $< > $@.$$$$; \
+		sed 's,\($*\)\.o[ :]*,\1.o $@ :,g' < $@.$$$$ > $@; \
+		rm -f $@.$$$$
+
+-include $(DEPENDENCIES)
