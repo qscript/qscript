@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Emscripten-Generated Code</title>
+    <style>
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: monospace; width: 90%; }
+      div.emscripten { text-align: center; }
+	div.emscripten_border {
+		border: 1px solid black;
+		display: none;
+	}
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.emscripten { border: 0px none; }
+      div.qscript_question {
+	      display:none;
+      }
+	div.qscript-logger {
+		background: "#dedede";
+		border: "1px solid silver";
+		padding: "5px";
+		width: 85%;
+	}
+    </style>
+
+	<script type="text/javascript">
+		/* Professional JavaScript for Web Developers - Nicholas C Zakas. Chpt 12*/
+		var EventUtil = {
+			addHandler: function (element, type, handler) {
+				if (element.addEventListener) {
+					element.addEventListener (type, handler, false);
+				} else if (element.attachEvent) {
+					element.attachEvent ("on" + type, handler);
+				} else {
+					element["on" + type] = handler;
+				}
+			},
+			getEvent: function (event) {
+				return event ? event : window.event;
+			},
+			getTarget: function (event) {
+				return event.target || event.srcElement;
+			},
+			preventDefault: function (event) {
+				if (event.preventDefault) {
+					event.preventDefault();
+				} else {
+					event.returnValue = false;
+				}
+			},
+			removeHandler: function (element, type, handler) {
+				if (element.removeEventListener) {
+					element.removeEventListener (type, handler, false);
+				} else if (element.detachEvent) {
+					element.detachEvent ("on" + type, handler);
+				} else {
+					element["on" + type] = null;
+				}
+			},
+			stopPropagation: function (event) {
+				if (event.stopPropagation) {
+					event.stopPropagation();
+				} else {
+					event.cancelBubble = true;
+				}
+			}
+		};
+
+		function serialize (form) {
+			var parts = new Array();
+			var field = null;
+			for (var i=0; i < form.elements.length; ++i ) {
+				field = form.elements[i];
+				switch (field.type) {
+				case "radio":
+					if (field.checked) {
+						parts.push(field.value);
+					}
+				break;
+				case "checkbox":
+					if (field.checked) {
+						parts.push(field.value);
+					}
+				break;
+				case "text":
+					parts.push(field.value);
+				break;
+				}
+			}
+			return parts.join(" ");
+		};
+
+
+	</script>
+        <script type="text/javascript" src="cordova-2.7.0.js"></script>
+  </head>
+  <body>
+
+	<div id="form-ct"></div>
+	<div id="div_serial_no">
+		<div>
+			<input id="txt_serial_no"  type="text" value="Enter A Serial No">
+			<input type="button" value="Start Interview" id="btn_return_serial_no">
+		</div>
+	</div>
+
+
+	<div id="question_display_area" class="qscript_question">
+		<div class="emscripten" id="question_text_area">question_display_area</div>
+		<div class="emscripten" id="question_stub_area">
+			<form id="question_form">stubs_form_div
+				 <div id="stubs_form_div">
+				 </div>
+				<input  type="submit" value="Next">
+			</form>
+		</div>
+	</div>
+	<div id="div_has_PhoneGap">
+		PhoneGap library Status.
+	</div>
+	<div id="div_device_properties">
+		device properties
+	</div>
+	<div id="div_device_compass">
+		device compass
+	</div>
+	<div id="div_geolocation_info">
+		device geolocation info
+	</div>
+
+	<div id="div_console_log" class="qscript-logger">
+		console-logger<br/>
+	</div>
+
+	<script type="text/javascript">
+	function my_log (mesg)
+	{
+		var div_console_log = document.getElementById("div_console_log");
+		div_console_log.innerHTML += "<p>" + mesg + "</p>";
+	}
+	my_log ("test log message");
+
+	function get_device_info()
+	{
+		var div_has_PhoneGap = document.getElementById ("div_has_PhoneGap");
+		if (div_has_PhoneGap) {
+			div_has_PhoneGap.innerHTML = "PhoneGap library loaded successfully."
+		}
+		var div_device_properties = document.getElementById ("div_device_properties");
+		if (window.device) {
+			div_device_properties.innerHTML =
+				'Device Name: '     + device.name     + '<br />' +
+				'Device Cordova: '  + device.cordova + '<br />' +
+				'Device Platform: ' + device.platform + '<br />' +
+				'Device UUID: '     + device.uuid     + '<br />' +
+				'Device Model: '    + device.model     + '<br />' +
+				'Device Version: '  + device.version  + '<br />';
+		} else {
+			div_device_properties.innerHTML = "does not have device property";
+		}
+	}
+
+	function onCompassSuccess(heading) {
+		//alert('Heading: ' + heading.magneticHeading);
+		var div_device_compass = document.getElementById("div_device_compass");
+		div_device_compass.innerHTML  = "compass heading: " + heading.magneticHeading;
+	}
+	function onCompassError(compassError) {
+		var div_device_compass = document.getElementById("div_device_compass");
+		div_device_compass.innerHTML  = "compass not available :" + compassError;
+	}
+
+	function get_compass_info()
+	{
+		if (navigator.compass) {
+			navigator.compass.getCurrentHeading(onCompassSuccess, onCompassError);
+		} else {
+			var div_device_compass = document.getElementById("div_device_compass");
+			div_device_compass.innerHTML  = "does not have compass object";
+		}
+	}
+
+	function onGeoLocationSuccess (position) {
+		//alert("onGeoLocationSuccess ");
+		my_log ("Enter: onGeoLocationSuccess");
+		var div_geolocation_info = document.getElementById("div_geolocation_info");
+		div_geolocation_info.innerHTML =
+			'Latitude: '          + position.coords.latitude          + '<br/>' +
+			'Longitude: '         + position.coords.longitude         + '<br/>' +
+			'Altitude: '          + position.coords.altitude          + '<br/>' +
+			'Accuracy: '          + position.coords.accuracy          + '<br/>' +
+			'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '<br/>' +
+			'Heading: '           + position.coords.heading           + '<br/>' +
+			'Speed: '             + position.coords.speed             + '<br/>' +
+			'Timestamp: '         + position.timestamp                + '<br/>';
+	}
+	my_log("onGeoLocationSuccess");
+
+	// onError Callback receives a PositionError object
+	//
+	function onGeoLocationError(error) {
+		my_log ("Enter: onGeoLocationError");
+		var div_geolocation_info = document.getElementById("div_geolocation_info");
+		div_geolocation_info.innerHTML = 
+			'code: '    + error.code    + '<br/>' +
+			'message: ' + error.message + '<br/>';
+		my_log ("Exit: onGeoLocationError");
+	}
+	my_log("onGeoLocationError");
+
+	function get_geolocation_info()
+	{
+		//alert("get_geolocation_info fired");
+		my_log ("Enter: get_geolocation_info");
+		if (navigator.geolocation) {
+			my_log ("get_geolocation_info: has geolocation");
+			if (navigator.geolocation.getCurrentPosition) {
+				my_log("get_compass_info: has getCurrentPosition");
+			}
+			navigator.geolocation.getCurrentPosition(
+				onGeoLocationSuccess, onGeoLocationError);
+		} else {
+			var div_geolocation_info = document.getElementById("div_geolocation_info");
+			div_geolocation_info.innerHTML += 'message: Does not have geolocation object' +  '<br/>';
+		}
+	}
+
+	my_log("get_geolocation_info");
+	document.addEventListener ("deviceready", onDeviceReady, false);
+	function onDeviceReady() {
+		get_device_info();
+		get_compass_info();
+		get_geolocation_info();
+	}
+
+	</script>
+
+    <hr/>
+
+
+	<script type="text/javascript">
+		var question_form = document.getElementById("question_form");
+		EventUtil.addHandler (question_form, "submit", function(event) {
+			event = EventUtil.getEvent (event);
+			EventUtil.preventDefault (event);
+			var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+			//var data_for_cpp;
+			//Module.setValue (data_for_cpp, "hey mr cpp function - how you doing. This is a js func calling from the dom", "i8*");
+			//called_from_the_dom(data_for_cpp);
+			//called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
+			//alert("this is the DOM brother");
+			//console.log("submit handler called");
+			var returnValue = serialize (question_form);
+			//var data_for_cpp;
+			//Module.setValue (data_for_cpp, returnValue, "i8*");
+			called_from_the_dom(returnValue);
+		});
+		var return_serial_no_button = document.getElementById("btn_return_serial_no");
+		EventUtil.addHandler (return_serial_no_button, "click", function(event) {
+			var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int']);
+			if (callback_return_serial) {
+				var txt_serial_no = document.getElementById("txt_serial_no");
+				console.log("returning serial no to c++ code");
+				callback_return_serial (txt_serial_no.value);
+			} else {
+				console.log("Could not find callback_return_serial in Module.cwrap");
+			}
+			var question_display_area = document.getElementById("question_display_area");
+			//alert("question_display_area:" + question_display_area);
+			//var attr = document.createAttribute("display");
+			//attr.value = "block";
+			//question_display_area.setAttributeNode(attr);
+			question_display_area.style.display = "block";
+
+			var div_serial_no = document.getElementById("div_serial_no");
+			//var attr_hide = document.createAttribute("display");
+			//attr_hide.value = "none";
+			//div_serial_no.setAttributeNode(attr_hide);
+		       div_serial_no.style.display = "none";
+
+		});
+		//alert("reached here");
+
+	</script>
+
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>  
+    </div>
+    <div class="emscripten_border">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <hr/>
+	    <div class="emscripten">
+      <input type="checkbox" id="resize">Resize canvas
+      <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+      &nbsp;&nbsp;&nbsp;
+      <input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked, 
+                                                                                document.getElementById('resize').checked)">
+	    </div>
+    </div>
+    
+    <hr/>
+    <textarea class="emscripten" id="output" rows="8"></textarea>
+    <hr>
+
+    <script type='text/javascript'>
+      // connect to canvas
+      var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+          var element = document.getElementById('output');
+          element.value = ''; // clear browser cache
+          return function(text) {
+            text = Array.prototype.slice.call(arguments).join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            element.value += text + "\n";
+            element.scrollTop = 99999; // focus on bottom
+          };
+        })(),
+        printErr: function(text) {
+          text = Array.prototype.slice.call(arguments).join(' ');
+          if (0) { // XXX disabled for safety typeof dump == 'function') {
+            dump(text + '\n'); // fast, straight to the real console
+          } else {
+            console.log(text);
+          }
+        },
+        canvas: document.getElementById('canvas'),
+        setStatus: function(text) {
+          if (Module.setStatus.interval) clearInterval(Module.setStatus.interval);
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var statusElement = document.getElementById('status');
+          var progressElement = document.getElementById('progress');
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+	//, noExitRuntime: true
+      };
+      Module.setStatus('Downloading...');
+    </script>      
+
+    <script type='text/javascript'>
+
+      {{{ SCRIPT_CODE }}}
+
+    </script>
+  </body>
+</html>
