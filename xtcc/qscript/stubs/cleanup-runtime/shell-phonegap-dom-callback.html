@@ -93,6 +93,8 @@
 		};
 
 
+
+
 	</script>
         <script type="text/javascript" src="cordova-2.7.0.js"></script>
   </head>
@@ -234,6 +236,93 @@
 		get_compass_info();
 		get_geolocation_info();
 	}
+
+	</script>
+	<script type="text/javascript">
+	// http://stackoverflow.com/questions/13890698/how-to-create-nested-directories-in-phonegap
+	my_log ("===========reached FileSystem section==========");
+
+	var fileSystemObject = null;
+
+	document.addEventListener("deviceready", getFileSystemObject, false);
+
+	function onFileSystemSuccess (fileSystem) {
+		fileSystemObject = fileSystem;
+		my_log("assigned fileSystemObject fileSystem.name:" + fileSystem.name);
+		my_log("assigned fileSystemObject fileSystemObject.name:" +  fileSystem.name);
+		my_log("assigned fileSystemObject fileSystemObject.root.name:" +  fileSystem.root.name);
+		my_log("assigned fileSystemObject fileSystemObject.root.fullPath:" +  fileSystem.root.fullPath);
+		my_log("assigned fileSystemObject fileSystemObject.root.isDirectory:" +  fileSystem.root.isDirectory);
+	}
+
+	function fileFSError(e) {
+		//console.log(e.code);
+		//try {
+		//	my_log ("fileFSError: " + JSON.stringify(e));
+		//} catch (err) {}
+		my_log ("=== ERROR ====  fileFSError: " + JSON.stringify(e));
+	}
+
+	function getFileSystemObject () {
+        	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fileFSError);
+	}
+
+	function fileGetDir(path, cb) {
+		my_log ("Enter: fileGetDir");
+		var fileCreatedSuccess = function (file) {
+			my_log ("fileCreatedSuccess: created a file");
+		};
+		var fnGetOrCreateDir = function(p, de) {
+			my_log ("fnGetOrCreateDir path:" + path);
+			var path_length = p.length;
+			var entry = p.shift();
+			my_log ("fnGetOrCreateDir operating on entry:" + entry);
+			if (entry) {
+				if (path_length > 1) {
+					de.getDirectory(entry,
+							{
+							create : true
+							},
+							function(dirEntry) {
+								my_log("success function: made dir/file: " + entry);
+								fnGetOrCreateDir(p, dirEntry);
+							},
+							fileFSError);
+				} else {
+					de.getFile(entry,
+							{
+							create : true
+							},
+							fileCreatedSuccess,
+							fileFSError);
+				}
+			} else if (cb) {
+				cb(de);
+			}
+		};
+		my_log ("After: fileGetDir");
+		if (path) {
+			var arPath = path.split("/");
+			fnGetOrCreateDir(arPath, fileSystemObject.root);
+		} else {
+			if (cb) cb(fsroot);
+		}
+	}
+
+	function printSuccess(dirEntry) {
+		my_log("printSuccess: " + dirEntry.fullPath);
+	}
+
+	// Now create your directories like:
+	//var main_dir= "story_repository/"+ User_Editime;
+	//fileGetDir(mainDir + "/rec", printSuccess);
+	//fileGetDir(mainDir + "/img", printSuccess);
+	//fileGetDir("story_repository/"+ User_Name, printSuccess);
+
+	// Our particular case
+	var our_path = "qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat";
+	getFileSystemObject();
+	fileGetDir(our_path, printSuccess);
 
 	</script>
 
