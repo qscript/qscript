@@ -858,7 +858,7 @@ void question_eval_loop2 (
 	AbstractRuntimeQuestion * last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
-int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
+int callback_get_ser_no_from_ui (int p_ser_no, int nest_level, char * survey_data)
 {
 	// now its not :-) // nxd: this is a global variable - has to be eliminated at some point
 	TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);
@@ -871,6 +871,17 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 
 	AbstractRuntimeQuestion * last_question_visited = 0;
 	AbstractRuntimeQuestion * jump_to_question = 0;
+
+	string str_survey_data(survey_data);
+	if (str_survey_data.length() > 0) {
+		map <string, question_disk_data*>  qdd_map;
+		int r_val =  load_data_from_string (str_survey_data.c_str(), &qdd_map);
+		printf ("after load_data_from_string r_val: %d\n", r_val);
+		merge_disk_data_into_questions2 (/*qscript_stdout*/ 0,
+			theQuestionnaire->last_question_answered,
+			theQuestionnaire->last_question_visited,
+			theQuestionnaire->question_list, &qdd_map);
+	}
 	EvalMode qnre_mode = NORMAL_FLOW;
 	//question_eval_loop (qnre_mode,
 	//			qnre_navigation_mode, last_question_visited,
@@ -1037,12 +1048,11 @@ void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion *
 
 extern "C" {
 
-void callback_return_serial (int serial_no)
+void callback_return_serial (int serial_no, char * survey_data)
 {
-	printf ("Got a serial no from the DOM: %d\n", serial_no);
-	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
-	callback_get_ser_no_from_ui (serial_no, 1);
-
+	printf ("Got a serial no from the DOM: %d, survey_data: %s\n", serial_no, survey_data);
+	//TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
+	callback_get_ser_no_from_ui (serial_no, 1, survey_data);
 }
 
 void called_from_the_dom (char * data)

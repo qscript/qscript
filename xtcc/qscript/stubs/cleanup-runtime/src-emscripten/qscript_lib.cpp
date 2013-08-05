@@ -66,6 +66,48 @@ void clear_previous_data()
 }
 */
 
+int32_t load_data_from_string(const char * survey_data,
+		map <string, question_disk_data*> * qdd_map_ptr)
+{
+	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
+	yyscan_t scanner;
+	read_disk_datalex_init(&scanner);
+	YY_BUFFER_STATE s_data = read_disk_data_scan_string  (survey_data, scanner);
+	vector <int> data;
+	vector <int> array_index_list;
+	// warning this is the same code as the next function - need
+	// to extract it out
+	if (! read_disk_dataparse (scanner, qdd_map_ptr, &data, &array_index_list)) {
+		//return 1;
+		map <string, question_disk_data*> & qdd_map = * qdd_map_ptr;
+		for (map<string, question_disk_data*>:: iterator it
+				= qdd_map.begin();
+				it != qdd_map.end();
+				++it) {
+			cout << "loaded data for question: "
+				<< it->first;
+			question_disk_data * qdd = it->second;
+			for (int i=0; i<qdd->array_bounds.size(); ++i) {
+				cout << "$" << qdd->array_bounds[i];
+			}
+			cout << ": " ;
+			for (int i=0; i<qdd->data.size(); ++i) {
+				cout << " " << qdd->data[i];
+			}
+			cout << endl;
+		}
+		read_disk_data_delete_buffer(s_data, scanner);
+		read_disk_datalex_destroy(scanner);
+		printf ("Exit success: %s\n", __PRETTY_FUNCTION__);
+		return 1;
+	}  else {
+		cerr << "input datafile found had errors" << endl;
+		read_disk_datalex_destroy(scanner);
+		printf ("Exit failure: %s\n", __PRETTY_FUNCTION__);
+		return 0;
+	}
+}
+
 int32_t load_data(string jno, int32_t ser_no,
 		map <string, question_disk_data*> * qdd_map_ptr)
 {

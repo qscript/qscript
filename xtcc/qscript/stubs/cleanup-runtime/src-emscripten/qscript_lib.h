@@ -15,6 +15,8 @@ struct AbstractRuntimeQuestion;
 int32_t check_if_reg_file_exists(std::string jno, int32_t ser_no);
 int32_t load_data(std::string jno, int32_t ser_no,
 		std::map <std::string, question_disk_data*> * qdd_map_ptr);
+int32_t load_data_from_string(const char * survey_data,
+		map <string, question_disk_data*> * qdd_map_ptr);
 //void merge_disk_data_into_questions(FILE * qscript_stdout);
 //void clear_previous_data();
 //void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractRuntimeQuestion * & p_last_question_answered,
