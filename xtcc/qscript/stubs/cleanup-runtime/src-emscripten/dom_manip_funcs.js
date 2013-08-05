@@ -153,6 +153,15 @@ save_qnre_data: function (survey_data_ptr)
 	} else {
 		my_log ("global_current_survey_data_file not available from dom_manip_funcs.js");
 	}
+},
+
+show_end_of_qnre_page: function() {
+	var div_serial_no = document.getElementById("div_serial_no");
+	div_serial_no.style.display = "none";
+	var question_view = document.getElementById("question_view");
+	question_view.style.display = "none";
+	var thank_you_screen = document.getElementById("thank_you_screen");
+	thank_you_screen.style.display = "block";
 }
 
 });

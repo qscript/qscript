@@ -1017,6 +1017,7 @@ void question_eval_loop2 (
 			NAVIGATE_NEXT, last_question_visited, jump_to_question);
 		if (!q) {
 			printf(" eval2 has returned NULL => End of qnre();\n");
+			show_end_of_qnre_page();
 		} else {
 			printf(" eval2 has returned q: %s\n", q->questionName_.c_str());
 			//cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
