@@ -291,6 +291,7 @@ struct AbstractRuntimeQuestion
 	void print_data_type(string &s);
 	void init_arr(int32_t n, AbstractRuntimeQuestion* q);
 	virtual void WriteDataToDisk(ofstream & data_file)=0;
+	virtual int WriteDataToBuffer(char * & buffer_start, int & n_left)=0;
 	//void PrintSetupBackJump(StatementCompiledCode &code);
 	//void SetupSimpleQuestionSave(StatementCompiledCode &code);
 	//void SetupSimpleQuestionRestore(StatementCompiledCode &code);
@@ -417,6 +418,7 @@ struct RangeQuestion: public AbstractRuntimeQuestion
 		  , /*qs_ncurses::*/WINDOW* data_entry_window);
 #endif /* 0 */
 	void WriteDataToDisk(ofstream& data_file);
+	int WriteDataToBuffer(char * & buffer_start, int & n_left);
 	//AbstractQuestion*  IsAQuestionStatement(){
 	//	return this;
 	//}
@@ -540,6 +542,7 @@ class NamedStubQuestion: public AbstractRuntimeQuestion
 		  , /*qs_ncurses::*/WINDOW* data_entry_window);
 #endif /* 0 */
 	void WriteDataToDisk(ofstream& data_file);
+	int WriteDataToBuffer(char * & buffer_start, int & n_left);
 	//Wt::WString PrintSelectedAnswers();
 	//Wt::WString PrintSelectedAnswers(int code_index);
 	string PrintSelectedAnswers();
@@ -597,6 +600,7 @@ class DummyArrayQuestion: public AbstractRuntimeQuestion
 			vector<int32_t> l_array_bounds);
 
 	void WriteDataToDisk(ofstream& data_file);
+	int WriteDataToBuffer(char * & buffer_start, int & n_left);
 	//void eval(){}
 	//void eval(/*qs_ncurses::*/WINDOW * question_window
 	//	  , /*qs_ncurses::*/WINDOW* stub_list_window

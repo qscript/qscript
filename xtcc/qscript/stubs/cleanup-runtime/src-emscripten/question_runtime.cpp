@@ -401,6 +401,51 @@ end:
 //void RangeQuestion::GenerateCodeSingleQuestion(StatementCompiledCode & code, bool array_mode)
 //{ }
 
+int NamedStubQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
+{
+	printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
+	int total = 0;
+#if 1
+	char * buffer_ptr = buffer_start;
+	if (loop_index_values.size() > 0) {
+		int n = sprintf(buffer_ptr, "%s", questionName_.c_str() );
+		buffer_ptr += n; total += n;
+		//data_file << questionName_;
+		for(int32_t i = 0; i< loop_index_values.size(); ++i){
+			//data_file << "$" << loop_index_values[i];
+			n = sprintf(buffer_ptr, "$%d", loop_index_values[i]);
+			buffer_ptr += n; total += n;
+		}
+	} else  {
+		//data_file << questionName_;
+		int n = sprintf (buffer_ptr, "%s", questionName_.c_str());
+		buffer_ptr += n; total += n;
+	}
+
+	//data_file << ":";
+	int n = sprintf (buffer_ptr, ":");
+	buffer_ptr += n; total += n;
+	if (isAnswered_) {
+		for( set<int32_t>::iterator iter = input_data.begin();
+				iter != input_data.end(); ++iter){
+			//data_file << *iter << " ";
+			n = sprintf (buffer_ptr, "%d ", *iter);
+			buffer_ptr += n; total += n;
+		}
+	}
+	n = sprintf (buffer_ptr, "\n");
+	buffer_ptr += n; total += n;
+	buffer_start = buffer_ptr;
+	//data_file << endl;
+	if (n_left - total < 0) {
+		printf ("Out of buffer space to save data . We should have already crashed or will crash soon\n");
+	}
+#endif /* 0 */
+	printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
+			__PRETTY_FUNCTION__, questionName_.c_str(), total);
+	return total;
+}
+
 void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	if(loop_index_values.size()>0){
@@ -420,19 +465,85 @@ void NamedStubQuestion::WriteDataToDisk(ofstream& data_file)
 		}
 	}
 	data_file << endl;
-	stringstream mesg;
+	//stringstream mesg;
 	//mesg << "I think this is the wrong place to clear - should be done at the end of main while loop in generated code, when user loads a new serial number";
 	//LOG_MAINTAINER_MESSAGE(mesg.str());
 	//input_data.clear();
 }
 
+int DummyArrayQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
+{
+	printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
+	int total = 0;
+#if 1
+	char * buffer_ptr = buffer_start;
+	int n = sprintf (buffer_ptr, "%s BOUNDS", questionName_.c_str());
+	buffer_ptr += n; total += n;
+	for (int32_t i = 0; i < array_bounds.size(); ++i) {
+		n = sprintf (buffer_ptr, " %d", array_bounds[i]);
+		buffer_ptr += n; total += n;
+	}
+	n = sprintf (buffer_ptr, "\n");
+	buffer_ptr += n; total += n;
+	if (n_left - total < 0) {
+		printf ("Out of buffer space to save data . We should have already crashed or will crash soon\n");
+	}
+#endif /* 0 */
+	printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
+			__PRETTY_FUNCTION__, questionName_.c_str(), total);
+	return total;
+}
+
 void DummyArrayQuestion::WriteDataToDisk(ofstream& data_file)
 {
 	data_file << questionName_ << " BOUNDS";
-	for(int32_t i = 0; i < array_bounds.size(); ++i){
-		data_file << " "<< array_bounds[i];
+	for (int32_t i = 0; i < array_bounds.size(); ++i) {
+		data_file << " " << array_bounds[i];
 	}
 	data_file << endl;
+}
+
+int RangeQuestion::WriteDataToBuffer(char * & buffer_start, int & n_left)
+{
+	printf ("Enter: %s| questionName_: %s\n", __PRETTY_FUNCTION__, questionName_.c_str());
+	int total = 0;
+#if 1
+	char * buffer_ptr = buffer_start;
+	if (loop_index_values.size() > 0) {
+		int n = sprintf(buffer_ptr, "%s", questionName_.c_str() );
+		buffer_ptr += n; total += n;
+		//data_file << questionName_;
+		for(int32_t i = 0; i< loop_index_values.size(); ++i){
+			//data_file << "$" << loop_index_values[i];
+			n = sprintf(buffer_ptr, "$%d", loop_index_values[i]);
+			buffer_ptr += n; total += n;
+		}
+	} else  {
+		//data_file << questionName_;
+		int n = sprintf (buffer_ptr, "%s", questionName_.c_str());
+		buffer_ptr += n; total += n;
+	}
+	int n = sprintf (buffer_ptr, ":");
+	buffer_ptr += n; total += n;
+	if (isAnswered_) {
+		for( set<int32_t>::iterator iter = input_data.begin();
+				iter != input_data.end(); ++iter){
+			//data_file << *iter << " ";
+			n = sprintf (buffer_ptr, "%d ", *iter);
+			buffer_ptr += n; total += n;
+		}
+	}
+	n = sprintf (buffer_ptr, "\n");
+	buffer_ptr += n; total += n;
+	buffer_start = buffer_ptr;
+	//data_file << endl;
+	if (n_left - total < 0) {
+		printf ("Out of buffer space to save data . We should have already crashed or will crash soon\n");
+	}
+#endif /* 0 */
+	printf ("Exiting: %s| questionName_: %s, n_written: %d\n",
+			__PRETTY_FUNCTION__, questionName_.c_str(), total);
+	return total;
 }
 
 void RangeQuestion::WriteDataToDisk(ofstream& data_file)

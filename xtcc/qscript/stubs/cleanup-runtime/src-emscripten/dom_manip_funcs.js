@@ -15,7 +15,8 @@ print_to_question_area: function (question_text_ptr)
 
 print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 {
-
+	my_log ("print_to_stub_area");
+	//alert ("print_to_stub_area");
 	//alert("print_to_question_area: " + i );
 	//var v = document.getElementById("stubs_form_div");
 	var question_type = Pointer_stringify (ptr_question_type);
@@ -50,8 +51,11 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 						//input.setAttribute("data-dojo-type", "dojox/mobile/CheckBox");
 						//input.setAttribute("data-dojo-type", "dijit/form/CheckBox");
 						input.setAttribute("data-dojo-type", "dojox/mobile/CheckBox");
+						//input.setAttribute("class", "custom");
+						input.style.class="custom";
 					}
-					input.name  = "stub_response";
+					//input.name  = "stub_response";
+					input.name  = "radio-choice";
 					input.value = res2.stubs[i].stub_code;
 					var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
 					//alert("id_text: " + id_text);
@@ -94,6 +98,26 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 			clear_prev_node_sub_child (stubs_form_div);
 			stubs_form_div.appendChild(doc_frag2);
 		}
+
+		//$( '#stubs_form_div' ).trigger( 'updatelayout' );
+		$( '#stubs_form_div' ).trigger( 'create' );
+		/*
+		require([
+			 "dojo/parser",
+			 "dojox/mobile/parser",
+			 "dojo/dom",
+			 "dojox/mobile",
+			 "dojox/mobile/deviceTheme",
+			 "dojox/mobile/compat",
+			 "dojo/domReady!"
+		],
+		function(parser, dom) {
+			parser.parse({
+				rootNode: stubs_form_div
+			});
+		});
+		*/
+
 	};
 
 
@@ -110,5 +134,25 @@ get_serial_no_from_dom: function (){
 	return serial_no_input;
 }
 */
+
+save_qnre_data: function (survey_data_ptr)
+{
+	alert ("Enter: save_qnre_data ");
+	var the_survey_data = Pointer_stringify (survey_data_ptr);
+	var fail = function (err_msg) {
+		console.log(JSON.stringify(err_msg));
+		my_log (JSON.stringify(err_msg));
+	};
+
+	var gotFileWriter = function (writer) {
+		writer.write(the_survey_data);
+	};
+
+	if (global_current_survey_data_file) {
+		global_current_survey_data_file.createWriter (gotFileWriter, fail);
+	} else {
+		my_log ("global_current_survey_data_file not available from dom_manip_funcs.js");
+	}
+}
 
 });

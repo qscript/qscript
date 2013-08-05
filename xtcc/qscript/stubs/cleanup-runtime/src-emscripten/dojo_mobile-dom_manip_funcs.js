@@ -243,6 +243,29 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 		// maybe add validators
 	}
 	*/
+},
+
+save_qnre_data: function (survey_data_ptr)
+{
+	alert ("Enter: save_qnre_data ");
+	var the_survey_data = Pointer_stringify (survey_data_ptr);
+	/*
+	var fail = function (err_msg) {
+		console.log(JSON.stringify(err_msg));
+		my_log (JSON.stringify(err_msg));
+	};
+
+	var gotFileWriter = function (writer) {
+		writer.write(the_survey_data);
+	};
+
+	if (global_current_survey_data_file) {
+		global_current_survey_data_file.createWriter (gotFileWriter, fail);
+	} else {
+		my_log ("global_current_survey_data_file not available from dom_manip_funcs.js");
+	}
+	*/
+	my_log (the_survey_data);
 }
 
 

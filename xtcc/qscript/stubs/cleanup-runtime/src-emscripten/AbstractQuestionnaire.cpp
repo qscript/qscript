@@ -391,18 +391,36 @@ void AbstractQuestionnaire::print_summary_axis (vector<qtm_data_file_ns::QtmData
 }
 #endif /* 0 */
 
+int AbstractQuestionnaire::write_data_to_buffer (const vector<AbstractRuntimeQuestion*>& q_vec
+		, string jno
+		, int32_t ser_no, char * & buffer, int & n_left)
+{
+	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
+	int total = 0;
+	for(int32_t i = 0; i < question_list.size(); ++i)
+	{
+		int n_written = question_list[i]->WriteDataToBuffer(buffer, n_left);
+		total += n_written;
+	}
+	printf ("Exiting: %s|  n_written: %d\n",
+			__PRETTY_FUNCTION__, total);
+	return total;
+}
+
 void AbstractQuestionnaire::write_data_to_disk (const vector<AbstractRuntimeQuestion*>& q_vec
 		, string jno
 		, int32_t ser_no)
 {
+	printf ("Enter %s\n", __PRETTY_FUNCTION__);
 	stringstream fname_str;
 	fname_str << jno << "_" << ser_no << ".dat";
 	//FILE * fptr = fopen(fname_str.str().c_str(), "w+b");
 
 	std::ofstream data_file;
+	std::stringstream survey_data;
 	data_file.exceptions(std::ios::failbit | std::ios::badbit);
 	data_file.open(fname_str.str().c_str(), ios_base::ate);
-
+	printf ("question_list.size(): %d\n", question_list.size());
 	for(int32_t i = 0; i < question_list.size(); ++i)
 	{
 		question_list[i]->WriteDataToDisk(data_file);
@@ -420,6 +438,8 @@ void AbstractQuestionnaire::write_data_to_disk (const vector<AbstractRuntimeQues
 	data_file.flush();
 	data_file.close();
 	//fclose(fptr);
+	//printf ("Exiting  %s: with return value: %s\n", __PRETTY_FUNCTION__, survey_data.str().c_str());
+	//return survey_data.str();
 }
 
 AbstractRuntimeQuestion * AbstractQuestionnaire::ComputePreviousQuestion(AbstractRuntimeQuestion * q)

@@ -243,6 +243,8 @@
 	my_log ("===========reached FileSystem section==========");
 
 	var fileSystemObject = null;
+	// global Variable - current Active file
+	global_current_survey_data_file = null;
 
 	document.addEventListener("deviceready", getFileSystemObject, false);
 
@@ -264,13 +266,14 @@
 	}
 
 	function getFileSystemObject () {
-        	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fileFSError);
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fileFSError);
 	}
 
 	function fileGetDir(path, cb) {
 		my_log ("Enter: fileGetDir");
 		var fileCreatedSuccess = function (file) {
 			my_log ("fileCreatedSuccess: created a file");
+			global_current_survey_data_file = file;
 		};
 		var fnGetOrCreateDir = function(p, de) {
 			my_log ("fnGetOrCreateDir path:" + path);

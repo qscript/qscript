@@ -32,6 +32,7 @@
 #include "named_attributes.h"
 #include "QuestionAttributes.h"
 #include "UserResponse.h"
+#include "dom_manip_funcs.h"
 using namespace std;
 //string qscript_stdout_fname("qscript_stdout.log");
 //FILE * qscript_stdout = 0;
@@ -1009,6 +1010,21 @@ void question_eval_loop2 (
 			printf(" eval2 has returned q: %s\n", q->questionName_.c_str());
 			//cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
 			//	<< q->questionName_ << endl;
+			//string qnre_data = theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
+			const int MAX_DATAFILE_SIZE = 100000;
+			char buffer[MAX_DATAFILE_SIZE]; int n_left = MAX_DATAFILE_SIZE;
+			char * buffer_start_ptr = buffer;
+			//string qnre_data = theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
+
+			int n_written = theQuestionnaire->
+				write_data_to_buffer
+					(
+						theQuestionnaire->question_list,
+						theQuestionnaire->jno,
+						theQuestionnaire->ser_no,
+						buffer_start_ptr,
+						n_left);
+			//save_qnre_data (buffer);
 			stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
 		}
 	//}

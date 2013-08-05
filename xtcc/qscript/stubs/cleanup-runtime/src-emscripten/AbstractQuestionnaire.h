@@ -65,6 +65,9 @@ struct AbstractQuestionnaire
 	void write_data_to_disk(const std::vector<AbstractRuntimeQuestion*>& q_vec
 		, std::string jno
 		, int32_t ser_no);
+	int write_data_to_buffer (const vector<AbstractRuntimeQuestion*>& q_vec
+		, std::string jno
+		, int32_t ser_no, char * & buffer, int & n_left);
 	int32_t ComputeJumpToIndex(AbstractRuntimeQuestion * q);
 	void reset_questionnaire();
 	AbstractRuntimeQuestion * ComputePreviousQuestion(AbstractRuntimeQuestion * q);
