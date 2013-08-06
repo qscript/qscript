@@ -23,6 +23,7 @@ namespace program_options_ns {
 	extern bool stdout_flag;
 	extern bool wx_flag;
 	extern bool gtk_flag;
+	extern bool emscripten_flag;
 	extern int data_export_flag;
 	extern string QSCRIPT_HOME;
 }
@@ -360,6 +361,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	if (program_options_ns::gtk_flag||program_options_ns::wx_flag || program_options_ns::wt_flag) {
 		fprintf (script, "#include \"question_gtk2_runtime.h\"\n");
 	}
+	if (program_options_ns::emscripten_flag) {
+		fprintf (script, "#include \"question_stdout_runtime.h\"\n");
+	}
 	fprintf(script, "#include \"stub_pair.h\"\n");
 	fprintf(script, "//#include \"AbstractStatement.h\"\n");
 	fprintf(script, "#include \"named_range.h\"\n");
@@ -403,6 +407,9 @@ void print_header(FILE* script, bool ncurses_flag)
 	if (program_options_ns::wt_flag) {
 		fprintf(script, "#include \"question_wt_runtime.h\"\n");
 	}
+	if (program_options_ns::emscripten_flag) {
+		fprintf(script, "#include \"dom_manip_funcs.h\"\n");
+	}
 
 	// Thanks to the new runtime, this is no longer necessary
 	//if(config_file_parser::PLATFORM == "LINUX"){
@@ -419,10 +426,20 @@ void print_header(FILE* script, bool ncurses_flag)
 
 
 	fprintf(script, "using namespace std;\n");
-	fprintf(script, "string qscript_stdout_fname(\"qscript_stdout.log\");\n");
-	fprintf(script, "FILE * qscript_stdout = 0;\n");
+	if (program_options_ns::emscripten_flag) {
+		fprintf(script, "//string qscript_stdout_fname(\"qscript_stdout.log\");\n");
+		fprintf(script, "//FILE * qscript_stdout = 0;\n");
+	} else {
+		fprintf(script, "string qscript_stdout_fname(\"qscript_stdout.log\");\n");
+		fprintf(script, "FILE * qscript_stdout = 0;\n");
+	}
 	fprintf(script, "#include \"debug_mem.h\"\n\n\n");
-	fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
+
+	if (program_options_ns::emscripten_flag) {
+		fprintf(script, "//fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
+	} else {
+		fprintf(script, "fstream debug_log_file(\"qscript_debug.log\", ios_base::out|ios_base::trunc);\n");
+	}
 	fprintf(script, "extern fstream flat_file;\n");
 	fprintf(script, "extern fstream xtcc_datafile;\n");
 	fprintf(script, "extern fstream qtm_disk_file;\n");
