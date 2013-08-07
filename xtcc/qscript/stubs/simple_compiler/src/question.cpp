@@ -37,6 +37,7 @@ namespace program_options_ns {
 	extern bool compile_to_cpp_only_flag;
 	extern int32_t fname_flag;
 	extern bool no_question_save_restore_optimization;
+	extern bool emscripten_flag;
 }
 
 using program_options_ns::no_question_save_restore_optimization;
@@ -353,8 +354,15 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "if (" << questionName_ << "->question_attributes.hidden_==false) {\n"
 		<< "\t// " << questionName_
 		<< "->eval(question_window, stub_list_window, data_entry_window);\n"
-		<< "\tlast_question_visited = " << questionName_ << ";" << endl
-		<< "\tfprintf(qscript_stdout, \"last_question_visited: " << questionName_ << "\\n\");\n"
+		<< "\tlast_question_visited = " << questionName_ << ";" << endl;
+	if (program_options_ns::emscripten_flag) {
+		program_code
+			<< "\t//fprintf(qscript_stdout, \"last_question_visited: " << questionName_ << "\\n\");\n";
+	} else {
+		program_code
+			<< "\tfprintf(qscript_stdout, \"last_question_visited: " << questionName_ << "\\n\");\n";
+	}
+	program_code
 		<< "\treturn " << questionName_ << ";" << endl
 		<< "\t}\n";
 	// PrintUserNavigation(program_code);
@@ -1725,8 +1733,15 @@ void AbstractQuestion::PrintEvalArrayQuestion(StatementCompiledCode & code)
 		<< questionName_  << "_list.questionList["
 		<< consolidated_for_loop_index << "]->isAnswered_ == true"
 		<< ") {\n"
-		<< " stopAtNextQuestion = true;\n"
-		<< " fprintf (qscript_stdout, \" at question:  " << questionName_
+		<< " stopAtNextQuestion = true;\n";
+	if (program_options_ns::emscripten_flag) {
+		code.program_code
+			<< "//fprintf (qscript_stdout, \" at question:  " << questionName_;
+	} else {
+		code.program_code
+			<< "fprintf (qscript_stdout, \" at question:  " << questionName_;
+	}
+	code.program_code
 		<< " arming stopAtNextQuestion = true \\n\");\n"
 		<< "}";
 	code.program_code	<< " else if ( " << questionName_ << "_list.questionList["

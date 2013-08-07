@@ -27,7 +27,7 @@
 
 using std::ofstream;
 using std::vector;
-namespace qscript_parser 
+namespace qscript_parser
 {
 
 	extern vector<AbstractExpression*> for_loop_max_counter_stack;
@@ -57,8 +57,8 @@ namespace qscript_parser
 
 	extern ofstream debug_log_file;
 	using std::string;
-	//void print_err(compiler_err_category cmp_err, 
-	//	string err_msg, int32_t line_no, 
+	//void print_err(compiler_err_category cmp_err,
+	//	string err_msg, int32_t line_no,
 	//	int32_t compiler_line_no, string compiler_file_name);
 	extern int32_t line_no;
 	extern noun_list_type noun_list[];
@@ -79,6 +79,7 @@ namespace qscript_parser
 	extern void GenerateCode(const string & src_file_name, bool ncurses_flag);
 	extern int32_t ReadQScriptConfig();
 	extern void CompileGeneratedCode(const string & src_file_name);
+	extern void CompileGeneratedCodeEmscripten(const string & src_file_name);
 	extern void CompileGeneratedCodeStatic(const string & src_file_name );
 	template<class T> T* link_chain(T* & elem1, T* & elem2);
 	template<class T> T* trav_chain(T* & elem1);

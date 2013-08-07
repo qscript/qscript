@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Emscripten-Generated Code</title>
+    <style>
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: monospace; width: 80%; }
+      div.emscripten { text-align: center; }
+      div.emscripten_border { border: 1px solid black; }
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.emscripten { border: 0px none; }
+    </style>
+	<!-- 
+	<link rel="stylesheet" type="text/css" href="../ext-4.2.1.883/resources/css/ext-all-neptune-debug.css">
+	<script type="text/javascript" src="../ext-4.2.1.883/ext-all-debug.js"></script>
+	<script type="text/javascript" src="sencha-touch-all-debug.js"></script>
+	<script type="text/javascript" src="ext-all-debug.js"></script>
+	-->
+	<script type="text/javascript">
+		/* Professional JavaScript for Web Developers - Nicholas C Zakas. Chpt 12*/
+		var EventUtil = {
+			addHandler: function (element, type, handler) {
+				if (element.addEventListener) {
+					element.addEventListener (type, handler, false);
+				} else if (element.attachEvent) {
+					element.attachEvent ("on" + type, handler);
+				} else {
+					element["on" + type] = handler;
+				}
+			},
+			getEvent: function (event) {
+				return event ? event : window.event;
+			},
+			getTarget: function (event) {
+				return event.target || event.srcElement;
+			},
+			preventDefault: function (event) {
+				if (event.preventDefault) {
+					event.preventDefault();
+				} else {
+					event.returnValue = false;
+				}
+			},
+			removeHandler: function (element, type, handler) {
+				if (element.removeEventListener) {
+					element.removeEventListener (type, handler, false);
+				} else if (element.detachEvent) {
+					element.detachEvent ("on" + type, handler);
+				} else {
+					element["on" + type] = null;
+				}
+			},
+			stopPropagation: function (event) {
+				if (event.stopPropagation) {
+					event.stopPropagation();
+				} else {
+					event.cancelBubble = true;
+				}
+			}
+		};
+		/*
+		EventUtil.addHandler (test_form, "submit", function(event) {
+			event = EventUtil.getEvent (event);
+			EventUtil.preventDefault (event);
+			var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+			//var data_for_cpp;
+			//Module.setValue (data_for_cpp, "hey mr cpp function - how you doing. This is a js func calling from the dom", "i8*");
+			//called_from_the_dom(data_for_cpp);
+			called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
+		       //alert("this is the DOM brother");
+		      //console.log("submit handler called");
+		});
+		*/
+		function serialize (form) {
+			var parts = new Array();
+			var field = null;
+			for (var i=0; i < form.elements.length; ++i ) {
+				field = form.elements[i];
+				switch (field.type) {
+				case "radio":
+					if (field.checked) {
+						parts.push(field.value);
+					}
+				break;
+				case "checkbox":
+					if (field.checked) {
+						parts.push(field.value);
+					}
+				break;
+				}
+			}
+			return parts.join(" ");
+		};
+
+
+	</script>
+	<script type="text/javascript">
+	// This entire JS section works
+	// commenting it because we are now working with dojo and 
+	// will switch to sencha a bit later
+	/*
+	Ext.require([
+	    'Ext.form.*',
+	    'Ext.layout.container.Column',
+	    'Ext.window.MessageBox',
+	    'Ext.fx.target.Element'
+	]);
+
+	var agree_5_rg = {
+		xtype: "fieldset",
+		title: "Agreement Scale",
+		//layout: "form",
+		layout: 'anchor',
+		items: [{
+			xtype: "radiogroup",
+			cls: 'x-check-group-alt',
+			columns: 1,
+			items: [
+				{ boxLabel: "Agree Strongly", name: "rb-auto", inputValue: 5},
+				{ boxLabel: "Agree", name: "rb-auto", inputValue: 4},
+				{ boxLabel: "Neutral", name: "rb-auto", inputValue: 3},
+				{ boxLabel: "Disagree", name: "rb-auto", inputValue: 2},
+				{ boxLabel: "Strongly Disagree", name: "rb-auto", inputValue: 1}
+			]
+		}]
+	};
+	var satis_5_rg = {
+		xtype: "fieldset",
+		title: "Satisfaction Scale",
+		//layout: "form",
+		layout: 'anchor',
+		items: [{
+			xtype: "radiogroup",
+			cls: 'x-check-group-alt',
+			columns: 1,
+			items: [
+				{ boxLabel: "Very Satisfied", name: "rb-auto", inputValue: 5},
+				{ boxLabel: "Satisfied", name: "rb-auto", inputValue: 4},
+				{ boxLabel: "Neutral", name: "rb-auto", inputValue: 3},
+				{ boxLabel: "Not Satisfied", name: "rb-auto", inputValue: 2},
+				{ boxLabel: "Extremely UnSatisfied", name: "rb-auto", inputValue: 1}
+			]
+		}]
+	};
+	var yn = {
+			xtype: "fieldset",
+			title: "Satisfaction Scale",
+			layout: 'anchor',
+			items: [{
+			xtype: "radiogroup",
+			cls: 'x-check-group-alt',
+			columns: 1,
+			items: [{boxLabel: "Yes",name: "rb-auto",inputValue: 1},
+				{boxLabel: "No",name: "rb-auto",inputValue: 2}
+			]
+		}]
+	};
+
+	function createForm(the_data) {
+	    // combine all that into one huge form
+	    //alert ("Ext.create:" + Ext.create);
+	    var fp = Ext.create('Ext.FormPanel', {
+		title: 'Check/Radio Groups Example',
+		frame: false,
+		fieldDefaults: {
+		    labelWidth: 110,
+		    labelStyle: 'color:green;padding-left:4px'
+		},
+		width: 600,
+		renderTo:'form-ct',
+		bodyPadding: 10,
+		items: [
+		    //agree_5_rg
+		    the_data
+		],
+		buttons: [{
+		    text: 'Next',
+		    handler: function(){
+		       if(fp.getForm().isValid()){
+			    Ext.Msg.alert('Submitted Values', 'The following will be sent to the server: <br />'+
+				fp.getForm().getValues(true).replace(/&/g,', '));
+				var sel_answ = fp.getForm().getValues(true).replace(/&/g,', ');
+				console.log("sencha form Values:" + sel_answ);
+				var clean_up_re = /rb-auto=/g;
+				var cleaned_up_answ = sel_answ.replace(clean_up_re, " ");
+				console.log("cleaned_up_answ:" + cleaned_up_answ);
+				cleaned_up_answ = cleaned_up_answ.replace(",", " ");
+				var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+		 		//var returnValue = serialize (question_form);
+				//called_from_the_dom(returnValue);
+				//called_from_the_dom("1");
+				called_from_the_dom(cleaned_up_answ);
+			}
+		    }
+		},{
+		    text: 'Reset',
+		    handler: function(){
+			fp.getForm().reset();
+		    }
+		}]
+	    });
+	}
+	*/
+
+	/*
+	Ext.onReady(function(){
+		var btn_agree_5 = document.getElementById("btn_agree_5");
+		btn_agree_5.addEventListener("click", function(){
+			createForm(agree_5_rg);
+		}, false);
+		var btn_sat_5 = document.getElementById("btn_sat_5");
+		btn_sat_5.addEventListener("click", function(){
+			createForm(satis_5_rg);
+		}, false);
+		var btn_yn = document.getElementById("btn_yn");
+		btn_yn.addEventListener("click", function(){
+			createForm(yn);
+		}, false);
+
+		//Ext.onReady(createForm(yn));
+	});
+	*/
+
+	</script>
+  </head>
+  <body>
+  <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" data-dojo-config="async: true"></script>
+
+  <!--
+  <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" ></script>
+-->
+
+    <div id="form-ct"></div>
+	<div>
+		<input id="btn_agree_5" type="BUTTON" value="Show Agree">
+		<input id="btn_sat_5" type="BUTTON" value="Show Satisfaction">
+		<input id="btn_yn" type="BUTTON" value="Yes/No">
+	</div>
+
+
+    <div class="emscripten" id="question_text_area">Question Area </div>
+    <div class="emscripten" id="question_stub_area">Stubs Area 
+	<form id="question_form">
+			 <div id="stubs_form_div">
+			 </div>
+		<input  type="submit" value="Next">
+	</form>
+	</div>
+
+    <hr/>
+	<div id="nxd_test_div">
+		<form id="test_form">
+			<input  id="radio_1" type="radio" value="1" name="test_radio"><label for="radio_1">Value 1</label>
+			<input  id="radio_2" type="radio" value="2" name="test_radio"><label for="radio_2">Value 2</label>
+			<input  id="radio_3" type="radio" value="3" name="test_radio"><label for="radio_3">Value 3</label>
+			<input  id="radio_4" type="radio" value="4" name="test_radio"><label for="radio_4">Value 4</label>
+			<input  id="radio_5" type="radio" value="5" name="test_radio"><label for="radio_5">Value 5</label>
+			<input  type="submit" value="Next">
+		</form>
+	</div>
+
+
+	<script type="text/javascript">
+		var test_form = document.getElementById("test_form");
+		//alert("test_form: " + test_form);
+
+		var question_form = document.getElementById("question_form");
+		EventUtil.addHandler (question_form, "submit", function(event) {
+			event = EventUtil.getEvent (event);
+			EventUtil.preventDefault (event);
+			var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+			//var data_for_cpp;
+			//Module.setValue (data_for_cpp, "hey mr cpp function - how you doing. This is a js func calling from the dom", "i8*");
+			//called_from_the_dom(data_for_cpp);
+			//called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
+		       //alert("this is the DOM brother");
+		      //console.log("submit handler called");
+		 	var returnValue = serialize (question_form);
+			//var data_for_cpp;
+			//Module.setValue (data_for_cpp, returnValue, "i8*");
+			called_from_the_dom(returnValue);
+		});
+	</script>
+
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>  
+    </div>
+    <div class="emscripten_border">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    </div>
+    <hr/>
+    <div class="emscripten">
+      <input type="checkbox" id="resize">Resize canvas
+      <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+      &nbsp;&nbsp;&nbsp;
+      <input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked, 
+                                                                                document.getElementById('resize').checked)">
+    </div>
+    
+    <hr/>
+    <textarea class="emscripten" id="output" rows="8"></textarea>
+    <hr>
+
+    <script type="text/javascript" src="jquery-1.9.1.js"></script>
+    <script type='text/javascript'>
+      // connect to canvas
+      var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+          var element = document.getElementById('output');
+          element.value = ''; // clear browser cache
+          return function(text) {
+            text = Array.prototype.slice.call(arguments).join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            element.value += text + "\n";
+            element.scrollTop = 99999; // focus on bottom
+          };
+        })(),
+        printErr: function(text) {
+          text = Array.prototype.slice.call(arguments).join(' ');
+          if (0) { // XXX disabled for safety typeof dump == 'function') {
+            dump(text + '\n'); // fast, straight to the real console
+          } else {
+            console.log(text);
+          }
+        },
+        canvas: document.getElementById('canvas'),
+        setStatus: function(text) {
+          if (Module.setStatus.interval) clearInterval(Module.setStatus.interval);
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var statusElement = document.getElementById('status');
+          var progressElement = document.getElementById('progress');
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+	//, noExitRuntime: true
+      };
+      Module.setStatus('Downloading...');
+    </script>      
+
+  <script type="text/javascript">
+	require(["dojox/mobile/parser", "dojox/mobile", "dojox/mobile/deviceTheme", "dojox/mobile/compat", "dojo/domReady!"],
+			function(parser) {
+				parser.parse();
+			});
+  </script>
+    <script type='text/javascript'>
+
+      {{{ SCRIPT_CODE }}}
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Emscripten-Generated Code</title>
+    <style>
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: monospace; width: 90%; }
+      div.emscripten { text-align: center; }
+	div.emscripten_border {
+		border: 1px solid black;
+		display: none;
+	}
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.emscripten { border: 0px none; }
+	div.qscript_question {
+		display:none;
+	}
+	div.qscript-logger {
+		background: "#dedede";
+		border: "1px solid silver";
+		padding: "5px";
+		width: 85%;
+	}
+	div.thank_you {
+		display: none;
+	}
+
+    </style>
+
+	<link rel="stylesheet" href="js/jquery.mobile-1.3.2.css">
+	<script type="text/javascript">
+		/* Professional JavaScript for Web Developers - Nicholas C Zakas. Chpt 12*/
+		var EventUtil = {
+			addHandler: function (element, type, handler) {
+				if (element.addEventListener) {
+					element.addEventListener (type, handler, false);
+				} else if (element.attachEvent) {
+					element.attachEvent ("on" + type, handler);
+				} else {
+					element["on" + type] = handler;
+				}
+			},
+			getEvent: function (event) {
+				return event ? event : window.event;
+			},
+			getTarget: function (event) {
+				return event.target || event.srcElement;
+			},
+			preventDefault: function (event) {
+				if (event.preventDefault) {
+					event.preventDefault();
+				} else {
+					event.returnValue = false;
+				}
+			},
+			removeHandler: function (element, type, handler) {
+				if (element.removeEventListener) {
+					element.removeEventListener (type, handler, false);
+				} else if (element.detachEvent) {
+					element.detachEvent ("on" + type, handler);
+				} else {
+					element["on" + type] = null;
+				}
+			},
+			stopPropagation: function (event) {
+				if (event.stopPropagation) {
+					event.stopPropagation();
+				} else {
+					event.cancelBubble = true;
+				}
+			}
+		};
+
+		function serialize (form) {
+			var parts = new Array();
+			var field = null;
+			for (var i=0; i < form.elements.length; ++i ) {
+				field = form.elements[i];
+				switch (field.type) {
+				case "radio":
+					if (field.checked) {
+						parts.push(field.value);
+					}
+				break;
+				case "checkbox":
+					if (field.checked) {
+						parts.push(field.value);
+					}
+				break;
+				case "text":
+					parts.push(field.value);
+				break;
+				}
+			}
+			return parts.join(" ");
+		};
+
+
+
+
+	</script>
+        <script type="text/javascript" src="cordova-2.7.0.js"></script>
+        <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile-1.3.2.js"></script>
+  </head>
+  <body>
+
+
+	<!-- 
+	<div id="question_display_area" class="qscript_question"  data-dojo-type="dojox/mobile/ScrollableView" data-dojo-props="selected: true">
+	<div id="question_display_area" >
+	-->
+	<div id="question_display_area" class="qscript_question"  data-role="page">
+
+		<div data-role="header">
+			<h1>Sample Survey</h1>
+		</div>
+		<div data-role="content">
+
+			<div id="div_serial_no">
+				<div>
+					<input id="txt_serial_no"  type="text" placeholder="Enter A Serial No">
+					<input type="button" value="Start Interview" id="btn_return_serial_no">
+					<input  id="testReadFile" type="button" value="TestReadFile" >
+				</div>
+			</div>
+
+			<div id="thank_you_screen" class="thank_you">
+				<p>Thank you for your time.</p>
+			</div>
+
+			<div id="question_view" class="qscript_question">
+				<div class="emscripten" id="question_text_area"></div>
+				<div class="emscripten" id="question_stub_area">
+					<form id="question_form">
+						<fieldset data-role="controlgroup">
+						 <div id="stubs_form_div">
+						 </div>
+						 <!-- <input  type="submit" value="Next" data-dojo-type="dojox/mobile/Button"> -->
+						<input  id="nextQ" type="button" value="Next" data-dojo-type="dojox/mobile/Button">
+						</fieldset>
+					</form>
+				</div>
+			</div>
+
+			<div id="div_console_log" class="qscript-logger">
+				console-logger<br/>
+			</div>
+
+			<div id="div_geolocation_info">
+				device geolocation info
+			</div>
+
+		</div>
+	</div>
+
+			<hr/>
+			<textarea class="emscripten" id="output" rows="8"></textarea>
+			<hr>
+			<div id="div_has_PhoneGap">
+				PhoneGap library Status.
+			</div>
+			<div id="div_device_properties">
+				device properties
+			</div>
+			<div id="div_device_compass">
+				device compass
+			</div>
+
+	<script type="text/javascript">
+
+	function my_log (mesg)
+	{
+		var div_console_log = document.getElementById("div_console_log");
+		div_console_log.innerHTML += "<p><pre>" + mesg + "</pre></p>";
+	}
+	// my_log ("test log message");
+
+	// big fat global variable
+	global_survey_related_info = {};
+	var nextQ = document.getElementById("nextQ");
+	EventUtil.addHandler (nextQ, "click", function(event) {
+		//event = EventUtil.getEvent (event);
+		//EventUtil.preventDefault (event);
+		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+		//var data_for_cpp;
+		//Module.setValue (data_for_cpp, "hey mr cpp function - how you doing. This is a js func calling from the dom", "i8*");
+		//called_from_the_dom(data_for_cpp);
+		//called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
+		//alert("this is the DOM brother");
+		//console.log("submit handler called");
+		var returnValue = serialize (question_form);
+		//var data_for_cpp;
+		//Module.setValue (data_for_cpp, returnValue, "i8*");
+		called_from_the_dom(returnValue);
+	});
+	//my_log ("created submit handler function");
+
+	function gotFileEntry(fileEntry) {
+		// my_log("gotFileEntry");
+		fileEntry.file(gotFile, fail);
+	}
+
+	function gotFile(file){
+		// my_log("gotFile");
+		//readDataUrl(file);
+		readAsText(file);
+	}
+
+	function fail(evt) {
+		// my_log(evt.target.error.code);
+	}
+
+	var testReadFile = document.getElementById ("testReadFile");
+	EventUtil.addHandler (testReadFile, "click", function(event) {
+		global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, fail);
+	});
+	//my_log ("created submit handler function");
+
+	function ourHandlerFileDoesNotExist(e)
+	{
+		// my_log("Enter: ourHandlerFileDoesNotExist");
+	}
+	//my_log ("created ourHandlerFileDoesNotExist");
+
+
+	var return_serial_no_button = document.getElementById("btn_return_serial_no");
+	function handleStartSurveyButton (event)
+	{
+		// my_log ("Enter: handleStartSurveyButton");
+		var question_view = document.getElementById("question_view");
+		//alert("question_view:" + question_view);
+		//var attr = document.createAttribute("display");
+		//attr.value = "block";
+		//question_view.setAttributeNode(attr);
+		var txt_serial_no = document.getElementById("txt_serial_no");
+		var serial_no = txt_serial_no.value;
+		//alert ("serial_no: " + serial_no);
+		question_view.style.display = "block";
+		var div_serial_no = document.getElementById("div_serial_no");
+		div_serial_no.style.display = "none";
+		return_serial_no_button.disabled = true;
+		// Sanity checks
+		var all_systems_go = false;
+		//alert ("global_survey_related_info: uuid" + gl)
+		//my_log ("global_survey_related_info.uuid: " + global_survey_related_info.device.uuid);
+		//my_log ("global_survey_related_info.latitude: " + global_survey_related_info.position.coords.latitude);
+		if (
+			global_survey_related_info.device && global_survey_related_info.device.uuid &&
+			global_survey_related_info.position && global_survey_related_info.position.coords &&
+			global_survey_related_info.fileSystemObject)  {
+			// my_log ("sanity checks passed");
+			var our_path = "qscript/" +
+					global_survey_related_info.device.uuid +
+					"/project_name/interviewer_id/project_name_interviewer_id_" +
+					serial_no +
+					".dat";
+			//alert ("our_path:" + our_path);
+			// first try to open the file and see if it exists
+			// my_log("opening file:" + our_path);
+			global_survey_related_info.fileSystemObject.root.getFile(our_path, null, gotFileEntry, fail);
+			//global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, fail);
+			// if successful, we need to merge in the survey data into the qnre
+			// so that eval correctly returns the next question to be asked
+			// otherwise open the path piecewise - constructing intermediate directories on the way
+			//fileGetDir (our_path, printSuccess, false, ourHandlerFileDoesNotExist);
+			//all_systems_go = true;
+		} else {
+			// my_log ("sanity checks failed");
+			// my_log ("global_survey_related_info.device: " + global_survey_related_info.device);
+			// my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
+			// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
+		}
+		//my_log (" after sanity checks");
+		/*
+		var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int']);
+		if (all_systems_go && callback_return_serial) {
+			//console.log("returning serial no to c++ code");
+			// add check on serial no here.
+			callback_return_serial (txt_serial_no.value);
+		} else {
+			my_log ("Could not find callback_return_serial in Module.cwrap");
+		}
+		*/
+		//var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
+		//callback_return_serial (serial_no);
+	}
+	EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
+	//my_log ("created handleStartSurveyButton function");
+
+	function get_device_info()
+	{
+		var div_has_PhoneGap = document.getElementById ("div_has_PhoneGap");
+		if (div_has_PhoneGap) {
+			div_has_PhoneGap.innerHTML = "PhoneGap library loaded successfully.";
+		}
+		var div_device_properties = document.getElementById ("div_device_properties");
+		if (window.device) {
+			///
+			//div_device_properties.innerHTML =
+			//	'Device Name: '     + device.name     + '<br />' +
+			//	'Device Cordova: '  + device.cordova + '<br />' +
+			//	'Device Platform: ' + device.platform + '<br />' +
+			//	'Device UUID: '     + device.uuid     + '<br />' +
+			//	'Device Model: '    + device.model     + '<br />' +
+			//	'Device Version: '  + device.version  + '<br />';
+			///
+			//global_survey_related_info.device_name = device.name;
+			//global_survey_related_info.device_cordova = device.cordova;
+			//global_survey_related_info.device_platform = device.platform;
+			//global_survey_related_info.device_uuid = device.uuid;
+			//global_survey_related_info.device_model = device.model;
+			//global_survey_related_info.device_version = device.version;
+			global_survey_related_info.device = device;
+			return true;
+		} else {
+			//div_device_properties.innerHTML = "does not have device property";
+			// my_log ("DOES NOT HAVE DEVICE PROPERTY");
+			return false;
+		}
+	}
+	//my_log ("created get_device_info function");
+
+	function onCompassSuccess(heading) {
+		//alert('Heading: ' + heading.magneticHeading);
+		var div_device_compass = document.getElementById("div_device_compass");
+		//div_device_compass.innerHTML  = "compass heading: " + heading.magneticHeading;
+	}
+	function onCompassError(compassError) {
+		//var div_device_compass = document.getElementById("div_device_compass");
+		//div_device_compass.innerHTML  = "compass not available :" + compassError;
+		my_log ("does not have compass/compass not available");
+	}
+
+	function get_compass_info()
+	{
+		if (navigator.compass) {
+			navigator.compass.getCurrentHeading(onCompassSuccess, onCompassError);
+		} else {
+			//var div_device_compass = document.getElementById("div_device_compass");
+			//div_device_compass.innerHTML  = "does not have compass object";
+			my_log ("DOES NOT HAVE COMPASS OBJECT");
+		}
+	}
+	//my_log ("created get_compass_info function");
+
+	function onGeoLocationSuccess (position) {
+		alert("onGeoLocationSuccess ");
+		my_log ("Enter: onGeoLocationSuccess: position:" + position);
+		var div_geolocation_info = document.getElementById("div_geolocation_info");
+		div_geolocation_info.innerHTML =
+			'Latitude: '          + position.coords.latitude          + '<br/>' +
+			'Longitude: '         + position.coords.longitude         + '<br/>' +
+			'Altitude: '          + position.coords.altitude          + '<br/>' +
+			'Accuracy: '          + position.coords.accuracy          + '<br/>' +
+			'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '<br/>' +
+			'Heading: '           + position.coords.heading           + '<br/>' +
+			'Speed: '             + position.coords.speed             + '<br/>' +
+			'Timestamp: '         + position.timestamp                + '<br/>';
+		//global_survey_related_info.position.coords.latitude         =position.coords.latitude        
+		//global_survey_related_info.position.coords.longitude        =position.coords.longitude       
+		//global_survey_related_info.position.coords.altitude         =position.coords.altitude        
+		//global_survey_related_info.position.coords.accuracy         =position.coords.accuracy        
+		//global_survey_related_info.position.coords.altitudeAccuracy =position.coords.altitudeAccuracy
+		//global_survey_related_info.position.coords.heading          =position.coords.heading         
+		//global_survey_related_info.position.coords.speed            =position.coords.speed           
+		//global_survey_related_info.position.timestamp               =position.timestamp              
+		global_survey_related_info.position = position;
+	}
+	//my_log("created onGeoLocationSuccess");
+
+	// onError Callback receives a PositionError object
+	//
+	function onGeoLocationError(error) {
+		my_log ("Enter: onGeoLocationError");
+		//var div_geolocation_info = document.getElementById("div_geolocation_info");
+		//div_geolocation_info.innerHTML = 
+		//	'code: '    + error.code    + '<br/>' +
+		//	'message: ' + error.message + '<br/>';
+		my_log ("Exit: onGeoLocationError");
+	}
+	//my_log("created onGeoLocationError");
+
+	function get_geolocation_info()
+	{
+		alert("get_geolocation_info fired");
+		my_log ("Enter: get_geolocation_info: navigator.geolocation:" + navigator.geolocation);
+		if (navigator.geolocation) {
+			// my_log ("get_geolocation_info: has geolocation");
+			if (navigator.geolocation.getCurrentPosition) {
+				// my_log("get_compass_info: has getCurrentPosition: " + navigator.geolocation.getCurrentPosition);
+			}
+			navigator.geolocation.getCurrentPosition(
+				onGeoLocationSuccess, onGeoLocationError);
+		} else {
+			var div_geolocation_info = document.getElementById("div_geolocation_info");
+			div_geolocation_info.innerHTML += 'message: Does not have geolocation object' +  '<br/>';
+			my_log ("DOES NOT HAVE GEOLOCATION OBJECT");
+		}
+		// my_log ("Exit: get_geolocation_info");
+	}
+
+	//my_log("created get_geolocation_info");
+
+	// http://stackoverflow.com/questions/13890698/how-to-create-nested-directories-in-phonegap
+	//my_log ("===========reached FileSystem section==========");
+
+	//var fileSystemObject = null;
+	// global Variable - current Active file
+	global_current_survey_data_file = null;
+
+	//document.addEventListener("deviceready", getFileSystemObject, false);
+
+	function onFileSystemSuccess (fileSystem) {
+		//fileSystemObject = fileSystem;
+		//my_log("assigned fileSystemObject fileSystem.name:" + fileSystem.name);
+		//my_log("assigned fileSystemObject fileSystemObject.name:" +  fileSystem.name);
+		//my_log("assigned fileSystemObject fileSystemObject.root.name:" +  fileSystem.root.name);
+		//my_log("assigned fileSystemObject fileSystemObject.root.fullPath:" +  fileSystem.root.fullPath);
+		//my_log("assigned fileSystemObject fileSystemObject.root.isDirectory:" +  fileSystem.root.isDirectory);
+		global_survey_related_info.fileSystemObject = fileSystem;
+	}
+
+	function fileFSError(e) {
+		//console.log(e.code);
+		//try {
+		//	my_log ("fileFSError: " + JSON.stringify(e));
+		//} catch (err) {}
+		my_log ("=== ERROR ====  fileFSError: " + JSON.stringify(e));
+	}
+
+	function getFileSystemObject () {
+		//my_log("Enter: getFileSystemObject");
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fileFSError);
+	}
+
+	function readDataUrl(file) {
+		my_log ("Enter: readDataUrl");
+		var reader = new FileReader();
+		reader.onloadend = function(evt) {
+		    // my_log("Read as data URL");
+		    my_log(evt.target.result);
+		};
+		reader.readAsDataURL(file);
+	}
+
+	function readAsText(file) {
+		// my_log ("Enter: readAsText");
+		var reader = new FileReader();
+		reader.onloadend = function(evt) {
+			// my_log("Read as text");
+			// my_log(evt.target.result);
+			var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
+			callback_return_serial (56, evt.target.result);
+		};
+		reader.readAsText(file);
+	}
+
+	function fileFoundSuccess (file) {
+		my_log("Enter: fileFoundSuccess: file" + file);
+		if (file) {
+			my_log ("file.size:" + file.size);
+			my_log ("file.fullPath:" + file.fullPath);
+			my_log ("file.name:" + file.name);
+			my_log ("file.type:" + file.type);
+		}
+		global_survey_related_info.file_entry_read_mode = file;
+		//var reader = new FileReader();
+		//reader.onloadend = function (evt) {
+		//	my_log ("Read as text");
+		//	my_log (evt.target.result);
+		//}
+		//reader.readAsText (file);
+		readDataURL(file);
+		readAsText(file);
+	}
+
+	// This function will create all the directories required on the way
+	// but create_mode = false or true will decide if a new file will be created
+	function fileGetDir(path, cb, create_mode, handlerFileDoesNotExist) {
+		// my_log ("Enter: fileGetDir");
+		var fileCreatedSuccess = function (file) {
+			my_log ("fileCreatedSuccess: created a file");
+			global_current_survey_data_file = file;
+		};
+		var fnGetOrCreateDir = function(p, de) {
+			my_log ("fnGetOrCreateDir path:" + p);
+			var path_length = p.length;
+			var entry = p.shift();
+			//my_log ("fnGetOrCreateDir operating on entry:" + entry);
+			if (entry) {
+				if (path_length > 1) {
+					de.getDirectory(entry,
+							{
+							create : true
+							},
+							function(dirEntry) {
+								my_log("success function: made dir/file: " + entry);
+								fnGetOrCreateDir(p, dirEntry);
+							},
+							fileFSError);
+				} else {
+					if (create_mode == true) {
+						my_log("reached file creation: create = true");
+						de.getFile(entry,
+								{
+								//create : true
+								create : create_mode
+								},
+								fileCreatedSuccess,
+							fileFSError);
+					} else {
+						my_log("reached file creation: open for reading only = true");
+						de.getFile(entry,
+								{
+								//create : false
+								create : create_mode
+								},
+								fileFoundSuccess,
+							handlerFileDoesNotExist);
+					}
+				}
+			} else if (cb) {
+				cb(de);
+			}
+		};
+		my_log ("After: fileGetDir");
+		if (path) {
+			var arPath = path.split("/");
+			fnGetOrCreateDir(arPath, global_survey_related_info.fileSystemObject.root);
+		} else {
+			if (cb) cb(fsroot);
+		}
+	}
+	//my_log("created fileGetDir");
+
+	function printSuccess(dirEntry) {
+		// my_log("printSuccess: " + dirEntry.fullPath);
+	}
+
+	// Now create your directories like:
+	//var main_dir= "story_repository/"+ User_Editime;
+	//fileGetDir(mainDir + "/rec", printSuccess);
+	//fileGetDir(mainDir + "/img", printSuccess);
+	//fileGetDir("story_repository/"+ User_Name, printSuccess);
+
+	// Our particular case
+	// link this back to Start survey - encapsulate in fn
+
+	function onDeviceReady() {
+		//my_log("Enter onDeviceReady");
+		var success = false;
+		success = get_device_info();
+		if (success == false) {
+			my_log ("Unable to get device information ... exiting the survey");
+			return false;
+		}
+		success = get_compass_info();
+		if (success == false) {
+			my_log ("Unable to get compass information ... exiting the survey");
+			return false;
+		}
+		success = get_geolocation_info();
+		if (success == false) {
+			my_log ("Unable to get geolocation information ... exiting the survey");
+			return false;
+		}
+		success = getFileSystemObject();
+		if (success == false) {
+			my_log ("Unable to get LocalFileSystem ... exiting the survey");
+			return false;
+		}
+		// allow to click on start only after initializing all the things we need
+		var return_serial_no_button = document.getElementById("btn_return_serial_no");
+		return_serial_no_button.disabled = false;
+		my_log("ready to start interview");
+		// var our_path = "qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat";
+		// fileGetDir (our_path, printSuccess);
+	}
+	//my_log("created onDeviceReady");
+	document.addEventListener ("deviceready", onDeviceReady, false);
+
+	/*
+	*/
+
+	</script>
+	<!-- 
+	<script type="text/javascript" src="./js/dojo/dojo/dojo.js" data-dojo-config="isDebug:1, async: true, parseOnLoad: true"></script>
+	<script type="text/javascript">
+		my_log ("window.dojo: " + window.dojo);
+		require(["dojox/mobile/parser",
+			"dojox/mobile", "dojox/mobile/deviceTheme",
+			"dojox/mobile/compat",
+			"dojo/domReady!"],
+		function(parser) {
+			parser.parse();
+			alert("dojo executed");
+		});
+	</script>
+	-->
+
+    <hr/>
+
+
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>  
+    </div>
+    <div class="emscripten_border">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <hr/>
+	    <div class="emscripten">
+      <input type="checkbox" id="resize">Resize canvas
+      <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+      &nbsp;&nbsp;&nbsp;
+      <input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked, 
+                                                                                document.getElementById('resize').checked)">
+	    </div>
+    </div>
+    
+    <!--
+    <hr/>
+    <textarea class="emscripten" id="output" rows="8"></textarea>
+    <hr>
+	-->
+
+    <script type='text/javascript'>
+      // connect to canvas
+      var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+          var element = document.getElementById('output');
+          element.value = ''; // clear browser cache
+          return function(text) {
+            text = Array.prototype.slice.call(arguments).join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            element.value += text + "\n";
+            element.scrollTop = 99999; // focus on bottom
+          };
+        })(),
+        printErr: function(text) {
+          text = Array.prototype.slice.call(arguments).join(' ');
+          if (0) { // XXX disabled for safety typeof dump == 'function') {
+            dump(text + '\n'); // fast, straight to the real console
+          } else {
+            console.log(text);
+          }
+        },
+        canvas: document.getElementById('canvas'),
+        setStatus: function(text) {
+          if (Module.setStatus.interval) clearInterval(Module.setStatus.interval);
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var statusElement = document.getElementById('status');
+          var progressElement = document.getElementById('progress');
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+	//, noExitRuntime: true
+      };
+      Module.setStatus('Downloading...');
+    </script>      
+
+    <script type='text/javascript'>
+
+      {{{ SCRIPT_CODE }}}
+
+    </script>
+  </body>
+</html>

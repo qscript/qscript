@@ -159,6 +159,7 @@ void print_microhttpd_web_support_structs (FILE * script);
 
 void print_new_logic_support_functions(FILE * script);
 void print_new_logic_support_functions_2(FILE * script);
+void print_emscripten_support_functions(FILE * script);
 
 void print_question_messages(FILE * script);
 
@@ -574,6 +575,9 @@ void print_close(FILE* script, ostringstream & program_code, bool ncurses_flag)
 	}
 	if (program_options_ns::wx_flag||program_options_ns::gtk_flag || program_options_ns::wt_flag) {
 		print_new_logic_support_functions_2 (script);
+	}
+	if (program_options_ns::emscripten_flag) {
+		print_emscripten_support_functions (script);
 	}
 
 }
@@ -1573,6 +1577,52 @@ test_script.o: test_script.C
 			<< endl;
 		cout << endl;
 	}
+}
+
+void CompileGeneratedCodeEmscripten(const string & src_file_name)
+{
+	if (qscript_debug::DEBUG_qscript_parser) {
+		cerr << "ENTER qscript_parser::" << __PRETTY_FUNCTION__ << endl;
+	}
+	string executable_file_name = ExtractBaseFileName(src_file_name);
+	string intermediate_file_name = executable_file_name + ".C";
+	executable_file_name += ".html";
+	string QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
+	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/runtime/cpp-emscripten";
+	string QSCRIPT_EMSCRIPTEN_BUILD_DIR = QSCRIPT_HOME + "/runtime/emscript-build";
+	string emscripten_cc_cmd = "emcc -Wunused-function  -O2 -o " + executable_file_name + string(" ")
+		+ string(" --shell-file ") + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
+		+ " --js-library " + QSCRIPT_INCLUDE_DIR + "/dom_manip_funcs.js "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/AbstractQuestionnaire.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/data_entry.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/log_mesg.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/named_attributes.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/named_range.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/qscript_data.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/qscript_debug.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/qscript_lib.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/qscript_parser_common.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/QuestionAttributes.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/question_common.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/question_logic.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/question_runtime.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/read_disk_data.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/scan_data.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/utils_common.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/xtcc_set.o "
+		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/question_stdout_runtime.o "
+		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main', '_callback_return_serial']\""
+		+ "\n";
+	cout << "cpp_compile_command: " << emscripten_cc_cmd << endl;
+	int32_t ret_val = system(emscripten_cc_cmd.c_str());
+	if (ret_val != 0) {
+		cerr << "Failed in compiling generated code : test_script.C ";
+	} else {
+		cout << "Generated executable. You can run it by\n shell_prompt> LD_LIBRARY_PATH=$QSCRIPT_HOME/lib ./"
+			<<  executable_file_name
+			<< endl;
+	}
+
 }
 
 void CompileGeneratedCodeStatic(const string & src_file_name)
@@ -5011,6 +5061,27 @@ void print_new_logic_support_functions(FILE * script)
 
 }
 
+void print_emscripten_support_functions(FILE * script)
+{
+	string support_fname =  program_options_ns::QSCRIPT_HOME +  string("/runtime/cpp/common/emscripten_support_frag.cpp");
+	std::ifstream new_logic_support_frag(support_fname.c_str(),
+			std::ios::in | std::ios::binary);
+
+	if (new_logic_support_frag) {
+		std::string new_logic_support_frag_contents;
+		new_logic_support_frag.seekg(0, std::ios::end);
+		new_logic_support_frag_contents.resize(new_logic_support_frag.tellg());
+		new_logic_support_frag.seekg(0, std::ios::beg);
+		new_logic_support_frag.read(&new_logic_support_frag_contents[0], new_logic_support_frag_contents.size());
+		new_logic_support_frag.close();
+		fprintf (script, "%s", new_logic_support_frag_contents.c_str());
+	} else {
+		cerr << "Unable to open file " << support_fname << endl
+			<< "... exiting" << endl;
+		exit(1);
+	}
+
+}
 
 void print_new_logic_support_functions_2(FILE * script)
 {

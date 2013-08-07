@@ -230,10 +230,14 @@ int32_t main(int32_t argc, char* argv[])
 		cout << "code generated " << endl;
 		if (program_options_ns::compile_to_cpp_only_flag) {
 		} else {
-			if (program_options_ns::static_binary_flag)
-				qscript_parser::CompileGeneratedCodeStatic(fname);
-			else
-				qscript_parser::CompileGeneratedCode(fname);
+			if (! (program_options_ns::emscripten_flag) ) {
+				if (program_options_ns::static_binary_flag)
+					qscript_parser::CompileGeneratedCodeStatic(fname);
+				else
+					qscript_parser::CompileGeneratedCode(fname);
+			} else {
+					qscript_parser::CompileGeneratedCodeEmscripten(fname);
+			}
 		}
 	} else {
 		cerr << "There were : " << no_errors << " errors in parse" << endl;
