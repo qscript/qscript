@@ -199,18 +199,20 @@
 	//my_log ("created submit handler function");
 
 	function gotFileEntry(fileEntry) {
-		// my_log("gotFileEntry");
+		my_log("Enter: gotFileEntry");
 		fileEntry.file(gotFile, fail);
 	}
 
 	function gotFile(file){
-		// my_log("gotFile");
+		my_log("Enter: gotFile");
 		//readDataUrl(file);
 		readAsText(file);
 	}
 
 	function fail(evt) {
 		// my_log(evt.target.error.code);
+		my_log ("unable to open file: error_code: " + error.code);
+		my_log ("unable to open file: error_text: " + error.message);
 	}
 
 	var testReadFile = document.getElementById ("testReadFile");
@@ -229,7 +231,7 @@
 	var return_serial_no_button = document.getElementById("btn_return_serial_no");
 	function handleStartSurveyButton (event)
 	{
-		// my_log ("Enter: handleStartSurveyButton");
+		my_log ("Enter: handleStartSurveyButton");
 		var question_view = document.getElementById("question_view");
 		//alert("question_view:" + question_view);
 		//var attr = document.createAttribute("display");
@@ -251,7 +253,7 @@
 			global_survey_related_info.device && global_survey_related_info.device.uuid &&
 			global_survey_related_info.position && global_survey_related_info.position.coords &&
 			global_survey_related_info.fileSystemObject)  {
-			// my_log ("sanity checks passed");
+			my_log ("sanity checks passed");
 			var our_path = "qscript/" +
 					global_survey_related_info.device.uuid +
 					"/project_name/interviewer_id/project_name_interviewer_id_" +
@@ -259,7 +261,7 @@
 					".dat";
 			//alert ("our_path:" + our_path);
 			// first try to open the file and see if it exists
-			// my_log("opening file:" + our_path);
+			my_log("opening file:" + our_path);
 			global_survey_related_info.fileSystemObject.root.getFile(our_path, null, gotFileEntry, fail);
 			//global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, fail);
 			// if successful, we need to merge in the survey data into the qnre
@@ -447,12 +449,13 @@
 	}
 
 	function readAsText(file) {
-		// my_log ("Enter: readAsText");
+		my_log ("Enter: readAsText");
 		var reader = new FileReader();
 		reader.onloadend = function(evt) {
-			// my_log("Read as text");
-			// my_log(evt.target.result);
+			my_log("Read as text:");
+			my_log(evt.target.result);
 			var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
+			my_log ("callback_return_serial:" + callback_return_serial);
 			callback_return_serial (56, evt.target.result);
 		};
 		reader.readAsText(file);
