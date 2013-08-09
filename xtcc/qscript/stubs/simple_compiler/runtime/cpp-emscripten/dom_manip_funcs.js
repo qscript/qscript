@@ -150,8 +150,10 @@ save_qnre_data: function (survey_data_ptr)
 		writer.write(the_survey_data);
 	};
 
-	if (global_current_survey_data_file) {
-		global_current_survey_data_file.createWriter (gotFileWriter, fail);
+	//if ( global_current_survey_data_file)
+	if (global_survey_related_info.current_survey_data_file ) {
+		// global_current_survey_data_file.createWriter (gotFileWriter, fail);
+		global_survey_related_info.current_survey_data_file.createWriter (gotFileWriter, fail);
 	} else {
 		my_log ("global_current_survey_data_file not available from dom_manip_funcs.js");
 	}
