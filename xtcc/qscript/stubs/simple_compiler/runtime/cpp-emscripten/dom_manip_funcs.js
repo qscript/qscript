@@ -139,6 +139,8 @@ save_qnre_data: function (survey_data_ptr)
 {
 	alert ("Enter: save_qnre_data ");
 	var the_survey_data = Pointer_stringify (survey_data_ptr);
+	// Need to make the fail function the same global function for
+	// error handling of files: getFileErrorHandler
 	var fail = function (err_msg) {
 		console.log(JSON.stringify(err_msg));
 		my_log (JSON.stringify(err_msg));

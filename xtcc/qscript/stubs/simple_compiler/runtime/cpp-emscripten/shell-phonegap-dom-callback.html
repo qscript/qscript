@@ -108,7 +108,7 @@
   <body>
 
 
-	<!-- 
+	<!--
 	<div id="question_display_area" class="qscript_question"  data-dojo-type="dojox/mobile/ScrollableView" data-dojo-props="selected: true">
 	<div id="question_display_area" >
 	-->
@@ -148,6 +148,12 @@
 			<div id="div_console_log" class="qscript-logger">
 				console-logger<br/>
 			</div>
+			<input id="test_file_read_failure" type="button" value="Test File Read Failure">
+			<input id="test_file_read_failure_middle_dir_missing" type="button" value="Test File Read Failure - Middle Dir Missing">
+
+			<hr/>
+			<textarea class="emscripten" id="output" rows="8"></textarea>
+			<hr>
 
 			<div id="div_geolocation_info">
 				device geolocation info
@@ -156,9 +162,6 @@
 		</div>
 	</div>
 
-			<hr/>
-			<textarea class="emscripten" id="output" rows="8"></textarea>
-			<hr>
 			<div id="div_has_PhoneGap">
 				PhoneGap library Status.
 			</div>
@@ -168,8 +171,10 @@
 			<div id="div_device_compass">
 				device compass
 			</div>
+		<div><span id="span_event_target_trigger_file_open_write">0</span> button #1 clicks.</div>
 
 	<script type="text/javascript">
+/* =============== Logging Setup ==================== */
 
 	function my_log (mesg)
 	{
@@ -177,31 +182,12 @@
 		div_console_log.innerHTML += "<p><pre>" + mesg + "</pre></p>";
 	}
 	// my_log ("test log message");
+/* =============== End: Logging Setup ==================== */
 
 	// big fat global variable
 	global_survey_related_info = {};
-	var nextQ = document.getElementById("nextQ");
-	EventUtil.addHandler (nextQ, "click", function(event) {
-		//event = EventUtil.getEvent (event);
-		//EventUtil.preventDefault (event);
-		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
-		//var data_for_cpp;
-		//Module.setValue (data_for_cpp, "hey mr cpp function - how you doing. This is a js func calling from the dom", "i8*");
-		//called_from_the_dom(data_for_cpp);
-		//called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
-		//alert("this is the DOM brother");
-		//console.log("submit handler called");
-		var returnValue = serialize (question_form);
-		//var data_for_cpp;
-		//Module.setValue (data_for_cpp, returnValue, "i8*");
-		called_from_the_dom(returnValue);
-	});
-	//my_log ("created submit handler function");
 
-	function gotFileEntry(fileEntry) {
-		my_log("Enter: gotFileEntry");
-		fileEntry.file(gotFile, fail);
-	}
+/* =============== File API ==================== */
 
 	function gotFile(file){
 		my_log("Enter: gotFile");
@@ -209,88 +195,57 @@
 		readAsText(file);
 	}
 
-	function fail(evt) {
-		// my_log(evt.target.error.code);
-		my_log ("unable to open file: error_code: " + error.code);
-		my_log ("unable to open file: error_text: " + error.message);
+	function getFileErrorHandler (file_error) {
+
+		var file_err_string =
+			" file_error.NOT_FOUND_ERR              "   +  file_error.NOT_FOUND_ERR + "<br />" +
+			" file_error.SECURITY_ERR               "   +  file_error.SECURITY_ERR + "<br />" +
+			" file_error.ABORT_ERR                  "   +  file_error.ABORT_ERR + "<br />" +
+			" file_error.NOT_READABLE_ERR           "   +  file_error.NOT_READABLE_ERR + "<br />" +
+			" file_error.ENCODING_ERR               "   +  file_error.ENCODING_ERR + "<br />" +
+			" file_error.NO_MODIFICATION_ALLOWED_ERR"   +  file_error.NO_MODIFICATION_ALLOWED_ERR + "<br />" +
+			" file_error.INVALID_STATE_ERR          "   +  file_error.INVALID_STATE_ERR + "<br />" +
+			" file_error.SYNTAX_ERR                 "   +  file_error.SYNTAX_ERR + "<br />" +
+			" file_error.INVALID_MODIFICATION_ERR   "   +  file_error.INVALID_MODIFICATION_ERR + "<br />" +
+			" file_error.QUOTA_EXCEEDED_ERR         "   +  file_error.QUOTA_EXCEEDED_ERR + "<br />" +
+			" file_error.TYPE_MISMATCH_ERR          "   +  file_error.TYPE_MISMATCH_ERR + "<br />" +
+			" file_error.PATH_EXISTS_ERR            "   +  file_error.PATH_EXISTS_ERR + "<br />"
+			;
+		my_log (file_err_string);
+		my_log ("triggering file_open_failed event");
+		/*
+		var event = new Event('file_open_failed');
+		var span_event_target_trigger_file_open_write = document.getElementById("span_event_target_trigger_file_open_write");
+		span_event_target_trigger_file_open_write.dispatchEvent (event);
+		*/
+
+
+// Define that the event name is 'build'.
+		var span_event_target_trigger_file_open_write = document.getElementById("span_event_target_trigger_file_open_write");
+		my_log ("got span");
+		var event = document.createEvent('HTMLEvents');
+		my_log ("created HTMLEvents");
+		event.initEvent('click', true, true);
+		//my_log ("did initEvent");
+		span_event_target_trigger_file_open_write.dispatchEvent (event);
+		my_log ("triggered click event");
 	}
+
+	function gotFileEntry(fileEntry) {
+		my_log("Enter: gotFileEntry");
+		fileEntry.file(gotFile, getFileErrorHandler);
+	}
+
+/* =============== End: File API ==================== */
 
 	var testReadFile = document.getElementById ("testReadFile");
 	EventUtil.addHandler (testReadFile, "click", function(event) {
-		global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, fail);
+		global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, getFileErrorHandler);
 	});
 	//my_log ("created submit handler function");
 
-	function ourHandlerFileDoesNotExist(e)
-	{
-		// my_log("Enter: ourHandlerFileDoesNotExist");
-	}
-	//my_log ("created ourHandlerFileDoesNotExist");
 
-
-	var return_serial_no_button = document.getElementById("btn_return_serial_no");
-	function handleStartSurveyButton (event)
-	{
-		my_log ("Enter: handleStartSurveyButton");
-		var question_view = document.getElementById("question_view");
-		//alert("question_view:" + question_view);
-		//var attr = document.createAttribute("display");
-		//attr.value = "block";
-		//question_view.setAttributeNode(attr);
-		var txt_serial_no = document.getElementById("txt_serial_no");
-		var serial_no = txt_serial_no.value;
-		//alert ("serial_no: " + serial_no);
-		question_view.style.display = "block";
-		var div_serial_no = document.getElementById("div_serial_no");
-		div_serial_no.style.display = "none";
-		return_serial_no_button.disabled = true;
-		// Sanity checks
-		var all_systems_go = false;
-		//alert ("global_survey_related_info: uuid" + gl)
-		//my_log ("global_survey_related_info.uuid: " + global_survey_related_info.device.uuid);
-		//my_log ("global_survey_related_info.latitude: " + global_survey_related_info.position.coords.latitude);
-		if (
-			global_survey_related_info.device && global_survey_related_info.device.uuid &&
-			global_survey_related_info.position && global_survey_related_info.position.coords &&
-			global_survey_related_info.fileSystemObject)  {
-			my_log ("sanity checks passed");
-			var our_path = "qscript/" +
-					global_survey_related_info.device.uuid +
-					"/project_name/interviewer_id/project_name_interviewer_id_" +
-					serial_no +
-					".dat";
-			//alert ("our_path:" + our_path);
-			// first try to open the file and see if it exists
-			my_log("opening file:" + our_path);
-			global_survey_related_info.fileSystemObject.root.getFile(our_path, null, gotFileEntry, fail);
-			//global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, fail);
-			// if successful, we need to merge in the survey data into the qnre
-			// so that eval correctly returns the next question to be asked
-			// otherwise open the path piecewise - constructing intermediate directories on the way
-			//fileGetDir (our_path, printSuccess, false, ourHandlerFileDoesNotExist);
-			//all_systems_go = true;
-		} else {
-			// my_log ("sanity checks failed");
-			// my_log ("global_survey_related_info.device: " + global_survey_related_info.device);
-			// my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
-			// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
-		}
-		//my_log (" after sanity checks");
-		/*
-		var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int']);
-		if (all_systems_go && callback_return_serial) {
-			//console.log("returning serial no to c++ code");
-			// add check on serial no here.
-			callback_return_serial (txt_serial_no.value);
-		} else {
-			my_log ("Could not find callback_return_serial in Module.cwrap");
-		}
-		*/
-		//var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
-		//callback_return_serial (serial_no);
-	}
-	EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
-	//my_log ("created handleStartSurveyButton function");
+/* ==========  Device Info ======================= */
 
 	function get_device_info()
 	{
@@ -324,7 +279,9 @@
 		}
 	}
 	//my_log ("created get_device_info function");
+/* ==========  End: Device Info ======================= */
 
+/* ==========  Compass API ======================= */
 	function onCompassSuccess(heading) {
 		//alert('Heading: ' + heading.magneticHeading);
 		var div_device_compass = document.getElementById("div_device_compass");
@@ -347,9 +304,10 @@
 		}
 	}
 	//my_log ("created get_compass_info function");
+/* ==========  End: Compass API ======================= */
 
+/* ==========  GeoLocation API ======================= */
 	function onGeoLocationSuccess (position) {
-		alert("onGeoLocationSuccess ");
 		my_log ("Enter: onGeoLocationSuccess: position:" + position);
 		var div_geolocation_info = document.getElementById("div_geolocation_info");
 		div_geolocation_info.innerHTML =
@@ -361,14 +319,14 @@
 			'Heading: '           + position.coords.heading           + '<br/>' +
 			'Speed: '             + position.coords.speed             + '<br/>' +
 			'Timestamp: '         + position.timestamp                + '<br/>';
-		//global_survey_related_info.position.coords.latitude         =position.coords.latitude        
-		//global_survey_related_info.position.coords.longitude        =position.coords.longitude       
-		//global_survey_related_info.position.coords.altitude         =position.coords.altitude        
-		//global_survey_related_info.position.coords.accuracy         =position.coords.accuracy        
+		//global_survey_related_info.position.coords.latitude         =position.coords.latitude
+		//global_survey_related_info.position.coords.longitude        =position.coords.longitude
+		//global_survey_related_info.position.coords.altitude         =position.coords.altitude
+		//global_survey_related_info.position.coords.accuracy         =position.coords.accuracy
 		//global_survey_related_info.position.coords.altitudeAccuracy =position.coords.altitudeAccuracy
-		//global_survey_related_info.position.coords.heading          =position.coords.heading         
-		//global_survey_related_info.position.coords.speed            =position.coords.speed           
-		//global_survey_related_info.position.timestamp               =position.timestamp              
+		//global_survey_related_info.position.coords.heading          =position.coords.heading
+		//global_survey_related_info.position.coords.speed            =position.coords.speed
+		//global_survey_related_info.position.timestamp               =position.timestamp
 		global_survey_related_info.position = position;
 	}
 	//my_log("created onGeoLocationSuccess");
@@ -378,7 +336,7 @@
 	function onGeoLocationError(error) {
 		my_log ("Enter: onGeoLocationError");
 		//var div_geolocation_info = document.getElementById("div_geolocation_info");
-		//div_geolocation_info.innerHTML = 
+		//div_geolocation_info.innerHTML =
 		//	'code: '    + error.code    + '<br/>' +
 		//	'message: ' + error.message + '<br/>';
 		my_log ("Exit: onGeoLocationError");
@@ -403,10 +361,11 @@
 		}
 		// my_log ("Exit: get_geolocation_info");
 	}
-
 	//my_log("created get_geolocation_info");
+/* ==========  End: GeoLocation API ======================= */
 
-	// http://stackoverflow.com/questions/13890698/how-to-create-nested-directories-in-phonegap
+
+/* ==========  File API ======================= */
 	//my_log ("===========reached FileSystem section==========");
 
 	//var fileSystemObject = null;
@@ -480,6 +439,7 @@
 		readAsText(file);
 	}
 
+	// http://stackoverflow.com/questions/13890698/how-to-create-nested-directories-in-phonegap
 	// This function will create all the directories required on the way
 	// but create_mode = false or true will decide if a new file will be created
 	function fileGetDir(path, cb, create_mode, handlerFileDoesNotExist) {
@@ -542,15 +502,7 @@
 	function printSuccess(dirEntry) {
 		// my_log("printSuccess: " + dirEntry.fullPath);
 	}
-
-	// Now create your directories like:
-	//var main_dir= "story_repository/"+ User_Editime;
-	//fileGetDir(mainDir + "/rec", printSuccess);
-	//fileGetDir(mainDir + "/img", printSuccess);
-	//fileGetDir("story_repository/"+ User_Name, printSuccess);
-
-	// Our particular case
-	// link this back to Start survey - encapsulate in fn
+/* ==========  End: File API ======================= */
 
 	function onDeviceReady() {
 		//my_log("Enter onDeviceReady");
@@ -583,13 +535,147 @@
 		// fileGetDir (our_path, printSuccess);
 	}
 	//my_log("created onDeviceReady");
+
+	/* ============ Setup the UI ==================== */
+
+	var nextQ = document.getElementById("nextQ");
+	EventUtil.addHandler (nextQ, "click", function(event) {
+		//event = EventUtil.getEvent (event);
+		//EventUtil.preventDefault (event);
+		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+		//var data_for_cpp;
+		//Module.setValue (data_for_cpp, "hey mr cpp function - how you doing. This is a js func calling from the dom", "i8*");
+		//called_from_the_dom(data_for_cpp);
+		//called_from_the_dom("hey mr cpp function - how you doing. This is a js func calling from the dom");
+		//alert("this is the DOM brother");
+		//console.log("submit handler called");
+		var returnValue = serialize (question_form);
+		//var data_for_cpp;
+		//Module.setValue (data_for_cpp, returnValue, "i8*");
+		called_from_the_dom(returnValue);
+	});
+	//my_log ("created submit handler function");
 	document.addEventListener ("deviceready", onDeviceReady, false);
+
+
+	var return_serial_no_button = document.getElementById("btn_return_serial_no");
+	function handleStartSurveyButton (event)
+	{
+		my_log ("Enter: handleStartSurveyButton");
+		var question_view = document.getElementById("question_view");
+		//alert("question_view:" + question_view);
+		//var attr = document.createAttribute("display");
+		//attr.value = "block";
+		//question_view.setAttributeNode(attr);
+		var txt_serial_no = document.getElementById("txt_serial_no");
+		var serial_no = txt_serial_no.value;
+		//alert ("serial_no: " + serial_no);
+		question_view.style.display = "block";
+		var div_serial_no = document.getElementById("div_serial_no");
+		div_serial_no.style.display = "none";
+		return_serial_no_button.disabled = true;
+		// Sanity checks
+		var all_systems_go = false;
+		//alert ("global_survey_related_info: uuid" + gl)
+		//my_log ("global_survey_related_info.uuid: " + global_survey_related_info.device.uuid);
+		//my_log ("global_survey_related_info.latitude: " + global_survey_related_info.position.coords.latitude);
+		if (
+			global_survey_related_info.device && global_survey_related_info.device.uuid &&
+			global_survey_related_info.position && global_survey_related_info.position.coords &&
+			global_survey_related_info.fileSystemObject)  {
+			my_log ("sanity checks passed");
+			var our_path = "qscript/" +
+					global_survey_related_info.device.uuid +
+					"/project_name/interviewer_id/project_name_interviewer_id_" +
+					serial_no +
+					".dat";
+			//alert ("our_path:" + our_path);
+			// first try to open the file and see if it exists
+			my_log("opening file:" + our_path);
+			global_survey_related_info.open_file_path = our_path;
+			global_survey_related_info.fileSystemObject.root.getFile(
+				our_path, {create: false, exclusive: true}, gotFileEntry, getFileErrorHandler);
+			//global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, getFileErrorHandler);
+			// if successful, we need to merge in the survey data into the qnre
+			// so that eval correctly returns the next question to be asked
+			// otherwise open the path piecewise - constructing intermediate directories on the way
+			//fileGetDir (our_path, printSuccess, false, getFileErrorHandler);
+			//all_systems_go = true;
+		} else {
+			// my_log ("sanity checks failed");
+			// my_log ("global_survey_related_info.device: " + global_survey_related_info.device);
+			// my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
+			// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
+		}
+		//my_log (" after sanity checks");
+		/*
+		var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int']);
+		if (all_systems_go && callback_return_serial) {
+			//console.log("returning serial no to c++ code");
+			// add check on serial no here.
+			callback_return_serial (txt_serial_no.value);
+		} else {
+			my_log ("Could not find callback_return_serial in Module.cwrap");
+		}
+		*/
+		//var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
+		//callback_return_serial (serial_no);
+	}
+	EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
+	//my_log ("created handleStartSurveyButton function");
+var test_file_read_failure = document.getElementById("test_file_read_failure");
+function test_file_read_failure_handler ()
+{
+	my_log ("Enter: test_file_read_failure_handler");
+	var our_path = "qscript/" +
+					global_survey_related_info.device.uuid +
+					"/project_name/interviewer_id/project_name_interviewer_id_does_not_exist.dat";
+					//serial_no +
+					//".dat"
+					//;
+	my_log ("our_path:" + our_path);
+	// first try to open the file and see if it exists
+	my_log("opening file:" + our_path);
+	global_survey_related_info.fileSystemObject.root.getFile(
+		our_path, {create: false, exclusive: true}, gotFileEntry, getFileErrorHandler);
+}
+EventUtil.addHandler (test_file_read_failure, "click", test_file_read_failure_handler);
+
+
+var test_file_read_failure_middle_dir_missing = document.getElementById("test_file_read_failure_middle_dir_missing");
+function test_file_read_failure_middle_dir_missing_handler ()
+{
+	my_log ("Enter: test_file_read_failure_middle_dir_missing_handler");
+	var our_path = "qscript/" +
+					global_survey_related_info.device.uuid +
+					"/project_name_missing/interviewer_id/project_name_interviewer_id_does_not_exist.dat";
+					//serial_no +
+					//".dat"
+					//;
+	my_log ("our_path:" + our_path);
+	// first try to open the file and see if it exists
+	my_log("opening file:" + our_path);
+	global_survey_related_info.fileSystemObject.root.getFile(
+		our_path, {create: false, exclusive: true}, gotFileEntry, getFileErrorHandler);
+}
+	EventUtil.addHandler (test_file_read_failure_middle_dir_missing,
+		"click", test_file_read_failure_middle_dir_missing_handler);
+
+	var span_event_target_trigger_file_open_write = document.getElementById("span_event_target_trigger_file_open_write");
+function event_listener_failed_read_open (e)
+{
+	my_log ("Enter: event_listener_failed_read_open: open_file_path: " + global_survey_related_info.open_file_path);
+}
+
+	EventUtil.addHandler (span_event_target_trigger_file_open_write,
+		"click", event_listener_failed_read_open);
+
 
 	/*
 	*/
 
 	</script>
-	<!-- 
+	<!--
 	<script type="text/javascript" src="./js/dojo/dojo/dojo.js" data-dojo-config="isDebug:1, async: true, parseOnLoad: true"></script>
 	<script type="text/javascript">
 		my_log ("window.dojo: " + window.dojo);
@@ -609,7 +695,7 @@
 
     <div class="emscripten" id="status">Downloading...</div>
     <div class="emscripten">
-      <progress value="0" max="100" id="progress" hidden=1></progress>  
+      <progress value="0" max="100" id="progress" hidden=1></progress>
     </div>
     <div class="emscripten_border">
       <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
@@ -618,11 +704,11 @@
       <input type="checkbox" id="resize">Resize canvas
       <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
       &nbsp;&nbsp;&nbsp;
-      <input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked, 
+      <input type="button" value="Fullscreen" onclick="Module.requestFullScreen(document.getElementById('pointerLock').checked,
                                                                                 document.getElementById('resize').checked)">
 	    </div>
     </div>
-    
+
     <!--
     <hr/>
     <textarea class="emscripten" id="output" rows="8"></textarea>
@@ -682,7 +768,7 @@
 	//, noExitRuntime: true
       };
       Module.setStatus('Downloading...');
-    </script>      
+    </script>
 
     <script type='text/javascript'>
 

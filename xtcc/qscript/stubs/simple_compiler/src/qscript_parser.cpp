@@ -517,7 +517,11 @@ void print_header(FILE* script, bool ncurses_flag)
 	fprintf(script, "void Compute_FlatFileQuestionDiskDataMap(vector<AbstractRuntimeQuestion*> p_question_list);\n");
 	fprintf(script, "void load_languages_available(vector<string> & vec_language);\n");
 	fprintf(script, "\n");
-	fprintf(script, "int process_options(int argc, char * argv[]);\n");
+	if (program_options_ns::emscripten_flag) {
+		fprintf(script, "//int process_options(int argc, char * argv[]);\n");
+	} else {
+		fprintf(script, "int process_options(int argc, char * argv[]);\n");
+	}
 
 	/*
 	// This is not necessary any more
@@ -905,7 +909,7 @@ const char * file_exists_check_code()
 	"\t\t	map <string, question_disk_data*>  qdd_map;\n"
 	"\t\t	load_data (jno, ser_no, &qdd_map);\n"
 	"\t\t	//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);\n"
-	"\t\t	merge_disk_data_into_questions2 (qscript_stdout, last_question_answered, last_question_visited, this->question_list, &qdd_map);\n"
+	"\t\t	//merge_disk_data_into_questions2 (qscript_stdout, last_question_answered, last_question_visited, this->question_list, &qdd_map);\n"
 	"\t\t}\n\t}\n";
 	if (qscript_debug::MAINTAINER_MESSAGES){
 		cerr << "fix me : add code for `if file is invalid` case "
@@ -1584,15 +1588,39 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 	if (qscript_debug::DEBUG_qscript_parser) {
 		cerr << "ENTER qscript_parser::" << __PRETTY_FUNCTION__ << endl;
 	}
-	string executable_file_name = ExtractBaseFileName(src_file_name);
-	string intermediate_file_name = executable_file_name + ".C";
+	string base_name = ExtractBaseFileName(src_file_name);
+	string executable_file_name  = base_name;
+	string intermediate_cpp_file_name = base_name + ".C";
+	string intermediate_cpp_file_name2 = base_name + ".cpp";
+	string intermediate_obj_file_name = executable_file_name + ".o";
 	executable_file_name += ".html";
 	string QSCRIPT_HOME = program_options_ns::QSCRIPT_HOME;
 	string QSCRIPT_INCLUDE_DIR = QSCRIPT_HOME + "/runtime/cpp-emscripten";
 	string QSCRIPT_EMSCRIPTEN_BUILD_DIR = QSCRIPT_HOME + "/runtime/emscript-build";
+
+	string emscripten_mv_cmd =
+		  "mv " + intermediate_cpp_file_name + string(" ") + intermediate_cpp_file_name2;
+	int32_t ret_val = system(emscripten_mv_cmd.c_str());
+	if (ret_val != 0)  {
+		cerr << "unable to rename .C file to .cpp, emcc will fail if we can't do this"
+			<< "exiting" << endl;
+		exit(1);
+	}
+
+	string emscripten_cc_intermediate_file_cmd =
+		  "emcc -Wunused-function -I" + QSCRIPT_INCLUDE_DIR
+		+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ");
+	cout << "intermediate cpp_compile_command: " << endl << emscripten_cc_intermediate_file_cmd << endl;
+	ret_val = system(emscripten_cc_intermediate_file_cmd.c_str());
+	if (ret_val != 0) {
+		cerr << "Failed in compiling intermediate cpp file to obj : " << intermediate_cpp_file_name
+			<< endl;
+		exit(1);
+	}
 	string emscripten_cc_cmd = "emcc -Wunused-function  -O2 -o " + executable_file_name + string(" ")
 		+ string(" --shell-file ") + QSCRIPT_INCLUDE_DIR + string("/shell-phonegap-dom-callback.html ")
 		+ " --js-library " + QSCRIPT_INCLUDE_DIR + "/dom_manip_funcs.js "
+		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main','_callback_return_serial']\" "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/AbstractQuestionnaire.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/data_entry.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/log_mesg.o "
@@ -1611,10 +1639,10 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/utils_common.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/xtcc_set.o "
 		+ QSCRIPT_EMSCRIPTEN_BUILD_DIR + "/question_stdout_runtime.o "
-		+ "-s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_main', '_callback_return_serial']\""
-		+ "\n";
+		+ intermediate_obj_file_name + string(" ")
+		;
 	cout << "cpp_compile_command: " << emscripten_cc_cmd << endl;
-	int32_t ret_val = system(emscripten_cc_cmd.c_str());
+	ret_val = system(emscripten_cc_cmd.c_str());
 	if (ret_val != 0) {
 		cerr << "Failed in compiling generated code : test_script.C ";
 	} else {

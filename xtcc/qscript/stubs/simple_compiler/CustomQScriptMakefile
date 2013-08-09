@@ -236,7 +236,7 @@ clean: lib_clean
 #old target - new : runtime is now isolated
 #local_install: $(BUILD_DIR)/qscript_wq2 runtime_lib compiletime_lib
 local_install: $(BUILD_DIR)/qscript_wq2 
-	(cd  runtime && make -f CppRuntimeMakefile)
+	(cd  runtime && make -f CppRuntimeMakefile && make -f EmscriptenRuntimeMakefile)
 	cp $(BUILD_DIR)/qscript_wq2 bin
 	# new runtime: cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib
 	#cp $(BUILD_DIR)/runtime_lib/libqscript_runtime_wq2.so.1.0.1 lib/libqscript_runtime_wq2.so.1
