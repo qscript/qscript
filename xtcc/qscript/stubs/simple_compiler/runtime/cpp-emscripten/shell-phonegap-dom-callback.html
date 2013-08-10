@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Emscripten-Generated Code</title>
 
+    <!-- local css styling {{{1 -->
     <style>
       .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
       textarea.emscripten { font-family: monospace; width: 90%; }
@@ -29,6 +30,7 @@
 	}
 
     </style>
+    <!-- local css styling }}}1 -->
 
 	<link rel="stylesheet" href="js/jquery.mobile-1.3.2.css">
 	<script type="text/javascript">
@@ -99,14 +101,13 @@
 			return parts.join(" ");
 		};
 		/* ============= }}}1 ==================*/
-
-
-
-
 	</script>
         <script type="text/javascript" src="cordova-2.7.0.js"></script>
         <script type="text/javascript" src="js/jquery-1.9.1.js"></script>
         <script type="text/javascript" src="js/jquery.mobile-1.3.2.js"></script>
+<script src="js/jquery-lang.js" charset="utf-8" type="text/javascript"></script>
+<script src="js/langpack/hi.js" charset="utf-8" type="text/javascript"></script>
+
   </head>
   <body>
 
@@ -121,6 +122,18 @@
 			<h1>Sample Survey</h1>
 		</div>
 		<div data-role="content">
+			<div id="langChanger">
+				<!--
+				<a href="javascript:window.lang.change('en');">Switch to English</a> |
+				<a href="javascript:window.lang.change('hi');">Switch to Hindi</a>
+				-->
+
+				<input lang="en" type="button" value="Switch to English" id="btn_chg_lang_en">
+				<input lang="hi" type="button" value="Switch to Hindi"   id="btn_chg_lang_hi">
+			</div>
+			<div>
+				<span id="hard_coded_trans" lang="en">Test of translation to Hindi</span>
+			</div>
 
 			<div id="div_serial_no">
 				<div>
@@ -311,7 +324,7 @@
 /* ==========  End: GeoLocation API }}}1 ======================= */
 
 
-/* ==========  File API ======================= */
+/* ==========  FileSystem API {{{1 ======================= */
 	//my_log ("===========reached FileSystem section==========");
 
 	//var fileSystemObject = null;
@@ -343,6 +356,7 @@
 		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fileFSError);
 	}
 
+/* ==========  End: FileSystem API }}}3 ======================= */
 
 /* =============== File API {{{1 ==================== */
 
@@ -395,7 +409,7 @@
 		fileEntry.file(gotFile, getFileErrorHandler);
 	}
 
-
+	/* readDataUrl {{{2 */
 	function readDataUrl(file) {
 		my_log ("Enter: readDataUrl");
 		var reader = new FileReader();
@@ -405,7 +419,9 @@
 		};
 		reader.readAsDataURL(file);
 	}
+	/* readDataUrl }}}2 */
 
+	/* readAsText {{{2 */
 	function readAsText(file) {
 		my_log ("Enter: readAsText");
 		var reader = new FileReader();
@@ -418,7 +434,9 @@
 		};
 		reader.readAsText(file);
 	}
+	/* readAsText }}}2 */
 
+	/* fileFoundSuccess {{{2 */
 	function fileFoundSuccess (file) {
 		my_log("Enter: fileFoundSuccess: file" + file);
 		if (file) {
@@ -428,16 +446,10 @@
 			my_log ("file.type:" + file.type);
 		}
 		global_survey_related_info.file_entry_read_mode = file;
-		//var reader = new FileReader();
-		//reader.onloadend = function (evt) {
-		//	my_log ("Read as text");
-		//	my_log (evt.target.result);
-		//}
-		//reader.readAsText (file);
-		//readDataURL(file);
-		//readAsText(file);
 	}
+	/* fileFoundSuccess }}}2 */
 
+	/* ====== fileGetDir {{{2 */
 	// http://stackoverflow.com/questions/13890698/how-to-create-nested-directories-in-phonegap
 	// This function will create all the directories required on the way
 	// but create_mode = false or true will decide if a new file will be created
@@ -502,6 +514,7 @@
 		my_log ("Exit: fileGetDir " + create_mode);
 	}
 	//my_log("created fileGetDir");
+	/* ====== fileGetDir }}}2 */
 
 	function printSuccess(dirEntry) {
 		my_log("printSuccess: " + dirEntry.fullPath);
@@ -540,9 +553,9 @@
 		// fileGetDir (our_path, printSuccess);
 		return true;
 	}
-	/* =========== onDeviceReady }}}1 ========= */
 	//my_log("created onDeviceReady");
 	document.addEventListener ("deviceready", onDeviceReady, false);
+	/* =========== onDeviceReady }}}1 ========= */
 
 	/* ============ Setup the UI {{{1 ==================== */
 
@@ -553,6 +566,7 @@
 	});
 	//my_log ("created submit handler function");
 
+	/* Next Question Button {{{2 */
 	var nextQ = document.getElementById("nextQ");
 	EventUtil.addHandler (nextQ, "click", function(event) {
 		//event = EventUtil.getEvent (event);
@@ -570,6 +584,7 @@
 		called_from_the_dom(returnValue);
 	});
 	//my_log ("created submit handler function");
+	/* Next Question Button }}}2 */
 
 /* handleStartSurveyButton  {{{2 */
 	var return_serial_no_button = document.getElementById("btn_return_serial_no");
@@ -691,6 +706,35 @@ function event_listener_failed_read_open (e)
 
 	EventUtil.addHandler (span_event_target_trigger_file_open_write,
 		"click", event_listener_failed_read_open);
+
+	window.lang = new jquery_lang_js();
+	$().ready(function () {
+		window.lang.run();
+	});
+
+
+	var btn_chg_lang_en = document.getElementById("btn_chg_lang_en");
+	function change_language_en () {
+		my_log ("Enter: change_language_en");
+		window.lang.change("en");
+		my_log ("Exit: change_language_en");
+	}
+	EventUtil.addHandler (btn_chg_lang_en, "click", change_language_en);
+
+	var btn_chg_lang_hi = document.getElementById("btn_chg_lang_hi");
+	function change_language_hi () {
+		my_log ("Enter: change_language_hi");
+		//window.lang.run();
+		if (window.lang) {
+			my_log("change_language_hi: has lang");
+			window.lang.change("hi");
+		} else {
+			my_log("change_language_hi: does not have lang");
+		}
+		my_log ("Exit: change_language_hi");
+	}
+	EventUtil.addHandler (btn_chg_lang_hi, "click", change_language_hi);
+
 	/* ============ Setup the UI }}}1 ==================== */
 
 

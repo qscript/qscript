@@ -151,9 +151,8 @@ vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
 	//	//mvwprintw(question_window, 2+i, 1, " %s", textExprVec_[i]->text_.c_str() );
 	//	result.push_back (q->textExprVec_[i]->text_);
 	//}
-	for (int i=0; i<q->textExprVec_.size(); ++i)
-        {
-        	question_text << "<p>";
+	for (int i=0; i<q->textExprVec_.size(); ++i) {
+        	//question_text << "<p>";
         	if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
         	{
         		//stringstream mesg_id;
@@ -178,7 +177,7 @@ vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
         		}
 			//question_text << "pipedQuestion_" << endl;
         	}
-        	question_text << "</p>";
+        	//question_text << "</p>";
         }
 
 	result.push_back (question_text.str());
@@ -196,10 +195,15 @@ string DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
 		cout << qno_and_qtxt[0] << "." << qno_and_qtxt[1];
 
 		// ret_val << start_marker << endl;
+		//ret_val
+		//	<< "<h2>" << qno_and_qtxt[0]
+		//	<< "." << qno_and_qtxt[1]
+		//	<< "</h2>";
 		ret_val
-			<< "<h2>" << qno_and_qtxt[0]
-			<< "." << qno_and_qtxt[1]
-			<< "</h2>";
+			//<< qno_and_qtxt[0]
+			//<< "."
+			<< qno_and_qtxt[1]
+			;
 		for (int i = 2; i < qno_and_qtxt.size(); ++i) {
 			cout <<  qno_and_qtxt[i].c_str();
 			ret_val << qno_and_qtxt[i] ;

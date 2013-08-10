@@ -5,12 +5,9 @@ print_to_question_area: function (question_text_ptr)
 	//alert("print_to_question_area: " + i );
 	var the_question_text = Pointer_stringify (question_text_ptr);
 	var v = document.getElementById("question_text_area");
-	var html = "";
-	html +=
-		"<p>"
-		+ the_question_text
-		+ "</p>";
+	var html = "<span deftext=\"true\" data-deftext=\"true\" id=\"lang_qtxt\" lang=\"en\">" + the_question_text + "</span>";
 	v.innerHTML = html;
+	//alert(v.innerHTML);
 },
 
 print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
@@ -122,6 +119,7 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 
 
 	display_stubs (question_type, the_stub_data);
+	window.lang.run();
 
 },
 
