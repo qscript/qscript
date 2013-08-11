@@ -213,6 +213,7 @@ void AbstractQuestion::GetQuestionsInBlock(
 }
 #endif /* 0 */
 
+#if 0
 void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 {
 	// hard coded for now
@@ -255,7 +256,9 @@ void AbstractQuestion::PrintUserNavigation(ostringstream & program_code)
 		<< "last_question_answered = " << questionName_ << ";\n"
 		<< "}\n";
 }
+#endif /* 0 */
 
+#if 0
 void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_code)
 {
 	program_code << "if(user_navigation == NAVIGATE_PREVIOUS){\n\
@@ -303,6 +306,7 @@ void AbstractQuestion::PrintUserNavigationArrayQuestion(ostringstream & program_
 		<< "]" << ";\n"
 		<< "}\n";
 }
+#endif /* 0 */
 
 void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 {
@@ -366,14 +370,25 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 	if (qscript_parser::page_nest_lev > 0) {
 		program_code << "/* page_nest_lev == " << qscript_parser::page_nest_lev
 			<< qscript_parser::page_nest_lev << " | INSIDE A PAGE */" << endl;
+		program_code
+			//<< "\treturn " << questionName_ << ";" << endl
+			<< "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val.push_back("
+			<< questionName_ << ");" << endl
+			<< "\t}\n";
 	} else {
 		program_code << "/* page_nest_lev == " << qscript_parser::page_nest_lev
 			<< qscript_parser::page_nest_lev << " | NOT INSIDE A PAGE */" << endl;
+		program_code
+			<< "\t vector<AbstractRuntimeQuestion*> ret_vec;" << endl
+			<< "\t ret_vec.push_back(" << questionName_ << ");" << endl
+			<< "\t return ret_vec;" << endl
+			<< "\t}\n";
 	}
 
-	program_code
-		<< "\treturn " << questionName_ << ";" << endl
-		<< "\t}\n";
+	// NxD: 11-Aug-2013 original place of return statement
+	//program_code
+	//	<< "\treturn " << questionName_ << ";" << endl
+	//	<< "\t}\n";
 	// PrintUserNavigation(program_code);
 	program_code <<  "}\n";
 }

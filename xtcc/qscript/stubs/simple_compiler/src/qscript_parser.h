@@ -40,6 +40,10 @@ namespace qscript_parser
 	extern int32_t flagIsAFunctionBody_;
 	extern int32_t flagIsAForBody_;
 	extern int32_t page_nest_lev;
+	// NxD: 11-aug-2013 Since pages cannot nest inside each other
+	// I am hoping a global variable for the active page name
+	// should be enough
+	extern std::string globalActivePageName_;
 	extern bool flag_next_stmt_start_of_block;
 	extern bool flag_next_question_start_of_block;
 	extern bool flag_dynamic_base_text;

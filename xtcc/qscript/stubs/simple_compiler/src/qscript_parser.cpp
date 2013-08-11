@@ -46,6 +46,8 @@ namespace qscript_parser
 	int32_t page_nest_lev  = 0;
 	bool flag_next_stmt_start_of_block = false;
 
+	std::string globalActivePageName_;
+
 	bool flag_dynamic_base_text = false;
 	AbstractQuestion * dynamic_base_text_question = 0;
 	bool flag_next_question_start_of_block = false;
@@ -2734,7 +2736,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
-	fprintf(script, "AbstractRuntimeQuestion * eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,\n"
+	fprintf(script, "vector<AbstractRuntimeQuestion *> eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,\n"
 			"\t\t AbstractRuntimeQuestion * p_last_question_visited,*/\n"
 			"\t\t UserNavigation p_navigation_mode, AbstractRuntimeQuestion * p_last_question_visited, AbstractRuntimeQuestion * p_jump_to_index)\n{\n");
 
@@ -2844,7 +2846,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	 * For now, I am commenting it ou
 	 */
 
-	fprintf(script, "\treturn 0;\n");
+	fprintf(script, "\t{vector<AbstractRuntimeQuestion*> empty_vec; return empty_vec;}\n");
 	fprintf(script, "} /* close eval */\n");
 
 }
@@ -4905,7 +4907,26 @@ void print_Wt_support_code(FILE * script)
 
 void print_new_logic_support_functions(FILE * script)
 {
+	string support_fname =  program_options_ns::QSCRIPT_HOME +  string("/runtime/cpp/common/new_logic_support_frag_stdout.cpp");
+	std::ifstream new_logic_support_frag(support_fname.c_str(),
+			std::ios::in | std::ios::binary);
 
+	if (new_logic_support_frag) {
+		std::string new_logic_support_frag_contents;
+		new_logic_support_frag.seekg(0, std::ios::end);
+		new_logic_support_frag_contents.resize(new_logic_support_frag.tellg());
+		new_logic_support_frag.seekg(0, std::ios::beg);
+		new_logic_support_frag.read(&new_logic_support_frag_contents[0], new_logic_support_frag_contents.size());
+		new_logic_support_frag.close();
+		fprintf (script, "%s", new_logic_support_frag_contents.c_str());
+	} else {
+		cerr << "Unable to open file " << support_fname << endl
+			<< "... exiting" << endl;
+		exit(1);
+	}
+
+#if 0
+	fprintf (script, "/* ============= new_logic_support_frag stdout =========*/\n");
 	fprintf (script, "void question_eval_loop2 (\n");
 	fprintf (script, "	UserInput p_user_input,\n");
 	fprintf (script, "	AbstractRuntimeQuestion * last_question_visited,\n");
@@ -4945,7 +4966,7 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "\n");
 	fprintf (script, "void parse_input_data(vector<int> * data_ptr, int & success);\n");
 	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
-	fprintf (script, "void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
+	fprintf (script, "void eval_single_question_logic_with_input (UserInput p_user_input, const vector<AbstractRuntimeQuestion *> & q_vec, struct TheQuestionnaire * theQuestionnaire, int nest_level);\n");
 	fprintf (script, "\n");
 	fprintf (script, "\n");
 	fprintf (script, "void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)\n");
@@ -5025,6 +5046,9 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {\n");
 	fprintf (script, "				fprintf(qscript_stdout,\n");
 	fprintf (script, "					\"user_navigation == NAVIGATE_PREVIOUS\\n\");\n");
+	fprintf (script, "				cout << \"Previous Button in MULITPLE QUESTIONS PER PAGE UNHANDLED\"\n");
+	fprintf (script, "					<< endl;\n");
+	fprintf (script, "#if 0\n");
 	fprintf (script, "				AbstractRuntimeQuestion *target_question =\n");
 	fprintf (script, "					theQuestionnaire->ComputePreviousQuestion(last_question_visited);\n");
 	fprintf (script, "				if (target_question == 0) { \n");
@@ -5032,6 +5056,7 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "				} else {\n");
 	fprintf (script, "					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level+1);\n");
 	fprintf (script, "				}\n");
+	fprintf (script, "#endif /*0*/\n");
 	fprintf (script, "			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {\n");
 	fprintf (script, "				// do nothing \n");
 	fprintf (script, "				// once we exit this major block == last_question_visited\n");
@@ -5073,21 +5098,23 @@ void print_new_logic_support_functions(FILE * script)
 	fprintf (script, "		}\n");
 	fprintf (script, "	} // else {\n");
 	fprintf (script, "	// should reach here - end of :\n");
-	fprintf (script, "		AbstractRuntimeQuestion * q =\n");
+	fprintf (script, "		vector<AbstractRuntimeQuestion *> q_vec =\n");
 	fprintf (script, "			theQuestionnaire->eval2 (\n");
 	fprintf (script, "			NAVIGATE_NEXT, last_question_visited, jump_to_question);\n");
-	fprintf (script, "		if (!q) {\n");
+	fprintf (script, "		if (q_vec.size() == 0) {\n");
 	fprintf (script, "			cout << \"End of qnre();\" << endl << \">\";\n");
 	fprintf (script, "		} else {\n");
-	fprintf (script, "			cout << __PRETTY_FUNCTION__ << \",\" << __LINE__ <<  \", eval2 return q = \"\n");
-	fprintf (script, "				<< q->questionName_ << endl;\n");
-	fprintf (script, "			stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level+1);\n");
+	fprintf (script, "			cout << __PRETTY_FUNCTION__ << \",\" << __LINE__ <<  \", eval2 return first q in vec = \"\n");
+	fprintf (script, "				<< q_vec[0]->questionName_ << endl;\n");
+	fprintf (script, "			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level+1);\n");
 	fprintf (script, "		}\n");
 	fprintf (script, "	//}\n");
 	fprintf (script, "}\n");
 	fprintf (script, "\n");
 
+	fprintf (script, "/* ============= END new_logic_support_frag stdout =========*/\n");
 
+#endif /* 0 */
 }
 
 void print_emscripten_support_functions(FILE * script)

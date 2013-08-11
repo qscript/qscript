@@ -600,17 +600,11 @@ struct NewCardStatement: public AbstractStatement
 struct PageStatement: public AbstractStatement
 {
 	PageStatement(DataType dtype, int32_t lline_number,
-			CompoundStatement * l_page_body);
+			string l_page_name, CompoundStatement * l_page_body);
+	std::string pageName_;
 	CompoundStatement * pageBody_;
-	void GenerateCode(StatementCompiledCode & code)
-	{
-		code.program_code << "/* ENTER " << __PRETTY_FUNCTION__ << " */" << std::endl;
-		pageBody_->GenerateCode(code);
-		code.program_code << "/* EXIT " << __PRETTY_FUNCTION__ << " */" << std::endl;
-		if (next_) {
-			next_->GenerateCode (code);
-		}
-	}
+	void GenerateCode(StatementCompiledCode & code);
+
 };
 
 #endif /* stmt_h */

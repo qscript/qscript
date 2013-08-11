@@ -7,7 +7,7 @@ stubs age =
 	"31 to 35" 4
 	"36 to 40" 5;
 
-page {
+page demogs {
 
 q1	 "Age"
 	sp int32_t  age;

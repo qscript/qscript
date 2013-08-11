@@ -167,7 +167,14 @@ COMPILETIME_LIB_OBJECTS := $(COMPILETIME_LIB_OBJECTS:.cpp=.o)
 ## #	echo "COMPILETIME_LIB_OBJECTS $(COMPILETIME_LIB_OBJECTS)"
 ## 	$(CXX) -g -shared -Wl,-soname,libqscript_compiletime_wq2.so.1 -o $(BUILD_DIR)/compiletime_lib/libqscript_compiletime_wq2.so.1.0.1 $(COMPILETIME_LIB_OBJECTS)
 
-$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp;
+$(BUILD_DIR)/lex.o: $(SOURCE_DIR)/lex.cpp
+	$(CC) $(CFLAGS) -o $@ $<
+
+
+$(BUILD_DIR)/q.o: $(SOURCE_DIR)/q.cpp  $(SOURCE_DIR)/q.hpp 
+	$(CC) $(CFLAGS) -o $@ $<
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.h;
 	$(CC) $(CFLAGS) -o $@ $<
 #echo "dir of target: $(@D), filename of target $(@F)"
 

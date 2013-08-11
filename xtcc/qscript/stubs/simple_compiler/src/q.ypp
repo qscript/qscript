@@ -349,8 +349,14 @@ cmpd_stmt: open_curly stmt_list '}' {
 	}
 	;
 
-page_stmt: PAGE cmpd_stmt {
-		PageStatement * a_page = new PageStatement (PAGE_STMT, qscript_parser::line_no, $2);
+page_stmt: PAGE NAME cmpd_stmt {
+		std::stringstream mesg;
+		mesg << "Need to add check that names for pages are unique";
+		LOG_MAINTAINER_MESSAGE(mesg.str());
+		string page_name ($2);
+		PageStatement * a_page =
+			new PageStatement (PAGE_STMT,
+					qscript_parser::line_no, page_name, $3);
 		$$ = a_page;
 		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
 			<< qscript_parser::page_nest_lev << endl;

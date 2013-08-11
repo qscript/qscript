@@ -2210,9 +2210,28 @@ void NewCardStatement::GenerateCode(StatementCompiledCode & code)
 	}
 }
 
-PageStatement::PageStatement (DataType dtype, int32_t l_line_no, CompoundStatement * l_page_body)
+PageStatement::PageStatement (DataType dtype, int32_t l_line_no,
+		string l_page_name, CompoundStatement * l_page_body)
 	: AbstractStatement(dtype, l_line_no),
-	  pageBody_ (l_page_body)
+	  pageName_ (l_page_name), pageBody_ (l_page_body)
 {
 
+}
+
+
+void PageStatement::GenerateCode(StatementCompiledCode & code)
+{
+	qscript_parser::globalActivePageName_ = pageName_;
+	code.program_code << "/* ENTER " << __PRETTY_FUNCTION__ << " */" << std::endl;
+	code.program_code << "vector <AbstractRuntimeQuestion*> vec_page_"
+		<< pageName_ << "_ret_val;" << std::endl;
+	qscript_parser::page_nest_lev = 1;
+	pageBody_->GenerateCode(code);
+	code.program_code << " return vec_page_" << pageName_ << "_ret_val;"
+		<< std::endl;
+	qscript_parser::page_nest_lev = 0;
+	code.program_code << "/* EXIT " << __PRETTY_FUNCTION__ << " */" << std::endl;
+	if (next_) {
+		next_->GenerateCode (code);
+	}
 }
