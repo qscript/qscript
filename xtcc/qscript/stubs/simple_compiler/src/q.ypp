@@ -92,6 +92,7 @@
 %token COLUMN
 %token ISANSWERED
 %token NEWCARD
+%token PAGE
 
 
 %token '['
@@ -135,6 +136,7 @@
 %type <stmt> if_stmt
 %type <stmt> for_loop_stmt
 %type <stmt> stub_manip_stmts
+%type <stmt> page_stmt
 %type <v_list> var_decl
 %type <v_list> decl_comma_list
 
@@ -309,6 +311,7 @@ stmt:	question
 	| clear_stmt
 	| column_stmt
 	| newcard_stmt
+	| page_stmt
 	|	error ';' {
 		fprintf (stderr, "continuing parse with errors around line_no: %d\n", qscript_parser::line_no);
 		std::stringstream err_msg;
@@ -345,6 +348,13 @@ cmpd_stmt: open_curly stmt_list '}' {
 		$$ = qscript_parser::ProcessCompoundStatement($1, $2);
 	}
 	;
+
+page_stmt: PAGE cmpd_stmt {
+		PageStatement * a_page = new PageStatement (PAGE_STMT, qscript_parser::line_no, $2);
+		$$ = a_page;
+		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
+			<< qscript_parser::page_nest_lev << endl;
+	}
 
 open_curly:	'{' {
 		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
@@ -1234,6 +1244,16 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 			(popped_off_cmpd_stmt_ptr->counterContainsQuestions_);
 	}
 	//$$=$1;
+	if (qscript_parser::page_nest_lev == 1) {
+		qscript_parser::page_nest_lev = 0;
+	} else if (qscript_parser::page_nest_lev > 1) {
+		print_err(compiler_internal_error
+			, "Error: page_nest_lev should never be more than 1 "
+			   "ProcessCompoundStatement : "
+			"... exiting"
+			, line_no, __LINE__, __FILE__  );
+		exit (1);
+	}
 	return cmpdStmt;
 }
 

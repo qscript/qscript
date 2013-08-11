@@ -43,6 +43,7 @@ namespace qscript_parser
 	int32_t nest_lev = 0;
 	int32_t flagIsAFunctionBody_ = -1;
 	int32_t flagIsAForBody_ = 0;
+	int32_t page_nest_lev  = 0;
 	bool flag_next_stmt_start_of_block = false;
 
 	bool flag_dynamic_base_text = false;

@@ -362,6 +362,15 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		program_code
 			<< "\tfprintf(qscript_stdout, \"last_question_visited: " << questionName_ << "\\n\");\n";
 	}
+
+	if (qscript_parser::page_nest_lev > 0) {
+		program_code << "/* page_nest_lev == " << qscript_parser::page_nest_lev
+			<< qscript_parser::page_nest_lev << " | INSIDE A PAGE */" << endl;
+	} else {
+		program_code << "/* page_nest_lev == " << qscript_parser::page_nest_lev
+			<< qscript_parser::page_nest_lev << " | NOT INSIDE A PAGE */" << endl;
+	}
+
 	program_code
 		<< "\treturn " << questionName_ << ";" << endl
 		<< "\t}\n";

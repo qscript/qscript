@@ -14,6 +14,7 @@
 //#include "common.h"
 #include "symtab.h"
 #include "q.hpp"
+#include "utils.h"
 #include "lex_location.h"
 
 namespace qscript_parser {
@@ -26,6 +27,7 @@ namespace qscript_parser {
 	extern struct LexLocation lex_location;
 	extern bool show_lex_error_context ;
 
+	extern int32_t page_nest_lev;
 }
 
 %}
@@ -380,6 +382,18 @@ count		{
 newcard		{
 		return NEWCARD;
 	}
+
+page	{
+
+	if (qscript_parser::page_nest_lev > 0) {
+		print_err(compiler_sem_err,
+			 "Expecting: page_nest_lev to be 0 - you cannot nest pages"
+			, qscript_parser::line_no, __LINE__, __FILE__  );
+	}
+	printf ("returning TOKEN PAGE: page_nest_lev: %d\n", qscript_parser::page_nest_lev);
+	qscript_parser::page_nest_lev++;
+	return PAGE;
+}
 
 
 [0-9]+	{

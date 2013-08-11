@@ -39,6 +39,7 @@ namespace qscript_parser
 	extern int32_t nest_lev;
 	extern int32_t flagIsAFunctionBody_;
 	extern int32_t flagIsAForBody_;
+	extern int32_t page_nest_lev;
 	extern bool flag_next_stmt_start_of_block;
 	extern bool flag_next_question_start_of_block;
 	extern bool flag_dynamic_base_text;

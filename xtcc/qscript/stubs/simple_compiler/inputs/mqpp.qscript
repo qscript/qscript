@@ -1,0 +1,42 @@
+mqpp {
+
+stubs age =
+	"18 to 21" 1
+	"22 to 25" 2
+	"26 to 30" 3
+	"31 to 35" 4
+	"36 to 40" 5;
+
+page {
+
+q1	 "Age"
+	sp int32_t  age;
+
+stubs gen=
+	"Male " 1
+	"FeMale " 2;
+
+q2 	"Gender"
+	sp int32_t gen;
+
+	/*
+	page {
+		q4	"dummy should throw and error - cannot nest pages"
+			sp int32_t (1-5);
+	}
+	*/
+
+	}
+
+stubs educ=
+	"High School" 1
+	"Higher Secondary School" 2
+	"Bachelors Degree" 3
+	"Masters Degree" 4
+	"Phd " 5;
+
+
+q3 	"Please tell us the highest level of Education that you have achieved"
+	sp int32_t educ;
+
+}

@@ -543,7 +543,7 @@ struct GotoStatement: public AbstractStatement
 	GotoStatement(const GotoStatement&);
 };
 
-struct ClearStatement: public AbstractStatement 
+struct ClearStatement: public AbstractStatement
 {
 	ClearStatement(DataType l_type, int32_t l_line_number,
 			string l_question_name);
@@ -597,5 +597,20 @@ struct NewCardStatement: public AbstractStatement
 	NewCardStatement(const NewCardStatement&);
 };
 
+struct PageStatement: public AbstractStatement
+{
+	PageStatement(DataType dtype, int32_t lline_number,
+			CompoundStatement * l_page_body);
+	CompoundStatement * pageBody_;
+	void GenerateCode(StatementCompiledCode & code)
+	{
+		code.program_code << "/* ENTER " << __PRETTY_FUNCTION__ << " */" << std::endl;
+		pageBody_->GenerateCode(code);
+		code.program_code << "/* EXIT " << __PRETTY_FUNCTION__ << " */" << std::endl;
+		if (next_) {
+			next_->GenerateCode (code);
+		}
+	}
+};
 
 #endif /* stmt_h */
