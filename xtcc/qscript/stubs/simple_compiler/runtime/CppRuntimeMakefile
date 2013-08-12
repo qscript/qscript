@@ -66,7 +66,7 @@ $(BUILD_ROOT)/wx/question_wx2_runtime.o: $(SOURCE_ROOT)/wx/question_wx2_runtime.
 	$(CC) -I$(SOURCE_ROOT)/common -o $@ $(CFLAGS)  $(CXX_SHARED_LIB_FLAGS) `wx-config --cppflags` -c $<
 
 $(BUILD_ROOT)/wt/question_wt_runtime.o: $(SOURCE_ROOT)/wt/question_wt_runtime.cpp
-	$(CC) -I$(SOURCE_ROOT)/common -o $@ $(CFLAGS)  $(CXX_SHARED_LIB_FLAGS) `wx-config --cppflags` -c $<
+	$(CC) -I$(SOURCE_ROOT)/common -o $@ $(CFLAGS)  $(CXX_SHARED_LIB_FLAGS)  -c $<
 
 vegetable-wx.exe: $(BUILD_COMMON_DIR)/vegetable-wx.o $(OBJS)  $(BUILD_COMMON_DIR)/question_wx2_runtime.o
 	$(CC) $(CFLAGS) -o $@ `wx-config --cppflags` $(OBJS) $< $(BUILD_COMMON_DIR)/question_wx2_runtime.o `wx-config --libs `

@@ -798,10 +798,19 @@ int main(int argc, char ** argv)
 
 
 void GetUserInput (
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
+	void (*callback_ui_input) (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		AbstractRuntimeQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+	const vector <AbstractRuntimeQuestion *> & q_vec,
+	struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
+	cerr << "FIXME: Analyse this function in detail from a Point of View of Event Driven UI"
+		<< __FILE__ << ", " << ", " << __LINE__
+		<< ", " << __PRETTY_FUNCTION__ << endl;
+	cerr << "FIXME: add conditions for all questions in input vector, right now we are checking only 1st question "
+		<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< endl;
+	AbstractRuntimeQuestion * q = q_vec[0];
 	static int count = 0;
 	cout << __PRETTY_FUNCTION__ << ++count << endl;
 	if (q->no_mpn == 1) {
@@ -811,6 +820,9 @@ void GetUserInput (
 	}
 	string current_response;
 	cout << "Enter Data>" << endl;
+	cerr << "FIXME: what is the objective of this condition below?"
+		<< __FILE__ << ", " << ", " << __LINE__
+		<< ", " << __PRETTY_FUNCTION__ << endl;
 	if (count < 4) {
 		//getline(cin, current_response);
 	} else {
@@ -868,13 +880,13 @@ void GetUserInput (
 				// this call will return really fast
 				//  (if you consider io fast)
 				//  but what I mean is we wont add much to the call stack
-				callback_ui_input (user_input, q, theQuestionnaire, nest_level + 1);
-				GetUserInput (callback_ui_input, q, theQuestionnaire,  nest_level + 1);
+				callback_ui_input (user_input, q_vec, theQuestionnaire, nest_level + 1);
+				GetUserInput (callback_ui_input, q_vec, theQuestionnaire,  nest_level + 1);
 				cout << "callback_ui_input has returned after UserSavedData" << endl;
 			} else {
 				cout << "reached here: "
 					<< __PRETTY_FUNCTION__ << endl;
-				callback_ui_input (user_input, q, theQuestionnaire, nest_level + 1);
+				callback_ui_input (user_input, q_vec, theQuestionnaire, nest_level + 1);
 				cout << "callback_ui_input has returned"
 					<< __PRETTY_FUNCTION__ << endl;
 			}
@@ -896,7 +908,7 @@ void GetUserInput (
 #endif /*  0 */
 		} else {
 			// we should be passing an error message too
-			GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
+			GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 		}
 		/*
 		else {
@@ -909,7 +921,7 @@ void GetUserInput (
 	} else {
 		// nxd: 19-feb-2013
 		// I have to change this
-		GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
+		GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 	}
 }
 
@@ -1081,12 +1093,19 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 
 
 
-void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire,
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level), int nest_level)
+void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
+	struct TheQuestionnaire * theQuestionnaire,
+	void (*callback_ui_input)
+		(UserInput p_user_input, const vector <AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level),
+	int nest_level)
 {
-	cout << "Enter: " << __PRETTY_FUNCTION__ << "nest_level: " << nest_level << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__
+		<< "nest_level: " << nest_level << endl
+		<< "q_vec.size(): " << q_vec.size()
+		<< endl;
 	ClearPreviousView ();
+	AbstractRuntimeQuestion * q= q_vec[0];
 	vector <string> qno_and_qtxt = PrepareQuestionText (q);
 	DisplayQuestionTextView (qno_and_qtxt);
 	PrepareStubs (q);
@@ -1302,8 +1321,10 @@ void QuestionnaireApplication::DisplayStubs (AbstractRuntimeQuestion * q)
 }
 
 void QuestionnaireApplication::set_callback_ui_input (
-			void (*p_callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
-			)
+	void (*p_callback_ui_input) (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level)
+	)
 {
 	callback_ui_input = p_callback_ui_input;
 }
@@ -1345,7 +1366,10 @@ void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q
 		le_data_->setStyleClass("qscript-open-end-textbox");
 		new_form->addWidget(le_data_);
 	}
-	this_users_session -> ptr_last_question_visited = q;
+	cerr << "FIXME: Check if below statement is really needed:"
+		<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< endl;
+	//this_users_session -> ptr_last_question_visited = q;
 	WPushButton *b = new WPushButton("Next");
 	b->clicked().connect(this, &QuestionnaireApplication::handleDataInput);
 	new_form->addWidget(b);
@@ -1396,7 +1420,9 @@ void QuestionnaireApplication::handleRBDataInput (int nest_level)
 	UserInput user_input;
 	user_input.theUserResponse_ = user_response::UserEnteredData;
 	user_input.questionResponseData_ = s1.str();
-	AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+	//AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+	AbstractQuestionnaire * abs_qnre_ptr = AbstractQuestionnaire::qnre_ptr;
+	AbstractRuntimeQuestion * q = abs_qnre_ptr->last_question_visited[0];
 	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
 	if (valid_input) {
 		if (user_input.theUserResponse_ == user_response::UserSavedData) {
@@ -1407,13 +1433,17 @@ void QuestionnaireApplication::handleRBDataInput (int nest_level)
 			// this call will return really fast
 			//  (if you consider io fast)
 			//  but what I mean is we wont add much to the call stack
-			callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+			callback_ui_input (user_input,
+				abs_qnre_ptr->last_question_visited,
+				this_users_session -> theQuestionnaire_, nest_level + 1);
 			//GetUserInput (callback_ui_input, q, theQuestionnaire);
 			cout << "callback_ui_input has returned after UserSavedData" << endl;
 		} else {
 			cout << "reached here: "
 				<< __PRETTY_FUNCTION__ << endl;
-			callback_ui_input (user_input, q, this_users_session ->theQuestionnaire_, nest_level + 1);
+			callback_ui_input (user_input,
+					 abs_qnre_ptr->last_question_visited,
+					 this_users_session ->theQuestionnaire_, nest_level + 1);
 			cout << "callback_ui_input has returned"
 				<< __PRETTY_FUNCTION__ << endl;
 		}
@@ -1455,7 +1485,12 @@ void QuestionnaireApplication::handleCBDataInput (int nest_level)
 	UserInput user_input;
 	user_input.questionResponseData_ = s1.str();
 	user_input.theUserResponse_ = user_response::UserEnteredData;
-	AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+	cerr << "FIXME: taking only 1st question on page:" << __PRETTY_FUNCTION__
+		<< ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< endl;
+	AbstractQuestionnaire * abs_qnre_ptr = AbstractQuestionnaire::qnre_ptr;
+	AbstractRuntimeQuestion * q = abs_qnre_ptr->last_question_visited[0];
+	//AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
 	string err_mesg;
 	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
 	if (valid_input) {
@@ -1467,13 +1502,17 @@ void QuestionnaireApplication::handleCBDataInput (int nest_level)
 			// this call will return really fast
 			//  (if you consider io fast)
 			//  but what I mean is we wont add much to the call stack
-			callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+			callback_ui_input (user_input,
+					abs_qnre_ptr->last_question_visited,
+					this_users_session -> theQuestionnaire_, nest_level + 1);
 			//GetUserInput (callback_ui_input, q, theQuestionnaire);
 			cout << "callback_ui_input has returned after UserSavedData" << endl;
 		} else {
 			cout << "reached here: "
 				<< __PRETTY_FUNCTION__ << endl;
-			callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+			callback_ui_input (user_input,
+					abs_qnre_ptr->last_question_visited,
+					this_users_session -> theQuestionnaire_, nest_level + 1);
 			cout << "callback_ui_input has returned"
 				<< __PRETTY_FUNCTION__ << endl;
 		}
@@ -1491,7 +1530,9 @@ void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 {
 	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	string current_question_response = le_data_->text().narrow();
-	AbstractRuntimeQuestion * last_question_served = this_users_session-> ptr_last_question_visited;
+	//AbstractRuntimeQuestion * last_question_served = this_users_session-> ptr_last_question_visited;
+	AbstractRuntimeQuestion * last_question_served =
+		AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
 	if (last_question_served->no_mpn==1) {
 #if 0
 		UserNavigation user_nav=NOT_SET;
@@ -1536,7 +1577,12 @@ void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 		UserInput user_input;
 		user_input.questionResponseData_ = current_question_response ;
 		user_input.theUserResponse_ = user_response::UserEnteredData;
-		AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+		//AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+		AbstractRuntimeQuestion * q =
+			AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
+		cerr << "FIXME: taking only 1st question on page:" << __PRETTY_FUNCTION__
+			<< ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+			<< endl;
 		string err_mesg;
 		bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
 		if (valid_input) {
@@ -1548,13 +1594,18 @@ void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 				// this call will return really fast
 				//  (if you consider io fast)
 				//  but what I mean is we wont add much to the call stack
-				callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+				callback_ui_input (user_input,
+						AbstractQuestionnaire::qnre_ptr->last_question_visited,
+						this_users_session -> theQuestionnaire_, nest_level + 1);
 				//GetUserInput (callback_ui_input, q, theQuestionnaire);
 				cout << "callback_ui_input has returned after UserSavedData" << endl;
 			} else {
 				cout << "reached here: "
 					<< __PRETTY_FUNCTION__ << endl;
-				callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+				callback_ui_input (user_input,
+						AbstractQuestionnaire::qnre_ptr->last_question_visited,
+						this_users_session -> theQuestionnaire_,
+						nest_level + 1);
 				cout << "callback_ui_input has returned"
 					<< __PRETTY_FUNCTION__ << endl;
 			}
@@ -1579,11 +1630,17 @@ void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 			UserInput user_input;
 			user_input.questionResponseData_ = ss1.str();
 			user_input.theUserResponse_ = user_response::UserEnteredData;
-			AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+			//AbstractRuntimeQuestion * q = this_users_session -> ptr_last_question_visited ;
+			AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
+			cerr << "FIXME: taking only 1st question on page:" << __PRETTY_FUNCTION__
+				<< ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+				<< endl;
 			string err_mesg;
 			bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
 			if (valid_input) {
-				callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
+				callback_ui_input (user_input,
+						AbstractQuestionnaire::qnre_ptr->last_question_visited,
+						this_users_session -> theQuestionnaire_, nest_level + 1);
 			}
 #if 0
 #endif /* 0 */
@@ -1614,15 +1671,23 @@ void QuestionnaireApplication::handleSave()
 	user_input.userNavigation_ = SAVE_DATA;
 	user_input.theUserResponse_ = user_response::UserSavedData;
 	callback_ui_input (user_input,
-			this_users_session->ptr_last_question_visited,
+			//this_users_session->ptr_last_question_visited,
+			//this_users_session->theQuestionnaire_->last_question_visited,
+			AbstractQuestionnaire::qnre_ptr->last_question_visited,
 			this_users_session->theQuestionnaire_, 1);
 }
 
 void QuestionnaireApplication::handleDataInput()
 {
 	cout << __PRETTY_FUNCTION__ << endl;
-	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session -> ptr_last_question_visited )) {
-		AbstractRuntimeQuestion * last_question_served = this_users_session -> ptr_last_question_visited ;
+	AbstractRuntimeQuestion * last_question_served =
+			AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
+	//if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session -> ptr_last_question_visited ))
+	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_served)) {
+		//AbstractRuntimeQuestion * last_question_served = this_users_session -> ptr_last_question_visited ;
+		cerr << "FIXME: taking only 1st question on page:" << __PRETTY_FUNCTION__
+			<< ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+			<< endl;
 		vector<int32_t> data;
 		bool isAnswered = false;
 		cout << "returned back data from question: " << nq->questionName_ << endl;

@@ -47,6 +47,7 @@ namespace qscript_parser
 	bool flag_next_stmt_start_of_block = false;
 
 	std::string globalActivePageName_;
+	bool flag_first_question_in_page = false;
 
 	bool flag_dynamic_base_text = false;
 	AbstractQuestion * dynamic_base_text_question = 0;
@@ -2738,7 +2739,7 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 {
 	fprintf(script, "vector<AbstractRuntimeQuestion *> eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,\n"
 			"\t\t AbstractRuntimeQuestion * p_last_question_visited,*/\n"
-			"\t\t UserNavigation p_navigation_mode, AbstractRuntimeQuestion * p_last_question_visited, AbstractRuntimeQuestion * p_jump_to_index)\n{\n");
+			"\t\t UserNavigation p_navigation_mode, const vector<AbstractRuntimeQuestion *> & p_last_question_visited, AbstractRuntimeQuestion * p_jump_to_index)\n{\n");
 
 	fprintf(script, "//if (last_question_visited)\n\t//fprintf (qscript_stdout, \"entered eval2: last_question_visited: %%s, stopAtNextQuestion: %%d\\n\", last_question_visited->questionName_.c_str(), stopAtNextQuestion);\n");
 

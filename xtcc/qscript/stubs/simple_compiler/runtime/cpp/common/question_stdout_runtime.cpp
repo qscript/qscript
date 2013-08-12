@@ -229,10 +229,16 @@ typedef void (*callback_ui_input_t) (UserInput * p_user_input);
 // Any control flow logic that appears here is a mistake in my programming
 // and needs to be fixed
 void GetUserInput (
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
+	void (*callback_ui_input) (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		AbstractRuntimeQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+	const vector<AbstractRuntimeQuestion *> & q_vec,
+	struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
+	cerr << "FIXME: add conditions for all questions in input vector, right now we are checking only 1st question "
+		<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< endl;
+	AbstractRuntimeQuestion * q = q_vec[0];
 	cout << __PRETTY_FUNCTION__ << endl;
 	if (q->no_mpn == 1) {
 		cout << " Question is single answer, please enter only 1 response." << endl;
@@ -294,13 +300,13 @@ void GetUserInput (
 				// this call will return really fast
 				//  (if you consider io fast)
 				//  but what I mean is we wont add much to the call stack
-				callback_ui_input (user_input, q, theQuestionnaire, nest_level);
-				GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+				callback_ui_input (user_input, q_vec, theQuestionnaire, nest_level);
+				GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level);
 				cout << "callback_ui_input has returned after UserSavedData" << endl;
 			} else {
 				cout << "reached here: "
 					<< __PRETTY_FUNCTION__ << endl;
-				callback_ui_input (user_input, q, theQuestionnaire, nest_level);
+				callback_ui_input (user_input, q_vec, theQuestionnaire, nest_level);
 				cout << "callback_ui_input has returned"
 					<< __PRETTY_FUNCTION__ << endl;
 			}
@@ -322,7 +328,7 @@ void GetUserInput (
 #endif /*  0 */
 		} else {
 			// we should be passing an error message too
-			GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+			GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level);
 		}
 		/*
 		else {
@@ -335,7 +341,7 @@ void GetUserInput (
 	} else {
 		// nxd: 19-feb-2013
 		// I have to change this
-		GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
+		GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level);
 	}
 }
 

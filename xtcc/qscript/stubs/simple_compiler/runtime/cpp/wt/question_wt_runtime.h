@@ -44,15 +44,16 @@ struct Session
 	char last_question_visited[200];
 	char question_response[200];
 	char user_navigation[200];
-	AbstractRuntimeQuestion * last_question_served;
-	AbstractRuntimeQuestion * ptr_last_question_answered;
-	AbstractRuntimeQuestion * ptr_last_question_visited;
+	//AbstractRuntimeQuestion * last_question_served;
+	//AbstractRuntimeQuestion * ptr_last_question_answered;
+	//AbstractRuntimeQuestion * ptr_last_question_visited;
 	Session()
 		: start(time(NULL)),
 		  theQuestionnaire_(make_questionnaire()),
-		  rc(1), last_question_served(0),
-		  ptr_last_question_answered(0),
-		  ptr_last_question_visited(0)
+		  rc(1) //,
+		  //last_question_served(0),
+		  //ptr_last_question_answered(0),
+		  //ptr_last_question_visited(0)
 	{
 		snprintf (sid,
 		    sizeof (sid),
@@ -95,7 +96,9 @@ public:
 	bool flagSerialPageRemoved_;
 	std::map<int, int> map_cb_code_index;
 	QuestionnaireApplication (const WEnvironment &env);
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+	void (*callback_ui_input) (UserInput p_user_input,
+		const vector <AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level);
 	void changeLanguage();
 	void setLanguage(const std::string lang);
 	void ValidateSerialNo();
@@ -104,7 +107,7 @@ public:
 	void set_callback_ui_input (
 		void (*p_callback_ui_input)
 				(UserInput p_user_input,
-				AbstractRuntimeQuestion * q,
+				const vector <AbstractRuntimeQuestion *> & q_vec,
 				struct TheQuestionnaire * theQuestionnaire,
 				int nest_level)
 	);

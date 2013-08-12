@@ -331,7 +331,7 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "->VerifyQuestionIntegrity())"<< "||" << endl
 		//<< "stopAtNextQuestion ||" << endl
 		//<< "jumpToQuestion == \"" << questionName_.c_str() << "\" || " << endl
-		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited-> questionNoIndex_ )) ||" << endl
+		<< "( (p_navigation_mode == NAVIGATE_NEXT && last_question_visited.size() == 0) || (p_navigation_mode == NAVIGATE_NEXT && " << questionName_ << "->questionNoIndex_ >  last_question_visited[last_question_visited.size()-1]-> questionNoIndex_ )) ||" << endl
 		<<  "( p_navigation_mode == NAVIGATE_PREVIOUS && (dynamic_cast<AbstractRuntimeQuestion*>(" << questionName_ << ") == p_jump_to_index)) ||"  << endl
 		<< "((write_data_file_flag || write_qtm_data_file_flag || write_xtcc_data_file_flag) "
 		<< "  && !(" << questionName_ << "->question_attributes.isAllowBlank()) && "
@@ -358,7 +358,9 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 		<< "if (" << questionName_ << "->question_attributes.hidden_==false) {\n"
 		<< "\t// " << questionName_
 		<< "->eval(question_window, stub_list_window, data_entry_window);\n"
-		<< "\tlast_question_visited = " << questionName_ << ";" << endl;
+		// moved down - near return statement
+		//<< "\tlast_question_visited = " << questionName_ << ";"
+		<< endl;
 	if (program_options_ns::emscripten_flag) {
 		program_code
 			<< "\t//fprintf(qscript_stdout, \"last_question_visited: " << questionName_ << "\\n\");\n";
@@ -375,12 +377,18 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 			<< "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val.push_back("
 			<< questionName_ << ");" << endl
 			<< "\t}\n";
+		if (qscript_parser::flag_first_question_in_page) {
+			program_code << "last_question_visited.clear();" << std::endl;
+			qscript_parser::flag_first_question_in_page = false;
+		}
 	} else {
 		program_code << "/* page_nest_lev == " << qscript_parser::page_nest_lev
 			<< qscript_parser::page_nest_lev << " | NOT INSIDE A PAGE */" << endl;
 		program_code
 			<< "\t vector<AbstractRuntimeQuestion*> ret_vec;" << endl
 			<< "\t ret_vec.push_back(" << questionName_ << ");" << endl
+			<< "\t last_question_visited.clear();" << endl
+			<< "\t last_question_visited.push_back(" << questionName_ << ");" << endl
 			<< "\t return ret_vec;" << endl
 			<< "\t}\n";
 	}

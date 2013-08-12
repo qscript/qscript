@@ -2226,9 +2226,19 @@ void PageStatement::GenerateCode(StatementCompiledCode & code)
 	code.program_code << "vector <AbstractRuntimeQuestion*> vec_page_"
 		<< pageName_ << "_ret_val;" << std::endl;
 	qscript_parser::page_nest_lev = 1;
+	qscript_parser::flag_first_question_in_page = true;
 	pageBody_->GenerateCode(code);
-	code.program_code << " return vec_page_" << pageName_ << "_ret_val;"
-		<< std::endl;
+
+	code.program_code
+		<< "if (vec_page_" << pageName_ << "_ret_val.size() > 0) {"
+		<< " last_question_visited =  vec_page_" << pageName_ << "_ret_val;"
+		<< std::endl
+		<< " return vec_page_" << pageName_ << "_ret_val;"
+		<< std::endl
+		<< "}" << endl
+		;
+
+
 	qscript_parser::page_nest_lev = 0;
 	code.program_code << "/* EXIT " << __PRETTY_FUNCTION__ << " */" << std::endl;
 	if (next_) {

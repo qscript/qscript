@@ -604,6 +604,8 @@ struct PageStatement: public AbstractStatement
 	std::string pageName_;
 	CompoundStatement * pageBody_;
 	void GenerateCode(StatementCompiledCode & code);
+	PageStatement& operator=(const PageStatement&);
+	PageStatement(const PageStatement&);
 
 };
 

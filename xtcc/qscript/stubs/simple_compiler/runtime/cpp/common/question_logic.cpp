@@ -26,15 +26,25 @@
 #include "question_stdout_runtime.h"
 #include "named_range.h"
 
-void question_eval_loop2 (
-	UserInput p_user_input,
-	AbstractRuntimeQuestion * last_question_visited,
-	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
+//void question_eval_loop2 (
+//	UserInput p_user_input,
+//	AbstractRuntimeQuestion * last_question_visited,
+//	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
 
 void parse_input_data(vector<int> * data_ptr, int & success);
-void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
-void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+//void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+void eval_single_question_logic_with_input (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
+	cerr << "FIXME: add conditions for all questions in input vector, right now we are checking only 1st question "
+		<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< endl;
+	// NxD: 12-aug-2013
+	// for now - just verify the 1st question in a page
+	// afterwards modify function to verify all questions
+	AbstractRuntimeQuestion * q = q_vec[0];
+
 	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
@@ -44,12 +54,12 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRunt
 			// note that we do not set the isAnswered_ == true for the blank question
 			// so when re-visiting this particular qnre it will automatically
 			// stop here for data.
-			question_eval_loop2 (p_user_input, /* last_question_visited */ q,
+			question_eval_loop2 (p_user_input, /* last_question_visited */ q_vec,
 					/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 		} else if (p_user_input.questionResponseData_.length() == 0
 				&& q->question_attributes.isAllowBlank() == false ) {
 			// do not allow - serve the same question
-			GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
+			GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 		} else {
 			cout << "--reached here" << endl;
 			// input is not blank
@@ -59,7 +69,7 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRunt
 					/* current_response */, &input_data, success);
 			cout << "success: " << success << endl;
 			if (success == 0) {
-				GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
+				GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 			} else {
 				// =======================
 				string err_mesg, re_arranged_buffer;
@@ -78,14 +88,14 @@ void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRunt
 					p_user_input.theUserResponse_ = user_response::UserEnteredNavigation;
 					cout << __PRETTY_FUNCTION__ << ", invoking question_eval_loop2"
 						<< endl;
-					question_eval_loop2 (p_user_input, q, 0, theQuestionnaire, nest_level + 1);
+					question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
 				} else {
 					//stdout_eval (q, theQuestionnaire, callback_ui_input);
 					cout << __PRETTY_FUNCTION__
 						<< "Did not Get valid data for : "
 						<< " asking for input again (calling GetUserInput): "
 						<< q->questionName_ << endl;
-					GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level + 1);
+					GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 				}
 				// =======================
 #if 0

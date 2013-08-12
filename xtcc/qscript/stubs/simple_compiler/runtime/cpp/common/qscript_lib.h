@@ -21,7 +21,7 @@ int32_t load_data(std::string jno, int32_t ser_no,
 //		AbstractRuntimeQuestion * & p_last_question_visited, const vector <AbstractRuntimeQuestion*> question_list);
 void merge_disk_data_into_questions2(FILE * qscript_stdout,
 		AbstractRuntimeQuestion * & p_last_question_answered,
-		AbstractRuntimeQuestion * & p_last_question_visited,
+		vector<AbstractRuntimeQuestion *> & p_last_question_visited,
 		const std::vector <AbstractRuntimeQuestion*> question_list,
 		std::map <string, question_disk_data*> * qdd_map_ptr);
 

@@ -40,8 +40,9 @@
 
 struct AbstractQuestionnaire
 {
+	static AbstractQuestionnaire * qnre_ptr;
 	AbstractRuntimeQuestion * last_question_answered;
-	AbstractRuntimeQuestion * last_question_visited;
+	std::vector<AbstractRuntimeQuestion *> last_question_visited;
 	std::vector <AbstractRuntimeQuestion*> question_list;
 	std::fstream messages;
 	bool back_jump;
@@ -59,7 +60,7 @@ struct AbstractQuestionnaire
 
 	//virtual void compute_flat_file_map_and_init() = 0;
 	virtual vector<AbstractRuntimeQuestion *> eval2 (UserNavigation p_navigation_mode,
-				AbstractRuntimeQuestion * p_last_question_visited,
+				const vector<AbstractRuntimeQuestion *> & p_last_question_visited,
 				AbstractRuntimeQuestion * p_jump_to_index) = 0;
 	void write_data_to_disk(const std::vector<AbstractRuntimeQuestion*>& q_vec
 		, std::string jno
@@ -72,9 +73,11 @@ struct AbstractQuestionnaire
 	//void write_ascii_data_to_disk();
 	//void write_xtcc_data_to_disk();
 	void do_freq_counts();
+	AbstractQuestionnaire * getBaseClassPtr();
 	private:
 	AbstractQuestionnaire& operator = (const AbstractQuestionnaire&);
 	AbstractQuestionnaire (const AbstractQuestionnaire&);
+
 
 };
 

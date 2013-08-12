@@ -59,6 +59,8 @@ extern FILE * qscript_stdout;
 // remove this later
 using namespace std;
 
+AbstractQuestionnaire * AbstractQuestionnaire::qnre_ptr = 0;
+
 AbstractQuestionnaire::AbstractQuestionnaire (string p_jno)
 		:
 		  last_question_answered(0), last_question_visited(0),
@@ -73,7 +75,9 @@ AbstractQuestionnaire::AbstractQuestionnaire (string p_jno)
 		  jumpToIndex(0),
 		  base_text_vec()
 
-{ }
+{
+	AbstractQuestionnaire::qnre_ptr = this;
+}
 
 
 void AbstractQuestionnaire::print_question_messages(AbstractRuntimeQuestion * q)
@@ -717,4 +721,9 @@ void GetUserResponse(string & qno, int32_t & qindex)
 	qindex = 0;
 	cout << "User input qno:" << qno
 		<< ", newl: " << newl << endl;
+}
+
+AbstractQuestionnaire * AbstractQuestionnaire::getBaseClassPtr()
+{
+	return this;
 }

@@ -1,8 +1,8 @@
 /* ============= new_logic_support_frag stdout =========*/
-void question_eval_loop2 (
-	UserInput p_user_input,
-	const vector<AbstractRuntimeQuestion *> & last_question_visited,
-	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+//void question_eval_loop2 (
+//	UserInput p_user_input,
+//	const vector<AbstractRuntimeQuestion *> & last_question_visited,
+//	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 {
@@ -25,7 +25,7 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 	vector <AbstractRuntimeQuestion*> empty_vec;
 	question_eval_loop2 (
 				l_user_input, /* last_question_visited */ empty_vec,
-				/* jump_to_question */ 0, theQuestionnaire, nest_level+1);
+				/* jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	cout << "finished qnre: exiting ..." << endl;
 	prompt_user_for_serial_no (callback_get_ser_no_from_ui, nest_level + 1);
 	return 0;
@@ -33,9 +33,9 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level)
 
 
 void parse_input_data(vector<int> * data_ptr, int & success);
-void callback_ui_input (UserInput p_user_input,
-		const vector<AbstractRuntimeQuestion *> & q_vec,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level);
+//void callback_ui_input (UserInput p_user_input,
+//		const vector<AbstractRuntimeQuestion *> & q_vec,
+//		struct TheQuestionnaire * theQuestionnaire, int nest_level);
 void eval_single_question_logic_with_input (UserInput p_user_input,
 		const vector<AbstractRuntimeQuestion *> & q_vec,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level);
@@ -52,7 +52,7 @@ void callback_ui_input (UserInput p_user_input,
 		question_eval_loop2 (
 				p_user_input,
 				/* last_question_visited */ q_vec,
-				/*  jump_to_question */ 0, theQuestionnaire, nest_level+1);
+				/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
 		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
@@ -75,7 +75,10 @@ void question_eval_loop2 (
 	const vector<AbstractRuntimeQuestion *> & last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
-	cout << endl << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	cout << endl << "Enter: " << __PRETTY_FUNCTION__
+		<< endl
+		<< "nest_level: " << nest_level
+		<< endl;
 	cout << "arg values: " << endl;
 	if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
 		cout << "p_user_input.userNavigation_ == NAVIGATE_NEXT" << endl;
@@ -121,12 +124,17 @@ void question_eval_loop2 (
 #if 0
 				AbstractRuntimeQuestion *target_question =
 					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
+				// this line seems unncessary - but it is necessary
+				// - DO NOT DELETE AS REDUNDANT
+				vector<AbstractRuntimeQuestion> * q =
+					theQuestionnaire->eval2 (
+					NAVIGATE_PREVIOUS, last_question_visited, target_question);
 				if (target_question == 0) {
 					stdout_eval (last_question_visited, theQuestionnaire, callback_ui_input, nest_level+1);
 				} else {
 					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level+1);
 				}
-#endif /*0*/
+#endif /* 0 */
 			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
 				// do nothing
 				// once we exit this major block == last_question_visited
@@ -153,13 +161,13 @@ void question_eval_loop2 (
 	// should reach here - end of :
 		vector<AbstractRuntimeQuestion *> q_vec =
 			theQuestionnaire->eval2 (
-			NAVIGATE_NEXT, last_question_visited, jump_to_question);
+				NAVIGATE_NEXT, last_question_visited, jump_to_question);
 		if (q_vec.size() == 0) {
 			cout << "End of qnre();" << endl << ">";
 		} else {
 			cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return first q in vec = "
 				<< q_vec[0]->questionName_ << endl;
-			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level+1);
+			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level + 1);
 		}
 	//}
 }

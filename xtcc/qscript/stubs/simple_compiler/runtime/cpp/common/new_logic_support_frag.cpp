@@ -1,8 +1,8 @@
-
-void question_eval_loop2 (
-	UserInput p_user_input,
-	AbstractRuntimeQuestion * last_question_visited,
-	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+/* ============= new_logic_support_frag event driven =========*/
+//void question_eval_loop2 (
+//	UserInput p_user_input,
+//	const vector<AbstractRuntimeQuestion *> & last_question_visited,
+//	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 // nxd: this is a global variable - has to be eliminated at some point
 //TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);
@@ -34,8 +34,9 @@ int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQues
 	//			qnre_navigation_mode, last_question_visited,
 	//			jump_to_question, theQuestionnaire);
 	UserInput l_user_input;
+	vector <AbstractRuntimeQuestion*> empty_vec;
 	question_eval_loop2 (
-				l_user_input, /* last_question_visited */ 0,
+				l_user_input, /* last_question_visited */ empty_vec,
 				/* jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	//cout << "finished qnre: exiting ..." << endl;
 	//prompt_user_for_serial_no (callback_get_ser_no_from_ui);
@@ -44,11 +45,16 @@ int callback_get_ser_no_from_ui (int p_ser_no, struct TheQuestionnaire * theQues
 
 
 void parse_input_data(vector<int> * data_ptr, int & success);
-void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
-void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+//void callback_ui_input (UserInput p_user_input,
+//		const vector<AbstractRuntimeQuestion *> & q_vec,
+//		struct TheQuestionnaire * theQuestionnaire, int nest_level);
+void eval_single_question_logic_with_input (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
-
-void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+void callback_ui_input (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
 	// this will be called by the UI - it is the UI's responsibility to
@@ -57,10 +63,10 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 		question_eval_loop2 (
 				p_user_input,
-				/* last_question_visited */ q,
+				/* last_question_visited */ q_vec,
 				/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
-		eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire, nest_level + 1);
+		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
 		cout << "under stdout either the user can enter data or navigation" << endl
 			<< "but under ncurses or other guis - it's possible to enter data" << endl
@@ -78,7 +84,7 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 
 void question_eval_loop2 (
 	UserInput p_user_input,
-	AbstractRuntimeQuestion * last_question_visited,
+	const vector<AbstractRuntimeQuestion *> & last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << endl << "Enter: " << __PRETTY_FUNCTION__
@@ -112,20 +118,19 @@ void question_eval_loop2 (
 		<< "p_user_input.questionResponseData_:"
 		<< p_user_input.questionResponseData_ << endl;
 
-	if (last_question_visited) {
+	if (last_question_visited.size() > 0) {
 		cout << "last_question_visited->questionName_:"
-			<<  last_question_visited->questionName_
+			<<  last_question_visited[0]->questionName_
 			<< endl;
 	} else {
 		cout << "last_question_visited->questionName_: is NULL"  << endl;
 	}
 
-	if (last_question_visited) {
+	if (last_question_visited.size() > 0) {
 		if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
 				fprintf(qscript_stdout,
 					"user_navigation == NAVIGATE_PREVIOUS\n");
-
 				cout << "Previous Button in MULITPLE QUESTIONS PER PAGE UNHANDLED"
 					<< endl;
 #if 0
@@ -175,7 +180,6 @@ void question_eval_loop2 (
 				NAVIGATE_NEXT, last_question_visited, jump_to_question);
 		if (q_vec.size() == 0) {
 			cout << "End of qnre();" << endl << ">";
-			//stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
 		} else {
 			cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return first q in vec = "
 				<< q_vec[0]->questionName_ << endl;
