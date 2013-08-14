@@ -8,12 +8,12 @@ struct UserInput
 	UserNavigation userNavigation_;
 	//string question_response;
 	//vector <int> inputData_;
-	string questionResponseData_;
+	vector<string> questionResponseDataVec_;
 	user_response::UserResponseType theUserResponse_;
 	UserInput():
 		userNavigation_(NOT_SET),
 		//inputData_(),
-		questionResponseData_(),
+		questionResponseDataVec_(),
 		theUserResponse_(user_response::NotSet)
 	{}
 };

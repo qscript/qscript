@@ -41,6 +41,7 @@ extern string jno;
 
 using std::vector;
 using std::string;
+using namespace Wt;
 vector <string> vec_language;
 
 #if 0
@@ -598,8 +599,9 @@ void QuestionnaireApplication::changeLanguage()
 
 
 QuestionnaireApplication::QuestionnaireApplication (const WEnvironment &env)
-	: WApplication(env), wt_questionText_(0), currentForm_(0), flagSerialPageRemoved_(false)
-		//, wt_questionText_(0), currentForm_(0), flagSerialPageRemoved_(false)
+	: WApplication(env),
+	currentForm_(0), formContainer_(0), flagSerialPageRemoved_(false),
+	wtxt_err_mesg_(0)
 {
 	messageResourceBundle().use(WApplication::appRoot() + jno);
 	useStyleSheet(string(jno + string("-qscript.css")).c_str());
@@ -641,10 +643,10 @@ QuestionnaireApplication::QuestionnaireApplication (const WEnvironment &env)
 	//b->clicked().connect(this, &QuestionnaireApplication::ValidateSerialNo);
 	b->clicked().connect(this, &QuestionnaireApplication::ValidateSerialNo);
 
-	wt_questionText_ = new WText(serialPage_);
-	wt_questionText_->setText("Serial No: ");
+	wt_SerialNo_ = new WText(serialPage_);
+	wt_SerialNo_->setText("Serial No: ");
 	wt_lastQuestionVisited_ = new WText(serialPage_);
-	le_data_ = new WLineEdit(serialPage_);
+	le_SerialNo_ = new WLineEdit(serialPage_);
 
 	wt_debug_ = new WText(serialPage_);
 	formContainer_ = new WContainerWidget(root());
@@ -652,7 +654,7 @@ QuestionnaireApplication::QuestionnaireApplication (const WEnvironment &env)
 	formContainer_->addWidget(langLayout);
 	string sess_id = sessionId();
 	this_users_session = new Session();
-	strcpy(this_users_session->sid, sess_id.c_str());
+	strcpy (this_users_session->sid, sess_id.c_str());
 	wt_sessions.push_back(this_users_session);
 }
 
@@ -810,6 +812,11 @@ void GetUserInput (
 	cerr << "FIXME: add conditions for all questions in input vector, right now we are checking only 1st question "
 		<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
 		<< endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ << endl;
+	cout << __PRETTY_FUNCTION__ << " not implemented for multiple questions per page"
+		<< endl;
+#if 0
+
 	AbstractRuntimeQuestion * q = q_vec[0];
 	static int count = 0;
 	cout << __PRETTY_FUNCTION__ << ++count << endl;
@@ -923,6 +930,8 @@ void GetUserInput (
 		// I have to change this
 		GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
 	}
+#endif /* 0 */
+	cout << "Exit: " << __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__ << endl;
 }
 
 
@@ -1120,7 +1129,16 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	//		);
 
 	// nxd implement: wxGUI->ConstructQuestionForm( q );
-	qapp_ptr->ConstructQuestionForm( q );
+
+	qapp_ptr->ConstructQuestionForm (q_vec);
+		/*
+	for (int32_t i = 0; i < q_vec.size(); ++i) {
+		QuestionUITemplate * q_ui_form = qapp_ptr->ConstructQuestionForm (q);
+		qapp_ptr->question_ui_vec.push_back(q_ui_form);
+		qapp_ptr->new_form->addWidget (q_ui_form->questionContainer_);
+	}
+	setCentralWidget(new_form);
+	*/
 	//GetUserInput (callback_ui_input, q, theQuestionnaire);
 	cout << "EXIT:"
 		<< __PRETTY_FUNCTION__
@@ -1129,102 +1147,45 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 }
 
 
-void QuestionnaireApplication::PrepareMultiCodedStubDisplay (NamedStubQuestion * nq)
+void QuestionnaireApplication::PrepareMultiCodedStubDisplay (
+		QuestionUITemplate * p_q_ui_form, NamedStubQuestion * nq)
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	ClearStubsArea();
-	wt_cb_rb_container_ = new WGroupBox();
-	wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
+	p_q_ui_form -> wt_cb_rb_container_ = new WGroupBox();
+	p_q_ui_form -> wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
 	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 	unsigned long count = vec.size();
 	for (int i=0; i<vec.size(); ++i) {
 		stringstream named_range_key;
 		named_range_key << nq->nr_ptr->name << "_" << i;
-#if 0
-		if (/*q->no_mpn==1 && */ vec[i].mask) {
-			//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
-			WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-			wt_rb_container_->addButton(wt_rb, vec[i].code);
-			new WBreak(wt_cb_rb_container_);
-			vec_rb.push_back(wt_rb);
-		}
-		else
-#endif /* 0 */
-		if (/*q->no_mpn>1 && */ vec[i].mask)
-		{
-			//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
-			WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+		if (vec[i].mask) {
+			WCheckBox * wt_cb =
+				new WCheckBox (WString::tr(
+					named_range_key.str().c_str()),
+					p_q_ui_form->wt_cb_rb_container_);
 			wt_cb->setInline(false);
 			//wt_cb->setStyleClass("qscript-check-box");
 			wt_cb->setStyleClass("qscript-span-checkbox");
-			vec_cb.push_back(wt_cb);
+			p_q_ui_form->vec_cb.push_back(wt_cb);
 			cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
-			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+			p_q_ui_form-> map_cb_code_index[p_q_ui_form->vec_cb.size()-1] = vec[i].code;
 		}
 	}
-
-	/*
-	static const unsigned int DEFAULT_N_MAJOR_DIM = 2;
-	unsigned long nmajorDim = DEFAULT_N_MAJOR_DIM;
-	wxString *items = new wxString[count];
-
-	rbQnreCodeMap_.clear();
-	int actual_count = 0;
-	for ( size_t i = 0; i < count; ++i ) {
-		if (vec[i].mask) {
-			stringstream s1;
-			s1 << vec[i].code << ": " << vec[i].stub_text;
-			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
-			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
-			rbQnreCodeMap_[actual_count] = vec[i].code;
-			//items[i] = wxString::Format (_T("%d: %s"),
-			//		vec[i].stub_text.c_str(),
-			//		vec[i].code);
-			++actual_count;
-		}
-	}
-
-
-	int flags = 0;
-	m_pListBox = new wxCheckListBox
-		(
-		 panel,               // parent
-		 MultiAnswerCheckListBox,       // control id
-		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
-		 //wxDefaultSize,
-		 wxSize(500, 350),      // listbox size
-		 actual_count, // WXSIZEOF(aszChoices),  // number of strings
-		 items, //astrChoices,           // array of strings
-		 flags
-		);
-
-	delete [] items;
-
-    // set grey background for every second entry
-    //for ( ui = 0; ui < WXSIZEOF(aszChoices); ui += 2 ) {
-    //    AdjustColour(ui);
-    //}
-
-	//m_pListBox->Check(2);
-	//m_pListBox->Select(3);
-	//check_box_sizer->Add (rboxWindow_);
-	check_box_sizer->Add (m_pListBox);
-	//stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
-	fgs->Layout();
-	panel_sizer->Layout();
-	*/
-
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 
-void QuestionnaireApplication::PrepareSingleCodedStubDisplay (NamedStubQuestion * nq)
+void QuestionnaireApplication::PrepareSingleCodedStubDisplay (
+		QuestionUITemplate * p_q_ui_form,
+		NamedStubQuestion * nq)
 {
-	cout << __PRETTY_FUNCTION__ << endl;
+	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
 	//ClearRadio();
 	ClearStubsArea();
-	wt_cb_rb_container_ = new WGroupBox();
-	wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
-	wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
+	p_q_ui_form -> wt_cb_rb_container_ = new WGroupBox();
+	p_q_ui_form -> wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
+	p_q_ui_form -> wt_rb_container_ = new WButtonGroup(p_q_ui_form->wt_cb_rb_container_);
 	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 	unsigned long count = vec.size();
 	for (int i=0; i<vec.size(); ++i) {
@@ -1232,91 +1193,40 @@ void QuestionnaireApplication::PrepareSingleCodedStubDisplay (NamedStubQuestion 
 		named_range_key << nq->nr_ptr->name << "_" << i;
 		if (/*q->no_mpn==1 && */ vec[i].mask) {
 			//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
-			WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
+			WRadioButton * wt_rb = new WRadioButton (
+						WString::tr(named_range_key.str().c_str()),
+						p_q_ui_form->wt_cb_rb_container_);
 			wt_rb->setStyleClass("qscript-span-radio");
-			wt_rb_container_->addButton(wt_rb, vec[i].code);
-			new WBreak(wt_cb_rb_container_);
-			vec_rb.push_back(wt_rb);
-		}
-#if 0
-		if (/*q->no_mpn>1 && */ vec[i].mask) {
-			//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
-			WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-			vec_cb.push_back(wt_cb);
-			cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
-			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
-		}
-#endif /* 0 */
-	}
-
-
-
-	// no of radio buttons
-#if 0
-	vector<stub_pair> & vec= (nq->nr_ptr->stubs);
-	unsigned long count = vec.size();
-	static const unsigned int DEFAULT_N_MAJOR_DIM = 2;
-	unsigned long nmajorDim = DEFAULT_N_MAJOR_DIM;
-
-	wxString *items = new wxString[count];
-
-	rbQnreCodeMap_.clear();
-	int actual_count = 0;
-	for ( size_t i = 0; i < count; ++i ) {
-		if (vec[i].mask) {
-			stringstream s1;
-			s1 << vec[i].code << ": " << vec[i].stub_text;
-			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
-			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
-			rbQnreCodeMap_[actual_count] = vec[i].code;
-			//items[i] = wxString::Format (_T("%d: %s"),
-			//		vec[i].stub_text.c_str(),
-			//		vec[i].code);
-			++actual_count;
+			p_q_ui_form->wt_rb_container_->addButton(wt_rb, vec[i].code);
+			new WBreak(p_q_ui_form->wt_cb_rb_container_);
+			p_q_ui_form->vec_rb.push_back(wt_rb);
 		}
 	}
-	int flags = wxLB_SINGLE;
-	m_rListBox = new wxListBox
-		(
-		 panel,               // parent
-		 SingleAnswerRadioBox,       // control id
-		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
-		 //wxDefaultSize,
-		 wxSize(500, 350),      // listbox size
-		 actual_count, // WXSIZEOF(aszChoices),  // number of strings
-		 items, //astrChoices,           // array of strings
-		 flags
-		);
-	delete [] items;
-
-	the_stubs->SetLabel(wxT("New Stubs Text - should be visible now"));
-	cout << "Updated New stubs text" << endl;
-	//stubsRowSizer_->Add(m_radio, 1, wxGROW);
-	//stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
-	//radio_box_sizer->Add(rboxWindow_);
-	radio_box_sizer->Add(m_rListBox, 1, wxGROW);
-	fgs->Layout();
-	panel_sizer->Layout();
-#endif /*  0 */
+	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
 
-void QuestionnaireApplication::DisplayStubs (AbstractRuntimeQuestion * q)
+void QuestionnaireApplication::DisplayStubs (
+		QuestionUITemplate * p_q_ui_form, AbstractRuntimeQuestion * q)
 {
 	cout << __PRETTY_FUNCTION__ << endl;
-	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
-	{
+	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
 		// nxd: move both the below functions to a clear() api which we call from here
 		//rbData_ = -1; // clear the data basically
 		//cbData_.clear();
-		if (q->no_mpn==1)
-		{
-			PrepareSingleCodedStubDisplay(nq);
+		if (q->no_mpn==1) {
+			PrepareSingleCodedStubDisplay(p_q_ui_form, nq);
 		} else {
-			PrepareMultiCodedStubDisplay (nq);
+			PrepareMultiCodedStubDisplay (p_q_ui_form, nq);
 		}
+		p_q_ui_form-> wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
+		p_q_ui_form-> questionContainer_ -> addWidget(
+				p_q_ui_form->wt_cb_rb_container_);
 	} else {
 		cout << "=== Implement Display Range Question" << endl;
+		p_q_ui_form->le_data_ = new WLineEdit();
+		p_q_ui_form->le_data_->setStyleClass("qscript-open-end-textbox");
+		p_q_ui_form->questionContainer_ -> addWidget(p_q_ui_form->le_data_);
 	}
 }
 
@@ -1329,56 +1239,72 @@ void QuestionnaireApplication::set_callback_ui_input (
 	callback_ui_input = p_callback_ui_input;
 }
 
-void QuestionnaireApplication::DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
+void QuestionnaireApplication::DisplayQuestionTextView (
+		QuestionUITemplate * p_q_ui_form,
+		const vector <string> & qno_and_qtxt)
 {
 
-	wt_questionText_ = new WText();
-	wt_questionNo_ = new WText();
+	p_q_ui_form->wt_questionText_ = new WText();
+	p_q_ui_form->wt_questionNo_ = new WText();
 	std::stringstream question_text;
 	for (int i=1; i < qno_and_qtxt.size(); ++i) {
 		question_text << qno_and_qtxt[i];
 	}
-	wt_questionText_->setText(question_text.str());
-	wt_questionText_->setStyleClass("qscript-qtext");
-	wt_questionNo_->setText(qno_and_qtxt[0]);
-	wt_questionNo_->setStyleClass("qscript-qno");
+	p_q_ui_form->wt_questionText_->setText(question_text.str());
+	p_q_ui_form->wt_questionText_->setStyleClass("qscript-qtext");
+	p_q_ui_form->wt_questionNo_->setText(qno_and_qtxt[0]);
+	p_q_ui_form->wt_questionNo_->setStyleClass("qscript-qno");
+
+	p_q_ui_form-> questionContainer_->addWidget(p_q_ui_form->wt_questionNo_);
+	p_q_ui_form-> questionContainer_->addWidget(p_q_ui_form->wt_questionText_);
 }
 
-void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q )
+void QuestionnaireApplication::ConstructQuestionForm (
+		const vector<AbstractRuntimeQuestion *> & q_vec)
 {
 	WContainerWidget * new_form = new WContainerWidget();
-	new_form->setStyleClass("qscript-container");
-	vec_rb.clear();			 // memory leak introduced here? no it seems
-	vec_cb.clear();			 // memory leak introduced here? no it seems
 
-	vector <string> question_text_vec = PrepareQuestionText (q);
-	//the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
-	DisplayQuestionTextView (question_text_vec);
-	new_form->addWidget(wt_questionNo_);
-	new_form->addWidget(wt_questionText_);
-	// Hack to Display Radio Buttons
-	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
-		DisplayStubs (q);
-		wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
-		new_form->addWidget(wt_cb_rb_container_);
-	} else {
-		le_data_ = new WLineEdit();
-		le_data_->setStyleClass("qscript-open-end-textbox");
-		new_form->addWidget(le_data_);
+	question_ui_vec.clear();
+	for (int32_t i=0; i < q_vec.size(); ++i) {
+		AbstractRuntimeQuestion * q = q_vec[i];
+		QuestionUITemplate * q_ui_form = new QuestionUITemplate();
+		q_ui_form->questionContainer_ = new WContainerWidget();
+		q_ui_form->questionContainer_->setStyleClass("qscript-container");
+		q_ui_form->vec_rb.clear();	// memory leak introduced here? no it seems
+		q_ui_form->vec_cb.clear();	// memory leak introduced here? no it seems
+
+		vector <string> question_text_vec = PrepareQuestionText (q);
+		//the_question = new wxStaticText(panel, -1, wxT("Question No and Question Text"));
+		this->DisplayQuestionTextView (q_ui_form, question_text_vec);
+#if 0
+		if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
+			DisplayStubs (q);
+			//wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
+			//new_form->addWidget(wt_cb_rb_container_);
+		} else {
+			le_data_ = new WLineEdit();
+			le_data_->setStyleClass("qscript-open-end-textbox");
+			new_form->addWidget(le_data_);
+		}
+#endif /* 0 */
+		DisplayStubs (q_ui_form, q);
+		cerr << "FIXME: Check if below statement is really needed:"
+			<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+			<< endl;
+		//this_users_session -> ptr_last_question_visited = q;
+		{
+			WPushButton * next = new WPushButton("Next");
+			next->clicked().connect(this, &QuestionnaireApplication::handleDataInput);
+			q_ui_form-> questionContainer_ -> addWidget( next);
+			WPushButton *prev_button = new WPushButton("Previous");
+			WPushButton *save_button = new WPushButton("Save");
+			save_button->clicked().connect(this, &QuestionnaireApplication::handleSave);
+			q_ui_form-> questionContainer_ -> addWidget(save_button);
+		}
+		new_form->addWidget (q_ui_form->questionContainer_);
+		question_ui_vec.push_back (q_ui_form);
 	}
-	cerr << "FIXME: Check if below statement is really needed:"
-		<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
-		<< endl;
-	//this_users_session -> ptr_last_question_visited = q;
-	WPushButton *b = new WPushButton("Next");
-	b->clicked().connect(this, &QuestionnaireApplication::handleDataInput);
-	new_form->addWidget(b);
-	WPushButton *prev_button = new WPushButton("Previous");
-	WPushButton *save_button = new WPushButton("Save");
-	save_button->clicked().connect(this, &QuestionnaireApplication::handleSave);
-	new_form->addWidget(save_button);
 	setCentralWidget(new_form);
-
 }
 
 
@@ -1402,20 +1328,37 @@ void QuestionnaireApplication::ClearStubsArea()
 	//ClearRadio();
 }
 
-void QuestionnaireApplication::handleRBDataInput (int nest_level)
+//
+// Make changes here.
+// The structure of how the handler behaves will now be different
+// We report to the calling function 2 things
+//	1. Whether the question was answered
+//	2. If yes - the data as a string.
+//
+//	The decision making on whether to send it will be taken
+//	by the calling function, after it has seen the response
+//	to all the questions, and can conclude that - all questions
+//	on the page were answered
+
+UIReturnValue QuestionnaireApplication::handleRBDataInput (int nest_level,
+		int form_index)
 {
 	vector<int32_t> data;
 	stringstream s1;
+	UIReturnValue  ret_val;
 	bool isAnswered = false;
-	if ( wt_rb_container_->selectedButtonIndex() != -1) {
+	if (question_ui_vec[form_index]->wt_rb_container_->selectedButtonIndex() != -1) {
 		isAnswered = true;
-		int code = wt_rb_container_->checkedId();
+		int code = question_ui_vec[form_index] -> wt_rb_container_->checkedId();
 		cout << "no_mpn == 1, code: " << code << endl;
 		data.push_back(code);
 		s1 << code;
+		ret_val.answered_ = true;
+		ret_val.textData_= s1.str();
 	} else {
 		isAnswered = false;
 	}
+	/*
 	string err_mesg;
 	UserInput user_input;
 	user_input.theUserResponse_ = user_response::UserEnteredData;
@@ -1454,11 +1397,14 @@ void QuestionnaireApplication::handleRBDataInput (int nest_level)
 		//GetUserInput (callback_ui_input, q, theQuestionnaire);
 		// do nothing - the callback just continues to wait for data
 	}
-
+	*/
+	//cout << __PRETTY_FUNCTION__ << "not yet implemented" << endl;
+	return ret_val;
 }
 
 void QuestionnaireApplication::handleCBDataInput (int nest_level)
 {
+	/*
 	vector<int32_t> data;
 	bool isAnswered = false;
 
@@ -1523,57 +1469,19 @@ void QuestionnaireApplication::handleCBDataInput (int nest_level)
 		//GetUserInput (callback_ui_input, q, theQuestionnaire);
 		// do nothing - the callback just continues to wait for data
 	}
-
+	*/
+	cout << __PRETTY_FUNCTION__ << "not yet implemented" << endl;
 }
 
 void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 {
 	cout << "Enter: " << __PRETTY_FUNCTION__ << endl;
+	/*
 	string current_question_response = le_data_->text().narrow();
 	//AbstractRuntimeQuestion * last_question_served = this_users_session-> ptr_last_question_visited;
 	AbstractRuntimeQuestion * last_question_served =
 		AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
 	if (last_question_served->no_mpn==1) {
-#if 0
-		UserNavigation user_nav=NOT_SET;
-		user_response::UserResponseType user_resp=user_response::NotSet;
-		vector<int32_t> data;
-		bool parse_success = verify_web_data (current_question_response, user_nav, user_resp, &data);
-		if (parse_success)
-		{
-			cout << "successfully parsed data = ";
-			for (int i=0; i<data.size(); ++i)
-			{
-				cout << data[i] << ", ";
-			}
-			cout << endl;
-		}
-		// the call below will be required at some later stage
-		//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
-		// right now we go along with the happy path
-		bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
-			&data);
-		if (invalid_code == false)
-		{
-			last_question_served->input_data.erase
-				(last_question_served->input_data.begin(),
-				last_question_served->input_data.end());
-			for(uint32_t i = 0; i < data.size(); ++i)
-			{
-				last_question_served->input_data.insert(data[i]);
-				//cout << "storing: " << data[i]
-				//	<< " into input_data" << endl;
-			}
-			last_question_served->isAnswered_ = true;
-			data.clear();
-			callback_ui_input (user_input, q, this_users_session -> theQuestionnaire_, nest_level + 1);
-		}
-		else {
-			//ConstructQuestionForm(last_question_served, this_users_session);
-			//return;
-		}
-#endif /* 0 */
-
 		UserInput user_input;
 		user_input.questionResponseData_ = current_question_response ;
 		user_input.theUserResponse_ = user_response::UserEnteredData;
@@ -1642,15 +1550,14 @@ void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
 						AbstractQuestionnaire::qnre_ptr->last_question_visited,
 						this_users_session -> theQuestionnaire_, nest_level + 1);
 			}
-#if 0
-#endif /* 0 */
 		}
 		else
 		{
 			// Do nothing - but we should print a default error message on the screen
 		}
 	}
-
+	*/
+	cout << __PRETTY_FUNCTION__ << "not yet implemented" << endl;
 	cout << "Exit: " << __PRETTY_FUNCTION__ << endl;
 }
 
@@ -1680,31 +1587,89 @@ void QuestionnaireApplication::handleSave()
 void QuestionnaireApplication::handleDataInput()
 {
 	cout << __PRETTY_FUNCTION__ << endl;
-	AbstractRuntimeQuestion * last_question_served =
-			AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
-	//if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session -> ptr_last_question_visited ))
-	if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_served)) {
-		//AbstractRuntimeQuestion * last_question_served = this_users_session -> ptr_last_question_visited ;
-		cerr << "FIXME: taking only 1st question on page:" << __PRETTY_FUNCTION__
-			<< ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
-			<< endl;
-		vector<int32_t> data;
-		bool isAnswered = false;
-		cout << "returned back data from question: " << nq->questionName_ << endl;
-		if (last_question_served->no_mpn == 1) {
-			handleRBDataInput(1);
+	// Iterate over all the forms in the last question visited
+	// and ensure that they have a response
+	// If any question is blank, report a message on the screen, highlighting
+	// a blank question and at the same time reporting an error message
+	// Go forward only if all the questions on the page have a valid response
+	cerr << "FIXME: taking only 1st question on page:" << __PRETTY_FUNCTION__
+		<< ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
+		<< endl;
+	cout << "question_ui_vec.size(): " << question_ui_vec.size() << endl;
+
+	// question_ui_vec contains all the forms for question in
+	// corresponding order
+	vector <UIReturnValue> ui_question_status;
+	for (int32_t i = 0;
+		i < AbstractQuestionnaire::qnre_ptr->last_question_visited.size();
+		++i) {
+		AbstractRuntimeQuestion * last_question_served =
+				AbstractQuestionnaire::qnre_ptr->last_question_visited[i];
+
+		//if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session -> ptr_last_question_visited ))
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_served)) {
+			//AbstractRuntimeQuestion * last_question_served = this_users_session -> ptr_last_question_visited ;
+			vector<int32_t> data;
+			bool isAnswered = false;
+			cout << "returned back data from question: " << nq->questionName_ << endl;
+			if (last_question_served->no_mpn == 1) {
+				UIReturnValue ret_val =  handleRBDataInput(1, i);
+				ui_question_status.push_back(ret_val) ;
+			} else {
+				cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
+				handleCBDataInput(1);
+			}
+
 		} else {
-			cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
-			handleCBDataInput(1);
-		}
 
+			/*
+			string current_question_response = le_data_->text().narrow();
+			if (current_question_response !="") {
+				handleRangeQuestionData(1);
+			}
+			*/
+			cout << __PRETTY_FUNCTION__ << "Handle WLineEdit data not yet implemented" << endl;
+
+		}
+	}
+	bool all_questions_answered = true;
+	int n_answered = 0;
+	stringstream not_answered_question_list;
+	for (int32_t i=0; i<ui_question_status.size(); ++i ) {
+		if (ui_question_status[i].answered_ == false) {
+			all_questions_answered = false;
+			not_answered_question_list
+				<< " "
+				<< AbstractQuestionnaire::qnre_ptr->last_question_visited[i]->questionName_;
+		} else {
+			++n_answered;
+		}
+	}
+	if (all_questions_answered == false) {
+		// display message on screen - all questions are not answered
+		string err_mesg ("Please answer all the questions on the page: the following question(s) are missing an anwer");
+		err_mesg += not_answered_question_list.str();
+		print_ui_error_message (err_mesg);
 	} else {
-
-		string current_question_response = le_data_->text().narrow();
-		if (current_question_response !="") {
-			handleRangeQuestionData(1);
+		// send question for back end verification
+		UserInput user_input;
+		for (int32_t i=0; i<ui_question_status.size(); ++i ) {
+			user_input.theUserResponse_ = user_response::UserEnteredData;
+			user_input.questionResponseDataVec_.push_back(ui_question_status[i].textData_);
 		}
-
+		AbstractQuestionnaire * abs_qnre_ptr = AbstractQuestionnaire::qnre_ptr;
+		callback_ui_input (user_input,
+			abs_qnre_ptr->last_question_visited,
+			this_users_session -> theQuestionnaire_, 1);
 	}
 
+}
+
+void QuestionnaireApplication::print_ui_error_message (string & err_mesg)
+{
+	if (wtxt_err_mesg_ == 0) {
+		wtxt_err_mesg_ = new WText();
+	}
+	wtxt_err_mesg_->setText(err_mesg);
+	currentForm_->addWidget (wtxt_err_mesg_);
 }

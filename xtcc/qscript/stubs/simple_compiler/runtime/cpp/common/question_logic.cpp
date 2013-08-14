@@ -25,6 +25,7 @@
 #include "AbstractQuestionnaire.h"
 #include "question_stdout_runtime.h"
 #include "named_range.h"
+#include "question_logic.h"
 
 //void question_eval_loop2 (
 //	UserInput p_user_input,
@@ -33,9 +34,13 @@
 
 void parse_input_data(vector<int> * data_ptr, int & success);
 //void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
-void eval_single_question_logic_with_input (UserInput p_user_input,
+
+// Ideally This question's name should change as we are now
+// passing multiple questions for validation
+bool eval_single_question_logic_with_input (UserInput p_user_input,
 		const vector<AbstractRuntimeQuestion *> & q_vec,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level)
+		struct TheQuestionnaire * theQuestionnaire, int nest_level,
+		vector <string> & err_mesg_vec)
 {
 	cerr << "FIXME: add conditions for all questions in input vector, right now we are checking only 1st question "
 		<< __FILE__ << ", " << __LINE__ << ", " << __PRETTY_FUNCTION__
@@ -43,82 +48,85 @@ void eval_single_question_logic_with_input (UserInput p_user_input,
 	// NxD: 12-aug-2013
 	// for now - just verify the 1st question in a page
 	// afterwards modify function to verify all questions
-	AbstractRuntimeQuestion * q = q_vec[0];
-
-	cout << "ENTER:" << __PRETTY_FUNCTION__ << endl;
+	cout << "ENTER:" << __PRETTY_FUNCTION__
+		<< "q_vec.size(): " << q_vec.size()
+		<< endl;
+	bool all_questions_success = true;
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
-		cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
-		if (p_user_input.questionResponseData_.length() == 0
-				&& q->question_attributes.isAllowBlank() == true ) {
-			// allow - serve next question
-			// note that we do not set the isAnswered_ == true for the blank question
-			// so when re-visiting this particular qnre it will automatically
-			// stop here for data.
-			question_eval_loop2 (p_user_input, /* last_question_visited */ q_vec,
-					/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
-		} else if (p_user_input.questionResponseData_.length() == 0
-				&& q->question_attributes.isAllowBlank() == false ) {
-			// do not allow - serve the same question
-			GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
-		} else {
-			cout << "--reached here" << endl;
-			// input is not blank
-			int success;
-			vector <int> input_data;
-			parse_input_data (p_user_input.questionResponseData_
-					/* current_response */, &input_data, success);
-			cout << "success: " << success << endl;
-			if (success == 0) {
-				GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
-			} else {
-				// =======================
-				string err_mesg, re_arranged_buffer;
-				int pos_1st_invalid_data;
-				if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
-							input_data)) {
-					cout << __PRETTY_FUNCTION__
-						<< "Got valid data for : " << q->questionName_ << endl;
-					// default direction - chosen by us
-					// go for the next question
+		for (int i = 0 ; i < q_vec.size(); ++ i) {
+			AbstractRuntimeQuestion * q = q_vec[i];
+			cout << "Looping: validating data for question:" << q->questionName_ << endl;
+#if 1
+				cout << "-reached here" << __PRETTY_FUNCTION__ << ", " << __LINE__ << endl;
+				if (p_user_input.questionResponseDataVec_[i].length() == 0
+						&& q->question_attributes.isAllowBlank() == true ) {
+					// allow - serve next question
+					// note that we do not set the isAnswered_ == true for the blank question
+					// so when re-visiting this particular qnre it will automatically
+					// stop here for data.
+					//
+					// NxD: 14-aug-2013
+					// move this function call to code_frag
+					// only return success or failure
+					//question_eval_loop2 (p_user_input, /* last_question_visited */ q_vec,
+					//		/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
+					// dont touch all_questions_success
+				} else if (p_user_input.questionResponseDataVec_[i].length() == 0
+						&& q->question_attributes.isAllowBlank() == false ) {
+					// do not allow - serve the same question
+					//GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
+					all_questions_success = false;
+				} else {
+					cout << "--reached here" << endl;
+					// input is not blank
+					int success;
+					vector <int> input_data;
+					parse_input_data (p_user_input.questionResponseDataVec_[i]
+							/* current_response */, &input_data, success);
+					cout << "success: " << success << endl;
+					if (success == 0) {
+						//GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
+						all_questions_success = false;
+					} else {
+						// =======================
+						string err_mesg, re_arranged_buffer;
+						int pos_1st_invalid_data;
+						if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
+									input_data)) {
+							cout << __PRETTY_FUNCTION__
+								<< endl
+								<< "Got valid data for : " << q->questionName_ << endl;
+							// default direction - chosen by us
+							// go for the next question
 
-					// Note - this wont work in Erlang - modifying a variable
-					//  - better to create a new UserInput and set it with the
-					//  new valyes
-					p_user_input.userNavigation_ = NAVIGATE_NEXT;
-					p_user_input.theUserResponse_ = user_response::UserEnteredNavigation;
-					cout << __PRETTY_FUNCTION__ << ", invoking question_eval_loop2"
-						<< endl;
-					question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
-				} else {
-					//stdout_eval (q, theQuestionnaire, callback_ui_input);
-					cout << __PRETTY_FUNCTION__
-						<< "Did not Get valid data for : "
-						<< " asking for input again (calling GetUserInput): "
-						<< q->questionName_ << endl;
-					GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
+							// Note - this wont work in Erlang - modifying a variable
+							//  - better to create a new UserInput and set it with the
+							//  new valyes
+							p_user_input.userNavigation_ = NAVIGATE_NEXT;
+							p_user_input.theUserResponse_ = user_response::UserEnteredNavigation;
+							//cout << __PRETTY_FUNCTION__ << ", invoking question_eval_loop2"
+							//	<< endl;
+							//question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+						} else {
+							//stdout_eval (q, theQuestionnaire, callback_ui_input);
+							cout << __PRETTY_FUNCTION__
+								<< "Did not Get valid data for : "
+								<< " asking for input again (calling GetUserInput): "
+								<< q->questionName_ << endl;
+							//GetUserInput (callback_ui_input, q_vec, theQuestionnaire, nest_level + 1);
+							all_questions_success = false;
+						}
+						// =======================
+					}
 				}
-				// =======================
-#if 0
-				user_input.userNavigation_ = NAVIGATE_NEXT;
-				user_input.inputData_ = input_data;
-				callback_ui_input (user_input, q, theQuestionnaire);
-				string err_mesg, re_arranged_buffer;
-				int pos_1st_invalid_data;
-				if (q->check_and_store_input_data_single_question(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
-						p_user_input.inputData_)) {
-					//serve next question
-					question_eval_loop2 ( p_user_input, /* last_question_visited */ q,
-							/*  jump_to_question */ 0, theQuestionnaire);
-				} else {
-					//serve same question
-					question_eval_loop2 ( p_user_input, /* last_question_visited */ q,
-							/*  jump_to_question */ 0, theQuestionnaire);
-				}
-#endif /*  0 */
-			}
+#endif /* 0 */
 		}
 	}
-	cout << "EXIT:" << __PRETTY_FUNCTION__ << endl;
+	cout << "EXIT:" << __PRETTY_FUNCTION__
+		<< " all_questions_success:"
+		<< all_questions_success
+		<< endl;
+	return all_questions_success;
 }
 
 // these functions below have to be moved to an

@@ -1,3 +1,4 @@
+#include "question_logic.h"
 /* ============= new_logic_support_frag event driven =========*/
 //void question_eval_loop2 (
 //	UserInput p_user_input,
@@ -48,9 +49,9 @@ void parse_input_data(vector<int> * data_ptr, int & success);
 //void callback_ui_input (UserInput p_user_input,
 //		const vector<AbstractRuntimeQuestion *> & q_vec,
 //		struct TheQuestionnaire * theQuestionnaire, int nest_level);
-void eval_single_question_logic_with_input (UserInput p_user_input,
-		const vector<AbstractRuntimeQuestion *> & q_vec,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level);
+//void eval_single_question_logic_with_input (UserInput p_user_input,
+//		const vector<AbstractRuntimeQuestion *> & q_vec,
+//		struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 void callback_ui_input (UserInput p_user_input,
 		const vector<AbstractRuntimeQuestion *> & q_vec,
@@ -66,7 +67,22 @@ void callback_ui_input (UserInput p_user_input,
 				/* last_question_visited */ q_vec,
 				/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
-		eval_single_question_logic_with_input (p_user_input, q_vec, theQuestionnaire, nest_level + 1);
+		vector <string> err_mesg_vec;
+		bool all_questions_success =
+			eval_single_question_logic_with_input (p_user_input,
+				q_vec, theQuestionnaire,
+				nest_level + 1, err_mesg_vec);
+		if (all_questions_success) {
+			question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+			cout << __PRETTY_FUNCTION__ << " - case UserEnteredData - success, invoking question_eval_loop2"
+					<< endl;
+		} else {
+			// in the event driven loop - just return
+			// we need to pass the error messages back
+			// so should make that a parameter to this
+			// function
+			return;
+		}
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
 		cout << "under stdout either the user can enter data or navigation" << endl
 			<< "but under ncurses or other guis - it's possible to enter data" << endl
@@ -78,7 +94,9 @@ void callback_ui_input (UserInput p_user_input,
 		//      function to be present here
 		theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
 	} else {
-		cerr << __PRETTY_FUNCTION__ << " unhandled case theUserResponse_" << endl;
+		cerr << __PRETTY_FUNCTION__
+			<< ", " << __LINE__ << ", " <<  __FILE__
+			<< " unhandled case theUserResponse_" << endl;
 	}
 }
 
@@ -114,9 +132,15 @@ void question_eval_loop2 (
 	}
 
 
+	cerr << "FIXME: " << "create a function in UserInput to print the current responses"
+		<< endl
+		<< __PRETTY_FUNCTION__ << ", " << __FILE__ << ", " << __LINE__
+		<< endl ;
+	/*
 	cout
 		<< "p_user_input.questionResponseData_:"
 		<< p_user_input.questionResponseData_ << endl;
+	*/
 
 	if (last_question_visited.size() > 0) {
 		cout << "last_question_visited->questionName_:"
