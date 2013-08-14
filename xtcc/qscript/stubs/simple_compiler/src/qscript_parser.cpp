@@ -4244,11 +4244,11 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "void QuestionnaireApplication::ValidateSerialNo()\n");
 	fprintf(script, "{\n");
 	fprintf(script, "	int l_ser_no = -1;\n");
-	fprintf(script, "	if (le_data_ ) {\n");
-	fprintf(script, "		WString serno_text = le_data_->text();\n");
+	fprintf(script, "	if (le_SerialNo_ ) {\n");
+	fprintf(script, "		Wt::WString serno_text = le_SerialNo_->text();\n");
 	fprintf(script, "		string narrow_text = serno_text.narrow();\n");
 	fprintf(script, "		if (narrow_text.length() == 0 || narrow_text.length()>7) {\n");
-	fprintf(script, "			le_data_->setText(\"You have entered a very long serial number\");\n");
+	fprintf(script, "			le_SerialNo_->setText(\"You have entered a very long serial number\");\n");
 	fprintf(script, "		} else {\n");
 	fprintf(script, "			l_ser_no = strtol (narrow_text.c_str(), 0, 10);\n");
 	fprintf(script, "			if (l_ser_no > 0) {\n");
@@ -4277,7 +4277,7 @@ void print_Wt_support_code(FILE * script)
 	fprintf(script, "				//DoQuestionnaire();\n");
 	fprintf(script, "				callback_get_ser_no_from_ui (l_ser_no, this_users_session->theQuestionnaire_ , 1);\n");
 	fprintf(script, "			} else {\n");
-	fprintf(script, "				le_data_->setText(\"You have entered a  negative number\");\n");
+	fprintf(script, "				le_SerialNo_->setText(\"You have entered a  negative number\");\n");
 	fprintf(script, "			}\n");
 	fprintf(script, "		}\n");
 	fprintf(script, "	}\n");
