@@ -117,7 +117,8 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 
 	};
 
-
+	global_survey_related_info.no_mpn = no_mpn;
+	global_survey_related_info.question_type = question_type;
 	display_stubs (question_type, the_stub_data);
 	window.lang.run();
 
