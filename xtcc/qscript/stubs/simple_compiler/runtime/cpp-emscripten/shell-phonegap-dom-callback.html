@@ -83,6 +83,7 @@
 		};
 
 		function serialize (form) {
+			my_log("Enter: serialize");
 			var parts = new Array();
 			var field = null;
 			for (var i=0; i < form.elements.length; ++i ) {
@@ -115,7 +116,14 @@
 						}
 						my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
 						if (global_survey_related_info.verbatim_data_file_handle) {
-							my_log ("verbatim_data_file_handle:" + verbatim_data_file_handle);
+							my_log ("verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+							my_log ("testing for createWriter:");
+							if (global_survey_related_info.verbatim_data_file_handle.createWriter) {
+								my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: exists");
+							} else {
+								my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: does not exist");
+							}
+							my_log ("after createWriter:");
 						} else {
 							my_log ("verbatim_data_file_handle: is null");
 						}
@@ -124,6 +132,7 @@
 				break;
 				}
 			}
+			my_log("Exiting: serialize");
 			return parts.join(" ");
 		};
 		/* ============= }}}1 ==================*/
