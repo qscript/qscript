@@ -1,4 +1,5 @@
 
+	my_log ("Started loading our_cordova_apis.js");
 
 
 /* ==========  Device Info {{{1 ======================= */
@@ -34,9 +35,9 @@
 			return false;
 		}
 	}
-	//my_log ("created get_device_info function");
+	my_log ("created get_device_info function");
 /* ==========  End: Device Info }}}1 ======================= */
-
+//
 /* ==========  Compass API {{{1 ======================= */
 	function onCompassSuccess(heading) {
 		//alert('Heading: ' + heading.magneticHeading);
@@ -122,7 +123,7 @@
 /* ==========  End: GeoLocation API }}}1 ======================= */
 
 
-/* ==========  FileSystem API {{{1 ======================= */
+///* ==========  FileSystem API {{{1 ======================= */
 	//my_log ("===========reached FileSystem section==========");
 
 	//var fileSystemObject = null;
@@ -224,15 +225,43 @@
 		my_log ("Enter: readAsText");
 		var reader = new FileReader();
 		reader.onloadend = function(evt) {
-			my_log("Read as text:");
+			//my_log("Read as text:");
 			my_log(evt.target.result);
 			var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
-			my_log ("callback_return_serial:" + callback_return_serial);
+			//my_log ("callback_return_serial:" + callback_return_serial);
 			callback_return_serial (56, evt.target.result);
 		};
 		reader.readAsText(file);
 	}
 	/* readAsText }}}2 */
+
+	function fail_to_write_file (err_msg) {
+		my_log (JSON.stringify(err_msg));
+	};
+
+	/* ourGotFileWriter {{{2  */
+	function ourGotFileWriter (writer) {
+		writer.write("This is some dummy verbatim data");
+	}
+	/* ourGotFileWriter }}}2 */
+
+	/* save_verbatim_data{{{2 */
+	function save_verbatim_data(writer) {
+		my_log ("Enter : save_verbatim_data");
+		//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
+		writer.write(global_survey_related_info.current_verbatim_data);
+		my_log ("Exit : save_verbatim_data");
+	}
+	/* save_verbatim_data }}}2 */
+
+	/* save_verbatim_data_file_handle {{{2 */
+	function save_verbatim_data_file_handle (fileEntry) {
+		my_log ("Enter : save_verbatim_data_file_handle");
+		//fileEntry.createWriter (ourGotFileWriter, fail_to_write_file);
+		global_survey_related_info.verbatim_data_file_handle = fileEntry;
+		my_log ("Exit : save_verbatim_data_file_handle");
+	}
+	/* save_verbatim_data_file_handle }}}2 */
 
 	/* fileFoundSuccess {{{2 */
 	function fileFoundSuccess (file) {
@@ -251,15 +280,23 @@
 	// http://stackoverflow.com/questions/13890698/how-to-create-nested-directories-in-phonegap
 	// This function will create all the directories required on the way
 	// but create_mode = false or true will decide if a new file will be created
-	function fileGetDir(path, cb, create_mode, handlerFileDoesNotExist) {
-		my_log ("Enter: fileGetDir, create_mode: " + create_mode + "create_mode.create: " + create_mode.create);
-		var fileCreatedSuccess = function (file) {
-			my_log ("fileCreatedSuccess: created a file");
+	function fileGetDir(path, cb, create_mode, handlerFileDoesNotExist, function_mode) {
+		my_log ("Enter: fileGetDir, create_mode: " + create_mode + "create_mode.create: " + create_mode.create );
+		//my_log ("Enter: fileGetDir, create_mode: " + create_mode + "create_mode.create: " + create_mode.create +
+		//	"function_mode: " +function_mode.toJSON());
+		var fileCreatedSuccess_serno = function (file) {
+			my_log ("Enter: fileCreatedSuccess_serno:" );
 			//global_current_survey_data_file = file;
 			global_survey_related_info.current_survey_data_file = file;
 			var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
-			my_log ("callback_return_serial:" + callback_return_serial);
+			my_log ("Exit: fileCreatedSuccess_serno:" );
 			callback_return_serial (56, "");
+		};
+		var fileCreatedSuccess_verbatim = function (file) {
+			my_log ("Enter: fileCreatedSuccess_verbatim:" );
+			//global_current_survey_data_file = file;
+			global_survey_related_info.verbatim_data_file_handle = file;
+			my_log ("Exit: fileCreatedSuccess_verbatim:" );
 		};
 		var fnGetOrCreateDir = function(p, de) {
 			my_log ("fnGetOrCreateDir path:" + p);
@@ -269,9 +306,7 @@
 			if (entry) {
 				if (path_length > 1) {
 					de.getDirectory(entry,
-							{
-							create : true
-							},
+							{ create : true },
 							function(dirEntry) {
 								my_log("success function: made dir/file: " + entry);
 								fnGetOrCreateDir(p, dirEntry);
@@ -280,20 +315,21 @@
 				} else {
 					if (create_mode.create == true) {
 						my_log("reached file creation: create = true");
-						de.getFile(entry,
-								{
-								create : true
-								//create : create_mode
-								},
-								fileCreatedSuccess,
-							fileFSError);
+						if (function_mode && function_mode.new_serial_no) {
+							de.getFile(entry,
+									{ create : true },
+									fileCreatedSuccess_serno,
+								fileFSError);
+						} else if (function_mode && function_mode.create_verbatim_handler) {
+							de.getFile(entry,
+									{ create : true },
+									fileCreatedSuccess_verbatim,
+								fileFSError);
+						}
 					} else {
 						my_log("reached file creation: open for reading only = true");
 						de.getFile(entry,
-								{
-								create : false
-								//create : create_mode
-								},
+								{ create : false },
 								fileFoundSuccess,
 							handlerFileDoesNotExist);
 					}
@@ -303,12 +339,28 @@
 			}
 		};
 		my_log ("After: fileGetDir");
+		/*
+		var callback_function = null;
+		if (function_mode.create_verbatim_handler && function_mode.create_verbatim_handler == true) {
+			callback_function = fileCreatedSuccess_verbatim;
+			my_log ("callback_function: fileCreatedSuccess_verbatim:" + callback_function);
+		} else if (function_mode.new_serial_no && function_mode.new_serial_no == true) {
+			callback_function = fileCreatedSuccess_serno;
+			my_log ("callback_function: fileCreatedSuccess_serno:" + callback_function);
+		} else {
+			my_log ("fileGetDir: function_mode - unhandled ");
+			return;
+		}
+		*/
 		if (path) {
 			var arPath = path.split("/");
-			fnGetOrCreateDir(arPath, global_survey_related_info.fileSystemObject.root);
+			fnGetOrCreateDir(arPath,
+					global_survey_related_info.fileSystemObject.root);
 		} else {
-			if (cb) cb(fsroot);
+			if (cb) cb(global_survey_related_info.fileSystemObject.root);
 		}
+		/*
+		*/
 		my_log ("Exit: fileGetDir " + create_mode);
 	}
 	//my_log("created fileGetDir");
@@ -318,10 +370,10 @@
 		my_log("printSuccess: " + dirEntry.fullPath);
 	}
 /* =============== End: File API }}}1 ==================== */
-
+//
 	/* =========== onDeviceReady {{{1 ========= */
 	function onDeviceReady() {
-		//my_log("Enter onDeviceReady");
+		my_log("Enter onDeviceReady");
 		var success = false;
 		success = get_device_info();
 		if (success == false) {
@@ -410,7 +462,8 @@ function event_listener_failed_read_open (e)
 	my_log ("Enter: event_listener_failed_read_open: open_file_path: " + global_survey_related_info.open_file_path);
 	fileGetDir (global_survey_related_info.open_file_path, printSuccess,
 		    {create: true, exclusive: true},
-		    getFileErrorHandler);
+		    getFileErrorHandler,
+		    {new_serial_no: true});
 	my_log ("exit: event_listener_failed_read_open: open_file_path: " + global_survey_related_info.open_file_path);
 }
 
@@ -418,4 +471,4 @@ function event_listener_failed_read_open (e)
 		"click", event_listener_failed_read_open);
 	/* ============ Setup the UI }}}1 ==================== */
 
-
+	my_log ("Finished loading our_cordova_apis.js");

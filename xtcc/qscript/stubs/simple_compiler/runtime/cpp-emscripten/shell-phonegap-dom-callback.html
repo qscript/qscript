@@ -40,6 +40,7 @@
 	<script type="text/javascript">
 		/* ===== EventUtil and FormSerialization {{{1 =============== */
 		/* Professional JavaScript for Web Developers - Nicholas C Zakas. Chpt 12*/
+		global_survey_related_info = {};
 		var EventUtil = {
 			addHandler: function (element, type, handler) {
 				if (element.addEventListener) {
@@ -99,11 +100,26 @@
 				break;
 				case "text":
 					if (global_survey_related_info.question_type != "nq" &&
-					global_survey_related_info.no_mpn == 1) {
+						global_survey_related_info.no_mpn == 1) {
 						parts.push(field.value);
 					} else {
+						my_log ("trying to save verbatim file: verbatim is:" + field.value);
 						parts.push("96"); // dummy value
 						// Initiate file saving here
+						global_survey_related_info.current_verbatim_data = field.value;
+						if (save_verbatim_data) {
+							my_log ("save_verbatim_data:" + save_verbatim_data);
+						}
+						if (fail_to_write_file) {
+							my_log ("fail_to_write_file:" + fail_to_write_file);
+						}
+						my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+						if (global_survey_related_info.verbatim_data_file_handle) {
+							my_log ("verbatim_data_file_handle:" + verbatim_data_file_handle);
+						} else {
+							my_log ("verbatim_data_file_handle: is null");
+						}
+						global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
 					}
 				break;
 				}
@@ -207,13 +223,12 @@
 	function my_log (mesg)
 	{
 		var div_console_log = document.getElementById("div_console_log");
-		div_console_log.innerHTML += "<p><pre>" + mesg + "</pre></p>";
+		div_console_log.innerHTML += "<p>" + mesg + "</p>";
 	}
 	// my_log ("test log message");
 /* =============== End: Logging Setup }}}1 ==================== */
 
 	// big fat global variable
-	global_survey_related_info = {};
 
 
 	/*

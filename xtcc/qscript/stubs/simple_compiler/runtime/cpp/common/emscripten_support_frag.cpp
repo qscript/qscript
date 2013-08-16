@@ -187,7 +187,7 @@ void question_eval_loop2 (
 						theQuestionnaire->ser_no,
 						buffer_start_ptr,
 						n_left);
-			//save_qnre_data (buffer);
+			save_qnre_data (buffer);
 			stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
 		}
 	//}

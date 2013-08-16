@@ -1,4 +1,5 @@
 
+	my_log ("Started loading our_ui.js");
 
 	/* Next Question Button {{{2 */
 	var nextQ = document.getElementById("nextQ");
@@ -61,6 +62,7 @@
 			//alert ("our_path:" + our_path);
 			// first try to open the file and see if it exists
 			my_log("opening file:" + our_path);
+			global_survey_related_info.serial_no = serial_no;
 			global_survey_related_info.open_file_path = our_path;
 			global_survey_related_info.fileSystemObject.root.getFile(
 				our_path, {create: false, exclusive: true}, gotFileEntry, getFileErrorHandler);
@@ -89,5 +91,7 @@
 		//callback_return_serial (serial_no);
 	}
 	EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
-	//my_log ("created handleStartSurveyButton function");
+	my_log ("created handleStartSurveyButton function");
 /* handleStartSurveyButton  }}}2 */
+
+	my_log ("Finished loading our_ui.js");
