@@ -143,11 +143,13 @@ jquery_lang_js.prototype.change = function (lang) {
 	var langElems = $('[lang]');
 
 	if (lang != this.defaultLang) {
-		my_log("took path lang != this.defaultLang");
+		//
+		//my_log("took path lang != this.defaultLang");
 		if (this.lang[lang]) {
 			var elemsLength = langElems.length;
 			while (elemsLength--) {
-				my_log("==================== <br/>");
+				//
+				//my_log("==================== <br/>");
 				var elem = langElems[elemsLength];
 				var langElem = $(elem);
 				/*
@@ -159,10 +161,11 @@ jquery_lang_js.prototype.change = function (lang) {
 				*/
 				//var my_attrs1 = outputAttributes (langElem);
 				//my_log ("langElem attrs:" + my_attrs1);
-				var my_attrs2 = outputAttributes (elem);
-				my_log ("elem attrs:" + my_attrs2);
+				//var my_attrs2 = outputAttributes (elem);
+				//my_log ("elem attrs:" + my_attrs2);
 				//my_log(arr.toString());
-				my_log("reached here");
+				//
+				//my_log("reached here");
 				if (langElem.data('deftexttitle')) {
 					if (langElem.attr('title')) {
 						my_log ("Entered title condition");
@@ -215,7 +218,8 @@ jquery_lang_js.prototype.change = function (lang) {
 						}
 					} else {
 						// Not an input element
-						my_log ("case : Not an input element");
+						//
+						//my_log ("case : Not an input element");
 						var currentText = langElem.html();
 						var defaultLangText = langElem.data('deftext');
 
@@ -229,7 +233,8 @@ jquery_lang_js.prototype.change = function (lang) {
 					}
 				} else {
 					//console.log('No language data for element... have you executed .run() first?');
-					my_log ('No language data for element... have you executed .run() first?');
+					//
+					//my_log ('No language data for element... have you executed .run() first?');
 				}
 			}
 		} else {
@@ -237,7 +242,8 @@ jquery_lang_js.prototype.change = function (lang) {
 		}
 	} else {
 		// Restore the deftext data
-		my_log("took path lang == this.defaultLang");
+		//
+		//my_log("took path lang == this.defaultLang");
 		langElems.each(function () {
 			var langElem = $(this);
 			if (langElem.data('deftexttitle')) {
