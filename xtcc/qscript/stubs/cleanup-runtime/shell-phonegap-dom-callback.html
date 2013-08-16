@@ -23,6 +23,10 @@
 		padding: "5px";
 		width: 85%;
 	}
+	div.thank_you {
+		display: none;
+	}
+
     </style>
 
 	<link rel="stylesheet" href="js/jquery.mobile-1.3.2.css">
@@ -123,10 +127,14 @@
 				</div>
 			</div>
 
+			<div id="thank_you_screen" class="thank_you">
+				<p>Thank you for your time.</p>
+			</div>
+
 			<div id="question_view" class="qscript_question">
-				<div class="emscripten" id="question_text_area">question_display_area</div>
+				<div class="emscripten" id="question_text_area"></div>
 				<div class="emscripten" id="question_stub_area">
-					<form id="question_form">stubs_form_div
+					<form id="question_form">
 						<fieldset data-role="controlgroup">
 						 <div id="stubs_form_div">
 						 </div>
@@ -140,26 +148,26 @@
 			<div id="div_console_log" class="qscript-logger">
 				console-logger<br/>
 			</div>
-			<hr/>
-			<textarea class="emscripten" id="output" rows="8"></textarea>
-			<hr>
 
-			<div id="div_has_PhoneGap">
-				PhoneGap library Status.
-			</div>
-
-			<div id="div_device_properties">
-				device properties
-			</div>
-			<div id="div_device_compass">
-				device compass
-			</div>
 			<div id="div_geolocation_info">
 				device geolocation info
 			</div>
 
 		</div>
 	</div>
+
+			<hr/>
+			<textarea class="emscripten" id="output" rows="8"></textarea>
+			<hr>
+			<div id="div_has_PhoneGap">
+				PhoneGap library Status.
+			</div>
+			<div id="div_device_properties">
+				device properties
+			</div>
+			<div id="div_device_compass">
+				device compass
+			</div>
 
 	<script type="text/javascript">
 
@@ -168,7 +176,7 @@
 		var div_console_log = document.getElementById("div_console_log");
 		div_console_log.innerHTML += "<p><pre>" + mesg + "</pre></p>";
 	}
-	my_log ("test log message");
+	// my_log ("test log message");
 
 	// big fat global variable
 	global_survey_related_info = {};
@@ -191,18 +199,20 @@
 	//my_log ("created submit handler function");
 
 	function gotFileEntry(fileEntry) {
-		my_log("gotFileEntry");
+		my_log("Enter: gotFileEntry");
 		fileEntry.file(gotFile, fail);
 	}
 
 	function gotFile(file){
-		my_log("gotFile");
+		my_log("Enter: gotFile");
 		//readDataUrl(file);
 		readAsText(file);
 	}
 
 	function fail(evt) {
-		my_log(evt.target.error.code);
+		// my_log(evt.target.error.code);
+		my_log ("unable to open file: error_code: " + error.code);
+		my_log ("unable to open file: error_text: " + error.message);
 	}
 
 	var testReadFile = document.getElementById ("testReadFile");
@@ -213,7 +223,7 @@
 
 	function ourHandlerFileDoesNotExist(e)
 	{
-		my_log("Enter: ourHandlerFileDoesNotExist");
+		// my_log("Enter: ourHandlerFileDoesNotExist");
 	}
 	//my_log ("created ourHandlerFileDoesNotExist");
 
@@ -251,7 +261,7 @@
 					".dat";
 			//alert ("our_path:" + our_path);
 			// first try to open the file and see if it exists
-			my_log("opening file:" + our_path);
+			// my_log("opening file:" + our_path);
 			global_survey_related_info.fileSystemObject.root.getFile(our_path, null, gotFileEntry, fail);
 			//global_survey_related_info.fileSystemObject.root.getFile("qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat", null, gotFileEntry, fail);
 			// if successful, we need to merge in the survey data into the qnre
@@ -260,10 +270,10 @@
 			//fileGetDir (our_path, printSuccess, false, ourHandlerFileDoesNotExist);
 			//all_systems_go = true;
 		} else {
-			my_log ("sanity checks failed");
-			my_log ("global_survey_related_info.device: " + global_survey_related_info.device);
-			my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
-			my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
+			// my_log ("sanity checks failed");
+			// my_log ("global_survey_related_info.device: " + global_survey_related_info.device);
+			// my_log ("global_survey_related_info.position: " + global_survey_related_info.position);
+			// my_log ("global_survey_related_info.fileSystemObject: " + global_survey_related_info.fileSystemObject);
 		}
 		//my_log (" after sanity checks");
 		/*
@@ -309,7 +319,7 @@
 			return true;
 		} else {
 			//div_device_properties.innerHTML = "does not have device property";
-			my_log ("DOES NOT HAVE DEVICE PROPERTY");
+			// my_log ("DOES NOT HAVE DEVICE PROPERTY");
 			return false;
 		}
 	}
@@ -339,7 +349,7 @@
 	//my_log ("created get_compass_info function");
 
 	function onGeoLocationSuccess (position) {
-		//alert("onGeoLocationSuccess ");
+		alert("onGeoLocationSuccess ");
 		my_log ("Enter: onGeoLocationSuccess: position:" + position);
 		var div_geolocation_info = document.getElementById("div_geolocation_info");
 		div_geolocation_info.innerHTML =
@@ -377,21 +387,21 @@
 
 	function get_geolocation_info()
 	{
-		//alert("get_geolocation_info fired");
+		alert("get_geolocation_info fired");
 		my_log ("Enter: get_geolocation_info: navigator.geolocation:" + navigator.geolocation);
 		if (navigator.geolocation) {
-			my_log ("get_geolocation_info: has geolocation");
+			// my_log ("get_geolocation_info: has geolocation");
 			if (navigator.geolocation.getCurrentPosition) {
-				my_log("get_compass_info: has getCurrentPosition: " + navigator.geolocation.getCurrentPosition);
+				// my_log("get_compass_info: has getCurrentPosition: " + navigator.geolocation.getCurrentPosition);
 			}
 			navigator.geolocation.getCurrentPosition(
 				onGeoLocationSuccess, onGeoLocationError);
 		} else {
-			//var div_geolocation_info = document.getElementById("div_geolocation_info");
-			//div_geolocation_info.innerHTML += 'message: Does not have geolocation object' +  '<br/>';
+			var div_geolocation_info = document.getElementById("div_geolocation_info");
+			div_geolocation_info.innerHTML += 'message: Does not have geolocation object' +  '<br/>';
 			my_log ("DOES NOT HAVE GEOLOCATION OBJECT");
 		}
-		my_log ("Exit: get_geolocation_info");
+		// my_log ("Exit: get_geolocation_info");
 	}
 
 	//my_log("created get_geolocation_info");
@@ -432,18 +442,18 @@
 		my_log ("Enter: readDataUrl");
 		var reader = new FileReader();
 		reader.onloadend = function(evt) {
-		    my_log("Read as data URL");
+		    // my_log("Read as data URL");
 		    my_log(evt.target.result);
 		};
 		reader.readAsDataURL(file);
 	}
 
 	function readAsText(file) {
-		my_log ("Enter: readAsText");
+		// my_log ("Enter: readAsText");
 		var reader = new FileReader();
 		reader.onloadend = function(evt) {
-			my_log("Read as text");
-			my_log(evt.target.result);
+			// my_log("Read as text");
+			// my_log(evt.target.result);
 			var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int', 'string']);
 			callback_return_serial (56, evt.target.result);
 		};
@@ -472,7 +482,7 @@
 	// This function will create all the directories required on the way
 	// but create_mode = false or true will decide if a new file will be created
 	function fileGetDir(path, cb, create_mode, handlerFileDoesNotExist) {
-		my_log ("Enter: fileGetDir");
+		// my_log ("Enter: fileGetDir");
 		var fileCreatedSuccess = function (file) {
 			my_log ("fileCreatedSuccess: created a file");
 			global_current_survey_data_file = file;
@@ -529,7 +539,7 @@
 	//my_log("created fileGetDir");
 
 	function printSuccess(dirEntry) {
-		my_log("printSuccess: " + dirEntry.fullPath);
+		// my_log("printSuccess: " + dirEntry.fullPath);
 	}
 
 	// Now create your directories like:
@@ -542,7 +552,7 @@
 	// link this back to Start survey - encapsulate in fn
 
 	function onDeviceReady() {
-		my_log("Enter onDeviceReady");
+		//my_log("Enter onDeviceReady");
 		var success = false;
 		success = get_device_info();
 		if (success == false) {
@@ -571,7 +581,7 @@
 		// var our_path = "qscript/uuid/project_name/interviewer_id/project_name_interviewer_id_serial.dat";
 		// fileGetDir (our_path, printSuccess);
 	}
-	my_log("created onDeviceReady");
+	//my_log("created onDeviceReady");
 	document.addEventListener ("deviceready", onDeviceReady, false);
 
 	/*

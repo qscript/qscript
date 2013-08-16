@@ -104,8 +104,15 @@
   <script type="text/javascript" src="../js/dojo-release-1.9.0-src/dojo/dojo.js" ></script>
 -->
 
+	<div id="div_serial_no">
+		<div>
+			<input id="txt_serial_no"  type="text" value="Enter A Serial No">
+			<input type="button" value="Start Interview" id="btn_return_serial_no">
+		</div>
+	</div>
 
 <div id="question_view" data-dojo-type="dojox/mobile/ScrollableView" data-dojo-props="selected: true">
+	<div>
 		<form id="question_form">
 			<ul id="ul_stub_list"  data-dojo-type="dojox/mobile/RoundRectList">
 				<li data-dojo-type="dojox/mobile/ListItem">
@@ -116,10 +123,48 @@
 				<div id="stubs_form_div">
 				</div>
 			</ul>
-			<input  type="submit" value="Next" data-dojo-type="dojox/mobile/Button">
+			<input type="submit" value="Next" data-dojo-type="dojox/mobile/Button">
 		</form>
 	</div>
 </div>
+
+	<div id="div_console_log" class="qscript-logger">
+		console-logger<br/>
+	</div>
+
+	<script type="text/javascript">
+	function my_log (mesg)
+	{
+		var div_console_log = document.getElementById("div_console_log");
+		div_console_log.innerHTML += "<p>" + mesg + "</p>";
+	}
+	my_log ("test log message");
+	var return_serial_no_button = document.getElementById("btn_return_serial_no");
+	function handleStartSurveyButton (event)
+	{
+		var question_view = document.getElementById("question_view");
+		//alert("question_view:" + question_view);
+		//var attr = document.createAttribute("display");
+		//attr.value = "block";
+		//question_view.setAttributeNode(attr);
+		var txt_serial_no = document.getElementById("txt_serial_no");
+		var serial_no = txt_serial_no.value;
+		//alert ("serial_no: " + serial_no);
+		question_view.style.display = "block";
+		var div_serial_no = document.getElementById("div_serial_no");
+		div_serial_no.style.display = "none";
+		return_serial_no_button.disabled = true;
+		var callback_return_serial = Module.cwrap ('callback_return_serial', 'void', ['int']);
+		if (callback_return_serial) {
+			//console.log("returning serial no to c++ code");
+			// add check on serial no here.
+			callback_return_serial (serial_no);
+		} else {
+			my_log("Could not find callback_return_serial in Module.cwrap");
+		}
+	}
+	EventUtil.addHandler (return_serial_no_button, "click", handleStartSurveyButton);
+	</script>
 
     <hr/>
 

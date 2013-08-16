@@ -43,7 +43,7 @@ data_entry.hpp: YFLAGS = -p scan_data
 
 vegetable-dojo-mobile.html: $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o shell-dojo-mobile-callback.html $(SOURCE_DIR)/dojo_mobile-dom_manip_funcs.js
 	# old - with cin -> modal dialog box
-	$(CC) $(CFLAGS) -o $@ --shell-file shell-dojo-mobile-callback.html --js-library $(SOURCE_DIR)/dojo_mobile-dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main']"
+	$(CC) $(CFLAGS) -o $@ --shell-file shell-dojo-mobile-callback.html --js-library $(SOURCE_DIR)/dojo_mobile-dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main', '_callback_return_serial']"
 
 $(BUILD_DIR)/question_stdout_runtime.o: $(SOURCE_DIR)/question_stdout_runtime.cpp
 	$(CC) -o $@ $(CFLAGS) -c $< -s EXPORTED_FUNCTIONS="['_main']"
