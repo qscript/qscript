@@ -3,10 +3,17 @@ mergeInto(LibraryManager.library, {
 print_to_question_area: function (question_text_ptr)
 {
 	//alert("print_to_question_area: " + i );
+	my_log("Enter: print_to_question_area: ");
 	var the_question_text = Pointer_stringify (question_text_ptr);
+	my_log(" question_text_ptr:" + the_question_text);
 	var v = document.getElementById("question_text_area");
 	var html = "<span deftext=\"true\" data-deftext=\"true\" id=\"lang_qtxt\" lang=\"en\">" + the_question_text + "</span>";
-	v.innerHTML = html;
+	if (v != null) {
+		v.innerHTML = html;
+	} else {
+		my_log ("failed to get html element question_text_area");
+	}
+	my_log("Exit: print_to_question_area: ");
 	//alert(v.innerHTML);
 },
 

@@ -56,16 +56,28 @@ struct UserInput
 
 //void stdout_eval (AbstractRuntimeQuestion * q);
 struct TheQuestionnaire;
-void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire,
+
+void callback_ui_input (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level);
+void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec, struct TheQuestionnaire * theQuestionnaire,
 	void (*callback_ui_input)
-		(UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		int nest_level
+		(UserInput p_user_input, const vector<AbstractRuntimeQuestion *> & q_vec,
+		 struct TheQuestionnaire * theQuestionnaire, int nest_level),
+		 int nest_level
 		);
+
+void question_eval_loop2 (
+	UserInput p_user_input,
+	const vector<AbstractRuntimeQuestion *> & last_question_visited,
+	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 void parse_input_data(string input_string, vector<int> * data_ptr, int & success);
 void GetUserInput (
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
-		struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		AbstractRuntimeQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+	void (*callback_ui_input)
+		(UserInput p_user_input, const vector<AbstractRuntimeQuestion *> & q_vec,
+		 struct TheQuestionnaire * theQuestionnaire, int nest_level),
+	 const vector<AbstractRuntimeQuestion *> & q_vec,
+	 struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 
 #endif /*  QUESTION_STDOUT_RUNTIME_H */

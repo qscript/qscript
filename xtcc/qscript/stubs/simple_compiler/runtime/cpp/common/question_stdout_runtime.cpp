@@ -262,7 +262,7 @@ void GetUserInput (
 			cout << "Got SAVE_DATA from user" << endl;
 		} else  {
 			user_input.theUserResponse_ = user_response::UserEnteredData;
-			user_input.questionResponseData_ = current_response;
+			user_input.questionResponseDataVec_.push_back( current_response);
 		}
 
 		cout << "reached here" << endl;

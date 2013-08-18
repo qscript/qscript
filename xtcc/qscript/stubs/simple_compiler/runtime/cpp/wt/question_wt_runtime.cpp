@@ -44,526 +44,6 @@ using std::string;
 using namespace Wt;
 vector <string> vec_language;
 
-#if 0
-
-static struct Session *sessions;
-using namespace Wt;
-
-class QuestionnaireApplication: public WApplication
-{
-public:
-	QuestionnaireApplication(const WEnvironment &env);
-private:
-	WText * wt_debug_;
-	WText * wt_questionText_;
-	WLineEdit * le_data_;
-	WText * wt_lastQuestionVisited_;
-	WGroupBox * wt_cb_rb_container_;
-	WButtonGroup * wt_rb_container_;
-	vector<WRadioButton*> vec_rb;
-	vector<WCheckBox*> vec_cb;
-	std::map<int, int> map_cb_code_index;
-	std::vector<WText *> languageSelects_;
-
-	WContainerWidget viewPort_;
-	//WWidget * currentForm_;
-		WContainerWidget * currentForm_;
-	WContainerWidget * formContainer_;
-	int ser_no;
-		WContainerWidget * serialPage_;
-		bool flagSerialPageRemoved_;
-		Session * this_users_session;
-		string sess_id ;
-
-	void display();
-	void DoQuestionnaire() ;
-	//void setCentralWidget(WWidget * new_question_form);
-	void setCentralWidget(WContainerWidget * new_question_form);
-	void changeLanguage();
-	void setLanguage(const std::string lang);
-	void ConstructQuestionForm(
-		AbstractQuestion *q, Session * this_users_session);
-	void ValidateSerialNo();
- 	void ConstructThankYouPage();
- 	const char * software_info();
-		virtual ~QuestionnaireApplication();
-};
-
-QuestionnaireApplication::~QuestionnaireApplication()
-{
-	delete this_users_session; 	this_users_session=0;
-	delete serialPage_; 		serialPage_ = 0;
-	if (currentForm_) {
-		delete currentForm_; 	currentForm_ = 0;
-	}
-	cout << __PRETTY_FUNCTION__ << endl;
-}
-
-void QuestionnaireApplication::ValidateSerialNo()
-{
-	int l_ser_no = -1;
-	if (le_data_ ) {
-		WString serno_text = le_data_->text();
-		string narrow_text = serno_text.narrow();
-		if (narrow_text.length() == 0 || narrow_text.length()>7) {
-			le_data_->setText("You have entered a very long serial number");
-		} else {
-			l_ser_no = strtol (narrow_text.c_str(), 0, 10);
-			if (l_ser_no > 0) {
-				ser_no = l_ser_no;
-				//this_users_session->theQuestionnaire_->ser_no = l_ser_no;
-				int exists = check_if_reg_file_exists(jno, ser_no);
-				cout << "checking if serial no : " << ser_no
-					<< ", jno: " << jno << " exists: " << exists << endl;
-
-				if(exists == 1){
- 					map <string, question_disk_data*>  qdd_map;
-					load_data(jno, ser_no, &qdd_map);
-					//merge_disk_data_into_questions(qscript_stdout, last_question_answered, last_question_visited);
-					merge_disk_data_into_questions2(qscript_stdout,
-							this_users_session->theQuestionnaire_->last_question_answered,
-							this_users_session->theQuestionnaire_->last_question_visited,
-							this_users_session->theQuestionnaire_->question_list,
-							&qdd_map);
-					for (map<string, question_disk_data*>:: iterator it
-							= qdd_map.begin();
-							it != qdd_map.end();
-							++it) {
-						delete it->second;
-					}
-				}
-				DoQuestionnaire();
-			} else {
-				le_data_->setText("You have entered a  negative number");
-			}
-		}
-	}
-}
-
-bool verify_web_data (std::string p_question_data,
-		UserNavigation p_user_navigation,
-		user_response::UserResponseType p_the_user_response,
-		std::vector<int> * data_ptr);
-
-
-void QuestionnaireApplication::DoQuestionnaire()
-{
-	//if (!wt_questionText_) {
-	//	wt_questionText_ = new WText(root());
-	//}
-	cout << "Data for ser_no: " << ser_no;
-	for(int32_t i = 0; i < this_users_session->theQuestionnaire_->question_list.size(); ++i)
-	{
-		cout << this_users_session->theQuestionnaire_->question_list[i]->questionName_;
-		for( set<int32_t>::iterator iter = this_users_session->theQuestionnaire_->question_list[i]->input_data.begin();
-				iter != this_users_session->theQuestionnaire_->question_list[i]->input_data.end(); ++iter){
-			cout << " " << *iter;
-		}
-		cout << "\n";
-	}
-	static int counter = 0;
-	stringstream s;
-	s << "reached DoQuestionnaire: " << counter++;
-	wt_debug_->setText(s.str());
-	UserNavigation qnre_navigation_mode = NAVIGATE_NEXT;
-	string display_text = string("Session Id:") + sess_id;
-	wt_questionText_->setText(display_text);
-	// put this code later
-	string err_mesg, re_arranged_buffer;
-	int32_t pos_1st_invalid_data;
-	s << "last_question_served: " << this_users_session->last_question_served;
-	wt_debug_->setText(s.str());
-	if (this_users_session->last_question_served)
-	{
-		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(this_users_session->last_question_served)) {
-			AbstractQuestion * last_question_served = this_users_session->last_question_served;
-			vector<int32_t> data;
-			bool isAnswered = false;
- 			cout << "returned back data from question: " << nq->questionName_ << endl;
-			if (last_question_served->no_mpn == 1) {
-				if ( wt_rb_container_->selectedButtonIndex() != -1) {
-					isAnswered = true;
-					int code = wt_rb_container_->checkedId();
-					cout << "no_mpn == 1, code: " << code << endl;
-					data.push_back(code);
-				} else {
-					isAnswered = false;
-				}
-			} else {
- 				cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
-				for (int i = 0; i < vec_cb.size(); ++i) {
-					if (vec_cb[i]->checkState() == Wt::Checked) {
-						int code = map_cb_code_index[i];
-						data.push_back(code);
-						cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
-						isAnswered = true;
-					}
-				}
-			}
-			if (isAnswered) {
-				bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
-					&data);
-				if (invalid_code == false)
-				{
-					//last_question_served->input_data.erase
-					//	(last_question_served->input_data.begin(),
-					//	last_question_served->input_data.end());
-				last_question_served->input_data.clear();
-					for(uint32_t i = 0; i < data.size(); ++i)
-					{
-						last_question_served->input_data.insert(data[i]);
-						cout << "storing: " << data[i]
-							<< " into input_data" << endl;
-					}
-					last_question_served->isAnswered_ = true;
-					data.clear();
-				}
-			}
-			// do something with isAnswered_ == false here and resend the
-			// qnre to the respondent
-		} else {
-
-			string last_question_visited_str = wt_lastQuestionVisited_->text().narrow();
-			string current_question_response = le_data_->text().narrow();
-			AbstractQuestion * last_question_served = this_users_session->last_question_served;
-			if (last_question_visited_str != "" && current_question_response != "" && last_question_served->no_mpn==1)
-			{
-				UserNavigation user_nav=NOT_SET;
-				user_response::UserResponseType user_resp=user_response::NotSet;
-				vector<int32_t> data;
-				bool parse_success = verify_web_data (current_question_response, user_nav, user_resp, &data);
-				if (parse_success)
-				{
-					cout << "successfully parsed data = ";
-					for (int i=0; i<data.size(); ++i)
-					{
-						cout << data[i] << ", ";
-					}
-					cout << endl;
-				}
-				// the call below will be required at some later stage
-				//bool valid_input = AbstractQuestion::VerifyResponse(user_resp);
-				// right now we go along with the happy path
-				bool invalid_code = last_question_served->VerifyData(err_mesg, re_arranged_buffer, pos_1st_invalid_data,
-					&data);
-				if (invalid_code == false)
-				{
-					last_question_served->input_data.erase
-						(last_question_served->input_data.begin(),
-						last_question_served->input_data.end());
-					for(uint32_t i = 0; i < data.size(); ++i)
-					{
-						last_question_served->input_data.insert(data[i]);
-						//cout << "storing: " << data[i]
-						//	<< " into input_data" << endl;
-					}
-					last_question_served->isAnswered_ = true;
-					data.clear();
-				}
-				else {
-					ConstructQuestionForm(last_question_served, this_users_session);
-					return;
-				}
-			}
-			else if (last_question_visited_str != "" && current_question_response != "" && last_question_served->no_mpn > 1)
-			{
-				string utf8_response = le_data_->text().toUTF8();
-				if (utf8_response != "")
-				{
-					stringstream file_name_str;
-					file_name_str << last_question_served->questionName_ << "."
-						<< jno << "_" << ser_no << ".dat";
-
-					fstream open_end_resp(file_name_str.str().c_str(), ios_base::out|ios_base::ate);
-					open_end_resp << utf8_response << endl;
-					last_question_served->input_data.insert(96);
-					last_question_served->isAnswered_ = true;
-				}
-				else
-				{
-					ConstructQuestionForm(last_question_served, this_users_session);
-					return;
-				}
-			}
-		}
-	}
-	{
- 		TheQuestionnaire * qnre = this_users_session->theQuestionnaire_;
-		qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
-	}
-	AbstractQuestion * q =
-		this_users_session->theQuestionnaire_->eval2(
-		qnre_navigation_mode, this_users_session->last_question_served, 0 /*jump to index dummy*/);
-	this_users_session->last_question_served = q;
-if (q) {
-	ConstructQuestionForm(q, this_users_session);
-} else {
- 	TheQuestionnaire * qnre = this_users_session->theQuestionnaire_;
-	qnre->write_data_to_disk(qnre->question_list, qnre->jno, qnre->ser_no);
- 	ConstructThankYouPage();
-}
-}
-
-void QuestionnaireApplication::ConstructThankYouPage()
-{
-	WContainerWidget * new_form = new WContainerWidget();
-	WText * txt = new WText(WString::tr("thank_you"), new_form);
- 	WText * survey_code = new WText(WString::tr("vege_source_code"), new_form);
-	setCentralWidget(new_form);
-	cout << "ConstructThankYouPage\n";
-}
-
-void QuestionnaireApplication::ConstructQuestionForm(
-	AbstractQuestion *q, Session * this_users_session)
-{
-
-	WContainerWidget * new_form = new WContainerWidget();
-	vec_rb.clear();			 // memory leak introduced here? no it seems
-	vec_cb.clear();			 // memory leak introduced here? no it seems
-	map_cb_code_index.clear();
-
-	wt_questionText_ = new WText();
-	//wt_questionText_->setText(q->textExprVec_[0]->text_);
-	//stringstream question_text;
-	stringstream part_mesg_id;
-	WString question_text;
-	part_mesg_id << q->questionName_;
-	for (int i=0; i<q->loop_index_values.size(); ++i)
-	{
-		part_mesg_id << "_" << q->loop_index_values[i];
-	}
-	WText * wt_questionNo_ = new WText(part_mesg_id.str().c_str(), new_form);
-	for (int i=0; i<q->textExprVec_.size(); ++i)
-	{
-		question_text += "<p>";
-		if (q->textExprVec_[i]->teType_ == TextExpression::simple_text_type)
-		{
-			stringstream mesg_id;
-			mesg_id << part_mesg_id.str() << "_" << i;
-			question_text += WString::tr(mesg_id.str().c_str());
-		}
-		else if (q->textExprVec_[i]->teType_ == TextExpression::named_attribute_type)
-		{
-			stringstream named_attribute_key;
-			named_attribute_key << q->textExprVec_[i]->naPtr_->name;
-			named_attribute_key << "_" << q->textExprVec_[i]->naIndex_;
-			question_text += WString::tr(named_attribute_key.str().c_str());
-		}
-		else if (q->textExprVec_[i]->teType_ == TextExpression::question_type)
-		{
-			if (q->textExprVec_[i]->codeIndex_ != -1) {
-				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers(q->textExprVec_[i]->codeIndex_);
-			} else {
-				question_text += q->textExprVec_[i]->pipedQuestion_->PrintSelectedAnswers();
-			}
-		}
-		question_text += "</p>";
-	}
-	wt_questionText_->setText(question_text);
-
-	new_form->addWidget(wt_questionText_);
-	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q))
-	{
-		new_form->addWidget(wt_cb_rb_container_ = new WGroupBox());
-		if (q->no_mpn==1)
-		{
-			wt_rb_container_ = new WButtonGroup(wt_cb_rb_container_);
-		}
-		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
-		for (int i=0; i<vec.size(); ++i)
-		{
-			stringstream named_range_key;
-			named_range_key << nq->nr_ptr->name << "_" << i;
-			if (q->no_mpn==1 && vec[i].mask)
-			{
-				//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
-				WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-				wt_rb_container_->addButton(wt_rb, vec[i].code);
-				new WBreak(wt_cb_rb_container_);
-				vec_rb.push_back(wt_rb);
-			}
-			else if (q->no_mpn>1 && vec[i].mask)
-			{
-				//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
-				WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-				vec_cb.push_back(wt_cb);
-				cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
-				map_cb_code_index[vec_cb.size()-1] = vec[i].code;
-			}
-		}
-		new_form->addWidget(wt_cb_rb_container_);
-	}
-	else
-	{
-		le_data_ = new WLineEdit();
-		new_form->addWidget(le_data_);
-	}
-
-	wt_lastQuestionVisited_ = new WText();
-	if (this_users_session->last_question_answered)
-		wt_lastQuestionVisited_->setText(q->questionName_);
-	new_form->addWidget(wt_lastQuestionVisited_);
-
-							 // create a button
-	WPushButton *b = new WPushButton("Next");
-	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);
-	new_form->addWidget(b);
-	WPushButton *save_button = new WPushButton("Save");
-	save_button->clicked().connect(this, &QuestionnaireApplication::handleSave);
-	new_form->addWidget(save_button);
-
-	setCentralWidget(new_form);
-}
-
-
-void QuestionnaireApplication::changeLanguage()
-{
-	WText *t = (WText *)sender();
-	setLanguage(narrow(t->text().value()));
-}
-
-
-extern string jno;
-QuestionnaireApplication::QuestionnaireApplication(const WEnvironment &env)
-	: WApplication(env), wt_questionText_(0), currentForm_(0), flagSerialPageRemoved_(false)
-{
-	messageResourceBundle().use(WApplication::appRoot() + jno);
-	serialPage_ = new WContainerWidget(0);
-	setTitle("QuestionnaireApplication");
-	/*
-	WPushButton *b = new WPushButton("Click to start survey", root()); // create a button
-	b->setMargin(5, Left);                                 // add 5 pixels margin
-
-	root()->addWidget(new WBreak());                       // insert a line break
-
-	wt_questionText_ = new WText(root());                         // empty text
-
-	b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);
-	*/
-
-	WCssDecorationStyle langStyle;
-	langStyle.font().setSize(WFont::Smaller);
-	langStyle.setCursor(PointingHandCursor);
-	langStyle.setForegroundColor(blue);
-	langStyle.setTextDecoration(WCssDecorationStyle::Underline);
-	this->styleSheet().addRule(".lang", langStyle);
-
-	langStyle.setCursor(ArrowCursor);
-	langStyle.font().setWeight(WFont::Bold);
-	this->styleSheet().addRule(".langcurrent", langStyle);
-
-	langStyle.setForegroundColor(WColor(100, 0, 200, 100));
-	langStyle.setCursor(IBeamCursor);
-	langStyle.font().setWeight(WFont::Bold);
-	langStyle.font().setSize(WFont::XLarge);
-	this->styleSheet().addRule(".langtitle", langStyle);
-
-	// warning the statement below modifies the global variable
-	//load_languages_available(vec_language);
-	WContainerWidget *langLayout = new WContainerWidget();
-	langLayout->setContentAlignment(AlignRight);
-
-	WText * lang_title = new WText(WString::tr("language"), langLayout);
-	lang_title->setStyleClass(L"langtitle");
-
-
-	for (int i = 0; i < vec_language.size(); ++i) {
-		WText *t = new WText(widen(vec_language[i]), langLayout);
-		t->setMargin(5);
-		t->clicked().connect(this, &QuestionnaireApplication::changeLanguage);
-		languageSelects_.push_back(t);
-	}
-
-	/*
-	* Start with the reported locale, if available
-	*/
-	//setLanguage(wApp->locale());
-	setLanguage("hn");
-
-	WText * txt_software_info = new WText(WString::tr("qscript_info"), serialPage_);
-	WPushButton *b = new WPushButton("Click to start survey", serialPage_); // create a button
-	b->setMargin(5, Left);                                 // add 5 pixels margin
-	serialPage_->addWidget(new WBreak());                       // insert a line break
-	//b->clicked().connect(this, &QuestionnaireApplication::DoQuestionnaire);
-	b->clicked().connect(this, &QuestionnaireApplication::ValidateSerialNo);
-	wt_questionText_ = new WText(serialPage_);
-	wt_questionText_->setText("Serial No: ");
-	wt_lastQuestionVisited_ = new WText(serialPage_);
-	le_data_ = new WLineEdit(serialPage_);
-
-	wt_debug_ = new WText(serialPage_);
-	formContainer_ = new WContainerWidget(root());
-	formContainer_->addWidget(serialPage_);
-	formContainer_->addWidget(langLayout);
-	string sess_id = sessionId();
-	this_users_session = new Session();
-	strcpy(this_users_session->sid, sess_id.c_str());
-	wt_sessions.push_back(this_users_session);
-}
-
-int main(int argc, char ** argv)
-{
-	//process_options(argc, argv);
-	cout << __PRETTY_FUNCTION__ << ", " << __FILE__
-		<< ", "
-		<< __LINE__ << endl;
-	cout << "searching for -m option" << endl;
-       for (int i=0; i<argc; ++i) { if (string(argv[i]) == "-m") { write_messages_flag = 1; break;} }
-	if (write_messages_flag) {
-		TheQuestionnaire theQuestionnaire("dummy");
-		exit(0);
-	}
-
-	load_languages_available(vec_language);
-	bool using_ncurses = true;
-	qscript_stdout = fopen(qscript_stdout_fname.c_str(), "w");
-	SetupSignalHandler();
-
-	//return WRun (argc, argv, &createApplication);
-	{
-	try
-	{
-		// use argv[0] as the application name to match a suitable entry
-		// in the Wt configuration file, and use the default configuration
-		// file (which defaults to /etc/wt/wt_config.xml unless the environment
-		// variable WT_CONFIG_XML is set)
-		// WServer server(argv[0]);
-
-		// WTHTTP_CONFIGURATION is e.g. "/etc/wt/wthttpd"
-		server.setServerConfiguration(argc, argv, WTHTTP_CONFIGURATION);
-
-		// add a single entry point, at the default location (as determined
-		// by the server configuration's deploy-path)
-		server.addEntryPoint(Wt::Application, createApplication);
-		if (server.start()) {
-			std::string port_number_fname = jno + string("_port_number");
-			std::fstream port_number(port_number_fname.c_str(), ios_base::out);
-			port_number << server.httpPort();
-			port_number << ' ' << getpid() << std::endl;
-			std::cout << server.httpPort() << std::endl;
-			port_number.flush();
-			int sig = WServer::waitForShutdown(argv[0]);
-			std::cerr << "Shutdown (signal = " << sig << ")" << std::endl;
-			server.stop();
-			if (sig == SIGHUP)
-			WServer::restart(argc, argv, environ);
-		}
-	} catch (WServer::Exception& e) {
-	    std::cerr << e.what() << std::endl;
-	    return 1;
-	  } catch (std::exception& e) {
-	    std::cerr << "exception: " << e.what() << std::endl;
-	    return 1;
-	  }
-	}
-}
-
-const char * QuestionnaireApplication::software_info()
-{
-	const char * info = "Welcome to the qscript demo survey page. This survey is not a demo of qscript web capabilities, but rather a demo of the pen and paper module. For web capable qscript we need to implement the following features <ul><li>Piping of answers</li><li>Unicode capture of other responses</li><li>Randomization of stub lists - groups, subgroups, holding an attribute, holding a group, etc</li><li>Randomization of attributes</li><li>question numbers are displayed at the top like this \"q1\". Looped question numbers will be displayed like this \"q1_0\". Note that the 1st iteration starts at 0.</li><li>The qscript project page is <a href=\"http://qscript.in\">http://qscript.in</a></li><li>The Download page is <a href=\"http://sourceforge.net/projects/xtcc\">http://sourceforge.net/projects/xtcc</a></li><li>Enter a serial number below. It can be upto 7 digits long. You can finish the survey later, by entering the same serial number. It will start exactly where you left off. We have no control over what serial numbers people enter. To make up a number somewhat unique - try using your mobile number, mixed with your date of birth, mixed with your spouse's date of birth.</li></ul>";
- 	return info;
-}
-#endif /* 0 */
 
 struct TheQuestionnaire * make_questionnaire ();
 vector <Session*> wt_sessions;
@@ -1402,12 +882,12 @@ UIReturnValue QuestionnaireApplication::handleRBDataInput (int nest_level,
 	return ret_val;
 }
 
-void QuestionnaireApplication::handleCBDataInput (int nest_level)
+UIReturnValue QuestionnaireApplication::handleCBDataInput (int nest_level,
+		int form_index)
 {
-	/*
 	vector<int32_t> data;
 	bool isAnswered = false;
-
+	UIReturnValue  ret_val;
 	stringstream s1;
 
 #if 0
@@ -1419,15 +899,20 @@ void QuestionnaireApplication::handleCBDataInput (int nest_level)
 	cout << " vec_cb.size(): " << vec_cb.size() << "no_mpn > 1" << endl;
 #endif
 
-	for (int i = 0; i < vec_cb.size(); ++i) {
-		if (vec_cb[i]->checkState() == Wt::Checked) {
-			int code = map_cb_code_index[i];
+	for (int i = 0; i < question_ui_vec[form_index]->vec_cb.size(); ++i) {
+		if (question_ui_vec[form_index]->vec_cb[i]->checkState() == Wt::Checked) {
+			int code =question_ui_vec[form_index]->map_cb_code_index[i];
 			data.push_back(code);
 			cout << "vec_cb[" << i << "] is checked,   code: " << code << endl;
 			isAnswered = true;
 			s1 << " " << code;
 		}
 	}
+	if (isAnswered == true) {
+		ret_val.answered_ = true;
+		ret_val.textData_= s1.str();
+	}
+	/*
 	UserInput user_input;
 	user_input.questionResponseData_ = s1.str();
 	user_input.theUserResponse_ = user_response::UserEnteredData;
@@ -1470,7 +955,12 @@ void QuestionnaireApplication::handleCBDataInput (int nest_level)
 		// do nothing - the callback just continues to wait for data
 	}
 	*/
-	cout << __PRETTY_FUNCTION__ << "not yet implemented" << endl;
+	//cout << __PRETTY_FUNCTION__ << "not yet implemented" << endl;
+	cout << "Exit: "
+		<< __PRETTY_FUNCTION__
+		<< ", data : " << ret_val.textData_
+		<< endl;
+	return ret_val;
 }
 
 void QuestionnaireApplication::handleRangeQuestionData(int nest_level)
@@ -1617,11 +1107,10 @@ void QuestionnaireApplication::handleDataInput()
 				ui_question_status.push_back(ret_val) ;
 			} else {
 				cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
-				handleCBDataInput(1);
+				UIReturnValue ret_val = handleCBDataInput(1, i);
+				ui_question_status.push_back(ret_val) ;
 			}
-
 		} else {
-
 			/*
 			string current_question_response = le_data_->text().narrow();
 			if (current_question_response !="") {

@@ -172,7 +172,7 @@ int32_t load_data(string jno, int32_t ser_no,
 
 //extern vector <AbstractRuntimeQuestion*> question_list;
 void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractRuntimeQuestion * & p_last_question_answered,
-		AbstractRuntimeQuestion * & p_last_question_visited, const vector <AbstractRuntimeQuestion*> question_list,
+		vector<AbstractRuntimeQuestion *> & p_last_question_visited, const vector <AbstractRuntimeQuestion*> question_list,
 		map <string, question_disk_data*> * qdd_map_ptr)
 
 {
@@ -206,7 +206,7 @@ void merge_disk_data_into_questions2(FILE * qscript_stdout, AbstractRuntimeQuest
 				q->isAnswered_ = true;
 				//last_question_answered = q;
 				p_last_question_answered = q;
-				p_last_question_visited = q;
+				p_last_question_visited.push_back(q);
 			}
 		}
 	}

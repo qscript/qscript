@@ -1,19 +1,22 @@
+#include "question_logic.h"
+/* ============= new_logic_support_frag event driven - emscripten =========*/
 struct TheQuestionnaire * make_questionnaire ()
 {
 	TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);
 	theQuestionnaire->base_text_vec.push_back(BaseText("All Respondents"));
 	return theQuestionnaire;
 }
-void question_eval_loop2 (
-	UserInput p_user_input,
-	AbstractRuntimeQuestion * last_question_visited,
-	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+//void question_eval_loop2 (
+//	UserInput p_user_input,
+//	AbstractRuntimeQuestion * last_question_visited,
+//	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 int callback_get_ser_no_from_ui (int p_ser_no, int nest_level, char * survey_data)
 {
 	// now its not :-) // nxd: this is a global variable - has to be eliminated at some point
 	TheQuestionnaire * theQuestionnaire = new TheQuestionnaire (jno);
-	cout << "received serial no : " << p_ser_no << "from ui";
+	//cout << "received serial no : " << p_ser_no << "from ui";
+	printf ("received serial no : %d from ui\n", p_ser_no );
 
 	theQuestionnaire->ser_no = p_ser_no;
 	theQuestionnaire->base_text_vec.push_back(BaseText("All Respondents"));
@@ -38,9 +41,10 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level, char * survey_dat
 	//			qnre_navigation_mode, last_question_visited,
 	//			jump_to_question, theQuestionnaire);
 	UserInput l_user_input;
+	vector <AbstractRuntimeQuestion*> empty_vec;
 	question_eval_loop2 (
-				l_user_input, /* last_question_visited */ 0,
-				/* jump_to_question */ 0, theQuestionnaire, nest_level+1);
+				l_user_input, /* last_question_visited */ empty_vec,
+				/* jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	cout << "finished qnre: exiting ..." << endl;
 	cout << "commented out prompt_user_for_serial_no" << endl;
 	//prompt_user_for_serial_no (callback_get_ser_no_from_ui, nest_level + 1);
@@ -49,11 +53,13 @@ int callback_get_ser_no_from_ui (int p_ser_no, int nest_level, char * survey_dat
 
 
 void parse_input_data(vector<int> * data_ptr, int & success);
-void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
-void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+//void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
+//void eval_single_question_logic_with_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level);
 
 
-void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+void callback_ui_input (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	//cout << __PRETTY_FUNCTION__ << endl;
 	printf("%s\n", __PRETTY_FUNCTION__);
@@ -63,11 +69,26 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 	if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 		question_eval_loop2 (
 				p_user_input,
-				/* last_question_visited */ q,
+				/* last_question_visited */ q_vec,
 				/*  jump_to_question */ 0, theQuestionnaire, nest_level + 1);
 	} else if (p_user_input.theUserResponse_ == user_response::UserEnteredData) {
+		vector <string> err_mesg_vec;
 		cout << "mode: user_response::UserEnteredData" << endl;
-		eval_single_question_logic_with_input (p_user_input, q, theQuestionnaire, nest_level + 1);
+		bool all_questions_success =
+			eval_single_question_logic_with_input (p_user_input,
+					q_vec, theQuestionnaire,
+					nest_level + 1, err_mesg_vec);
+		if (all_questions_success) {
+			question_eval_loop2 (p_user_input, q_vec, 0, theQuestionnaire, nest_level + 1);
+			cout << __PRETTY_FUNCTION__ << " - case UserEnteredData - success, invoking question_eval_loop2"
+					<< endl;
+		} else {
+			// in the event driven loop - just return
+			// we need to pass the error messages back
+			// so should make that a parameter to this
+			// function
+			return;
+		}
 	} else if (p_user_input.theUserResponse_ == user_response::UserSavedData) {
 		cout << "under stdout either the user can enter data or navigation" << endl
 			<< "but under ncurses or other guis - it's possible to enter data" << endl
@@ -86,7 +107,7 @@ void callback_ui_input (UserInput p_user_input, AbstractRuntimeQuestion * q, str
 
 void question_eval_loop2 (
 	UserInput p_user_input,
-	AbstractRuntimeQuestion * last_question_visited,
+	const vector<AbstractRuntimeQuestion *> & last_question_visited,
 	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
@@ -114,24 +135,26 @@ void question_eval_loop2 (
 	}
 
 
-	cout
-		<< "p_user_input.questionResponseData_:"
-		<< p_user_input.questionResponseData_ << endl;
+	//cout << "p_user_input.questionResponseData_:" << p_user_input.questionResponseData_ << endl;
 
-	if (last_question_visited) {
+	if (last_question_visited.size() > 0) {
 		//cout << "last_question_visited->questionName_:"
 		//	<<  last_question_visited->questionName_
 		//	<< endl;
-		printf ("last_question_visited->questionName_:%s\n", last_question_visited->questionName_.c_str());
+		printf ("last_question_visited->questionName_:%s\n",
+				last_question_visited[0]->questionName_.c_str());
 	} else {
 		//cout << "last_question_visited->questionName_: is NULL"  << endl;
 		printf ("last_question_visited->questionName_ is NULL\n");
 	}
 
-	if (last_question_visited) {
+	if (last_question_visited.size() > 0) {
 		if (p_user_input.theUserResponse_ == user_response::UserEnteredNavigation) {
 			if (p_user_input.userNavigation_ == NAVIGATE_PREVIOUS) {
-				//fprintf(qscript_stdout, "user_navigation == NAVIGATE_PREVIOUS\n");
+				//fprintf(qscript_stdout, "user_navigation == NAVIGATE_PREVIOUS unhandled\n");
+				printf("%s, %s, %d, user_navigation == NAVIGATE_PREVIOUS unhandled\n",
+						__PRETTY_FUNCTION__, __FILE__, __LINE__);
+#if 0
 				AbstractRuntimeQuestion *target_question =
 					theQuestionnaire->ComputePreviousQuestion(last_question_visited);
 				if (target_question == 0) {
@@ -139,6 +162,8 @@ void question_eval_loop2 (
 				} else {
 					stdout_eval (target_question, theQuestionnaire, callback_ui_input, nest_level + 1);
 				}
+#endif /* 0 */
+				return;
 			} else if (p_user_input.userNavigation_ == NAVIGATE_NEXT) {
 				// do nothing
 				// once we exit this major block == last_question_visited
@@ -163,18 +188,19 @@ void question_eval_loop2 (
 		}
 	} // else {
 	// should reach here - end of :
-		AbstractRuntimeQuestion * q =
+		vector<AbstractRuntimeQuestion *> q_vec =
 			theQuestionnaire->eval2 (
 			NAVIGATE_NEXT, last_question_visited, jump_to_question);
-		if (!q) {
+		if (q_vec.size() == 0) {
 			printf(" eval2 has returned NULL => End of qnre();\n");
 			show_end_of_qnre_page();
 		} else {
-			printf(" eval2 has returned q: %s\n", q->questionName_.c_str());
+			printf(" eval2 has returned first q in vec: %s\n", q_vec[0]->questionName_.c_str());
 			//cout << __PRETTY_FUNCTION__ << "," << __LINE__ <<  ", eval2 return q = "
 			//	<< q->questionName_ << endl;
 			//string qnre_data = theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
-			const int MAX_DATAFILE_SIZE = 100000;
+			/*
+			const int MAX_DATAFILE_SIZE = 50000;
 			char buffer[MAX_DATAFILE_SIZE]; int n_left = MAX_DATAFILE_SIZE;
 			char * buffer_start_ptr = buffer;
 			//string qnre_data = theQuestionnaire->write_data_to_disk (theQuestionnaire->question_list, theQuestionnaire->jno, theQuestionnaire->ser_no);
@@ -187,22 +213,23 @@ void question_eval_loop2 (
 						theQuestionnaire->ser_no,
 						buffer_start_ptr,
 						n_left);
+			*/
 			//save_qnre_data (buffer);
-			stdout_eval (q, theQuestionnaire, callback_ui_input, nest_level + 1);
+			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level + 1);
 		}
 	//}
 }
 
 void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion * last_question_visited)
 {
-	qnre->last_question_visited = last_question_visited;
+	qnre->last_question_visited[qnre->last_question_visited.size()-1] = last_question_visited;
 }
 
 extern "C" {
 
 void callback_return_serial (int serial_no, char * survey_data)
 {
-	printf ("Got a serial no from the DOM: %d, survey_data: %s\n", serial_no, survey_data);
+	printf ("Got a serial no from the DOM: %d, survey_data: |%s|\n", serial_no, survey_data);
 	//TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
 	callback_get_ser_no_from_ui (serial_no, 1, survey_data);
 }
@@ -214,9 +241,8 @@ void called_from_the_dom (char * data)
 	//printf ("data from the browser dom callback: %s\n", data);
 	printf ("hello called_from_the_dom\n");
 	printf ("data: %s\n", data);
-	printf ("last_question_visited: %s\n",
-		AbstractQuestionnaire::qnre_ptr->last_question_visited->questionName_.c_str());
-	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited;
+	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
+	printf ("last_question_visited: %s\n", q->questionName_.c_str());
 	// hard code the answers - Proof of concept testing
 	// Can we really load the next question on the interface using this callback system?
 	//q->isAnswered_ = true;
@@ -226,7 +252,7 @@ void called_from_the_dom (char * data)
 	//user_input.questionResponseData_ = "1";
 	UserInput user_input;
 	user_input.theUserResponse_ = user_response::UserEnteredData;
-	user_input.questionResponseData_ = data;
+	user_input.questionResponseDataVec_.push_back(data);
 	string err_mesg;
 	bool valid_input = q->VerifyResponse(user_input.theUserResponse_, user_input.userNavigation_, err_mesg);
 	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
@@ -246,7 +272,9 @@ void called_from_the_dom (char * data)
 		} else {
 			cout << "reached here: "
 				<< __PRETTY_FUNCTION__ << endl;
-			callback_ui_input (user_input, q, l_qnre_ptr, 1);
+			callback_ui_input (user_input,
+					AbstractQuestionnaire::qnre_ptr->last_question_visited,
+					l_qnre_ptr, 1);
 			cout << "callback_ui_input has returned"
 				<< __PRETTY_FUNCTION__ << endl;
 		}

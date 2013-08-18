@@ -42,7 +42,7 @@ struct AbstractQuestionnaire
 {
 	static AbstractQuestionnaire * qnre_ptr;
 	AbstractRuntimeQuestion * last_question_answered;
-	AbstractRuntimeQuestion * last_question_visited;
+	std::vector<AbstractRuntimeQuestion *> last_question_visited;
 	std::vector <AbstractRuntimeQuestion*> question_list;
 	std::fstream messages;
 	bool back_jump;
@@ -59,8 +59,8 @@ struct AbstractQuestionnaire
 	//void print_summary_axis (std::vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);
 
 	//virtual void compute_flat_file_map_and_init() = 0;
-	virtual AbstractRuntimeQuestion * eval2 (UserNavigation p_navigation_mode,
-				AbstractRuntimeQuestion * p_last_question_visited,
+	virtual vector<AbstractRuntimeQuestion *> eval2 (UserNavigation p_navigation_mode,
+				const vector<AbstractRuntimeQuestion *> & p_last_question_visited,
 				AbstractRuntimeQuestion * p_jump_to_index) = 0;
 	void write_data_to_disk(const std::vector<AbstractRuntimeQuestion*>& q_vec
 		, std::string jno

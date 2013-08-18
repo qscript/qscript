@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <dirent.h>
+#include <set>
 
 #include "question_stdout_runtime.h"
 #include "named_range.h"
@@ -36,32 +37,6 @@
 
 extern "C" {
 
-#if 0
-void called_from_the_dom (char * data)
-{
-	//emscripten_pause_main_loop();
-	//emscripten_resume_main_loop();
-	//printf ("data from the browser dom callback: %s\n", data);
-	printf ("hello called_from_the_dom\n");
-	printf ("data: %s\n", data);
-	printf ("last_question_visited: %s\n",
-		AbstractQuestionnaire::qnre_ptr->last_question_visited->questionName_.c_str());
-	// hard code the answers - Proof of concept testing
-	// Can we really load the next question on the interface using this callback system?
-	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited;
-	q->isAnswered_ = true;
-	q->input_data.insert (2);
-	UserInput user_input;
-	user_input.theUserResponse_ = user_response::UserEnteredData;
-	user_input.questionResponseData_ = "1";
-	void question_eval_loop2 (
-		UserInput p_user_input,
-		AbstractRuntimeQuestion * last_question_visited,
-		AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
-	TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
-	question_eval_loop2 (user_input, q, 0, l_qnre_ptr, /*nest_level + */ 1);
-}
-#endif /* 0 */
 
 
 int32_t main(int argc, char * argv[]);
@@ -113,7 +88,7 @@ void setup_ui (int argc, char * argv[] )
 }
 
 
-vector<string> PrepareQuestionText (AbstractRuntimeQuestion *q)
+vector<string> PrepareQuestionText (const AbstractRuntimeQuestion *q)
 {
 	using std::string;
 	using std::stringstream;
@@ -231,13 +206,14 @@ void DisplayStubs (AbstractRuntimeQuestion *q)
 {
 	string marker_start ("------------------------------- STUBS ------------------------------------");
 	string marker_end   ("----------------------------- STUBS END ----------------------------------");
-	cout << marker_start << endl;
+	printf ("%s\n", marker_start.c_str());
 	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*> (q) ) {
 		vector<stub_pair> & vec= (nq->nr_ptr->stubs);
 		for (int i=0; i<vec.size(); ++i) {
 			if( vec[i].mask) {
-				cout 	<< vec[i].code << " : " << vec[i].stub_text
-					<< endl;
+				//cout 	<< vec[i].code << " : " << vec[i].stub_text
+				//	<< endl;
+				printf ("%d : %s\n", vec[i].code, vec[i].stub_text.c_str() );
 			}
 		}
 	} else if (RangeQuestion * rq = dynamic_cast<RangeQuestion*> (q) ) {
@@ -256,7 +232,8 @@ void DisplayStubs (AbstractRuntimeQuestion *q)
 		cerr << "Unhandled exception" << endl;
 		exit(1);
 	}
-	cout << marker_end << endl;
+	//cout << marker_end << endl;
+	printf ("%s\n", marker_end.c_str());
 }
 
 /*
@@ -286,11 +263,14 @@ typedef void (*callback_ui_input_t) (UserInput * p_user_input);
 // Any control flow logic that appears here is a mistake in my programming
 // and needs to be fixed
 void GetUserInput (
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
+	void (*callback_ui_input) (UserInput p_user_input,
+		const vector<AbstractRuntimeQuestion *> & q_vec,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		AbstractRuntimeQuestion *q, struct TheQuestionnaire * theQuestionnaire, int nest_level)
+	const vector <AbstractRuntimeQuestion *> & q_vec,
+	struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	cout << __PRETTY_FUNCTION__ << ", nest_level: " << nest_level << endl;
+#if 0
 	if (q->no_mpn == 1) {
 		cout << " Question is single answer, please enter only 1 response." << endl;
 	} else {
@@ -400,6 +380,7 @@ void GetUserInput (
 		// I have to change this
 		GetUserInput (callback_ui_input, q, theQuestionnaire, nest_level);
 	}
+#endif /* 0 */
 }
 
 void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
@@ -417,17 +398,88 @@ void DisplayCurrentAnswers (AbstractRuntimeQuestion * q)
 	cout << end_marker << endl;
 }
 
+void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec)
+{
+	stringstream question_json_string;
+	question_json_string << "[" << endl;
+	stringstream stub_json_string;
+	stub_json_string << "[" << endl;
+	set<string> stub_name_set;
+	bool output_comma = false;
+	for (int32_t i=0; i < q_vec.size(); ++i ) {
+		if (i > 0) {
+			question_json_string << ", ";
+		}
+		if (/*i > 0 &&*/ output_comma == true) {
+			stub_json_string << ", ";
+			output_comma = false;
+		}
+		const AbstractRuntimeQuestion* q = q_vec[i];
+		printf ("question: %s\n", q->questionName_.c_str());
+		vector <string> qno_and_qtxt = PrepareQuestionText (q);
+		string question_display_text = DisplayQuestionTextView (qno_and_qtxt);
 
-void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQuestionnaire,
-	void (*callback_ui_input) (UserInput p_user_input, AbstractRuntimeQuestion * q,
-					struct TheQuestionnaire * theQuestionnaire,
-					int nest_level),
+		question_json_string << "{"
+			<< "\"qno\":\"" << qno_and_qtxt[0] << "\"," << endl
+			<< "\"question_text_arr\": [";
+		for (int i=1; i <qno_and_qtxt.size(); ++i) {
+			if (i > 1) {
+				question_json_string << ", ";
+			}
+			question_json_string
+				<< "\"" << qno_and_qtxt[i] << "\"";
+		}
+		question_json_string
+			<< "]" << endl
+			<< ", \"question_type\":";
+
+		stringstream s;
+		string question_type;
+		if (const NamedStubQuestion * nq = dynamic_cast <const NamedStubQuestion*> (q)) {
+			//nq->nr_ptr->Serialize (writer);
+			nq->nr_ptr->toString(s);
+			//std::string str = s.GetString();
+			//cout << s.str() << endl;
+			printf ("stubs : %s\n", s.str().c_str() );
+			if (stub_name_set.find (nq->nr_ptr->name) == stub_name_set.end()) {
+				question_type = "nq";
+				question_json_string
+					<< " \"nq\"" << endl
+					<< ", \"stub_name\" : \""
+					<< nq->nr_ptr->name.c_str() << "\"";
+				stub_json_string << s.str() << endl;
+				stub_name_set.insert (nq->nr_ptr->name);
+				output_comma = true;
+			}
+		} else {
+			question_type = "rq";
+			question_json_string << " \"rq\"";
+		}
+		question_json_string << endl <<"}" << endl;
+		//print_to_stub_area (question_type.c_str(),
+		//	q->no_mpn,
+		//	s.str().c_str(), ++counter);
+	}
+	question_json_string << "]" << endl;
+	stub_json_string << "]" << endl;
+	printf ("question_json_string: %s\n", question_json_string.str().c_str());
+	printf ("stub_json_string: %s\n", stub_json_string.str().c_str());
+}
+
+
+void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
+	struct TheQuestionnaire * theQuestionnaire,
+	void (*callback_ui_input)
+		(UserInput p_user_input, const vector <AbstractRuntimeQuestion *> & q_vec,
+		struct TheQuestionnaire * theQuestionnaire, int nest_level),
 	int nest_level
 	)
 {
+	//cout << __PRETTY_FUNCTION__ << " nest_level : " << nest_level << endl;
+	printf ("Enter: %s\n", __PRETTY_FUNCTION__);
 	static int counter = 0; // for unique ids in web browser
-	cout << __PRETTY_FUNCTION__ << " nest_level : " << nest_level << endl;
 	ClearPreviousView ();
+	AbstractRuntimeQuestion * q= q_vec[0];
 	vector <string> qno_and_qtxt = PrepareQuestionText (q);
 	string question_display_text = DisplayQuestionTextView (qno_and_qtxt);
 	PrepareStubs (q);
@@ -436,17 +488,6 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	print_to_question_area (question_display_text.c_str());
 
 
-#if 0
-	using namespace rapidjson;
-
-	FileStream s(stdout);
-	PrettyWriter<FileStream> writer(s);		// Can also use Writer for condensed formatting
-
-	/* crashes in emscripten
-	GenericStringBuffer<UTF8<> > s;
-	PrettyWriter<GenericStringBuffer<UTF8<> > > writer(s);		// Can also use Writer for condensed formatting
-	*/
-#endif
 	stringstream s;
 	string question_type;
 	if (NamedStubQuestion * nq = dynamic_cast <NamedStubQuestion*> (q)) {
@@ -464,7 +505,8 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 
 	void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion * last_question_visited);
 	// I couldnt be bothered to make this a virtual function
-	set_last_visited (theQuestionnaire, q);
+	printf ("FIX BELOW IF NECESSARY: %s\n", __PRETTY_FUNCTION__);
+	//set_last_visited (theQuestionnaire, q);
 	//theQuestionnaire->q
 	//theQuestionnaire->last_question_visited = q;
 
@@ -476,6 +518,8 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 
 	//static int i;
 	//i += 10;
+	ConstructQuestionForm (q_vec);
+	printf ("Exit: %s\n", __PRETTY_FUNCTION__);
 }
 
 int process_options(int argc, char * argv[]);

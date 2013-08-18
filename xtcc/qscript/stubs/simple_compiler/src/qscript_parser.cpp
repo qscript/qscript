@@ -1613,7 +1613,9 @@ void CompileGeneratedCodeEmscripten(const string & src_file_name)
 
 	string emscripten_cc_intermediate_file_cmd =
 		  "emcc -Wunused-function -I" + QSCRIPT_INCLUDE_DIR
-		+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ");
+		+ " -s EXPORTED_FUNCTIONS=\"['_called_from_the_dom','_callback_return_serial']\" "
+		+ " -O2 -c " + intermediate_cpp_file_name2 + string(" ")
+		;
 	cout << "intermediate cpp_compile_command: " << endl << emscripten_cc_intermediate_file_cmd << endl;
 	ret_val = system(emscripten_cc_intermediate_file_cmd.c_str());
 	if (ret_val != 0) {

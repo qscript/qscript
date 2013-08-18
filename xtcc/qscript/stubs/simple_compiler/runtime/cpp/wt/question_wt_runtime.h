@@ -148,7 +148,7 @@ public:
 	void handleDataInput();
 	void handleSave();
 	UIReturnValue handleRBDataInput (int nest_level, int form_index);
-	void handleCBDataInput (int nest_level);
+	UIReturnValue handleCBDataInput (int nest_level, int form_index);
 	void handleRangeQuestionData (int nest_level);
 	void print_ui_error_message (string & err_mesg);
 
