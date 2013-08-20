@@ -8,7 +8,7 @@ print_to_question_area: function (question_text_ptr)
 	my_log(" question_text_ptr:" + the_question_text);
 	var v = document.getElementById("question_text_area");
 	var html = "<span deftext=\"true\" data-deftext=\"true\" id=\"lang_qtxt\" lang=\"en\">" + the_question_text + "</span>";
-	if (v != null) {
+	if (v !== null) {
 		v.innerHTML = html;
 	} else {
 		my_log ("failed to get html element question_text_area");
@@ -171,6 +171,19 @@ show_end_of_qnre_page: function() {
 	question_view.style.display = "none";
 	var thank_you_screen = document.getElementById("thank_you_screen");
 	thank_you_screen.style.display = "block";
+},
+
+create_question_form: function(question_json_ptr, stubs_json_ptr) {
+	my_log ("Entered: create_question_form");
+	var question_data = Pointer_stringify (question_json_ptr);
+	my_log ("question_data: " + question_data);
+	var stubs_data = Pointer_stringify (stubs_json_ptr);
+	my_log ("stub_data: " + stubs_data);
+	var questions_obj_arr = JSON.parse(question_data);
+	my_log ("parsed question_data");
+	var stubs_obj_arr = JSON.parse(stubs_data);
+	my_log ("parsed stub_data");
+	ui_create_question_form (questions_obj_arr, stubs_obj_arr);
 }
 
 });

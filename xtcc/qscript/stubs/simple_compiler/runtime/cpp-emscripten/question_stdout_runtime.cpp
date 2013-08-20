@@ -431,6 +431,7 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec)
 		}
 		question_json_string
 			<< "]" << endl
+			<< ", \"no_mpn\":" << q->no_mpn
 			<< ", \"question_type\":";
 
 		stringstream s;
@@ -464,6 +465,11 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec)
 	stub_json_string << "]" << endl;
 	printf ("question_json_string: %s\n", question_json_string.str().c_str());
 	printf ("stub_json_string: %s\n", stub_json_string.str().c_str());
+
+	printf ("before call to create_question_form\n");
+	create_question_form (question_json_string.str().c_str(),
+				stub_json_string.str().c_str());
+	printf ("after call to create_question_form\n");
 }
 
 

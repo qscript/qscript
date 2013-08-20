@@ -14,7 +14,7 @@ q1	 "Age"
 
 stubs gen=
 	"Male " 1
-	"FeMale " 2;
+	"Female " 2;
 
 q2 	"Gender"
 	sp int32_t gen;
@@ -38,5 +38,69 @@ stubs educ=
 
 q3 	"Please tell us the highest level of Education that you have achieved"
 	sp int32_t educ;
+
+	page att_batt1 {
+
+	named_attribute veg_seg_att = " Vegetables are good for health",
+				" I buy fresh vegetables often",
+				" Greens are good source of dietary fibre",
+				" I would like to be vegetarian some day"
+				;
+
+
+stubs agree_5 = 
+	"Agree strongly" 5
+	"Agree somewhat" 4
+	"Neutral" 3
+	"Disagree " 2
+	"Disagree strongly" 1;
+
+q4_0		"Please state your agreement with these statements" : veg_seg_att[0]
+		sp int32_t agree_5;
+
+q4_1		"Please state your agreement with these statements" : veg_seg_att[1]
+		sp int32_t agree_5;
+
+q4_2		"Please state your agreement with these statements" : veg_seg_att[2]
+		sp int32_t agree_5;
+
+q4_3		"Please state your agreement with these statements" : veg_seg_att[3]
+		sp int32_t agree_5;
+
+	}
+
+	page brd_assoc {
+
+	named_attribute veg_brd_stmt =
+		"Uses latest techniques for growing vegetables in a safe, organic environment",
+		"Has good facilities to main temperature and handling of vegetables in transport ",
+		"Committed to environment",
+		"Uses sustainable farming methods";
+
+	stubs org_veg_brds=
+		"Org 1 Brand" 1
+		"Org 2 Brand" 2
+		"Org 3 Brand" 3
+		"Org 4 Brand" 4
+		"Org 5 Brand" 5
+		"Org 6 Brand" 6;
+
+q5_0		"Which of these brands would you associate with these statements"
+		: veg_brd_stmt[0]
+		mp(5) int32_t org_veg_brds;
+
+q5_1		"Which of these brands would you associate with these statements"
+		: veg_brd_stmt[1]
+		mp(5) int32_t org_veg_brds;
+
+q5_2		"Which of these brands would you associate with these statements"
+		: veg_brd_stmt[2]
+		mp(5) int32_t org_veg_brds;
+
+q5_3		"Which of these brands would you associate with these statements"
+		: veg_brd_stmt[3]
+		mp(5) int32_t org_veg_brds;
+
+	}
 
 }

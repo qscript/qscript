@@ -101,4 +101,173 @@
 	my_log ("created handleStartSurveyButton function");
 /* handleStartSurveyButton  }}}2 */
 
+	function analyse_page_structure (questions_obj_arr, stubs_obj_arr) {
+		var result;
+		if (questions_obj_arr.length == 1) {
+			result = "single_question";
+		} else if (questions_obj_arr.length > 0) {
+			if (stubs_obj_arr.length == 1) {
+				result = "grid_question";
+			} else {
+				result = "multiple_questions_per_page";
+			}
+		}
+		return result;
+	}
+
+	function create_multiple_questions_view (questions_obj_arr, stubs_obj_arr) {
+		my_log ("Enter:  create_multiple_questions_view" );
+		var new_question_view = document.getElementById("new_question_view");
+		new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
+
+		var questions_view_frag = document.createDocumentFragment();
+		var a_question_div, question_title_div, question_stubs_div, curr_question_obj;
+		for (var i = 0; i < questions_obj_arr.length;  ++i) {
+			curr_question_obj = questions_obj_arr[i];
+
+			question_title_div = document.createElement("div");
+			question_title_div.innerHTML = "<p>" + curr_question_obj.qno + "</p>";
+			my_log ("curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
+			for (var j = 0; j < curr_question_obj.question_text_arr.length; ++j) {
+				var question_text = curr_question_obj.question_text_arr[j];
+				question_title_div.innerHTML += "<p>" + question_text + "</p>";
+			}
+			my_log ("after curr_question_obj.no curr_question_obj.question_text_arr.length: " + curr_question_obj.question_text_arr.length);
+			question_stubs_div = document.createElement("div");
+			//question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
+			var stubs_doc_frag = get_stubs_display_view (curr_question_obj, stubs_obj_arr);
+			question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
+			//question_stubs_div.innerHTML += "<p>" + stubs_doc_frag + "</p>";
+			question_stubs_div.appendChild (stubs_doc_frag);
+			// my_log ("stubs_doc_frag: " + stubs_doc_frag);
+			// my_log ("question_stubs_div: " + question_stubs_div);
+			// my_log ("question_stubs_div.outerHTML: " + question_stubs_div.outerHTML);
+			// my_log ("question_stubs_div.outerText: " + question_stubs_div.outerTEXT);
+			
+			a_question_div = document.createElement("div");
+			my_log ("after create a_question_div" );
+			//a_question_div.innerHTML = question_title_div.outerHTML + question_stubs_div.outerHTML;
+			a_question_div.appendChild (question_title_div);
+			a_question_div.appendChild (question_stubs_div);
+			questions_view_frag.appendChild(a_question_div);
+		}
+		new_question_view.appendChild (questions_view_frag);
+		//$( '#stubs_form_div' ).trigger( 'create' );
+		$( '#new_question_view' ).trigger( 'create' );
+		my_log ("Exit: create_multiple_questions_view");
+	}
+
+	function create_grid_questions_view (questions_obj_arr, stubs_obj_arr) {
+		my_log ("Enter: create_multiple_questions_view" );
+		var new_question_view = document.getElementById("new_question_view");
+		new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
+		$( '#stubs_form_div' ).trigger( 'create' );
+		my_log ("Exit: create_multiple_questions_view"  );
+	}
+
+
+	function get_stubs_display_view (question_obj, stubs_obj_arr) {
+		my_log ("Enter: get_stubs_display_view: question_obj.no_mpn" + question_obj.no_mpn);
+		question_type = question_obj.question_type;
+		my_log ("After question_type.question_type");
+		var doc_frag2 = document.createDocumentFragment();
+		if (question_type === "nq") {
+			//var res2 = JSON.parse(json_rep2);
+			var res2 = null;
+			for (var tmp_i = 0; tmp_i < stubs_obj_arr.length; ++tmp_i) {
+				if (stubs_obj_arr[tmp_i].name == question_obj.stub_name) {
+					res2 = stubs_obj_arr[tmp_i];
+					break;
+				}
+			}
+			if (res2 === null) {
+				my_log ("Internal error in survey: did not find stubs for :" + question_obj.qno);
+			}
+			my_log ("assigned res2 , length:" + res2.stubs.length);
+			//alert (res2.name);
+			//alert (res2.stubs);
+			var my_li = null;
+			for (var i=0; i<res2.stubs.length;  ++i) {
+				my_log ("looping i = " + i);
+				if (res2.stubs[i].mask == 1) {
+					var input   = document.createElement("input");
+					my_log ("after document.createElement i = " + i);
+					if (question_obj.no_mpn == 1) {
+						input.type  = "radio";
+						input.setAttribute("data-dojo-type", "dojox/mobile/RadioButton");
+					} else {
+						input.type  = "checkbox";
+						input.setAttribute("data-dojo-type", "dojox/mobile/CheckBox");
+						input.style.class="custom";
+					}
+					my_log ("created input i = " + i);
+					//input.name  = "stub_response";
+					input.name  = "radio-choice";
+					input.value = res2.stubs[i].stub_code;
+					my_log ("after setting input.value i = " + i);
+					//var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
+					var id_text = res2.name + res2.stubs[i].stub_code ;
+					//alert("id_text: " + id_text);
+					input.id  = id_text;
+					//alert ("id_text:" + id_text);
+					var input_label   = document.createElement("label");
+					input_label.innerHTML = res2.stubs[i].stub_text;
+					input_label.setAttribute("for", id_text);
+					my_li = document.createElement("li");
+					my_li.appendChild(input);
+					my_li.appendChild(input_label);
+					my_li.setAttribute("data-dojo-type", "dojox/mobile/ListItem");
+					doc_frag2.appendChild(my_li);
+				}
+			}
+
+			/*
+			//var stubs_form_div = document.getElementById("stubs_form_div");
+			{
+				var n_child_nodes = stubs_form_div.childNodes.length;
+				//alert ( "stubs_form_div.childNodes.length: " + stubs_form_div.childNodes.length);
+				//alert ("n_child_nodes:" + n_child_nodes);
+				for (var i1 = n_child_nodes-1; i1 >= 0; --i1) {
+					stubs_form_div.removeChild(stubs_form_div.childNodes[i1]);
+				}
+			}
+			//alert("cleared all childNodes of stubs_form_div");
+			*/
+			//clear_prev_node_sub_child (stubs_form_div);
+
+			//stubs_form_div.appendChild(doc_frag2);
+
+
+
+		} else {
+			var input_text = document.createElement("input");
+			input_text.type  = "text";
+			doc_frag2.appendChild(input_text);
+			input_text.setAttribute("data-dojo-type", "dojox/form/TextBox");
+			//clear_prev_node_sub_child (stubs_form_div);
+			//stubs_form_div.appendChild(doc_frag2);
+		}
+		// move this to the function that renders the view
+		// $( '#stubs_form_div' ).trigger( 'create' );
+		my_log ("Exit: get_stubs_display_view");
+		return doc_frag2;
+	}
+
+
+	function ui_create_question_form (questions_obj_arr, stubs_obj_arr) {
+		my_log ("Entered: ui_create_question_form questions_obj_arr:" + questions_obj_arr);
+
+		var result = analyse_page_structure (questions_obj_arr, stubs_obj_arr);
+		if (result == "single_question") {
+			create_multiple_questions_view (questions_obj_arr, stubs_obj_arr);
+		} else if (result == "multiple_questions_per_page") {
+			create_multiple_questions_view (questions_obj_arr, stubs_obj_arr);
+		} else if (result == "grid_question") {
+			create_grid_questions_view (questions_obj_arr, stubs_obj_arr);
+		} else {
+			my_log ("unhandled case - analyse_page_structure");
+		}
+		my_log ("Exited: ui_create_question_form stubs_obj_arr:" + stubs_obj_arr);
+	}
+
 	my_log ("Finished loading our_ui.js");

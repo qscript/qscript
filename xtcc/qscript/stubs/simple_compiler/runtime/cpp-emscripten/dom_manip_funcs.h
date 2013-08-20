@@ -8,6 +8,7 @@ void print_to_stub_area (const char * question_type, int no_mpn, const char * st
 void save_qnre_data(char * qnre_data);
 void show_end_of_qnre_page();
 //void print_to_question_response_area(const char * question_text_ptr);
+void create_question_form (const char * question_json_ptr, const char * stub_json_ptr);
 
 }
 
