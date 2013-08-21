@@ -18,8 +18,21 @@
 		//Module.setValue (data_for_cpp, returnValue, "i8*");
 		called_from_the_dom(returnValue);
 	});
-	//my_log ("created submit handler function");
 	/* Next Question Button }}}2 */
+
+	/* newNextQ Button {{{2 */
+	var newNextQ= document.getElementById("newNextQ");
+	EventUtil.addHandler (newNextQ, "click", function(event) {
+		my_log ("Enter newNextQ");
+		var called_from_the_dom = Module.cwrap ('called_from_the_dom', 'void', ['string']);
+		//console.log("newNextQ called");
+		var returnValue = new_serialize ();
+		my_log ("new_serialize done");
+		called_from_the_dom(returnValue.join("|"));
+		my_log ("Exit newNextQ");
+	});
+	//my_log ("created submit handler function");
+	/* newNextQ Button }}}2 */
 
 /* handleStartSurveyButton  {{{2 */
 	var return_serial_no_button = document.getElementById("btn_return_serial_no");
@@ -121,7 +134,7 @@
 		new_question_view.innerHTML = "<p>" + "from ui_create_question_form with love" + "</p>";
 
 		var questions_view_frag = document.createDocumentFragment();
-		var a_question_div, question_title_div, question_stubs_div, curr_question_obj;
+		var a_question_div, question_title_div, question_stubs_div, curr_question_obj, question_stubs_form;
 		for (var i = 0; i < questions_obj_arr.length;  ++i) {
 			curr_question_obj = questions_obj_arr[i];
 
@@ -139,6 +152,10 @@
 			question_stubs_div.innerHTML = "<p>" + curr_question_obj.stub_name + "</p>";
 			//question_stubs_div.innerHTML += "<p>" + stubs_doc_frag + "</p>";
 			question_stubs_div.appendChild (stubs_doc_frag);
+			question_stubs_form = document.createElement("form");
+			question_stubs_form.name = "form_" + curr_question_obj.qno;
+			question_stubs_form.id = "id_form_" + curr_question_obj.qno;
+			question_stubs_form.appendChild (question_stubs_div);
 			// my_log ("stubs_doc_frag: " + stubs_doc_frag);
 			// my_log ("question_stubs_div: " + question_stubs_div);
 			// my_log ("question_stubs_div.outerHTML: " + question_stubs_div.outerHTML);
@@ -148,7 +165,7 @@
 			my_log ("after create a_question_div" );
 			//a_question_div.innerHTML = question_title_div.outerHTML + question_stubs_div.outerHTML;
 			a_question_div.appendChild (question_title_div);
-			a_question_div.appendChild (question_stubs_div);
+			a_question_div.appendChild (question_stubs_form);
 			questions_view_frag.appendChild(a_question_div);
 		}
 		new_question_view.appendChild (questions_view_frag);
@@ -169,7 +186,7 @@
 	function get_stubs_display_view (question_obj, stubs_obj_arr) {
 		my_log ("Enter: get_stubs_display_view: question_obj.no_mpn" + question_obj.no_mpn);
 		question_type = question_obj.question_type;
-		my_log ("After question_type.question_type");
+		//my_log ("After question_type.question_type");
 		var doc_frag2 = document.createDocumentFragment();
 		if (question_type === "nq") {
 			//var res2 = JSON.parse(json_rep2);
@@ -183,15 +200,15 @@
 			if (res2 === null) {
 				my_log ("Internal error in survey: did not find stubs for :" + question_obj.qno);
 			}
-			my_log ("assigned res2 , length:" + res2.stubs.length);
+			//my_log ("assigned res2 , length:" + res2.stubs.length);
 			//alert (res2.name);
 			//alert (res2.stubs);
 			var my_li = null;
 			for (var i=0; i<res2.stubs.length;  ++i) {
-				my_log ("looping i = " + i);
+				//my_log ("looping i = " + i);
 				if (res2.stubs[i].mask == 1) {
 					var input   = document.createElement("input");
-					my_log ("after document.createElement i = " + i);
+					//my_log ("after document.createElement i = " + i);
 					if (question_obj.no_mpn == 1) {
 						input.type  = "radio";
 						input.setAttribute("data-dojo-type", "dojox/mobile/RadioButton");
@@ -200,11 +217,11 @@
 						input.setAttribute("data-dojo-type", "dojox/mobile/CheckBox");
 						input.style.class="custom";
 					}
-					my_log ("created input i = " + i);
+					//my_log ("created input i = " + i);
 					//input.name  = "stub_response";
 					input.name  = "radio-choice";
 					input.value = res2.stubs[i].stub_code;
-					my_log ("after setting input.value i = " + i);
+					//my_log ("after setting input.value i = " + i);
 					//var id_text = res2.name + res2.stubs[i].stub_code + "_" + counter;
 					var id_text = res2.name + res2.stubs[i].stub_code ;
 					//alert("id_text: " + id_text);
@@ -269,5 +286,84 @@
 		}
 		my_log ("Exited: ui_create_question_form stubs_obj_arr:" + stubs_obj_arr);
 	}
+
+
+	function serialize (form) {
+		my_log("Enter: serialize");
+		var parts = new Array();
+		var field = null;
+		for (var i=0; i < form.elements.length; ++i ) {
+			field = form.elements[i];
+			switch (field.type) {
+			case "radio":
+				my_log ("case radio");
+				if (field.checked) {
+					parts.push(field.value);
+				}
+			break;
+			case "checkbox":
+				my_log ("case checkbox");
+				if (field.checked) {
+					parts.push(field.value);
+				}
+			break;
+			case "text":
+				my_log ("case text");
+				if (global_survey_related_info.question_type != "nq" &&
+					global_survey_related_info.no_mpn == 1) {
+					parts.push(field.value);
+				} else {
+					my_log ("trying to save verbatim file: verbatim is:" + field.value);
+					parts.push("96"); // dummy value
+					// Initiate file saving here
+					/* Comment out - when running in browser
+					 * enable for cordova
+					global_survey_related_info.current_verbatim_data = field.value;
+					if (save_verbatim_data) {
+						my_log ("save_verbatim_data:" + save_verbatim_data);
+					}
+					if (fail_to_write_file) {
+						my_log ("fail_to_write_file:" + fail_to_write_file);
+					}
+					my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+					if (global_survey_related_info.verbatim_data_file_handle) {
+						my_log ("verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
+						my_log ("testing for createWriter:");
+						if (global_survey_related_info.verbatim_data_file_handle.createWriter) {
+							my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: exists");
+						} else {
+							my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: does not exist");
+						}
+						my_log ("after createWriter:");
+					} else {
+						my_log ("verbatim_data_file_handle: is null");
+					}
+					global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
+					*/
+				}
+			break;
+			}
+		}
+		var return_value = parts.join(" ");
+		my_log("Exiting: serialize return_value:" + return_value);
+		//return parts.join(" ");
+		return return_value;
+	}
+
+
+	function new_serialize () {
+		my_log("Enter: new_serialize");
+		var form_data_arr = [];
+		for (var i = 0; i < document.forms.length;  ++i) {
+			var form_serialized_data = serialize (document.forms[i]);
+			//console.log ("form_serialized_data:" );
+			my_log ("form_serialized_data:" + form_serialized_data);
+			form_data_arr.push (form_serialized_data);
+			my_log ("finished loop iter i== " + i);
+		}
+		my_log("Exit: new_serialize");
+		return form_data_arr;
+	}
+
 
 	my_log ("Finished loading our_ui.js");

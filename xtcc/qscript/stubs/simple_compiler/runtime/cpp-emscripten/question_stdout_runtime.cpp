@@ -410,10 +410,10 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec)
 		if (i > 0) {
 			question_json_string << ", ";
 		}
-		if (/*i > 0 &&*/ output_comma == true) {
-			stub_json_string << ", ";
-			output_comma = false;
-		}
+		//if (/*i > 0 &&*/ output_comma == true) {
+		//	stub_json_string << ", ";
+		//	output_comma = false;
+		//}
 		const AbstractRuntimeQuestion* q = q_vec[i];
 		printf ("question: %s\n", q->questionName_.c_str());
 		vector <string> qno_and_qtxt = PrepareQuestionText (q);
@@ -442,12 +442,15 @@ void ConstructQuestionForm (const vector<AbstractRuntimeQuestion*> & q_vec)
 			//std::string str = s.GetString();
 			//cout << s.str() << endl;
 			printf ("stubs : %s\n", s.str().c_str() );
+			question_type = "nq";
+			question_json_string
+				<< " \"nq\"" << endl
+				<< ", \"stub_name\" : \""
+				<< nq->nr_ptr->name.c_str() << "\"";
 			if (stub_name_set.find (nq->nr_ptr->name) == stub_name_set.end()) {
-				question_type = "nq";
-				question_json_string
-					<< " \"nq\"" << endl
-					<< ", \"stub_name\" : \""
-					<< nq->nr_ptr->name.c_str() << "\"";
+				if (output_comma) {
+					stub_json_string << ", ";
+				}
 				stub_json_string << s.str() << endl;
 				stub_name_set.insert (nq->nr_ptr->name);
 				output_comma = true;

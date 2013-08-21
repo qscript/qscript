@@ -178,11 +178,20 @@ create_question_form: function(question_json_ptr, stubs_json_ptr) {
 	var question_data = Pointer_stringify (question_json_ptr);
 	my_log ("question_data: " + question_data);
 	var stubs_data = Pointer_stringify (stubs_json_ptr);
+	var stubs_obj_arr , questions_obj_arr;
 	my_log ("stub_data: " + stubs_data);
-	var questions_obj_arr = JSON.parse(question_data);
-	my_log ("parsed question_data");
-	var stubs_obj_arr = JSON.parse(stubs_data);
-	my_log ("parsed stub_data");
+	try {
+		questions_obj_arr = JSON.parse(question_data);
+		my_log ("parsed question_data");
+	} catch (error) {
+		my_log("Could not JSON.parse (question_data):" + error.message);
+	}
+	try {
+		stubs_obj_arr = JSON.parse(stubs_data);
+		my_log ("parsed stub_data");
+	} catch (error) {
+		my_log("Could not JSON.parse (stubs_data):" + error.message);
+	}
 	ui_create_question_form (questions_obj_arr, stubs_obj_arr);
 }
 

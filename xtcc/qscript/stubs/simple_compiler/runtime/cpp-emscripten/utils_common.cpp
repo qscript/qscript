@@ -5,9 +5,11 @@
 #include "qscript_parser_common.h"
 
 using std::cerr;
+using std::cout;
 using std::string;
 using std::endl;
 using std::stringstream;
+using std::vector;
 using qscript_parser::no_errors;
 
 void print_err(compiler_err_category cmp_err, string err_msg,
@@ -83,3 +85,37 @@ unsigned long djb_hash(const char *str)
 	    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 	return hash;
 }
+
+
+vector <std::string> split_on_char (const string &s, char ch)
+{
+	vector<std::string> result;
+	size_t start_pos = 0;
+	size_t found_ch = s.find (ch, start_pos);
+	while (found_ch != string::npos) {
+		cout << "start_pos: " << start_pos << ", found_ch: " << found_ch << endl;
+		cout << "s.substr: " << s.substr(start_pos, (found_ch-start_pos)) << endl;
+		result.push_back (s.substr(start_pos, (found_ch-start_pos)));
+		start_pos = found_ch+1;
+		found_ch = s.find (ch, start_pos);
+	}
+	result.push_back (s.substr(start_pos, s.length()-1));
+	return result;
+}
+
+/*
+int main() {
+	string s = "1|2|3";
+	vector<std::string> split_vec = split_on_char(s, '|');
+	for (int i=0; i < split_vec.size(); ++i) {
+		std::cout << "split: " << split_vec[i] << endl;
+	}
+	cout << "======" << endl;
+
+	s = "||2|3 4|||7";
+	split_vec = split_on_char(s, '|');
+	for (int i=0; i < split_vec.size(); ++i) {
+		std::cout << "split: " << split_vec[i] << endl;
+	}
+}
+*/

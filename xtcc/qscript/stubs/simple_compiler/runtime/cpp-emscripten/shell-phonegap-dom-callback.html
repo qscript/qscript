@@ -81,63 +81,6 @@
 				}
 			}
 		};
-
-		function serialize (form) {
-			my_log("Enter: serialize");
-			var parts = new Array();
-			var field = null;
-			for (var i=0; i < form.elements.length; ++i ) {
-				field = form.elements[i];
-				switch (field.type) {
-				case "radio":
-					if (field.checked) {
-						parts.push(field.value);
-					}
-				break;
-				case "checkbox":
-					if (field.checked) {
-						parts.push(field.value);
-					}
-				break;
-				case "text":
-					if (global_survey_related_info.question_type != "nq" &&
-						global_survey_related_info.no_mpn == 1) {
-						parts.push(field.value);
-					} else {
-						my_log ("trying to save verbatim file: verbatim is:" + field.value);
-						parts.push("96"); // dummy value
-						// Initiate file saving here
-						/* Comment out - when running in browser
-						 * enable for cordova
-						global_survey_related_info.current_verbatim_data = field.value;
-						if (save_verbatim_data) {
-							my_log ("save_verbatim_data:" + save_verbatim_data);
-						}
-						if (fail_to_write_file) {
-							my_log ("fail_to_write_file:" + fail_to_write_file);
-						}
-						my_log ("global_survey_related_info.verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
-						if (global_survey_related_info.verbatim_data_file_handle) {
-							my_log ("verbatim_data_file_handle:" + global_survey_related_info.verbatim_data_file_handle);
-							my_log ("testing for createWriter:");
-							if (global_survey_related_info.verbatim_data_file_handle.createWriter) {
-								my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: exists");
-							} else {
-								my_log ("global_survey_related_info.verbatim_data_file_handle.createWriter: does not exist");
-							}
-							my_log ("after createWriter:");
-						} else {
-							my_log ("verbatim_data_file_handle: is null");
-						}
-						global_survey_related_info.verbatim_data_file_handle.createWriter (save_verbatim_data, fail_to_write_file);
-						*/
-					}
-				break;
-				}
-			}
-			my_log("Exiting: serialize");
-			return parts.join(" ");
-		};
 		/* ============= }}}1 ==================*/
 	</script>
 	<!--
@@ -197,10 +140,9 @@
 				</div>
 			</div>
 			<div id="new_question_view" >
-				<form id="new_question_view_form">
 					<p>This is new_question_view</p>
-				</form>
 			</div>
+				<input  id="newNextQ" type="button" value="NewNext">
 
 			<div id="div_console_log" class="qscript-logger">
 				console-logger<br/>
@@ -235,8 +177,10 @@
 		<div><span id="span_event_target_trigger_file_open_write">0</span> button #1 clicks.</div>
 
 	<script type="text/javascript">
-/* =============== Logging Setup {{{1 ==================== */
 
+	// big fat global variable
+
+/* =============== Logging Setup {{{1 ==================== */
 	function my_log (mesg)
 	{
 		var div_console_log = document.getElementById("div_console_log");
@@ -244,8 +188,6 @@
 	}
 	// my_log ("test log message");
 /* =============== End: Logging Setup }}}1 ==================== */
-
-	// big fat global variable
 
 
 	/*

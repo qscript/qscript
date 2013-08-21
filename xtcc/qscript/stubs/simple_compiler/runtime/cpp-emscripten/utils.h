@@ -9,9 +9,11 @@
 #include <sys/types.h>
 #include <map>
 #include <string>
+#include <vector>
 //#include "symtab.h"
 #include "datatype.h"
 using std::map;
+using std::vector;
 using std::string;
 struct AbstractExpression;
 struct noun_list_type ;
@@ -45,6 +47,7 @@ int32_t lookup_func(string func_name_index);
 unsigned long djb_hash(const char *str);
 unsigned long sdbm_hash(const char *str);
 void log_maintainer_message(int line, string file, string func_name, string mesg);
+vector <std::string> split_on_char (const string &s, char ch);
 #define LOG_MAINTAINER_MESSAGE(mesg)	log_maintainer_message(__LINE__, __FILE__, __PRETTY_FUNCTION__, mesg)
 
 
