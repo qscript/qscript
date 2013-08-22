@@ -178,6 +178,16 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.h;
 	$(CC) $(CFLAGS) -o $@ $<
 #echo "dir of target: $(@D), filename of target $(@F)"
 
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp $(SOURCE_DIR)/%.hpp;
+	$(CC) $(CFLAGS) -o $@ $<
+#echo "dir of target: $(@D), filename of target $(@F)"
+
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
+	$(CC) $(CFLAGS) -o $@ $<
+#echo "dir of target: $(@D), filename of target $(@F)"
+
 $(BUILD_DIR)/runtime_lib/%.o: $(SOURCE_DIR)/%.cpp
 	$(CC) $(CFLAGS) $(CXX_SHARED_LIB_FLAGS) -o $@ $<
 
