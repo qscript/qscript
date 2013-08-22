@@ -46,8 +46,8 @@ data_entry.hpp: YFLAGS = -p scan_data
 
 LIBRARY_TARGETS =  $(BUILD_COMMON_DIR)/libqscript_runtime_common.so.1.0.1 \
 		   $(BUILD_ROOT)/stdout/question_stdout_runtime.o \
-		   $(BUILD_ROOT)/wx/question_wx2_runtime.o \
-		   $(BUILD_ROOT)/wt/question_wt_runtime.o
+		   $(BUILD_ROOT)/wt/question_wt_runtime.o 
+		   #$(BUILD_ROOT)/wx/question_wx2_runtime.o 
 
 runtime_lib: $(LIBRARY_TARGETS)
 
