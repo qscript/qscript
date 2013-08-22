@@ -62,7 +62,7 @@ void callback_ui_input (UserInput p_user_input,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level)
 {
 	//cout << __PRETTY_FUNCTION__ << endl;
-	printf("%s\n", __PRETTY_FUNCTION__);
+	printf ("%s\n", __PRETTY_FUNCTION__);
 	// this will be called by the UI - it is the UI's responsibility to
 	// get valid data for us
 	//bool valid_input = q->VerifyResponse (p_user_input.theUserResponse_, p_user_input.userNavigation_);
@@ -225,6 +225,8 @@ void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion *
 	qnre->last_question_visited[qnre->last_question_visited.size()-1] = last_question_visited;
 }
 
+#include "utils.h"
+
 extern "C" {
 
 void callback_return_serial (int serial_no, char * survey_data)
@@ -239,8 +241,11 @@ void called_from_the_dom (char * data)
 	//emscripten_pause_main_loop();
 	//emscripten_resume_main_loop();
 	//printf ("data from the browser dom callback: %s\n", data);
-	printf ("hello called_from_the_dom\n");
-	printf ("data: %s\n", data);
+	printf ("Enter: called_from_the_dom: data %s\n", data);
+	string str_data (data);
+	vector <string> question_data_vec = split_on_char (data, '|');
+#if 0
+	//printf ("data: %s\n", data);
 	AbstractRuntimeQuestion * q = AbstractQuestionnaire::qnre_ptr->last_question_visited[0];
 	printf ("last_question_visited: %s\n", q->questionName_.c_str());
 	// hard code the answers - Proof of concept testing
@@ -280,13 +285,72 @@ void called_from_the_dom (char * data)
 		}
 		// move all this into callback_ui_input
 		// case UserEnteredData
-
 	}
 	//void question_eval_loop2 (
 	//	UserInput p_user_input,
 	//	AbstractRuntimeQuestion * last_question_visited,
 	//	AbstractRuntimeQuestion * jump_to_question, struct TheQuestionnaire * theQuestionnaire, int nest_level );
 	//question_eval_loop2 (user_input, q, 0, l_qnre_ptr, /*nest_level + */ 1);
+#endif /*  0  */
+
+	//vector <UIReturnValue> ui_question_status;
+	stringstream not_answered_question_list;
+	bool all_questions_answered = true;
+	UserInput user_input;
+	for (int32_t i = 0;
+		i < AbstractQuestionnaire::qnre_ptr->last_question_visited.size();
+		++i) {
+		AbstractRuntimeQuestion * q =
+				AbstractQuestionnaire::qnre_ptr->last_question_visited[i];
+#if 0
+		AbstractRuntimeQuestion * last_question_served =
+				AbstractQuestionnaire::qnre_ptr->last_question_visited[i];
+		if (NamedStubQuestion *nq = dynamic_cast<NamedStubQuestion *>(last_question_served)) {
+			//AbstractRuntimeQuestion * last_question_served = this_users_session -> ptr_last_question_visited ;
+			vector<int32_t> data;
+			bool isAnswered = false;
+			cout << "returned back data from question: " << nq->questionName_ << endl;
+			if (last_question_served->no_mpn == 1) {
+				UIReturnValue ret_val ;
+				ui_question_status.push_back(ret_val) ;
+			} else {
+				cout << "Reached NamedStubQuestion and currently doing nothing" << endl;
+				UIReturnValue ret_val = handleCBDataInput(1, i);
+				ui_question_status.push_back(ret_val) ;
+			}
+		} else {
+			/*
+			string current_question_response = le_data_->text().narrow();
+			if (current_question_response !="") {
+				handleRangeQuestionData(1);
+			}
+			*/
+			cout << __PRETTY_FUNCTION__ << "Handle WLineEdit data not yet implemented" << endl;
+
+		}
+#endif /*  0  */
+
+		if (question_data_vec[i].length() > 0) {
+			user_input.theUserResponse_ = user_response::UserEnteredData;
+			user_input.questionResponseDataVec_.push_back(question_data_vec[i]);
+		} else {
+			all_questions_answered = false;
+			not_answered_question_list << " " << q->questionName_;
+		}
+	}
+	if (all_questions_answered == false)  {
+		printf("Please answer all the questions on the page: %s\n",
+				not_answered_question_list.str().c_str()
+		      );
+	} else {
+		// send question for back end verification
+		AbstractQuestionnaire * abs_qnre_ptr = AbstractQuestionnaire::qnre_ptr;
+		TheQuestionnaire * l_qnre_ptr = dynamic_cast<TheQuestionnaire*> (AbstractQuestionnaire::qnre_ptr);
+		callback_ui_input (user_input,
+			abs_qnre_ptr->last_question_visited,
+			l_qnre_ptr, 1);
+	}
+
 	printf ("EXIT: %s\n", __PRETTY_FUNCTION__);
 }
 
