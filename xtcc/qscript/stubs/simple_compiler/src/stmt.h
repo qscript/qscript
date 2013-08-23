@@ -600,10 +600,18 @@ struct NewCardStatement: public AbstractStatement
 struct PageStatement: public AbstractStatement
 {
 	PageStatement(DataType dtype, int32_t lline_number,
-			string l_page_name, CompoundStatement * l_page_body);
+			string l_page_name, CompoundStatement * l_page_body,
+			int l_page_size = 0);
+	// PageStatement(DataType dtype, int32_t lline_number,
+	// 		string l_page_name,
+	// 		int l_page_size,
+	// 		CompoundStatement * l_page_body);
 	std::string pageName_;
+	int pageSize_;
 	CompoundStatement * pageBody_;
+	void GenerateConsolidatedForLoopIndexes();
 	void GenerateCode(StatementCompiledCode & code);
+	private:
 	PageStatement& operator=(const PageStatement&);
 	PageStatement(const PageStatement&);
 

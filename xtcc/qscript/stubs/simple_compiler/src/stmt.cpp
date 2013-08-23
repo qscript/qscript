@@ -673,6 +673,9 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	code.program_code << "{" << endl;
 	/* Warning - duplicated code block - also present in
 	 * CompoundStatement::Generate_ComputeFlatFileMap */
+	cout    << "ConsolidatedForLoopIndexStack_.size():"
+		<< ConsolidatedForLoopIndexStack_.size()
+		<< endl;
 	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		code.program_code << "int32_t " << ConsolidatedForLoopIndexStack_.back()
 			<< " = ";
@@ -2211,12 +2214,12 @@ void NewCardStatement::GenerateCode(StatementCompiledCode & code)
 }
 
 PageStatement::PageStatement (DataType dtype, int32_t l_line_no,
-		string l_page_name, CompoundStatement * l_page_body)
+		string l_page_name, CompoundStatement * l_page_body,
+		int l_page_size)
 	: AbstractStatement(dtype, l_line_no),
-	  pageName_ (l_page_name), pageBody_ (l_page_body)
-{
-
-}
+	  pageName_ (l_page_name), pageBody_ (l_page_body),
+	  pageSize_ (l_page_size)
+{ }
 
 
 void PageStatement::GenerateCode(StatementCompiledCode & code)
@@ -2245,3 +2248,12 @@ void PageStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode (code);
 	}
 }
+
+void PageStatement::GenerateConsolidatedForLoopIndexes()
+{
+	pageBody_->GenerateConsolidatedForLoopIndexes();
+	if (next_) {
+		next_->GenerateConsolidatedForLoopIndexes();
+	}
+}
+

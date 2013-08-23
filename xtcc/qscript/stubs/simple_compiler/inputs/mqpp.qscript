@@ -39,14 +39,6 @@ stubs educ=
 q3 	"Please tell us the highest level of Education that you have achieved"
 	sp int32_t educ;
 
-	page att_batt1 {
-
-	named_attribute veg_seg_att = " Vegetables are good for health",
-				" I buy fresh vegetables often",
-				" Greens are good source of dietary fibre",
-				" I would like to be vegetarian some day"
-				;
-
 
 stubs agree_5 = 
 	"Agree strongly" 5
@@ -55,6 +47,30 @@ stubs agree_5 =
 	"Disagree " 2
 	"Disagree strongly" 1;
 
+	named_attribute veg_seg_att = " Vegetables are good for health",
+				" I buy fresh vegetables often",
+				" Greens are good source of dietary fibre",
+				" I would like to be vegetarian some day",
+				" Statement 5",
+				" Statement 6",
+				" Statement 7",
+				" Statement 8",
+				" Statement 9",
+				" Statement 10",
+				" Statement 11",
+				" Statement 12",
+				" Statement 13",
+				" Statement 14",
+				" Statement 15",
+				" Statement 16",
+				" Statement 17",
+				" Statement 18"
+				;
+
+	page att_batt1 {
+
+
+		/*
 q4_0		"Please state your agreement with these statements" : veg_seg_att[0]
 		sp int32_t agree_5;
 
@@ -66,6 +82,15 @@ q4_2		"Please state your agreement with these statements" : veg_seg_att[2]
 
 q4_3		"Please state your agreement with these statements" : veg_seg_att[3]
 		sp int32_t agree_5;
+		*/
+
+		int32_t i1 = 0;
+		for (i1 = 0; i1 < 18; i1 = i1 + 1) {
+
+q4			"Please state your agreement with these statements" : veg_seg_att[i1]
+			sp int32_t agree_5;
+
+		}
 
 	}
 

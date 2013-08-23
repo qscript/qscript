@@ -385,6 +385,9 @@ newcard		{
 
 page	{
 
+	if (qscript_parser::show_lex_error_context)
+		qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+	qscript_parser::lex_location.IncrementColumn(yyleng);
 	if (qscript_parser::page_nest_lev > 0) {
 		print_err(compiler_sem_err,
 			 "Expecting: page_nest_lev to be 0 - you cannot nest pages"
@@ -395,6 +398,12 @@ page	{
 	return PAGE;
 }
 
+grid_size 	{
+	if (qscript_parser::show_lex_error_context)
+		qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+	qscript_parser::lex_location.IncrementColumn(yyleng);
+	return GRID_SIZE;
+}
 
 [0-9]+	{
 		if (qscript_parser::show_lex_error_context)

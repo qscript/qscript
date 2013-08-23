@@ -93,6 +93,7 @@
 %token ISANSWERED
 %token NEWCARD
 %token PAGE
+%token GRID_SIZE
 
 
 %token '['
@@ -345,7 +346,14 @@ for_loop_stmt:
 	;
 
 cmpd_stmt: open_curly stmt_list '}' {
+		using qscript_parser::line_no;
+	 	cout << "line_no: " << line_no << endl;
 		$$ = qscript_parser::ProcessCompoundStatement($1, $2);
+
+	  	cout << "cmpd_stmt '}':  << blk_question_start_flag.size(): " 
+			<< qscript_parser::blk_question_start_flag.size() 
+			<< ", line_no: " << qscript_parser::line_no
+			<< endl;
 	}
 	;
 
@@ -358,11 +366,28 @@ page_stmt: PAGE NAME cmpd_stmt {
 			new PageStatement (PAGE_STMT,
 					qscript_parser::line_no, page_name, $3);
 		$$ = a_page;
-		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
-			<< qscript_parser::page_nest_lev << endl;
+		//cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
+		//	<< qscript_parser::page_nest_lev << endl;
 	}
+	|PAGE NAME GRID_SIZE '=' INUMBER cmpd_stmt {
+		string page_name ($2);
+		int32_t grid_size = $5;
+		PageStatement * a_page =
+			new PageStatement (PAGE_STMT,
+					qscript_parser::line_no, page_name, $6);
+		$$ = a_page;
+		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
+			<< qscript_parser::page_nest_lev
+			<< "grid_size: " << grid_size
+			<< endl;
+	}
+	;
 
 open_curly:	'{' {
+	  	cout << "open_curly:  << blk_question_start_flag.size(): " 
+			<< qscript_parser::blk_question_start_flag.size() 
+			<< ", line_no: " << qscript_parser::line_no
+			<< endl;
 		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
 		//qscript_parser::compound_body_stack.push_back(cmpdStmt);
 		//cmpdStmt->nestedCompoundStatementStack_=qscript_parser::compound_body_stack;
@@ -1220,10 +1245,18 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 	if(blk_start_flag.size() > 0) {
 		flag_next_stmt_start_of_block = blk_start_flag[blk_start_flag.size()-1];
 	}
-	if (blk_question_start_flag.size()>0) {
+	if (blk_question_start_flag.size() > 0) {
 		//flag_next_question_start_of_block = blk_question_start_flag[blk_question_start_flag.size()-1];
+		cout << __PRETTY_FUNCTION__ << ", blk_question_start_flag.size(): "
+			<< blk_question_start_flag.size()
+			<< endl;
 		blk_question_start_flag.pop_back();
-		flag_next_question_start_of_block = blk_question_start_flag.back();
+		cout << __PRETTY_FUNCTION__ << ", after pop_back blk_question_start_flag.size(): "
+			<< blk_question_start_flag.size()
+			<< endl;
+		if (blk_question_start_flag.size() > 0) {
+			flag_next_question_start_of_block = blk_question_start_flag.back();
+		}
 	}
 	if(  head_of_this_chain==0){
 		//cerr << "Error in compiler : compoundBody_:  " << __FILE__ << __LINE__ << endl;
