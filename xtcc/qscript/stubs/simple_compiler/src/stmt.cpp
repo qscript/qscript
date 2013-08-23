@@ -673,9 +673,9 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 	code.program_code << "{" << endl;
 	/* Warning - duplicated code block - also present in
 	 * CompoundStatement::Generate_ComputeFlatFileMap */
-	cout    << "ConsolidatedForLoopIndexStack_.size():"
-		<< ConsolidatedForLoopIndexStack_.size()
-		<< endl;
+	//cout    << "ConsolidatedForLoopIndexStack_.size():"
+	//	<< ConsolidatedForLoopIndexStack_.size()
+	//	<< endl;
 	if (flagIsAForBody_ && counterContainsQuestions_ && !flagIsAIfBody_) {
 		code.program_code << "int32_t " << ConsolidatedForLoopIndexStack_.back()
 			<< " = ";
@@ -699,6 +699,21 @@ void CompoundStatement::GenerateCode(StatementCompiledCode &code)
 		GenerateQuestionArrayInitLoopClose(code);
 	}
 #endif /* 0 */
+	if (flagIsAForBody_ && qscript_parser::page_nest_lev == 1) {
+		code.program_code << "/* flagIsAForBody_ && page_nest_lev == 1  */"
+			<< endl;
+		code.program_code
+			<< "if (vec_page_" << qscript_parser::globalActivePageName_
+			<< "_ret_val.size() == "
+			<< qscript_parser::globalActivePageSize_
+			<< ") {"
+			<< "last_question_visited =  "
+			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val;"
+			<< "return "
+			<<  "vec_page_" << qscript_parser::globalActivePageName_ << "_ret_val"
+			<< ";" << endl
+			<< "}" << endl;
+	}
 	code.program_code << "}" << endl;
 	if (next_)
 		next_->GenerateCode(code);
@@ -1052,6 +1067,10 @@ void ForStatement::GenerateCode(StatementCompiledCode &code)
 					<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
 					<< " \n";
 		}
+	}
+
+	if (qscript_parser::page_nest_lev > 0) {
+		code.program_code << "/* page_nest_lev > 0 */" << endl;
 	}
 
 	ExpressionCompiledCode expr_code;
@@ -2219,12 +2238,18 @@ PageStatement::PageStatement (DataType dtype, int32_t l_line_no,
 	: AbstractStatement(dtype, l_line_no),
 	  pageName_ (l_page_name), pageBody_ (l_page_body),
 	  pageSize_ (l_page_size)
-{ }
+{
+	cout
+		<< "pageName_: " << pageName_
+		<< ", pageSize_: " << pageSize_
+		<< endl;
+}
 
 
 void PageStatement::GenerateCode(StatementCompiledCode & code)
 {
 	qscript_parser::globalActivePageName_ = pageName_;
+	qscript_parser::globalActivePageSize_ = pageSize_;
 	code.program_code << "/* ENTER " << __PRETTY_FUNCTION__ << " */" << std::endl;
 	code.program_code << "vector <AbstractRuntimeQuestion*> vec_page_"
 		<< pageName_ << "_ret_val;" << std::endl;

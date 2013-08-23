@@ -47,6 +47,7 @@ namespace qscript_parser
 	bool flag_next_stmt_start_of_block = false;
 
 	std::string globalActivePageName_;
+	int32_t globalActivePageSize_;
 	bool flag_first_question_in_page = false;
 
 	bool flag_dynamic_base_text = false;

@@ -118,7 +118,7 @@
 		var result;
 		if (questions_obj_arr.length == 1) {
 			result = "single_question";
-		} else if (questions_obj_arr.length > 0) {
+		} else if (questions_obj_arr.length > 1) {
 			if (stubs_obj_arr.length == 1) {
 				result = "grid_question";
 			} else {

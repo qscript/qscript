@@ -2074,13 +2074,13 @@ yyreduce:
 #line 348 "src/q.ypp"
     {
 		using qscript_parser::line_no;
-	 	cout << "line_no: " << line_no << endl;
+	 	//cout << "line_no: " << line_no << endl;
 		(yyval.c_stmt) = qscript_parser::ProcessCompoundStatement((yyvsp[(1) - (3)].c_stmt), (yyvsp[(2) - (3)].stmt));
 
-	  	cout << "cmpd_stmt '}':  << blk_question_start_flag.size(): " 
-			<< qscript_parser::blk_question_start_flag.size() 
-			<< ", line_no: " << qscript_parser::line_no
-			<< endl;
+	  	//cout << "cmpd_stmt '}':  << blk_question_start_flag.size(): " 
+		//	<< qscript_parser::blk_question_start_flag.size() 
+		//	<< ", line_no: " << qscript_parser::line_no
+		//	<< endl;
 	}
     break;
 
@@ -2111,7 +2111,7 @@ yyreduce:
 		int32_t grid_size = (yyvsp[(5) - (6)].ival);
 		PageStatement * a_page =
 			new PageStatement (PAGE_STMT,
-					qscript_parser::line_no, page_name, (yyvsp[(6) - (6)].c_stmt));
+					qscript_parser::line_no, page_name, (yyvsp[(6) - (6)].c_stmt), grid_size);
 		(yyval.stmt) = a_page;
 		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
 			<< qscript_parser::page_nest_lev
@@ -2125,10 +2125,10 @@ yyreduce:
 /* Line 1806 of yacc.c  */
 #line 386 "src/q.ypp"
     {
-	  	cout << "open_curly:  << blk_question_start_flag.size(): " 
-			<< qscript_parser::blk_question_start_flag.size() 
-			<< ", line_no: " << qscript_parser::line_no
-			<< endl;
+	  	//cout << "open_curly:  << blk_question_start_flag.size(): " 
+		//	<< qscript_parser::blk_question_start_flag.size() 
+		//	<< ", line_no: " << qscript_parser::line_no
+		//	<< endl;
 		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
 		//qscript_parser::compound_body_stack.push_back(cmpdStmt);
 		//cmpdStmt->nestedCompoundStatementStack_=qscript_parser::compound_body_stack;
@@ -3553,13 +3553,13 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 	}
 	if (blk_question_start_flag.size() > 0) {
 		//flag_next_question_start_of_block = blk_question_start_flag[blk_question_start_flag.size()-1];
-		cout << __PRETTY_FUNCTION__ << ", blk_question_start_flag.size(): "
-			<< blk_question_start_flag.size()
-			<< endl;
+		//cout << __PRETTY_FUNCTION__ << ", blk_question_start_flag.size(): "
+		//	<< blk_question_start_flag.size()
+		//	<< endl;
 		blk_question_start_flag.pop_back();
-		cout << __PRETTY_FUNCTION__ << ", after pop_back blk_question_start_flag.size(): "
-			<< blk_question_start_flag.size()
-			<< endl;
+		//cout << __PRETTY_FUNCTION__ << ", after pop_back blk_question_start_flag.size(): "
+		//	<< blk_question_start_flag.size()
+		//	<< endl;
 		if (blk_question_start_flag.size() > 0) {
 			flag_next_question_start_of_block = blk_question_start_flag.back();
 		}

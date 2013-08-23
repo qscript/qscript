@@ -44,6 +44,7 @@ namespace qscript_parser
 	// I am hoping a global variable for the active page name
 	// should be enough
 	extern std::string globalActivePageName_;
+	extern int32_t globalActivePageSize_;
 	extern bool flag_first_question_in_page;
 	extern bool flag_next_stmt_start_of_block;
 	extern bool flag_next_question_start_of_block;

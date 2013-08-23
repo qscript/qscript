@@ -347,13 +347,13 @@ for_loop_stmt:
 
 cmpd_stmt: open_curly stmt_list '}' {
 		using qscript_parser::line_no;
-	 	cout << "line_no: " << line_no << endl;
+	 	//cout << "line_no: " << line_no << endl;
 		$$ = qscript_parser::ProcessCompoundStatement($1, $2);
 
-	  	cout << "cmpd_stmt '}':  << blk_question_start_flag.size(): " 
-			<< qscript_parser::blk_question_start_flag.size() 
-			<< ", line_no: " << qscript_parser::line_no
-			<< endl;
+	  	//cout << "cmpd_stmt '}':  << blk_question_start_flag.size(): " 
+		//	<< qscript_parser::blk_question_start_flag.size() 
+		//	<< ", line_no: " << qscript_parser::line_no
+		//	<< endl;
 	}
 	;
 
@@ -374,7 +374,7 @@ page_stmt: PAGE NAME cmpd_stmt {
 		int32_t grid_size = $5;
 		PageStatement * a_page =
 			new PageStatement (PAGE_STMT,
-					qscript_parser::line_no, page_name, $6);
+					qscript_parser::line_no, page_name, $6, grid_size);
 		$$ = a_page;
 		cout << "parsed a PAGE_STMT : qscript_parser::page_nest_lev"
 			<< qscript_parser::page_nest_lev
@@ -384,10 +384,10 @@ page_stmt: PAGE NAME cmpd_stmt {
 	;
 
 open_curly:	'{' {
-	  	cout << "open_curly:  << blk_question_start_flag.size(): " 
-			<< qscript_parser::blk_question_start_flag.size() 
-			<< ", line_no: " << qscript_parser::line_no
-			<< endl;
+	  	//cout << "open_curly:  << blk_question_start_flag.size(): " 
+		//	<< qscript_parser::blk_question_start_flag.size() 
+		//	<< ", line_no: " << qscript_parser::line_no
+		//	<< endl;
 		CompoundStatement * cmpdStmt = qscript_parser::ProcessOpenCurly();
 		//qscript_parser::compound_body_stack.push_back(cmpdStmt);
 		//cmpdStmt->nestedCompoundStatementStack_=qscript_parser::compound_body_stack;
@@ -1247,13 +1247,13 @@ CompoundStatement* ProcessCompoundStatement(CompoundStatement* cmpdStmt,
 	}
 	if (blk_question_start_flag.size() > 0) {
 		//flag_next_question_start_of_block = blk_question_start_flag[blk_question_start_flag.size()-1];
-		cout << __PRETTY_FUNCTION__ << ", blk_question_start_flag.size(): "
-			<< blk_question_start_flag.size()
-			<< endl;
+		//cout << __PRETTY_FUNCTION__ << ", blk_question_start_flag.size(): "
+		//	<< blk_question_start_flag.size()
+		//	<< endl;
 		blk_question_start_flag.pop_back();
-		cout << __PRETTY_FUNCTION__ << ", after pop_back blk_question_start_flag.size(): "
-			<< blk_question_start_flag.size()
-			<< endl;
+		//cout << __PRETTY_FUNCTION__ << ", after pop_back blk_question_start_flag.size(): "
+		//	<< blk_question_start_flag.size()
+		//	<< endl;
 		if (blk_question_start_flag.size() > 0) {
 			flag_next_question_start_of_block = blk_question_start_flag.back();
 		}
