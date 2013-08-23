@@ -67,7 +67,15 @@ stubs agree_5 =
 				" Statement 18"
 				;
 
-	page att_batt1 {
+		int32_t i1 = 0;
+		for (i1 = 0; i1 < 18; i1 = i1 + 1) {
+
+q4_no_page		"Please state your agreement with these statements" : veg_seg_att[i1]
+			sp int32_t agree_5;
+
+		}
+
+	page att_batt1 grid_size=5 {
 
 
 		/*
@@ -93,6 +101,7 @@ q4			"Please state your agreement with these statements" : veg_seg_att[i1]
 		}
 
 	}
+
 
 	page brd_assoc {
 
