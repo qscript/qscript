@@ -543,6 +543,7 @@ struct GotoStatement: public AbstractStatement
 	GotoStatement(const GotoStatement&);
 };
 
+struct Unary2Expression;
 struct ClearStatement: public AbstractStatement 
 {
 	/* 
