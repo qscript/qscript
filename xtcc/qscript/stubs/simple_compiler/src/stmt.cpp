@@ -1888,37 +1888,12 @@ void GotoStatement::GenerateCode(StatementCompiledCode & code)
 		next_->GenerateCode(code);
 	}
 }
-
+#if 0
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 				string l_question_name)
 	: AbstractStatement(l_type, l_line_number),
 	  symbolTableEntry_(0), arrIndex_(0)
 {
-#if 0
-	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_question_name);
-	if (sym_it == active_scope->SymbolTable.end()){
-		std::stringstream s;
-		s << "Could not find question " << l_question_name 
-			<<"  in symbol table:  ";
-		print_err(compiler_sem_err, s.str()
-				, qscript_parser::line_no, __LINE__, __FILE__);
-	} else {
-		symbolTableEntry_ = sym_it->second;
-		if (symbolTableEntry_->question_) {
-			if (!symbolTableEntry_->question_->type_ == QUESTION_TYPE) {
-				std::stringstream s;
-				s << l_question_name  << " must be of QUESTION_TYPE ";
-				print_err(compiler_sem_err, s.str()
-						, qscript_parser::line_no, __LINE__, __FILE__);
-			}
-		} else {
-			std::stringstream s;
-			s << l_question_name  << " must be of QUESTION_TYPE ";
-			print_err(compiler_sem_err, s.str()
-					, qscript_parser::line_no, __LINE__, __FILE__);
-		}
-	}
-#endif /* 0 */
 	VerifyForClearStatement(l_question_name, 0);
 }
 
@@ -1929,51 +1904,51 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 	  symbolTableEntry_(0), arrIndex_(0),
 	  errorMessage_()
 {
-#if 0
-	map<string,SymbolTableEntry*>::iterator sym_it = find_in_symtab(l_array_question_name);
-	if (sym_it == active_scope->SymbolTable.end()){
-		std::stringstream s;
-		s << "Could not find question " << l_array_question_name 
-			<<"  in symbol table: ";
-		print_err(compiler_sem_err, s.str()
-				, qscript_parser::line_no, __LINE__, __FILE__);
-	} else {
-		symbolTableEntry_ = sym_it->second;
-		if (symbolTableEntry_->question_) {
-			if (!symbolTableEntry_->question_->type_ == QUESTION_ARR_TYPE) {
-				std::stringstream s;
-				s << l_array_question_name  << " must be of QUESTION_ARR_TYPE ";
-				print_err(compiler_sem_err, s.str()
-						, qscript_parser::line_no, __LINE__, __FILE__);
-			}
-		} else {
-			std::stringstream s;
-			s << l_array_question_name  << " must be of QUESTION_ARR_TYPE ";
-			print_err(compiler_sem_err, s.str()
-					, qscript_parser::line_no, __LINE__, __FILE__);
-		}
-		DataType l_e_type = arr_index->type_;
-		if (is_of_int_type(l_e_type)){
-			DataType nametype =arr_deref_type(symbolTableEntry_->type_);
-			if (nametype == ERROR_TYPE) {
-				std::stringstream s;
-				s << "ERROR: Array indexing AbstractExpression Variable being indexed not of Array Type " << "\n";
-				print_err(compiler_sem_err, s.str()
-						, qscript_parser::line_no, __LINE__, __FILE__);
-			} else {
-				type_ = nametype;
-				arrIndex_ = arr_index;
-			}
-		} else {
-			stringstream s;
-			s << "ERROR: Array index not of Type Int \b" ;
-			print_err(compiler_sem_err, s.str(), qscript_parser::line_no, __LINE__, __FILE__);
-		}
-	}
-#endif /* 0 */
 	VerifyForClearStatement(l_array_question_name, arr_index);
 }
+#endif /*  0 */
 
+ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
+			const vector <AbstractExpression *> & expr_vec, string err_msg)
+	: AbstractStatement(l_type, l_line_number),
+	  questionExprVec_ (expr_vec), errorMessage_ (err_msg)
+{
+	VerifyForClearStatement (questionExprVec_);
+}
+
+vector<bool> ClearStatement::VerifyForClearStatement (const vector<AbstractExpression*> expr_vec)
+{
+	vector <bool> res_vec;
+	for (int i = 0; i < expr_vec.size(); ++i) {
+		AbstractExpression * e = expr_vec[i];
+		Unary2Expression * u2e = dynamic_cast <Unary2Expression*> (e);
+		bool result = true;
+		if (u2e == 0) {
+			stringstream err;
+			err << " Grammar should not allow any other types than NAME or NAME [ expr ] for clear statement";
+			print_err (compiler_internal_error, err.str() , qscript_parser::line_no, __LINE__, __FILE__);
+			result = false;
+		} else if (u2e -> exprOperatorType_ == oper_name) {
+			if (u2e->symbolTableEntry_->type_ != QUESTION_TYPE) {
+				stringstream err;
+				err << " NAME in clear statement should be a question";
+				print_err (compiler_sem_err, err.str() , qscript_parser::line_no, __LINE__, __FILE__);
+				result = false;
+			}
+		} else if (u2e -> exprOperatorType_ == oper_arrderef) {
+			if (u2e->symbolTableEntry_->type_ != QUESTION_ARR_TYPE) {
+				stringstream err;
+				err << " NAME in clear statement should be a question inside a for loop (array question)";
+				print_err (compiler_sem_err, err.str() , qscript_parser::line_no, __LINE__, __FILE__);
+				result = false;
+			}
+		}
+		res_vec.push_back (result);
+	}
+	return res_vec;
+}
+
+#if 0
 bool ClearStatement::VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index)
 {
 	if (arr_index == 0) {
@@ -2056,8 +2031,10 @@ bool ClearStatement::VerifyForClearStatement(string l_question_name, AbstractExp
 		}
 	}
 }
+#endif /*  0 */
 
 
+#if 0
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 			string l_question_name, string err_msg)
 	: AbstractStatement(l_type, l_line_number),
@@ -2074,9 +2051,11 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 {
 	VerifyForClearStatement(l_array_question_name, e);
 }
+#endif /* 0 */
 
 void ClearStatement::GenerateCode(StatementCompiledCode & code)
 {
+	/*
 	if (arrIndex_==0) {
 		code.program_code 
 			<< symbolTableEntry_->question_->questionName_ << "->isAnswered_ = false;\n";
@@ -2096,6 +2075,9 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 		code.program_code << "stopAtNextQuestion = false;\n";
 		code.program_code << "goto start_of_questions;\n";
 	}
+	*/
+	code.program_code << " /*  Clear statement code */ " 
+		<< endl;
 	if (next_) {
 		next_->GenerateCode(code);
 	}
