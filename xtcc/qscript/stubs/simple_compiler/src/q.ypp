@@ -46,7 +46,7 @@
 	set< int> set_duplicate_stub_entry_check;
 	vector<TextExpression*> text_expr_vec;
 	vector<string> vec_named_attribute_list;
-	vector<AbstractExpression*> clear_questions_list;
+	vector<Unary2Expression*> clear_questions_list;
 
 
 %}
@@ -64,8 +64,7 @@
 	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 	struct FunctionParameter * v_list;
-
-
+	struct Unary2Expression * ue2expr;
 }
 
 %token <ival> INUMBER
@@ -151,8 +150,8 @@
 
 %type <expr> expression
 %type <expr> expr_list
-%type <expr> question_expr
-%type <expr> question_expr_list
+%type <ue2expr> question_expr
+%type <ue2expr> question_expr_list
 
 
 %%
@@ -429,20 +428,20 @@ goto_stmt: GOTO NAME ';' {
 question_expr_list: question_expr {
 		  	clear_questions_list.push_back ($1);
 			}
-		  | question_expr_list ',' question_expr {
+		| question_expr_list ',' question_expr {
 		  	clear_questions_list.push_back ($3);
 		}
 		;
 
 question_expr: NAME {
-		$$ = new Unary2Expression($1, oper_name );
+		$$ = new Unary2Expression ($1, oper_name);
 	     }
 	     | NAME '[' expression ']' {
-		$$ = new Unary2Expression(oper_arrderef, $1, $3);
+		$$ = new Unary2Expression (oper_arrderef, $1, $3);
 		}
 	     ;
 
-	
+
 	/*
 
 	clear_stmt: CLEAR '(' NAME ')' ';' {

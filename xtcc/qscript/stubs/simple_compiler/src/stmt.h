@@ -558,13 +558,13 @@ struct ClearStatement: public AbstractStatement
 			AbstractExpression *e, string err_msg);
 	*/
 	ClearStatement(DataType l_type, int32_t l_line_number,
-			const vector <AbstractExpression *> & expr_vec, string err_msg);
+			const vector <Unary2Expression *> & expr_vec, string err_msg);
 	void GenerateCode(StatementCompiledCode & code);
-	bool VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index);
-	vector<bool> VerifyForClearStatement(const vector<AbstractExpression*> expr_vec);
+	//bool VerifyForClearStatement(string l_question_name, AbstractExpression * arr_index);
+	vector<bool> VerifyForClearStatement(const vector<Unary2Expression*> expr_vec);
 	//SymbolTableEntry* symbolTableEntry_ ;
 	//AbstractExpression * arrIndex_;
-	vector <AbstractExpression*> questionExprVec_;
+	vector <Unary2Expression*> questionExprVec_;
 	string errorMessage_;
 	private:
 	ClearStatement& operator=(const ClearStatement&);

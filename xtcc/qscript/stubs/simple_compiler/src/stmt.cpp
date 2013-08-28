@@ -1909,26 +1909,28 @@ ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
 #endif /*  0 */
 
 ClearStatement::ClearStatement(DataType l_type, int32_t l_line_number,
-			const vector <AbstractExpression *> & expr_vec, string err_msg)
+			const vector <Unary2Expression *> & expr_vec, string err_msg)
 	: AbstractStatement(l_type, l_line_number),
 	  questionExprVec_ (expr_vec), errorMessage_ (err_msg)
 {
 	VerifyForClearStatement (questionExprVec_);
 }
 
-vector<bool> ClearStatement::VerifyForClearStatement (const vector<AbstractExpression*> expr_vec)
+vector<bool> ClearStatement::VerifyForClearStatement (const vector<Unary2Expression*> expr_vec)
 {
 	vector <bool> res_vec;
 	for (int i = 0; i < expr_vec.size(); ++i) {
-		AbstractExpression * e = expr_vec[i];
-		Unary2Expression * u2e = dynamic_cast <Unary2Expression*> (e);
+		//AbstractExpression * e = expr_vec[i];
+		//Unary2Expression * u2e = dynamic_cast <Unary2Expression*> (e);
+		Unary2Expression * u2e =  expr_vec[i];
 		bool result = true;
-		if (u2e == 0) {
-			stringstream err;
-			err << " Grammar should not allow any other types than NAME or NAME [ expr ] for clear statement";
-			print_err (compiler_internal_error, err.str() , qscript_parser::line_no, __LINE__, __FILE__);
-			result = false;
-		} else if (u2e -> exprOperatorType_ == oper_name) {
+		// if (u2e == 0) {
+		// 	stringstream err;
+		// 	err << " Grammar should not allow any other types than NAME or NAME [ expr ] for clear statement";
+		// 	print_err (compiler_internal_error, err.str() , qscript_parser::line_no, __LINE__, __FILE__);
+		// 	result = false;
+		// } else
+		if (u2e -> exprOperatorType_ == oper_name) {
 			if (u2e->symbolTableEntry_->type_ != QUESTION_TYPE) {
 				stringstream err;
 				err << " NAME in clear statement should be a question";
@@ -2078,6 +2080,35 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 	*/
 	code.program_code << " /*  Clear statement code */ " 
 		<< endl;
+	for (int i = 0; i < questionExprVec_.size(); ++i) {
+		//ExpressionCompiledCode code1;
+		//questionExprVec_[i]->PrintExpressionCode(code1);
+		//code.program_code << code1.code_bef_expr.str()
+		//		   << code1.code_expr.str();
+		//code.program_code << "->isAnswered_ = false;\n";
+		Unary2Expression * u2e =  questionExprVec_[i];
+		if (u2e -> exprOperatorType_ == oper_name && u2e -> type_ == QUESTION_TYPE) {
+			AbstractQuestion * q = u2e->symbolTableEntry_->question_;
+			code.program_code << q->questionName_ << "->isAnswered_ = false;\n";
+		} else if (u2e -> exprOperatorType_ == oper_arrderef /* && u2e -> type_ == QUESTION_ARR_TYPE */) {
+			AbstractQuestion * q = u2e->symbolTableEntry_->question_;
+			code.program_code << q->questionName_ << "_list.questionList[";
+			ExpressionCompiledCode code1;
+			u2e->operand_->PrintExpressionCode(code1);
+			code.program_code << code1.code_bef_expr.str()
+				<< code1.code_expr.str()
+				<< "]->isAnswered_ = false;\n";
+		} else {
+			code.program_code << "Internal compiler error - this should trigger a compilation failure, "
+				<< __LINE__ << ", " << __FILE__ << ", " << __PRETTY_FUNCTION__
+				<< endl;
+		}
+	}
+
+	code.program_code << "stopAtNextQuestion = false;\n"
+		<< "goto start_of_questions;\n"
+		<< endl;
+
 	if (next_) {
 		next_->GenerateCode(code);
 	}

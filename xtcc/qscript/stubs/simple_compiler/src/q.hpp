@@ -103,13 +103,12 @@ typedef union YYSTYPE
 	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 	struct FunctionParameter * v_list;
-
-
+	struct Unary2Expression * ue2expr;
 
 
 
 /* Line 2068 of yacc.c  */
-#line 113 "src/q.hpp"
+#line 112 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
