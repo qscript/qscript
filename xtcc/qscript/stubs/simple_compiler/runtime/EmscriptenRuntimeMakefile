@@ -1,10 +1,9 @@
 #CFLAGS= -g -Wall -Weffc++ -Wno-sign-compare 
 #CFLAGS= -g -Wunused-function --jcache
 CFLAGS= -Wunused-function 
-OPT_FLAGS = -O2
+OPT_FLAGS = -O2 --llvm-lto 1
 #CC = clang --analyze
 CC=emcc
-LIBS = -lncurses -lpanel
 SOURCE_DIR=cpp-emscripten
 
 SRC= $(SOURCE_DIR)/AbstractQuestionnaire.cpp \
@@ -63,7 +62,7 @@ vegetable-old-test.html: $(OBJS) $(BUILD_DIR)/vegetable-old.o $(BUILD_DIR)/quest
 #	$(CC) $(CFLAGS) $(OPT_FLAGS) -o $@ --shell-file shell-new-dom-callback.html --js-library $(SOURCE_DIR)/dom_manip_funcs.js $(OBJS) $(BUILD_DIR)/vegetable.o $(BUILD_DIR)/question_stdout_runtime.o -s EXPORTED_FUNCTIONS="['_called_from_the_dom','_main', '_callback_return_serial']"
 
 $(BUILD_DIR)/question_stdout_runtime.o: $(SOURCE_DIR)/question_stdout_runtime.cpp
-	$(CC) -o $@ $(CFLAGS) -c $< -s EXPORTED_FUNCTIONS="['_main']"
+	$(CC) -o $@ $(CFLAGS) $(OPT_FLAGS) -c $< -s EXPORTED_FUNCTIONS="['_main']"
 
 
 $(BUILD_DIR)/vegetable.o: $(SOURCE_DIR)/vegetable.cpp
@@ -80,7 +79,7 @@ test_2.js: $(OBJS) test_2.o
 	$(CC) $(CFLAGS) -o $@ $(OBJS) test_2.o 
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.cpp
-	$(CC) -o $@ $(CFLAGS) -c $<
+	$(CC) -o $@ $(CFLAGS) $(OPT_FLAGS) -c $<
 
 #test_2.o: test_2.C
 #	$(CC) $(CFLAGS)  -c $<

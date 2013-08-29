@@ -1,0 +1,20 @@
+clear_multiple_questions {
+
+	int32_t an_int_var = 0;
+
+q1 	"This is question 1"
+	sp int32_t (1-5);
+
+	int32_t i1 =0;
+	for (i1 = 0; i1 < 3; i1 = i1+1) {
+
+q2 		"Q2"
+		sp int32_t (6-10);
+
+	}
+
+	clear (q1, q2[0], q2[1], q2[2], "Testing clear statement");
+	// will give an error message as it should
+	//clear (an_int_var, q1, q2[0], q2[1], q2[2], "Testing clear statement");
+
+}

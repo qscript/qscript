@@ -19,7 +19,7 @@ print_to_question_area: function (question_text_ptr)
 
 print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 {
-	//my_log ("print_to_stub_area");
+	my_log ("Enter: print_to_stub_area");
 	//alert ("print_to_stub_area");
 	//alert("print_to_question_area: " + i );
 	//var v = document.getElementById("stubs_form_div");
@@ -89,10 +89,7 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 			//alert("cleared all childNodes of stubs_form_div");
 			*/
 			clear_prev_node_sub_child (stubs_form_div);
-
 			stubs_form_div.appendChild(doc_frag2);
-
-
 
 		} else {
 			var input_text = document.createElement("input");
@@ -122,12 +119,34 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 		});
 		*/
 
+		if (question_type != "nq" && no_mpn > 1) {
+			my_log ("(question_type != \"nq\" && no_mpn > 1): creating verbatim_file_handle");
+			var verbatim_response_path = "qscript/" +
+					global_survey_related_info.device.uuid +
+					"/project_name/interviewer_id/" +
+					//global_survey_related_info.questionName_ +
+					"q1_1" +
+					".project_name_interviewer_id_" +
+					global_survey_related_info.serial_no +
+					".dat";
+			my_log ("verbatim_response_path:" + verbatim_response_path);
+			if (fileGetDir) {
+				my_log("fileGetDir is present");
+			}
+			fileGetDir (verbatim_response_path, save_verbatim_data_file_handle,
+				    {create: true, exclusive: true},
+				    getFileErrorHandler,
+				    {create_verbatim_handler: true});
+		}
 	};
 
-
+	global_survey_related_info.no_mpn = no_mpn;
+	global_survey_related_info.question_type = question_type;
 	display_stubs (question_type, the_stub_data);
+
 	window.lang.run();
 
+	my_log ("Exit: print_to_stub_area");
 },
 
 
@@ -142,7 +161,7 @@ get_serial_no_from_dom: function (){
 
 save_qnre_data: function (survey_data_ptr)
 {
-	alert ("Enter: save_qnre_data ");
+	my_log ("Enter: save_qnre_data ");
 	var the_survey_data = Pointer_stringify (survey_data_ptr);
 	// Need to make the fail function the same global function for
 	// error handling of files: getFileErrorHandler
@@ -162,6 +181,7 @@ save_qnre_data: function (survey_data_ptr)
 	} else {
 		my_log ("global_current_survey_data_file not available from dom_manip_funcs.js");
 	}
+	my_log ("exit : save_qnre_data");
 },
 
 show_end_of_qnre_page: function() {

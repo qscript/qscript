@@ -15,7 +15,7 @@ print_to_question_area: function (question_text_ptr)
 
 print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 {
-	my_log ("print_to_stub_area");
+	//my_log ("print_to_stub_area");
 	//alert ("print_to_stub_area");
 	//alert("print_to_question_area: " + i );
 	//var v = document.getElementById("stubs_form_div");

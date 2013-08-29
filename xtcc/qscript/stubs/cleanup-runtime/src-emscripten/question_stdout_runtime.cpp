@@ -195,15 +195,18 @@ string DisplayQuestionTextView (const vector <string> & qno_and_qtxt)
 		cout << start_marker << endl;
 		cout << qno_and_qtxt[0] << "." << qno_and_qtxt[1];
 
-		ret_val << start_marker << endl;
-		ret_val << qno_and_qtxt[0] << "." << qno_and_qtxt[1];
+		// ret_val << start_marker << endl;
+		ret_val
+			<< "<h2>" << qno_and_qtxt[0]
+			<< "." << qno_and_qtxt[1]
+			<< "</h2>";
 		for (int i = 2; i < qno_and_qtxt.size(); ++i) {
 			cout <<  qno_and_qtxt[i].c_str();
 			ret_val << qno_and_qtxt[i] ;
 		}
 		cout << endl;
 
-		cout << end_marker << endl;
+		//cout << end_marker << endl;
 	}
 	cout << endl;
 	return ret_val.str();

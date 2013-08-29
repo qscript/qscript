@@ -92,7 +92,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 54 "src/q.ypp"
+#line 55 "src/q.ypp"
 
 	type_qualifier type_qual;
 	int32_t ival;
@@ -105,13 +105,12 @@ typedef union YYSTYPE
 	//class AbstractQuestion* ques;
 	struct CompoundStatement * c_stmt;
 	struct FunctionParameter * v_list;
-
-
+	struct Unary2Expression * ue2expr;
 
 
 
 /* Line 2068 of yacc.c  */
-#line 115 "src/q.hpp"
+#line 114 "src/q.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
