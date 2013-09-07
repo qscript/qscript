@@ -1985,6 +1985,7 @@ void ClearStatement::GenerateCode(StatementCompiledCode & code)
 	}
 
 	code.program_code << "stopAtNextQuestion = false;\n"
+		<< "error_messages_vec.push_back(\"" << errorMessage_ << "\");\n"
 		<< "goto start_of_questions;\n"
 		<< endl;
 

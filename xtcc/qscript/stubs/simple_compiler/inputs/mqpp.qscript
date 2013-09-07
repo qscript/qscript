@@ -7,6 +7,37 @@ stubs age =
 	"31 to 35" 4
 	"36 to 40" 5;
 
+	// test case for numeric range questions
+	page inv_profile {
+
+q4_1_1 		"Please provide us with a break-down of how you invest your savings"
+		: "Equity in Stock Market"
+		sp int32_t (1-100);
+
+q4_1_2 		"Please provide us with a break-down of how you invest your savings"
+		: "Fixed Deposits"
+		sp int32_t (1-100);
+
+q4_1_3 		"Please provide us with a break-down of how you invest your savings"
+		: "Government Bonds"
+		sp int32_t (1-100);
+
+q4_1_4 		"Please provide us with a break-down of how you invest your savings"
+		: "Pension Schemes"
+		sp int32_t (1-100);
+
+q4_1_5 		"Please provide us with a break-down of how you invest your savings"
+		: "Life Insurance Schemes"
+		sp int32_t (1-100);
+
+	}
+
+		int32_t sum_portfolio = q4_1_1 + q4_1_2 + q4_1_3 + q4_1_4 + q4_1_5;
+		if (sum_portfolio != 100) {
+			clear (q4_1_1 , q4_1_2 , q4_1_3 , q4_1_4 , q4_1_5, " Sum of invested percentages should add up to 100");
+		}
+
+
 page demogs {
 
 q1	 "Age"
@@ -21,7 +52,7 @@ q2 	"Gender"
 
 	/*
 	page {
-		q4	"dummy should throw and error - cannot nest pages"
+		q4	"dummy should throw an error - cannot nest pages"
 			sp int32_t (1-5);
 	}
 	*/
@@ -67,6 +98,7 @@ stubs agree_5 =
 				" Statement 18"
 				;
 
+		/*
 		int32_t i1 = 0;
 		for (i1 = 0; i1 < 18; i1 = i1 + 1) {
 
@@ -74,7 +106,7 @@ q4_no_page		"Please state your agreement with these statements" : veg_seg_att[i1
 			sp int32_t agree_5;
 
 		}
-
+		*/
 	page att_batt1 grid_size=5 {
 
 
@@ -136,5 +168,6 @@ q5_3		"Which of these brands would you associate with these statements"
 		mp(5) int32_t org_veg_brds;
 
 	}
+
 
 }

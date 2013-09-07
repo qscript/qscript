@@ -17,7 +17,7 @@ print_to_question_area: function (question_text_ptr)
 	//alert(v.innerHTML);
 },
 
-print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
+print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter, ptr_err_msg)
 {
 	my_log ("Enter: print_to_stub_area");
 	//alert ("print_to_stub_area");
@@ -26,6 +26,8 @@ print_to_stub_area: function (ptr_question_type, no_mpn, ptr_stub_info, counter)
 	var question_type = Pointer_stringify (ptr_question_type);
 	var stubs_form_div = document.getElementById("stubs_form_div");
 	var the_stub_data = Pointer_stringify (ptr_stub_info);
+	var err_msg = Pointer_stringify (ptr_err_msg);
+	my_log ("err_msg: " + err_msg);
 
 	var clear_prev_node_sub_child = function (node) {
 		var n_child_nodes = node.childNodes.length;

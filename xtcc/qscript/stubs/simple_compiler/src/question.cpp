@@ -389,7 +389,11 @@ void AbstractQuestion::PrintEvalAndNavigateCode(ostringstream & program_code)
 			<< "\t ret_vec.push_back(" << questionName_ << ");" << endl
 			<< "\t last_question_visited.clear();" << endl
 			<< "\t last_question_visited.push_back(" << questionName_ << ");" << endl
-			<< "\t return ret_vec;" << endl
+			<< "\t EvalReturnValue ev_ret_val; " << endl
+			<< "\t ev_ret_val.qVec_ = ret_vec; " << endl 
+			<< "\t ev_ret_val.errMessageVec_ = error_messages_vec; " << endl 
+			<< "\t //return ret_vec;" << endl
+			<< "\t return ev_ret_val;" << endl
 			<< "\t}\n";
 	}
 

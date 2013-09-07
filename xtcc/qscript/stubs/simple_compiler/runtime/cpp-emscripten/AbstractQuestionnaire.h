@@ -29,6 +29,7 @@
 #include "base_text.h"
 #include "user_navigation.h"
 #include "qscript_lib.h"
+#include "EvalReturnValue.h"
 
 
 //#include "AsciiFlatFileQuestionDiskMap.h"
@@ -59,7 +60,7 @@ struct AbstractQuestionnaire
 	//void print_summary_axis (std::vector<qtm_data_file_ns::QtmDataDiskMap*> & v, std::fstream & qtm_qax_file);
 
 	//virtual void compute_flat_file_map_and_init() = 0;
-	virtual vector<AbstractRuntimeQuestion *> eval2 (UserNavigation p_navigation_mode,
+	virtual /* vector<AbstractRuntimeQuestion *> */ EvalReturnValue eval2 (UserNavigation p_navigation_mode,
 				const vector<AbstractRuntimeQuestion *> & p_last_question_visited,
 				AbstractRuntimeQuestion * p_jump_to_index) = 0;
 	void write_data_to_disk(const std::vector<AbstractRuntimeQuestion*>& q_vec

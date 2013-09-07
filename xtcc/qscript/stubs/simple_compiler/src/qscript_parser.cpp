@@ -416,6 +416,7 @@ void print_header(FILE* script, bool ncurses_flag)
 	if (program_options_ns::emscripten_flag) {
 		fprintf(script, "#include \"dom_manip_funcs.h\"\n");
 	}
+	fprintf (script, "#include \"EvalReturnValue.h\"\n");
 
 	// Thanks to the new runtime, this is no longer necessary
 	//if(config_file_parser::PLATFORM == "LINUX"){
@@ -2740,7 +2741,7 @@ void PrintComputeFlatFileMap(StatementCompiledCode & compute_flat_map_code)
 
 void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool ncurses_flag)
 {
-	fprintf(script, "vector<AbstractRuntimeQuestion *> eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,\n"
+	fprintf(script, "/* vector<AbstractRuntimeQuestion *> */ EvalReturnValue eval2 ( /*AbstractRuntimeQuestion * p_last_question_answered,\n"
 			"\t\t AbstractRuntimeQuestion * p_last_question_visited,*/\n"
 			"\t\t UserNavigation p_navigation_mode, const vector<AbstractRuntimeQuestion *> & p_last_question_visited, AbstractRuntimeQuestion * p_jump_to_index)\n{\n");
 
@@ -2751,6 +2752,8 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t/*\n");
 	fprintf(script, "%s\n", file_exists_check_code());
 	fprintf(script, "\t*/\n");
+	fprintf(script, "\tvector<string> error_messages_vec;\n");
+	fprintf(script, "\terror_messages_vec.clear();\n");
 
 	fprintf(script, "\tstart_of_questions:\n");
 	fprintf(script, "\tif(back_jump == true){\n");
@@ -2760,97 +2763,8 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "%s\n", program_code.str().c_str());
 
 
-	// nxd: 19-feb-2013 - commented out today
-#if 0
-	fprintf(script, "\t/*\n");
-	fprintf(script, "\tif (write_data_file_flag) {\n\n");
-	fprintf(script, "\t\t cout << \"write_data_file_flag is set\\n\";\n");
-	fprintf(script, "\t\twrite_ascii_data_to_disk();\n");
-	fprintf(script, "\t} else if (write_qtm_data_file_flag) {\n");
-	fprintf(script, "\t\t cout << \"write_qtm_data_file_flag is set\\n\";\n");
-	fprintf(script, "\t\twrite_qtm_data_to_disk();\n");
-	fprintf(script, "\t} else if (write_xtcc_data_file_flag) {\n");
-	fprintf(script, "\t\t cout << \"write_xtcc_data_file_flag is set\\n\";\n");
-	fprintf(script, "\t\t write_xtcc_data_to_disk();\n");
-	fprintf(script, "\t} else {\n");
-	fprintf(script, "\tchar end_of_question_navigation;\n");
-	fprintf(script, "label_end_of_qnre_navigation:\n");
-	if(ncurses_flag) {
-		fprintf(script, "\twclear(data_entry_window);\n");
-		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1,\"End of Questionnaire: ((s)ave, (p)revious question, question (j)ump list)\"); \n");
-		fprintf(script, "\tmvwscanw(data_entry_window, 1, 75, \"%%c\", & end_of_question_navigation);\n");
-	} else {
-		fprintf(script, "\tcout << \"End of Questionnaire: (s to save, p = previous question, j = question jump list, q = quit without saving - all newly entered data will be lost)\" << endl;\n");
-		fprintf(script, "\tcin >> end_of_question_navigation;\n");
-	}
-	fprintf(script, "\tif(end_of_question_navigation == 's'){\n");
-	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
-	fprintf(script, "\t} else if (end_of_question_navigation == 'p'){\n");
-	fprintf(script, "\t\tAbstractRuntimeQuestion * target_question = ComputePreviousQuestion(last_question_answered);\n");
-	fprintf(script, "\t\tif(target_question->type_ == QUESTION_ARR_TYPE)\n");
-	fprintf(script,	"\t\t\t{\n");
-	fprintf(script, "\t\t\t\tjumpToIndex = ComputeJumpToIndex(target_question);\n");
-	fprintf(script, "\t\t\t}\n");
-	fprintf(script,	"\t\tjumpToQuestion = target_question->questionName_;\n");
-	fprintf(script, "\t\t//if (data_entry_window == 0) cout << \"target question: \" << jumpToQuestion;\n");
-	fprintf(script, "\t\tback_jump = true;\n");
-	fprintf(script, "\t\tuser_navigation = NOT_SET;\n");
-	fprintf(script, "\t\tgoto start_of_questions;\n");
-	fprintf(script, "\t}");
-	fprintf(script, "\telse if (end_of_question_navigation == 'j') {\n"
-			"\t\tDisplayActiveQuestions();\n"
-			"\t\tGetUserResponse(jumpToQuestion, jumpToIndex);\n"
-			"\t\tuser_navigation = NOT_SET;\n"
-			"\t\tgoto start_of_questions;\n}");
-	fprintf(script, "\telse if (end_of_question_navigation == 'q') {\n"
-		 	"\t\treset_questionnaire();\n"
-			"}");
-	fprintf(script, " else {\n"
-			"\t\tgoto label_end_of_qnre_navigation;\n"
-			"\t}\n"
-			);
-	if(program_options_ns::ncurses_flag) {
-		fprintf(script, "\twclear(data_entry_window);\n");
-		fprintf(script, "\tmvwprintw(data_entry_window, 1, 1, \"Enter Serial No (0) to exit: \"); \n");
-		fprintf(script, "\tmvwscanw(data_entry_window, 1, 40, \"%%d\", & ser_no);\n");
-		fprintf(script, "\t}\n");
-		fprintf(script, "\t*/\n");
-		fprintf(script, "\t// reset_questionnaire();\n"
-				"\t\treturn 0;\n"
-			);
-	} else if(program_options_ns::microhttpd_flag) {
-		// we should post the THANK YOU PAGE here
-		// or in the function calling this - when this func returns 0
-		fprintf(script, "\t}\n");
-		fprintf(script, "\t*/\n");
-		fprintf(script, "\t//reset_questionnaire();\n"
-				"\t\treturn 0;\n"
-			);
-	} else if(program_options_ns::wt_flag) {
-		// we should post the THANK YOU PAGE here
-		// or in the function calling this - when this func returns 0
-		fprintf(script, "\t}\n");
-		fprintf(script, "\t*/\n");
-		fprintf(script, "\t//reset_questionnaire();\n"
-				"\t\treturn 0;\n"
-			);
-	} else {
-		fprintf(script,	"\tcout <<  \"Enter Serial No (0) to exit: \";cout.flush();\n");
-		fprintf(script, "\tcin >> ser_no;cin.get(newl);\n");
-		fprintf(script, "\t}\n");
-		fprintf(script, "\t*/\n\t// reset_questionnaire();\n");
-		fprintf(script, "\treturn 0;\n");
-	}
-#endif /* 0 */
-	// fprintf(script, "\n\t} /* close while */\n");
-	//
-
-	/*
-	 * The code below will have to be put at the correct place -
-	 * For now, I am commenting it ou
-	 */
-
-	fprintf(script, "\t{vector<AbstractRuntimeQuestion*> empty_vec; return empty_vec;}\n");
+	//fprintf(script, "\t{ vector<AbstractRuntimeQuestion*> empty_vec; return empty_vec;}\n");
+	fprintf(script, "\t{ EvalReturnValue ev_ret_val; return ev_ret_val;}\n");
 	fprintf(script, "} /* close eval */\n");
 
 }

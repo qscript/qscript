@@ -54,7 +54,8 @@ struct TheQuestionnaire;
 void stdout_eval (AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire,
 	void (*callback_ui_input)
 		(UserInput p_user_input, AbstractQuestion * q, struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		int nest_level
+		int nest_level,
+	const vector<string> & error_messages_vec
 		);
 void parse_input_data(string input_string, vector<int> * data_ptr, int & success);
 void GetUserInput (

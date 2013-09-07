@@ -1,0 +1,16 @@
+new_eval_ret_val {
+
+q1 	"Test New return value for eval"
+	sp int32_t (1-100);
+
+	if (q1 == 2) {
+		clear (q1, "throwing error on value 2: testing if error message appears on screen");
+	}
+
+
+end 	"End"
+	sp int32_t (1-100);
+
+
+
+}

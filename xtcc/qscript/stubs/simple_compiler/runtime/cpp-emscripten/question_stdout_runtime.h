@@ -64,7 +64,8 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec, struct TheQu
 	void (*callback_ui_input)
 		(UserInput p_user_input, const vector<AbstractRuntimeQuestion *> & q_vec,
 		 struct TheQuestionnaire * theQuestionnaire, int nest_level),
-		 int nest_level
+		 int nest_level,
+		 const vector<string> & error_messages_vec
 		);
 
 void question_eval_loop2 (

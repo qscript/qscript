@@ -481,7 +481,8 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	void (*callback_ui_input)
 		(UserInput p_user_input, const vector <AbstractRuntimeQuestion *> & q_vec,
 		struct TheQuestionnaire * theQuestionnaire, int nest_level),
-	int nest_level
+	int nest_level,
+	const vector<string> & p_error_messages_vec
 	)
 {
 	//cout << __PRETTY_FUNCTION__ << " nest_level : " << nest_level << endl;
@@ -508,9 +509,13 @@ void stdout_eval (const vector <AbstractRuntimeQuestion *> & q_vec,
 	} else {
 		question_type = "rq";
 	}
+	string err_msg;
+	for (int i = 0; i < p_error_messages_vec.size(); ++i) {
+		err_msg += p_error_messages_vec[i];
+	}
 	print_to_stub_area (question_type.c_str(),
 		q->no_mpn,
-		s.str().c_str(), ++counter);
+		s.str().c_str(), ++counter, err_msg.c_str());
 
 	void set_last_visited (struct TheQuestionnaire * qnre, AbstractRuntimeQuestion * last_question_visited);
 	// I couldnt be bothered to make this a virtual function

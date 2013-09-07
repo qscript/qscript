@@ -188,9 +188,11 @@ void question_eval_loop2 (
 		}
 	} // else {
 	// should reach here - end of :
-		vector<AbstractRuntimeQuestion *> q_vec =
+		//vector<AbstractRuntimeQuestion *> q_vec =
+		EvalReturnValue eval_ret_val =
 			theQuestionnaire->eval2 (
 			NAVIGATE_NEXT, last_question_visited, jump_to_question);
+		vector <AbstractRuntimeQuestion*> & q_vec = eval_ret_val.qVec_;
 		if (q_vec.size() == 0) {
 			printf(" eval2 has returned NULL => End of qnre();\n");
 			show_end_of_qnre_page();
@@ -215,7 +217,7 @@ void question_eval_loop2 (
 						n_left);
 			*/
 			//save_qnre_data (buffer);
-			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level + 1);
+			stdout_eval (q_vec, theQuestionnaire, callback_ui_input, nest_level + 1, eval_ret_val.errMessageVec_);
 		}
 	//}
 }
