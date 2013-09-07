@@ -1,42 +1,42 @@
 
 vegetable {
 		int32_t i1;
- stubs yn=	"Yes" 1
+ stubs yn=	"Yes" 1,
 		"No" 2;
 
 q1 	"Do you Eat Vegetables?"
 	sp int32_t yn;
 
-q2_1		"Here is a Video of a few Vegetables. Please have a look at these and let me know which are you aware of?"
-		video	
-		"/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4"
-		//"https://www.youtube.com/watch?v=VHnuFmrQtMU"
-		//"/home/nxd/Progs/xtcc-wq2/xtcc/qscript/stubs/simple_compiler/inputs/Count-Duckula-Who-might-you-be.mp4"
-		;
+//q2_1		"Here is a Video of a few Vegetables. Please have a look at these and let me know which are you aware of?"
+//		video	
+//		"/home/nxd/Progs/wx/wx-media-ctrl/video-2012-04-01-13-36-59.mp4"
+//		//"https://www.youtube.com/watch?v=VHnuFmrQtMU"
+//		//"/home/nxd/Progs/xtcc-wq2/xtcc/qscript/stubs/simple_compiler/inputs/Count-Duckula-Who-might-you-be.mp4"
+//		;
 
 q1_1 	"Why do you Eat Vegetables?"
 	mp(10) int32_t (1-500);
 
-stubs agree_5 = 
-	"agree strongly" 5
-	"agree somewhat" 4
-	"Neutral" 3
-	"Disagree " 2
+stubs agree_5 =
+	"agree strongly" 5,
+	"agree somewhat" 4,
+	"Neutral" 3,
+	"Disagree " 2,
 	"Disagree strongly" 1;	
 
  stubs veg=	
- 		"Tomates" 1
-		"Potatoes" 2
-		"Capsicum" 3
-		"Brinjal/Egg plant" 4
-		"Okra/Lady Finger" 5
-		"Pumpkin" 6
-		"French Beans" 7
-		"Snow Peas" 8
-		"Artichokes" 9
-		"Cabbage" 10
-		"Cauliflower" 11
-		"Broccoli" 12
+ 		"Tomates" 1 "vegetable-assets/tomato.jpeg",
+		"Potatoes" 2 "vegetable-assets/potato.jpeg",
+		"Capsicum" 3 "vegetable-assets/capsicum.jpeg",
+		"Brinjal/Egg plant" 4 "vegetable-assets/egg-plant.jpeg",
+		"Okra/Lady Finger" 5 "vegetable-assets/lady-finger.jpeg",
+		"Pumpkin" 6 "vegetable-assets/pumpkin.jpeg",
+		"French Beans" 7,
+		"Snow Peas" 8,
+		"Artichokes" 9,
+		"Cabbage" 10 "vegetable-assets/cabbage.jpeg",
+		"Cauliflower" 11 "vegetable-assets/cauliflower.jpeg",
+		"Broccoli" 12,
 		"Don't Know" 99
 		;
 	setall (veg);
@@ -102,8 +102,8 @@ q6			"Please state your agreement with these statements" : veg_seg_att[i1]
 			sp int32_t agree_5;
 		}
 
-stubs 	gender = 
-	"Male" 1
+stubs 	gender =
+	"Male" 1,
 	"Female" 2
 	;
 

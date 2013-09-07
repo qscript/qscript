@@ -27,6 +27,7 @@
 #include <vector>
 #include <dirent.h>
 #include <signal.h>
+#include <Wt/WImage>
 
 #include "question_gtk2_runtime.h"
 #include "question.h"
@@ -1091,79 +1092,21 @@ void QuestionnaireApplication::PrepareMultiCodedStubDisplay (NamedStubQuestion *
 	for (int i=0; i<vec.size(); ++i) {
 		stringstream named_range_key;
 		named_range_key << nq->nr_ptr->name << "_" << i;
-#if 0
-		if (/*q->no_mpn==1 && */ vec[i].mask) {
-			//WRadioButton * wt_rb = new WRadioButton( vec[i].stub_text, wt_cb_rb_container_);
-			WRadioButton * wt_rb = new WRadioButton(WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
-			wt_rb_container_->addButton(wt_rb, vec[i].code);
-			new WBreak(wt_cb_rb_container_);
-			vec_rb.push_back(wt_rb);
-		}
-		else
-#endif /* 0 */
-		if (/*q->no_mpn>1 && */ vec[i].mask)
-		{
+		if (/*q->no_mpn>1 && */ vec[i].mask) {
 			//WCheckBox * wt_cb = new WCheckBox ( vec[i].stub_text, wt_cb_rb_container_);
 			WCheckBox * wt_cb = new WCheckBox (WString::tr(named_range_key.str().c_str()), wt_cb_rb_container_);
 			wt_cb->setInline(false);
 			wt_cb->setStyleClass("qscript-check-box");
 			vec_cb.push_back(wt_cb);
-			cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
+			//cout << " adding code: " << vec[i].code << " to map_cb_code_index" ;
 			map_cb_code_index[vec_cb.size()-1] = vec[i].code;
+			
+			if (vec[i].url_image.length() > 0) {
+				cout << "Has an url_image: " << vec[i].url_image << endl;
+				Wt::WImage *img = new Wt::WImage (vec[i].url_image, wt_cb_rb_container_);
+			}
 		}
 	}
-
-	/*
-	static const unsigned int DEFAULT_N_MAJOR_DIM = 2;
-	unsigned long nmajorDim = DEFAULT_N_MAJOR_DIM;
-	wxString *items = new wxString[count];
-
-	rbQnreCodeMap_.clear();
-	int actual_count = 0;
-	for ( size_t i = 0; i < count; ++i ) {
-		if (vec[i].mask) {
-			stringstream s1;
-			s1 << vec[i].code << ": " << vec[i].stub_text;
-			//items[i] = wxString::FromUTF8(vec[i].stub_text.c_str());
-			items[actual_count] = wxString::FromUTF8 (s1.str().c_str());
-			rbQnreCodeMap_[actual_count] = vec[i].code;
-			//items[i] = wxString::Format (_T("%d: %s"),
-			//		vec[i].stub_text.c_str(),
-			//		vec[i].code);
-			++actual_count;
-		}
-	}
-
-
-	int flags = 0;
-	m_pListBox = new wxCheckListBox
-		(
-		 panel,               // parent
-		 MultiAnswerCheckListBox,       // control id
-		 wxDefaultPosition, //wxPoint(10, 10),       // listbox poistion
-		 //wxDefaultSize,
-		 wxSize(500, 350),      // listbox size
-		 actual_count, // WXSIZEOF(aszChoices),  // number of strings
-		 items, //astrChoices,           // array of strings
-		 flags
-		);
-
-	delete [] items;
-
-    // set grey background for every second entry
-    //for ( ui = 0; ui < WXSIZEOF(aszChoices); ui += 2 ) {
-    //    AdjustColour(ui);
-    //}
-
-	//m_pListBox->Check(2);
-	//m_pListBox->Select(3);
-	//check_box_sizer->Add (rboxWindow_);
-	check_box_sizer->Add (m_pListBox);
-	//stubsRowSizer_->Add(rboxWindow_, 1, wxGROW);
-	fgs->Layout();
-	panel_sizer->Layout();
-	*/
-
 }
 
 

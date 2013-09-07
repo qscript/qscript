@@ -30,7 +30,10 @@ void named_range::GenerateCode(StatementCompiledCode & code)
 		code.quest_defns_init_code
 			<< qscript_parser::temp_name_generator.GetCurrentName()
 			<< ".push_back( stub_pair(\"" << stubs[i].stub_text
-			<< "\", " << stubs[i].code << "));"
+			<< "\", " << stubs[i].code
+			<< ", false" 
+			<< ", \"" << stubs[i].url_image << "\"" 
+			<< "));"
 			<< endl;
 	}
 

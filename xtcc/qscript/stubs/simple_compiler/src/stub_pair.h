@@ -16,15 +16,22 @@ struct	stub_pair
 	int32_t code;
 	bool mask;
 	bool is_mutex;
-	stub_pair():stub_text(""), code(-1), mask(false), is_mutex(false) {}
+	string url_image;
+	stub_pair()
+		: stub_text(""), code(-1), mask(false), is_mutex(false)
+	{ }
 	stub_pair(string l_txt, int32_t l_code)
 		: stub_text(l_txt), code(l_code), mask(true),
-		  is_mutex(false)
-	{}
+		  is_mutex(false), url_image()
+	{ }
 	stub_pair(string l_txt, int32_t l_code, bool p_mutex)
 		: stub_text(l_txt), code(l_code), mask(true),
-		  is_mutex(p_mutex)
-	{}
+		  is_mutex(p_mutex), url_image()
+	{ }
+	stub_pair(string l_txt, int32_t l_code, bool p_mutex, string p_image_url)
+		: stub_text(l_txt), code(l_code), mask(true),
+		  is_mutex(p_mutex), url_image (p_image_url)
+	{ }
 	/*
 
 	stub_pair(const stub_pair & p1) 
