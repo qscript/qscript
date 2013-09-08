@@ -75,6 +75,8 @@
 %token SINGLE_CODED
 %token MP
 %token VIDEO
+%token AUDIO
+%token IMAGE
 %token <dt> VOID_T
 %token <dt> INT8_T
 %token <dt> INT16_T
@@ -888,6 +890,12 @@ qtype: SINGLE_CODED {
 	}
 	| VIDEO {
 	       qscript_parser::q_type = video;
+	}
+	| IMAGE {
+	       qscript_parser::q_type = image;
+	}
+	| AUDIO {
+	       qscript_parser::q_type = audio;
 	}
 	;
 

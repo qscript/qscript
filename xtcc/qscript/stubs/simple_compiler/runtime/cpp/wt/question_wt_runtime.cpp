@@ -1060,9 +1060,16 @@ void stdout_eval (AbstractRuntimeQuestion * q, struct TheQuestionnaire * theQues
 	ClearPreviousView ();
 	vector <string> qno_and_qtxt = PrepareQuestionText (q);
 	DisplayQuestionTextView (qno_and_qtxt);
-	PrepareStubs (q);
-	DisplayStubs (q);
-	DisplayCurrentAnswers (q);
+
+	cout << "About to test if MEDIA or RESPONSE Question" << endl;
+	if (q->q_type == spn || q->q_type == mpn) {
+		PrepareStubs (q);
+		DisplayStubs (q);
+		DisplayCurrentAnswers (q);
+	} else {
+		cout << "MEDIA Question" << endl;
+	}
+	cout << "reached here " << endl;
 	//GetUserInput (callback_ui_input, q, theQuestionnaire);
 	QuestionnaireApplication * qapp_ptr =  static_cast<QuestionnaireApplication*> (WApplication::instance());
 	// nxd implement: wxGUI->set_callback_ui_input (callback_ui_input);
@@ -1235,8 +1242,32 @@ void QuestionnaireApplication::DisplayQuestionTextView (const vector <string> & 
 	wt_questionNo_->setStyleClass("qscript-qno");
 }
 
+
+void QuestionnaireApplication::DisplayVideo (AbstractRuntimeQuestion * q)
+{
+	cout << __PRETTY_FUNCTION__;
+
+}
+
+void QuestionnaireApplication::DisplayAudio (AbstractRuntimeQuestion * q)
+{
+	cout << __PRETTY_FUNCTION__;
+
+}
+
+void QuestionnaireApplication::DisplayImage (AbstractRuntimeQuestion * q, WContainerWidget * parent)
+{
+	cout << __PRETTY_FUNCTION__ << ": image name: ";
+	if (VideoQuestion * vq = dynamic_cast <VideoQuestion*> (q)) {
+		Wt::WImage *img = new Wt::WImage (vq->file_path, parent);
+		cout << vq->file_path ;
+	}
+	cout << endl;
+}
+
 void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q )
 {
+	cout << __PRETTY_FUNCTION__ << endl;
 	WContainerWidget * new_form = new WContainerWidget();
 	vec_rb.clear();			 // memory leak introduced here? no it seems
 	vec_cb.clear();			 // memory leak introduced here? no it seems
@@ -1247,14 +1278,23 @@ void QuestionnaireApplication::ConstructQuestionForm( AbstractRuntimeQuestion *q
 	new_form->addWidget(wt_questionNo_);
 	new_form->addWidget(wt_questionText_);
 	// Hack to Display Radio Buttons
-	if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
-		DisplayStubs (q);
-		wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
-		new_form->addWidget(wt_cb_rb_container_);
-	} else {
-		le_data_ = new WLineEdit();
-		le_data_->setStyleClass("qscript-open-end-textbox");
-		new_form->addWidget(le_data_);
+	if (q->q_type == spn || q->q_type == mpn) {
+		if (NamedStubQuestion * nq = dynamic_cast<NamedStubQuestion*>(q)) {
+			DisplayStubs (q);
+			wt_cb_rb_container_->setStyleClass("qscript-rb-cb-container");
+			new_form->addWidget(wt_cb_rb_container_);
+		} else {
+			le_data_ = new WLineEdit();
+			le_data_->setStyleClass("qscript-open-end-textbox");
+			new_form->addWidget(le_data_);
+		}
+	} else if (q->q_type == video) {
+		DisplayVideo (q);
+	} else if (q->q_type == audio) {
+		DisplayAudio (q);
+	} else if (q->q_type == image) {
+		DisplayImage (q, new_form);
+		cout << "case image question" << endl;
 	}
 	this_users_session -> ptr_last_question_visited = q;
 	WPushButton *b = new WPushButton("Next");

@@ -3297,7 +3297,18 @@ void VideoQuestion:: GenerateCodeSingleQuestion(StatementCompiledCode &code, boo
 		<< ((type_ == QUESTION_TYPE) ? "QUESTION_TYPE, " : "QUESTION_ARR_TYPE, " )
 		<< lineNo_ << ","
 		<< " string( \"" << questionName_ << "\")"
-		<< ", text_expr_vec"
+		<< ", text_expr_vec";
+
+	if (q_type == video) {
+		quest_decl << ", video" ;
+	} else if (q_type == audio) {
+		quest_decl << ", audio" ;
+	} else if (q_type == image) {
+		quest_decl << ", image" ;
+	} else {
+		quest_decl << " , trigger syntax error - unhanled type";
+	}
+	quest_decl
 		<< ", QuestionAttributes(false, false)"
 		;
 

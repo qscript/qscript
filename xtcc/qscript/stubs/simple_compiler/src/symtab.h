@@ -17,6 +17,7 @@
 #include <cstring>
 #include "datatype.h"
 #include "active_var_info.h"
+#include "question_type.h"
 //#include <sstream>
 
 //using std::stringstream;
@@ -26,10 +27,10 @@
 		NO_QUAL, // used to mark that nothing was specified
 		CONST_QUAL
 	};
-	//! QuestionType enum: A question can be single code,
-	//! multicoded or numeric (which I havent yet added to the
-	//! grammar)
-	enum QuestionType { spn, mpn, video };
+	////! QuestionType enum: A question can be single code,
+	////! multicoded or numeric (which I havent yet added to the
+	////! grammar)
+	//enum QuestionType { spn, mpn, video, image, audio };
 	//! This helper function will evaluate 2 types for  compatibility.
 	//!For example an INT8_TYPE and a INT8_ARR_TYPE are not compatible.
 	//! This is used to determine if a type promotion in an expression is

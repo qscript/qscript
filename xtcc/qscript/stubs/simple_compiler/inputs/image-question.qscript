@@ -1,0 +1,10 @@
+image_question {
+
+q2_1		"Here is a Video of a few Vegetables. Please have a look at these and let me know which are you aware of?"
+		image	
+		//"/home/nxd/Progs/qscript-media/xtcc/qscript/stubs/simple_compiler/inputs/vegetable-assets/egg-plant.jpeg";
+		"./vegetable-assets/egg-plant.jpeg";
+
+
+}
+

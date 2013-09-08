@@ -118,6 +118,9 @@ public:
 	void handleRBDataInput (int nest_level);
 	void handleCBDataInput (int nest_level);
 	void handleRangeQuestionData (int nest_level);
+	void DisplayVideo (AbstractRuntimeQuestion * q);
+	void DisplayAudio (AbstractRuntimeQuestion * q);
+	void DisplayImage (AbstractRuntimeQuestion * q, WContainerWidget * parent);
 
 };
 

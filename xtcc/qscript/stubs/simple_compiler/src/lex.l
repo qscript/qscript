@@ -300,6 +300,20 @@ video		{
 		return VIDEO;
 	}
 
+image		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return IMAGE;
+	}
+
+audio		{
+		if (qscript_parser::show_lex_error_context)
+			qscript_parser::lex_location.AddToCurrentDisplayLine(yytext);
+		qscript_parser::lex_location.IncrementColumn(yyleng);
+		return AUDIO;
+	}
+
 const 		{
 		qscript_parser::lex_location.IncrementColumn(yyleng);
 		return CONST;

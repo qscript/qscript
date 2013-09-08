@@ -597,7 +597,7 @@ public:
 	VideoQuestion(
 			DataType this_stmt_type, int32_t line_number, string l_name
 			, vector<TextExpression*> text_expr_vec
-			//, QuestionType l_q_type
+			, QuestionType l_q_type
 			//, CompoundStatement * l_enclosing_scope
 			//, vector<ActiveVariableInfo* > l_av_info
 			, QuestionAttributes  l_question_attributes
