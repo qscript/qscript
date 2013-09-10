@@ -2663,6 +2663,11 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 		fprintf (script, "\t\t} else {\n");
 		fprintf (script, "\t\t\t lab_generate_another_serial:;\n");
 		fprintf (script, "\t\t\t ser_no = rand();\n");
+		// Done to restrict serial size to 7 digits
+		// when trying to run 1 million records rdg, 
+		// comment out the line below 
+		// This needs to be done at another place in the code below
+		fprintf (script, "\t ser_no = ser_no %% 10000000;\n");
 		fprintf (script, "\t\t\t if (rnd_serno_set.find(ser_no)==rnd_serno_set.end()) { rnd_serno_set.insert(ser_no); } else { goto lab_generate_another_serial; };\n");
 		fprintf (script, "\t\t}");
 		fprintf (script, "\t}\n");
@@ -2716,6 +2721,11 @@ void print_eval_questionnaire (FILE* script, ostringstream & program_code, bool 
 	fprintf(script, "\t\twrite_data_to_disk(question_list, jno, ser_no);\n");
 	fprintf (script, "\t\t\t lab_generate_another_serial1:;\n");
 	fprintf (script, "\t ser_no = rand();\n");
+		// Done to restrict serial size to 7 digits
+		// when trying to run 1 million records rdg, 
+		// comment out the line below 
+		// This needs to be done at another place in the code below
+	fprintf (script, "\t ser_no = ser_no %% 10000000;\n");
 	fprintf (script, "\t\t\t if (rnd_serno_set.find(ser_no)==rnd_serno_set.end()) { rnd_serno_set.insert(ser_no); } else { goto lab_generate_another_serial1; };\n");
 	fprintf (script, "		const int sample_size = 2000;\n");
 	fprintf (script, "		static int prev_time_in_secs = time(0);\n");
